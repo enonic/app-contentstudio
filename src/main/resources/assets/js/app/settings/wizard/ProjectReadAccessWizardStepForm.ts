@@ -58,6 +58,7 @@ export class ProjectReadAccessWizardStepForm
 
             if (localeToSelect) {
                 this.localeCombobox.select(localeToSelect, false, true);
+                this.localeCombobox.resetBaseValues();
             }
 
             return Q(null);
@@ -102,6 +103,7 @@ export class ProjectReadAccessWizardStepForm
         return new GetPrincipalsByKeysRequest(readAccess.getPrincipals()).sendAndParse().then((principals: Principal[]) => {
             principals.forEach((principal: Principal) => {
                 this.principalsCombobox.select(principal, false, true);
+                this.principalsCombobox.resetBaseValues();
             });
 
             return Q(null);

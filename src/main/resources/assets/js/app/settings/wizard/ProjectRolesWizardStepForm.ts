@@ -54,6 +54,7 @@ export class ProjectRolesWizardStepForm extends SettingDataItemWizardStepForm<Pr
             const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(item.getPermissions(), principals);
             itemsToSelect.forEach((selectedItem: ProjectAccessControlEntry) => {
                 this.accessCombobox.select(selectedItem, false, true);
+                this.accessCombobox.resetBaseValues();
             });
 
             return Q(null);
