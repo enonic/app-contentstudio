@@ -1,9 +1,9 @@
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ProjectPermissions} from '../data/project/ProjectPermissions';
 import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
-import {TaskWaitResourceRequest} from 'lib-admin-ui/rest/TaskWaitResourceRequest';
+import {TaskResourceRequest} from 'lib-admin-ui/rest/TaskResourceRequest';
 
-export class UpdateProjectPermissionsRequest extends TaskWaitResourceRequest<void> {
+export class UpdateProjectPermissionsRequest extends TaskResourceRequest<void> {
 
     private name: string;
 

@@ -1,4 +1,4 @@
-import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
+import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
 import * as Q from 'q';
 import {ProjectViewItem} from '../view/ProjectViewItem';
 import {RadioGroup} from 'lib-admin-ui/ui/RadioGroup';
@@ -19,6 +19,7 @@ import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 import {LocaleComboBox} from 'lib-admin-ui/ui/locale/LocaleComboBox';
 import {Locale} from 'lib-admin-ui/locale/Locale';
 import {LocaleLoader} from 'lib-admin-ui/locale/LocaleLoader';
+import {ProjectFormItemBuilder} from './ProjectFormItem';
 
 export class ProjectReadAccessWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {
@@ -30,10 +31,6 @@ export class ProjectReadAccessWizardStepForm
     private principalsCombobox?: PrincipalComboBox;
 
     private localeCombobox: LocaleComboBox;
-
-    constructor() {
-        super();
-    }
 
     layout(item: ProjectViewItem): Q.Promise<void> {
         if (!item) {
@@ -167,7 +164,7 @@ export class ProjectReadAccessWizardStepForm
         return new ProjectReadAccess(ProjectReadAccessType.PRIVATE);
     }
 
-    updateFilteredPrincipalsByPermissions(permissions: ProjectPermissions) {
+    private updateFilteredPrincipalsByPermissions(permissions: ProjectPermissions) {
         this.filterPrincipals([
             ...permissions.getContributors(),
             ...permissions.getAuthors(),
@@ -194,11 +191,12 @@ export class ProjectReadAccessWizardStepForm
     private createReadAccessRadioGroupFormItem(): FormItem {
         this.readAccessRadioGroup = new RadioGroup('read-access-radio-group');
 
-        this.readAccessRadioGroup.addOption('private', i18n('settings.items.wizard.readaccess.private'));
         this.readAccessRadioGroup.addOption('public', i18n('settings.items.wizard.readaccess.public'));
+        this.readAccessRadioGroup.addOption('private', i18n('settings.items.wizard.readaccess.private'));
         this.readAccessRadioGroup.addOption('custom', i18n('settings.items.wizard.readaccess.custom'));
 
-        this.readAccessRadioGroupFormItem = new FormItemBuilder(this.readAccessRadioGroup)
+        this.readAccessRadioGroupFormItem = new ProjectFormItemBuilder(this.readAccessRadioGroup)
+            .setHelpText(i18n('settings.projects.access.helptext'))
             .setLabel(i18n('settings.items.wizard.readaccess.label'))
             .setValidator(Validators.required)
             .build();
@@ -240,8 +238,9 @@ export class ProjectReadAccessWizardStepForm
     private createLanguageFormItem(): FormItem {
         this.localeCombobox = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).build();
 
-        return new FormItemBuilder(this.localeCombobox)
-            .setLabel(i18n('settings.items.wizard.language.label'))
+        return new ProjectFormItemBuilder(this.localeCombobox)
+            .setHelpText(i18n('settings.projects.language.helptext'))
+            .setLabel(i18n('field.lang'))
             .build();
     }
 

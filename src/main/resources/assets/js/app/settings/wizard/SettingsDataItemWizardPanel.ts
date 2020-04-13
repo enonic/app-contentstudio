@@ -68,7 +68,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     doLayout(persistedItem: ITEM): Q.Promise<void> {
-        this.wizardStepForms = this.createStepsForms();
+        this.wizardStepForms = this.createStepsForms(persistedItem);
         this.setSteps(this.createSteps());
 
         const layoutPromises: Q.Promise<void>[] = [];
@@ -251,7 +251,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         }
     }
 
-    protected abstract createStepsForms(): SettingDataItemWizardStepForm<ITEM>[];
+    protected abstract createStepsForms(persistedItem?: ITEM): SettingDataItemWizardStepForm<ITEM>[];
 
     protected isPersistedItemChanged(): boolean {
         const item: ITEM = this.getPersistedItem();
@@ -272,19 +272,12 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         const wizardHeader: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndNameBuilder().build();
 
         const existing: ITEM = this.getPersistedItem();
-        const name: string = this.getWizardNameValue();
+        const displayName: string = !!existing ? existing.getDisplayName() : '';
 
-        let displayName: string = '';
-
-        if (existing) {
-            displayName = existing.getDisplayName();
-
-            wizardHeader.disableNameInput();
-            wizardHeader.setAutoGenerationEnabled(false);
-        }
-
+        wizardHeader.disableNameInput();
+        wizardHeader.setAutoGenerationEnabled(false);
         wizardHeader.setPath('');
-        wizardHeader.initNames(displayName, name, false, true, true);
+        wizardHeader.initNames(displayName, 'not_used', false, true, true);
 
         wizardHeader.onPropertyChanged(() => {
             this.handleDataChanged();
@@ -292,10 +285,6 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         });
 
         return wizardHeader;
-    }
-
-    protected getWizardNameValue(): string {
-        return this.getPersistedItem() ? this.getPersistedItem().getId() : '';
     }
 
     private initElements() {
