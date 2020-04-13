@@ -75,18 +75,7 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private getLocaleByLanguage(language: string, locales: Locale[]): Locale {
-        let selectedLocale: Locale = null;
-
-        locales.some((locale: Locale) => {
-            if (locale.getId() === language) {
-                selectedLocale = locale;
-                return true;
-            }
-
-            return false;
-        });
-
-        return selectedLocale;
+        return locales.find((locale: Locale) => locale.getId() === language);
     }
 
     private layoutReadAccess(readAccess: ProjectReadAccess, permissions: ProjectPermissions): Q.Promise<void> {
