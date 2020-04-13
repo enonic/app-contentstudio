@@ -19,6 +19,7 @@ import {ProjectPermissions} from '../data/project/ProjectPermissions';
 import {UpdateProjectLanguageRequest} from '../resource/UpdateProjectLanguageRequest';
 import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
 import {UpdateProjectPermissionsRequest} from '../resource/UpdateProjectPermissionsRequest';
+import {ProjectRolesWizardStepForm} from './ProjectRolesWizardStepForm';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -26,6 +27,8 @@ export class ProjectWizardPanel
     private projectWizardStepForm: ProjectItemNameWizardStepForm;
 
     private readAccessWizardStepForm: ProjectReadAccessWizardStepForm;
+
+    private rolesWizardStepForm?: ProjectRolesWizardStepForm;
 
     protected getIconClass(): string {
         return 'icon-tree-2';
@@ -52,29 +55,25 @@ export class ProjectWizardPanel
         return new ProjectWizardActions(this);
     }
 
-    protected createStepsForms(): SettingDataItemWizardStepForm<ProjectViewItem>[] {
+    protected createStepsForms(persistedItem: ProjectViewItem): SettingDataItemWizardStepForm<ProjectViewItem>[] {
         this.projectWizardStepForm = new ProjectItemNameWizardStepForm();
         this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm();
 
-        return [this.projectWizardStepForm, this.readAccessWizardStepForm];
-    }
+        const isDefaultProject: boolean = !!persistedItem && persistedItem.isDefaultProject();
 
-    doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
-        return super.doLayout(persistedItem).then(() => {
-            if (!!persistedItem && persistedItem.isDefaultProject()) {
-                return;
-            }
+        if (isDefaultProject) {
+            return [this.projectWizardStepForm, this.readAccessWizardStepForm];
+        }
 
-            this.projectWizardStepForm.onAccessComboboxValueChanged((permissions: ProjectPermissions) => {
-                this.readAccessWizardStepForm.updateFilteredPrincipalsByPermissions(permissions);
-            });
-        });
+        this.rolesWizardStepForm = new ProjectRolesWizardStepForm();
+
+        return [this.projectWizardStepForm, this.readAccessWizardStepForm, this.rolesWizardStepForm];
     }
 
     protected isNewItemChanged(): boolean {
         return !StringHelper.isBlank(this.projectWizardStepForm.getProjectName()) ||
             !StringHelper.isBlank(this.projectWizardStepForm.getDescription()) ||
-            !this.projectWizardStepForm.getPermissions().isEmpty() ||
+            (this.rolesWizardStepForm && !this.rolesWizardStepForm.getPermissions().isEmpty()) ||
                super.isNewItemChanged();
     }
 
@@ -115,7 +114,7 @@ export class ProjectWizardPanel
         return languagePromise.then((language: string) => {
             projectBuilder.setLanguage(language);
 
-            const permissions: ProjectPermissions = this.projectWizardStepForm.getPermissions();
+            const permissions: ProjectPermissions = this.rolesWizardStepForm ? this.rolesWizardStepForm.getPermissions() : null;
             const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
 
             const permissionsPromise: Q.Promise<void> = this.isPermissionsOrReadAccessChanged() ?
@@ -192,7 +191,7 @@ export class ProjectWizardPanel
         const item: ProjectViewItem = this.getPersistedItem();
         const isDefaultProject: boolean = item.isDefaultProject();
 
-        if (!isDefaultProject && !ObjectHelper.equals(item.getPermissions(), this.projectWizardStepForm.getPermissions())) {
+        if (!isDefaultProject && !ObjectHelper.equals(item.getPermissions(), this.rolesWizardStepForm.getPermissions())) {
             return true;
         }
 
