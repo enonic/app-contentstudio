@@ -44,11 +44,9 @@ export class ProjectReadAccessWizardStepForm
 
         layoutPromises.push(this.layoutLanguage(item.getLanguage()));
 
-        if (item.isDefaultProject()) {
-            return Q.all(layoutPromises).spread<void>(() => Q<void>(null));
+        if (!item.isDefaultProject()) {
+            layoutPromises.push(this.layoutReadAccess(item.getReadAccess(), item.getPermissions()));
         }
-
-        layoutPromises.push(this.layoutReadAccess(item.getReadAccess(), item.getPermissions()));
 
         return Q.all(layoutPromises).spread<void>(() => Q<void>(null));
     }
