@@ -6,7 +6,7 @@ import {ContentJson} from '../../content/ContentJson';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 export class GetDefaultPageTemplateRequest
-    extends PageTemplateResourceRequest<ContentJson, PageTemplate> {
+    extends PageTemplateResourceRequest<PageTemplate> {
 
     private site: ContentId;
 
@@ -26,7 +26,7 @@ export class GetDefaultPageTemplateRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): PageTemplate {
+    protected parseResponse(response: JsonResponse<ContentJson>): PageTemplate {
         if (response.hasResult()) {
             return this.fromJsonToContent(response.getResult());
         } else {

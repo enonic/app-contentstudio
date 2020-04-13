@@ -5,7 +5,7 @@ import {ContentJson} from '../content/ContentJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreateMediaFromUrlRequest
-    extends ContentResourceRequest<ContentJson, Content> {
+    extends ContentResourceRequest<Content> {
 
     private url: string;
 
@@ -42,7 +42,7 @@ export class CreateMediaFromUrlRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): Content {
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
         return this.fromJsonToContent(response.getResult());
     }
 

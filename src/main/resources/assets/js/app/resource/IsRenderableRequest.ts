@@ -3,7 +3,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageTemplateResourceRequest} from './PageTemplateResourceRequest';
 
 export class IsRenderableRequest
-    extends PageTemplateResourceRequest<boolean, boolean> {
+    extends PageTemplateResourceRequest<boolean> {
 
     private contentId: ContentId;
 
@@ -24,7 +24,7 @@ export class IsRenderableRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<boolean>): boolean {
+    protected parseResponse(response: JsonResponse<boolean>): boolean {
         return response.getResult();
     }
 }

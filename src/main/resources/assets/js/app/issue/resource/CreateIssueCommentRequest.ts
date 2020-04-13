@@ -6,7 +6,7 @@ import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreateIssueCommentRequest
-    extends IssueResourceRequest<IssueCommentJson, IssueComment> {
+    extends IssueResourceRequest<IssueComment> {
 
     private creator: PrincipalKey;
     private text: string;
@@ -44,7 +44,7 @@ export class CreateIssueCommentRequest
         };
     }
 
-    processResponse(response: JsonResponse<IssueCommentJson>): IssueComment {
+    parseResponse(response: JsonResponse<IssueCommentJson>): IssueComment {
         return IssueComment.fromJson(response.getResult());
     }
 }

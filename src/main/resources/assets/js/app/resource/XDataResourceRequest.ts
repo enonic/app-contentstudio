@@ -2,8 +2,8 @@ import {XData} from '../content/XData';
 import {XDataJson} from './json/XDataJson';
 import {ProjectBasedResourceRequest} from '../wizard/ProjectBasedResourceRequest';
 
-export abstract class XDataResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ProjectBasedResourceRequest<JSON_TYPE, PARSED_TYPE> {
+export abstract class XDataResourceRequest<PARSED_TYPE>
+    extends ProjectBasedResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();

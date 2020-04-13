@@ -6,7 +6,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class HasUnpublishedChildrenRequest
-    extends ContentResourceRequest<HasUnpublishedChildrenListJson, HasUnpublishedChildrenResult> {
+    extends ContentResourceRequest<HasUnpublishedChildrenResult> {
 
     private ids: ContentId[] = [];
 
@@ -23,7 +23,7 @@ export class HasUnpublishedChildrenRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<HasUnpublishedChildrenListJson>): HasUnpublishedChildrenResult {
+    protected parseResponse(response: JsonResponse<HasUnpublishedChildrenListJson>): HasUnpublishedChildrenResult {
         return HasUnpublishedChildrenResult.fromJson(response.getResult());
     }
 }

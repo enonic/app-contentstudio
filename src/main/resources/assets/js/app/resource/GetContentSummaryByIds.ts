@@ -8,7 +8,7 @@ import {ListContentResult} from './ListContentResult';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetContentSummaryByIds
-    extends ContentResourceRequest<ListContentResult<ContentSummaryJson>, ContentSummary[]> {
+    extends ContentResourceRequest<ContentSummary[]> {
 
     private ids: ContentId[];
 
@@ -30,12 +30,10 @@ export class GetContentSummaryByIds
             return super.sendAndParse();
         }
 
-        const deferred: Q.Deferred<ContentSummary[]> = Q.defer<ContentSummary[]>();
-        deferred.resolve([]);
-        return deferred.promise;
+        return Q([]);
     }
 
-    protected processResponse(response: JsonResponse<ListContentResult<ContentSummaryJson>>): ContentSummary[] {
+    protected parseResponse(response: JsonResponse<ListContentResult<ContentSummaryJson>>): ContentSummary[] {
         return ContentSummary.fromJsonArray(response.getResult().contents);
     }
 

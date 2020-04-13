@@ -7,7 +7,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class OrderChildContentRequest
-    extends ContentResourceRequest<any, any> {
+    extends ContentResourceRequest<any> {
 
     private silent: boolean = false;
 
@@ -60,7 +60,7 @@ export class OrderChildContentRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<any>): any {
+    protected parseResponse(response: JsonResponse<any>): any {
         return response.getResult();
     }
 }

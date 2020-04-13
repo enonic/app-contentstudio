@@ -8,7 +8,7 @@ import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ListIssueCommentsRequest
-    extends IssueResourceRequest<ListIssueCommentsResult, ListIssueCommentsResponse> {
+    extends IssueResourceRequest<ListIssueCommentsResponse> {
 
     private static DEFAULT_FETCH_SIZE: number = 150;
 
@@ -59,7 +59,7 @@ export class ListIssueCommentsRequest
         };
     }
 
-    processResponse(response: JsonResponse<ListIssueCommentsResult>): ListIssueCommentsResponse {
+    parseResponse(response: JsonResponse<ListIssueCommentsResult>): ListIssueCommentsResponse {
         const issueComments: IssueComment[] = response.getResult().issueComments.map(IssueComment.fromJson).sort((a, b) => {
             return a.getCreatedTime().getTime() - b.getCreatedTime().getTime();
         });

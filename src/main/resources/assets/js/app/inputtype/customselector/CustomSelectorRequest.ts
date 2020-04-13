@@ -2,7 +2,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {Path} from 'lib-admin-ui/rest/Path';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ResourceRequestAdvanced} from '../../wizard/ResourceRequestAdvanced';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 
 export interface CustomSelectorResponse {
     total: number;
@@ -11,7 +11,7 @@ export interface CustomSelectorResponse {
 }
 
 export class CustomSelectorRequest
-    extends ResourceRequestAdvanced<CustomSelectorResponse, CustomSelectorItem[]> {
+    extends ResourceRequest<CustomSelectorItem[]> {
 
     public static DEFAULT_SIZE: number = 10;
 
@@ -93,7 +93,7 @@ export class CustomSelectorRequest
         return this;
     }
 
-    protected processResponse(response: JsonResponse<CustomSelectorResponse>): CustomSelectorItem[] {
+    protected parseResponse(response: JsonResponse<CustomSelectorResponse>): CustomSelectorItem[] {
         const result: CustomSelectorResponse = response.getResult();
         if (this.start === 0) {
             this.results = [];

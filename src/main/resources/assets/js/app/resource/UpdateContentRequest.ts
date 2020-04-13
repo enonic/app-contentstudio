@@ -11,7 +11,7 @@ import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class UpdateContentRequest
-    extends ContentResourceRequest<ContentJson, Content> {
+    extends ContentResourceRequest<Content> {
 
     private id: string;
 
@@ -138,7 +138,7 @@ export class UpdateContentRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): Content {
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
         return this.fromJsonToContent(response.getResult());
     }
 

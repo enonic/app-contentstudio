@@ -1,11 +1,11 @@
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {PostLoader} from 'lib-admin-ui/util/loader/PostLoader';
-import {CustomSelectorRequest, CustomSelectorResponse} from './CustomSelectorRequest';
+import {CustomSelectorRequest} from './CustomSelectorRequest';
 import {CustomSelectorItem} from './CustomSelectorItem';
 
 export class CustomSelectorLoader
-    extends PostLoader<CustomSelectorResponse, CustomSelectorItem> {
+    extends PostLoader<CustomSelectorItem> {
 
     protected request: CustomSelectorRequest;
 

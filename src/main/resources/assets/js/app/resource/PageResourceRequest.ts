@@ -1,7 +1,7 @@
 import {ContentResourceRequest} from './ContentResourceRequest';
 
-export abstract class PageResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ContentResourceRequest<JSON_TYPE, PARSED_TYPE> {
+export abstract class PageResourceRequest<PARSED_TYPE>
+    extends ContentResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();

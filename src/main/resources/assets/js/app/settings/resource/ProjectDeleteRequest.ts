@@ -3,7 +3,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ProjectDeleteRequest
-    extends ProjectResourceRequest<boolean, boolean> {
+    extends ProjectResourceRequest<boolean> {
 
     private name: string;
 
@@ -20,7 +20,7 @@ export class ProjectDeleteRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<boolean>): boolean {
+    protected parseResponse(response: JsonResponse<boolean>): boolean {
         return !!response.getResult();
     }
 
