@@ -103,6 +103,18 @@ export class ProjectBuilder {
 
     language: string;
 
+    constructor(source?: Project) {
+        if (source) {
+            this.name = source.getName();
+            this.displayName = source.getDisplayName();
+            this.description = source.getDescription();
+            this.icon = source.getIcon();
+            this.permissions = source.getPermissions();
+            this.readAccess = source.getReadAccess();
+            this.language = source.getLanguage();
+        }
+    }
+
     setName(value: string): ProjectBuilder {
         this.name = value;
         return this;

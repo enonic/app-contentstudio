@@ -14,10 +14,11 @@ import {ProjectReadAccess, ProjectReadAccessType} from '../data/project/ProjectR
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ProjectPermissions} from '../data/project/ProjectPermissions';
 import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 import {LocaleComboBox} from 'lib-admin-ui/ui/locale/LocaleComboBox';
+import {Locale} from 'lib-admin-ui/locale/Locale';
+import {LocaleLoader} from 'lib-admin-ui/locale/LocaleLoader';
 
 export class ProjectReadAccessWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {
@@ -34,33 +35,82 @@ export class ProjectReadAccessWizardStepForm
         super();
     }
 
-    layout(item: ProjectViewItem) {
+    layout(item: ProjectViewItem): Q.Promise<void> {
         if (!item) {
-            return;
+            return Q(null);
         }
 
-        if (item.getLanguage()) {
-            this.localeCombobox.setValue(item.getLanguage());
-        }
+        const layoutPromises: Q.Promise<any>[] = [];
+
+        layoutPromises.push(this.layoutLanguage(item.getLanguage()));
 
         if (item.isDefaultProject()) {
-            return;
+            return Q.all(layoutPromises).spread<void>(() => Q<void>(null));
         }
 
-        const readAccess: ProjectReadAccess = item.getData().getReadAccess();
+        layoutPromises.push(this.layoutReadAccess(item.getReadAccess(), item.getPermissions()));
+
+        return Q.all(layoutPromises).spread<void>(() => Q<void>(null));
+    }
+
+    private layoutLanguage(language: string): Q.Promise<void> {
+        if (!language) {
+            return Q(null);
+        }
+
+        return this.getLocales().then((locales: Locale[]) => {
+            const localeToSelect: Locale = this.getLocaleByLanguage(language, locales);
+
+            if (localeToSelect) {
+                this.localeCombobox.select(localeToSelect, false, true);
+            }
+
+            return Q(null);
+        });
+    }
+
+    private getLocales(): Q.Promise<Locale[]> {
+        const localeLoader: LocaleLoader = <LocaleLoader>this.localeCombobox.getLoader();
+        if (localeLoader.isLoaded()) {
+            return Q(this.localeCombobox.getDisplayValues());
+        }
+
+        return this.localeCombobox.getLoader().load();
+    }
+
+    private getLocaleByLanguage(language: string, locales: Locale[]): Locale {
+        let selectedLocale: Locale = null;
+
+        locales.some((locale: Locale) => {
+            if (locale.getId() === language) {
+                selectedLocale = locale;
+                return true;
+            }
+
+            return false;
+        });
+
+        return selectedLocale;
+    }
+
+    private layoutReadAccess(readAccess: ProjectReadAccess, permissions: ProjectPermissions): Q.Promise<void> {
         this.readAccessRadioGroup.setValue(readAccess.getType(), true);
 
-        this.updateFilteredPrincipalsByPermissions(item.getPermissions());
+        this.updateFilteredPrincipalsByPermissions(permissions);
 
-        if (readAccess.getType() === ProjectReadAccessType.CUSTOM) {
-            this.enablePrincipalCombobox();
-
-            new GetPrincipalsByKeysRequest(readAccess.getPrincipals()).sendAndParse().then((principals: Principal[]) => {
-                principals.forEach((principal: Principal) => {
-                    this.principalsCombobox.select(principal);
-                });
-            }).catch(DefaultErrorHandler.handle);
+        if (readAccess.getType() !== ProjectReadAccessType.CUSTOM) {
+            return Q(null);
         }
+
+        this.enablePrincipalCombobox();
+
+        return new GetPrincipalsByKeysRequest(readAccess.getPrincipals()).sendAndParse().then((principals: Principal[]) => {
+            principals.forEach((principal: Principal) => {
+                this.principalsCombobox.select(principal, false, true);
+            });
+
+            return Q(null);
+        });
     }
 
     setup(item?: ProjectViewItem) {
