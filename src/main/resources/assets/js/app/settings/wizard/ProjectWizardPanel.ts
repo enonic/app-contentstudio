@@ -10,12 +10,15 @@ import {Name} from 'lib-admin-ui/Name';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {ProjectItemNameWizardStepForm} from './ProjectItemNameWizardStepForm';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
-import {Project} from '../data/project/Project';
+import {Project, ProjectBuilder} from '../data/project/Project';
 import {ProjectViewItem} from '../view/ProjectViewItem';
 import {ProjectWizardActions} from './action/ProjectWizardActions';
 import {ProjectReadAccessWizardStepForm} from './ProjectReadAccessWizardStepForm';
 import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
 import {ProjectPermissions} from '../data/project/ProjectPermissions';
+import {UpdateProjectLanguageRequest} from '../resource/UpdateProjectLanguageRequest';
+import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
+import {UpdateProjectPermissionsRequest} from '../resource/UpdateProjectPermissionsRequest';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -76,31 +79,7 @@ export class ProjectWizardPanel
     }
 
     protected isPersistedItemChanged(): boolean {
-        const item: ProjectViewItem = this.getPersistedItem();
-
-        if (!ObjectHelper.stringEquals(item.getName(), this.projectWizardStepForm.getProjectName())) {
-            return true;
-        }
-
-        if (!ObjectHelper.stringEquals(item.getDescription(), this.projectWizardStepForm.getDescription())) {
-            return true;
-        }
-
-        if (!ObjectHelper.stringEquals(item.getLanguage(), this.readAccessWizardStepForm.getLanguage())) {
-            return true;
-        }
-
-        const isDefaultProject: boolean = item.isDefaultProject();
-
-        if (!isDefaultProject && !ObjectHelper.equals(item.getPermissions(), this.projectWizardStepForm.getPermissions())) {
-            return true;
-        }
-
-        if (!isDefaultProject && !ObjectHelper.equals(item.getReadAccess(), this.readAccessWizardStepForm.getReadAccess())) {
-            return true;
-        }
-
-        return super.isPersistedItemChanged();
+        return this.isProjectMetaChanged() || this.isLanguageChanged() || this.isPermissionsOrReadAccessChanged();
     }
 
     postPersistNewItem(item: ProjectViewItem): Q.Promise<ProjectViewItem> {
@@ -113,13 +92,58 @@ export class ProjectWizardPanel
     }
 
     persistNewItem(): Q.Promise<ProjectViewItem> {
-        return this.produceCreateItemRequest().sendAndParse().then((project: Project) => {
+        return this.doPersistNewItem().then((project: Project) => {
             const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
 
             showFeedback(this.getSuccessfulCreateMessage(item));
             return item;
         });
     }
+
+    private doPersistNewItem(): Q.Promise<Project> {
+        return this.produceCreateItemRequest().sendAndParse().then((project: Project) => {
+            return this.updateLanguageAndPermissionsIfNeeded(project);
+        });
+    }
+
+    private updateLanguageAndPermissionsIfNeeded(project: Project): Q.Promise<Project> {
+        const projectBuilder: ProjectBuilder = new ProjectBuilder(project);
+
+        const languagePromise: Q.Promise<string> = this.isLanguageChanged() ?
+            this.updateProjectLanguage(project.getName(), this.readAccessWizardStepForm.getLanguage()) : Q(project.getLanguage());
+
+        return languagePromise.then((language: string) => {
+            projectBuilder.setLanguage(language);
+
+            const permissions: ProjectPermissions = this.projectWizardStepForm.getPermissions();
+            const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
+
+            const permissionsPromise: Q.Promise<void> = this.isPermissionsOrReadAccessChanged() ?
+                this.updateProjectPermissions(project.getName(), permissions, readAccess) : Q(null);
+
+            return permissionsPromise.then(() => {
+                projectBuilder.setPermissions(permissions).setReadAccess(readAccess);
+
+                return projectBuilder.build();
+            });
+        });
+    }
+
+    private updateProjectLanguage(projectName: string, language: string): Q.Promise<string> {
+        return new UpdateProjectLanguageRequest()
+            .setName(projectName)
+            .setLanguage(language)
+            .sendAndParse();
+    }
+
+    private updateProjectPermissions(projectName: string, permissions: ProjectPermissions, readAccess: ProjectReadAccess): Q.Promise<void> {
+        return new UpdateProjectPermissionsRequest()
+            .setName(projectName)
+            .setPermissions(permissions)
+            .setReadAccess(readAccess)
+            .sendAndParse();
+    }
+
 
     protected createDeleteRequest(): ProjectDeleteRequest {
         return new ProjectDeleteRequest(this.getPersistedItem().getName());
@@ -130,12 +154,49 @@ export class ProjectWizardPanel
     }
 
     updatePersistedItem(): Q.Promise<ProjectViewItem> {
-        return this.produceUpdateItemRequest().sendAndParse().then((project: Project) => {
+        return this.doUpdatePersistedItem().then((project: Project) => {
             const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
 
             showFeedback(this.getSuccessfulUpdateMessage(item));
             return item;
         });
+    }
+
+    private doUpdatePersistedItem(): Q.Promise<Project> {
+        const projectPromise: Q.Promise<Project> = this.isProjectMetaChanged() ?
+            this.produceUpdateItemRequest().sendAndParse() : Q(this.getPersistedItem().getData());
+
+        return projectPromise.then((project: Project) => {
+            return this.updateLanguageAndPermissionsIfNeeded(project);
+        });
+    }
+
+    private isProjectMetaChanged(): boolean {
+        if (!ObjectHelper.stringEquals(this.getPersistedItem().getDescription(), this.projectWizardStepForm.getDescription())) {
+            return true;
+        }
+
+        return super.isPersistedItemChanged();
+    }
+
+    private isLanguageChanged(): boolean {
+        const currentLanguage: string = this.isItemPersisted() ? this.getPersistedItem().getLanguage() : null;
+        return !ObjectHelper.stringEquals(currentLanguage, this.readAccessWizardStepForm.getLanguage());
+    }
+
+    private isPermissionsOrReadAccessChanged(): boolean {
+        if (!this.isItemPersisted()) {
+            return true;
+        }
+
+        const item: ProjectViewItem = this.getPersistedItem();
+        const isDefaultProject: boolean = item.isDefaultProject();
+
+        if (!isDefaultProject && !ObjectHelper.equals(item.getPermissions(), this.projectWizardStepForm.getPermissions())) {
+            return true;
+        }
+
+        return (!isDefaultProject && !ObjectHelper.equals(item.getReadAccess(), this.readAccessWizardStepForm.getReadAccess()));
     }
 
     protected handleDataChanged() {
@@ -158,9 +219,6 @@ export class ProjectWizardPanel
             .setDescription(this.projectWizardStepForm.getDescription())
             .setName(this.projectWizardStepForm.getProjectName())
             .setDisplayName(displayName)
-            .setPermissions(this.projectWizardStepForm.getPermissions())
-            .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
-            .setLanguage(this.readAccessWizardStepForm.getLanguage())
             .setThumbnail(thumbnail);
     }
 
@@ -172,9 +230,6 @@ export class ProjectWizardPanel
             .setDescription(this.projectWizardStepForm.getDescription())
             .setName(this.projectWizardStepForm.getProjectName())
             .setDisplayName(displayName)
-            .setPermissions(this.projectWizardStepForm.getPermissions())
-            .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
-            .setLanguage(this.readAccessWizardStepForm.getLanguage())
             .setThumbnail(thumbnail);
     }
 

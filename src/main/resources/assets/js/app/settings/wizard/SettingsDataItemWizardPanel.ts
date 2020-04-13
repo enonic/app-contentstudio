@@ -71,16 +71,18 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         this.wizardStepForms = this.createStepsForms();
         this.setSteps(this.createSteps());
 
+        const layoutPromises: Q.Promise<void>[] = [];
+
         this.wizardStepForms.forEach((stepForm: SettingDataItemWizardStepForm<ITEM>) => {
             stepForm.setup(persistedItem);
-            stepForm.layout(persistedItem);
+            layoutPromises.push(stepForm.layout(persistedItem));
 
             stepForm.onDataChanged(() => {
                 this.handleDataChanged();
             });
         });
 
-        return Q<void>(null);
+        return Q.all(layoutPromises).spread<void>(() => Q<void>(null));
     }
 
     protected createSteps(): WizardStep[] {
@@ -94,6 +96,10 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     hasUnsavedChanges(): boolean {
+        if (!this.isRendered()) {
+            return false;
+        }
+
         if (this.getPersistedItem()) {
             return this.isPersistedItemChanged();
         }
@@ -278,7 +284,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         }
 
         wizardHeader.setPath('');
-        wizardHeader.initNames(displayName, name, false);
+        wizardHeader.initNames(displayName, name, false, true, true);
 
         wizardHeader.onPropertyChanged(() => {
             this.handleDataChanged();

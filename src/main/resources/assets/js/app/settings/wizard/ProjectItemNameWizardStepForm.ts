@@ -7,7 +7,6 @@ import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
 import {ProjectViewItem} from '../view/ProjectViewItem';
 import {ProjectAccessControlComboBox} from './ProjectAccessControlComboBox';
 import {ProjectAccessControlEntry} from '../access/ProjectAccessControlEntry';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {ProjectItemPermissionsBuilder, ProjectPermissions} from '../data/project/ProjectPermissions';
 import * as Q from 'q';
@@ -85,28 +84,30 @@ export class ProjectItemNameWizardStepForm
         return this.isProjectNameValid();
     }
 
-    layout(item: ProjectViewItem) {
+    layout(item: ProjectViewItem): Q.Promise<void> {
         if (!item) {
-            return;
+            return Q(null);
         }
 
-        this.descriptionInput.setValue(item.getDescription());
-        this.projectNameInput.setValue(item.getName());
+        this.descriptionInput.setValue(item.getDescription(), true);
+        this.projectNameInput.setValue(item.getName(), true);
         this.disableHelpText();
         this.disableProjectNameInput();
 
         if (item.isDefaultProject()) {
-            return;
+            return Q(null);
         }
 
-        this.getPrincipalsFromPermissions(item.getPermissions()).then((principals: Principal[]) => {
+        return this.getPrincipalsFromPermissions(item.getPermissions()).then((principals: Principal[]) => {
             this.accessCombobox.clearSelection(true);
 
             const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(item.getPermissions(), principals);
             itemsToSelect.forEach((selectedItem: ProjectAccessControlEntry) => {
-                this.accessCombobox.select(selectedItem);
+                this.accessCombobox.select(selectedItem, false, true);
             });
-        }).catch(DefaultErrorHandler.handle);
+
+            return Q(null);
+        });
     }
 
     private getPrincipalsFromPermissions(permissions: ProjectPermissions): Q.Promise<Principal[]> {
