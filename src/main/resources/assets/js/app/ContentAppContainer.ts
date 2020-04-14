@@ -8,8 +8,9 @@ import {ContentEventsListener} from './ContentEventsListener';
 import {AppMode} from './AppMode';
 import {ProjectContext} from './project/ProjectContext';
 import {UrlAction} from './UrlAction';
-import {SettingsServerEvent} from './settings/event/SettingsServerEvent';
 import {ProjectChangedEvent} from './project/ProjectChangedEvent';
+import {ProjectUpdatedEvent} from './settings/event/ProjectUpdatedEvent';
+import {ProjectDeletedEvent} from './settings/event/ProjectDeletedEvent';
 
 export class ContentAppContainer
     extends MainAppContainer {
@@ -53,32 +54,26 @@ export class ContentAppContainer
     private initListeners() {
         this.initSearchPanelListener(<ContentAppPanel>this.appPanel);
 
-        SettingsServerEvent.on((event: SettingsServerEvent) => {
-            this.handleSettingsServerEvent(event);
+        ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
+            this.handleProjectDeletedEvent(event.getProjectName());
         });
-    }
 
-    private handleSettingsServerEvent(event: SettingsServerEvent) {
-        if (event.isUpdateEvent() || event.isCreateEvent()) {
+        ProjectUpdatedEvent.on(() => {
             this.handleProjectUpdatedEvent();
-        } else if (event.isDeleteEvent()) {
-            this.handleProjectDeletedEvent(event);
-        }
+        });
     }
 
     private handleProjectUpdatedEvent() {
         (<ContentAppBar>this.appBar).updateSelectorValues();
     }
 
-    private handleProjectDeletedEvent(event: SettingsServerEvent) {
+    private handleProjectDeletedEvent(projectName: string) {
         const currentProject: string = ProjectContext.get().getProject();
-        const isCurrentProjectDeleted: boolean = event.getItemsIds().some((id: string) => id === currentProject);
+        const isCurrentProjectDeleted: boolean = projectName === currentProject;
 
         if (isCurrentProjectDeleted) {
             ProjectContext.get().setProject(ProjectContext.DEFAULT_PROJECT);
         }
-
-        (<ContentAppBar>this.appBar).updateSelectorValues();
     }
 
     private initSearchPanelListener(panel: ContentAppPanel) {

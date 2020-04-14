@@ -11,6 +11,7 @@ import {Project} from '../settings/data/project/Project';
 import {SelectableProjectList} from './list/SelectableProjectList';
 import {ProjectListItem} from './list/ProjectListItem';
 import {SelectedProjectListItemViewer} from './list/SelectedProjectListItemViewer';
+import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 
 export class ProjectSelector
     extends DivEl {
@@ -46,8 +47,13 @@ export class ProjectSelector
         this.projectList.setItems(projects);
         this.projectList.preSelectProject(currentProject);
 
-        this.dropdownHandle.setVisible(projects.length > 1);
-        this.toggleClass('single-repo', projects.length < 2);
+        this.toggleDropdownHandleVisibility();
+    }
+
+    private toggleDropdownHandleVisibility() {
+        const totalProjects: number = this.projectList.getItemCount();
+        this.dropdownHandle.setVisible(totalProjects > 1);
+        this.toggleClass('single-repo', totalProjects < 2);
     }
 
     setHeaderPrefix(value: string) {
@@ -119,6 +125,14 @@ export class ProjectSelector
 
         this.projectList.onSelectionChanged((project: ProjectListItem) => {
             this.handleSelectedProjectChanged(project);
+        });
+
+        ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
+            const itemToRemove: Project = this.projectList.getItem(event.getProjectName());
+            if (itemToRemove) {
+                this.projectList.removeItem(itemToRemove);
+                this.toggleDropdownHandleVisibility();
+            }
         });
     }
 
