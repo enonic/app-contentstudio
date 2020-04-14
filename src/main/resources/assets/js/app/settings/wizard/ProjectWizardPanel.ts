@@ -6,7 +6,6 @@ import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ProjectCreateRequest} from '../resource/ProjectCreateRequest';
 import {ProjectUpdateRequest} from '../resource/ProjectUpdateRequest';
 import {ProjectDeleteRequest} from '../resource/ProjectDeleteRequest';
-import {Name} from 'lib-admin-ui/Name';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {ProjectItemNameWizardStepForm} from './ProjectItemNameWizardStepForm';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
@@ -20,6 +19,7 @@ import {UpdateProjectLanguageRequest} from '../resource/UpdateProjectLanguageReq
 import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
 import {UpdateProjectPermissionsRequest} from '../resource/UpdateProjectPermissionsRequest';
 import {ProjectRolesWizardStepForm} from './ProjectRolesWizardStepForm';
+import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -36,19 +36,25 @@ export class ProjectWizardPanel
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
         const header: WizardHeaderWithDisplayNameAndName = super.createWizardHeader();
+
         header.onPropertyChanged(() => {
             if (this.getPersistedItem()) {
                 return;
             }
 
-            this.projectWizardStepForm.setProjectName(header.getDisplayName()
-                .trim()
-                .replace(/\s+/g, '-')
-                .toLowerCase()
-                .replace(Name.FORBIDDEN_CHARS, ''));
+            this.projectWizardStepForm.setProjectName(this.prettifyHeader(header.getDisplayName()));
         });
 
         return header;
+    }
+
+    private prettifyHeader(value: string): string {
+        const prettified: string = NamePrettyfier.prettify(value)
+            .replace(/^[^a-z0-9]+/ig, '')
+            .replace(/[^a-z0-9]+$/ig, '')
+            .replace(/\./g, '');
+
+        return prettified;
     }
 
     protected createWizardActions(): ProjectWizardActions {
