@@ -81,4 +81,31 @@ module.exports = {
             },
         };
     },
+
+    buildUser: function (displayName, password, email, roles) {
+        return {
+            displayName: displayName,
+            password: password,
+            email: email,
+            roles: roles,
+        };
+    },
+    buildRole: function (displayName, description, members) {
+        return {
+            displayName: displayName,
+            description: description,
+            members: members,
+        };
+    },
+    buildGroup: function (displayName, description, members, roles) {
+        return {
+            displayName: displayName,
+            description: description,
+            members: members,
+            roles: roles,
+        };
+    },
+    generateEmail: (userName) => {
+        return userName + '@gmail.com'
+    },
 };

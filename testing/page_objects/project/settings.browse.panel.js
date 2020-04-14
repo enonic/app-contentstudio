@@ -18,7 +18,6 @@ const XPATH = {
     itemsTreeGrid: `//div[contains(@id,'SettingsItemsTreeGrid')]`,
     treeGridToolbar: `//div[contains(@id,'TreeGridToolbar')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
-    selectionPanelToggler: `//button[contains(@id,'SelectionPanelToggler')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     selectedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
     checkedRows: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-cell-checkboxsel selected')]`,
@@ -78,7 +77,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get selectionPanelToggler() {
-        return `${XPATH.treeGridToolbar}${XPATH.selectionPanelToggler}`;
+        return `${XPATH.container}${XPATH.treeGridToolbar}${lib.SELECTION_PANEL_TOGGLER}`;
     }
 
     get numberInToggler() {
@@ -87,6 +86,12 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     get displayNames() {
         return XPATH.itemsTreeGrid + lib.H6_DISPLAY_NAME;
+    }
+
+    //returns array with displayName of all items in the Settings Browse Panel
+    getDisplayNames() {
+        let selector = this.treeGrid + lib.H6_DISPLAY_NAME + "/span[@class='display-name']";
+        return this.getTextInElements(selector);
     }
 
     async clickOnExpanderIcon(name) {

@@ -28,10 +28,8 @@ const XPATH = {
     createTaskButton: "//button[contains(@id,'ActionButton')]//span[text()='Create Task...']",
     contentPublishMenuButton: `//div[contains(@id,'ContentBrowsePublishMenuButton')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
-    selectionPanelToggler: `//button[contains(@id,'SelectionPanelToggler')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     duplicateButton: `/button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
-
     contentSummaryByName: function (name) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
@@ -117,7 +115,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     get selectionPanelToggler() {
-        return `${XPATH.treeGridToolbar}${XPATH.selectionPanelToggler}`;
+        return `${XPATH.treeGridToolbar}${lib.SELECTION_PANEL_TOGGLER}`;
     }
 
     get newButton() {

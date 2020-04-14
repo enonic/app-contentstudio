@@ -24,6 +24,11 @@ const CreateRequestPublishDialog = require('../page_objects/issue/create.request
 const ProjectSelectionDialog = require('../page_objects/project/project.selection.dialog');
 const ProjectWizard = require('../page_objects/project/project.wizard.panel');
 const SettingsBrowsePanel = require('../page_objects/project/settings.browse.panel');
+const UserBrowsePanel = require('../page_objects/users/userbrowse.panel');
+const UserWizard = require('../page_objects/users/user.wizard');
+const NewPrincipalDialog = require('../page_objects/users/new.principal.dialog');
+const PrincipalFilterPanel = require('../page_objects/users/principal.filter.panel');
+const ConfirmationDialog = require('../page_objects/confirmation.dialog');
 
 module.exports = {
     setTextInCKE: function (id, text) {
@@ -613,7 +618,7 @@ module.exports = {
         //2. Type a name that is already being used by existing project:
         await projectWizard.typeName(name);
         await projectWizard.typeDescription(description);
-        await projectWizard.selectReadAccess("Private");
+        await projectWizard.clickOnReadAccessRadio("Private");
         //3. Verify that `Save` button gets enabled, then click on it
         await projectWizard.pause(400);
         await projectWizard.waitAndClickOnSave();
@@ -622,6 +627,110 @@ module.exports = {
         await settingsBrowsePanel.clickOnCloseIcon(name);
         await projectWizard.waitForWizardClosed();
         return await settingsBrowsePanel.pause(500);
+    },
+    navigateToUsersApp: function (userName, password) {
+        let launcherPanel = new LauncherPanel();
+        return launcherPanel.waitForPanelDisplayed(3000).then(result => {
+            if (result) {
+                console.log("Launcher Panel is opened, click on the `Users` link...");
+                return launcherPanel.clickOnUsersLink();
+            } else {
+                console.log("Login Page is opened, type a password and name...");
+                return this.doLoginAndClickOnUsersLink(userName, password);
+            }
+        }).then(() => {
+            return this.doSwitchToUsersApp();
+        }).catch(err => {
+            console.log('tried to navigate to Users app, but: ' + err);
+            throw new Error('error when navigate to Users app ' + err);
+        });
+    },
+    async doLoginAndClickOnUsersLink(userName, password) {
+        let loginPage = new LoginPage();
+        await loginPage.doLogin(userName, password);
+        let launcherPanel = new LauncherPanel();
+        await launcherPanel.clickOnUsersLink();
+        return await loginPage.pause(1000);
+    },
+    doSwitchToUsersApp: function () {
+        console.log('testUtils:switching to users app...');
+        let browsePanel = new UserBrowsePanel();
+        return webDriverHelper.browser.switchWindow("Users - Enonic XP Admin").then(() => {
+            console.log("switched to Users app...");
+            return browsePanel.waitForSpinnerNotVisible();
+        }).then(() => {
+            return browsePanel.waitForUsersGridLoaded(appConst.TIMEOUT_3);
+        }).catch(err => {
+            throw new Error("Error when switching to Users App " + err);
+        })
+    },
+    async addSystemUser(userData) {
+        let userWizard = new UserWizard();
+        //1. Select System ID Provider folder:
+        await this.clickOnSystemOpenUserWizard();
+        //2. Type the data:
+        await userWizard.typeData(userData);
+        //3. Save the data and close the wizard:
+        return await this.saveAndCloseUserWizard(userData.displayName);
+    },
+    async selectAndDeleteUserItem(name) {
+        let userBrowsePanel = new UserBrowsePanel();
+        let confirmationDialog = new ConfirmationDialog();
+        await this.findAndSelectUserItem(name);
+        await userBrowsePanel.waitForDeleteButtonEnabled();
+        await userBrowsePanel.clickOnDeleteButton();
+        await confirmationDialog.waitForDialogOpened();
+        await confirmationDialog.clickOnYesButton();
+        return await userBrowsePanel.waitForSpinnerNotVisible();
+    },
+    async typeNameInUserFilterPanel(name) {
+        let browsePanel = new UserBrowsePanel();
+        let filterPanel = new PrincipalFilterPanel();
+        await browsePanel.clickOnSearchButton();
+        await filterPanel.waitForOpened();
+        await filterPanel.typeSearchText(name);
+        await browsePanel.pause(300);
+        return await browsePanel.waitForSpinnerNotVisible();
+    },
+    async findAndSelectUserItem(name) {
+        let userBrowsePanel = new UserBrowsePanel();
+        await this.typeNameInUserFilterPanel(name);
+        await userBrowsePanel.pause(400);
+        await userBrowsePanel.waitForRowByNameVisible(name);
+        await userBrowsePanel.clickOnRowByName(name);
+        return await userBrowsePanel.pause(800);
+    },
+    //Click on Save button and close the wizard:
+    async saveAndCloseUserWizard(displayName) {
+        let wizardPanel = new UserWizard();
+        let browsePanel = new UserBrowsePanel();
+        await wizardPanel.waitAndClickOnSave();
+        await wizardPanel.pause(700);
+        //Click on Close icon and close the wizard:
+        return await browsePanel.doClickOnCloseTabAndWaitGrid(displayName);
+    },
+    async clickOnSystemOpenUserWizard() {
+        let browsePanel = new UserBrowsePanel();
+        let userWizard = new UserWizard();
+        let newPrincipalDialog = new NewPrincipalDialog();
+        await browsePanel.clickOnRowByName('system');
+        await browsePanel.waitForNewButtonEnabled();
+        await browsePanel.clickOnNewButton();
+        await newPrincipalDialog.clickOnItem('User');
+        return await userWizard.waitForOpened();
+    },
+    async showLauncherPanel() {
+        let launcherPanel = new LauncherPanel();
+        let selector = "//button[@class='launcher-button ' ]";
+        let el = await this.getDisplayedElements(selector);
+        await el[0].click();
+        return await launcherPanel.waitForPanelDisplayed(1000);
+    },
+    async getDisplayedElements(selector) {
+        let elements = await webDriverHelper.browser.$$(selector);
+        let pr = elements.map(el => el.isDisplayed());
+        return await Promise.all(pr).then(result => {
+            return elements.filter((el, i) => result[i]);
+        });
     }
-
 };

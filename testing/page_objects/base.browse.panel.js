@@ -28,6 +28,11 @@ class BaseBrowsePanel extends Page {
         return this.getBrowser().keys(['Alt', 'n']);
     }
 
+    //returns array that contains display names of items in the grid:
+    getDisplayNames() {
+        let selector = this.treeGrid + lib.H6_DISPLAY_NAME;
+        return this.getTextInElements(selector);
+    }
 
     hotKeyDelete() {
         return this.getBrowser().status().then(status => {
@@ -52,14 +57,17 @@ class BaseBrowsePanel extends Page {
         }
     }
 
-    clickOnSelectionControllerCheckbox() {
-        return this.clickOnElement(this.selectionControllerCheckBox).catch(() => {
+    async clickOnSelectionControllerCheckbox() {
+        try {
+            await this.clickOnElement(this.selectionControllerCheckBox);
+            return await this.pause(300);
+        } catch (err) {
             this.saveScreenshot('err_click_on_selection_controller');
-            throw new Error(`Error when clicking on Selection controller ` + err);
-        });
+            throw new Error('error when click on selection_controller ' + err);
+        }
     }
 
-    //wait for the "Show Selection" icon in the toolbar
+    //wait for the "Show Selection" circle appears in the toolbar
     async waitForSelectionTogglerVisible() {
         try {
             await this.waitForElementDisplayed(this.selectionPanelToggler, appConst.TIMEOUT_3);
@@ -67,6 +75,18 @@ class BaseBrowsePanel extends Page {
             return attr.includes('any-selected');
         } catch (err) {
             return false
+        }
+    }
+
+    //Clicks on 'circle' with a number and filters items in the grid:
+    async clickOnSelectionToggler() {
+        try {
+            await this.waitForSelectionTogglerVisible();
+            await this.clickOnElement(this.selectionPanelToggler);
+            return this.pause(400);
+        } catch (err) {
+            this.saveScreenshot("err_clicking_on_selection_toggler");
+            throw new Error("Selection Toggler: " + err);
         }
     }
 
