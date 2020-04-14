@@ -45,7 +45,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             await settingsBrowsePanel.clickOnCloseIcon(PROJECT_DISPLAY_NAME_1);
             //6. Verify that all tabs are closed:
             result = await settingsBrowsePanel.getNumberOpenedTabItems();
-            assert.equal(result, 0, "There should not be a single item in the Tab");
+            assert.equal(result, 0, "There should not be a single item in the Tab Bar");
         });
 
 
@@ -82,7 +82,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Delete');
         });
 
-    it(`GIVEN Projects is expanded AND Selection Controller checkbox is checked WHEN context menu has been opened THEN New item should be enabled but Delete,Edit items should be disabled`,
+    it(`GIVEN Projects is expanded AND 'Selection Controller' checkbox is checked WHEN context menu has been opened THEN 'New' menu-item should be enabled but Delete,Edit items should be disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Expand Projects folder then click Selection Controller checkbox and select all project:
@@ -98,6 +98,52 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             await settingsBrowsePanel.waitForContextMenuItemDisabled('Edit');
             //Verify that Delete menu item is disabled:
             await settingsBrowsePanel.waitForContextMenuItemDisabled('Delete');
+        });
+
+    it(`GIVEN Projects folder is expanded AND two projects are checked WHEN 'Selection Toggler' has been clicked THEN two projects should remain in grid`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            //1. Click on both project's checkboxes:
+            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            let actualResultBefore = await settingsBrowsePanel.getDisplayNames();
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
+            //2. Click on the circle(Selection Toggle):
+            await settingsBrowsePanel.clickOnSelectionToggler();
+            //3. get display names in the filtered grid:
+            let actualResult = await settingsBrowsePanel.getDisplayNames();
+            //4. Verify that number of items should be 2
+            assert.equal(actualResult.length, 2, "Two project should remain in grid");
+            //5. Verify display names in the filtered grid:
+            assert.isTrue(actualResult.includes(PROJECT_DISPLAY_NAME_1), "Expected project should remains in grid");
+            assert.isTrue(actualResult.includes(PROJECT_DISPLAY_NAME_2), "Expected project should remains in grid");
+            assert.isAbove(actualResultBefore.length, actualResult.length, "Number of projects should be reduced");
+        });
+
+    //Verifies: https://github.com/enonic/app-contentstudio/issues/1701
+    // Settings browse panel - errors after opening several filtered projects #1701
+    it(`GIVEN 'Selection Toggler'(circle) has been clicked AND 2 projects are opened WHEN close-icon in opened tabs has been closed THEN two tabs should be closed`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            //1. Click on both project's checkboxes:
+            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            let actualResultBefore = await settingsBrowsePanel.getDisplayNames();
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
+            //2. Click on the circle(Selection Toggle):
+            await settingsBrowsePanel.clickOnSelectionToggler();
+            //3. Click on 'Edit' button and open 2 checked projects:
+            await settingsBrowsePanel.clickOnEditButton();
+            //4. Verify the number of opened tabs:
+            let result = await settingsBrowsePanel.getNumberOpenedTabItems();
+            assert.equal(result, 2, "Two tabs should be present in the tab bar");
+            //4. Close the second tab:
+            await settingsBrowsePanel.clickOnCloseIcon(PROJECT_DISPLAY_NAME_2);
+            //5. Close the first tab:
+            await settingsBrowsePanel.clickOnCloseIcon(PROJECT_DISPLAY_NAME_1);
+            //6. Verify that all tabs are closed:
+            result = await settingsBrowsePanel.getNumberOpenedTabItems();
+            assert.equal(result, 0, "There should not be a single item in the Tab Bar");
         });
 
     beforeEach(async () => {
