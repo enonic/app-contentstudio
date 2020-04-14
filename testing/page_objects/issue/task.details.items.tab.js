@@ -2,6 +2,7 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
+const LoaderComboBox = require('../components/loader.combobox');
 
 const xpath = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
@@ -192,10 +193,10 @@ class TaskDetailsDialogItemsTab extends Page {
         try {
             await this.waitForElementDisplayed(this.closeTaskButton, appConst.TIMEOUT_3);
             await this.clickOnElement(this.closeTaskButton);
-            //reopen Issue button should appear!
+            //Reopen Task button should appear!
             return await this.waitForElementDisplayed(this.reopenTaskButton, appConst.TIMEOUT_3);
         } catch (err) {
-            this.saveScreenshot('err_click_close_issue_button');
+            this.saveScreenshot('err_click_close_task_button');
             throw  new Error('Error when clicking on the `Close Task`  ' + err);
         }
     }
@@ -204,6 +205,15 @@ class TaskDetailsDialogItemsTab extends Page {
             return await this.waitForElementDisplayed(this.reopenTaskButton, appConst.TIMEOUT_3);
         }catch(err){
             throw new Error("Reopen Task button is not displayed: "+ err)
+        }
+    }
+
+    async addItem(itemDisplayName) {
+        try {
+            let loaderComboBox = new LoaderComboBox();
+            return await loaderComboBox.typeTextAndSelectOption(itemDisplayName, xpath.container);
+        } catch (err) {
+            throw new Error("Task Details dialog -  " + err);
         }
     }
 };
