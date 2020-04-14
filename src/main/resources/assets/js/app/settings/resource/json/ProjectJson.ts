@@ -13,4 +13,6 @@ export interface ProjectJson {
     permissions: ProjectPermissionsJson;
 
     readAccess: ProjectReadAccessJson;
+
+    language: string;
 }
