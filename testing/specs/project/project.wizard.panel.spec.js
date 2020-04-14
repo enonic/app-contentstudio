@@ -28,6 +28,14 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             await projectWizard.waitForDescriptionInputDisplayed();
             await projectWizard.waitForProjectNameInputDisplayed();
             await projectWizard.waitForProjectAccessSelectorDisplayed();
+
+            //3. Verify 'read project' access: all radio button should not be selected:
+            let isSelected = await projectWizard.isReadAccessRadioSelected("Custom");
+            assert.isFalse(isSelected, "'Custom' radio button should not be selected");
+            isSelected = await projectWizard.isReadAccessRadioSelected("Private");
+            assert.isFalse(isSelected, "'Private' radio button should not be selected");
+            isSelected = await projectWizard.isReadAccessRadioSelected("Public");
+            assert.isFalse(isSelected, "'Public' radio button should not be selected");
         });
 
     it(`GIVEN new project wizard is opened WHEN display name has been typed THEN the same text should appear in project-name input`,

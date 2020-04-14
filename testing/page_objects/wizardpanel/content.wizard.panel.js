@@ -734,7 +734,7 @@ class ContentWizardPanel extends Page {
             let selector = XPATH.publishMenuItemByName(menuItem);
             await this.waitForElementEnabled(selector, appConst.TIMEOUT_2);
             await this.clickOnElement(selector);
-            return this.pause(300);
+            return await this.pause(300);
         } catch (err) {
             this.saveScreenshot("err_click_issue_menuItem");
             throw new Error('error when try to click on publish menu item, ' + err);
@@ -775,14 +775,14 @@ class ContentWizardPanel extends Page {
         let selector = XPATH.container + XPATH.markAsReadyButton;
         await this.waitForMarkAsReadyButtonVisible();
         await this.clickOnElement(selector);
-        return this.pause(1000);
+        return await this.pause(500);
     }
 
     async clickOnUnpublishButton() {
         let selector = XPATH.container + XPATH.unpublishButton;
         await this.waitForUnpublishButtonDisplayed();
         await this.clickOnElement(selector);
-        return this.pause(600);
+        return await this.pause(600);
     }
 
     waitForUnpublishButtonDisplayed() {

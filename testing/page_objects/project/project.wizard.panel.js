@@ -28,7 +28,7 @@ class ProjectWizardPanel extends Page {
     }
 
     get projectNameValidationMessage() {
-        return XPATH.container + lib.formItemByLabel("Project name") + "//span[@class='error']";
+        return XPATH.container + lib.formItemByLabel("Project name") + "//div[contains(@id,'ValidationRecordingViewer')]//li";
     }
 
     get displayNameInput() {
@@ -114,6 +114,14 @@ class ProjectWizardPanel extends Page {
             return await this.waitForElementDisabled(this.deleteButton, appConst.TIMEOUT_2);
         } catch (err) {
             throw new Error("Delete button is not disabled :" + err);
+        }
+    }
+
+    async waitForDeleteButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.deleteButton, appConst.TIMEOUT_4);
+        } catch (err) {
+            throw new Error("Delete button is not enabled :" + err);
         }
     }
 
@@ -217,6 +225,12 @@ class ProjectWizardPanel extends Page {
         let selector = XPATH.radioButtonByDescription(access) + "/input[@type='radio']";
         await this.waitForElementDisplayed(XPATH.radioButtonByDescription(access), appConst.TIMEOUT_2);
         return await this.clickOnElement(selector);
+    }
+
+    async isReadAccessRadioSelected(access) {
+        let selector = XPATH.radioButtonByDescription(access) + "/input[@type='radio']";
+        await this.waitForElementDisplayed(XPATH.radioButtonByDescription(access), appConst.TIMEOUT_2);
+        return await this.isSelected(selector);
     }
 
     waitForCustomReadAccessComboboxDisabled() {

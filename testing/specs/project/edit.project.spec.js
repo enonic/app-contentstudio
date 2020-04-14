@@ -34,6 +34,8 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             assert.equal(actualDescription, TEST_DESCRIPTION, "Expected description should be displayed");
             let actualProjectName = await projectWizard.getProjectName();
             assert.equal(actualProjectName, PROJECT_DISPLAY_NAME, "Expected project name should be displayed");
+            //4. Verify that Delete button gets enabled, because new project is created now:
+            await projectWizard.waitForDeleteButtonEnabled();
         });
 
     it(`GIVEN existing project is opened WHEN description has been updated THEN new description should be displayed in browse panel`,
