@@ -26,15 +26,15 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             let tabTitle = await projectWizard.getTabTitle();
             assert.equal(tabTitle, "<Unnamed Project>", "Expected title should be displayed");
             await projectWizard.waitForDescriptionInputDisplayed();
-            await projectWizard.waitForProjectNameInputDisplayed();
-            await projectWizard.waitForProjectAccessSelectorDisplayed();
+            await projectWizard.waitForProjectIdentifierInputDisplayed();
+            await projectWizard.waitForRolesComboboxDisplayed();
 
-            //3. Verify 'read project' access: all radio button should not be selected:
-            let isSelected = await projectWizard.isReadAccessRadioSelected("Custom");
+            //3. Verify access mode: all radio button should not be selected:
+            let isSelected = await projectWizard.isAccessModeRadioSelected("Custom");
             assert.isFalse(isSelected, "'Custom' radio button should not be selected");
-            isSelected = await projectWizard.isReadAccessRadioSelected("Private");
+            isSelected = await projectWizard.isAccessModeRadioSelected("Private");
             assert.isFalse(isSelected, "'Private' radio button should not be selected");
-            isSelected = await projectWizard.isReadAccessRadioSelected("Public");
+            isSelected = await projectWizard.isAccessModeRadioSelected("Public");
             assert.isFalse(isSelected, "'Public' radio button should not be selected");
         });
 
@@ -45,10 +45,10 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
             //2. Type the display name:
-            await projectWizard.typeName(PROJECT_DISPLAY_NAME);
+            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
             studioUtils.saveScreenshot("project_wizard_2");
-            let actualProjectName = await projectWizard.getProjectName();
-            //3. Verify that display name and project name are equal:
+            let actualProjectName = await projectWizard.getProjectIdentifier();
+            //3. Verify that display name and the identifier are equal:
             assert.equal(PROJECT_DISPLAY_NAME.toLowerCase(), actualProjectName);
         });
 
@@ -58,8 +58,8 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             let projectWizard = new ProjectWizard();
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
-            //2. Select 'Anonymous User' in Access Items selector:
-            await projectWizard.selectProjectAccessItem(appConstant.systemUsersDisplayName.SUPER_USER);
+            //2. Select 'Super User' in in Roles Access combobox:
+            await projectWizard.selectProjectAccessRoles(appConstant.systemUsersDisplayName.SUPER_USER);
             studioUtils.saveScreenshot("project_wizard_3");
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems.length, 1, "One access item should be present");
@@ -73,8 +73,8 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             let projectWizard = new ProjectWizard();
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
-            //2. Select 'Anonymous User' in Access Items selector:
-            await projectWizard.selectProjectAccessItem(appConstant.systemUsersDisplayName.SUPER_USER);
+            //2. Select 'Super User' in Roles Access combobox:
+            await projectWizard.selectProjectAccessRoles(appConstant.systemUsersDisplayName.SUPER_USER);
             //3. Remove the item:
             await projectWizard.removeProjectAccessItem("su");
             studioUtils.saveScreenshot("project_wizard_4");

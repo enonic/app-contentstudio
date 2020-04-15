@@ -41,7 +41,7 @@ module.exports = Object.freeze({
         return `//div[contains(@id,'NamesView') and descendant::span[contains(@class,'name') and contains(.,'${name}')]]`
     },
     formItemByLabel: (label) => {
-        return `//div[contains(@id,'FormItem') and child::label[contains(.,'${label}')]]`
+        return `//div[contains(@id,'FormItem') and descendant::label[contains(.,'${label}')]]`
     },
     TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,
