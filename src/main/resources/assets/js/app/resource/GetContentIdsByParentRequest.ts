@@ -5,7 +5,7 @@ import {ContentIdBaseItemJson} from './json/ResolvePublishContentResultJson';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 
 export class GetContentIdsByParentRequest
-    extends ContentResourceRequest<any, any> {
+    extends ContentResourceRequest<any> {
 
     private parentId: ContentId;
 
@@ -33,7 +33,7 @@ export class GetContentIdsByParentRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentIdBaseItemJson[]>): ContentId[] {
+    protected parseResponse(response: JsonResponse<ContentIdBaseItemJson[]>): ContentId[] {
         return response.getResult().map((item => new ContentId(item.id)));
     }
 }

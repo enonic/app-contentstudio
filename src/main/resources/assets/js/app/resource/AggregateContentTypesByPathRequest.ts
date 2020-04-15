@@ -19,10 +19,9 @@ import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../resource/ContentQueryResult';
 import {ContentQuery} from '../content/ContentQuery';
 import {Path} from 'lib-admin-ui/rest/Path';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 
 export class AggregateContentTypesByPathRequest
-    extends ContentResourceRequest<ContentQueryResult<ContentSummary, ContentSummaryJson>, AggregateContentTypesResult> {
+    extends ContentResourceRequest<AggregateContentTypesResult> {
 
     private request: ContentQueryRequest<ContentSummaryJson, ContentSummary>;
 
@@ -39,18 +38,18 @@ export class AggregateContentTypesByPathRequest
     sendAndParse(): Q.Promise<AggregateContentTypesResult> {
 
         return this.request.sendAndParse().then((result: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-            const aggregations: AggregateContentTypesResult = new AggregateContentTypesResult();
-
-            (<BucketAggregation>result.getAggregations()[0]).getBuckets().forEach(bucket => {
-                aggregations.addAggregation(new ContentTypeAggregation(new ContentTypeName(bucket.getKey()), bucket.getDocCount()));
-            });
-
-            return aggregations;
+            return this.doParseResponse(result);
         });
     }
 
-    protected processResponse(response: JsonResponse<ContentQueryResult<ContentSummary, ContentSummaryJson>>): AggregateContentTypesResult {
-        return; // not used
+    private doParseResponse(result: ContentQueryResult<ContentSummary, ContentSummaryJson>): AggregateContentTypesResult {
+        const aggregations: AggregateContentTypesResult = new AggregateContentTypesResult();
+
+        (<BucketAggregation>result.getAggregations()[0]).getBuckets().forEach(bucket => {
+            aggregations.addAggregation(new ContentTypeAggregation(new ContentTypeName(bucket.getKey()), bucket.getDocCount()));
+        });
+
+        return aggregations;
     }
 
     private buildAggregationsQuery(parentPath: ContentPath): ContentQuery {

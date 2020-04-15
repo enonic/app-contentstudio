@@ -68,19 +68,21 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     doLayout(persistedItem: ITEM): Q.Promise<void> {
-        this.wizardStepForms = this.createStepsForms();
+        this.wizardStepForms = this.createStepsForms(persistedItem);
         this.setSteps(this.createSteps());
+
+        const layoutPromises: Q.Promise<void>[] = [];
 
         this.wizardStepForms.forEach((stepForm: SettingDataItemWizardStepForm<ITEM>) => {
             stepForm.setup(persistedItem);
-            stepForm.layout(persistedItem);
+            layoutPromises.push(stepForm.layout(persistedItem));
 
             stepForm.onDataChanged(() => {
                 this.handleDataChanged();
             });
         });
 
-        return Q<void>(null);
+        return Q.all(layoutPromises).spread<void>(() => Q<void>(null));
     }
 
     protected createSteps(): WizardStep[] {
@@ -94,6 +96,10 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     hasUnsavedChanges(): boolean {
+        if (!this.isRendered()) {
+            return false;
+        }
+
         if (this.getPersistedItem()) {
             return this.isPersistedItemChanged();
         }
@@ -201,7 +207,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     protected abstract createWizardActions(): SettingsDataItemWizardActions<ITEM>;
 
-    protected abstract createDeleteRequest(): ResourceRequest<boolean, boolean> ;
+    protected abstract createDeleteRequest(): ResourceRequest<boolean> ;
 
     protected abstract getSuccessfulDeleteMessage(): string;
 
@@ -245,7 +251,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         }
     }
 
-    protected abstract createStepsForms(): SettingDataItemWizardStepForm<ITEM>[];
+    protected abstract createStepsForms(persistedItem?: ITEM): SettingDataItemWizardStepForm<ITEM>[];
 
     protected isPersistedItemChanged(): boolean {
         const item: ITEM = this.getPersistedItem();
@@ -266,19 +272,12 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         const wizardHeader: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndNameBuilder().build();
 
         const existing: ITEM = this.getPersistedItem();
-        const name: string = this.getWizardNameValue();
+        const displayName: string = !!existing ? existing.getDisplayName() : '';
 
-        let displayName: string = '';
-
-        if (existing) {
-            displayName = existing.getDisplayName();
-
-            wizardHeader.disableNameInput();
-            wizardHeader.setAutoGenerationEnabled(false);
-        }
-
+        wizardHeader.disableNameInput();
+        wizardHeader.setAutoGenerationEnabled(false);
         wizardHeader.setPath('');
-        wizardHeader.initNames(displayName, name, false);
+        wizardHeader.initNames(displayName, 'not_used', false, true, true);
 
         wizardHeader.onPropertyChanged(() => {
             this.handleDataChanged();
@@ -286,10 +285,6 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         });
 
         return wizardHeader;
-    }
-
-    protected getWizardNameValue(): string {
-        return this.getPersistedItem() ? this.getPersistedItem().getId() : '';
     }
 
     private initElements() {

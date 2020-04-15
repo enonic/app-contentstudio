@@ -11,7 +11,6 @@ import {TabMenuItem} from 'lib-admin-ui/ui/tab/TabMenuItem';
 import {EditSettingsItemEvent} from './event/EditSettingsItemEvent';
 import {SettingsDataItemWizardPanel} from './wizard/SettingsDataItemWizardPanel';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {SettingsServerEvent} from './event/SettingsServerEvent';
 import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
@@ -20,6 +19,9 @@ import {SettingsViewItem} from './view/SettingsViewItem';
 import {SettingsDataViewItem} from './view/SettingsDataViewItem';
 import {ProjectViewItem} from './view/ProjectViewItem';
 import {ProjectListRequest} from './resource/ProjectListRequest';
+import {ProjectUpdatedEvent} from './event/ProjectUpdatedEvent';
+import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
+import {ProjectDeletedEvent} from './event/ProjectDeletedEvent';
 
 export class SettingsAppPanel
     extends NavigatedAppPanel<SettingsViewItem> {
@@ -45,25 +47,28 @@ export class SettingsAppPanel
             this.handleItemEdit(event.getItems());
         });
 
-        SettingsServerEvent.on((event: SettingsServerEvent) => {
+        ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
             if (!this.browsePanel) {
                 return;
             }
 
-            if (event.isCreateEvent()) {
-                this.handleItemsCreated(event.getItemsIds());
+            this.handleItemDeleted(event.getProjectName());
+        });
+
+        ProjectCreatedEvent.on((event: ProjectCreatedEvent) => {
+            if (!this.browsePanel) {
                 return;
             }
 
-            if (event.isUpdateEvent()) {
-                this.handleItemsUpdated(event.getItemsIds());
+            this.handleItemsCreated(event.getProjectName());
+        });
+
+        ProjectUpdatedEvent.on((event: ProjectUpdatedEvent) => {
+            if (!this.browsePanel) {
                 return;
             }
 
-            if (event.isDeleteEvent()) {
-                this.handleItemsDeleted(event.getItemsIds());
-                return;
-            }
+            this.handleItemUpdated(event.getProjectName());
         });
     }
 
@@ -133,22 +138,18 @@ export class SettingsAppPanel
         });
     }
 
-    private handleItemsCreated(itemIds: string[]) {
+    private handleItemsCreated(itemId: string) {
         new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-            this.doHandleItemsCreated(itemIds, projects);
+            this.doHandleItemsCreated(itemId, projects);
         }).catch(DefaultErrorHandler.handle);
     }
 
-    private doHandleItemsCreated(createdItemIds: string[], allProjects: Project[]) {
+    private doHandleItemsCreated(createdItemId: string, allProjects: Project[]) {
         allProjects
-            .filter((project: Project) => createdItemIds.some((createdItemId: string) => createdItemId === project.getName()))
+            .filter((project: Project) => createdItemId === project.getName())
             .forEach((createdProject: Project) => {
                 this.browsePanel.addSettingsItem(ProjectViewItem.create().setData(createdProject).build());
             });
-    }
-
-    private handleItemsUpdated(itemsIds: string[]) {
-        itemsIds.forEach(this.handleItemUpdated.bind(this));
     }
 
     private handleItemUpdated(itemId: string) {
@@ -204,10 +205,6 @@ export class SettingsAppPanel
         }
 
         tabMenuItem.setLabel(label);
-    }
-
-    private handleItemsDeleted(itemsIds: string[]) {
-        itemsIds.forEach(this.handleItemDeleted.bind(this));
     }
 
     private handleItemDeleted(itemId: string) {

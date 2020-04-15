@@ -13,41 +13,38 @@
   .wizard-step-form {
     .form-view {
 
-      &.display-validation-errors .input-view.invalid .form-input:not(.option-filter-input) {
-        background-color: @input-light-red;
-      }
-
-      .help-text {
-        position: relative;
-        bottom: 14px;
-        padding-left: @form-label-width - 10px;
-      }
-
       .input-view {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
 
-        label {
-          width: @form-label-width;
+        .form-item-header {
+          display: flex;
+          justify-content: space-between;
+
+          .help-text:not(:first-child) {
+            padding-left: 15px;
+          }
         }
 
+        label {
+          float: none;
+                  }
+
         .form-input {
-          margin-left: 0px;
-          flex-grow: 1;
+          margin-left: 0;
+          width: 100%;
+
+          &.radio-group, &[type="radio"] {
+            width: auto;
+          }
+        }
+
+        .validation-viewer {
+          margin-left: 0;
         }
 
         &.invalid {
-          padding-bottom: 40px;
 
           .help-text {
             padding-left: @form-label-width;
-          }
-
-          .error {
-            position: absolute;
-            bottom: 10px;
-            left: @form-label-width;
           }
 
         }
@@ -75,17 +72,9 @@
 
       .form-view {
 
-        .help-text {
-          padding-left: 0;
-        }
-
         .input-view {
           flex-direction: column;
           align-items: flex-start;
-
-          .form-input:not([type="radio"]) {
-            width: 100%;
-          }
 
           .radio-group {
             margin-top: 10px;

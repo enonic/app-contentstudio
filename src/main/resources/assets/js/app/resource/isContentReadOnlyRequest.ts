@@ -4,7 +4,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class IsContentReadOnlyRequest
-    extends ContentResourceRequest<string[], string[]> {
+    extends ContentResourceRequest<string[]> {
 
     private ids: ContentId[];
 
@@ -21,7 +21,7 @@ export class IsContentReadOnlyRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<string[]>): string[] {
+    protected parseResponse(response: JsonResponse<string[]>): string[] {
         return response.getResult();
     }
 }

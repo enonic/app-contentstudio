@@ -7,7 +7,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class UndoPendingDeleteContentRequest
-    extends ContentResourceRequest<UndoPendingDeleteContentResultJson, number> {
+    extends ContentResourceRequest<number> {
 
     private ids: ContentId[];
 
@@ -24,7 +24,7 @@ export class UndoPendingDeleteContentRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<UndoPendingDeleteContentResultJson>): number {
+    protected parseResponse(response: JsonResponse<UndoPendingDeleteContentResultJson>): number {
         return response.getResult().success;
     }
 

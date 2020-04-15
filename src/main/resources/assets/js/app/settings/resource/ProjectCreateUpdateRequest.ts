@@ -1,13 +1,11 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
-import {ProjectPermissions} from '../data/project/ProjectPermissions';
 import {ProjectJson} from './json/ProjectJson';
 import {Project} from '../data/project/Project';
-import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
 
 export abstract class ProjectCreateUpdateRequest
-    extends ProjectResourceRequest<ProjectJson, Project> {
+    extends ProjectResourceRequest<Project> {
 
     protected name: string;
 
@@ -16,10 +14,6 @@ export abstract class ProjectCreateUpdateRequest
     protected description: string;
 
     protected thumbnail: File;
-
-    protected permissions: ProjectPermissions;
-
-    protected readAccess: ProjectReadAccess;
 
     constructor() {
         super();
@@ -47,30 +41,12 @@ export abstract class ProjectCreateUpdateRequest
         return this;
     }
 
-    setPermissions(value: ProjectPermissions): ProjectCreateUpdateRequest {
-        this.permissions = value;
-        return this;
-    }
-
-    setReadAccess(value: ProjectReadAccess): ProjectCreateUpdateRequest {
-        this.readAccess = value;
-        return this;
-    }
-
     getParams(): Object {
         const params: any = {
             name: this.name,
             displayName: this.displayName,
             description: this.description
         };
-
-        if (this.permissions) {
-            params.permissions = JSON.stringify(this.permissions.toJson());
-        }
-
-        if (this.readAccess) {
-            params.readAccess = JSON.stringify(this.readAccess.toJson());
-        }
 
         if (this.thumbnail) {
             params.icon = this.thumbnail;
@@ -79,7 +55,7 @@ export abstract class ProjectCreateUpdateRequest
         return params;
     }
 
-    protected processResponse(response: JsonResponse<ProjectJson>): Project {
+    protected parseResponse(response: JsonResponse<ProjectJson>): Project {
         return Project.fromJson(response.getResult());
     }
 }

@@ -127,7 +127,27 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             //3. Exclude children(click on the toggler):
             await taskDetailsDialogItemsTab.clickOnIncludeChildrenToggler(appConstant.TEST_FOLDER_WITH_IMAGES);
             let result = await taskDetailsDialog.getNumberInItemsTab();
-            return assert.equal(result, '1', 'only one item should be present in the link');
+            assert.equal(result, '1', 'only one item should be present in the link');
+        });
+
+    //Verifies: Task Details Dialog switches to the Comments tab after save #1571
+    it(`GIVEN existing task is opened in Details Dialog WHEN new item has been added THEN 'Items' tab remains active`,
+        async () => {
+            let taskDetailsDialog = new TaskDetailsDialog();
+            let taskDetailsDialogItemsTab = new TaskDetailsDialogItemsTab();
+            let issueListDialog = new IssueListDialog();
+            //1. Open Task Details dialog:
+            await studioUtils.openIssuesListDialog();
+            await issueListDialog.clickOnIssue(TASK_TITLE);
+            await taskDetailsDialog.waitForDialogOpened();
+            //2. Go to 'Items' tab:
+            await taskDetailsDialog.clickOnItemsTabBarItem();
+            //3. Add one more item:
+            await taskDetailsDialogItemsTab.addItem("cape");
+            //4. Verify that Items tab remains active:
+            await taskDetailsDialogItemsTab.pause(2000);
+            let isActive = await taskDetailsDialog.isItemsTabBarItemActive();
+            assert.isTrue(isActive, "Items Tab should remain active after adding a item");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

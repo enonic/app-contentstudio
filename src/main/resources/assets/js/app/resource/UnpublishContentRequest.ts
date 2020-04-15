@@ -6,7 +6,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class UnpublishContentRequest
-    extends ContentResourceRequest<TaskIdJson, TaskId> {
+    extends ContentResourceRequest<TaskId> {
 
     private ids: ContentId[] = [];
 
@@ -46,7 +46,7 @@ export class UnpublishContentRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<TaskIdJson>): TaskId {
+    protected parseResponse(response: JsonResponse<TaskIdJson>): TaskId {
         return TaskId.fromJson(response.getResult());
     }
 }

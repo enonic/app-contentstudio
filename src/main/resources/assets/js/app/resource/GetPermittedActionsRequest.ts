@@ -5,7 +5,7 @@ import {Permission} from '../access/Permission';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetPermittedActionsRequest
-    extends ContentResourceRequest<string[], Permission[]> {
+    extends ContentResourceRequest<Permission[]> {
 
     private contentIds: ContentId[] = [];
 
@@ -46,7 +46,7 @@ export class GetPermittedActionsRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<string[]>): Permission[] {
+    protected parseResponse(response: JsonResponse<string[]>): Permission[] {
         let result = [];
 
         response.getResult().forEach((entry: string) => {

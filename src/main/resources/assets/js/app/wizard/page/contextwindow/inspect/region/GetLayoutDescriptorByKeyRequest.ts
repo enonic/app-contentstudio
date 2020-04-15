@@ -8,7 +8,7 @@ import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 
 export class GetLayoutDescriptorByKeyRequest
-    extends LayoutDescriptorResourceRequest<LayoutDescriptorJson, LayoutDescriptor> {
+    extends LayoutDescriptorResourceRequest<LayoutDescriptor> {
 
     private key: DescriptorKey;
 
@@ -42,7 +42,7 @@ export class GetLayoutDescriptorByKeyRequest
         return deferred.promise;
     }
 
-    protected processResponse(response: JsonResponse<LayoutDescriptorJson>): LayoutDescriptor {
+    protected parseResponse(response: JsonResponse<LayoutDescriptorJson>): LayoutDescriptor {
         return null;
     }
 }

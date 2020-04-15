@@ -11,7 +11,7 @@ import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
-export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content> implements PageCUDRequest {
+export class UpdatePageRequest extends PageResourceRequest<Content> implements PageCUDRequest {
 
     private contentId: ContentId;
 
@@ -76,7 +76,7 @@ export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content>
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentJson>): Content {
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
         return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
     }
 }

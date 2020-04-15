@@ -4,8 +4,8 @@ import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary
 import {ContentTypeSummaryJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryJson';
 import {ProjectBasedResourceRequest} from '../wizard/ProjectBasedResourceRequest';
 
-export abstract class ContentTypeResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends ProjectBasedResourceRequest<JSON_TYPE, PARSED_TYPE> {
+export abstract class ContentTypeResourceRequest<PARSED_TYPE>
+    extends ProjectBasedResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();

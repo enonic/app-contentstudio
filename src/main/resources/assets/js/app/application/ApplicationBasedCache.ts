@@ -12,7 +12,7 @@ import {Cache} from 'lib-admin-ui/cache/Cache';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
 
 export interface CacheableRequest {
-    new(keys: ApplicationKey[] | ApplicationKey): ResourceRequest<any, Descriptor[]>;
+    new(keys: ApplicationKey[] | ApplicationKey): ResourceRequest<Descriptor[]>;
 }
 
 export class ApplicationBasedCache<T extends Descriptor> {

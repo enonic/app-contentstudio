@@ -21,7 +21,7 @@ export class ImageHelper {
 
     static getImageDescription(imageContent: Content): string {
         const imageInfoMixin = new XDataName('media:imageInfo');
-        const imageInfoData = imageContent.getExtraData(imageInfoMixin);
+        const imageInfoData = imageContent.getExtraDataByName(imageInfoMixin);
 
         if (!imageInfoData || !imageInfoData.getData()) {
             return null;

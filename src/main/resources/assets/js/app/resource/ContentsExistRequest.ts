@@ -5,7 +5,7 @@ import {ContentsExistJson} from './json/ContentsExistJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ContentsExistRequest
-    extends ContentResourceRequest<ContentsExistJson, ContentsExistResult> {
+    extends ContentResourceRequest<ContentsExistResult> {
 
     private contentIds: string[] = [];
 
@@ -22,7 +22,7 @@ export class ContentsExistRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<ContentsExistJson>): ContentsExistResult {
+    protected parseResponse(response: JsonResponse<ContentsExistJson>): ContentsExistResult {
         return new ContentsExistResult(response.getResult());
     }
 }

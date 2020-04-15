@@ -8,7 +8,7 @@ import {ApplicationBasedCache} from '../application/ApplicationBasedCache';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 export class GetPartDescriptorsByApplicationRequest
-    extends PartDescriptorResourceRequest<PartDescriptorsJson, PartDescriptor[]> {
+    extends PartDescriptorResourceRequest<PartDescriptor[]> {
 
     private applicationKey: ApplicationKey;
 
@@ -42,7 +42,7 @@ export class GetPartDescriptorsByApplicationRequest
         return partDescriptor;
     }
 
-    protected processResponse(response: JsonResponse<PartDescriptorsJson>): PartDescriptor[] {
+    protected parseResponse(response: JsonResponse<PartDescriptorsJson>): PartDescriptor[] {
         return response.getResult().descriptors.map((descriptorJson: PartDescriptorJson) => {
             return this.fromJsonToPartDescriptor(descriptorJson);
         });

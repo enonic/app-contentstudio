@@ -11,7 +11,6 @@ import {FormItemEl} from 'lib-admin-ui/dom/FormItemEl';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
-import {ValidationRecordingViewer} from 'lib-admin-ui/form/ValidationRecordingViewer';
 import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
 import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
 import {InputEl} from 'lib-admin-ui/dom/InputEl';
@@ -175,17 +174,10 @@ export abstract class ModalDialog
     }
 
     public createFieldSet(formItem: FormItem): Fieldset {
-        let fieldSet = new Fieldset();
+        const fieldSet = new Fieldset();
 
         fieldSet.addClass('modal-dialog-fieldset');
         fieldSet.add(formItem);
-
-        if (formItem.getValidator()) {
-            let validationRecordingViewer = new ValidationRecordingViewer();
-
-            fieldSet.appendChild(validationRecordingViewer);
-            fieldSet.onValidityChanged(() => validationRecordingViewer.setError(formItem.getError()));
-        }
 
         return fieldSet;
     }

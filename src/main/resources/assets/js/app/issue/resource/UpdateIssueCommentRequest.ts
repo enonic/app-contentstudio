@@ -5,7 +5,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class UpdateIssueCommentRequest
-    extends IssueResourceRequest<IssueCommentJson, IssueComment> {
+    extends IssueResourceRequest<IssueComment> {
 
     private text: string;
     private commentId: string;
@@ -29,7 +29,7 @@ export class UpdateIssueCommentRequest
         };
     }
 
-    processResponse(response: JsonResponse<IssueCommentJson>): IssueComment {
+    parseResponse(response: JsonResponse<IssueCommentJson>): IssueComment {
         return IssueComment.fromJson(response.getResult());
     }
 }

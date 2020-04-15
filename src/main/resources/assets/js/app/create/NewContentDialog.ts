@@ -36,6 +36,7 @@ import {ElementHiddenEvent} from 'lib-admin-ui/dom/ElementHiddenEvent';
 import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
 import {PEl} from 'lib-admin-ui/dom/PEl';
+import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 
 export class NewContentDialog
     extends ModalDialog {
@@ -318,10 +319,30 @@ export class NewContentDialog
         return requests;
     }
 
-    private filterContentTypes(contentTypes: ContentTypeSummaries, loginResult: LoginResult): ContentTypeSummaries {
+    private filterContentTypes(contentTypes: ContentTypeSummaries, loginResult: LoginResult): Q.Promise<ContentTypeSummaries> {
         const isContentAdmin: boolean = loginResult.isContentAdmin();
-        return contentTypes.filter(contentType => !contentType.isUnstructured() && (isContentAdmin || !contentType.isSite()));
+
+        if (isContentAdmin) {
+            return Q(this.doFilterContentTypes(contentTypes));
+        }
+
+        return ProjectHelper.isUserProjectOwner(loginResult).then((isOwner: boolean) => {
+            return Q(this.doFilterContentTypes(contentTypes, isOwner));
+        });
     }
+
+    private doFilterContentTypes(contentTypes: ContentTypeSummaries, isSiteAllowed: boolean = true): ContentTypeSummaries {
+        return contentTypes.filter((contentType: ContentTypeSummary) => this.isContentTypeAllowed(contentType, isSiteAllowed));
+    }
+
+    private isContentTypeAllowed(contentType: ContentTypeSummary, isSiteAllowed: boolean = true): boolean {
+        if (contentType.isUnstructured()) {
+            return false;
+        }
+
+        return isSiteAllowed || !contentType.isSite();
+    }
+
 
     private updateDialogTitlePath() {
         if (this.parentContent) {

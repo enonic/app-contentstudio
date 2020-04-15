@@ -8,7 +8,6 @@ import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary
 import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
-import {ContentTypeSummaryListJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryListJson';
 import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {PageTemplateContentTypeLoader} from './PageTemplateContentTypeLoader';
@@ -51,8 +50,8 @@ export class ContentTypeFilter
         return null;
     }
 
-    private createLoader(): BaseLoader<ContentTypeSummaryListJson, ContentTypeSummary> {
-        let loader: BaseLoader<ContentTypeSummaryListJson, ContentTypeSummary>;
+    private createLoader(): BaseLoader<ContentTypeSummary> {
+        let loader: BaseLoader<ContentTypeSummary>;
         if (this.context.formContext.getContentTypeName().isPageTemplate()) {
             let contentId = this.context.site.getContentId();
             loader = new PageTemplateContentTypeLoader(contentId);

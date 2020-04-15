@@ -4,7 +4,6 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const ConfirmationDialog = require('../confirmation.dialog');
 const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const NewSettingsItemDialog = require('../../page_objects/project/new.settings.item.dialog');
@@ -19,7 +18,6 @@ const XPATH = {
     itemsTreeGrid: `//div[contains(@id,'SettingsItemsTreeGrid')]`,
     treeGridToolbar: `//div[contains(@id,'TreeGridToolbar')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
-    selectionPanelToggler: `//button[contains(@id,'SelectionPanelToggler')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     selectedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
     checkedRows: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-cell-checkboxsel selected')]`,
@@ -33,16 +31,15 @@ const XPATH = {
     projectItemByDisplayName:
         displayName => `//div[contains(@id,'NamesView') and descendant::span[contains(@class,'display-name') and contains(.,'${displayName}')]]`,
 
-    checkboxByName: name => {
-        `${lib.itemByName(name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
+    projectCheckboxByName: name => {
+        return `${lib.projectByName(name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
-    projectItemByName: function (name) {
-        return `//div[contains(@id,'NamesView') and descendant::span[@class='name' and contains(.,'${name}')]]`
-    },
-
     checkboxByDisplayName: displayName => XPATH.container + lib.itemByDisplayName(displayName) +
                                           "/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label",
 
+    projectItemByName: function (name) {
+        return `//div[contains(@id,'NamesView') and descendant::span[@class='name' and contains(.,'${name}')]]`
+    },
     expanderIconByName: name => `${lib.itemByName(
         name)}/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`,
 
@@ -80,7 +77,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get selectionPanelToggler() {
-        return `${XPATH.treeGridToolbar}${XPATH.selectionPanelToggler}`;
+        return `${XPATH.container}${XPATH.treeGridToolbar}${lib.SELECTION_PANEL_TOGGLER}`;
     }
 
     get numberInToggler() {
@@ -89,6 +86,12 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     get displayNames() {
         return XPATH.itemsTreeGrid + lib.H6_DISPLAY_NAME;
+    }
+
+    //returns array with displayName of all items in the Settings Browse Panel
+    getDisplayNames() {
+        let selector = this.treeGrid + lib.H6_DISPLAY_NAME + "/span[@class='display-name']";
+        return this.getTextInElements(selector);
     }
 
     async clickOnExpanderIcon(name) {
@@ -145,7 +148,6 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         })
     }
 
-
     async clickOnRowByDisplayName(displayName) {
         try {
             let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
@@ -189,7 +191,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     clickOnCheckboxAndSelectRowByName(name) {
-        let nameXpath = XPATH.checkboxByName(name);
+        let nameXpath = XPATH.projectCheckboxByName(name);
         return this.waitForElementDisplayed(nameXpath, 2000).then(() => {
             return this.clickOnElement(nameXpath);
         }).then(() => {
@@ -288,6 +290,12 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         let selector = XPATH.tabCloseIcon(displayName);
         await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
         return await this.clickOnElement(selector);
+    }
+
+    async getNumberOpenedTabItems() {
+        let selector = XPATH.settingsAppContainer + "//li[contains(@id,'AppBarTabMenuItem')]";
+        let result = await this.getDisplayedElements(selector);
+        return result.length;
     }
 };
 module.exports = SettingsBrowsePanel;

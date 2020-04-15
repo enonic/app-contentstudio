@@ -7,7 +7,8 @@ const appConst = require('../../libs/app_const');
 
 const XPATH = {
     container: `//div[contains(@id,'ProjectSelectionDialog')]`,
-    title: "//h2[@class='title']"
+    title: "//h2[@class='title']",
+    projectList: "//ul[contains(@id,'ProjectList')]",
 };
 
 class ProjectSelectionDialog extends Page {
@@ -61,7 +62,7 @@ class ProjectSelectionDialog extends Page {
         return this.waitForElementDisplayed(this.cancelButtonTop, appConst.TIMEOUT_2);
     }
 
-    async clickOnProjectItem() {
+    async selectContext(projectDisplayName) {
         let selector = XPATH.container + lib.itemByDisplayName("Project");
         await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
         return await this.clickOnElement(selector);

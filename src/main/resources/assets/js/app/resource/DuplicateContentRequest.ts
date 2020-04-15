@@ -11,7 +11,7 @@ export type DuplicatableId = {
 };
 
 export class DuplicateContentRequest
-    extends ContentResourceRequest<TaskIdJson, TaskId> {
+    extends ContentResourceRequest<TaskId> {
 
     private contents: DuplicatableId[];
 
@@ -31,7 +31,7 @@ export class DuplicateContentRequest
         };
     }
 
-    protected processResponse(response: JsonResponse<TaskIdJson>): TaskId {
+    protected parseResponse(response: JsonResponse<TaskIdJson>): TaskId {
         return TaskId.fromJson(response.getResult());
     }
 }

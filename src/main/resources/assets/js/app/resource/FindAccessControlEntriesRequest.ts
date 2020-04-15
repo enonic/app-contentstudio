@@ -1,5 +1,3 @@
-import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {PrincipalListJson} from 'lib-admin-ui/security/PrincipalListJson';
@@ -10,7 +8,7 @@ import {SecurityResourceRequest} from 'lib-admin-ui/security/SecurityResourceReq
 import {AccessControlEntry} from '../access/AccessControlEntry';
 
 export class FindAccessControlEntriesRequest
-    extends SecurityResourceRequest<PrincipalListJson, AccessControlEntry[]> {
+    extends SecurityResourceRequest<AccessControlEntry[]> {
 
     private allowedTypes: PrincipalType[];
     private searchQuery: string;
@@ -18,6 +16,7 @@ export class FindAccessControlEntriesRequest
 
     constructor() {
         super();
+        this.addRequestPathElements('principals');
     }
 
     getParams(): Object {
@@ -26,18 +25,6 @@ export class FindAccessControlEntriesRequest
             query: this.searchQuery,
             idProviderKey: this.idProviderKey ? this.idProviderKey.toString() : undefined
         };
-    }
-
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'principals');
-    }
-
-    sendAndParse(): Q.Promise<AccessControlEntry[]> {
-        return this.send().then((response: JsonResponse<PrincipalListJson>) => {
-            return response.getResult().principals.map((principalJson: PrincipalJson) => {
-                return new AccessControlEntry(Principal.fromJson(principalJson));
-            });
-        });
     }
 
     private enumToStrings(types: PrincipalType[]): string[] {
@@ -59,5 +46,11 @@ export class FindAccessControlEntriesRequest
     setSearchQuery(query: string): FindAccessControlEntriesRequest {
         this.searchQuery = query;
         return this;
+    }
+
+    protected parseResponse(response: JsonResponse<PrincipalListJson>): AccessControlEntry[] {
+        return response.getResult().principals.map((principalJson: PrincipalJson) => {
+            return new AccessControlEntry(Principal.fromJson(principalJson));
+        });
     }
 }

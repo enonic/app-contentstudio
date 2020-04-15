@@ -22,6 +22,8 @@ export abstract class SettingsDataItemWizardActions<ITEM extends SettingsDataVie
         this.delete = new DeleteSettingsItemWizardAction();
         this.close = new CloseAction(wizardPanel);
 
+        this.save.setEnabled(false);
+
         this.setActions(this.save, this.delete, this.close);
     }
 

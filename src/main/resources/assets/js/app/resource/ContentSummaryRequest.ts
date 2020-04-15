@@ -21,7 +21,7 @@ import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {PathMatchExpressionBuilder} from 'lib-admin-ui/query/PathMatchExpression';
 
 export class ContentSummaryRequest
-    extends ResourceRequest<ContentQueryResultJson<ContentSummaryJson>, ContentSummary[]> {
+    extends ResourceRequest<ContentSummary[]> {
 
     private path: ContentPath;
 
@@ -68,7 +68,7 @@ export class ContentSummaryRequest
     send(): Q.Promise<JsonResponse<ContentQueryResultJson<ContentSummaryJson>>> {
         this.buildSearchQueryExpr();
 
-        return this.request.send();
+        return <any>this.request.send();
     }
 
     sendAndParse(): Q.Promise<ContentSummary[]> {

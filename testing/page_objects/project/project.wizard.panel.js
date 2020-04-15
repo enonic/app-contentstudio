@@ -11,7 +11,9 @@ const XPATH = {
     toolbar: `//div[contains(@id,'Toolbar')]`,
     saveButton: `//button[contains(@id,'ActionButton') and child::span[text()='Save']]`,
     deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete']]`,
-    selectedAccessItems: "//div[contains(@id,'ProjectACESelectedOptionsView')]",
+    selectedProjectAccessOptions: "//div[contains(@id,'ProjectACESelectedOptionsView')]",
+    selectedReadAccessOptions: "//div[contains(@id,'PrincipalSelectedOptionsView')]",
+    selectedReadAccessOption: "//div[contains(@id,'PrincipalSelectedOptionView')]",
     projectAccessControlComboBox: "//div[contains(@id,'ProjectAccessControlComboBox')]",
     projectReadAccessWizardStepForm: "//div[contains(@id,'ProjectReadAccessWizardStepForm')]",
     accessItemByName:
@@ -26,7 +28,7 @@ class ProjectWizardPanel extends Page {
     }
 
     get projectNameValidationMessage() {
-        return XPATH.container + lib.formItemByLabel("Project name") + "//span[@class='error']";
+        return XPATH.container + lib.formItemByLabel("Project name") + "//div[contains(@id,'ValidationRecordingViewer')]//li";
     }
 
     get displayNameInput() {
@@ -47,6 +49,10 @@ class ProjectWizardPanel extends Page {
 
     get descriptionInput() {
         return XPATH.container + lib.formItemByLabel("Description") + lib.TEXT_INPUT;
+    }
+
+    get selectedCustomReadAccessOptions() {
+        return XPATH.container + XPATH.selectedReadAccessOptions + XPATH.selectedReadAccessOption
     }
 
     async waitAndClickOnSave() {
@@ -111,6 +117,14 @@ class ProjectWizardPanel extends Page {
         }
     }
 
+    async waitForDeleteButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.deleteButton, appConst.TIMEOUT_4);
+        } catch (err) {
+            throw new Error("Delete button is not enabled :" + err);
+        }
+    }
+
     waitForCancelButtonTopDisplayed() {
         return this.waitForElementDisplayed(this.cancelButtonTop, appConst.TIMEOUT_2);
     }
@@ -154,16 +168,16 @@ class ProjectWizardPanel extends Page {
         return this.waitForElementDisplayed(this.projectAccessControlComboBox);
     }
 
-    async selectAccessItem(principalDisplayName) {
+    async selectProjectAccessItem(principalDisplayName) {
         let comboBox = new ComboBox();
-        await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container);
+        await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container + XPATH.projectAccessControlComboBox);
         console.log("Project Wizard, principal is selected: " + principalDisplayName);
         return await this.pause(300);
     }
 
-    async getSelectedAccessItems() {
-        let selector = XPATH.container + XPATH.selectedAccessItems + lib.H6_DISPLAY_NAME;
-        let isDisplayed = await this.isElementDisplayed(XPATH.container + XPATH.selectedAccessItems);
+    async getSelectedProjectAccessItems() {
+        let selector = XPATH.container + XPATH.selectedProjectAccessOptions + lib.H6_DISPLAY_NAME;
+        let isDisplayed = await this.isElementDisplayed(XPATH.container + XPATH.selectedProjectAccessOptions);
         if (isDisplayed) {
             return await this.getTextInElements(selector);
         } else {
@@ -171,14 +185,31 @@ class ProjectWizardPanel extends Page {
         }
     }
 
-    async removeAccessItem(principalName) {
+    async removeProjectAccessItem(principalName) {
         try {
-            let selector = XPATH.container + XPATH.accessItemByName(principalName) + lib.REMOVE_ICON;
+            let selector = XPATH.container + XPATH.projectAccessControlComboBox + XPATH.accessItemByName(principalName) + lib.REMOVE_ICON;
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
             this.saveScreenshot("err_remove_access_entry");
             throw new Error("Error when trying to remove project Access Item " + err);
+        }
+    }
+
+    async selectCustomReadAccessItem(principalDisplayName) {
+        let comboBox = new ComboBox();
+        await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container + XPATH.projectReadAccessWizardStepForm);
+        console.log("Project Wizard, principal is selected: " + principalDisplayName);
+        return await this.pause(300);
+    }
+
+    async getSelectedCustomReadAccessOptions() {
+        let h6_element = this.selectedCustomReadAccessOptions + lib.H6_DISPLAY_NAME;
+        let isDisplayed = await this.isElementDisplayed(this.selectedCustomReadAccessOptions);
+        if (isDisplayed) {
+            return await this.getTextInElements(h6_element);
+        } else {
+            return [];
         }
     }
 
@@ -190,10 +221,26 @@ class ProjectWizardPanel extends Page {
         return this.getBrowser().keys(['Alt', 'w']);
     }
 
-    async selectReadAccess(access) {
+    async clickOnReadAccessRadio(access) {
         let selector = XPATH.radioButtonByDescription(access) + "/input[@type='radio']";
         await this.waitForElementDisplayed(XPATH.radioButtonByDescription(access), appConst.TIMEOUT_2);
         return await this.clickOnElement(selector);
+    }
+
+    async isReadAccessRadioSelected(access) {
+        let selector = XPATH.radioButtonByDescription(access) + "/input[@type='radio']";
+        await this.waitForElementDisplayed(XPATH.radioButtonByDescription(access), appConst.TIMEOUT_2);
+        return await this.isSelected(selector);
+    }
+
+    waitForCustomReadAccessComboboxDisabled() {
+        let selector = XPATH.projectReadAccessWizardStepForm + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return this.waitForElementDisabled(selector, appConst.TIMEOUT_2);
+    }
+
+    waitForCustomReadAccessComboboxEnabled() {
+        let selector = XPATH.projectReadAccessWizardStepForm + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return this.waitForElementEnabled(selector, appConst.TIMEOUT_2);
     }
 };
 module.exports = ProjectWizardPanel;

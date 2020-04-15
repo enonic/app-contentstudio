@@ -19,6 +19,7 @@ module.exports = Object.freeze({
     TEXT_AREA: "//textarea[contains(@id,'TextArea')]",
     DROP_DOWN_HANDLE: "//button[contains(@id,'DropdownHandle')]",
     GRID_CANVAS: `//div[contains(@class,'grid-canvas')]`,
+    SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,
     TEXT_INPUT: `//input[@type='text']`,
     DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
     VALIDATION_RECORDING_VIEWER: "//div[contains(@id,'ValidationRecordingViewer')]//li",
@@ -35,6 +36,9 @@ module.exports = Object.freeze({
     },
     itemByName: function (name) {
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
+    },
+    projectByName: (name) => {
+        return `//div[contains(@id,'NamesView') and descendant::span[contains(@class,'name') and contains(.,'${name}')]]`
     },
     formItemByLabel: (label) => {
         return `//div[contains(@id,'FormItem') and child::label[contains(.,'${label}')]]`
