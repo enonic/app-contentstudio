@@ -118,6 +118,7 @@ import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {assert} from 'lib-admin-ui/util/Assert';
 import {ContentIds} from '../ContentIds';
+import {AfterContentSavedEvent} from '../event/AfterContentSavedEvent';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -591,6 +592,8 @@ export class ContentWizardPanel
             this.isMarkedAsReadyOnPublish = false;
             this.contentUpdateDisabled = false;
             this.updateButtonsState();
+
+            new AfterContentSavedEvent().fire();
         });
     }
 

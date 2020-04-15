@@ -21,14 +21,20 @@ import {Value} from 'lib-admin-ui/data/Value';
 import {ValueType} from 'lib-admin-ui/data/ValueType';
 import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {AfterContentSavedEvent} from '../../event/AfterContentSavedEvent';
 
 export class AttachmentUploader
     extends BaseInputTypeManagingAdd {
 
     private uploadButton: DivEl;
+
     private uploaderWrapper: DivEl;
+
     private uploaderEl: AttachmentUploaderEl;
+
     private config: ContentInputTypeViewContext;
+
+    private skipServerEvents: boolean;
 
     constructor(config: ContentInputTypeViewContext) {
         super('file-uploader');
@@ -45,17 +51,22 @@ export class AttachmentUploader
     }
 
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
-        return super.update(propertyArray, unchangedOnly).then(() => {
-            this.updateSelectedValues();
-            this.toggleUploadButtonVisibility();
-            this.validate(false);
+        if (!this.skipServerEvents) {
 
-            return Q(null);
-        });
+            return super.update(propertyArray, unchangedOnly).then(() => {
+                this.updateSelectedValues();
+                this.toggleUploadButtonVisibility();
+                this.validate(false);
+            });
+        }
+
+        return Q(null);
     }
 
     private updateSelectedValues() {
-        this.uploaderEl.setValues(this.getFileNamesFromProperty());
+        const fileNames = this.getFileNamesFromProperty();
+
+        this.uploaderEl.setValue(fileNames && fileNames.length > 0 ? JSON.stringify(this.getFileNamesFromProperty()) : null);
     }
 
     private getFileNamesFromProperty(): string[] {
@@ -168,17 +179,21 @@ export class AttachmentUploader
         this.uploaderEl.onUploadStarted(() => {
             this.uploaderWrapper.removeClass('empty');
             this.uploadButton.getEl().setDisabled(true);
+            this.stopListenServerEvents();
         });
 
         this.uploaderEl.onFileUploaded((event: UploadedEvent<Attachment>) => {
             const attachment: Attachment = <Attachment>event.getUploadItem().getModel();
-            this.setFileNameProperty(attachment.getName().toString());
+            this.addFileNameToProperty(attachment.getName().toString());
+
             showFeedback(i18n('notify.upload.success', attachment.getName().toString()));
         });
 
         this.uploaderEl.onUploadCompleted(() => {
             this.validate(false);
             this.uploadButton.getEl().setDisabled(false);
+
+            AfterContentSavedEvent.on(this.startListenServerEvents.bind(this));
             new ContentRequiresSaveEvent(this.config.content.getContentId()).fire();
         });
 
@@ -190,7 +205,16 @@ export class AttachmentUploader
         });
     }
 
-    private setFileNameProperty(fileName: string) {
+    private stopListenServerEvents() {
+        this.skipServerEvents = true;
+    }
+
+    private startListenServerEvents() {
+        AfterContentSavedEvent.un(this.startListenServerEvents.bind(this));
+        this.skipServerEvents = false;
+    }
+
+    private addFileNameToProperty(fileName: string) {
         const value: Value = new Value(fileName, ValueTypes.STRING);
 
         if (!this.getPropertyArray().containsValue(value)) {

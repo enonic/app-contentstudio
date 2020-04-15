@@ -1,4 +1,3 @@
-import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {AttachmentItem} from './AttachmentItem';
@@ -8,12 +7,6 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
 import * as Q from 'q';
 import {UrlHelper} from '../../../util/UrlHelper';
-
-export interface AttachmentItems {
-    existingItems: Element[];
-
-    newItems: Element[];
-}
 
 export interface AttachmentUploaderElConfig
     extends UploaderElConfig {
@@ -25,8 +18,6 @@ export interface AttachmentUploaderElConfig
 
 export class AttachmentUploaderEl
     extends UploaderEl<Attachment> {
-
-    static FILE_NAME_DELIMITER: string = '/';
 
     private contentId: string;
 
@@ -53,20 +44,11 @@ export class AttachmentUploaderEl
         this.uploader.setEndpoint(UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/${this.config.url}`));
     }
 
-
-    doSetValue(value: string): AttachmentUploaderEl {
-        const items: AttachmentItems = this.getAttachmentItemsFromString(value);
-        this.appendNewItems(items.newItems);
+    protected doSetValue(value: string): AttachmentUploaderEl {
+        super.doSetValue(value);
         this.refreshVisibility();
 
         return this;
-    }
-
-    setValues(values: string[]) {
-        const items: AttachmentItems = this.getAttachmentItems(values);
-        this.removeAllChildrenExceptGiven(items.existingItems);
-        this.appendNewItems(items.newItems);
-        this.refreshVisibility();
     }
 
     protected initHandler() {
@@ -85,39 +67,6 @@ export class AttachmentUploaderEl
         } else {
             this.setDefaultDropzoneVisible();
         }
-    }
-
-    private getAttachmentItemsFromString(valuesAsString: string): AttachmentItems {
-        const newItems: Element[] = [];
-        const existingItems: Element[] = [];
-
-        this.parseValues(valuesAsString).forEach((parsedValue: string) => {
-            if (parsedValue) {
-                const newValues: string[] = parsedValue.split(AttachmentUploaderEl.FILE_NAME_DELIMITER);
-                const items: AttachmentItems = this.getAttachmentItems(newValues);
-                newItems.push(...items.newItems);
-                existingItems.push(...items.existingItems);
-            }
-        });
-
-        return {existingItems, newItems};
-    }
-
-    private getAttachmentItems(values: string[]): AttachmentItems {
-        const newItems: Element[] = [];
-        const existingItems: Element[] = [];
-
-        values.forEach((value: string) => {
-            const existingItem: AttachmentItem = this.getExistingItem(value);
-            if (!existingItem) {
-                newItems.push(this.createResultItem(value));
-            } else {
-                existingItems.push(existingItem);
-            }
-        });
-
-
-        return {existingItems, newItems};
     }
 
     createModel(serverResponse: AttachmentJson): Attachment {
