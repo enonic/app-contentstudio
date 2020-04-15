@@ -615,11 +615,9 @@ module.exports = {
         let projectWizard = new ProjectWizard();
         let settingsBrowsePanel = new SettingsBrowsePanel();
         await settingsBrowsePanel.openProjectWizard();
-        //2. Type a name that is already being used by existing project:
-        await projectWizard.typeName(name);
+        await projectWizard.typeDisplayName(name);
         await projectWizard.typeDescription(description);
-        await projectWizard.clickOnReadAccessRadio("Private");
-        //3. Verify that `Save` button gets enabled, then click on it
+        await projectWizard.clickOnAccessModeRadio("Private");
         await projectWizard.pause(400);
         await projectWizard.waitAndClickOnSave();
         await projectWizard.waitForNotificationMessage();
