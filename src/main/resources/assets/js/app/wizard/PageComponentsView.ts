@@ -411,8 +411,8 @@ export class PageComponentsView
         });
 
         this.tree.onSelectionChanged(() => {
-            const fullSelection: TreeNode<ItemView>[] = this.tree.getRoot().getFullSelection();
-            const currentSelection: TreeNode<ItemView>[] = this.tree.getRoot().getCurrentSelection();
+            const fullSelection: TreeNode<ItemView>[] = this.tree.getFullSelection();
+            const currentSelection: TreeNode<ItemView>[] = this.tree.getCurrentSelection();
 
             if (fullSelection.length > 0 && this.isModal()) {
                 this.hide();

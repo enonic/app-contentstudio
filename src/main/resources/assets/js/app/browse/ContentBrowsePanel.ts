@@ -50,7 +50,6 @@ import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 import {UrlAction} from '../UrlAction';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
-import {SelectionChange} from 'lib-admin-ui/ui/treegrid/SelectionChange';
 
 export class ContentBrowsePanel
     extends BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -216,26 +215,33 @@ export class ContentBrowsePanel
         });
     }
 
-    private updateContextPanelOnItemChange(itemNode?: TreeNode<ContentSummaryAndCompareStatus>) {
-        if (!this.contextSplitPanel.isMobileMode()) {
-            // no need to update on selection change in mobile mode as it opens in a separate screen
-            const node: TreeNode<ContentSummaryAndCompareStatus> =
-                !!itemNode ? itemNode : this.treeGrid.getFirstSelectedOrHighlightedNode();
-            this.doUpdateContextPanel(!!node ? node.getData() : null);
+    private updateContextPanelOnItemChange() {
+        if (this.contextSplitPanel.isMobileMode()) {
+            return; // no need to update on selection change in mobile mode as it opens in a separate screen
+        }
+
+        if (this.treeGrid.isAnySelected()) {
+            const lastSelectedNode: TreeNode<ContentSummaryAndCompareStatus> = this.treeGrid.getSelectedNodes().pop();
+            this.doUpdateContextPanel(this.treeGrid.getSelectedNodes().pop().getData());
+
+            return;
+        }
+
+        if (this.treeGrid.hasHighlightedNode()) {
+            this.doUpdateContextPanel(this.treeGrid.getHighlightedNode().getData());
         }
     }
 
     private subscribeContextPanelsOnEvents() {
-        this.getTreeGrid().onSelectionChanged((change: SelectionChange<ContentSummaryAndCompareStatus>) => {
-            const newSelectedNode: TreeNode<ContentSummaryAndCompareStatus> = change.getAdded().length > 0 ? change.getAdded()[0] : null;
-            this.updateContextPanelOnItemChange(change.getAdded()[0]);
+        this.treeGrid.onSelectionChanged(() => {
+            this.updateContextPanelOnItemChange();
         });
 
-        const onHighlightingChanged = AppHelper.debounce((highlightedNode: TreeNode<ContentSummaryAndCompareStatus>) => {
-            this.updateContextPanelOnItemChange(highlightedNode);
+        const onHighlightingChanged = AppHelper.debounce(() => {
+            this.updateContextPanelOnItemChange();
         }, 500);
 
-        this.getTreeGrid().onHighlightingChanged((node: TreeNode<ContentSummaryAndCompareStatus>) => onHighlightingChanged(node));
+        this.getTreeGrid().onHighlightingChanged(onHighlightingChanged);
     }
 
     private subscribeMobilePanelOnEvents() {
@@ -642,7 +648,7 @@ export class ContentBrowsePanel
 
         let previousSelectionSize: number = this.treeGrid.getRoot().getFullSelection().length;
 
-        this.treeGrid.onSelectionChanged((change: SelectionChange<ContentSummaryAndCompareStatus>) => {
+        this.treeGrid.onSelectionChanged(() => {
             const fullSelection: TreeNode<ContentSummaryAndCompareStatus>[] = this.treeGrid.getRoot().getFullSelection();
             const isSingleSelected = fullSelection.length === 1;
             const hadMultipleSelection = previousSelectionSize > 1;
