@@ -1,3 +1,4 @@
+import {Element} from 'lib-admin-ui/dom/Element';
 import {FormIcon} from 'lib-admin-ui/app/wizard/FormIcon';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {LabelEl} from 'lib-admin-ui/dom/LabelEl';
@@ -58,7 +59,7 @@ class SettingsIconThumbnailSelector
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.fileInput.hide();
-            this.appendChildren(this.label, this.fileInput);
+            this.appendChildren<Element>(this.label, this.fileInput);
 
             return rendered;
         });
