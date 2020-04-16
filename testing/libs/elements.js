@@ -7,6 +7,7 @@ module.exports = Object.freeze({
     FORM_ITEM: "//div[contains(@id,'FormItem')]",
     DATE_TIME_PICKER_INPUT: "//div[contains(@id,'DateTimePicker')]//input[contains(@id,'TextInput')]",
     CONTENT_SELECTOR: "//div[contains(@id,'ContentSelector')]",
+    SELECTED_LOCALE: `//div[contains(@id,'LocaleSelectedOptionView')]`,
     NAMES_VIEW_BY_NAME: "//div[contains(@id,'NamesView') and child::p[contains(@class,'sub-name') and contains(.,'%s')]]",
     NAMES_VIEW_BY_DISPLAY_NAME: "//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'%s')]]",
     SLICK_VIEW_PORT: `//div[contains(@class,'slick-viewport')]`,

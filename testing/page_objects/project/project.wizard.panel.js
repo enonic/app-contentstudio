@@ -17,6 +17,7 @@ const XPATH = {
     projectAccessControlComboBox: "//div[contains(@id,'ProjectAccessControlComboBox')]",
     projectReadAccessWizardStepForm: "//div[contains(@id,'ProjectReadAccessWizardStepForm')]",
     accessFormItem: "//div[contains(@id,'ProjectFormItem') and contains(@class,'access')]",
+    localeComboBoxDiv: "//div[contains(@id,'LocaleComboBox')]",
     accessItemByName:
         name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`,
     radioButtonByDescription: descr => XPATH.projectReadAccessWizardStepForm +
@@ -42,6 +43,10 @@ class ProjectWizardPanel extends Page {
 
     get customReadAccessCombobox() {
         return XPATH.projectReadAccessWizardStepForm + XPATH.accessFormItem + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+    }
+
+    get localeCombobox() {
+        return XPATH.projectReadAccessWizardStepForm + XPATH.localeComboBoxDiv + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
     get saveButton() {
@@ -139,6 +144,18 @@ class ProjectWizardPanel extends Page {
         return this.getTextInInput(this.projectIdentifierInput);
     }
 
+    async getSelectedLanguage() {
+        try {
+            let selector = XPATH.container + lib.SELECTED_LOCALE;
+            await this.waitForElementDisplayed(selector, 1000);
+            return await this.getText(selector);
+        } catch (err) {
+            this.saveScreenshot("err_selected_locale");
+            throw new Error("Selected language was not found " + err);
+        }
+
+    }
+
     waitForProjectIdentifierInputDisabled() {
         return this.waitForElementDisabled(this.projectIdentifierInput, appConst.TIMEOUT_2);
     }
@@ -194,6 +211,13 @@ class ProjectWizardPanel extends Page {
         let comboBox = new ComboBox();
         await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.projectReadAccessWizardStepForm + XPATH.accessFormItem);
         console.log("Project Wizard, principal is selected: " + principalDisplayName);
+        return await this.pause(300);
+    }
+
+    async selectLanguage(language) {
+        let comboBox = new ComboBox();
+        await comboBox.typeTextAndSelectOption(language, XPATH.projectReadAccessWizardStepForm + XPATH.localeComboBoxDiv);
+        console.log("Project Wizard, language is selected: " + language);
         return await this.pause(300);
     }
 

@@ -28,12 +28,15 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
             await projectWizard.typeDescription(TEST_DESCRIPTION);
             await projectWizard.clickOnAccessModeRadio("Private");
+            await projectWizard.selectLanguage(appConstant.LANGUAGES.EN);
             await projectWizard.waitAndClickOnSave();
             //3. verify the saved data:
             let actualDescription = await projectWizard.getDescription();
             assert.equal(actualDescription, TEST_DESCRIPTION, "Expected description should be displayed");
             let actualProjectIdentifier = await projectWizard.getProjectIdentifier();
-            assert.equal(actualProjectIdentifier, PROJECT_DISPLAY_NAME, "Expected project name should be displayed");
+            assert.equal(actualProjectIdentifier, PROJECT_DISPLAY_NAME, "Expected identifier should be displayed");
+            let actualLanguage = await projectWizard.getSelectedLanguage();
+            assert.equal(actualLanguage, appConstant.LANGUAGES.EN, "Expected language should be displayed");
             //4. Verify that Delete button gets enabled, because new project is created now:
             await projectWizard.waitForDeleteButtonEnabled();
         });
