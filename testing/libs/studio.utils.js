@@ -606,7 +606,8 @@ module.exports = {
     },
     async openSettingsPanel() {
         await this.openAppModeSwitcher();
-        return await this.clickOnElement(lib.SETTINGS_BUTTON);
+        await this.clickOnElement(lib.SETTINGS_BUTTON);
+        return await webDriverHelper.browser.pause(200);
     },
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
@@ -720,6 +721,8 @@ module.exports = {
     async showLauncherPanel() {
         let launcherPanel = new LauncherPanel();
         let selector = "//button[@class='launcher-button ' ]";
+        await this.waitUntilDisplayed(selector, 2000);
+        await webDriverHelper.browser.pause(100);
         let el = await this.getDisplayedElements(selector);
         await el[0].click();
         return await launcherPanel.waitForPanelDisplayed(1000);
@@ -729,6 +732,15 @@ module.exports = {
         let pr = elements.map(el => el.isDisplayed());
         return await Promise.all(pr).then(result => {
             return elements.filter((el, i) => result[i]);
+        });
+    },
+    waitUntilDisplayed(selector, ms) {
+        return webDriverHelper.browser.waitUntil(() => {
+            return this.getDisplayedElements(selector).then(result => {
+                return result.length > 0;
+            })
+        }, ms).catch(err => {
+            throw new Error("Timeout exception. Element " + selector + " still not visible in: " + ms);
         });
     }
 };
