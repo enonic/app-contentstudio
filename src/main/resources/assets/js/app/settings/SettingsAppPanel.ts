@@ -18,9 +18,7 @@ import {Project} from './data/project/Project';
 import {SettingsViewItem} from './view/SettingsViewItem';
 import {SettingsDataViewItem} from './view/SettingsDataViewItem';
 import {ProjectViewItem} from './view/ProjectViewItem';
-import {ProjectListRequest} from './resource/ProjectListRequest';
 import {ProjectUpdatedEvent} from './event/ProjectUpdatedEvent';
-import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
 import {ProjectDeletedEvent} from './event/ProjectDeletedEvent';
 
 export class SettingsAppPanel
@@ -55,13 +53,6 @@ export class SettingsAppPanel
             this.handleItemDeleted(event.getProjectName());
         });
 
-        ProjectCreatedEvent.on((event: ProjectCreatedEvent) => {
-            if (!this.browsePanel) {
-                return;
-            }
-
-            this.handleItemsCreated(event.getProjectName());
-        });
 
         ProjectUpdatedEvent.on((event: ProjectUpdatedEvent) => {
             if (!this.browsePanel) {
@@ -138,64 +129,37 @@ export class SettingsAppPanel
         });
     }
 
-    private handleItemsCreated(itemId: string) {
-        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-            this.doHandleItemsCreated(itemId, projects);
-        }).catch(DefaultErrorHandler.handle);
-    }
-
-    private doHandleItemsCreated(createdItemId: string, allProjects: Project[]) {
-        allProjects
-            .filter((project: Project) => createdItemId === project.getName())
-            .forEach((createdProject: Project) => {
-                this.browsePanel.addSettingsItem(ProjectViewItem.create().setData(createdProject).build());
-            });
-    }
-
     private handleItemUpdated(itemId: string) {
-        const isBrowsePanelItemUpdated: boolean = this.browsePanel.hasItemWithId(itemId);
-        const isAnyWizardPanelUpdated: boolean = this.isAnyWizardPanelUpdated(itemId);
-
-        if (!isBrowsePanelItemUpdated && !isAnyWizardPanelUpdated) {
-            return;
-        }
-
         new ProjectGetRequest(itemId).sendAndParse()
             .then((project: Project) => {
+                const isItemPresentInBrowsePanel: boolean = this.browsePanel.hasItemWithId(itemId);
+
+                if (!isItemPresentInBrowsePanel) {
+                    this.browsePanel.addSettingsItem(ProjectViewItem.create().setData(project).build());
+                    return;
+                }
 
                 const item: ProjectViewItem = ProjectViewItem.create()
                     .setData(project)
                     .build();
 
-                if (isAnyWizardPanelUpdated) {
+                this.browsePanel.updateSettingsItem(item);
+
+                const wizardPanelToUpdate: SettingsDataItemWizardPanel<any> = <SettingsDataItemWizardPanel<any>>this.getPanels()
+                    .filter(this.isSettingsItemWizardPanel)
+                    .find((panel: SettingsDataItemWizardPanel<any>) => {
+                        return panel.hasPersistedItemWithId(itemId);
+                    });
+
+                if (wizardPanelToUpdate) {
                     this.updateTabLabel(AppBarTabId.forEdit(itemId), item.getDisplayName());
-                    this.getPanels()
-                        .filter(this.isSettingsItemWizardPanel)
-                        .filter((panel: SettingsDataItemWizardPanel<SettingsDataViewItem<any>>) => {
-                            return panel.hasPersistedItemWithId(itemId);
-                        })
-                        .forEach((panel: SettingsDataItemWizardPanel<SettingsDataViewItem<any>>) => {
-                            panel.updatePersistedSettingsDataItem(item);
-                        });
+                    wizardPanelToUpdate.updatePersistedSettingsDataItem(item);
                 }
-
-                if (isBrowsePanelItemUpdated) {
-                    this.browsePanel.updateSettingsItem(item);
-                }
-
-            })
-            .catch(DefaultErrorHandler.handle);
+            }).catch(DefaultErrorHandler.handle);
     }
 
     private isSettingsItemWizardPanel(panel: Panel): boolean {
         return ObjectHelper.iFrameSafeInstanceOf(panel, SettingsDataItemWizardPanel);
-    }
-
-    private isAnyWizardPanelUpdated(id: string): boolean {
-        return this.getPanels().filter(this.isSettingsItemWizardPanel).some(
-            (panel: SettingsDataItemWizardPanel<SettingsDataViewItem<any>>) => {
-                return panel.hasPersistedItemWithId(id);
-            });
     }
 
     private updateTabLabel(tabId: AppBarTabId, label: string) {
