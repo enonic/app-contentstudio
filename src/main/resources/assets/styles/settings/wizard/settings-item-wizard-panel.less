@@ -13,12 +13,16 @@
   .wizard-step-form {
     .form-view {
 
-      .help-text {
-        position: relative;
-        bottom: 14px;
-      }
-
       .input-view {
+
+        .form-item-header {
+          display: flex;
+          justify-content: space-between;
+
+          .help-text:not(:first-child) {
+            padding-left: 15px;
+          }
+        }
 
         label {
           float: none;
@@ -67,10 +71,6 @@
     .wizard-step-form {
 
       .form-view {
-
-        .help-text {
-          padding-left: 0;
-        }
 
         .input-view {
           flex-direction: column;

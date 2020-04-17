@@ -606,7 +606,12 @@ module.exports = {
     },
     async openSettingsPanel() {
         await this.openAppModeSwitcher();
-        return await this.clickOnElement(lib.SETTINGS_BUTTON);
+        await this.clickOnElement(lib.SETTINGS_BUTTON);
+        return await webDriverHelper.browser.pause(200);
+    },
+    async switchToContentMode() {
+        await this.clickOnElement(lib.MODE_CONTENT_BUTTON);
+        return await webDriverHelper.browser.pause(200);
     },
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
@@ -615,11 +620,9 @@ module.exports = {
         let projectWizard = new ProjectWizard();
         let settingsBrowsePanel = new SettingsBrowsePanel();
         await settingsBrowsePanel.openProjectWizard();
-        //2. Type a name that is already being used by existing project:
-        await projectWizard.typeName(name);
+        await projectWizard.typeDisplayName(name);
         await projectWizard.typeDescription(description);
-        await projectWizard.clickOnReadAccessRadio("Private");
-        //3. Verify that `Save` button gets enabled, then click on it
+        await projectWizard.clickOnAccessModeRadio("Private");
         await projectWizard.pause(400);
         await projectWizard.waitAndClickOnSave();
         await projectWizard.waitForNotificationMessage();
@@ -719,9 +722,27 @@ module.exports = {
         await newPrincipalDialog.clickOnItem('User');
         return await userWizard.waitForOpened();
     },
+    async typeNameInUsersFilterPanel(name) {
+        let browsePanel = new UserBrowsePanel();
+        let principalFilterPanel = new PrincipalFilterPanel();
+        await browsePanel.clickOnSearchButton();
+        await principalFilterPanel.waitForOpened();
+        await principalFilterPanel.typeSearchText(name);
+        await browsePanel.pause(300);
+        return await browsePanel.waitForSpinnerNotVisible();
+    },
     async showLauncherPanel() {
         let launcherPanel = new LauncherPanel();
-        let selector = "//button[@class='launcher-button ' ]";
+        let selector = "//button[contains(@class,'launcher-button') and child::span[contains(@class,'span-x')] ]";
+        try {
+            await this.waitUntilDisplayed(selector, 2000);
+        } catch (err) {
+            await webDriverHelper.browser.refresh();
+            await webDriverHelper.browser.pause(2000);
+            this.closeProjectSelectionDialog();
+            await this.waitUntilDisplayed(selector, 2000);
+        }
+        await webDriverHelper.browser.pause(100);
         let el = await this.getDisplayedElements(selector);
         await el[0].click();
         return await launcherPanel.waitForPanelDisplayed(1000);
@@ -731,6 +752,16 @@ module.exports = {
         let pr = elements.map(el => el.isDisplayed());
         return await Promise.all(pr).then(result => {
             return elements.filter((el, i) => result[i]);
+        });
+    },
+    waitUntilDisplayed(selector, ms) {
+        return webDriverHelper.browser.waitUntil(() => {
+            return this.getDisplayedElements(selector).then(result => {
+                return result.length > 0;
+            })
+        }, ms).catch(err => {
+            this.saveScreenshot(appConst.generateRandomName("err_timeout"));
+            throw new Error("Timeout exception. Element " + selector + " still not visible in: " + ms);
         });
     }
 };

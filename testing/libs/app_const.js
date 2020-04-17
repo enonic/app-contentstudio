@@ -107,6 +107,9 @@ module.exports = Object.freeze({
         ROOT_FOLDER_DESCRIPTION: "Manage projects and layers",
         DEFAULT_PROJECT_NAME: "Default"
     },
+    LANGUAGES: {
+        EN: 'English (en)',
+    },
     contentTypes: {
         SHORTCUT: 'Shortcut',
         FOLDER: `Folder`,

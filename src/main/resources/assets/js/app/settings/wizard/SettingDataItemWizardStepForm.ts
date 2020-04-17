@@ -25,7 +25,7 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         this.initListeners();
     }
 
-    abstract layout(item: ITEM);
+    abstract layout(item: ITEM): Q.Promise<void>;
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {

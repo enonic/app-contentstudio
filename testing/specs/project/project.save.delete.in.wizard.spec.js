@@ -22,9 +22,9 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             let projectWizard = new ProjectWizard();
             //1.'Open new wizard:
             await settingsBrowsePanel.openProjectWizard();
-            //2. Type a name and select the read access:
-            await projectWizard.typeName(PROJECT_DISPLAY_NAME);
-            await projectWizard.clickOnReadAccessRadio("Private");
+            //2. Type a display name and select the access mode:
+            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
+            await projectWizard.clickOnAccessModeRadio("Private");
             //3. Verify that 'Save' button gets enabled, then click on it
             await projectWizard.waitAndClickOnSave();
             let actualMessage = await projectWizard.waitForNotificationMessage();
@@ -38,9 +38,9 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             let projectWizard = new ProjectWizard();
             //1.'Open new wizard:
             await settingsBrowsePanel.openProjectWizard();
-            //2. Type a name that is already being used by existing project:
-            await projectWizard.typeName(PROJECT_DISPLAY_NAME);
-            await projectWizard.clickOnReadAccessRadio("Private");
+            //2. Type a display name that is already being used by existing project:
+            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
+            await projectWizard.clickOnAccessModeRadio("Private");
             //3. Verify that `Save` button gets enabled, then click on it
             await projectWizard.waitAndClickOnSave();
             let actualMessage = await projectWizard.waitForNotificationMessage();

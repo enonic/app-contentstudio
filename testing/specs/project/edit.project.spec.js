@@ -17,23 +17,26 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     let TEST_DESCRIPTION = "my description";
     let NEW_DESCRIPTION = "new description";
 
-    it(`GIVEN a name and description has been typed WHEN 'Save' button has been pressed THEN all data should be saved`,
+    it(`GIVEN a display name, description and access mode has been filled in WHEN 'Save' button has been pressed THEN all data should be saved`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1.Expand Projects-folder then Open new project wizard:
             await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             await settingsBrowsePanel.openProjectWizard();
-            //2. Type a name and description then click on 'Save' button:
-            await projectWizard.typeName(PROJECT_DISPLAY_NAME);
+            //2. Type a display name and description then click on 'Save' button:
+            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
             await projectWizard.typeDescription(TEST_DESCRIPTION);
-            await projectWizard.clickOnReadAccessRadio("Private");
+            await projectWizard.clickOnAccessModeRadio("Private");
+            await projectWizard.selectLanguage(appConstant.LANGUAGES.EN);
             await projectWizard.waitAndClickOnSave();
             //3. verify the saved data:
             let actualDescription = await projectWizard.getDescription();
             assert.equal(actualDescription, TEST_DESCRIPTION, "Expected description should be displayed");
-            let actualProjectName = await projectWizard.getProjectName();
-            assert.equal(actualProjectName, PROJECT_DISPLAY_NAME, "Expected project name should be displayed");
+            let actualProjectIdentifier = await projectWizard.getProjectIdentifier();
+            assert.equal(actualProjectIdentifier, PROJECT_DISPLAY_NAME, "Expected identifier should be displayed");
+            let actualLanguage = await projectWizard.getSelectedLanguage();
+            assert.equal(actualLanguage, appConstant.LANGUAGES.EN, "Expected language should be displayed");
             //4. Verify that Delete button gets enabled, because new project is created now:
             await projectWizard.waitForDeleteButtonEnabled();
         });
@@ -48,8 +51,8 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            //3. Verify that project name input is disabled:
-            await projectWizard.waitForProjectNameInputDisabled();
+            //3. Verify that identifier input is disabled:
+            await projectWizard.waitForProjectIdentifierInputDisabled();
             //4. Update the description:
             await projectWizard.typeDescription(NEW_DESCRIPTION);
             await projectWizard.waitAndClickOnSave();
@@ -75,7 +78,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
             //3. click on 'Custom' radio:
-            await projectWizard.clickOnReadAccessRadio("Custom");
+            await projectWizard.clickOnAccessModeRadio("Custom");
             //4. Select SU in the selector's options:
             await projectWizard.selectCustomReadAccessItem(appConstant.systemUsersDisplayName.SUPER_USER);
             await projectWizard.waitAndClickOnSave();
@@ -85,7 +88,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             assert.equal(result[0], appConstant.systemUsersDisplayName.SUPER_USER, "SU should be in 'Custom Read Access'");
         });
 
-    it(`WHEN existing project with selected 'Custom Read Access' has been opened THEN expected option should be displayed in 'Custom Read Access'`,
+    it(`WHEN existing project with selected 'Custom Access mode' has been opened THEN 'Custom Access mode' radio should be selected AND expected user should be in this form`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -97,11 +100,11 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.waitForLoaded();
             //3. Verify that expected user is displayed in Custom Read Access
             let result = await projectWizard.getSelectedCustomReadAccessOptions();
-            assert.equal(result.length, 1, "One option should be selected in Custom Read Access");
+            assert.equal(result.length, 1, "One option should be selected in Custom Access mode");
             assert.equal(result[0], appConstant.systemUsersDisplayName.SUPER_USER, "'SU' option should be in 'Custom Read Access'");
         });
 
-    it(`GIVEN existing project with selected 'Custom Read Access' WHEN 'Public' radio has been clicked THEN 'Custom Read Access' combobox gets disabled`,
+    it(`GIVEN existing project with selected 'Custom Access mode' WHEN 'Public' radio has been clicked THEN 'Custom Access' combobox gets disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -111,10 +114,10 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            await projectWizard.clickOnReadAccessRadio("Public");
-            //3. Verify that combobox in 'Custom' option gets disabled:
-            await projectWizard.waitForCustomReadAccessComboboxDisabled();
-            //4. Verify that Save button gets enabled:
+            await projectWizard.clickOnAccessModeRadio("Public");
+            //3. Verify that combobox in 'Custom mode access' gets disabled:
+            await projectWizard.waitForCustomAccessModeComboboxDisabled();
+            //4. Verify that 'Save' button gets enabled:
             await projectWizard.waitForSaveButtonEnabled();
         });
 

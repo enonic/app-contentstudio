@@ -23,7 +23,7 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
             //2. Type the display name:
-            await projectWizard.typeName(projectDisplayName);
+            await projectWizard.typeDisplayName(projectDisplayName);
             //3. Click on 'close' icon:
             await settingsBrowsePanel.clickOnCloseIcon(projectDisplayName);
             studioUtils.saveScreenshot("project_wizard_unsaved_changes_1");
@@ -32,7 +32,7 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             assert.equal(actualMessage, appConstant.PROJECT_UNSAVED_CHANGES_MESSAGE);
         });
 
-    it(`GIVEN name has been typed in project wizard WHEN 'No' button in Confirmation dialog has been pressed THEN new project should not be created`,
+    it(`GIVEN display name has been typed WHEN 'No' button in Confirmation dialog has been pressed THEN new project should not be created`,
         async () => {
             let projectDisplayName = studioUtils.generateRandomName("project");
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -41,7 +41,7 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
             //2. Type the display name:
-            await projectWizard.typeName(projectDisplayName);
+            await projectWizard.typeDisplayName(projectDisplayName);
             //3. Click on 'close' icon:
             await settingsBrowsePanel.clickOnCloseIcon(projectDisplayName);
             studioUtils.saveScreenshot("project_wizard_unsaved_changes_1");
@@ -54,7 +54,7 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             await settingsBrowsePanel.waitForProjectNotDisplayed(projectDisplayName);
         });
 
-    it(`GIVEN name has been typed in project wizard WHEN 'Yes' button in Confirmation dialog has been pressed THEN new project should be created`,
+    it(`GIVEN display name has been typed WHEN 'Yes' button in Confirmation dialog has been pressed THEN new project should be created`,
         async () => {
             let projectDisplayName = studioUtils.generateRandomName("project");
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -63,8 +63,8 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
             //2. Type the display name:
-            await projectWizard.typeName(projectDisplayName);
-            await projectWizard.clickOnReadAccessRadio("Private");
+            await projectWizard.typeDisplayName(projectDisplayName);
+            await projectWizard.clickOnAccessModeRadio("Private");
             //3. Click on 'close' icon:
             await settingsBrowsePanel.clickOnCloseIcon(projectDisplayName);
             studioUtils.saveScreenshot("project_wizard_unsaved_changes_1");

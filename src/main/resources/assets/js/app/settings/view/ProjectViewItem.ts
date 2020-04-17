@@ -48,6 +48,14 @@ export class ProjectViewItem
         return this.data.getReadAccess();
     }
 
+    getLanguage(): string {
+        return this.data.getLanguage();
+    }
+
+    isDefaultProject(): boolean {
+        return ProjectHelper.isDefault(this.data);
+    }
+
     getData(): Project {
         return this.data;
     }
@@ -65,7 +73,7 @@ export class ProjectViewItem
     }
 
     isDeleteAllowed(loginResult: LoginResult): boolean {
-        return loginResult.isContentAdmin() && !ProjectHelper.isDefault(this.getData());
+        return loginResult.isContentAdmin() && !this.isDefaultProject();
     }
 
     equals(o: Equitable): boolean {

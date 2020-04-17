@@ -31,9 +31,9 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
             let projectWizard = new ProjectWizard();
             //1.Open new project wizard:
             await settingsBrowsePanel.openProjectWizard();
-            await projectWizard.typeName(PROJECT_DISPLAY_NAME);
+            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
             //2. click on 'Custom' radio:
-            await projectWizard.clickOnReadAccessRadio("Custom");
+            await projectWizard.clickOnAccessModeRadio("Custom");
             //3. Select the just created user in the selector's options:
             await projectWizard.selectCustomReadAccessItem(USER.displayName);
             await projectWizard.waitAndClickOnSave();
@@ -63,11 +63,11 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
             await projectWizard.waitForLoaded();
             studioUtils.saveScreenshot("custom_read_access_2");
             //3. Verify that 'Private' radio button is selected.
-            let isSelected = await projectWizard.isReadAccessRadioSelected("Custom");
+            let isSelected = await projectWizard.isAccessModeRadioSelected("Custom");
             assert.isFalse(isSelected, "'Custom' radio button should not be selected");
-            isSelected = await projectWizard.isReadAccessRadioSelected("Private");
+            isSelected = await projectWizard.isAccessModeRadioSelected("Private");
             assert.isTrue(isSelected, "'Private' radio button should be selected");
-            isSelected = await projectWizard.isReadAccessRadioSelected("Public");
+            isSelected = await projectWizard.isAccessModeRadioSelected("Public");
             assert.isFalse(isSelected, "'Public' radio button should not be selected");
         });
 

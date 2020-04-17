@@ -12,10 +12,6 @@ export class ProjectListRequest
         this.addRequestPathElements('list');
     }
 
-    getParams(): Object {
-        return {};
-    }
-
     protected parseResponse(response: JsonResponse<ProjectJson[]>): Project[] {
         return response.getResult()['projects'].map(Project.fromJson).sort(this.sortProjects);
     }
