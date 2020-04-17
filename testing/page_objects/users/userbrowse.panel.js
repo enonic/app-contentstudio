@@ -162,6 +162,13 @@ class UserBrowsePanel extends Page {
         })
     }
 
+    waitForRowByDisplayNameVisible(displayName) {
+        let nameXpath = xpath.rowByDisplayName(displayName);
+        return this.waitForElementDisplayed(nameXpath, appConst.TIMEOUT_3).catch(err => {
+            throw Error('Row with the name ' + displayName + ' is not visible in ' + 3000 + 'ms')
+        })
+    }
+
     clickCheckboxAndSelectRowByDisplayName(displayName) {
         let displayNameXpath = xpath.checkboxByDisplayName(displayName);
         return this.waitForElementDisplayed(displayNameXpath, appConst.TIMEOUT_2).then(() => {
