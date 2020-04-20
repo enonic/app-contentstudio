@@ -61,7 +61,7 @@ export class SettingsServerEventsListener
             .forEach(this.appendUpdateEvent.bind(this));
 
         this.getUpdatedProjectRoles(nodeEventJson)
-            .map(this.extractProjectNameProjectRoleNodeEventJson)
+            .map(this.extractProjectNameFromProjectRoleNodeEventJson)
             .forEach(this.appendUpdateEvent.bind(this));
     }
 
@@ -82,14 +82,14 @@ export class SettingsServerEventsListener
     }
 
     private getUpdatedProjectRoles(nodeEventJson: NodeEventJson): NodeEventNodeJson[] {
-        return nodeEventJson.data.nodes.filter(this.isRootNodeEventJson);
+        return nodeEventJson.data.nodes.filter(this.isProjectRoleEventJson);
     }
 
     private isProjectRoleEventJson(nodeEventNodeJson: NodeEventNodeJson): boolean {
         return nodeEventNodeJson.path.indexOf(SettingsServerEventsListener.PROJECT_ROLE_PATH_PREFIX) === 0;
     }
 
-    private extractProjectNameProjectRoleNodeEventJson(nodeEventNodeJson: NodeEventNodeJson): string {
-        return nodeEventNodeJson.repo.replace(RepositoryId.CONTENT_REPO_PREFIX, '');
+    private extractProjectNameFromProjectRoleNodeEventJson(nodeEventNodeJson: NodeEventNodeJson): string {
+        return nodeEventNodeJson.path.replace(SettingsServerEventsListener.PROJECT_ROLE_PATH_PREFIX, '').split('.')[0];
     }
 }
