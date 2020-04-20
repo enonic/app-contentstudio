@@ -215,30 +215,36 @@ export class ContentBrowsePanel
         });
     }
 
-    private updateContextPanelOnItemChange(selection?: TreeNode<ContentSummaryAndCompareStatus>[]) {
-        if (!this.contextSplitPanel.isMobileMode()) {
-            // no need to update on selection change in mobile mode as it opens in a separate screen
-            const item: BrowseItem<ContentSummaryAndCompareStatus> = this.getFirstSelectedOrHighlightedBrowseItem(selection);
-            this.doUpdateContextPanel(item ? item.getModel() : null);
+    private updateContextPanelOnItemChange() {
+        if (this.contextSplitPanel.isMobileMode()) {
+            return; // no need to update on selection change in mobile mode as it opens in a separate screen
+        }
+
+        if (this.treeGrid.isAnySelected()) {
+            const lastSelectedNode: TreeNode<ContentSummaryAndCompareStatus> = this.treeGrid.getSelectedNodes().pop();
+            this.doUpdateContextPanel(this.treeGrid.getSelectedNodes().pop().getData());
+
+            return;
+        }
+
+        if (this.treeGrid.hasHighlightedNode()) {
+            this.doUpdateContextPanel(this.treeGrid.getHighlightedNode().getData());
         }
     }
 
     private subscribeContextPanelsOnEvents() {
-
-        this.getTreeGrid().onSelectionChanged((currentSelection: TreeNode<ContentSummaryAndCompareStatus>[],
-                                               fullSelection: TreeNode<ContentSummaryAndCompareStatus>[]) => {
-            this.updateContextPanelOnItemChange(fullSelection);
+        this.treeGrid.onSelectionChanged(() => {
+            this.updateContextPanelOnItemChange();
         });
 
         const onHighlightingChanged = AppHelper.debounce(() => {
             this.updateContextPanelOnItemChange();
         }, 500);
 
-        this.getTreeGrid().onHighlightingChanged(() => onHighlightingChanged());
+        this.getTreeGrid().onHighlightingChanged(onHighlightingChanged);
     }
 
     private subscribeMobilePanelOnEvents() {
-
         // selection opens detail panel in mobile mode, so deselect it when returning back to grid
         this.contextSplitPanel.onMobilePanelSlide((out: boolean) => {
             if (out) {
@@ -253,24 +259,6 @@ export class ContentBrowsePanel
                 this.contextSplitPanel.showMobilePanel();
             }
         });
-    }
-
-    // tslint:disable-next-line:max-line-length
-    private getFirstSelectedOrHighlightedBrowseItem(fullSelection?: TreeNode<ContentSummaryAndCompareStatus>[]): BrowseItem<ContentSummaryAndCompareStatus> {
-        const highlightedNode: TreeNode<ContentSummaryAndCompareStatus> = this.treeGrid.getFirstSelectedOrHighlightedNode();
-        if (!fullSelection && !highlightedNode) {
-            return null;
-        }
-
-        let nodes: TreeNode<ContentSummaryAndCompareStatus>[] = [];
-
-        if (fullSelection && fullSelection.length > 0) {
-            nodes = fullSelection;
-        } else if (highlightedNode) {
-            nodes = [highlightedNode];
-        }
-
-        return this.treeNodeToBrowseItem(nodes[0]);
     }
 
     treeNodeToBrowseItem(node: TreeNode<ContentSummaryAndCompareStatus>): ContentBrowseItem | null {
@@ -337,8 +325,7 @@ export class ContentBrowsePanel
         RepositoryEvent.on(event => {
             if (event.isRestored()) {
                 this.treeGrid.reload().then(() => {
-                    const fullSelection = this.treeGrid.getRoot().getFullSelection();
-                    this.updateContextPanelOnItemChange(fullSelection);
+                    this.updateContextPanelOnItemChange();
                 });
             }
         });
@@ -659,11 +646,10 @@ export class ContentBrowsePanel
             showCreateIssueButtonByDefault: true
         });
 
-        let previousSelectionSize = this.treeGrid.getRoot().getFullSelection().length;
-        this.treeGrid.onSelectionChanged((
-            currentSelection: TreeNode<ContentSummaryAndCompareStatus>[],
-            fullSelection: TreeNode<ContentSummaryAndCompareStatus>[]
-        ) => {
+        let previousSelectionSize: number = this.treeGrid.getRoot().getFullSelection().length;
+
+        this.treeGrid.onSelectionChanged(() => {
+            const fullSelection: TreeNode<ContentSummaryAndCompareStatus>[] = this.treeGrid.getRoot().getFullSelection();
             const isSingleSelected = fullSelection.length === 1;
             const hadMultipleSelection = previousSelectionSize > 1;
 

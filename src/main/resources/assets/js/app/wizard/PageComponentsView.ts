@@ -410,12 +410,15 @@ export class PageComponentsView
             Highlighter.get().hide();
         });
 
-        this.tree.onSelectionChanged((data, nodes) => {
-            if (nodes.length > 0 && this.isModal()) {
+        this.tree.onSelectionChanged(() => {
+            const fullSelection: TreeNode<ItemView>[] = this.tree.getFullSelection();
+            const currentSelection: TreeNode<ItemView>[] = this.tree.getCurrentSelection();
+
+            if (fullSelection.length > 0 && this.isModal()) {
                 this.hide();
             }
 
-            let treeNode = data[0];
+            const treeNode: TreeNode<ItemView> = currentSelection[0];
 
             if (treeNode && !treeNode.getData().isSelected()) {
                 this.selectItem(treeNode);

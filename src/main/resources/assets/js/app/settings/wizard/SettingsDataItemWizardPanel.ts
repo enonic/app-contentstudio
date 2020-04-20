@@ -264,8 +264,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     protected isNewItemChanged(): boolean {
-        return !StringHelper.isBlank(this.wizardHeader.getName()) ||
-               !StringHelper.isBlank(this.wizardHeader.getDisplayName());
+        return !StringHelper.isBlank(this.wizardHeader.getDisplayName());
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {

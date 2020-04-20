@@ -609,6 +609,10 @@ module.exports = {
         await this.clickOnElement(lib.SETTINGS_BUTTON);
         return await webDriverHelper.browser.pause(200);
     },
+    async switchToContentMode() {
+        await this.clickOnElement(lib.MODE_CONTENT_BUTTON);
+        return await webDriverHelper.browser.pause(200);
+    },
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
     },
@@ -718,10 +722,26 @@ module.exports = {
         await newPrincipalDialog.clickOnItem('User');
         return await userWizard.waitForOpened();
     },
+    async typeNameInUsersFilterPanel(name) {
+        let browsePanel = new UserBrowsePanel();
+        let principalFilterPanel = new PrincipalFilterPanel();
+        await browsePanel.clickOnSearchButton();
+        await principalFilterPanel.waitForOpened();
+        await principalFilterPanel.typeSearchText(name);
+        await browsePanel.pause(300);
+        return await browsePanel.waitForSpinnerNotVisible();
+    },
     async showLauncherPanel() {
         let launcherPanel = new LauncherPanel();
-        let selector = "//button[@class='launcher-button ' ]";
-        await this.waitUntilDisplayed(selector, 2000);
+        let selector = "//button[contains(@class,'launcher-button') and child::span[contains(@class,'span-x')] ]";
+        try {
+            await this.waitUntilDisplayed(selector, 2000);
+        } catch (err) {
+            await webDriverHelper.browser.refresh();
+            await webDriverHelper.browser.pause(2000);
+            this.closeProjectSelectionDialog();
+            await this.waitUntilDisplayed(selector, 2000);
+        }
         await webDriverHelper.browser.pause(100);
         let el = await this.getDisplayedElements(selector);
         await el[0].click();
@@ -740,6 +760,7 @@ module.exports = {
                 return result.length > 0;
             })
         }, ms).catch(err => {
+            this.saveScreenshot(appConst.generateRandomName("err_timeout"));
             throw new Error("Timeout exception. Element " + selector + " still not visible in: " + ms);
         });
     }
