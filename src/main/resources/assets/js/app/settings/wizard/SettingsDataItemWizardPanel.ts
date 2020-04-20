@@ -38,6 +38,8 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     private wizardHeaderNameUpdatedListeners: { (name: string): void }[] = [];
 
+    private isClosePending: boolean = false;
+
     constructor(params: WizardPanelParams<ITEM>) {
         super(params);
 
@@ -95,6 +97,18 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         return steps;
     }
 
+    saveChanges(): Q.Promise<ITEM> {
+        return super.saveChanges().then((item: ITEM) => {
+            if (this.isClosePending) {
+                this.close(true);
+            }
+
+            return item;
+        }).finally(() => {
+            this.isClosePending = false;
+        });
+    }
+
     hasUnsavedChanges(): boolean {
         if (!this.isRendered()) {
             return false;
@@ -122,8 +136,12 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     close(checkCanClose: boolean = false) {
-        if (!checkCanClose || !this.isRendered() || this.canClose()) {
-            super.close(checkCanClose);
+        if (this.isSaving()) {
+            this.isClosePending = true;
+        } else {
+            if (!checkCanClose || !this.isRendered() || this.canClose()) {
+                super.close(checkCanClose);
+            }
         }
     }
 
