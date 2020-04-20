@@ -6,11 +6,32 @@ import {SettingsBrowseItemPanel} from './SettingsBrowseItemPanel';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {SettingsViewItem} from '../view/SettingsViewItem';
+import {ProjectContext} from '../../project/ProjectContext';
+import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
 
 export class SettingsBrowsePanel
     extends BrowsePanel<SettingsViewItem> {
 
     protected treeGrid: SettingsItemsTreeGrid;
+
+    protected initElements(): void {
+        super.initElements();
+
+        if (!ProjectContext.get().isInitialized()) {
+            this.handleProjectNotSet();
+        }
+    }
+
+    private handleProjectNotSet() {
+        this.treeGrid.disableKeys();
+
+        const projectSetHandler = () => {
+            this.treeGrid.enableKeys();
+            ProjectChangedEvent.un(projectSetHandler);
+        };
+
+        ProjectChangedEvent.on(projectSetHandler);
+    }
 
     protected createTreeGrid(): SettingsItemsTreeGrid {
         return new SettingsItemsTreeGrid();
