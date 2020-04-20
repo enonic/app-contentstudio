@@ -224,8 +224,10 @@ export class ContentTreeGrid
 
         if (this.state === State.ENABLED) {
             this.getToolbar().enable();
+            this.enableKeys();
         } else {
             this.getToolbar().disable();
+            this.disableKeys();
         }
     }
 
