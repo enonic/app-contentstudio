@@ -147,9 +147,7 @@ export class SettingsAppPanel
 
                 const wizardPanelToUpdate: SettingsDataItemWizardPanel<any> = <SettingsDataItemWizardPanel<any>>this.getPanels()
                     .filter(this.isSettingsItemWizardPanel)
-                    .find((panel: SettingsDataItemWizardPanel<any>) => {
-                        return panel.hasPersistedItemWithId(itemId);
-                    });
+                    .find((panel: SettingsDataItemWizardPanel<any>) => panel.hasPersistedItemWithId(itemId));
 
                 if (wizardPanelToUpdate) {
                     this.updateTabLabel(AppBarTabId.forEdit(itemId), item.getDisplayName());
