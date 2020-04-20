@@ -7,6 +7,7 @@ module.exports = Object.freeze({
     FORM_ITEM: "//div[contains(@id,'FormItem')]",
     DATE_TIME_PICKER_INPUT: "//div[contains(@id,'DateTimePicker')]//input[contains(@id,'TextInput')]",
     CONTENT_SELECTOR: "//div[contains(@id,'ContentSelector')]",
+    SELECTED_LOCALE: `//div[contains(@id,'LocaleSelectedOptionView')]`,
     NAMES_VIEW_BY_NAME: "//div[contains(@id,'NamesView') and child::p[contains(@class,'sub-name') and contains(.,'%s')]]",
     NAMES_VIEW_BY_DISPLAY_NAME: "//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'%s')]]",
     SLICK_VIEW_PORT: `//div[contains(@class,'slick-viewport')]`,
@@ -41,7 +42,7 @@ module.exports = Object.freeze({
         return `//div[contains(@id,'NamesView') and descendant::span[contains(@class,'name') and contains(.,'${name}')]]`
     },
     formItemByLabel: (label) => {
-        return `//div[contains(@id,'FormItem') and child::label[contains(.,'${label}')]]`
+        return `//div[contains(@id,'FormItem') and descendant::label[contains(.,'${label}')]]`
     },
     TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,
@@ -62,5 +63,6 @@ module.exports = Object.freeze({
     COMPARE_WITH_CURRENT_VERSION: `//button[contains(@id,'ActionButton') and @title='Compare with current version']`,
     LIVE_EDIT_FRAME: "//iframe[contains(@class,'live-edit-frame shown')]",
     APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
-    SETTINGS_BUTTON: "//button[contains(@id,AppModeButton) and @title='Settings']"
+    SETTINGS_BUTTON: "//button[contains(@id,AppModeButton) and @title='Settings']",
+    MODE_CONTENT_BUTTON: "//button[contains(@id,AppModeButton) and @title='Content']"
 });

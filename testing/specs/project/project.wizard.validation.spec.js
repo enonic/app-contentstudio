@@ -15,52 +15,52 @@ describe('project.wizard.validation.spec - validation specification', function (
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
 
-    it(`GIVEN new project wizard is opened WHEN just a name and display name have been typed THEN 'Save' should be disabled`,
+    it(`GIVEN new project wizard is opened WHEN just display name have been typed THEN 'Save' should be disabled(Access mode is not selected)`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1.Open new wizard:
             await settingsBrowsePanel.openProjectWizard();
-            await projectWizard.typeName(PROJECT_DISPLAY_NAME);
-            //2. Verify that 'Save' button is disabled(Read access is not selected):
+            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
+            //2. Verify that 'Save' button is disabled(Access mode is not selected):
             await projectWizard.waitForSaveButtonDisabled();
             studioUtils.saveScreenshot("project_validation_0");
         });
 
-    it(`GIVEN name and 'Read access' are filled WHEN the project name contains a white space THEN 'Save' should be disabled and error message gets visible`,
+    it(`GIVEN display name and 'Public' in access mode are filled WHEN the identifier contains a white space THEN 'Save' should be disabled and error message gets visible`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1.Open new wizard:
             await settingsBrowsePanel.openProjectWizard();
-            await projectWizard.typeName(PROJECT_DISPLAY_NAME);
-            await projectWizard.clickOnReadAccessRadio("Public");
-            //2. Type a project-name with white space:
-            await projectWizard.typeInProjectName("my project");
+            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
+            await projectWizard.clickOnAccessModeRadio("Public");
+            //2. Type a identifier with white space:
+            await projectWizard.typeInProjectIdentifier("my project");
             //3. Verify that 'Save' button gets disabled:
             await projectWizard.waitForSaveButtonDisabled();
             studioUtils.saveScreenshot("project_validation_1");
-            let errorMessage = await projectWizard.getProjectNameValidationMessage();
+            let errorMessage = await projectWizard.getProjectIdentifierValidationMessage();
             assert.equal(errorMessage, "Invalid value entered", "Expected validation message gets visible");
         });
 
-    it(`GIVEN project name contains a white space WHEN the name has been corrected THEN 'Save' gets enabled AND error message gets not visible`,
+    it(`GIVEN identifier contains a white space WHEN the identifier has been corrected THEN 'Save' gets enabled AND error message gets not visible`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1.'Open new wizard:
             await settingsBrowsePanel.openProjectWizard();
-            await projectWizard.typeName(PROJECT_DISPLAY_NAME);
-            await projectWizard.clickOnReadAccessRadio("Custom");
-            //2. Type a project-name with white space:
-            await projectWizard.typeInProjectName("my project");
+            await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
+            await projectWizard.clickOnAccessModeRadio("Custom");
+            //2. Type a identifier with white space:
+            await projectWizard.typeInProjectIdentifier("my project");
             //3. Verify that 'Save' button gets disabled:
             await projectWizard.waitForSaveButtonDisabled();
-            //4. The project-name has been corrected:
-            await projectWizard.typeInProjectName("my_project");
+            //4. The identifier has been corrected:
+            await projectWizard.typeInProjectIdentifier("my_project");
             studioUtils.saveScreenshot("project_validation_1");
             //5. Verify that validation message gets not visible and Save gets enabled:
-            await projectWizard.getProjectNameValidationMessageNotVisible();
+            await projectWizard.getProjectIdentifierValidationMessageNotVisible();
             await projectWizard.waitForSaveButtonEnabled();
         });
 
