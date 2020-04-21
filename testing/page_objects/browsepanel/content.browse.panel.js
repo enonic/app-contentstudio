@@ -18,6 +18,7 @@ const XPATH = {
     treeGridToolbar: `//div[contains(@id,'ContentTreeGridToolbar')]`,
     treeGrid: `//div[contains(@id,'ContentTreeGrid')]`,
     appBar: `//div[contains(@id,'AppBar')]`,
+    projectSelector: "//div[contains(@id,'ProjectSelector')]",
     selectedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
     checkedRows: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-cell-checkboxsel selected')]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
@@ -678,6 +679,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await browseDetailsPanel.waitForDetailsPanelLoaded();
         await browseDetailsPanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
         return await this.pause(500);
+    }
+
+    get projectSelectorDropDownHandle() {
+        return XPATH.projectSelector + "//button[contains(@id,'DropdownHandle')]"
+    }
+
+    getSelectedProjectDisplayName() {
+        let selector = XPATH.projectSelector + lib.H6_DISPLAY_NAME;
+        return this.getText(selector);
     }
 };
 module.exports = ContentBrowsePanel;

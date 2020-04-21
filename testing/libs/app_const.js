@@ -107,8 +107,15 @@ module.exports = Object.freeze({
         ROOT_FOLDER_DESCRIPTION: "Manage projects and layers",
         DEFAULT_PROJECT_NAME: "Default"
     },
+    SHOW_ISSUES_BUTTON_LABEL: {
+        NO_OPEN_ISSUES: 'No open issues',
+        OPEN_ISSUES: 'Open Issues'
+    },
+
     LANGUAGES: {
         EN: 'English (en)',
+        NORSK_NORGE: 'norsk (Norge) (no-NO)',
+        NORSK_NO: 'norsk (no)'
     },
     contentTypes: {
         SHORTCUT: 'Shortcut',
