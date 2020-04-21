@@ -2,7 +2,6 @@ import {MainAppContainer} from '../MainAppContainer';
 import {SettingsAppBar} from './SettingsAppBar';
 import {SettingsAppPanel} from './SettingsAppPanel';
 import {Application} from 'lib-admin-ui/app/Application';
-import {SettingsServerEventsListener} from './event/SettingsServerEventsListener';
 import {AppMode} from '../AppMode';
 
 export class SettingsAppContainer
@@ -10,8 +9,6 @@ export class SettingsAppContainer
 
     constructor(application: Application) {
         super(application, AppMode.SETTINGS);
-
-        new SettingsServerEventsListener([application]).start();
     }
 
     protected createAppBar(application: Application): SettingsAppBar {

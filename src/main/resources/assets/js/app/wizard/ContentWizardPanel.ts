@@ -119,6 +119,8 @@ import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {assert} from 'lib-admin-ui/util/Assert';
 import {ContentIds} from '../ContentIds';
 import {AfterContentSavedEvent} from '../event/AfterContentSavedEvent';
+import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
+import {ProjectContext} from '../project/ProjectContext';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1235,6 +1237,13 @@ export class ContentWizardPanel
             serverEvents.unContentPublished(publishOrUnpublishHandler);
             serverEvents.unContentUnpublished(publishOrUnpublishHandler);
             serverEvents.unContentRenamed(contentRenamedHandler);
+        });
+
+        ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
+            if (event.getProjectName() === ProjectContext.get().getProject()) {
+                this.contentDeleted = true;
+                this.close();
+            }
         });
     }
 

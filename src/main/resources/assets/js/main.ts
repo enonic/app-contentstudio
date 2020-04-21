@@ -56,6 +56,7 @@ import {ProjectListRequest} from './app/settings/resource/ProjectListRequest';
 import * as Q from 'q';
 import {Project} from './app/settings/data/project/Project';
 import {ProjectSelectionDialog} from './app/settings/dialog/ProjectSelectionDialog';
+import {SettingsServerEventsListener} from './app/settings/event/SettingsServerEventsListener';
 // End of Polyfills
 
 declare const CONFIG;
@@ -379,6 +380,7 @@ function startApplication() {
 
     application.setLoaded(true);
 
+    new SettingsServerEventsListener([application]).start();
     ContentServerEventsHandler.getInstance().start();
     IssueServerEventsHandler.getInstance().start();
 }
