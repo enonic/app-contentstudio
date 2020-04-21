@@ -297,5 +297,9 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         let result = await this.getDisplayedElements(selector);
         return result.length;
     }
+
+    getTextInShowIssuesButton() {
+        return this.getText("//button[contains(@id,'ShowIssuesDialogButton')]//span");
+    }
 };
 module.exports = SettingsBrowsePanel;

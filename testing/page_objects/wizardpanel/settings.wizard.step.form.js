@@ -62,7 +62,7 @@ class SettingsStepForm extends Page {
 
     getSelectedLanguage() {
         let selector = xpath.container + xpath.selectedLocale + lib.H6_DISPLAY_NAME;
-        return this.getTextInElements();
+        return this.getText(selector);
     }
 
     getSelectedOwner() {

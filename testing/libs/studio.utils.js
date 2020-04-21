@@ -602,12 +602,13 @@ module.exports = {
             "xhr.send();");
     },
     async openAppModeSwitcher() {
-        return await this.clickOnElement(lib.APP_MODE_SWITCHER_TOGGLER);
+        await this.clickOnElement(lib.APP_MODE_SWITCHER_TOGGLER);
+        return await webDriverHelper.browser.pause(200);
     },
     async openSettingsPanel() {
         await this.openAppModeSwitcher();
         await this.clickOnElement(lib.SETTINGS_BUTTON);
-        return await webDriverHelper.browser.pause(200);
+        return await webDriverHelper.browser.pause(300);
     },
     async switchToContentMode() {
         await this.clickOnElement(lib.MODE_CONTENT_BUTTON);
@@ -616,12 +617,15 @@ module.exports = {
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
     },
-    async saveTestProject(name, description) {
+    async saveTestProject(name, description, language) {
         let projectWizard = new ProjectWizard();
         let settingsBrowsePanel = new SettingsBrowsePanel();
         await settingsBrowsePanel.openProjectWizard();
         await projectWizard.typeDisplayName(name);
         await projectWizard.typeDescription(description);
+        if (language) {
+            await projectWizard.selectLanguage(language);
+        }
         await projectWizard.clickOnAccessModeRadio("Private");
         await projectWizard.pause(400);
         await projectWizard.waitAndClickOnSave();
@@ -739,7 +743,7 @@ module.exports = {
         } catch (err) {
             await webDriverHelper.browser.refresh();
             await webDriverHelper.browser.pause(2000);
-            this.closeProjectSelectionDialog();
+            await this.closeProjectSelectionDialog();
             await this.waitUntilDisplayed(selector, 2000);
         }
         await webDriverHelper.browser.pause(100);

@@ -28,7 +28,8 @@ class ProjectSelectionDialog extends Page {
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.cancelButton, appConst.TIMEOUT_2).catch(err => {
+        let selector = XPATH.container + XPATH.projectList + lib.itemByDisplayName("Default");
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2).catch(err => {
             this.saveScreenshot('err_open_project_selection_dialog');
             throw new Error('Project Selection dialog should be opened!' + err);
         });
@@ -52,7 +53,7 @@ class ProjectSelectionDialog extends Page {
 
     async waitForCancelButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.cancelButton, appConst.TIMEOUT_2);
+            return await this.waitForElementDisplayed(this.cancelButtonTop, appConst.TIMEOUT_2);
         } catch (err) {
             throw new Error("Project Selection dialog - Cancel button is not displayed :" + err);
         }
@@ -63,7 +64,7 @@ class ProjectSelectionDialog extends Page {
     }
 
     async selectContext(projectDisplayName) {
-        let selector = XPATH.container + lib.itemByDisplayName("Project");
+        let selector = XPATH.container + XPATH.projectList + lib.itemByDisplayName(projectDisplayName);
         await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
         return await this.clickOnElement(selector);
     }

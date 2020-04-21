@@ -10,7 +10,7 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const UserBrowsePanel = require("../../page_objects/users/userbrowse.panel");
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
-describe('project.create.roles.in.users.app.spec - ui-tests for saving/deleting a project', function () {
+describe("project.create.roles.in.users.app.spec - ui-tests for checkin project's roles in Users app", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
