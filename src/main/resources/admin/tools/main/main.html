@@ -74,7 +74,13 @@
 <script type="text/javascript" src="{{assetsUri}}/js/html-imports.min.js"></script> <!-- Deprecated -->
 
 <!-- Append the launcher -->
-<script type="text/javascript" src="{{launcherPath}}" async></script>
+<script type="text/javascript" src="{{launcherPath}}"></script>
+
+<script type="text/javascript">
+  !!XP_Launcher && XP_Launcher.init({
+    theme: 'light'
+  });
+</script>
 
 </body>
 </html>
