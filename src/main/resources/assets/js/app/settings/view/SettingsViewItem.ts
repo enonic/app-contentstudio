@@ -32,6 +32,10 @@ export abstract class SettingsViewItem
             return false;
         }
 
+        if (!ObjectHelper.stringEquals(this.getIconUrl(), other.getIconUrl())) {
+            return false;
+        }
+
         return true;
     }
 
@@ -42,6 +46,8 @@ export abstract class SettingsViewItem
     abstract getDescription(): string;
 
     abstract getIconClass();
+
+    abstract getIconUrl();
 
     abstract isEditAllowed(loginResult: LoginResult): boolean;
 

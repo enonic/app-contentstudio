@@ -13,6 +13,8 @@ export class SettingsDataItemFormIcon
     constructor(iconUrl: string) {
         super(iconUrl);
 
+        this.toggleIcon(!!iconUrl);
+
         this.thumbnailSelector = new SettingsIconThumbnailSelector();
         this.initListeners();
     }
@@ -41,6 +43,14 @@ export class SettingsDataItemFormIcon
         });
     }
 
+    setSrc(iconUrl: string) {
+        super.setSrc(iconUrl);
+        this.toggleIcon(!!iconUrl);
+    }
+
+    private toggleIcon(value: boolean) {
+        this.toggleClass('not-empty', value);
+    }
 }
 
 class SettingsIconThumbnailSelector

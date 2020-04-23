@@ -1,6 +1,7 @@
 import {Project} from '../../settings/data/project/Project';
 import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ProjectIconUrlResolver} from '../ProjectIconUrlResolver';
 
 export class ProjectListItemViewer
     extends NamesAndIconViewer<Project> {
@@ -25,5 +26,12 @@ export class ProjectListItemViewer
 
     resolveIconClass(item: Project): string {
         return `icon-large ${item.getIcon() || ProjectListItemViewer.DEFAULT_ICON_CLASS}`;
+    }
+
+    resolveIconUrl(item: Project): string {
+        return item.getIcon() ? new ProjectIconUrlResolver()
+            .setProjectName(item.getName())
+            .setTimestamp(new Date().getTime())
+            .resolve() : null;
     }
 }

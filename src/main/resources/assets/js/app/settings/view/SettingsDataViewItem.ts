@@ -13,7 +13,11 @@ export abstract class SettingsDataViewItem<DATA extends Equitable>
         this.data = builder.data;
     }
 
-    abstract getData(): DATA;
+    abstract getName(): string;
+
+    getData(): DATA {
+        return this.data;
+    }
 
     equals(o: Equitable): boolean {
         if (!ObjectHelper.iFrameSafeInstanceOf(o, SettingsViewItem)) {
@@ -22,11 +26,7 @@ export abstract class SettingsDataViewItem<DATA extends Equitable>
 
         const other: SettingsDataViewItem<DATA> = <SettingsDataViewItem<DATA>>o;
 
-        if (!ObjectHelper.equals(this.data, other.data)) {
-            return false;
-        }
-
-        return true;
+        return ObjectHelper.equals(this.data, other.data);
     }
 
 }

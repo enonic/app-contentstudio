@@ -13,12 +13,9 @@ export abstract class ProjectCreateUpdateRequest
 
     protected description: string;
 
-    protected thumbnail: File;
-
     constructor() {
         super();
         this.setMethod(HttpMethod.POST);
-        this.setIsFormRequest(true);
     }
 
     setName(value: string): ProjectCreateUpdateRequest {
@@ -36,23 +33,12 @@ export abstract class ProjectCreateUpdateRequest
         return this;
     }
 
-    setThumbnail(value: File): ProjectCreateUpdateRequest {
-        this.thumbnail = value;
-        return this;
-    }
-
     getParams(): Object {
-        const params: any = {
+        return {
             name: this.name,
             displayName: this.displayName,
             description: this.description
         };
-
-        if (this.thumbnail) {
-            params.icon = this.thumbnail;
-        }
-
-        return params;
     }
 
     protected parseResponse(response: JsonResponse<ProjectJson>): Project {

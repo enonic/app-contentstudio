@@ -4,6 +4,7 @@ import {Element} from 'lib-admin-ui/dom/Element';
 import {SettingsItemViewer} from './SettingsItemViewer';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ProjectIconUrlResolver} from '../../../project/ProjectIconUrlResolver';
 
 export class ProjectItemViewer
     extends SettingsItemViewer {
@@ -39,5 +40,14 @@ export class ProjectItemViewer
         return `icon-large ${item.getIconClass()}`;
     }
 
+    resolveIconUrl(item: ProjectViewItem): string {
+        if (item.getData().getIcon() != null) {
+
+            return item.getData().getIcon() ? new ProjectIconUrlResolver()
+                .setProjectName(item.getName())
+                .setTimestamp(new Date().getTime())
+                .resolve() : null;
+        }
+    }
 }
 

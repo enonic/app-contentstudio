@@ -10,7 +10,6 @@ import {
 } from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {FormIcon} from 'lib-admin-ui/app/wizard/FormIcon';
-import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
@@ -22,6 +21,7 @@ import {SettingsDataItemFormIcon} from './SettingsDataItemFormIcon';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {SettingsDataItemWizardActions} from './action/SettingsDataItemWizardActions';
 import {SettingsDataViewItem} from '../view/SettingsDataViewItem';
+import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
 
 export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewItem<Equitable>>
     extends WizardPanel<ITEM> {
@@ -196,6 +196,11 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         this.setPersistedItem(item);
 
         this.wizardHeader.initNames(item.getDisplayName(), item.getId(), false);
+
+        if (item.getIconUrl()) {
+            this.getFormIcon().setSrc(item.getIconUrl());
+        }
+
         this.wizardStepForms.forEach((stepForm: SettingDataItemWizardStepForm<ITEM>) => {
             stepForm.layout(item);
         });
@@ -229,9 +234,9 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     protected abstract getSuccessfulDeleteMessage(): string;
 
-    protected abstract getSuccessfulCreateMessage(item: ITEM): string;
+    protected abstract getSuccessfulCreateMessage(name: string): string;
 
-    protected abstract getSuccessfulUpdateMessage(item: ITEM): string;
+    protected abstract getSuccessfulUpdateMessage(name: string): string;
 
     protected abstract handleDataChanged();
 
@@ -245,18 +250,21 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     protected createFormIcon(): FormIcon {
-        const icon: SettingsDataItemFormIcon = new SettingsDataItemFormIcon(ImgEl.PLACEHOLDER);
+        const icon: SettingsDataItemFormIcon = new SettingsDataItemFormIcon(
+            this.getPersistedItem() ? this.getPersistedItem().getIconUrl() : null);
         icon.addClass(`icon icon-xlarge ${this.getIconClass()}`);
 
         icon.onIconChanged(() => {
             if (this.isItemPersisted()) {
-                this.saveChanges().catch((reason: any) => {
-                    DefaultErrorHandler.handle(reason);
-                });
+                this.updateIcon();
             }
         });
 
         return icon;
+    }
+
+    protected updateIcon(): Q.Promise<any> {
+        throw new Exception('Must be implemented by inheritor.', ExceptionType.ERROR);
     }
 
     protected abstract getIconClass(): string;

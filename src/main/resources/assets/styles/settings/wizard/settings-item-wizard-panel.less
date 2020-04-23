@@ -10,6 +10,17 @@
     }
   }
 
+  .header-and-navigator-container {
+
+    .@{_COMMON_PREFIX}form-icon {
+      &.not-empty {
+        &:before {
+          display: none;
+        }
+      }
+    }
+  }
+
   .wizard-step-form {
     .form-view {
 
@@ -26,7 +37,7 @@
 
         label {
           float: none;
-                  }
+        }
 
         .form-input {
           margin-left: 0;

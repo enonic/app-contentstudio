@@ -38,6 +38,10 @@ export class FolderViewItem
         return this.iconClass;
     }
 
+    getIconUrl() {
+        return null;
+    }
+
     isEditAllowed(loginResult: LoginResult): boolean {
         return false;
     }
