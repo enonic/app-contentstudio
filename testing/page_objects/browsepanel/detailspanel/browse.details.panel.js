@@ -28,6 +28,18 @@ class BrowseDetailsPanel extends BaseDetailsPanel {
             throw new Error('Details Panel was not loaded in ' + appConst.TIMEOUT_2);
         });
     }
+
+    waitForDetailsPanelCleared() {
+        let selector = xpath.container + "//div[contains(@id,'ContextView')]";
+        return this.getBrowser().waitUntil(() => {
+            return this.getAttribute(selector, 'class').then(result => {
+                return result.includes('no-selection');
+            })
+        }, 2000).catch(err => {
+            this.saveScreenshot('err_details_panel_not_cleared');
+            throw new Error("Details Panel should be cleared" + err);
+        });
+    }
 };
 module.exports = BrowseDetailsPanel;
 

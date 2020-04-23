@@ -466,7 +466,8 @@ module.exports = {
         let isLoaded = await projectSelectionDialog.isDialogLoaded();
         if (isLoaded) {
             await projectSelectionDialog.clickOnCancelButtonTop();
-            return await projectSelectionDialog.waitForDialogClosed();
+            await projectSelectionDialog.waitForDialogClosed();
+            return await webDriverHelper.browser.pause(200);
         }
     },
     async doLoginAndClickOnContentStudio(userName, password) {
