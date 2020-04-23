@@ -37,6 +37,8 @@ const XPATH = {
     contentSummaryByDisplayName: function (displayName) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
     },
+    projectItemByDisplayName:
+        displayName => `//div[contains(@id,'ProjectListItemViewer')and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     publishMenuItemByName: function (name) {
         return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
@@ -158,6 +160,19 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get treeGrid() {
         return XPATH.container + XPATH.treeGrid;
+    }
+
+    get projectSelectorDropDownHandle() {
+        return XPATH.projectSelector + "//button[contains(@id,'DropdownHandle')]"
+    }
+
+    waitForProjectSelectorDropDownHandleDisplayed() {
+        return this.waitForElementDisplayed(this.projectSelectorDropDownHandle, appConst.TIMEOUT_2);
+    }
+
+    async clickOnProjectSelectorDropDownHandle() {
+        await this.waitForProjectSelectorDropDownHandleDisplayed();
+        return await this.clickOnElement(this.projectSelectorDropDownHandle);
     }
 
     hotKeyPublish() {
@@ -681,13 +696,17 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await this.pause(500);
     }
 
-    get projectSelectorDropDownHandle() {
-        return XPATH.projectSelector + "//button[contains(@id,'DropdownHandle')]"
-    }
 
     getSelectedProjectDisplayName() {
         let selector = XPATH.projectSelector + lib.H6_DISPLAY_NAME;
         return this.getText(selector);
+    }
+
+    async selectContext(projectDisplayName) {
+        await this.clickOnProjectSelectorDropDownHandle();
+        let selector = XPATH.projectSelector + XPATH.projectItemByDisplayName(projectDisplayName);
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return this.clickOnElement(selector);
     }
 };
 module.exports = ContentBrowsePanel;

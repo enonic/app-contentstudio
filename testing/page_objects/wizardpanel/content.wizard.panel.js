@@ -843,6 +843,12 @@ class ContentWizardPanel extends Page {
             throw new Error("Page Editor toggler: " + err);
         }
     }
+
+    async getProjectDisplayName() {
+        let selector = XPATH.toolbar + "//div[contains(@class,'project-info')]" + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return await this.getText(selector);
+    }
 };
 
 module.exports = ContentWizardPanel;
