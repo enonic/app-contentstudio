@@ -9,7 +9,7 @@ export class ProjectUpdateIconRequest
 
     private icon: File;
 
-    private size: number = 150;
+    private scaleWidth: number = 150;
 
     constructor() {
         super();
@@ -28,8 +28,8 @@ export class ProjectUpdateIconRequest
         return this;
     }
 
-    setSize(value: number): ProjectUpdateIconRequest {
-        this.size = value;
+    setScaleWidth(value: number): ProjectUpdateIconRequest {
+        this.scaleWidth = value;
         return this;
     }
 
@@ -37,7 +37,7 @@ export class ProjectUpdateIconRequest
         return {
             name: this.name,
             icon: this.icon,
-            size: this.size
+            scaleWidth: this.scaleWidth
         };
     }
 }
