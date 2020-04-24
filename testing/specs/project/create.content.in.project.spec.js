@@ -13,6 +13,7 @@ const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const WizardAccessStepForm = require('../../page_objects/wizardpanel/access.wizard.step.form');
 const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
+const ContentWidgetView = require('../../page_objects/browsepanel/detailspanel/content.widget.item.view');
 
 describe('create.content.in.project.spec - create new content in the selected context and verify a language in wizards', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -98,18 +99,20 @@ describe('create.content.in.project.spec - create new content in the selected co
             let projectSelectionDialog = new ProjectSelectionDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             let browseDetailsPanel = new BrowseDetailsPanel();
-            let contentWizardPanel = new ContentWizardPanel();
+            let contentWidget = new ContentWidgetView();
             await projectSelectionDialog.waitForDialogLoaded();
             //1. Select the project in 'Select Context' dialog:
             await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
             //2. Select the folder and open details panel
             await studioUtils.findAndSelectItem(TEST_FOLDER_NAME);
             await studioUtils.openBrowseDetailsPanel();
+            let contentName = await contentWidget.getContentName();
+            assert.equal(contentName, TEST_FOLDER_NAME, "Expected name should be displayed in the widget(details panel)");
             //3. Switch to 'Default' project:
             await contentBrowsePanel.selectContext("Default");
             //4.Verify that 'Details Panel' is cleared
             await browseDetailsPanel.waitForDetailsPanelCleared();
-            //4 Verify that the content is not searchable in the 'Default' context:
+            //5. Verify that the content is not searchable in the 'Default' context:
             await studioUtils.typeNameInFilterPanel(TEST_FOLDER_NAME);
             studioUtils.saveScreenshot("switch_to_default_context");
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
