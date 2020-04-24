@@ -198,9 +198,6 @@ export class ContentWizardActions
 
     initUnsavedChangesListeners() {
         if (this.checkSaveActionStateHandler) {
-            this.wizardPanel.unPermissionItemsAdded(this.checkSaveActionStateHandler);
-            this.wizardPanel.unPermissionItemsRemoved(this.checkSaveActionStateHandler);
-            this.wizardPanel.unPermissionItemChanged(this.checkSaveActionStateHandler);
             this.wizardPanel.unDataChanged(this.checkSaveActionStateHandler);
             this.wizardPanel.unLiveModelChanged(this.checkSaveActionStateHandler);
         }
@@ -209,11 +206,7 @@ export class ContentWizardActions
             let isEnabled: boolean = this.wizardPanel.hasUnsavedChanges();
 
             if (this.persistedContent) {
-
-                const overwritePermissions = this.wizardPanel.getSecurityWizardStepForm() &&
-                                             this.wizardPanel.getSecurityWizardStepForm().isOverwritePermissions();
-
-                isEnabled = (isEnabled || overwritePermissions) &&
+                isEnabled = isEnabled &&
                             this.persistedContent.isEditable() &&
                             !this.isPendingDelete() &&
                             this.userCanModify;
@@ -224,9 +217,6 @@ export class ContentWizardActions
 
         }, 100, false);
 
-        this.wizardPanel.onPermissionItemsAdded(this.checkSaveActionStateHandler);
-        this.wizardPanel.onPermissionItemsRemoved(this.checkSaveActionStateHandler);
-        this.wizardPanel.onPermissionItemChanged(this.checkSaveActionStateHandler);
         this.wizardPanel.onDataChanged(this.checkSaveActionStateHandler);
         this.wizardPanel.onLiveModelChanged(this.checkSaveActionStateHandler);
     }
