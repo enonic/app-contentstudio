@@ -1,0 +1,163 @@
+/* THEME-DEPENDENT STYLES */
+
+.main-app-wrapper {
+
+  &.theme-dark {
+
+  }
+
+  &.theme-light {
+
+    @THEME_LIGHT_BG_COLOR: @admin-bg-almost-white;
+    @THEME_LIGHT_FONT_COLOR: @admin-font-gray2;
+    @THEME_LIGHT_FONT_COLOR_HOVER: @admin-font-gray3;
+    @THEME_LIGHT_ICON_COLOR: @admin-dark-gray;
+    @THEME_LIGHT_BG_HOVER_COLOR: @admin-bg-light-gray;
+
+    .sidebar-toggler {
+
+      span {
+        background-color: @THEME_LIGHT_FONT_COLOR;
+
+        &:before, &:after {
+          background-color: @THEME_LIGHT_FONT_COLOR;
+
+        }
+      }
+
+      &:not(.toggled):hover span {
+        background-color: @THEME_LIGHT_FONT_COLOR_HOVER;
+
+        &:before, &:after {
+          background-color: @THEME_LIGHT_FONT_COLOR_HOVER;
+        }
+      }
+    }
+
+    .appbar {
+      background-color: @THEME_LIGHT_BG_COLOR;
+      border-bottom: 1px solid @admin-bg-light-gray;
+
+      .show-issues-button-wrapper .show-issues-dialog-button {
+
+        border-right: 1px solid @admin-font-gray2;
+
+        span {
+          color: @THEME_LIGHT_FONT_COLOR;
+        }
+
+        &:before {
+          color: @THEME_LIGHT_ICON_COLOR;
+        }
+
+        &:hover {
+          span {
+            color: @THEME_LIGHT_FONT_COLOR_HOVER;
+          }
+          &:before {
+            color: @THEME_LIGHT_ICON_COLOR;
+          }
+        }
+      }
+
+      .project-selector {
+
+        .selected-project-view {
+
+          &:hover {
+            .@{_COMMON_PREFIX}dropdown-handle {
+              &:after {
+                border-top-color: @admin-black;
+              }
+            }
+          }
+
+          &:not(:hover) {
+            .names-and-icon-view {
+
+              .@{_COMMON_PREFIX}names-view {
+                .@{_COMMON_PREFIX}main-name {
+                  color: @THEME_LIGHT_FONT_COLOR;
+                }
+              }
+
+              .icon-tree-2 {
+                color: @THEME_LIGHT_ICON_COLOR;
+              }
+            }
+
+            .@{_COMMON_PREFIX}dropdown-handle {
+
+              &:after {
+                border-top-color: @THEME_LIGHT_ICON_COLOR;
+              }
+            }
+          }
+        }
+
+        .project-list-item-viewer {
+
+          .names-and-icon-view {
+            .@{_COMMON_PREFIX}names-view {
+              .@{_COMMON_PREFIX}main-name {
+                color: @admin-black;
+              }
+            }
+            .icon-tree-2 {
+              color: @admin-black;
+            }
+          }
+        }
+
+        .project-list-items {
+          background-color: @THEME_LIGHT_BG_COLOR;
+
+          .project-list-item {
+
+            &.selected {
+              .names-and-icon-view {
+
+                .@{_COMMON_PREFIX}names-view {
+                  .@{_COMMON_PREFIX}main-name,
+                  .@{_COMMON_PREFIX}sub-name{
+                    color: @admin-white;
+                  }
+                }
+
+                .icon-tree-2 {
+                  color: @admin-white;
+                }
+              }
+            }
+
+            &:not(.selected):hover {
+              background-color: @THEME_LIGHT_BG_HOVER_COLOR;
+
+              .names-and-icon-view {
+
+                .@{_COMMON_PREFIX}names-view {
+                  .@{_COMMON_PREFIX}sub-name {
+                    color: @THEME_LIGHT_FONT_COLOR_HOVER;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .split-panel {
+      .tree-grid-toolbar {
+        background-color: @admin-white;
+      }
+
+      .item-preview-toolbar {
+        background-color: @admin-white;
+      }
+    }
+  }
+
+}
+
+/* END THEME-DEPENDENT STYLES */

@@ -25,8 +25,8 @@ export class AppWrapper
 
     private touchListener: (event: MouseEvent) => void;
 
-    constructor(application: Application) {
-        super('main-app-wrapper');
+    constructor(application: Application, className?: string) {
+        super(`main-app-wrapper ${(className || '')}`.trim());
 
         this.application = application;
 

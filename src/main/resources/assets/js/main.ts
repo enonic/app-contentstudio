@@ -456,7 +456,7 @@ function startContentApplication(application: Application) {
 
     import('./app/ContentAppPanel').then( async cdef => {
         const {AppWrapper} = await import ('./app/AppWrapper');
-        const commonWrapper = new AppWrapper(application);
+        const commonWrapper = new AppWrapper(application, CONFIG.theme ? `theme-${CONFIG.theme}` : '');
         body.appendChild(commonWrapper);
 
         import('./app/create/NewContentDialog').then(def => {

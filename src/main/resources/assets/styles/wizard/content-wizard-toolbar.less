@@ -1,3 +1,5 @@
+@app-header-height-inner: @app-header-height - 1;
+
 .content-wizard-toolbar {
   display: flex;
   flex-direction: row;
@@ -6,8 +8,8 @@
   align-items: flex-end;
   align-content: stretch;
   padding-right: 40px;
-  height: @toolbar-height;
-  line-height: @toolbar-height;
+  height: @app-header-height;
+  line-height: @app-header-height;
 
   & > * {
     flex: 0 0 auto;
@@ -16,8 +18,8 @@
   .@{_COMMON_PREFIX}button {
     z-index: 1;
 
-    span {
-      line-height: @toolbar-height;
+    span, &.publish-action-button > span {
+      line-height: @app-header-height;
     }
   }
 
@@ -33,7 +35,7 @@
 
   .cycle-button.icon-medium:before {
     font-size: 26px;
-    line-height: 30px;
+    line-height: @app-header-height + 1;
   }
 
   .toggle-button.icon-medium:before {
@@ -44,7 +46,6 @@
   .toggle-button, .cycle-button {
     height: 100%;
     float: right;
-    padding: 6px 10px 6px 10px;
 
     &:before {
       position: relative;
@@ -72,8 +73,8 @@
   .toggle-button {
     &.icon-clipboard {
       order: 3;
-      height: 42px;
-      width: 42px;
+      height: @app-header-height-inner;
+      width: @app-header-height-inner;
     }
     &.icon-cog {
       order: 4;
@@ -100,7 +101,7 @@
 
     &:before {
       position: absolute;
-      top: 9px;
+      top: @app-header-height / 4;
       font-size: 20px;
     }
 
@@ -132,9 +133,9 @@
     border-right: 1px solid @admin-font-gray;
 
     .@{_COMMON_PREFIX}wrapper {
-      height: @toolbar-height;
-      width: @toolbar-height;
-      line-height: @toolbar-height;
+      height: @app-header-height-inner;
+      width: @app-header-height-inner;
+      line-height: @app-header-height-inner;
       margin-right: 0px;
       cursor: pointer;
 
@@ -146,8 +147,8 @@
     .@{_COMMON_PREFIX}names-view {
 
       .@{_COMMON_PREFIX}main-name {
-        height: @toolbar-height;
-        line-height: @toolbar-height;
+        height: @app-header-height-inner;
+        line-height: @app-header-height-inner;
         font-size: 16px;
       }
     }

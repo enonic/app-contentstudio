@@ -58,8 +58,8 @@
             contentUrl: '{{services.contentServiceUrl}}',
         },
         allowScriptsInEditor: '{{allowScriptsInEditor}}',
-        mainUrl: '{{mainUrl}}'
-
+        mainUrl: '{{mainUrl}}',
+        theme: 'light'
     };
 
     if (CKEDITOR) {
@@ -78,7 +78,7 @@
 
 <script type="text/javascript">
   !!XP_Launcher && XP_Launcher.init({
-    theme: 'light'
+    theme: CONFIG.theme
   });
 </script>
 
