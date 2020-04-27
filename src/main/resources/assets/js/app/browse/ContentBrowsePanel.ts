@@ -229,7 +229,11 @@ export class ContentBrowsePanel
 
         if (this.treeGrid.hasHighlightedNode()) {
             this.doUpdateContextPanel(this.treeGrid.getHighlightedNode().getData());
+
+            return;
         }
+
+        this.doUpdateContextPanel(null);
     }
 
     private subscribeContextPanelsOnEvents() {
