@@ -59,7 +59,9 @@
         },
         allowScriptsInEditor: '{{allowScriptsInEditor}}',
         mainUrl: '{{mainUrl}}',
-        theme: 'light'
+        launcher: {
+          theme: 'light'
+        }
     };
 
     if (CKEDITOR) {
@@ -74,13 +76,7 @@
 <script type="text/javascript" src="{{assetsUri}}/js/html-imports.min.js"></script> <!-- Deprecated -->
 
 <!-- Append the launcher -->
-<script type="text/javascript" src="{{launcherPath}}"></script>
-
-<script type="text/javascript">
-  !!XP_Launcher && XP_Launcher.init({
-    theme: CONFIG.theme
-  });
-</script>
+<script type="text/javascript" src="{{launcherPath}}" async></script>
 
 </body>
 </html>

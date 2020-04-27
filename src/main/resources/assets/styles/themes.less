@@ -1,143 +1,165 @@
-/* THEME-DEPENDENT STYLES */
+.theme(light);
 
-.main-app-wrapper {
+.theme(@THEME_NAME: light) {
+  .theme-selectors(
+    @THEME_NAME,
+    @HEADER_BG_COLOR: @admin-bg-almost-white,
+    @HEADER_BG_COLOR_HOVER: @admin-bg-light-gray,
+    @HEADER_FONT_COLOR: @admin-font-gray2,
+    @HEADER_FONT_COLOR_HOVER: @admin-font-gray3,
+    @HEADER_ICON_COLOR: @admin-dark-gray,
+    @HEADER_ICON_COLOR_HOVER: @admin-font-gray3,
+    @TOOLBAR_BG_COLOR: @admin-white
+  );
+}
 
-  &.theme-dark {
+/* THEME-DEPENDENT SELECTORS */
 
-  }
+.theme-selectors(
+  @THEME_NAME,
+  @HEADER_BG_COLOR,
+  @HEADER_BG_COLOR_HOVER,
+  @HEADER_FONT_COLOR,
+  @HEADER_FONT_COLOR_HOVER,
+  @HEADER_ICON_COLOR,
+  @HEADER_ICON_COLOR_HOVER,
+  @TOOLBAR_BG_COLOR
+) {
 
-  &.theme-light {
+  .main-app-wrapper {
 
-    @THEME_LIGHT_BG_COLOR: @admin-bg-almost-white;
-    @THEME_LIGHT_FONT_COLOR: @admin-font-gray2;
-    @THEME_LIGHT_FONT_COLOR_HOVER: @admin-font-gray3;
-    @THEME_LIGHT_ICON_COLOR: @admin-dark-gray;
-    @THEME_LIGHT_BG_HOVER_COLOR: @admin-bg-light-gray;
+    &.theme-@{THEME_NAME} {
 
-    .sidebar-toggler {
-
-      span {
-        background-color: @THEME_LIGHT_FONT_COLOR;
-
-        &:before, &:after {
-          background-color: @THEME_LIGHT_FONT_COLOR;
-
-        }
-      }
-
-      &:not(.toggled):hover span {
-        background-color: @THEME_LIGHT_FONT_COLOR_HOVER;
-
-        &:before, &:after {
-          background-color: @THEME_LIGHT_FONT_COLOR_HOVER;
-        }
-      }
-    }
-
-    .appbar {
-      background-color: @THEME_LIGHT_BG_COLOR;
-      border-bottom: 1px solid @admin-bg-light-gray;
-
-      .show-issues-button-wrapper .show-issues-dialog-button {
-
-        border-right: 1px solid @admin-font-gray2;
+      .sidebar-toggler {
 
         span {
-          color: @THEME_LIGHT_FONT_COLOR;
-        }
+          background-color: @HEADER_FONT_COLOR;
 
-        &:before {
-          color: @THEME_LIGHT_ICON_COLOR;
-        }
+          &:before, &:after {
+            background-color: @HEADER_FONT_COLOR;
 
-        &:hover {
-          span {
-            color: @THEME_LIGHT_FONT_COLOR_HOVER;
           }
-          &:before {
-            color: @THEME_LIGHT_ICON_COLOR;
+        }
+
+        &:not(.toggled):hover span {
+          background-color: @HEADER_FONT_COLOR_HOVER;
+
+          &:before, &:after {
+            background-color: @HEADER_FONT_COLOR_HOVER;
           }
         }
       }
 
-      .project-selector {
+      .appbar {
+        background-color: @HEADER_BG_COLOR;
+        border-bottom: 1px solid @admin-bg-light-gray;
 
-        .selected-project-view {
+        .show-issues-button-wrapper .show-issues-dialog-button {
+
+          border-right: 1px solid @admin-font-gray2;
+
+          span {
+            color: @HEADER_FONT_COLOR;
+          }
+
+          &:before {
+            color: @HEADER_ICON_COLOR;
+          }
 
           &:hover {
-            .@{_COMMON_PREFIX}dropdown-handle {
-              &:after {
-                border-top-color: @admin-black;
-              }
+            span {
+              color: @HEADER_FONT_COLOR_HOVER;
+            }
+
+            &:before {
+              color: @HEADER_ICON_COLOR_HOVER;
             }
           }
+        }
 
-          &:not(:hover) {
-            .names-and-icon-view {
+        .project-selector {
 
-              .@{_COMMON_PREFIX}names-view {
-                .@{_COMMON_PREFIX}main-name {
-                  color: @THEME_LIGHT_FONT_COLOR;
+          .selected-project-view {
+
+            &:hover {
+              .@{_COMMON_PREFIX}dropdown-handle {
+                &:after {
+                  border-top-color: @HEADER_FONT_COLOR_HOVER;
                 }
               }
-
-              .icon-tree-2 {
-                color: @THEME_LIGHT_ICON_COLOR;
-              }
             }
 
-            .@{_COMMON_PREFIX}dropdown-handle {
-
-              &:after {
-                border-top-color: @THEME_LIGHT_ICON_COLOR;
-              }
-            }
-          }
-        }
-
-        .project-list-item-viewer {
-
-          .names-and-icon-view {
-            .@{_COMMON_PREFIX}names-view {
-              .@{_COMMON_PREFIX}main-name {
-                color: @admin-black;
-              }
-            }
-            .icon-tree-2 {
-              color: @admin-black;
-            }
-          }
-        }
-
-        .project-list-items {
-          background-color: @THEME_LIGHT_BG_COLOR;
-
-          .project-list-item {
-
-            &.selected {
+            &:not(:hover) {
               .names-and-icon-view {
 
                 .@{_COMMON_PREFIX}names-view {
-                  .@{_COMMON_PREFIX}main-name,
-                  .@{_COMMON_PREFIX}sub-name{
-                    color: @admin-white;
+                  .@{_COMMON_PREFIX}main-name {
+                    color: @HEADER_FONT_COLOR;
                   }
                 }
 
                 .icon-tree-2 {
-                  color: @admin-white;
+                  color: @HEADER_ICON_COLOR;
+                }
+              }
+
+              .@{_COMMON_PREFIX}dropdown-handle {
+
+                &:after {
+                  border-top-color: @HEADER_FONT_COLOR;
                 }
               }
             }
+          }
 
-            &:not(.selected):hover {
-              background-color: @THEME_LIGHT_BG_HOVER_COLOR;
+          .project-list-item-viewer {
 
-              .names-and-icon-view {
+            .names-and-icon-view {
+              .@{_COMMON_PREFIX}names-view {
+                .@{_COMMON_PREFIX}main-name {
+                  color: @HEADER_FONT_COLOR_HOVER;
+                }
+                .@{_COMMON_PREFIX}sub-name {
+                  color: @HEADER_FONT_COLOR;
+                }
+              }
 
-                .@{_COMMON_PREFIX}names-view {
-                  .@{_COMMON_PREFIX}sub-name {
-                    color: @THEME_LIGHT_FONT_COLOR_HOVER;
+              .icon-tree-2 {
+                color: @HEADER_FONT_COLOR_HOVER;
+              }
+            }
+          }
+
+          .project-list-items {
+            background-color: @HEADER_BG_COLOR;
+
+            .project-list-item {
+
+              &.selected {
+                .names-and-icon-view {
+
+                  .@{_COMMON_PREFIX}names-view {
+                    .@{_COMMON_PREFIX}main-name,
+                    .@{_COMMON_PREFIX}sub-name {
+                      color: @admin-white;
+                    }
+                  }
+
+                  .icon-tree-2 {
+                    color: @admin-white;
+                  }
+                }
+              }
+
+              &:not(.selected):hover {
+                background-color: @HEADER_BG_COLOR_HOVER;
+
+                .names-and-icon-view {
+
+                  .@{_COMMON_PREFIX}names-view {
+                    .@{_COMMON_PREFIX}sub-name {
+                      color: @HEADER_FONT_COLOR_HOVER;
+                    }
                   }
                 }
               }
@@ -145,19 +167,16 @@
           }
         }
       }
-    }
 
-    .split-panel {
-      .tree-grid-toolbar {
-        background-color: @admin-white;
-      }
+      .split-panel {
+        .tree-grid-toolbar {
+          background-color: @TOOLBAR_BG_COLOR;
+        }
 
-      .item-preview-toolbar {
-        background-color: @admin-white;
+        .item-preview-toolbar {
+          background-color: @TOOLBAR_BG_COLOR;
+        }
       }
     }
   }
-
 }
-
-/* END THEME-DEPENDENT STYLES */
