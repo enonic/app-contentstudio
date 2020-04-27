@@ -392,64 +392,67 @@ const refreshTabOnContentUpdate = (content: Content) => {
     });
 };
 
-function startContentWizard(wizardParams: ContentWizardPanelParams) {
+async function startContentWizard(wizardParams: ContentWizardPanelParams) {
     const connectionDetector = startLostConnectionDetector();
 
-    import('./app/wizard/ContentWizardPanel').then(def => {
+    const ContentWizardPanel = (await import('./app/wizard/ContentWizardPanel')).ContentWizardPanel;
 
-        let wizard = new def.ContentWizardPanel(wizardParams);
+    let wizard = new ContentWizardPanel(wizardParams, getTheme());
 
-        wizard.onDataLoaded((content: Content) => {
-            let contentType = wizard.getContentType();
-            if (!wizardParams.contentId || !dataPreloaded) {
-                // update favicon for new wizard after content has been created or in case data hasn't been preloaded
-                updateFavicon(content);
+    wizard.onDataLoaded((content: Content) => {
+        let contentType = wizard.getContentType();
+        if (!wizardParams.contentId || !dataPreloaded) {
+            // update favicon for new wizard after content has been created or in case data hasn't been preloaded
+            updateFavicon(content);
 
-                if (shouldUpdateFavicon(content.getType())) {
-                    refreshTabOnContentUpdate(content);
-                }
-
+            if (shouldUpdateFavicon(content.getType())) {
+                refreshTabOnContentUpdate(content);
             }
-            if (!dataPreloaded) {
-                updateTabTitle(content.getDisplayName() || ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
-            }
-        });
-        wizard.onWizardHeaderCreated(() => {
-            // header will be ready after rendering is complete
-            wizard.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
-                if (event.getPropertyName() === 'displayName') {
-                    let contentType = wizard.getContentType();
-                    let name = <string>event.getNewValue() || ContentUnnamed.prettifyUnnamed(contentType.getDisplayName());
 
-                    updateTabTitle(name);
-                }
-            });
-        });
-
-        WindowDOM.get().onBeforeUnload(event => {
-            if (wizard.isContentDeleted() || !connectionDetector.isConnected() || !connectionDetector.isAuthenticated()) {
-                return;
-            }
-            if (wizard.hasUnsavedChanges() && wizard.hasModifyPermissions()) {
-                let message = i18n('dialog.wizard.unsavedChanges');
-                // Hack for IE. returnValue is boolean
-                const e: any = event || window.event || {returnValue: ''};
-                e['returnValue'] = message;
-                return message;
-            }
-        });
-
-        wizard.onClosed(event => window.close());
-
-        // TODO: Remove hack, that connects content events in `FormView`
-        FormEditEvent.on((event) => {
-            const model = ContentSummaryAndCompareStatus.fromContentSummary(event.getModels());
-            new EditContentEvent([model]).fire();
-        });
-        EditContentEvent.on(ContentEventsProcessor.handleEdit);
-
-        Body.get().addClass('wizard-page').appendChild(wizard);
+        }
+        if (!dataPreloaded) {
+            updateTabTitle(content.getDisplayName() || ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
+        }
     });
+    wizard.onWizardHeaderCreated(() => {
+        // header will be ready after rendering is complete
+        wizard.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
+            if (event.getPropertyName() === 'displayName') {
+                let contentType = wizard.getContentType();
+                let name = <string>event.getNewValue() || ContentUnnamed.prettifyUnnamed(contentType.getDisplayName());
+
+                updateTabTitle(name);
+            }
+        });
+    });
+
+    WindowDOM.get().onBeforeUnload(event => {
+        if (wizard.isContentDeleted() || !connectionDetector.isConnected() || !connectionDetector.isAuthenticated()) {
+            return;
+        }
+        if (wizard.hasUnsavedChanges() && wizard.hasModifyPermissions()) {
+            let message = i18n('dialog.wizard.unsavedChanges');
+            // Hack for IE. returnValue is boolean
+            const e: any = event || window.event || {returnValue: ''};
+            e['returnValue'] = message;
+            return message;
+        }
+    });
+
+    wizard.onClosed(event => window.close());
+
+    // TODO: Remove hack, that connects content events in `FormView`
+    FormEditEvent.on((event) => {
+        const model = ContentSummaryAndCompareStatus.fromContentSummary(event.getModels());
+        new EditContentEvent([model]).fire();
+    });
+    EditContentEvent.on(ContentEventsProcessor.handleEdit);
+
+    Body.get().addClass('wizard-page').appendChild(wizard);
+}
+
+function getTheme(): string {
+    return !!CONFIG.launcher ? (`theme-${CONFIG.launcher.theme}` || '') : '';
 }
 
 function startContentApplication(application: Application) {
@@ -457,7 +460,7 @@ function startContentApplication(application: Application) {
     import('./app/ContentAppPanel').then( async cdef => {
         const {AppWrapper} = await import ('./app/AppWrapper');
         const theme = !!CONFIG.launcher ? (`theme-${CONFIG.launcher.theme}` || '') : '';
-        const commonWrapper = new AppWrapper(application, theme);
+        const commonWrapper = new AppWrapper(application, getTheme());
         body.appendChild(commonWrapper);
 
         import('./app/create/NewContentDialog').then(def => {

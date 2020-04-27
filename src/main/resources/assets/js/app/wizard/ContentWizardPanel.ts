@@ -226,10 +226,14 @@ export class ContentWizardPanel
 
     public static debug: boolean = false;
 
-    constructor(params: ContentWizardPanelParams) {
+    constructor(params: ContentWizardPanelParams, cls?: string) {
         super({
             tabId: params.tabId
         });
+
+        if (cls) {
+            this.addClass(cls);
+        }
 
         this.contentParams = params;
 

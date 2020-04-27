@@ -238,7 +238,7 @@
   .context-panel {
     overflow: visible;
     &.floating-context-panel {
-      top: @toolbar-with-border-height;
+      top: @app-header-height + 1;
       z-index: @z-index-tab-menu - 1;
     }
 
@@ -246,6 +246,8 @@
       top: 0;
       border: none;
       height: @app-header-height - 1;
+      width: @app-header-height - 1;
+      padding-left: 10px;
 
       &::before {
         font-size: 24px;
@@ -259,7 +261,7 @@
       right: 0;
       left: 0;
       display: block;
-      margin-top: 40px; // leave space for the wizard toolbar
+      margin-top: @app-header-height; // leave space for the wizard toolbar
       top: 3000px; // hide by default;
     }
   }
