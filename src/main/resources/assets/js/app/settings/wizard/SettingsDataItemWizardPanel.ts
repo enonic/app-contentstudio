@@ -106,6 +106,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
             return item;
         }).finally(() => {
             this.isClosePending = false;
+            this.getFormIcon().setDisabled(false);
         });
     }
 
@@ -253,6 +254,9 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         const icon: SettingsDataItemFormIcon = new SettingsDataItemFormIcon(
             this.getPersistedItem() ? this.getPersistedItem().getIconUrl() : null);
         icon.addClass(`icon icon-xlarge ${this.getIconClass()}`);
+        if (!this.getPersistedItem()) {
+            icon.setDisabled(true, i18n('settings.projects.tooltip.saveProject'));
+        }
 
         icon.onIconChanged(() => {
             if (this.isItemPersisted()) {

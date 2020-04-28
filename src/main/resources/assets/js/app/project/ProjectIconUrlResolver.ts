@@ -5,6 +5,8 @@ import {assertNotNull} from 'lib-admin-ui/util/Assert';
 export class ProjectIconUrlResolver
     extends IconUrlResolver {
 
+    public static DEFAULT_ICON_CLASS: string = 'icon-tree-2';
+
     private static PREFIX: string = UriHelper.getRestUri('project/icon/');
 
     private name: string;

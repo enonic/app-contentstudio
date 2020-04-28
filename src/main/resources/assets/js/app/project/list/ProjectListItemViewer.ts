@@ -25,7 +25,7 @@ export class ProjectListItemViewer
     }
 
     resolveIconClass(item: Project): string {
-        return `icon-large ${item.getIcon() || ProjectListItemViewer.DEFAULT_ICON_CLASS}`;
+        return `icon-large ${item.getIcon() || ProjectIconUrlResolver.DEFAULT_ICON_CLASS}`;
     }
 
     resolveIconUrl(item: Project): string {

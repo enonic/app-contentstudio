@@ -5,12 +5,12 @@ import {SettingsTreeItemBuilder, SettingsViewItem} from './SettingsViewItem';
 export abstract class SettingsDataViewItem<DATA extends Equitable>
     extends SettingsViewItem {
 
-    protected data: DATA;
+    readonly data: DATA;
 
-    constructor(builder: SettingsDataItemBuilder<DATA>) {
+    protected constructor(builder: SettingsDataItemBuilder<DATA>) {
         super(builder);
 
-        this.data = builder.data;
+        this.data = builder.getData();
     }
 
     abstract getName(): string;
@@ -34,7 +34,7 @@ export abstract class SettingsDataViewItem<DATA extends Equitable>
 export abstract class SettingsDataItemBuilder<DATA extends Equitable>
     extends SettingsTreeItemBuilder {
 
-    data: DATA;
+    private data: DATA;
 
     constructor(source?: SettingsDataViewItem<DATA>) {
         super(source);
@@ -48,6 +48,10 @@ export abstract class SettingsDataItemBuilder<DATA extends Equitable>
     setData(value: DATA): SettingsDataItemBuilder<DATA> {
         this.data = value;
         return this;
+    }
+
+    getData(): DATA {
+        return this.data;
     }
 
     abstract build(): SettingsDataViewItem<DATA>;

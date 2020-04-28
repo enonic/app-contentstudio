@@ -4,11 +4,14 @@ import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {LabelEl} from 'lib-admin-ui/dom/LabelEl';
 import {InputEl} from 'lib-admin-ui/dom/InputEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 
 export class SettingsDataItemFormIcon
     extends FormIcon {
 
     private thumbnailSelector: SettingsIconThumbnailSelector;
+    private disabled: boolean = false;
+    private tooltip: Tooltip;
 
     constructor(iconUrl: string) {
         super(iconUrl);
@@ -17,6 +20,16 @@ export class SettingsDataItemFormIcon
 
         this.thumbnailSelector = new SettingsIconThumbnailSelector();
         this.initListeners();
+    }
+
+    setDisabled(value: boolean, tooltipText?: string) {
+        this.disabled = value;
+        this.toggleClass('disabled', value);
+        if (tooltipText && this.disabled) {
+            this.tooltip = new Tooltip(this, tooltipText);
+        } else if (this.tooltip && !this.disabled) {
+            this.tooltip.setActive(false);
+        }
     }
 
     getThumbnailFile(): File {
@@ -39,6 +52,9 @@ export class SettingsDataItemFormIcon
         });
 
         this.onClicked(() => {
+            if (this.disabled) {
+                return;
+            }
             this.thumbnailSelector.getInput().getHTMLElement().click();
         });
     }

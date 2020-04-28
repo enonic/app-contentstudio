@@ -11,8 +11,6 @@ import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
 export class ProjectViewItem
     extends SettingsDataViewItem<Project> {
 
-    public static DEFAULT_ICON_CLASS: string = 'icon-tree-2';
-
     constructor(builder: ProjectItemBuilder) {
         super(builder);
     }
@@ -34,7 +32,7 @@ export class ProjectViewItem
     }
 
     getIconClass(): string {
-        return ProjectViewItem.DEFAULT_ICON_CLASS;
+        return ProjectIconUrlResolver.DEFAULT_ICON_CLASS;
     }
 
     getIconUrl(): string {

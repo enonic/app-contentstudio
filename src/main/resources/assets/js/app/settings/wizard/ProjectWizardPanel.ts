@@ -21,6 +21,7 @@ import {UpdateProjectPermissionsRequest} from '../resource/UpdateProjectPermissi
 import {ProjectRolesWizardStepForm} from './ProjectRolesWizardStepForm';
 import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 import {ProjectUpdateIconRequest} from '../resource/ProjectUpdateIconRequest';
+import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -32,7 +33,7 @@ export class ProjectWizardPanel
     private rolesWizardStepForm?: ProjectRolesWizardStepForm;
 
     protected getIconClass(): string {
-        return 'icon-tree-2';
+        return ProjectIconUrlResolver.DEFAULT_ICON_CLASS;
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
