@@ -13,7 +13,6 @@ import {DefaultModels} from './page/DefaultModels';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {SettingsWizardStepForm} from './SettingsWizardStepForm';
 import {ScheduleWizardStepForm} from './ScheduleWizardStepForm';
-import {SecurityWizardStepForm} from './SecurityWizardStepForm';
 import {DisplayNameResolver} from './DisplayNameResolver';
 import {LiveFormPanel, LiveFormPanelConfig} from './page/LiveFormPanel';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
@@ -121,6 +120,9 @@ import {ContentIds} from '../ContentIds';
 import {AfterContentSavedEvent} from '../event/AfterContentSavedEvent';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {ProjectContext} from '../project/ProjectContext';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -145,8 +147,6 @@ export class ContentWizardPanel
 
     private contentWizardStep: ContentWizardStep;
 
-    private securityWizardStep: ContentWizardStep;
-
     private contentWizardStepForm: ContentWizardStepForm;
 
     private settingsWizardStepForm: SettingsWizardStepForm;
@@ -157,11 +157,11 @@ export class ContentWizardPanel
 
     private scheduleWizardStep: ContentWizardStep;
 
-    private securityWizardStepForm: SecurityWizardStepForm;
-
     private xDataWizardStepForms: XDataWizardStepForms;
 
     private displayNameResolver: DisplayNameResolver;
+
+    private editPermissionsToolbarButton: Element;
 
     private requireValid: boolean;
 
@@ -517,8 +517,26 @@ export class ContentWizardPanel
                 this.wizardActions.refreshState();
             });
 
+            this.editPermissionsToolbarButton = new DivEl('edit-permissions-button');
+            this.editPermissionsToolbarButton.addClass(this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock');
+            this.editPermissionsToolbarButton.onClicked(this.handleEditPermissionsButtonClicked.bind(this));
+            this.getStepNavigatorContainer().appendChild(this.editPermissionsToolbarButton);
+
             return rendered;
         });
+    }
+
+    private handleEditPermissionsButtonClicked() {
+        const content: Content = this.getPersistedItem();
+        OpenEditPermissionsDialogEvent.create()
+            .setContentId(content.getContentId())
+            .setContentPath(content.getPath())
+            .setDisplayName(content.getDisplayName())
+            .setPermissions(content.getPermissions())
+            .setInheritPermissions(content.isInheritPermissionsEnabled())
+            .setOverwritePermissions(false)
+            .build()
+            .fire();
     }
 
     isNew(): boolean {
@@ -582,10 +600,6 @@ export class ContentWizardPanel
                 this.xDataWizardStepForms.resetDisabledForms();
             } else if (persistedItem.isSite() && !this.isNew()) {
                 this.updateWizardStepForms(persistedItem, false);
-            } else if (this.securityWizardStepForm) {
-                // https://github.com/enonic/app-contentstudio/issues/1042
-                // update security form to update content path despite form hasn't changed
-                this.securityWizardStepForm.update(persistedItem);
             }
 
             return persistedItem;
@@ -1014,9 +1028,8 @@ export class ContentWizardPanel
         this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
         steps.push(this.settingsWizardStep);
 
-        this.securityWizardStep = new ContentWizardStep(i18n('field.access'), this.securityWizardStepForm,
-            this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock');
-        steps.push(this.securityWizardStep);
+        // this.securityWizardStep = new ContentWizardStep(i18n('field.access'), this.securityWizardStepForm,
+        //     this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock');
 
         return steps;
     }
@@ -1114,8 +1127,7 @@ export class ContentWizardPanel
 
             this.fetchPersistedContent().then((content) => {
                 this.setPersistedItem(content.clone());
-                this.securityWizardStepForm.update(content, true);
-                this.updateSecurityWizardStepIcon(content);
+                this.updateEditPermissionsButtonIcon(content);
                 new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                     const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
                     const userCanModify: boolean = this.isContentModifiableByUser(loginResult);
@@ -1725,7 +1737,6 @@ export class ContentWizardPanel
         this.contentWizardStepForm = new ContentWizardStepForm();
         this.settingsWizardStepForm = new SettingsWizardStepForm();
         this.scheduleWizardStepForm = new ScheduleWizardStepForm();
-        this.securityWizardStepForm = new SecurityWizardStepForm();
 
         return this.fetchContentXData().then(this.createXDataWizardStepForms.bind(this));
     }
@@ -1767,7 +1778,6 @@ export class ContentWizardPanel
         this.scheduleWizardStepForm.layout(content);
         this.scheduleWizardStepForm.onPropertyChanged(this.dataChangedHandler);
         this.refreshScheduleWizardStep();
-        this.securityWizardStepForm.layout(content);
 
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             const promise: Q.Promise<void> = this.layoutXDataWizardStepForm(content, form);
@@ -1783,9 +1793,6 @@ export class ContentWizardPanel
     private toggleStepFormsVisibility(loginResult: LoginResult) {
         const visible: boolean = this.isSecurityFormAllowed(loginResult);
 
-        this.securityWizardStepForm.setVisible(visible);
-        this.securityWizardStepForm.getPreviousElement().setVisible(visible);
-        this.securityWizardStep.getTabBarItem().setVisible(visible);
         this.settingsWizardStepForm.setVisible(visible);
         this.settingsWizardStepForm.getPreviousElement().setVisible(visible);
         this.settingsWizardStep.getTabBarItem().setVisible(visible);
@@ -2237,8 +2244,6 @@ export class ContentWizardPanel
 
         viewedContentBuilder.setPage(this.assembleViewedPage());
 
-        this.securityWizardStepForm.apply(viewedContentBuilder);
-
         return viewedContentBuilder;
     }
 
@@ -2368,11 +2373,6 @@ export class ContentWizardPanel
 
         this.settingsWizardStepForm.update(content, unchangedOnly);
         this.scheduleWizardStepForm.update(content, unchangedOnly);
-        this.securityWizardStepForm.update(content, unchangedOnly);
-    }
-
-    getSecurityWizardStepForm() {
-        return this.securityWizardStepForm;
     }
 
     private updateWizardHeader(content: Content) {
@@ -2548,30 +2548,6 @@ export class ContentWizardPanel
         }
     }
 
-    onPermissionItemChanged(listener: (item: AccessControlEntry) => void) {
-        this.securityWizardStepForm.onPermissionItemChanged(listener);
-    }
-
-    unPermissionItemChanged(listener: (item: AccessControlEntry) => void) {
-        this.securityWizardStepForm.unPermissionItemChanged(listener);
-    }
-
-    onPermissionItemsAdded(listener: (items: AccessControlEntry[]) => void) {
-        this.securityWizardStepForm.onPermissionItemsAdded(listener);
-    }
-
-    unPermissionItemsAdded(listener: (items: AccessControlEntry[]) => void) {
-        this.securityWizardStepForm.unPermissionItemsAdded(listener);
-    }
-
-    onPermissionItemsRemoved(listener: (items: AccessControlEntry[]) => void) {
-        this.securityWizardStepForm.onPermissionItemsRemoved(listener);
-    }
-
-    unPermissionItemsRemoved(listener: (items: AccessControlEntry[]) => void) {
-        this.securityWizardStepForm.unPermissionItemsRemoved(listener);
-    }
-
     onDataChanged(listener: () => void) {
         this.dataChangedListeners.push(listener);
     }
@@ -2589,11 +2565,11 @@ export class ContentWizardPanel
         });
     }
 
-    private updateSecurityWizardStepIcon(content: Content) {
+    private updateEditPermissionsButtonIcon(content: Content) {
         const canEveryoneRead: boolean = this.canEveryoneRead(content);
 
-        this.securityWizardStep.getTabBarItem().toggleClass('icon-unlock', canEveryoneRead);
-        this.securityWizardStep.getTabBarItem().toggleClass('icon-lock', !canEveryoneRead);
+        this.editPermissionsToolbarButton.toggleClass('icon-unlock', canEveryoneRead);
+        this.editPermissionsToolbarButton.toggleClass('icon-lock', !canEveryoneRead);
     }
 
     private canEveryoneRead(content: Content): boolean {
