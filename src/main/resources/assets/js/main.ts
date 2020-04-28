@@ -293,7 +293,7 @@ function preLoadApplication() {
     }
 }
 
-function startApplication() {
+async function startApplication() {
     const application: Application = getApplication();
 
     const serverEventsListener: AggregatedServerEventsListener = new AggregatedServerEventsListener([application]);
@@ -317,49 +317,45 @@ function startApplication() {
 
     AppHelper.preventDragRedirect();
 
-    import('./app/duplicate/ContentDuplicateDialog').then(def => {
-        const contentDuplicateDialog = new def.ContentDuplicateDialog();
-        ContentDuplicatePromptEvent.on((event) => {
-            contentDuplicateDialog
-                .setContentToDuplicate(event.getModels())
-                .setYesCallback(event.getYesCallback())
-                .setNoCallback(event.getNoCallback())
-                .setOpenTabAfterDuplicate(event.getOpenActionAfterDuplicate())
-                .open();
-        });
+    const ContentDuplicateDialog = (await import('./app/duplicate/ContentDuplicateDialog')).ContentDuplicateDialog;
+
+    const contentDuplicateDialog = new ContentDuplicateDialog();
+    ContentDuplicatePromptEvent.on((event) => {
+        contentDuplicateDialog
+            .setContentToDuplicate(event.getModels())
+            .setYesCallback(event.getYesCallback())
+            .setNoCallback(event.getNoCallback())
+            .setOpenTabAfterDuplicate(event.getOpenActionAfterDuplicate())
+            .open();
     });
 
-    import('./app/remove/ContentDeleteDialog').then(def => {
-        const contentDeleteDialog = new def.ContentDeleteDialog();
-        ContentDeletePromptEvent.on((event) => {
-            contentDeleteDialog
-                .setContentToDelete(event.getModels())
-                .setYesCallback(event.getYesCallback())
-                .setNoCallback(event.getNoCallback())
-                .open();
-        });
+    const ContentDeleteDialog = (await import('./app/remove/ContentDeleteDialog')).ContentDeleteDialog;
+    const contentDeleteDialog = new ContentDeleteDialog();
+    ContentDeletePromptEvent.on((event) => {
+        contentDeleteDialog
+            .setContentToDelete(event.getModels())
+            .setYesCallback(event.getYesCallback())
+            .setNoCallback(event.getNoCallback())
+            .open();
     });
 
-    import('./app/publish/ContentPublishDialog').then(def => {
-        const contentPublishDialog = def.ContentPublishDialog.get();
-        ContentPublishPromptEvent.on((event) => {
-            contentPublishDialog
-                .setContentToPublish(event.getModels())
-                .setIncludeChildItems(event.isIncludeChildItems(), event.getExceptedContentIds())
-                .setMessage(event.getMessage())
-                .setExcludedIds(event.getExcludedIds())
-                .open();
-        });
+    const ContentPublishDialog = (await import('./app/publish/ContentPublishDialog')).ContentPublishDialog;
+    const contentPublishDialog = ContentPublishDialog.get();
+    ContentPublishPromptEvent.on((event) => {
+        contentPublishDialog
+            .setContentToPublish(event.getModels())
+            .setIncludeChildItems(event.isIncludeChildItems(), event.getExceptedContentIds())
+            .setMessage(event.getMessage())
+            .setExcludedIds(event.getExcludedIds())
+            .open();
     });
 
-
-    import('./app/publish/ContentUnpublishDialog').then(def => {
-        const contentUnpublishDialog = new def.ContentUnpublishDialog();
-        ContentUnpublishPromptEvent.on((event) => {
-            contentUnpublishDialog
-                .setContentToUnpublish(event.getModels())
-                .open();
-        });
+    const ContentUnpublishDialog = (await import('./app/publish/ContentUnpublishDialog')).ContentUnpublishDialog;
+    const contentUnpublishDialog = new ContentUnpublishDialog();
+    ContentUnpublishPromptEvent.on((event) => {
+        contentUnpublishDialog
+            .setContentToUnpublish(event.getModels())
+            .open();
     });
 
     RequestContentPublishPromptEvent.on(
@@ -372,10 +368,9 @@ function startApplication() {
 
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
-    import('./app/wizard/EditPermissionsDialog').then(def => {
-        // tslint:disable-next-line:no-unused-expression
-        new def.EditPermissionsDialog();
-    });
+    const EditPermissionsDialog = (await import('./app/wizard/EditPermissionsDialog')).EditPermissionsDialog;
+    // tslint:disable-next-line:no-unused-expression
+    new EditPermissionsDialog();
 
     application.setLoaded(true);
 
@@ -452,69 +447,63 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams) {
 }
 
 function getTheme(): string {
-    return !!CONFIG.launcher ? (`theme-${CONFIG.launcher.theme}` || '') : '';
+    return CONFIG.theme ? (`theme-${CONFIG.theme}` || '') : '';
 }
 
-function startContentApplication(application: Application) {
+async function startContentApplication(application: Application) {
 
-    import('./app/ContentAppPanel').then( async cdef => {
-        const {AppWrapper} = await import ('./app/AppWrapper');
-        const theme = !!CONFIG.launcher ? (`theme-${CONFIG.launcher.theme}` || '') : '';
-        const commonWrapper = new AppWrapper(application, getTheme());
-        body.appendChild(commonWrapper);
+    await import ('./app/ContentAppPanel');
+    const AppWrapper = (await import ('./app/AppWrapper')).AppWrapper;
+    const commonWrapper = new AppWrapper(application, getTheme());
+    body.appendChild(commonWrapper);
 
-        import('./app/create/NewContentDialog').then(def => {
+    const NewContentDialog = (await import ('./app/create/NewContentDialog')).NewContentDialog;
 
-            const newContentDialog = new def.NewContentDialog();
-            ShowNewContentDialogEvent.on((event) => {
+    const newContentDialog = new NewContentDialog();
+    ShowNewContentDialogEvent.on((event) => {
 
-                let parentContent: ContentSummary = event.getParentContent()
-                                                    ? event.getParentContent().getContentSummary() : null;
+        let parentContent: ContentSummary = event.getParentContent()
+            ? event.getParentContent().getContentSummary() : null;
 
-                if (parentContent != null) {
-                    new GetContentByIdRequest(parentContent.getContentId()).sendAndParse().then(
-                        (newParentContent: Content) => {
+        if (parentContent != null) {
+            new GetContentByIdRequest(parentContent.getContentId()).sendAndParse().then(
+                (newParentContent: Content) => {
 
-                            // TODO: remove pyramid of doom
-                            if (parentContent.hasParent() && parentContent.getType().isTemplateFolder()) {
-                                new GetContentByPathRequest(parentContent.getPath().getParentPath()).sendAndParse().then(
-                                    (grandParent: Content) => {
+                    // TODO: remove pyramid of doom
+                    if (parentContent.hasParent() && parentContent.getType().isTemplateFolder()) {
+                        new GetContentByPathRequest(parentContent.getPath().getParentPath()).sendAndParse().then(
+                            (grandParent: Content) => {
 
-                                        newContentDialog.setParentContent(newParentContent);
-                                        newContentDialog.open();
-                                    }).catch((reason: any) => {
-                                    DefaultErrorHandler.handle(reason);
-                                }).done();
-                            } else {
                                 newContentDialog.setParentContent(newParentContent);
                                 newContentDialog.open();
-                            }
-                        }).catch((reason: any) => {
-                        DefaultErrorHandler.handle(reason);
-                    }).done();
-                } else {
-                    newContentDialog.setParentContent(null);
-                    newContentDialog.open();
-                }
-            });
-        });
-
-        import('./app/issue/view/IssueListDialog').then(def => {
-            // tslint:disable-next-line:no-unused-expression
-            def.IssueListDialog.get();
-        });
-
-        import('./app/browse/SortContentDialog').then(def => {
-            // tslint:disable-next-line:no-unused-expression
-            new def.SortContentDialog();
-        });
-
-        import('./app/move/MoveContentDialog').then(def => {
-            // tslint:disable-next-line:no-unused-expression
-            new def.MoveContentDialog();
-        });
-
+                            }).catch((reason: any) => {
+                            DefaultErrorHandler.handle(reason);
+                        }).done();
+                    } else {
+                        newContentDialog.setParentContent(newParentContent);
+                        newContentDialog.open();
+                    }
+                }).catch((reason: any) => {
+                DefaultErrorHandler.handle(reason);
+            }).done();
+        } else {
+            newContentDialog.setParentContent(null);
+            newContentDialog.open();
+        }
     });
+
+    const IssueListDialog = (await import('./app/issue/view/IssueListDialog')).IssueListDialog;
+    const SortContentDialog = (await import('./app/browse/SortContentDialog')).SortContentDialog;
+    const MoveContentDialog = (await import('./app/move/MoveContentDialog')).MoveContentDialog;
+
+    // tslint:disable-next-line:no-unused-expression
+    IssueListDialog.get();
+
+    // tslint:disable-next-line:no-unused-expression
+    new SortContentDialog();
+
+    // tslint:disable-next-line:no-unused-expression
+    new MoveContentDialog();
 }
 
 function initProjectContext(application: Application): Q.Promise<void> {

@@ -227,7 +227,7 @@
     .toolbar {
       background-color: @ACTION_TOOLBAR_BG_COLOR;
 
-      .@{_COMMON_PREFIX}button:not(:disabled) {
+      :not(.content-publish-menu .@{_COMMON_PREFIX}button:not(:disabled)) {
         &:before, span {
           color: @HEADER_FONT_COLOR;
         }
@@ -237,7 +237,6 @@
             color: @HEADER_FONT_COLOR_HOVER;
           }
         }
-
       }
     }
 
