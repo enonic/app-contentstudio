@@ -1,5 +1,6 @@
 import {ProjectPermissionsJson} from './ProjectPermissionsJson';
 import {ProjectReadAccessJson} from './ProjectReadAccessJson';
+import {AttachmentJson} from '../../../attachment/AttachmentJson';
 
 export interface ProjectJson {
     name: string;
@@ -8,7 +9,7 @@ export interface ProjectJson {
 
     description: string;
 
-    icon: string;
+    icon: AttachmentJson;
 
     permissions: ProjectPermissionsJson;
 

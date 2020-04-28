@@ -3,6 +3,7 @@ import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ProjectJson} from '../../resource/json/ProjectJson';
 import {ProjectPermissions} from './ProjectPermissions';
 import {ProjectReadAccess} from './ProjectReadAccess';
+import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
 
 export class Project
     implements Equitable {
@@ -15,7 +16,7 @@ export class Project
 
     private description: string;
 
-    private icon: string;
+    private icon: Attachment;
 
     private permissions: ProjectPermissions;
 
@@ -53,7 +54,7 @@ export class Project
         return this.description;
     }
 
-    getIcon(): string {
+    getIcon(): Attachment {
         return this.icon;
     }
 
@@ -95,7 +96,7 @@ export class ProjectBuilder {
 
     description: string;
 
-    icon: string;
+    icon: Attachment;
 
     permissions: ProjectPermissions;
 
@@ -130,7 +131,7 @@ export class ProjectBuilder {
         return this;
     }
 
-    setIcon(value: string): ProjectBuilder {
+    setIcon(value: Attachment): ProjectBuilder {
         this.icon = value;
         return this;
     }
@@ -154,7 +155,7 @@ export class ProjectBuilder {
         this.name = json.name;
         this.displayName = json.displayName;
         this.description = json.description;
-        this.icon = json.icon;
+        this.icon = json.icon ? new AttachmentBuilder().fromJson(json.icon).build() : null;
         this.permissions = ProjectPermissions.fromJson(json.permissions);
         this.readAccess = ProjectReadAccess.fromJson(json.readAccess);
         this.language = json.language;

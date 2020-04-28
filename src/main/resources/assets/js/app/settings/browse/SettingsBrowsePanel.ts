@@ -50,7 +50,8 @@ export class SettingsBrowsePanel
         return !data ? null : <BrowseItem<SettingsViewItem>>new BrowseItem<SettingsViewItem>(data)
             .setId(data.getId())
             .setDisplayName(data.getDisplayName())
-            .setIconClass(`icon-large ${data.getIconClass()}`);
+            .setIconClass(`icon-large ${data.getIconClass()}`)
+            .setIconUrl(data.getIconUrl());
     }
 
     treeNodesToBrowseItems(nodes: TreeNode<SettingsViewItem>[]): BrowseItem<SettingsViewItem>[] {

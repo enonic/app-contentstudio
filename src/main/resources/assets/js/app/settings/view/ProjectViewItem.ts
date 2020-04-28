@@ -6,11 +6,10 @@ import {Project} from '../data/project/Project';
 import {SettingsDataItemBuilder, SettingsDataViewItem} from './SettingsDataViewItem';
 import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
 import {ProjectHelper} from '../data/project/ProjectHelper';
+import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
 
 export class ProjectViewItem
     extends SettingsDataViewItem<Project> {
-
-    public static DEFAULT_ICON_CLASS: string = 'icon-tree-2';
 
     constructor(builder: ProjectItemBuilder) {
         super(builder);
@@ -33,7 +32,14 @@ export class ProjectViewItem
     }
 
     getIconClass(): string {
-        return this.data.getIcon() || ProjectViewItem.DEFAULT_ICON_CLASS;
+        return ProjectIconUrlResolver.DEFAULT_ICON_CLASS;
+    }
+
+    getIconUrl(): string {
+        return this.data.getIcon() ? new ProjectIconUrlResolver()
+            .setProjectName(this.getName())
+            .setTimestamp(new Date().getTime())
+            .resolve() : null;
     }
 
     getId(): string {
@@ -54,10 +60,6 @@ export class ProjectViewItem
 
     isDefaultProject(): boolean {
         return ProjectHelper.isDefault(this.data);
-    }
-
-    getData(): Project {
-        return this.data;
     }
 
     isEditAllowed(loginResult: LoginResult): boolean {

@@ -3,7 +3,7 @@ import {NamesView} from 'lib-admin-ui/app/NamesView';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {SettingsItemViewer} from './SettingsItemViewer';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {ProjectIconUrlResolver} from '../../../project/ProjectIconUrlResolver';
 
 export class ProjectItemViewer
     extends SettingsItemViewer {
@@ -27,17 +27,11 @@ export class ProjectItemViewer
         namesView.setMainNameElements([displayNameEl, nameEl]);
     }
 
-    resolveDisplayName(item: ProjectViewItem): string {
-        return item.getDisplayName();
+    resolveIconUrl(item: ProjectViewItem): string {
+        return item.getData().getIcon() ? new ProjectIconUrlResolver()
+            .setProjectName(item.getName())
+            .setTimestamp(new Date().getTime())
+            .resolve() : null;
     }
-
-    resolveSubName(item: ProjectViewItem, relativePath: boolean = false): string {
-        return item.getDescription() || `<${i18n('text.noDescription')}>`;
-    }
-
-    resolveIconClass(item: ProjectViewItem): string {
-        return `icon-large ${item.getIconClass()}`;
-    }
-
 }
 

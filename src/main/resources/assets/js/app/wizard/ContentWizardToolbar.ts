@@ -14,6 +14,7 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {Project} from '../settings/data/project/Project';
+import {ProjectIconUrlResolver} from '../project/ProjectIconUrlResolver';
 
 export interface ContentWizardToolbarConfig {
     application: Application;
@@ -109,7 +110,14 @@ export class ContentWizardToolbar
             .setSize(NamesAndIconViewSize.small)
             .build()
             .setMainName(project.getDisplayName())
-            .setIconClass(project.getIcon() || 'icon-tree-2');
+            .setIconClass('icon-tree-2');
+
+        if (project.getIcon()) {
+            projectBlock.setIconUrl(new ProjectIconUrlResolver()
+                .setProjectName(project.getName())
+                .setTimestamp(new Date().getTime())
+                .resolve());
+        }
 
         projectBlock.addClass('project-info');
         projectBlock.toggleClass('single-repo', projects.length < 2);

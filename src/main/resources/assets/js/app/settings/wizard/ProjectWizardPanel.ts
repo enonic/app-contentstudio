@@ -20,6 +20,8 @@ import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
 import {UpdateProjectPermissionsRequest} from '../resource/UpdateProjectPermissionsRequest';
 import {ProjectRolesWizardStepForm} from './ProjectRolesWizardStepForm';
 import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
+import {ProjectUpdateIconRequest} from '../resource/ProjectUpdateIconRequest';
+import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -31,7 +33,7 @@ export class ProjectWizardPanel
     private rolesWizardStepForm?: ProjectRolesWizardStepForm;
 
     protected getIconClass(): string {
-        return 'icon-tree-2';
+        return ProjectIconUrlResolver.DEFAULT_ICON_CLASS;
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
@@ -100,7 +102,7 @@ export class ProjectWizardPanel
         return this.doPersistNewItem().then((project: Project) => {
             const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
 
-            showFeedback(this.getSuccessfulCreateMessage(item));
+            showFeedback(this.getSuccessfulCreateMessage(item.getName()));
             return item;
         });
     }
@@ -111,26 +113,12 @@ export class ProjectWizardPanel
         });
     }
 
-    private updateLanguageAndPermissionsIfNeeded(project: Project): Q.Promise<Project> {
-        const projectBuilder: ProjectBuilder = new ProjectBuilder(project);
+    updatePersistedItem(): Q.Promise<ProjectViewItem> {
+        return this.doUpdatePersistedItem().then((project: Project) => {
+            const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
 
-        const languagePromise: Q.Promise<string> = this.isLanguageChanged() ?
-            this.updateProjectLanguage(project.getName(), this.readAccessWizardStepForm.getLanguage()) : Q(project.getLanguage());
-
-        return languagePromise.then((language: string) => {
-            projectBuilder.setLanguage(language);
-
-            const permissions: ProjectPermissions = this.rolesWizardStepForm ? this.rolesWizardStepForm.getPermissions() : null;
-            const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
-
-            const permissionsPromise: Q.Promise<void> = this.isPermissionsOrReadAccessChanged() ?
-                this.updateProjectPermissions(project.getName(), permissions, readAccess) : Q(null);
-
-            return permissionsPromise.then(() => {
-                projectBuilder.setPermissions(permissions).setReadAccess(readAccess);
-
-                return projectBuilder.build();
-            });
+            showFeedback(this.getSuccessfulUpdateMessage(item.getName()));
+            return item;
         });
     }
 
@@ -149,6 +137,16 @@ export class ProjectWizardPanel
             .sendAndParse();
     }
 
+    protected updateIcon(): Q.Promise<any> {
+        const icon: File = this.getFormIcon().getThumbnailFile();
+
+        return new ProjectUpdateIconRequest()
+            .setName(this.projectWizardStepForm.getProjectName())
+            .setIcon(icon)
+            .sendAndParse().then(() => {
+                showFeedback(this.getSuccessfulUpdateMessage(this.projectWizardStepForm.getProjectName()));
+            });
+    }
 
     protected createDeleteRequest(): ProjectDeleteRequest {
         return new ProjectDeleteRequest(this.getPersistedItem().getName());
@@ -158,22 +156,12 @@ export class ProjectWizardPanel
         return i18n('notify.settings.project.deleted', this.getPersistedItem().getName());
     }
 
-    updatePersistedItem(): Q.Promise<ProjectViewItem> {
-        return this.doUpdatePersistedItem().then((project: Project) => {
-            const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
-
-            showFeedback(this.getSuccessfulUpdateMessage(item));
-            return item;
-        });
+    protected getSuccessfulCreateMessage(name: string): string {
+        return i18n('notify.settings.project.created', name);
     }
 
-    private doUpdatePersistedItem(): Q.Promise<Project> {
-        const projectPromise: Q.Promise<Project> = this.isProjectMetaChanged() ?
-            this.produceUpdateItemRequest().sendAndParse() : Q(this.getPersistedItem().getData());
-
-        return projectPromise.then((project: Project) => {
-            return this.updateLanguageAndPermissionsIfNeeded(project);
-        });
+    protected getSuccessfulUpdateMessage(name: string): string {
+        return i18n('notify.settings.project.modified', name);
     }
 
     private isProjectMetaChanged(): boolean {
@@ -208,34 +196,55 @@ export class ProjectWizardPanel
         this.updateToolbarActions();
     }
 
-    protected getSuccessfulCreateMessage(item: ProjectViewItem): string {
-        return i18n('notify.settings.project.created', item.getName());
+    private updateLanguageAndPermissionsIfNeeded(project: Project): Q.Promise<Project> {
+        const projectBuilder: ProjectBuilder = new ProjectBuilder(project);
+
+        const languagePromise: Q.Promise<string> = this.isLanguageChanged() ?
+                                                   this.updateProjectLanguage(project.getName(),
+                                                       this.readAccessWizardStepForm.getLanguage()) : Q(project.getLanguage());
+
+        return languagePromise.then((language: string) => {
+            projectBuilder.setLanguage(language);
+
+            const permissions: ProjectPermissions = this.rolesWizardStepForm ? this.rolesWizardStepForm.getPermissions() : null;
+            const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
+
+            const permissionsPromise: Q.Promise<void> = this.isPermissionsOrReadAccessChanged() ?
+                                                        this.updateProjectPermissions(project.getName(), permissions, readAccess) : Q(null);
+
+            return permissionsPromise.then(() => {
+                projectBuilder.setPermissions(permissions).setReadAccess(readAccess);
+
+                return projectBuilder.build();
+            });
+        });
     }
 
-    protected getSuccessfulUpdateMessage(item: ProjectViewItem): string {
-        return i18n('notify.settings.project.modified', item.getName());
+    private doUpdatePersistedItem(): Q.Promise<Project> {
+        const projectPromise: Q.Promise<Project> = this.isProjectMetaChanged() ?
+                                                   this.produceUpdateItemRequest().sendAndParse() : Q(this.getPersistedItem().getData());
+
+        return projectPromise.then((project: Project) => {
+            return this.updateLanguageAndPermissionsIfNeeded(project);
+        });
     }
 
     private produceCreateItemRequest(): ProjectCreateRequest {
         const displayName: string = this.wizardHeader.getDisplayName();
-        const thumbnail: File = this.getFormIcon().getThumbnailFile();
 
         return new ProjectCreateRequest()
             .setDescription(this.projectWizardStepForm.getDescription())
             .setName(this.projectWizardStepForm.getProjectName())
-            .setDisplayName(displayName)
-            .setThumbnail(thumbnail);
+            .setDisplayName(displayName);
     }
 
     private produceUpdateItemRequest(): ProjectUpdateRequest {
         const displayName: string = this.wizardHeader.getDisplayName();
-        const thumbnail: File = this.getFormIcon().getThumbnailFile();
 
         return new ProjectUpdateRequest()
             .setDescription(this.projectWizardStepForm.getDescription())
             .setName(this.projectWizardStepForm.getProjectName())
-            .setDisplayName(displayName)
-            .setThumbnail(thumbnail);
+            .setDisplayName(displayName);
     }
 
     doRender(): Q.Promise<boolean> {
