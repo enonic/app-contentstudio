@@ -18,7 +18,7 @@
     transition: left 0.5s ease;
 
     .app-name-wrapper {
-      padding: 20px 0px;
+      padding: 20px 0;
 
       .app-name {
         white-space: nowrap;
@@ -69,32 +69,12 @@
     }
   }
 
-  &.sidebar-expanded {
-
-    .sidebar {
-      left: 0px;
-    }
-
-    .app-container {
-      left: @sidebar-width;
-
-      .appbar {
-        padding-left: 0px;
-
-        .project {
-          padding-left: 0px;
-        }
-      }
-    }
-  }
-
   .app-container {
     position: absolute;
     top: 0;
-    left: 0px;
+    left: 0;
     right: 0;
     bottom: 0;
-
     transition: left 0.5s ease;
 
     .appbar {
@@ -113,6 +93,25 @@
 
         .home-button {
           display: none;
+        }
+      }
+    }
+  }
+
+  &.sidebar-expanded {
+
+    .sidebar {
+      left: 0;
+    }
+
+    .app-container {
+      left: @sidebar-width;
+
+      .appbar {
+        padding-left: 0;
+
+        .project {
+          padding-left: 0;
         }
       }
     }
@@ -220,7 +219,7 @@
 
         .app-name {
           writing-mode: lr;
-          padding-left: 0px;
+          padding-left: 0;
           font-size: 18px;
           letter-spacing: 0;
         }

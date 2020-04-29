@@ -19,26 +19,22 @@
 /* THEME-DEPENDENT SELECTORS */
 
 .theme-selectors(@theme-name) {
-
   .main-app-wrapper {
 
     &.theme-@{theme-name} {
-
       .sidebar-toggler {
-
         span {
           background-color: @HEADER_FONT_COLOR;
 
-          &:before, &:after {
+          &::before, &::after {
             background-color: @HEADER_FONT_COLOR;
-
           }
         }
 
         &:not(.toggled):hover span {
           background-color: @HEADER_FONT_COLOR_HOVER;
 
-          &:before, &:after {
+          &::before, &::after {
             background-color: @HEADER_FONT_COLOR_HOVER;
           }
         }
@@ -92,7 +88,7 @@
             color: @HEADER_FONT_COLOR;
           }
 
-          &:before {
+          &::before {
             color: @HEADER_ICON_COLOR;
           }
 
@@ -101,7 +97,7 @@
               color: @HEADER_FONT_COLOR_HOVER;
             }
 
-            &:before {
+            &::before {
               color: @HEADER_ICON_COLOR_HOVER;
             }
           }
@@ -113,7 +109,7 @@
 
             &:hover {
               .@{_COMMON_PREFIX}dropdown-handle {
-                &:after {
+                &::after {
                   border-top-color: @HEADER_FONT_COLOR_HOVER;
                 }
               }
@@ -135,7 +131,7 @@
 
               .@{_COMMON_PREFIX}dropdown-handle {
 
-                &:after {
+                &::after {
                   border-top-color: @HEADER_FONT_COLOR;
                 }
               }
@@ -228,12 +224,12 @@
       background-color: @ACTION_TOOLBAR_BG_COLOR;
 
       > .@{_COMMON_PREFIX}button:not(:disabled) {
-        &:before, span {
+        &::before, span {
           color: @HEADER_FONT_COLOR;
         }
 
         &:hover {
-          &:before, span {
+          &::before, span {
             color: @HEADER_FONT_COLOR_HOVER;
           }
         }
@@ -270,13 +266,13 @@
         .non-mobile-details-panel-toggle-button {
           background-color: @ACTION_TOOLBAR_BG_COLOR;
 
-          &:before {
+          &::before {
             color: @HEADER_FONT_COLOR;
           }
 
           &:hover:not(:disabled) {
             background-color: @ACTION_TOOLBAR_BG_COLOR;
-            &:before {
+            &::before {
               color: @HEADER_FONT_COLOR_HOVER;
             }
           }
