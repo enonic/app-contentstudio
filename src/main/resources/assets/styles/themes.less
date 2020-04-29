@@ -227,7 +227,7 @@
     .toolbar {
       background-color: @ACTION_TOOLBAR_BG_COLOR;
 
-      :not(.content-publish-menu .@{_COMMON_PREFIX}button:not(:disabled)) {
+      > .@{_COMMON_PREFIX}button:not(:disabled) {
         &:before, span {
           color: @HEADER_FONT_COLOR;
         }
@@ -239,20 +239,12 @@
         }
       }
     }
-
     .context-panel .context-panel-view {
       .non-mobile-details-panel-toggle-button {
         background-color: @ACTION_TOOLBAR_BG_COLOR;
 
-        &:before {
-          color: @HEADER_FONT_COLOR;
-        }
-
         &:hover:not(:disabled) {
           background-color: @ACTION_TOOLBAR_BG_COLOR;
-          &:before {
-            color: @HEADER_FONT_COLOR_HOVER;
-          }
         }
       }
     }
@@ -270,6 +262,22 @@
           &:hover {
             .icon-tree-2 {
               color: @HEADER_ICON_COLOR_HOVER;
+            }
+          }
+        }
+      }
+      .context-panel .context-panel-view {
+        .non-mobile-details-panel-toggle-button {
+          background-color: @ACTION_TOOLBAR_BG_COLOR;
+
+          &:before {
+            color: @HEADER_FONT_COLOR;
+          }
+
+          &:hover:not(:disabled) {
+            background-color: @ACTION_TOOLBAR_BG_COLOR;
+            &:before {
+              color: @HEADER_FONT_COLOR_HOVER;
             }
           }
         }

@@ -2,11 +2,12 @@
 
   @sidebar-width: 55px;
   @sidebar-width-mobile: 260px;
+  @sidebar-bg-color: #2C4A38;
 
   .sidebar {
     z-index: 3;
     padding-top: 44px;
-    background-color: #2A292A;
+    background-color: @sidebar-bg-color;
     width: @sidebar-width;
     position: absolute;
     top: 0;
@@ -53,10 +54,10 @@
         }
 
         &.selected {
-          background-color: @admin-blue;
+          background-color: @admin-button-blue2;
 
           &:hover {
-            background-color: @admin-button-blue2;
+            background-color: @admin-blue;
           }
         }
 
