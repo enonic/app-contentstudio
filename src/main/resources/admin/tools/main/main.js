@@ -29,7 +29,7 @@ function handleGet() {
             contentServiceUrl: portal.serviceUrl({service: 'content'})
         },
         allowScriptsInEditor: allowScriptsInEditor,
-        mainUrl: portal.pageUrl()
+        mainUrl: portal.pageUrl({})
     };
 
     return {

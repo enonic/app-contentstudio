@@ -2,11 +2,12 @@
 
   @sidebar-width: 55px;
   @sidebar-width-mobile: 260px;
+  @sidebar-bg-color: #2C4A38;
 
   .sidebar {
     z-index: 3;
     padding-top: 44px;
-    background-color: #2A292A;
+    background-color: @sidebar-bg-color;
     width: @sidebar-width;
     position: absolute;
     top: 0;
@@ -17,7 +18,7 @@
     transition: left 0.5s ease;
 
     .app-name-wrapper {
-      padding: 20px 0px;
+      padding: 20px 0;
 
       .app-name {
         white-space: nowrap;
@@ -53,10 +54,10 @@
         }
 
         &.selected {
-          background-color: @admin-blue;
+          background-color: @admin-button-blue2;
 
           &:hover {
-            background-color: @admin-button-blue2;
+            background-color: @admin-blue;
           }
         }
 
@@ -68,52 +69,52 @@
     }
   }
 
-  .main {
+  .app-container {
     position: absolute;
     top: 0;
-    left: 0px;
+    left: 0;
     right: 0;
     bottom: 0;
-
     transition: left 0.5s ease;
+
+    .appbar {
+      padding-left: 50px;
+      transition: padding-left 0.5s ease;
+
+      .home-button {
+        .app-icon {
+          display: none;
+        }
+      }
+
+      &.appbar-content {
+        display: flex;
+        justify-content: space-between;
+
+        .home-button {
+          display: none;
+        }
+      }
+    }
   }
 
   &.sidebar-expanded {
-    .main {
-      left: @sidebar-width;
-
-      .appbar .project {
-        padding-left: 0px;
-      }
-    }
 
     .sidebar {
-      left: 0px;
+      left: 0;
     }
-  }
 
-  .appbar {
-    padding-left: 50px;
-    transition: padding-left 0.5s ease;
+    .app-container {
+      left: @sidebar-width;
 
-    .home-button {
-      .app-icon {
-        display: none;
+      .appbar {
+        padding-left: 0;
+
+        .project {
+          padding-left: 0;
+        }
       }
     }
-
-    &.appbar-content {
-      display: flex;
-      justify-content: space-between;
-
-      .home-button {
-        display: none;
-      }
-    }
-  }
-
-  &.sidebar-expanded .appbar {
-    padding-left: 0px;
   }
 
   > .sidebar-toggler {
@@ -194,12 +195,12 @@
           left: -7px;
         }
         &:before {
-          background-color: @admin-shadow-gray;
+          background-color: @admin-font-gray1;
           -webkit-transform: rotate3d(0, 0, 1, 45deg);
           transform: rotate3d(0, 0, 1, 45deg);
         }
         &:after {
-          background-color: @admin-shadow-gray;
+          background-color: @admin-font-gray1;
           -webkit-transform: rotate3d(0, 0, 1, -45deg);
           transform: rotate3d(0, 0, 1, -45deg);
         }
@@ -218,7 +219,7 @@
 
         .app-name {
           writing-mode: lr;
-          padding-left: 0px;
+          padding-left: 0;
           font-size: 18px;
           letter-spacing: 0;
         }
@@ -248,7 +249,7 @@
         left: 0;
       }
 
-      .main {
+      .app-container {
         left: 0;
 
         .appbar .project {
@@ -259,7 +260,7 @@
   }
 }
 
-.blurred .main-app-wrapper .main {
+.blurred .main-app-wrapper .app-container {
   > .panel, > .appbar {
     filter: blur(2px);
   }

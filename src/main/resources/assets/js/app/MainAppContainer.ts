@@ -17,7 +17,7 @@ export abstract class MainAppContainer
     private mode: AppMode;
 
     constructor(application: Application, mode: AppMode) {
-        super('main');
+        super('app-container');
 
         this.application = application;
         this.mode = mode;
@@ -35,7 +35,7 @@ export abstract class MainAppContainer
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.addClass('main');
+            this.addClass('app-container');
             this.appendChild(this.appBar);
             this.appendChild(this.appPanel);
 

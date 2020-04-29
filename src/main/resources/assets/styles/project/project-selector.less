@@ -98,11 +98,11 @@
       }
     }
 
-    .xp-admin-common-dropdown-handle {
+    .@{_COMMON_PREFIX}dropdown-handle {
       position: relative;
       width: 52px;
 
-      &::after {
+      &:after {
         border-top-color: @admin-white;
       }
     }
@@ -110,19 +110,6 @@
     .project-list-items {
       background-color: @admin-bg-dark-gray;
       min-width: 100%;
-
-      .list-header {
-        padding: 10px 10px 10px 25px;
-        background-color: #242424;
-
-        .main {
-          color: @admin-white;
-        }
-
-        .sub {
-          color: @admin-font-gray1;
-        }
-      }
 
       .project-list-item {
         .edit-button, .remove-button {

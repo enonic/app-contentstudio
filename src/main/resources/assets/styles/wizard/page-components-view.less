@@ -7,7 +7,7 @@
   background-color: rgba(255, 255, 255, 0.9);
   z-index: @z-index-context-window;
   display: none;
-  margin-top: 42px;
+  margin-top: @app-header-height;
   .notSelectable();
   .material-layer-shadow();
   display: flex;
@@ -247,5 +247,11 @@
   &:before {
     line-height: 30px;
     font-size: 20px;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  .page-components-view {
+    width: 100%;
   }
 }
