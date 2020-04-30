@@ -17,7 +17,7 @@ export class SettingsServerEventsListener
     protected onUnknownServerEvent(eventJson: EventJson) {
         const eventType: string = eventJson.type;
 
-        if (!eventType || eventType.indexOf('node.') !== 0) {
+        if (!eventType || !eventType.startsWith('node.')) {
             return;
         }
 
