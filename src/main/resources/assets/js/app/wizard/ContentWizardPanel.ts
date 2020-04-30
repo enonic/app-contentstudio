@@ -1032,9 +1032,6 @@ export class ContentWizardPanel
         this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
         steps.push(this.settingsWizardStep);
 
-        // this.securityWizardStep = new ContentWizardStep(i18n('field.access'), this.securityWizardStepForm,
-        //     this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock');
-
         return steps;
     }
 

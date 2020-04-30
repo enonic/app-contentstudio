@@ -30,6 +30,90 @@
     }
   }
 
+  .wizard-step-navigator-and-toolbar {
+    .edit-permissions-button {
+      order: 1;
+      padding: 15px;
+      cursor: pointer;
+      z-index: 1;
+      line-height: @toolbar-height;
+
+      &:before {
+        font-size: 18px;
+      }
+
+      &:hover {
+        color: @admin-shadow-gray;
+      }
+    }
+
+    .tab-bar-item {
+
+      &.step-icon.x-data-anchor {
+
+        // Remove the line below to enable "X" anchor in the toolbar
+        // that will scroll to the first X-data step in the Wizard
+        display: none !important;
+
+        .icon-medium();
+
+        &.hidden {
+          display: none;
+        }
+
+      }
+
+      &.x-data {
+        .label:before {
+          display: inline-block;
+          content: '+';
+          padding-right: 5px;
+        }
+      }
+
+    }
+
+    &:not(.folded) {
+      .tab-bar-item.step-icon {
+
+        &.icon-masks:before {
+          font-size: 20px;
+        }
+
+        &.x-data-anchor {
+          padding-bottom: 0;
+
+          &:not(.all-collapsed) {
+            padding-left: 20px;
+            padding-right: 0;
+          }
+        }
+      }
+    }
+
+    &.folded {
+
+      .tab-bar-item.step-icon {
+
+        &.x-data-anchor {
+          padding-left: 2px;
+
+          .label {
+            display: inline-block;
+            padding-left: 4px;
+          }
+
+          &:before {
+            display: inline-block;
+            font-size: 15px;
+            font-weight: bold;
+          }
+        }
+      }
+    }
+
+  }
+
   .split-panel.wizard-and-preview {
 
     &.toggle-form {
@@ -62,90 +146,6 @@
     }
 
     .form-panel {
-
-      .wizard-step-navigator-and-toolbar {
-        .edit-permissions-button {
-          order: 1;
-          padding: 15px;
-          cursor: pointer;
-          z-index: 1;
-          line-height: @toolbar-height;
-
-          &:before {
-            font-size: 18px;
-          }
-
-          &:hover {
-            color: @admin-shadow-gray;
-          }
-        }
-
-        .tab-bar-item {
-
-          &.step-icon.x-data-anchor {
-
-            // Remove the line below to enable "X" anchor in the toolbar
-            // that will scroll to the first X-data step in the Wizard
-            display: none !important;
-
-            .icon-medium();
-
-            &.hidden {
-              display: none;
-            }
-
-          }
-
-          &.x-data {
-            .label:before {
-              display: inline-block;
-              content: '+';
-              padding-right: 5px;
-            }
-          }
-
-        }
-
-        &:not(.folded) {
-          .tab-bar-item.step-icon {
-
-            &.icon-masks:before {
-              font-size: 20px;
-            }
-
-            &.x-data-anchor {
-              padding-bottom: 0;
-
-              &:not(.all-collapsed) {
-                padding-left: 20px;
-                padding-right: 0;
-              }
-            }
-          }
-        }
-
-        &.folded {
-
-          .tab-bar-item.step-icon {
-
-            &.x-data-anchor {
-              padding-left: 2px;
-
-              .label {
-                display: inline-block;
-                padding-left: 4px;
-              }
-
-              &:before {
-                display: inline-block;
-                font-size: 15px;
-                font-weight: bold;
-              }
-            }
-          }
-        }
-
-      }
 
       .panel-strip-panel-header {
         &.step-icon.icon-masks:before {
