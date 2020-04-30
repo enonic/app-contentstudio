@@ -96,6 +96,14 @@ export class AppWrapper
             if (!this.hasClass('sidebar-expanded')) {
                 return;
             }
+
+            if (this.sidebar.getButtons().some(
+                (button: AppModeButton) => button.getHTMLElement().contains(<HTMLElement>event.target))
+            ) {
+                this.toggleSidebar();
+                return;
+            }
+
             for (let element = event.target; element; element = (<any>element).parentNode) {
                 if (element === this.sidebar.getHTMLElement() || element === this.toggleSidebarButton.getHTMLElement()) {
                     return;
@@ -214,6 +222,10 @@ class AppModeSwitcher
             return rendered;
         });
     }
+
+    getButtons(): AppModeButton[] {
+        return this.buttons;
+    }
 }
 
 class AppModeButton
@@ -267,6 +279,10 @@ class Sidebar
 
     onAppModeSelected(handler: (mode: AppMode) => void) {
         this.appModeSwitcher.onAppModeSelected(handler);
+    }
+
+    getButtons(): AppModeButton[] {
+        return this.appModeSwitcher.getButtons();
     }
 
     private createAppNameBlock(): Element {
