@@ -91,6 +91,13 @@ export class AppWrapper
         return this.appContainers.filter((appContainer: MainAppContainer) => appContainer.getMode() === mode)[0];
     }
 
+    private collapseSidebarOnMouseEvent(event: MouseEvent) {
+        this.toggleSidebar();
+
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
     private handleTouchOutsideSidebar() {
         this.touchListener = (event: MouseEvent) => {
             if (!this.hasClass('sidebar-expanded')) {
@@ -100,7 +107,7 @@ export class AppWrapper
             if (this.sidebar.getButtons().some(
                 (button: AppModeButton) => button.getHTMLElement().contains(<HTMLElement>event.target))
             ) {
-                this.toggleSidebar();
+                this.collapseSidebarOnMouseEvent(event);
                 return;
             }
 
@@ -109,10 +116,7 @@ export class AppWrapper
                     return;
                 }
             }
-            this.toggleSidebar();
-
-            event.stopPropagation();
-            event.preventDefault();
+            this.collapseSidebarOnMouseEvent(event);
         };
     }
 
@@ -193,16 +197,19 @@ class AppModeSwitcher
         return settingsButton;
     }
 
-    private listenButtonClicked(button: AppModeButton) {
-        button.onClicked(() => {
-            this.buttons.forEach((b: AppModeButton) => {
-                b.toggleSelected(b === button);
-            });
-
-            if (button.getMode() !== AppContext.get().getMode()) {
-                this.notifyAppModeSelected(button.getMode());
-            }
+    private onButtonClicked(button: AppModeButton) {
+        this.buttons.forEach((b: AppModeButton) => {
+            b.toggleSelected(b === button);
         });
+
+        if (button.getMode() !== AppContext.get().getMode()) {
+            this.notifyAppModeSelected(button.getMode());
+        }
+    }
+
+    private listenButtonClicked(button: AppModeButton) {
+        button.onTouchStart(() => this.onButtonClicked(button));
+        button.onClicked(() => this.onButtonClicked(button));
     }
 
     private notifyAppModeSelected(mode: AppMode) {
