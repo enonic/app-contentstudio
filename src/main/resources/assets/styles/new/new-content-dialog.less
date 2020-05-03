@@ -234,9 +234,13 @@
     .dialog-dropzone-container();
   }
 
-  .modal-dialog-footer {
     @media screen and (max-width: 720px) {
-      height: 40px;
+      .modal-dialog-footer {
+        height: 40px;
+      }
+
+      .dialog-content .content-types-content {
+        max-height: none;
+      }
     }
-  }
 }

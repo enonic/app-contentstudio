@@ -19,13 +19,12 @@
   }
 
   .inherit-perm-check {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
   }
 
   .overwrite-child-check {
-    position: absolute;
-    bottom: 27px;
-    z-index: 1;
+    margin-bottom: 10px;
+
     &.checkbox label {
       color: @admin-blue !important;
     }
@@ -102,19 +101,6 @@
   }
 }
 
-body {
-  &._0-240,
-  &._240-360,
-  &._360-540 {
-    .overwrite-child-check {
-      bottom: 62px;
-    }
-
-    .modal-dialog-footer {
-      padding-top: 50px;
-    }
-  }
-}
 
 @media screen and (max-height: 360px) {
   .edit-permissions-dialog {
