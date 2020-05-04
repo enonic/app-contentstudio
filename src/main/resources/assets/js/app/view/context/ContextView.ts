@@ -92,14 +92,14 @@ export class ContextView
         this.appendChild(this.contextContainer);
         this.appendChild(this.divForNoSelection);
 
-        this.subscribeOnEvents();
+        this.subscribeToEvents();
 
         this.layout();
 
         this.getCustomWidgetViewsAndUpdateDropdown();
     }
 
-    private subscribeOnEvents() {
+    private subscribeToEvents() {
         this.onRendered(() => {
             // Remove `.no-selection` css class, making context-container visible, to calculate the offset right
             this.layout(false);
@@ -144,17 +144,22 @@ export class ContextView
         });
 
         contentServerEventsHandler.onContentPublished((contents: ContentSummaryAndCompareStatus[]) => {
-            contents.some((content: ContentSummaryAndCompareStatus) => {
-                if (content.getId() === this.item.getId()) {
-                    const sameContent = this.item.equals(content);
-                    const wasModified = this.item.getCompareStatus() !== CompareStatus.NEW;
-                    if (!sameContent && wasModified) {
+            if (!this.item) {
+                return;
+            }
+
+            const itemId: string = this.item.getId();
+
+            contents
+                .filter((content: ContentSummaryAndCompareStatus) => content.getId() === itemId)
+                .forEach((content: ContentSummaryAndCompareStatus) => {
+                    const isSameContent: boolean = this.item.equals(content);
+                    const wasModified: boolean = this.item.getCompareStatus() !== CompareStatus.NEW;
+
+                    if (!isSameContent && wasModified) {
                         this.setItem(content);
                     }
-                    return true;
-                }
-                return false;
-            });
+                });
         });
 
         ProjectChangedEvent.on(() => {
