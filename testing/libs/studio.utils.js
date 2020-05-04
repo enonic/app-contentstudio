@@ -618,7 +618,7 @@ module.exports = {
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
     },
-    async saveTestProject(name, description, language) {
+    async saveTestProject(name, description, language, principalsToAccess) {
         let projectWizard = new ProjectWizard();
         let settingsBrowsePanel = new SettingsBrowsePanel();
         await settingsBrowsePanel.openProjectWizard();
@@ -626,6 +626,9 @@ module.exports = {
         await projectWizard.typeDescription(description);
         if (language) {
             await projectWizard.selectLanguage(language);
+        }
+        if (principalsToAccess) {
+            await projectWizard.addPrincipalsInRolesForm(principalsToAccess);
         }
         await projectWizard.clickOnAccessModeRadio("Private");
         await projectWizard.pause(400);
