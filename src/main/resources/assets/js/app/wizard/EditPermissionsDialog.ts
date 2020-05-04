@@ -14,7 +14,10 @@ import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialog
 import {Content} from '../content/Content';
 import {AccessControlList} from '../access/AccessControlList';
 import {AccessControlEntry} from '../access/AccessControlEntry';
-import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {
+    ModalDialogWithConfirmation,
+    ModalDialogWithConfirmationConfig
+} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {TaskProgressInterface} from 'lib-admin-ui/ui/dialog/TaskProgressInterface';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
@@ -193,7 +196,7 @@ export class EditPermissionsDialog
             section.appendChild(form);
             form.appendChild(this.comboBox);
 
-            this.appendChildToContentPanel(this.overwriteChildPermissionsCheck);
+            this.prependChildToFooter(this.overwriteChildPermissionsCheck);
 
             this.addAction(this.applyAction, true);
             this.addCancelButtonToBottom();
