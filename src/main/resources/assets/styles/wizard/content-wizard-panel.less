@@ -30,102 +30,96 @@
     }
   }
 
-  .split-panel {
+  .wizard-step-navigator-and-toolbar {
+    .edit-permissions-button {
+      order: 1;
+      padding: 15px;
+      cursor: pointer;
+      z-index: 1;
+      line-height: @toolbar-height;
 
-    &.wizard-and-preview {
-
-      &.toggle-form {
-        .form-panel {
-          width: 100% !important;
-        }
-
-        & > .splitter, .live-form-panel {
-          display: none !important;
-        }
+      &:before {
+        font-size: 18px;
       }
 
-      &.toggle-live {
-        .live-form-panel {
-          width: 100% !important;
-        }
-
-        & > .splitter, .form-panel {
-          display: none !important;
-        }
+      &:hover {
+        color: @admin-shadow-gray;
       }
+    }
 
-      &.toggle-split {
-        &._0-240, &._240-360, &._360-540, &._540-720 {
-          .form-panel {
-            width: 100% !important;
-          }
+    &:not(.folded) {
+      .tab-bar-item.step-icon {
 
-          & > .splitter, .live-form-panel {
-            display: none !important;
+        &.icon-masks:before {
+          font-size: 20px;
+        }
+
+        &.x-data-anchor {
+          padding-bottom: 0;
+
+          &:not(.all-collapsed) {
+            padding-left: 20px;
+            padding-right: 0;
           }
         }
       }
     }
 
-    .form-panel {
+    &.folded {
 
-      .wizard-step-navigator-and-toolbar {
-        .edit-permissions-button {
-          order: 1;
-          padding: 15px;
-          cursor: pointer;
-          z-index: 1;
-          line-height: @toolbar-height;
+      .tab-bar-item.step-icon {
+
+        &.x-data-anchor {
+          padding-left: 2px;
+
+          .label {
+            display: inline-block;
+            padding-left: 4px;
+          }
 
           &:before {
-            font-size: 18px;
-          }
-
-          &:hover {
-            color: @admin-shadow-gray;
+            display: inline-block;
+            font-size: 15px;
+            font-weight: bold;
           }
         }
-
-        &:not(.folded) {
-          .tab-bar-item.step-icon {
-
-            &.icon-masks:before {
-              font-size: 20px;
-            }
-
-            &.x-data-anchor {
-              padding-bottom: 0;
-
-              &:not(.all-collapsed) {
-                padding-left: 20px;
-                padding-right: 0;
-              }
-            }
-          }
-        }
-
-        &.folded {
-
-          .tab-bar-item.step-icon {
-
-            &.x-data-anchor {
-              padding-left: 2px;
-
-              .label {
-                display: inline-block;
-                padding-left: 4px;
-              }
-
-              &:before {
-                display: inline-block;
-                font-size: 15px;
-                font-weight: bold;
-              }
-            }
-          }
-        }
-
       }
+    }
+
+  }
+
+  .split-panel.wizard-and-preview {
+
+    &.toggle-form {
+      .form-panel {
+        width: 100% !important;
+      }
+      & > .splitter, .live-form-panel {
+        display: none !important;
+      }
+    }
+
+    &.toggle-live {
+      .live-form-panel {
+        width: 100% !important;
+      }
+      & > .splitter, .form-panel {
+        display: none !important;
+      }
+    }
+
+    &.toggle-split {
+      &._0-240, &._240-360, &._360-540, &._540-720 {
+        .form-panel {
+          width: 100% !important;
+        }
+        & > .splitter, .live-form-panel {
+          display: none !important;
+        }
+      }
+    }
+
+    .form-panel {
 
       .panel-strip-panel-header {
         &.step-icon.icon-masks:before {
@@ -143,10 +137,8 @@
           padding-left: 40px;
           box-sizing: border-box;
           overflow: initial;
-
           .fold-button {
             margin-left: -40px;
-
             .fold-label {
               position: absolute;
               width: 120px;
@@ -155,7 +147,6 @@
               transform: rotate(90deg);
               transform-origin: 15px 0;
             }
-
             .@{_COMMON_PREFIX}dropdown {
               position: fixed;
               top: 125px;
@@ -177,7 +168,6 @@
               border-top: 4px solid transparent;
             }
           }
-
           &:before {
             content: " ";
             position: absolute;
@@ -205,7 +195,6 @@
         }
       }
     }
-
   }
 
   .minimize-edit {
