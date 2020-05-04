@@ -91,20 +91,32 @@ export class AppWrapper
         return this.appContainers.filter((appContainer: MainAppContainer) => appContainer.getMode() === mode)[0];
     }
 
+    private collapseSidebarOnMouseEvent(event: MouseEvent) {
+        this.toggleSidebar();
+
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
     private handleTouchOutsideSidebar() {
         this.touchListener = (event: MouseEvent) => {
             if (!this.hasClass('sidebar-expanded')) {
                 return;
             }
+
+            if (this.sidebar.getButtons().some(
+                (button: AppModeButton) => button.getHTMLElement().contains(<HTMLElement>event.target))
+            ) {
+                this.collapseSidebarOnMouseEvent(event);
+                return;
+            }
+
             for (let element = event.target; element; element = (<any>element).parentNode) {
                 if (element === this.sidebar.getHTMLElement() || element === this.toggleSidebarButton.getHTMLElement()) {
                     return;
                 }
             }
-            this.toggleSidebar();
-
-            event.stopPropagation();
-            event.preventDefault();
+            this.collapseSidebarOnMouseEvent(event);
         };
     }
 
@@ -185,16 +197,19 @@ class AppModeSwitcher
         return settingsButton;
     }
 
-    private listenButtonClicked(button: AppModeButton) {
-        button.onClicked(() => {
-            this.buttons.forEach((b: AppModeButton) => {
-                b.toggleSelected(b === button);
-            });
-
-            if (button.getMode() !== AppContext.get().getMode()) {
-                this.notifyAppModeSelected(button.getMode());
-            }
+    private onButtonClicked(button: AppModeButton) {
+        this.buttons.forEach((b: AppModeButton) => {
+            b.toggleSelected(b === button);
         });
+
+        if (button.getMode() !== AppContext.get().getMode()) {
+            this.notifyAppModeSelected(button.getMode());
+        }
+    }
+
+    private listenButtonClicked(button: AppModeButton) {
+        button.onTouchStart(() => this.onButtonClicked(button));
+        button.onClicked(() => this.onButtonClicked(button));
     }
 
     private notifyAppModeSelected(mode: AppMode) {
@@ -213,6 +228,10 @@ class AppModeSwitcher
 
             return rendered;
         });
+    }
+
+    getButtons(): AppModeButton[] {
+        return this.buttons;
     }
 }
 
@@ -267,6 +286,10 @@ class Sidebar
 
     onAppModeSelected(handler: (mode: AppMode) => void) {
         this.appModeSwitcher.onAppModeSelected(handler);
+    }
+
+    getButtons(): AppModeButton[] {
+        return this.appModeSwitcher.getButtons();
     }
 
     private createAppNameBlock(): Element {

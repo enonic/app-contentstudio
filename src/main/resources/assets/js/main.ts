@@ -294,11 +294,33 @@ function preLoadApplication() {
     }
 }
 
+function startServerEventListeners(application: Application) {
+    const serverEventsListener: AggregatedServerEventsListener = new AggregatedServerEventsListener([application]);
+    let wsConnectionErrorId: string;
+
+    serverEventsListener.onConnectionError(() => {
+        if (!wsConnectionErrorId) {
+            wsConnectionErrorId = showError(i18n('notify.websockets.error'), false);
+        }
+    });
+
+    serverEventsListener.onConnectionRestored(() => {
+        if (wsConnectionErrorId) {
+            NotifyManager.get().hide(wsConnectionErrorId);
+            wsConnectionErrorId = null;
+        }
+    });
+
+    serverEventsListener.start();
+
+    // tslint:disable-next-line:no-unused-expression
+    new SettingsServerEventsListener([application]);
+}
+
 async function startApplication() {
     const application: Application = getApplication();
 
-    const serverEventsListener: AggregatedServerEventsListener = new AggregatedServerEventsListener([application]);
-    serverEventsListener.start();
+    startServerEventListeners(application);
 
     initApplicationEventListener();
     initProjectContext(application)
@@ -375,7 +397,6 @@ async function startApplication() {
 
     application.setLoaded(true);
 
-    new SettingsServerEventsListener([application]).start();
     ContentServerEventsHandler.getInstance().start();
     IssueServerEventsHandler.getInstance().start();
 }

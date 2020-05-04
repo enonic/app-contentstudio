@@ -25,14 +25,16 @@ describe('delete.folder.spec:  verifies `xp-apps#398`', function () {
             await studioUtils.doAddFolder(folder2);
         });
 
-    //verifies : xp-apps#398 Buttons remain enabled in the grid toolbar after deleting 2 content.
+    //verifies :
+    // 1) xp-apps#398 Buttons remain enabled in the grid toolbar after deleting 2 content.
+    // 2) https://github.com/enonic/lib-admin-ui/issues/1273  Browse toolbar is not updated after deleting filtered content
     it(`GIVEN two folders(New) in the root directory WHEN both folders has been selected and deleted THEN 'Delete'(toolbar) button gets disabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.typeNameInFilterPanel(folder1.displayName);
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(folder1.displayName);
             //1. Select the first folder:
-            await studioUtils.typeNameInFilterPanel(folder2.displayName)
+            await studioUtils.typeNameInFilterPanel(folder2.displayName);
             await contentBrowsePanel.pause(1000);
             //2. Select the second folder:
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(folder2.displayName);
