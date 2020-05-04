@@ -522,6 +522,7 @@ export class ContentWizardPanel
             });
 
             this.editPermissionsToolbarButton = new DivEl('edit-permissions-button');
+            this.editPermissionsToolbarButton.getEl().setTitle(i18n('field.access'));
             this.editPermissionsToolbarButton.addClass(this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock');
             this.editPermissionsToolbarButton.onClicked(this.handleEditPermissionsButtonClicked.bind(this));
             this.getStepNavigatorContainer().appendChild(this.editPermissionsToolbarButton);
