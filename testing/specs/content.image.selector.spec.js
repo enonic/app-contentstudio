@@ -79,7 +79,7 @@ describe('content.image.selector: Image content specification', function () {
             let nameImages = await imageSelectorForm.getFlatModeOptionImageNames();
             studioUtils.saveScreenshot('img_sel_flat_mode');
             assert.isTrue(nameImages.length > 0, 'images should be present in the dropdown list');
-            assert.isTrue(nameImages[0].includes('.png') || nameImages[0].includes('.jpg') || imagesNames[0].includes('.jpeg') ||
+            assert.isTrue(nameImages[0].includes('.png') || nameImages[0].includes('.jpg') || nameImages[0].includes('.jpeg') ||
                           nameImages[0].includes('.svg'), 'Expected extension should be in all the names');
         });
 
