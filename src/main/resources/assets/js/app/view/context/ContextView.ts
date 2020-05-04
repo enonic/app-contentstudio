@@ -147,13 +147,16 @@ export class ContextView
             if (!this.item) {
                 return;
             }
-            const itemId = this.item.getId();
+
+            const itemId: string = this.item.getId();
+
             contents
                 .filter((content: ContentSummaryAndCompareStatus) => content.getId() === itemId)
                 .forEach((content: ContentSummaryAndCompareStatus) => {
-                    const sameContent = this.item.equals(content);
-                    const wasModified = this.item.getCompareStatus() !== CompareStatus.NEW;
-                    if (!sameContent && wasModified) {
+                    const isSameContent: boolean = this.item.equals(content);
+                    const wasModified: boolean = this.item.getCompareStatus() !== CompareStatus.NEW;
+
+                    if (!isSameContent && wasModified) {
                         this.setItem(content);
                     }
                 });

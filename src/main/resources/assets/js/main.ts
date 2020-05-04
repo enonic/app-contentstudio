@@ -295,10 +295,9 @@ function preLoadApplication() {
 }
 
 function startServerEventListeners(application: Application) {
-
     const serverEventsListener: AggregatedServerEventsListener = new AggregatedServerEventsListener([application]);
+    let wsConnectionErrorId: string;
 
-    let wsConnectionErrorId;
     serverEventsListener.onConnectionError(() => {
         if (!wsConnectionErrorId) {
             wsConnectionErrorId = showError(i18n('notify.websockets.error'), false);
