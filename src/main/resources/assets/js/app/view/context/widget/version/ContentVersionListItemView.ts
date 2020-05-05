@@ -213,15 +213,16 @@ export class ContentVersionListItemView
 
     private addOnClickHandler() {
         this.onClicked(() => {
-            this.collapseAllContentVersionItemViewsExcept(this);
-            const wasExpanded = this.hasClass('expanded');
+            this.collapseAllExpandedSiblings();
             this.toggleTooltip();
             this.toggleClass('expanded');
         });
     }
 
-    private collapseAllContentVersionItemViewsExcept(itemContainer: Element) {
-        $(this.getHTMLElement()).find('.content-version-item').not(itemContainer.getHTMLElement()).removeClass('expanded');
+    private collapseAllExpandedSiblings() {
+        $(this.getHTMLElement())
+            .siblings('.expanded')
+            .removeClass('expanded');
     }
 
     doRender(): Q.Promise<boolean> {
