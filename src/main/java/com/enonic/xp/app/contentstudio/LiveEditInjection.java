@@ -1,32 +1,41 @@
 package com.enonic.xp.app.contentstudio;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import org.osgi.service.component.annotations.Component;
-
-import com.google.common.collect.Maps;
-
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.portal.postprocess.HtmlTag;
 import com.enonic.xp.portal.postprocess.PostProcessInjection;
-import com.enonic.xp.util.StringTemplate;
+import com.enonic.xp.util.Exceptions;
+import com.google.common.collect.Maps;
+import org.apache.commons.text.StringSubstitutor;
+import org.osgi.service.component.annotations.Component;
+
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Component(immediate = true, service = PostProcessInjection.class)
 public final class LiveEditInjection
     implements PostProcessInjection
 {
-    private final StringTemplate headBeginTemplate;
+    private static final String ASSET_URL = "/admin/_/asset/com.enonic.app.contentstudio";
 
-    private final StringTemplate bodyEndTemplate;
+    private static final String PREFIX = "{{";
+
+    private static final String SUFFIX = "}}";
+
+    private static final char ESCAPE = '\\';
+
+    private final String headBeginTemplate;
+
+    private final String bodyEndTemplate;
 
     public LiveEditInjection()
     {
-        this.headBeginTemplate = StringTemplate.load( getClass(), "liveEditHeadBegin.html" );
-        this.bodyEndTemplate = StringTemplate.load( getClass(), "liveEditBodyEnd.html" );
+        this.headBeginTemplate = loadTemplate("liveEditHeadBegin.html");
+        this.bodyEndTemplate = loadTemplate("liveEditBodyEnd.html");
     }
 
     @Override
@@ -60,22 +69,34 @@ public final class LiveEditInjection
         return injectUsingTemplate( this.bodyEndTemplate, makeModelForBodyEnd( portalRequest ) );
     }
 
-    private String injectUsingTemplate( final StringTemplate template, final Map<String, String> model )
+    private String injectUsingTemplate(final String template, final Map<String, String> model)
     {
-        return template.apply( model ).trim() + "\n";
+        return new StringSubstitutor(model, PREFIX, SUFFIX, ESCAPE).replace(template);
     }
 
     private Map<String, String> makeModelForHeadBegin( final PortalRequest portalRequest )
     {
         final Map<String, String> map = Maps.newHashMap();
-        map.put( "assetsUrl", portalRequest.rewriteUri( "/admin/_/asset/com.enonic.app.contentstudio" ) );
+        map.put("assetsUrl", portalRequest.rewriteUri(ASSET_URL));
         return map;
     }
 
     private Map<String, String> makeModelForBodyEnd( final PortalRequest portalRequest )
     {
-        final Map<String, String> map = makeModelForHeadBegin( portalRequest );
+        return makeModelForHeadBegin(portalRequest);
+    }
 
-        return map;
+    public String loadTemplate(final String name) {
+        final InputStream stream = getClass().getResourceAsStream(name);
+
+        if (stream == null) {
+            throw new IllegalArgumentException("Could not find resource [" + name + "]");
+        }
+
+        try (stream) {
+            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+        } catch (final Exception e) {
+            throw Exceptions.unchecked(e);
+        }
     }
 }

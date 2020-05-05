@@ -31,6 +31,7 @@ dependencies {
     include "com.enonic.xp:lib-content:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
     include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
+    include "org.apache.commons:commons-text:${commonsTextVersion}"
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.23.0'
 }
