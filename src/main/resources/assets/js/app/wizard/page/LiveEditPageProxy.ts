@@ -54,7 +54,6 @@ import {assertNotNull} from 'lib-admin-ui/util/Assert';
 import {GLOBAL, GlobalLibAdmin, Store} from 'lib-admin-ui/store/Store';
 import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
 import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
-import Element = api.dom.Element;
 
 declare var CONFIG;
 
@@ -492,7 +491,7 @@ export class LiveEditPageProxy {
     }
 
     private createErrorMessage(responseText: string): string {
-        const responseHtml: any[] = wemjq.parseHTML(responseText);
+        const responseHtml: any[] = $.parseHTML(responseText);
         let errorMessage: string = '';
         responseHtml.forEach((el: HTMLElement, i) => {
             if (el.tagName && el.tagName.toLowerCase() === 'title') {

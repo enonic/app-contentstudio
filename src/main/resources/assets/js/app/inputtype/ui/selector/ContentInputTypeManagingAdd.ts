@@ -71,7 +71,7 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     private handleContentUpdatedEvent() {
         const contentUpdatedOrMovedListener = (statuses: ContentSummaryAndCompareStatus[], oldPaths?: ContentPath[]) => {
 
-            if (this.getSelectedOptions().length === 0) {
+            if (!this.isRendered() || this.getSelectedOptions().length === 0) {
                 return;
             }
 
@@ -113,7 +113,7 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
 
     private handleContentDeletedEvent() {
         this.contentDeletedListener = (paths: ContentServerChangeItem[], pending?: boolean) => {
-            if (this.getSelectedOptions().length === 0) {
+            if (!this.isRendered() || this.getSelectedOptions().length === 0) {
                 return;
             }
 
