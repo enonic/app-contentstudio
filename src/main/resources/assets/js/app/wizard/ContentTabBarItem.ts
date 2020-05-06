@@ -1,4 +1,8 @@
-export class ContentTabBarItem extends api.ui.tab.TabBarItem {
+import {TabItemBuilder} from 'lib-admin-ui/ui/tab/TabItem';
+import {TabBarItem} from 'lib-admin-ui/ui/tab/TabBarItem';
+
+export class ContentTabBarItem
+    extends TabBarItem {
 
     private iconCls: string;
     private xData: boolean;
@@ -30,7 +34,8 @@ export class ContentTabBarItem extends api.ui.tab.TabBarItem {
     }
 }
 
-export class ContentTabBarItemBuilder extends api.ui.tab.TabItemBuilder {
+export class ContentTabBarItemBuilder
+    extends TabItemBuilder {
 
     iconCls: string;
 

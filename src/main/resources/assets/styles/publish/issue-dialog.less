@@ -5,17 +5,20 @@
     max-height: 100px;
   }
 
-  .modal-dialog-body {
-    padding-top: 15px;
+  &.create-issue-dialog {
+    .modal-dialog-header {
+      padding: 30px;
+    }
   }
 
   .modal-dialog-header {
-    background-color: @admin-bg-light-gray;
-    padding-bottom: 30px;
-  }
 
-  &.create-issue-dialog .modal-dialog-header .title {
-    margin-top: -2px;
+    .icon-issue {
+      font-size: 26px;
+      line-height: 36px;
+      float: left;
+      margin-right: 15px;
+    }
   }
 
   .sub-title {
@@ -41,10 +44,6 @@
           line-height: normal;
         }
       }
-
-      .publish-dialog-item-list {
-        margin-top: -15px;
-      }
     }
   }
 
@@ -56,10 +55,6 @@
       }
     }
 
-    .principal-selected-options-view {
-      padding: 0 15px 0 0;
-    }
-
     .dependants {
       margin-top: 5px;
     }
@@ -69,8 +64,12 @@
       padding: 0;
 
       .browse-selection-item {
-        padding: 6px 5px;
+        padding: 6px 3px;
         margin: 0;
+
+        .remove {
+          display: inherit;
+        }
       }
 
       &.contains-toggleable {

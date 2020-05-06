@@ -25,7 +25,7 @@ class LiveContextWindow extends Page {
         return this.waitForElementDisplayed(selector).then(() => {
             return this.getDisplayedElements(selector);
         }).then(result => {
-            return this.getBrowser().elementClick(result[0].ELEMENT);
+            return this.getBrowser().elementClick(result[0].elementId);
         }).catch(err => {
             this.saveScreenshot('err_click_on_inspection_link');
             throw new Error('clickOnContentType:' + err);

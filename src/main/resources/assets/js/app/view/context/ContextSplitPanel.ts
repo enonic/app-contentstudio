@@ -1,14 +1,13 @@
-import SplitPanelBuilder = api.ui.panel.SplitPanelBuilder;
-import ResponsiveManager = api.ui.responsive.ResponsiveManager;
-import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
-import ResponsiveItem = api.ui.responsive.ResponsiveItem;
-import ViewItem = api.app.view.ViewItem;
-import SplitPanel = api.ui.panel.SplitPanel;
-import SplitPanelAlignment = api.ui.panel.SplitPanelAlignment;
-import SplitPanelUnit = api.ui.panel.SplitPanelUnit;
-import Panel = api.ui.panel.Panel;
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder, SplitPanelUnit} from 'lib-admin-ui/ui/panel/SplitPanel';
+import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {DockedContextPanel} from './DockedContextPanel';
-import {NonMobileContextPanelsManager, NonMobileContextPanelsManagerBuilder} from './NonMobileContextPanelsManager';
+import {NonMobileContextPanelsManager} from './NonMobileContextPanelsManager';
 import {ContextView} from './ContextView';
 import {FloatingContextPanel} from './FloatingContextPanel';
 import {ActiveContextPanelManager} from './ActiveContextPanelManager';
@@ -30,13 +29,13 @@ export class ContextSplitPanel
     private dockedContextPanel: DockedContextPanel;
     private floatingContextPanel: FloatingContextPanel;
     private mobileContentItemStatisticsPanel: MobileContentItemStatisticsPanel;
-    private actions: api.ui.Action[];
+    private actions: Action[];
     private nonMobileContextPanelsManager: NonMobileContextPanelsManager;
     private dockedModeChangedListeners: { (isDocked: boolean): void }[];
-    private leftPanel: api.ui.panel.Panel;
+    private leftPanel: Panel;
     private mobileContextPanel: MobileContextPanel;
 
-    constructor(leftPanel: api.ui.panel.Panel, actions: api.ui.Action[], data?: PageEditorData) {
+    constructor(leftPanel: Panel, actions: Action[], data?: PageEditorData) {
         const contextView = new ContextView(data);
         const dockedContextPanel = new DockedContextPanel(contextView);
 
@@ -60,6 +59,29 @@ export class ContextSplitPanel
         this.mobilePanelSlideListeners = [];
 
         this.dockedContextPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
+        this.initPanels();
+    }
+
+    private initPanels() {
+        const nonMobileContextPanelsManagerBuilder = NonMobileContextPanelsManager.create();
+        if (this.isPageEditorPresent()) {
+            nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
+            nonMobileContextPanelsManagerBuilder.setWizardPanel(<Panel>(<SplitPanel>this.leftPanel).getFirstChild());
+            nonMobileContextPanelsManagerBuilder.setIsMobileMode(() => {
+                return this.isMobileMode();
+            });
+        }
+        nonMobileContextPanelsManagerBuilder.setSplitPanelWithGridAndContext(this);
+        nonMobileContextPanelsManagerBuilder.setDefaultContextPanel(this.dockedContextPanel);
+        this.floatingContextPanel = new FloatingContextPanel(this.contextView);
+        nonMobileContextPanelsManagerBuilder.setFloatingContextPanel(this.floatingContextPanel);
+        if (this.isInsideWizard()) {
+            this.mobileContextPanel = new MobileContextPanel(this.contextView);
+        } else {
+            this.mobileContentItemStatisticsPanel = new MobileContentItemStatisticsPanel(this.actions, this.contextView);
+        }
+
+        this.nonMobileContextPanelsManager = nonMobileContextPanelsManagerBuilder.build();
     }
 
     private isInsideWizard(): boolean {
@@ -71,23 +93,14 @@ export class ContextSplitPanel
     }
 
     private renderAfterDockedPanelReady() {
-        const nonMobileContextPanelsManagerBuilder = NonMobileContextPanelsManager.create();
-        if (this.isPageEditorPresent()) {
-            nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
-            nonMobileContextPanelsManagerBuilder.setWizardPanel(<Panel>(<SplitPanel>this.leftPanel).getFirstChild());
-            nonMobileContextPanelsManagerBuilder.setIsMobileMode(() => {
-                return this.isMobileMode();
-            });
-        }
-        this.initSplitPanelWithDockedContext(nonMobileContextPanelsManagerBuilder);
-        this.initFloatingContextPanel(nonMobileContextPanelsManagerBuilder);
+        this.floatingContextPanel.insertAfterEl(this);
+
         if (this.isInsideWizard()) {
-            this.initMobileContextPanelOnly();
+            this.addMobileContextPanel();
         } else {
-            this.initMobileItemStatisticsPanel();
+            this.addMobileItemStatisticsPanel();
         }
 
-        this.nonMobileContextPanelsManager = nonMobileContextPanelsManagerBuilder.build();
         if (this.nonMobileContextPanelsManager.requiresCollapsedContextPanel()) {
             this.nonMobileContextPanelsManager.hideDockedContextPanel();
         }
@@ -104,20 +117,7 @@ export class ContextSplitPanel
         this.subscribeContextPanelsOnEvents(this.nonMobileContextPanelsManager);
     }
 
-    private initSplitPanelWithDockedContext(nonMobileContextPanelsManagerBuilder: NonMobileContextPanelsManagerBuilder) {
-
-        nonMobileContextPanelsManagerBuilder.setSplitPanelWithGridAndContext(this);
-        nonMobileContextPanelsManagerBuilder.setDefaultContextPanel(this.dockedContextPanel);
-    }
-
-    private initFloatingContextPanel(nonMobileContextPanelsManagerBuilder: NonMobileContextPanelsManagerBuilder) {
-        this.floatingContextPanel = new FloatingContextPanel(this.contextView);
-        nonMobileContextPanelsManagerBuilder.setFloatingContextPanel(this.floatingContextPanel);
-        this.floatingContextPanel.insertAfterEl(this);
-    }
-
-    private initMobileContextPanelOnly() {
-        this.mobileContextPanel = new MobileContextPanel(this.contextView);
+    private addMobileContextPanel() {
         this.mobileContextPanel.insertAfterEl(this);
         this.mobileContextPanel.slideOut(true);
 
@@ -125,21 +125,12 @@ export class ContextSplitPanel
         this.mobileContextPanel.onSlidedIn(() => this.notifyMobilePanelSlide(false));
     }
 
-    private initMobileItemStatisticsPanel() {
-        this.mobileContentItemStatisticsPanel = new MobileContentItemStatisticsPanel(this.actions, this.contextView);
+    private addMobileItemStatisticsPanel() {
         this.mobileContentItemStatisticsPanel.insertAfterEl(this);
         this.mobileContentItemStatisticsPanel.slideAllOut(true);
 
         this.mobileContentItemStatisticsPanel.onSlideOut(() => this.notifyMobilePanelSlide(true));
         this.mobileContentItemStatisticsPanel.onSlideIn(() => this.notifyMobilePanelSlide(false));
-    }
-
-    private setActiveContextPanel(nonMobileContextPanelsManager: NonMobileContextPanelsManager) {
-        if (this.isMobileMode()) {
-            ActiveContextPanelManager.setActiveContextPanel(this.getMobileContextPanel());
-        } else {
-            ActiveContextPanelManager.setActiveContextPanel(nonMobileContextPanelsManager.getActivePanel());
-        }
     }
 
     private getMobileContextPanel(): ContextPanel {
@@ -165,7 +156,7 @@ export class ContextSplitPanel
 
     private subscribeContextPanelsOnEvents(nonMobileContextPanelsManager: NonMobileContextPanelsManager) {
 
-        const debouncedResponsiveHandler = api.util.AppHelper.debounce((item: ResponsiveItem) => {
+        const debouncedResponsiveHandler = AppHelper.debounce((item: ResponsiveItem) => {
             nonMobileContextPanelsManager.handleResizeEvent();
             // Do not replace with non-strict equality!
             if (this.mobileMode === undefined) {
@@ -276,5 +267,13 @@ export class ContextSplitPanel
 
     isMobileMode(): boolean {
         return this.mobileMode;
+    }
+
+    enableToggleButton() {
+        this.nonMobileContextPanelsManager.getToggleButton().setEnabled(true);
+    }
+
+    disableToggleButton() {
+        this.nonMobileContextPanelsManager.getToggleButton().setEnabled(false);
     }
 }

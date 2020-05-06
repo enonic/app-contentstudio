@@ -1,10 +1,7 @@
 /**
  * Created on 16.01.2018.
- * verifies : xp-apps#398 Buttons are still enabled in the grid toolbar when 2 contents have been deleted
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -12,49 +9,40 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 
-describe('delete.folder.content.spec:  verifies `xp-apps#398`', function () {
+describe('delete.folder.spec:  verifies `xp-apps#398`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
     let folder1;
     let folder2;
     it(`Precondition: WHEN two folders has been added THEN folders should be present in the grid`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+        async () => {
             let displayName1 = contentBuilder.generateRandomName('folder');
             let displayName2 = contentBuilder.generateRandomName('folder');
             folder2 = contentBuilder.buildFolder(displayName2);
             folder1 = contentBuilder.buildFolder(displayName1);
-            return studioUtils.doAddFolder(folder1).then(() => {
-            }).then(() => {
-                return studioUtils.doAddFolder(folder2);
-            }).then(() => {
-                return studioUtils.typeNameInFilterPanel(folder1.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(folder1.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'folder should be listed in the grid');
-            });
+            await studioUtils.doAddFolder(folder1);
+            await studioUtils.doAddFolder(folder2);
         });
-    //verifies : xp-apps#398 Buttons are still enabled in the grid toolbar when 2 contents have been deleted
-    it(`GIVEN two folders in the root directory WHEN both folders has been selected and deleted THEN 'Delete' button should be disabled`,
-        () => {
+
+    //verifies :
+    // 1) xp-apps#398 Buttons remain enabled in the grid toolbar after deleting 2 content.
+    // 2) https://github.com/enonic/lib-admin-ui/issues/1273  Browse toolbar is not updated after deleting filtered content
+    it(`GIVEN two folders(New) in the root directory WHEN both folders has been selected and deleted THEN 'Delete'(toolbar) button gets disabled`,
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            return studioUtils.typeNameInFilterPanel(folder1.displayName).then(() => {
-                return contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(folder1.displayName);
-            }).then(() => {
-                return studioUtils.typeNameInFilterPanel(folder2.displayName)
-            }).then(() => {
-                return contentBrowsePanel.pause(1000);
-            }).then(() => {
-                return contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(folder2.displayName);
-            }).then(() => {
-                return studioUtils.clickOnDeleteAndConfirm(2);
-            }).then(() => {
-                return contentBrowsePanel.isDeleteButtonEnabled();
-            }).then(result => {
-                assert.isFalse(result, 'Delete button should be disabled');
-            });
+            await studioUtils.typeNameInFilterPanel(folder1.displayName);
+            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(folder1.displayName);
+            //1. Select the first folder:
+            await studioUtils.typeNameInFilterPanel(folder2.displayName);
+            await contentBrowsePanel.pause(1000);
+            //2. Select the second folder:
+            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(folder2.displayName);
+            //3. Delete folders:
+            await studioUtils.doDeleteNowAndConfirm(2);
+            //4. Delete button should be disabled now:
+            let result = await contentBrowsePanel.isDeleteButtonEnabled();
+            assert.isFalse(result, 'Delete button gets disabled');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

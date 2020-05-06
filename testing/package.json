@@ -5,19 +5,19 @@
   "license": "ISC",
   "scripts": {
     "test": "node ./tasks/test.js",
+    "test_project": "node ./tasks/test-project.js",
     "test_by_name": "node ./tasks/test-by-name.js"
   },
   "devDependencies": {
-    "assert": "^1.3.0",
+    "assert": "^1.5.0",
     "chai": "^3.5.0",
     "chai-as-promised": "7.1.1",
     "globby": "^9.0.0",
     "mocha": "^5.2.0",
     "mocha-multi-reporters": "1.1.5",
+    "mochawesome": "4.0.1",
     "properties-reader": "0.0.15",
-    "run-sequence": "2.1.0",
-    "selenium-standalone": "^6.15.0",
-    "webdriverio": "^5.7.15",
-    "mochawesome": "3.1.1"
+    "selenium-standalone": "^6.16.0",
+    "webdriverio": "5.18.7"
   }
 }

@@ -1,9 +1,5 @@
 {
-  "compilerOptions": {
-    "module": "commonjs",
-    "sourceMap": true,
-    "lib": [ "dom", "es2015" ]
-  },
+  "extends": "./tsconfig",
   "exclude": [
     "build/**/*",
     "out/**/*",

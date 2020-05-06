@@ -1,3 +1,5 @@
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {PageResourceRequest} from '../resource/PageResourceRequest';
 import {Content} from '../content/Content';
@@ -5,18 +7,21 @@ import {ContentJson} from '../content/ContentJson';
 import {PageTemplateKey} from '../page/PageTemplateKey';
 import {Regions} from '../page/region/Regions';
 import {Component} from '../page/region/Component';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreatePageRequest
-    extends PageResourceRequest<ContentJson, Content>
+    extends PageResourceRequest<Content>
     implements PageCUDRequest {
 
-    private contentId: api.content.ContentId;
+    private contentId: ContentId;
 
-    private controller: api.content.page.DescriptorKey;
+    private controller: DescriptorKey;
 
     private template: PageTemplateKey;
 
-    private config: api.data.PropertyTree;
+    private config: PropertyTree;
 
     private regions: Regions;
 
@@ -24,13 +29,14 @@ export class CreatePageRequest
 
     private customized: boolean;
 
-    constructor(contentId: api.content.ContentId) {
+    constructor(contentId: ContentId) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contentId = contentId;
+        this.addRequestPathElements('create');
     }
 
-    setController(controller: api.content.page.DescriptorKey): CreatePageRequest {
+    setController(controller: DescriptorKey): CreatePageRequest {
         this.controller = controller;
         return this;
     }
@@ -40,7 +46,7 @@ export class CreatePageRequest
         return this;
     }
 
-    setConfig(config: api.data.PropertyTree): CreatePageRequest {
+    setConfig(config: PropertyTree): CreatePageRequest {
         this.config = config;
         return this;
     }
@@ -72,14 +78,7 @@ export class CreatePageRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'create');
-    }
-
-    sendAndParse(): wemQ.Promise<Content> {
-
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
-            return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
+        return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
     }
 }

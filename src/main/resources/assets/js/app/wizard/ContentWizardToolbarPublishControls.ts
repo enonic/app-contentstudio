@@ -1,120 +1,112 @@
 import {ContentWizardActions} from './action/ContentWizardActions';
-import {ContentPublishMenuButton} from '../browse/ContentPublishMenuButton';
-import {CompareStatusFormatter} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import Action = api.ui.Action;
-import ActionButton = api.ui.button.ActionButton;
-import i18n = api.util.i18n;
+import {ContentWizardPublishMenuButton} from '../browse/ContentWizardPublishMenuButton';
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 
 export class ContentWizardToolbarPublishControls
-    extends api.dom.DivEl {
+    extends DivEl {
 
-    private publishButton: ContentPublishMenuButton;
-    private publishAction: Action;
-    private createIssueAction: Action;
-    private unpublishAction: Action;
-    private publishMobileAction: Action;
-    private contentCanBePublished: boolean = false;
-    private userCanPublish: boolean = true;
-    private leafContent: boolean = true;
-    private content: ContentSummaryAndCompareStatus;
-    private publishButtonForMobile: ActionButton;
-    private refreshHandlerDebounced: Function;
+    private publishButton: ContentWizardPublishMenuButton;
+
+    private mobilePublishControls: DivEl;
+
+    private actions: ContentWizardActions;
 
     constructor(actions: ContentWizardActions) {
         super('toolbar-publish-controls');
 
-        this.publishAction = actions.getPublishAction();
-        this.publishAction.setIconClass('publish-action');
-        this.createIssueAction = actions.getCreateIssueAction();
-        this.unpublishAction = actions.getUnpublishAction();
-        this.publishMobileAction = actions.getPublishMobileAction();
+        this.actions = actions;
 
-        this.publishButton = new ContentPublishMenuButton({
-            publishAction: this.publishAction,
-            unpublishAction: this.unpublishAction,
-            createIssueAction: this.createIssueAction
+        this.publishButton = new ContentWizardPublishMenuButton({
+            publishAction: actions.getPublishAction(),
+            unpublishAction: actions.getUnpublishAction(),
+            markAsReadyAction: actions.getMarkAsReadyAction(),
+            createIssueAction: actions.getCreateIssueAction(),
+            requestPublishAction: actions.getRequestPublishAction(),
+            openRequestAction: actions.getOpenRequestAction()
         });
+
+        actions.getPublishAction().setIconClass('publish-action');
         this.publishButton.addClass('content-wizard-toolbar-publish-button');
 
-        this.publishButtonForMobile = new ActionButton(this.publishMobileAction);
-        this.publishButtonForMobile.addClass('mobile-edit-publish-button');
-        this.publishButtonForMobile.setVisible(false);
+        this.initMobilePublishControls();
 
-        this.refreshHandlerDebounced = api.util.AppHelper.debounce(this.doRefreshState.bind(this), 200);
+        this.initListeners();
 
         this.appendChild(this.publishButton);
     }
 
-    public setContent(content: ContentSummaryAndCompareStatus, refresh: boolean = true): ContentWizardToolbarPublishControls {
-        this.content = content;
+    protected initMobilePublishControls() {
+        this.mobilePublishControls = new DivEl('mobile-edit-publish-controls');
+        const publishButtonForMobile = this.createPublishButtonForMobile();
+        const markAsReadyButtonForMobile = this.createMarkAsReadyButtonForMobile();
+        this.mobilePublishControls.appendChildren(publishButtonForMobile, markAsReadyButtonForMobile);
+
+        this.handleMarkAsReadyStatus();
+    }
+
+    protected createPublishButtonForMobile(): ActionButton {
+        const publishButtonForMobile = new ActionButton(this.actions.getPublishAction());
+        publishButtonForMobile.addClass('mobile-edit-publish-button');
+
+        return publishButtonForMobile;
+    }
+
+    protected createMarkAsReadyButtonForMobile(): ActionButton {
+        const markAsReadyButtonForMobile = new ActionButton(this.actions.getMarkAsReadyAction());
+        markAsReadyButtonForMobile.addClass('mobile-edit-mark-as-ready-button');
+
+        return markAsReadyButtonForMobile;
+    }
+
+    protected initListeners() {
+        const publishAction = this.actions.getPublishAction();
+        const markAsReadyAction = this.actions.getMarkAsReadyAction();
+
+        publishAction.onPropertyChanged(() => {
+            this.handleControlsChanged();
+        });
+
+        markAsReadyAction.onPropertyChanged(() => {
+            this.handleControlsChanged();
+            this.handleMarkAsReadyStatus();
+        });
+
+        this.actions.onBeforeActionsStashed(() => {
+            this.publishButton.setRefreshDisabled(true);
+        });
+
+        this.actions.onActionsUnstashed(() => {
+            this.publishButton.setRefreshDisabled(false);
+        });
+    }
+
+    private handleControlsChanged() {
+        const publishAction = this.actions.getPublishAction();
+        const markAsReadyAction = this.actions.getMarkAsReadyAction();
+
+        const controlsEnabled = publishAction.isEnabled() || markAsReadyAction.isEnabled();
+        this.mobilePublishControls.toggleClass('enabled', controlsEnabled);
+    }
+
+    private handleMarkAsReadyStatus() {
+        const markAsReadyAction = this.actions.getMarkAsReadyAction();
+
+        const markAsReadyEnabled = markAsReadyAction.isEnabled();
+        this.mobilePublishControls.toggleClass('mark-as-ready', markAsReadyEnabled);
+    }
+
+    setContent(content: ContentSummaryAndCompareStatus): ContentWizardToolbarPublishControls {
         this.publishButton.setItem(content);
-        if (refresh) {
-            this.refreshState();
-        }
         return this;
     }
 
-    public setContentCanBePublished(value: boolean, refresh: boolean = true): ContentWizardToolbarPublishControls {
-        this.contentCanBePublished = value;
-        if (refresh) {
-            this.refreshState();
-        }
-        return this;
+    getMobilePublishControls(): DivEl {
+        return this.mobilePublishControls;
     }
 
-    public setUserCanPublish(value: boolean, refresh: boolean = true): ContentWizardToolbarPublishControls {
-        this.userCanPublish = value;
-        if (refresh) {
-            this.refreshState();
-        }
-        return this;
-    }
-
-    public setLeafContent(leafContent: boolean, refresh: boolean = true): ContentWizardToolbarPublishControls {
-        this.leafContent = leafContent;
-        if (refresh) {
-            this.refreshState();
-        }
-        return this;
-    }
-
-    public refreshState() {
-
-        if (!this.content) {
-            return;
-        }
-
-        this.refreshHandlerDebounced();
-    }
-
-    private doRefreshState() {
-        const canBePublished = !this.isOnline() && this.contentCanBePublished && this.userCanPublish;
-        const canBeUnpublished = this.content.isPublished() && this.userCanPublish;
-
-        this.publishAction.setEnabled(canBePublished);
-        this.createIssueAction.setEnabled(true);
-        this.unpublishAction.setEnabled(canBeUnpublished);
-        this.publishMobileAction.setEnabled(canBePublished);
-        this.publishMobileAction.setVisible(canBePublished);
-
-        this.publishButtonForMobile.setLabel(
-            i18n('field.publish.item', CompareStatusFormatter.formatStatusTextFromContent(this.content)));
-    }
-
-    public isOnline(): boolean {
-        return !!this.content && this.content.isOnline();
-    }
-
-    public isPendingDelete(): boolean {
-        return !!this.content && this.content.isPendingDelete();
-    }
-
-    public getPublishButtonForMobile(): ActionButton {
-        return this.publishButtonForMobile;
-    }
-
-    public getPublishButton(): ContentPublishMenuButton {
+    getPublishButton(): ContentWizardPublishMenuButton {
         return this.publishButton;
     }
 }

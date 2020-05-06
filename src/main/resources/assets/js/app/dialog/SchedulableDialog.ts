@@ -1,16 +1,20 @@
-import PropertySet = api.data.PropertySet;
-import FormItem = api.form.FormItem;
-import i18n = api.util.i18n;
-import ModalDialog = api.ui.dialog.ModalDialog;
-import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
-import Action = api.ui.Action;
+import {PropertySet} from 'lib-admin-ui/data/PropertySet';
+import {FormItem} from 'lib-admin-ui/form/FormItem';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ModalDialog, ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {FormBuilder} from 'lib-admin-ui/form/Form';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {FormContext} from 'lib-admin-ui/form/FormContext';
+import {FormValidityChangedEvent} from 'lib-admin-ui/form/FormValidityChangedEvent';
 
 export abstract class SchedulableDialog
     extends ModalDialog {
 
     propertySet: PropertySet;
 
-    formView: api.form.FormView;
+    formView: FormView;
 
     confirmScheduleAction: Action;
 
@@ -45,7 +49,7 @@ export abstract class SchedulableDialog
             this.updateTabbable(); // in case schedule button gets enabled/disabled
         });
 
-        this.formView.onValidityChanged((event: api.form.FormValidityChangedEvent) => {
+        this.formView.onValidityChanged((event: FormValidityChangedEvent) => {
             this.confirmScheduleAction.setEnabled(event.isValid());
             this.formView.displayValidationErrors(true);
         });
@@ -86,15 +90,13 @@ export abstract class SchedulableDialog
         return to && to.toDate();
     }
 
-    protected abstract createFromFormItem(): FormItem;
-
-    protected abstract createToFormItem(): FormItem;
+    protected abstract createRangeFormItem(): FormItem;
 
     private initFormView() {
-        const formBuilder = new api.form.FormBuilder().addFormItem(this.createFromFormItem()).addFormItem(this.createToFormItem());
+        const formBuilder = new FormBuilder().addFormItem(this.createRangeFormItem());
 
-        this.propertySet = new api.data.PropertyTree().getRoot();
-        this.formView = new api.form.FormView(api.form.FormContext.create().build(), formBuilder.build(), this.propertySet);
+        this.propertySet = new PropertyTree().getRoot();
+        this.formView = new FormView(FormContext.create().build(), formBuilder.build(), this.propertySet);
     }
 
     private initConfirmScheduleAction() {

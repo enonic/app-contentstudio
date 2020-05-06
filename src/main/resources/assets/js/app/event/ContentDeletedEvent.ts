@@ -1,10 +1,13 @@
-import ContentId = api.content.ContentId;
-import ContentPath = api.content.ContentPath;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
+import {Branch} from '../versioning/Branch';
 
 export class ContentDeletedEvent
-    extends api.event.Event {
+    extends Event {
 
     private contentDeletedItems: ContentDeletedItem[] = [];
     private undeletedItems: ContentDeletedItem[] = [];
@@ -13,7 +16,7 @@ export class ContentDeletedEvent
         super();
     }
 
-    addItem(contentId: ContentId, contentPath: api.content.ContentPath, branch: string): ContentDeletedEvent {
+    addItem(contentId: ContentId, contentPath: ContentPath, branch: Branch): ContentDeletedEvent {
         this.contentDeletedItems.push(new ContentDeletedItem(contentId, contentPath, branch));
         return this;
     }
@@ -47,29 +50,29 @@ export class ContentDeletedEvent
     }
 
     static on(handler: (event: ContentDeletedEvent) => void) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: ContentDeletedEvent) => void) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }
 
 export class ContentDeletedItem {
 
-    private contentPath: api.content.ContentPath;
+    private contentPath: ContentPath;
 
     private contentId: ContentId;
 
-    private branch: string;
+    private branch: Branch;
 
-    constructor(contentId: ContentId, contentPath: api.content.ContentPath, branch: string) {
+    constructor(contentId: ContentId, contentPath: ContentPath, branch: Branch) {
         this.contentPath = contentPath;
         this.contentId = contentId;
         this.branch = branch;
     }
 
-    public getBranch(): string {
+    public getBranch(): Branch {
         return this.branch;
     }
 
@@ -98,7 +101,7 @@ export class ContentPendingDeleteItem
     private compareStatus: CompareStatus;
 
     constructor(contentSummary: ContentSummaryAndCompareStatus, pending: boolean = false) {
-        super(contentSummary.getContentId(), contentSummary.getPath(), 'master');
+        super(contentSummary.getContentId(), contentSummary.getPath(), Branch.MASTER);
 
         this.compareStatus = contentSummary.getCompareStatus();
         this.pending = pending;

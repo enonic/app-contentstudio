@@ -1,8 +1,11 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {AttachmentName} from './AttachmentName';
 import {AttachmentJson} from './AttachmentJson';
+import {BinaryReference} from 'lib-admin-ui/util/BinaryReference';
 
 export class Attachment
-    implements api.Equitable {
+    implements Equitable {
 
     private name: AttachmentName;
 
@@ -19,8 +22,8 @@ export class Attachment
         this.size = builder.size;
     }
 
-    getBinaryReference(): api.util.BinaryReference {
-        return new api.util.BinaryReference(this.name.toString());
+    getBinaryReference(): BinaryReference {
+        return new BinaryReference(this.name.toString());
     }
 
     getName(): AttachmentName {
@@ -39,26 +42,26 @@ export class Attachment
         return this.size;
     }
 
-    equals(o: api.Equitable): boolean {
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, Attachment)) {
+    equals(o: Equitable): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, Attachment)) {
             return false;
         }
 
         let other = <Attachment>o;
 
-        if (!api.ObjectHelper.equals(this.name, other.name)) {
+        if (!ObjectHelper.equals(this.name, other.name)) {
             return false;
         }
 
-        if (!api.ObjectHelper.stringEquals(this.label, other.label)) {
+        if (!ObjectHelper.stringEquals(this.label, other.label)) {
             return false;
         }
 
-        if (!api.ObjectHelper.stringEquals(this.mimeType, other.mimeType)) {
+        if (!ObjectHelper.stringEquals(this.mimeType, other.mimeType)) {
             return false;
         }
 
-        if (!api.ObjectHelper.numberEquals(this.size, other.size)) {
+        if (!ObjectHelper.numberEquals(this.size, other.size)) {
             return false;
         }
 

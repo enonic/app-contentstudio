@@ -1,11 +1,11 @@
-import Option = api.ui.selector.Option;
-import SelectedOptionsView = api.ui.selector.combobox.SelectedOptionsView;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import OptionDataHelper = api.ui.selector.OptionDataHelper;
-import ComboBox = api.ui.selector.combobox.ComboBox;
-import ContentId = api.content.ContentId;
-import ContentSummary = api.content.ContentSummary;
-import ComboBoxConfig = api.ui.selector.combobox.ComboBoxConfig;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {OptionDataHelper} from 'lib-admin-ui/ui/selector/OptionDataHelper';
+import {ComboBox, ComboBoxConfig} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
 import {ContentComboBox, ContentComboBoxBuilder} from '../ContentComboBox';
 import {ImageOptionDataLoader} from './ImageOptionDataLoader';
 import {ImageContentComboboxKeyEventsHandler} from './ImageContentComboboxKeyEventsHandler';
@@ -56,9 +56,9 @@ export class ImageContentComboBox
 
         let option;
 
-        if (api.ObjectHelper.iFrameSafeInstanceOf(data, MediaTreeSelectorItem)) {
+        if (ObjectHelper.iFrameSafeInstanceOf(data, MediaTreeSelectorItem)) {
             option = this.optionsFactory.createOption(<MediaTreeSelectorItem>data, readOnly);
-        } else if (api.ObjectHelper.iFrameSafeInstanceOf(data, ContentSummary)) {
+        } else if (ObjectHelper.iFrameSafeInstanceOf(data, ContentSummary)) {
             option = {
                 value: (<ContentSummary>data).getId(),
                 displayValue: new MediaTreeSelectorItem(<ContentSummary>data)
@@ -77,6 +77,10 @@ export class ImageContentComboBox
 
     getLoader(): ImageOptionDataLoader {
         return <ImageOptionDataLoader>super.getLoader();
+    }
+
+    load() {
+        this.reload(this.getComboBox().getInput().getValue());
     }
 
     public static create(): ImageContentComboBoxBuilder {

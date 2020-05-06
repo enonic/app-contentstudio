@@ -1,104 +1,109 @@
-    import {PublishRequestItem} from './PublishRequestItem';
-    import {PublishRequestJson} from './json/PublishRequestJson';
-    import ContentId = api.content.ContentId;
+import {PublishRequestItem} from './PublishRequestItem';
+import {PublishRequestJson} from './json/PublishRequestJson';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 
-    export class PublishRequest {
+export class PublishRequest {
 
-        private excludeIds: ContentId[];
+    private excludeIds: ContentId[];
 
-        private items: PublishRequestItem[];
+    private items: PublishRequestItem[];
 
-        constructor(builder: PublishRequestBuilder) {
-            this.excludeIds = builder.excludeIds;
-            this.items = builder.issueItems;
-        }
-
-        public getExcludeIds(): ContentId[] {
-            return [...this.excludeIds];
-        }
-
-        public getItems(): PublishRequestItem[] {
-            return [...this.items];
-        }
-
-        public getItemsIds(): ContentId[] {
-            return this.items ?
-                   this.items.map(item => item.getId()) : [];
-        }
-
-        public hasItemId(itemId: ContentId) {
-            if (!this.items || this.items.length === 0) {
-                return false;
-            }
-
-            return this.items.map(item => item.getId().toString()).indexOf(itemId.toString()) > -1;
-        }
-
-        public getExcludeChildrenIds(): ContentId[] {
-            return this.items ?
-                   this.items.filter(item => !item.isIncludeChildren()).map(item => item.getId()) : [];
-        }
-
-        toJson(): PublishRequestJson {
-            return {
-                excludeIds: this.excludeIds.map(id => id.toString()),
-                items: this.items.map(id => id.toJson()),
-            };
-        }
-
-        public static create(source?: PublishRequest): PublishRequestBuilder {
-            return new PublishRequestBuilder(source);
-        }
-
+    constructor(builder: PublishRequestBuilder) {
+        this.excludeIds = builder.excludeIds;
+        this.items = builder.issueItems;
     }
 
-    export class PublishRequestBuilder {
+    public getExcludeIds(): ContentId[] {
+        return [...this.excludeIds];
+    }
 
-        excludeIds: ContentId[] = [];
+    public getItems(): PublishRequestItem[] {
+        return [...this.items];
+    }
 
-        issueItems: PublishRequestItem[] = [];
+    public getItemsIds(): ContentId[] {
+        return this.items ?
+               this.items.map(item => item.getId()) : [];
+    }
 
-        constructor(source?: PublishRequest) {
-            if(source) {
-                this.excludeIds = !!source.getExcludeIds() ? source.getExcludeIds().slice() : [];
-                this.issueItems = !!source.getItems() ? source.getItems().slice() : [];
-            }
+    public hasItemId(itemId: ContentId) {
+        if (!this.items || this.items.length === 0) {
+            return false;
         }
 
-        fromJson(json: PublishRequestJson): PublishRequestBuilder {
-            this.excludeIds = json.excludeIds ? json.excludeIds.map(excludeId => new ContentId(excludeId)) : [];
-            this.issueItems = json.items ?
-                              json.items.map(itemJson => PublishRequestItem.create().fromJson(itemJson).build()) : [];
+        return this.items.map(item => item.getId().toString()).indexOf(itemId.toString()) > -1;
+    }
 
-            return this;
-        }
+    public getExcludeChildrenIds(): ContentId[] {
+        return this.items ?
+               this.items.filter(item => !item.isIncludeChildren()).map(item => item.getId()) : [];
+    }
 
-        public addExcludeId(id: ContentId): PublishRequestBuilder {
-            this.excludeIds.push(id);
-            return this;
-        }
+    toJson(): PublishRequestJson {
+        return {
+            excludeIds: this.excludeIds.map(id => id.toString()),
+            items: this.items.map(id => id.toJson()),
+        };
+    }
 
-        public addExcludeIds(ids: ContentId[] = []): PublishRequestBuilder {
-            this.excludeIds = this.excludeIds.concat(ids);
-            return this;
-        }
+    public static create(source?: PublishRequest): PublishRequestBuilder {
+        return new PublishRequestBuilder(source);
+    }
 
-        public addPublishRequestItem(item: PublishRequestItem): PublishRequestBuilder {
-            this.issueItems.push(item);
-            return this;
-        }
+}
 
-        public addPublishRequestItems(items: PublishRequestItem[] = []): PublishRequestBuilder {
-            this.issueItems = this.issueItems.concat(items);
-            return this;
-        }
+export class PublishRequestBuilder {
 
-        public setPublishRequestItems(items: PublishRequestItem[] = []): PublishRequestBuilder {
-            this.issueItems = items.slice();
-            return this;
-        }
+    excludeIds: ContentId[] = [];
 
-        public build(): PublishRequest {
-            return new PublishRequest(this);
+    issueItems: PublishRequestItem[] = [];
+
+    constructor(source?: PublishRequest) {
+        if (source) {
+            this.excludeIds = !!source.getExcludeIds() ? source.getExcludeIds().slice() : [];
+            this.issueItems = !!source.getItems() ? source.getItems().slice() : [];
         }
     }
+
+    fromJson(json: PublishRequestJson): PublishRequestBuilder {
+        this.excludeIds = json.excludeIds ? json.excludeIds.map(excludeId => new ContentId(excludeId)) : [];
+        this.issueItems = json.items ?
+                          json.items.map(itemJson => PublishRequestItem.create().fromJson(itemJson).build()) : [];
+
+        return this;
+    }
+
+    public addExcludeId(id: ContentId): PublishRequestBuilder {
+        this.excludeIds.push(id);
+        return this;
+    }
+
+    public addExcludeIds(ids: ContentId[] = []): PublishRequestBuilder {
+        this.excludeIds = this.excludeIds.concat(ids);
+        return this;
+    }
+
+    public setExcludeIds(ids: ContentId[] = []): PublishRequestBuilder {
+        this.excludeIds = ids.slice();
+        return this;
+    }
+
+    public addPublishRequestItem(item: PublishRequestItem): PublishRequestBuilder {
+        this.issueItems.push(item);
+        return this;
+    }
+
+    public addPublishRequestItems(items: PublishRequestItem[] = []): PublishRequestBuilder {
+        this.issueItems = this.issueItems.concat(items);
+        return this;
+    }
+
+    public setPublishRequestItems(items: PublishRequestItem[] = []): PublishRequestBuilder {
+        this.issueItems = items.slice();
+        return this;
+    }
+
+    public build(): PublishRequest {
+        return new PublishRequest(this);
+    }
+}

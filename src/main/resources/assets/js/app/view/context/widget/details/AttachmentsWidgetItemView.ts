@@ -1,20 +1,28 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {AEl} from 'lib-admin-ui/dom/AEl';
 import {WidgetItemView} from '../../WidgetItemView';
 import {GetContentAttachmentsRequest} from '../../../../resource/GetContentAttachmentsRequest';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {Attachments} from '../../../../attachment/Attachments';
 import {Attachment} from '../../../../attachment/Attachment';
 import {AttachmentName} from '../../../../attachment/AttachmentName';
-import ContentSummary = api.content.ContentSummary;
-import ContentId = api.content.ContentId;
-import i18n = api.util.i18n;
+import {UlEl} from 'lib-admin-ui/dom/UlEl';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {LiEl} from 'lib-admin-ui/dom/LiEl';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {UrlHelper} from '../../../../util/UrlHelper';
 
 export class AttachmentsWidgetItemView extends WidgetItemView {
 
     private content: ContentSummary;
 
-    private list: api.dom.UlEl;
+    private list: UlEl;
 
-    private placeholder: api.dom.SpanEl;
+    private placeholder: SpanEl;
 
     public static debug: boolean = false;
 
@@ -22,19 +30,19 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
         super('attachments-widget-item-view');
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
         let content = item.getContentSummary();
         if (AttachmentsWidgetItemView.debug) {
             console.debug('AttachmentsWidgetItemView.setContent: ', content);
         }
-        if (!api.ObjectHelper.equals(content, this.content)) {
+        if (!ObjectHelper.equals(content, this.content)) {
             this.content = content;
             return this.layout();
         }
-        return wemQ<any>(null);
+        return Q<any>(null);
     }
 
-    public layout(): wemQ.Promise<any> {
+    public layout(): Q.Promise<any> {
         if (AttachmentsWidgetItemView.debug) {
             console.debug('AttachmentsWidgetItemView.layout');
         }
@@ -48,7 +56,7 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
         });
     }
 
-    private layoutAttachments(): wemQ.Promise<Attachments> {
+    private layoutAttachments(): Q.Promise<Attachments> {
         return new GetContentAttachmentsRequest(this.content.getContentId()).sendAndParse().then(
             (attachments: Attachments) => {
 
@@ -61,11 +69,11 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
                 }
 
                 if (attachments) {
-                    this.list = new api.dom.UlEl('attachment-list');
+                    this.list = new UlEl('attachment-list');
 
                     let contentId = this.content.getContentId();
                     attachments.forEach((attachment: Attachment) => {
-                        let attachmentContainer = new api.dom.LiEl('attachment-container');
+                        let attachmentContainer = new LiEl('attachment-container');
                         let link = this.createLinkEl(contentId, attachment.getName());
                         attachmentContainer.appendChild(link);
                         this.list.appendChild(attachmentContainer);
@@ -75,7 +83,7 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
                     this.appendChild(this.list);
 
                 } else {
-                    this.placeholder = new api.dom.SpanEl('att-placeholder').setHtml(i18n('field.widget.noAttachments'));
+                    this.placeholder = new SpanEl('att-placeholder').setHtml(i18n('field.widget.noAttachments'));
                     this.appendChild(this.placeholder);
                 }
 
@@ -83,10 +91,10 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
             });
     }
 
-    private createLinkEl(contentId: ContentId, attachmentName: AttachmentName): api.dom.AEl {
-        let name = encodeURIComponent(attachmentName.toString());
-        let url = `content/media/${contentId.toString()}/${name}`;
-        let link = new api.dom.AEl().setUrl(api.util.UriHelper.getRestUri(url), '_blank');
+    private createLinkEl(contentId: ContentId, attachmentName: AttachmentName): AEl {
+        const name: string = encodeURIComponent(attachmentName.toString());
+        const url: string = `${UrlHelper.getCMSPath()}/content/media/${contentId.toString()}/${name}`;
+        const link: AEl = new AEl().setUrl(UriHelper.getRestUri(url), '_blank');
         link.setHtml(attachmentName.toString());
         return link;
     }

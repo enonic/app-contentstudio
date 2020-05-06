@@ -1,3 +1,4 @@
+import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentItemPreviewPanel} from './ContentItemPreviewPanel';
 import {ContentItemViewToolbar} from './ContentItemViewToolbar';
 import {EditAction} from './EditAction';
@@ -8,11 +9,16 @@ import {Router} from '../Router';
 import {ShowPreviewEvent} from '../browse/ShowPreviewEvent';
 import {ShowDetailsEvent} from '../browse/ShowDetailsEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ItemViewPanel} from 'lib-admin-ui/app/view/ItemViewPanel';
+import {ItemStatisticsPanel} from 'lib-admin-ui/app/view/ItemStatisticsPanel';
+import {DeckPanel} from 'lib-admin-ui/ui/panel/DeckPanel';
+import {ElementShownEvent} from 'lib-admin-ui/dom/ElementShownEvent';
+import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 
 export class ContentItemViewPanel
-    extends api.app.view.ItemViewPanel<ContentSummaryAndCompareStatus> {
+    extends ItemViewPanel<ContentSummaryAndCompareStatus> {
 
-    private statisticsPanel: api.app.view.ItemStatisticsPanel<ContentSummaryAndCompareStatus>;
+    private statisticsPanel: ItemStatisticsPanel<ContentSummaryAndCompareStatus>;
 
     private statisticsPanelIndex: number;
 
@@ -22,20 +28,20 @@ export class ContentItemViewPanel
 
     private previewPanelIndex: number;
 
-    private deckPanel: api.ui.panel.DeckPanel;
+    private deckPanel: DeckPanel;
 
-    private editAction: api.ui.Action;
+    private editAction: Action;
 
-    private deleteAction: api.ui.Action;
+    private deleteAction: Action;
 
-    private closeAction: api.ui.Action;
+    private closeAction: Action;
 
-    private actions: api.ui.Action[];
+    private actions: Action[];
 
     constructor() {
         super();
 
-        this.deckPanel = new api.ui.panel.DeckPanel();
+        this.deckPanel = new DeckPanel();
 
         this.editAction = new EditAction(this);
         this.deleteAction = new DeleteAction(this);
@@ -67,14 +73,14 @@ export class ContentItemViewPanel
             this.showPreview(false);
         });
 
-        this.onShown((event: api.dom.ElementShownEvent) => {
+        this.onShown((event: ElementShownEvent) => {
             if (this.getItem()) {
-                Router.setHash('view/' + this.getItem().getModel().getId());
+                Router.get().setHash('view/' + this.getItem().getModel().getId());
             }
         });
     }
 
-    setItem(item: api.app.view.ViewItem<ContentSummaryAndCompareStatus>) {
+    setItem(item: ViewItem<ContentSummaryAndCompareStatus>) {
         super.setItem(item);
         this.statisticsPanel.setItem(item);
         this.previewPanel.setItem(item);
@@ -90,11 +96,11 @@ export class ContentItemViewPanel
         }
     }
 
-    public getCloseAction(): api.ui.Action {
+    public getCloseAction(): Action {
         return this.closeAction;
     }
 
-    getActions(): api.ui.Action[] {
+    getActions(): Action[] {
         return this.actions;
     }
 

@@ -6,6 +6,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
     container: `//div[contains(@id,'SecurityWizardStepForm')]`,
+    accessControlList: "//ul[contains(@id,'AccessControlListView')]",
     permissionSelector: `//div[contains(@id,'PermissionSelector')]`,
     editPermissionsButton: `//button[contains(@class,'edit-permissions') and child::span[text()='Edit Permissions']]`,
     entryRowByDisplayName:
@@ -17,6 +18,12 @@ class AccessStepForm extends Page {
 
     get editPermissionsButton() {
         return XPATH.container + XPATH.editPermissionsButton;
+    }
+
+    //returns list of display name of ACL-entries in the access step form:
+    getAclEntriesDisplayName() {
+        let selector = XPATH.container + XPATH.accessControlList + lib.H6_DISPLAY_NAME;
+        return this.getTextInElements(selector);
     }
 
     clickOnEditPermissionsButton(displayName) {

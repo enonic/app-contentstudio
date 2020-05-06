@@ -1,12 +1,11 @@
-import BaseLoader = api.util.loader.BaseLoader;
-import ContentTypeSummaryListJson = api.schema.content.ContentTypeSummaryListJson;
-import ContentId = api.content.ContentId;
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
+import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {GetContentTypesByContentRequest} from '../../resource/GetContentTypesByContentRequest';
 import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesRequest';
 
 export class ContentTypeSummaryLoader
-    extends BaseLoader<ContentTypeSummaryListJson, ContentTypeSummary> {
+    extends BaseLoader<ContentTypeSummary> {
 
     constructor(contentId: ContentId) {
         super(contentId ? new GetContentTypesByContentRequest(contentId) : new GetAllContentTypesRequest());

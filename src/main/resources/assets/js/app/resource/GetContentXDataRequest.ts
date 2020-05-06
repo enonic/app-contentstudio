@@ -1,18 +1,19 @@
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {XDataResourceRequest} from './XDataResourceRequest';
 import {XDataListJson} from './json/XDataListJson';
 import {XData} from '../content/XData';
 import {XDataJson} from './json/XDataJson';
 
 export class GetContentXDataRequest
-    extends XDataResourceRequest<XDataListJson, XData[]> {
+    extends XDataResourceRequest<XData[]> {
 
     private contentId: ContentId;
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('GET');
         this.contentId = contentId;
+        this.addRequestPathElements('getContentXData');
     }
 
     getParams(): Object {
@@ -21,16 +22,9 @@ export class GetContentXDataRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'getContentXData');
-    }
-
-    sendAndParse(): wemQ.Promise<XData[]> {
-
-        return this.send().then((response: api.rest.JsonResponse<XDataListJson>) => {
-            return response.getResult().xdatas.map((xDataJson: XDataJson) => {
-                return this.fromJsonToXData(xDataJson);
-            });
+    protected parseResponse(response: JsonResponse<XDataListJson>): XData[] {
+        return response.getResult().xdatas.map((xDataJson: XDataJson) => {
+            return this.fromJsonToXData(xDataJson);
         });
     }
 }

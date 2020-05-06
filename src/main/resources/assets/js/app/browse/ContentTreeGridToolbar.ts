@@ -1,7 +1,8 @@
 import {ContentTreeGrid} from './ContentTreeGrid';
+import {TreeGridToolbar} from 'lib-admin-ui/ui/treegrid/TreeGridToolbar';
 
 export class ContentTreeGridToolbar
-    extends api.ui.treegrid.TreeGridToolbar {
+    extends TreeGridToolbar {
 
     constructor(treeGrid: ContentTreeGrid) {
         super(treeGrid);

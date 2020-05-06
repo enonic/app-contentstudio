@@ -1,3 +1,7 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {Action} from 'lib-admin-ui/ui/Action';
 import {PageModel} from '../../../page-editor/PageModel';
 import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
 import {CreatePageTemplateRequest} from '../CreatePageTemplateRequest';
@@ -5,9 +9,6 @@ import {EditContentEvent} from '../../event/EditContentEvent';
 import {Site} from '../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Permission} from '../../access/Permission';
-import i18n = api.util.i18n;
-import Action = api.ui.Action;
-import ContentSummary = api.content.ContentSummary;
 
 export class SaveAsTemplateAction
     extends Action {
@@ -35,7 +36,7 @@ export class SaveAsTemplateAction
                 .sendAndParse().then(createdTemplate => {
                 new EditContentEvent([ContentSummaryAndCompareStatus.fromContentSummary(createdTemplate)]).fire();
             }).catch((reason) => {
-                api.DefaultErrorHandler.handle(reason);
+                DefaultErrorHandler.handle(reason);
             }).done();
         });
     }

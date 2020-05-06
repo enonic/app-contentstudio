@@ -3,9 +3,13 @@ import {Content} from '../content/Content';
 export class RoutineContext {
 
     content: Content = null;
+
+    dataUpdated: boolean = false;
+
+    pageUpdated: boolean = false;
 }
 
-export class Flow<M extends Content> {
+export class Flow {
 
     private thisOfProducer: any;
 
@@ -17,11 +21,11 @@ export class Flow<M extends Content> {
         return this.thisOfProducer;
     }
 
-    public doExecute(context: RoutineContext): wemQ.Promise<M> {
+    public doExecute(context: RoutineContext): Q.Promise<RoutineContext> {
         return this.doExecuteNext(context);
     }
 
-    doExecuteNext(_context: RoutineContext): wemQ.Promise<M> {
+    doExecuteNext(_context: RoutineContext): Q.Promise<RoutineContext> {
         throw new Error('Must be implemented by inheritor');
     }
 }

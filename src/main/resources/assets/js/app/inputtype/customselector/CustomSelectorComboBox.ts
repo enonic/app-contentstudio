@@ -1,28 +1,22 @@
-import RichComboBox = api.ui.selector.combobox.RichComboBox;
-import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsView;
-import Option = api.ui.selector.Option;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import RichComboBoxBuilder = api.ui.selector.combobox.RichComboBoxBuilder;
-import {CustomSelectorLoader} from './CustomSelectorLoader';
+import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorItemViewer} from './CustomSelectorItemViewer';
+import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 
 export class CustomSelectorComboBox
     extends RichComboBox<CustomSelectorItem> {
 
-    constructor(input: api.form.Input, requestPath: string, value: string) {
-        let loader = new CustomSelectorLoader(requestPath);
-
-        let builder = new RichComboBoxBuilder<CustomSelectorItem>()
-            .setComboBoxName(input.getName())
-            .setMaximumOccurrences(input.getOccurrences().getMaximum())
-            .setOptionDisplayValueViewer(new CustomSelectorItemViewer())
-            .setSelectedOptionsView(new CustomSelectorSelectedOptionsView())
-            .setDelayedInputValueChangedHandling(300)
-            .setLoader(loader)
-            .setValue(value);
-
+    constructor(builder: CustomSelectorComboBoxBuilder) {
         super(builder);
+    }
+
+    static create(): CustomSelectorComboBoxBuilder {
+        return new CustomSelectorComboBoxBuilder();
     }
 }
 
@@ -35,11 +29,11 @@ export class CustomSelectorSelectedOptionsView
 }
 
 export class CustomSelectorSelectedOptionView
-    extends api.ui.selector.combobox.RichSelectedOptionView<CustomSelectorItem> {
+    extends RichSelectedOptionView<CustomSelectorItem> {
 
     constructor(option: Option<CustomSelectorItem>) {
         super(
-            new api.ui.selector.combobox.RichSelectedOptionViewBuilder<CustomSelectorItem>(option)
+            new RichSelectedOptionViewBuilder<CustomSelectorItem>(option)
                 .setDraggable(true)
         );
     }
@@ -51,4 +45,18 @@ export class CustomSelectorSelectedOptionView
         return viewer;
     }
 
+}
+
+export class CustomSelectorComboBoxBuilder
+    extends RichComboBoxBuilder<CustomSelectorItem> {
+
+    optionDisplayValueViewer: Viewer<CustomSelectorItem> = new CustomSelectorItemViewer();
+
+    delayedInputValueChangedHandling: number = 300;
+
+    selectedOptionsView: SelectedOptionsView<CustomSelectorItem> = new CustomSelectorSelectedOptionsView();
+
+    build(): CustomSelectorComboBox {
+        return new CustomSelectorComboBox(this);
+    }
 }

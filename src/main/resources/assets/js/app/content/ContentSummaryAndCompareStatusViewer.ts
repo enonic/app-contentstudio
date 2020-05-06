@@ -1,68 +1,103 @@
-import ContentPath = api.content.ContentPath;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
+import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 
 export class ContentSummaryAndCompareStatusViewer
-    extends api.ui.NamesAndIconViewer<ContentSummaryAndCompareStatus> {
+    extends NamesAndIconViewer<ContentSummaryAndCompareStatus> {
 
     constructor() {
         super('content-summary-and-compare-status-viewer');
     }
 
-    resolveDisplayName(object: ContentSummaryAndCompareStatus): string {
-        let contentSummary = object.getContentSummary();
-        let uploadItem = object.getUploadItem();
+    doLayout(object: ContentSummaryAndCompareStatus) {
+        super.doLayout(object);
 
-        if (contentSummary) {
-            return contentSummary.getDisplayName();
-        } else if (uploadItem) {
-            return uploadItem.getName();
+        this.toggleState(object);
+    }
+
+    resolveDisplayName(object: ContentSummaryAndCompareStatus): string {
+        if (object.hasContentSummary()) {
+            return object.getContentSummary().getDisplayName();
+        }
+
+        if (object.hasUploadItem()) {
+            return object.getUploadItem().getName();
         }
 
         return '';
     }
 
     resolveUnnamedDisplayName(object: ContentSummaryAndCompareStatus): string {
-        let contentSummary = object.getContentSummary();
+        const contentSummary: ContentSummary = object.getContentSummary();
         return (contentSummary && contentSummary.getType()) ? contentSummary.getType().getLocalName() : '';
     }
 
-    resolveSubName(object: ContentSummaryAndCompareStatus, relativePath: boolean = false): string {
-        let contentSummary = object.getContentSummary();
-        let uploadItem = object.getUploadItem();
+    resolveSubName(object: ContentSummaryAndCompareStatus): string {
+        if (object.hasContentSummary()) {
+            return this.resolveSubNameForContentSummary(object);
+        }
 
-        if (contentSummary) {
-            let contentName = contentSummary.getName();
-            let invalid = !contentSummary.isValid() || !contentSummary.getDisplayName() || contentName.isUnnamed();
-            let pendingDelete = contentSummary.getContentState().isPendingDelete();
-            this.toggleClass('invalid', invalid);
-            this.toggleClass('pending-delete', pendingDelete);
-
-            if (relativePath) {
-                return !contentName.isUnnamed() ? contentName.toString() :
-                       api.content.ContentUnnamed.prettifyUnnamed();
-            } else {
-                return !contentName.isUnnamed() ? contentSummary.getPath().toString() :
-                       ContentPath.fromParent(contentSummary.getPath().getParentPath(),
-                           api.content.ContentUnnamed.prettifyUnnamed()).toString();
-            }
-        } else if (uploadItem) {
-            return uploadItem.getName();
+        if (object.hasUploadItem()) {
+            return this.resolveSubNameForUploadItem(object);
         }
 
         return '';
     }
 
-    resolveSubTitle(object: ContentSummaryAndCompareStatus): string {
-        let contentSummary = object.getContentSummary();
-        return !!contentSummary ? contentSummary.getPath().toString() : '';
+    private resolveSubNameForContentSummary(object: ContentSummaryAndCompareStatus): string {
+        const contentSummary: ContentSummary = object.getContentSummary();
+        const contentName: ContentName = contentSummary.getName();
+
+        if (this.isRelativePath) {
+            return !contentName.isUnnamed() ? contentName.toString() :
+                   ContentUnnamed.prettifyUnnamed();
+        }
+
+        return !contentName.isUnnamed() ? contentSummary.getPath().toString() :
+               ContentPath.fromParent(contentSummary.getPath().getParentPath(),
+                   ContentUnnamed.prettifyUnnamed()).toString();
     }
 
-    resolveIconClass(): string {
+    private toggleState(object: ContentSummaryAndCompareStatus) {
+        if (!object || !object.hasContentSummary()) {
+            return;
+        }
+        const contentSummary: ContentSummary = object.getContentSummary();
+        const invalid: boolean = !contentSummary.isValid() || !contentSummary.getDisplayName() || contentSummary.getName().isUnnamed();
+        const isPendingDelete: boolean = contentSummary.getContentState().isPendingDelete();
+        this.toggleClass('invalid', invalid);
+        this.toggleClass('pending-delete', isPendingDelete);
+
+        if (!invalid && !object.isOnline() && !object.isPendingDelete()) {
+            const status: string = contentSummary.getWorkflow().getStateAsString();
+            this.getNamesAndIconView().setIconToolTip(i18n(`status.workflow.${status}`));
+            this.toggleClass('ready', !isPendingDelete && contentSummary.isReady());
+            this.toggleClass('in-progress', !isPendingDelete && contentSummary.isInProgress());
+        } else {
+            this.removeClass('ready');
+            this.removeClass('in-progress');
+        }
+    }
+
+    private resolveSubNameForUploadItem(object: ContentSummaryAndCompareStatus): string {
+        return object.getUploadItem().getName();
+    }
+
+    resolveSubTitle(object: ContentSummaryAndCompareStatus): string {
+        if (object.hasContentSummary()) {
+            return object.getContentSummary().getPath().toString();
+        }
+
         return '';
     }
 
     resolveIconUrl(object: ContentSummaryAndCompareStatus): string {
-        let contentSummary = object.getContentSummary();
-        return !!contentSummary ? new api.content.util.ContentIconUrlResolver().setContent(contentSummary).resolve() : '';
+        const contentSummary = object.getContentSummary();
+        return contentSummary ? new ContentIconUrlResolver().setContent(contentSummary).resolve() : '';
     }
 }

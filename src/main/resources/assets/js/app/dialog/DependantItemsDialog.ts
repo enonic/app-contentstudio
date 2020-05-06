@@ -1,3 +1,10 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {StatusSelectionItem} from './StatusSelectionItem';
 import {DependantItemViewer} from './DependantItemViewer';
 import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
@@ -5,16 +12,16 @@ import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryA
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import ContentId = api.content.ContentId;
-import BrowseItem = api.app.browse.BrowseItem;
-import ListBox = api.ui.selector.list.ListBox;
-import DialogButton = api.ui.dialog.DialogButton;
-import DivEl = api.dom.DivEl;
-import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
-import i18n = api.util.i18n;
+import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
+import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
+import {H6El} from 'lib-admin-ui/dom/H6El';
+import {PEl} from 'lib-admin-ui/dom/PEl';
+import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
+import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 
 export interface DependantItemsDialogConfig
-    extends ModalDialogConfig {
+    extends ModalDialogWithConfirmationConfig {
     dialogSubName?: string;
     dependantsName?: string;
     dependantsDescription?: string;
@@ -22,7 +29,7 @@ export interface DependantItemsDialogConfig
 }
 
 export abstract class DependantItemsDialog
-    extends api.ui.dialog.ModalDialog {
+    extends ModalDialogWithConfirmation {
 
     protected actionButton: DialogButton;
 
@@ -30,15 +37,15 @@ export abstract class DependantItemsDialog
 
     private ignoreItemsChanged: boolean;
 
-    private subTitle: api.dom.DivEl;
+    private subTitle: DivEl;
 
     private itemList: ListBox<ContentSummaryAndCompareStatus>;
 
-    private dependantsContainer: api.dom.DivEl;
+    private dependantsContainer: DivEl;
 
-    private dependantContainerHeader: api.dom.H6El;
+    private dependantContainerHeader: H6El;
 
-    private dependantContainerBody: api.dom.DivEl;
+    private dependantContainerBody: DivEl;
 
     private dependantList: ListBox<ContentSummaryAndCompareStatus>;
 
@@ -67,19 +74,19 @@ export abstract class DependantItemsDialog
         this.dependantIds = [];
         this.loading = false;
         this.loadingRequested = false;
-        this.subTitle = new api.dom.H6El('sub-title').setHtml(this.config.dialogSubName, false);
+        this.subTitle = new H6El('sub-title').setHtml(this.config.dialogSubName);
 
         this.itemList = this.createItemList();
         this.dependantsHeaderText = this.config.dependantsName || this.getDependantsHeader(this.config.showDependantList);
-        this.dependantContainerHeader = new api.dom.H6El('dependants-header').setHtml(this.dependantsHeaderText, false);
-        this.dependantContainerBody = new api.dom.DivEl('dependants-body');
+        this.dependantContainerHeader = new H6El('dependants-header').setHtml(this.dependantsHeaderText);
+        this.dependantContainerBody = new DivEl('dependants-body');
         this.dependantList = this.createDependantList();
 
         if (this.config.showDependantList !== undefined) {
             this.showDependantList = this.config.showDependantList;
         }
 
-        this.dependantsContainer = new api.dom.DivEl('dependants');
+        this.dependantsContainer = new DivEl('dependants');
     }
 
     protected initListeners() {
@@ -90,6 +97,7 @@ export abstract class DependantItemsDialog
             if (this.autoUpdateTitle) {
                 this.setTitle(this.config.title + (count > 1 ? 's' : ''));
             }
+            this.notifyResize();
         };
         this.itemList.onItemsRemoved(itemsChangedListener);
         this.itemList.onItemsAdded(itemsChangedListener);
@@ -135,7 +143,7 @@ export abstract class DependantItemsDialog
             this.appendChildToContentPanel(this.itemList);
 
             if (this.config.dependantsDescription) {
-                const desc = new api.dom.PEl('dependants-desc').setHtml(this.config.dependantsDescription, false);
+                const desc = new PEl('dependants-desc').setHtml(this.config.dependantsDescription);
                 this.dependantContainerBody.appendChild(desc);
             }
 
@@ -159,7 +167,7 @@ export abstract class DependantItemsDialog
 
     protected updateDependantsHeader(header?: string) {
         const count = this.countDependantItems();
-        this.dependantContainerHeader.setHtml((header || this.dependantsHeaderText) + ` (${count})`, false);
+        this.dependantContainerHeader.setHtml(`${header || this.dependantsHeaderText} (${count})`);
     }
 
     protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
@@ -178,7 +186,7 @@ export abstract class DependantItemsDialog
         return this.dependantList;
     }
 
-    protected getDependantsContainer(): api.dom.DivEl {
+    protected getDependantsContainer(): DivEl {
         return this.dependantsContainer;
     }
 
@@ -235,8 +243,13 @@ export abstract class DependantItemsDialog
         this.dependantList.clearItems();
     }
 
-    setSubTitle(text: string, escapeHtml?: boolean) {
-        this.subTitle.setHtml(text, escapeHtml);
+    setSubTitle(text: string) {
+        this.subTitle.setHtml(text);
+    }
+
+    setSubTitleChildren(children: Element[]) {
+        this.subTitle.removeChildren();
+        this.subTitle.appendChildren(...children);
     }
 
     setSubTitleEl(el: DivEl) {
@@ -267,14 +280,14 @@ export abstract class DependantItemsDialog
 
                 if (this.dependantIds) {
                     this.dependantIds = this.dependantIds.filter(dependantId =>
-                        !api.util.ArrayHelper.contains(itemsIds, dependantId)
+                        !ArrayHelper.contains(itemsIds, dependantId)
                     );
                 }
             });
     }
 
     protected loadDescendants(from: number,
-                              size: number): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
+                              size: number): Q.Promise<ContentSummaryAndCompareStatus[]> {
 
         let ids = this.getDependantIds().slice(from, from + size);
         return ContentSummaryAndCompareStatusFetcher.fetchByIds(ids);
@@ -333,6 +346,7 @@ export abstract class DependantItemsDialog
                     this.addDependantItems(newItems);
                     this.loading = false;
                     this.hideLoadMask();
+                    this.notifyResize();
                     if (this.loadingRequested) {
                         this.loadingRequested = false;
                         this.postLoad();
@@ -346,12 +360,14 @@ export abstract class DependantItemsDialog
 
     protected lockControls() {
         this.addClass('locked');
-        this.actionButton.setEnabled(false);
+        // action has it's own disabled state management so using action.setEnabled() everywhere
+        this.actionButton.getAction().setEnabled(false);
     }
 
     protected unlockControls() {
         this.removeClass('locked');
-        this.actionButton.setEnabled(true);
+        // action has it's own disabled state management so using action.setEnabled() everywhere
+        this.actionButton.getAction().setEnabled(true);
     }
 
     protected toggleControls(enable: boolean) {
@@ -382,7 +398,7 @@ export class DialogItemList
             .setId(item.getId())
             .setDisplayName(item.getDisplayName())
             .setPath(item.getPath().toString())
-            .setIconUrl(new api.content.util.ContentIconUrlResolver().setContent(item.getContentSummary()).resolve());
+            .setIconUrl(new ContentIconUrlResolver().setContent(item.getContentSummary()).resolve());
 
         let statusItem = this.createSelectionItem(itemViewer, browseItem);
 
@@ -390,7 +406,10 @@ export class DialogItemList
         statusItem.setRemoveHandlerFn(() => this.removeItem(item));
 
         itemViewer.onClicked((event) => {
-            const el = new api.dom.ElementHelper(<HTMLElement>event.target);
+            if (item.isPendingDelete()) {
+                return;
+            }
+            const el = new ElementHelper(<HTMLElement>event.target);
             if (!(el.hasClass('remove') || el.hasClass('include-children-toggler'))) {
                 this.notifyItemClicked(item);
             }
@@ -444,14 +463,14 @@ export class DialogDependantList
         super(className);
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): api.dom.Element {
+    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): Element {
 
         let dependantViewer = new DependantItemViewer();
 
         dependantViewer.setObject(item);
 
         dependantViewer.onClicked((event) => {
-            const el = new api.dom.ElementHelper(<HTMLElement>event.target);
+            const el = new ElementHelper(<HTMLElement>event.target);
             if (!(el.hasClass('remove'))) {
                 this.notifyItemClicked(item);
             }
@@ -461,7 +480,7 @@ export class DialogDependantList
             .setId(item.getId())
             .setDisplayName(item.getDisplayName())
             .setPath(item.getPath().toString())
-            .setIconUrl(new api.content.util.ContentIconUrlResolver().setContent(item.getContentSummary()).resolve());
+            .setIconUrl(new ContentIconUrlResolver().setContent(item.getContentSummary()).resolve());
 
         return new StatusSelectionItem(dependantViewer, browseItem);
     }

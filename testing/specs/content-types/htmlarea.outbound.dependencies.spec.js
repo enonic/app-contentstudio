@@ -4,14 +4,10 @@
  * https://github.com/enonic/xp/issues/6768
  * https://github.com/enonic/xp/issues/6795
  */
-
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
@@ -28,93 +24,70 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
     let IMAGE_DISPLAY_NAME = "Pop_03";
     let CONTENT_NAME = contentBuilder.generateRandomName('htmlarea');
 
-    it(`Preconditions: site should be added`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+    it(`Preconditions: new site should be added`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            await studioUtils.doAddSite(SITE);
         });
 
     it(`GIVEN new 'htmlArea' content is opened WHEN image has been inserted in 'htmlarea' THEN the content should be updated`,
-        () => {
+        async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             let insertImageDialog = new InsertImageDialog();
-            return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1').then(() => {
-                return contentWizard.typeDisplayName(CONTENT_NAME);
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            }).then(()=>{
-                return htmlAreaForm.pause(1000);
-            }).then(() => {
-                return htmlAreaForm.showToolbarAndClickOnInsertImageButton();
-            }).then(() => {
-                return insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
-            }).then(() => {
-                return insertImageDialog.clickOnInsertButton();
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            }).then(()=>{
-                return contentWizard.waitForNotificationMessage();
-            }).then(result => {
-                studioUtils.saveScreenshot('cke_image_is_inserted');
-                let expectedMessage = appConstant.itemSavedNotificationMessage(CONTENT_NAME);
-                assert.isTrue(result == expectedMessage, 'correct notification should appear');
-            });
+            //1. open new wizard with html-area
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await contentWizard.typeDisplayName(CONTENT_NAME);
+            await htmlAreaForm.pause(1000);
+            //2. Insert an image and save:
+            await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
+            await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
+            await insertImageDialog.clickOnInsertButton();
+            await contentWizard.waitAndClickOnSave();
+            let actualMessage = await contentWizard.waitForNotificationMessage();
+            studioUtils.saveScreenshot('cke_image_is_inserted');
+            let expectedMessage = appConstant.itemSavedNotificationMessage(CONTENT_NAME);
+            assert.equal(actualMessage, expectedMessage, 'expected notification should appear');
         });
 
     //verifies  https://github.com/enonic/xp/issues/6768
     it(`GIVEN existing 'htmlArea' content is selected WHEN Dependencies panel is opened THEN 'Outbound dependency' should be present`,
-        () => {
+        async () => {
             let contentWizard = new ContentWizard();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
             let wizardDetailsPanel = new WizardDetailsPanel();
-            return studioUtils.selectContentAndOpenWizard(CONTENT_NAME).then(() => {
-                return contentWizard.openDetailsPanel();
-            }).then(() => {
-                return wizardDetailsPanel.openDependencies();
-            }).then(() => {
-                studioUtils.saveScreenshot('htmlarea_with_image');
-                return assert.eventually.isTrue(wizardDependenciesWidget.waitForOutboundButtonVisible(),
-                    '`Show outbound` button should be present on the widget, because an image was inserted in the htmlarea');
-            }).then(() => {
-                return assert.eventually.isFalse(wizardDependenciesWidget.isInboundButtonVisible(),
-                    '`Show Inbound` button should not be present');
-            })
+            //1. Select the content and open dependencies widget:
+            await studioUtils.selectContentAndOpenWizard(CONTENT_NAME);
+            await contentWizard.openDetailsPanel();
+            await wizardDetailsPanel.openDependencies();
+            studioUtils.saveScreenshot('htmlarea_with_image');
+            //2. Verify that 'Show outbound' button gets visible in the widget, because image was inserted in htmlarea
+            await wizardDependenciesWidget.waitForOutboundButtonVisible();
+            let isVisible = await wizardDependenciesWidget.isInboundButtonVisible();
+            assert.isFalse(isVisible, '`Show Inbound` button should not be visible');
         });
 
     // verifies https://github.com/enonic/xp/issues/6795 (Outbound Dependency is not cleared after removing an image in html area)
     it(`GIVEN existing 'htmlArea' content is opened AND Dependencies panel is opened WHEN image in htmlArea has been removed THEN 'Outbound dependency' should be cleared as well`,
-        () => {
+        async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             let wizardDetailsPanel = new WizardDetailsPanel();
             let wizardDependenciesWidget = new WizardDependenciesWidget();
-            return studioUtils.selectContentAndOpenWizard(CONTENT_NAME).then(() => {
-                return contentWizard.openDetailsPanel();
-            }).then(() => {
-                return wizardDetailsPanel.openDependencies();
-            }).then(() => {
-                return htmlAreaForm.clearHtmlArea(0);
-            }).then(() => {
-                //save the changes!
-                return contentWizard.waitAndClickOnSave();
-            }).then(() => {
-                studioUtils.saveScreenshot('htmlarea_image_removed');
-                return assert.eventually.isTrue(wizardDependenciesWidget.waitForOutboundButtonNotVisible(),
-                    '`Show outbound` button is getting not visible on the widget, because an image is removed');
-            }).then(() => {
-                return assert.eventually.isFalse(wizardDependenciesWidget.isInboundButtonVisible(),
-                    '`Show Inbound` button should not be present');
-            })
+            //1. Open the content:
+            await studioUtils.selectContentAndOpenWizard(CONTENT_NAME);
+            await contentWizard.openDetailsPanel();
+            await wizardDetailsPanel.openDependencies();
+            //2. Clear the html area:
+            await htmlAreaForm.clearHtmlArea(0);
+            //3. Save the changes!
+            await contentWizard.waitAndClickOnSave();
+            studioUtils.saveScreenshot('htmlarea_image_removed');
+            // 'Show outbound' button gets not visible in the widget, because the image was removed:
+            await wizardDependenciesWidget.waitForOutboundButtonNotVisible();
+            let isVisible = await wizardDependenciesWidget.isInboundButtonVisible();
+            assert.isFalse(isVisible, '`Show Inbound` button should not be visible');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

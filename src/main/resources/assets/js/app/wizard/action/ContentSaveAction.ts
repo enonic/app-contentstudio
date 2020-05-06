@@ -1,5 +1,7 @@
-import i18n = api.util.i18n;
-import SaveAction = api.app.wizard.SaveAction;
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {SaveAction} from 'lib-admin-ui/app/wizard/SaveAction';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 
 export class ContentSaveAction
@@ -17,7 +19,7 @@ export class ContentSaveAction
         return ContentSaveAction.CLASS_NAME_SAVED === this.getIconClass();
     }
 
-    protected saveChanges(wizardPanel: ContentWizardPanel): wemQ.Promise<any> {
+    protected saveChanges(wizardPanel: ContentWizardPanel): Q.Promise<any> {
         this.setLabel(i18n('action.saving'));
 
         return wizardPanel.saveChanges().then(() => {
@@ -31,7 +33,7 @@ export class ContentSaveAction
 
             this.toggleIconClass(ContentSaveAction.CLASS_NAME_SAVED, false);
 
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         });
     }
 }

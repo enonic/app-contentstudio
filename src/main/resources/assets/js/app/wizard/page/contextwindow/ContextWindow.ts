@@ -1,3 +1,7 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {LiveEditPageProxy} from '../LiveEditPageProxy';
 import {LiveFormPanel} from '../LiveFormPanel';
 import {InspectionsPanel} from './inspect/InspectionsPanel';
@@ -8,10 +12,9 @@ import {InspectEvent} from '../../../event/InspectEvent';
 import {NamedPanel} from './inspect/NamedPanel';
 import {PageMode} from '../../../page/PageMode';
 import {PageInspectionPanel} from './inspect/page/PageInspectionPanel';
-import ResponsiveManager = api.ui.responsive.ResponsiveManager;
-import i18n = api.util.i18n;
-import TabBarItem = api.ui.tab.TabBarItem;
-import Panel = api.ui.panel.Panel;
+import {TabBarItem} from 'lib-admin-ui/ui/tab/TabBarItem';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {DockedPanel} from 'lib-admin-ui/ui/panel/DockedPanel';
 
 export interface ContextWindowConfig {
 
@@ -24,7 +27,8 @@ export interface ContextWindowConfig {
     insertablesPanel: InsertablesPanel;
 }
 
-export class ContextWindow extends api.ui.panel.DockedPanel {
+export class ContextWindow
+    extends DockedPanel {
 
     private insertablesPanel: InsertablesPanel;
 
@@ -33,8 +37,6 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
     private liveFormPanel: LiveFormPanel;
 
     private inspectTab: TabBarItem;
-
-    private fixed: boolean = false;
 
     constructor(config: ContextWindowConfig) {
         super();
@@ -59,10 +61,6 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
             this.inspectTab = tabItems[tabItems.length - 1];
             this.inspectTab.addClass('inspect-tab');
 
-            this.insertablesPanel.getComponentsView().onBeforeInsertAction(() => {
-                this.fixed = true;
-            });
-
             return rendered;
         });
     }
@@ -71,15 +69,11 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
         return this.insertablesPanel.getComponentsView();
     }
 
-    isFixed(): boolean {
-        return this.fixed;
-    }
-
     private isPanelSelectable(panel: Panel): boolean {
-        return !api.ObjectHelper.iFrameSafeInstanceOf(panel, PageInspectionPanel) || this.liveFormPanel.getPageMode() !== PageMode.FRAGMENT;
+        return !ObjectHelper.iFrameSafeInstanceOf(panel, PageInspectionPanel) || this.liveFormPanel.getPageMode() !== PageMode.FRAGMENT;
     }
 
-    public showInspectionPanel(panel: BaseInspectionPanel, showWidget: boolean, showPanel: boolean) {
+    public showInspectionPanel(panel: BaseInspectionPanel, showWidget: boolean, showPanel: boolean, keepPanelSelection: boolean = false) {
         const canSelectPanel = this.isPanelSelectable(panel);
         this.toggleClass('no-inspection', !canSelectPanel);
         if (canSelectPanel) {
@@ -89,7 +83,9 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
                 if (this.inspectTab) {
                     this.inspectTab.setLabel(panel.getName());
                 }
-                this.selectPanel(this.inspectionsPanel);
+                if (!keepPanelSelection) {
+                    this.selectPanel(this.inspectionsPanel);
+                }
             });
         }
     }
@@ -112,7 +108,7 @@ export class ContextWindow extends api.ui.panel.DockedPanel {
 
     private getShownPanelName(): string {
         const shownPanel = this.inspectionsPanel ? this.inspectionsPanel.getPanelShown() : null;
-        return api.ObjectHelper.iFrameSafeInstanceOf(shownPanel, NamedPanel) ?
+        return ObjectHelper.iFrameSafeInstanceOf(shownPanel, NamedPanel) ?
                (<NamedPanel>shownPanel).getName() :
                i18n('live.view.inspect');
     }

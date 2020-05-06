@@ -1,7 +1,9 @@
-import './../api.ts';
-import Element = api.dom.Element;
-import DivEl = api.dom.DivEl;
-import Body = api.dom.Body;
+import {Element} from 'lib-admin-ui/dom/Element';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 
 export class Shader {
 
@@ -65,7 +67,7 @@ export class Shader {
     }
 
     private createShaderDiv(cls: string): DivEl {
-        return new DivEl(Shader.CLS_NAME + ' ' + cls, api.StyleHelper.getCurrentPrefix());
+        return new DivEl(Shader.CLS_NAME + ' ' + cls, StyleHelper.getCurrentPrefix());
     }
 
     public static get(): Shader {
@@ -86,7 +88,7 @@ export class Shader {
             return;
         }
 
-        if (api.ClassHelper.getClassName(element) === 'PageView') {
+        if (ClassHelper.getClassName(element) === 'PageView') {
             this.resizeToPage();
         } else {
             this.resizeToElement(element);
@@ -203,8 +205,8 @@ export class Shader {
 
         this.target = element;
 
-        let win = api.dom.WindowDOM.get();
-        let bodyEl = api.dom.Body.get().getEl();
+        let win = WindowDOM.get();
+        let bodyEl = Body.get().getEl();
         // check if body is bigger than window to account for scroll
         let documentWidth = Math.max(win.getWidth(), bodyEl.getWidth());
         let documentHeight = Math.max(win.getHeight(), bodyEl.getHeight());

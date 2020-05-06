@@ -1,17 +1,18 @@
-import ContentPath = api.content.ContentPath;
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 
 export class GetContentByPathRequest
-    extends ContentResourceRequest<ContentJson, Content> {
+    extends ContentResourceRequest<Content> {
 
     private contentPath: ContentPath;
 
     constructor(path: ContentPath) {
         super();
-        super.setMethod('GET');
         this.contentPath = path;
+        this.addRequestPathElements('bypath');
     }
 
     getParams(): Object {
@@ -20,14 +21,7 @@ export class GetContentByPathRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'bypath');
-    }
-
-    sendAndParse(): wemQ.Promise<Content> {
-
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
-            return this.fromJsonToContent(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
+        return this.fromJsonToContent(response.getResult());
     }
 }

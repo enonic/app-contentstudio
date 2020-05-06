@@ -1,22 +1,26 @@
-import ContentUnnamed = api.content.ContentUnnamed;
-import ContentPath = api.content.ContentPath;
+import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentTreeSelectorItem} from './ContentTreeSelectorItem';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 
 export class ContentTreeSelectorItemViewer
-    extends api.ui.NamesAndIconViewer<ContentTreeSelectorItem> {
+    extends NamesAndIconViewer<ContentTreeSelectorItem> {
 
     constructor() {
         super('content-tree-selector-item-viewer');
     }
 
     resolveDisplayName(object: ContentTreeSelectorItem): string {
-        let contentName = object.getName();
-        let invalid = !object.isValid() || !object.getDisplayName() || contentName.isUnnamed();
-        let pendingDelete = object.getContentState().isPendingDelete();
+        const contentName = object.getName();
+        const displayName = object.getDisplayName();
+        const invalid = !object.isValid() || !displayName || contentName.isUnnamed();
+        const pendingDelete = object.getContentState().isPendingDelete();
         this.toggleClass('invalid', invalid);
         this.toggleClass('pending-delete', pendingDelete);
+        this.getEl().setTitle(displayName);
 
-        return object.getDisplayName();
+        return displayName;
     }
 
     resolveUnnamedDisplayName(object: ContentTreeSelectorItem): string {
@@ -39,7 +43,7 @@ export class ContentTreeSelectorItemViewer
 
     resolveIconUrl(object: ContentTreeSelectorItem): string {
         if (object) {
-            return new api.content.util.ContentIconUrlResolver().setContent(object.getContent()).resolve();
+            return new ContentIconUrlResolver().setContent(object.getContent()).resolve();
         }
     }
 }

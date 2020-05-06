@@ -1,10 +1,10 @@
-import CompareExpr = api.query.expr.CompareExpr;
-import FieldExpr = api.query.expr.FieldExpr;
-import ValueExpr = api.query.expr.ValueExpr;
-import LogicalExpr = api.query.expr.LogicalExpr;
-import LogicalOperator = api.query.expr.LogicalOperator;
-import Expression = api.query.expr.Expression;
-import ContentTypeName = api.schema.content.ContentTypeName;
+import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
+import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
+import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
+import {LogicalExpr} from 'lib-admin-ui/query/expr/LogicalExpr';
+import {LogicalOperator} from 'lib-admin-ui/query/expr/LogicalOperator';
+import {Expression} from 'lib-admin-ui/query/expr/Expression';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentTreeSelectorQueryRequest} from '../../app/resource/ContentTreeSelectorQueryRequest';
 import {ContentTreeSelectorItem} from '../../app/item/ContentTreeSelectorItem';
 

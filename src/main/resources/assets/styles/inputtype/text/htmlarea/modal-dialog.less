@@ -10,11 +10,13 @@
       label + .input-wrapper {
         margin-left: @label-width - 12px;
       }
-    }
 
-    &.display-validation-errors .input-view {
-      label + .input-wrapper {
-        margin-left: @label-width - 12px;
+      &.invalid {
+        label + .form-input,
+        label + .input-wrapper,
+        .validation-viewer {
+          margin-left: @label-width - 30px;
+        }
       }
     }
   }
@@ -74,10 +76,6 @@
     max-width: 600px;
   }
 
-  .modal-dialog-body {
-    overflow: visible;
-  }
-
   &.link-modal-dialog {
 
     .input-view {
@@ -93,6 +91,11 @@
         }
       }
 
+      @media screen and (max-width: 720px) {
+        .input-wrapper {
+          position: relative;
+        }
+      }
     }
   }
 

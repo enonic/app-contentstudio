@@ -1,4 +1,3 @@
-import './../../api.ts';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 
 export class TextPlaceholder

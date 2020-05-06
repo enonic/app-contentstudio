@@ -1,21 +1,24 @@
-import PartDescriptor = api.content.page.region.PartDescriptor;
-import PartDescriptorsJson = api.content.page.region.PartDescriptorsJson;
-import PartDescriptorJson = api.content.page.region.PartDescriptorJson;
+import * as Q from 'q';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
+import {PartDescriptorsJson} from 'lib-admin-ui/content/page/region/PartDescriptorsJson';
+import {PartDescriptorJson} from 'lib-admin-ui/content/page/region/PartDescriptorJson';
 import {PartDescriptorResourceRequest} from './PartDescriptorResourceRequest';
 import {ApplicationBasedCache} from '../application/ApplicationBasedCache';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 export class GetPartDescriptorsByApplicationRequest
-    extends PartDescriptorResourceRequest<PartDescriptorsJson, PartDescriptor[]> {
+    extends PartDescriptorResourceRequest<PartDescriptor[]> {
 
-    private applicationKey: api.application.ApplicationKey;
+    private applicationKey: ApplicationKey;
 
     private cache: ApplicationBasedCache<PartDescriptor>;
 
-    constructor(applicationKey: api.application.ApplicationKey) {
+    constructor(applicationKey: ApplicationKey) {
         super();
-        super.setMethod('GET');
         this.applicationKey = applicationKey;
         this.cache = ApplicationBasedCache.registerCache<PartDescriptor>(PartDescriptor, GetPartDescriptorsByApplicationRequest);
+        this.addRequestPathElements('list', 'by_application');
     }
 
     getParams(): Object {
@@ -24,26 +27,24 @@ export class GetPartDescriptorsByApplicationRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'list', 'by_application');
-    }
-
-    sendAndParse(): wemQ.Promise<PartDescriptor[]> {
-        const cached = this.cache.getByApplication(this.applicationKey);
+    sendAndParse(): Q.Promise<PartDescriptor[]> {
+        const cached = this.cache.getByApplications([this.applicationKey]);
         if (cached) {
-            return wemQ(cached);
-        } else {
-            return this.send().then((response: api.rest.JsonResponse<PartDescriptorsJson>) => {
-                return response.getResult().descriptors.map((descriptorJson: PartDescriptorJson) => {
-                    return this.fromJsonToPartDescriptor(descriptorJson);
-                });
-            });
+            return Q(cached);
         }
+
+        return super.sendAndParse();
     }
 
     fromJsonToPartDescriptor(json: PartDescriptorJson): PartDescriptor {
         let partDescriptor = PartDescriptor.fromJson(json);
         this.cache.put(partDescriptor);
         return partDescriptor;
+    }
+
+    protected parseResponse(response: JsonResponse<PartDescriptorsJson>): PartDescriptor[] {
+        return response.getResult().descriptors.map((descriptorJson: PartDescriptorJson) => {
+            return this.fromJsonToPartDescriptor(descriptorJson);
+        });
     }
 }

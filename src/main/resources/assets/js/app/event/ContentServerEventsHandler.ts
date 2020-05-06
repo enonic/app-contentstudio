@@ -1,14 +1,18 @@
-import ContentPath = api.content.ContentPath;
-import NodeServerChangeType = api.event.NodeServerChangeType;
-import ContentId = api.content.ContentId;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
-import ContentServerChange = api.content.event.ContentServerChange;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentDeletedEvent} from './ContentDeletedEvent';
 import {BatchContentServerEvent} from './BatchContentServerEvent';
 import {ContentUpdatedEvent} from './ContentUpdatedEvent';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatusChecker} from '../content/CompareStatus';
+import {ContentIds} from '../ContentIds';
+import {Branch} from '../versioning/Branch';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentServerChangeItem} from './ContentServerChangeItem';
+import {ContentServerChange} from './ContentServerChange';
 
 /**
  * Class that listens to server events and fires UI events
@@ -39,7 +43,7 @@ export class ContentServerEventsHandler {
 
     private contentSortListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
 
-    private contentPermissionsUpdatedListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
+    private contentPermissionsUpdatedListeners: { (contentIds: ContentIds): void }[] = [];
 
     private static debug: boolean = false;
 
@@ -66,14 +70,14 @@ export class ContentServerEventsHandler {
         }
     }
 
-    onContentPermissionsUpdated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
+    onContentPermissionsUpdated(listener: (contentIds: ContentIds) => void) {
         this.contentPermissionsUpdatedListeners.push(listener);
     }
 
     private hasDraftBranchChanges(changes: ContentServerChange[]): boolean {
         return changes.some((change: ContentServerChange) => {
             return change.getChangeItems().some(changeItem => {
-                return changeItem.getBranch() === 'draft';
+                return changeItem.getBranch() === Branch.DRAFT;
             });
         });
     }
@@ -83,7 +87,7 @@ export class ContentServerEventsHandler {
 
         changes.forEach((change: ContentServerChange) => {
             change.getChangeItems().forEach((changeItem: ContentServerChangeItem) => {
-                contentPaths.push(changeItem.getPath());
+                contentPaths.push(changeItem.getContentPath());
             });
         });
 
@@ -94,19 +98,23 @@ export class ContentServerEventsHandler {
         let contentPaths: ContentPath[] = [];
 
         changes.forEach((change: ContentServerChange) => {
-            contentPaths = contentPaths.concat(change.getNewPaths());
+            contentPaths = contentPaths.concat(change.getNewContentPaths());
         });
 
         return contentPaths;
     }
 
     private extractContentIds(changes: ContentServerChange[]): ContentId[] {
-        let contentIds: ContentId[] = [];
+        const contentIds: ContentId[] = [];
 
         changes.forEach((change: ContentServerChange) => {
-            change.getChangeItems().forEach((changeItem: ContentServerChangeItem) => {
-                contentIds.push(changeItem.getContentId());
-            });
+            change.getChangeItems()
+                .map((changeItem: ContentServerChangeItem) => changeItem.getContentId())
+                .forEach((contentId: ContentId) => {
+                    if (!contentIds.some((item: ContentId) => item.equals(contentId))) {
+                        contentIds.push(contentId);
+                    }
+                });
         });
 
         return contentIds;
@@ -142,9 +150,10 @@ export class ContentServerEventsHandler {
         if (ContentServerEventsHandler.debug) {
             console.debug('ContentServerEventsHandler: deleted', changeItems);
         }
-        let contentDeletedEvent = new ContentDeletedEvent();
+        const contentDeletedEvent: ContentDeletedEvent = new ContentDeletedEvent();
         changeItems.forEach((changeItem) => {
-            contentDeletedEvent.addItem(changeItem.getContentId(), changeItem.getPath(), changeItem.getBranch());
+            contentDeletedEvent.addItem(changeItem.getContentId(), changeItem.getContentPath(),
+                Branch[changeItem.getBranch().toUpperCase()]);
         });
         contentDeletedEvent.fire();
 
@@ -209,9 +218,9 @@ export class ContentServerEventsHandler {
         this.notifyContentSorted(data);
     }
 
-    unContentPermissionsUpdated(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
+    unContentPermissionsUpdated(listener: (contentIds: ContentIds) => void) {
         this.contentPermissionsUpdatedListeners =
-            this.contentPermissionsUpdatedListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
+            this.contentPermissionsUpdatedListeners.filter((currentListener: (contentIds: ContentIds) => void) => {
                 return currentListener !== listener;
             });
     }
@@ -393,20 +402,21 @@ export class ContentServerEventsHandler {
             console.debug('ContentServerEventsHandler: received server event', event);
         }
 
-        let changes = event.getEvents().map((change) => change.getNodeChange());
+        const changes: ContentServerChange[] = event.getEvents().map((change) => change.getNodeChange());
 
         if (event.getType() === NodeServerChangeType.DELETE && this.hasDraftBranchChanges(changes)) {
             // content has already been deleted so no need to fetch summaries
-            let changeItems: ContentServerChangeItem[] = changes.reduce((total, change: ContentServerChange) => {
+            const changeItems: ContentServerChangeItem[] = changes.reduce((total, change: ContentServerChange) => {
                 return total.concat(change.getChangeItems());
             }, []);
 
-            let deletedItems = changeItems.filter(d => d.getBranch() === 'draft');
-            let unpublishedItems = changeItems.filter(d => deletedItems.every(deleted => !api.ObjectHelper.equals(deleted.contentId,
-                d.contentId)));
+            const deletedItems: ContentServerChangeItem[] = changeItems.filter(d => d.getBranch() === Branch.DRAFT);
+            const unpublishedItems: ContentServerChangeItem[] = changeItems.filter(
+                d => deletedItems.every(deleted => !ObjectHelper.equals(deleted.getContentId(),
+                    d.getContentId())));
 
             this.handleContentDeleted(deletedItems);
-            ContentSummaryAndCompareStatusFetcher.fetchByPaths(unpublishedItems.map(item => item.getPath()))
+            ContentSummaryAndCompareStatusFetcher.fetchByPaths(unpublishedItems.map(item => item.getContentPath()))
                 .then((summaries) => {
                     this.handleContentUnpublished(summaries);
                 });
@@ -416,6 +426,8 @@ export class ContentServerEventsHandler {
                 .then((summaries) => {
                     this.handleContentMoved(summaries, this.extractContentPaths(changes));
                 });
+        } else if (event.getType() === NodeServerChangeType.UPDATE_PERMISSIONS) {
+            this.handleContentPermissionsUpdated(this.extractContentIds(changes));
         } else {
             ContentSummaryAndCompareStatusFetcher.fetchByIds(this.extractContentIds(changes))
                 .then((summaries) => {
@@ -450,28 +462,25 @@ export class ContentServerEventsHandler {
                     case NodeServerChangeType.SORT:
                         this.handleContentSorted(summaries);
                         break;
-                    case NodeServerChangeType.UPDATE_PERMISSIONS:
-                        this.handleContentPermissionsUpdated(summaries);
-                        break;
                     case NodeServerChangeType.UNKNOWN:
                         break;
                     default:
                         //
                     }
-                });
+                }).catch(DefaultErrorHandler.handle);
         }
     }
 
-    private handleContentPermissionsUpdated(data: ContentSummaryAndCompareStatus[]) {
+    private handleContentPermissionsUpdated(contentIds: ContentId[]) {
         if (ContentServerEventsHandler.debug) {
-            console.debug('ContentServerEventsHandler: permissions updated', data);
+            console.debug('ContentServerEventsHandler: permissions updated', contentIds);
         }
-        this.notifyContentPermissionsUpdated(data);
+        this.notifyContentPermissionsUpdated(ContentIds.from(contentIds));
     }
 
-    private notifyContentPermissionsUpdated(data: ContentSummaryAndCompareStatus[]) {
-        this.contentPermissionsUpdatedListeners.forEach((listener: (data: ContentSummaryAndCompareStatus[]) => void) => {
-            listener(data);
+    private notifyContentPermissionsUpdated(contentIds: ContentIds) {
+        this.contentPermissionsUpdatedListeners.forEach((listener: (contentIds: ContentIds) => void) => {
+            listener(contentIds);
         });
     }
 

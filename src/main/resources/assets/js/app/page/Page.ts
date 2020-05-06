@@ -1,8 +1,10 @@
-import PropertyTree = api.data.PropertyTree;
-import DescriptorKey = api.content.page.DescriptorKey;
-import ContentId = api.content.ContentId;
-import ObjectHelper = api.ObjectHelper;
-import PropertyTreeHelper = api.util.PropertyTreeHelper;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {PropertyTreeHelper} from 'lib-admin-ui/util/PropertyTreeHelper';
 import {PageTemplateKey} from './PageTemplateKey';
 import {Regions} from './region/Regions';
 import {Component} from './region/Component';
@@ -16,9 +18,14 @@ import {LayoutComponentType} from './region/LayoutComponentType';
 import {ComponentTypeWrapperJson} from './region/ComponentTypeWrapperJson';
 import {ComponentFactory} from './region/ComponentFactory';
 import {PageJson} from './PageJson';
+import {ComponentPath} from './region/ComponentPath';
+import {ComponentType} from './region/ComponentType';
+import {TextComponentType} from './region/TextComponentType';
+import {PartComponentType} from './region/PartComponentType';
+import {ComponentJson} from './region/ComponentJson';
 
 export class Page
-    implements api.Equitable, api.Cloneable {
+    implements Equitable, Cloneable {
 
     private controller: DescriptorKey;
 
@@ -93,28 +100,61 @@ export class Page
         return this.fragment != null;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, Page)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, Page)) {
             return false;
         }
 
         let other = <Page>o;
 
-        if (!api.ObjectHelper.equals(this.controller, other.controller)) {
+        if (!ObjectHelper.equals(this.controller, other.controller)) {
             return false;
         }
-        if (!api.ObjectHelper.equals(this.template, other.template)) {
+        if (!ObjectHelper.equals(this.template, other.template)) {
             return false;
         }
         if (!this.regionsEquals(other.regions)) {
             return false;
         }
-        if (!api.ObjectHelper.equals(this.fragment, other.fragment)) {
+        if (!ObjectHelper.equals(this.fragment, other.fragment)) {
             return false;
         }
 
         return PropertyTreeHelper.propertyTreesEqual(this.config, other.config);
+    }
+
+    toJson(): PageJson {
+        let componentJson: ComponentJson;
+        if (this.fragment) {
+            const json = this.fragment.toJson();
+            switch (this.fragment.getType()) {
+                case ImageComponentType.get():
+                    componentJson = json.ImageComponent;
+                    break;
+                case TextComponentType.get():
+                    componentJson = json.TextComponent;
+                    break;
+                case PartComponentType.get():
+                    componentJson = json.PartComponent;
+                    break;
+                case LayoutComponentType.get():
+                    componentJson = json.LayoutComponent;
+                    break;
+                case FragmentComponentType.get():
+                    componentJson = json.FragmentComponent;
+                    break;
+            }
+        }
+
+        return {
+            controller: this.controller ? this.controller.toString() : undefined,
+            template: this.template ? this.template.toString() : undefined,
+            regions: this.regions ? this.regions.toJson() : undefined,
+            fragment: componentJson,
+            config: this.config ? this.config.toJson() : undefined,
+            customized: this.customized
+        };
     }
 
     private regionsEquals(otherRegions: Regions): boolean {
@@ -126,7 +166,7 @@ export class Page
             return true;
         }
 
-        return api.ObjectHelper.equals(this.regions, otherRegions);
+        return ObjectHelper.equals(this.regions, otherRegions);
     }
 
     clone(): Page {
@@ -162,6 +202,37 @@ export class Page
                 return false;
             });
         });
+    }
+
+    findComponentByPath(componentPath: ComponentPath, regions?: Region[]): Component {
+        if (componentPath == null) {
+            return null;
+        }
+
+        const regionsList = regions != null ? regions : this.getRegions().getRegions();
+
+        for (let i = 0; i < regionsList.length; i++) {
+            const regionPath = `${regionsList[i].getPath().toString()}/`;
+            if (componentPath.toString().indexOf(regionPath) !== 0) {
+                continue;
+            }
+
+            const components = regionsList[i].getComponents();
+            for (let j = 0; j < components.length; j++) {
+                const component = components[j];
+                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), ComponentType)) {
+                    if ((<Component>component).getPath().equals(componentPath)) {
+                        return component;
+                    }
+                }
+                if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), LayoutComponentType)) {
+                    const layout = <LayoutComponent>component;
+                    return this.findComponentByPath(componentPath, layout.getRegions().getRegions());
+                }
+            }
+        }
+
+        return null;
     }
 }
 

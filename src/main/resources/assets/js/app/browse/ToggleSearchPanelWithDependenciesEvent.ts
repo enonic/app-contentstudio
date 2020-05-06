@@ -1,7 +1,9 @@
-import '../../api.ts';
-import ContentSummary = api.content.ContentSummary;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 
-export class ToggleSearchPanelWithDependenciesEvent extends api.event.Event {
+export class ToggleSearchPanelWithDependenciesEvent
+    extends Event {
 
     private item: ContentSummary;
 
@@ -29,10 +31,10 @@ export class ToggleSearchPanelWithDependenciesEvent extends api.event.Event {
     }
 
     static on(handler: (event: ToggleSearchPanelWithDependenciesEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: ToggleSearchPanelWithDependenciesEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

@@ -1,11 +1,12 @@
-import {GetContentVersionsResultsJson} from './json/GetContentVersionsResultsJson';
-import {ContentVersionJson} from './json/ContentVersionJson';
-import {ContentVersion} from '../ContentVersion';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {GetContentVersionsForViewResultsJson} from './json/GetContentVersionsForViewResultsJson';
+import {ContentVersions} from '../ContentVersions';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import ContentId = api.content.ContentId;
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetContentVersionsRequest
-    extends ContentResourceRequest<GetContentVersionsResultsJson, ContentVersion[]> {
+    extends ContentResourceRequest<ContentVersions> {
 
     private contentId: ContentId;
     private from: number;
@@ -13,8 +14,9 @@ export class GetContentVersionsRequest
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contentId = contentId;
+        this.addRequestPathElements('getVersionsForView');
     }
 
     setFrom(from: number): GetContentVersionsRequest {
@@ -35,25 +37,7 @@ export class GetContentVersionsRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'getVersions');
+    protected parseResponse(response: JsonResponse<GetContentVersionsForViewResultsJson>): ContentVersions {
+        return ContentVersions.fromJson(response.getResult());
     }
-
-    sendAndParse(): wemQ.Promise<ContentVersion[]> {
-
-        return this.send().then((response: api.rest.JsonResponse<GetContentVersionsResultsJson>) => {
-            return this.fromJsonToContentVersions(response.getResult().contentVersions);
-        });
-    }
-
-    private fromJsonToContentVersions(json: ContentVersionJson[]): ContentVersion[] {
-
-        let contentVersions: ContentVersion[] = [];
-        json.forEach((contentVersionJson: ContentVersionJson) => {
-            contentVersions.push(ContentVersion.fromJson(contentVersionJson));
-        });
-
-        return contentVersions;
-    }
-
 }

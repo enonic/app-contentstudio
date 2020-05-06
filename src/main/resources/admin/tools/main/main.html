@@ -30,13 +30,13 @@
     <link rel="mask-icon" href="{{assetsUri}}/icons/icon-black.svg" color="#5bbad5">
 
     <!-- Styles -->
-    <link rel="stylesheet" type="text/css" href="{{assetsUri}}/admin/common/styles/_all.css">
-    <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/_all.css">
+    <link rel="stylesheet" type="text/css" href="{{assetsUri}}/admin/common/styles/lib.css">
+    <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/main.css">
     <script type="text/javascript">
         var CKEDITOR_BASEPATH = '{{assetsUri}}/lib/ckeditor/';
     </script>
-    <script type="text/javascript" src="{{assetsUri}}/admin/common/lib/_all.js"></script>
-    <script type="text/javascript" src="{{assetsUri}}/lib/_all.js"></script>
+    <script type="text/javascript" src="{{assetsUri}}/admin/common/js/lib.js"></script>
+    <script type="text/javascript" src="{{assetsUri}}/lib/vendors.js"></script>
 
 </head>
 <body>
@@ -45,17 +45,24 @@
 <script type="text/javascript">
     var CONFIG = {
         appId: '{{appId}}',
-        xpVersion: '{{xpVersion}}',
+        appVersion: '{{appVersion}}',
         branch: '{{branch}}',
-        repository: '{{repository}}',
         appIconUrl: '{{assetsUri}}/icons/icon-white.svg',
         assetsUri: '{{assetsUri}}',
         adminUrl: '{{adminUrl}}',
         adminAssetsUri: '{{adminAssetsUri}}',
         launcherUrl: '{{launcherUrl}}',
-        stylesUrl: '{{stylesUrl}}',
-        i18nUrl: '{{i18nUrl}}',
-        allowScriptsInEditor: '{{allowScriptsInEditor}}'
+        services: {
+            stylesUrl: '{{services.stylesUrl}}',
+            i18nUrl: '{{services.i18nUrl}}',
+            contentUrl: '{{services.contentServiceUrl}}',
+        },
+        allowScriptsInEditor: '{{allowScriptsInEditor}}',
+        mainUrl: '{{mainUrl}}',
+        theme: 'light',
+        launcher: {
+          theme: 'light'
+        }
     };
 
     if (CKEDITOR) {
@@ -64,8 +71,9 @@
 </script>
 
 <!-- App javascript -->
-<script type="text/javascript" src="{{assetsUri}}/admin/common/js/_all.js"></script>
-<script type="text/javascript" src="{{assetsUri}}/js/bundle.js"></script>
+<script type="text/javascript" src="{{assetsUri}}/js/vendors.main~editor.js"></script>
+<script type="text/javascript" src="{{assetsUri}}/js/common.main~editor.js"></script>
+<script type="text/javascript" src="{{assetsUri}}/js/main.js"></script>
 
 <!-- Append the launcher -->
 <script type="text/javascript" src="{{launcherPath}}" async></script>

@@ -1,37 +1,45 @@
-import '../../../../../api.ts';
 import {ContentVersion} from '../../../../ContentVersion';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {DateHelper} from 'lib-admin-ui/util/DateHelper';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ContentVersionViewer
-    extends api.ui.Viewer<ContentVersion> {
+    extends Viewer<ContentVersion> {
 
-    private namesAndIconView: api.app.NamesAndIconView;
+    protected namesAndIconView: NamesAndIconView;
 
     constructor() {
         super();
-        this.namesAndIconView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
+        this.namesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
         this.appendChild(this.namesAndIconView);
     }
 
-    private getModifierSpan(contentVersion: ContentVersion): api.dom.SpanEl {
-        let span = new api.dom.SpanEl('version-modifier');
-
-        span.setHtml(api.util.DateHelper.getModifiedString(contentVersion.modified));
-
-        return span;
+    getPreferredHeight(): number {
+        return 50;
     }
 
-    private getSubNameElements(contentVersion: ContentVersion): api.dom.Element[] {
-        return [this.getModifierSpan(contentVersion)];
-    }
+    setObject(version: ContentVersion) {
+        const modifiedDate = version.hasPublishInfo() ?
+                                version.getPublishInfo().getTimestamp() : version.getModified();
+        const modifierName = version.hasPublishInfo() ?
+                                version.getPublishInfo().getPublisherDisplayName() : version.getModifierDisplayName();
+        const isAlias = version.isAlias();
+        const dateTime = `${DateHelper.formatDate(modifiedDate)} ${DateHelper.getFormattedTimeFromDate(modifiedDate, false)}`;
+        const subName = i18n('dialog.compareVersions.versionSubName', isAlias ? dateTime : '', modifierName);
 
-    setObject(contentVersion: ContentVersion, row?: number) {
+        this.toggleClass('divider', version.isActive() && !version.isAlias());
 
-        //TODO: use content version image and number instead of row
         this.namesAndIconView
-            .setMainName(contentVersion.modifierDisplayName)
-            .setSubNameElements(this.getSubNameElements(contentVersion))
-            .setIconClass('icon-user');
+            .setMainName(isAlias ? version.getAliasDisplayName() : dateTime)
+            .setSubName(subName)
+            .setIconClass(version.hasPublishInfo()
+                ? 'icon-version-published'
+                : version.isInReadyState()
+                    ? 'icon-state-ready'
+                    : 'icon-version-modified');
 
-        return super.setObject(contentVersion);
+        return super.setObject(version);
     }
 }

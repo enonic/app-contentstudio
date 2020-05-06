@@ -1,4 +1,5 @@
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {GetActiveContentVersionsResultsJson} from './json/GetActiveContentVersionsResultsJson';
 import {ActiveContentVersionJson} from './json/ActiveContentVersionJson';
 import {ContentVersionJson} from './json/ContentVersionJson';
@@ -6,14 +7,14 @@ import {ContentVersion} from '../ContentVersion';
 import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class GetActiveContentVersionsRequest
-    extends ContentResourceRequest<GetActiveContentVersionsResultsJson, ContentVersion[]> {
+    extends ContentResourceRequest<ContentVersion[]> {
 
     private id: ContentId;
 
     constructor(id: ContentId) {
         super();
-        super.setMethod('GET');
         this.id = id;
+        this.addRequestPathElements('getActiveVersions');
     }
 
     getParams(): Object {
@@ -22,15 +23,8 @@ export class GetActiveContentVersionsRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'getActiveVersions');
-    }
-
-    sendAndParse(): wemQ.Promise<ContentVersion[]> {
-
-        return this.send().then((response: api.rest.JsonResponse<GetActiveContentVersionsResultsJson>) => {
-            return this.fromJsonToContentVersions(response.getResult().activeContentVersions);
-        });
+    protected parseResponse(response: JsonResponse<GetActiveContentVersionsResultsJson>): ContentVersion[] {
+        return this.fromJsonToContentVersions(response.getResult().activeContentVersions);
     }
 
     private fromJsonToContentVersions(json: ActiveContentVersionJson[]): ContentVersion[] {
@@ -46,10 +40,10 @@ export class GetActiveContentVersionsRequest
             contentVersion = contentVersionsMap[contentVersionJson.id];
             if (!contentVersion) {
                 contentVersion = ContentVersion.fromJson(contentVersionJson, [activeContentVersion.branch]);
-                contentVersionsMap[contentVersion.id] = contentVersion;
+                contentVersionsMap[contentVersion.getId()] = contentVersion;
             } else {
                 // just add new workspace if already exists
-                contentVersion.workspaces.push(activeContentVersion.branch);
+                contentVersion.getWorkspaces().push(activeContentVersion.branch);
             }
         });
 

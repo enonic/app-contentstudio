@@ -1,4 +1,5 @@
-import Event = api.event.Event;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {HtmlArea} from './HtmlArea';
 
 export class HtmlAreaResizeEvent
@@ -15,10 +16,10 @@ export class HtmlAreaResizeEvent
     }
 
     static on(handler: (event: HtmlAreaResizeEvent) => void) {
-        Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: HtmlAreaResizeEvent) => void) {
-        Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }

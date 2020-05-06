@@ -7,7 +7,6 @@ function handleGet() {
     var view = resolve('./main.html');
 
     var context = contextLib.get();
-    var repository = context.repository;
     var branch = context.branch;
     var allowScriptsInEditor = app.config['htmlinput.allowScripts'] === 'true' || false;
 
@@ -19,15 +18,18 @@ function handleGet() {
         }),
         appName: 'Content Studio',
         appId: app.name,
-        xpVersion: app.version,
+        appVersion: app.version,
         branch: branch,
-        repository: repository,
         locale: admin.getLocale(),
         launcherPath: admin.getLauncherPath(),
         launcherUrl: admin.getLauncherUrl(),
-        stylesUrl: portal.serviceUrl({service: 'styles'}),
-        i18nUrl: portal.serviceUrl({service: 'i18n'}),
-        allowScriptsInEditor: allowScriptsInEditor
+        services: {
+            stylesUrl: portal.serviceUrl({service: 'styles'}),
+            i18nUrl: portal.serviceUrl({service: 'i18n'}),
+            contentServiceUrl: portal.serviceUrl({service: 'content'})
+        },
+        allowScriptsInEditor: allowScriptsInEditor,
+        mainUrl: portal.pageUrl({})
     };
 
     return {

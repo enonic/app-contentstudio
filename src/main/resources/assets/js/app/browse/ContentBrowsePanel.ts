@@ -1,6 +1,11 @@
+import * as Q from 'q';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
-import {ContentTreeGrid} from './ContentTreeGrid';
+import {ContentTreeGrid, State} from './ContentTreeGrid';
 import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
 import {ContentBrowseItemPanel} from './ContentBrowseItemPanel';
 import {ContentItemStatisticsPanel} from '../view/ContentItemStatisticsPanel';
@@ -19,34 +24,35 @@ import {ContentHelper} from '../util/ContentHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {Branch} from '../versioning/Branch';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {RepositoryId} from '../repository/RepositoryId';
 import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
 import {PreviewContentHandler} from './action/handler/PreviewContentHandler';
-import TreeNode = api.ui.treegrid.TreeNode;
-import BrowseItem = api.app.browse.BrowseItem;
-import UploadItem = api.ui.uploader.UploadItem;
-import ContentSummary = api.content.ContentSummary;
-import ResponsiveManager = api.ui.responsive.ResponsiveManager;
-import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
-import ResponsiveItem = api.ui.responsive.ResponsiveItem;
-import ContentPath = api.content.ContentPath;
-import DataChangedEvent = api.ui.treegrid.DataChangedEvent;
-import TreeGridItemClickedEvent = api.ui.treegrid.TreeGridItemClickedEvent;
-import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
-import RepositoryEvent = api.content.event.RepositoryEvent;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
-import SplitPanel = api.ui.panel.SplitPanel;
-import DataChangedType = api.ui.treegrid.DataChangedType;
-import Action = api.ui.Action;
-import AppHelper = api.util.AppHelper;
-import ViewItem = api.app.view.ViewItem;
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
+import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
+import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {DataChangedEvent, DataChangedType} from 'lib-admin-ui/ui/treegrid/DataChangedEvent';
+import {TreeGridItemClickedEvent} from 'lib-admin-ui/ui/treegrid/TreeGridItemClickedEvent';
+import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
+import {RepositoryEvent} from 'lib-admin-ui/content/event/RepositoryEvent';
+import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
+import {BrowsePanel} from 'lib-admin-ui/app/browse/BrowsePanel';
+import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
+import {ContentIds} from '../ContentIds';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
+import {UrlAction} from '../UrlAction';
+import {ProjectContext} from '../project/ProjectContext';
+import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 
 export class ContentBrowsePanel
-    extends api.app.browse.BrowsePanel<ContentSummaryAndCompareStatus> {
+    extends BrowsePanel<ContentSummaryAndCompareStatus> {
 
     protected treeGrid: ContentTreeGrid;
     protected browseToolbar: ContentBrowseToolbar;
@@ -55,26 +61,52 @@ export class ContentBrowsePanel
     private debouncedPreviewRefresh: () => void;
 
     constructor() {
-
         super();
-
-        this.onShown(() => {
-            Router.setHash('browse');
-        });
-
-        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
-            this.getBrowseActions().getToggleSearchPanelAction().setVisible(item.isInRangeOrSmaller(ResponsiveRanges._540_720));
-        });
-
-        // Required for "enable/disable" actions correctly
-        this.getBrowseActions().updateActionsEnabledState([]);
-
-        this.handleGlobalEvents();
-
-        this.debouncedPreviewRefresh = AppHelper.debounce(this.forcePreviewRerender.bind(this), 500);
     }
 
-    protected checkIfItemIsRenderable(browseItem: ContentBrowseItem): wemQ.Promise<any> {
+    protected initElements() {
+        super.initElements();
+
+        this.debouncedPreviewRefresh = AppHelper.debounce(this.forcePreviewRerender.bind(this), 500);
+
+        if (!ProjectContext.get().isInitialized()) {
+            this.handleProjectNotSet();
+        } else {
+            this.getBrowseActions().updateActionsEnabledState([]);
+        }
+    }
+
+    private handleProjectNotSet() {
+        this.getBrowseActions().setState(State.DISABLED);
+        this.toggleFilterPanelAction.setEnabled(false);
+        this.contextSplitPanel.disableToggleButton();
+        this.treeGrid.setState(State.DISABLED);
+
+        const projectSetHandler = () => {
+            this.getBrowseActions().setState(State.ENABLED);
+            this.toggleFilterPanelAction.setEnabled(true);
+            this.contextSplitPanel.enableToggleButton();
+            this.treeGrid.setState(State.ENABLED);
+            Router.get().setHash(UrlAction.BROWSE);
+            ProjectChangedEvent.un(projectSetHandler);
+        };
+
+        ProjectChangedEvent.on(projectSetHandler);
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        this.onShown(() => {
+            if (ProjectContext.get().isInitialized()) {
+                Router.get().setHash(UrlAction.BROWSE);
+            }
+        });
+
+        this.handleGlobalEvents();
+    }
+
+    protected checkIfItemIsRenderable(browseItem: ContentBrowseItem): Q.Promise<any> {
         const previewHandler: PreviewContentHandler = this.getBrowseActions().getPreviewHandler();
         return previewHandler.checkIfItemIsRenderable(browseItem);
     }
@@ -83,7 +115,7 @@ export class ContentBrowsePanel
         return <ContentTreeGridActions>super.getBrowseActions();
     }
 
-    getNonToolbarActions(): api.ui.Action[] {
+    getNonToolbarActions(): Action[] {
         return this.getBrowseActions().getPublishActions();
     }
 
@@ -167,13 +199,14 @@ export class ContentBrowsePanel
         super.disableSelectionMode();
     }
 
-    doRender(): wemQ.Promise<boolean> {
+    doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.appendChild(this.getFilterAndGridSplitPanel());
 
             this.subscribeMobilePanelOnEvents();
             this.subscribeContextPanelsOnEvents();
             this.createContentPublishMenuButton();
+            this.markContentAsReadyOnPublishActions();
 
             return rendered;
         }).catch((error) => {
@@ -182,30 +215,40 @@ export class ContentBrowsePanel
         });
     }
 
-    private updateContextPanelOnItemChange(selection?: TreeNode<ContentSummaryAndCompareStatus>[]) {
-        if (!this.contextSplitPanel.isMobileMode()) {
-            // no need to update on selection change in mobile mode as it opens in a separate screen
-            const item: BrowseItem<ContentSummaryAndCompareStatus> = this.getFirstSelectedOrHighlightedBrowseItem(selection);
-            this.doUpdateContextPanel(item ? item.getModel() : null);
+    private updateContextPanelOnItemChange() {
+        if (this.contextSplitPanel.isMobileMode()) {
+            return; // no need to update on selection change in mobile mode as it opens in a separate screen
         }
+
+        if (this.treeGrid.isAnySelected()) {
+            const lastSelectedNode: TreeNode<ContentSummaryAndCompareStatus> = this.treeGrid.getSelectedNodes().pop();
+            this.doUpdateContextPanel(this.treeGrid.getSelectedNodes().pop().getData());
+
+            return;
+        }
+
+        if (this.treeGrid.hasHighlightedNode()) {
+            this.doUpdateContextPanel(this.treeGrid.getHighlightedNode().getData());
+
+            return;
+        }
+
+        this.doUpdateContextPanel(null);
     }
 
     private subscribeContextPanelsOnEvents() {
-
-        this.getTreeGrid().onSelectionChanged((currentSelection: TreeNode<ContentSummaryAndCompareStatus>[],
-                                               fullSelection: TreeNode<ContentSummaryAndCompareStatus>[]) => {
-            this.updateContextPanelOnItemChange(fullSelection);
+        this.treeGrid.onSelectionChanged(() => {
+            this.updateContextPanelOnItemChange();
         });
 
         const onHighlightingChanged = AppHelper.debounce(() => {
             this.updateContextPanelOnItemChange();
         }, 500);
 
-        this.getTreeGrid().onHighlightingChanged(() => onHighlightingChanged());
+        this.getTreeGrid().onHighlightingChanged(onHighlightingChanged);
     }
 
     private subscribeMobilePanelOnEvents() {
-
         // selection opens detail panel in mobile mode, so deselect it when returning back to grid
         this.contextSplitPanel.onMobilePanelSlide((out: boolean) => {
             if (out) {
@@ -220,24 +263,6 @@ export class ContentBrowsePanel
                 this.contextSplitPanel.showMobilePanel();
             }
         });
-    }
-
-    // tslint:disable-next-line:max-line-length
-    private getFirstSelectedOrHighlightedBrowseItem(fullSelection?: TreeNode<ContentSummaryAndCompareStatus>[]): BrowseItem<ContentSummaryAndCompareStatus> {
-        const highlightedNode: TreeNode<ContentSummaryAndCompareStatus> = this.treeGrid.getFirstSelectedOrHighlightedNode();
-        if (!fullSelection && !highlightedNode) {
-            return null;
-        }
-
-        let nodes: TreeNode<ContentSummaryAndCompareStatus>[] = [];
-
-        if (fullSelection && fullSelection.length > 0) {
-            nodes = fullSelection;
-        } else if (highlightedNode) {
-            nodes = [highlightedNode];
-        }
-
-        return this.treeNodeToBrowseItem(nodes[0]);
     }
 
     treeNodeToBrowseItem(node: TreeNode<ContentSummaryAndCompareStatus>): ContentBrowseItem | null {
@@ -273,6 +298,9 @@ export class ContentBrowsePanel
     }
 
     private handleGlobalEvents() {
+        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
+            this.getBrowseActions().getToggleSearchPanelAction().setVisible(item.isInRangeOrSmaller(ResponsiveRanges._540_720));
+        });
 
         ToggleSearchPanelEvent.on(() => {
             this.toggleFilterPanel();
@@ -301,10 +329,18 @@ export class ContentBrowsePanel
         RepositoryEvent.on(event => {
             if (event.isRestored()) {
                 this.treeGrid.reload().then(() => {
-                    const fullSelection = this.treeGrid.getRoot().getFullSelection();
-                    this.updateContextPanelOnItemChange(fullSelection);
+                    this.updateContextPanelOnItemChange();
                 });
             }
+        });
+
+        ProjectChangedEvent.on(() => {
+            this.treeGrid.deselectAll();
+            this.filterPanel.reset().then(() => {
+                this.hideFilterPanel();
+                this.toggleFilterPanelButton.removeClass('filtered');
+                this.treeGrid.reload();
+            });
         });
     }
 
@@ -316,25 +352,24 @@ export class ContentBrowsePanel
     }
 
     private getPathFromInlinePath(contentPreviewPath: string): string {
-        return UriHelper.getPathFromPortalInlineUri(contentPreviewPath, RenderingMode.INLINE, RepositoryId.CONTENT_REPO_ID,
-            Branch.DRAFT);
+        return UriHelper.getPathFromPortalInlineUri(contentPreviewPath, RenderingMode.INLINE);
     }
 
     private subscribeOnContentEvents() {
-        let handler = ContentServerEventsHandler.getInstance();
+        const handler: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
         handler.onContentCreated((data: ContentSummaryAndCompareStatus[]) => this.handleContentCreated(data));
 
         handler.onContentUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
 
-        handler.onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data));
+        handler.onContentPermissionsUpdated((contentIds: ContentIds) => this.handleContentPermissionsUpdated(contentIds));
 
         handler.onContentRenamed((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             this.handleContentRenamed(data, oldPaths);
         });
 
         handler.onContentDeleted((data: ContentServerChangeItem[]) => {
-            this.handleContentDeleted(data.map(d => d.getPath()));
+            this.handleContentDeleted(data.map(d => d.getContentPath()));
         });
 
         handler.onContentPending((data: ContentSummaryAndCompareStatus[]) => this.handleContentPending(data));
@@ -391,6 +426,24 @@ export class ContentBrowsePanel
         });
     }
 
+    private handleContentPermissionsUpdated(contentIds: ContentIds) {
+        if (ContentBrowsePanel.debug) {
+            console.debug('ContentBrowsePanel: permissions updated', contentIds);
+        }
+
+        const contentsToUpdateIds: ContentId[] = this.treeGrid.getAllNodes()
+            .map((treeNode: TreeNode<ContentSummaryAndCompareStatus>) => treeNode.getData().getContentId())
+            .filter((contentId: ContentId) => contentIds.contains(contentId));
+
+        if (contentsToUpdateIds.length === 0) {
+            return;
+        }
+
+        ContentSummaryAndCompareStatusFetcher.fetchByIds(contentsToUpdateIds)
+            .then(this.handleContentUpdated.bind(this))
+            .catch(DefaultErrorHandler.handle);
+    }
+
     private handleContentDeleted(paths: ContentPath[]) {
         if (ContentBrowsePanel.debug) {
             console.debug('ContentBrowsePanel: deleted', paths);
@@ -438,7 +491,7 @@ export class ContentBrowsePanel
         }, 1000);
     }
 
-    private doHandleContentUpdate(data: ContentSummaryAndCompareStatus[]): wemQ.Promise<TreeNode<ContentSummaryAndCompareStatus>[]> {
+    private doHandleContentUpdate(data: ContentSummaryAndCompareStatus[]): Q.Promise<TreeNode<ContentSummaryAndCompareStatus>[]> {
         this.updateContextPanel(data);
         return this.treeGrid.updateContentNodes(data);
     }
@@ -501,9 +554,9 @@ export class ContentBrowsePanel
     }
 
     private isAnyContentIdWithinPreviewItem(previewItem: ViewItem<ContentSummaryAndCompareStatus>,
-                                            updatedContents: ContentSummaryAndCompareStatus[]): wemQ.Promise<boolean> {
+                                            updatedContents: ContentSummaryAndCompareStatus[]): Q.Promise<boolean> {
         return new GetContentByIdRequest(previewItem.getModel().getContentId()).sendAndParse().then((previewItemContent: Content) => {
-            const promises: wemQ.Promise<void>[] = [];
+            const promises: Q.Promise<void>[] = [];
             let result: boolean = false;
 
             updatedContents.forEach((content: ContentSummaryAndCompareStatus) => {
@@ -515,7 +568,7 @@ export class ContentBrowsePanel
                     }));
             });
 
-            return wemQ.all(promises).then(() => {
+            return Q.all(promises).then(() => {
                 return result;
             });
 
@@ -523,8 +576,8 @@ export class ContentBrowsePanel
     }
 
     private isAnyContentReferencedByPreviewItem(previewItem: ViewItem<ContentSummaryAndCompareStatus>,
-                                                updatedContents: ContentSummaryAndCompareStatus[]): wemQ.Promise<boolean> {
-        return wemQ.all(updatedContents.map(updatedContent =>
+                                                updatedContents: ContentSummaryAndCompareStatus[]): Q.Promise<boolean> {
+        return Q.all(updatedContents.map(updatedContent =>
             ContentHelper.isReferencedBy(updatedContent.getContentSummary(), previewItem.getModel().getContentId()))
         ).then((results: boolean[]) => results.some(result => result));
     }
@@ -545,9 +598,12 @@ export class ContentBrowsePanel
 
     private forcePreviewRerender() {
         const previewItem: ViewItem<ContentSummaryAndCompareStatus> = this.getBrowseItemPanel().getStatisticsItem();
-        (<ContentItemStatisticsPanel>this.getBrowseItemPanel().getItemStatisticsPanel()).getPreviewPanel().setItem(previewItem, true);
 
-        this.contextSplitPanel.setMobilePreviewItem(previewItem, true);
+        if (BrowserHelper.isMobile()) {
+            this.contextSplitPanel.setMobilePreviewItem(previewItem, true);
+        } else {
+            (<ContentItemStatisticsPanel>this.getBrowseItemPanel().getItemStatisticsPanel()).getPreviewPanel().setItem(previewItem, true);
+        }
     }
 
     private updateContextPanel(data: ContentSummaryAndCompareStatus[]) {
@@ -588,19 +644,54 @@ export class ContentBrowsePanel
             publishAction: browseActions.getPublishAction(),
             publishTreeAction: browseActions.getPublishTreeAction(),
             unpublishAction: browseActions.getUnpublishAction(),
+            markAsReadyAction: browseActions.getMarkAsReadyAction(),
             createIssueAction: browseActions.getCreateIssueAction(),
+            requestPublishAction: browseActions.getRequestPublishAction(),
             showCreateIssueButtonByDefault: true
         });
 
-        this.treeGrid.onSelectionChanged(
-            (currentSel: TreeNode<ContentSummaryAndCompareStatus>[], fullSel: TreeNode<ContentSummaryAndCompareStatus>[],
-             highlighted: boolean) => {
-                return contentPublishMenuButton.setItem(fullSel.length === 1 ? fullSel[0].getData() : null);
-            });
+        let previousSelectionSize: number = this.treeGrid.getRoot().getFullSelection().length;
+
+        this.treeGrid.onSelectionChanged(() => {
+            const fullSelection: TreeNode<ContentSummaryAndCompareStatus>[] = this.treeGrid.getRoot().getFullSelection();
+            const isSingleSelected = fullSelection.length === 1;
+            const hadMultipleSelection = previousSelectionSize > 1;
+
+            previousSelectionSize = fullSelection.length;
+            contentPublishMenuButton.setItem(isSingleSelected ? fullSelection[0].getData() : null);
+            if (hadMultipleSelection && isSingleSelected) {
+                contentPublishMenuButton.updateActiveClass();
+            }
+        });
 
         this.treeGrid.onHighlightingChanged(
             (item: TreeNode<ContentSummaryAndCompareStatus>) => contentPublishMenuButton.setItem(item ? item.getData() : null));
 
         this.browseToolbar.appendChild(contentPublishMenuButton);
+
+        browseActions.onBeforeActionsStashed(() => {
+            contentPublishMenuButton.setRefreshDisabled(true);
+        });
+
+        browseActions.onActionsUnstashed(() => {
+            contentPublishMenuButton.setRefreshDisabled(false);
+        });
+    }
+
+    private markContentAsReadyOnPublishActions() {
+        const handler: () => void = this.markSingleContentAsReady.bind(this);
+        this.getBrowseActions().getPublishAction().onBeforeExecute(handler);
+        this.getBrowseActions().getPublishTreeAction().onBeforeExecute(handler);
+        this.getBrowseActions().getRequestPublishAction().onBeforeExecute(handler);
+    }
+
+    private markSingleContentAsReady() {
+        const contents: ContentSummaryAndCompareStatus[] = this.treeGrid.getSelectedDataList();
+
+        if (contents.length > 1) { // only when single item selected
+            return;
+        }
+
+        this.getBrowseActions().getMarkAsReadyAction().execute();
     }
 }

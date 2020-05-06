@@ -4,8 +4,6 @@
  * https://github.com/enonic/lib-admin-ui/issues/485   impossible to insert a table into Text Editor(CKE)
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -16,6 +14,7 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('Text Component with CKE - insert link and table  specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -24,143 +23,118 @@ describe('Text Component with CKE - insert link and table  specification', funct
     let SITE;
     let NOT_VALID_URL = 'test';
     let CONTROLLER_NAME = 'main region';
-    let EXPECTED_URL = '<p><a href="http://enonic.com">test</a></p>';
+    let EXPECTED_URL = '<p><a href="https://enonic.com">test</a></p>';
 
-    it(`Precondition: WHEN new site has been added THEN the site should be listed in the grid`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
+    it(`Precondition: new site should be added`,
+        async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
-            return studioUtils.doAddSite(SITE).then(() => {
-            }).then(() => {
-                studioUtils.saveScreenshot(displayName + '_created');
-                return studioUtils.findAndSelectItem(SITE.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'site should be listed in the grid');
-            });
+            await studioUtils.doAddSite(SITE);
         });
 
-    it.skip(
-        `GIVEN Text component has been inserted AND 'Insert table' button has been clicked WHEN table has been inserted THEN the modal dialog should be closed`,
-        () => {
+    it(`GIVEN Text component has been inserted WHEN 'Insert table' button has been clicked THEN menu item for inserting of Html-table gets visible`,
+        async () => {
             let contentWizard = new ContentWizard();
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return contentWizard.clickOnShowComponentViewToggler();
-            }).then(() => {
-                return pageComponentView.openMenu("main");
-            }).then(() => {
-                return pageComponentView.selectMenuItem(["Insert", "Text"]);
-            }).then(() => {
-                return textComponentCke.switchToLiveEditFrame();
-            }).then(() => {
-                return textComponentCke.clickOnInsertTableButton();
-            }).then(() => {
-                return contentWizard.pause(3000);
-            }).then(() => {
-                return textComponentCke.switchToCKETableFrameAndInsertTable();
-            }).then(result => {
-                assert.isTrue(result, '');
-            })
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            //1. Insert a text-component:
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await contentWizard.clickOnHideComponentViewToggler();
+            await textComponentCke.switchToLiveEditFrame();
+            //2. Click on 'Insert Table' menu-button:
+            await textComponentCke.clickOnInsertTableButton();
+            // menu item for inserting of Html-table gets visible:
+            await textComponentCke.waitForTableDisplayedInCke();
         });
 
     it(`GIVEN 'Insert Link' dialog is opened WHEN incorrect 'url' has been typed AND 'Insert' button pressed THEN validation message should appear`,
-        () => {
+        async () => {
             let contentWizard = new ContentWizard();
             let textComponentCke = new TextComponentCke();
             let pageComponentView = new PageComponentView();
             let insertLinkDialog = new InsertLinkDialog();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return contentWizard.clickOnShowComponentViewToggler();
-            }).then(() => {
-                return pageComponentView.openMenu("main");
-            }).then(() => {
-                return pageComponentView.selectMenuItem(["Insert", "Text"]);
-            }).then(() => {
-                return textComponentCke.switchToLiveEditFrame();
-            }).then(() => {
-                return textComponentCke.clickOnInsertLinkButton();
-            }).then(() => {
-                return insertLinkDialog.typeText("url_link");
-            }).then(() => {
-                return insertLinkDialog.typeUrl(NOT_VALID_URL);
-            }).then(() => {
-                return insertLinkDialog.clickOnInsertButton();
-            }).then(() => {
-                return insertLinkDialog.waitForValidationMessage();
-            }).then(result => {
-                studioUtils.saveScreenshot('not_valid_url_typed');
-                assert.isTrue(result, 'Validation message should be displayed on the modal dialog ');
-            })
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            //1. Insert a text component and type the not valid URL:
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await contentWizard.clickOnHideComponentViewToggler();
+            await textComponentCke.switchToLiveEditFrame();
+            await textComponentCke.clickOnInsertLinkButton();
+            await insertLinkDialog.typeText("url_link");
+            await insertLinkDialog.typeUrl(NOT_VALID_URL);
+            //2. Click on 'Insert" in the modal dialog:
+            await insertLinkDialog.clickOnInsertButton();
+            //Validation message gets visible:
+            let result = await insertLinkDialog.waitForValidationMessage();
+            studioUtils.saveScreenshot('not_valid_url_typed');
+            assert.isTrue(result, 'Validation message should be displayed in the modal dialog ');
         });
 
-    it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'url-link' has been inserted THEN correct data should be present in the CKE`,
-        () => {
+    it(`GIVEN Text component is inserted AND 'Insert Link' dialog is opened WHEN 'url-link' has been inserted THEN expected URL should appear in CKE`,
+        async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
             let textComponentCke = new TextComponentCke();
-            return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                return contentWizard.clickOnShowComponentViewToggler();
-            }).then(() => {
-                return pageComponentView.openMenu("main");
-            }).then(() => {
-                return pageComponentView.selectMenuItem(["Insert", "Text"]);
-            }).then(() => {
-                return textComponentCke.switchToLiveEditFrame();
-            }).then(() => {
-                return textComponentCke.clickOnInsertLinkButton();
-            }).then(() => {
-                return studioUtils.insertUrlLinkInCke("test", 'http://enonic.com');
-            }).then(() => {
-                return textComponentCke.switchToLiveEditFrame();
-            }).then(() => {
-                studioUtils.saveScreenshot('url_link_inserted');
-                return textComponentCke.getTextFromEditor();
-            }).then(result => {
-                assert.equal(result, EXPECTED_URL, 'correct data should be in CKE');
-            }).then(() => {
-                return textComponentCke.switchToParentFrame();
-            }).then(() => {
-                return contentWizard.waitAndClickOnSave();
-            })
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            //1. Insert a text component:
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await contentWizard.clickOnHideComponentViewToggler();
+            await textComponentCke.switchToLiveEditFrame();
+            //2. Open Insert Link dialog and add the link:
+            await textComponentCke.clickOnInsertLinkButton();
+            await studioUtils.insertUrlLinkInCke("test", 'https://enonic.com');
+            await textComponentCke.switchToLiveEditFrame();
+            studioUtils.saveScreenshot('url_link_inserted');
+            //3. Get and check the text in CKE:
+            let result = await textComponentCke.getTextFromEditor();
+            assert.equal(result, EXPECTED_URL, 'expected URL should appear in CKE');
+            await textComponentCke.switchToParentFrame();
+            await contentWizard.waitAndClickOnSave();
         });
 
     it(`GIVEN site is selected WHEN 'Preview' button has been pressed AND inserted link has been clicked THEN 'Enonic' site should be loaded in the page`,
-        () => {
+        async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
-                return contentBrowsePanel.clickOnPreviewButton();
-            }).then(() => {
-                return studioUtils.switchToContentTabWindow(SITE.displayName)
-            }).then(() => {
-                return studioUtils.clickOnElement(`a=test`);
-            }).then(() => {
-                return contentBrowsePanel.pause(2000);
-            }).then(() => {
-                return studioUtils.getTitle();
-            }).then(result => {
-                studioUtils.saveScreenshot('link_clicked_in_preview_panel');
-                assert.equal(result, 'Accelerate your digital projects with the Enonic Platform', 'correct title should be loaded');
-            })
+            //1. Select the site and click on Preview button:
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.clickOnPreviewButton();
+            //2. Switch to the new browser-tab and verify the link:
+            await studioUtils.switchToContentTabWindow(SITE.displayName);
+            await studioUtils.clickOnElement('a=test');
+            await contentBrowsePanel.pause(2000);
+            let title = await studioUtils.getTitle();
+            studioUtils.saveScreenshot('site_preview_button_clicked');
+            assert.equal(title, 'Accelerate your digital projects with the Enonic Platform', 'expected title should be loaded');
         });
 
-    it(`GIVEN site is selected WHEN link in Preview Panel has been pressed THEN Enonic site should be loaded in the Preview Panel`,
-        () => {
-            return studioUtils.findAndSelectItem(SITE.displayName).then(() => {
-                return studioUtils.switchToFrameBySrc(SITE.displayName);
-            }).then(() => {
-                return studioUtils.clickOnElement(`a=test`);
-            }).then(() => {
-                return webDriverHelper.browser.pause(2000);
-            }).then(() => {
-                return studioUtils.getText("//div[@class='frontpage-get-started__container']//h3");
-            }).then(result => {
-                studioUtils.saveScreenshot('enonic_loaded_in_preview_panel');
-                assert.equal(result, 'FASTER DIGITAL PROJECTS WITH THE ENONIC PLATFORM', 'expected text should be loaded');
-            })
+    it("WHEN site is selected THEN the link should appear in Preview Panel",
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            studioUtils.saveScreenshot('enonic_loaded_in_preview_panel');
+            await contentItemPreviewPanel.waitForElementDisplayedInFrame('a=test');
+        });
+
+    it("GIVEN site is selected WHEN the link has been clicked THEN error message should appear in Preview Panel",
+        async () => {
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentItemPreviewPanel.clickOnElementInFrame("a=test");
+            studioUtils.saveScreenshot('enonic_not_loaded_in_preview_panel');
+            //The Link gets not visible:
+            let result = await contentItemPreviewPanel.waitForElementNotDisplayedInFrame("a=test");
+            assert.isTrue(result, "The link should not be visible");
+            await contentItemPreviewPanel.pause(2000);
+            studioUtils.saveScreenshot("link_clicked_in_preview_panel");
+            //Web page should not be loaded as well, because disallowed loading of the resource in an iframe outside of their domain:
+            result = await contentItemPreviewPanel.waitForElementNotDisplayedInFrame("//h1[text()='Better customer journeys']");
+            assert.isTrue(result, "Web page should not be loaded");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

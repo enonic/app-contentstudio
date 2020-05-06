@@ -1,3 +1,5 @@
+import * as Q from 'q';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {UpdateContentRequest} from '../resource/UpdateContentRequest';
 import {CreatePageRequest} from './CreatePageRequest';
 import {DeletePageRequest} from './DeletePageRequest';
@@ -5,21 +7,20 @@ import {UpdatePageRequest} from '../resource/UpdatePageRequest';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {Flow, RoutineContext} from './Flow';
 import {Content} from '../content/Content';
-
-type Producer = { (content: Content, viewedContent: Content): UpdateContentRequest; };
+import {Site} from '../content/Site';
+import {Workflow} from 'lib-admin-ui/content/Workflow';
+import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 
 export class UpdatePersistedContentRoutine
-    extends Flow<Content> {
+    extends Flow {
 
     private persistedContent: Content;
 
     private viewedContent: Content;
 
-    private updateContentRequestProducer: Producer;
+    private requireValid: boolean;
 
-    private doneHandledContent: boolean = false;
-
-    private doneHandledPage: boolean = false;
+    private workflowState: WorkflowState;
 
     constructor(thisOfProducer: any, persistedContent: Content, viewedContent: Content) {
         super(thisOfProducer);
@@ -27,68 +28,98 @@ export class UpdatePersistedContentRoutine
         this.viewedContent = viewedContent;
     }
 
-    public setUpdateContentRequestProducer(producer: Producer): UpdatePersistedContentRoutine {
-        this.updateContentRequestProducer = producer;
-        return this;
-    }
-
-    public execute(): wemQ.Promise<Content> {
+    public execute(): Q.Promise<RoutineContext> {
 
         let context = new RoutineContext();
         context.content = this.persistedContent;
         return this.doExecute(context);
     }
 
-    doExecuteNext(context: RoutineContext): wemQ.Promise<Content> {
+    doExecuteNext(context: RoutineContext): Q.Promise<RoutineContext> {
 
-        if (!this.doneHandledContent) {
+        let promise;
+        const isContentChanged = this.hasContentChanged();
 
-            return this.doHandleUpdateContent(context).then(() => {
-
-                this.doneHandledContent = true;
-                return this.doExecuteNext(context);
-
-            });
-        } else if (!this.doneHandledPage) {
-
-            return this.doHandlePage(context).then(() => {
-
-                this.doneHandledPage = true;
-                return this.doExecuteNext(context);
-
-            });
+        if (isContentChanged || this.hasNamesChanged()) {
+            promise = this.doHandleUpdateContent(context, isContentChanged);
         } else {
-
-            return wemQ(context.content);
+            promise = Q(null);
         }
+
+        if (this.hasPageChanged()) {
+            promise = promise.then(this.doHandlePage.bind(this, context));
+        }
+
+        return promise.then(() => {
+            return context;
+        });
     }
 
-    private doHandleUpdateContent(context: RoutineContext): wemQ.Promise<void> {
+    private doHandleUpdateContent(context: RoutineContext, markUpdated: boolean = true): Q.Promise<void> {
 
-        return this.updateContentRequestProducer.call(this.getThisOfProducer(), context.content, this.viewedContent).sendAndParse().then(
+        return this.produceUpdateContentRequest(context.content, this.viewedContent).sendAndParse().then(
             (content: Content): void => {
 
+                // NB: reloading the page because it may use any changed data
+                context.pageUpdated = true;
+
+                if (markUpdated) {
+                    context.dataUpdated = true;
+                }
                 context.content = content;
 
             });
     }
 
-    private doHandlePage(context: RoutineContext): wemQ.Promise<void> {
+    private doHandlePage(context: RoutineContext): Q.Promise<void> {
 
-        let pageCUDRequest = this.producePageCUDRequest(context.content, this.viewedContent);
+        const pageCUDRequest: PageCUDRequest = this.producePageCUDRequest(context.content, this.viewedContent);
 
         if (pageCUDRequest != null) {
-            return pageCUDRequest
-                .sendAndParse().then((content: Content): void => {
+            return pageCUDRequest.sendAndParse()
+                .then((content: Content): void => {
 
                     context.content = content;
+                    context.pageUpdated = true;
 
                 });
         } else {
-            let deferred = wemQ.defer<void>();
-            deferred.resolve(null);
-            return deferred.promise;
+            return Q(null);
         }
+    }
+
+    private hasNamesChanged(): boolean {
+        const persisted: Content = this.persistedContent;
+        const viewed: Content = this.viewedContent;
+
+        return persisted.getDisplayName() !== viewed.getDisplayName() || !persisted.getName().equals(viewed.getName());
+    }
+
+    private hasContentChanged(): boolean {
+        const persisted: Content = this.persistedContent;
+        const viewed: Content = this.viewedContent;
+
+        return this.isWorkflowChanged() ||
+               !persisted.dataEquals(viewed.getContentData()) ||
+               !persisted.extraDataEquals(viewed.getAllExtraData()) ||
+               !ObjectHelper.equals(persisted.getOwner(), viewed.getOwner()) ||
+               persisted.getLanguage() !== viewed.getLanguage() ||
+               persisted.getPublishFromTime() !== viewed.getPublishFromTime() ||
+               persisted.getPublishToTime() !== viewed.getPublishToTime() ||
+               !persisted.getPermissions().equals(viewed.getPermissions()) ||
+               persisted.isInheritPermissionsEnabled() !== viewed.isInheritPermissionsEnabled() ||
+               persisted.isOverwritePermissionsEnabled() !== viewed.isOverwritePermissionsEnabled();
+    }
+
+    private isWorkflowChanged(): boolean {
+        return this.workflowState !== this.persistedContent.getWorkflow().getState();
+    }
+
+    private hasPageChanged(): boolean {
+        const persistedPage = this.persistedContent.getPage();
+        const viewedPage = this.viewedContent.getPage();
+
+        return persistedPage ? !persistedPage.equals(viewedPage) : !!viewedPage;
     }
 
     private producePageCUDRequest(persistedContent: Content, viewedContent: Content): PageCUDRequest {
@@ -116,4 +147,32 @@ export class UpdatePersistedContentRoutine
         }
     }
 
+    private produceUpdateContentRequest(persistedContent: Content, viewedContent: Content): UpdateContentRequest {
+        const workflow: Workflow = viewedContent.getWorkflow().newBuilder().setState(this.workflowState).build();
+
+        return new UpdateContentRequest(persistedContent.getId())
+            .setRequireValid(this.requireValid)
+            .setContentName(viewedContent.getName())
+            .setDisplayName(viewedContent.getDisplayName())
+            .setData(viewedContent.getContentData())
+            .setExtraData(viewedContent.getAllExtraData())
+            .setOwner(viewedContent.getOwner())
+            .setLanguage(viewedContent.getLanguage())
+            .setPublishFrom(viewedContent.getPublishFromTime())
+            .setPublishTo(viewedContent.getPublishToTime())
+            .setPermissions(viewedContent.getPermissions())
+            .setInheritPermissions(viewedContent.isInheritPermissionsEnabled())
+            .setOverwritePermissions(viewedContent.isOverwritePermissionsEnabled())
+            .setWorkflow(workflow);
+    }
+
+    setRequireValid(requireValid: boolean): UpdatePersistedContentRoutine {
+        this.requireValid = requireValid;
+        return this;
+    }
+
+    setWorkflowState(state: WorkflowState): UpdatePersistedContentRoutine {
+        this.workflowState = state;
+        return this;
+    }
 }

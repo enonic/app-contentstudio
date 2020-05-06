@@ -1,3 +1,7 @@
+import * as Q from 'q';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {PublishDialogItemList} from './PublishDialogItemList';
 import {PublishDialogDependantList} from './PublishDialogDependantList';
 import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDependenciesRequest';
@@ -7,7 +11,6 @@ import {ResolvePublishDependenciesResult} from '../resource/ResolvePublishDepend
 import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
-import ContentId = api.content.ContentId;
 
 export class PublishProcessor {
 
@@ -23,9 +26,13 @@ export class PublishProcessor {
 
     private allPublishable: boolean;
 
+    private allPendingDelete: boolean;
+
     private ignoreItemsChanged: boolean;
 
     private ignoreDependantItemsChanged: boolean;
+
+    private checkPublishable: boolean = true;
 
     private loadingStartedListeners: { (): void }[] = [];
 
@@ -40,7 +47,7 @@ export class PublishProcessor {
     constructor(itemList: PublishDialogItemList, dependantList: PublishDialogDependantList) {
         this.itemList = itemList;
         this.dependantList = dependantList;
-        this.reloadDependenciesDebounced = api.util.AppHelper.debounce(this.reloadPublishDependencies.bind(this), 100);
+        this.reloadDependenciesDebounced = AppHelper.debounce(this.reloadPublishDependencies.bind(this), 100);
 
         this.initListeners();
     }
@@ -48,7 +55,7 @@ export class PublishProcessor {
     private initListeners() {
         this.itemList.onItemsRemoved(() => {
             if (!this.ignoreItemsChanged) {
-                this.reloadDependenciesDebounced();
+                this.reloadDependenciesDebounced(true);
             }
         });
 
@@ -73,7 +80,7 @@ export class PublishProcessor {
 
         this.dependantList.onItemRemoveClicked((item: ContentSummaryAndCompareStatus) => {
             this.excludedIds.push(item.getContentId());
-            this.reloadDependenciesDebounced();
+            this.reloadDependenciesDebounced(true);
         });
 
         this.dependantList.onListChanged(() => {
@@ -105,6 +112,7 @@ export class PublishProcessor {
         this.dependantList.setRequiredIds([]);
         this.containsInvalid = false;
         this.allPublishable = false;
+        this.allPendingDelete = false;
 
         this.processResolveDescendantsResult([], resetDependantItems);
 
@@ -135,7 +143,7 @@ export class PublishProcessor {
             });
         }).catch((reason: any) => {
             this.notifyLoadingFailed();
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         });
     }
 
@@ -156,13 +164,14 @@ export class PublishProcessor {
         this.dependantList.setRequiredIds(result.getRequired());
         this.containsInvalid = result.isContainsInvalid();
         this.allPublishable = result.isAllPublishable();
+        this.allPendingDelete = result.isAllPendingDelete();
     }
 
-    private loadDescendants(): wemQ.Promise<ContentSummaryAndCompareStatus[]> {
+    private loadDescendants(): Q.Promise<ContentSummaryAndCompareStatus[]> {
         const noDependantItems: boolean = this.dependantIds.length === 0;
 
         if (noDependantItems) {
-            return wemQ([]);
+            return Q([]);
         }
 
         const slicedIds = this.dependantIds.slice(0, 0 + GetDescendantsOfContentsRequest.LOAD_SIZE);
@@ -193,12 +202,48 @@ export class PublishProcessor {
         return this.allPublishable;
     }
 
+    public isAllPendingDelete() {
+        return this.allPendingDelete;
+    }
+
     public containsInvalidItems() {
-        return this.containsInvalid;
+        return this.containsInvalid || this.itemList.getItems().some(this.isItemInvalid);
+    }
+
+    private isItemInvalid(item: ContentSummaryAndCompareStatus): boolean {
+        return !item.getContentSummary().isValid();
+    }
+
+    public setCheckPublishable(flag: boolean) {
+        this.checkPublishable = flag;
+    }
+
+    public isCheckPublishable(): boolean {
+        return this.checkPublishable;
+    }
+
+    public areAllConditionsSatisfied(itemsToPublish: number): boolean {
+        const allValid: boolean = !this.containsInvalidItems();
+        const allPublishable: boolean = this.isAllPublishable();
+        const containsItemsInProgress: boolean = this.containsItemsInProgress();
+        return itemsToPublish > 0 && allValid && !containsItemsInProgress && (!this.checkPublishable || allPublishable);
     }
 
     public containsInvalidDependants(): boolean {
         return this.dependantList.getItems().some(item => !item.getContentSummary().isValid());
+    }
+
+    public containsItemsInProgress(): boolean {
+        return this.itemList.getItems().some(this.isOfflineItemInProgress.bind(this)) ||
+               this.dependantList.getItems().some(this.isItemInProgress.bind(this));
+    }
+
+    private isOfflineItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
+        return !item.isOnline() && this.isItemInProgress(item) && !item.getContentSummary().getContentState().isPendingDelete();
+    }
+
+    private isItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
+        return item.getContentSummary().isValid() && item.getContentSummary().isInProgress();
     }
 
     public getDependantIds(): ContentId[] {
@@ -294,4 +339,11 @@ export class PublishProcessor {
         });
     }
 
+    public onItemsChanged(listener: (items: ContentSummaryAndCompareStatus[]) => void) {
+        this.itemList.onItemsChanged(listener);
+    }
+
+    public unItemsChanged(listener: (items: ContentSummaryAndCompareStatus[]) => void) {
+        this.itemList.unItemsChanged(listener);
+    }
 }

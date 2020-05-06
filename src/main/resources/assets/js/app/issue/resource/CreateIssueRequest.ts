@@ -2,11 +2,13 @@ import {IssueResourceRequest} from './IssueResourceRequest';
 import {PublishRequest} from '../PublishRequest';
 import {IssueJson} from '../json/IssueJson';
 import {Issue} from '../Issue';
-import Path = api.rest.Path;
-import JsonResponse = api.rest.JsonResponse;
-import PrincipalKey = api.security.PrincipalKey;
+import {IssueType} from '../IssueType';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
-export class CreateIssueRequest extends IssueResourceRequest<IssueJson, Issue> {
+export class CreateIssueRequest
+    extends IssueResourceRequest<Issue> {
 
     private title: string;
 
@@ -16,9 +18,16 @@ export class CreateIssueRequest extends IssueResourceRequest<IssueJson, Issue> {
 
     private publishRequest: PublishRequest;
 
+    private publishFrom: Date;
+
+    private publishTo: Date;
+
+    private type: IssueType;
+
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('create');
     }
 
     setTitle(value: string): CreateIssueRequest {
@@ -41,24 +50,38 @@ export class CreateIssueRequest extends IssueResourceRequest<IssueJson, Issue> {
         return this;
     }
 
+    setPublishFrom(date: Date): CreateIssueRequest {
+        this.publishFrom = date;
+        return this;
+    }
+
+    setPublishTo(date: Date): CreateIssueRequest {
+        this.publishTo = date;
+        return this;
+    }
+
+    setType(type: IssueType): CreateIssueRequest {
+        this.type = type;
+        return this;
+    }
+
     getParams(): Object {
         return {
             title: this.title ? this.title.toString() : '',
             description: this.description ? this.description.toString() : '',
-            approvers: this.approvers.map((el) => {
+            approvers: this.approvers ? this.approvers.map((el) => {
                 return el.toString();
-            }),
-            publishRequest: this.publishRequest.toJson()
+            }) : undefined,
+            publishRequest: this.publishRequest.toJson(),
+            type: this.type ? IssueType[this.type] : undefined,
+            schedule: this.publishFrom ? {
+                from: this.publishFrom.toISOString(),
+                to: this.publishTo ? this.publishTo.toISOString() : null
+            } : null,
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'create');
-    }
-
-    sendAndParse(): wemQ.Promise<Issue> {
-        return this.send().then((response: JsonResponse<IssueJson>) => {
-            return Issue.fromJson(response.getResult());
-        });
+    parseResponse(response: JsonResponse<IssueJson>): Issue {
+        return Issue.fromJson(response.getResult());
     }
 }

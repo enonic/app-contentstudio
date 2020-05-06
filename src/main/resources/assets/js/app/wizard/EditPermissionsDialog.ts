@@ -1,3 +1,11 @@
+import * as Q from 'q';
+import {showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {PEl} from 'lib-admin-ui/dom/PEl';
+import {Action} from 'lib-admin-ui/ui/Action';
 import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
 import {ApplyContentPermissionsRequest} from '../resource/ApplyContentPermissionsRequest';
 import {AccessControlComboBox} from './AccessControlComboBox';
@@ -6,18 +14,22 @@ import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialog
 import {Content} from '../content/Content';
 import {AccessControlList} from '../access/AccessControlList';
 import {AccessControlEntry} from '../access/AccessControlEntry';
-import ModalDialogConfig = api.ui.dialog.ModalDialogConfig;
-import ContentPath = api.content.ContentPath;
-import i18n = api.util.i18n;
-import ContentId = api.content.ContentId;
-import TaskProgressInterface = api.ui.dialog.TaskProgressInterface;
-import TaskId = api.task.TaskId;
-import TaskState = api.task.TaskState;
-import ProgressBarManager = api.ui.dialog.ProgressBarManager;
-import applyMixins = api.ui.dialog.applyMixins;
+import {
+    ModalDialogWithConfirmation,
+    ModalDialogWithConfirmationConfig
+} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {TaskProgressInterface} from 'lib-admin-ui/ui/dialog/TaskProgressInterface';
+import {TaskId} from 'lib-admin-ui/task/TaskId';
+import {TaskState} from 'lib-admin-ui/task/TaskState';
+import {ProgressBarManager} from 'lib-admin-ui/ui/dialog/ProgressBarManager';
+import {Checkbox} from 'lib-admin-ui/ui/Checkbox';
+import {H6El} from 'lib-admin-ui/dom/H6El';
+import {SectionEl} from 'lib-admin-ui/dom/SectionEl';
+import {Form} from 'lib-admin-ui/ui/form/Form';
+import {applyMixins, DefaultModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
 
 export class EditPermissionsDialog
-    extends api.ui.dialog.ModalDialog
+    extends ModalDialogWithConfirmation
     implements TaskProgressInterface {
 
     private contentId: ContentId;
@@ -40,13 +52,13 @@ export class EditPermissionsDialog
 
     private originalOverwrite: boolean;
 
-    private inheritPermissionsCheck: api.ui.Checkbox;
+    private inheritPermissionsCheck: Checkbox;
 
-    private overwriteChildPermissionsCheck: api.ui.Checkbox;
+    private overwriteChildPermissionsCheck: Checkbox;
 
     private comboBox: AccessControlComboBox;
 
-    private applyAction: api.ui.Action;
+    private applyAction: Action;
 
     protected header: EditPermissionsDialogHeader;
 
@@ -62,10 +74,10 @@ export class EditPermissionsDialog
 
     isExecuting: () => boolean;
 
-    private subTitle: api.dom.H6El;
+    private subTitle: H6El;
 
     constructor() {
-        super(<ModalDialogConfig>{
+        super(<ModalDialogWithConfirmationConfig>{
             confirmation: {
                 yesCallback: () => this.applyAction.execute(),
                 noCallback: () => this.close(),
@@ -82,14 +94,14 @@ export class EditPermissionsDialog
             managingElement: this
         });
 
-        this.subTitle = new api.dom.H6El('sub-title').setHtml(`${i18n('dialog.permissions.applying')}...`);
-        this.inheritPermissionsCheck = api.ui.Checkbox.create().setLabelText(i18n('dialog.permissions.inherit')).build();
+        this.subTitle = new H6El('sub-title').setHtml(`${i18n('dialog.permissions.applying')}...`);
+        this.inheritPermissionsCheck = Checkbox.create().setLabelText(i18n('dialog.permissions.inherit')).build();
         this.inheritPermissionsCheck.addClass('inherit-perm-check');
         this.comboBox = new AccessControlComboBox();
         this.comboBox.addClass('principal-combobox');
-        this.overwriteChildPermissionsCheck = api.ui.Checkbox.create().setLabelText(i18n('dialog.permissions.overwrite')).build();
+        this.overwriteChildPermissionsCheck = Checkbox.create().setLabelText(i18n('dialog.permissions.overwrite')).build();
         this.overwriteChildPermissionsCheck.addClass('overwrite-child-check');
-        this.applyAction = new api.ui.Action(i18n('action.apply'));
+        this.applyAction = new Action(i18n('action.apply'));
         this.parentPermissions = [];
     }
 
@@ -109,7 +121,7 @@ export class EditPermissionsDialog
         const comboBoxChangeListener = () => {
             const currentEntries: AccessControlEntry[] = this.getEntries().sort();
 
-            const permissionsModified: boolean = !api.ObjectHelper.arrayEquals(currentEntries, this.originalValues);
+            const permissionsModified: boolean = !ObjectHelper.arrayEquals(currentEntries, this.originalValues);
             const inheritCheckModified: boolean = this.inheritPermissionsCheck.isChecked() !== this.originalInherit;
             const overwriteModified: boolean = this.overwriteChildPermissionsCheck.isChecked() !== this.originalOverwrite;
             const isNotEmpty: boolean = currentEntries && currentEntries.length > 0;
@@ -165,7 +177,7 @@ export class EditPermissionsDialog
                 changeListener();
 
             }).catch(() => {
-                api.notify.showWarning(i18n('notify.permissions.inheritError', this.displayName));
+                showWarning(i18n('notify.permissions.inheritError', this.displayName));
             }).done();
         });
     }
@@ -177,14 +189,14 @@ export class EditPermissionsDialog
 
             this.appendChildToContentPanel(this.inheritPermissionsCheck);
 
-            const section = new api.dom.SectionEl();
+            const section = new SectionEl();
             this.appendChildToContentPanel(section);
 
-            const form = new api.ui.form.Form();
+            const form = new Form();
             section.appendChild(form);
             form.appendChild(this.comboBox);
 
-            this.appendChildToContentPanel(this.overwriteChildPermissionsCheck);
+            this.prependChildToFooter(this.overwriteChildPermissionsCheck);
 
             this.addAction(this.applyAction, true);
             this.addCancelButtonToBottom();
@@ -238,8 +250,8 @@ export class EditPermissionsDialog
         return this.comboBox.getSelectedDisplayValues();
     }
 
-    private getParentPermissions(): wemQ.Promise<AccessControlList> {
-        let deferred = wemQ.defer<AccessControlList>();
+    private getParentPermissions(): Q.Promise<AccessControlList> {
+        let deferred = Q.defer<AccessControlList>();
 
         let parentPath = this.contentPath.getParentPath();
         if (parentPath && parentPath.isNotRoot()) {
@@ -296,14 +308,14 @@ export class EditPermissionsDialog
 applyMixins(EditPermissionsDialog, [TaskProgressInterface]);
 
 export class EditPermissionsDialogHeader
-    extends api.ui.dialog.DefaultModalDialogHeader {
+    extends DefaultModalDialogHeader {
 
-    private pathEl: api.dom.PEl;
+    private pathEl: PEl;
 
     constructor(title: string, path: string) {
         super(title);
 
-        this.pathEl = new api.dom.PEl('path');
+        this.pathEl = new PEl('path');
         this.pathEl.setHtml(path);
         this.appendChild(this.pathEl);
     }

@@ -1,19 +1,20 @@
 import {IssueCommentJson} from '../json/IssueCommentJson';
 import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueComment} from '../IssueComment';
-import Path = api.rest.Path;
-import JsonResponse = api.rest.JsonResponse;
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class UpdateIssueCommentRequest
-    extends IssueResourceRequest<IssueCommentJson, IssueComment> {
+    extends IssueResourceRequest<IssueComment> {
 
     private text: string;
     private commentId: string;
 
     constructor(commentId: string) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.commentId = commentId;
+        this.addRequestPathElements('comment', 'update');
     }
 
     setText(text: string) {
@@ -28,13 +29,7 @@ export class UpdateIssueCommentRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'comment/update');
-    }
-
-    sendAndParse(): wemQ.Promise<IssueComment> {
-        return this.send().then((response: JsonResponse<IssueCommentJson>) => {
-            return IssueComment.fromJson(response.getResult());
-        });
+    parseResponse(response: JsonResponse<IssueCommentJson>): IssueComment {
+        return IssueComment.fromJson(response.getResult());
     }
 }

@@ -1,47 +1,55 @@
-import CompareExpr = api.query.expr.CompareExpr;
-import ValueExpr = api.query.expr.ValueExpr;
-import FieldExpr = api.query.expr.FieldExpr;
-import QueryExpr = api.query.expr.QueryExpr;
-import TermsAggregationQuery = api.query.aggregation.TermsAggregationQuery;
-import BucketAggregation = api.aggregation.BucketAggregation;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import QueryField = api.query.QueryField;
-import ContentSummary = api.content.ContentSummary;
-import ContentPath = api.content.ContentPath;
+import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
+import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
+import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
+import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
+import {
+    TermsAggregationOrderDirection,
+    TermsAggregationOrderType,
+    TermsAggregationQuery
+} from 'lib-admin-ui/query/aggregation/TermsAggregationQuery';
+import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
+import {QueryField} from 'lib-admin-ui/query/QueryField';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {AggregateContentTypesResult, ContentTypeAggregation} from './AggregateContentTypesResult';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../resource/ContentQueryResult';
 import {ContentQuery} from '../content/ContentQuery';
+import {Path} from 'lib-admin-ui/rest/Path';
 
 export class AggregateContentTypesByPathRequest
-    extends ContentResourceRequest<ContentQueryResult<ContentSummary, ContentSummaryJson>, AggregateContentTypesResult> {
+    extends ContentResourceRequest<AggregateContentTypesResult> {
 
     private request: ContentQueryRequest<ContentSummaryJson, ContentSummary>;
 
     constructor(parentPath: ContentPath) {
         super();
-        super.setMethod('GET');
         this.request = new ContentQueryRequest<ContentSummaryJson, ContentSummary>(this.buildAggregationsQuery(parentPath));
 
     }
 
-    getRequestPath(): api.rest.Path {
+    getRequestPath(): Path {
         return this.request.getRequestPath();
     }
 
-    sendAndParse(): wemQ.Promise<AggregateContentTypesResult> {
+    sendAndParse(): Q.Promise<AggregateContentTypesResult> {
 
         return this.request.sendAndParse().then((result: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-            const aggregations: AggregateContentTypesResult = new AggregateContentTypesResult();
-
-            (<BucketAggregation>result.getAggregations()[0]).getBuckets().forEach(bucket => {
-                aggregations.addAggregation(new ContentTypeAggregation(new ContentTypeName(bucket.getKey()), bucket.getDocCount()));
-            });
-
-            return aggregations;
+            return this.doParseResponse(result);
         });
+    }
+
+    private doParseResponse(result: ContentQueryResult<ContentSummary, ContentSummaryJson>): AggregateContentTypesResult {
+        const aggregations: AggregateContentTypesResult = new AggregateContentTypesResult();
+
+        (<BucketAggregation>result.getAggregations()[0]).getBuckets().forEach(bucket => {
+            aggregations.addAggregation(new ContentTypeAggregation(new ContentTypeName(bucket.getKey()), bucket.getDocCount()));
+        });
+
+        return aggregations;
     }
 
     private buildAggregationsQuery(parentPath: ContentPath): ContentQuery {
@@ -65,8 +73,8 @@ export class AggregateContentTypesByPathRequest
         let termsAggregation = new TermsAggregationQuery(name);
         termsAggregation.setFieldName(fieldName);
         termsAggregation.setSize(size);
-        termsAggregation.setOrderByType(api.query.aggregation.TermsAggregationOrderType.DOC_COUNT);
-        termsAggregation.setOrderByDirection(api.query.aggregation.TermsAggregationOrderDirection.DESC);
+        termsAggregation.setOrderByType(TermsAggregationOrderType.DOC_COUNT);
+        termsAggregation.setOrderByDirection(TermsAggregationOrderDirection.DESC);
         return termsAggregation;
     }
 }

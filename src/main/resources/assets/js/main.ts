@@ -1,12 +1,65 @@
-import i18n = api.util.i18n;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ContentIconUrlResolver = api.content.util.ContentIconUrlResolver;
-import ImgEl = api.dom.ImgEl;
-import LostConnectionDetector = api.system.ConnectionDetector;
+import * as $ from 'jquery';
+// Polyfills added for compatibility with IE11
+import 'promise-polyfill/src/polyfill';
+import 'whatwg-fetch';
+import 'mutation-observer';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {showError, showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18nInit} from 'lib-admin-ui/util/MessagesInitializer';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {Router} from './app/Router';
+import {ContentDeletePromptEvent} from './app/browse/ContentDeletePromptEvent';
+import {ContentPublishPromptEvent} from './app/browse/ContentPublishPromptEvent';
+import {ContentUnpublishPromptEvent} from './app/browse/ContentUnpublishPromptEvent';
+import {ShowNewContentDialogEvent} from './app/browse/ShowNewContentDialogEvent';
+import {ContentWizardPanelParams} from './app/wizard/ContentWizardPanelParams';
+import {ContentEventsProcessor} from './app/ContentEventsProcessor';
+import {IssueServerEventsHandler} from './app/issue/event/IssueServerEventsHandler';
+import {CreateIssuePromptEvent} from './app/browse/CreateIssuePromptEvent';
+import {IssueDialogsManager} from './app/issue/IssueDialogsManager';
+import {ShowIssuesDialogEvent} from './app/browse/ShowIssuesDialogEvent';
+import {ContentDuplicatePromptEvent} from './app/browse/ContentDuplicatePromptEvent';
+import {GetContentTypeByNameRequest} from './app/resource/GetContentTypeByNameRequest';
+import {ShowDependenciesEvent} from './app/browse/ShowDependenciesEvent';
+import {GetContentByIdRequest} from './app/resource/GetContentByIdRequest';
+import {GetContentByPathRequest} from './app/resource/GetContentByPathRequest';
+import {ContentServerEventsHandler} from './app/event/ContentServerEventsHandler';
+import {EditContentEvent} from './app/event/EditContentEvent';
+import {Content} from './app/content/Content';
+import {ContentSummaryAndCompareStatus} from './app/content/ContentSummaryAndCompareStatus';
+import {ContentUpdatedEvent} from './app/event/ContentUpdatedEvent';
+import {RequestContentPublishPromptEvent} from './app/browse/RequestContentPublishPromptEvent';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
+import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
+import {ConnectionDetector} from 'lib-admin-ui/system/ConnectionDetector';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {Application} from 'lib-admin-ui/app/Application';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
+import {ElementRemovedEvent} from 'lib-admin-ui/dom/ElementRemovedEvent';
+import {ElementRegistry} from 'lib-admin-ui/dom/ElementRegistry';
+import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {FormEditEvent} from 'lib-admin-ui/content/event/FormEditEvent';
+import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {ContentAppHelper} from './app/wizard/ContentAppHelper';
+import {ProjectContext} from './app/project/ProjectContext';
+import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
+import {ProjectListRequest} from './app/settings/resource/ProjectListRequest';
+import * as Q from 'q';
+import {Project} from './app/settings/data/project/Project';
+import {ProjectSelectionDialog} from './app/settings/dialog/ProjectSelectionDialog';
+import {SettingsServerEventsListener} from './app/settings/event/SettingsServerEventsListener';
+// End of Polyfills
 
 declare const CONFIG;
-
-const body = api.dom.Body.get();
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -14,93 +67,64 @@ declare var require: { context: (directory: string, useSubdirectories: boolean, 
 const importAll = r => r.keys().forEach(r);
 importAll(require.context('./app/inputtype', true, /^(?!\.[\/\\]ui).*/));
 
-import {Router} from './app/Router';
-import {ContentDeletePromptEvent} from './app/browse/ContentDeletePromptEvent';
-import {ContentPublishPromptEvent} from './app/browse/ContentPublishPromptEvent';
-import {ContentUnpublishPromptEvent} from './app/browse/ContentUnpublishPromptEvent';
-import {ShowNewContentDialogEvent} from './app/browse/ShowNewContentDialogEvent';
-import {ContentWizardPanelParams} from './app/wizard/ContentWizardPanelParams';
-import {ContentEventsListener} from './app/ContentEventsListener';
-import {ContentEventsProcessor} from './app/ContentEventsProcessor';
-import {IssueServerEventsHandler} from './app/issue/event/IssueServerEventsHandler';
-import {CreateIssuePromptEvent} from './app/browse/CreateIssuePromptEvent';
-import {IssueDialogsManager} from './app/issue/IssueDialogsManager';
-import {ShowIssuesDialogEvent} from './app/browse/ShowIssuesDialogEvent';
-import {ToggleSearchPanelWithDependenciesGlobalEvent} from './app/browse/ToggleSearchPanelWithDependenciesGlobalEvent';
-import {ToggleSearchPanelWithDependenciesEvent} from './app/browse/ToggleSearchPanelWithDependenciesEvent';
-import {ContentDuplicatePromptEvent} from './app/browse/ContentDuplicatePromptEvent';
-import {ShowIssuesDialogButton} from './app/issue/view/ShowIssuesDialogButton';
-import {GetContentTypeByNameRequest} from './app/resource/GetContentTypeByNameRequest';
-import {ShowDependenciesEvent} from './app/browse/ShowDependenciesEvent';
-import {GetContentByIdRequest} from './app/resource/GetContentByIdRequest';
-import {GetContentByPathRequest} from './app/resource/GetContentByPathRequest';
-import {ContentServerEventsHandler} from './app/event/ContentServerEventsHandler';
-import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
-import {EditContentEvent} from './app/event/EditContentEvent';
-import {Content} from './app/content/Content';
-import {ContentSummaryAndCompareStatus} from './app/content/ContentSummaryAndCompareStatus';
-import {ContentUpdatedEvent} from './app/event/ContentUpdatedEvent';
+const body = Body.get();
 
-function getApplication(): api.app.Application {
-    let application = new api.app.Application('content-studio', i18n('app.name'), i18n('app.abbr'), CONFIG.appIconUrl);
-    application.setPath(api.rest.Path.fromString(Router.getPath()));
+function getApplication(): Application {
+    const application = new Application(
+        'content-studio',
+        i18n('app.name'),
+        i18n('app.abbr'),
+        CONFIG.appIconUrl,
+        `${i18n('app.name')} v${CONFIG.appVersion}`
+    );
+    application.setPath(Router.getPath());
     application.setWindow(window);
 
     return application;
 }
 
-function startLostConnectionDetector(): LostConnectionDetector {
-    let messageId;
+function startLostConnectionDetector(): ConnectionDetector {
     let readonlyMessageId;
 
-    let lostConnectionDetector = new LostConnectionDetector();
+    const connectionDetector =
+        ConnectionDetector.get()
+            .setAuthenticated(true)
+            .setSessionExpireRedirectUrl(UriHelper.getToolUri(''))
+            .setNotificationMessage(i18n('notify.connection.loss'));
 
-    lostConnectionDetector.setAuthenticated(true);
-
-    lostConnectionDetector.onConnectionLost(() => {
-        api.notify.NotifyManager.get().hide(messageId);
-        messageId = api.notify.showError(i18n('notify.connection.loss'), false);
-    });
-    lostConnectionDetector.onSessionExpired(() => {
-        api.notify.NotifyManager.get().hide(messageId);
-        window.location.href = api.util.UriHelper.getToolUri('');
-    });
-    lostConnectionDetector.onConnectionRestored(() => {
-        api.notify.NotifyManager.get().hide(messageId);
-    });
-    lostConnectionDetector.onReadonlyStatusChanged((readonly: boolean) => {
+    connectionDetector.onReadonlyStatusChanged((readonly: boolean) => {
         if (readonly && !readonlyMessageId) {
-            readonlyMessageId = api.notify.showWarning(i18n('notify.repo.readonly'), false);
+            readonlyMessageId = showWarning(i18n('notify.repo.readonly'), false);
         } else if (readonlyMessageId) {
-            api.notify.NotifyManager.get().hide(readonlyMessageId);
+            NotifyManager.get().hide(readonlyMessageId);
             readonlyMessageId = null;
         }
     });
+    connectionDetector.startPolling(true);
 
-    lostConnectionDetector.startPolling(true);
-    return lostConnectionDetector;
+    return connectionDetector;
 }
 
 function initApplicationEventListener() {
 
     let messageId;
 
-    api.application.ApplicationEvent.on((event: api.application.ApplicationEvent) => {
-        if (api.application.ApplicationEventType.STOPPED === event.getEventType() || api.application.ApplicationEventType.UNINSTALLED ===
+    ApplicationEvent.on((event: ApplicationEvent) => {
+        if (ApplicationEventType.STOPPED === event.getEventType() || ApplicationEventType.UNINSTALLED ===
             event.getEventType()) {
             if (CONFIG.appId === event.getApplicationKey().toString()) {
-                api.notify.NotifyManager.get().hide(messageId);
-                messageId = api.notify.showError(i18n('notify.no_connection'), false);
+                NotifyManager.get().hide(messageId);
+                messageId = showError(i18n('notify.no_connection'), false);
             }
         }
-        if (api.application.ApplicationEventType.STARTED === event.getEventType() || api.application.ApplicationEventType.INSTALLED) {
-            api.notify.NotifyManager.get().hide(messageId);
+        if (ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED) {
+            NotifyManager.get().hide(messageId);
         }
     });
 }
 
 function initToolTip() {
-    const ID = api.StyleHelper.getCls('tooltip', api.StyleHelper.COMMON_PREFIX);
+    const ID = StyleHelper.getCls('tooltip', StyleHelper.COMMON_PREFIX);
     const CLS_ON = 'tooltip_ON';
     const FOLLOW = true;
     const DATA = '_tooltip';
@@ -115,25 +139,25 @@ function initToolTip() {
         const top = pageY + OFFSET_Y;
         let left = pageX + OFFSET_X;
 
-        const tooltipText = api.util.StringHelper.escapeHtml(wemjq(e.currentTarget || e.target).data(DATA));
+        const tooltipText = StringHelper.escapeHtml($(e.currentTarget || e.target).data(DATA));
         if (!tooltipText) { //if no text then probably hovering over children of original element that has title attr
             return;
         }
 
         const tooltipWidth = tooltipText.length * 7.5;
-        const windowWidth = wemjq(window).width();
+        const windowWidth = $(window).width();
         if (left + tooltipWidth >= windowWidth) {
             left = windowWidth - tooltipWidth;
         }
-        wemjq(`#${ID}`).remove();
-        wemjq(`<div id='${ID}' />`).html(tooltipText).css({
+        $(`#${ID}`).remove();
+        $(`<div id='${ID}' />`).text(tooltipText).css({
             position: 'absolute', top, left
         }).appendTo('body').show();
     };
 
     const addTooltip = (e: JQueryEventObject) => {
-        wemjq(e.target).data(DATA, wemjq(e.target).attr('title'));
-        wemjq(e.target).removeAttr('title').addClass(CLS_ON);
+        $(e.target).data(DATA, $(e.target).attr('title'));
+        $(e.target).removeAttr('title').addClass(CLS_ON);
         if (e.pageX) {
             pageX = e.pageX;
         }
@@ -141,33 +165,33 @@ function initToolTip() {
             pageY = e.pageY;
         }
         showAt(e);
-        onRemovedOrHidden(e.target);
+        onRemovedOrHidden(<HTMLElement>e.target);
     };
 
-    const removeTooltip = (e: { target: Element }) => {
-        if (wemjq(e.target).data(DATA)) {
-            wemjq(e.target).attr('title', wemjq(e.target).data(DATA));
+    const removeTooltip = (e: { target: HTMLElement }) => {
+        if ($(e.target).data(DATA)) {
+            $(e.target).attr('title', $(e.target).data(DATA));
         }
-        wemjq(e.target).removeClass(CLS_ON);
-        wemjq('#' + ID).remove();
+        $(e.target).removeClass(CLS_ON);
+        $('#' + ID).remove();
         unRemovedOrHidden();
         clearInterval(isVisibleCheckInterval);
     };
 
-    wemjq(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', addTooltip);
-    wemjq(document).on('mouseleave click', `.${CLS_ON}`, removeTooltip);
+    $(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', addTooltip);
+    $(document).on('mouseleave click', `.${CLS_ON}`, removeTooltip);
     if (FOLLOW) {
-        wemjq(document).on('mousemove', `.${CLS_ON}`, showAt);
+        $(document).on('mousemove', `.${CLS_ON}`, showAt);
     }
 
-    let element: api.dom.Element;
-    const removeHandler = (event: api.dom.ElementRemovedEvent) => {
+    let element: Element;
+    const removeHandler = (event: ElementRemovedEvent) => {
         const target = event.getElement().getHTMLElement();
         removeTooltip({target});
     };
 
-    const onRemovedOrHidden = (target: Element) => {
-        element = api.dom.ElementRegistry.getElementById(target.id);
+    const onRemovedOrHidden = (target: HTMLElement) => {
+        element = ElementRegistry.getElementById(target.id);
         if (element) {
             element.onRemoved(removeHandler);
             element.onHidden(removeHandler);
@@ -188,12 +212,12 @@ function initToolTip() {
     };
 }
 
-function isVisible(target: Element) {
-    return wemjq(target).is(':visible');
+function isVisible(target: HTMLElement) {
+    return $(target).is(':visible');
 }
 
 function updateTabTitle(title: string) {
-    wemjq('title').html(`${title} / ${i18n('app.name')}`);
+    $('title').text(`${title} / ${i18n('app.name')}`);
 }
 
 function shouldUpdateFavicon(contentTypeName: ContentTypeName): boolean {
@@ -201,7 +225,7 @@ function shouldUpdateFavicon(contentTypeName: ContentTypeName): boolean {
     return contentTypeName.isImage() || navigator.userAgent.search('Chrome') === -1;
 }
 
-const faviconCache: { [url: string]: Element } = {};
+const faviconCache: { [url: string]: HTMLElement } = {};
 
 const iconUrlResolver = new ContentIconUrlResolver();
 
@@ -209,7 +233,7 @@ let dataPreloaded: boolean;
 
 function clearFavicon() {
     // save current favicon hrefs
-    wemjq('link[rel*=icon][sizes]').each((index, link) => {
+    $('link[rel*=icon][sizes]').each((index, link: HTMLElement) => {
         let href = link.getAttribute('href');
         faviconCache[href] = link;
         link.setAttribute('href', ImgEl.PLACEHOLDER);
@@ -238,16 +262,16 @@ function updateFavicon(content: Content) {
     }
 }
 
-const refreshTab = function(content: Content) {
+const refreshTab = function (content: Content) {
     updateFavicon(content);
     updateTabTitle(content.getDisplayName());
 };
 
 function preLoadApplication() {
-    let application: api.app.Application = getApplication();
-    let wizardParams = ContentWizardPanelParams.fromApp(application);
-    if (wizardParams) {
+    const application: Application = getApplication();
+    if (ContentAppHelper.isContentWizard(application)) {
         clearFavicon();
+        const wizardParams: ContentWizardPanelParams = ContentAppHelper.createWizardParamsFromApp(application);
 
         if (!body.isRendered() && !body.isRendering()) {
             dataPreloaded = true;
@@ -263,89 +287,113 @@ function preLoadApplication() {
                 });
             } else {
                 new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then((contentType) => {
-                    updateTabTitle(api.content.ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
+                    updateTabTitle(ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
                 });
             }
         }
     }
 }
 
-function startApplication() {
+function startServerEventListeners(application: Application) {
+    const serverEventsListener: AggregatedServerEventsListener = new AggregatedServerEventsListener([application]);
+    let wsConnectionErrorId: string;
 
-    let application: api.app.Application = getApplication();
+    serverEventsListener.onConnectionError(() => {
+        if (!wsConnectionErrorId) {
+            wsConnectionErrorId = showError(i18n('notify.websockets.error'), false);
+        }
+    });
 
-    let serverEventsListener = new AggregatedServerEventsListener([application]);
+    serverEventsListener.onConnectionRestored(() => {
+        if (wsConnectionErrorId) {
+            NotifyManager.get().hide(wsConnectionErrorId);
+            wsConnectionErrorId = null;
+        }
+    });
+
     serverEventsListener.start();
 
+    // tslint:disable-next-line:no-unused-expression
+    new SettingsServerEventsListener([application]);
+}
+
+async function startApplication() {
+    const application: Application = getApplication();
+
+    startServerEventListeners(application);
+
     initApplicationEventListener();
-
-    let connectionDetector = startLostConnectionDetector();
-
-    let wizardParams = ContentWizardPanelParams.fromApp(application);
-    if (wizardParams) {
-        startContentWizard(wizardParams, connectionDetector);
-    } else {
-        startContentApplication(application);
-    }
+    initProjectContext(application)
+        .catch((reason: any) => {
+            DefaultErrorHandler.handle(reason);
+            NotifyManager.get().showWarning(i18n('notify.settings.project.initFailed'));
+        })
+        .finally(() => {
+            if (ContentAppHelper.isContentWizard(application)) {
+                startContentWizard(ContentAppHelper.createWizardParamsFromApp(application));
+            } else {
+                startContentApplication(application);
+            }
+        });
 
     initToolTip();
 
-    api.util.AppHelper.preventDragRedirect();
+    AppHelper.preventDragRedirect();
 
-    import('./app/duplicate/ContentDuplicateDialog').then(def => {
-        const contentDuplicateDialog = new def.ContentDuplicateDialog();
-        ContentDuplicatePromptEvent.on((event) => {
-            contentDuplicateDialog
-                .setContentToDuplicate(event.getModels())
-                .setYesCallback(event.getYesCallback())
-                .setNoCallback(event.getNoCallback())
-                .setOpenTabAfterDuplicate(event.getOpenActionAfterDuplicate())
-                .open();
-        });
+    const ContentDuplicateDialog = (await import('./app/duplicate/ContentDuplicateDialog')).ContentDuplicateDialog;
+
+    const contentDuplicateDialog = new ContentDuplicateDialog();
+    ContentDuplicatePromptEvent.on((event) => {
+        contentDuplicateDialog
+            .setContentToDuplicate(event.getModels())
+            .setYesCallback(event.getYesCallback())
+            .setNoCallback(event.getNoCallback())
+            .setOpenTabAfterDuplicate(event.getOpenActionAfterDuplicate())
+            .open();
     });
 
-    import('./app/remove/ContentDeleteDialog').then(def => {
-        const contentDeleteDialog = new def.ContentDeleteDialog();
-        ContentDeletePromptEvent.on((event) => {
-            contentDeleteDialog
-                .setContentToDelete(event.getModels())
-                .setYesCallback(event.getYesCallback())
-                .setNoCallback(event.getNoCallback())
-                .open();
-        });
+    const ContentDeleteDialog = (await import('./app/remove/ContentDeleteDialog')).ContentDeleteDialog;
+    const contentDeleteDialog = new ContentDeleteDialog();
+    ContentDeletePromptEvent.on((event) => {
+        contentDeleteDialog
+            .setContentToDelete(event.getModels())
+            .setYesCallback(event.getYesCallback())
+            .setNoCallback(event.getNoCallback())
+            .open();
     });
 
-    import('./app/publish/ContentPublishDialog').then(def => {
-        const contentPublishDialog = new def.ContentPublishDialog();
-        ContentPublishPromptEvent.on((event) => {
-            contentPublishDialog
-                .setContentToPublish(event.getModels())
-                .setIncludeChildItems(event.isIncludeChildItems())
-                .open();
-        });
+    const ContentPublishDialog = (await import('./app/publish/ContentPublishDialog')).ContentPublishDialog;
+    const contentPublishDialog = ContentPublishDialog.get();
+    ContentPublishPromptEvent.on((event) => {
+        contentPublishDialog
+            .setContentToPublish(event.getModels())
+            .setIncludeChildItems(event.isIncludeChildItems(), event.getExceptedContentIds())
+            .setMessage(event.getMessage())
+            .setExcludedIds(event.getExcludedIds())
+            .open();
     });
 
-
-    import('./app/publish/ContentUnpublishDialog').then(def => {
-        const contentUnpublishDialog = new def.ContentUnpublishDialog();
-        ContentUnpublishPromptEvent.on((event) => {
-            contentUnpublishDialog
-                .setContentToUnpublish(event.getModels())
-                .open();
-        });
+    const ContentUnpublishDialog = (await import('./app/publish/ContentUnpublishDialog')).ContentUnpublishDialog;
+    const contentUnpublishDialog = new ContentUnpublishDialog();
+    ContentUnpublishPromptEvent.on((event) => {
+        contentUnpublishDialog
+            .setContentToUnpublish(event.getModels())
+            .open();
     });
+
+    RequestContentPublishPromptEvent.on(
+        (event) => IssueDialogsManager.get().openCreateRequestDialog(event.getModels(), event.isIncludeChildItems()));
 
     CreateIssuePromptEvent.on((event) => IssueDialogsManager.get().openCreateDialog(event.getModels()));
 
     ShowIssuesDialogEvent.on((event: ShowIssuesDialogEvent) =>
-        IssueDialogsManager.get().openListDialog(event.getAssignedToMe(), event.getCreatedByMe()));
+        IssueDialogsManager.get().openListDialog(event.getAssignedToMe()));
 
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
-    import('./app/wizard/EditPermissionsDialog').then(def => {
-        // tslint:disable-next-line:no-unused-expression
-        new def.EditPermissionsDialog();
-    });
+    const EditPermissionsDialog = (await import('./app/wizard/EditPermissionsDialog')).EditPermissionsDialog;
+    // tslint:disable-next-line:no-unused-expression
+    new EditPermissionsDialog();
 
     application.setLoaded(true);
 
@@ -362,157 +410,148 @@ const refreshTabOnContentUpdate = (content: Content) => {
     });
 };
 
-function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: LostConnectionDetector) {
+async function startContentWizard(wizardParams: ContentWizardPanelParams) {
+    const connectionDetector = startLostConnectionDetector();
 
-    import('./app/wizard/ContentWizardPanel').then(def => {
+    const ContentWizardPanel = (await import('./app/wizard/ContentWizardPanel')).ContentWizardPanel;
 
-        let wizard = new def.ContentWizardPanel(wizardParams);
+    let wizard = new ContentWizardPanel(wizardParams, getTheme());
 
-        wizard.onDataLoaded((content: Content) => {
-            let contentType = wizard.getContentType();
-            if (!wizardParams.contentId || !dataPreloaded) {
-                // update favicon for new wizard after content has been created or in case data hasn't been preloaded
-                updateFavicon(content);
+    wizard.onDataLoaded((content: Content) => {
+        let contentType = wizard.getContentType();
+        if (!wizardParams.contentId || !dataPreloaded) {
+            // update favicon for new wizard after content has been created or in case data hasn't been preloaded
+            updateFavicon(content);
 
-                if (shouldUpdateFavicon(content.getType())) {
-                    refreshTabOnContentUpdate(content);
-                }
-
+            if (shouldUpdateFavicon(content.getType())) {
+                refreshTabOnContentUpdate(content);
             }
-            if (!dataPreloaded) {
-                updateTabTitle(content.getDisplayName() || api.content.ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
-            }
-        });
-        wizard.onWizardHeaderCreated(() => {
-            // header will be ready after rendering is complete
-            wizard.getWizardHeader().onPropertyChanged((event: api.PropertyChangedEvent) => {
-                if (event.getPropertyName() === 'displayName') {
-                    let contentType = wizard.getContentType();
-                    let name = <string>event.getNewValue() || api.content.ContentUnnamed.prettifyUnnamed(contentType.getDisplayName());
 
-                    updateTabTitle(name);
-                }
-            });
-        });
-
-        api.dom.WindowDOM.get().onBeforeUnload(event => {
-            if (wizard.isContentDeleted() || !connectionDetector.isConnected() || !connectionDetector.isAuthenticated()) {
-                return;
-            }
-            if (wizard.hasUnsavedChanges() && wizard.hasWritePermissions()) {
-                let message = i18n('dialog.wizard.unsavedChanges');
-                // Hack for IE. returnValue is boolean
-                const e: any = event || window.event || {returnValue: ''};
-                e['returnValue'] = message;
-                return message;
-            }
-        });
-
-        wizard.onClosed(event => window.close());
-
-        // TODO: Remove hack, that connects content events in `FormView`
-        api.content.event.FormEditEvent.on((event) => {
-            const model = ContentSummaryAndCompareStatus.fromContentSummary(event.getModels());
-            new EditContentEvent([model]).fire();
-        });
-        EditContentEvent.on(ContentEventsProcessor.handleEdit);
-
-        api.dom.Body.get().addClass('wizard-page').appendChild(wizard);
+        }
+        if (!dataPreloaded) {
+            updateTabTitle(content.getDisplayName() || ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
+        }
     });
+    wizard.onWizardHeaderCreated(() => {
+        // header will be ready after rendering is complete
+        wizard.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
+            if (event.getPropertyName() === 'displayName') {
+                let contentType = wizard.getContentType();
+                let name = <string>event.getNewValue() || ContentUnnamed.prettifyUnnamed(contentType.getDisplayName());
+
+                updateTabTitle(name);
+            }
+        });
+    });
+
+    WindowDOM.get().onBeforeUnload(event => {
+        if (wizard.isContentDeleted() || !connectionDetector.isConnected() || !connectionDetector.isAuthenticated()) {
+            return;
+        }
+        if (wizard.hasUnsavedChanges() && wizard.hasModifyPermissions()) {
+            let message = i18n('dialog.wizard.unsavedChanges');
+            // Hack for IE. returnValue is boolean
+            const e: any = event || window.event || {returnValue: ''};
+            e['returnValue'] = message;
+            return message;
+        }
+    });
+
+    wizard.onClosed(event => window.close());
+
+    // TODO: Remove hack, that connects content events in `FormView`
+    FormEditEvent.on((event) => {
+        const model = ContentSummaryAndCompareStatus.fromContentSummary(event.getModels());
+        new EditContentEvent([model]).fire();
+    });
+    EditContentEvent.on(ContentEventsProcessor.handleEdit);
+
+    Body.get().addClass('wizard-page').appendChild(wizard);
 }
 
-function startContentApplication(application: api.app.Application) {
+function getTheme(): string {
+    return CONFIG.theme ? (`theme-${CONFIG.theme}` || '') : '';
+}
 
-    import('./app/ContentAppPanel').then(cdef => {
+async function startContentApplication(application: Application) {
 
-        const appBar = new api.app.bar.AppBar(application);
+    await import ('./app/ContentAppPanel');
+    const AppWrapper = (await import ('./app/AppWrapper')).AppWrapper;
+    const commonWrapper = new AppWrapper(application, getTheme());
+    body.appendChild(commonWrapper);
 
-        const appPanel = new cdef.ContentAppPanel(application.getPath());
-        const buttonWrapper = new api.dom.DivEl('show-issues-button-wrapper');
+    const NewContentDialog = (await import ('./app/create/NewContentDialog')).NewContentDialog;
 
-        buttonWrapper.appendChild(new ShowIssuesDialogButton());
-        appBar.appendChild(buttonWrapper);
+    const newContentDialog = new NewContentDialog();
+    ShowNewContentDialogEvent.on((event) => {
 
-        initSearchPanelListener(appPanel);
+        let parentContent: ContentSummary = event.getParentContent()
+            ? event.getParentContent().getContentSummary() : null;
 
-        const clientEventsListener = new ContentEventsListener();
-        clientEventsListener.start();
+        if (parentContent != null) {
+            new GetContentByIdRequest(parentContent.getContentId()).sendAndParse().then(
+                (newParentContent: Content) => {
 
-        appBar.onAdded(() => body.appendChild(appPanel));
-        body.appendChild(appBar);
+                    // TODO: remove pyramid of doom
+                    if (parentContent.hasParent() && parentContent.getType().isTemplateFolder()) {
+                        new GetContentByPathRequest(parentContent.getPath().getParentPath()).sendAndParse().then(
+                            (grandParent: Content) => {
 
-        import('./app/create/NewContentDialog').then(def => {
-
-            const newContentDialog = new def.NewContentDialog();
-            ShowNewContentDialogEvent.on((event) => {
-
-                let parentContent: api.content.ContentSummary = event.getParentContent()
-                                                                ? event.getParentContent().getContentSummary() : null;
-
-                if (parentContent != null) {
-                    new GetContentByIdRequest(parentContent.getContentId()).sendAndParse().then(
-                        (newParentContent: Content) => {
-
-                            // TODO: remove pyramid of doom
-                            if (parentContent.hasParent() && parentContent.getType().isTemplateFolder()) {
-                                new GetContentByPathRequest(parentContent.getPath().getParentPath()).sendAndParse().then(
-                                    (grandParent: Content) => {
-
-                                        newContentDialog.setParentContent(newParentContent);
-                                        newContentDialog.open();
-                                    }).catch((reason: any) => {
-                                    api.DefaultErrorHandler.handle(reason);
-                                }).done();
-                            } else {
                                 newContentDialog.setParentContent(newParentContent);
                                 newContentDialog.open();
-                            }
-                        }).catch((reason: any) => {
-                        api.DefaultErrorHandler.handle(reason);
-                    }).done();
-                } else {
-                    newContentDialog.setParentContent(null);
-                    newContentDialog.open();
-                }
-            });
-        });
-
-        import('./app/issue/view/IssueListDialog').then(def => {
-            // tslint:disable-next-line:no-unused-expression
-            def.IssueListDialog.get();
-        });
-
-        import('./app/browse/SortContentDialog').then(def => {
-            // tslint:disable-next-line:no-unused-expression
-            new def.SortContentDialog();
-        });
-
-        import('./app/move/MoveContentDialog').then(def => {
-            // tslint:disable-next-line:no-unused-expression
-            new def.MoveContentDialog();
-        });
-
+                            }).catch((reason: any) => {
+                            DefaultErrorHandler.handle(reason);
+                        }).done();
+                    } else {
+                        newContentDialog.setParentContent(newParentContent);
+                        newContentDialog.open();
+                    }
+                }).catch((reason: any) => {
+                DefaultErrorHandler.handle(reason);
+            }).done();
+        } else {
+            newContentDialog.setParentContent(null);
+            newContentDialog.open();
+        }
     });
+
+    const IssueListDialog = (await import('./app/issue/view/IssueListDialog')).IssueListDialog;
+    const SortContentDialog = (await import('./app/browse/SortContentDialog')).SortContentDialog;
+    const MoveContentDialog = (await import('./app/move/MoveContentDialog')).MoveContentDialog;
+
+    // tslint:disable-next-line:no-unused-expression
+    IssueListDialog.get();
+
+    // tslint:disable-next-line:no-unused-expression
+    new SortContentDialog();
+
+    // tslint:disable-next-line:no-unused-expression
+    new MoveContentDialog();
 }
 
-function initSearchPanelListener(panel: any) {
-    ToggleSearchPanelWithDependenciesGlobalEvent.on((event) => {
-        if (!panel.getBrowsePanel().getTreeGrid().isEmpty()) {
-            new ToggleSearchPanelWithDependenciesEvent(event.getContent(), event.isInbound()).fire();
-        } else {
+function initProjectContext(application: Application): Q.Promise<void> {
+    const projectName: string = application.getPath().getElement(0);
 
-            const handler = () => {
-                new ToggleSearchPanelWithDependenciesEvent(event.getContent(), event.isInbound()).fire();
-                panel.getBrowsePanel().getTreeGrid().unLoaded(handler);
-            };
-
-            panel.getBrowsePanel().getTreeGrid().onLoaded(handler);
+    return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+        const isProjectExisting: boolean = projects.some((project: Project) => project.getName() === projectName);
+        if (isProjectExisting) {
+            ProjectContext.get().setProject(projectName);
+            return Q(null);
         }
+
+        if (projects.length === 1) {
+            ProjectContext.get().setProject(projects[0].getName());
+            return Q(null);
+        }
+
+        new ProjectSelectionDialog(projects).open();
+
+        return Q(null);
     });
 }
 
 (async () => {
-    await api.util.i18nInit(CONFIG.i18nUrl);
+    await i18nInit(CONFIG.services.i18nUrl);
 
     preLoadApplication();
 

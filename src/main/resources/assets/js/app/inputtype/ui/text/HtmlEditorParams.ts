@@ -1,10 +1,13 @@
-import ApplicationKey = api.application.ApplicationKey;
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {CreateHtmlAreaDialogEvent} from './CreateHtmlAreaDialogEvent';
 
 export class HtmlEditorParams {
 
-    private content: api.content.ContentSummary; // used for image dialog
-    private contentPath: api.content.ContentPath; // used for macro dialog
+    private content: ContentSummary; // used for image dialog
+    private contentPath: ContentPath; // used for macro dialog
     private applicationKeys: ApplicationKey[]; // used for macro dialog
 
     private assetsUri: string;
@@ -24,6 +27,7 @@ export class HtmlEditorParams {
     private customStylesToBeUsed: boolean = false;
     private tools: any;
     private allowScripts: boolean = false;
+    private allowedHeadings: string;
 
     constructor(builder: HtmlEditorParamsBuilder) {
         if (!builder.assetsUri || !builder.editorContainerId || !builder.content) {
@@ -50,6 +54,7 @@ export class HtmlEditorParams {
         this.customStylesToBeUsed = builder.customStylesToBeUsed;
         this.tools = builder.tools;
         this.allowScripts = builder.allowScripts;
+        this.allowedHeadings = builder.allowedHeadings;
     }
 
     private checkRequiredFieldsAreSet(htmlEditorParams: HtmlEditorParams) {
@@ -58,11 +63,11 @@ export class HtmlEditorParams {
         }
     }
 
-    getContent(): api.content.ContentSummary {
+    getContent(): ContentSummary {
         return this.content;
     }
 
-    getContentPath(): api.content.ContentPath {
+    getContentPath(): ContentPath {
         return this.contentPath;
     }
 
@@ -170,6 +175,10 @@ export class HtmlEditorParams {
         return this.allowScripts;
     }
 
+    getAllowedHeadings(): string {
+        return this.allowedHeadings;
+    }
+
     public static create(): HtmlEditorParamsBuilder {
         return new HtmlEditorParamsBuilder();
     }
@@ -177,9 +186,9 @@ export class HtmlEditorParams {
 
 export class HtmlEditorParamsBuilder {
 
-    content: api.content.ContentSummary; // used for image dialog
+    content: ContentSummary; // used for image dialog
 
-    contentPath: api.content.ContentPath; // used for macro dialog
+    contentPath: ContentPath; // used for macro dialog
 
     applicationKeys: ApplicationKey[]; // used for macro dialog
 
@@ -216,6 +225,8 @@ export class HtmlEditorParamsBuilder {
     tools: any;
 
     allowScripts: boolean = false;
+
+    allowedHeadings: string;
 
     setEditableSourceCode(value: boolean): HtmlEditorParamsBuilder {
         this.editableSourceCode = value;
@@ -263,7 +274,7 @@ export class HtmlEditorParamsBuilder {
     }
 
     setNodeChangeHandler(nodeChangeHandler: (e: any) => void): HtmlEditorParamsBuilder {
-        this.nodeChangeHandler = api.util.AppHelper.debounce((e) => {
+        this.nodeChangeHandler = AppHelper.debounce((e) => {
             nodeChangeHandler(e);
         }, 200);
 
@@ -290,12 +301,12 @@ export class HtmlEditorParamsBuilder {
         return this;
     }
 
-    setContent(content: api.content.ContentSummary): HtmlEditorParamsBuilder {
+    setContent(content: ContentSummary): HtmlEditorParamsBuilder {
         this.content = content;
         return this;
     }
 
-    setContentPath(contentPath: api.content.ContentPath): HtmlEditorParamsBuilder {
+    setContentPath(contentPath: ContentPath): HtmlEditorParamsBuilder {
         this.contentPath = contentPath;
         return this;
     }
@@ -317,6 +328,11 @@ export class HtmlEditorParamsBuilder {
 
     setAllowScripts(value: boolean): HtmlEditorParamsBuilder {
         this.allowScripts = value;
+        return this;
+    }
+
+    setAllowedHeadings(allowedHeadings: string): HtmlEditorParamsBuilder {
+        this.allowedHeadings = allowedHeadings;
         return this;
     }
 

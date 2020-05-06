@@ -1,5 +1,5 @@
 import {ReorderChildContentJson} from '../json/ReorderChildContentJson';
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 
 export class OrderChildMovement {
 

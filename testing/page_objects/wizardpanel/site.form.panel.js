@@ -90,9 +90,7 @@ class SiteForm extends Page {
             return this.getAttribute(selector, 'class').then(result => {
                 return !result.includes('invalid');
             })
-        }, 2000).then(() => {
-            return true;
-        });
+        }, 2000);
     }
 };
 module.exports = SiteForm;

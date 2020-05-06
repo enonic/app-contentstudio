@@ -1,3 +1,7 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {ImageComponentView} from './ImageComponentView';
 import {ImageOptionDataLoader} from '../../app/inputtype/ui/selector/image/ImageOptionDataLoader';
@@ -8,11 +12,10 @@ import {MediaUploaderElOperation} from '../../app/inputtype/ui/upload/MediaUploa
 import {Content} from '../../app/content/Content';
 import {ImageComponent} from '../../app/page/region/ImageComponent';
 import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
-import ContentTypeName = api.schema.content.ContentTypeName;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import UploadedEvent = api.ui.uploader.UploadedEvent;
-import ContentSummary = api.content.ContentSummary;
-import i18n = api.util.i18n;
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ImagePlaceholder
     extends ItemViewPlaceholder {
@@ -21,13 +24,13 @@ export class ImagePlaceholder
 
     private comboBox: ImageContentComboBox;
 
-    private comboboxWrapper: api.dom.DivEl;
+    private comboboxWrapper: DivEl;
 
     private imageUploader: ImageUploaderEl;
 
     constructor(imageView: ImageComponentView) {
         super();
-        this.addClassEx('image-placeholder').addClass(api.StyleHelper.getCommonIconCls('image'));
+        this.addClassEx('image-placeholder').addClass(StyleHelper.getCommonIconCls('image'));
         this.imageComponentView = imageView;
 
         this.initImageCombobox(imageView);
@@ -57,7 +60,7 @@ export class ImagePlaceholder
 
             new GetContentByIdRequest(imageContentSummary.getContentId()).sendAndParse().then((imageContent: Content) => {
                 component.setImage(imageContent);
-            }).catch(api.DefaultErrorHandler.handle);
+            }).catch(DefaultErrorHandler.handle);
 
             this.imageComponentView.showLoadingSpinner();
         });
@@ -90,7 +93,7 @@ export class ImagePlaceholder
     }
 
     private initImageComboboxWrapper() {
-        this.comboboxWrapper = new api.dom.DivEl('rich-combobox-wrapper');
+        this.comboboxWrapper = new DivEl('rich-combobox-wrapper');
         this.comboboxWrapper.appendChild(this.comboBox);
         this.comboboxWrapper.appendChild(<any>this.imageUploader);
         this.appendChild(this.comboboxWrapper);

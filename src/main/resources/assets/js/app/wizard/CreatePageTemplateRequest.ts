@@ -1,19 +1,23 @@
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ContentName = api.content.ContentName;
-import ContentPath = api.content.ContentPath;
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {PageTemplateResourceRequest} from '../resource/PageTemplateResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {Regions} from '../page/region/Regions';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreatePageTemplateRequest
-    extends PageTemplateResourceRequest<ContentJson, Content>
+    extends PageTemplateResourceRequest<Content>
     implements PageCUDRequest {
 
-    private controller: api.content.page.DescriptorKey;
+    private controller: DescriptorKey;
 
-    private config: api.data.PropertyTree;
+    private config: PropertyTree;
 
     private regions: Regions;
 
@@ -27,15 +31,16 @@ export class CreatePageTemplateRequest
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('create');
     }
 
-    setController(controller: api.content.page.DescriptorKey): CreatePageTemplateRequest {
+    setController(controller: DescriptorKey): CreatePageTemplateRequest {
         this.controller = controller;
         return this;
     }
 
-    setConfig(config: api.data.PropertyTree): CreatePageTemplateRequest {
+    setConfig(config: PropertyTree): CreatePageTemplateRequest {
         this.config = config;
         return this;
     }
@@ -50,7 +55,7 @@ export class CreatePageTemplateRequest
         return this;
     }
 
-    setName(value: api.content.ContentName): CreatePageTemplateRequest {
+    setName(value: ContentName): CreatePageTemplateRequest {
         this.name = value;
         return this;
     }
@@ -60,7 +65,7 @@ export class CreatePageTemplateRequest
         return this;
     }
 
-    setSupports(...value: api.schema.content.ContentTypeName[]): CreatePageTemplateRequest {
+    setSupports(...value: ContentTypeName[]): CreatePageTemplateRequest {
         this.supports = value;
         return this;
     }
@@ -77,14 +82,7 @@ export class CreatePageTemplateRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'create');
-    }
-
-    sendAndParse(): wemQ.Promise<Content> {
-
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
-            return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
+        return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
     }
 }

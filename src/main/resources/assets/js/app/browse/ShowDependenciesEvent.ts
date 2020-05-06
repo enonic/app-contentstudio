@@ -1,9 +1,10 @@
-import '../../api.ts';
-import ContentId = api.content.ContentId;
-import ContentTypeName = api.schema.content.ContentTypeName;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 export class ShowDependenciesEvent
-    extends api.event.Event {
+    extends Event {
 
     private id: ContentId;
 
@@ -31,10 +32,10 @@ export class ShowDependenciesEvent
     }
 
     static on(handler: (event: ShowDependenciesEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: ShowDependenciesEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

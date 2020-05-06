@@ -1,16 +1,20 @@
-export class ImageStyleNameView
-    extends api.dom.DivEl {
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {H6El} from 'lib-admin-ui/dom/H6El';
 
-    private mainNameEl: api.dom.H6El;
+export class ImageStyleNameView
+    extends DivEl {
+
+    private mainNameEl: H6El;
 
     private addTitleAttribute: boolean;
 
     constructor(addTitleAttribute: boolean = true) {
-        super('names-view', api.StyleHelper.COMMON_PREFIX);
+        super('names-view', StyleHelper.COMMON_PREFIX);
 
         this.addTitleAttribute = addTitleAttribute;
 
-        this.mainNameEl = new api.dom.H6El('main-name', api.StyleHelper.COMMON_PREFIX);
+        this.mainNameEl = new H6El('main-name', StyleHelper.COMMON_PREFIX);
         this.appendChild(this.mainNameEl);
     }
 

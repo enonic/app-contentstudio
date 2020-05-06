@@ -1,17 +1,13 @@
 import {XData} from '../content/XData';
 import {XDataJson} from './json/XDataJson';
+import {ProjectBasedResourceRequest} from '../wizard/ProjectBasedResourceRequest';
 
-export class XDataResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends api.rest.ResourceRequest<JSON_TYPE, PARSED_TYPE> {
-    private resourceUrl: api.rest.Path;
+export abstract class XDataResourceRequest<PARSED_TYPE>
+    extends ProjectBasedResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();
-        this.resourceUrl = api.rest.Path.fromParent(super.getRestPath(), 'schema/xdata');
-    }
-
-    getResourcePath(): api.rest.Path {
-        return this.resourceUrl;
+        this.addRequestPathElements('schema', 'xdata');
     }
 
     fromJsonToXData(json: XDataJson) {

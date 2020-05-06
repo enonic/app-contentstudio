@@ -1,6 +1,5 @@
-import '../../api.ts';
-import ApplicationKey = api.application.ApplicationKey;
-import ApplicationConfig = api.application.ApplicationConfig;
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationConfig} from 'lib-admin-ui/application/ApplicationConfig';
 
 export class ApplicationAddedEvent {
 

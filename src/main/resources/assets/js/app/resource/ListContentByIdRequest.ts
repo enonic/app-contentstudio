@@ -1,31 +1,34 @@
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentSummary = api.content.ContentSummary;
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentResponse} from './ContentResponse';
 import {ListContentResult} from './ListContentResult';
 import {ContentMetadata} from '../content/ContentMetadata';
+import {Expand} from 'lib-admin-ui/rest/Expand';
+import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 
 export class ListContentByIdRequest
-    extends ContentResourceRequest<ListContentResult<ContentSummaryJson>, ContentResponse<ContentSummary>> {
+    extends ContentResourceRequest<ContentResponse<ContentSummary>> {
 
     private parentId: ContentId;
 
-    private expand: api.rest.Expand = api.rest.Expand.SUMMARY;
+    private expand: Expand = Expand.SUMMARY;
 
     private from: number;
 
     private size: number;
 
-    private order: api.content.order.ChildOrder;
+    private order: ChildOrder;
 
     constructor(parentId: ContentId) {
         super();
-        super.setMethod('GET');
         this.parentId = parentId;
+        this.addRequestPathElements('list');
     }
 
-    setExpand(value: api.rest.Expand): ListContentByIdRequest {
+    setExpand(value: Expand): ListContentByIdRequest {
         this.expand = value;
         return this;
     }
@@ -40,7 +43,7 @@ export class ListContentByIdRequest
         return this;
     }
 
-    setOrder(value: api.content.order.ChildOrder): ListContentByIdRequest {
+    setOrder(value: ChildOrder): ListContentByIdRequest {
         this.order = value;
         return this;
     }
@@ -55,17 +58,10 @@ export class ListContentByIdRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'list');
-    }
-
-    sendAndParse(): wemQ.Promise<ContentResponse<ContentSummary>> {
-
-        return this.send().then((response: api.rest.JsonResponse<ListContentResult<api.content.json.ContentSummaryJson>>) => {
-            return new ContentResponse(
-                ContentSummary.fromJsonArray(response.getResult().contents),
-                new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits'])
-            );
-        });
+    protected parseResponse(response: JsonResponse<ListContentResult<ContentSummaryJson>>): ContentResponse<ContentSummary> {
+        return new ContentResponse(
+            ContentSummary.fromJsonArray(response.getResult().contents),
+            new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits'])
+        );
     }
 }

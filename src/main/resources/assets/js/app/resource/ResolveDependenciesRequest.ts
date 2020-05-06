@@ -1,17 +1,19 @@
-import ContentId = api.content.ContentId;
-import Path = api.rest.Path;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ResolveDependenciesResult, ResolveDependenciesResultJson} from './ResolveDependenciesResult';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ResolveDependenciesRequest
-    extends ContentResourceRequest<ResolveDependenciesResultJson, ResolveDependenciesResult> {
+    extends ContentResourceRequest<ResolveDependenciesResult> {
 
     private ids: ContentId[];
 
     constructor(contentIds: ContentId[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = contentIds;
+        this.addRequestPathElements('getDependencies');
     }
 
     getParams(): Object {
@@ -20,14 +22,7 @@ export class ResolveDependenciesRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'getDependencies');
-    }
-
-    sendAndParse(): wemQ.Promise<ResolveDependenciesResult> {
-
-        return this.send().then((response: api.rest.JsonResponse<any>) => {
-            return ResolveDependenciesResult.fromJson(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<ResolveDependenciesResultJson>): ResolveDependenciesResult {
+        return ResolveDependenciesResult.fromJson(response.getResult());
     }
 }

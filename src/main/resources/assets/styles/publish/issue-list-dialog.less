@@ -1,82 +1,99 @@
 .issue-list-dialog {
 
-  .docked-panel {
-    width: auto;
-    box-shadow: none;
-    position: inherit !important;
-    background-color: transparent;
-
-    .tab-bar {
-      position: relative !important;
-      background-color: transparent;
-      border: 0 none;
-      overflow: visible;
-
-      .tab-bar-item {
-        top: 0;
-        right: 0;
-        display: inline;
-        border: 0 none;
-        padding: 7px 5px;
-        position: absolute;
-
-        &.active {
-          display: none;
-        }
-      }
-    }
+  &.show-footer .dialog-buttons {
+    display: block;
   }
 
   .panel {
     position: inherit;
+    overflow: initial;
+  }
 
-    .filters {
-      margin-bottom: 20px;
-      padding: 0 5px;
+  .issues-panel {
+
+    .filters-block {
       display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding-bottom: 5px;
 
-      .checkbox {
-        padding: 8px 5px 8px 0;
+      .label-filter {
+        font-size: 14px;
+        padding-right: 14px;
+      }
 
-        &.disabled {
-          opacity: 0.5;
-          pointer-events: none;
+      .menu-button {
+        border: 1px solid #cccccc;
+        height: 32px;
+
+        .@{_COMMON_PREFIX}dropdown-handle {
+          background-color: @admin-white;
+          &:after {
+            border-top-color: @admin-black;
+          }
+
+          left: auto;
+        }
+
+        .action-button {
+          cursor: default;
+          background-color: @admin-white;
+          span {
+            color: @admin-black;
+          }
+
+          margin-right: 41px;
+          margin-left: 0px;
         }
       }
 
-      .my-issues-filter {
-        margin-right: 20px;
+      .status-filter {
+        display: flex;
+        margin-left: auto;
+
+        .status-button {
+          span {
+            color: @admin-black;
+          }
+
+          background-color: @admin-white;
+          border-bottom: 4px solid transparent;
+          outline: none;
+
+          &.active {
+            border-bottom: 4px solid @admin-blue;
+            span {
+              color: @admin-blue;
+            }
+
+            outline: none;
+          }
+        }
       }
     }
 
     .issue-list {
       overflow: auto;
-      cursor: pointer;
       min-height: 30px;
 
       .issue-list-item {
         display: flex;
         justify-content: space-between;
         padding: 5px 0;
+        margin: 1px; // for outline to be displayed correctly
+        align-items: center;
+        cursor: pointer;
 
         &:hover {
           background-color: @admin-bg-light-gray;
         }
 
-        &:focus {
-          outline: none;
-        }
-
         .names-and-icon-view {
           cursor: pointer;
 
-          .icon-signup {
-            color: @admin-font-gray2;
-            &:not(.closed) {
-              color: @admin-green;
-            }
-
+          .icon-issue, .icon-publish-request {
             font-size: 26px;
+            line-height: 32px;
           }
 
           .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
@@ -90,6 +107,25 @@
             line-height: 18px;
             color: @admin-black;
             font-family: @admin-font-family;
+          }
+        }
+
+        .status {
+          min-width: 50px;
+          padding: 2px 20px 3px;
+          text-transform: capitalize;
+          font-size: 14px;
+          font-weight: bold;
+          text-align: center;
+          color: white;
+          border-radius: 8px;
+          margin-right: 5px;
+
+          &.open {
+            background-color: @admin-green;
+          }
+          &.closed {
+            background-color: @admin-font-gray2;
           }
         }
 
@@ -116,9 +152,12 @@
     }
 
     .no-issues-message {
-      .watermark-text(18px, true);
-      top: calc(~'50% + 24px');
-      left: 0;
+      padding: 26px 0;
+      font-size: 18px;
+      color: rgba(0, 0, 0, 0.25);
+      line-height: 30px;
+      text-align: center;
+      .ellipsis();
     }
 
     .creator, .assignee {
@@ -135,6 +174,53 @@
     .filters {
       flex-wrap: wrap;
       max-width: 200px;
+    }
+  }
+
+  &._0-240, &._240-360, &._360-540 {
+
+    .issues-panel {
+      .filters-block {
+        @media screen and (max-width: 460px) {
+          display: block;
+
+          .menu-button {
+            width: 100%;
+          }
+
+          .status-filter {
+            padding-top: 10px;
+            justify-content: flex-end;
+          }
+        }
+
+        label {
+          display: none;
+        }
+
+        .menu-button {
+          .@{_COMMON_PREFIX}dropdown-handle {
+            width: 30px;
+          }
+
+          .action-button {
+            margin-right: 31px;
+            padding-left: 12px;
+            padding-right: 12px;
+          }
+        }
+
+        span {
+          font-size: 13px;
+        }
+
+        .status-filter {
+          .status-button {
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+        }
+      }
     }
   }
 }

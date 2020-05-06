@@ -1,26 +1,23 @@
-import {PublishDialogDependantList} from './PublishDialogDependantList';
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {showError} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {AEl} from 'lib-admin-ui/dom/AEl';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
-import {PublishDialogItemList} from './PublishDialogItemList';
-import {CreateIssueDialog} from '../issue/view/CreateIssueDialog';
-import {PublishProcessor} from './PublishProcessor';
-import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
-import {Issue} from '../issue/Issue';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {PublishContentRequest} from '../resource/PublishContentRequest';
-import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {BasePublishDialog} from '../dialog/BasePublishDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {CompareStatus} from '../content/CompareStatus';
-import ContentId = api.content.ContentId;
-import ListBox = api.ui.selector.list.ListBox;
-import MenuButton = api.ui.button.MenuButton;
-import Action = api.ui.Action;
-import ActionButton = api.ui.button.ActionButton;
-import Principal = api.security.Principal;
-import DropdownButtonRow = api.ui.dialog.DropdownButtonRow;
-import DialogButton = api.ui.dialog.DialogButton;
-import i18n = api.util.i18n;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
+import {TaskState} from 'lib-admin-ui/task/TaskState';
+import {TaskId} from 'lib-admin-ui/task/TaskId';
+import {AutosizeTextInput} from 'lib-admin-ui/ui/text/AutosizeTextInput';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -31,258 +28,136 @@ import i18n = api.util.i18n;
 export class ContentPublishDialog
     extends BasePublishDialog {
 
-    private publishButton: ActionButton;
-
-    private createIssueAction: Action;
+    private static INSTANCE: ContentPublishDialog;
 
     private publishAction: Action;
 
-    private createIssueButton: DialogButton;
+    private publishSubTitle: ContentPublishDialogSubTitle;
 
-    private publishProcessor: PublishProcessor;
+    private scheduleAction: Action;
 
-    private actionMenu: MenuButton;
+    private message: string;
 
-    private currentUser: Principal;
-
-    constructor() {
-        super(<DependantItemsWithProgressDialogConfig> {
+    protected constructor() {
+        super(<DependantItemsWithProgressDialogConfig>{
             title: i18n('dialog.publish'),
-            class: 'publish-dialog',
-                dialogSubName: i18n('dialog.publish.resolving'),
+            class: 'publish-dialog grey-header',
             dependantsDescription: i18n('dialog.publish.dependants'),
-                processingLabel: `${i18n('field.progress.publishing')}...`,
-                processHandler: () => {
-                    new ContentPublishPromptEvent([]).fire();
-                },
-                buttonRow: new ContentPublishDialogButtonRow(),
-            }
-        );
-    }
-
-    protected initElements() {
-        super.initElements();
-
-        this.publishProcessor = new PublishProcessor(this.getItemList(), this.getDependantList());
-        this.createIssueButton = this.addAction(this.createIssueAction);
-        this.actionMenu = this.getButtonRow().makeActionMenu(this.publishAction, [this.showScheduleAction, this.createIssueAction]);
-        this.actionButton = this.actionMenu.getActionButton();
-        this.publishButton = this.actionMenu.getActionButton();
-        this.loadCurrentUser();
-    }
-
-    protected postInitElements() {
-        super.postInitElements();
-
-        this.setElementToFocusOnShow(this.getButtonRow().getActionMenu().getDropdownHandle());
-        this.addClickIgnoredElement(CreateIssueDialog.get());
-
-        this.lockControls();
-    }
-
-    protected initListeners() {
-        super.initListeners();
-
-        this.publishProcessor.onLoadingStarted(() => {
-            this.lockControls();
-            this.showLoadMask();
-
-            this.setSubTitle(i18n('dialog.publish.resolving'));
+            processingLabel: `${i18n('field.progress.publishing')}...`,
+            processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
         });
 
-        this.publishProcessor.onLoadingFinished(() => {
-            const header: string = this.getDependantsHeader(this.getDependantList().isVisible());
-            this.updateDependantsHeader(header);
-
-            const ids: ContentId[] = this.getContentToPublishIds();
-
-            new HasUnpublishedChildrenRequest(ids).sendAndParse().then((children) => {
-                const toggleable = children.getResult().some(requestedResult => requestedResult.getHasChildren());
-                this.getItemList().setContainsToggleable(toggleable);
-
-                children.getResult().forEach((requestedResult) => {
-                    const item = this.getItemList().getItemViewById(requestedResult.getId());
-
-                    if (item) {
-                        item.setTogglerActive(requestedResult.getHasChildren());
-                    }
-                });
-            });
-
-            if (this.publishProcessor.containsInvalidDependants() || !this.isAllPublishable()) {
-                this.setDependantListVisible(true);
-            }
-
-            this.hideLoadMask();
-
-            this.updateShowScheduleDialogButton();
-
-            const itemsToPublish: number = this.countTotal();
-            this.updateSubTitle(itemsToPublish);
-            this.updateButtonCount(null, itemsToPublish);
-            this.updateControls(itemsToPublish);
-        });
-
-        this.publishProcessor.onLoadingFailed(() => {
-            this.addClass('invalid');
-            this.setSubTitle(i18n('dialog.publish.error.loadFailed'));
-            this.toggleAction(false);
-            this.actionMenu.setVisible(false);
-            this.createIssueButton.setVisible(true);
-            this.hideLoadMask();
-        });
-
-        this.handleIssueGlobalEvents();
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            this.addCancelButtonToBottom();
-            this.actionMenu.getDropdownHandle().addClass('force-enabled');
-            this.createIssueButton.hide();
-            this.createIssueButton.addClass('force-enabled');
-
-            return rendered;
-        });
-    }
-
-    private loadCurrentUser() {
-        return new api.security.auth.IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
-            this.currentUser = loginResult.getUser();
-        });
-    }
-
-    private handleIssueGlobalEvents() {
-
-        IssueServerEventsHandler.getInstance().onIssueCreated((issues: Issue[]) => {
-            if (this.isVisible()) {
-                if (issues.some((issue) => this.isIssueCreatedByCurrentUser(issue))) {
-                    this.close();
-                }
+        this.onProgressComplete((taskState) => {
+            switch (taskState) {
+            case TaskState.FINISHED:
+            case TaskState.FAILED:
+                this.setSubTitleMessage('');
+                break;
             }
         });
     }
 
-    isIssueCreatedByCurrentUser(issue: Issue): boolean {
-        if (!issue.getCreator()) {
-            return false;
+    public static get(): ContentPublishDialog {
+        if (!ContentPublishDialog.INSTANCE) {
+            ContentPublishDialog.INSTANCE = new ContentPublishDialog();
         }
 
-        return issue.getCreator() === this.currentUser.getKey().toString();
+        return ContentPublishDialog.INSTANCE;
     }
 
     protected initActions() {
         super.initActions();
 
         this.publishAction = new ContentPublishDialogAction(this.doPublish.bind(this, false));
-        this.createIssueAction = new CreateIssueDialogAction(this.createIssue.bind(this));
+
+        this.scheduleAction = new Action('action.schedule')
+            .setIconClass('schedule-action')
+            .onExecuted((action: Action) => this.doPublish(true));
     }
 
-    protected createDependantList(): PublishDialogDependantList {
-        return new PublishDialogDependantList();
+    protected initElements() {
+        super.initElements();
+
+        this.publishSubTitle = new ContentPublishDialogSubTitle();
+
+        this.addAction(this.scheduleAction);
+        this.actionButton = this.addAction(this.publishAction, true);
+
+        this.publishScheduleForm.layout(false);
+
+        this.publishScheduleForm.onFormVisibilityChanged((visible) => {
+            this.publishAction.setVisible(!visible);
+            this.scheduleAction.setVisible(visible);
+        });
     }
 
-    protected getDependantList(): PublishDialogDependantList {
-        return <PublishDialogDependantList>super.getDependantList();
+    protected initListeners() {
+        super.initListeners();
+
+        this.publishProcessor.onLoadingFailed(() => {
+            this.setSubTitleMessage('');
+        });
     }
 
-    getButtonRow(): ContentPublishDialogButtonRow {
-        return <ContentPublishDialogButtonRow>super.getButtonRow();
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.setSubTitleEl(this.publishSubTitle);
+
+            this.scheduleFormToggle.addClass('force-enabled');
+            this.getButtonRow().addElement(this.scheduleFormToggle, true);
+
+            this.prependChildToContentPanel(this.publishScheduleForm);
+
+            this.prependChildToContentPanel(this.publishIssuesStateBar);
+
+            return rendered;
+        });
     }
 
     open() {
-        this.publishProcessor.resetExcludedIds();
-        this.publishProcessor.setIgnoreDependantItemsChanged(false);
-
-        CreateIssueDialog.get().reset();
-
-        this.reloadPublishDependencies();
+        this.publishScheduleForm.setFormVisible(false);
 
         super.open();
     }
 
     close() {
         super.close();
-        this.getItemList().clearExcludeChildrenIds();
 
-        CreateIssueDialog.get().reset();
+        this.resetSubTitleMessage();
+        this.message = null;
     }
 
-    protected countTotal(): number {
-        return this.publishProcessor.countTotal();
+    setContentToPublish(contents: ContentSummaryAndCompareStatus[]): ContentPublishDialog {
+        return <ContentPublishDialog>super.setContentToPublish(contents);
     }
 
-    protected getDependantIds(): ContentId[] {
-        return this.publishProcessor.getDependantIds();
-    }
+    setIncludeChildItems(include: boolean, exceptedIds?: ContentId[]): ContentPublishDialog {
+        const hasExceptedIds = exceptedIds != null && exceptedIds.length > 0;
+        const idExcepted = (id: ContentId) => exceptedIds.some(exceptedId => exceptedId.equals(id));
 
-    protected setIgnoreItemsChanged(value: boolean) {
-        super.setIgnoreItemsChanged(value);
-        this.publishProcessor.setIgnoreItemsChanged(value);
-    }
+        let noIdsIncluded: boolean = true;
+        this.getItemList().getItemViews().forEach(itemView => {
+            const toggler = itemView.getIncludeChildrenToggler();
+            if (toggler) {
+                const idIncluded = (hasExceptedIds && idExcepted(itemView.getContentId())) ? !include : include;
+                toggler.toggle(idIncluded);
+                if (idIncluded && noIdsIncluded) {
+                    noIdsIncluded = false;
+                }
+            }
+        });
 
-    public getContentToPublishIds(): ContentId[] {
-        return this.publishProcessor.getContentToPublishIds();
-    }
-
-    public getExcludedIds(): ContentId[] {
-        return this.publishProcessor.getExcludedIds();
-    }
-
-    public isAllPublishable(): boolean {
-        return this.publishProcessor && this.publishProcessor.isAllPublishable();
-    }
-
-    private reloadPublishDependencies() {
-        if (this.isProgressBarEnabled()) {
-            return;
+        if (noIdsIncluded) {
+            // do reload dependencies manually if no children included to update buttons
+            this.publishProcessor.reloadPublishDependencies(true);
         }
 
-        this.publishProcessor.reloadPublishDependencies(true);
-    }
-
-    setDependantItems(items: ContentSummaryAndCompareStatus[]) {
-        if (this.isProgressBarEnabled()) {
-            return;
-        }
-        super.setDependantItems(items);
-    }
-
-    setContentToPublish(contents: ContentSummaryAndCompareStatus[]) {
-        if (this.isProgressBarEnabled()) {
-            return this;
-        }
-        this.setIgnoreItemsChanged(true);
-        this.setListItems(contents);
-        this.setIgnoreItemsChanged(false);
         return this;
     }
 
-    setIncludeChildItems(include: boolean, silent?: boolean) {
-        this.getItemList().getItemViews()
-            .filter(itemView => itemView.getIncludeChildrenToggler())
-            .forEach(itemView => itemView.getIncludeChildrenToggler().toggle(include, silent)
-            );
+    setMessage(message: string): ContentPublishDialog {
+        this.message = message;
         return this;
-    }
-
-    private showCreateIssueDialog() {
-        const createIssueDialog = CreateIssueDialog.get();
-
-        createIssueDialog.enableBackButton();
-        createIssueDialog.setItems(this.getItemList().getItems()/*idsToPublish, this.getItemList().getExcludeChildrenIds()*/);
-        createIssueDialog.setExcludedIds(this.getExcludedIds());
-        createIssueDialog.setExcludeChildrenIds(this.getItemList().getExcludeChildrenIds());
-
-        createIssueDialog.lockPublishItems();
-        createIssueDialog.open(this);
-
-        this.mask();
-    }
-
-    private createIssue() {
-        //TODO: implement action
-        this.showCreateIssueDialog();
     }
 
     private doPublish(scheduled: boolean = false) {
@@ -293,114 +168,206 @@ export class ContentPublishDialog
         this.setSubTitle(i18n('dialog.publish.publishing', this.countTotal()));
 
         const selectedIds = this.getContentToPublishIds();
+        const publishMessage = this.publishSubTitle.getValue();
 
         const publishRequest = new PublishContentRequest()
             .setIds(selectedIds)
+            .setMessage(!StringHelper.isBlank(publishMessage) ? publishMessage : undefined)
             .setExcludedIds(this.getExcludedIds())
             .setExcludeChildrenIds(this.getItemList().getExcludeChildrenIds());
 
         if (scheduled) {
-            publishRequest.setPublishFrom(this.getFromDate());
-            publishRequest.setPublishTo(this.getToDate());
+            const publishSet = this.scheduleFormPropertySet.getPropertySet('publish');
+            const from = publishSet.getLocalDateTime('from', 0);
+            if (from) {
+                publishRequest.setPublishFrom(from.toDate());
+            }
+
+            const to = publishSet.getLocalDateTime('to', 0);
+            if (to) {
+                publishRequest.setPublishTo(to.toDate());
+            }
         }
 
-        publishRequest.sendAndParse().then((taskId: api.task.TaskId) => {
+        publishRequest.sendAndParse().then((taskId: TaskId) => {
             this.pollTask(taskId);
         }).catch((reason) => {
             this.unlockControls();
             this.close();
             if (reason && reason.message) {
-                api.notify.showError(reason.message);
+                showError(reason.message);
             }
         });
     }
 
-    protected createItemList(): ListBox<ContentSummaryAndCompareStatus> {
-        return new PublishDialogItemList();
+
+    protected updateSubTitle(itemsToPublish: number = this.countTotal()) {
+        this.setSubTitle('');
+
+        if (itemsToPublish === 0) {
+            this.setSubTitle(i18n('dialog.publish.noItems'));
+            return;
+        }
+
+        if (this.message) {
+            this.setSubTitleMessage(this.message);
+            this.message = null;
+        }
+
+        super.updateSubTitle(itemsToPublish);
     }
 
-    protected getItemList(): PublishDialogItemList {
-        return <PublishDialogItemList>super.getItemList();
-    }
 
-    private updateSubTitle(itemsToPublish: number) {
-        const allValid: boolean = this.areItemsAndDependantsValid();
+    protected updateControls(itemsToPublish: number = this.countTotal()) {
+        const canPublish = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
+        const scheduleValid = this.isScheduleFormValid();
 
-        let subTitle = (itemsToPublish === 0) ? i18n('dialog.publish.noItems') : this.isAllPublishable() ? (allValid
-                ? i18n('dialog.publish.changesReady')
-                : i18n('dialog.publish.invalidError')
-        ) : i18n('dialog.publish.readOnlyError');
+        this.toggleAction(canPublish && scheduleValid);
 
-        this.setSubTitle(subTitle);
-        this.toggleClass('invalid', !allValid || !this.isAllPublishable());
-    }
+        this.publishSubTitle.setVisible(!this.isAllPendingDelete());
 
-    private updateControls(itemsToPublish: number) {
-        const allValid: boolean = this.areItemsAndDependantsValid();
-        const allPublishable: boolean = this.isAllPublishable();
-        const canPublish: boolean = itemsToPublish > 0 && allValid && allPublishable;
-        const showActionMenu: boolean = itemsToPublish > 0 && allPublishable;
-
-        this.toggleAction(canPublish);
-        this.actionMenu.setVisible(showActionMenu);
-        this.createIssueButton.setVisible(!showActionMenu);
-
-        this.getButtonRow().focusDefaultAction();
-        this.updateTabbable();
+        super.updateControls(itemsToPublish);
     }
 
     protected updateButtonCount(actionString: string, itemsToPublish: number) {
-        const labelWithNumber: Function = (num, label) => `${label}${num > 1 ? ` (${num})` : '' }`;
+        const labelWithNumber: Function = (num, label) => `${label}${num > 1 ? ` (${num})` : ''}`;
 
-        this.publishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.publish')));
-        this.showScheduleAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.scheduleMore')));
-        this.createIssueAction.setLabel(labelWithNumber(this.getItemList().getItemCount(), i18n('action.createIssueMore')));
-    }
-
-    protected doScheduledAction() {
-        this.doPublish(true);
-    }
-
-    protected isScheduleButtonAllowed(): boolean {
-        return this.isAllPublishable() && this.areSomeItemsOffline();
-    }
-
-    private areSomeItemsOffline(): boolean {
-        let summaries: ContentSummaryAndCompareStatus[] = this.getItemList().getItems();
-        return summaries.some((summary) => summary.getCompareStatus() === CompareStatus.NEW);
-    }
-
-    private areItemsAndDependantsValid(): boolean {
-        return !this.publishProcessor.containsInvalidItems();
+        this.publishAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.publishNow')));
+        this.scheduleAction.setLabel(labelWithNumber(itemsToPublish, i18n('action.schedule')));
     }
 
     protected lockControls() {
         super.lockControls();
-        this.publishButton.setEnabled(false);
+        this.scheduleAction.setEnabled(false);
     }
 
     protected unlockControls() {
         super.unlockControls();
-        this.publishButton.setEnabled(true);
+        this.scheduleAction.setEnabled(true);
+    }
+
+    setSubTitle(text: string) {
+        this.publishSubTitle.setMessage(text.trim());
+    }
+
+    setSubTitleMessage(message: string) {
+        this.publishSubTitle.setValue(message);
+    }
+
+    resetSubTitleMessage() {
+        this.publishSubTitle.resetValue();
     }
 }
 
-export class ContentPublishDialogButtonRow
-    extends DropdownButtonRow {
+export class ContentPublishDialogSubTitle
+    extends DivEl {
+    private input: AutosizeTextInput;
+    private message: AEl;
 
-    makeActionMenu(mainAction: Action, menuActions: Action[], useDefault: boolean = true): MenuButton {
-        super.makeActionMenu(mainAction, menuActions, useDefault);
+    constructor() {
+        super('publish-dialog-sub-title');
+        this.input = new AutosizeTextInput();
+        this.input.setPlaceholder(i18n('dialog.publish.messagePlaceholder'));
+        this.input.setVisible(false);
 
-        return <MenuButton>this.actionMenu.addClass('publish-dialog-menu');
+        this.message = new AEl();
+        this.message.setHtml(i18n('dialog.publish.messageHint'));
+        this.message.onClicked((event: MouseEvent) => {
+            event.stopImmediatePropagation();
+            event.preventDefault();
+
+            this.toggleInput(true);
+        });
+
+        this.initListeners();
     }
 
-}
+    getValue(): string {
+        return this.input.getValue();
+    }
 
-export class CreateIssueDialogAction
-    extends api.ui.Action {
-    constructor(handler: () => wemQ.Promise<any> | void) {
-        super(i18n('action.createIssueMore'));
-        this.setIconClass('create-issue-action');
-        this.onExecuted(handler);
+    setValue(text: string) {
+        if (!text) {
+            return;
+        }
+        this.input.setValue(text);
+        this.toggleInput(true, false);
+    }
+
+    resetValue() {
+        this.input.reset();
+        this.input.resetBaseValues();
+    }
+
+    setMessage(text: string) {
+        this.message.setHtml(text || i18n('dialog.publish.messageHint'));
+        this.toggleClass('custom-message', !!text);
+    }
+
+    private toggleInput(visible: boolean, focus: boolean = true) {
+        if (visible) {
+            this.message.hide();
+            this.input.show();
+            if (focus) {
+                this.input.giveFocus();
+            }
+        } else {
+            this.input.reset();
+            this.input.hide();
+            this.message.show();
+        }
+    }
+
+    private initListeners() {
+        const keyDownHandler = (event: KeyboardEvent) => {
+            const isTextInputFocused = document.activeElement &&
+                                       (document.activeElement.tagName.toUpperCase() === 'INPUT' ||
+                                        document.activeElement.tagName.toUpperCase() === 'TEXTAREA');
+
+            const isPublishMessageInputFocused = this.input.getHTMLElement() === document.activeElement;
+
+            if (isTextInputFocused && !isPublishMessageInputFocused) {
+                // don't hijack focus from other inputs
+                return;
+            }
+
+            const isLetterOrNumber: boolean = !event.altKey && !event.ctrlKey && KeyHelper.isAlphaNumeric(event);
+
+            if (!isPublishMessageInputFocused && isLetterOrNumber) {
+                this.toggleInput(true);
+            } else if (isPublishMessageInputFocused) {
+                if (KeyHelper.isEscKey(event)) {
+                    event.stopImmediatePropagation();
+                    this.toggleInput(false);
+                } else if (KeyHelper.isEnterKey(event)) {
+                    event.stopImmediatePropagation();
+                    this.input.giveBlur();
+                }
+            }
+        };
+
+        const clickHandler = (event: MouseEvent) => {
+            if (this.input.isVisible()
+                && StringHelper.isBlank(this.input.getValue())
+                && event.target !== this.input.getHTMLElement()) {
+
+                this.toggleInput(false);
+            }
+        };
+
+        this.onShown(() => {
+            Body.get().onKeyDown(keyDownHandler);
+        });
+        this.onHidden(() => Body.get().unKeyDown(keyDownHandler));
+
+        this.input.onShown(() => Body.get().onClicked(clickHandler));
+        this.input.onHidden(() => Body.get().unClicked(clickHandler));
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.appendChildren<Element>(this.message, this.input);
+            return rendered;
+        });
     }
 }

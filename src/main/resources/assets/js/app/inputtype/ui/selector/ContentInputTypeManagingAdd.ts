@@ -1,12 +1,13 @@
-import RichComboBox = api.ui.selector.combobox.RichComboBox;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import SelectedOptionsView = api.ui.selector.combobox.SelectedOptionsView;
-import BaseInputTypeManagingAdd = api.form.inputtype.support.BaseInputTypeManagingAdd;
-import ContentPath = api.content.ContentPath;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {RichComboBox} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import {ContentInputTypeViewContext} from '../../ContentInputTypeViewContext';
 import {ContentServerEventsHandler} from '../../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
+import {ContentServerChangeItem} from '../../../event/ContentServerChangeItem';
 
 export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     extends BaseInputTypeManagingAdd {
@@ -58,7 +59,7 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         let allowContentPathConfig = inputConfig['allowPath'] || [];
         this.allowedContentPaths =
             allowContentPathConfig.length > 0 ? allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val) :
-            (!api.util.StringHelper.isBlank(this.getDefaultAllowPath())
+            (!StringHelper.isBlank(this.getDefaultAllowPath())
              ? [this.getDefaultAllowPath()]
              : []);
     }
@@ -68,7 +69,7 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     }
 
     private handleContentUpdatedEvent() {
-        let contentUpdatedOrMovedListener = (statuses: ContentSummaryAndCompareStatus[], oldPaths?: ContentPath[]) => {
+        const contentUpdatedOrMovedListener = (statuses: ContentSummaryAndCompareStatus[], oldPaths?: ContentPath[]) => {
 
             if (this.getSelectedOptions().length === 0) {
                 return;
@@ -91,13 +92,11 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         handler.onContentMoved(contentUpdatedOrMovedListener);
         handler.onContentRenamed(contentUpdatedOrMovedListener);
         handler.onContentUpdated(contentUpdatedOrMovedListener);
-        handler.onContentPermissionsUpdated(contentUpdatedOrMovedListener);
 
         this.onRemoved(() => {
             handler.unContentUpdated(contentUpdatedOrMovedListener);
             handler.unContentRenamed(contentUpdatedOrMovedListener);
             handler.unContentMoved(contentUpdatedOrMovedListener);
-            handler.unContentPermissionsUpdated(contentUpdatedOrMovedListener);
         });
     }
 

@@ -1,18 +1,26 @@
+import * as $ from 'jquery';
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
 import {ContentItemPreviewToolbar} from './ContentItemPreviewToolbar';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper as RenderingUriHelper} from '../rendering/UriHelper';
-import {Branch} from '../versioning/Branch';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ImageUrlResolver} from '../util/ImageUrlResolver';
 import {MediaAllowsPreviewRequest} from '../resource/MediaAllowsPreviewRequest';
-import {RepositoryId} from '../repository/RepositoryId';
 import {EmulatedEvent} from '../event/EmulatedEvent';
-import ViewItem = api.app.view.ViewItem;
-import UriHelper = api.util.UriHelper;
-import i18n = api.util.i18n;
-import DivEl = api.dom.DivEl;
-import SpanEl = api.dom.SpanEl;
+import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {ItemPreviewPanel} from 'lib-admin-ui/app/view/ItemPreviewPanel';
+import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
+import {BrEl} from 'lib-admin-ui/dom/BrEl';
+import {UrlHelper} from '../util/UrlHelper';
+import {ProjectContext} from '../project/ProjectContext';
+import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -25,21 +33,38 @@ enum PREVIEW_TYPE {
 }
 
 export class ContentItemPreviewPanel
-    extends api.app.view.ItemPreviewPanel<ContentSummaryAndCompareStatus> {
+    extends ItemPreviewPanel<ContentSummaryAndCompareStatus> {
 
-    private image: api.dom.ImgEl;
+    private image: ImgEl;
     private item: ViewItem<ContentSummaryAndCompareStatus>;
     private skipNextSetItemCall: boolean = false;
     private previewType: PREVIEW_TYPE;
     private previewMessage: DivEl;
     private noSelectionMessage: DivEl;
+    private debouncedSetItem: (item: ViewItem<ContentSummaryAndCompareStatus>) => void;
 
     constructor() {
         super('content-item-preview-panel');
 
-        this.initElements();
+        this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
 
+        this.initElements();
         this.setupListeners();
+
+        if (!ProjectContext.get().isInitialized()) {
+            this.handleProjectNotSet();
+        }
+    }
+
+    private handleProjectNotSet() {
+        this.noSelectionMessage.getFirstChild().setHtml(i18n('settings.projects.nopermissions'));
+
+        const projectSetHandler = () => {
+            this.noSelectionMessage.getFirstChild().setHtml(i18n('panel.noselection'));
+            ProjectChangedEvent.un(projectSetHandler);
+        };
+
+        ProjectChangedEvent.on(projectSetHandler);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -52,7 +77,7 @@ export class ContentItemPreviewPanel
     }
 
     private initElements() {
-        this.image = new api.dom.ImgEl();
+        this.image = new ImgEl();
 
         const selectorText = new SpanEl();
         selectorText.setHtml(i18n('panel.noselection'));
@@ -66,6 +91,10 @@ export class ContentItemPreviewPanel
     }
 
     public setItem(item: ViewItem<ContentSummaryAndCompareStatus>, force: boolean = false) {
+        this.debouncedSetItem(item);
+    }
+
+    private doSetItem(item: ViewItem<ContentSummaryAndCompareStatus>, force: boolean) {
         if (item && !this.skipNextSetItemCall && (!item.equals(this.item) || force)) {
             if (typeof item.isRenderable() === 'undefined') {
                 return;
@@ -249,11 +278,11 @@ export class ContentItemPreviewPanel
                 break;
             }
             case PREVIEW_TYPE.EMPTY: {
-                this.showPreviewMessage(i18n('field.preview.notAvailable'));
+                this.showPreviewMessages([i18n('field.preview.notAvailable')]);
                 break;
             }
             case PREVIEW_TYPE.FAILED: {
-                this.showPreviewMessage(i18n('field.preview.failed'));
+                this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.description')]);
                 break;
             }
             case PREVIEW_TYPE.BLANK: {
@@ -270,7 +299,7 @@ export class ContentItemPreviewPanel
         }
     }
 
-    private isMediaForPreview(content: api.content.ContentSummary) {
+    private isMediaForPreview(content: ContentSummary) {
         if (!content) {
             return false;
         }
@@ -282,13 +311,17 @@ export class ContentItemPreviewPanel
                type.isVideoMedia();
     }
 
-    private showPreviewMessage(message: string) {
+    private showPreviewMessages(messages: string[]) {
         this.getEl().addClass('no-preview');
-
-        const textEl = new SpanEl();
-        textEl.setHtml(message, false);
         this.previewMessage.removeChildren();
-        this.previewMessage.appendChild(textEl);
+
+        messages.forEach((message: string, index: number) => {
+            this.previewMessage.appendChild(SpanEl.fromText(message));
+            const isLastMessage = index === messages.length - 1;
+            if (!isLastMessage) {
+                this.previewMessage.appendChild<any>(new BrEl());
+            }
+        });
 
         this.frame.setSrc('about:blank');
     }
@@ -300,7 +333,8 @@ export class ContentItemPreviewPanel
             if (allows) {
                 this.setPreviewType(PREVIEW_TYPE.MEDIA);
                 if (this.isVisible()) {
-                    this.frame.setSrc(api.util.UriHelper.getRestUri(`content/media/${contentSummary.getId()}?download=false#view=fit`));
+                    this.frame.setSrc(UriHelper.getRestUri(
+                        `${UrlHelper.getCMSPath()}/content/media/${contentSummary.getId()}?download=false#view=fit`));
                 }
             } else {
                 this.setPreviewType(PREVIEW_TYPE.EMPTY);
@@ -337,9 +371,9 @@ export class ContentItemPreviewPanel
         this.showMask();
         if (item.isRenderable()) {
             this.setPreviewType(PREVIEW_TYPE.PAGE);
-            const src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE, RepositoryId.CONTENT_REPO_ID, Branch.DRAFT);
+            const src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE);
             // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
-            wemjq.ajax({
+            $.ajax({
                 type: 'HEAD',
                 async: true,
                 url: src

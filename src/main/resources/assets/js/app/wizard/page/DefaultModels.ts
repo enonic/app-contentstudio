@@ -1,4 +1,4 @@
-import PageDescriptor = api.content.page.PageDescriptor;
+import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {PageTemplate} from '../../content/PageTemplate';
 
 export class DefaultModels {

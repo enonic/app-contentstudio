@@ -1,6 +1,8 @@
-import ResourceRequest = api.rest.ResourceRequest;
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Path} from 'lib-admin-ui/rest/Path';
 import {CustomSelectorItem} from './CustomSelectorItem';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 
 export interface CustomSelectorResponse {
     total: number;
@@ -9,7 +11,7 @@ export interface CustomSelectorResponse {
 }
 
 export class CustomSelectorRequest
-    extends ResourceRequest<CustomSelectorResponse, CustomSelectorItem[]> {
+    extends ResourceRequest<CustomSelectorItem[]> {
 
     public static DEFAULT_SIZE: number = 10;
 
@@ -21,11 +23,6 @@ export class CustomSelectorRequest
 
     private results: CustomSelectorItem[];
     private loaded: boolean = false;
-
-    constructor() {
-        super();
-        this.setMethod('GET');
-    }
 
     setRequestPath(requestPath: string) {
         this.requestPath = requestPath;
@@ -54,31 +51,8 @@ export class CustomSelectorRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromString(this.requestPath);
-    }
-
-    sendAndParse(): wemQ.Promise<CustomSelectorItem[]> {
-        return this.send().then((response: api.rest.JsonResponse<CustomSelectorResponse>) => {
-
-            let result: CustomSelectorResponse = response.getResult();
-            if (this.start === 0) {
-                this.results = [];
-            }
-
-            this.validateResponse(result);
-
-            this.start += result.count;
-            this.loaded = this.start >= result.total;
-
-            let items = result.hits.map((hit) => {
-                return new CustomSelectorItem(hit);
-            });
-
-            this.results = this.results.concat(items);
-
-            return this.results;
-        });
+    getRequestPath(): Path {
+        return Path.fromString(this.requestPath);
     }
 
     private validateResponse(result: CustomSelectorResponse) {
@@ -117,5 +91,25 @@ export class CustomSelectorRequest
     setQuery(query: string): CustomSelectorRequest {
         this.query = query;
         return this;
+    }
+
+    protected parseResponse(response: JsonResponse<CustomSelectorResponse>): CustomSelectorItem[] {
+        const result: CustomSelectorResponse = response.getResult();
+        if (this.start === 0) {
+            this.results = [];
+        }
+
+        this.validateResponse(result);
+
+        this.start += result.count;
+        this.loaded = this.start >= result.total;
+
+        let items = result.hits.map((hit) => {
+            return new CustomSelectorItem(hit);
+        });
+
+        this.results = this.results.concat(items);
+
+        return this.results;
     }
 }

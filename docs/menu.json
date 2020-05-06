@@ -9,6 +9,10 @@
       "document": "issues"
     },
     {
+      "title": "Content Workflow",
+      "document": "workflow"
+    },
+    {
       "title": "Content Editor",
       "document": "editor",
       "menuItems": [
@@ -21,7 +25,11 @@
             "document" : "editor/page-editor"
         },
         {
-          "title": "Components Type",
+          "title": "Context Panel",
+          "document": "editor/context-panel"
+        },
+        {
+          "title": "Component Types",
           "document" : "editor/component-types"
       },
         {

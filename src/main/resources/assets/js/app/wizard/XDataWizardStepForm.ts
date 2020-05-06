@@ -1,9 +1,10 @@
+import * as Q from 'q';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {XDataName} from '../content/XDataName';
 import {XData} from '../content/XData';
-import Form = api.form.Form;
-import FormView = api.form.FormView;
-import PropertyTree = api.data.PropertyTree;
+import {Form} from 'lib-admin-ui/form/Form';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 
 export class XDataWizardStepForm
     extends ContentWizardStepForm {
@@ -56,13 +57,13 @@ export class XDataWizardStepForm
         this.stashedData = null;
     }
 
-    resetForm(): wemQ.Promise<void> {
+    resetForm(): Q.Promise<void> {
         this.resetData();
 
-        return this.enabled ? this.doLayout(this.form, this.data) : wemQ(null);
+        return this.enabled ? this.doLayout(this.form, this.data) : Q(null);
     }
 
-    protected doLayout(form: Form, data: PropertyTree): wemQ.Promise<void> {
+    protected doLayout(form: Form, data: PropertyTree): Q.Promise<void> {
         if (this.enabled === undefined) {
             this.resetState(data);
         }
@@ -75,14 +76,14 @@ export class XDataWizardStepForm
             this.formView = new FormView(this.formContext, form, data.getRoot());
         }
 
-        return wemQ(null);
+        return Q(null);
     }
 
-    update(data: PropertyTree, unchangedOnly: boolean = true): wemQ.Promise<void> {
+    update(data: PropertyTree, unchangedOnly: boolean = true): Q.Promise<void> {
         return super.update(data, unchangedOnly);
     }
 
-    resetState(data?: PropertyTree): wemQ.Promise<void> {
+    resetState(data?: PropertyTree): Q.Promise<void> {
         this.data = data || this.data;
         return this.setEnabled(!this.isOptional() || this.data.getRoot().getPropertyArrays().length > 0, true).then(() => {
             this.resetHeaderState();
@@ -101,17 +102,17 @@ export class XDataWizardStepForm
         }
     }
 
-    private setEnabled(value: boolean, silent: boolean = false): wemQ.Promise<void> {
+    private setEnabled(value: boolean, silent: boolean = false): Q.Promise<void> {
         let changed: boolean = value !== this.enabled;
         this.enabled = value;
 
         this.enabled ? this.show() : this.hide();
 
         if (!changed) {
-            return wemQ(null);
+            return Q(null);
         }
 
-        let promise: wemQ.Promise<void>;
+        let promise: Q.Promise<void>;
         if (this.enabled) {
             if (this.form && this.data) {
                 if (this.stashedData) {
@@ -139,7 +140,7 @@ export class XDataWizardStepForm
             this.notifyEnableChanged(value);
         }
 
-        return promise || wemQ(null);
+        return promise || Q(null);
     }
 
     onEnableChanged(listener: (value: boolean) => void) {

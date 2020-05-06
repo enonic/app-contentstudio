@@ -1,9 +1,11 @@
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Permission} from '../access/Permission';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetPermittedActionsRequest
-    extends ContentResourceRequest<string[], Permission[]> {
+    extends ContentResourceRequest<Permission[]> {
 
     private contentIds: ContentId[] = [];
 
@@ -16,7 +18,8 @@ export class GetPermittedActionsRequest
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('allowedActions');
     }
 
     addContentIds(...contentIds: ContentId[]): GetPermittedActionsRequest {
@@ -43,20 +46,13 @@ export class GetPermittedActionsRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'allowedActions');
-    }
+    protected parseResponse(response: JsonResponse<string[]>): Permission[] {
+        let result = [];
 
-    sendAndParse(): wemQ.Promise<Permission[]> {
-
-        return this.send().then((response: api.rest.JsonResponse<string[]>) => {
-            let result = [];
-
-            response.getResult().forEach((entry: string) => {
-                result.push(Permission[entry]);
-            });
-
-            return result;
+        response.getResult().forEach((entry: string) => {
+            result.push(Permission[entry]);
         });
+
+        return result;
     }
 }

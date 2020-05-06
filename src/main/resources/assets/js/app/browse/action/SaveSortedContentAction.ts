@@ -1,9 +1,10 @@
-import '../../../api.ts';
 import {SortContentDialog} from '../SortContentDialog';
 import {SaveSortedContentEvent} from '../SaveSortedContentEvent';
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Action} from 'lib-admin-ui/ui/Action';
 
-export class SaveSortedContentAction extends api.ui.Action {
+export class SaveSortedContentAction
+    extends Action {
 
     constructor(dialog: SortContentDialog) {
         super(i18n('action.save'));

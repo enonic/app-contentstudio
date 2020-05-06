@@ -1,3 +1,9 @@
+import * as $ from 'jquery';
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {Event} from 'lib-admin-ui/event/Event';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {PageView} from '../../../page-editor/PageView';
 import {ComponentViewDragStartedEvent} from '../../../page-editor/ComponentViewDragStartedEvent';
@@ -32,21 +38,22 @@ import {SkipLiveEditReloadConfirmationEvent} from '../../../page-editor/SkipLive
 import {LiveEditPageDialogCreatedEvent} from '../../../page-editor/LiveEditPageDialogCreatedEvent';
 import {ComponentDetachedFromFragmentEvent} from '../../../page-editor/ComponentDetachedFromFragmentEvent';
 import {CreateHtmlAreaDialogEvent} from '../../inputtype/ui/text/CreateHtmlAreaDialogEvent';
-import {ModalDialog} from '../../inputtype/ui/text/dialog/ModalDialog';
 import {UriHelper} from '../../rendering/UriHelper';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {EditContentEvent} from '../../event/EditContentEvent';
-import {Branch} from '../../versioning/Branch';
 import {Component} from '../../page/region/Component';
 import {ComponentFactory} from '../../page/region/ComponentFactory';
-import {RepositoryId} from '../../repository/RepositoryId';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {Regions} from '../../page/region/Regions';
+import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
+import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
+import {IFrameEl} from 'lib-admin-ui/dom/IFrameEl';
+import {DragMask} from 'lib-admin-ui/ui/mask/DragMask';
+import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
+import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {GLOBAL, GlobalLibAdmin, Store} from 'lib-admin-ui/store/Store';
 import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
 import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
-import MinimizeWizardPanelEvent = api.app.wizard.MinimizeWizardPanelEvent;
-import PageDescriptor = api.content.page.PageDescriptor;
-import i18n = api.util.i18n;
 import Element = api.dom.Element;
 
 declare var CONFIG;
@@ -57,15 +64,15 @@ export class LiveEditPageProxy {
 
     private pageView: PageView;
 
-    private liveEditIFrame: api.dom.IFrameEl;
+    private liveEditIFrame: IFrameEl;
 
-    private placeholderIFrame: api.dom.IFrameEl;
+    private placeholderIFrame: IFrameEl;
 
     private liveEditWindow: any;
 
     private livejq: JQueryStatic;
 
-    private dragMask: api.ui.mask.DragMask;
+    private dragMask: DragMask;
 
     private beforeLoadListeners: { (): void; }[] = [];
 
@@ -131,14 +138,14 @@ export class LiveEditPageProxy {
 
     private controllerCopyForIE: any;
 
-    private writePermissions: boolean = false;
+    private modifyPermissions: boolean = false;
 
     constructor() {
 
         this.liveEditIFrame = this.createLiveEditIFrame();
         this.placeholderIFrame = this.createPlaceholderIFrame();
 
-        this.dragMask = new api.ui.mask.DragMask(this.liveEditIFrame);
+        this.dragMask = new DragMask(this.liveEditIFrame);
 
         this.onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
             if (LiveEditPageProxy.debug) {
@@ -159,15 +166,15 @@ export class LiveEditPageProxy {
         });
     }
 
-    private createLiveEditIFrame(): api.dom.IFrameEl {
-        let liveEditIFrame = new api.dom.IFrameEl('live-edit-frame');
+    private createLiveEditIFrame(): IFrameEl {
+        let liveEditIFrame = new IFrameEl('live-edit-frame');
         liveEditIFrame.onLoaded(() => this.handleIFrameLoadedEvent());
 
         return liveEditIFrame;
     }
 
-    private createPlaceholderIFrame(): api.dom.IFrameEl {
-        const placeholderIFrame = new api.dom.IFrameEl('live-edit-frame-blank');
+    private createPlaceholderIFrame(): IFrameEl {
+        const placeholderIFrame = new IFrameEl('live-edit-frame-blank');
         placeholderIFrame.setSrc(CONFIG.assetsUri + '/page-editor/_blank.html');
 
         placeholderIFrame.onLoaded(() => this.handlePlaceholderIFrameLoadedEvent(placeholderIFrame));
@@ -236,9 +243,9 @@ export class LiveEditPageProxy {
         this.liveEditModel = liveEditModel;
     }
 
-    public setWritePermissions(writePermissions: boolean): boolean {
-        this.writePermissions = writePermissions;
-        return this.writePermissions;
+    public setModifyPermissions(modifyPermissions: boolean): boolean {
+        this.modifyPermissions = modifyPermissions;
+        return this.modifyPermissions;
     }
 
     public setWidth(value: string) {
@@ -265,11 +272,11 @@ export class LiveEditPageProxy {
         return this.liveEditIFrame.getEl().getHeight();
     }
 
-    public getIFrame(): api.dom.IFrameEl {
+    public getIFrame(): IFrameEl {
         return this.liveEditIFrame;
     }
 
-    public getPlaceholderIFrame(): api.dom.IFrameEl {
+    public getPlaceholderIFrame(): IFrameEl {
         return this.placeholderIFrame;
     }
 
@@ -287,7 +294,7 @@ export class LiveEditPageProxy {
         //this.liveEditWindow.DragAndDrop.get().destroyDraggable(item);
     }
 
-    public getDragMask(): api.ui.mask.DragMask {
+    public getDragMask(): DragMask {
         return this.dragMask;
     }
 
@@ -326,9 +333,9 @@ export class LiveEditPageProxy {
             this.pageView = null;
         }
         let contentId = this.liveEditModel.getContent().getContentId().toString();
-        let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT, RepositoryId.CONTENT_REPO_ID, Branch.DRAFT);
+        let pageUrl = UriHelper.getPortalUri(contentId, RenderingMode.EDIT);
 
-        if (api.BrowserHelper.isIE()) {
+        if (BrowserHelper.isIE()) {
             this.copyObjectsBeforeFrameReloadForIE();
         }
 
@@ -374,12 +381,12 @@ export class LiveEditPageProxy {
         new SkipLiveEditReloadConfirmationEvent(skip).fire(this.liveEditWindow);
     }
 
-    public propagateEvent(event: api.event.Event) {
+    public propagateEvent(event: Event) {
         event.fire(this.liveEditWindow);
     }
 
     private handleIFrameLoadedEvent() {
-        let liveEditWindow = this.liveEditIFrame.getHTMLElement()['contentWindow'];
+        let liveEditWindow: Window = this.liveEditIFrame.getHTMLElement()['contentWindow'];
 
         if (LiveEditPageProxy.debug) {
             console.debug('LiveEditPageProxy.handleIframeLoadedEvent at ' + new Date().toISOString());
@@ -392,25 +399,28 @@ export class LiveEditPageProxy {
             }
 
             this.liveEditWindow = liveEditWindow;
-            if (liveEditWindow.wemjq) {
+            const liveEditGlobal: GlobalLibAdmin = liveEditWindow[GLOBAL];
+            const liveEditStore: Store = liveEditGlobal ? liveEditGlobal.store : null;
+            const livejq = (liveEditStore && liveEditStore.has('$')) ? liveEditStore.get('$') : liveEditWindow['$'];
+            if (livejq) {
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.setting config for', liveEditWindow.document, CONFIG);
                 }
                 // Give loaded page same CONFIG as in admin
-                liveEditWindow.CONFIG = JSON.parse(JSON.stringify(CONFIG));
+                liveEditWindow['CONFIG'] = JSON.parse(JSON.stringify(CONFIG));
 
-                this.livejq = <JQueryStatic>liveEditWindow.wemjq;
+                this.livejq = <JQueryStatic>livejq;
 
                 this.listenToPage(this.liveEditWindow);
 
-                if (api.BrowserHelper.isIE()) {
+                if (BrowserHelper.isIE()) {
                     this.resetObjectsAfterFrameReloadForIE();
                     this.disableLinksInLiveEditForIE();
                 }
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.hanldeIframeLoadedEvent: initialize live edit at ' + new Date().toISOString());
                 }
-                new InitializeLiveEditEvent(this.liveEditModel, this.writePermissions).fire(this.liveEditWindow);
+                new InitializeLiveEditEvent(this.liveEditModel, this.modifyPermissions).fire(this.liveEditWindow);
             } else {
                 if (LiveEditPageProxy.debug) {
                     console.debug('LiveEditPageProxy.handleIframeLoadedEvent: notify live edit ready at ' + new Date().toISOString());
@@ -423,19 +433,19 @@ export class LiveEditPageProxy {
         this.notifyLoaded();
     }
 
-    private handlePlaceholderIFrameLoadedEvent(iframe: api.dom.IFrameEl) {
+    private handlePlaceholderIFrameLoadedEvent(iframe: IFrameEl) {
         let window = iframe.getHTMLElement()['contentWindow'];
 
-        wemjq(window.document.body).find('.page-placeholder-info-line1').html(i18n('live.view.page.nocontrollers'));
-        wemjq(window.document.body).find('.page-placeholder-info-line2').html(i18n('live.view.page.addapplications'));
+        $(window.document.body).find('.page-placeholder-info-line1').text(i18n('live.view.page.nocontrollers'));
+        $(window.document.body).find('.page-placeholder-info-line2').text(i18n('live.view.page.addapplications'));
     }
 
-    public loadComponent(componentView: ComponentView<Component>, componentUrl: string): wemQ.Promise<string> {
-        const deferred = wemQ.defer<string>();
-        api.util.assertNotNull(componentView, 'componentView cannot be null');
-        api.util.assertNotNull(componentUrl, 'componentUrl cannot be null');
+    public loadComponent(componentView: ComponentView<Component>, componentUrl: string): Q.Promise<string> {
+        const deferred = Q.defer<string>();
+        assertNotNull(componentView, 'componentView cannot be null');
+        assertNotNull(componentUrl, 'componentUrl cannot be null');
 
-        wemjq.ajax({
+        $.ajax({
             url: componentUrl,
             type: 'GET',
             success: (htmlAsString: string) => {
@@ -467,7 +477,7 @@ export class LiveEditPageProxy {
     }
 
     private createComponentViewFromHtml(htmlAsString: string, oldComponentView: ComponentView<Component>): ComponentView<Component> {
-        const newElement: Element = api.dom.Element.fromString(htmlAsString);
+        const newElement: Element = Element.fromString(htmlAsString);
         const itemViewIdProducer: ItemViewIdProducer = oldComponentView.getItemViewIdProducer();
         const itemViewFactory: ItemViewFactory = oldComponentView.getItemViewFactory();
 

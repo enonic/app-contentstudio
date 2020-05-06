@@ -1,32 +1,30 @@
-import RichComboBox = api.ui.selector.combobox.RichComboBox;
-import RichComboBoxBuilder = api.ui.selector.combobox.RichComboBoxBuilder;
-import Option = api.ui.selector.Option;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import BaseSelectedOptionView = api.ui.selector.combobox.BaseSelectedOptionView;
-import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsView;
-import DescriptorKey = api.content.page.DescriptorKey;
-import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
-import ApplicationKey = api.application.ApplicationKey;
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {LayoutDescriptorLoader} from '../../app/wizard/page/contextwindow/inspect/region/LayoutDescriptorLoader';
 import {DescriptorViewer} from '../../app/wizard/page/contextwindow/inspect/DescriptorViewer';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {AEl} from 'lib-admin-ui/dom/AEl';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 
 export class LayoutDescriptorComboBox
     extends RichComboBox<LayoutDescriptor> {
 
     constructor() {
-        super(new RichComboBoxBuilder<LayoutDescriptor>()
-            .setIdentifierMethod('getKey')
-            .setOptionDisplayValueViewer(new DescriptorViewer<LayoutDescriptor>())
-            .setSelectedOptionsView(new LayoutDescriptorSelectedOptionsView())
-            .setLoader(new LayoutDescriptorLoader())
-            .setMaximumOccurrences(1)
-            .setNextInputFocusWhenMaxReached(false)
-            .setNoOptionsText('No layouts available'));
+        super(new LayoutDescriptorComboBoxBuilder());
     }
 
-    loadDescriptors(applicationKeys: ApplicationKey[]) {
+    setApplicationKeys(applicationKeys: ApplicationKey[]) {
         (<LayoutDescriptorLoader>this.getLoader()).setApplicationKeys(applicationKeys);
-        this.getLoader().load();
     }
 
     getDescriptor(descriptorKey: DescriptorKey): LayoutDescriptor {
@@ -74,14 +72,14 @@ export class LayoutDescriptorSelectedOptionView
         this.addClass('layout-descriptor-selected-option-view');
     }
 
-    doRender(): wemQ.Promise<boolean> {
+    doRender(): Q.Promise<boolean> {
 
-        let namesAndIconView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
+        let namesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
         namesAndIconView.setIconClass('icon-earth icon-medium')
             .setMainName(this.descriptor.getDisplayName())
             .setSubName(this.descriptor.getKey().toString());
 
-        let removeButtonEl = new api.dom.AEl('remove');
+        let removeButtonEl = new AEl('remove');
         removeButtonEl.onClicked((event: MouseEvent) => {
             this.notifyRemoveClicked();
 
@@ -90,9 +88,27 @@ export class LayoutDescriptorSelectedOptionView
             return false;
         });
 
-        this.appendChildren<api.dom.Element>(removeButtonEl, namesAndIconView);
+        this.appendChildren<Element>(removeButtonEl, namesAndIconView);
 
-        return wemQ(true);
+        return Q(true);
     }
 
+}
+
+export class LayoutDescriptorComboBoxBuilder
+    extends RichComboBoxBuilder<LayoutDescriptor> {
+
+    loader: LayoutDescriptorLoader = new LayoutDescriptorLoader();
+
+    maximumOccurrences: number = 1;
+
+    identifierMethod: string = 'getKey';
+
+    optionDisplayValueViewer: Viewer<LayoutDescriptor> = new DescriptorViewer<LayoutDescriptor>();
+
+    selectedOptionsView: SelectedOptionsView<LayoutDescriptor> = new LayoutDescriptorSelectedOptionsView();
+
+    noOptionsText: string = 'No layouts available';
+
+    nextInputFocusWhenMaxReached: boolean = true;
 }

@@ -3,12 +3,23 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'IssueListDialog')]`,
-    newIssueButton: `//button[contains(@id,'DialogButton') and child::span[text()='New Issue...']]`,
-    showClosedIssuesLink: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Show closed issues')]]",
-    showOpenIssuesLink: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Show open issues')]]",
+    newTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='New Task']]`,
+    closedButton: "//button[contains(@id,'StatusFilterButton') and child::span[contains(.,'Closed')]]",
+    openButton: "//button[contains(@id,'StatusFilterButton') and child::span[contains(.,'Open')]]",
+    hideClosedIssuesButton: "//button[contains(@id,'OnOffButton') and child::span[contains(.,'Hide closed issues')]]",
     issueByName: function (name) {
         return `//li[contains(@id,'IssueListItem')]//h6[contains(@class,'main-name') and contains(.,'${name}')]`
     },
+    typeFilterOption: option => {
+        return `//div[contains(@id,'TypeFilter')]//li[contains(@id,'MenuItem') and contains(.,'${option}')]`
+    },
+    publishRequestsMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'Publish requests']]",
+    createdByMeMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'Created by Me']]",
+    assignedToMeMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'Assigned to Me']]",
+    tasksMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'Tasks']]",
+    allMenuItem: "//li[contains(@id,'MenuItem')and contains(.,'All']]",
+    typeFilter: "//div[contains(@id,'TypeFilter')]",
+    assignedSelectedOption: "//div[contains(@class,'selected-options')]"
 };
 
 class IssuesListDialog extends Page {
@@ -17,21 +28,24 @@ class IssuesListDialog extends Page {
         return xpath.container + `//h2[@class='title']`;
     }
 
-    get myOpenedIssuesCheckbox() {
-        return xpath.container +
-               `//div[contains(@class,'panel OPEN')]//div[contains(@id,'Checkbox') and descendant::label[contains(.,'My Issues')]]`;
+    get typeFilterDropDownHandle() {
+        return xpath.container + xpath.typeFilter + lib.DROP_DOWN_HANDLE;
     }
 
-    get showClosedIssuesLink() {
-        return xpath.container + xpath.showClosedIssuesLink;
+    get closedButton() {
+        return xpath.container + xpath.closedButton;
     }
 
-    get showOpenIssuesLink() {
-        return xpath.container + xpath.showOpenIssuesLink;
+    get openButton() {
+        return xpath.container + xpath.openButton;
     }
 
-    get newIssueButton() {
-        return xpath.container + xpath.newIssueButton;
+    get hideClosedIssuesButton() {
+        return xpath.container + xpath.hideClosedIssuesButton;
+    }
+
+    get newTaskButton() {
+        return xpath.container + xpath.newTaskButton;
     }
 
     get cancelTopButton() {
@@ -39,28 +53,34 @@ class IssuesListDialog extends Page {
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(this.newIssueButton, appConst.TIMEOUT_3).catch(err => {
-            this.saveScreenshot("err_load_issues_list_dlg");
-            throw new Error("Issues list dialog not loaded in " + appConst.TIMEOUT_3)
+        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_3).catch(err => {
+            this.saveScreenshot("err_load_tasks_list_dlg");
+            throw new Error("Issues list dialog is not loaded in " + appConst.TIMEOUT_3)
         })
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+    isTypeFilterSelectorDisplayed() {
+        return this.isElementDisplayed(xpath.typeFilter + "//button");
+    }
+
+    async waitForDialogClosed() {
+        await this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+        return await this.pause(200);
     }
 
     isDialogPresent() {
         return this.isElementDisplayed(xpath.container);
     }
 
-    clickOnCancelTopButton() {
-        return this.clickOnElement(this.cancelTopButton);
+    async clickOnCancelTopButton() {
+        await this.clickOnElement(this.cancelTopButton);
+        return await this.pause(500);
     }
 
-    clickOnNewIssueButton() {
-        return this.clickOnElement(this.newIssueButton).catch(err => {
+    clickOnNewTaskButton() {
+        return this.clickOnElement(this.newTaskButton).catch(err => {
             this.saveScreenshot('err_click_issue_list_new');
-            throw  new Error('Error when click on the `New Issue`  ' + err);
+            throw  new Error('Isses List Dialog - Error when click on the `New task`  ' + err);
         })
     }
 
@@ -68,25 +88,119 @@ class IssuesListDialog extends Page {
         return this.getText(this.title);
     }
 
-    isNewIssueButtonVisible() {
-        return this.isElementDisplayed(this.newIssueButton);
+    isNewTaskButtonDisplayed() {
+        return this.isElementDisplayed(this.newTaskButton);
     }
 
-    isMyOpenedIssuesCheckboxVisible() {
-        return this.isElementDisplayed(this.myOpenedIssuesCheckbox);
+    isClosedButtonDisplayed() {
+        return this.isElementDisplayed(this.closedButton);
     }
 
-    isShowClosedIssuesLinkVisible() {
-        return this.isElementDisplayed(this.showClosedIssuesLink);
+    async waitForClosedButtonDisabled() {
+        try {
+            await this.waitForElementDisabled(this.closedButton, appConst.TIMEOUT_2);
+        } catch (err) {
+            this.saveScreenshot("err_closed_button_should_be_disabled");
+            throw new Error("Issues List Dialog-  Closed button should be disabled " + err);
+        }
     }
 
-    waitForShowOpenIssuesLinkVisible() {
-        return this.waitForElementDisplayed(this.showOpenIssuesLink);
+    async waitForOpenButtonDisabled() {
+        try {
+            await this.waitForElementDisabled(this.openButton, appConst.TIMEOUT_2);
+        } catch (err) {
+            this.saveScreenshot("err_open_button_should_be_disabled");
+            throw new Error("Issues List Dialog-  'Open' button should be disabled " + err);
+        }
     }
 
-    async clickOnShowClosedIssuesLink() {
-        await this.clickOnElement(this.showClosedIssuesLink);
-        return await this.pause(400);
+    async waitForOpenButtonDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.openButton, appConst.TIMEOUT_2);
+        } catch (err) {
+            this.saveScreenshot("err_open_button_should_be_displayed");
+            throw new Error("Issues List Dialog-  'Open' button should be displayed " + err);
+        }
+    }
+
+    async clickOnClosedButton() {
+        try {
+            let el = await this.getDisplayedElements(this.closedButton);
+            await el[0].waitForEnabled(appConst.TIMEOUT_2);
+            //await this.waitForElementEnabled(this.showClosedIssuesButton,appConst.TIMEOUT_2);
+            await this.clickOnElement(this.closedButton);
+            return await this.pause(700);
+        } catch (err) {
+            this.saveScreenshot("err_show_closed_issues_list");
+            throw new Error("Issues List dialog - Error when clicking on 'Closed' button  " + err);
+        }
+    }
+
+    async clickOnOpenButton() {
+        try {
+            let el = await this.getDisplayedElements(this.openButton);
+            await el[0].waitForEnabled(appConst.TIMEOUT_2);
+            //await this.waitForElementEnabled(this.showClosedIssuesButton,appConst.TIMEOUT_2);
+            await this.clickOnElement(this.openButton);
+            return await this.pause(400);
+        } catch (err) {
+            this.saveScreenshot("err_click_open_button");
+            throw new Error("Issues List dialog - Error when clicking on 'Open' button  " + err);
+        }
+    }
+
+    //clicks on dropdown handle and selects option in the Type Filter
+    async selectTypeFilterOption(option) {
+        await this.clickOnElement(this.typeFilterDropDownHandle);
+        let optionXpath = xpath.typeFilterOption(option);
+        await this.waitForElementDisplayed(optionXpath, appConst.TIMEOUT_2);
+        await this.clickOnElement(optionXpath);
+        return this.pause(300);
+    }
+
+    async isTypeFilterOptionDisabled(option) {
+        await this.clickOnElement(this.typeFilterDropDownHandle);
+        let optionXpath = xpath.typeFilterOption(option);
+        return await this.waitForElementDisabled(optionXpath, appConst.TIMEOUT_2);
+    }
+
+    async clickOnTypeFilterDropDownHandle() {
+        await this.waitForElementDisplayed(this.typeFilterDropDownHandle, appConst.TIMEOUT_2);
+        await this.clickOnElement(this.typeFilterDropDownHandle);
+        return await this.pause(200);
+    }
+
+    getTypeFilterSelectedOption() {
+        let selector = xpath.container + xpath.typeFilter + "//button/span"
+        return this.getText(selector);
+    }
+
+    async getTypeFilterOptions() {
+        let selector = xpath.container + xpath.typeFilter + "//li[contains(@id,'MenuItem')]";
+        await this.clickOnTypeFilterDropDownHandle();
+        let result = await this.getTextInElements(selector);
+        return [].concat(result);
+
+    }
+
+    //Wait for state(Disable or Enabled) of the option in the Type Filter:
+    async waitForFilterOptionDisabled(option) {
+        try {
+            let optionXpath = xpath.typeFilterOption(option);
+            await this.getBrowser().waitUntil(async () => {
+                let text = await this.getAttribute(optionXpath, "class");
+                return text.includes('disabled');
+            }, appConst.TIMEOUT_2);
+        } catch (err) {
+            this.saveScreenshot("err_type_filter1");
+            throw new Error("Type Filter - menu item:" + option + " should be disabled! " + err);
+        }
+    }
+
+    async isFilterOptionDisabled(option) {
+        let optionXpath = xpath.typeFilterOption(option);
+        let attr = await this.getAttribute(optionXpath, "class");
+        return attr.includes('disabled');
     }
 
     isIssuePresent(issueName) {
@@ -105,10 +219,10 @@ class IssuesListDialog extends Page {
         //})
     }
 
+    //Scrolls the modal dialog and clicks on the issue:
     clickOnIssue(issueName) {
         let issueXpath = xpath.issueByName(issueName);
         return this.isElementDisplayed(issueXpath).then(result => {
-            let selector = `div[@class='modal-dialog-body mask-wrapper']`;
             if (!result) {
                 return this.scrollToIssue(issueXpath);
             }
@@ -118,6 +232,78 @@ class IssuesListDialog extends Page {
             this.saveScreenshot('err_click_on_issue');
             throw new Error('error when clicked on issue' + err)
         })
+    }
+    async waitForIssueNotPresent(issueName){
+        let issueXpath = xpath.issueByName(issueName);
+        return await this.waitForElementNotDisplayed(issueXpath, appConst.TIMEOUT_2);
+    }
+    async waitForIssuePresent(issueName){
+        let issueXpath = xpath.issueByName(issueName);
+        return await this.waitForElementDisplayed(issueXpath, appConst.TIMEOUT_2);
+    }
+
+    async isOpenButtonActive() {
+        await this.waitForOpenButtonDisplayed();
+        let result = await this.getAttribute(this.openButton, 'class');
+        return result.includes('active');
+    }
+
+    async isClosedButtonActive() {
+        await this.waitForOpenButtonDisplayed();
+        let result = await this.getAttribute(this.closedButton, 'class');
+        return result.includes('active');
+    }
+
+    async getNumberInClosedButton() {
+        try {
+            let buttonText = await this.getText(this.closedButton);
+            let startIndex = buttonText.indexOf('(');
+            if (startIndex == -1) {
+                return '0'
+            }
+            let endIndex = buttonText.indexOf(')');
+            if (endIndex == -1) {
+                throw new Error("Issue List Dialog, Closed button - incorrect text in the label, ')' was not found");
+            }
+            return buttonText.substring(startIndex + 1, endIndex);
+        } catch (err) {
+            throw new Error("Issue List Dialog : error when getting the number in Closed button: " + err);
+        }
+    }
+
+    async getNumberInOpenButton() {
+        try {
+            let buttonText = await this.getText(this.openButton);
+            let startIndex = buttonText.indexOf('(');
+            if (startIndex == -1) {
+                return '0';
+            }
+            let endIndex = buttonText.indexOf(')');
+            if (endIndex == -1) {
+                throw new Error("Issue List Dialog, Open button - incorrect text in the label, '}' was not found");
+            }
+            return buttonText.substring(startIndex + 1, endIndex);
+        } catch (err) {
+            throw new Error("Issue List Dialog : error when getting the number in Open button: " + err);
+        }
+    }
+
+    async getNumberInSelectedOption() {
+        try {
+            let selector = xpath.container + xpath.typeFilter + "//button/span"
+            let textInSelectedOption = await this.getText(selector);
+            let startIndex = textInSelectedOption.indexOf('(');
+            if (startIndex == -1) {
+                throw new Error("Issue List Dialog, Selected option - incorrect text in the label, '(' was not found");
+            }
+            let endIndex = textInSelectedOption.indexOf(')');
+            if (endIndex == -1) {
+                throw new Error("Issue List Dialog, Selected option - incorrect text in the label, '}' was not found");
+            }
+            return textInSelectedOption.substring(startIndex + 1, endIndex);
+        } catch (err) {
+            throw new Error("Issue List Dialog : error when getting the number in Selected option: " + err);
+        }
     }
 };
 module.exports = IssuesListDialog;

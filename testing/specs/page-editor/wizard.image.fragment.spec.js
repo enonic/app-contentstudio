@@ -3,12 +3,9 @@
  *
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
@@ -18,7 +15,6 @@ const ImageInspectionPanel = require('../../page_objects/wizardpanel/liveform/in
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
-
 describe('wizard.image.fragment: changing of an image in image-fragment',
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
@@ -27,121 +23,94 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
         let IMAGE_DISPLAY_NAME1 = 'cape';
         let IMAGE_DISPLAY_NAME2 = 'man2';
         let SITE;
-        let SUPPORT = 'Site';
         let CONTROLLER_NAME = 'main region';
+
         it(`Precondition: new site should be added`,
-            () => {
-                let contentBrowsePanel = new ContentBrowsePanel();
+            async () => {
                 let displayName = contentBuilder.generateRandomName('site');
                 SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App'], CONTROLLER_NAME);
-                return studioUtils.doAddSite(SITE).then(() => {
-                }).then(() => {
-                    return studioUtils.findAndSelectItem(SITE.displayName);
-                }).then(() => {
-                    return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-                }).then(isDisplayed => {
-                    assert.isTrue(isDisplayed, 'site should be listed in the grid');
-                });
+                await studioUtils.doAddSite(SITE);
             });
 
         it(`Precondition: image-fragment should be inserted in the site`,
-            () => {
+            async () => {
                 let contentWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
                 let liveFormPanel = new LiveFormPanel();
-                return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                    // opens 'Show Component View'
-                    return contentWizard.clickOnShowComponentViewToggler();
-                }).then(() => {
-                    return pageComponentView.openMenu("main");
-                }).then(() => {
-                    return pageComponentView.selectMenuItem(["Insert", "Image"]);
-                }).then(() => {
-                    // insert the image
-                    return liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME1);
-                }).then(() => {
-                    return contentWizard.switchToMainFrame();
-                }).then(() => {
-                    return pageComponentView.openMenu(IMAGE_DISPLAY_NAME1);
-                }).then(() => {
-                    // save the image as fragment
-                    return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-                });
+                await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+                // opens 'Show Component View':
+                await contentWizard.clickOnShowComponentViewToggler();
+                await pageComponentView.openMenu("main");
+                await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
+                // insert the image:
+                await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME1);
+                studioUtils.saveScreenshot("image_fragment_step1");
+                await contentWizard.switchToMainFrame();
+                //Open Page Component View:
+                await contentWizard.clickOnShowComponentViewToggler();
+                await pageComponentView.openMenu(IMAGE_DISPLAY_NAME1);
+                studioUtils.saveScreenshot("image_fragment_step1");
+                // save the image as fragment
+                await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
+                await pageComponentView.pause(2000);
             });
 
         //verifies the "https://github.com/enonic/app-contentstudio/issues/256"
         //"Save" button doesn't get disabled after saving any changes #256
-        it(`GIVEN existing fragment is opened WHEN image has been changed and the fragment saved THEN Save button gets Saved`,
-            () => {
+        it(`GIVEN existing fragment is opened WHEN image has been changed and the fragment saved THEN 'Save' button gets disabled`,
+            async () => {
                 let contentWizard = new ContentWizard();
                 let imageInspectionPanel = new ImageInspectionPanel();
                 let pageComponentView = new PageComponentView();
-                return studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME1).then(() => {
-                    return contentWizard.clickOnShowComponentViewToggler();
-                }).then(() => {
-                    return pageComponentView.clickOnComponent(IMAGE_DISPLAY_NAME1);
-                }).then(() => {
-                    //the image has been removed in 'inspection panel'
-                    return imageInspectionPanel.clickOnRemoveIcon();
-                }).then(() => {
-                    // new image has been selected( fragment should be saved automatically)
-                    return imageInspectionPanel.typeNameAndSelectImage(IMAGE_DISPLAY_NAME2);
-                }).then(() => {
-                    //so Save should be disabled now!
-                    return assert.eventually.isTrue(contentWizard.waitForSaveButtonDisabled(),
-                        "`Save` button should be disabled on the toolbar");
-                })
+                await studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME1);
+                await contentWizard.clickOnShowComponentViewToggler();
+                //Select the component:
+                await pageComponentView.clickOnComponent(IMAGE_DISPLAY_NAME1);
+                //click on `remove` in 'inspection panel' and remove the image:
+                await imageInspectionPanel.clickOnRemoveIcon();
+                // new image has been selected( fragment should be saved automatically)
+                await imageInspectionPanel.typeNameAndSelectImage(IMAGE_DISPLAY_NAME2);
+                //`Save` button gets disabled now!(issues/256)
+                await contentWizard.waitForSaveButtonDisabled();
             });
 
         //checks alert after clicking on Close icon(nothing was changed)
         it(`GIVEN existing fragment is opened AND Components View is opened WHEN image has been clicked in Components View  AND close browser tab has been clicked THEN Alert with warning about unsaved changes should not appear`,
-            () => {
+            async () => {
                 let contentWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
-                return studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME1).then(() => {
-                    return contentWizard.clickOnShowComponentViewToggler();
-                }).then(() => {
-                    // just click on the image (nothing is changing)
-                    return pageComponentView.clickOnComponent(IMAGE_DISPLAY_NAME2);
-                }).then(() => {
-                    //`Close tab` has been clicked
-                    return contentWizard.clickOnCloseIconInBrowser();
-                }).then(() => {
-                    return contentWizard.isAlertPresent();
-                }).then(result => {
-                    assert.isFalse(result, "Alert dialog should not be present, because nothing was changed!");
-                })
+                await studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME1);
+                await contentWizard.clickOnShowComponentViewToggler();
+                // just click on the image (nothing is changing)
+                await pageComponentView.clickOnComponent(IMAGE_DISPLAY_NAME2);
+                //`Close tab` has been clicked:
+                await contentWizard.clickOnCloseIconInBrowser();
+                let result = await contentWizard.isAlertPresent();
+                assert.isFalse(result, "Alert dialog should not be present, because nothing was changed!");
             });
 
         //verifies https://github.com/enonic/app-contentstudio/issues/335
         //Site Wizard Context panel - versions widget closes after rollback a version
         it(`GIVEN existing site is opened AND Versions widget is opened WHEN rollback a version THEN Versions widget should not be closed`,
-            () => {
+            async () => {
                 let contentWizard = new ContentWizard();
                 let wizardVersionsWidget = new WizardVersionsWidget();
                 let wizardDetailsPanel = new WizardDetailsPanel();
-                return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                    return contentWizard.openDetailsPanel();
-                }).then(() => {
-                    return wizardDetailsPanel.openVersionHistory();
-                }).then(() => {
-                    return wizardVersionsWidget.waitForVersionsLoaded();
-                }).then(() => {
-                    //expand the version item
-                    return wizardVersionsWidget.clickAndExpandVersion(1);
-                }).then(() => {
-                    // click on Restore button
-                    return wizardVersionsWidget.clickOnRestoreThisVersion();
-                }).then(() => {
-                    //wait for the notification message
-                    return contentWizard.waitForNotificationMessage();
-                }).then(message => {
-                    assert.include(message, "Version was changed to", "Expected notification message should appear");
-                }).then(() => {
-                    return wizardVersionsWidget.isWidgetVisible();
-                }).then(result => {
-                    assert.isTrue(result, "Versions widget should be present in Details Panel")
-                })
+                //1. Open existing site:
+                await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+                await contentWizard.openDetailsPanel();
+                //2. Open Versions widget:
+                await wizardDetailsPanel.openVersionHistory();
+                await wizardVersionsWidget.waitForVersionsLoaded();
+                //3. Expand the version item and click on Revert:
+                await wizardVersionsWidget.clickAndExpandVersion(1);
+                await wizardVersionsWidget.clickOnRevertButton();
+                //4. Verify  the notification message:
+                let actualMessage = await contentWizard.waitForNotificationMessage();
+                    assert.include(actualMessage, appConstant.CONTENT_REVERTED_MESSAGE, "Expected notification message should appear");
+                //5. Verify that widget is displayed :
+                let isDisplayed = await wizardVersionsWidget.isWidgetLoaded();
+                assert.isTrue(isDisplayed, "Versions widget should be present in Details Panel")
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

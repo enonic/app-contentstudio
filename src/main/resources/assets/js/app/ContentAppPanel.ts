@@ -1,4 +1,7 @@
-import {ViewContentEvent} from './browse/ViewContentEvent';
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentBrowsePanel} from './browse/ContentBrowsePanel';
 import {NewContentEvent} from './create/NewContentEvent';
 import {GetIssueRequest} from './issue/resource/GetIssueRequest';
@@ -14,35 +17,45 @@ import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompare
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
 import {ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
 import {ResolveDependencyResult} from './resource/ResolveDependencyResult';
-import ContentId = api.content.ContentId;
-import ShowBrowsePanelEvent = api.app.ShowBrowsePanelEvent;
-import AppPanel = api.app.AppPanel;
-import i18n = api.util.i18n;
+import {AppPanel} from 'lib-admin-ui/app/AppPanel';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {UrlAction} from './UrlAction';
+import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {AppContext} from './AppContext';
+import {ProjectContext} from './project/ProjectContext';
 
 export class ContentAppPanel
     extends AppPanel<ContentSummaryAndCompareStatus> {
 
-    private path: api.rest.Path;
-
-    constructor(path?: api.rest.Path) {
+    constructor(path?: Path) {
         super();
-        this.path = path;
+
+        if (ProjectContext.get().isInitialized() && AppContext.get().isMainMode()) {
+            this.route(path);
+        }
+    }
+
+    handleBrowse() {
+        super.handleBrowse();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.route(this.path);
+
             return rendered;
         });
     }
 
-    private route(path?: api.rest.Path) {
-        const action = path ? path.getElement(0) : null;
-        const id = path ? path.getElement(1) : null;
-        const type = path ? path.getElement(2) : null;
+    private route(path?: Path) {
+        const action = path ? path.getElement(1) : null;
+        const actionAsTabMode: UrlAction = !!action ? UrlAction[action.toUpperCase()] : null;
+        const id = path ? path.getElement(2) : null;
+        const type = path ? path.getElement(3) : null;
 
-        switch (action) {
-        case 'edit':
+        switch (actionAsTabMode) {
+        case UrlAction.EDIT:
             if (id) {
                 ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
                     (content: ContentSummaryAndCompareStatus) => {
@@ -50,31 +63,19 @@ export class ContentAppPanel
                     });
             }
             break;
-        case 'view' :
-            if (id) {
-                ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
-                    (content: ContentSummaryAndCompareStatus) => {
-                        new ViewContentEvent([content]).fire();
-                    });
-            }
-            break;
-        case 'issue' :
-            new ShowBrowsePanelEvent().fire();
+        case UrlAction.ISSUE:
             if (id) {
                 new GetIssueRequest(id).sendAndParse().then(
                     (issue: Issue) => {
-                        IssueDialogsManager.get().openDetailsDialog(issue);
+                        IssueDialogsManager.get().openDetailsDialogWithListDialog(issue);
                     });
             }
             break;
-        case 'inbound' :
+        case UrlAction.INBOUND:
             this.handleDependencies(id, true, type);
             break;
-        case 'outbound' :
+        case UrlAction.OUTBOUND:
             this.handleDependencies(id, false, type);
-            break;
-        default:
-            new ShowBrowsePanelEvent().fire();
             break;
         }
     }
@@ -104,7 +105,7 @@ export class ContentAppPanel
         }
     }
 
-    protected resolveActions(panel: api.ui.panel.Panel): api.ui.Action[] {
+    protected resolveActions(panel: Panel): Action[] {
         const actions = super.resolveActions(panel);
         return [...actions, ...this.getBrowsePanel().getNonToolbarActions()];
     }
@@ -117,8 +118,6 @@ export class ContentAppPanel
         };
 
         ContentTreeGridLoadedEvent.on(treeGridLoadedListener);
-
-        new ShowBrowsePanelEvent().fire();
     }
 
     private doHandleDependencies(id: string, inbound: boolean, type?: string) {
@@ -128,15 +127,15 @@ export class ContentAppPanel
             const dependencyEntry: ResolveDependencyResult = result.getDependencies()[0];
 
             const hasDependencies: boolean = inbound
-                ? dependencyEntry.getDependency().inbound.length > 0
-                : dependencyEntry.getDependency().outbound.length > 0;
+                                             ? dependencyEntry.getDependency().inbound.length > 0
+                                             : dependencyEntry.getDependency().outbound.length > 0;
 
             if (hasDependencies) {
                 this.toggleSearchPanelWithDependencies(id, inbound, type);
             } else {
-                api.notify.showFeedback(i18n('notify.dependencies.absent', id));
+                showFeedback(i18n('notify.dependencies.absent', id));
             }
-        }).catch(reason => api.DefaultErrorHandler.handle(reason));
+        }).catch(reason => DefaultErrorHandler.handle(reason));
     }
 
     private toggleSearchPanelWithDependencies(id: string, inbound: boolean, type?: string) {
@@ -144,10 +143,10 @@ export class ContentAppPanel
             (content: ContentSummaryAndCompareStatus) => {
                 new ToggleSearchPanelWithDependenciesEvent(content.getContentSummary(), inbound, type).fire();
 
-                const mode: string = inbound ? 'inbound' : 'outbound';
+                const mode: string = inbound ? UrlAction.INBOUND : UrlAction.OUTBOUND;
                 const hash: string = !!type ? `${mode}/${id}/${type}` : `${mode}/${id}`;
 
-                Router.setHash(hash);
+                Router.get().setHash(hash);
             });
     }
 }

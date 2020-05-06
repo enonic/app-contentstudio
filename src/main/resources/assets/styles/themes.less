@@ -1,0 +1,302 @@
+.theme(light);
+
+.theme(@theme-name) {
+  .theme-variables(@theme-name);
+  .theme-selectors(@theme-name);
+}
+
+.theme-variables(light) {
+  @HEADER_BG_COLOR: @admin-white;
+  @HEADER_BG_COLOR_HOVER: @admin-bg-light-gray;
+  @HEADER_FONT_COLOR: @admin-font-gray3;
+  @HEADER_FONT_COLOR_HOVER: @admin-black;
+  @HEADER_ICON_COLOR: @admin-font-gray3;
+  @HEADER_ICON_COLOR_HOVER: @admin-black;
+  @ACTION_TOOLBAR_BG_COLOR: #f7f7f8;
+  @TOOLBAR_BG_COLOR: @admin-white;
+}
+
+/* THEME-DEPENDENT SELECTORS */
+
+.theme-selectors(@theme-name) {
+  .main-app-wrapper {
+
+    &.theme-@{theme-name} {
+      .sidebar-toggler {
+        span {
+          background-color: @HEADER_FONT_COLOR;
+
+          &::before, &::after {
+            background-color: @HEADER_FONT_COLOR;
+          }
+        }
+
+        &:not(.toggled):hover span {
+          background-color: @HEADER_FONT_COLOR_HOVER;
+
+          &::before, &::after {
+            background-color: @HEADER_FONT_COLOR_HOVER;
+          }
+        }
+      }
+
+      .appbar {
+        background-color: @HEADER_BG_COLOR;
+        border-bottom: 1px solid @admin-bg-light-gray;
+
+        &.appbar-settings {
+          border-bottom: none;
+          overflow: visible;
+          z-index: 1;
+        }
+
+        .appbar-tab-menu ul.bar .appbar-tab-menu-item {
+          background-color: @HEADER_BG_COLOR;
+          border: 1px solid #ccc;
+          border-bottom: none;
+
+          &.active {
+            height: 26px;
+            background-color: @ACTION_TOOLBAR_BG_COLOR;
+          }
+
+          .label {
+            color: @HEADER_FONT_COLOR;
+          }
+        }
+
+        .home-button {
+
+          .app-name {
+            color: @HEADER_FONT_COLOR;
+          }
+
+          &.clickable:hover {
+            opacity: 1;
+
+            .app-name {
+              color: @HEADER_FONT_COLOR_HOVER;
+            }
+          }
+        }
+
+        .show-issues-button-wrapper .show-issues-dialog-button {
+
+          border-right: 1px solid @admin-font-gray2;
+
+          span {
+            color: @HEADER_FONT_COLOR;
+          }
+
+          &::before {
+            color: @HEADER_ICON_COLOR;
+          }
+
+          &:hover {
+            span {
+              color: @HEADER_FONT_COLOR_HOVER;
+            }
+
+            &::before {
+              color: @HEADER_ICON_COLOR_HOVER;
+            }
+          }
+        }
+
+        .project-selector {
+
+          .selected-project-view {
+
+            &:hover {
+              .@{_COMMON_PREFIX}dropdown-handle {
+                &::after {
+                  border-top-color: @HEADER_FONT_COLOR_HOVER;
+                }
+              }
+            }
+
+            &:not(:hover) {
+              .names-and-icon-view {
+
+                .@{_COMMON_PREFIX}names-view {
+                  .@{_COMMON_PREFIX}main-name {
+                    color: @HEADER_FONT_COLOR;
+                  }
+                }
+
+                .icon-tree-2 {
+                  color: @HEADER_ICON_COLOR;
+                }
+              }
+
+              .@{_COMMON_PREFIX}dropdown-handle {
+
+                &::after {
+                  border-top-color: @HEADER_FONT_COLOR;
+                }
+              }
+            }
+          }
+
+          .project-list-item-viewer {
+
+            .names-and-icon-view {
+              .@{_COMMON_PREFIX}names-view {
+                .@{_COMMON_PREFIX}main-name {
+                  color: @HEADER_FONT_COLOR_HOVER;
+                }
+                .@{_COMMON_PREFIX}sub-name {
+                  color: @HEADER_FONT_COLOR;
+                }
+              }
+
+              .icon-tree-2 {
+                color: @HEADER_FONT_COLOR_HOVER;
+              }
+            }
+          }
+
+          .project-list-items {
+            background-color: @HEADER_BG_COLOR;
+
+            .project-list-item {
+
+              &.selected {
+                .names-and-icon-view {
+
+                  .@{_COMMON_PREFIX}names-view {
+                    .@{_COMMON_PREFIX}main-name,
+                    .@{_COMMON_PREFIX}sub-name {
+                      color: @admin-white;
+                    }
+                  }
+
+                  .icon-tree-2 {
+                    color: @admin-white;
+                  }
+                }
+              }
+
+              &:not(.selected):hover {
+                background-color: @HEADER_BG_COLOR_HOVER;
+
+                .names-and-icon-view {
+
+                  .@{_COMMON_PREFIX}names-view {
+                    .@{_COMMON_PREFIX}sub-name {
+                      color: @HEADER_FONT_COLOR_HOVER;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      .split-panel {
+        .tree-grid-toolbar {
+          background-color: @TOOLBAR_BG_COLOR;
+        }
+
+        .item-preview-toolbar {
+          background-color: @TOOLBAR_BG_COLOR;
+        }
+      }
+
+      .settings-browse-toolbar {
+        border-top: 1px solid #eee;
+      }
+
+      .settings-item-wizard-panel {
+
+        .toolbar {
+          border-top: 1px solid #ccc;
+        }
+      }
+
+    }
+  }
+
+  &.theme-@{theme-name} {
+
+    .toolbar {
+      background-color: @ACTION_TOOLBAR_BG_COLOR;
+
+      > .@{_COMMON_PREFIX}button:not(:disabled) {
+        &::before, span {
+          color: @HEADER_FONT_COLOR;
+        }
+
+        &:hover {
+          &::before, span {
+            color: @HEADER_FONT_COLOR_HOVER;
+          }
+        }
+      }
+    }
+    .context-panel .context-panel-view {
+      .non-mobile-details-panel-toggle-button {
+        background-color: @ACTION_TOOLBAR_BG_COLOR;
+
+        &:hover:not(:disabled) {
+          background-color: @ACTION_TOOLBAR_BG_COLOR;
+        }
+      }
+    }
+  }
+
+  .content-wizard-panel {
+    &.theme-@{theme-name} {
+      .content-wizard-toolbar {
+
+        .project-info {
+          .icon-tree-2 {
+            color: @HEADER_ICON_COLOR;
+          }
+
+          &:hover {
+            .icon-tree-2 {
+              color: @HEADER_ICON_COLOR_HOVER;
+            }
+          }
+        }
+      }
+      .wizard-step-navigator-and-toolbar {
+        .edit-permissions-button, .tab-bar-item {
+
+          color: @HEADER_FONT_COLOR;
+
+          &::before {
+            color: @HEADER_ICON_COLOR;
+          }
+
+          &:hover {
+            color: @HEADER_FONT_COLOR_HOVER;
+
+            &::before {
+              color: @HEADER_ICON_COLOR_HOVER;
+            }
+          }
+        }
+      }
+      .context-panel .context-panel-view {
+        .non-mobile-details-panel-toggle-button {
+          background-color: @ACTION_TOOLBAR_BG_COLOR;
+
+          &::before {
+            color: @HEADER_FONT_COLOR;
+          }
+
+          &:hover:not(:disabled) {
+            background-color: @ACTION_TOOLBAR_BG_COLOR;
+            &::before {
+              color: @HEADER_FONT_COLOR_HOVER;
+            }
+          }
+        }
+      }
+    }
+  }
+
+}

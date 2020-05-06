@@ -1,8 +1,9 @@
-import CompositeFormInputEl = api.dom.CompositeFormInputEl;
-import Button = api.ui.button.Button;
-import PEl = api.dom.PEl;
-import i18n = api.util.i18n;
-import TextArea = api.ui.text.TextArea;
+import {CompositeFormInputEl} from 'lib-admin-ui/dom/CompositeFormInputEl';
+import {Button} from 'lib-admin-ui/ui/button/Button';
+import {PEl} from 'lib-admin-ui/dom/PEl';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
+import {Body} from 'lib-admin-ui/dom/Body';
 
 export class InPlaceTextArea
     extends CompositeFormInputEl {
@@ -77,7 +78,7 @@ export class InPlaceTextArea
     }
 
     private bindOutsideClickListener(flag: boolean) {
-        const body = api.dom.Body.get();
+        const body = Body.get();
         if (!this.outsideClickListener) {
             this.outsideClickListener = (event: MouseEvent) => {
                 if (this.isEditMode() && !this.getEl().contains(<HTMLElement>event.target)) {

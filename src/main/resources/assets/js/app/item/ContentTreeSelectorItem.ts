@@ -1,11 +1,13 @@
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentState = api.schema.content.ContentState;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import Equitable = api.Equitable;
-import ContentSummary = api.content.ContentSummary;
-import ContentPath = api.content.ContentPath;
-import ContentId = api.content.ContentId;
-import ContentName = api.content.ContentName;
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
+import {ContentState} from 'lib-admin-ui/schema/content/ContentState';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentName} from 'lib-admin-ui/content/ContentName';
 
 export class ContentTreeSelectorItemJson {
 
@@ -99,15 +101,15 @@ export class ContentTreeSelectorItem
         return this.expandable;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, api.ClassHelper.getClass(this))) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ClassHelper.getClass(this))) {
             return false;
         }
 
         let other = <ContentTreeSelectorItem>o;
 
-        if (!api.ObjectHelper.equals(this.content, other.content)) {
+        if (!ObjectHelper.equals(this.content, other.content)) {
             return false;
         }
 

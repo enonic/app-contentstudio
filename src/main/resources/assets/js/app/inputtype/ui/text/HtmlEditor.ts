@@ -1,3 +1,12 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {HtmlEditorParams} from './HtmlEditorParams';
 import {Styles} from './styles/Styles';
 import {StyleHelper} from './styles/StyleHelper';
@@ -6,14 +15,17 @@ import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDia
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
 import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
+import {NotificationMessage} from 'lib-admin-ui/notify/NotificationMessage';
+import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import eventInfo = CKEDITOR.eventInfo;
 import widget = CKEDITOR.plugins.widget;
-import NotificationMessage = api.notify.NotificationMessage;
-import NotifyManager = api.notify.NotifyManager;
-import StringHelper = api.util.StringHelper;
-import i18n = api.util.i18n;
-import BrowserHelper = api.BrowserHelper;
-import ContentPath = api.content.ContentPath;
+
+export interface HtmlEditorCursorPosition {
+    selectionIndexes: number[];
+    indexOfSelectedElement: number;
+    startOffset: number;
+}
 
 /**
  * NB: Using inline styles for editor's inline mode; Inline styles apply same alignment styles as alignment classes
@@ -30,7 +42,7 @@ export class HtmlEditor {
         this.editorParams = htmlEditorParams;
 
         this.createEditor(config);
-        this.allowFigureHaveAnyClasses();
+        this.modifyImagePlugin();
         this.transformTableAttrs();
         this.listenEditorEvents();
         this.handleFileUpload();
@@ -48,46 +60,73 @@ export class HtmlEditor {
                       CKEDITOR.replace(this.editorParams.getEditorContainerId(), config);
     }
 
-    private allowFigureHaveAnyClasses() {
+    private modifyImagePlugin() {
         this.editor.on('widgetDefinition', (e: eventInfo) => {
             if (e.data.name === 'image') {
-                e.data.allowedContent.figure.classes = ['*'];
-                e.data.allowedContent.figure.styles = ['*'];
-                e.data.allowedContent.img.styles = ['*'];
+                this.allowFigureHaveAnyClasses2(e);
+                this.modifyImagePluginUpcastDowncastFunctions(e);
             }
         });
     }
 
+    private allowFigureHaveAnyClasses2(e: eventInfo) {
+        e.data.allowedContent.figure.classes = ['*'];
+        e.data.allowedContent.figure.styles = ['*'];
+        e.data.allowedContent.img.styles = ['*'];
+    }
+
+    private modifyImagePluginUpcastDowncastFunctions(e: eventInfo) {
+        const originalUpcastFunction: Function = e.data.upcast;
+        const newUpcastFunction = function (el: CKEDITOR.htmlParser.element, data: any) {
+            const result: CKEDITOR.htmlParser.element = originalUpcastFunction(el, data);
+
+            if (el.name === 'figure' && el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) {
+                data.align = 'center';
+            }
+
+            if (result && result.name === 'img') { // standalone image
+                return null;
+            }
+
+            if (result && result.name === 'a' && (<any>result).parent.name !== 'figure') { // standalone image wrapped with link
+                return null;
+            }
+
+            if (!result && el.name === 'figure') {
+                if (el.getFirst('img') ?
+                    el.getFirst('img') : el.getFirst('a') ?
+                                         (<CKEDITOR.htmlParser.element>el.getFirst('a')).getFirst('img') : null) {
+                    return el;
+                }
+            }
+
+            return result;
+        };
+
+        const originalDowncastFunction: Function = e.data.downcast;
+        const newDowncastFunction = function (el: CKEDITOR.htmlParser.element) {
+            if (el.name === 'figure' && el.hasClass(StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS)) {
+                return el;
+            }
+
+            return originalDowncastFunction.call(this, el);
+        };
+
+        e.data.upcast = newUpcastFunction;
+        e.data.downcast = newDowncastFunction;
+    }
+
     private transformTableAttrs() {
         // updating table elements directly in transformation functions doesn't work as expected, thus updating by refreshFunc
-        const refreshFunc = api.util.AppHelper.debounce(() => {
+        const refreshFunc = AppHelper.debounce(() => {
+            if (!this.editor.document) {
+                return; // editor destroyed, but debounced listener is triggered
+            }
             this.editor.document.getElementsByTag('table').toArray().forEach((table: CKEDITOR.dom.element) => {
-                table.setStyle('border-spacing', `${table.getAttribute('cellspacing')}px`);
-                table.setStyle('border', `${table.getAttribute('border')}px solid black`);
-
-                const cellPadding: string = `${table.getAttribute('cellpadding')}px`;
-                table.find('td').toArray().forEach((td: CKEDITOR.dom.element) => {
-                    td.setStyle('padding', cellPadding);
-                });
-
-                const align: string = table.getAttribute('align');
-                if (align === 'center') {
-                    table.removeStyle('margin-left');
-                    table.removeStyle('margin-right');
-                    table.setStyle('margin', '0 auto');
-                } else if (align === 'left') {
-                    table.removeStyle('margin');
-                    table.removeStyle('margin-left');
-                    table.setStyle('margin-right', 'auto');
-                } else if (align === 'right') {
-                    table.removeStyle('margin');
-                    table.removeStyle('margin-right');
-                    table.setStyle('margin-left', 'auto');
-                } else {
-                    table.removeStyle('margin');
-                    table.removeStyle('margin-left');
-                    table.removeStyle('margin-right');
-                }
+                table.removeAttribute('cellpadding');
+                table.removeAttribute('cellspacing');
+                table.removeAttribute('border');
+                table.removeAttribute('style');
             });
         }, 200);
 
@@ -109,9 +148,9 @@ export class HtmlEditor {
             const transformCellSpacing: CKEDITOR.filter.transformation = createTransformationObject('cellspacing');
             const transformCellPadding: CKEDITOR.filter.transformation = createTransformationObject('cellpadding');
             const transformBorder: CKEDITOR.filter.transformation = createTransformationObject('border');
-            const transformAlign: CKEDITOR.filter.transformation = createTransformationObject('align');
+            const transformStyle: CKEDITOR.filter.transformation = createTransformationObject('style');
 
-            this.editor.filter.addTransformations([[transformCellSpacing], [transformCellPadding], [transformBorder], [transformAlign]]);
+            this.editor.filter.addTransformations([[transformCellSpacing], [transformCellPadding], [transformBorder], [transformStyle]]);
         });
     }
 
@@ -154,10 +193,20 @@ export class HtmlEditor {
 
         });
 
+        this.handlePasteFromGoogleDoc();
         this.handleFullScreenModeToggled();
         this.handleMouseEvents();
         this.handleElementSelection();
         this.handleImageAlignButtonPressed();
+    }
+
+    private handlePasteFromGoogleDoc() {
+        // https://github.com/enonic/app-contentstudio/issues/485
+        this.editor.on('paste', (e: eventInfo) => {
+            if (GoogleDocPasteHandler.isPastedFromGoogleDoc(e.data.dataValue)) {
+                e.data.dataValue = new GoogleDocPasteHandler(e.data.dataValue).process();
+            }
+        });
     }
 
     private toggleToolbarButtonState(name: string, isActive: boolean) {
@@ -168,7 +217,7 @@ export class HtmlEditor {
         let tooltipElem: CKEDITOR.dom.element = null;
         const tooltipText = i18n('editor.dblclicktoedit');
 
-        const mouseOverHandler = api.util.AppHelper.debounce((ev: eventInfo) => {
+        const mouseOverHandler = AppHelper.debounce((ev: eventInfo) => {
             const targetEl: CKEDITOR.dom.element = ev.data.getTarget();
             const isClickableElement: boolean = targetEl.is('a') || targetEl.is('img'); // imgs, links, anchors
 
@@ -222,14 +271,14 @@ export class HtmlEditor {
                 } else {
                     this.uploadFile(fileLoader);
                 }
-            }).catch(api.DefaultErrorHandler.handle).done();
+            }).catch(DefaultErrorHandler.handle).done();
 
             // Prevented the default behavior.
             evt.stop();
         });
     }
 
-    private fileExists(fileName: string): wemQ.Promise<boolean> {
+    private fileExists(fileName: string): Q.Promise<boolean> {
         const contentPathAsString: string = new ContentPath([this.editorParams.getContent().getPath().toString(), fileName]).toString();
 
         return new ContentsExistByPathRequest([contentPathAsString]).sendAndParse().then((result: ContentsExistByPathResult) => {
@@ -269,6 +318,7 @@ export class HtmlEditor {
 
                 const imgUrl = new ImageUrlResolver()
                     .setContentId(mediaContent.id)
+                    .setScaleWidth(true)
                     .resolveForPreview();
 
                 data.url = imgUrl;
@@ -279,9 +329,16 @@ export class HtmlEditor {
     private handleFullScreenModeToggled() {
         this.editor.on('maximize', (e: eventInfo) => {
             if (e.data === 2) { // fullscreen off
-                api.ui.responsive.ResponsiveManager.fireResizeEvent();
+                ResponsiveManager.fireResizeEvent();
             }
         });
+
+        if (this.editorParams.isFullScreenMode()) {
+            this.editor.on('instanceReady', () => {
+                this.editor.document.getBody().addClass('fullscreen');
+                this.editor.getCommand('openFullscreenDialog').setState(CKEDITOR.TRISTATE_ON);
+            });
+        }
     }
 
     private handleMouseEvents() {
@@ -296,7 +353,7 @@ export class HtmlEditor {
             }
         });
 
-        api.dom.Body.get().onMouseUp(() => {
+        Body.get().onMouseUp(() => {
             if (mousePressed) {
                 mousePressed = false;
             }
@@ -317,8 +374,8 @@ export class HtmlEditor {
         const isAnchorSelected: boolean = selectedElement.hasClass('cke_anchor');
         const isImageSelected: boolean = selectedElement.hasClass('cke_widget_image');
         const isLinkSelected: boolean = (selectedElement.is('a') && selectedElement.hasAttribute('href'));
-        const isImageWithLinkSelected = isImageSelected &&
-                                        (<CKEDITOR.dom.element>selectedElement.findOne('figure').getFirst()).is('a');
+        const figureEl = isImageSelected ? selectedElement.findOne('figure') : null;
+        const isImageWithLinkSelected = isImageSelected && !!figureEl && (<CKEDITOR.dom.element>figureEl.getFirst()).is('a');
 
         this.toggleToolbarButtonState('link', isLinkSelected || isImageWithLinkSelected);
         this.toggleToolbarButtonState('anchor', isAnchorSelected);
@@ -373,7 +430,7 @@ export class HtmlEditor {
 
     private doUpdateAlignmentButtonStates(figure: CKEDITOR.dom.element) {
         // class 'undefined' means newly inserted justified image
-        if (figure.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS) || figure.hasClass('undefined')) {
+        if (!figure || figure.hasClass(StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS) || figure.hasClass('undefined')) {
             this.setJustifyButtonActive();
         } else {
             this.toggleToolbarButtonState('justifyblock', false);
@@ -468,6 +525,13 @@ export class HtmlEditor {
         const progressNotifications: Object = {};
 
         this.editor.on('notificationShow', function (evt: eventInfo) {
+            // Do not show the default notification
+            evt.cancel();
+
+            if ((<any>evt.editor).disableNotification) {
+                return;
+            }
+
             const notification: any = evt.data.notification;
 
             switch (notification.type) {
@@ -482,8 +546,6 @@ export class HtmlEditor {
                 NotifyManager.get().showError(notification.message);
                 break;
             }
-            // Do not show the default notification.
-            evt.cancel();
         });
 
         this.editor.on('notificationUpdate', function (evt: eventInfo) {
@@ -505,7 +567,7 @@ export class HtmlEditor {
                         notificationMessage.setText(message);
                     }
                 } else {
-                    progressNotifications[messageId] = api.notify.NotifyManager.get().showFeedback(message, false);
+                    progressNotifications[messageId] = NotifyManager.get().showFeedback(message, false);
                 }
                 break;
             }
@@ -523,13 +585,17 @@ export class HtmlEditor {
             }
         });
 
-        CKEDITOR.plugins.addExternal('macro', this.editorParams.getAssetsUri() + '/lib/ckeditor/plugins/macro/', 'macro.js');
-
         this.editor.addCommand('openFullscreenDialog', {
             exec: (editor) => {
+                if (this.editorParams.isFullScreenMode()) {
+                    editor.fire('closeFullscreenDialog');
+                    return;
+                }
+
                 const config: any = {
                     editor: editor,
-                    editorParams: this.editorParams
+                    editorParams: this.editorParams,
+                    cursorPosition: this.getCursorPosition(editor)
                 };
 
                 this.notifyFullscreenDialog(config);
@@ -573,6 +639,18 @@ export class HtmlEditor {
         });
     }
 
+    private getCursorPosition(editor: CKEDITOR.editor): HtmlEditorCursorPosition {
+        const selection: CKEDITOR.dom.selection = editor.getSelection();
+        const range: CKEDITOR.dom.range = selection.getRanges()[0];
+        const isCursorSetOnText: boolean = (!!range && !!range.startContainer && range.startContainer.$.nodeName === '#text');
+
+        return {
+            selectionIndexes: editor.elementPath().elements.map(e => e.getIndex()).reverse().slice(1),
+            indexOfSelectedElement: isCursorSetOnText ? range.startContainer.getIndex() : -1,
+            startOffset: isCursorSetOnText ? range.startOffset : null
+        };
+    }
+
     private setupKeyboardShortcuts() {
         const editor: CKEDITOR.editor = this.editor;
 
@@ -583,14 +661,11 @@ export class HtmlEditor {
             }
         };
 
-        this.editor.addCommand('h1', commandDef);
-        this.editor.addCommand('h2', commandDef);
-        this.editor.addCommand('h3', commandDef);
-        this.editor.addCommand('h4', commandDef);
-        this.editor.addCommand('h5', commandDef);
-        this.editor.addCommand('h6', commandDef);
-        this.editor.addCommand('p', commandDef);
-        this.editor.addCommand('div', commandDef);
+        const allowedTags = editor.config.format_tags.split(';');
+        ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div']
+            .filter(tag => allowedTags.indexOf(tag) > -1)
+            .forEach(tag => this.editor.addCommand(tag, commandDef));
+
         this.editor.addCommand('address', commandDef);
 
         this.editor.on('instanceReady', () => {
@@ -713,7 +788,7 @@ export class HtmlEditor {
         event.fire();
     }
 
-    public static create(htmlEditorParams: HtmlEditorParams): wemQ.Promise<HtmlEditor> {
+    public static create(htmlEditorParams: HtmlEditorParams): Q.Promise<HtmlEditor> {
         return HtmlEditorConfigBuilder.createEditorConfig(htmlEditorParams).then((config: CKEDITOR.config) => {
             return new HtmlEditor(config, htmlEditorParams);
         });
@@ -731,8 +806,8 @@ export class HtmlEditor {
         return CKEDITOR.instances[id].getData();
     }
 
-    public static setData(id: string, data: string) {
-        CKEDITOR.instances[id].setData(data);
+    public static setData(id: string, data: string, callback?: () => void) {
+        CKEDITOR.instances[id].setData(data, !!callback ? {callback: callback} : null);
     }
 
     public static focus(id: string) {
@@ -789,28 +864,58 @@ export class HtmlEditor {
     public onReady(handler: () => void) {
         this.editor.on('instanceReady', handler);
     }
+
+    public on(eventName: string, handler: () => void) {
+        this.editor.on(eventName, handler);
+    }
+
+    public setSelectionByCursorPosition(cursorPositon: HtmlEditorCursorPosition) {
+        let elementContainer: CKEDITOR.dom.element = this.editor.document.getBody();
+        cursorPositon.selectionIndexes.forEach((index: number) => {
+            elementContainer = <CKEDITOR.dom.element>elementContainer.getChild(index);
+        });
+
+        elementContainer.scrollIntoView();
+
+        const selectedElement: CKEDITOR.dom.node =
+            cursorPositon.indexOfSelectedElement > -1 ? elementContainer.getChild(cursorPositon.indexOfSelectedElement) : elementContainer;
+
+        const range: CKEDITOR.dom.range = this.editor.createRange();
+        range.setStart(selectedElement, cursorPositon.startOffset || 0);
+        range.select();
+    }
 }
 
 class HtmlEditorConfigBuilder {
 
     private editorParams: HtmlEditorParams;
 
-    private toolsToExlcude: string = '';
-    private toolsToInclude: string[] = [];
+    private disabledTools: string = '';
+    private enabledTools: string[] = [];
 
     private tools: any[] = [
         ['Format', 'Bold', 'Italic', 'Underline'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
         ['SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
-        ['Table']
+        ['Table'], ['PasteModeSwitcher']
     ];
+
+    private readonly defaultHeadings: string = 'h1;h2;h3;h4;h5;h6';
 
     private constructor(htmlEditorParams: HtmlEditorParams) {
         this.editorParams = htmlEditorParams;
 
         this.processCustomToolConfig();
         this.adjustToolsList();
+    }
+
+    private getFormatTags(): string {
+        let allowedHeadings: string = this.editorParams.getAllowedHeadings();
+        if (allowedHeadings) {
+            allowedHeadings = allowedHeadings.trim().replace(/  +/g, ' ').replace(/ /g, ';');
+        }
+        return `p;${(allowedHeadings || this.defaultHeadings)};div;pre`;
     }
 
     private processCustomToolConfig() {
@@ -820,15 +925,18 @@ class HtmlEditorConfigBuilder {
             return;
         }
 
-        if (tools['exclude'] && tools['exclude'] instanceof Array) {
-            this.toolsToExlcude = tools['exclude'].map(tool => tool.value).join().replace(/\s+/g, ',');
-            if (this.toolsToExlcude === '*') {
+        const enabledTools = tools['include'];
+        const disabledTools = tools['exclude'];
+
+        if (disabledTools && disabledTools instanceof Array) {
+            this.disabledTools = disabledTools.map(tool => tool.value).join().replace(/\s+/g, ',');
+            if (this.disabledTools === '*') {
                 this.tools = [];
             }
         }
 
-        if (tools['include'] && tools['include'] instanceof Array) {
-            this.includeTools(tools['include'].map(tool => tool.value).join().replace(/\|/g, '-').split(/\s+/));
+        if (enabledTools && enabledTools instanceof Array) {
+            this.includeTools(enabledTools.map(tool => tool.value).join().replace(/\|/g, '-').split(/\s+/));
         }
     }
 
@@ -837,7 +945,7 @@ class HtmlEditorConfigBuilder {
             this.includeTool('Sourcedialog');
         }
 
-        if (!this.editorParams.isInline() && !this.editorParams.isFullScreenMode()) {
+        if (!this.editorParams.isInline()) {
             this.includeTool('Fullscreen');
         }
 
@@ -845,44 +953,45 @@ class HtmlEditorConfigBuilder {
             this.tools[0].push('Strike', 'Superscript', 'Subscript');
         }
 
-        this.tools.push(this.toolsToInclude);
+        this.tools.push(this.enabledTools);
     }
 
-    public static createEditorConfig(htmlEditorParams: HtmlEditorParams): wemQ.Promise<CKEDITOR.config> {
+    public static createEditorConfig(htmlEditorParams: HtmlEditorParams): Q.Promise<CKEDITOR.config> {
         const configBuilder: HtmlEditorConfigBuilder = new HtmlEditorConfigBuilder(htmlEditorParams);
 
         return configBuilder.createConfig();
     }
 
-    private createConfig(): wemQ.Promise<CKEDITOR.config> {
+    private createConfig(): Q.Promise<CKEDITOR.config> {
 
         const contentsCss = [this.editorParams.getAssetsUri() + '/styles/html-editor.css'];
 
         const config: CKEDITOR.config = {
             contentsCss: contentsCss,
             toolbar: this.tools,
+            forcePasteAsPlainText: false,
             entities: false,
             title: '',
             keystrokes: [
                 [CKEDITOR.CTRL + 76, null], // disabling default Link keystroke to remove it's wrong tooltip
             ],
             removePlugins: this.getPluginsToRemove(),
-            removeButtons: this.toolsToExlcude,
-            extraPlugins: 'macro,image2,tableresize,pasteFromGoogleDoc',
+            removeButtons: this.disabledTools,
+            extraPlugins: 'macro,image2,tableresize,pasteFromGoogleDoc,pasteModeSwitcher',
             extraAllowedContent: this.getExtraAllowedContent(),
-            format_tags: 'p;h1;h2;h3;h4;h5;h6;pre;div',
+            format_tags: this.getFormatTags(),
             image2_disableResizer: true,
             image2_captionedClass: 'captioned',
             image2_alignClasses: [StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS, StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS,
                 StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS,
                 StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS],
             disallowedContent: 'img[width,height]',
-            uploadUrl: api.util.UriHelper.getRestUri('content/createMedia'),
+            uploadUrl: UriHelper.getRestUri('content/createMedia'),
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
             disableNativeSpellChecker: false
         };
 
-        if (!this.isToolExcluded('Code')) {
+        if (!this.isToolDisabled('Code')) {
             config.format_tags = config.format_tags + ';code';
             config['format_code'] = {element: 'code'};
         }
@@ -891,11 +1000,11 @@ class HtmlEditorConfigBuilder {
         config['qtColumns'] = 10; // Count of columns
         config['qtWidth'] = '100%'; // table width
 
-        const deferred = wemQ.defer<CKEDITOR.config>();
+        const deferred = Q.defer<CKEDITOR.config>();
 
         if (!this.editorParams.isCustomStylesToBeUsed()) {
             //inline mode
-            return wemQ(config);
+            return Q(config);
         }
 
         new StylesRequest(this.editorParams.getContent().getId()).sendAndParse().then(() => {
@@ -917,7 +1026,7 @@ class HtmlEditorConfigBuilder {
     private getExtraAllowedContent(): string {
         const scriptTag: string = this.editorParams.isScriptAllowed() ? 'script' : '';
 
-        return `code address dl dt dd blockquote ${scriptTag};img[data-src];td{*};`;
+        return `code address dl dt dd blockquote ${scriptTag};*(*);td{*};*[data-*]`;
     }
 
     private includeTools(tools: any[]) {
@@ -927,13 +1036,74 @@ class HtmlEditorConfigBuilder {
     }
 
     private includeTool(tool: string) {
-        this.toolsToInclude.push(tool);
+        this.enabledTools.push(tool);
     }
 
-    private isToolExcluded(tool: string): boolean {
-        if (!this.editorParams.getTools() || !this.editorParams.getTools()['exclude']) {
-            return false;
+    private isToolDisabled(tool: string): boolean {
+        return this.disabledTools.indexOf(tool) > -1;
+    }
+}
+
+class GoogleDocPasteHandler {
+
+    private result: string;
+
+    constructor(value: string) {
+        this.result = value;
+    }
+
+    static isPastedFromGoogleDoc(value: string): boolean {
+        return !!value && value.indexOf('id="docs-internal-guid') > 0;
+    }
+
+    process(): string {
+        return this.doProcess();
+    }
+
+    private doProcess(): string {
+        this.processDataChrome();
+        this.processDataFF();
+        this.processLists();
+
+        return this.result;
+    }
+
+    private processDataChrome() {
+        const regex: RegExp = /(<a[^>]*?)(\sstyle="text-decoration:none;")(.*?)(<u.*?>)(.*?)(<\/u>)(.*?<\/a>)/g;
+
+        this.result = this.result.replace(regex, '$1$3$5$7');
+    }
+
+    private processDataFF() {
+        const regex: RegExp =
+            /(<a[^>]*?)(\sstyle="text-decoration:none;")(.*?)(<span.*?text-decoration:underline.*?>)(.*?)(<\/span>)(.*?<\/a>)/g;
+
+        this.result = this.result.replace(regex, this.ffReplaceFunction);
+    }
+
+    private ffReplaceFunction(match: string, p1: string, p2: string, p3: string, p4: string, p5: string, p6: string, p7: string) {
+        const isItalic: boolean = p4.indexOf('font-style:italic') > 0;
+        const fontWeight: RegExpMatchArray = p4.match(/font-weight:(\d+);/);
+        const isBold: boolean = !!fontWeight && +fontWeight[1] > 400;
+
+        if (isItalic && isBold) {
+            return `${p1}${p3}<strong><em>${p5}</em></strong>${p7}`;
         }
-        return this.editorParams.getTools()['exclude'].indexOf(tool) > -1;
+
+        if (isItalic) {
+            return `${p1}${p3}<em>${p5}</em>${p7}`;
+        }
+
+        if (isBold) {
+            return `${p1}${p3}<strong>${p5}</strong>${p7}`;
+        }
+
+        return `${p1}${p3}${p5}${p7}`;
+    }
+
+    private processLists() {
+        // removing <p> from <li> entries
+        const regex: RegExp = /(<li.*?)(<p.*?>)(.*?)(<\/p>)(.*?<\/li>)/g;
+        this.result = this.result.replace(regex, '$1$3$5');
     }
 }

@@ -1,6 +1,8 @@
-import PropertyTree = api.data.PropertyTree;
-import PropertyEvent = api.data.PropertyEvent;
-import PropertyTreeHelper = api.util.PropertyTreeHelper;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {PropertyEvent} from 'lib-admin-ui/data/PropertyEvent';
+import {PropertyTreeHelper} from 'lib-admin-ui/util/PropertyTreeHelper';
 import {Component, ComponentBuilder} from './Component';
 import {ConfigBasedComponentJson} from './ConfigBasedComponentJson';
 
@@ -42,9 +44,9 @@ export abstract class ConfigBasedComponent
         return this.config;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ConfigBasedComponent)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ConfigBasedComponent)) {
             return false;
         }
 

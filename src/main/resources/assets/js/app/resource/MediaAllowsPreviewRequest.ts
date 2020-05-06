@@ -1,10 +1,9 @@
-import ContentId = api.content.ContentId;
-import Path = api.rest.Path;
-import JsonResponse = api.rest.JsonResponse;
-import {JsonResourceRequest} from './JsonResourceRequest';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class MediaAllowsPreviewRequest
-    extends JsonResourceRequest<boolean, boolean> {
+    extends ContentResourceRequest<boolean> {
 
     private contentId: ContentId;
 
@@ -12,9 +11,9 @@ export class MediaAllowsPreviewRequest
 
     constructor(contentId: ContentId, identifier?: string) {
         super();
-        super.setMethod('GET');
         this.contentId = contentId;
         this.identifier = identifier;
+        this.addRequestPathElements('media', 'isAllowPreview');
     }
 
     getParams(): Object {
@@ -24,13 +23,7 @@ export class MediaAllowsPreviewRequest
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getRestPath(), 'content', 'media', 'isAllowPreview');
-    }
-
-    sendAndParse(): wemQ.Promise<boolean> {
-        return this.send().then((response: JsonResponse<boolean>) => {
-            return response.getResult();
-        });
+    protected parseResponse(response: JsonResponse<boolean>): boolean {
+        return response.getResult();
     }
 }

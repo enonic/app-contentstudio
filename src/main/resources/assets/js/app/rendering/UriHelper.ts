@@ -1,52 +1,43 @@
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {RenderingMode} from './RenderingMode';
 import {Branch} from '../versioning/Branch';
 import {ComponentPath} from '../page/region/ComponentPath';
-import {RepositoryId} from '../repository/RepositoryId';
-import {RepositoryHelper} from '../repository/RepositoryHelper';
+import {UriHelper as UIUriHelper} from 'lib-admin-ui/util/UriHelper';
+import {ProjectContext} from '../project/ProjectContext';
 
 export class UriHelper {
 
-    public static getPortalUri(path: string, renderingMode: RenderingMode, repositoryId: RepositoryId, branch: Branch): string {
-        const elementDivider = api.content.ContentPath.ELEMENT_DIVIDER;
-        path = api.util.UriHelper.relativePath(path);
+    public static getPortalUri(path: string, renderingMode: RenderingMode, branch: Branch = Branch.DRAFT): string {
+        const relPath: string = UIUriHelper.relativePath(path);
+        const project: string = ProjectContext.get().getProject();
+        const uri: string = [renderingMode, project, branch, relPath].join(ContentPath.ELEMENT_DIVIDER);
 
-        const repositoryName: string = RepositoryHelper.getContentRepoName(repositoryId);
-
-        const branchName: string = Branch[branch].toLowerCase();
-        const renderingModeName: string = RenderingMode[renderingMode].toLowerCase();
-
-        return api.util.UriHelper.addSitePrefix(
-            renderingModeName + elementDivider + repositoryName + elementDivider + branchName + elementDivider + path);
+        return UIUriHelper.addSitePrefix(uri);
     }
 
-    public static getPathFromPortalInlineUri(portalUri: string, renderingMode: RenderingMode, repositoryId: RepositoryId,
-                                             workspace: Branch): string {
-        const repositoryName: string = RepositoryHelper.getContentRepoName(repositoryId);
-
-        const branchName: string = Branch[workspace].toLowerCase();
-        const renderingModeName: string = RenderingMode[renderingMode].toLowerCase();
-
-        const elementDivider = api.content.ContentPath.ELEMENT_DIVIDER;
-        const searchEntry = renderingModeName + elementDivider + repositoryName + elementDivider + branchName;
+    public static getPathFromPortalInlineUri(portalUri: string, renderingMode: RenderingMode, branch: Branch = Branch.DRAFT): string {
+        const project: string = ProjectContext.get().getProject();
+        const searchEntry: string = [renderingMode, project, branch].join(ContentPath.ELEMENT_DIVIDER);
 
         const index = portalUri.indexOf(searchEntry);
         if (index > -1) {
             return portalUri.substring(index + searchEntry.length);
-        } else {
-            return null;
         }
+
+        return null;
     }
 
-    public static getComponentUri(contentId: string, componentPath: ComponentPath, renderingMode: RenderingMode, repositoryId: RepositoryId,
-                                  workspace: Branch): string {
-        const elementDivider = api.content.ContentPath.ELEMENT_DIVIDER;
-        const componentPart = elementDivider + '_' + elementDivider + 'component' + elementDivider;
-        const componentPathStr = componentPath ? componentPath.toString() : '';
-        return UriHelper.getPortalUri(contentId + componentPart + componentPathStr, renderingMode, repositoryId, workspace);
+    public static getComponentUri(contentId: string, componentPath: ComponentPath, renderingMode: RenderingMode,
+                                  branch: Branch = Branch.DRAFT): string {
+        const componentPart: string = `_${ContentPath.ELEMENT_DIVIDER}component`;
+        const componentPathStr: string = componentPath ? componentPath.toString() : '';
+        const path: string = [contentId, componentPart, componentPathStr].join(ContentPath.ELEMENT_DIVIDER);
+        return UriHelper.getPortalUri(path, renderingMode, branch);
     }
 
     public static getAdminUri(baseUrl: string, contentPath: string): string {
-        const adminUrl = UriHelper.getPortalUri(contentPath, RenderingMode.ADMIN, RepositoryId.CONTENT_REPO_ID, Branch.DRAFT);
-        return adminUrl + (adminUrl.charAt(adminUrl.length - 1) === '/' ? '' : api.content.ContentPath.ELEMENT_DIVIDER) + baseUrl;
+        const adminUrl = UriHelper.getPortalUri(contentPath, RenderingMode.ADMIN);
+        return adminUrl + (adminUrl.charAt(adminUrl.length - 1) === ContentPath.ELEMENT_DIVIDER ? '' : ContentPath.ELEMENT_DIVIDER) +
+               baseUrl;
     }
 }

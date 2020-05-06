@@ -1,3 +1,5 @@
+import {showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentWizardPanelParams} from './wizard/ContentWizardPanelParams';
 import {NewContentEvent} from './create/NewContentEvent';
 import {SortContentEvent} from './browse/SortContentEvent';
@@ -8,24 +10,29 @@ import {ShowDependenciesEvent} from './browse/ShowDependenciesEvent';
 import {ContentUpdatedEvent} from './event/ContentUpdatedEvent';
 import {EditContentEvent} from './event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
-import AppBarTabId = api.app.bar.AppBarTabId;
-import i18n = api.util.i18n;
+import {ProjectContext} from './project/ProjectContext';
+import {ContentAppBarTabId} from './ContentAppBarTabId';
+import {UrlAction} from './UrlAction';
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {AppMode} from './AppMode';
 
 export class ContentEventsProcessor {
 
-    static openWizardTab(params: ContentWizardPanelParams, tabId: AppBarTabId): Window {
-        let wizardUrl = 'main#/' + params.toString();
-        // let wizardUrl = 'main#/' +(tabId.getMode() == 'browse' ? 'browse/'+tabId.getId() : params.toString());
-        let isNew = !params.contentId;
-        let wizardId;
-        if (!isNew && navigator.userAgent.search('Chrome') > -1) {
-            // add tab id for browsers that can focus tabs by id
-            // don't do it for new to be able to create multiple
-            // contents of the same type simultaneously
-            wizardId = tabId.toString();
+    static openWizardTab(params: ContentWizardPanelParams): Window {
+        const wizardUrl: string = `${AppMode.MAIN}#/${ContentEventsProcessor.generateURL(params)}`;
+        return ContentEventsProcessor.openTab(wizardUrl, ContentEventsProcessor.makeWizardId(params));
+    }
+
+    private static makeWizardId(params: ContentWizardPanelParams): string {
+        const isNew: boolean = !params.contentId;
+
+        if (isNew) {
+            return undefined;
         }
 
-        return ContentEventsProcessor.openTab(wizardUrl, wizardId);
+        return params.tabId.toString();
     }
 
     static openTab(url: string, target?: string): Window {
@@ -37,41 +44,38 @@ export class ContentEventsProcessor {
     }
 
     static handleNew(newContentEvent: NewContentEvent) {
+        const contentTypeSummary: ContentTypeSummary = newContentEvent.getContentType();
+        const tabId: ContentAppBarTabId = ContentAppBarTabId.forNew(contentTypeSummary.getName());
 
-        let contentTypeSummary = newContentEvent.getContentType();
-        let tabId = AppBarTabId.forNew(contentTypeSummary.getName());
-
-        let wizardParams = new ContentWizardPanelParams()
+        const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
             .setTabId(tabId)
             .setContentTypeName(contentTypeSummary.getContentTypeName())
             .setParentContentId(newContentEvent.getParentContent() ? newContentEvent.getParentContent().getContentId() : undefined)
             .setCreateSite(newContentEvent.getContentType().isSite());
 
-        ContentEventsProcessor.openWizardTab(wizardParams, tabId);
+        ContentEventsProcessor.openWizardTab(wizardParams);
     }
 
     static handleEdit(event: EditContentEvent) {
-
         event.getModels().every((content: ContentSummaryAndCompareStatus) => {
 
             if (!content || !content.getContentSummary()) {
                 return true;
             }
 
-            let contentSummary = content.getContentSummary();
-            let contentTypeName = contentSummary.getType();
+            const contentSummary: ContentSummary = content.getContentSummary();
+            const contentTypeName: ContentTypeName = contentSummary.getType();
+            const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(contentSummary.getId());
 
-            let tabId = AppBarTabId.forEdit(contentSummary.getId());
-
-            let wizardParams = new ContentWizardPanelParams()
+            const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
                 .setTabId(tabId)
                 .setContentTypeName(contentTypeName)
                 .setContentId(contentSummary.getContentId());
 
-            let win = ContentEventsProcessor.openWizardTab(wizardParams, tabId);
+            const win: Window = ContentEventsProcessor.openWizardTab(wizardParams);
 
             if (ContentEventsProcessor.popupBlocked(win)) {
-                api.notify.showWarning(i18n('notify.popupBlocker.admin'), false);
+                showWarning(i18n('notify.popupBlocker.admin'), false);
 
                 return false;
             }
@@ -85,23 +89,41 @@ export class ContentEventsProcessor {
     }
 
     static handleSort(event: SortContentEvent) {
-
-        let contents: ContentSummaryAndCompareStatus[] = event.getModels();
+        const contents: ContentSummaryAndCompareStatus[] = event.getModels();
         new OpenSortDialogEvent(contents[0]).fire();
     }
 
     static handleMove(event: MoveContentEvent) {
-
-        let contents: ContentSummaryAndCompareStatus[] = event.getModels();
+        const contents: ContentSummaryAndCompareStatus[] = event.getModels();
         new OpenMoveDialogEvent(contents.map(content => content.getContentSummary()), event.getRootNode()).fire();
     }
 
     static handleShowDependencies(event: ShowDependenciesEvent) {
-        const mode: string = event.isInbound() ? 'inbound' : 'outbound';
+        const mode: string = event.isInbound() ? UrlAction.INBOUND : UrlAction.OUTBOUND;
         const id: string = event.getId().toString();
         const type: string = event.getContentType() ? event.getContentType().toString() : null;
-        const url = !!type ? `main#/${mode}/${id}/${type}` : `main#/${mode}/${id}`;
+        const project: string = ProjectContext.get().getProject();
+        const url = `${AppMode.MAIN}#/${project}/${mode}/${id}` + (!!type ? `/${type}` : '');
 
         ContentEventsProcessor.openTab(url);
+    }
+
+    private static generateURL(params: ContentWizardPanelParams): string {
+        const project: string = ProjectContext.get().getProject();
+
+        if (params.tabId && params.tabId.isBrowseMode()) {
+            return `${project}/${UrlAction.BROWSE}/${params.tabId.getId()}`;
+        }
+
+        if (!!params.contentId) {
+            return `${project}/${UrlAction.EDIT}/${params.contentId.toString()}`;
+        }
+
+        if (params.parentContentId) {
+            return `${project}/${UrlAction.NEW}/${params.contentTypeName.toString()}/${params.parentContentId.toString()}`;
+        }
+
+        return `${project}/${UrlAction.NEW}/${params.contentTypeName.toString()}`;
+
     }
 }

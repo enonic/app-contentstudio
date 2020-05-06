@@ -1,14 +1,15 @@
-import CompositeFormInputEl = api.dom.CompositeFormInputEl;
-import Button = api.ui.button.Button;
-import H2El = api.dom.H2El;
-import TextInput = api.ui.text.TextInput;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {CompositeFormInputEl} from 'lib-admin-ui/dom/CompositeFormInputEl';
+import {H2El} from 'lib-admin-ui/dom/H2El';
+import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
 
 export class InPlaceTextInput
     extends CompositeFormInputEl {
 
     private input: TextInput;
     private h2: H2El;
-    private toggleButton: Button;
     private persistedValue: string;
 
     private modeListeners: { (editMode: boolean, newValue: string, oldValue: string) }[] = [];
@@ -18,93 +19,85 @@ export class InPlaceTextInput
         super();
         this.addClass('inplace-text-input');
 
-        this.initElements(originalValue, size);
-        this.addElements();
+        this.h2 = this.createHeader(originalValue);
+        this.input = this.createInput(originalValue, size);
+
+        this.setWrappedInput(this.input);
+        this.addAdditionalElement(this.h2);
     }
 
-    private initElements(originalValue: string, size: string) {
-        this.createHeader(originalValue);
-        this.createInput(originalValue, size);
-        this.createToggleButton();
-    }
-
-    private createHeader(originalValue: string) {
-        this.h2 = new H2El('inplace-text');
-        this.h2.setHtml(this.formatTextToDisplay(originalValue), false);
-        this.h2.onDblClicked(() => this.setEditMode(true));
+    private createHeader(originalValue: string): H2El {
+        const h2 = new H2El('inplace-text');
+        h2.setHtml(this.formatTextToDisplay(originalValue), false);
+        h2.getEl().setTitle(i18n('action.clickToEdit'));
+        h2.onClicked(() => this.setEditMode(true));
+        return h2;
     }
 
     private createInput(originalValue: string, size: string) {
-        this.input = new TextInput('inplace-input', size, originalValue);
+        const input = new TextInput('inplace-input', size, originalValue);
 
-        this.input.onValueChanged(event => {
+        input.onValueChanged(event => {
             const isValid = this.isInputValid();
-            this.input.toggleClass('invalid', !isValid);
+            input.toggleClass('invalid', !isValid);
             this.toggleClass('invalid', !isValid);
         });
 
-        this.input.onKeyDown((event: KeyboardEvent) => {
+        input.onKeyDown((event: KeyboardEvent) => {
             event.stopImmediatePropagation();
-            switch (event.keyCode) {
-            case 27:
+            switch (event.code) {
+            case 'Escape':
                 this.setEditMode(false, true);
                 break;
-            case 13:
+            case 'Enter':
                 if (this.isInputValid()) {
                     this.setEditMode(false);
                 }
                 break;
             }
         });
-    }
 
-    private createToggleButton() {
-        this.toggleButton = new Button();
-        this.toggleButton.onClicked(() => {
-            if (this.isInputValid()) {
-                this.setEditMode(!this.isEditMode());
-            }
+        input.onBlur(() => {
+            this.setEditMode(false, !this.isInputValid());
         });
-        this.toggleButton.setClass('inplace-toggle');
-    }
 
-    private addElements() {
-        this.setWrappedInput(this.input);
-        this.addAdditionalElement(this.h2);
-        this.addAdditionalElement(this.toggleButton);
+        return input;
     }
 
     private isInputValid(): boolean {
-        return !api.util.StringHelper.isBlank(this.input.getValue());
+        return !StringHelper.isBlank(this.input.getValue());
     }
 
-    public setEditMode(flag: boolean, cancel?: boolean) {
+    public setEditMode(enableEdit: boolean, cancel?: boolean) {
         if (cancel) {
             this.input.setValue(this.persistedValue, true);
             this.input.removeClass('invalid');
             this.removeClass('invalid');
         }
-        this.toggleClass('edit-mode', flag);
+        this.toggleClass('edit-mode', enableEdit);
         const newValue = this.input.getValue().trim();
-        if (flag) {
+        if (enableEdit) {
             this.persistedValue = newValue;
+            this.input.giveFocus();
         } else {
             this.h2.setHtml(this.formatTextToDisplay(newValue), false);
         }
-        this.bindOutsideClickListener(flag);
-        this.notifyEditModeChanged(flag, newValue, this.persistedValue);
+        this.bindOutsideClickListener(enableEdit);
+        this.notifyEditModeChanged(enableEdit, newValue, this.persistedValue);
     }
 
-    private bindOutsideClickListener(flag: boolean) {
-        const body = api.dom.Body.get();
+    private bindOutsideClickListener(enableEdit: boolean) {
+        const body = Body.get();
         if (!this.outsideClickListener) {
             this.outsideClickListener = (event: MouseEvent) => {
                 if (this.isEditMode() && !this.getEl().contains(<HTMLElement>event.target)) {
-                    this.setEditMode(false, true);
+                    event.stopImmediatePropagation();
+                    event.preventDefault();
+                    this.setEditMode(false, !this.isInputValid());
                 }
             };
         }
-        if (flag) {
+        if (enableEdit) {
             body.onClicked(this.outsideClickListener);
         } else {
             body.unClicked(this.outsideClickListener);

@@ -1,0 +1,110 @@
+.settings-item-wizard-panel {
+
+  .wizard-header {
+    height: 64px;
+    display: flex;
+    align-items: center;
+
+    input:last-child {
+      display: none;
+    }
+  }
+
+  .header-and-navigator-container {
+
+    .@{_COMMON_PREFIX}form-icon {
+      &.not-empty {
+        &:before {
+          display: none;
+        }
+      }
+      &.disabled {
+        border: none;
+        box-shadow: none;
+
+        &:focus {
+          outline: none;
+        }
+      }
+    }
+  }
+
+  .wizard-step-form {
+    .form-view {
+
+      .input-view {
+
+        .form-item-header {
+          display: flex;
+          justify-content: space-between;
+
+          .help-text:not(:first-child) {
+            padding-left: 15px;
+          }
+        }
+
+        label {
+          float: none;
+        }
+
+        .form-input {
+          margin-left: 0;
+          width: 100%;
+
+          &.radio-group, &[type="radio"] {
+            width: auto;
+          }
+        }
+
+        .validation-viewer {
+          margin-left: 0;
+        }
+
+        &.invalid {
+
+          .help-text {
+            padding-left: @form-label-width;
+          }
+
+        }
+      }
+    }
+  }
+
+  ._0-240 &,
+  ._240-360 &,
+  ._360-540 &,
+  ._540-720 & {
+
+    .header-and-navigator-container {
+
+      .wizard-header {
+        margin-left: 46px;
+      }
+
+      .@{_COMMON_PREFIX}form-icon {
+        margin: 5px;
+      }
+    }
+
+    .wizard-step-form {
+
+      .form-view {
+
+        .input-view {
+          flex-direction: column;
+          align-items: flex-start;
+
+          .radio-group {
+            margin-top: 10px;
+          }
+
+
+          .error {
+            left: 10px;
+          }
+        }
+      }
+    }
+  }
+}

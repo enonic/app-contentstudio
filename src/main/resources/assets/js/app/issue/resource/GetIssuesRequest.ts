@@ -1,32 +1,29 @@
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {Issue} from '../Issue';
 import {IssueJson} from '../json/IssueJson';
 import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssuesJson} from '../json/IssuesJson';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
-export class GetIssuesRequest extends IssueResourceRequest<IssuesJson, Issue[]> {
+export class GetIssuesRequest extends IssueResourceRequest<Issue[]> {
 
     private ids: string[];
 
     constructor(ids: string[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
 
         this.ids = ids;
+        this.addRequestPathElements('getIssues');
     }
 
     getParams(): Object {
         return {ids: this.ids};
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'getIssues');
-    }
-
-    sendAndParse(): wemQ.Promise<Issue[]> {
-        return this.send().then((response: api.rest.JsonResponse<IssuesJson>) => {
-            return response.getResult().issues.map((issueJson: IssueJson) => {
-                return Issue.fromJson(issueJson);
-            });
+    parseResponse(response: JsonResponse<IssuesJson>): Issue[] {
+        return response.getResult().issues.map((issueJson: IssueJson) => {
+            return Issue.fromJson(issueJson);
         });
     }
 }

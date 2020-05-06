@@ -1,10 +1,14 @@
+import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {IssueDetailsDialog} from './view/IssueDetailsDialog';
 import {IssueListDialog} from './view/IssueListDialog';
 import {Issue} from './Issue';
 import {CreateIssueDialog} from './view/CreateIssueDialog';
 import {GetIssueRequest} from './resource/GetIssueRequest';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import ModalDialog = api.ui.dialog.ModalDialog;
+import {ContentPublishDialog} from '../publish/ContentPublishDialog';
+import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
+import {IssueServerEventsHandler} from './event/IssueServerEventsHandler';
+import {RequestContentPublishDialog} from '../publish/RequestContentPublishDialog';
 
 export class IssueDialogsManager {
 
@@ -13,18 +17,26 @@ export class IssueDialogsManager {
     private detailsDialog: IssueDetailsDialog;
     private listDialog: IssueListDialog;
     private createDialog: CreateIssueDialog;
+    private publishDialog: ContentPublishDialog;
+    private requestPublishDialog: RequestContentPublishDialog;
 
-    private issueCreatedListeners: { (issue: Issue): void }[] = [];
-    private issueUpdatedListeners: { (issue: Issue): void }[] = [];
+    private issue: Issue;
+
+    private publishDialogBeforeClosedHandler: () => void;
+    private publishDialogCloseHandler: () => void;
+    private detailsDialogCloseHandler: () => void;
+    private detailsDialogBackButtonClickedHandler: () => void;
+    private issueUpdateHandler: (issues: Issue[]) => void;
 
     private constructor() {
         this.detailsDialog = IssueDetailsDialog.get();
         this.listDialog = IssueListDialog.get();
         this.createDialog = CreateIssueDialog.get();
+        this.publishDialog = ContentPublishDialog.get();
+        this.requestPublishDialog = RequestContentPublishDialog.get();
 
-        this.listenCreateDialog(this.createDialog);
-        this.listenListDialog(this.listDialog);
-        this.listenDetailsDialog(this.detailsDialog);
+        this.initHandlers();
+        this.initListeners();
     }
 
     static get(): IssueDialogsManager {
@@ -34,68 +46,124 @@ export class IssueDialogsManager {
         return IssueDialogsManager.INSTANCE;
     }
 
-    private listenCreateDialog(dialog: CreateIssueDialog) {
-        // Create dialog
+    protected initHandlers() {
+        this.publishDialogBeforeClosedHandler = () => {
+            IssueDialogsManager.closeDialog(this.publishDialog);
+            this.publishDialog.unCloseButtonClicked(this.publishDialogBeforeClosedHandler);
+        };
+        this.publishDialogCloseHandler = () => {
+            if (this.detailsDialog.isOpen()) {
+                this.detailsDialog.getEl().focus();
+            }
+            this.publishDialog.unClosed(this.publishDialogCloseHandler);
+            this.detailsDialog.onClosed(this.detailsDialogCloseHandler);
+            IssueServerEventsHandler.getInstance().unIssueUpdated(this.issueUpdateHandler);
+        };
+
+        let backButtonClicked: boolean = false;
+        this.detailsDialogCloseHandler = () => {
+            if (backButtonClicked) {
+                return;
+            }
+            this.listDialog.close();
+        };
+        this.detailsDialogBackButtonClickedHandler = () => {
+            backButtonClicked = true;
+            IssueDialogsManager.closeDialog(this.detailsDialog);
+            backButtonClicked = false;
+            if (this.listDialog.isOpen()) {
+                this.listDialog.getEl().focus();
+            }
+        };
+        this.issueUpdateHandler = (issues: Issue[]) => {
+            issues.some(issue => {
+                if (issue.getId() === this.issue.getId()) {
+                    this.issue = issue;
+                    return true;
+                }
+                return false;
+            });
+        };
+    }
+
+    protected initListeners() {
+        this.listenCreateDialog();
+        this.listenListDialog();
+        this.listenDetailsDialog();
+        this.listenPublishDialog();
+        this.listenRequestPublishDialog();
+    }
+
+    private listenCreateDialog() {
         let ignoreNextClosedEvent = false;
-        dialog.onIssueCreated(issue => {
+        this.createDialog.onIssueCreated(issue => {
             ignoreNextClosedEvent = true;
-            dialog.close();
-            this.notifyIssueCreated(issue);
+            this.createDialog.close();
             this.openDetailsDialogWithListDialog(issue);
         });
-        dialog.onClosed(() => {
+        this.createDialog.onClosed(() => {
             if (!ignoreNextClosedEvent) {
-                this.revealDialog(this.listDialog);
+                this.detailsDialogCloseHandler();
             } else {
                 ignoreNextClosedEvent = false;
             }
         });
-        dialog.onCloseButtonClicked((e: MouseEvent) => this.closeDialog(this.listDialog));
+        this.createDialog.onCloseButtonClicked(() => IssueDialogsManager.closeDialog(this.listDialog));
     }
 
-    private listenListDialog(dialog: IssueListDialog) {
-        // List dialog
-        dialog.onRendered(event => {
-            dialog.addClickIgnoredElement(this.detailsDialog);
-            dialog.addClickIgnoredElement(this.createDialog);
+    private listenListDialog() {
+        this.listDialog.onRendered(() => {
+            this.listDialog.addClickIgnoredElement(this.detailsDialog);
+            this.listDialog.addClickIgnoredElement(this.createDialog);
         });
-        dialog.onIssueSelected(issue => {
-            dialog.mask();
+        this.listDialog.onIssueSelected(issue => {
             new GetIssueRequest(issue.getId()).sendAndParse().done(issueWithComments => {
                 this.openDetailsDialogWithListDialog(issueWithComments);
             });
         });
-        dialog.onCreateButtonClicked(action => {
-            dialog.mask();
+        this.listDialog.onCreateButtonClicked(() => {
             this.openCreateDialog();
         });
     }
 
-    private listenDetailsDialog(dialog: IssueDetailsDialog) {
-        // Details dialog
-        dialog.onIssueUpdated(this.notifyIssueUpdated.bind(this));
-        dialog.onCloseButtonClicked((e: MouseEvent) => this.closeDialog(this.listDialog));
-        dialog.onClosed(() => this.revealDialog(this.listDialog));
+    private listenDetailsDialog() {
+        this.detailsDialog.onCloseButtonClicked(() => IssueDialogsManager.closeDialog(this.detailsDialog));
+        this.detailsDialog.onClosed(this.detailsDialogCloseHandler);
+        this.detailsDialog.onBackButtonClicked(this.detailsDialogBackButtonClickedHandler);
     }
 
-    private closeDialog(dialog: ModalDialog) {
-        if (dialog.isVisible()) {
-            dialog.unmask();
+    private listenPublishDialog() {
+        ContentPublishPromptEvent.on(() => {
+            if (this.detailsDialog.isOpen()) {
+                this.detailsDialog.unClosed(this.detailsDialogCloseHandler);
+                this.publishDialog.onCloseButtonClicked(this.publishDialogBeforeClosedHandler);
+                this.publishDialog.onClosed(this.publishDialogCloseHandler);
+                this.issue = this.detailsDialog.getIssue();
+                IssueServerEventsHandler.getInstance().onIssueUpdated(this.issueUpdateHandler);
+            }
+        });
+    }
+
+    private listenRequestPublishDialog() {
+        this.requestPublishDialog.onIssueCreated(issue => {
+            if (this.requestPublishDialog.isOpen()) {
+                if (this.requestPublishDialog.isIssueCreatedByCurrentUser(issue)) {
+                    this.requestPublishDialog.close();
+                }
+            }
+            IssueDialogsManager.get().openDetailsDialog(issue);
+        });
+    }
+
+    private static closeDialog(dialog: ModalDialog) {
+        if (dialog.isOpen()) {
             dialog.close();
         }
     }
 
-    private revealDialog(dialog: ModalDialog) {
-        dialog.unmask();
-        if (dialog.isVisible()) {
-            dialog.getEl().focus();
-        }
-    }
-
     openDetailsDialogWithListDialog(issue: Issue) {
-        if (!this.listDialog.isVisible()) {
+        if (!this.listDialog.isOpen()) {
             this.listDialog.open();
-            this.listDialog.mask();
         }
 
         this.detailsDialog.showBackButton();
@@ -107,8 +175,8 @@ export class IssueDialogsManager {
         this.detailsDialog.setIssue(issue).open();
     }
 
-    openListDialog(assignedToMe: boolean = false, createdByMe: boolean = false) {
-        this.listDialog.open(assignedToMe, createdByMe);
+    openListDialog(assignedToMe: boolean = false) {
+        this.listDialog.open(assignedToMe);
     }
 
     openCreateDialog(summaries?: ContentSummaryAndCompareStatus[]) {
@@ -123,28 +191,11 @@ export class IssueDialogsManager {
             .open();
     }
 
-    private notifyIssueCreated(issue: Issue) {
-        this.issueCreatedListeners.forEach(listener => listener(issue));
-    }
-
-    public onIssueCreated(listener: (issue: Issue) => void) {
-        this.issueCreatedListeners.push(listener);
-    }
-
-    public unIssueCreated(listener: (issue: Issue) => void) {
-        this.issueCreatedListeners = this.issueCreatedListeners.filter(curr => curr !== listener);
-    }
-
-    private notifyIssueUpdated(issue: Issue) {
-        this.issueUpdatedListeners.forEach(listener => listener(issue));
-    }
-
-    public onIssueUpdated(listener: (issue: Issue) => void) {
-        this.issueUpdatedListeners.push(listener);
-    }
-
-    public unIssueUpdated(listener: (issue: Issue) => void) {
-        this.issueUpdatedListeners = this.issueUpdatedListeners.filter(curr => curr !== listener);
+    openCreateRequestDialog(summaries?: ContentSummaryAndCompareStatus[], isIncludeChildren?: boolean) {
+        this.requestPublishDialog
+            .setContentToPublish(summaries)
+            .setIncludeChildItems(isIncludeChildren)
+            .open();
     }
 
 }

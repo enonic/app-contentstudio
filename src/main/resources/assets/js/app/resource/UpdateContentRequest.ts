@@ -1,18 +1,23 @@
-import ContentName = api.content.ContentName;
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentName} from 'lib-admin-ui/content/ContentName';
+import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {ExtraData} from '../content/ExtraData';
 import {AccessControlList} from '../access/AccessControlList';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class UpdateContentRequest
-    extends ContentResourceRequest<ContentJson, Content> {
+    extends ContentResourceRequest<Content> {
 
     private id: string;
 
     private name: ContentName;
 
-    private data: api.data.PropertyTree;
+    private data: PropertyTree;
 
     private meta: ExtraData[];
 
@@ -22,7 +27,7 @@ export class UpdateContentRequest
 
     private language: string;
 
-    private owner: api.security.PrincipalKey;
+    private owner: PrincipalKey;
 
     private publishFrom: Date;
 
@@ -34,11 +39,14 @@ export class UpdateContentRequest
 
     private overwritePermissions: boolean;
 
+    private workflow: Workflow;
+
     constructor(id: string) {
         super();
         this.id = id;
         this.requireValid = false;
-        this.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('update');
     }
 
     setId(id: string): UpdateContentRequest {
@@ -51,7 +59,7 @@ export class UpdateContentRequest
         return this;
     }
 
-    setData(contentData: api.data.PropertyTree): UpdateContentRequest {
+    setData(contentData: PropertyTree): UpdateContentRequest {
         this.data = contentData;
         return this;
     }
@@ -76,7 +84,7 @@ export class UpdateContentRequest
         return this;
     }
 
-    setOwner(owner: api.security.PrincipalKey): UpdateContentRequest {
+    setOwner(owner: PrincipalKey): UpdateContentRequest {
         this.owner = owner;
         return this;
     }
@@ -106,6 +114,11 @@ export class UpdateContentRequest
         return this;
     }
 
+    setWorkflow(workflow: Workflow): UpdateContentRequest {
+        this.workflow = workflow;
+        return this;
+    }
+
     getParams(): Object {
         return {
             contentId: this.id,
@@ -120,19 +133,13 @@ export class UpdateContentRequest
             publishTo: this.publishTo,
             permissions: this.permissions ? this.permissions.toJson() : undefined,
             inheritPermissions: this.inheritPermissions,
-            overwriteChildPermissions: this.overwritePermissions
+            overwriteChildPermissions: this.overwritePermissions,
+            workflow: this.workflow.toJson()
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'update');
-    }
-
-    sendAndParse(): wemQ.Promise<Content> {
-
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
-            return this.fromJsonToContent(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
+        return this.fromJsonToContent(response.getResult());
     }
 
 }

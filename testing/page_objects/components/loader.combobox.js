@@ -18,12 +18,14 @@ class LoaderComboBox extends Page {
 
     selectOption(optionDisplayName) {
         let optionSelector = lib.slickRowByDisplayName(XPATH.container, optionDisplayName);
-        return this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_5).catch(err => {
             throw new Error('option was not found! ' + optionDisplayName + ' ' + err);
         }).then(() => {
-            return this.clickOnElement(optionSelector).catch((err) => {
+            return this.clickOnElement(optionSelector).catch(err => {
                 this.saveScreenshot('err_select_option');
-                throw new Error('option not found!' + optionDisplayName);
+                throw new Error('Error when clicking on the option!' + optionDisplayName + " " + err);
+            }).then(() => {
+                return this.pause(300);
             })
         })
     }
@@ -33,13 +35,16 @@ class LoaderComboBox extends Page {
         if (xpath === undefined) {
             xpath = '';
         }
-        //await this.waitForElementDisplayed(xpath + this.optionsFilterInput);
         let elems = await this.getDisplayedElements(xpath + this.optionsFilterInput);
-        await this.getBrowser().elementSendKeys(elems[0].ELEMENT, [optionDisplayName]);
+        if (elems.length === 0) {
+            await this.waitForElementDisplayed(xpath + this.optionsFilterInput, appConst.TIMEOUT_2);
+            elems = await this.getDisplayedElements(xpath + this.optionsFilterInput);
+        }
+        //await this.getBrowser().elementSendKeys(elems[0].elementId, [optionDisplayName]);
+        await elems[0].setValue(optionDisplayName);
         await this.waitForElementDisplayed(optionSelector);
         await this.pause(300);
         await this.clickOnElement(optionSelector);
-        this.saveScreenshot('combo_clicking_on_option');
         return await this.pause(500);
     }
 

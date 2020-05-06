@@ -1,6 +1,11 @@
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ImageContentComboBox} from '../../../../../inputtype/ui/selector/image/ImageContentComboBox';
+import {Form} from 'lib-admin-ui/ui/form/Form';
+import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
+import {FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
 
-export class ImageSelectorForm extends api.ui.form.Form {
+export class ImageSelectorForm
+    extends Form {
 
     private imageSelector: ImageContentComboBox;
 
@@ -8,11 +13,11 @@ export class ImageSelectorForm extends api.ui.form.Form {
         super('image-combobox-form');
         this.imageSelector = templateSelector;
 
-        let fieldSet = new api.ui.form.Fieldset();
-        if (!api.util.StringHelper.isBlank(title)) {
-            fieldSet.add(new api.ui.form.FormItemBuilder(templateSelector).setLabel(title).build());
+        let fieldSet = new Fieldset();
+        if (!StringHelper.isBlank(title)) {
+            fieldSet.add(new FormItemBuilder(templateSelector).setLabel(title).build());
         } else {
-            fieldSet.add(new api.ui.form.FormItemBuilder(templateSelector).build());
+            fieldSet.add(new FormItemBuilder(templateSelector).build());
         }
 
         this.add(fieldSet);

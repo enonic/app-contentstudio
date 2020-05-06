@@ -1,6 +1,6 @@
 import {ContentPublishMenuAction, ContentPublishMenuButton, ContentPublishMenuButtonConfig} from './ContentPublishMenuButton';
-import Action = api.ui.Action;
-import ActionButton = api.ui.button.ActionButton;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 
 export interface ContentBrowsePublishMenuButtonConfig
     extends ContentPublishMenuButtonConfig {
@@ -31,9 +31,11 @@ export class ContentBrowsePublishMenuButton
 
     protected getActions(): Action[] {
         return [
+            this.markAsReadyAction.getAction(),
             this.publishAction.getAction(),
             this.publishTreeAction.getAction(),
             this.unpublishAction.getAction(),
+            this.requestPublishAction.getAction(),
             this.createIssueAction.getAction()
         ];
     }
@@ -45,7 +47,7 @@ export class ContentBrowsePublishMenuButton
     }
 
     protected getButtons(): ActionButton[] {
-        return [this.publishTreeButton, this.unpublishButton, this.createIssueButton];
+        return [this.publishTreeButton, this.markAsReadyButton, this.unpublishButton, this.requestPublishButton, this.createIssueButton];
     }
 
     doRender(): Q.Promise<boolean> {
@@ -56,21 +58,38 @@ export class ContentBrowsePublishMenuButton
         });
     }
 
-    protected updateActiveClass() {
-        if (!this.item) {
-            if (this.publishAction.isEnabled()) {
-                this.setActiveClass(this.publishAction.getActionClass()); // when multiple items selected
-            } else {
-                this.setActiveClass('no-item');
-            }
-        } else if (this.publishAction.isEnabled()) {
+    updateActiveClass() {
+        const isSingleItemToDelete = this.isItemPendingDelete() && this.publishAction.isEnabled();
+
+        if (isSingleItemToDelete) {
             this.setActiveClass(this.publishAction.getActionClass());
-        } else if (this.publishTreeAction.isEnabled()) {
-            this.setActiveClass(this.publishTreeAction.getActionClass());
-        } else if (this.unpublishAction.isEnabled()) {
-            this.setActiveClass(this.unpublishAction.getActionClass());
         } else {
-            this.setActiveClass(this.createIssueAction.getActionClass());
+            const anyItemsActiveClass = this.getActiveClassForAnyItems();
+            if (anyItemsActiveClass != null) {
+                this.setActiveClass(anyItemsActiveClass);
+            } else {
+                const activeClass = this.item != null ? this.createIssueAction.getActionClass() : 'no-item';
+                this.setActiveClass(activeClass);
+            }
         }
+    }
+
+    protected getActiveClassForAnyItems(): string {
+        if (this.markAsReadyAction.isEnabled()) {
+            return this.markAsReadyAction.getActionClass();
+        }
+        if (this.publishAction.isEnabled()) {
+            return this.publishAction.getActionClass();
+        }
+        if (this.publishTreeAction.isEnabled()) {
+            return this.publishTreeAction.getActionClass();
+        }
+        if (this.unpublishAction.isEnabled()) {
+            return this.unpublishAction.getActionClass();
+        }
+        if (this.requestPublishAction.isEnabled()) {
+            return this.requestPublishAction.getActionClass();
+        }
+        return null;
     }
 }

@@ -1,6 +1,8 @@
+import {showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import DefaultErrorHandler = api.DefaultErrorHandler;
+import {Action} from 'lib-admin-ui/ui/Action';
 
 export interface BasePublishActionConfig {
     wizard: ContentWizardPanel;
@@ -10,7 +12,8 @@ export interface BasePublishActionConfig {
     omitCanPublishCheck?: boolean;
 }
 
-export abstract class BasePublishAction extends api.ui.Action {
+export abstract class BasePublishAction
+    extends Action {
 
     private config: BasePublishActionConfig;
 
@@ -21,10 +24,10 @@ export abstract class BasePublishAction extends api.ui.Action {
         this.setEnabled(false);
 
         const callback = () => {
-            if (config.wizard.hasUnsavedChanges()) {
+            if (this.mustSaveBeforeExecution()) {
 
                 this.setEnabled(false);
-                config.wizard.saveChanges().then((content) => {
+                this.config.wizard.saveChanges().then((content) => {
                     if (content) {
                         this.firePromptEvent();
                     }
@@ -51,9 +54,17 @@ export abstract class BasePublishAction extends api.ui.Action {
             this.config.wizard.setRequireValid(true);
             callback();
         } else if (this.config.errorMessage) {
-            api.notify.showWarning(this.config.errorMessage);
+            showWarning(this.config.errorMessage);
         }
     }
 
     protected abstract createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void;
+
+    protected isSaveRequired(): boolean {
+        return false;
+    }
+
+    mustSaveBeforeExecution(): boolean {
+        return this.config.wizard.hasUnsavedChanges() || this.isSaveRequired();
+    }
 }

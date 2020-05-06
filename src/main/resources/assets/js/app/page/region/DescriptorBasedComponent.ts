@@ -1,9 +1,11 @@
-import PropertyTree = api.data.PropertyTree;
-import DescriptorKey = api.content.page.DescriptorKey;
-import Descriptor = api.content.page.Descriptor;
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
 import {ComponentName} from './ComponentName';
 import {DescriptorBasedComponentJson} from './DescriptorBasedComponentJson';
 import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 
 export abstract class DescriptorBasedComponent
     extends ConfigBasedComponent {
@@ -14,10 +16,14 @@ export abstract class DescriptorBasedComponent
 
     private description: string;
 
+    private icon: string;
+
     constructor(builder: DescriptorBasedComponentBuilder<DescriptorBasedComponent>) {
         super(builder);
 
         this.descriptorKey = builder.descriptor;
+        this.description = builder.description;
+        this.icon = builder.icon;
     }
 
     hasDescriptor(): boolean {
@@ -32,10 +38,12 @@ export abstract class DescriptorBasedComponent
         const oldDescriptorKeyValue = this.descriptorKey;
         this.descriptorKey = descriptor ? descriptor.getKey() : null;
 
+        this.icon = descriptor ? descriptor.getIcon() : null;
+
         this.setName(descriptor ? new ComponentName(descriptor.getDisplayName()) : this.getType().getDefaultName());
         this.description = descriptor ? descriptor.getDescription() : null;
 
-        if (!api.ObjectHelper.equals(oldDescriptorKeyValue, this.descriptorKey)) {
+        if (!ObjectHelper.equals(oldDescriptorKeyValue, this.descriptorKey)) {
             this.notifyPropertyChanged(DescriptorBasedComponent.PROPERTY_DESCRIPTOR);
         }
 
@@ -50,7 +58,7 @@ export abstract class DescriptorBasedComponent
         this.config = config;
         this.config.onChanged(this.configChangedHandler);
 
-        if (!api.ObjectHelper.equals(oldValue, config)) {
+        if (!ObjectHelper.equals(oldValue, config)) {
             this.notifyPropertyChanged(ConfigBasedComponent.PROPERTY_CONFIG);
         }
     }
@@ -63,6 +71,14 @@ export abstract class DescriptorBasedComponent
         this.description = value;
     }
 
+    getIcon(): string {
+        return this.icon;
+    }
+
+    setIcon(value: string) {
+        this.icon = value;
+    }
+
     doReset() {
         this.setDescriptor(null);
     }
@@ -70,21 +86,20 @@ export abstract class DescriptorBasedComponent
     toComponentJson(): DescriptorBasedComponentJson {
 
         return <DescriptorBasedComponentJson>{
-            name: this.getName() ? this.getName().toString() : null,
             descriptor: this.descriptorKey != null ? this.descriptorKey.toString() : null,
             config: this.config != null ? this.config.toJson() : null
         };
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, DescriptorBasedComponent)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, DescriptorBasedComponent)) {
             return false;
         }
 
         const other: DescriptorBasedComponent = <DescriptorBasedComponent>o;
 
-        if (!api.ObjectHelper.equals(this.descriptorKey, other.descriptorKey)) {
+        if (!ObjectHelper.equals(this.descriptorKey, other.descriptorKey)) {
             return false;
         }
 
@@ -101,10 +116,16 @@ export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends 
 
     descriptor: DescriptorKey;
 
+    description: string;
+
+    icon: string;
+
     constructor(source?: DescriptorBasedComponent) {
         super(source);
         if (source) {
             this.descriptor = source.getDescriptorKey();
+            this.description = source.getDescription();
+            this.icon = source.getIcon();
         }
     }
 
@@ -112,7 +133,7 @@ export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends 
         super.fromJson(json);
 
         if (json.descriptor) {
-            this.setDescriptor(api.content.page.DescriptorKey.fromString(json.descriptor));
+            this.setDescriptor(DescriptorKey.fromString(json.descriptor));
         }
 
         return this;
@@ -120,6 +141,16 @@ export class DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT extends 
 
     public setDescriptor(value: DescriptorKey): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
         this.descriptor = value;
+        return this;
+    }
+
+    public setDescription(value: string): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+        this.description = value;
+        return this;
+    }
+
+    public setIcon(value: string): DescriptorBasedComponentBuilder<DESCRIPTOR_BASED_COMPONENT> {
+        this.icon = value;
         return this;
     }
 }

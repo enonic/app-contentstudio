@@ -1,6 +1,8 @@
-import '../../api.ts';
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 
-export class ShowIssuesDialogEvent extends api.event.Event {
+export class ShowIssuesDialogEvent
+    extends Event {
 
     private assignedToMe: boolean = false;
     private createdByMe: boolean = false;
@@ -26,10 +28,10 @@ export class ShowIssuesDialogEvent extends api.event.Event {
     }
 
     static on(handler: (event: ShowIssuesDialogEvent) => void) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: ShowIssuesDialogEvent) => void) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }

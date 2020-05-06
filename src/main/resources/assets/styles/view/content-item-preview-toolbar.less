@@ -9,14 +9,63 @@
 
   .menu-button {
 
+    width: 240px;
+
+    .icon {
+      &.icon-issue,
+      &.icon-publish-request {
+        &::before {
+          margin-right: 6px;
+          vertical-align: middle;
+          color: @admin-green;
+        }
+      }
+    }
+
+    .menu {
+      z-index: 1;
+      position: absolute;
+      right: -1px;
+      top: 31px;
+      width: 240px;
+      padding-left: 8px;
+      box-shadow: -7px 8px 7px -5px rgba(0,0,0,0.3), 5px 3px 5px -3px rgba(0,0,0,0.3);
+      background-color: @admin-bg-almost-white;
+
+      .menu-item {
+        padding-right: 40px;
+        color: @admin-font-gray2;
+
+        &:not(.disabled):hover {
+          color: @admin-font-gray3;
+        }
+      }
+    }
+
+    &:not([disabled]):hover {
+      .icon {
+        &.icon-issue,
+        &.icon-publish-request {
+          &::before {
+            color: @admin-green;
+          }
+        }
+      }
+    }
+
     .action-button {
+      display: block;
+      font-size: 14px;
+      text-align: left;
+      z-index: 2;
       margin-left: 0;
       margin-right: 40px;
-      border-left: 0 none;
-      padding-right: 0;
-      padding-left: 14px;
+      border-left: 1px solid @admin-bg-light-gray;
+      padding-top: 0;
+      padding-right: 2px;
+      padding-left: 13px;
       min-width: auto;
-      max-width: 200px;
+      width: 200px;
       .ellipsis();
 
       &[disabled] {
@@ -25,8 +74,9 @@
     }
 
     .@{_COMMON_PREFIX}dropdown-handle {
-      right: 0;
+      right: 2px;
       left: auto;
+      z-index: 2;
 
       &[disabled] {
         display: none;

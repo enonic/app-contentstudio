@@ -1,23 +1,22 @@
-import Form = api.ui.form.Form;
-import FormItem = api.ui.form.FormItem;
-import Panel = api.ui.panel.Panel;
-import DockedPanel = api.ui.panel.DockedPanel;
-import Validators = api.ui.form.Validators;
-import InputAlignment = api.ui.InputAlignment;
-import TextInput = api.ui.text.TextInput;
-import Dropdown = api.ui.selector.dropdown.Dropdown;
-import DropdownConfig = api.ui.selector.dropdown.DropdownConfig;
-import Option = api.ui.selector.Option;
-import eventInfo = CKEDITOR.eventInfo;
-import UploadItem = api.ui.uploader.UploadItem;
-import ContentSummary = api.content.ContentSummary;
-import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsView;
-import ContentId = api.content.ContentId;
-import AppHelper = api.util.AppHelper;
-import i18n = api.util.i18n;
-import UploadStartedEvent = api.ui.uploader.UploadStartedEvent;
-import UploadedEvent = api.ui.uploader.UploadedEvent;
-import UploadFailedEvent = api.ui.uploader.UploadFailedEvent;
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {Form} from 'lib-admin-ui/ui/form/Form';
+import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {DockedPanel} from 'lib-admin-ui/ui/panel/DockedPanel';
+import {Validators} from 'lib-admin-ui/ui/form/Validators';
+import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
+import {Dropdown, DropdownConfig} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
+import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
+import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {UploadStartedEvent} from 'lib-admin-ui/ui/uploader/UploadStartedEvent';
+import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
+import {UploadFailedEvent} from 'lib-admin-ui/ui/uploader/UploadFailedEvent';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 import {MediaTreeSelectorItem} from '../../selector/media/MediaTreeSelectorItem';
@@ -29,6 +28,14 @@ import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem'
 import {Content} from '../../../../content/Content';
 import {Site} from '../../../../content/Site';
 import {GetNearestSiteRequest} from '../../../../resource/GetNearestSiteRequest';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {FormInputEl} from 'lib-admin-ui/dom/FormInputEl';
+import {Checkbox, InputAlignment} from 'lib-admin-ui/ui/Checkbox';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {NavigatedDeckPanel} from 'lib-admin-ui/ui/panel/NavigatedDeckPanel';
+import {TabBarItem} from 'lib-admin-ui/ui/tab/TabBarItem';
+import {InputEl} from 'lib-admin-ui/dom/InputEl';
+import eventInfo = CKEDITOR.eventInfo;
 
 export interface LinkModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -73,7 +80,7 @@ export class LinkModalDialog
         super.initElements();
 
         this.contentId = this.config.contentId;
-        this.setSubmitAction(new api.ui.Action(this.link ? i18n('action.update') : i18n('action.insert')));
+        this.setSubmitAction(new Action(this.link ? i18n('action.update') : i18n('action.insert')));
     }
 
     protected initListeners() {
@@ -90,14 +97,6 @@ export class LinkModalDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            if (this.isOnlyTextSelected()) {
-                this.setElementToFocusOnShow(this.textFormItem.getInput());
-            } else {
-                this.setElementToFocusOnShow(this.toolTipFormItem.getInput());
-                this.textFormItem.hide();
-                this.textFormItem.removeValidator();
-            }
-
             this.addAction(this.submitAction);
             this.addCancelButtonToBottom();
 
@@ -108,10 +107,28 @@ export class LinkModalDialog
 
                     this.appendChildToContentPanel(this.dockedPanel = this.createDockedPanel());
 
+                    if (this.isNothingSelected()) {
+                        this.setElementToFocusOnShow(this.textFormItem.getInput());
+                    } else if (this.isOnlyTextSelected()) {
+                        this.setElementToFocusOnShow((<TextInput>this.getFieldById('url')));
+                    } else {
+                        this.setElementToFocusOnShow((<TextInput>this.getFieldById('url')));
+                        this.textFormItem.hide();
+                        this.textFormItem.removeValidator();
+                    }
+
                     return rendered;
                 }
             );
         });
+    }
+
+    private isNothingSelected(): boolean {
+        const selection = this.getEditor().getSelection();
+        const selectedElement: CKEDITOR.dom.element = selection.getSelectedElement();
+        const selectedText = selection.getSelectedText();
+
+        return (!selectedElement && selectedText === '');
     }
 
     private isOnlyTextSelected(): boolean {
@@ -148,8 +165,8 @@ export class LinkModalDialog
         default:
             const val = this.getOriginalUrlElem().getValue();
             const protocol: string = this.getOriginalProtocolElem().getValue();
-            this.link = api.util.StringHelper.isEmpty(val) ? api.util.StringHelper.EMPTY_STRING : protocol +
-                                                                                                  this.getOriginalUrlElem().getValue();
+            this.link = StringHelper.isEmpty(val) ? StringHelper.EMPTY_STRING : protocol +
+                                                                                this.getOriginalUrlElem().getValue();
         }
     }
 
@@ -174,15 +191,15 @@ export class LinkModalDialog
     }
 
     private getAnchor(): string {
-        return this.isAnchor() ? this.link : api.util.StringHelper.EMPTY_STRING;
+        return this.isAnchor() ? this.link : StringHelper.EMPTY_STRING;
     }
 
     private createContentPanel(): Panel {
         const getContentId: Function = () => {
             if (this.link && this.isContentLink()) {
-                return this.link.replace(LinkModalDialog.contentPrefix, api.util.StringHelper.EMPTY_STRING);
+                return this.link.replace(LinkModalDialog.contentPrefix, StringHelper.EMPTY_STRING);
             }
-            return api.util.StringHelper.EMPTY_STRING;
+            return StringHelper.EMPTY_STRING;
         };
 
         return this.createFormPanel([
@@ -196,8 +213,8 @@ export class LinkModalDialog
     private createDownloadPanel(): Panel {
         const getDownloadId: Function = () => {
             return this.isDownloadLink()
-                   ? this.link.replace(LinkModalDialog.downloadPrefix, api.util.StringHelper.EMPTY_STRING)
-                   : api.util.StringHelper.EMPTY_STRING;
+                   ? this.link.replace(LinkModalDialog.downloadPrefix, StringHelper.EMPTY_STRING)
+                   : StringHelper.EMPTY_STRING;
         };
 
         return this.createFormPanel([
@@ -208,7 +225,7 @@ export class LinkModalDialog
 
     private createUrlPanel(): Panel {
         const getUrl: Function = () => {
-            return this.isUrl() ? this.link : api.util.StringHelper.EMPTY_STRING;
+            return this.isUrl() ? this.link : StringHelper.EMPTY_STRING;
         };
 
         return this.createFormPanel([
@@ -221,10 +238,10 @@ export class LinkModalDialog
     private createEmailPanel(): Panel {
         const getEmail: Function = () => {
             if (!this.isEmail()) {
-                return api.util.StringHelper.EMPTY_STRING;
+                return StringHelper.EMPTY_STRING;
             }
 
-            return this.link.replace(LinkModalDialog.emailPrefix, api.util.StringHelper.EMPTY_STRING);
+            return this.link.replace(LinkModalDialog.emailPrefix, StringHelper.EMPTY_STRING);
         };
 
         const getSubject: Function = () => {
@@ -265,11 +282,11 @@ export class LinkModalDialog
         return this.createFormItem(formItemBuilder);
     }
 
-    private static validationRequiredEmail(input: api.dom.FormInputEl): string {
+    private static validationRequiredEmail(input: FormInputEl): string {
         return Validators.required(input) || Validators.validEmail(input);
     }
 
-    private static validationRequiredUrl(input: api.dom.FormInputEl): string {
+    private static validationRequiredUrl(input: FormInputEl): string {
         return Validators.required(input) || Validators.validUrl(input);
     }
 
@@ -278,7 +295,7 @@ export class LinkModalDialog
     }
 
     private createTargetCheckbox(id: string, isTabSelectedFn: Function): FormItem {
-        const checkbox = api.ui.Checkbox.create().setLabelText(i18n('dialog.link.formitem.openinnewtab')).setInputAlignment(
+        const checkbox = Checkbox.create().setLabelText(i18n('dialog.link.formitem.openinnewtab')).setInputAlignment(
             InputAlignment.RIGHT).build();
 
         checkbox.setChecked(this.getTarget(isTabSelectedFn.call(this)));
@@ -355,7 +372,7 @@ export class LinkModalDialog
         return ContentSummaryOptionDataLoader
             .create()
             .setAllowedContentPaths([this.parentSitePath || ''])
-            .setContentTypeNames(api.schema.content.ContentTypeName.getMediaTypes().map(name => name.toString()));
+            .setContentTypeNames(ContentTypeName.getMediaTypes().map(name => name.toString()));
     }
 
     private createContentSelectorBuilder(): ContentSummaryOptionDataLoaderBuilder {
@@ -398,7 +415,6 @@ export class LinkModalDialog
             name: 'media-selector-upload-el',
             showCancel: false,
             showResult: false,
-            maximumOccurrences: 1,
             allowMultiSelection: false
         });
 
@@ -407,7 +423,7 @@ export class LinkModalDialog
                 const value = new MediaTreeSelectorItem(null).setDisplayValue(
                     MediaSelectorDisplayValue.fromUploadItem(uploadItem));
 
-                const option = <api.ui.selector.Option<MediaTreeSelectorItem>>{
+                const option = <Option<MediaTreeSelectorItem>>{
                     value: value.getId(),
                     displayValue: value
                 };
@@ -478,7 +494,7 @@ export class LinkModalDialog
     private createContentLink() {
         const contentSelectorValue: string = (<ContentComboBox<ContentTreeSelectorItem>>this.getFieldById(
             'contentId')).getValue();
-        const isOpenInNewTab: boolean = (<api.ui.Checkbox>this.getFieldById('contentTarget')).isChecked();
+        const isOpenInNewTab: boolean = (<Checkbox>this.getFieldById('contentTarget')).isChecked();
         const url: string = LinkModalDialog.contentPrefix + contentSelectorValue;
         const target: string = isOpenInNewTab ? '_blank' : '';
 
@@ -499,8 +515,8 @@ export class LinkModalDialog
     }
 
     private createUrlLink() {
-        const url: string = (<api.ui.text.TextInput>this.getFieldById('url')).getValue();
-        const isOpenInNewTab: boolean = (<api.ui.Checkbox>this.getFieldById('urlTarget')).isChecked();
+        const url: string = (<TextInput>this.getFieldById('url')).getValue();
+        const isOpenInNewTab: boolean = (<Checkbox>this.getFieldById('urlTarget')).isChecked();
         const target: string = isOpenInNewTab ? '_blank' : '';
 
         this.getOriginalLinkTypeElem().setValue('url', false);
@@ -509,8 +525,8 @@ export class LinkModalDialog
     }
 
     private createEmailLink() {
-        const email = (<api.ui.text.TextInput>this.getFieldById('email')).getValue();
-        const subject = (<api.ui.text.TextInput>this.getFieldById('subject')).getValue();
+        const email = (<TextInput>this.getFieldById('email')).getValue();
+        const subject = (<TextInput>this.getFieldById('subject')).getValue();
 
         this.getOriginalLinkTypeElem().setValue('email', false);
         this.getOriginalEmailElem().setValue(email, false);
@@ -518,18 +534,18 @@ export class LinkModalDialog
     }
 
     private createAnchor() {
-        const anchorName = (<api.ui.text.TextInput>this.getFieldById('anchor')).getValue().replace(LinkModalDialog.anchorPrefix,
-            api.util.StringHelper.EMPTY_STRING);
+        const anchorName = (<TextInput>this.getFieldById('anchor')).getValue().replace(LinkModalDialog.anchorPrefix,
+            StringHelper.EMPTY_STRING);
 
         this.getOriginalLinkTypeElem().setValue('anchor', false);
         this.getOriginalAnchorElem().setValue(anchorName, false);
     }
 
     private updateOriginalDialogInputValues(): void {
-        const deck = <api.ui.panel.NavigatedDeckPanel>this.dockedPanel.getDeck();
-        const selectedTab = <api.ui.tab.TabBarItem>deck.getSelectedNavigationItem();
-        const linkText: string = (<api.ui.text.TextInput>this.getFieldById('linkText')).getValue().trim();
-        const toolTip: string = (<api.ui.text.TextInput>this.getFieldById('toolTip')).getValue().trim();
+        const deck = <NavigatedDeckPanel>this.dockedPanel.getDeck();
+        const selectedTab = <TabBarItem>deck.getSelectedNavigationItem();
+        const linkText: string = (<TextInput>this.getFieldById('linkText')).getValue().trim();
+        const toolTip: string = (<TextInput>this.getFieldById('toolTip')).getValue().trim();
 
         this.ckeOriginalDialog.setValueOf('info', 'linkDisplayText', linkText);
         this.getOriginalTitleElem().setValue(toolTip, false);
@@ -586,7 +602,7 @@ export class LinkModalDialog
     }
 
     private createFormItemWithPostponedValue(id: string, label: string, getValueFn: Function,
-                                             validator?: (input: api.dom.FormInputEl) => string, placeholder?: string): FormItem {
+                                             validator?: (input: FormInputEl) => string, placeholder?: string): FormItem {
 
         const formItemBuilder = new ModalDialogFormItemBuilder(id, label);
 
@@ -600,7 +616,7 @@ export class LinkModalDialog
 
         const formItem = this.createFormItem(formItemBuilder);
 
-        (<api.dom.InputEl>formItem.getInput()).setValue(getValueFn.call(this));
+        (<InputEl>formItem.getInput()).setValue(getValueFn.call(this));
 
         return formItem;
     }

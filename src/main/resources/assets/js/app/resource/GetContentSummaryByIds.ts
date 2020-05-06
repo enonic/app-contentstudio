@@ -1,18 +1,22 @@
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentSummary = api.content.ContentSummary;
-import ContentId = api.content.ContentId;
+import * as Q from 'q';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ListContentResult} from './ListContentResult';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetContentSummaryByIds
-    extends ContentResourceRequest<ListContentResult<ContentSummaryJson>, ContentSummary[]> {
+    extends ContentResourceRequest<ContentSummary[]> {
 
     private ids: ContentId[];
 
     constructor(ids: ContentId[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = ids;
+        this.addRequestPathElements('resolveByIds');
     }
 
     getParams(): Object {
@@ -21,20 +25,16 @@ export class GetContentSummaryByIds
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'resolveByIds');
+    sendAndParse(): Q.Promise<ContentSummary[]> {
+        if (this.ids && this.ids.length > 0) {
+            return super.sendAndParse();
+        }
+
+        return Q([]);
     }
 
-    sendAndParse(): wemQ.Promise<ContentSummary[]> {
-        if (this.ids && this.ids.length > 0) {
-            return this.send().then((response: api.rest.JsonResponse<ListContentResult<ContentSummaryJson>>) => {
-                return ContentSummary.fromJsonArray(response.getResult().contents);
-            });
-        } else {
-            let deferred = wemQ.defer<ContentSummary[]>();
-            deferred.resolve([]);
-            return deferred.promise;
-        }
+    protected parseResponse(response: JsonResponse<ListContentResult<ContentSummaryJson>>): ContentSummary[] {
+        return ContentSummary.fromJsonArray(response.getResult().contents);
     }
 
 }

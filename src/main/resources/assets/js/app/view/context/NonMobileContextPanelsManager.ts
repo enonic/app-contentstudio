@@ -1,3 +1,4 @@
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ContextPanel} from './ContextPanel';
 import {FloatingContextPanel} from './FloatingContextPanel';
 import {DockedContextPanel} from './DockedContextPanel';
@@ -5,12 +6,14 @@ import {NonMobileContextPanelToggleButton} from './button/NonMobileContextPanelT
 import {ActiveContextPanelManager} from './ActiveContextPanelManager';
 import {InspectEvent} from '../../event/InspectEvent';
 import {LiveFormPanel} from '../../wizard/page/LiveFormPanel';
-import ResponsiveRanges = api.ui.responsive.ResponsiveRanges;
-import Panel = api.ui.panel.Panel;
+import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
+import {Button} from 'lib-admin-ui/ui/button/Button';
 
 export class NonMobileContextPanelsManager {
 
-    private splitPanelWithGridAndContext: api.ui.panel.SplitPanel;
+    private splitPanelWithGridAndContext: SplitPanel;
 
     private dockedContextPanel: DockedContextPanel;
 
@@ -18,9 +21,9 @@ export class NonMobileContextPanelsManager {
 
     private resizeEventMonitorLocked: boolean = false;
 
-    private toggleButton: api.dom.ButtonEl = new NonMobileContextPanelToggleButton();
+    private toggleButton: Button = new NonMobileContextPanelToggleButton();
 
-    private debouncedResizeHandler: () => void = api.util.AppHelper.debounce(this.doHandleResizeEvent, 300, false);
+    private debouncedResizeHandler: () => void = AppHelper.debounce(this.doHandleResizeEvent, 300, false);
 
     private pageEditor: LiveFormPanel;
 
@@ -201,7 +204,7 @@ export class NonMobileContextPanelsManager {
         this.splitPanelWithGridAndContext.foldSecondPanel();
     }
 
-    getToggleButton(): api.dom.ButtonEl {
+    getToggleButton(): Button {
         return this.toggleButton;
     }
 
@@ -299,7 +302,7 @@ export class NonMobileContextPanelsManager {
 
 export class NonMobileContextPanelsManagerBuilder {
 
-    private splitPanelWithGridAndContext: api.ui.panel.SplitPanel;
+    private splitPanelWithGridAndContext: SplitPanel;
 
     private dockedContextPanel: DockedContextPanel;
 
@@ -311,7 +314,7 @@ export class NonMobileContextPanelsManagerBuilder {
 
     private isMobileMode: () => boolean;
 
-    setSplitPanelWithGridAndContext(splitPanelWithGridAndContext: api.ui.panel.SplitPanel) {
+    setSplitPanelWithGridAndContext(splitPanelWithGridAndContext: SplitPanel) {
         this.splitPanelWithGridAndContext = splitPanelWithGridAndContext;
     }
 
@@ -335,7 +338,7 @@ export class NonMobileContextPanelsManagerBuilder {
         this.isMobileMode = isMobileMode;
     }
 
-    getSplitPanelWithGridAndContext(): api.ui.panel.SplitPanel {
+    getSplitPanelWithGridAndContext(): SplitPanel {
         return this.splitPanelWithGridAndContext;
     }
 

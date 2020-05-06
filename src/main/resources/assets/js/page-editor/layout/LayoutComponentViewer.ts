@@ -1,8 +1,9 @@
 import {ItemViewIconClassResolver} from '../ItemViewIconClassResolver';
 import {LayoutComponent} from '../../app/page/region/LayoutComponent';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 
 export class LayoutComponentViewer
-    extends api.ui.NamesAndIconViewer<LayoutComponent> {
+    extends NamesAndIconViewer<LayoutComponent> {
 
     constructor() {
         super();

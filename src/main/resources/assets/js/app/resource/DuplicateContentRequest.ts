@@ -1,7 +1,9 @@
-import TaskIdJson = api.task.TaskIdJson;
-import TaskId = api.task.TaskId;
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
+import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export type DuplicatableId = {
     contentId: ContentId,
@@ -9,15 +11,16 @@ export type DuplicatableId = {
 };
 
 export class DuplicateContentRequest
-    extends ContentResourceRequest<TaskIdJson, TaskId> {
+    extends ContentResourceRequest<TaskId> {
 
     private contents: DuplicatableId[];
 
     constructor(contents: DuplicatableId[]) {
         super();
         this.setHeavyOperation(true);
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contents = contents;
+        this.addRequestPathElements('duplicate');
     }
 
     getParams(): Object {
@@ -28,13 +31,7 @@ export class DuplicateContentRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'duplicate');
-    }
-
-    sendAndParse(): wemQ.Promise<TaskId> {
-        return this.send().then((response: api.rest.JsonResponse<TaskIdJson>) => {
-            return TaskId.fromJson(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<TaskIdJson>): TaskId {
+        return TaskId.fromJson(response.getResult());
     }
 }

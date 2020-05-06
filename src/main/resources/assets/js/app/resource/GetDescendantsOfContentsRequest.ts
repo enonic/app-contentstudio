@@ -1,11 +1,13 @@
-import ContentPath = api.content.ContentPath;
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentIdBaseItemJson} from './json/ResolvePublishContentResultJson';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetDescendantsOfContentsRequest
-    extends ContentResourceRequest<ContentIdBaseItemJson[], ContentId[]> {
+    extends ContentResourceRequest<ContentId[]> {
 
     private contentPaths: ContentPath[] = [];
 
@@ -15,10 +17,11 @@ export class GetDescendantsOfContentsRequest
 
     constructor(contentPath?: ContentPath) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         if (contentPath) {
             this.addContentPath(contentPath);
         }
+        this.addRequestPathElements('getDescendantsOfContents');
     }
 
     setContentPaths(contentPaths: ContentPath[]): GetDescendantsOfContentsRequest {
@@ -46,14 +49,7 @@ export class GetDescendantsOfContentsRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'getDescendantsOfContents');
-    }
-
-    sendAndParse(): wemQ.Promise<ContentId[]> {
-
-        return this.send().then((response: api.rest.JsonResponse<ContentIdBaseItemJson[]>) => {
-            return response.getResult().map((item => new ContentId(item.id)));
-        });
+    protected parseResponse(response: JsonResponse<ContentIdBaseItemJson[]>): ContentId[] {
+        return response.getResult().map((item => new ContentId(item.id)));
     }
 }

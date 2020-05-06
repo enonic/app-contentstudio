@@ -1,7 +1,8 @@
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {Comparator} from 'lib-admin-ui/Comparator';
 
 export class ContentTypeSummaryByDisplayNameComparator
-    implements api.Comparator<ContentTypeSummary> {
+    implements Comparator<ContentTypeSummary> {
 
     compare(item1: ContentTypeSummary, item2: ContentTypeSummary): number {
         if (item1.getDisplayName().toLowerCase() > item2.getDisplayName().toLowerCase()) {

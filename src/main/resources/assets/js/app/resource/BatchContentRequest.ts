@@ -1,22 +1,25 @@
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentSummary = api.content.ContentSummary;
-import ContentPath = api.content.ContentPath;
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentResponse} from './ContentResponse';
 import {ListContentResult} from './ListContentResult';
 import {ContentMetadata} from '../content/ContentMetadata';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class BatchContentRequest
-    extends ContentResourceRequest<ListContentResult<ContentSummaryJson>, ContentResponse<ContentSummary>> {
+    extends ContentResourceRequest<ContentResponse<ContentSummary>> {
 
     private contentPaths: ContentPath[] = [];
 
     constructor(contentPath?: ContentPath) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         if (contentPath) {
             this.addContentPath(contentPath);
         }
+        this.addRequestPathElements('batch');
     }
 
     setContentPaths(contentPaths: ContentPath[]): BatchContentRequest {
@@ -38,17 +41,10 @@ export class BatchContentRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'batch');
-    }
-
-    sendAndParse(): wemQ.Promise<ContentResponse<ContentSummary>> {
-
-        return this.send().then((response: api.rest.JsonResponse<ListContentResult<api.content.json.ContentSummaryJson>>) => {
-            return new ContentResponse(
-                ContentSummary.fromJsonArray(response.getResult().contents),
-                new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits'])
-            );
-        });
+    protected parseResponse(response: JsonResponse<ListContentResult<ContentSummaryJson>>): ContentResponse<ContentSummary> {
+        return new ContentResponse(
+            ContentSummary.fromJsonArray(response.getResult().contents),
+            new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits'])
+        );
     }
 }

@@ -1,7 +1,6 @@
 /**
  * Created on 21.03.2019.
  */
-
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
@@ -9,15 +8,19 @@ const xpath = {
     captionTextArea: "//textarea[contains(@name,'caption')]",
     alternativeText: `//input[contains(@name,'altText')]`,
     imageEditor: "//div[contains(@id,'ImageEditor')]",
-    buttonReset: "//button[contains(@class,'button-reset')]",
+    buttonReset: "//button[contains(@class,'button-reset') and child::span[text()='Reset filters']]",
     buttonRotate: "//button[contains(@class,'button-rotate')]",
     buttonFlip: "//button[contains(@title,'Flip')]",
 };
 
 class ImageFormPanel extends Page {
 
-    get buttonReset() {
+    get buttonResetFilters() {
         return xpath.imageEditor + xpath.buttonReset;
+    }
+
+    get photoWizardStep() {
+        return "//ul[contains(@id,'WizardStepNavigator')]" + lib.tabBarItemByName("Photo");
     }
 
     get buttonRotate() {
@@ -36,9 +39,14 @@ class ImageFormPanel extends Page {
         return lib.FORM_VIEW + xpath.alternativeText;
     }
 
+    clickOnPhotoWizardStep() {
+        return this.clickOnElement(this.photoWizardStep);
+    }
+
     async clickOnFlipButton() {
         try {
             await this.waitForElementDisplayed(this.buttonFlip);
+            await this.pause(500);
             await this.clickOnElement(this.buttonFlip);
             await this.pause(700);
         } catch (err) {
@@ -50,6 +58,7 @@ class ImageFormPanel extends Page {
     async clickOnRotateButton() {
         try {
             await this.waitForElementDisplayed(this.buttonRotate);
+            await this.pause(700);
             await this.clickOnElement(this.buttonRotate);
             await this.pause(700);
         } catch (err) {
@@ -59,18 +68,22 @@ class ImageFormPanel extends Page {
     }
 
     clickOnResetButton() {
-        return this.clickOnElement(this.buttonReset).catch(err => {
+        return this.clickOnElement(this.buttonResetFilters).then(() => {
+            return this.pause(500);
+        }).catch(err => {
             this.saveScreenshot('err_click_on_reset_button');
             throw new Error('Image Editor, button reset  ' + err);
         })
     }
 
     waitForResetFilterDisplayed() {
-        return this.waitForElementDisplayed(this.buttonReset, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2).catch(err => {
+            throw new Error("Image Wizard - Reset Filter button, " + err);
+        });
     }
 
     waitForResetFilterNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.buttonReset, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2);
     }
 
     //TODO type all data
@@ -90,6 +103,22 @@ class ImageFormPanel extends Page {
         return this.getTextInInput(this.captionTextArea).catch(err => {
             throw new Error('getting Caption text: ' + err);
         })
+    }
+
+    async waitForResetFiltersDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2);
+        } catch (err) {
+            throw new Error("Button 'Reset filters' is not displayed in 2 seconds " + err);
+        }
+    }
+
+    async waitForResetFiltersNotDisplayed() {
+        try {
+            await this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2);
+        } catch (err) {
+            throw new Error("Button 'Reset filters' is still displayed in 2 seconds " + err);
+        }
     }
 };
 module.exports = ImageFormPanel;

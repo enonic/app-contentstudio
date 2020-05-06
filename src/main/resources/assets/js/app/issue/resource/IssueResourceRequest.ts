@@ -1,14 +1,11 @@
-export class IssueResourceRequest<JSON_TYPE, PARSED_TYPE> extends api.rest.ResourceRequest<JSON_TYPE, PARSED_TYPE> {
+import {ProjectBasedResourceRequest} from '../../wizard/ProjectBasedResourceRequest';
 
-    private resourcePath: api.rest.Path;
+export abstract class IssueResourceRequest<PARSED_TYPE>
+    extends ProjectBasedResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();
-        this.resourcePath = api.rest.Path.fromParent(super.getRestPath(), 'issue');
-    }
-
-    getResourcePath(): api.rest.Path {
-        return this.resourcePath;
+        this.addRequestPathElements('issue');
     }
 
 }

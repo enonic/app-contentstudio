@@ -2,7 +2,7 @@
 :toc: right
 :imagesdir: images
 
-The page editor is a modifiable preview of the content page that will open automatically when a content that has a supporting page template is created or edited. It is used in conjunction with the Context Panel to add, remove, and move components around the page with drag and drop. The page editor can be closed and reopened with the icon on the far right of the toolbar that looks like a computer monitor.
+The page editor is a modifiable preview of the content page that will open automatically when a content that has a supporting page template is created or edited. It is used in conjunction with the <<./context-panel#, Context Panel>> to add, remove, and move components around the page with drag and drop. The page editor can be closed and reopened with the icon on the far right of the toolbar that looks like a computer monitor.
 
 == Selecting controller
 

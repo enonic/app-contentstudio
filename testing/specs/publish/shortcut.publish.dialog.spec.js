@@ -3,8 +3,6 @@
  * verifies : app-contentstudio#72 Keyboard shortcut to publish content(s)
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
@@ -16,34 +14,40 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 describe('Browse Panel - Keyboard shortcut to publish content`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
+    let FOLDER_1;
 
-    let folder;
-    it(`Precondition: WHEN folder has been added THEN folder should be present in the grid`,
-        () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let displayName = contentBuilder.generateRandomName('folder');
-            folder = contentBuilder.buildFolder(displayName);
-            return studioUtils.doAddFolder(folder).then(() => {
-                return studioUtils.typeNameInFilterPanel(folder.displayName);
-            }).then(() => {
-                return contentBrowsePanel.waitForContentDisplayed(folder.displayName);
-            }).then(isDisplayed => {
-                assert.isTrue(isDisplayed, 'folder should be listed in the grid');
-            });
-        });
     //verifies : app-contentstudio#72 Keyboard shortcut to publish content(s)
-    it(`WHEN content is selected WHEN 'Ctrl+Alt+P' have been pressed THEN Publish Dialog should appear`,
-        () => {
+    it(`GIVEN content is selected WHEN 'Ctrl+Alt+P' have been pressed THEN Publish Dialog should appear`,
+        async () => {
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            return studioUtils.findAndSelectItem(folder.displayName).then(() => {
-            }).then(() => {
-                return contentBrowsePanel.hotKeyPublish();
-            }).then(() => {
-                return contentPublishDialog.waitForDialogOpened();
-            }).then(result => {
-                assert.isTrue(result, 'Publish Dialog should be present');
-            })
+            let displayName = contentBuilder.generateRandomName('folder');
+            FOLDER_1 = contentBuilder.buildFolder(displayName);
+            await studioUtils.doAddFolder(FOLDER_1);
+
+            await studioUtils.findAndSelectItem(FOLDER_1.displayName);
+            await contentBrowsePanel.hotKeyPublish();
+            await contentPublishDialog.waitForDialogOpened();
+            //Publish button should be enabled, because this content automatically gets "Ready to Publish"
+            await contentPublishDialog.waitForPublishNowButtonEnabled();
+        });
+
+    it(`GIVEN 'Work in progress' and 'Ready to Publish' folders are selected WHEN 'Ctrl+Alt+P' have been pressed THEN Publish now button should be disabled`,
+        async () => {
+            let contentPublishDialog = new ContentPublishDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+
+            let displayName = contentBuilder.generateRandomName('folder');
+            let folder2 = contentBuilder.buildFolder(displayName);
+            await studioUtils.doAddFolder(folder2);
+
+            await studioUtils.findContentAndClickCheckBox(FOLDER_1.displayName);
+            await studioUtils.findContentAndClickCheckBox(folder2.displayName);
+
+            await contentBrowsePanel.hotKeyPublish();
+            await contentPublishDialog.waitForDialogOpened();
+            //Publish button should be disabled, because one content is "Work in progress"
+            await contentPublishDialog.waitForPublishNowButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

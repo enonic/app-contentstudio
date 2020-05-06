@@ -1,17 +1,31 @@
 .content-publish-menu {
   margin-left: auto;
+  display: flex;
+  border-right: 1px solid @admin-bg-light-gray;
+
+  @media screen and (max-width: 720px) {
+    border-left: 1px solid @admin-bg-light-gray;
+    border-right: none;
+    margin-right: 0;
+  }
 
   .action-button {
     text-align: left;
     padding-left: 12px;
-    border-left: 1px solid @admin-bg-light-gray;
-    margin-left: 38px;
+    padding-right: 5px;
+    border-left: none;
     display: none !important;
+    min-width: unset;
+  }
+
+  .xp-admin-common-dropdown-handle {
+    position: relative;
   }
 
   &.no-item {
     .action-button.create-issue-action-button {
       border-left: none;
+      padding-right: 12px;
       .menu-action-button(@admin-button-blue2);
     }
 
@@ -38,8 +52,24 @@
     .dropdown-toggler(@admin-green);
   }
 
+  &.mark-as-ready {
+    .mark-as-ready-action-button {
+      .menu-action-button(@admin-font-gray2);
+    }
+
+    .dropdown-toggler(@admin-font-gray2);
+  }
+
   &.unpublish {
     .unpublish-action-button {
+      .menu-action-button(@admin-font-gray2);
+    }
+
+    .dropdown-toggler(@admin-font-gray2);
+  }
+
+  &.request-publish {
+    .request-publish-action-button {
       .menu-action-button(@admin-font-gray2);
     }
 
@@ -54,8 +84,18 @@
     .dropdown-toggler(@admin-button-blue2);
   }
 
+  &.open-request {
+    .open-request-action-button {
+      .menu-action-button(@admin-green);
+    }
+
+    .dropdown-toggler(@admin-green);
+  }
+
   .menu {
     right: 0;
+    top: @app-header-height;
+    width: auto;
   }
 
   .progress-bar {
@@ -79,7 +119,6 @@
 
   &:not([disabled]):hover {
     span {
-      color: darken(@color, 10%);
       color: @color;
     }
   }
@@ -107,12 +146,12 @@
     cursor: default;
     pointer-events: none;
 
-    .@{_COMMON_PREFIX}dropdown-handle, .action-button {
+    .@{_COMMON_PREFIX}dropdown-handle, .action-button, .action-button.create-issue-action-button {
       display: none !important;
     }
   }
 
-  .mobile-edit-publish-button {
-    display: none !important;
+  .mobile-edit-publish-controls {
+    display: none;
   }
 }

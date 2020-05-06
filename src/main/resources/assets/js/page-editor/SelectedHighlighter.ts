@@ -1,4 +1,3 @@
-import './../api.ts';
 import {Highlighter, HighlighterMode} from './Highlighter';
 import {HighlighterStyle} from './ItemTypeConfig';
 

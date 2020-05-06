@@ -1,12 +1,28 @@
-import '../../api.ts';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {Input} from 'lib-admin-ui/form/Input';
+import {DisplayNameGenerator} from 'lib-admin-ui/app/wizard/DisplayNameGenerator';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {FormItem} from 'lib-admin-ui/form/FormItem';
+import {Form} from 'lib-admin-ui/form/Form';
+import {FieldSet} from 'lib-admin-ui/form/set/fieldset/FieldSet';
+import {FormItemSet} from 'lib-admin-ui/form/set/itemset/FormItemSet';
+import {FormOptionSet} from 'lib-admin-ui/form/set/optionset/FormOptionSet';
+import {FormOptionSetOption} from 'lib-admin-ui/form/set/optionset/FormOptionSetOption';
+import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {InputTypeName} from 'lib-admin-ui/form/InputTypeName';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import * as _ from 'lodash';
 
-export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator {
+export class DisplayNameResolver
+    implements DisplayNameGenerator {
 
-    private formView: api.form.FormView;
+    private formView: FormView;
 
     private expression: string;
 
-    setFormView(value: api.form.FormView): DisplayNameResolver {
+    readonly excludedInputTypes: string[] = ['htmlarea'];
+
+    setFormView(value: FormView): DisplayNameResolver {
         this.formView = value;
         return this;
     }
@@ -17,24 +33,85 @@ export class DisplayNameResolver implements api.app.wizard.DisplayNameGenerator 
     }
 
     hasExpression(): boolean {
-        return !api.util.StringHelper.isBlank(this.expression);
+        return !StringHelper.isBlank(this.expression);
     }
 
     execute(): string {
-        api.util.assertNotNull(this.formView, 'formView not set');
-        api.util.assertNotNull(this.expression, 'expression not set');
+        assertNotNull(this.formView, 'formView not set');
+        assertNotNull(this.expression, 'expression not set');
 
-        return this.safeEval(this.expression, this.formView);
+        return this.safeEval();
     }
 
-    private getFormValues(formView: api.form.FormView): string {
-        return formView.getData().getStringValues().map(formValue => `var ${formValue.name} = '${formValue.value}'; `).join('');
+    private sanitizeFieldValue(value: string) {
+        let result = value;
+        result = result.replace(/(<([^>]+)>)/ig,'');    // Strip HTML tags
+        result = result.replace(/(\r\n|\n|\r)/gm,'');   // Strip linebreaks
+
+        return result;
     }
 
-    private safeEval(expression: string, formView: api.form.FormView): string {
+    private isExcludedInputType(inputType: InputTypeName) {
+        return this.excludedInputTypes.indexOf(inputType.getName().toLowerCase()) > -1;
+    }
+
+    private getFormItems(container: any): FormItem[] {
+        let formItems = [];
+        if (ObjectHelper.iFrameSafeInstanceOf(container, Form) ||
+            ObjectHelper.iFrameSafeInstanceOf(container, FieldSet) ||
+            ObjectHelper.iFrameSafeInstanceOf(container, FormItemSet) ||
+            ObjectHelper.iFrameSafeInstanceOf(container, FormOptionSet) ||
+            ObjectHelper.iFrameSafeInstanceOf(container, FormOptionSetOption)) {
+            formItems = container.getFormItems();
+            formItems.forEach(formItem => {
+                formItems = formItems.concat(this.getFormItems(formItem));
+            });
+        }
+
+        return formItems;
+    }
+
+    private getFormInputs(): Input[] {
+        const formItems = this.getFormItems(this.formView.getForm());
+        return <Input[]>formItems.filter(formItem => ObjectHelper.iFrameSafeInstanceOf(formItem, Input));
+    }
+
+    private getNamesOfAllowedFields(): string[] {
+        return this.getFormInputs()
+            .filter(input => !this.isExcludedInputType(input.getInputType()))
+            .map(formItem => formItem.getName());
+    }
+
+    private getFormValues(): string {
+        const allowedFields = this.getNamesOfAllowedFields();
+
+        const fieldDefinitions: string = allowedFields.map((fieldName: string) => {
+            return `var ${_.camelCase(fieldName)} = ''; `;
+        }).join('');
+
+        const fieldAssignments: string =
+            this.formView.getData().getValuesAsString()
+                .filter(formValue => formValue.value.length > 0 && allowedFields.indexOf(formValue.name) > -1)
+                .map(formValue => `${_.camelCase(formValue.name)} = '${this.sanitizeFieldValue(formValue.value)}'; `)
+                .join('');
+
+        return fieldDefinitions + fieldAssignments;
+    }
+
+    private parseExpression(): string {
+        let parsedExpression = this.expression;
+        this.expression.match(/[^{}]+(?=\})/g).forEach(
+            (variable: string) => parsedExpression = parsedExpression.replace(variable, _.camelCase(variable))
+        );
+
+        return parsedExpression;
+    }
+
+
+    private safeEval(): string {
         const script = '"use strict";' +
-                       this.getFormValues(formView) +
-                       '`' + expression + '`.replace(/\\s+/g, \' \')';
+                       this.getFormValues() +
+                       '`' + this.parseExpression() + '`.trim().replace(/\\s+/g, \' \')';
 
         let result = '';
 

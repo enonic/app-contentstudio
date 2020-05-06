@@ -1,11 +1,13 @@
-import ContentTypeName = api.schema.content.ContentTypeName;
+import * as Q from 'q';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentTypeCache} from '../content/ContentTypeCache';
 import {ContentTypeResourceRequest} from './ContentTypeResourceRequest';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {ContentTypeJson} from './json/ContentTypeJson';
 
 export class GetContentTypeByNameRequest
-    extends ContentTypeResourceRequest<ContentTypeJson, ContentType> {
+    extends ContentTypeResourceRequest<ContentType> {
 
     private name: ContentTypeName;
 
@@ -13,7 +15,6 @@ export class GetContentTypeByNameRequest
 
     constructor(name: ContentTypeName) {
         super();
-        super.setMethod('GET');
         this.name = name;
     }
 
@@ -24,22 +25,21 @@ export class GetContentTypeByNameRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return super.getResourcePath();
+    sendAndParse(): Q.Promise<ContentType> {
+        const contentTypeCache: ContentTypeCache = ContentTypeCache.get();
+        const contentType: ContentType = contentTypeCache.getByKey(this.name);
+        if (contentType) {
+            return Q(contentType);
+        }
+
+        return super.sendAndParse();
+
     }
 
-    sendAndParse(): wemQ.Promise<ContentType> {
-
-        let contentTypeCache = ContentTypeCache.get();
-        let contentType = contentTypeCache.getByKey(this.name);
-        if (contentType) {
-            return wemQ(contentType);
-        } else {
-            return this.send().then((response: api.rest.JsonResponse<ContentTypeJson>) => {
-                contentType = this.fromJsonToContentType(response.getResult());
-                contentTypeCache.put(contentType);
-                return contentType;
-            });
-        }
+    protected parseResponse(response: JsonResponse<ContentTypeJson>): ContentType {
+        const contentType: ContentType = this.fromJsonToContentType(response.getResult());
+        const contentTypeCache: ContentTypeCache = ContentTypeCache.get();
+        contentTypeCache.put(contentType);
+        return contentType;
     }
 }

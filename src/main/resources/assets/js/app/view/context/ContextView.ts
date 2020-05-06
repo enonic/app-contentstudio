@@ -1,3 +1,10 @@
+import * as Q from 'q';
+import {showError} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {InternalWidgetType, WidgetView} from './WidgetView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
 import {VersionsWidgetItemView} from './widget/version/VersionsWidgetItemView';
@@ -23,13 +30,13 @@ import {ShowSplitEditEvent} from '../../wizard/ShowSplitEditEvent';
 import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {CompareStatus} from '../../content/CompareStatus';
-import Widget = api.content.Widget;
-import ApplicationEvent = api.application.ApplicationEvent;
-import ApplicationEventType = api.application.ApplicationEventType;
-import AppHelper = api.util.AppHelper;
-import i18n = api.util.i18n;
-import LoadMask = api.ui.mask.LoadMask;
-import DivEl = api.dom.DivEl;
+import {ContentIds} from '../../ContentIds';
+import {ContextPanel} from './ContextPanel';
+import {Widget} from 'lib-admin-ui/content/Widget';
+import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
+import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
 
 export class ContextView
     extends DivEl {
@@ -85,14 +92,14 @@ export class ContextView
         this.appendChild(this.contextContainer);
         this.appendChild(this.divForNoSelection);
 
-        this.subscribeOnEvents();
+        this.subscribeToEvents();
 
         this.layout();
 
         this.getCustomWidgetViewsAndUpdateDropdown();
     }
 
-    private subscribeOnEvents() {
+    private subscribeToEvents() {
         this.onRendered(() => {
             // Remove `.no-selection` css class, making context-container visible, to calculate the offset right
             this.layout(false);
@@ -122,33 +129,41 @@ export class ContextView
 
         const contentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
-        contentServerEventsHandler.onContentPermissionsUpdated((data: ContentSummaryAndCompareStatus[]) => {
-            const itemSelected = this.item != null;
-            const activeContextPanel = ActiveContextPanelManager.getActiveContextPanel();
-            const activeWidgetVisible = this.activeWidget != null && activeContextPanel.isVisibleOrAboutToBeVisible();
+        contentServerEventsHandler.onContentPermissionsUpdated((contentIds: ContentIds) => {
+            const itemSelected: boolean = this.item != null;
+            const activeContextPanel: ContextPanel = ActiveContextPanelManager.getActiveContextPanel();
+            const activeWidgetVisible: boolean = this.activeWidget != null && activeContextPanel.isVisibleOrAboutToBeVisible();
 
             if (activeWidgetVisible && this.activeWidget.isInternal() && itemSelected) {
-                const selectedItemPermissionsUpdated = data.some((content: ContentSummaryAndCompareStatus) => {
-                    return this.item.getId() === content.getId();
-                });
-                if (selectedItemPermissionsUpdated) {
+                const selectedItemContentId: ContentId = this.item.getContentId();
+                const isSelectedItemPermissionsUpdated: boolean = contentIds.contains(selectedItemContentId);
+                if (isSelectedItemPermissionsUpdated) {
                     this.updateActiveWidget();
                 }
             }
         });
 
         contentServerEventsHandler.onContentPublished((contents: ContentSummaryAndCompareStatus[]) => {
-            contents.some((content: ContentSummaryAndCompareStatus) => {
-                if (content.getId() === this.item.getId()) {
-                    const sameContent = this.item.equals(content);
-                    const wasModified = this.item.getCompareStatus() !== CompareStatus.NEW;
-                    if (!sameContent && wasModified) {
+            if (!this.item) {
+                return;
+            }
+
+            const itemId: string = this.item.getId();
+
+            contents
+                .filter((content: ContentSummaryAndCompareStatus) => content.getId() === itemId)
+                .forEach((content: ContentSummaryAndCompareStatus) => {
+                    const isSameContent: boolean = this.item.equals(content);
+                    const wasModified: boolean = this.item.getCompareStatus() !== CompareStatus.NEW;
+
+                    if (!isSameContent && wasModified) {
                         this.setItem(content);
                     }
-                    return true;
-                }
-                return false;
-            });
+                });
+        });
+
+        ProjectChangedEvent.on(() => {
+            this.setItem(null);
         });
     }
 
@@ -176,12 +191,12 @@ export class ContextView
 
     private handleWidgetsUpdate(event: ApplicationEvent) {
         const isWidgetUpdated = [
-            ApplicationEventType.INSTALLED,
-            ApplicationEventType.UNINSTALLED,
-            ApplicationEventType.STARTED,
-            ApplicationEventType.STOPPED,
-            ApplicationEventType.UPDATED
-        ].indexOf(event.getEventType()) > -1;
+                                    ApplicationEventType.INSTALLED,
+                                    ApplicationEventType.UNINSTALLED,
+                                    ApplicationEventType.STARTED,
+                                    ApplicationEventType.STOPPED,
+                                    ApplicationEventType.UPDATED
+                                ].indexOf(event.getEventType()) > -1;
 
         if (isWidgetUpdated) {
             const key = event.getApplicationKey().getName();
@@ -198,9 +213,9 @@ export class ContextView
         const isActive = widgetView && this.activeWidget.getWidgetName() === widgetView.getWidgetName();
 
         const isRemoved = [
-            ApplicationEventType.UNINSTALLED,
-            ApplicationEventType.STOPPED
-        ].indexOf(type) > -1;
+                              ApplicationEventType.UNINSTALLED,
+                              ApplicationEventType.STOPPED
+                          ].indexOf(type) > -1;
 
         const isUpdated = !!widgetView;
 
@@ -230,8 +245,8 @@ export class ContextView
         });
     }
 
-    getCustomWidgetViewsAndUpdateDropdown(): wemQ.Promise<void> {
-        let deferred = wemQ.defer<void>();
+    getCustomWidgetViewsAndUpdateDropdown(): Q.Promise<void> {
+        let deferred = Q.defer<void>();
         if (!this.alreadyFetchedCustomWidgets) {
             this.fetchAndInitCustomWidgetViews().then(() => {
                 this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
@@ -278,12 +293,12 @@ export class ContextView
         }
     }
 
-    public setItem(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+    public setItem(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
         if (ContextView.debug) {
             console.debug('ContextView.setItem: ', item);
         }
         const itemSelected = item != null;
-        const selectionChanged = !api.ObjectHelper.equals(this.item, item);
+        const selectionChanged = !ObjectHelper.equals(this.item, item);
 
         this.item = item;
 
@@ -295,7 +310,7 @@ export class ContextView
             return this.updateActiveWidget();
         }
 
-        return wemQ<any>(null);
+        return Q<any>(null);
     }
 
     getItem(): ContentSummaryAndCompareStatus {
@@ -306,13 +321,13 @@ export class ContextView
         return ['contentstudio.contextpanel'];
     }
 
-    updateActiveWidget(): wemQ.Promise<any> {
+    updateActiveWidget(): Q.Promise<any> {
         if (ContextView.debug) {
             console.debug('ContextView.updateWidgetsForItem');
         }
 
         if (!this.activeWidget) {
-            return wemQ<any>(null);
+            return Q<any>(null);
         }
 
         return this.activeWidget.updateWidgetItemViews().then(() => {
@@ -391,7 +406,7 @@ export class ContextView
             .setName(i18n('field.contextPanel.emulator'))
             .setDescription(i18n('field.contextPanel.emulator.description'))
             .setWidgetClass('emulator-widget')
-            .setIconClass(`${api.StyleHelper.getCurrentPrefix()}icon-mobile`)
+            .setIconClass(`${StyleHelper.getCurrentPrefix()}icon-mobile`)
             .setType(InternalWidgetType.EMULATOR)
             .setContextView(this)
             .addWidgetItemView(new EmulatorWidgetItemView({})).build();
@@ -414,13 +429,13 @@ export class ContextView
         return this.isInsideWizard() && this.data.liveFormPanel != null;
     }
 
-    private fetchCustomWidgetViews(): wemQ.Promise<Widget[]> {
+    private fetchCustomWidgetViews(): Q.Promise<Widget[]> {
         let getWidgetsByInterfaceRequest = new GetWidgetsByInterfaceRequest(this.getWidgetsInterfaceNames());
 
         return getWidgetsByInterfaceRequest.sendAndParse();
     }
 
-    private fetchAndInitCustomWidgetViews(): wemQ.Promise<any> {
+    private fetchAndInitCustomWidgetViews(): Q.Promise<any> {
         return this.fetchCustomWidgetViews().then((widgets: Widget[]) => {
             widgets.forEach((widget) => {
                 let widgetView = WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
@@ -428,11 +443,11 @@ export class ContextView
             });
         }).catch((reason: any) => {
             const msg = reason ? reason.message : i18n('notify.widget.error');
-            api.notify.showError(msg);
+            showError(msg);
         });
     }
 
-    private fetchWidgetByKey(key: string): wemQ.Promise<Widget>  {
+    private fetchWidgetByKey(key: string): Q.Promise<Widget> {
         return this.fetchCustomWidgetViews().then((widgets: Widget[]) => {
             for (let i = 0; i < widgets.length; i++) {
                 if (widgets[i].getWidgetDescriptorKey().getApplicationKey().getName() === key) {
@@ -442,7 +457,7 @@ export class ContextView
             return null;
         }).catch((reason: any) => {
             const msg = reason ? reason.message : i18n('notify.widget.error');
-            api.notify.showError(msg);
+            showError(msg);
             return null;
         });
     }

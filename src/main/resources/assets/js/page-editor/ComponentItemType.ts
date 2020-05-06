@@ -1,4 +1,3 @@
-import './../api.ts';
 import {ItemTypeConfig, ItemTypeConfigJson} from './ItemTypeConfig';
 import {ItemType} from './ItemType';
 

@@ -1,17 +1,22 @@
-import Principal = api.security.Principal;
-import PrincipalViewerCompact = api.ui.security.PrincipalViewerCompact;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Principal} from 'lib-admin-ui/security/Principal';
 import {EffectivePermission} from './EffectivePermission';
 import {EffectivePermissionMember} from './EffectivePermissionMember';
-import {Access, ACCESS_OPTIONS} from './Access';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {PrincipalViewerCompact} from 'lib-admin-ui/ui/security/PrincipalViewer';
 
 export class UserAccessListItemView
-    extends api.ui.Viewer<EffectivePermission> {
+    extends Viewer<EffectivePermission> {
 
-    private userLine: api.dom.DivEl;
+    private userLine: DivEl;
 
-    private accessLine: api.dom.DivEl;
+    private accessLine: DivEl;
 
-    private resizeListener: (item: api.ui.responsive.ResponsiveItem) => void;
+    private resizeListener: (item: ResponsiveItem) => void;
 
     private currentUser: Principal;
 
@@ -33,12 +38,12 @@ export class UserAccessListItemView
         }
 
         if (!this.accessLine && !this.userLine) {
-            this.accessLine = new api.dom.SpanEl('access-line');
-            this.userLine = new api.dom.DivEl('user-line');
+            this.accessLine = new SpanEl('access-line');
+            this.userLine = new DivEl('user-line');
             this.appendChildren(this.accessLine, this.userLine);
 
             this.resizeListener = this.setExtraCount.bind(this);
-            api.ui.responsive.ResponsiveManager.onAvailableSizeChanged(this, this.resizeListener);
+            ResponsiveManager.onAvailableSizeChanged(this, this.resizeListener);
 
             this.userLine.onRendered(() => {
                 this.setExtraCount();
@@ -46,7 +51,7 @@ export class UserAccessListItemView
         }
 
         if (object) {
-            this.accessLine.setHtml(this.getOptionName(object.getAccess()));
+            this.accessLine.setHtml(i18n(`security.access.${object.getAccess()}`));
 
             object.getMembers().map((epm: EffectivePermissionMember) => epm.toPrincipal()).forEach((principal: Principal) => {
                 const principalViewer: PrincipalViewerCompact = new PrincipalViewerCompact();
@@ -63,7 +68,7 @@ export class UserAccessListItemView
     }
 
     remove(): any {
-        api.ui.responsive.ResponsiveManager.unAvailableSizeChanged(this);
+        ResponsiveManager.unAvailableSizeChanged(this);
         return super.remove();
     }
 
@@ -92,17 +97,6 @@ export class UserAccessListItemView
             }
         }
         return count;
-    }
-
-    private getOptionName(access: Access): string {
-        let currentOption = ACCESS_OPTIONS.filter(option => {
-            return option.value === access;
-        });
-        if (currentOption && currentOption.length > 0) {
-            return currentOption[0].name;
-        }
-
-        return '';
     }
 
 }

@@ -1,3 +1,11 @@
+import * as Q from 'q';
+import {showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {FragmentSelectorForm} from './FragmentSelectorForm';
 import {FragmentComponentView} from '../../../../../../page-editor/fragment/FragmentComponentView';
@@ -14,12 +22,8 @@ import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSumm
 import {FragmentComponent} from '../../../../../page/region/FragmentComponent';
 import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
 import {LayoutComponentType} from '../../../../../page/region/LayoutComponentType';
-import ContentSummary = api.content.ContentSummary;
-import ContentId = api.content.ContentId;
-import Option = api.ui.selector.Option;
-import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
-import Button = api.ui.button.Button;
-import i18n = api.util.i18n;
+import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {Button} from 'lib-admin-ui/ui/button/Button';
 
 export class FragmentInspectionPanel
     extends ComponentInspectionPanel<FragmentComponent> {
@@ -42,26 +46,19 @@ export class FragmentInspectionPanel
         super(<ComponentInspectionPanelConfig>{
             iconClass: ItemViewIconClassResolver.resolveByType('fragment')
         });
+
+        this.initElements();
+        this.initListeners();
     }
 
-    setModel(liveEditModel: LiveEditModel) {
-        super.setModel(liveEditModel);
-        if (this.fragmentSelector) {
-            this.fragmentSelector.setModel(liveEditModel);
-        }
-        this.layout();
-
-    }
-
-    private layout() {
-
-        this.removeChildren();
-
-        this.fragmentSelector = new FragmentDropdown(this.liveEditModel);
+    private initElements() {
+        this.fragmentSelector = new FragmentDropdown();
         this.fragmentForm = new FragmentSelectorForm(this.fragmentSelector, i18n('field.fragment'));
+        this.editFragmentButton = new Button(i18n('action.editFragment'));
+        this.editFragmentButton.addClass('blue large');
+    }
 
-        this.fragmentSelector.load();
-
+    private initListeners() {
         this.componentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => {
             // Ensure displayed selector option is removed when fragment is removed
             if (event.getPropertyName() === FragmentComponent.PROPERTY_FRAGMENT) {
@@ -71,17 +68,6 @@ export class FragmentInspectionPanel
                 }
             }
         };
-
-        this.handleContentUpdatedEvent();
-        this.initSelectorListeners();
-        this.appendChild(this.fragmentForm);
-
-        this.appendEditTemplateButton();
-    }
-
-    private appendEditTemplateButton() {
-        this.editFragmentButton = new Button(i18n('action.editFragment'));
-        this.editFragmentButton.addClass('blue large');
 
         this.editFragmentButton.onClicked(() => {
             const fragmentId: ContentId = this.component.getFragment();
@@ -93,23 +79,37 @@ export class FragmentInspectionPanel
             }
         });
 
-        this.fragmentForm.appendChild(this.editFragmentButton);
+        this.handleContentUpdatedEvent();
+        this.initSelectorListeners();
+    }
+
+    setModel(liveEditModel: LiveEditModel) {
+        super.setModel(liveEditModel);
+        this.fragmentSelector.setModel(liveEditModel);
+        this.fragmentSelector.load();
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.appendChild(this.fragmentForm);
+            this.fragmentForm.appendChild(this.editFragmentButton);
+
+            return rendered;
+        });
     }
 
     private handleContentUpdatedEvent() {
-        if (!this.contentUpdatedListener) {
-            this.contentUpdatedListener = (event: ContentUpdatedEvent) => {
-                // update currently selected option if this is the one updated
-                if (this.component && event.getContentId().equals(this.component.getFragment())) {
-                    this.fragmentSelector.getSelectedOption().displayValue = event.getContentSummary();
-                }
-            };
-            ContentUpdatedEvent.on(this.contentUpdatedListener);
+        this.contentUpdatedListener = (event: ContentUpdatedEvent) => {
+            // update currently selected option if this is the one updated
+            if (this.component && event.getContentId().equals(this.component.getFragment())) {
+                this.fragmentSelector.getSelectedOption().displayValue = event.getContentSummary();
+            }
+        };
+        ContentUpdatedEvent.on(this.contentUpdatedListener);
 
-            this.onRemoved((event) => {
-                ContentUpdatedEvent.un(this.contentUpdatedListener);
-            });
-        }
+        this.onRemoved((event) => {
+            ContentUpdatedEvent.un(this.contentUpdatedListener);
+        });
     }
 
     setFragmentComponentView(fragmentView: FragmentComponentView) {
@@ -138,7 +138,7 @@ export class FragmentInspectionPanel
                     if (this.isNotFoundError(reason)) {
                         this.setSelectorValue(null);
                     } else {
-                        api.DefaultErrorHandler.handle(reason);
+                        DefaultErrorHandler.handle(reason);
                     }
                 }).done();
             }
@@ -173,7 +173,6 @@ export class FragmentInspectionPanel
     }
 
     private initSelectorListeners() {
-
         this.fragmentSelector.onOptionSelected((selectedOption: OptionSelectedEvent<ContentSummary>) => {
             if (this.handleSelectorEvents) {
                 let option: Option<ContentSummary> = selectedOption.getOption();
@@ -184,8 +183,8 @@ export class FragmentInspectionPanel
                         let fragmentComponent = content.getPage() ? content.getPage().getFragment() : null;
 
                         if (fragmentComponent &&
-                            api.ObjectHelper.iFrameSafeInstanceOf(fragmentComponent.getType(), LayoutComponentType)) {
-                            api.notify.showWarning(i18n('notify.nestedLayouts'));
+                            ObjectHelper.iFrameSafeInstanceOf(fragmentComponent.getType(), LayoutComponentType)) {
+                            showWarning(i18n('notify.nestedLayouts'));
 
                         } else {
                             this.component.setFragment(fragmentContent.getContentId(), fragmentContent.getDisplayName());
@@ -207,7 +206,7 @@ export class FragmentInspectionPanel
         if (!parent) {
             return false;
         }
-        return api.ObjectHelper.iFrameSafeInstanceOf(parent.getType(), LayoutItemType);
+        return ObjectHelper.iFrameSafeInstanceOf(parent.getType(), LayoutItemType);
     }
 
     cleanUp() {

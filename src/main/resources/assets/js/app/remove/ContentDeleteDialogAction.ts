@@ -1,9 +1,10 @@
-import '../../api.ts';
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Action} from 'lib-admin-ui/ui/Action';
 
-export class ContentDeleteDialogAction extends api.ui.Action {
+export class ContentDeleteDialogAction
+    extends Action {
     constructor() {
-        super(i18n('action.delete'));
+        super(i18n('dialog.deleteNow'));
         this.setIconClass('delete-action');
     }
 }

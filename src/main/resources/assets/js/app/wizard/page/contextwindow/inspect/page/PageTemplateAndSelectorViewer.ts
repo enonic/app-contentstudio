@@ -1,8 +1,10 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {PageTemplateOption} from './PageTemplateOption';
 import {PageTemplate} from '../../../../../content/PageTemplate';
 import {PageControllerOption} from './PageControllerOption';
-import NamesAndIconViewer = api.ui.NamesAndIconViewer;
-import i18n = api.util.i18n;
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 
 export type PageTemplateAndControllerOption = PageTemplateOption | PageControllerOption;
 
@@ -11,9 +13,11 @@ export class PageTemplateAndSelectorViewer
 
     private defaultPageTemplate: PageTemplate;
 
-    constructor(defaultPageTemplate: PageTemplate) {
+    constructor() {
         super();
+    }
 
+    setDefaultPageTemplate(defaultPageTemplate: PageTemplate) {
         this.defaultPageTemplate = defaultPageTemplate;
     }
 
@@ -27,7 +31,7 @@ export class PageTemplateAndSelectorViewer
 
     resolveSubName(object: PageTemplateAndControllerOption, relativePath: boolean = false): string {
         if (!object.isAuto()) {
-            if (api.ObjectHelper.iFrameSafeInstanceOf(object, PageTemplateOption)) {
+            if (ObjectHelper.iFrameSafeInstanceOf(object, PageTemplateOption)) {
                 return (<PageTemplateOption>object).getData().getPath().toString();
             } else {
                 return (<PageControllerOption>object).getData().getDescription() || `<${i18n('text.noDescription')}>`;
@@ -44,13 +48,13 @@ export class PageTemplateAndSelectorViewer
     resolveIconClass(object: PageTemplateAndControllerOption): string {
         let iconClass = '';
 
-        if (api.ObjectHelper.iFrameSafeInstanceOf(object, PageTemplateOption)) {
+        if (ObjectHelper.iFrameSafeInstanceOf(object, PageTemplateOption)) {
             iconClass = object.getData() ? ((<PageTemplateOption>object).isCustom() ? 'icon-cog' : 'icon-page-template') : 'icon-wand';
             return iconClass + ' icon-large';
         }
 
         iconClass = (<PageControllerOption>object).getData().getIconCls();
-        return (iconClass ? api.StyleHelper.getCommonIconCls(iconClass) + ' ' : '') + 'icon-large';
+        return (iconClass ? StyleHelper.getCommonIconCls(iconClass) + ' ' : '') + 'icon-large';
     }
 
     getPreferredHeight(): number {

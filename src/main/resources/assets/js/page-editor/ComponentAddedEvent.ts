@@ -1,9 +1,11 @@
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {ComponentView} from './ComponentView';
 import {RegionView} from './RegionView';
 import {Component} from '../app/page/region/Component';
 
 export class ComponentAddedEvent
-    extends api.event.Event {
+    extends Event {
 
     private componentView: ComponentView<Component>;
     private parentRegionView: RegionView;
@@ -29,10 +31,10 @@ export class ComponentAddedEvent
     }
 
     static on(handler: (event: ComponentAddedEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: ComponentAddedEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

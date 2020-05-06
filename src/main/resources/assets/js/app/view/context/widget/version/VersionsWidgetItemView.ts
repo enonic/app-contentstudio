@@ -1,3 +1,4 @@
+import * as Q from 'q';
 import {WidgetItemView} from '../../WidgetItemView';
 import {VersionsView} from './VersionsView';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
@@ -7,7 +8,7 @@ export class VersionsWidgetItemView extends WidgetItemView {
 
     private versionsView: VersionsView;
 
-    private gridLoadDeferred: wemQ.Deferred<any>;
+    private gridLoadDeferred: Q.Deferred<any>;
 
     public static debug: boolean = false;
 
@@ -16,7 +17,7 @@ export class VersionsWidgetItemView extends WidgetItemView {
         this.managePublishEvent();
     }
 
-    public layout(): wemQ.Promise<any> {
+    public layout(): Q.Promise<any> {
         if (VersionsWidgetItemView.debug) {
             console.debug('VersionsWidgetItemView.layout');
         }
@@ -35,7 +36,7 @@ export class VersionsWidgetItemView extends WidgetItemView {
         });
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
         if (VersionsWidgetItemView.debug) {
             console.debug('VersionsWidgetItemView.setItem: ', item);
         }
@@ -44,7 +45,7 @@ export class VersionsWidgetItemView extends WidgetItemView {
             this.versionsView.setContentData(item);
             return this.reloadActivePanel();
         }
-        return wemQ<any>(null);
+        return Q<any>(null);
     }
 
     private managePublishEvent() {
@@ -66,7 +67,7 @@ export class VersionsWidgetItemView extends WidgetItemView {
         });
     }
 
-    private reloadActivePanel(): wemQ.Promise<any> {
+    private reloadActivePanel(): Q.Promise<any> {
         if (VersionsWidgetItemView.debug) {
             console.debug('VersionsWidgetItemView.reloadActivePanel');
         }
@@ -76,7 +77,7 @@ export class VersionsWidgetItemView extends WidgetItemView {
         }
 
         if (this.versionsView) {
-            this.gridLoadDeferred = wemQ.defer<any>();
+            this.gridLoadDeferred = Q.defer<any>();
             this.versionsView.reload()
                 .then(() => this.gridLoadDeferred.resolve(null))
                 .catch(reason => this.gridLoadDeferred.reject(reason))
@@ -84,7 +85,7 @@ export class VersionsWidgetItemView extends WidgetItemView {
 
             return this.gridLoadDeferred.promise;
         } else {
-            return wemQ(null);
+            return Q(null);
         }
     }
 

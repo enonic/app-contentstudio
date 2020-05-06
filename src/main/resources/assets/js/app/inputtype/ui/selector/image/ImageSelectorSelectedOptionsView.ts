@@ -1,13 +1,18 @@
-import Option = api.ui.selector.Option;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
+import * as $ from 'jquery';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {ImageSelectorSelectedOptionView} from './ImageSelectorSelectedOptionView';
 import {SelectionToolbar} from './SelectionToolbar';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {MediaSelectorDisplayValue} from '../media/MediaSelectorDisplayValue';
+import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 
 export class ImageSelectorSelectedOptionsView
-    extends api.ui.selector.combobox.BaseSelectedOptionsView<MediaTreeSelectorItem> {
+    extends BaseSelectedOptionsView<MediaTreeSelectorItem> {
 
     private activeOption: SelectedOption<MediaTreeSelectorItem>;
 
@@ -49,11 +54,11 @@ export class ImageSelectorSelectedOptionsView
         this.onRendered(() => {
             this.toolbar.insertAfterEl(this);
 
-            const scrollableParentEl = wemjq(this.getHTMLElement()).scrollParent()[0];
-            const scrollableParent = api.dom.Element.fromHtmlElement(scrollableParentEl);
+            const scrollableParentEl = $(this.getHTMLElement()).scrollParent()[0];
+            const scrollableParent = Element.fromHtmlElement(scrollableParentEl);
 
             scrollableParent.onScroll(() => this.updateStickyToolbar());
-            api.ui.responsive.ResponsiveManager.onAvailableSizeChanged(this, () => this.updateStickyToolbar(true));
+            ResponsiveManager.onAvailableSizeChanged(this, () => this.updateStickyToolbar(true));
         });
     }
 
@@ -102,6 +107,10 @@ export class ImageSelectorSelectedOptionsView
     }
 
     addOption(option: Option<MediaTreeSelectorItem>, silent: boolean = false, keyCode: number = -1): boolean {
+        if (this.maximumOccurrencesReached()) {
+            return false;
+        }
+
         const selectedOption = this.getByOption(option);
         if (!selectedOption) {
             this.addNewOption(option, silent, keyCode);
@@ -217,7 +226,7 @@ export class ImageSelectorSelectedOptionsView
             this.activeOption = null;
         }
 
-        api.dom.Body.get().unClicked(this.mouseClickListener);
+        Body.get().unClicked(this.mouseClickListener);
     }
 
     private setOutsideClickListener() {
@@ -230,7 +239,7 @@ export class ImageSelectorSelectedOptionsView
             this.resetActiveOption();
         };
 
-        api.dom.Body.get().onClicked(this.mouseClickListener);
+        Body.get().onClicked(this.mouseClickListener);
     }
 
     private handleOptionViewRendered(option: SelectedOption<MediaTreeSelectorItem>, optionView: ImageSelectorSelectedOptionView) {
@@ -336,7 +345,7 @@ export class ImageSelectorSelectedOptionsView
     }
 
     private unstickOtherToolbars() {
-        wemjq('.' + this.stickyToolbarCls).removeClass(this.stickyToolbarCls);
+        $('.' + this.stickyToolbarCls).removeClass(this.stickyToolbarCls);
     }
 
     updateStickyToolbar(afterResize: boolean = false) {

@@ -2,8 +2,6 @@ package com.enonic.xp.app.contentstudio;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,11 +10,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.google.common.base.Charsets;
-import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
 
-import com.enonic.xp.i18n.LocaleService;
-import com.enonic.xp.i18n.MessageBundle;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;

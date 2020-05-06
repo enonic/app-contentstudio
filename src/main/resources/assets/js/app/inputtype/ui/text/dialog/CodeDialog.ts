@@ -1,8 +1,10 @@
-import TextArea = api.ui.text.TextArea;
-import i18n = api.util.i18n;
-import eventInfo = CKEDITOR.eventInfo;
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig} from './ModalDialog';
+import {Action} from 'lib-admin-ui/ui/Action';
+import eventInfo = CKEDITOR.eventInfo;
 
 export class CodeDialog
     extends OverrideNativeDialog {
@@ -26,7 +28,7 @@ export class CodeDialog
         super.initElements();
 
         this.textArea = new TextArea('source-textarea');
-        this.setSubmitAction(new api.ui.Action(i18n('action.ok')));
+        this.setSubmitAction(new Action(i18n('action.ok')));
     }
 
     protected postInitElements() {

@@ -1,4 +1,7 @@
-import LayoutDescriptor = api.content.page.region.LayoutDescriptor;
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
 import {Regions} from './Regions';
 import {Region} from './Region';
 import {ComponentPath, ComponentPathRegionAndComponent} from './ComponentPath';
@@ -42,7 +45,8 @@ export class LayoutComponent
     }
 
     private updateRegionsParentPath(regions: Regions): Regions {
-        regions.getRegions().forEach((region: Region) => region.setParentPath(this.getPath()));
+        const newPath: ComponentPath = this.getPath();
+        regions.getRegions().forEach((region: Region) => region.setParentPath(newPath));
 
         return regions;
     }
@@ -56,8 +60,8 @@ export class LayoutComponent
             return component;
         }
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
-            throw new Error('Expected component to be a LayoutComponent: ' + api.ClassHelper.getClassName(component));
+        if (!ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
+            throw new Error('Expected component to be a LayoutComponent: ' + ClassHelper.getClassName(component));
         }
 
         return (<LayoutComponent> component).getComponent(path.removeFirstLevel());
@@ -77,11 +81,19 @@ export class LayoutComponent
         this.regions = value;
         this.registerRegionsListeners();
 
-        if (!api.ObjectHelper.equals(oldValue, value)) {
+        if (!ObjectHelper.equals(oldValue, value)) {
             if (LayoutComponent.debug) {
                 console.debug('LayoutComponent[' + this.getPath().toString() + '].regions reassigned: ', event);
             }
             this.notifyPropertyChanged('regions');
+        }
+    }
+
+    setIndex(value: number) {
+        const indexChanged: boolean = value !== this.getIndex();
+        super.setIndex(value);
+        if (indexChanged && !!this.regions) {
+            this.updateRegionsParentPath(this.regions);
         }
     }
 
@@ -112,15 +124,15 @@ export class LayoutComponent
         };
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, LayoutComponent)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, LayoutComponent)) {
             return false;
         }
 
         const other = <LayoutComponent>o;
 
-        if (!api.ObjectHelper.equals(this.regions, other.regions)) {
+        if (!ObjectHelper.equals(this.regions, other.regions)) {
             return false;
         }
 

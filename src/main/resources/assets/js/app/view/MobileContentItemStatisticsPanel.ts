@@ -1,3 +1,9 @@
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Action} from 'lib-admin-ui/ui/Action';
 import {MobileContextPanel} from './context/MobileContextPanel';
 import {ContentItemPreviewPanel} from './ContentItemPreviewPanel';
 import {MobileContextPanelToggleButton} from './context/button/MobileContextPanelToggleButton';
@@ -6,17 +12,17 @@ import {MobilePreviewFoldButton} from './MobilePreviewFoldButton';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentHelper} from '../util/ContentHelper';
-import ViewItem = api.app.view.ViewItem;
-import StringHelper = api.util.StringHelper;
-import ResponsiveManager = api.ui.responsive.ResponsiveManager;
-import ResponsiveItem = api.ui.responsive.ResponsiveItem;
-import Action = api.ui.Action;
+import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
+import {ItemStatisticsPanel} from 'lib-admin-ui/app/view/ItemStatisticsPanel';
+import {H6El} from 'lib-admin-ui/dom/H6El';
+import {IEl} from 'lib-admin-ui/dom/IEl';
+import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 
 export class MobileContentItemStatisticsPanel
-    extends api.app.view.ItemStatisticsPanel<ContentSummaryAndCompareStatus> {
+    extends ItemStatisticsPanel<ContentSummaryAndCompareStatus> {
 
-    private itemHeader: api.dom.DivEl = new api.dom.DivEl('mobile-content-item-statistics-header');
-    private headerLabel: api.dom.H6El = new api.dom.H6El('mobile-header-title');
+    private itemHeader: DivEl = new DivEl('mobile-content-item-statistics-header');
+    private headerLabel: H6El = new H6El('mobile-header-title');
 
     private previewPanel: ContentItemPreviewPanel;
     private contextPanel: MobileContextPanel;
@@ -52,11 +58,12 @@ export class MobileContentItemStatisticsPanel
     private initListeners() {
 
         let reloadItemPublishStateChange = (contents: ContentSummaryAndCompareStatus[]) => {
-            let thisContentId = this.getItem().getModel().getId();
+            if (!this.getItem()) {
+                return;
+            }
+            const thisContentId: string = this.getItem().getModel().getId();
 
-            let contentSummary: ContentSummaryAndCompareStatus = contents.filter((content) => {
-                return thisContentId === content.getId();
-            })[0];
+            const contentSummary: ContentSummaryAndCompareStatus = contents.find(content => thisContentId === content.getId());
 
             if (contentSummary) {
                 this.setItem(ContentHelper.createView(contentSummary));
@@ -83,8 +90,8 @@ export class MobileContentItemStatisticsPanel
 
     private initHeader() {
 
-        const icon = new api.dom.IEl('icon-more_vert');
-        const backButton = new api.dom.DivEl('mobile-context-panel-back-button');
+        const icon = new IEl('icon-more_vert');
+        const backButton = new DivEl('mobile-context-panel-back-button');
         backButton.onClicked((event) => {
             this.foldButton.collapse();
             this.slideAllOut();
@@ -131,7 +138,7 @@ export class MobileContentItemStatisticsPanel
     private makeDisplayName(item: ViewItem<ContentSummaryAndCompareStatus>): string {
         let localName = item.getModel().getType().getLocalName() || '';
         return StringHelper.isEmpty(item.getDisplayName())
-               ? api.content.ContentUnnamed.prettifyUnnamed(localName)
+               ? ContentUnnamed.prettifyUnnamed(localName)
                : item.getDisplayName();
     }
 
@@ -155,7 +162,7 @@ export class MobileContentItemStatisticsPanel
     // hide
     slideOut(silent?: boolean) {
         this.getEl().setRightPx(-this.getEl().getWidthWithBorder());
-        api.dom.Body.get().getHTMLElement().classList.remove('mobile-statistics-panel');
+        Body.get().getHTMLElement().classList.remove('mobile-statistics-panel');
         if (!silent) {
             this.notifySlideOut();
         }
@@ -163,7 +170,7 @@ export class MobileContentItemStatisticsPanel
 
     // show
     slideIn(silent?: boolean) {
-        api.dom.Body.get().getHTMLElement().classList.add('mobile-statistics-panel');
+        Body.get().getHTMLElement().classList.add('mobile-statistics-panel');
         this.getEl().setRightPx(0);
         if (!silent) {
             this.notifySlideIn();

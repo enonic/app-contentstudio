@@ -1,15 +1,20 @@
+import {showError, showSuccess} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Action} from 'lib-admin-ui/ui/Action';
 import {DeleteContentRequest} from '../resource/DeleteContentRequest';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import i18n = api.util.i18n;
+import {ItemViewPanel} from 'lib-admin-ui/app/view/ItemViewPanel';
+import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 
-export class DeleteAction extends api.ui.Action {
+export class DeleteAction
+    extends Action {
 
-    constructor(itemViewPanel: api.app.view.ItemViewPanel<ContentSummaryAndCompareStatus>) {
+    constructor(itemViewPanel: ItemViewPanel<ContentSummaryAndCompareStatus>) {
         super(i18n('action.delete'), 'mod+del');
 
         let contentToDelete = itemViewPanel.getItem().getModel().getContentSummary();
 
-        const confirmation = new api.ui.dialog.ConfirmationDialog()
+        const confirmation = new ConfirmationDialog()
             .setQuestion(i18n('dialog.confirm.delete'))
             .setNoCallback(null)
             .setYesCallback(() => {
@@ -18,12 +23,12 @@ export class DeleteAction extends api.ui.Action {
                     .addContentPath(contentToDelete.getPath())
                     .sendAndParseWithPolling()
                     .then((message: string) => {
-                        api.notify.showSuccess(message);
+                        showSuccess(message);
                     }).catch((reason: any) => {
                     if (reason && reason.message) {
-                        api.notify.showError(reason.message);
+                        showError(reason.message);
                     } else {
-                        api.notify.showError(i18n('notify.content.deleteError'));
+                        showError(i18n('notify.content.deleteError'));
                     }
                 }).done();
             });

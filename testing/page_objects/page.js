@@ -28,10 +28,14 @@ class Page {
         return this.browser.getTitle();
     }
 
+    getSource() {
+        return this.browser.getSource();
+    }
+
     async getDisplayedElements(selector) {
         let elements = await this.findElements(selector);
         let pr = elements.map(el => el.isDisplayed());
-        return Promise.all(pr).then(result => {
+        return await Promise.all(pr).then(result => {
             return elements.filter((el, i) => result[i]);
         });
     }
@@ -42,7 +46,7 @@ class Page {
 
     async clickOnElement(selector) {
         let element = await this.findElement(selector);
-        await element.waitForDisplayed(1500);
+        //await element.waitForDisplayed(1500);
         return await element.click();
     }
 
@@ -71,7 +75,6 @@ class Page {
 
     async typeTextInInput(selector, text) {
         let inputElement = await this.findElement(selector);
-
         await inputElement.setValue(text);
         let value = await inputElement.getValue();
         //workaround for issue in WebdriverIO
@@ -79,6 +82,25 @@ class Page {
             await inputElement.setValue(text);
         }
         return await inputElement.pause(300);
+    }
+
+    async addTextInInput(selector, text) {
+        let inputElement = await this.findElement(selector);
+        //await inputElement.clearValue();
+        await inputElement.setValue(text);
+        let value = await inputElement.getValue();
+        //workaround for issue in WebdriverIO
+        if (value == "") {
+            await inputElement.addValue(text);
+        }
+        return await inputElement.pause(300);
+    }
+
+    //Wait for an element for the provided amount of milliseconds to be present within the DOM. Returns true if the selector matches at least one
+    // element that exists in the DOM, otherwise throws an error.
+    async waitForExist(selector, ms) {
+        let element = await this.findElement(selector);
+        return await element.waitForExist(ms);
     }
 
     async getTextInInput(selector) {
@@ -91,7 +113,6 @@ class Page {
         await inputElement.waitForDisplayed(1000);
         await inputElement.clearValue();
         return await inputElement.pause(300);
-
     }
 
     saveScreenshot(name) {
@@ -110,7 +131,7 @@ class Page {
 
     async isElementEnabled(selector) {
         let element = await this.findElement(selector);
-        return element.isEnabled();
+        return await element.isEnabled();
     }
 
     async waitForElementEnabled(selector, ms) {
@@ -118,7 +139,10 @@ class Page {
         if (el.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
         }
-        return el[0].waitForEnabled(ms);
+        if (el.length === 0) {
+            throw new Error("Element was not found:" + selector);
+        }
+        return await el[0].waitForEnabled(ms);
     }
 
     async waitForDisplayedElementEnabled(selector, ms) {
@@ -126,16 +150,21 @@ class Page {
         if (el.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
         }
-        return el[0].waitForEnabled(ms);
+        if (el.length === 0) {
+            throw new Error("Element was not found:" + selector);
+        }
+        return await el[0].waitForEnabled(ms);
     }
-
 
     async waitForElementDisabled(selector, ms) {
         let element = await this.findElements(selector);
         if (element.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
         }
-        return element[0].waitForEnabled(ms, true);
+        if (element.length === 0) {
+            throw new Error("Element was not found:" + selector);
+        }
+        return await element[0].waitForEnabled(ms, true);
     }
 
     async waitForDisplayedElementDisabled(selector, ms) {
@@ -143,9 +172,12 @@ class Page {
         if (element.length > 1) {
             throw new Error("More than one element were found with the selector " + selector);
         }
-        return element[0].waitForEnabled(ms, true);
-    }
+        if (element.length === 0) {
+            throw new Error("Element was not found:" + selector);
+        }
 
+        return await element[0].waitForEnabled(ms, true);
+    }
 
     waitForElementNotDisplayed(selector, ms) {
         return this.getBrowser().waitUntil(() => {
@@ -157,16 +189,28 @@ class Page {
         });
     }
 
-    async waitForElementDisplayed(selector, ms) {
-        let element = await this.findElement(selector);
-        return element.waitForDisplayed(ms);
+    waitUntilDisplayed(selector, ms) {
+        return this.getBrowser().waitUntil(() => {
+            return this.getDisplayedElements(selector).then(result => {
+                return result.length > 0;
+            })
+        }, ms).catch(err => {
+            throw new Error("Timeout exception. Element " + selector + " still not visible in: " + ms);
+        });
     }
 
-    waitForSpinnerNotVisible() {
-        let message = "Spinner still displayed! timeout is " + appConst.TIMEOUT_7;
+    async waitForElementDisplayed(selector, ms) {
+        let element = await this.findElement(selector);
+        return await element.waitForDisplayed(ms);
+    }
+
+    waitForSpinnerNotVisible(ms) {
+        let timeout;
+        timeout = ms === undefined ? appConst.TIMEOUT_7 : ms;
+        let message = "Spinner still displayed! timeout is " + timeout;
         return this.browser.waitUntil(() => {
             return this.isElementNotDisplayed(`//div[@class='spinner']`);
-        }, appConst.TIMEOUT_7, message);
+        }, timeout, message);
     }
 
     waitUntilElementNotVisible(selector, timeout) {
@@ -184,31 +228,39 @@ class Page {
 
     async getAttribute(selector, attributeName) {
         let element = await this.findElement(selector);
-        return element.getAttribute(attributeName);
+        return await element.getAttribute(attributeName);
     }
 
-    waitForNotificationMessage() {
-        return this.waitForElementDisplayed(`//div[@class='notification-content']/span`, appConst.TIMEOUT_3).catch(err => {
+    async removeNotificationMessage() {
+        let selector = "//div[contains(@id,'NotificationContainer')]//span[@class='notification-remove']";
+        await this.clickOnElement(selector);
+        return await this.pause(300);
+    }
+
+    async waitForNotificationMessage() {
+        try {
+            let notificationXpath = `//div[@class='notification-content']`;
+            await this.getBrowser().waitUntil(async () => {
+                return await this.isElementDisplayed(notificationXpath);
+            }, appConst.TIMEOUT_7);
+            await this.pause(400);
+            return await this.getText(notificationXpath);
+        } catch (err) {
             throw new Error('Error when wait for notification message: ' + err);
-        }).then(() => {
-            return this.getTextInDisplayedElements(`//div[@class='notification-content']/span`);
-        }).then(result=>{
-            return result[0];
-        })
+        }
     }
 
     //returns array of messages
     waitForNotificationMessages() {
-        return this.waitForElementDisplayed(`//div[@class='notification-content']/span`, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(`//div[@class='notification-content']`, appConst.TIMEOUT_3).catch(err => {
             throw new Error('Error when wait for notification message: ' + err);
         }).then(() => {
-            return this.getTextInDisplayedElements(`//div[@class='notification-content']/span`);
+            return this.getTextInDisplayedElements(`//div[@class='notification-content']`);
         })
     }
 
-
     waitForExpectedNotificationMessage(expectedMessage) {
-        let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-content')]//span[contains(.,'${expectedMessage}')]`;
+        let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-content') and contains(.,'${expectedMessage}')]`;
         return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).catch(err => {
             this.saveScreenshot('err_notification_mess');
             throw new Error('expected notification message was not shown! ' + err);
@@ -216,29 +268,71 @@ class Page {
     }
 
     waitForErrorNotificationMessage() {
-        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']//div[contains(@class,'notification-content')]/span`;
+        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']//div[contains(@class,'notification-content')]`;
         return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
             return this.getText(selector);
         })
     }
 
-    waitForNotificationWarning() {
-        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-content')]/span`;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
-            return this.getText(selector);
-        })
+    async waitForNotificationWarning() {
+        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-content')]`;
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+        await this.pause(500);
+        return await this.getText(selector);
     }
 
     async doRightClick(selector) {
         let el = await this.findElement(selector);
         await el.moveTo();
-        return await this.browser.positionClick(2);
+        let x = await el.getLocation('x');
+        let y = await el.getLocation('y');
+        console.log("X:" + x + "Y " + y);
+        return await this.browser.performActions([{
+            type: 'pointer',
+            id: 'pointer1',
+            parameters: {
+                pointerType: 'mouse'
+            },
+            actions: [
+                {type: "pointerMove", origin: "pointer", "x": x, "y": y},
+                {
+                    type: 'pointerDown',
+                    button: 2
+                }, {
+                    type: 'pointerUp',
+                    button: 2
+                }]
+        }]);
+    }
+
+    async doRightClickWithOffset(selector, offsetX, offsetY) {
+        let el = await this.findElement(selector);
+        await el.moveTo();
+        let xValue = await el.getLocation('x');
+        let yValue = await el.getLocation('y');
+        let y = parseInt(yValue) + offsetY;
+        let x = parseInt(xValue) + offsetX;
+        return await this.browser.performActions([{
+            type: 'pointer',
+            id: 'pointer1',
+            parameters: {
+                pointerType: 'mouse'
+            },
+            actions: [
+                {type: "pointerMove", origin: "pointer", "x": x, "y": y},
+                {
+                    type: 'pointerDown',
+                    button: 2
+                }, {
+                    type: 'pointerUp',
+                    button: 2
+                }]
+        }]);
     }
 
     async isFocused(selctor) {
         let el = await this.findElement(selctor);
         return await el.isFocused();
-
     }
 
     isAlertPresent() {
@@ -279,13 +373,15 @@ class Page {
     }
 
     async switchToFrame(selector) {
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
-        let el = await this.findElement(selector);
-        //await browser.switchToFrame(frame.elementId); // Fail! Firefox and Chrome
-        return await this.getBrowser().switchToFrame(el).catch(err => {
+        try {
+            await this.waitUntilDisplayed(selector, appConst.TIMEOUT_2);
+            let el = await this.findElement(selector);
+            //return await this.browser.switchToFrame(el.elementId); // Fail! Firefox and Chrome
+            return await this.getBrowser().switchToFrame(el);
+        } catch (err) {
             console.log('Error when switch to frame ' + selector);
             throw new Error('Error when switch to frame  ' + err);
-        })
+        }
     }
 
     clickOnCloseIconInBrowser() {
@@ -297,11 +393,13 @@ class Page {
     }
 
     async doDoubleClick(selector) {
-        let el = await this.findElement(selector);
-        await el.moveTo();
-        return await this.getBrowser().positionDoubleClick().catch(err => {
+        try {
+            let el = await this.findElement(selector);
+            await el.moveTo();
+            return await el.doubleClick();
+        } catch (err) {
             throw Error('Error when doubleClick on the element' + err);
-        })
+        }
     }
 
     switchToParentFrame() {
@@ -318,6 +416,22 @@ class Page {
         });
     }
 
+    waitForAttributeHasValue(selector, attribute, value) {
+        return this.getBrowser().waitUntil(() => {
+            return this.getAttribute(selector, attribute).then(result => {
+                return result.includes(value);
+            });
+        }, appConst.TIMEOUT_2, "Attribute " + attribute + "  contains the value:" + value);
+    }
+
+    waitForAttributeNotIncludesValue(selector, attribute, value) {
+        return this.getBrowser().waitUntil(() => {
+            return this.getAttribute(selector, attribute).then(result => {
+                return !result.includes(value);
+            });
+        }, appConst.TIMEOUT_2, "Attribute " + attribute + "  contains the value: " + value);
+    }
+
     //is checkbox selected...
     async isSelected(selector) {
         let elems = await this.findElements(selector);
@@ -331,4 +445,3 @@ class Page {
 }
 
 module.exports = Page;
-

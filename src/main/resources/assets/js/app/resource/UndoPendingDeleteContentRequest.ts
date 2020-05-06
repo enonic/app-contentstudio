@@ -1,17 +1,21 @@
+import {showSuccess, showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {UndoPendingDeleteContentResultJson} from './json/UndoPendingDeleteContentResultJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import ContentId = api.content.ContentId;
-import i18n = api.util.i18n;
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class UndoPendingDeleteContentRequest
-    extends ContentResourceRequest<UndoPendingDeleteContentResultJson, number> {
+    extends ContentResourceRequest<number> {
 
     private ids: ContentId[];
 
     constructor(ids: ContentId[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = ids;
+        this.addRequestPathElements('undoPendingDelete');
     }
 
     getParams(): Object {
@@ -20,21 +24,15 @@ export class UndoPendingDeleteContentRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'undoPendingDelete');
-    }
-
-    sendAndParse(): wemQ.Promise<number> {
-        return this.send().then((response: api.rest.JsonResponse<UndoPendingDeleteContentResultJson>) => {
-            return response.getResult().success;
-        });
+    protected parseResponse(response: JsonResponse<UndoPendingDeleteContentResultJson>): number {
+        return response.getResult().success;
     }
 
     static showResponse(result: number) {
         if (result > 0) {
-            api.notify.showSuccess(result === 1 ? i18n('notify.item.undeleted') : i18n('notify.items.undeleted'));
+            showSuccess(result === 1 ? i18n('notify.item.undeleted') : i18n('notify.items.undeleted'));
         } else {
-            api.notify.showWarning(i18n('notify.nothingToUndelete'));
+            showWarning(i18n('notify.nothingToUndelete'));
         }
     }
 }

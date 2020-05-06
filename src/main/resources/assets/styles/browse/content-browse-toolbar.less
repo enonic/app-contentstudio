@@ -10,8 +10,7 @@
   width: 100%;
 
   @media screen and (min-width: @mobile-panel-width) {
-    //width: calc(~'100% - 40px');
-    padding-right: 40px;
+    width: calc(100% - 42px);
   }
 
   .fold-button .@{_COMMON_PREFIX}dropdown .@{_COMMON_PREFIX}:hover {
@@ -22,6 +21,9 @@
     flex: 0 0 auto;
   }
 
+  .content-publish-menu .menu {
+    top: @toolbar-with-border-height;
+  }
 }
 
 .split-panel {

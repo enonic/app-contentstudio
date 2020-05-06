@@ -1,16 +1,19 @@
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {GetPublishStatusesResult} from './GetPublishStatusesResult';
 import {GetPublishStatusesResultJson} from './json/GetPublishStatusesResultJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetPublishStatusesRequest
-    extends ContentResourceRequest<GetPublishStatusesResultJson, GetPublishStatusesResult> {
+    extends ContentResourceRequest<GetPublishStatusesResult> {
 
     private ids: string[];
 
     constructor(ids: string[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = ids;
+        this.addRequestPathElements('getPublishStatuses');
     }
 
     getParams(): Object {
@@ -19,14 +22,8 @@ export class GetPublishStatusesRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'getPublishStatuses');
-    }
-
-    sendAndParse(): wemQ.Promise<GetPublishStatusesResult> {
-        return this.send().then((response: api.rest.JsonResponse<GetPublishStatusesResultJson>) => {
-            return this.fromJsonToGetPublishStatusesResult(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<GetPublishStatusesResultJson>): GetPublishStatusesResult {
+        return this.fromJsonToGetPublishStatusesResult(response.getResult());
     }
 
     fromJsonToGetPublishStatusesResult(json: GetPublishStatusesResultJson): GetPublishStatusesResult {

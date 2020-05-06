@@ -1,3 +1,13 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {AEl} from 'lib-admin-ui/dom/AEl';
+import {PEl} from 'lib-admin-ui/dom/PEl';
 import {WidgetItemView} from '../../WidgetItemView';
 import {DefaultModels} from '../../../../wizard/page/DefaultModels';
 import {DefaultModelsFactory, DefaultModelsFactoryConfig} from '../../../../wizard/page/DefaultModelsFactory';
@@ -14,17 +24,19 @@ import {Site} from '../../../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentQuery} from '../../../../content/ContentQuery';
 import {PageMode} from '../../../../page/PageMode';
-import ContentSummary = api.content.ContentSummary;
-import PageDescriptor = api.content.page.PageDescriptor;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import i18n = api.util.i18n;
-import QueryExpr = api.query.expr.QueryExpr;
-import CompareExpr = api.query.expr.CompareExpr;
-import FieldExpr = api.query.expr.FieldExpr;
-import ValueExpr = api.query.expr.ValueExpr;
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentServerChangeItem = api.content.event.ContentServerChangeItem;
-import ContentId = api.content.ContentId;
+import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
+import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
+import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
+import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {ContentIds} from '../../../../ContentIds';
+import {ContentSummaryAndCompareStatusFetcher} from '../../../../resource/ContentSummaryAndCompareStatusFetcher';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentServerChangeItem} from '../../../../event/ContentServerChangeItem';
 
 export class PageTemplateWidgetItemView
     extends WidgetItemView {
@@ -39,7 +51,7 @@ export class PageTemplateWidgetItemView
         super('page-template-widget-item-view');
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): wemQ.Promise<any> {
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
         const content = item.getContentSummary();
         if (!content.equals(this.content)) {
             if (!this.content) {
@@ -50,10 +62,24 @@ export class PageTemplateWidgetItemView
             return this.loadPageTemplate().then(() => this.layout());
         }
 
-        return wemQ<any>(null);
+        return Q<any>(null);
     }
 
     private initListeners() {
+
+        const onContentPermissionsUpdated = (contentIds: ContentIds) => {
+            const thisContentId: ContentId = this.content.getContentId();
+            const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
+
+            if (!isThisContentUpdated) {
+                return;
+            }
+
+            ContentSummaryAndCompareStatusFetcher.fetch(this.content.getContentId())
+                .then(this.setContentAndUpdateView.bind(this))
+                .catch(DefaultErrorHandler.handle);
+
+        };
 
         const onContentUpdated = (contents: ContentSummaryAndCompareStatus[]) => {
             const thisContentId = this.content.getId();
@@ -67,7 +93,6 @@ export class PageTemplateWidgetItemView
             } else if (contents.some(content => content.getContentSummary().isPageTemplate())) {
                 this.loadPageTemplate().then(() => this.layout());
             }
-
         };
 
         const onContentDeleted = (deletedPaths: ContentServerChangeItem[]) => {
@@ -88,11 +113,11 @@ export class PageTemplateWidgetItemView
         const serverEvents = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentUpdated(onContentUpdated);
-        serverEvents.onContentPermissionsUpdated(onContentUpdated);
+        serverEvents.onContentPermissionsUpdated(onContentPermissionsUpdated);
         serverEvents.onContentDeleted(onContentDeleted);
     }
 
-    public layout(): wemQ.Promise<any> {
+    public layout(): Q.Promise<any> {
         if (PageTemplateWidgetItemView.debug) {
             console.debug('PageTemplateWidgetItemView.layout');
         }
@@ -105,12 +130,12 @@ export class PageTemplateWidgetItemView
         });
     }
 
-    private getPageTemplateInfo(content: Content): wemQ.Promise<PageTemplateViewer> {
+    private getPageTemplateInfo(content: Content): Q.Promise<PageTemplateViewer> {
         const pageTemplateViewer = new PageTemplateViewer();
 
         if (content.getType().isFragment()) {
             pageTemplateViewer.setPageMode(PageMode.FRAGMENT);
-            return wemQ(pageTemplateViewer);
+            return Q(pageTemplateViewer);
         }
 
         if (content.isPage()) {
@@ -123,7 +148,7 @@ export class PageTemplateWidgetItemView
                         (pageTemplate: PageTemplate) => {
                             pageTemplateViewer.setPageTemplate(pageTemplate);
 
-                            return wemQ(pageTemplateViewer);
+                            return Q(pageTemplateViewer);
                         }, reason => {
                             return this.tryToSetAutomaticMode(pageTemplateViewer);
                         });
@@ -136,14 +161,14 @@ export class PageTemplateWidgetItemView
                     pageTemplateViewer.setPageController(pageDescriptor);
                     pageTemplateViewer.setContent(this.content);
 
-                    return wemQ(pageTemplateViewer);
+                    return Q(pageTemplateViewer);
                 });
         }
 
         return this.tryToSetAutomaticMode(pageTemplateViewer);
     }
 
-    private tryToSetAutomaticMode(pageTemplateViewer: PageTemplateViewer): wemQ.Promise<PageTemplateViewer> {
+    private tryToSetAutomaticMode(pageTemplateViewer: PageTemplateViewer): Q.Promise<PageTemplateViewer> {
         return new GetNearestSiteRequest(this.content.getContentId()).sendAndParse().then((site: Site) => {
 
             return this.loadDefaultModels(site, this.content.getType()).then((defaultModels: DefaultModels) => {
@@ -153,12 +178,12 @@ export class PageTemplateWidgetItemView
                     pageTemplateViewer.setPageTemplate(defaultModels.getPageTemplate());
                 }
 
-                return wemQ<PageTemplateViewer>(pageTemplateViewer);
+                return Q<PageTemplateViewer>(pageTemplateViewer);
             });
         });
     }
 
-    private loadDefaultModels(site: Site, contentType: ContentTypeName): wemQ.Promise<DefaultModels> {
+    private loadDefaultModels(site: Site, contentType: ContentTypeName): Q.Promise<DefaultModels> {
 
         if (site) {
             return DefaultModelsFactory.create(<DefaultModelsFactoryConfig>{
@@ -169,13 +194,13 @@ export class PageTemplateWidgetItemView
         }
 
         if (contentType.isSite()) {
-            return wemQ<DefaultModels>(new DefaultModels(null, null));
+            return Q<DefaultModels>(new DefaultModels(null, null));
         }
 
-        return wemQ<DefaultModels>(null);
+        return Q<DefaultModels>(null);
     }
 
-    private loadPageTemplate(): wemQ.Promise<void> {
+    private loadPageTemplate(): Q.Promise<void> {
         this.pageTemplateViewer = null;
 
         return new GetContentByIdRequest(this.content.getContentId()).sendAndParse().then((content: Content) => {
@@ -239,8 +264,8 @@ class PageTemplateViewer {
         return this.pageMode !== PageMode.NO_CONTROLLER;
     }
 
-    private getPageTemplateLinkEl(): api.dom.AEl {
-        const pageTemplateEl = new api.dom.AEl();
+    private getPageTemplateLinkEl(): AEl {
+        const pageTemplateEl = new AEl();
         pageTemplateEl.setHtml(this.pageTemplate.getDisplayName());
         pageTemplateEl.setTitle(this.pageTemplate.getPath().toString());
 
@@ -251,14 +276,14 @@ class PageTemplateViewer {
         return pageTemplateEl;
     }
 
-    private getEmptyDescriptorEl(): api.dom.SpanEl {
-        const emptyEl = new api.dom.SpanEl();
+    private getEmptyDescriptorEl(): SpanEl {
+        const emptyEl = new SpanEl();
 
         emptyEl.setHtml(i18n('widget.pagetemplate.notfound'));
         return emptyEl;
     }
 
-    private getDescriptorEl(): api.dom.Element {
+    private getDescriptorEl(): Element {
 
         if (!(this.pageTemplate || this.pageController)) {
             return this.getEmptyDescriptorEl();
@@ -268,18 +293,18 @@ class PageTemplateViewer {
             return this.getPageTemplateLinkEl();
         }
 
-        const spanEl = new api.dom.SpanEl();
+        const spanEl = new SpanEl();
         spanEl.setHtml(this.pageController.getDisplayName());
         spanEl.getEl().setTitle(this.pageController.getKey().toString());
 
         return spanEl;
     }
 
-    render(): api.dom.DivEl {
-        const divEl = new api.dom.DivEl('page-template-viewer');
+    render(): DivEl {
+        const divEl = new DivEl('page-template-viewer');
 
         if (!this.isRenderable()) {
-            const noTemplateText = new api.dom.PEl('no-template');
+            const noTemplateText = new PEl('no-template');
             noTemplateText.setHtml(this.getPageModeString());
 
             divEl.appendChild(noTemplateText);
@@ -287,7 +312,7 @@ class PageTemplateViewer {
             return divEl;
         }
 
-        const pageTemplateView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
+        const pageTemplateView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
         const isPageTemplate = this.content && this.content.isPageTemplate();
 
         if (!isPageTemplate) {
@@ -297,7 +322,7 @@ class PageTemplateViewer {
         }
 
         if (this.pageMode === PageMode.FRAGMENT) {
-            pageTemplateView.setIconClass(api.StyleHelper.getCommonIconCls('fragment'));
+            pageTemplateView.setIconClass(StyleHelper.getCommonIconCls('fragment'));
         } else if (isPageTemplate) {
             this.fillPageTemplateInfo(pageTemplateView);
 
@@ -320,7 +345,7 @@ class PageTemplateViewer {
         return divEl;
     }
 
-    private fillPageTemplateInfo(pageTemplateView: api.app.NamesAndIconView) {
+    private fillPageTemplateInfo(pageTemplateView: NamesAndIconView) {
         pageTemplateView.setIconClass('icon-page-template');
 
         const contentQuery: ContentQuery = new ContentQuery();
@@ -333,7 +358,7 @@ class PageTemplateViewer {
             }
 
             const descriptors = result.getContents().map(contentSummary => {
-                const aEl = new api.dom.AEl();
+                const aEl = new AEl();
                 aEl.setHtml(contentSummary.getDisplayName());
 
                 aEl.onClicked(() => {

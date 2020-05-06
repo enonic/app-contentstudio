@@ -1,21 +1,24 @@
+import * as Q from 'q';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageDescriptorResourceRequest} from './PageDescriptorResourceRequest';
 import {ApplicationBasedCache} from '../application/ApplicationBasedCache';
-import PageDescriptor = api.content.page.PageDescriptor;
-import PageDescriptorsJson = api.content.page.PageDescriptorsJson;
-import PageDescriptorJson = api.content.page.PageDescriptorJson;
+import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
+import {PageDescriptorsJson} from 'lib-admin-ui/content/page/PageDescriptorsJson';
+import {PageDescriptorJson} from 'lib-admin-ui/content/page/PageDescriptorJson';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 export class GetPageDescriptorsByApplicationRequest
-    extends PageDescriptorResourceRequest<PageDescriptorsJson, PageDescriptor[]> {
+    extends PageDescriptorResourceRequest<PageDescriptor[]> {
 
-    private applicationKey: api.application.ApplicationKey;
+    private applicationKey: ApplicationKey;
 
     private cache: ApplicationBasedCache<PageDescriptor>;
 
-    constructor(applicationKey: api.application.ApplicationKey) {
+    constructor(applicationKey: ApplicationKey) {
         super();
-        super.setMethod('GET');
         this.applicationKey = applicationKey;
         this.cache = ApplicationBasedCache.registerCache<PageDescriptor>(PageDescriptor, GetPageDescriptorsByApplicationRequest);
+        this.addRequestPathElements('list', 'by_application');
     }
 
     getParams(): Object {
@@ -24,22 +27,21 @@ export class GetPageDescriptorsByApplicationRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'list', 'by_application');
-    }
-
-    sendAndParse(): wemQ.Promise<PageDescriptor[]> {
-        const cached = this.cache.getByApplication(this.applicationKey);
+    sendAndParse(): Q.Promise<PageDescriptor[]> {
+        const cached: PageDescriptor[] = this.cache.getByApplications([this.applicationKey]);
         if (cached) {
-            return wemQ(cached);
+            return Q(cached);
         }
 
-        return this.send().then((response: api.rest.JsonResponse<PageDescriptorsJson>) => {
-            return response.getResult().descriptors.map((descriptorJson: PageDescriptorJson) => {
-                const pageDescriptor = api.content.page.PageDescriptor.fromJson(descriptorJson);
-                this.cache.put(pageDescriptor);
-                return pageDescriptor;
-            });
+        return super.sendAndParse();
+    }
+
+    protected parseResponse(response: JsonResponse<PageDescriptorsJson>): PageDescriptor[] {
+        this.cache.putApplicationKeys([this.applicationKey]);
+        return response.getResult().descriptors.map((descriptorJson: PageDescriptorJson) => {
+            const pageDescriptor = PageDescriptor.fromJson(descriptorJson);
+            this.cache.put(pageDescriptor);
+            return pageDescriptor;
         });
     }
 }

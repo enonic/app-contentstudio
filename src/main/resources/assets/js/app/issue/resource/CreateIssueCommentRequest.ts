@@ -1,21 +1,23 @@
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueCommentJson} from '../json/IssueCommentJson';
 import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueComment} from '../IssueComment';
-import PrincipalKey = api.security.PrincipalKey;
-import Path = api.rest.Path;
-import JsonResponse = api.rest.JsonResponse;
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreateIssueCommentRequest
-    extends IssueResourceRequest<IssueCommentJson, IssueComment> {
+    extends IssueResourceRequest<IssueComment> {
 
     private creator: PrincipalKey;
     private text: string;
     private issueId: string;
+    private silent: boolean;
 
     constructor(issueId: string) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.issueId = issueId;
+        this.addRequestPathElements('comment');
     }
 
     setCreator(key: PrincipalKey) {
@@ -28,21 +30,21 @@ export class CreateIssueCommentRequest
         return this;
     }
 
+    setSilent(silent: boolean) {
+        this.silent = silent;
+        return this;
+    }
+
     getParams(): Object {
         return {
             issue: this.issueId,
             text: this.text,
-            creator: this.creator.toString()
+            creator: this.creator.toString(),
+            silent: this.silent
         };
     }
 
-    getRequestPath(): Path {
-        return Path.fromParent(super.getResourcePath(), 'comment');
-    }
-
-    sendAndParse(): wemQ.Promise<IssueComment> {
-        return this.send().then((response: JsonResponse<IssueCommentJson>) => {
-            return IssueComment.fromJson(response.getResult());
-        });
+    parseResponse(response: JsonResponse<IssueCommentJson>): IssueComment {
+        return IssueComment.fromJson(response.getResult());
     }
 }

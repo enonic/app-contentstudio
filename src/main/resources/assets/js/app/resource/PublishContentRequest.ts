@@ -1,9 +1,12 @@
-import TaskIdJson = api.task.TaskIdJson;
-import TaskId = api.task.TaskId;
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
+import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
-export class PublishContentRequest extends ContentResourceRequest<TaskIdJson, TaskId> {
+export class PublishContentRequest
+    extends ContentResourceRequest<TaskId> {
 
     private ids: ContentId[] = [];
 
@@ -15,12 +18,15 @@ export class PublishContentRequest extends ContentResourceRequest<TaskIdJson, Ta
 
     private publishTo: Date;
 
+    private message: string;
+
     constructor(contentId?: ContentId) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         if (contentId) {
             this.addId(contentId);
         }
+        this.addRequestPathElements('publish');
     }
 
     setIds(contentIds: ContentId[]): PublishContentRequest {
@@ -43,12 +49,19 @@ export class PublishContentRequest extends ContentResourceRequest<TaskIdJson, Ta
         return this;
     }
 
-    setPublishFrom(publishFrom: Date) {
+    setPublishFrom(publishFrom: Date): PublishContentRequest {
         this.publishFrom = publishFrom;
+        return this;
     }
 
-    setPublishTo(publishTo: Date) {
+    setPublishTo(publishTo: Date): PublishContentRequest {
         this.publishTo = publishTo;
+        return this;
+    }
+
+    setMessage(message: string): PublishContentRequest {
+        this.message = message;
+        return this;
     }
 
     getParams(): Object {
@@ -64,18 +77,13 @@ export class PublishContentRequest extends ContentResourceRequest<TaskIdJson, Ta
             }),
             schedule: this.publishFrom ? {
                 from: this.publishFrom.toISOString(),
-                to: this.publishTo ? this.publishTo.toISOString() : undefined
-            } : null
+                to: this.publishTo ? this.publishTo.toISOString() : null
+            } : null,
+            message: this.message
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'publish');
-    }
-
-    sendAndParse(): wemQ.Promise<api.task.TaskId> {
-        return this.send().then((response: api.rest.JsonResponse<api.task.TaskIdJson>) => {
-            return api.task.TaskId.fromJson(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<TaskIdJson>): TaskId {
+        return TaskId.fromJson(response.getResult());
     }
 }

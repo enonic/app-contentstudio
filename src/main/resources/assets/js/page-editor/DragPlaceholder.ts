@@ -1,8 +1,8 @@
-import './../api.ts';
 import {RegionView} from './RegionView';
 import {ItemType} from './ItemType';
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 
 export class DragPlaceholder
     extends ItemViewPlaceholder {
@@ -13,7 +13,7 @@ export class DragPlaceholder
 
     private regionView: RegionView;
 
-    private messageEl: api.dom.DivEl;
+    private messageEl: DivEl;
 
     private static instance: DragPlaceholder;
 
@@ -32,7 +32,7 @@ export class DragPlaceholder
     constructor() {
         super();
         this.setId('drag-placeholder').addClassEx('drag-placeholder');
-        this.messageEl = new api.dom.DivEl('message');
+        this.messageEl = new DivEl('message');
         this.appendChild(this.messageEl);
     }
 

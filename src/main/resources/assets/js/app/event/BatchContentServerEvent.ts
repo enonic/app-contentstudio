@@ -1,8 +1,10 @@
-import NodeServerChangeType = api.event.NodeServerChangeType;
-import ContentServerEvent = api.content.event.ContentServerEvent;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {ContentServerEvent} from './ContentServerEvent';
 
 export class BatchContentServerEvent
-    extends api.event.Event {
+    extends Event {
 
     private events: ContentServerEvent[];
 
@@ -29,10 +31,10 @@ export class BatchContentServerEvent
     }
 
     static on(handler: (event: BatchContentServerEvent) => void) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler);
+        Event.bind(ClassHelper.getFullName(this), handler);
     }
 
     static un(handler?: (event: BatchContentServerEvent) => void) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler);
+        Event.unbind(ClassHelper.getFullName(this), handler);
     }
 }

@@ -1,12 +1,14 @@
+import * as Q from 'q';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
+import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
+import {NumberHelper} from 'lib-admin-ui/util/NumberHelper';
+import {Dropdown, DropdownConfig} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
+import {FormInputEl} from 'lib-admin-ui/dom/FormInputEl';
+import {Action} from 'lib-admin-ui/ui/Action';
 import eventInfo = CKEDITOR.eventInfo;
-import i18n = api.util.i18n;
-import FormItem = api.ui.form.FormItem;
-import NumberHelper = api.util.NumberHelper;
-import Dropdown = api.ui.selector.dropdown.Dropdown;
-import DropdownConfig = api.ui.selector.dropdown.DropdownConfig;
-import Option = api.ui.selector.Option;
 
 enum DialogType {
     TABLE, TABLEPROPERTIES
@@ -26,13 +28,9 @@ export class TableDialog
 
     private headersField: FormItem;
 
-    private cellSpacingField: FormItem;
-
-    private cellPaddingField: FormItem;
-
-    private borderField: FormItem;
-
     private alignmentField: FormItem;
+
+    private captionField: FormItem;
 
     private dialogType: DialogType;
 
@@ -57,7 +55,7 @@ export class TableDialog
         super.initElements();
 
         this.dialogType = this.config.dialogType;
-        this.setSubmitAction(new api.ui.Action(i18n('action.ok')));
+        this.setSubmitAction(new Action(i18n('action.ok')));
     }
 
     protected postInitElements() {
@@ -104,31 +102,20 @@ export class TableDialog
             this.createFormItem(
                 new ModalDialogFormItemBuilder('headers', i18n('dialog.table.formitem.headers')).setInputEl(this.createHeadersDropdown()));
 
-        this.cellSpacingField =
-            this.createFormItem(new ModalDialogFormItemBuilder('cellspacing', i18n('dialog.table.formitem.cellSpacing')).setValidator(
-                TableDialog.isPositiveNumber));
-
-        this.cellPaddingField =
-            this.createFormItem(new ModalDialogFormItemBuilder('cellpadding', i18n('dialog.table.formitem.cellPadding')).setValidator(
-                TableDialog.isPositiveNumber));
-
-        this.borderField =
-            this.createFormItem(new ModalDialogFormItemBuilder('border', i18n('dialog.table.formitem.border')).setValidator(
-                TableDialog.isPositiveNumber));
-
         this.alignmentField =
             this.createFormItem(
                 new ModalDialogFormItemBuilder('alignment', i18n('dialog.table.formitem.alignment')).setInputEl(
                     this.createAlignmentDropdown()));
 
+        this.captionField =
+            this.createFormItem(new ModalDialogFormItemBuilder('caption', i18n('dialog.table.formitem.caption')));
+
         return [
             this.rowsField,
             this.colsField,
             this.headersField,
-            this.cellSpacingField,
-            this.cellPaddingField,
-            this.borderField,
-            this.alignmentField
+            this.alignmentField,
+            this.captionField
         ];
     }
 
@@ -160,23 +147,19 @@ export class TableDialog
         this.colsField.getInput().getEl().setValue(this.getOriginalColsElem().getValue());
         this.colsField.getInput().getEl().setDisabled(this.dialogType === DialogType.TABLEPROPERTIES);
         (<Dropdown<string>>this.headersField.getInput()).setValue(this.getOriginalHeadersElem().getValue());
-        this.cellSpacingField.getInput().getEl().setValue(this.getOriginalCellSpacingElem().getValue());
-        this.cellPaddingField.getInput().getEl().setValue(this.getOriginalCellPaddingElem().getValue());
-        this.borderField.getInput().getEl().setValue(this.getOriginalBorderElem().getValue());
         (<Dropdown<string>>this.alignmentField.getInput()).setValue(this.getOriginalAlignmentElem().getValue());
+        this.captionField.getInput().getEl().setValue(this.getOriginalCaptionElem().getValue());
     }
 
     private updateOriginalDialogInputValues() {
         this.getOriginalRowsElem().setValue(this.rowsField.getInput().getEl().getValue(), false);
         this.getOriginalColsElem().setValue(this.colsField.getInput().getEl().getValue(), false);
         this.getOriginalHeadersElem().setValue((<Dropdown<string>>this.headersField.getInput()).getValue(), false);
-        this.getOriginalCellSpacingElem().setValue(this.cellSpacingField.getInput().getEl().getValue(), false);
-        this.getOriginalCellPaddingElem().setValue(this.cellPaddingField.getInput().getEl().getValue(), false);
-        this.getOriginalBorderElem().setValue(this.borderField.getInput().getEl().getValue(), false);
         this.getOriginalAlignmentElem().setValue((<Dropdown<string>>this.alignmentField.getInput()).getValue(), false);
+        this.getOriginalCaptionElem().setValue(this.captionField.getInput().getEl().getValue(), false);
     }
 
-    private static isPositiveWholeNumber(input: api.dom.FormInputEl) {
+    private static isPositiveWholeNumber(input: FormInputEl) {
         const valueAsNumber: number = NumberHelper.toNumber(input.getValue());
 
         if (!NumberHelper.isWholeNumber(valueAsNumber) || !(valueAsNumber > 0)) {
@@ -186,7 +169,7 @@ export class TableDialog
         return undefined;
     }
 
-    private static isPositiveNumber(input: api.dom.FormInputEl) {
+    private static isPositiveNumber(input: FormInputEl) {
         const valueAsNumber: number = NumberHelper.toNumber(input.getValue());
 
         if (!NumberHelper.isNumber(valueAsNumber) || !(valueAsNumber >= 0)) {
@@ -222,6 +205,10 @@ export class TableDialog
 
     private getOriginalAlignmentElem(): CKEDITOR.ui.dialog.uiElement {
         return this.getElemFromOriginalDialog('info', 'cmbAlign');
+    }
+
+    private getOriginalCaptionElem(): CKEDITOR.ui.dialog.uiElement {
+        return this.getElemFromOriginalDialog('info', 'txtCaption');
     }
 
 }

@@ -1,12 +1,15 @@
-import UploadItem = api.ui.uploader.UploadItem;
-import ContentSummary = api.content.ContentSummary;
-import ContentPath = api.content.ContentPath;
-import ContentId = api.content.ContentId;
+import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
+import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {CompareStatus, CompareStatusChecker, CompareStatusFormatter} from './CompareStatus';
 import {PublishStatus, PublishStatusFormatter} from '../publish/PublishStatus';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 export class ContentSummaryAndCompareStatus
-    implements api.Equitable {
+    implements Equitable {
 
     private uploadItem: UploadItem<ContentSummary>;
 
@@ -36,6 +39,10 @@ export class ContentSummaryAndCompareStatus
         return new ContentSummaryAndCompareStatus().setUploadItem(item);
     }
 
+    hasContentSummary(): boolean {
+        return !!this.contentSummary;
+    }
+
     getContentSummary(): ContentSummary {
         return this.contentSummary;
     }
@@ -61,6 +68,10 @@ export class ContentSummaryAndCompareStatus
     setPublishStatus(publishStatus: PublishStatus): ContentSummaryAndCompareStatus {
         this.publishStatus = publishStatus;
         return this;
+    }
+
+    hasUploadItem(): boolean {
+        return !!this.uploadItem;
     }
 
     getUploadItem(): UploadItem<ContentSummary> {
@@ -93,7 +104,7 @@ export class ContentSummaryAndCompareStatus
         return this.contentSummary ? this.contentSummary.getPath() : null;
     }
 
-    getType(): api.schema.content.ContentTypeName {
+    getType(): ContentTypeName {
         return this.contentSummary ? this.contentSummary.getType() : null;
     }
 
@@ -128,25 +139,25 @@ export class ContentSummaryAndCompareStatus
         let value = CompareStatusFormatter.formatStatusClassFromContent(this).toLowerCase();
 
         if (PublishStatus.EXPIRED === this.getPublishStatus() || PublishStatus.PENDING === this.getPublishStatus()) {
-            value += ' ' + PublishStatus[this.getPublishStatus()].toLowerCase();
+            value += ' ' + this.getPublishStatus();
         }
 
         return value.toLowerCase().replace('_', '-').replace(' ', '_') || 'unknown';
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, ContentSummaryAndCompareStatus)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ContentSummaryAndCompareStatus)) {
             return false;
         }
 
         let other = <ContentSummaryAndCompareStatus>o;
 
-        if (!api.ObjectHelper.equals(this.uploadItem, other.getUploadItem())) {
+        if (!ObjectHelper.equals(this.uploadItem, other.getUploadItem())) {
             return false;
         }
 
-        if (!api.ObjectHelper.equals(this.contentSummary, other.getContentSummary())) {
+        if (!ObjectHelper.equals(this.contentSummary, other.getContentSummary())) {
             return false;
         }
 
@@ -179,5 +190,22 @@ export class ContentSummaryAndCompareStatus
 
     isNew(): boolean {
         return CompareStatusChecker.isNew(this.getCompareStatus());
+    }
+
+    canBeMarkedAsReady(): boolean {
+        const contentSummary = this.getContentSummary();
+
+        return !this.isOnline() && !this.isPendingDelete() && contentSummary.isValid() && !contentSummary.isReady();
+    }
+
+    clone(): ContentSummaryAndCompareStatus {
+        const contentSummary = new ContentSummaryBuilder(this.getContentSummary()).build();
+        const clone = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
+            contentSummary,
+            this.compareStatus,
+            this.publishStatus
+        );
+        clone.setReadOnly(this.readOnly);
+        return clone;
     }
 }

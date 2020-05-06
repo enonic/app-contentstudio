@@ -1,133 +1,123 @@
-import Panel = api.ui.panel.Panel;
-import Checkbox = api.ui.Checkbox;
-import DivEl = api.dom.DivEl;
-import i18n = api.util.i18n;
-import LoadMask = api.ui.mask.LoadMask;
-import {IssueList} from './IssueList';
+import * as Q from 'q';
+import {FilterType} from './FilterType';
+import {FilterState, IssueList} from './IssueList';
+import {Element} from 'lib-admin-ui/dom/Element';
 import {IssueStatus} from '../IssueStatus';
 import {IssueWithAssignees} from '../IssueWithAssignees';
+import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
+import {LabelEl} from 'lib-admin-ui/dom/LabelEl';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {TypeFilter} from './TypeFilter';
+import {StatusFilter} from './StatusFilter';
+import {i18n} from 'lib-admin-ui/util/Messages';
+
+export interface IssuesCount {
+    all: number;
+    assignedToMe: number;
+    assignedByMe: number;
+    publishRequests: number;
+    tasks: number;
+}
 
 export class IssuesPanel
     extends Panel {
 
-    private issueStatus: IssueStatus;
-
     private issuesList: IssueList;
 
-    private assignedToMeCheckbox: Checkbox;
+    private typeFilter: TypeFilter;
 
-    private myIssuesCheckbox: Checkbox;
+    private statusFilter: StatusFilter;
 
-    private issueSelectedListeners: { (issue: IssueWithAssignees): void }[] = [];
+    constructor() {
+        super('issues-panel');
 
-    constructor(issueStatus: IssueStatus) {
-        super(IssueStatus[issueStatus]);
-
-        this.issueStatus = issueStatus;
         this.initElements();
+        this.initListeners();
     }
 
     private initElements() {
-        this.issuesList = new IssueList(this.issueStatus);
-        this.issuesList.onIssueSelected(issue => this.notifyIssueSelected(issue));
-
-        this.myIssuesCheckbox = this.createMyIssuesCheckbox();
-        this.assignedToMeCheckbox = this.createAssignedToMeCheckbox();
+        this.issuesList = new IssueList();
+        this.typeFilter = new TypeFilter();
+        this.statusFilter = new StatusFilter();
     }
 
-    getIssueList(): IssueList {
-        return this.issuesList;
+    private initListeners() {
+        this.typeFilter.onSelected((type: FilterType) => {
+            this.updateStatusFilterButtons();
+            this.filter();
+        });
+
+        this.statusFilter.onStatusChanged((status: IssueStatus) => {
+            this.typeFilter.toggleActionsByStatus(status);
+            return this.filter();
+        });
+    }
+
+    reload(): Q.Promise<void> {
+        return this.issuesList.reload();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            const checkboxesDiv: DivEl = new DivEl('filters').appendChildren(this.myIssuesCheckbox, this.assignedToMeCheckbox);
-            this.appendChildren(checkboxesDiv, this.issuesList);
+            const labelEl: LabelEl = new LabelEl(i18n('dialog.issue.filter.label'), this.typeFilter, 'label-filter');
+            const filtersWrapper: DivEl = new DivEl('filters-block');
+            filtersWrapper.appendChildren<Element>(labelEl, this.typeFilter, this.statusFilter);
+            this.appendChildren<Element>(filtersWrapper, this.issuesList);
+
             return rendered;
         });
     }
 
-    private notifyIssueSelected(issue: IssueWithAssignees) {
-        this.issueSelectedListeners.forEach(listener => listener(issue));
+    onIssueSelected(listener: (issue: IssueWithAssignees) => void) {
+        this.issuesList.onIssueSelected(listener);
     }
 
-    public onIssueSelected(listener: (issue: IssueWithAssignees) => void) {
-        this.issueSelectedListeners.push(listener);
+    onIssueLoaded(listener: () => void) {
+        this.issuesList.onIssuesLoaded(listener);
     }
 
-    public unIssueSelected(listener: (issue: IssueWithAssignees) => void) {
-        this.issueSelectedListeners = this.issueSelectedListeners.filter(curr => curr !== listener);
+    selectAssignedToMe() {
+        this.typeFilter.selectAssignedToMe();
     }
 
-    public getItemCount(): number {
-        return this.issuesList.getItemCount();
+    resetFilters() {
+        this.issuesList.setFilterState(new FilterState());
+        this.typeFilter.selectFirstEnabledOption();
     }
 
-    public reload(): wemQ.Promise<void> {
-        return this.issuesList.reload();
+    updateIssuesCount(openedIssues: IssuesCount, closedIssues: IssuesCount): Q.Promise<void> {
+        this.typeFilter.updateOptionsTotal(openedIssues, closedIssues);
+        this.updateStatusFilterSelection();
+        this.typeFilter.toggleActionsByStatus(this.statusFilter.getStatus());
+        this.typeFilter.getParentElement().setVisible(openedIssues.all + closedIssues.all > 0);
+        this.updateStatusFilterButtons();
+
+        return this.filter();
     }
 
-    public setAssignedToMe(checked: boolean, forceReload: boolean = false) {
-        this.assignedToMeCheckbox.setChecked(checked, true);
-        this.issuesList.setLoadAssignedToMe(checked);
-        if (forceReload) {
-            this.issuesList.reload();
+    private updateStatusFilterSelection() {
+        const currentStatus = this.statusFilter.getStatus();
+        const newStatus = currentStatus === IssueStatus.OPEN ? IssueStatus.CLOSED : IssueStatus.OPEN;
+
+        if (this.typeFilter.getTotalFilteredByStatus(currentStatus) === 0 &&
+            this.typeFilter.getTotalFilteredByStatus(newStatus) > 0) {
+            this.statusFilter.setStatus(newStatus);
         }
     }
 
-    public setCreatedByMe(checked: boolean, forceReload: boolean = false) {
-        this.myIssuesCheckbox.setChecked(checked, true);
-        this.issuesList.setLoadMyIssues(checked);
-        if (forceReload) {
-            this.issuesList.reload();
-        }
+    private updateStatusFilterButtons() {
+        const open: number = this.typeFilter.getTotalFilteredByStatus(IssueStatus.OPEN);
+        const closed: number = this.typeFilter.getTotalFilteredByStatus(IssueStatus.CLOSED);
+        this.statusFilter.updateStatusButtons(open, closed);
     }
 
-    public resetFilters() {
-        this.setCreatedByMe(false);
-        this.setAssignedToMe(false);
-    }
+    private filter(): Q.Promise<void> {
+        const total: number = this.typeFilter.getTotalFilteredByStatus(this.statusFilter.getStatus());
+        const filterState: FilterState = new FilterState(this.statusFilter.getStatus(), this.typeFilter.getType(), total);
+        this.issuesList.setFilterState(filterState);
 
-    private createAssignedToMeCheckbox(): Checkbox {
-        const assignedToMeCheckbox: Checkbox = Checkbox.create().build();
-        assignedToMeCheckbox.addClass('assigned-to-me-filter');
-        assignedToMeCheckbox.onValueChanged(() => {
-            this.setAssignedToMe(assignedToMeCheckbox.isChecked(), true);
-        });
-        assignedToMeCheckbox.setLabel(i18n('field.assignedToMe'));
-
-        return assignedToMeCheckbox;
-    }
-
-    private createMyIssuesCheckbox(): Checkbox {
-        const myIssuesCheckbox: Checkbox = Checkbox.create().build();
-        myIssuesCheckbox.addClass('my-issues-filter');
-        myIssuesCheckbox.onValueChanged(() => {
-            this.setCreatedByMe(myIssuesCheckbox.isChecked(), true);
-        });
-        myIssuesCheckbox.setLabel(i18n('field.myIssues'));
-
-        return myIssuesCheckbox;
-    }
-
-    public updateAssignedToMeCheckbox(total: number) {
-        this.assignedToMeCheckbox.toggleClass('disabled', total === 0);
-        this.assignedToMeCheckbox.setLabel(this.makeFilterLabel(i18n('field.assignedToMe'), total));
-        if (total === 0) {
-            this.assignedToMeCheckbox.setChecked(false);
-        }
-    }
-
-    public updateMyIssuesCheckbox(total: number) {
-        this.myIssuesCheckbox.toggleClass('disabled', total === 0);
-        this.myIssuesCheckbox.setLabel(this.makeFilterLabel(i18n('field.myIssues'), total));
-        if (total === 0) {
-            this.myIssuesCheckbox.setChecked(false);
-        }
-    }
-
-    private makeFilterLabel(label: string, count: number): string {
-        return (count > 0 ? label + ' (' + count + ')' : label);
+        return this.issuesList.filter();
     }
 
     setLoadMask(loadMask: LoadMask) {

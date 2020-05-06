@@ -15,33 +15,12 @@
 
   .dialog-buttons {
 
-    .dropdown-dialog-menu, .@{_COMMON_PREFIX}button {
+    .@{_COMMON_PREFIX}button {
       margin-left: 11px;
       height: 36px;
     }
 
-    .@{_COMMON_PREFIX}button.show-schedule-action {
-
-      .button(@admin-font-gray2, transparent, @admin-font-gray3, transparent, false);
-
-      .icon-calendar;
-
-      &:before {
-        position: absolute;
-        right: 8px;
-        top: 5px;
-        font-size: 22px;
-        pointer-events: all;
-
-      }
-
-      position: relative;
-      height: 26px;
-      padding-top: 4px;
-      padding-bottom: 4px;
-    }
-
-    button.publish-action {
+    .publish-action, .schedule-action {
       .dialog-button(@form-button-font, @admin-green, @form-button-font, lighten(@admin-green, 10%));
       min-width: 113px;
       text-align: center;
@@ -49,59 +28,11 @@
 
   }
 
+  &.no-action {
+    .icon-calendar:not(.active) {
+      display: none;
+    }
+  }
+
 }
 
-.schedule-publish-dialog {
-  max-width: 580px;
-
-  .schedule-publish-dialog-subtitle {
-    margin-top: 20px;
-    background-color: @form-button-bg;
-    padding: 10px 20px;
-    color: @admin-white;
-  }
-
-  .dialog-buttons {
-
-    .button-container {
-      width: 100%;
-    }
-
-    button.cancel-button-bottom {
-      margin-left: 0;
-    }
-
-    button.confirm-schedule-action {
-      float: right;
-      .dialog-button(@form-button-font, @admin-green, @form-button-font, lighten(@admin-green, 10%));
-    }
-  }
-
-  .dialog-content {
-    .date-time-picker {
-      margin: 5px 0 10px 0;
-
-      input {
-        .input-glow();
-      }
-
-      &.invalid {
-        input {
-          .input-error();
-        }
-      }
-
-    }
-
-    .publish-from-label, .publish-to-label {
-      font-size: 14px;
-    }
-
-    .publish-from-label {
-      &:after {
-        content: '*';
-        color: @input-red-text;
-      }
-    }
-  }
-}

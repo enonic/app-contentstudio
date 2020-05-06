@@ -1,12 +1,16 @@
+import * as Q from 'q';
+import {showError, showSuccess, showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {AEl} from 'lib-admin-ui/dom/AEl';
 import {IssueDialog} from './IssueDialog';
 import {CreateIssueRequest} from '../resource/CreateIssueRequest';
 import {PublishRequest} from '../PublishRequest';
 import {Issue} from '../Issue';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import LabelEl = api.dom.LabelEl;
-import AEl = api.dom.AEl;
-import i18n = api.util.i18n;
-import PrincipalKey = api.security.PrincipalKey;
+import {LabelEl} from 'lib-admin-ui/dom/LabelEl';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {Action} from 'lib-admin-ui/ui/Action';
 
 export class CreateIssueDialog
     extends IssueDialog {
@@ -22,7 +26,7 @@ export class CreateIssueDialog
     private issueCreatedListeners: { (issue: Issue): void }[] = [];
 
     protected constructor() {
-        super(i18n('dialog.newIssue'));
+        super(i18n('dialog.newTask'));
     }
 
     static get(): CreateIssueDialog {
@@ -57,6 +61,8 @@ export class CreateIssueDialog
         return super.doRender().then((rendered: boolean) => {
             this.getEl().addClass('create-issue-dialog');
             this.itemsLabel.insertBeforeEl(this.getItemList());
+            const issueIcon = new DivEl('icon-issue opened');
+            this.prependChildToHeader(issueIcon);
             this.prependChildToHeader(this.backButton);
             this.addCancelButtonToBottom();
 
@@ -89,15 +95,15 @@ export class CreateIssueDialog
                 ).setDescription(this.form.getDescription()).setTitle(this.form.getTitle());
 
             createIssueRequest.sendAndParse().then((issue) => {
-                api.notify.showSuccess(i18n('notify.issue.created'));
+                showSuccess(i18n('notify.issue.created'));
                 if (approvers.length > issue.getApprovers().length) {
-                    api.notify.showWarning(i18n('notify.issue.assignees.norights'));
+                    showWarning(i18n('notify.issue.assignees.norights'));
                 }
                 this.reset();
                 this.notifyIssueCreated(issue);
             }).catch((reason) => {
                 if (reason && reason.message) {
-                    api.notify.showError(reason.message);
+                    showError(reason.message);
                 }
             });
         }
@@ -161,7 +167,7 @@ export class CreateIssueDialog
 }
 
 export class CreateIssueAction
-    extends api.ui.Action {
+    extends Action {
 
     constructor(itemCount: number) {
         super();
@@ -170,7 +176,7 @@ export class CreateIssueAction
     }
 
     public updateLabel(count: number) {
-        let label = i18n('action.createIssue');
+        let label = i18n('action.createTask');
         if (count > 1) {
             label += ' (' + count + ')';
         }

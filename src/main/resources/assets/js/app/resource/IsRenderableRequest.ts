@@ -1,15 +1,16 @@
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageTemplateResourceRequest} from './PageTemplateResourceRequest';
-import ContentId = api.content.ContentId;
 
 export class IsRenderableRequest
-    extends PageTemplateResourceRequest<boolean, boolean> {
+    extends PageTemplateResourceRequest<boolean> {
 
     private contentId: ContentId;
 
     constructor(contentId: ContentId) {
         super();
-        this.setMethod('GET');
         this.contentId = contentId;
+        this.addRequestPathElements('isRenderable');
     }
 
     setContentId(value: ContentId): IsRenderableRequest {
@@ -23,14 +24,7 @@ export class IsRenderableRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'isRenderable');
-    }
-
-    sendAndParse(): wemQ.Promise<boolean> {
-
-        return this.send().then((response: api.rest.JsonResponse<boolean>) => {
-            return response.getResult();
-        });
+    protected parseResponse(response: JsonResponse<boolean>): boolean {
+        return response.getResult();
     }
 }

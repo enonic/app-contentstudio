@@ -1,8 +1,7 @@
-import '../../api.ts';
-import AppBarTabId = api.app.bar.AppBarTabId;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ContentId = api.content.ContentId;
-import Application = api.app.Application;
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {Application} from 'lib-admin-ui/app/Application';
+import {ContentAppBarTabId} from '../ContentAppBarTabId';
 
 export class ContentWizardPanelParams {
 
@@ -10,35 +9,35 @@ export class ContentWizardPanelParams {
 
     createSite: boolean = false;
 
-    tabId: api.app.bar.AppBarTabId;
+    tabId: ContentAppBarTabId;
 
-    contentTypeName: api.schema.content.ContentTypeName;
+    contentTypeName: ContentTypeName;
 
-    parentContentId: api.content.ContentId;
+    parentContentId: ContentId;
 
-    contentId: api.content.ContentId;
+    contentId: ContentId;
 
     setApplication(app: Application): ContentWizardPanelParams {
         this.application = app;
         return this;
     }
 
-    setTabId(value: api.app.bar.AppBarTabId): ContentWizardPanelParams {
+    setTabId(value: ContentAppBarTabId): ContentWizardPanelParams {
         this.tabId = value;
         return this;
     }
 
-    setContentTypeName(value: api.schema.content.ContentTypeName): ContentWizardPanelParams {
+    setContentTypeName(value: ContentTypeName): ContentWizardPanelParams {
         this.contentTypeName = value;
         return this;
     }
 
-    setParentContentId(value: api.content.ContentId): ContentWizardPanelParams {
+    setParentContentId(value: ContentId): ContentWizardPanelParams {
         this.parentContentId = value;
         return this;
     }
 
-    setContentId(value: api.content.ContentId): ContentWizardPanelParams {
+    setContentId(value: ContentId): ContentWizardPanelParams {
         this.contentId = value;
         return this;
     }
@@ -48,44 +47,4 @@ export class ContentWizardPanelParams {
         return this;
     }
 
-    toString(): string {
-
-        return this.tabId && this.tabId.getMode() === 'browse'
-            ? this.tabId.getMode() + '/' + this.tabId.getId()
-            : this.contentId
-                   ? 'edit/' + this.contentId.toString()
-                   : 'new/' + this.contentTypeName.toString() +
-                     (this.parentContentId ? '/' + this.parentContentId.toString() : '');
-    }
-
-    static fromApp(app: Application): ContentWizardPanelParams {
-        let path = app.getPath();
-        let tabId;
-        let wizardParams;
-        switch (path.getElement(0)) {
-        case 'new':
-            let contentTypeName = new ContentTypeName(path.getElement(1));
-            let parentContentId;
-            if (path.getElement(2)) {
-                parentContentId = new ContentId(path.getElement(2));
-            }
-            tabId = AppBarTabId.forNew(contentTypeName.getApplicationKey().getName());
-            wizardParams = new ContentWizardPanelParams()
-                .setApplication(app)
-                .setContentTypeName(contentTypeName)
-                .setParentContentId(parentContentId)
-                .setCreateSite(contentTypeName.isSite())
-                .setTabId(tabId);
-            break;
-        case 'edit':
-            let contentId = new ContentId(path.getElement(1));
-            tabId = AppBarTabId.forEdit(contentId.toString());
-            wizardParams = new ContentWizardPanelParams()
-                .setApplication(app)
-                .setContentId(contentId)
-                .setTabId(tabId);
-            break;
-        }
-        return wizardParams;
-    }
 }

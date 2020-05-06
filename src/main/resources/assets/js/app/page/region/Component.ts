@@ -1,3 +1,7 @@
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {ComponentName} from './ComponentName';
 import {Region} from './Region';
 import {ComponentChangedEvent} from './ComponentChangedEvent';
@@ -9,9 +13,10 @@ import {ComponentPath, ComponentPathRegionAndComponent} from './ComponentPath';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {ComponentJson} from './ComponentJson';
 import {RegionPath} from './RegionPath';
+import {assert, assertNotNull} from 'lib-admin-ui/util/Assert';
 
 export abstract class Component
-    implements api.Equitable, api.Cloneable {
+    implements Equitable, Cloneable {
 
     public static PROPERTY_NAME: string = 'name';
 
@@ -64,8 +69,8 @@ export abstract class Component
     }
 
     public static fromRegionPathAndComponentIndex(regionPath: RegionPath, componentIndex: number): ComponentPath {
-        api.util.assertNotNull(regionPath, 'regionPath cannot be null');
-        api.util.assert(componentIndex >= 0, 'componentIndex must be zero or more');
+        assertNotNull(regionPath, 'regionPath cannot be null');
+        assert(componentIndex >= 0, 'componentIndex must be zero or more');
 
         let regionAndComponentList: ComponentPathRegionAndComponent[] = [];
         if (regionPath.getParentComponentPath()) {
@@ -84,7 +89,7 @@ export abstract class Component
     setName(newValue: ComponentName) {
         let oldValue = this.name;
         this.name = newValue;
-        if (!api.ObjectHelper.equals(oldValue, newValue)) {
+        if (!ObjectHelper.equals(oldValue, newValue)) {
             this.notifyPropertyChanged(Component.PROPERTY_NAME);
         }
     }
@@ -119,29 +124,22 @@ export abstract class Component
     }
 
     toJson(): ComponentTypeWrapperJson {
-        throw new Error('Must be implemented by inheritor: ' + api.ClassHelper.getClassName(this));
+        throw new Error('Must be implemented by inheritor: ' + ClassHelper.getClassName(this));
     }
 
     toString(): string {
         return 'Component[' + (this.name ? this.name.toString() : '') + ']';
     }
 
-    toComponentJson(): ComponentJson {
+    equals(o: Equitable): boolean {
 
-        return {
-            name: this.name ? this.name.toString() : null
-        };
-    }
-
-    equals(o: api.Equitable): boolean {
-
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, Component)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, Component)) {
             return false;
         }
 
         let other = <Component>o;
 
-        if (!api.ObjectHelper.equals(this.name, other.name)) {
+        if (!ObjectHelper.equals(this.name, other.name)) {
             return false;
         }
 

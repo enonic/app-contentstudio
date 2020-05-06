@@ -1,11 +1,13 @@
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueStatus} from '../IssueStatus';
 import {Issue} from '../Issue';
 import {FindIssuesResult} from './FindIssuesResult';
-import ContentId = api.content.ContentId;
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class FindIssuesRequest
-    extends IssueResourceRequest<FindIssuesResult, Issue[]> {
+    extends IssueResourceRequest<Issue[]> {
 
     private static DEFAULT_FETCH_SIZE: number = 10;
 
@@ -19,7 +21,8 @@ export class FindIssuesRequest
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('findIssues');
     }
 
     setFrom(value: number): FindIssuesRequest {
@@ -60,19 +63,13 @@ export class FindIssuesRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'findIssues');
-    }
+    parseResponse(response: JsonResponse<FindIssuesResult>): Issue[] {
+        const issues: Issue[] = response.getResult().issues.map(Issue.fromJson);
 
-    sendAndParse(): wemQ.Promise<Issue[]> {
-        return this.send().then((response: api.rest.JsonResponse<FindIssuesResult>) => {
-            const issues: Issue[] = response.getResult().issues.map(Issue.fromJson);
-
-            issues.sort((a, b) => {
-                return b.getModifiedTime().getTime() - a.getModifiedTime().getTime();
-            });
-
-            return issues;
+        issues.sort((a, b) => {
+            return b.getModifiedTime().getTime() - a.getModifiedTime().getTime();
         });
+
+        return issues;
     }
 }

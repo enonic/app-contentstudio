@@ -7,10 +7,10 @@ const appConst = require('../../libs/app_const');
 
 const component = {
     typeText: function (id, text) {
-        return `CKEDITOR.instances['${id}'].setData('${text}')`
+        return `CKEDITOR.instances['${id}'].setData('${text}')`;
     },
     getText: function (id) {
-        return `return CKEDITOR.instances['${id}'].getData()`
+        return `return CKEDITOR.instances['${id}'].getData()`;
     }
 };
 
@@ -28,7 +28,7 @@ class HtmlArea extends Page {
     }
 
     getTextFromHtmlArea(container) {
-        return this.waitForElementDisplayed(container + `//div[contains(@id,'cke_api.ui.text.TextArea')]`,
+        return this.waitForElementDisplayed(container + "//div[contains(@id,'cke_TextArea')]",
             appConst.TIMEOUT_3).then(() => {
             return this.getIdOfHtmlArea(container + lib.TEXT_AREA);
         }).then(id => {

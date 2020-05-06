@@ -1,9 +1,10 @@
-import '../../api';
+import * as Q from 'q';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {FragmentOptionDataRequest} from './FragmentOptionDataRequest';
 import {FragmentContentSummaryRequest} from '../../app/resource/FragmentContentSummaryRequest';
 import {ContentSummaryOptionDataLoader} from '../../app/inputtype/ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../app/item/ContentTreeSelectorItem';
-import ContentSummary = api.content.ContentSummary;
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 export class FragmentOptionDataLoader
     extends ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
@@ -14,7 +15,7 @@ export class FragmentOptionDataLoader
         super();
     }
 
-    search(value: string): wemQ.Promise<ContentTreeSelectorItem[]> {
+    search(value: string): Q.Promise<ContentTreeSelectorItem[]> {
         this.notifyLoadingData();
 
         const req = new FragmentContentSummaryRequest();
@@ -57,7 +58,7 @@ export class FragmentOptionDataLoader
         throw new Error('Only fragments allowed');
     }
 
-    setAllowedContentTypeNames(contentTypeNames: api.schema.content.ContentTypeName[]) {
+    setAllowedContentTypeNames(contentTypeNames: ContentTypeName[]) {
         throw new Error('Only fragments allowed');
     }
 

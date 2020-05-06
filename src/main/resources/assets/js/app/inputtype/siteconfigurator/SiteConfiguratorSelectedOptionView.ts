@@ -1,21 +1,24 @@
-import PropertyTree = api.data.PropertyTree;
-import Option = api.ui.selector.Option;
-import FormView = api.form.FormView;
-import Application = api.application.Application;
-import ApplicationKey = api.application.ApplicationKey;
-import ApplicationConfig = api.application.ApplicationConfig;
-import NamesAndIconView = api.app.NamesAndIconView;
-import DivEl = api.dom.DivEl;
-import GetApplicationRequest = api.application.GetApplicationRequest;
+import * as Q from 'q';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {Application} from 'lib-admin-ui/application/Application';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationConfig} from 'lib-admin-ui/application/ApplicationConfig';
+import {GetApplicationRequest} from 'lib-admin-ui/application/GetApplicationRequest';
 import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
-import {HTMLAreaDialogHandler} from '../ui/text/dialog/HTMLAreaDialogHandler';
-import {CreateHtmlAreaDialogEvent} from '../ui/text/CreateHtmlAreaDialogEvent';
 import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
 import {ContentFormContext} from '../../ContentFormContext';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
+import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {FormValidityChangedEvent} from 'lib-admin-ui/form/FormValidityChangedEvent';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 
 export class SiteConfiguratorSelectedOptionView
-    extends api.ui.selector.combobox.BaseSelectedOptionView<Application> {
+    extends BaseSelectedOptionView<Application> {
 
     private application: Application;
 
@@ -27,7 +30,7 @@ export class SiteConfiguratorSelectedOptionView
 
     private formContext: ContentFormContext;
 
-    private formValidityChangedHandler: { (event: api.form.FormValidityChangedEvent): void };
+    private formValidityChangedHandler: { (event: FormValidityChangedEvent): void };
 
     private configureDialog: SiteConfiguratorDialog;
 
@@ -49,7 +52,7 @@ export class SiteConfiguratorSelectedOptionView
         }
     }
 
-    doRender(): wemQ.Promise<boolean> {
+    doRender(): Q.Promise<boolean> {
         this.namesAndIconView = this.createNamesAndIconView();
 
         const header: DivEl = new DivEl('header');
@@ -57,29 +60,27 @@ export class SiteConfiguratorSelectedOptionView
 
         this.appendChild(header);
 
-        this.formValidityChangedHandler = (event: api.form.FormValidityChangedEvent) => {
+        this.formValidityChangedHandler = (event: FormValidityChangedEvent) => {
             this.toggleClass('invalid', !event.isValid());
         };
 
         this.toggleClass('empty', this.getOption().empty === true);
         this.toggleClass('stopped', this.application.getState() === Application.STATE_STOPPED);
 
-        this.formView = this.createFormView(this.siteConfig);
-
         this.appendActionButtons(header);
 
         this.configureDialog = this.initConfigureDialog();
 
         if (this.configureDialog) {
-            return this.formView.layout().then(() => wemQ(true));
+            return this.formView.layout().then(() => Q(true));
         }
 
-        return wemQ(true);
+        return Q(true);
     }
 
     private createNamesAndIconView() {
-        const namesAndIconView: NamesAndIconView = new NamesAndIconView(new api.app.NamesAndIconViewBuilder().setSize(
-            api.app.NamesAndIconViewSize.small)).setMainName(this.application.getDisplayName()).setSubName(
+        const namesAndIconView: NamesAndIconView = new NamesAndIconView(new NamesAndIconViewBuilder().setSize(
+            NamesAndIconViewSize.small)).setMainName(this.application.getDisplayName()).setSubName(
             this.application.getName() + (!!this.application.getVersion() ? '-' + this.application.getVersion() : ''));
 
         if (this.application.getIconUrl()) {
@@ -108,7 +109,7 @@ export class SiteConfiguratorSelectedOptionView
             }
 
             this.namesAndIconView.setMainName(app.getDisplayName());
-        }).catch(api.DefaultErrorHandler.handle).done();
+        }).catch(DefaultErrorHandler.handle).done();
     }
 
     protected onEditButtonClicked(e: MouseEvent) {
@@ -130,11 +131,17 @@ export class SiteConfiguratorSelectedOptionView
         }
     }
 
-    initConfigureDialog(): SiteConfiguratorDialog {
+    private initConfigureDialog(): SiteConfiguratorDialog {
         if (!this.isEditable()) {
+            if (!this.formView) {
+                this.formView = this.createFormView(this.siteConfig);
+            }
             return null;
         }
 
+        if (this.formView) {
+            this.formView.remove();
+        }
         const tempSiteConfig: ApplicationConfig = this.makeTemporarySiteConfig();
 
         this.formView = this.createFormView(tempSiteConfig);
@@ -158,19 +165,10 @@ export class SiteConfiguratorSelectedOptionView
         );
 
         const handleAvailableSizeChanged = () => siteConfiguratorDialog.handleAvailableSizeChanged();
-        const toggleMask = () => {
-            siteConfiguratorDialog.toggleMask(true);
-            HTMLAreaDialogHandler.getOpenDialog().onRemoved(() => {
-                siteConfiguratorDialog.toggleMask(false);
-            });
-        };
-
         HtmlAreaResizeEvent.on(handleAvailableSizeChanged);
-        CreateHtmlAreaDialogEvent.on(toggleMask);
 
         siteConfiguratorDialog.onRemoved(() => {
             HtmlAreaResizeEvent.un(handleAvailableSizeChanged);
-            CreateHtmlAreaDialogEvent.un(toggleMask);
         });
 
         return siteConfiguratorDialog;
@@ -178,6 +176,11 @@ export class SiteConfiguratorSelectedOptionView
 
     private revertFormViewToGivenState(formViewStateToRevertTo: FormView) {
         this.unbindValidationEvent(this.formView);
+
+        if (this.formView) {
+            this.formView.remove();
+        }
+
         this.formView = formViewStateToRevertTo;
         this.formView.validate(false, true);
         this.toggleClass('invalid', !this.formView.isValid());
@@ -197,7 +200,6 @@ export class SiteConfiguratorSelectedOptionView
 
     private makeTemporarySiteConfig(): ApplicationConfig {
         let propSet = (new PropertyTree(this.siteConfig.getConfig())).getRoot();
-        propSet.setContainerProperty(this.siteConfig.getConfig().getProperty());
         return ApplicationConfig.create().setConfig(propSet).setApplicationKey(this.siteConfig.getApplicationKey()).build();
     }
 

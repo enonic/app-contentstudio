@@ -1,21 +1,31 @@
-import i18n = api.util.i18n;
-import {FileUploaderEl} from './FileUploaderEl';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {AttachmentItem} from './AttachmentItem';
 import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
 import {AttachmentJson} from '../../../attachment/AttachmentJson';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
+import * as Q from 'q';
+import {UrlHelper} from '../../../util/UrlHelper';
+
+export interface AttachmentUploaderElConfig
+    extends UploaderElConfig {
+
+    contentId: string;
+
+    attachmentRemoveCallback: (value: any) => void;
+}
 
 export class AttachmentUploaderEl
-    extends FileUploaderEl<Attachment> {
+    extends UploaderEl<Attachment> {
 
-    private attachmentItems: AttachmentItem[];
+    private contentId: string;
 
     private removeCallback: (value: string) => void;
-    private addCallback: (value: string) => void;
 
-    constructor(config: any) {
-
+    constructor(config: AttachmentUploaderElConfig) {
         if (config.url == null) {
-            config.url = api.util.UriHelper.getRestUri('content/createAttachment');
+            config.url = 'content/createAttachment';
         }
         if (config.selfIsDropzone == null) {
             config.selfIsDropzone = true;
@@ -23,21 +33,40 @@ export class AttachmentUploaderEl
 
         super(config);
 
-        this.attachmentItems = [];
-
         if (config.attachmentRemoveCallback) {
             this.removeCallback = config.attachmentRemoveCallback;
         }
 
-        if (config.attachmentAddCallback) {
-            this.addCallback = config.attachmentAddCallback;
+        this.contentId = config.contentId;
+    }
+
+    protected beforeSubmit() {
+        this.uploader.setEndpoint(UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/${this.config.url}`));
+    }
+
+    protected doSetValue(value: string): AttachmentUploaderEl {
+        super.doSetValue(value);
+        this.refreshVisibility();
+
+        return this;
+    }
+
+    protected initHandler() {
+        if (!this.config.disabled) {
+            if (!this.uploader && this.config.url) {
+                this.uploader = this.initUploader();
+            }
         }
+    }
 
-        const noAttachmentsDescription = new api.dom.DivEl('no-attachments-description');
-        noAttachmentsDescription.setHtml('< ' + i18n('field.content.noattachment') + ' >');
-        noAttachmentsDescription.insertAfterEl(this.getResultContainer());
-
-        this.addClass('attachment-uploader-el');
+    private refreshVisibility() {
+        if (this.config.showResult) {
+            this.setResultVisible();
+            this.getDefaultDropzoneContainer().setVisible(false);
+            this.getDropzone().setVisible(false);
+        } else {
+            this.setDefaultDropzoneVisible();
+        }
     }
 
     createModel(serverResponse: AttachmentJson): Attachment {
@@ -52,38 +81,37 @@ export class AttachmentUploaderEl
         return item.getName().toString();
     }
 
-    removeAttachmentItem(value: string) {
-        this.attachmentItems = this.attachmentItems.filter(
-            item => !(item.getValue() === value)
-        );
-    }
-
-    getExistingItem(value: string): api.dom.Element {
-        let element = null;
-        this.getResultContainer().getChildren().forEach((item) => {
-            if ((<AttachmentItem>item).getValue() === value) {
+    getExistingItem(value: string): AttachmentItem {
+        let element: AttachmentItem = null;
+        this.getResultContainer().getChildren().forEach((item: AttachmentItem) => {
+            if (item.getValue() === value) {
                 element = item;
             }
         });
+
         return element;
     }
 
-    createResultItem(value: string): api.dom.Element {
-
-        let attachmentItem = new AttachmentItem(this.contentId, value, this.removeCallback);
-        this.attachmentItems.push(attachmentItem);
-
-        if (this.addCallback) {
-            this.addCallback(attachmentItem.getValue());
-        }
+    createResultItem(value: string): AttachmentItem {
+        const attachmentItem: AttachmentItem = new AttachmentItem(this.contentId, value);
+        attachmentItem.onRemoveClicked(this.removeCallback);
 
         return attachmentItem;
     }
 
-    maximumOccurrencesReached(): boolean {
-        if (this.config.maximumOccurrences) {
-            return this.attachmentItems.length >= this.config.maximumOccurrences;
-        }
-        return false;
+    getTotalItems(): number {
+        return this.getResultContainer().getChildren().length;
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.addClass('attachment-uploader-el');
+
+            const noAttachmentsDescription = new DivEl('no-attachments-description');
+            noAttachmentsDescription.setHtml('< ' + i18n('field.content.noattachment') + ' >');
+            noAttachmentsDescription.insertAfterEl(this.getResultContainer());
+
+            return rendered;
+        });
     }
 }

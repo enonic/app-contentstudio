@@ -1,9 +1,11 @@
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class CreateMediaFromUrlRequest
-    extends ContentResourceRequest<ContentJson, Content> {
+    extends ContentResourceRequest<Content> {
 
     private url: string;
 
@@ -13,7 +15,8 @@ export class CreateMediaFromUrlRequest
 
     constructor() {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
+        this.addRequestPathElements('createMediaFromUrl');
     }
 
     setUrl(url: string): CreateMediaFromUrlRequest {
@@ -39,17 +42,8 @@ export class CreateMediaFromUrlRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'createMediaFromUrl');
-    }
-
-    sendAndParse(): wemQ.Promise<Content> {
-
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
-
-            return this.fromJsonToContent(response.getResult());
-
-        });
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
+        return this.fromJsonToContent(response.getResult());
     }
 
 }

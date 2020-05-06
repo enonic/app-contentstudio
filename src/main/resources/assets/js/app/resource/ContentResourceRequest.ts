@@ -1,26 +1,22 @@
-import ContentSummary = api.content.ContentSummary;
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import Path = api.rest.Path;
-import {JsonResourceRequest} from './JsonResourceRequest';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentJson} from '../content/ContentJson';
-import {Content} from '../content/Content';
+import {Content, ContentBuilder} from '../content/Content';
+import {SiteBuilder} from '../content/Site';
+import {PageTemplateBuilder} from '../content/PageTemplate';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ProjectBasedResourceRequest} from '../wizard/ProjectBasedResourceRequest';
 
-export class ContentResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends JsonResourceRequest<JSON_TYPE, PARSED_TYPE> {
+export abstract class ContentResourceRequest<PARSED_TYPE>
+    extends ProjectBasedResourceRequest<PARSED_TYPE> {
 
     public static EXPAND_NONE: string = 'none';
     public static EXPAND_SUMMARY: string = 'summary';
     public static EXPAND_FULL: string = 'full';
 
-    private resourcePath: Path;
-
     constructor() {
         super();
-        this.resourcePath = Path.fromParent(super.getRestPath(), 'content');
-    }
-
-    getResourcePath(): Path {
-        return this.resourcePath;
+        this.addRequestPathElements('content');
     }
 
     fromJsonToContentSummary(json: ContentSummaryJson): ContentSummary {
@@ -45,5 +41,16 @@ export class ContentResourceRequest<JSON_TYPE, PARSED_TYPE>
         });
 
         return array;
+    }
+
+    fromJsonToContent(json: ContentJson): Content {
+        let type = new ContentTypeName(json.type);
+
+        if (type.isSite()) {
+            return new SiteBuilder().fromContentJson(json).build();
+        } else if (type.isPageTemplate()) {
+            return new PageTemplateBuilder().fromContentJson(json).build();
+        }
+        return new ContentBuilder().fromContentJson(json).build();
     }
 }

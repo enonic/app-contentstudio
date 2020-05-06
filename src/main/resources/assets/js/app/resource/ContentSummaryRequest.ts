@@ -1,20 +1,27 @@
-import QueryField = api.query.QueryField;
-import OrderExpr = api.query.expr.OrderExpr;
-import QueryExpr = api.query.expr.QueryExpr;
-import FieldExpr = api.query.expr.FieldExpr;
-import FieldOrderExpr = api.query.expr.FieldOrderExpr;
-import OrderDirection = api.query.expr.OrderDirection;
-import ConstraintExpr = api.query.expr.ConstraintExpr;
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentSummary = api.content.ContentSummary;
-import ContentPath = api.content.ContentPath;
+import * as Q from 'q';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {QueryField} from 'lib-admin-ui/query/QueryField';
+import {OrderExpr} from 'lib-admin-ui/query/expr/OrderExpr';
+import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
+import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
+import {FieldOrderExpr} from 'lib-admin-ui/query/expr/FieldOrderExpr';
+import {OrderDirection} from 'lib-admin-ui/query/expr/OrderDirection';
+import {ConstraintExpr} from 'lib-admin-ui/query/expr/ConstraintExpr';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentQueryRequest} from './ContentQueryRequest';
 import {ContentQueryResult} from './ContentQueryResult';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentQuery} from '../content/ContentQuery';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {Expand} from 'lib-admin-ui/rest/Expand';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {PathMatchExpressionBuilder} from 'lib-admin-ui/query/PathMatchExpression';
 
 export class ContentSummaryRequest
-    extends api.rest.ResourceRequest<ContentQueryResultJson<ContentSummaryJson>, ContentSummary[]> {
+    extends ResourceRequest<ContentSummary[]> {
 
     private path: ContentPath;
 
@@ -35,18 +42,18 @@ export class ContentSummaryRequest
     constructor() {
         super();
         this.request =
-            new ContentQueryRequest<ContentSummaryJson, ContentSummary>(new ContentQuery()).setExpand(api.rest.Expand.SUMMARY);
+            new ContentQueryRequest<ContentSummaryJson, ContentSummary>(new ContentQuery()).setExpand(Expand.SUMMARY);
     }
 
     getSearchString(): string {
         return this.searchString;
     }
 
-    getRestPath(): api.rest.Path {
+    getRestPath(): Path {
         return this.request.getRestPath();
     }
 
-    getRequestPath(): api.rest.Path {
+    getRequestPath(): Path {
         return this.request.getRequestPath();
     }
 
@@ -58,13 +65,13 @@ export class ContentSummaryRequest
         return this.request.getParams();
     }
 
-    send(): wemQ.Promise<api.rest.JsonResponse<ContentQueryResultJson<ContentSummaryJson>>> {
+    send(): Q.Promise<JsonResponse<ContentQueryResultJson<ContentSummaryJson>>> {
         this.buildSearchQueryExpr();
 
-        return this.request.send();
+        return <any>this.request.send();
     }
 
-    sendAndParse(): wemQ.Promise<ContentSummary[]> {
+    sendAndParse(): Q.Promise<ContentSummary[]> {
         this.buildSearchQueryExpr();
 
         return this.request.sendAndParse().then(
@@ -77,7 +84,7 @@ export class ContentSummaryRequest
         this.request.getContentQuery().setContentTypeNames(this.createContentTypeNames(contentTypes));
     }
 
-    setAllowedContentTypeNames(contentTypeNames: api.schema.content.ContentTypeName[]) {
+    setAllowedContentTypeNames(contentTypeNames: ContentTypeName[]) {
         this.request.getContentQuery().setContentTypeNames(contentTypeNames);
     }
 
@@ -110,7 +117,7 @@ export class ContentSummaryRequest
     }
 
     protected createSearchExpression(): ConstraintExpr {
-        return new api.query.PathMatchExpressionBuilder()
+        return new PathMatchExpressionBuilder()
             .setSearchString(this.searchString)
             .setPath(this.path ? this.path.toString() : '')
             .addField(new QueryField(QueryField.DISPLAY_NAME, 5))
@@ -119,7 +126,7 @@ export class ContentSummaryRequest
             .build();
     }
 
-    private createContentTypeNames(names: string[]): api.schema.content.ContentTypeName[] {
-        return (names || []).map((name: string) => new api.schema.content.ContentTypeName(name));
+    private createContentTypeNames(names: string[]): ContentTypeName[] {
+        return (names || []).map((name: string) => new ContentTypeName(name));
     }
 }

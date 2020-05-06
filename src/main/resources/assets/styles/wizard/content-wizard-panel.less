@@ -30,6 +30,64 @@
     }
   }
 
+  .wizard-step-navigator-and-toolbar {
+    .edit-permissions-button {
+      order: 1;
+      padding: 15px;
+      cursor: pointer;
+      z-index: 1;
+      line-height: @toolbar-height;
+
+      &:before {
+        font-size: 18px;
+      }
+
+      &:hover {
+        color: @admin-shadow-gray;
+      }
+    }
+
+    &:not(.folded) {
+      .tab-bar-item.step-icon {
+
+        &.icon-masks:before {
+          font-size: 20px;
+        }
+
+        &.x-data-anchor {
+          padding-bottom: 0;
+
+          &:not(.all-collapsed) {
+            padding-left: 20px;
+            padding-right: 0;
+          }
+        }
+      }
+    }
+
+    &.folded {
+
+      .tab-bar-item.step-icon {
+
+        &.x-data-anchor {
+          padding-left: 2px;
+
+          .label {
+            display: inline-block;
+            padding-left: 4px;
+          }
+
+          &:before {
+            display: inline-block;
+            font-size: 15px;
+            font-weight: bold;
+          }
+        }
+      }
+    }
+
+  }
+
   .split-panel.wizard-and-preview {
 
     &.toggle-form {
@@ -62,75 +120,6 @@
     }
 
     .form-panel {
-
-      .wizard-step-navigator-and-toolbar {
-
-        .tab-bar-item {
-
-          &.step-icon.x-data-anchor {
-
-            // Remove the line below to enable "X" anchor in the toolbar
-            // that will scroll to the first X-data step in the Wizard
-            display: none !important;
-
-            .icon-medium();
-
-            &.hidden {
-              display: none;
-            }
-
-          }
-
-          &.x-data {
-            .label:before {
-              display: inline-block;
-              content: '+';
-              padding-right: 5px;
-            }
-          }
-
-        }
-
-        &:not(.folded) {
-          .tab-bar-item.step-icon {
-
-            &.icon-masks:before {
-              font-size: 20px;
-            }
-
-            &.x-data-anchor {
-              padding-bottom: 0;
-
-              &:not(.all-collapsed) {
-                padding-left: 20px;
-                padding-right: 0;
-              }
-            }
-          }
-        }
-
-        &.folded {
-
-          .tab-bar-item.step-icon {
-
-            &.x-data-anchor {
-              padding-left: 2px;
-
-              .label {
-                display: inline-block;
-                padding-left: 4px;
-              }
-
-              &:before {
-                display: inline-block;
-                font-size: 15px;
-                font-weight: bold;
-              }
-            }
-          }
-        }
-
-      }
 
       .panel-strip-panel-header {
         &.step-icon.icon-masks:before {
@@ -238,17 +227,20 @@
   .context-panel {
     overflow: visible;
     &.floating-context-panel {
-      top: @toolbar-with-border-height;
+      top: @app-header-height + 1;
       z-index: @z-index-tab-menu - 1;
     }
 
     .non-mobile-details-panel-toggle-button {
       top: 0;
-      padding: 6px;
+      border: none;
+      height: @app-header-height - 1;
+      width: @app-header-height - 1;
+      padding-left: 10px;
 
       &::before {
         font-size: 24px;
-        line-height: 27px;
+        line-height: @app-header-height - 1;
       }
     }
 
@@ -258,14 +250,22 @@
       right: 0;
       left: 0;
       display: block;
-      margin-top: 40px; // leave space for the wizard toolbar
+      margin-top: @app-header-height; // leave space for the wizard toolbar
       top: 3000px; // hide by default;
     }
   }
 
   &._0-240, &._240-360, &._360-540, &._540-720 {
-    .@{_COMMON_PREFIX}button.mobile-edit-publish-button {
+    .mobile-edit-publish-button {
       .button(@form-button-font, @admin-green, @form-button-font, lighten(@admin-green, 30%));
+    }
+
+    .mobile-edit-mark-as-ready-button {
+      .button(@form-button-font, #CBAD00, @form-button-font, lighten(#CBAD00, 30%));
+    }
+
+    .mobile-edit-publish-button,
+    .mobile-edit-mark-as-ready-button {
       position: fixed;
       bottom: 0;
       text-align: center;
@@ -286,20 +286,54 @@
       }
     }
 
-    .@{_COMMON_PREFIX}button.cycle-button {
-      margin-left: auto;
+    .mobile-edit-publish-controls {
+      &:not(.enabled) {
+        display: none;
+      }
+      &.mark-as-ready {
+        .mobile-edit-publish-button {
+          display: none !important;
+        }
+      }
+      &:not(.mark-as-ready) {
+        .mobile-edit-mark-as-ready-button {
+          display: none !important;
+        }
+      }
     }
 
     .image-selector-toolbar-sticky {
       padding: 10px 15px;
       left: 0;
     }
+
+    .toolbar-state-icon {
+      &.ready,
+      &.in-progress,
+      &.invalid {
+        & ~ .toolbar-publish-controls .content-wizard-toolbar-publish-button {
+          border-left: none;
+        }
+      }
+    }
+
+    .toolbar-state-icon {
+      &:not(.ready):not(.in-progress):not(.invalid ) ~ .toolbar-publish-controls {
+        margin-left: auto;
+      }
+    }
+
+    &.rendered {
+      .toolbar-publish-controls .content-wizard-toolbar-publish-button {
+        border-right: 1px solid @admin-bg-light-gray;
+      }
+    }
   }
 
   &._720-960, &._960-1200, &._1200-1380, &._1380-1620, &._1620-1920, &._1920-Infinity {
 
-    .@{_COMMON_PREFIX}button.mobile-edit-publish-button {
-      display: none !important;
+    .mobile-edit-publish-controls {
+      display: none;
     }
 
     .content-wizard-toolbar {
@@ -309,19 +343,19 @@
       }
 
       .toolbar-publish-controls {
-        display: inherit;
-        height: 100%;
+
+        .content-wizard-toolbar-publish-button {
+          border-left: 1px solid @admin-bg-light-gray;
+        }
       }
     }
   }
 
-  &.no-write-permissions {
+  &.no-modify-permissions {
     .thumbnail-uploader-el, .wizard-header, .wizard-steps-panel {
       * {
         pointer-events: none;
       }
-      .@{_COMMON_PREFIX}text-input,
-      .text-area,
       .help-text-toggler {
         pointer-events: all;
       }
@@ -331,6 +365,11 @@
       .remove, .edit {
         display: none;
       }
+    }
+
+    .form-panel {
+      padding-bottom: 30px;
+      opacity: 0.8;
     }
   }
 

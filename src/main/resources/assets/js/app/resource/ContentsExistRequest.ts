@@ -1,16 +1,19 @@
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentsExistResult} from './ContentsExistResult';
 import {ContentsExistJson} from './json/ContentsExistJson';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ContentsExistRequest
-    extends ContentResourceRequest<ContentsExistJson, ContentsExistResult> {
+    extends ContentResourceRequest<ContentsExistResult> {
 
     private contentIds: string[] = [];
 
     constructor(contentIds: string[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contentIds = contentIds;
+        this.addRequestPathElements('contentsExist');
     }
 
     getParams(): Object {
@@ -19,14 +22,7 @@ export class ContentsExistRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'contentsExist');
-    }
-
-    sendAndParse(): wemQ.Promise<ContentsExistResult> {
-
-        return this.send().then((response: api.rest.JsonResponse<ContentsExistJson>) => {
-            return new ContentsExistResult(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<ContentsExistJson>): ContentsExistResult {
+        return new ContentsExistResult(response.getResult());
     }
 }

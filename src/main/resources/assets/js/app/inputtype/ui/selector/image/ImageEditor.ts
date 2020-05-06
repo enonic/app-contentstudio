@@ -1,10 +1,20 @@
-import ImgEl = api.dom.ImgEl;
-import DivEl = api.dom.DivEl;
-import Button = api.ui.button.Button;
-import Element = api.dom.Element;
-import i18n = api.util.i18n;
-import LoadMask = api.ui.mask.LoadMask;
-import Tooltip = api.ui.Tooltip;
+import * as $ from 'jquery';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
+import {Button} from 'lib-admin-ui/ui/button/Button';
+import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
+import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
+import {ElementHiddenEvent} from 'lib-admin-ui/dom/ElementHiddenEvent';
+import {ElementRemovedEvent} from 'lib-admin-ui/dom/ElementRemovedEvent';
+import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
+import {BodyMask} from 'lib-admin-ui/ui/mask/BodyMask';
+import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
+import {CloseButton} from 'lib-admin-ui/ui/button/CloseButton';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export interface Point {
     x: number;
@@ -38,7 +48,7 @@ interface ZoomData
     extends SVGRect {}
 
 export class ImageEditor
-    extends api.dom.DivEl {
+    extends DivEl {
 
     private SCROLLABLE_SELECTOR: string = '.form-panel';
     private WIZARD_TOOLBAR_SELECTOR: string = '.wizard-step-navigator-and-toolbar';
@@ -89,6 +99,7 @@ export class ImageEditor
     private editResetButton: Button;
     private rotateButton: Button;
     private mirrorButton: Button;
+    private resetButton: Button;
     private uploadButton: Button;
 
     private editModeListeners: { (edit: boolean, position: Rect, zoom: Rect, focus: Point): void }[] = [];
@@ -103,7 +114,7 @@ export class ImageEditor
 
     private maskWheelListener: (event: WheelEvent) => void;
     private maskClickListener: (event: MouseEvent) => void;
-    private maskHideListener: (event: api.dom.ElementHiddenEvent) => void;
+    private maskHideListener: (event: ElementHiddenEvent) => void;
 
     private imageErrorListeners: { (event: UIEvent): void }[] = [];
 
@@ -162,7 +173,7 @@ export class ImageEditor
             this.setToolbarButtonsEnabled(true);
             this.unShown(updateImageOnShown);
             if (isFirstLoad) {
-                api.ui.responsive.ResponsiveManager.onAvailableSizeChanged(this, resizeHandler);
+                ResponsiveManager.onAvailableSizeChanged(this, resizeHandler);
                 isFirstLoad = false;
             }
         };
@@ -226,7 +237,7 @@ export class ImageEditor
             return false;
         };
 
-        let imageMask = new api.dom.DivEl('image-bg-mask');
+        let imageMask = new DivEl('image-bg-mask');
 
         this.canvas.appendChildren(imageMask, this.image, this.clip);
 
@@ -240,14 +251,14 @@ export class ImageEditor
 
         this.onAdded(() => {
             // sticky toolbar needs to have access to parent elements
-            wemjq(this.getHTMLElement()).closest(this.SCROLLABLE_SELECTOR).bind('scroll', scrollListener);
+            $(this.getHTMLElement()).closest(this.SCROLLABLE_SELECTOR).bind('scroll', scrollListener);
         });
-        this.onRemoved((event: api.dom.ElementRemovedEvent) => {
+        this.onRemoved((event: ElementRemovedEvent) => {
             // element has already been removed so use parent
             if (!!event.getParent()) {
-                wemjq(event.getParent().getHTMLElement()).closest(this.SCROLLABLE_SELECTOR).unbind('scroll', scrollListener);
+                $(event.getParent().getHTMLElement()).closest(this.SCROLLABLE_SELECTOR).unbind('scroll', scrollListener);
             }
-            api.ui.responsive.ResponsiveManager.unAvailableSizeChanged(this);
+            ResponsiveManager.unAvailableSizeChanged(this);
             this.unImageError(imageErrorHandler);
         });
 
@@ -297,7 +308,7 @@ export class ImageEditor
         return this.image;
     }
 
-    getUploadButton(): api.dom.ButtonEl {
+    getUploadButton(): ButtonEl {
         return this.uploadButton;
     }
 
@@ -566,7 +577,7 @@ export class ImageEditor
         let offset = el.getOffset();
         let bottom = offset.top + el.getHeightWithBorder();
         let right = offset.left + el.getWidthWithBorder();
-        let scrollEl = wemjq(this.getHTMLElement()).closest(this.SCROLLABLE_SELECTOR);
+        let scrollEl = $(this.getHTMLElement()).closest(this.SCROLLABLE_SELECTOR);
         let scrollOffset = scrollEl.length === 1 ? scrollEl.offset() : {left: 0, top: 0};
 
         return event.clientX < Math.max(scrollOffset.left, offset.left) ||
@@ -580,7 +591,7 @@ export class ImageEditor
             console.log('setShaderVisible', visible);
         }
 
-        let bodyMask = api.ui.mask.BodyMask.get();
+        let bodyMask = BodyMask.get();
         if (visible) {
             if (!this.maskClickListener) {
                 this.maskClickListener = (event: MouseEvent) => {
@@ -610,12 +621,12 @@ export class ImageEditor
                     }
                 };
             }
-            api.dom.Body.get().onClicked(this.maskClickListener);
+            Body.get().onClicked(this.maskClickListener);
 
             if (!this.maskWheelListener) {
                 this.maskWheelListener = (event: WheelEvent) => {
                     let el = this.getEl();
-                    let win = api.dom.WindowDOM.get();
+                    let win = WindowDOM.get();
                     let myHeight = el.getHeight();
                     let myTop = el.getTopPx();
                     let winHeight = win.getHeight();
@@ -644,12 +655,12 @@ export class ImageEditor
                     }
                 };
             }
-            api.dom.Body.get().onMouseWheel(this.maskWheelListener);
+            Body.get().onMouseWheel(this.maskWheelListener);
 
             if (!this.maskHideListener) {
                 this.maskHideListener = () => {
-                    api.dom.Body.get().unClicked(this.maskClickListener);
-                    api.dom.Body.get().unMouseWheel(this.maskWheelListener);
+                    Body.get().unClicked(this.maskClickListener);
+                    Body.get().unMouseWheel(this.maskWheelListener);
                     bodyMask.unHidden(this.maskHideListener);
                 };
             }
@@ -737,7 +748,7 @@ export class ImageEditor
             }
         });
 
-        let cancelButton = new api.ui.button.CloseButton();
+        let cancelButton = new CloseButton();
         cancelButton.onClicked((event: MouseEvent) => {
             event.stopPropagation();
 
@@ -750,9 +761,9 @@ export class ImageEditor
 
         editContainer.appendChildren(this.editResetButton, applyButton, cancelButton);
 
-        let standbyContainer = new DivEl('standby-container');
-        let resetButton = new Button(i18n('editor.resetfilters'));
-        resetButton.addClass('button-reset transparent').setVisible(false).onClicked((event: MouseEvent) => {
+        const standbyContainer: DivEl = new DivEl('standby-container');
+        this.resetButton = new Button(i18n('editor.resetfilters'));
+        this.resetButton.setEnabled(false).addClass('button-reset transparent').setVisible(false).onClicked((event: MouseEvent) => {
             event.stopPropagation();
 
             this.resetCropPosition();
@@ -769,20 +780,20 @@ export class ImageEditor
         this.onFocusAutoPositionedChanged((auto) => {
             this.editResetButton.setVisible(!auto);
             this.toggleClass('autofocused', auto);
-            resetButton.setVisible(isEditorDirty());
+            this.resetButton.setVisible(isEditorDirty());
         });
         this.onCropAutoPositionedChanged((auto) => {
             this.editResetButton.setVisible(!auto);
-            resetButton.setVisible(isEditorDirty());
+            this.resetButton.setVisible(isEditorDirty());
         });
 
         this.onOrientationChanged(() => {
-            resetButton.setVisible(isEditorDirty());
+            this.resetButton.setVisible(isEditorDirty());
         });
 
         this.uploadButton = new Button();
-        this.uploadButton.addClass('button-upload');
-        standbyContainer.appendChildren(resetButton, this.uploadButton);
+        this.uploadButton.setEnabled(false).addClass('button-upload');
+        standbyContainer.appendChildren(this.resetButton, this.uploadButton);
 
         this.editCropButton = new Button().setEnabled(false);
         // tslint:disable-next-line:no-unused-expression
@@ -864,10 +875,20 @@ export class ImageEditor
         } else {
             this.imageMask.hide();
         }
+
+        this.uploadButton.setEnabled(value);
+        this.resetButton.setEnabled(value);
         this.rotateButton.setEnabled(value);
         this.mirrorButton.setEnabled(value);
         this.editCropButton.setEnabled(value);
         this.editFocusButton.setEnabled(value);
+        if (!value) {
+            this.disableButtonsTooltip();
+        }
+    }
+
+    private disableButtonsTooltip() {
+        $('.button-rotate, .button-mirror').mouseleave();
     }
 
     private rotate90() {
@@ -941,6 +962,7 @@ export class ImageEditor
      * http://sylvana.net/jpegcrop/exif_orientation.html
      */
     setOrientation(orientation: number, originalOrientation?: number, render: boolean = true, silent?: boolean) {
+        const prevOrientation = this.orientation;
         this.orientation = Math.min(Math.max(orientation, 1), 8);
 
         if (this.originalOrientation == null && !originalOrientation) {
@@ -949,16 +971,18 @@ export class ImageEditor
             this.originalOrientation = originalOrientation;
         }
 
-        if (ImageEditor.debug) {
-            console.debug('ImageEditor.setOrientation = ' + this.orientation);
-        }
+        if (this.orientation !== prevOrientation) {
+            if (ImageEditor.debug) {
+                console.debug('ImageEditor.setOrientation = ' + this.orientation);
+            }
 
-        if (render) {
-            this.renderOrientation(this.orientation);
-        }
+            if (render) {
+                this.renderOrientation(this.orientation);
+            }
 
-        if (!silent) {
-            this.notifyOrientationChanged(orientation);
+            if (!silent) {
+                this.notifyOrientationChanged(orientation);
+            }
         }
     }
 
@@ -1077,10 +1101,10 @@ export class ImageEditor
         this.zoomContainer = new DivEl('zoom-container');
 
         this.zoomLine = new DivEl('zoom-line');
-        this.zoomKnob = new api.dom.SpanEl('zoom-knob');
+        this.zoomKnob = new SpanEl('zoom-knob');
         this.zoomLine.appendChild(this.zoomKnob);
 
-        let zoomTitle = new api.dom.SpanEl('zoom-title');
+        let zoomTitle = new SpanEl('zoom-title');
         zoomTitle.setHtml(i18n('field.zoom'));
 
         this.zoomContainer.appendChildren(zoomTitle, this.zoomLine);
@@ -1105,7 +1129,7 @@ export class ImageEditor
     }
 
     private getRelativeScrollTop(): number {
-        const scrollEl = wemjq(this.getHTMLElement()).closest(this.SCROLLABLE_SELECTOR);
+        const scrollEl = $(this.getHTMLElement()).closest(this.SCROLLABLE_SELECTOR);
         const scrollElOffsetTop = scrollEl.length === 1
                                 ? scrollEl.offset().top
                                 : 0;
@@ -1421,7 +1445,7 @@ export class ImageEditor
                 lastPos = restrainedPos;
             }
         };
-        api.dom.Body.get().onMouseMove(this.mouseMoveListener);
+        Body.get().onMouseMove(this.mouseMoveListener);
 
         this.mouseUpListener = (event: MouseEvent) => {
             if (mouseDown) {
@@ -1448,7 +1472,7 @@ export class ImageEditor
                 mouseDown = false;
             }
         };
-        api.dom.Body.get().onMouseUp(this.mouseUpListener);
+        Body.get().onMouseUp(this.mouseUpListener);
     }
 
     private unbindFocusMouseListeners() {
@@ -1456,8 +1480,8 @@ export class ImageEditor
             console.log('ImageEditor.unbindFocusMouseListeners');
         }
 
-        api.dom.Body.get().unMouseMove(this.mouseMoveListener);
-        api.dom.Body.get().unMouseUp(this.mouseUpListener);
+        Body.get().unMouseMove(this.mouseMoveListener);
+        Body.get().unMouseUp(this.mouseUpListener);
     }
 
     private updateFocusMaskPosition() {
@@ -1651,6 +1675,10 @@ export class ImageEditor
         return this.rectFromSVG(this.normalizeRect(this.getCropPositionPx()));
     }
 
+    isCropAutoPositioned(): boolean {
+        return this.cropData.auto;
+    }
+
     private getCropPositionPx(): SVGRect {
         return {
             x: this.cropData.x,
@@ -1833,7 +1861,7 @@ export class ImageEditor
 
             lastPos = currPos;
         };
-        api.dom.Body.get().onMouseMove(this.mouseMoveListener);
+        Body.get().onMouseMove(this.mouseMoveListener);
 
         this.mouseUpListener = (event: MouseEvent) => {
             if (ImageEditor.debug) {
@@ -1864,7 +1892,7 @@ export class ImageEditor
                 console.groupEnd();
             }
         };
-        api.dom.Body.get().onMouseUp(this.mouseUpListener);
+        Body.get().onMouseUp(this.mouseUpListener);
     }
 
     private unbindCropMouseListeners() {
@@ -1876,8 +1904,8 @@ export class ImageEditor
         this.zoomKnob.unMouseDown(this.knobMouseDownListener);
         this.clip.unMouseDown(this.mouseDownListener);
 
-        api.dom.Body.get().unMouseMove(this.mouseMoveListener);
-        api.dom.Body.get().unMouseUp(this.mouseUpListener);
+        Body.get().unMouseMove(this.mouseMoveListener);
+        Body.get().unMouseUp(this.mouseUpListener);
     }
 
     /**

@@ -1,3 +1,5 @@
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageCUDRequest} from './PageCUDRequest';
 import {PageResourceRequest} from './PageResourceRequest';
 import {Content} from '../content/Content';
@@ -5,16 +7,19 @@ import {ContentJson} from '../content/ContentJson';
 import {PageTemplateKey} from '../page/PageTemplateKey';
 import {Regions} from '../page/region/Regions';
 import {Component} from '../page/region/Component';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
-export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content> implements PageCUDRequest {
+export class UpdatePageRequest extends PageResourceRequest<Content> implements PageCUDRequest {
 
-    private contentId: api.content.ContentId;
+    private contentId: ContentId;
 
-    private controller: api.content.page.DescriptorKey;
+    private controller: DescriptorKey;
 
     private template: PageTemplateKey;
 
-    private config: api.data.PropertyTree;
+    private config: PropertyTree;
 
     private regions: Regions;
 
@@ -22,13 +27,14 @@ export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content>
 
     private customized: boolean;
 
-    constructor(contentId: api.content.ContentId) {
+    constructor(contentId: ContentId) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contentId = contentId;
+        this.addRequestPathElements('update');
     }
 
-    setController(controller: api.content.page.DescriptorKey): UpdatePageRequest {
+    setController(controller: DescriptorKey): UpdatePageRequest {
         this.controller = controller;
         return this;
     }
@@ -38,7 +44,7 @@ export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content>
         return this;
     }
 
-    setConfig(config: api.data.PropertyTree): UpdatePageRequest {
+    setConfig(config: PropertyTree): UpdatePageRequest {
         this.config = config;
         return this;
     }
@@ -70,14 +76,7 @@ export class UpdatePageRequest extends PageResourceRequest<ContentJson, Content>
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'update');
-    }
-
-    sendAndParse(): wemQ.Promise<Content> {
-
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
-            return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<ContentJson>): Content {
+        return response.isBlank() ? null : this.fromJsonToContent(response.getResult());
     }
 }

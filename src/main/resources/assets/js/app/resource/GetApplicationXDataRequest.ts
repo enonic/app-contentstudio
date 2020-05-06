@@ -1,12 +1,13 @@
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ApplicationKey = api.application.ApplicationKey;
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {XDataResourceRequest} from './XDataResourceRequest';
 import {XDataListJson} from './json/XDataListJson';
 import {XData} from '../content/XData';
 import {XDataJson} from './json/XDataJson';
 
 export class GetApplicationXDataRequest
-    extends XDataResourceRequest<XDataListJson, XData[]> {
+    extends XDataResourceRequest<XData[]> {
 
     private contentTypeName: ContentTypeName;
 
@@ -14,9 +15,9 @@ export class GetApplicationXDataRequest
 
     constructor(contentTypeName: ContentTypeName, applicationKey: ApplicationKey) {
         super();
-        super.setMethod('GET');
         this.contentTypeName = contentTypeName;
         this.applicationKey = applicationKey;
+        this.addRequestPathElements('getApplicationXDataForContentType');
     }
 
     getParams(): Object {
@@ -26,16 +27,9 @@ export class GetApplicationXDataRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'getApplicationXDataForContentType');
-    }
-
-    sendAndParse(): wemQ.Promise<XData[]> {
-
-        return this.send().then((response: api.rest.JsonResponse<XDataListJson>) => {
-            return response.getResult().xdatas.map((xDataJson: XDataJson) => {
-                return this.fromJsonToXData(xDataJson);
-            });
+    protected parseResponse(response: JsonResponse<XDataListJson>): XData[] {
+        return response.getResult().xdatas.map((xDataJson: XDataJson) => {
+            return this.fromJsonToXData(xDataJson);
         });
     }
 }

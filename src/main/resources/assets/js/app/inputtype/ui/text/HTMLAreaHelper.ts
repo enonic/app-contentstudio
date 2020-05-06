@@ -1,8 +1,14 @@
-import ContentId = api.content.ContentId;
-import StringHelper = api.util.StringHelper;
-import AppHelper = api.util.AppHelper;
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {Styles} from './styles/Styles';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import * as Q from 'q';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
 
 export class HTMLAreaHelper {
 
@@ -10,7 +16,10 @@ export class HTMLAreaHelper {
         const imageId = HTMLAreaHelper.extractImageIdFromImgSrc(imgSrc);
         const styleParameter = '?style=';
 
-        const imageUrlResolver = new ImageUrlResolver().setContentId(new ContentId(imageId)).setTimestamp(new Date());
+        const imageUrlResolver = new ImageUrlResolver()
+            .setContentId(new ContentId(imageId))
+            .setTimestamp(new Date())
+            .setScaleWidth(true);
 
         if (imgSrc.includes(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL)) {
             imageUrlResolver.disableProcessing();
@@ -31,9 +40,9 @@ export class HTMLAreaHelper {
 
         // Support scale parameter from the old content
         const src = imgSrc.replace(/&amp;/g, '&');
-        const params = api.util.UriHelper.decodeUrlParams(src);
+        const params = UriHelper.decodeUrlParams(src);
         if (params.scale) {
-            imgUrl = api.util.UriHelper.appendUrlParams(imgUrl, {scale: params.scale}, false);
+            imgUrl = UriHelper.appendUrlParams(imgUrl, {scale: params.scale}, false);
         }
 
         return ` src="${imgUrl}" data-src="${imgSrc}"`;
@@ -92,5 +101,18 @@ export class HTMLAreaHelper {
         });
 
         return processedContent;
+    }
+
+    public static isSourceCodeEditable(): Q.Promise<boolean> {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+            if (loginResult.isContentExpert()) {
+                return Q(true);
+            }
+
+            return ProjectHelper.isUserProjectOwnerOrEditor(loginResult);
+        }).catch((reason: any) => {
+            DefaultErrorHandler.handle(reason);
+            return Q(false);
+        });
     }
 }

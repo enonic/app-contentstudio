@@ -7,11 +7,27 @@
 
   .cke_top {
     position: sticky;
-    top: 40px;
+    top: 0;
     padding: 6px 8px 0;
 
-    .cke_toolgroup {
-      margin-bottom: 4px;
+    .cke_toolbox {
+
+      display: flex;
+      flex-wrap: wrap;
+
+      .cke_toolgroup {
+        margin-bottom: 4px;
+
+        a.cke_button {
+          padding: 4px 5px;
+
+          &:not(.cke_button_on):not(.cke_button_disabled) {
+            &:hover {
+              padding: 3px 4px;
+            }
+          }
+        }
+      }
     }
   }
 
@@ -96,6 +112,18 @@
       display: inline-block;
       padding-right: 30px;
       vertical-align: middle;
+    }
+  }
+}
+
+.wizard-step-form .html-area {
+  .cke_top {
+    top: @toolbar-height;
+
+    .cke_button__bold,
+    .cke_button__italic,
+    .cke_button__underline {
+      display: none;
     }
   }
 }

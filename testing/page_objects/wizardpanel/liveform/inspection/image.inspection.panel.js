@@ -70,6 +70,14 @@ class ImageInspectionPanel extends Page {
         return this.pause(2000);
     }
 
+    isImageComboBoxDisplayed() {
+        return this.isElementDisplayed(xpath.container + xpath.imageContentComboBox+ "//input[contains(@id,'ComboBoxOptionFilterInput')]");
+    }
+
+    isErrorMessageDisplayed() {
+        return this.isElementDisplayed(xpath.container + "//div[contains(@class,'error-container')]");
+    }
+
 };
 module.exports = ImageInspectionPanel;
 

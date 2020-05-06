@@ -3,7 +3,8 @@ import {ShowContentFormEvent} from '../../ShowContentFormEvent';
 import {ShowSplitEditEvent} from '../../ShowSplitEditEvent';
 import {ShowLiveEditEvent} from '../../ShowLiveEditEvent';
 import {ContentWizardPanel} from '../../ContentWizardPanel';
-import TogglerButton = api.ui.button.TogglerButton;
+import {TogglerButton} from 'lib-admin-ui/ui/button/TogglerButton';
+import {ElementHiddenEvent} from 'lib-admin-ui/dom/ElementHiddenEvent';
 
 export class ContextWindowController {
 
@@ -31,8 +32,10 @@ export class ContextWindowController {
             componentsView.setVisible(isActive);
         });
 
-        componentsView.onHidden((event: api.dom.ElementHiddenEvent) => {
-            this.componentsViewToggler.removeClass('active');
+        componentsView.onHidden((event: ElementHiddenEvent) => {
+            if (this.componentsViewToggler.isActive()) {
+                this.componentsViewToggler.setActive(false);
+            }
         });
 
         let liveEditShownHandler = () => {

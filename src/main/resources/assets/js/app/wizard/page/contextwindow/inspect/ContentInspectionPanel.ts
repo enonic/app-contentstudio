@@ -1,20 +1,22 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
 import {BaseInspectionPanel} from './BaseInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../page-editor/ItemViewIconClassResolver';
 import {Content} from '../../../../content/Content';
-import i18n = api.util.i18n;
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 
 export class ContentInspectionPanel
     extends BaseInspectionPanel {
 
     private content: Content;
 
-    private namesAndIcon: api.app.NamesAndIconView;
+    private namesAndIcon: NamesAndIconView;
 
     constructor() {
         super();
 
         this.namesAndIcon =
-            new api.app.NamesAndIconView(new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.medium)).setIconClass(
+            new NamesAndIconView(new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.medium)).setIconClass(
                 ItemViewIconClassResolver.resolveByType('content', 'icon-xlarge'));
 
         this.appendChild(this.namesAndIcon);

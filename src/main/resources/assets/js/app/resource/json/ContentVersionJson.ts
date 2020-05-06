@@ -1,3 +1,6 @@
+import {ContentVersionPublishInfoJson} from './ContentVersionPublishInfoJson';
+import {WorkflowJson} from 'lib-admin-ui/content/json/WorkflowJson';
+
 export interface ContentVersionJson {
 
     modifier: string;
@@ -11,4 +14,8 @@ export interface ContentVersionJson {
     comment: string;
 
     id: string;
+
+    publishInfo: ContentVersionPublishInfoJson;
+
+    workflow: WorkflowJson;
 }

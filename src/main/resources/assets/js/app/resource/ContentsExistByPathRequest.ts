@@ -1,16 +1,19 @@
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentsExistByPathJson} from './json/ContentsExistByPathJson';
 import {ContentsExistByPathResult} from './ContentsExistByPathResult';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class ContentsExistByPathRequest
-    extends ContentResourceRequest<ContentsExistByPathJson, ContentsExistByPathResult> {
+    extends ContentResourceRequest<ContentsExistByPathResult> {
 
     private contentPaths: string[] = [];
 
     constructor(contentPaths: string[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.contentPaths = contentPaths;
+        this.addRequestPathElements('contentsExistByPath');
     }
 
     getParams(): Object {
@@ -19,14 +22,7 @@ export class ContentsExistByPathRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'contentsExistByPath');
-    }
-
-    sendAndParse(): wemQ.Promise<ContentsExistByPathResult> {
-
-        return this.send().then((response: api.rest.JsonResponse<ContentsExistByPathJson>) => {
-            return new ContentsExistByPathResult(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<ContentsExistByPathJson>): ContentsExistByPathResult {
+        return new ContentsExistByPathResult(response.getResult());
     }
 }

@@ -1,3 +1,12 @@
+import * as $ from 'jquery';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {AEl} from 'lib-admin-ui/dom/AEl';
 import {LiveEditModel} from './LiveEditModel';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {ItemView, ItemViewBuilder} from './ItemView';
@@ -40,7 +49,10 @@ import {Component} from '../app/page/region/Component';
 import {PageMode, PageTemplateDisplayName} from '../app/page/PageMode';
 import {RegionPath} from '../app/page/region/RegionPath';
 import {ComponentPath} from '../app/page/region/ComponentPath';
-import i18n = api.util.i18n;
+import {Action} from 'lib-admin-ui/ui/Action';
+import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
+import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
+import {assertNotNull} from 'lib-admin-ui/util/Assert';
 
 export class PageViewBuilder {
 
@@ -50,9 +62,9 @@ export class PageViewBuilder {
 
     itemViewFactory: ItemViewFactory;
 
-    element: api.dom.Body;
+    element: Body;
 
-    writePermissions: boolean = false;
+    modifyPermissions: boolean = false;
 
     setLiveEditModel(value: LiveEditModel): PageViewBuilder {
         this.liveEditModel = value;
@@ -69,13 +81,13 @@ export class PageViewBuilder {
         return this;
     }
 
-    setElement(value: api.dom.Body): PageViewBuilder {
+    setElement(value: Body): PageViewBuilder {
         this.element = value;
         return this;
     }
 
-    setWritePermissions(writePermissions: boolean): PageViewBuilder {
-        this.writePermissions = writePermissions;
+    setModifyPermissions(modifyPermissions: boolean): PageViewBuilder {
+        this.modifyPermissions = modifyPermissions;
         return this;
     }
 
@@ -103,7 +115,7 @@ export class PageView
 
     private pageLockedListeners: { (locked: boolean): void }[];
 
-    private resetAction: api.ui.Action;
+    private resetAction: Action;
 
     private itemViewAddedListener: (event: ItemViewAddedEvent) => void;
 
@@ -113,7 +125,7 @@ export class PageView
 
     public static debug: boolean;
 
-    private propertyChangedListener: (event: api.PropertyChangedEvent) => void;
+    private propertyChangedListener: (event: PropertyChangedEvent) => void;
 
     private pageModeChangedListener: (event: PageModeChangedEvent) => void;
 
@@ -121,13 +133,13 @@ export class PageView
 
     private lockedContextMenu: ItemViewContextMenu;
 
-    private closeTextEditModeButton: api.dom.Element;
+    private closeTextEditModeButton: Element;
 
-    private editorToolbar: api.dom.DivEl;
+    private editorToolbar: DivEl;
 
     private isRenderable: boolean;
 
-    private writePermissions: boolean;
+    private modifyPermissions: boolean;
 
     constructor(builder: PageViewBuilder) {
 
@@ -135,12 +147,12 @@ export class PageView
             .setLiveEditModel(builder.liveEditModel)
             .setItemViewIdProducer(builder.itemViewIdProducer)
             .setItemViewFactory(builder.itemViewFactory)
-            .setViewer(new api.content.ContentSummaryViewer())
+            .setViewer(new ContentSummaryViewer())
             .setType(PageItemType.get())
             .setElement(builder.element)
             .setContextMenuTitle(new PageViewContextMenuTitle(builder.liveEditModel.getContent())));
 
-        this.writePermissions = builder.writePermissions;
+        this.modifyPermissions = builder.modifyPermissions;
 
         this.setPlaceholder(new PagePlaceholder(this));
 
@@ -173,7 +185,7 @@ export class PageView
         const isCustomized = this.liveEditModel.getPageModel().isCustomized();
         const isFragment = !!this.fragmentView;
         const lockable = !this.pageModel.isPageTemplate() && !isCustomized && !isFragment;
-        if (lockable || !this.writePermissions) {
+        if (lockable || !this.modifyPermissions) {
             this.setLocked(true);
         }
     }
@@ -205,7 +217,7 @@ export class PageView
         if (PageView.debug) {
             console.log('PageView.registerPageModel', this.pageModel);
         }
-        this.propertyChangedListener = (event: api.PropertyChangedEvent) => {
+        this.propertyChangedListener = (event: PropertyChangedEvent) => {
             // don't parse on regions change during reset, because it'll be done when page is loaded later
             if (event.getPropertyName() === PageModel.PROPERTY_REGIONS && !this.ignorePropertyChanges) {
                 this.parseItemViews();
@@ -242,11 +254,11 @@ export class PageView
 
     private addPageContextMenuActions() {
         const pageModel = this.liveEditModel.getPageModel();
-        const inspectAction = new api.ui.Action(i18n('live.view.inspect')).onExecuted(() => {
+        const inspectAction = new Action(i18n('live.view.inspect')).onExecuted(() => {
             new PageInspectedEvent().fire();
         });
 
-        this.resetAction = new api.ui.Action(i18n('live.view.reset')).onExecuted(() => {
+        this.resetAction = new Action(i18n('live.view.reset')).onExecuted(() => {
             if (PageView.debug) {
                 console.log('PageView.reset');
             }
@@ -305,7 +317,7 @@ export class PageView
 
         this.onRemoved(event => this.unregisterPageModel(this.pageModel));
 
-        api.ui.responsive.ResponsiveManager.onAvailableSizeChanged(this, (item: api.ui.responsive.ResponsiveItem) => {
+        ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
             if (this.isTextEditMode()) {
                 this.updateVerticalSpaceForEditorToolbar();
             }
@@ -318,8 +330,8 @@ export class PageView
         });
     }
 
-    private createCloseTextEditModeEl(): api.dom.Element {
-        const closeButton = new api.dom.AEl('close-edit-mode-button icon-close');
+    private createCloseTextEditModeEl(): Element {
+        const closeButton = new AEl('close-edit-mode-button icon-close');
         closeButton.onClicked((event: MouseEvent) => {
             PageViewController.get().setTextEditMode(false);
             event.stopPropagation();
@@ -342,7 +354,7 @@ export class PageView
 
     appendContainerForTextToolbar() {
         if (!this.hasToolbarContainer()) {
-            this.editorToolbar = new api.dom.DivEl('cke-toolbar-container').setId('cke-toolbar-container').setContentEditable(true);
+            this.editorToolbar = new DivEl('cke-toolbar-container').setId('cke-toolbar-container').setContentEditable(true);
             this.appendChild(this.editorToolbar);
             this.addClass('has-toolbar-container');
             PageViewController.get().setEditorToolbar(this.editorToolbar);
@@ -423,8 +435,8 @@ export class PageView
         return new ItemViewContextMenu(this.getContextMenuTitle(), this.getLockedMenuActions());
     }
 
-    getLockedMenuActions(): api.ui.Action[] {
-        const unlockAction = new api.ui.Action(i18n('live.view.page.customize'));
+    getLockedMenuActions(): Action[] {
+        const unlockAction = new Action(i18n('live.view.page.customize'));
 
         unlockAction.onExecuted(() => {
             this.setLocked(false);
@@ -449,7 +461,7 @@ export class PageView
     }
 
     handleShaderClick(event: MouseEvent) {
-        if (this.isLocked() && this.writePermissions) {
+        if (this.isLocked() && this.modifyPermissions) {
             if (!this.lockedContextMenu) {
                 this.lockedContextMenu = this.createLockedContextMenu();
             }
@@ -533,6 +545,7 @@ export class PageView
             }
 
             new PageUnlockedEvent(this).fire();
+            new PageInspectedEvent().fire();
         }
 
         this.notifyPageLockChanged(locked);
@@ -625,7 +638,7 @@ export class PageView
     }
 
     private getEditorToolbarWidth(): number {
-        return wemjq(`.cke-toolbar-container .cke_reset_all:not([style*='display: none']) .cke_top`).outerHeight();
+        return $(`.cke-toolbar-container .cke_reset_all:not([style*='display: none']) .cke_top`).outerHeight();
     }
 
     hasTargetWithinTextComponent(target: HTMLElement) {
@@ -674,8 +687,8 @@ export class PageView
         }
         if (this.pageModel.isCustomized()) {
             return this.pageModel.hasController()
-                ? this.pageModel.getController().getDisplayName()
-                : pageTemplateDisplayName[pageTemplateDisplayName.Custom];
+                   ? this.pageModel.getController().getDisplayName()
+                   : pageTemplateDisplayName[pageTemplateDisplayName.Custom];
         }
         if (this.pageModel.getMode() === PageMode.AUTOMATIC) {
             return this.pageModel.getDefaultPageTemplate().getDisplayName();
@@ -766,7 +779,7 @@ export class PageView
     }
 
     getItemViewById(id: ItemViewId): ItemView {
-        api.util.assertNotNull(id, i18n('live.view.itemview.error.idisnull'));
+        assertNotNull(id, i18n('live.view.itemview.error.idisnull'));
         return this.viewsById[id.toNumber()];
     }
 
@@ -784,7 +797,7 @@ export class PageView
     }
 
     getItemViewByElement(element: HTMLElement): ItemView {
-        api.util.assertNotNull(element, i18n('live.view.itemview.error.elementisnull'));
+        assertNotNull(element, i18n('live.view.itemview.error.elementisnull'));
 
         const itemId = ItemView.parseItemId(element);
         if (!itemId) {
@@ -792,7 +805,7 @@ export class PageView
         }
 
         const itemView = this.getItemViewById(itemId);
-        api.util.assertNotNull(itemView, i18n('live.view.itemview.error.notfound', itemId.toString()));
+        assertNotNull(itemView, i18n('live.view.itemview.error.notfound', itemId.toString()));
 
         return itemView;
     }
@@ -801,7 +814,7 @@ export class PageView
 
         const itemView = this.getItemViewByElement(element);
 
-        if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, RegionView)) {
+        if (ObjectHelper.iFrameSafeInstanceOf(itemView, RegionView)) {
             return <RegionView>itemView;
         }
         return null;
@@ -811,7 +824,7 @@ export class PageView
 
         const itemView = this.getItemViewByElement(element);
 
-        if (api.ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
+        if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
             return <ComponentView<Component>> itemView;
         }
 
@@ -825,7 +838,7 @@ export class PageView
 
             if (path.hasParentComponentPath()) {
                 const componentView = this.getComponentViewByPath(path.getParentComponentPath());
-                if (api.ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
+                if (ObjectHelper.iFrameSafeInstanceOf(componentView, LayoutComponentView)) {
                     const layoutView = <LayoutComponentView>componentView;
                     layoutView.getRegionViewByName(path.getRegionName());
                 }
@@ -912,7 +925,7 @@ export class PageView
 
     }
 
-    private doParseItemViews(parentElement?: api.dom.Element) {
+    private doParseItemViews(parentElement?: Element) {
 
         const pageRegions = this.liveEditModel.getPageModel().getRegions();
         if (!pageRegions) {
@@ -920,9 +933,9 @@ export class PageView
         }
         const children = parentElement ? parentElement.getChildren() : this.getChildren();
 
-        children.forEach((childElement: api.dom.Element) => {
+        children.forEach((childElement: Element) => {
             const itemType = ItemType.fromElement(childElement);
-            const isRegionView = api.ObjectHelper.iFrameSafeInstanceOf(childElement, RegionView);
+            const isRegionView = ObjectHelper.iFrameSafeInstanceOf(childElement, RegionView);
             let region;
             let regionName;
             let regionView;
@@ -959,7 +972,7 @@ export class PageView
         });
     }
 
-    private doParseFragmentItemViews(parentElement?: api.dom.Element) {
+    private doParseFragmentItemViews(parentElement?: Element) {
 
         const fragment = this.liveEditModel.getPageModel().getPage().getFragment();
         if (!fragment) {
@@ -967,14 +980,14 @@ export class PageView
         }
         const children = parentElement ? parentElement.getChildren() : this.getChildren();
 
-        children.forEach((childElement: api.dom.Element) => {
+        children.forEach((childElement: Element) => {
             const itemType = ItemType.fromElement(childElement);
             const component: Component = this.pageModel.getPage().getFragment();
             let componentView: ComponentView<Component>;
 
             if (itemType && itemType.isComponentType()) {
                 if (component) {
-                    const isComponentView = api.ObjectHelper.iFrameSafeInstanceOf(childElement, ComponentView);
+                    const isComponentView = ObjectHelper.iFrameSafeInstanceOf(childElement, ComponentView);
                     if (isComponentView) {
                         const oldComponentView: ComponentView<Component> = <ComponentView<Component>>childElement;
                         oldComponentView.unregisterComponentListeners(component);

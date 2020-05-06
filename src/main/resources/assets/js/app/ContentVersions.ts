@@ -4,21 +4,18 @@ import {GetContentVersionsForViewResultsJson} from './resource/json/GetContentVe
 
 export class ContentVersions {
 
-    private contentVersions: ContentVersion[];
+    readonly contentVersions: ContentVersion[];
 
-    private activeVersion: ContentVersion;
+    constructor(contentVersions: ContentVersion[]) {
+        this.contentVersions = contentVersions;
+    }
 
     getContentVersions(): ContentVersion[] {
         return this.contentVersions;
     }
 
     getActiveVersion(): ContentVersion {
-        return this.activeVersion;
-    }
-
-    constructor(contentVersions: ContentVersion[], activeVersion: ContentVersion) {
-        this.contentVersions = contentVersions;
-        this.activeVersion = activeVersion;
+        return this.contentVersions.find((contentVersion: ContentVersion) => contentVersion.isActive());
     }
 
     static fromJson(contentVersionForViewJson: GetContentVersionsForViewResultsJson): ContentVersions {
@@ -28,13 +25,13 @@ export class ContentVersions {
             contentVersions.push(ContentVersion.fromJson(contentVersionViewJson, contentVersionViewJson.workspaces));
         });
 
-        let activeVersion;
-
         if (contentVersionForViewJson.activeVersion) {
-            activeVersion = ContentVersion.fromJson(contentVersionForViewJson.activeVersion.contentVersion,
+            const activeVersion = ContentVersion.fromJson(contentVersionForViewJson.activeVersion.contentVersion,
                 [contentVersionForViewJson.activeVersion.branch]);
+
+            contentVersions.find((contentVersion: ContentVersion) => contentVersion.getId() === activeVersion.getId()).setActive(true);
         }
 
-        return new ContentVersions(contentVersions, activeVersion);
+        return new ContentVersions(contentVersions);
     }
 }

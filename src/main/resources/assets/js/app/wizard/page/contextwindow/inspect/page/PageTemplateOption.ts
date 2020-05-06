@@ -1,3 +1,5 @@
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 import {PageTemplate} from '../../../../../content/PageTemplate';
 import {PageTemplateDisplayName} from '../../../../../page/PageMode';
 import {TemplateOrControllerOption} from './TemplateOrControllerOption';
@@ -9,9 +11,9 @@ export class PageTemplateOption
         return this.getData() && this.getData().getDisplayName() === PageTemplateDisplayName[PageTemplateDisplayName.Custom];
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, PageTemplateOption)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, PageTemplateOption)) {
             return false;
         }
 
@@ -21,6 +23,6 @@ export class PageTemplateOption
             return true;
         }
 
-        return api.ObjectHelper.equals(this.getData(), other.getData());
+        return ObjectHelper.equals(this.getData(), other.getData());
     }
 }

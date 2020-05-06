@@ -2,7 +2,7 @@ import {BasePublishAction} from './BasePublishAction';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class PublishTreeAction extends BasePublishAction {
     constructor(wizard: ContentWizardPanel) {
@@ -10,6 +10,6 @@ export class PublishTreeAction extends BasePublishAction {
     }
 
     protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {
-        new ContentPublishPromptEvent(summary, true).fire();
+        new ContentPublishPromptEvent({model: summary, includeChildItems: true}).fire();
     }
 }

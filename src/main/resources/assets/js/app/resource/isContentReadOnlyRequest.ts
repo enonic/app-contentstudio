@@ -1,15 +1,18 @@
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import ContentId = api.content.ContentId;
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class IsContentReadOnlyRequest
-    extends ContentResourceRequest<string[], string[]> {
+    extends ContentResourceRequest<string[]> {
 
     private ids: ContentId[];
 
     constructor(ids: ContentId[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.ids = ids;
+        this.addRequestPathElements('isReadOnlyContent');
     }
 
     getParams(): Object {
@@ -18,13 +21,7 @@ export class IsContentReadOnlyRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'isReadOnlyContent');
-    }
-
-    sendAndParse(): wemQ.Promise<string[]> {
-        return this.send().then((response: api.rest.JsonResponse<string[]>) => {
-            return response.getResult();
-        });
+    protected parseResponse(response: JsonResponse<string[]>): string[] {
+        return response.getResult();
     }
 }

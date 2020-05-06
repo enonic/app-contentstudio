@@ -1,14 +1,15 @@
-import TextArea = api.ui.text.TextArea;
-import i18n = api.util.i18n;
+import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
+import {i18n} from 'lib-admin-ui/util/Messages';
 import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
 import {HtmlEditorParams} from '../HtmlEditorParams';
-import {HtmlEditor} from '../HtmlEditor';
+import {HtmlEditor, HtmlEditorCursorPosition} from '../HtmlEditor';
 
 declare var CONFIG;
 
 export interface FullscreenDialogConfig
     extends HtmlAreaModalDialogConfig {
     editorParams: HtmlEditorParams;
+    cursorPosition: HtmlEditorCursorPosition;
 }
 
 export class FullscreenDialog
@@ -26,6 +27,7 @@ export class FullscreenDialog
         super(<FullscreenDialogConfig>{
             editor: config.editor,
             editorParams: config.editorParams,
+            cursorPosition: config.cursorPosition,
             title: i18n('dialog.fullscreen.title'),
             class: 'fullscreen-modal-dialog'
         });
@@ -83,6 +85,15 @@ export class FullscreenDialog
 
         HtmlEditor.create(editorParams).then((htmlEditor: HtmlEditor) => {
             this.fseditor = htmlEditor;
+            htmlEditor.onReady(() => {
+                setTimeout(() => {
+                    htmlEditor.setSelectionByCursorPosition(this.config.cursorPosition);
+                }, 100);
+
+                this.fseditor.on('closeFullscreenDialog', () => {
+                    this.close();
+                });
+            });
         });
     }
 

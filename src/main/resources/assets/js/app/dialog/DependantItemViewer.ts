@@ -1,7 +1,11 @@
+import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 
-export class DependantItemViewer extends api.ui.NamesAndIconViewer<ContentSummaryAndCompareStatus> {
+export class DependantItemViewer
+    extends NamesAndIconViewer<ContentSummaryAndCompareStatus> {
 
     constructor() {
         super('dependant-item-viewer');
@@ -20,9 +24,10 @@ export class DependantItemViewer extends api.ui.NamesAndIconViewer<ContentSummar
 
     resolveIconUrl(object: ContentSummaryAndCompareStatus): string {
         if(! object.getType().isImage()) {
-            return new api.content.util.ContentIconUrlResolver().setContent(object.getContentSummary()).resolve();
+            return new ContentIconUrlResolver().setContent(object.getContentSummary()).resolve();
         }
     }
+
     resolveIconClass (object: ContentSummaryAndCompareStatus): string {
         if(object.getType().isImage()) {
             return 'image';
@@ -33,7 +38,7 @@ export class DependantItemViewer extends api.ui.NamesAndIconViewer<ContentSummar
         return object.getPath().toString();
     }
 
-    protected getHintTargetEl(): api.dom.ElementHelper {
+    protected getHintTargetEl(): ElementHelper {
         return this.getNamesAndIconView().getEl();
     }
 }

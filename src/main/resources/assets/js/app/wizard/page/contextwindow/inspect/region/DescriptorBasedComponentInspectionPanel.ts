@@ -1,14 +1,21 @@
+import * as Q from 'q';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {DescriptorBasedComponent} from '../../../../../page/region/DescriptorBasedComponent';
 import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
 import {DescriptorBasedDropdownForm} from './DescriptorBasedDropdownForm';
 import {ComponentDescriptorDropdown} from './ComponentDescriptorDropdown';
-import FormView = api.form.FormView;
-import Descriptor = api.content.page.Descriptor;
-import DescriptorKey = api.content.page.DescriptorKey;
-import OptionSelectedEvent = api.ui.selector.OptionSelectedEvent;
-import ResourceRequest = api.rest.ResourceRequest;
+import {SiteModel} from '../../../../../site/SiteModel';
+import {FormView} from 'lib-admin-ui/form/FormView';
+import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {Form} from 'lib-admin-ui/form/Form';
+import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {ApplicationEvent} from 'lib-admin-ui/application/ApplicationEvent';
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {
@@ -20,76 +27,90 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private formView: FormView;
 
+    private form: DescriptorBasedDropdownForm;
+
     private selector: ComponentDescriptorDropdown<DESCRIPTOR>;
 
-    private handleSelectorEvents: boolean = true;
-
     private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
+
+    private applicationUnavailableListener: (applicationEvent: ApplicationEvent) => void;
+
+    private debouncedDescriptorsReload: () => void;
 
     constructor(config: DescriptorBasedComponentInspectionPanelConfig) {
         super(config);
 
-        this.formView = null;
+        this.initElements();
+        this.initListeners();
     }
 
-    private layout() {
-
-        this.removeChildren();
-
+    private initElements() {
+        this.formView = null;
         this.selector = this.createSelector();
-        const form = new DescriptorBasedDropdownForm(this.selector, this.getFormName());
+        this.form = new DescriptorBasedDropdownForm(this.selector, this.getFormName());
+    }
 
-        this.selector.loadDescriptors(this.liveEditModel.getSiteModel().getApplicationKeys());
-
-        this.componentPropertyChangedEventHandler = (event: ComponentPropertyChangedEvent) => {
-
-            // Ensure displayed config form and selector option are removed when descriptor is removed
-            if (event.getPropertyName() === DescriptorBasedComponent.PROPERTY_DESCRIPTOR) {
-                if (!this.component.hasDescriptor()) {
-                    this.setSelectorValue(null, false);
-                }
-            }
-        };
+    private initListeners() {
+        this.componentPropertyChangedEventHandler = this.componentPropertyChangedHandler.bind(this);
+        this.applicationUnavailableListener = this.applicationUnavailableHandler.bind(this);
+        this.debouncedDescriptorsReload = AppHelper.debounce(this.reloadDescriptors.bind(this), 100);
 
         this.initSelectorListeners();
-        this.appendChild(form);
+
+        this.onRemoved(() => {
+            if (this.formView) {
+                this.formView.reset();
+            }
+        });
+
+        this.onAdded(() => {
+            // a hack to make form changes persisted during switching between docked <=> floating panels
+            if (this.formView && this.formView.isRendered()) {
+                this.formView.reset();
+            }
+        });
     }
 
     setModel(liveEditModel: LiveEditModel) {
-
         if (this.liveEditModel !== liveEditModel) {
-
-            const siteModelUpdatedHandler = () => this.reloadDescriptorsOnApplicationChange();
-            const applicationUnavailableHandler = () => this.applicationUnavailableHandler();
-            const applicationAddedHandler = () => this.reloadDescriptorsOnApplicationChange();
-            const applicationRemovedHandler = () => this.reloadDescriptorsOnApplicationChange();
-
-            if (this.liveEditModel != null && this.liveEditModel.getSiteModel() != null) {
-                const siteModel = this.liveEditModel.getSiteModel();
-
-                liveEditModel.getSiteModel().unSiteModelUpdated(siteModelUpdatedHandler);
-                siteModel.unApplicationUnavailable(applicationUnavailableHandler);
-                siteModel.unApplicationAdded(applicationAddedHandler);
-                siteModel.unApplicationRemoved(applicationRemovedHandler);
-            }
+            this.unbindSiteModelListeners();
 
             super.setModel(liveEditModel);
-            this.layout();
 
-            liveEditModel.getSiteModel().onSiteModelUpdated(siteModelUpdatedHandler);
-            liveEditModel.getSiteModel().onApplicationUnavailable(applicationUnavailableHandler);
-            liveEditModel.getSiteModel().onApplicationAdded(applicationAddedHandler);
-            liveEditModel.getSiteModel().onApplicationRemoved(applicationRemovedHandler);
+            this.reloadDescriptors();
+
+            this.bindSiteModelListeners();
         }
+    }
+
+    private unbindSiteModelListeners() {
+        if (this.liveEditModel != null && this.liveEditModel.getSiteModel() != null) {
+            const siteModel: SiteModel = this.liveEditModel.getSiteModel();
+
+            siteModel.unSiteModelUpdated(this.debouncedDescriptorsReload);
+            siteModel.unApplicationUnavailable(this.applicationUnavailableListener);
+            siteModel.unApplicationAdded(this.debouncedDescriptorsReload);
+            siteModel.unApplicationRemoved(this.debouncedDescriptorsReload);
+        }
+    }
+
+    private bindSiteModelListeners() {
+        const siteModel: SiteModel = this.liveEditModel.getSiteModel();
+
+        siteModel.onSiteModelUpdated(this.debouncedDescriptorsReload);
+        siteModel.onApplicationUnavailable(this.applicationUnavailableListener);
+        siteModel.onApplicationAdded(this.debouncedDescriptorsReload);
+        siteModel.onApplicationRemoved(this.debouncedDescriptorsReload);
     }
 
     private applicationUnavailableHandler() {
         this.selector.hideDropdown();
     }
 
-    private reloadDescriptorsOnApplicationChange() {
+    private reloadDescriptors() {
         if (this.selector) {
-            this.selector.loadDescriptors(this.liveEditModel.getSiteModel().getApplicationKeys());
+            this.selector.setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
+            this.selector.load();
         }
     }
 
@@ -105,35 +126,32 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         }
     }
 
-    setComponent(component: COMPONENT, descriptor?: Descriptor) {
-
-        super.setComponent(component);
-        this.selector.setDescriptor(descriptor);
+    private componentPropertyChangedHandler(event: ComponentPropertyChangedEvent) {
+        // Ensure displayed config form and selector option are removed when descriptor is removed
+        if (event.getPropertyName() === DescriptorBasedComponent.PROPERTY_DESCRIPTOR) {
+            if (!this.component.hasDescriptor()) {
+                this.setSelectorValue(null);
+            } else {
+                this.cleanFormView();
+            }
+        }
     }
 
-    protected abstract createGetDescriptorRequest(key: DescriptorKey): ResourceRequest<any, DESCRIPTOR>;
+    protected abstract createGetDescriptorRequest(key: DescriptorKey): ResourceRequest<DESCRIPTOR>;
 
     protected abstract createSelector(): ComponentDescriptorDropdown<DESCRIPTOR>;
 
     protected abstract getFormName(): string;
 
-    private setSelectorValue(descriptor: Descriptor, silent: boolean = true) {
-        if (silent) {
-            this.handleSelectorEvents = false;
-        }
-
+    private setSelectorValue(descriptor: Descriptor) {
         this.selector.setDescriptor(descriptor);
-        this.setupComponentForm(this.component, descriptor);
-
-        this.handleSelectorEvents = true;
+        this.setupComponentForm(descriptor);
     }
 
     setDescriptorBasedComponent(component: COMPONENT) {
         this.unregisterComponentListeners();
-
         this.setComponent(component);
         this.updateSelectorValue();
-
         this.registerComponentListeners();
     }
 
@@ -150,7 +168,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
                     if (this.isNotFoundError(reason)) {
                         this.setSelectorValue(null);
                     } else {
-                        api.DefaultErrorHandler.handle(reason);
+                        DefaultErrorHandler.handle(reason);
                     }
                 }).done();
             }
@@ -161,39 +179,51 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private initSelectorListeners() {
         this.selector.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
-            if (this.handleSelectorEvents) {
-                const descriptor: Descriptor = event.getOption().displayValue;
-                this.component.setDescriptor(descriptor);
-            }
+            const descriptor: Descriptor = event.getOption().displayValue;
+            this.component.setDescriptor(descriptor);
+            this.setupComponentForm(descriptor);
         });
     }
 
-    setupComponentForm(component: DescriptorBasedComponent, descriptor: Descriptor) {
+    private setupComponentForm(descriptor: Descriptor) {
+        this.cleanFormView();
+
+        if (!this.component || !descriptor) {
+            return;
+        }
+
+        const form: Form = descriptor.getConfig();
+        const config: PropertyTree = this.component.getConfig();
+        this.formView = new FormView(this.formContext, form, config.getRoot());
+        this.formView.setLazyRender(false);
+        this.appendChild(this.formView);
+        this.component.setDisableEventForwarding(true);
+        this.formView.layout().catch((reason: any) => {
+            DefaultErrorHandler.handle(reason);
+        }).finally(() => {
+            this.component.setDisableEventForwarding(false);
+        }).done();
+    }
+
+    private cleanFormView() {
         if (this.formView) {
             if (this.hasChild(this.formView)) {
                 this.removeChild(this.formView);
             }
             this.formView = null;
         }
-        if (!component || !descriptor) {
-            return;
-        }
-
-        let form = descriptor.getConfig();
-        let config = component.getConfig();
-        this.formView = new FormView(this.formContext, form, config.getRoot());
-        this.formView.setLazyRender(false);
-        this.appendChild(this.formView);
-        component.setDisableEventForwarding(true);
-        this.formView.layout().catch((reason: any) => {
-            api.DefaultErrorHandler.handle(reason);
-        }).finally(() => {
-            component.setDisableEventForwarding(false);
-        }).done();
     }
 
     cleanUp() {
         this.unregisterComponentListeners();
         this.component = null;
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered) => {
+            this.appendChild(this.form);
+
+            return rendered;
+        });
     }
 }

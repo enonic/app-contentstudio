@@ -1,15 +1,16 @@
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentTypeResourceRequest} from './ContentTypeResourceRequest';
-import ContentTypeName = api.schema.content.ContentTypeName;
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 export class GetMimeTypesByContentTypeNamesRequest
-    extends ContentTypeResourceRequest<String[], String[]> {
+    extends ContentTypeResourceRequest<String[]> {
 
     private names: ContentTypeName[];
 
     constructor(names: ContentTypeName[]) {
         super();
-        super.setMethod('GET');
         this.names = names;
+        this.addRequestPathElements('getMimeTypes');
     }
 
     getParams(): Object {
@@ -18,13 +19,7 @@ export class GetMimeTypesByContentTypeNamesRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'getMimeTypes');
-    }
-
-    sendAndParse(): wemQ.Promise<String[]> {
-        return this.send().then((response: api.rest.JsonResponse<String[]>) => {
-            return response.getJson();
-        });
+    protected parseResponse(response: JsonResponse<String[]>): String[] {
+        return response.getJson();
     }
 }

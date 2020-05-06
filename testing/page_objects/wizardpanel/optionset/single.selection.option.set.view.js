@@ -4,7 +4,7 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const xpath = {
-    container: "//div[contains(@id,'api.form.FormView')]//div[contains(@id,'FormOptionSetView') and descendant::div[text()='Single selection']]",
+    container: "//div[contains(@id,'FormView')]//div[contains(@id,'FormOptionSetView') and descendant::div[text()='Single selection']]",
     nameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='Name']]" + lib.TEXT_INPUT,
     addItemSetButton: "//button[contains(@id,'Button') and child::span[text()='Add My Item-set']]",
     removeItemSetOccurrenceButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "/a[@class='remove-button']",
@@ -30,10 +30,15 @@ class SingleSelectionOptionSet extends Page {
         return await this.pause(300);
     }
 
-    typeItemSetLabel(text, index) {
-        return this.findElements(xpath.labelInput).then(elems => {
-            return this.getBrowser().elementSendKeys(elems[index].ELEMENT, [text]);
-        })
+    async typeInLabelInput(text, index) {
+        let selector = xpath.container + "//div[contains(@id,'TextLine')]//input[contains(@name,'label')]";
+        if (typeof index === 'undefined') {
+            await this.typeTextInInput(selector, text);
+        } else {
+            let result = await this.findElements(selector);
+            await result[index].setValue(text);
+        }
+        return await this.pause(300);
     }
 
     async clickOnAddItemSetButton() {
@@ -43,11 +48,8 @@ class SingleSelectionOptionSet extends Page {
 
     async clickOnRemoveItemSetOccurrenceView(index) {
         let elems = await this.findElements(this.removeItemSetOccurrenceButton);
-        await this.getBrowser().elementClick(elems[index].ELEMENT);
+        await this.getBrowser().elementClick(elems[index].elementId);
         return await this.pause(500);
     }
 };
 module.exports = SingleSelectionOptionSet;
-
-
-

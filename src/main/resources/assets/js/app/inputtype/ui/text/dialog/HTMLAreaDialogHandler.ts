@@ -10,13 +10,13 @@ import {FindAndReplaceDialog} from './FindAndReplaceDialog';
 import {SpecialCharDialog} from './SpecialCharDialog';
 import {FullscreenDialog} from './FullscreenDialog';
 import {TableDialog} from './TableDialog';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 export class HTMLAreaDialogHandler {
 
-    private static modalDialog: ModalDialog;
-
     static createAndOpenDialog(event: CreateHtmlAreaDialogEvent): ModalDialog {
-        let modalDialog;
+        let modalDialog: ModalDialog;
 
         switch (event.getType()) {
         case HtmlAreaDialogType.ANCHOR:
@@ -48,25 +48,14 @@ export class HTMLAreaDialogHandler {
             break;
         }
 
-        if (modalDialog) {
-            this.modalDialog = modalDialog;
-            modalDialog.onHidden(() => {
-                this.modalDialog = null;
-            });
-        }
-
-        return this.modalDialog;
+        return modalDialog;
     }
 
-    static getOpenDialog(): ModalDialog {
-        return this.modalDialog;
-    }
-
-    private static openLinkDialog(config: eventInfo, content: api.content.ContentSummary): ModalDialog {
+    private static openLinkDialog(config: eventInfo, content: ContentSummary): ModalDialog {
         return this.openDialog(new LinkModalDialog(config, content));
     }
 
-    private static openImageDialog(config: eventInfo, content: api.content.ContentSummary): ModalDialog {
+    private static openImageDialog(config: eventInfo, content: ContentSummary): ModalDialog {
         return this.openDialog(new ImageModalDialog(config, content));
     }
 
@@ -74,8 +63,8 @@ export class HTMLAreaDialogHandler {
         return this.openDialog(new AnchorModalDialog(config));
     }
 
-    private static openMacroDialog(config: any, content: api.content.ContentSummary,
-                                   applicationKeys: api.application.ApplicationKey[]): ModalDialog {
+    private static openMacroDialog(config: any, content: ContentSummary,
+                                   applicationKeys: ApplicationKey[]): ModalDialog {
         return this.openDialog(new MacroModalDialog(config, content, applicationKeys));
     }
 
@@ -92,26 +81,7 @@ export class HTMLAreaDialogHandler {
     }
 
     private static openFullscreenDialog(config: any): ModalDialog {
-        const fullscreenDialog = new FullscreenDialog(config);
-
-        const createHtmlAreaDialogHandler = () => {
-            if (HTMLAreaDialogHandler.getOpenDialog() === fullscreenDialog) {
-                return;
-            }
-            fullscreenDialog.mask();
-
-            HTMLAreaDialogHandler.getOpenDialog().onRemoved(() => {
-                fullscreenDialog.unmask();
-            });
-        };
-
-        CreateHtmlAreaDialogEvent.on(createHtmlAreaDialogHandler);
-
-        fullscreenDialog.onRemoved(() => {
-            CreateHtmlAreaDialogEvent.un(createHtmlAreaDialogHandler);
-        });
-
-        return this.openDialog(fullscreenDialog);
+        return this.openDialog(new FullscreenDialog(config));
     }
 
     private static openTableDialog(config: eventInfo): ModalDialog {

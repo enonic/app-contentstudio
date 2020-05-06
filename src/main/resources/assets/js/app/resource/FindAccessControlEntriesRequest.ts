@@ -1,13 +1,14 @@
-import Principal = api.security.Principal;
-import PrincipalListJson = api.security.PrincipalListJson;
-import PrincipalJson = api.security.PrincipalJson;
-import PrincipalType = api.security.PrincipalType;
-import IdProviderKey = api.security.IdProviderKey;
-import SecurityResourceRequest = api.security.SecurityResourceRequest;
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {Principal} from 'lib-admin-ui/security/Principal';
+import {PrincipalListJson} from 'lib-admin-ui/security/PrincipalListJson';
+import {PrincipalJson} from 'lib-admin-ui/security/PrincipalJson';
+import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
+import {IdProviderKey} from 'lib-admin-ui/security/IdProviderKey';
+import {SecurityResourceRequest} from 'lib-admin-ui/security/SecurityResourceRequest';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 
 export class FindAccessControlEntriesRequest
-    extends SecurityResourceRequest<PrincipalListJson, AccessControlEntry[]> {
+    extends SecurityResourceRequest<AccessControlEntry[]> {
 
     private allowedTypes: PrincipalType[];
     private searchQuery: string;
@@ -15,6 +16,7 @@ export class FindAccessControlEntriesRequest
 
     constructor() {
         super();
+        this.addRequestPathElements('principals');
     }
 
     getParams(): Object {
@@ -23,18 +25,6 @@ export class FindAccessControlEntriesRequest
             query: this.searchQuery,
             idProviderKey: this.idProviderKey ? this.idProviderKey.toString() : undefined
         };
-    }
-
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'principals');
-    }
-
-    sendAndParse(): wemQ.Promise<AccessControlEntry[]> {
-        return this.send().then((response: api.rest.JsonResponse<PrincipalListJson>) => {
-            return response.getResult().principals.map((principalJson: PrincipalJson) => {
-                return new AccessControlEntry(Principal.fromJson(principalJson));
-            });
-        });
     }
 
     private enumToStrings(types: PrincipalType[]): string[] {
@@ -56,5 +46,11 @@ export class FindAccessControlEntriesRequest
     setSearchQuery(query: string): FindAccessControlEntriesRequest {
         this.searchQuery = query;
         return this;
+    }
+
+    protected parseResponse(response: JsonResponse<PrincipalListJson>): AccessControlEntry[] {
+        return response.getResult().principals.map((principalJson: PrincipalJson) => {
+            return new AccessControlEntry(Principal.fromJson(principalJson));
+        });
     }
 }

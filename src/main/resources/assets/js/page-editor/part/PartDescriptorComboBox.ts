@@ -1,31 +1,31 @@
-import RichComboBox = api.ui.selector.combobox.RichComboBox;
-import RichComboBoxBuilder = api.ui.selector.combobox.RichComboBoxBuilder;
-import Option = api.ui.selector.Option;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import BaseSelectedOptionView = api.ui.selector.combobox.BaseSelectedOptionView;
-import BaseSelectedOptionsView = api.ui.selector.combobox.BaseSelectedOptionsView;
-import DescriptorKey = api.content.page.DescriptorKey;
-import ApplicationKey = api.application.ApplicationKey;
-import PartDescriptor = api.content.page.region.PartDescriptor;
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
 import {PartDescriptorLoader} from '../../app/wizard/page/contextwindow/inspect/region/PartDescriptorLoader';
 import {DescriptorViewer} from '../../app/wizard/page/contextwindow/inspect/DescriptorViewer';
+import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {AEl} from 'lib-admin-ui/dom/AEl';
+import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 
 export class PartDescriptorComboBox
     extends RichComboBox<PartDescriptor> {
 
     constructor() {
-        super(new RichComboBoxBuilder<PartDescriptor>()
-            .setIdentifierMethod('getKey')
-            .setOptionDisplayValueViewer(new DescriptorViewer<PartDescriptor>())
-            .setSelectedOptionsView(new PartDescriptorSelectedOptionsView())
-            .setLoader(new PartDescriptorLoader())
-            .setMaximumOccurrences(1).setNextInputFocusWhenMaxReached(false)
-            .setNoOptionsText('No parts available'));
+        super(new PartDescriptorComboBoxBuilder());
     }
 
-    loadDescriptors(applicationKeys: ApplicationKey[]) {
+    setApplicationKeys(applicationKeys: ApplicationKey[]) {
         (<PartDescriptorLoader>this.getLoader()).setApplicationKeys(applicationKeys);
-        this.getLoader().load();
     }
 
     getDescriptor(descriptorKey: DescriptorKey): PartDescriptor {
@@ -74,14 +74,15 @@ export class PartDescriptorSelectedOptionView
         this.addClass('part-descriptor-selected-option-view');
     }
 
-    doRender(): wemQ.Promise<boolean> {
+    doRender(): Q.Promise<boolean> {
 
-        let namesAndIconView = new api.app.NamesAndIconViewBuilder().setSize(api.app.NamesAndIconViewSize.small).build();
-        namesAndIconView.setIconClass(api.StyleHelper.getCommonIconCls('part') + ' icon-medium')
+        let namesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
+        namesAndIconView.setIconClass(StyleHelper.getCommonIconCls('part') + ' icon-medium')
+            .setIconUrl(this.descriptor.getIcon())
             .setMainName(this.descriptor.getDisplayName())
             .setSubName(this.descriptor.getKey().toString());
 
-        let removeButtonEl = new api.dom.AEl('remove');
+        let removeButtonEl = new AEl('remove');
         removeButtonEl.onClicked((event: MouseEvent) => {
             this.notifyRemoveClicked();
 
@@ -90,8 +91,26 @@ export class PartDescriptorSelectedOptionView
             return false;
         });
 
-        this.appendChildren<api.dom.Element>(removeButtonEl, namesAndIconView);
+        this.appendChildren<Element>(removeButtonEl, namesAndIconView);
 
-        return wemQ(true);
+        return Q(true);
     }
+}
+
+export class PartDescriptorComboBoxBuilder
+    extends RichComboBoxBuilder<PartDescriptor> {
+
+    loader: PartDescriptorLoader = new PartDescriptorLoader();
+
+    maximumOccurrences: number = 1;
+
+    identifierMethod: string = 'getKey';
+
+    optionDisplayValueViewer: Viewer<PartDescriptor> = new DescriptorViewer<PartDescriptor>();
+
+    selectedOptionsView: SelectedOptionsView<PartDescriptor> = new PartDescriptorSelectedOptionsView();
+
+    noOptionsText: string = 'No parts available';
+
+    nextInputFocusWhenMaxReached: boolean = true;
 }

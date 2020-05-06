@@ -1,3 +1,8 @@
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {PageComponentsItemViewer} from './PageComponentsItemViewer';
 import {PageComponentsGridDragHandler} from './PageComponentsGridDragHandler';
 import {ItemView} from '../../page-editor/ItemView';
@@ -11,18 +16,20 @@ import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView'
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {PartItemType} from '../../page-editor/part/PartItemType';
-import {PartComponentView} from '../../page-editor/part/PartComponentView';
 import {ComponentView} from '../../page-editor/ComponentView';
-import {GetPartDescriptorByKeyRequest} from './page/contextwindow/inspect/region/GetPartDescriptorByKeyRequest';
-import {GetLayoutDescriptorByKeyRequest} from './page/contextwindow/inspect/region/GetLayoutDescriptorByKeyRequest';
 import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
-import GridColumnBuilder = api.ui.grid.GridColumnBuilder;
-import GridOptionsBuilder = api.ui.grid.GridOptionsBuilder;
-import TreeGrid = api.ui.treegrid.TreeGrid;
-import TreeNode = api.ui.treegrid.TreeNode;
-import TreeGridBuilder = api.ui.treegrid.TreeGridBuilder;
-import i18n = api.util.i18n;
-import Descriptor = api.content.page.Descriptor;
+import {GetPartDescriptorsByApplicationsRequest} from './page/contextwindow/inspect/region/GetPartDescriptorsByApplicationsRequest';
+import {GetLayoutDescriptorsByApplicationsRequest} from './page/contextwindow/inspect/region/GetLayoutDescriptorsByApplicationsRequest';
+import {GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
+import {GridOptionsBuilder} from 'lib-admin-ui/ui/grid/GridOptions';
+import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
+import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
+import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemView> {
@@ -31,45 +38,52 @@ export class PageComponentsTreeGrid
     private content: Content;
 
     constructor(content: Content, pageView: PageView) {
-        super(new TreeGridBuilder<ItemView>().setColumns([
-            new GridColumnBuilder<TreeNode<ItemView>>()
-                .setName(i18n('field.name'))
-                .setId('displayName')
-                .setField('displayName')
-                .setFormatter(PageComponentsTreeGrid.nameFormatter.bind(null, content))
-                .setMinWidth(295)
-                .setBehavior('selectAndMove')
-                .setResizable(false)
-                .build(),
-            new GridColumnBuilder<TreeNode<ContentSummaryAndCompareStatus>>()
-                .setName(i18n('field.menu'))
-                .setId('menu')
-                .setMinWidth(45)
-                .setMaxWidth(45)
-                .setField('menu')
-                .setCssClass('menu-cell')
-                .setResizable(false)
-                .setFormatter(PageComponentsTreeGrid.menuFormatter).build()
-        ]).setOptions(
-            new GridOptionsBuilder<TreeNode<ItemView>>()
-                .setAutoHeight(true)
-                .setShowHeaderRow(false)
-                .setHideColumnHeaders(true)
-                .setForceFitColumns(true)
-                .setFullWidthRows(true)
-                .setHeight('initial')
-                .setWidth('340')
-                // It is necessary to turn off the library key handling. It may cause
-                // the conflicts with Mousetrap, which leads to skipping the key events
-                // Do not set to true, if you are not fully aware of the result
-                .setEnableCellNavigation(false)
-                .setSelectedCellCssClass('selected cell')
-                .setCheckableRows(false)
-                .disableMultipleSelection(true)
-                .setMultiSelect(false)
-                .setRowHeight(45)
-                .setDragAndDrop(true).build()
-        ).setShowToolbar(false).setAutoLoad(true).setExpandAll(true).prependClasses('components-grid'));
+        super(new TreeGridBuilder<ItemView>()
+            .setColumns([
+                new GridColumnBuilder<TreeNode<ItemView>>()
+                    .setName(i18n('field.name'))
+                    .setId('displayName')
+                    .setField('displayName')
+                    .setFormatter(PageComponentsTreeGrid.nameFormatter.bind(null, content))
+                    .setMinWidth(250)
+                    .setBehavior('selectAndMove')
+                    .setResizable(true)
+                    .build(),
+                new GridColumnBuilder<TreeNode<ContentSummaryAndCompareStatus>>()
+                    .setName(i18n('field.menu'))
+                    .setId('menu')
+                    .setMinWidth(30)
+                    .setMaxWidth(45)
+                    .setField('menu')
+                    .setCssClass('menu-cell')
+                    .setResizable(false)
+                    .setFormatter(PageComponentsTreeGrid.menuFormatter).build()
+            ])
+            .setOptions(
+                new GridOptionsBuilder<TreeNode<ItemView>>()
+                    .setAutoHeight(true)
+                    .setShowHeaderRow(false)
+                    .setHideColumnHeaders(true)
+                    .setForceFitColumns(true)
+                    .setFullWidthRows(true)
+                    .setHeight('initial')
+                    .setWidth('340')
+                    // It is necessary to turn off the library key handling. It may cause
+                    // the conflicts with Mousetrap, which leads to skipping the key events
+                    // Do not set to true, if you are not fully aware of the result
+                    .setEnableCellNavigation(false)
+                    .setSelectedCellCssClass('selected cell')
+                    .setCheckableRows(false)
+                    .disableMultipleSelection(true)
+                    .setMultiSelect(false)
+                    .setRowHeight(45)
+                    .setDragAndDrop(true).build()
+            )
+            .setShowToolbar(false)
+            .setAutoLoad(true)
+            .setExpandFn((item: ItemView) => !item.getType().equals(LayoutItemType.get()))
+            .prependClasses('components-grid')
+        );
 
         this.content = content;
         this.pageView = pageView;
@@ -78,17 +92,42 @@ export class PageComponentsTreeGrid
         (new PageComponentsGridDragHandler(this));
     }
 
+    dataToTreeNode(data: ItemView, parent: TreeNode<ItemView>, expandAllowed?: boolean): TreeNode<ItemView> {
+        const node: TreeNode<ItemView> = super.dataToTreeNode(data, parent, expandAllowed);
+
+        if (ObjectHelper.iFrameSafeInstanceOf(data.getType(), FragmentItemType)) {
+            this.updateTreeNodeWithFragmentsOnLoad(node);
+        }
+
+        return node;
+    }
+
+    private updateTreeNodeWithFragmentsOnLoad(node: TreeNode<ItemView>) {
+        const fragmentView: FragmentComponentView = <FragmentComponentView>node.getData();
+
+        if (fragmentView.isLoaded()) {
+            return;
+        }
+
+        const loadedListener = () => {
+            this.invalidateNodes([node]);
+            fragmentView.unFragmentContentLoaded(loadedListener);
+        };
+
+        fragmentView.onFragmentContentLoaded(loadedListener);
+    }
+
     toggleCompact(flag: boolean) {
         const options = this.getOptions().setRowHeight(flag ? 30 : 45);
         this.getGrid().setOptions(options);
         this.invalidate();
     }
 
-    queryScrollable(): api.dom.Element {
+    queryScrollable(): Element {
         return this;
     }
 
-    setPageView(pageView: PageView): wemQ.Promise<void> {
+    setPageView(pageView: PageView): Q.Promise<void> {
         this.pageView = pageView;
         return this.reload();
     }
@@ -101,7 +140,7 @@ export class PageComponentsTreeGrid
 
             viewer.setObject(data);
             node.setViewer('name', viewer);
-            if (!(api.ObjectHelper.iFrameSafeInstanceOf(data, RegionView) || api.ObjectHelper.iFrameSafeInstanceOf(data, PageView))) {
+            if (!(ObjectHelper.iFrameSafeInstanceOf(data, RegionView) || ObjectHelper.iFrameSafeInstanceOf(data, PageView))) {
                 viewer.addClass('draggable');
             }
         }
@@ -110,7 +149,7 @@ export class PageComponentsTreeGrid
 
     setInvalid(dataIds: string[]) {
         let root = this.getRoot().getCurrentRoot();
-        let stylesHash: Slick.CellCssStylesHash = {};
+        let stylesHash = {};
 
         dataIds.forEach((dataId) => {
             let node = root.findNode(dataId);
@@ -132,62 +171,85 @@ export class PageComponentsTreeGrid
 
     fetch(node: TreeNode<ItemView>, dataId?: string): Q.Promise<ItemView> {
         let itemViewId = dataId ? new ItemViewId(parseInt(dataId, 10)) : node.getData().getItemId();
-        return wemQ(this.pageView.getItemViewById(itemViewId));
+        return Q(this.pageView.getItemViewById(itemViewId));
     }
 
-    fetchRoot(): wemQ.Promise<ItemView[]> {
+    fetchRoot(): Q.Promise<ItemView[]> {
         if (this.pageView.getFragmentView()) {
-            return wemQ([this.pageView.getFragmentView()]);
+            return Q([this.pageView.getFragmentView()]);
         } else {
-            return wemQ([this.pageView]);
+            return Q([this.pageView]);
         }
     }
 
     fetchChildren(parentNode: TreeNode<ItemView>): Q.Promise<ItemView[]> {
-        return wemQ.all(this.getDataChildren(parentNode.getData()).map(this.fetchDescriptions)).then(allItems => {
+        return this.fetchDescriptions(this.getDataChildren(parentNode.getData())).then(allItems => {
             return allItems;
         });
     }
 
-    fetchDescriptions(itemView: ItemView): wemQ.Promise<ItemView> {
+    fetchDescriptions(itemViews: ItemView[]): Q.Promise<ItemView[]> {
 
-        const isPartItemType: boolean = PartItemType.get().equals(itemView.getType());
-        const isLayoutItemType: boolean = LayoutItemType.get().equals(itemView.getType());
+        const partKeys: ApplicationKey[] = [];
+        const layoutKeys: ApplicationKey[] = [];
+        const componentMap: { [descKey: string]: DescriptorBasedComponent[] } = {};
 
-        if (!(isPartItemType || isLayoutItemType)) {
-            return wemQ(itemView);
+        itemViews.forEach((itemView) => {
+            const isPartItemType: boolean = PartItemType.get().equals(itemView.getType());
+            const isLayoutItemType: boolean = LayoutItemType.get().equals(itemView.getType());
+            if (!isLayoutItemType && !isPartItemType) {
+                return;
+            }
+
+            const component: DescriptorBasedComponent = (<ComponentView<any>>itemView).getComponent();
+            if (!component || !component.hasDescriptor()) {
+                return;
+            }
+
+            const descKey = component.getDescriptorKey();
+            if (componentMap[descKey.toString()]) {
+                componentMap[descKey.toString()].push(component);
+            } else {
+                componentMap[descKey.toString()] = [component];
+            }
+
+            const appKey = descKey.getApplicationKey();
+            if (isLayoutItemType) {
+                layoutKeys.push(appKey);
+            } else {
+                partKeys.push(appKey);
+            }
+        });
+
+        const requests = [];
+        if (partKeys.length > 0) {
+            requests.push(new GetPartDescriptorsByApplicationsRequest(partKeys).sendAndParse());
         }
-
-        const component: DescriptorBasedComponent = (<ComponentView<any>> itemView).getComponent();
-
-        if (!component || !component.hasDescriptor()) {
-            return wemQ(itemView);
+        if (layoutKeys.length > 0) {
+            requests.push(new GetLayoutDescriptorsByApplicationsRequest(layoutKeys).sendAndParse());
         }
-
-        let request;
-        if (isPartItemType) {
-            request = new GetPartDescriptorByKeyRequest((<PartComponentView> itemView).getComponent().getDescriptorKey());
-        }
-        if (isLayoutItemType) {
-            request = new GetLayoutDescriptorByKeyRequest((<LayoutComponentView> itemView).getComponent().getDescriptorKey());
-        }
-
-        if (!!request) {
-            request.sendAndParse().then((receivedDescriptor: Descriptor) => {
-                component.setDescription(receivedDescriptor.getDescription());
-
-                return itemView;
+        return Q.all(requests).then((descriptorsArray) => {
+            descriptorsArray.forEach((descriptors: Descriptor[]) => {
+                descriptors.forEach(desc => {
+                    const components = componentMap[desc.getKey().toString()];
+                    if (components) {
+                        components.forEach(component => {
+                            component.setDescription(desc.getDescription());
+                            component.setIcon(desc.getIcon());
+                        });
+                    }
+                });
             });
-        }
-
-        return wemQ(itemView);
+        }).then(() => {
+            return itemViews;
+        });
     }
 
     private getDataChildren(data: ItemView): ItemView[] {
         let children = [];
         let dataType = data.getType();
         if (PageItemType.get().equals(dataType)) {
-            let pageView = <PageView> data;
+            let pageView = <PageView>data;
             children = pageView.getRegions();
             if (children.length === 0) {
                 let fragmentRoot = pageView.getFragmentView();
@@ -196,20 +258,20 @@ export class PageComponentsTreeGrid
                 }
             }
         } else if (RegionItemType.get().equals(dataType)) {
-            let regionView = <RegionView> data;
+            let regionView = <RegionView>data;
             children = regionView.getComponentViews();
         } else if (LayoutItemType.get().equals(dataType)) {
-            let layoutView = <LayoutComponentView> data;
+            let layoutView = <LayoutComponentView>data;
             children = layoutView.getRegions();
         }
         return children;
     }
 
     public static menuFormatter(row: number, cell: number, value: any, columnDef: any, node: TreeNode<ContentSummaryAndCompareStatus>) {
-        let wrapper = new api.dom.SpanEl();
+        let wrapper = new SpanEl();
 
-        let icon = new api.dom.DivEl('menu-icon icon-menu2');
-        wrapper.getEl().setInnerHtml(icon.toString(), false);
+        let icon = new DivEl('menu-icon icon-menu2');
+        wrapper.appendChild(icon);
         return wrapper.toString();
     }
 

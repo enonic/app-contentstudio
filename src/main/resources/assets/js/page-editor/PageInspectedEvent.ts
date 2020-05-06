@@ -1,5 +1,5 @@
-import './../api.ts';
-import Event = api.event.Event;
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 
 export class PageInspectedEvent
     extends Event {
@@ -9,10 +9,10 @@ export class PageInspectedEvent
     }
 
     static on(handler: (event: PageInspectedEvent) => void, contextWindow: Window = window) {
-        Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler: (event: PageInspectedEvent) => void, contextWindow: Window = window) {
-        Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

@@ -1,10 +1,16 @@
-import ContentPath = api.content.ContentPath;
-import TaskIdJson = api.task.TaskIdJson;
-import TaskState = api.task.TaskState;
-import TaskId = api.task.TaskId;
+import * as Q from 'q';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
+import {TaskState} from 'lib-admin-ui/task/TaskState';
+import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {GetTaskInfoRequest} from 'lib-admin-ui/task/GetTaskInfoRequest';
+import {TaskInfo} from 'lib-admin-ui/task/TaskInfo';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
-export class DeleteContentRequest extends ContentResourceRequest<TaskIdJson, TaskId> {
+export class DeleteContentRequest extends ContentResourceRequest<TaskId> {
 
     private contentPaths: ContentPath[] = [];
 
@@ -13,10 +19,11 @@ export class DeleteContentRequest extends ContentResourceRequest<TaskIdJson, Tas
     constructor(contentPath?: ContentPath) {
         super();
         this.setHeavyOperation(true);
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         if (contentPath) {
             this.addContentPath(contentPath);
         }
+        this.addRequestPathElements('delete');
     }
 
     setContentPaths(contentPaths: ContentPath[]): DeleteContentRequest {
@@ -43,23 +50,17 @@ export class DeleteContentRequest extends ContentResourceRequest<TaskIdJson, Tas
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'delete');
+    protected parseResponse(response: JsonResponse<TaskIdJson>): TaskId {
+        return TaskId.fromJson(response.getResult());
     }
 
-    sendAndParse(): wemQ.Promise<api.task.TaskId> {
-        return this.send().then((response: api.rest.JsonResponse<api.task.TaskIdJson>) => {
-            return api.task.TaskId.fromJson(response.getResult());
-        });
-    }
-
-    sendAndParseWithPolling(): wemQ.Promise<string> {
-        return this.send().then((response: api.rest.JsonResponse<api.task.TaskIdJson>) => {
+    sendAndParseWithPolling(): Q.Promise<string> {
+        return this.send().then((response: JsonResponse<TaskIdJson>) => {
             const deferred = Q.defer<string>();
-            const taskId: api.task.TaskId = api.task.TaskId.fromJson(response.getResult());
+            const taskId: TaskId = TaskId.fromJson(response.getResult());
             const poll = (interval: number = 500) => {
                 setTimeout(() => {
-                    new api.task.GetTaskInfoRequest(taskId).sendAndParse().then((task: api.task.TaskInfo) => {
+                    new GetTaskInfoRequest(taskId).sendAndParse().then((task: TaskInfo) => {
                         let state = task.getState();
                         if (!task) {
                             deferred.reject('Task expired');
@@ -79,7 +80,7 @@ export class DeleteContentRequest extends ContentResourceRequest<TaskIdJson, Tas
                             poll();
                         }
                     }).catch((reason: any) => {
-                        api.DefaultErrorHandler.handle(reason);
+                        DefaultErrorHandler.handle(reason);
                         deferred.reject(reason);
                     }).done();
 

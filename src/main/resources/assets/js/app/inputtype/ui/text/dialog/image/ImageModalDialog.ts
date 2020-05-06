@@ -1,18 +1,23 @@
-import FormItem = api.ui.form.FormItem;
-import Validators = api.ui.form.Validators;
-import Action = api.ui.Action;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import ContentSummary = api.content.ContentSummary;
-import eventInfo = CKEDITOR.eventInfo;
-import ContentId = api.content.ContentId;
-import AppHelper = api.util.AppHelper;
-import ActionButton = api.ui.button.ActionButton;
-import i18n = api.util.i18n;
-import UploadedEvent = api.ui.uploader.UploadedEvent;
-import UploadProgressEvent = api.ui.uploader.UploadProgressEvent;
-import InputEl = api.dom.InputEl;
-import DivEl = api.dom.DivEl;
-import SpanEl = api.dom.SpanEl;
+import * as $ from 'jquery';
+import * as Q from 'q';
+import {Element} from 'lib-admin-ui/dom/Element';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
+import {Validators} from 'lib-admin-ui/ui/form/Validators';
+import {Action} from 'lib-admin-ui/ui/Action';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
+import {UploadProgressEvent} from 'lib-admin-ui/ui/uploader/UploadProgressEvent';
+import {InputEl} from 'lib-admin-ui/dom/InputEl';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {Content} from '../../../../../content/Content';
 import {OverrideNativeDialog} from './../OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './../ModalDialog';
@@ -31,6 +36,17 @@ import {ImageUrlResolver} from '../../../../../util/ImageUrlResolver';
 import {StyleHelper} from '../../styles/StyleHelper';
 import {HtmlEditor} from '../../HtmlEditor';
 import {ImageHelper} from '../../../../../util/ImageHelper';
+import {ProgressBar} from 'lib-admin-ui/ui/ProgressBar';
+import {FigureEl} from 'lib-admin-ui/dom/FigureEl';
+import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
+import {DropzoneContainer} from 'lib-admin-ui/ui/uploader/UploaderEl';
+import {IFrameEl} from 'lib-admin-ui/dom/IFrameEl';
+import {Toolbar} from 'lib-admin-ui/ui/toolbar/Toolbar';
+import {Checkbox} from 'lib-admin-ui/ui/Checkbox';
+import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {LinkEl} from 'lib-admin-ui/dom/LinkEl';
+import eventInfo = CKEDITOR.eventInfo;
 
 export class ImageModalDialog
     extends OverrideNativeDialog {
@@ -40,24 +56,24 @@ export class ImageModalDialog
     private imageAltTextField: FormItem;
     private imageUploaderEl: ImageUploaderEl;
     private presetImageEl: HTMLElement;
-    private content: api.content.ContentSummary;
+    private content: ContentSummary;
     private imageSelector: ImageContentComboBox;
-    private progress: api.ui.ProgressBar;
+    private progress: ProgressBar;
     private error: DivEl;
-    private figure: api.dom.FigureEl;
+    private figure: FigureEl;
     private imageToolbar: ImageDialogToolbar;
     private imagePreviewScrollHandler: ImagePreviewScrollHandler;
-    private imageLoadMask: api.ui.mask.LoadMask;
-    private dropzoneContainer: api.ui.uploader.DropzoneContainer;
+    private imageLoadMask: LoadMask;
+    private dropzoneContainer: DropzoneContainer;
     private imageSelectorFormItem: FormItem;
-    private previewFrame: api.dom.IFrameEl;
+    private previewFrame: IFrameEl;
     private scrollNavigationWrapperDiv: DivEl;
     private editorWidth: number;
     protected config: ImageModalDialogConfig;
 
     static readonly defaultStyles: any = [StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS];
 
-    constructor(config: eventInfo, content: api.content.ContentSummary) {
+    constructor(config: eventInfo, content: ContentSummary) {
         super(<ImageModalDialogConfig>{
             editor: config.editor,
             dialog: config.data,
@@ -79,9 +95,12 @@ export class ImageModalDialog
 
         this.editorWidth = this.config.editorWidth;
         this.content = this.config.content;
-        this.figure = new api.dom.FigureEl();
+        this.figure = new FigureEl();
+        this.imageUploaderEl = this.createImageUploader();
+        this.createImagePreviewContainer();
+        this.imageLoadMask = new LoadMask(this.imagePreviewContainer);
         this.initPresetImage();
-        this.setSubmitAction(new api.ui.Action(!!this.presetImageEl ? 'Update' : 'Insert'));
+        this.setSubmitAction(new Action(!!this.presetImageEl ? 'Update' : 'Insert'));
     }
 
     protected initListeners() {
@@ -102,6 +121,11 @@ export class ImageModalDialog
                 this.updateEditorElements();
                 this.close();
             }
+        });
+
+        this.imageSelectorFormItem.onRendered(() => {
+            this.addUploaderAndPreviewControls();
+            this.setElementToFocusOnShow(this.imageSelectorFormItem.getInput());
         });
     }
 
@@ -139,8 +163,8 @@ export class ImageModalDialog
         const caption: string = !!this.ckeOriginalDialog.getSelectedElement()
                                 ? this.ckeOriginalDialog.getSelectedElement().getText()
                                 : '';
-        (<api.dom.InputEl>this.imageCaptionField.getInput()).setValue(caption);
-        (<api.dom.InputEl>this.imageAltTextField.getInput()).setValue(this.getOriginalAltTextElem().getValue());
+        (<InputEl>this.imageCaptionField.getInput()).setValue(caption);
+        (<InputEl>this.imageAltTextField.getInput()).setValue(this.getOriginalAltTextElem().getValue());
     }
 
     private presetImage(presetStyles: string) {
@@ -152,7 +176,7 @@ export class ImageModalDialog
             this.imageSelectorFormItem.addClass('selected-item-preview');
         }).catch((reason: any) => {
             this.presetImageEl = null;
-            api.DefaultErrorHandler.handle(reason);
+            DefaultErrorHandler.handle(reason);
         }).done();
     }
 
@@ -174,11 +198,6 @@ export class ImageModalDialog
 
     protected getMainFormItems(): FormItem[] {
         this.imageSelectorFormItem = this.createImageSelector('imageId');
-
-        this.imageSelectorFormItem.onRendered(() => {
-            this.addUploaderAndPreviewControls();
-            this.setElementToFocusOnShow(this.imageSelectorFormItem.getInput());
-        } );
 
         this.imageCaptionField = this.createFormItem(new ModalDialogFormItemBuilder('caption', i18n('dialog.image.formitem.caption')));
         this.imageAltTextField = this.createFormItem(new ModalDialogFormItemBuilder('altText', i18n('dialog.image.formitem.alttext')));
@@ -222,7 +241,7 @@ export class ImageModalDialog
             new GetContentByIdRequest(imageSelectorItem.getContent().getContentId()).sendAndParse().then((content: Content) => {
                 this.setAltTextFieldValue(ImageHelper.getImageAltText(content));
                 this.setCaptionFieldValue(ImageHelper.getImageCaption(content));
-            }).catch(api.DefaultErrorHandler.handle).done();
+            }).catch(DefaultErrorHandler.handle).done();
         });
 
         imageSelectorComboBox.onOptionDeselected(() => {
@@ -237,7 +256,7 @@ export class ImageModalDialog
             this.imageUploaderEl.show();
             this.imagePreviewScrollHandler.toggleScrollButtons();
             this.figure.getEl().removeAttribute('style');
-            api.ui.responsive.ResponsiveManager.fireResizeEvent();
+            ResponsiveManager.fireResizeEvent();
         });
 
         return formItem;
@@ -245,12 +264,9 @@ export class ImageModalDialog
 
     private addUploaderAndPreviewControls() {
         const imageSelectorContainer = this.imageSelectorFormItem.getInput().getParentElement();
-        this.imageUploaderEl = this.createImageUploader();
 
         imageSelectorContainer.appendChild(this.imageUploaderEl);
         this.initDragAndDropUploaderEvents();
-
-        this.createImagePreviewContainer();
 
         this.scrollNavigationWrapperDiv = new DivEl('preview-panel-scroll-navigation-wrapper');
         const scrollBarWrapperDiv = new DivEl('preview-panel-scrollbar-wrapper');
@@ -262,11 +278,9 @@ export class ImageModalDialog
 
         this.imagePreviewScrollHandler = new ImagePreviewScrollHandler(this.imagePreviewContainer);
 
-        this.imageLoadMask = new api.ui.mask.LoadMask(this.imagePreviewContainer);
+        this.imagePreviewContainer.appendChild(<Element>this.imageLoadMask);
 
-        this.imagePreviewContainer.appendChild(<api.dom.Element>this.imageLoadMask);
-
-        api.ui.responsive.ResponsiveManager.onAvailableSizeChanged(this, () => {
+        ResponsiveManager.onAvailableSizeChanged(this, () => {
             this.imagePreviewScrollHandler.toggleScrollButtons();
             this.imagePreviewScrollHandler.setMarginRight();
         });
@@ -274,15 +288,14 @@ export class ImageModalDialog
 
     private createPreviewFrame() {
         const appendStylesheet = (head, cssPath) => {
-            const linkEl = new api.dom.LinkEl(cssPath, 'stylesheet');
-            linkEl.getEl().setAttribute('type', 'text/css');
+            const linkEl = new LinkEl(cssPath);
             head.appendChild(linkEl.getHTMLElement());
         };
         const injectCssIntoFrame = (head) => {
             Styles.getCssPaths(this.content.getId()).forEach(cssPath => appendStylesheet(head, cssPath));
         };
 
-        this.previewFrame = new api.dom.IFrameEl('preview-frame');
+        this.previewFrame = new IFrameEl('preview-frame');
 
         this.imagePreviewContainer.insertChild(this.previewFrame, 0);
 
@@ -292,7 +305,7 @@ export class ImageModalDialog
 
                 const frameDocument = this.previewFrame.getHTMLElement()['contentDocument'];
                 const frameBody = frameDocument.getElementsByTagName('body')[0];
-                const frameBodyEl = new api.dom.Body(false, frameBody);
+                const frameBodyEl = new Body(false, frameBody);
                 frameBodyEl.setClass('preview-frame-body');
 
                 frameBodyEl.appendChild(this.figure);
@@ -337,9 +350,9 @@ export class ImageModalDialog
 
             this.imageToolbar = new ImageDialogToolbar(this.figure, this.content.getId());
             this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
-            this.imageToolbar.onPreviewSizeChanged(() => setTimeout(this.adjustPreviewFrameHeight(), 100));
+            this.imageToolbar.onPreviewSizeChanged(() => setTimeout(() => this.adjustPreviewFrameHeight(), 100));
 
-            wemjq(this.imageToolbar.getHTMLElement()).insertBefore(this.scrollNavigationWrapperDiv.getHTMLElement());
+            $(this.imageToolbar.getHTMLElement()).insertBefore(this.scrollNavigationWrapperDiv.getHTMLElement());
 
             image.unLoaded(onImageFirstLoad);
         };
@@ -351,7 +364,7 @@ export class ImageModalDialog
             this.adjustPreviewFrameHeight();
             this.imageLoadMask.hide();
 
-            api.ui.responsive.ResponsiveManager.fireResizeEvent();
+            ResponsiveManager.fireResizeEvent();
         });
 
         this.figure.setImage(image);
@@ -367,7 +380,8 @@ export class ImageModalDialog
         const isOriginalImage = style ? StyleHelper.isOriginalImage(style.getName()) : false;
         const imgUrlResolver = new ImageUrlResolver()
             .setContentId(imageContent.getContentId())
-            .setTimestamp(imageContent.getModifiedTime());
+            .setTimestamp(imageContent.getModifiedTime())
+            .setScaleWidth(true);
 
         if (size && !isOriginalImage) {
             imgUrlResolver.setSize(size);
@@ -391,17 +405,17 @@ export class ImageModalDialog
         let imgSrcAttr = this.presetImageEl.getAttribute('src');
 
         const src = imgSrcAttr.replace(/&amp;/g, '&');
-        const params = api.util.UriHelper.decodeUrlParams(src);
+        const params = UriHelper.decodeUrlParams(src);
         if (params.size) {
-            const plainUrl = api.util.UriHelper.trimUrlParams(src);
+            const plainUrl = UriHelper.trimUrlParams(src);
             params.size = this.imagePreviewContainer.getEl().getWidth().toString();
-            imgSrcAttr = api.util.UriHelper.appendUrlParams(plainUrl, params, false);
+            imgSrcAttr = UriHelper.appendUrlParams(plainUrl, params, false);
         }
 
         return imgSrcAttr;
     }
 
-    private createImgElForPreview(imageContent: ContentSummary): api.dom.ImgEl {
+    private createImgElForPreview(imageContent: ContentSummary): ImgEl {
         let imgSrcAttr = '';
         let imgDataSrcAttr = '';
 
@@ -414,7 +428,7 @@ export class ImageModalDialog
             imgDataSrcAttr = imageUrlBuilder.resolveForRender();
         }
 
-        const imageEl = new api.dom.ImgEl(imgSrcAttr);
+        const imageEl = new ImgEl(imgSrcAttr);
         imageEl.getEl().setAttribute('data-src', imgDataSrcAttr);
 
         return imageEl;
@@ -429,7 +443,7 @@ export class ImageModalDialog
     private createImagePreviewContainer() {
         const imagePreviewContainer = new DivEl('content-item-preview-panel');
 
-        this.progress = new api.ui.ProgressBar();
+        this.progress = new ProgressBar();
         imagePreviewContainer.appendChild(this.progress);
 
         this.error = new DivEl('error');
@@ -443,14 +457,13 @@ export class ImageModalDialog
             operation: MediaUploaderElOperation.create,
             name: 'image-selector-upload-dialog',
             showResult: false,
-            maximumOccurrences: 1,
             allowMultiSelection: false,
             deferred: true,
             showCancel: false,
             selfIsDropzone: false
         });
 
-        this.dropzoneContainer = new api.ui.uploader.DropzoneContainer(true);
+        this.dropzoneContainer = new DropzoneContainer(true);
         this.dropzoneContainer.hide();
         this.appendChild(this.dropzoneContainer);
 
@@ -553,19 +566,19 @@ export class ImageModalDialog
     }
 
     private setCaptionFieldValue(value: string) {
-        (<api.dom.InputEl>this.imageCaptionField.getInput()).setValue(value);
+        (<InputEl>this.imageCaptionField.getInput()).setValue(value);
     }
 
     private getCaptionFieldValue() {
-        return (<api.dom.InputEl>this.imageCaptionField.getInput()).getValue().trim();
+        return (<InputEl>this.imageCaptionField.getInput()).getValue().trim();
     }
 
     private getAltTextFieldValue() {
-        return (<api.dom.InputEl>this.imageAltTextField.getInput()).getValue().trim();
+        return (<InputEl>this.imageAltTextField.getInput()).getValue().trim();
     }
 
     private setAltTextFieldValue(value: string) {
-        (<api.dom.InputEl>this.imageAltTextField.getInput()).setValue(value);
+        (<InputEl>this.imageAltTextField.getInput()).setValue(value);
     }
 
     private getOriginalUrlElem(): CKEDITOR.ui.dialog.uiElement {
@@ -608,20 +621,20 @@ export class ImageModalDialog
 
 export interface ImageModalDialogConfig
     extends HtmlAreaModalDialogConfig {
-    content: api.content.ContentSummary;
+    content: ContentSummary;
     editorWidth: number;
 }
 
 export class ImageDialogToolbar
-    extends api.ui.toolbar.Toolbar {
+    extends Toolbar {
 
     private contentId: string;
 
-    private previewEl: api.dom.FigureEl;
+    private previewEl: FigureEl;
 
     private alignmentButtons: { [key: string]: ActionButton; } = {};
 
-    private customWidthCheckbox: api.ui.Checkbox;
+    private customWidthCheckbox: Checkbox;
 
     private imageStyleSelector: ImageStyleSelector;
 
@@ -634,7 +647,7 @@ export class ImageDialogToolbar
     private stylesChangeListeners: { (styles: string): void }[] = [];
     private previewSizeChangeListeners: { (): void }[] = [];
 
-    constructor(previewEl: api.dom.FigureEl, contentId: string) {
+    constructor(previewEl: FigureEl, contentId: string) {
         super('image-toolbar');
 
         this.previewEl = previewEl;
@@ -667,12 +680,12 @@ export class ImageDialogToolbar
         return alignmentButtonContainer;
     }
 
-    private createAlignmentButton(iconClass: string, styleClass: string): api.ui.button.ActionButton {
+    private createAlignmentButton(iconClass: string, styleClass: string): ActionButton {
         const action: Action = new Action('');
 
         action.setIconClass(iconClass);
 
-        const button = new api.ui.button.ActionButton(action);
+        const button = new ActionButton(action);
 
         action.onExecuted(() => {
             this.resetActiveAlignmentButton();
@@ -690,9 +703,9 @@ export class ImageDialogToolbar
         return button;
     }
 
-    private createCustomWidthCheckbox(): api.ui.Checkbox {
+    private createCustomWidthCheckbox(): Checkbox {
         const isChecked: boolean = this.previewEl.hasClass(StyleHelper.STYLE.WIDTH.CUSTOM);
-        const checkbox = api.ui.Checkbox.create().setChecked(isChecked).build();
+        const checkbox = Checkbox.create().setChecked(isChecked).build();
 
         checkbox.addClass('custom-width-checkbox');
         checkbox.setLabel(i18n('dialog.image.customwidth'));
@@ -753,14 +766,14 @@ export class ImageDialogToolbar
             this.rangeInputContainer.hide();
         }
 
-        this.customWidthRangeInput.onChange((event: Event) => {
+        this.customWidthRangeInput.onChange((event: UIEvent) => {
             const value: string = event.srcElement['value'];
             this.updatePreviewCustomWidth(value);
             this.widthBoard.setHtml(`${value}%`);
             this.notifyPreviewSizeChanged();
         });
 
-        this.customWidthRangeInput.onInput((event: Event) => {
+        this.customWidthRangeInput.onInput((event: UIEvent) => {
             const value: string = event.srcElement['value'];
             this.updatePreviewCustomWidth(value);
             this.widthBoard.setHtml(`${value}%`);
@@ -920,8 +933,8 @@ export class ImagePreviewScrollHandler {
 
     private imagePreviewContainer: DivEl;
 
-    private scrollDownButton: api.dom.Element;
-    private scrollUpButton: api.dom.Element;
+    private scrollDownButton: Element;
+    private scrollUpButton: Element;
     private scrollBarWidth: number;
     private scrollBarRemoveTimeoutId: number;
     private scrolling: boolean;
@@ -954,7 +967,7 @@ export class ImagePreviewScrollHandler {
         return (element.scrollHeight - element.scrollTop) === element.clientHeight;
     }
 
-    private createScrollButton(direction: string): api.dom.Element {
+    private createScrollButton(direction: string): Element {
         const scrollAreaDiv = new DivEl(direction === 'up' ? 'scroll-up-div' : 'scroll-down-div');
         const arrow = new DivEl('arrow');
         const scrollTop = (direction === 'up' ? '-=50' : '+=50');
@@ -964,7 +977,7 @@ export class ImagePreviewScrollHandler {
         arrow.onClicked((event) => {
             event.preventDefault();
             this.scrolling = false;
-            wemjq(this.imagePreviewContainer.getHTMLElement()).animate({scrollTop: scrollTop}, 400);
+            $(this.imagePreviewContainer.getHTMLElement()).animate({scrollTop: scrollTop}, 400);
         });
 
         arrow.onMouseOver(() => {
@@ -977,8 +990,8 @@ export class ImagePreviewScrollHandler {
         });
 
         direction === 'up'
-        ? wemjq(scrollAreaDiv.getHTMLElement()).insertBefore(this.imagePreviewContainer.getHTMLElement().parentElement)
-        : wemjq(scrollAreaDiv.getHTMLElement()).insertAfter(this.imagePreviewContainer.getHTMLElement().parentElement);
+        ? $(scrollAreaDiv.getHTMLElement()).insertBefore(this.imagePreviewContainer.getHTMLElement().parentElement)
+        : $(scrollAreaDiv.getHTMLElement()).insertAfter(this.imagePreviewContainer.getHTMLElement().parentElement);
 
         scrollAreaDiv.hide();
 
@@ -1013,7 +1026,7 @@ export class ImagePreviewScrollHandler {
     private scrollImagePreview(direction: string, scrollBy: number = 2) {
         const scrollByPx = (direction === 'up' ? '-=' : '+=') + Math.round(scrollBy) + 'px';
         const delta = 0.05;
-        wemjq(this.imagePreviewContainer.getHTMLElement()).animate({scrollTop: scrollByPx}, 1, () => {
+        $(this.imagePreviewContainer.getHTMLElement()).animate({scrollTop: scrollByPx}, 1, () => {
             if (this.scrolling) {
                 // If we want to keep scrolling, call the scrollContent function again:
                 this.scrollImagePreview(direction, scrollBy + delta);   // Increase scroll height by delta on each iteration

@@ -1,21 +1,22 @@
 /**
  * Created on 04/07/2018.
  */
-const Page = require('../../page');
-const baseDetailsPanel = require('../../details_panel/base.details.panel');
+const BaseDetailsPanel = require('../../details_panel/base.details.panel');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
     container: `//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'DockedContextPanel')]`,
     widgetSelectorDropdown: `//div[contains(@id,'WidgetSelectorDropdown')]`,
-
 };
 
-class BrowseDetailsPanel extends Page {
+class BrowseDetailsPanel extends BaseDetailsPanel {
 
     get widgetSelectorDropdownHandle() {
         return xpath.container + xpath.widgetSelectorDropdown + lib.DROP_DOWN_HANDLE;
+    }
+    get widgetSelectorDropdown() {
+        return xpath.container + xpath.widgetSelectorDropdown;
     }
 
     isPanelVisible() {
@@ -28,6 +29,17 @@ class BrowseDetailsPanel extends Page {
         });
     }
 
+    waitForDetailsPanelCleared() {
+        let selector = xpath.container + "//div[contains(@id,'ContextView')]";
+        return this.getBrowser().waitUntil(() => {
+            return this.getAttribute(selector, 'class').then(result => {
+                return result.includes('no-selection');
+            })
+        }, 2000).catch(err => {
+            this.saveScreenshot('err_details_panel_not_cleared');
+            throw new Error("Details Panel should be cleared" + err);
+        });
+    }
 };
 module.exports = BrowseDetailsPanel;
 

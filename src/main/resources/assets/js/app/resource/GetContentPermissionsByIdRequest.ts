@@ -1,17 +1,18 @@
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {PermissionsJson} from '../access/PermissionsJson';
 import {AccessControlList} from '../access/AccessControlList';
 
 export class GetContentPermissionsByIdRequest
-    extends ContentResourceRequest<PermissionsJson, AccessControlList> {
+    extends ContentResourceRequest<AccessControlList> {
 
     private contentId: ContentId;
 
     constructor(contentId: ContentId) {
         super();
-        super.setMethod('GET');
         this.contentId = contentId;
+        this.addRequestPathElements('contentPermissions');
     }
 
     getParams(): Object {
@@ -20,14 +21,7 @@ export class GetContentPermissionsByIdRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'contentPermissions');
-    }
-
-    sendAndParse(): wemQ.Promise<AccessControlList> {
-
-        return this.send().then((response: api.rest.JsonResponse<PermissionsJson>) => {
-            return AccessControlList.fromJson(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<PermissionsJson>): AccessControlList {
+        return AccessControlList.fromJson(response.getResult());
     }
 }

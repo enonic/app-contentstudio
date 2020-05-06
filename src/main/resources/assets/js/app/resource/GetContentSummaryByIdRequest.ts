@@ -1,10 +1,11 @@
-import ContentSummaryJson = api.content.json.ContentSummaryJson;
-import ContentSummary = api.content.ContentSummary;
-import ContentId = api.content.ContentId;
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class GetContentSummaryByIdRequest
-    extends ContentResourceRequest<ContentSummaryJson, ContentSummary> {
+    extends ContentResourceRequest<ContentSummary> {
 
     private id: ContentId;
 
@@ -12,7 +13,6 @@ export class GetContentSummaryByIdRequest
 
     constructor(id: ContentId) {
         super();
-        super.setMethod('GET');
         this.id = id;
         this.expand = ContentResourceRequest.EXPAND_SUMMARY;
     }
@@ -24,14 +24,7 @@ export class GetContentSummaryByIdRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return super.getResourcePath();
-    }
-
-    sendAndParse(): wemQ.Promise<ContentSummary> {
-
-        return this.send().then((response: api.rest.JsonResponse<ContentSummaryJson>) => {
-            return this.fromJsonToContentSummary(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<ContentSummaryJson>): ContentSummary {
+        return this.fromJsonToContentSummary(response.getResult());
     }
 }

@@ -1,8 +1,9 @@
-import './../api.ts';
+import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {PageView} from './PageView';
 
 export class LiveEditPageViewReadyEvent
-    extends api.event.Event {
+    extends Event {
 
     private pageView: PageView;
 
@@ -18,10 +19,10 @@ export class LiveEditPageViewReadyEvent
     }
 
     static on(handler: (event: LiveEditPageViewReadyEvent) => void, contextWindow: Window = window) {
-        api.event.Event.bind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.bind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 
     static un(handler?: (event: LiveEditPageViewReadyEvent) => void, contextWindow: Window = window) {
-        api.event.Event.unbind(api.ClassHelper.getFullName(this), handler, contextWindow);
+        Event.unbind(ClassHelper.getFullName(this), handler, contextWindow);
     }
 }

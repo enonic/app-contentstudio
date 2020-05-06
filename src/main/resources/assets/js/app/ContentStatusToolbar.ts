@@ -1,21 +1,26 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {GetPrincipalByKeyRequest} from './resource/GetPrincipalByKeyRequest';
-import i18n = api.util.i18n;
+import {ItemPreviewToolbar} from 'lib-admin-ui/app/view/ItemPreviewToolbar';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {Principal} from 'lib-admin-ui/security/Principal';
 
 export class ContentStatusToolbar
-    extends api.app.view.ItemPreviewToolbar<ContentSummaryAndCompareStatus> {
+    extends ItemPreviewToolbar<ContentSummaryAndCompareStatus> {
 
-    protected status: api.dom.SpanEl;
-    protected author: api.dom.SpanEl;
+    protected status: SpanEl;
+    protected author: SpanEl;
 
     constructor(className?: string) {
         super('content-status-toolbar' + (className ? ' ' + className : ''));
 
-        const statusWrapper = new api.dom.DivEl('content-status-wrapper');
+        const statusWrapper = new DivEl('content-status-wrapper');
         this.addElement(statusWrapper);
 
-        this.status = new api.dom.SpanEl('status');
-        this.author = new api.dom.SpanEl('author');
+        this.status = new SpanEl('status');
+        this.author = new SpanEl('author');
         statusWrapper.appendChildren(this.status, this.author);
     }
 
@@ -24,8 +29,9 @@ export class ContentStatusToolbar
             const content = ContentSummaryAndCompareStatus
                 .fromContentAndCompareStatus(item.getContentSummary(), item.getCompareStatus())
                 .setPublishStatus(item.getPublishStatus());
+            const isValid = content.getContentSummary() && content.getContentSummary().isValid();
             super.setItem(content);
-            this.toggleValid(content.getContentSummary() && content.getContentSummary().isValid());
+            this.toggleValid(isValid);
             this.updateStatus(content);
             this.updateAuthor(content);
         }
@@ -67,11 +73,10 @@ export class ContentStatusToolbar
     private updateAuthor(content: ContentSummaryAndCompareStatus) {
         if (content && content.getContentSummary()) {
             const name = content.getContentSummary().getModifier();
-            new GetPrincipalByKeyRequest(api.security.PrincipalKey.fromString(name)).sendAndParse()
-                .then((user: api.security.Principal) => {
+            new GetPrincipalByKeyRequest(PrincipalKey.fromString(name)).sendAndParse()
+                .then((user: Principal) => {
                     this.author.setHtml(i18n('field.preview.toolbar.status', user.getDisplayName()));
-                })
-                .catch(reason => {
+                }).catch(() => {
                     this.author.setHtml(name);
                 });
         } else {

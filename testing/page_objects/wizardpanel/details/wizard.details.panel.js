@@ -8,7 +8,7 @@ const appConst = require('../../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'DockedContextPanel')]`,
     widgetSelectorDropdown: `//div[contains(@id,'WidgetSelectorDropdown')]`,
-
+    widgetItem: `//div[contains(@id,'ContentWidgetItemView')]`
 };
 
 class WizardDetailsPanel extends BaseDetailsPanel {
@@ -21,12 +21,18 @@ class WizardDetailsPanel extends BaseDetailsPanel {
         return xpath.container + xpath.widgetSelectorDropdown + lib.DROP_DOWN_HANDLE;
     }
 
+    async icContentInvalid() {
+        let selector = xpath.container + xpath.widgetItem + lib.CONTENT_SUMMARY_AND_STATUS_VIEWER;
+        let attr = await this.getAttribute(selector, 'class');
+        return await attr.includes("invalid");
+    }
+
     waitForDetailsPanelLoaded() {
         return this.getBrowser().waitUntil(() => {
             return this.findElement(xpath.container).catch(err => {
                 throw new Error("Error when checking Details Panel in wizard" + err);
             }).then(el => {
-                return this.getBrowser().getElementCSSValue(el.ELEMENT, "width");
+                return this.getBrowser().getElementCSSValue(el.elementId, "width");
             }).then(width => {
                 //console.log("COMPARE: " + (width.value) + " " + (getPanelWidth(width.value) > 0));
                 return getPanelWidth(width) > 100;
@@ -37,14 +43,13 @@ class WizardDetailsPanel extends BaseDetailsPanel {
     isDetailsPanelLoaded() {
         return this.getBrowser().waitUntil(() => {
             return this.findElement(xpath.container).then(el => {
-                return this.getBrowser().getElementCSSValue(el.ELEMENT, "width");
+                return this.getBrowser().getElementCSSValue(el.elementId, "width");
             }).then(width => {
                 console.log("width: " + width);
-                //console.log("COMPARE: " + (width.value) + " " + (getPanelWidth(width.value) > 0));
                 return getPanelWidth(width) > 0;
             });
-        },  appConst.TIMEOUT_1).catch(err => {
-            console.log("Wizard details panel was not loaded" + err);
+        }, appConst.TIMEOUT_1).catch(err => {
+            console.log("Wizard details panel is not loaded" + err);
             return false;
         });
     }

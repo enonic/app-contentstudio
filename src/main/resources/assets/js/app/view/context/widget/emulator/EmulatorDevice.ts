@@ -1,4 +1,7 @@
-import i18n = api.util.i18n;
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from 'lib-admin-ui/Equitable';
 
 export enum DeviceType {
     MONITOR,
@@ -7,7 +10,7 @@ export enum DeviceType {
 }
 
 export class EmulatorDevice
-    implements api.Equitable {
+    implements Equitable {
 
     // tslint:disable max-line-length
     public static FULLSCREEN: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.fullsize'), DeviceType.MONITOR, 100, 100, '%',
@@ -18,7 +21,7 @@ export class EmulatorDevice
         false, true);
     public static LARGE_PHONE: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.largephone'), DeviceType.MOBILE, 414, 736, 'px',
         false, true);
-    public static TABDLET: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.tablet'), DeviceType.TABLET, 768, 1024, 'px', false,
+    public static TABLET: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.tablet'), DeviceType.TABLET, 768, 1024, 'px', false,
         true);
     public static NOTEBOOK_13: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.notebook13'), DeviceType.MONITOR, 1280, 800, 'px',
         false, false);
@@ -93,11 +96,11 @@ export class EmulatorDevice
     }
 
     isValid(): boolean {
-        return this.width > 0 && this.height > 0 && !api.util.StringHelper.isBlank(this.units);
+        return this.width > 0 && this.height > 0 && !StringHelper.isBlank(this.units);
     }
 
-    equals(o: api.Equitable): boolean {
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, EmulatorDevice)) {
+    equals(o: Equitable): boolean {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, EmulatorDevice)) {
             return false;
         }
 

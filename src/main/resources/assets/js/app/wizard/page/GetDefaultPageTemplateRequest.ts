@@ -1,19 +1,22 @@
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageTemplateResourceRequest} from '../../resource/PageTemplateResourceRequest';
 import {PageTemplate} from '../../content/PageTemplate';
 import {ContentJson} from '../../content/ContentJson';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 export class GetDefaultPageTemplateRequest
-    extends PageTemplateResourceRequest<ContentJson, PageTemplate> {
+    extends PageTemplateResourceRequest<PageTemplate> {
 
-    private site: api.content.ContentId;
+    private site: ContentId;
 
-    private contentTypeName: api.schema.content.ContentTypeName;
+    private contentTypeName: ContentTypeName;
 
-    constructor(site: api.content.ContentId, contentName: api.schema.content.ContentTypeName) {
+    constructor(site: ContentId, contentName: ContentTypeName) {
         super();
-        this.setMethod('GET');
         this.site = site;
         this.contentTypeName = contentName;
+        this.addRequestPathElements('default');
     }
 
     getParams(): Object {
@@ -23,19 +26,11 @@ export class GetDefaultPageTemplateRequest
         };
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'default');
-    }
-
-    sendAndParse(): wemQ.Promise<PageTemplate> {
-
-        return this.send().then((response: api.rest.JsonResponse<ContentJson>) => {
-
-            if (response.hasResult()) {
-                return this.fromJsonToContent(response.getResult());
-            } else {
-                return null;
-            }
-        });
+    protected parseResponse(response: JsonResponse<ContentJson>): PageTemplate {
+        if (response.hasResult()) {
+            return this.fromJsonToContent(response.getResult());
+        } else {
+            return null;
+        }
     }
 }

@@ -1,30 +1,20 @@
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentTypeResourceRequest} from './ContentTypeResourceRequest';
-import ContentTypeSummary = api.schema.content.ContentTypeSummary;
-import ContentTypeSummaryListJson = api.schema.content.ContentTypeSummaryListJson;
-import ContentTypeSummaryJson = api.schema.content.ContentTypeSummaryJson;
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {ContentTypeSummaryListJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryListJson';
+import {ContentTypeSummaryJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryJson';
 
 export class GetAllContentTypesRequest
-    extends ContentTypeResourceRequest<ContentTypeSummaryListJson, ContentTypeSummary[]> {
+    extends ContentTypeResourceRequest<ContentTypeSummary[]> {
 
     constructor() {
         super();
-        super.setMethod('GET');
+        this.addRequestPathElements('all');
     }
 
-    getParams(): Object {
-        return {};
-    }
-
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'all');
-    }
-
-    sendAndParse(): wemQ.Promise<ContentTypeSummary[]> {
-
-        return this.send().then((response: api.rest.JsonResponse<ContentTypeSummaryListJson>) => {
-            return response.getResult().contentTypes.map((contentTypeJson: ContentTypeSummaryJson) => {
-                return this.fromJsonToContentTypeSummary(contentTypeJson);
-            });
+    protected parseResponse(response: JsonResponse<ContentTypeSummaryListJson>): ContentTypeSummary[] {
+        return response.getResult().contentTypes.map((contentTypeJson: ContentTypeSummaryJson) => {
+            return this.fromJsonToContentTypeSummary(contentTypeJson);
         });
     }
 }

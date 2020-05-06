@@ -1,19 +1,13 @@
-import {JsonResourceRequest} from './JsonResourceRequest';
 import {PageTemplate} from '../content/PageTemplate';
 import {ContentJson} from '../content/ContentJson';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
-export class PageTemplateResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends JsonResourceRequest<JSON_TYPE, PARSED_TYPE> {
-
-    private resourcePath: api.rest.Path;
+export abstract class PageTemplateResourceRequest<PARSED_TYPE>
+    extends ContentResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();
-        this.resourcePath = api.rest.Path.fromParent(super.getRestPath(), 'content', 'page', 'template');
-    }
-
-    getResourcePath(): api.rest.Path {
-        return this.resourcePath;
+        this.addRequestPathElements('page', 'template');
     }
 
     fromJsonToContent(json: ContentJson): PageTemplate {

@@ -1,43 +1,29 @@
-import ArrayHelper = api.util.ArrayHelper;
-import Principal = api.security.Principal;
-import PrincipalKey = api.security.PrincipalKey;
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
+import {Principal} from 'lib-admin-ui/security/Principal';
 import {AccessControlEntryJson} from './AccessControlEntryJson';
 import {Permission} from './Permission';
+import {PrincipalContainer} from 'lib-admin-ui/ui/security/PrincipalContainer';
 
 export class AccessControlEntry
-    implements api.Equitable, api.Cloneable {
+    extends PrincipalContainer
+    implements Equitable, Cloneable {
 
     private static ALL_PERMISSIONS: Permission[] = [Permission.READ, Permission.CREATE, Permission.MODIFY, Permission.DELETE,
         Permission.PUBLISH,
         Permission.READ_PERMISSIONS, Permission.WRITE_PERMISSIONS
     ];
 
-    private principal: Principal;
-
     private allowedPermissions: Permission[];
 
     private deniedPermissions: Permission[];
 
     constructor(principal: Principal) {
-        this.principal = api.util.assertNotNull(principal);
+        super(principal);
         this.allowedPermissions = [];
         this.deniedPermissions = [];
-    }
-
-    getPrincipal(): Principal {
-        return this.principal;
-    }
-
-    getPrincipalKey(): PrincipalKey {
-        return this.principal.getKey();
-    }
-
-    getPrincipalDisplayName(): string {
-        return this.principal.getDisplayName();
-    }
-
-    getPrincipalTypeName(): string {
-        return this.principal.getTypeName();
     }
 
     getAllowedPermissions(): Permission[] {
@@ -86,23 +72,23 @@ export class AccessControlEntry
         return this;
     }
 
-    equals(o: api.Equitable): boolean {
+    equals(o: Equitable): boolean {
 
-        if (!api.ObjectHelper.iFrameSafeInstanceOf(o, AccessControlEntry)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, AccessControlEntry)) {
             return false;
         }
 
         let other = <AccessControlEntry>o;
 
-        if (!api.ObjectHelper.equals(this.getPrincipalKey(), other.getPrincipalKey())) {
+        if (!ObjectHelper.equals(this.getPrincipalKey(), other.getPrincipalKey())) {
             return false;
         }
 
-        if (!api.ObjectHelper.anyArrayEquals(this.allowedPermissions, other.allowedPermissions)) {
+        if (!ObjectHelper.anyArrayEquals(this.allowedPermissions, other.allowedPermissions)) {
             return false;
         }
 
-        if (!api.ObjectHelper.anyArrayEquals(this.deniedPermissions, other.deniedPermissions)) {
+        if (!ObjectHelper.anyArrayEquals(this.deniedPermissions, other.deniedPermissions)) {
             return false;
         }
         return true;

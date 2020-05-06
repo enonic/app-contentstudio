@@ -1,16 +1,10 @@
-import {JsonResourceRequest} from './JsonResourceRequest';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
-export class PageResourceRequest<JSON_TYPE, PARSED_TYPE>
-    extends JsonResourceRequest<JSON_TYPE, PARSED_TYPE> {
-
-    private resourcePath: api.rest.Path;
+export abstract class PageResourceRequest<PARSED_TYPE>
+    extends ContentResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();
-        this.resourcePath = api.rest.Path.fromParent(super.getRestPath(), 'content', 'page');
-    }
-
-    getResourcePath(): api.rest.Path {
-        return this.resourcePath;
+        this.addRequestPathElements('page');
     }
 }

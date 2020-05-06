@@ -1,7 +1,7 @@
 import {Content} from '../content/Content';
 import {XDataName} from '../content/XDataName';
 import {Attachments} from '../attachment/Attachments';
-import Property = api.data.Property;
+import {Property} from 'lib-admin-ui/data/Property';
 
 export class ImageHelper {
 
@@ -21,7 +21,7 @@ export class ImageHelper {
 
     static getImageDescription(imageContent: Content): string {
         const imageInfoMixin = new XDataName('media:imageInfo');
-        const imageInfoData = imageContent.getExtraData(imageInfoMixin);
+        const imageInfoData = imageContent.getExtraDataByName(imageInfoMixin);
 
         if (!imageInfoData || !imageInfoData.getData()) {
             return null;

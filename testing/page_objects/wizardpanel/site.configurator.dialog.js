@@ -2,7 +2,7 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
-    container: `//div[contains(@id,'SiteConfiguratorDialog')]`,//'api.form.inputtype.appconfig.ApplicationConfiguratorDialog'
+    container: `//div[contains(@id,'SiteConfiguratorDialog')]`,
     applyButton: `//button[contains(@id,'DialogButton') and child::span[text()='Apply']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     imageSelectorOptionFilterInput: `//div[contains(@id,'ImageContentComboBox')]//input[contains(@id,'ComboBoxOptionFilterInput')]`,
@@ -27,15 +27,25 @@ class SiteConfiguratorDialog extends Page {
     }
 
     typeInTextInput(text) {
-
         return this.typeTextInInput(this.textInput, text).catch(err => {
             this.saveScreenshot('site_conf_err');
             throw new Error("Site Configurator Dialog - " + err);
         })
     }
 
+    async typeNumPosts(number) {
+        let selector = XPATH.container + "//input[contains(@name,'numPosts')]";
+        try {
+            await this.waitForElementDisplayed(selector);
+            return await this.typeTextInInput(selector, number);
+        } catch (err) {
+            this.saveScreenshot('site_conf_err_num_posts');
+            throw new Error("Site Configurator Dialog - " + err);
+        }
+    }
+
     showToolbarAndClickOnInsertImageButton() {
-        let areaSelector = `//div[contains(@id,'cke_api.ui.text.TextArea')]`;
+        let areaSelector = `//div[contains(@id,'cke_TextArea')]`;
         let insertImageButton = `//a[contains(@class,'cke_button') and contains(@title,'Image')]`;
         return this.waitForElementDisplayed(areaSelector, appConst.TIMEOUT_3).then(() => {
             return this.clickOnElement(areaSelector);
@@ -68,4 +78,3 @@ class SiteConfiguratorDialog extends Page {
     }
 };
 module.exports = SiteConfiguratorDialog;
-

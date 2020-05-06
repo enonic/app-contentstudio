@@ -18,53 +18,190 @@
       }
 
       .content-version-item {
-        box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
         margin: 10px 5px 5px 7px;
-        background-color: @admin-white;
+        box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
+        border: 2px solid @admin-white;
 
-        &:hover {
-          background-color: @admin-bg-light-gray;
-
-          .close-version-info-button {
-            background-color: @admin-bg-light-gray;
+        &:first-of-type {
+          button.compare {
+            display: none !important;
           }
         }
 
-        &.active {
-          box-shadow: 0 0 5px 2px @admin-input-blue;
+        &:hover {
+          background-color: @admin-bg-light-gray;
+          border-color: @admin-bg-light-gray;
         }
 
-        .description {
-          padding: 10px 7px 7px 7px;
+        &:not(.active) .version-info .action-button {
+          background-color: @admin-dark-gray;
+        }
+
+        &.active {
+          background-color: @admin-dark-gray;
+          border-color: @admin-dark-gray;
+
+          .action-button {
+            pointer-events: none;
+
+            &:hover {
+              background-color: @form-button-bg;
+            }
+          }
+
+          &.expanded * {
+            cursor: default;
+          }
+
+          .viewer .names-and-icon-view .font-icon-default:before {
+            background-color: @admin-dark-gray;
+          }
+
+        }
+
+        &.online, &.deleted, &.pending {
+          color: @admin-white;
+        }
+
+        &.online {
+          background-color: @admin-green;
+          border-color: @admin-green;
+        }
+
+        &.online {
+
+          .viewer .names-and-icon-view {
+
+            .font-icon-default:before {
+              color: @admin-white;
+              background-color: @admin-green;
+            }
+          }
+
+          .version-info {
+            color: @admin-black;
+          }
+
+          .viewer {
+
+            button.compare {
+
+              top: -25px;
+
+              &:before {
+                color: @admin-white;
+              }
+
+              &:hover:before {
+                color: @admin-font-gray;
+              }
+            }
+          }
+        }
+
+        &.pending:not(.modified) {
+          background-color: @admin-orange;
+          border-color: @admin-orange;
+
+          .viewer .names-and-icon-view .font-icon-default:before {
+            background-color: @admin-orange;
+          }
+        }
+
+        &.deleted {
+          opacity: 0.5;
+        }
+
+        .viewer {
+
+          display: flex;
+          padding: 7px 7px 7px 10px;
+          position: relative;
+
+          .names-and-icon-view {
+
+            flex: 1;
+
+            .font-icon-default {
+              &:before {
+                font-size: 26px;
+                color: @admin-dark-gray;
+              }
+            }
+
+            .icon-version-published:before {
+              color: @admin-green;
+            }
+          }
+
+          button.compare {
+            position: absolute;
+            top: 11px;
+            right: 7px;
+            padding: 0;
+            z-index: 1;
+
+            &:before {
+              color: @admin-font-gray2;
+            }
+
+            &:hover:before {
+              color: @admin-font-gray3;
+            }
+
+            &:focus {
+              border: none;
+              outline: none;
+            }
+          }
         }
 
         .status {
           line-height: 26px;
-          text-align: center;
-          margin-top: 9px;
+          text-align: left;
+          padding: 5px 0 0 10px;
           overflow: hidden;
           font-size: 14px;
           text-overflow: ellipsis;
 
-          &.draft {
-            color: @admin-black;
-            background-color: @admin-bg-light-gray;
-          }
+        }
 
-          &.master {
-            color: @admin-white;
-            background-color: forestgreen;
-          }
+        &:not(:hover) .version-info {
+          background-color: @admin-white;
         }
 
         .version-info {
-          padding: 10px 7px 7px 7px;
+          padding: 7px;
           font-size: 12px;
+
+          .names-and-icon-view {
+            padding: 10px 0;
+          }
 
           .version-info-version-id, .version-info-display-name {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+          }
+
+          .version-info-message {
+            padding-top: 3px;
+
+            .message {
+              border-left: 2px solid @admin-bg-light-gray;
+              color: @admin-font-gray2;
+              padding-left: 5px;
+              margin-left: 20px;
+            }
+          }
+
+          .names-and-icon-view .font-icon-default:before {
+            color: @admin-dark-gray !important;
+          }
+
+          .icon-state-in-progress, .icon-state-invalid, .icon-state-ready {
+            font-size: 24px;
+            margin-left: 9px;
           }
 
           .label {
@@ -75,59 +212,36 @@
           button {
             width: 80%;
             text-align: center;
-            margin: 10px auto 0 auto;
-            display: block !important;
+            margin: 10px auto 5px auto;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            display: block;
 
-            &:not(.active) {
-              background-color: @admin-button-blue2;
-            }
-
-            &.active {
-              opacity: 1;
-
-              &:hover {
-                background-color: @form-button-bg;
-                cursor: default;
-              }
-
-              &:focus {
-                box-shadow: none;
-                border: 1px solid @form-button-bg;
-              }
-
-              span {
-                cursor: default;
-                color: @admin-white;
-              }
-            }
           }
         }
 
-        .close-version-info-button {
-          cursor: pointer;
-          float: right;
-          padding: 2px 16px 7px 7px;
-
-          &:after {
-            content: "";
-            border-left: 6px solid transparent;
-            border-right: 6px solid transparent;
-            border-top: 0 solid transparent;
-            border-bottom: 10px solid @admin-dark-gray;
+        &.online, &.active, &.pending {
+          .status, .icon-user, .viewer .names-and-icon-view *, .viewer .font-icon-default:before {
+            color: @admin-white;
           }
 
-          background-color: @admin-white;
-
-          &:hover {
+          &:hover .version-info {
             background-color: @admin-bg-light-gray;
+            border-color: @admin-bg-light-gray;
           }
-
         }
 
         &:not(.expanded) {
-          .close-version-info-button, .version-info {
+          .version-info {
             display: none;
           }
+        }
+
+        &.expanded {
+          &:not(.modified) {
+            border-color: @admin-black;
+          }
+
         }
 
       }

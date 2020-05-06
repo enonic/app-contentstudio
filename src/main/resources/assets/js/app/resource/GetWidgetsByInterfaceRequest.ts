@@ -1,29 +1,25 @@
-import Widget = api.content.Widget;
+import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {WidgetDescriptorResourceRequest} from './WidgetDescriptorResourceRequest';
+import {WidgetDescriptorJson} from 'lib-admin-ui/content/json/WidgetDescriptorJson';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class GetWidgetsByInterfaceRequest
-    extends WidgetDescriptorResourceRequest<api.content.json.WidgetDescriptorJson[], any> {
+    extends WidgetDescriptorResourceRequest<any> {
 
     private widgetInterfaces: string[];
 
     constructor(widgetInterfaces: string[]) {
         super();
-        super.setMethod('POST');
+        this.setMethod(HttpMethod.POST);
         this.widgetInterfaces = widgetInterfaces;
+        this.addRequestPathElements('list', 'byinterfaces');
     }
 
     getParams(): Object {
         return this.widgetInterfaces;
     }
 
-    getRequestPath(): api.rest.Path {
-        return api.rest.Path.fromParent(super.getResourcePath(), 'list/byinterfaces');
-    }
-
-    sendAndParse(): wemQ.Promise<Widget[]> {
-
-        return this.send().then((response: api.rest.JsonResponse<api.content.json.WidgetDescriptorJson[]>) => {
-            return WidgetDescriptorResourceRequest.fromJson(response.getResult());
-        });
+    protected parseResponse(response: JsonResponse<WidgetDescriptorJson[]>): any {
+        return WidgetDescriptorResourceRequest.fromJson(response.getResult());
     }
 }

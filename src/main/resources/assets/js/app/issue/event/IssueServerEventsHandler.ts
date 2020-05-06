@@ -1,8 +1,8 @@
-import NodeServerChangeType = api.event.NodeServerChangeType;
-import IssueServerEvent = api.issue.event.IssueServerEvent;
-import IssueServerChangeItem = api.issue.event.IssueServerChangeItem;
+import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
 import {GetIssuesRequest} from '../resource/GetIssuesRequest';
 import {Issue} from '../Issue';
+import {IssueServerEvent} from '../../event/IssueServerEvent';
+import {IssueServerChangeItem} from '../../event/IssueServerChangeItem';
 
 export class IssueServerEventsHandler {
 
@@ -40,11 +40,11 @@ export class IssueServerEventsHandler {
 
     private issueServerEventHandler(event: IssueServerEvent) {
         if (IssueServerEventsHandler.debug) {
-            console.debug('PrincipalServerEventsHandler: received server event', event);
+            console.debug('IssueServerEventsHandler: received server event', event);
         }
 
         const issueIds: string[] = event.getNodeChange().getChangeItems().map(
-            (changeItem: IssueServerChangeItem) => changeItem.getIssueId());
+            (changeItem: IssueServerChangeItem) => changeItem.getId());
 
         if (event.getType() === NodeServerChangeType.CREATE) {
             this.handleIssueCreate(issueIds);

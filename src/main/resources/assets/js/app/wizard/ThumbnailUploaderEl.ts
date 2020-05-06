@@ -1,17 +1,23 @@
+import {Element} from 'lib-admin-ui/dom/Element';
 import {Content, ContentBuilder} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
-import UploaderElConfig = api.ui.uploader.UploaderElConfig;
+import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
+import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
+import {UrlHelper} from '../util/UrlHelper';
 
 export class ThumbnailUploaderEl
-    extends api.ui.uploader.UploaderEl<Content> {
+    extends UploaderEl<Content> {
 
-    private iconUrlResolver: api.content.util.ContentIconUrlResolver;
+    private iconUrlResolver: ContentIconUrlResolver;
 
     constructor(config?: UploaderElConfig) {
 
         if (config.url == null) {
-            config.url = api.util.UriHelper.getRestUri('content/updateThumbnail');
+            config.url = UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/content/updateThumbnail`);
         }
+
         if (config.showCancel == null) {
             config.showCancel = false;
         }
@@ -36,7 +42,7 @@ export class ThumbnailUploaderEl
         super(config);
 
         this.addClass('thumbnail-uploader-el');
-        this.iconUrlResolver = new api.content.util.ContentIconUrlResolver();
+        this.iconUrlResolver = new ContentIconUrlResolver();
     }
 
     createModel(serverResponse: ContentJson): Content {
@@ -51,8 +57,8 @@ export class ThumbnailUploaderEl
         return this.iconUrlResolver.setContent(item).resolve();
     }
 
-    createResultItem(value: string): api.dom.Element {
-        return new api.dom.ImgEl(value);
+    createResultItem(value: string): Element {
+        return new ImgEl(value);
     }
 
 }

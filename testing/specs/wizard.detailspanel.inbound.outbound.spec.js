@@ -3,8 +3,6 @@
  *
  */
 const chai = require('chai');
-chai.use(require('chai-as-promised'));
-const expect = chai.expect;
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
@@ -18,7 +16,6 @@ const LiveFormPanel = require("../page_objects/wizardpanel/liveform/live.form.pa
 const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
 
-
 describe('wizard.detailspanel.inbound.outbound: select a content with inbound and outbound dependencies and check dependencies',
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
@@ -29,153 +26,132 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
         let TEMPLATE;
         let SUPPORT = 'Site';
         let CONTROLLER_NAME = 'main region';
+
         it(`Precondition: new site should be added`,
-            () => {
-                let contentBrowsePanel = new ContentBrowsePanel();
+            async () => {
                 let displayName = contentBuilder.generateRandomName('site');
                 SITE = contentBuilder.buildSite(displayName, 'description', ['All Content Types App']);
-                return studioUtils.doAddSite(SITE).then(() => {
-                }).then(() => {
-                    studioUtils.saveScreenshot(displayName + '_created');
-                    return studioUtils.findAndSelectItem(SITE.displayName);
-                }).then(() => {
-                    return contentBrowsePanel.waitForContentDisplayed(SITE.displayName);
-                }).then(isDisplayed => {
-                    assert.isTrue(isDisplayed, 'site should be listed in the grid');
-                });
+                await studioUtils.doAddSite(SITE);
             });
 
         it(`Precondition: new template has been added`,
-            () => {
+            async () => {
                 let contentBrowsePanel = new ContentBrowsePanel();
                 let templateName = contentBuilder.generateRandomName('template');
                 TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT, CONTROLLER_NAME);
-                return studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE).then(() => {
-                    return studioUtils.findAndSelectItem(TEMPLATE.displayName);
-                }).then(() => {
-                    return contentBrowsePanel.waitForContentDisplayed(TEMPLATE.displayName);
-                }).then(isDisplayed => {
-                    assert.isTrue(isDisplayed, 'template should be listed in the grid');
-                });
+                await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE);
+                await studioUtils.findAndSelectItem(TEMPLATE.displayName);
+                await contentBrowsePanel.waitForContentDisplayed(TEMPLATE.displayName);
             });
 
         it(`GIVEN existing site is opened WHEN an image has been inserted and saved as fragment AND Dependencies widget opened in the site-wizard THEN 'Show Outbound' button should be present but 'Show Inbound' should be hidden`,
-            () => {
-                let contentWizard = new ContentWizard();
+            async () => {
+                let siteWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
                 let liveFormPanel = new LiveFormPanel();
                 let wizardDetailsPanel = new WizardDetailsPanel();
                 let wizardDependenciesWidget = new WizardDependenciesWidget();
-                return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                    return contentWizard.doUnlockLiveEditor();
-                }).then(() => {
-                    return contentWizard.switchToMainFrame();
-                }).then(() => {
-                    return contentWizard.clickOnShowComponentViewToggler();
-                }).then(() => {
-                    return pageComponentView.openMenu("main");
-                }).then(() => {
-                    return pageComponentView.selectMenuItem(["Insert", "Image"]);
-                }).then(() => {
-                    return liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
-                }).then(() => {
-                    return contentWizard.switchToMainFrame();
-                }).then(() => {
-                    return pageComponentView.openMenu(IMAGE_DISPLAY_NAME);
-                }).then(() => {
-                    return pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
-                }).then(()=>{
-                    return pageComponentView.pause(3000);
-                }).then(() => {
-                    return contentWizard.openDetailsPanel();
-                }).then(() => {
-                    return wizardDetailsPanel.openDependencies();
-                }).then(() => {
-                    studioUtils.saveScreenshot('site_wizard_dependencies');
-                    return assert.eventually.isTrue(wizardDependenciesWidget.waitForOutboundButtonVisible(),
-                        '`Show outbound` button should be present on the widget, because one fragment has been created');
-                }).then(() => {
-                    return assert.eventually.isFalse(wizardDependenciesWidget.isInboundButtonVisible(),
-                        '`Show Inbound` button should not be present, because the site has no inbound dependencies');
-                })
+                //Select and open the site:
+                await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+                await siteWizard.doUnlockLiveEditor();
+
+                await siteWizard.switchToMainFrame();
+                //Open Page Component View dialog and click on Insert Image menu item:
+                await siteWizard.clickOnShowComponentViewToggler();
+                await pageComponentView.openMenu("main");
+                await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
+
+                //Select the image in the image-selector:
+                await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
+
+                await siteWizard.switchToMainFrame();
+                //Open Page Component View:
+                await siteWizard.clickOnShowComponentViewToggler();
+                //open the context menu:
+                await pageComponentView.openMenu(IMAGE_DISPLAY_NAME);
+                //Click on 'Save as Fragment' menu item:
+                await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
+                await pageComponentView.pause(3000);
+
+                //open Details panel in the site-wizard:
+                await siteWizard.openDetailsPanel();
+                await wizardDetailsPanel.openDependencies();
+                studioUtils.saveScreenshot('site_wizard_dependencies');
+                //`Show outbound` button should be present in the widget, because new fragment has been created in the site wizard'
+                await wizardDependenciesWidget.waitForOutboundButtonVisible();
+
+                let isVisible = await wizardDependenciesWidget.isInboundButtonVisible();
+                assert.isFalse(isVisible, '`Show Inbound` button should not be present, because the site has no inbound dependencies');
             });
 
         it(`GIVEN existing site with fragment WHEN fragment has been selected AND Dependencies widget opened  THEN 'Show Outbound' button should be present AND 'Show Inbound' should be present`,
-            () => {
+            async () => {
                 let wizardDetailsPanel = new WizardDetailsPanel();
                 let contentWizard = new ContentWizard();
                 let wizardDependenciesWidget = new WizardDependenciesWidget();
-                return studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME).then(() => {
-                    return contentWizard.openDetailsPanel();
-                }).then(() => {
-                    return wizardDetailsPanel.openDependencies();
-                }).then(() => {
-                    studioUtils.saveScreenshot('fragment_wizard_dependencies');
-                    return assert.eventually.isTrue(wizardDependenciesWidget.waitForOutboundButtonVisible(),
-                        'Show outbound button should be present on the widget, because the fragment was created from an image');
-                }).then(() => {
-                    return assert.eventually.isTrue(wizardDependenciesWidget.waitForInboundButtonVisible(),
-                        '`Show Inbound` button should be present, because the fragment has parent site');
-                })
+                //1. Open the fragment:
+                await studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME);
+                await contentWizard.openDetailsPanel();
+                //2. Open Dependencies-widget:
+                await wizardDetailsPanel.openDependencies();
+                studioUtils.saveScreenshot('fragment_wizard_dependencies');
+                // 'Show outbound' button should be present on the widget, because the fragment was created from an image
+                await wizardDependenciesWidget.waitForOutboundButtonVisible();
+                //'Show Inbound' button should be present, because the fragment has parent site:
+                await wizardDependenciesWidget.waitForInboundButtonVisible();
             });
 
-        it(`GIVEN existing site with fragment WHEN 'Show Outbound' button has been pressed THEN  Dependencies Section should appear in the new browser-tab`,
-            () => {
+        it(`GIVEN existing site with fragment WHEN 'Show Outbound' button has been pressed THEN 'Dependencies Section' should appear in the new browser-tab`,
+            async () => {
                 let contentWizard = new ContentWizard();
                 let wizardDetailsPanel = new WizardDetailsPanel();
                 let wizardDependenciesWidget = new WizardDependenciesWidget();
                 let contentFilterPanel = new ContentFilterPanel();
                 let contentBrowsePanel = new ContentBrowsePanel();
-                return studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME).then(() => {
-                    return contentWizard.openDetailsPanel();
-                }).then(() => {
-                    return wizardDetailsPanel.openDependencies();
-                }).then(() => {
-                    return wizardDependenciesWidget.clickOnShowOutboundButton();
-                }).then(()=>{
-                    return wizardDependenciesWidget.pause(1000);
-                }).then(() => {
-                    return studioUtils.doSwitchToNextTab();
-                }).then(() => {
-                    return assert.eventually.isTrue(contentFilterPanel.waitForDependenciesSectionVisible(),
-                        '`Dependencies Section` should be present, in the filter panel');
-                }).then(() => {
-                    studioUtils.saveScreenshot('outbound_dep_in_new_tab');
-                    return contentBrowsePanel.getDisplayNamesInGrid();
-                }).then(result => {
-                    assert.isTrue(result[0] == IMAGE_DISPLAY_NAME, 'correct display name of dependency');
-                    assert.isTrue(result.length == 1, 'Only one dependency should be present in the grid');
-                })
+                //1. Open the fragment:
+                await studioUtils.selectContentAndOpenWizard('fragment-' + IMAGE_DISPLAY_NAME);
+                await contentWizard.openDetailsPanel();
+                await wizardDetailsPanel.openDependencies();
+
+                //2. Click on 'Show Outbound' button:
+                await wizardDependenciesWidget.clickOnShowOutboundButton();
+                await wizardDependenciesWidget.pause(1000);
+                //3. Switch to the next browser-tab:
+                await studioUtils.doSwitchToNextTab();
+                //4. 'Dependencies Section' should be present, in the filter panel'
+                await contentFilterPanel.waitForDependenciesSectionVisible();
+                studioUtils.saveScreenshot('outbound_dep_in_new_tab');
+                let result = await contentBrowsePanel.getDisplayNamesInGrid();
+
+                assert.equal(result[0], IMAGE_DISPLAY_NAME, 'expected display name of dependency');
+                assert.equal(result.length, 1, 'One content should be present in the grid');
             });
 
         it(`GIVEN existing site with fragment is opened WHEN fragment has been removed in 'Page Component View'  THEN 'No outgoing dependencies' should appears`,
-            () => {
+            async () => {
                 let contentWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
                 let wizardDetailsPanel = new WizardDetailsPanel();
                 let wizardDependenciesWidget = new WizardDependenciesWidget();
-                return studioUtils.selectContentAndOpenWizard(SITE.displayName).then(() => {
-                    return contentWizard.openDetailsPanel();
-                }).then(() => {
-                    return wizardDetailsPanel.openDependencies();
-                }).then(() => {
-                    return contentWizard.clickOnShowComponentViewToggler();
-                }).then(() => {
-                    return pageComponentView.openMenu(IMAGE_DISPLAY_NAME);
-                }).then(() => {
-                    return pageComponentView.selectMenuItem(["Remove"]);
-                }).then(() => {
-                    return contentWizard.waitAndClickOnSave();
-                }).then(() => {
-                    studioUtils.saveScreenshot('fragment_removed_dependencies');
-                    return assert.eventually.isTrue(wizardDependenciesWidget.waitForOutboundButtonNotVisible(),
-                        'Show outbound button should disappears on the widget, because the fragment was removed in Page Editor');
-                });
+                //1. Site is opened:
+                await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+                await contentWizard.openDetailsPanel();
+                //2. Dependencies widget is opened:
+                await wizardDetailsPanel.openDependencies();
+                //3. Open Page Component View and remove the fragment:
+                await contentWizard.clickOnShowComponentViewToggler();
+                await pageComponentView.openMenu(IMAGE_DISPLAY_NAME);
+                await pageComponentView.selectMenuItem(["Remove"]);
+                //4. Save the site:
+                await contentWizard.waitAndClickOnSave();
+                studioUtils.saveScreenshot('fragment_removed_dependencies');
+                //5. 'Show outbound" button should disappear in the widget, because the fragment was removed in Page Component View
+                await wizardDependenciesWidget.waitForOutboundButtonNotVisible();
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
         afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
         before(() => {
-            return console.log('specification starting: ' + this.title);
+            return console.log('specification is starting: ' + this.title);
         });
     });

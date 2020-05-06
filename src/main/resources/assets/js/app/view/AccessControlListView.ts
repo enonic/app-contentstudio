@@ -1,8 +1,9 @@
 import {AccessControlEntryView} from './AccessControlEntryView';
 import {AccessControlEntry} from '../access/AccessControlEntry';
+import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 
 export class AccessControlListView
-    extends api.ui.selector.list.ListBox<AccessControlEntry> {
+    extends ListBox<AccessControlEntry> {
 
     private itemValueChangedListeners: { (item: AccessControlEntry): void }[] = [];
 

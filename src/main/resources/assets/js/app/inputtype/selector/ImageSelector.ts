@@ -1,13 +1,17 @@
-import PropertyArray = api.data.PropertyArray;
-import ContentSummary = api.content.ContentSummary;
-import ContentTypeName = api.schema.content.ContentTypeName;
-import ComboBox = api.ui.selector.combobox.ComboBox;
-import ResponsiveManager = api.ui.responsive.ResponsiveManager;
-import SelectedOption = api.ui.selector.combobox.SelectedOption;
-import SelectedOptionEvent = api.ui.selector.combobox.SelectedOptionEvent;
-import StringHelper = api.util.StringHelper;
-import UploadFailedEvent = api.ui.uploader.UploadFailedEvent;
-import UploadProgressEvent = api.ui.uploader.UploadProgressEvent;
+import * as Q from 'q';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {Input} from 'lib-admin-ui/form/Input';
+import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
+import {Class} from 'lib-admin-ui/Class';
+import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ComboBox} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {UploadFailedEvent} from 'lib-admin-ui/ui/uploader/UploadFailedEvent';
+import {UploadProgressEvent} from 'lib-admin-ui/ui/uploader/UploadProgressEvent';
 import {MediaSelector} from './MediaSelector';
 import {ImageContentComboBox} from '../ui/selector/image/ImageContentComboBox';
 import {ImageSelectorSelectedOptionsView} from '../ui/selector/image/ImageSelectorSelectedOptionsView';
@@ -16,8 +20,9 @@ import {ImageSelectorSelectedOptionView} from '../ui/selector/image/ImageSelecto
 import {ImageOptionDataLoader} from '../ui/selector/image/ImageOptionDataLoader';
 import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
 import {Content} from '../../content/Content';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
 
 export class ImageSelector
     extends MediaSelector {
@@ -41,7 +46,7 @@ export class ImageSelector
         return <ImageContentComboBox>this.contentComboBox;
     }
 
-    protected getContentPath(raw: MediaTreeSelectorItem): api.content.ContentPath {
+    protected getContentPath(raw: MediaTreeSelectorItem): ContentPath {
         return raw.getContentSummary().getPath();
     }
 
@@ -68,7 +73,7 @@ export class ImageSelector
         return selectedOptionsView;
     }
 
-    protected createContentComboBox(input: api.form.Input, _propertyArray: PropertyArray): ImageContentComboBox {
+    protected createContentComboBox(input: Input, _propertyArray: PropertyArray): ImageContentComboBox {
 
         let value = this.getPropertyArray().getProperties().map((property) => {
             return property.getString();
@@ -141,34 +146,22 @@ export class ImageSelector
         return contentComboBox;
     }
 
-    layout(input: api.form.Input, propertyArray: PropertyArray): wemQ.Promise<void> {
+    layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
         return super.layout(input, propertyArray).then(() => {
             this.setLayoutInProgress(false);
         });
     }
 
-    protected doLayout(_propertyArray: PropertyArray): wemQ.Promise<void> {
-        return wemQ(null);
+    protected doLayout(_propertyArray: PropertyArray): Q.Promise<void> {
+        return Q(null);
     }
 
-    protected createUploader(): wemQ.Promise<ImageUploaderEl> {
-        let multiSelection = (this.getInput().getOccurrences().getMaximum() !== 1);
-
-        const uploader = new ImageUploaderEl({
-            params: {
-                parent: this.config.content.getContentId().toString()
-            },
-            operation: MediaUploaderElOperation.create,
-            name: 'image-selector-upload-dialog',
-            showCancel: false,
-            showResult: false,
-            maximumOccurrences: this.getRemainingOccurrences(),
-            allowMultiSelection: multiSelection
-        });
+    protected createUploader(): Q.Promise<ImageUploaderEl> {
+        const uploader: ImageUploaderEl = new ImageUploaderEl(this.createUploaderConfig());
 
         this.doInitUploader(uploader);
 
-        return wemQ(uploader);
+        return Q(uploader);
 
     }
 
@@ -204,19 +197,17 @@ export class ImageSelector
             if (!!selectedOption) {
                 this.getSelectedOptionsView().removeSelectedOptions([selectedOption]);
             }
-
-            uploader.setMaximumOccurrences(this.getRemainingOccurrences());
         });
     }
 
     validate(silent: boolean = true,
-             rec: api.form.inputtype.InputValidationRecording = null): api.form.inputtype.InputValidationRecording {
+             rec: InputValidationRecording = null): InputValidationRecording {
 
         if (!this.isPendingPreload) {
             return super.validate(silent, rec);
         }
 
-        return new api.form.inputtype.InputValidationRecording();
+        return new InputValidationRecording();
     }
 
     onEditContentRequest(listener: (content: ContentSummary) => void) {
@@ -237,4 +228,4 @@ export class ImageSelector
     }
 }
 
-api.form.inputtype.InputTypeManager.register(new api.Class('ImageSelector', ImageSelector));
+InputTypeManager.register(new Class('ImageSelector', ImageSelector));

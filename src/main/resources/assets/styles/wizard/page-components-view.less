@@ -7,7 +7,7 @@
   background-color: rgba(255, 255, 255, 0.9);
   z-index: @z-index-context-window;
   display: none;
-  margin-top: 42px;
+  margin-top: @app-header-height;
   .notSelectable();
   .material-layer-shadow();
   display: flex;
@@ -39,43 +39,56 @@
   }
 
   &.compact {
-    .tree-grid .grid .slick-viewport .slick-row {
-      height: 30px;
+    padding: 0 15px;
+    .tree-grid {
+      width: 100%;
 
-      .toggle {
-        margin-right: 5px;
-      }
+      .grid .slick-viewport {
+        width: 100% !important;
 
-      .slick-cell {
-        height: 30px;
+        .slick-row {
+          height: 30px;
 
-        .names-and-icon-view {
-
-          .xp-admin-common-wrapper {
-            line-height: 22px;
-            height: 22px;
-            width: 22px;
-            margin-right: 0;
-
-            .font-icon, .font-icon-default {
-              font-size: 18px;
-              display: block;
-
-              &:before {
-                font-size: 18px;
-              }
-            }
+          .toggle {
+            margin-right: 5px;
           }
 
-          .xp-admin-common-names-view {
-            margin-left: 35px;
+          .slick-cell {
+            height: 30px;
 
-            .xp-admin-common-main-name {
-              line-height: 22px;
-              height: auto;
+            &.menu-cell .menu-icon {
+              padding-left: 0;
             }
-            .xp-admin-common-sub-name {
-              display: none;
+
+            .names-and-icon-view {
+
+              .xp-admin-common-wrapper {
+                line-height: 22px;
+                height: 22px;
+                width: 22px;
+                margin-right: 0;
+
+                .font-icon, .font-icon-default {
+                  font-size: 18px;
+                  display: block;
+
+                  &:before {
+                    font-size: 18px;
+                  }
+                }
+              }
+
+              .xp-admin-common-names-view {
+                margin-left: 35px;
+
+                .xp-admin-common-main-name {
+                  line-height: 22px;
+                  height: auto;
+                }
+                .xp-admin-common-sub-name {
+                  display: none;
+                }
+              }
             }
           }
         }
@@ -84,7 +97,7 @@
   }
 
   .tree-grid {
-    width: 370px;
+    width: 340px;
     padding-bottom: 15px;
     height: auto;
     overflow-y: auto;
@@ -234,5 +247,11 @@
   &:before {
     line-height: 30px;
     font-size: 20px;
+  }
+}
+
+@media screen and (max-width: 720px) {
+  .page-components-view {
+    width: 100%;
   }
 }
