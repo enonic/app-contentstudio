@@ -22,6 +22,10 @@ import {ProjectRolesWizardStepForm} from './ProjectRolesWizardStepForm';
 import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 import {ProjectUpdateIconRequest} from '../resource/ProjectUpdateIconRequest';
 import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
+import {EditProjectAccessDialog} from '../../wizard/EditProjectAccessDialog';
+import {TaskId} from 'lib-admin-ui/task/TaskId';
+import {TaskState} from 'lib-admin-ui/task/TaskState';
+import {UpdateProjectReadAccessRequest} from '../resource/UpdateProjectReadAccessRequest';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -31,6 +35,8 @@ export class ProjectWizardPanel
     private readAccessWizardStepForm: ProjectReadAccessWizardStepForm;
 
     private rolesWizardStepForm?: ProjectRolesWizardStepForm;
+
+    private editProjectAccessDialog: EditProjectAccessDialog = new EditProjectAccessDialog();
 
     protected getIconClass(): string {
         return ProjectIconUrlResolver.DEFAULT_ICON_CLASS;
@@ -80,13 +86,13 @@ export class ProjectWizardPanel
 
     protected isNewItemChanged(): boolean {
         return !StringHelper.isBlank(this.projectWizardStepForm.getProjectName()) ||
-            !StringHelper.isBlank(this.projectWizardStepForm.getDescription()) ||
-            (this.rolesWizardStepForm && !this.rolesWizardStepForm.getPermissions().isEmpty()) ||
+               !StringHelper.isBlank(this.projectWizardStepForm.getDescription()) ||
+               (this.rolesWizardStepForm && !this.rolesWizardStepForm.getPermissions().isEmpty()) ||
                super.isNewItemChanged();
     }
 
     protected isPersistedItemChanged(): boolean {
-        return this.isProjectMetaChanged() || this.isLanguageChanged() || this.isPermissionsOrReadAccessChanged();
+        return this.isProjectMetaChanged() || this.isLanguageChanged() || this.isPermissionsChanged() || this.isReadAccessChanged();
     }
 
     postPersistNewItem(item: ProjectViewItem): Q.Promise<ProjectViewItem> {
@@ -129,10 +135,18 @@ export class ProjectWizardPanel
             .sendAndParse();
     }
 
-    private updateProjectPermissions(projectName: string, permissions: ProjectPermissions, readAccess: ProjectReadAccess): Q.Promise<void> {
+    private updateProjectPermissions(projectName: string, permissions: ProjectPermissions,
+                                     readAccess: ProjectReadAccess): Q.Promise<ProjectPermissions> {
         return new UpdateProjectPermissionsRequest()
             .setName(projectName)
             .setPermissions(permissions)
+            .setViewers(readAccess.getPrincipals())
+            .sendAndParse();
+    }
+
+    private updateProjectReadAccess(projectName: string, readAccess: ProjectReadAccess): Q.Promise<TaskId> {
+        return new UpdateProjectReadAccessRequest()
+            .setName(projectName)
             .setReadAccess(readAccess)
             .sendAndParse();
     }
@@ -177,7 +191,7 @@ export class ProjectWizardPanel
         return !ObjectHelper.stringEquals(currentLanguage, this.readAccessWizardStepForm.getLanguage());
     }
 
-    private isPermissionsOrReadAccessChanged(): boolean {
+    private isPermissionsChanged(): boolean {
         if (!this.isItemPersisted()) {
             return true;
         }
@@ -185,11 +199,27 @@ export class ProjectWizardPanel
         const item: ProjectViewItem = this.getPersistedItem();
         const isDefaultProject: boolean = item.isDefaultProject();
 
-        if (!isDefaultProject && !ObjectHelper.equals(item.getPermissions(), this.rolesWizardStepForm.getPermissions())) {
+        if (!isDefaultProject) {
+            if (!ObjectHelper.equals(item.getPermissions(), this.rolesWizardStepForm.getPermissions())) {
+                return true;
+            }
+
+            return (!ObjectHelper.arrayEquals(item.getReadAccess().getPrincipals(),
+                this.readAccessWizardStepForm.getReadAccess().getPrincipals()));
+        }
+
+        return false;
+    }
+
+    private isReadAccessChanged(): boolean {
+        if (!this.isItemPersisted()) {
             return true;
         }
 
-        return (!isDefaultProject && !ObjectHelper.equals(item.getReadAccess(), this.readAccessWizardStepForm.getReadAccess()));
+        const item: ProjectViewItem = this.getPersistedItem();
+        const isDefaultProject: boolean = item.isDefaultProject();
+
+        return !isDefaultProject && item.getReadAccess().getType() !== this.readAccessWizardStepForm.getReadAccess().getType();
     }
 
     protected handleDataChanged() {
@@ -209,13 +239,39 @@ export class ProjectWizardPanel
             const permissions: ProjectPermissions = this.rolesWizardStepForm ? this.rolesWizardStepForm.getPermissions() : null;
             const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
 
-            const permissionsPromise: Q.Promise<void> = this.isPermissionsOrReadAccessChanged() ?
-                                                        this.updateProjectPermissions(project.getName(), permissions, readAccess) : Q(null);
+            if (this.isPermissionsChanged()) {
+                this.updateProjectPermissions(project.getName(), this.rolesWizardStepForm.getPermissions(), readAccess);
+            }
 
-            return permissionsPromise.then(() => {
-                projectBuilder.setPermissions(permissions).setReadAccess(readAccess);
+            const readAccessPromise: Q.Promise<TaskId> = this.isReadAccessChanged() ?
+                                                         this.updateProjectReadAccess(project.getName(), readAccess) : Q(
+                    null);
 
-                return projectBuilder.build();
+            return readAccessPromise.then((taskId: TaskId) => {
+
+                const result = Q.defer<Project>();
+                if (taskId) {
+                    let taskState;
+
+                    this.editProjectAccessDialog.setPath('/' + project.getName());
+                    this.editProjectAccessDialog.onProgressComplete((state) => {
+                        taskState = state;
+                        result.resolve(projectBuilder.setPermissions(permissions).setReadAccess(readAccess).build());
+                    });
+                    this.editProjectAccessDialog.pollTask(taskId);
+
+                    setTimeout(() => {
+                        if (TaskState.FINISHED !== taskState && TaskState.FAILED !== taskState) {
+                            this.editProjectAccessDialog.open();
+                        }
+                    }, 1000);
+
+                } else {
+                    result.resolve(projectBuilder.setPermissions(permissions).setReadAccess(readAccess).build());
+                }
+
+
+                return result.promise;
             });
         });
     }
@@ -225,7 +281,7 @@ export class ProjectWizardPanel
                                                    this.produceUpdateItemRequest().sendAndParse() : Q(this.getPersistedItem().getData());
 
         return projectPromise.then((project: Project) => {
-            return this.updateLanguageAndPermissionsIfNeeded(project);
+            return this.updateLanguageAndPermissionsIfNeeded(project).then();
         });
     }
 
