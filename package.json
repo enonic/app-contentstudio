@@ -1,6 +1,6 @@
 {
   "name": "app-contentstudio",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "description": "Enonix XP - Content Studio App",
   "license": "GPL-3.0",
   "repository": {
@@ -13,7 +13,6 @@
     "fix": "tslint -p tsconfig.build.json -c tslint.json --fix"
   },
   "dependencies": {
-    "@webcomponents/html-imports": "^1.2.4",
     "hasher": "^1.2.0",
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.12.1",
