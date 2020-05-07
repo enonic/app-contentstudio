@@ -107,6 +107,12 @@ module.exports = Object.freeze({
         ROOT_FOLDER_DESCRIPTION: "Manage projects and layers",
         DEFAULT_PROJECT_NAME: "Default"
     },
+    PROJECT_ROLES: {
+        CONTRIBUTOR: "Contributor",
+        AUTHOR: "Author",
+        EDITOR: "Editor",
+        OWNER: "Owner"
+    },
     SHOW_ISSUES_BUTTON_LABEL: {
         NO_OPEN_ISSUES: 'No open issues',
         OPEN_ISSUES: 'Open Issues'

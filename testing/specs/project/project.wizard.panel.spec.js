@@ -65,6 +65,9 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
             assert.equal(projectAccessItems.length, 1, "One access item should be present");
             assert.equal(projectAccessItems[0], appConstant.systemUsersDisplayName.SUPER_USER,
                 "Expected item should be displayed in selected options");
+
+            let actualRole = await projectWizard.getSelectedRoleInProjectAccessControlEntry("su");
+            assert.equal(actualRole, appConstant.PROJECT_ROLES.CONTRIBUTOR, "Contributor role should be set by default");
         });
 
     it(`GIVEN 'SU' is selected in Project Access WHEN the item has been removed THEN the item should not be present in the selected options`,

@@ -98,7 +98,7 @@ export class SortContentDialog
 
             const header = new H6El();
             header.setHtml(i18n('dialog.sort.preface'));
-            this.appendChildToContentPanel(header);
+            this.appendChildToHeader(header);
 
             this.contentGrid.getEl().addClass('sort-content-grid');
             this.appendChildToContentPanel(this.contentGrid);

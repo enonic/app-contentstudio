@@ -40,13 +40,14 @@ const XPATH = {
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
     liveEditFrame: "//iframe[contains(@class,'live-edit-frame shown')]",
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
-    accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`,
+    editPermissionsButton: "//div[contains(@class,'edit-permissions-button')]",
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
     scheduleForm: "//div[contains(@id,'ScheduleWizardStepForm')]",
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
     xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
     stepNavigatorToolbar: `//ul[contains(@id,'WizardStepNavigator')]`,
+    wizardStepNavigatorAndToolbar: "//div[contains(@id,'WizardStepNavigatorAndToolbar')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     wizardStepByName:
@@ -125,6 +126,10 @@ class ContentWizardPanel extends Page {
 
     get componentViewToggler() {
         return XPATH.container + XPATH.toolbar + XPATH.componentViewToggler;
+    }
+
+    get editPermissionsButton() {
+        return XPATH.wizardStepNavigatorAndToolbar + XPATH.editPermissionsButton;
     }
 
     waitForInspectionPanelTogglerVisible() {
@@ -237,7 +242,7 @@ class ContentWizardPanel extends Page {
         return await this.pause(400);
     }
 
-//Gets titles of all x-data forms
+    //Gets titles of all x-data forms
     getXdataTitles() {
         let selector = "//div[contains(@id,'PanelStripHeader') and child::div[@class='x-data-toggler']]/span"
         return this.getTextInElements(selector).catch(err => {
@@ -334,9 +339,14 @@ class ContentWizardPanel extends Page {
         return await this.pause(300);
     }
 
-    async clickOnAccessTabBarItem() {
-        await this.clickOnElement(XPATH.accessTabBarItem)
-        return await this.pause(700);
+    waitForEditPermissionsButtonVisible() {
+        return this.waitForElementDisplayed(this.editPermissionsButton);
+    }
+
+    async clickOnEditPermissionsButton() {
+        await this.waitForEditPermissionsButtonVisible();
+        await this.clickOnElement(this.editPermissionsButton);
+        return await this.pause(200);
     }
 
     waitForOpened() {
@@ -455,15 +465,15 @@ class ContentWizardPanel extends Page {
     }
 
     //clicks on 'Publish...' button
-    clickOnPublishButton() {
-        return this.waitForElementDisplayed(this.publishButton, appConst.TIMEOUT_3).then(() => {
-            return this.waitForElementEnabled(this.publishButton, appConst.TIMEOUT_3);
-        }).then(() => {
-            return this.clickOnElement(this.publishButton)
-        }).catch(err => {
+    async clickOnPublishButton() {
+        try {
+            await this.waitForElementDisplayed(this.publishButton, appConst.TIMEOUT_3);
+            await this.waitForElementEnabled(this.publishButton, appConst.TIMEOUT_3);
+            return await this.clickOnElement(this.publishButton);
+        } catch (err) {
             this.saveScreenshot('err_when_click_on_publish_button');
             throw new Error('Error when Publish button has been clicked ' + err);
-        });
+        }
     }
 
     //Click on Publish... button on toolbar, then clicks on Publish Now button on the modal dialog

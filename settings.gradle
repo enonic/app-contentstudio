@@ -1,7 +1,5 @@
 rootProject.name = 'contentstudio'
 
-enableFeaturePreview('STABLE_PUBLISHING')
-
 if ( hasProperty( 'env' ) ) {
     addBuild('../lib-admin-ui')
 }
