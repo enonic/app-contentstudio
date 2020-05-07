@@ -262,6 +262,24 @@
           }
         }
       }
+      .wizard-step-navigator-and-toolbar {
+        .edit-permissions-button, .tab-bar-item {
+
+          color: @HEADER_FONT_COLOR;
+
+          &::before {
+            color: @HEADER_ICON_COLOR;
+          }
+
+          &:hover {
+            color: @HEADER_FONT_COLOR_HOVER;
+
+            &::before {
+              color: @HEADER_ICON_COLOR_HOVER;
+            }
+          }
+        }
+      }
       .context-panel .context-panel-view {
         .non-mobile-details-panel-toggle-button {
           background-color: @ACTION_TOOLBAR_BG_COLOR;

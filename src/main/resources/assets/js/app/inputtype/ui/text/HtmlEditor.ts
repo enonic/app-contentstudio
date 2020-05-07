@@ -806,8 +806,8 @@ export class HtmlEditor {
         return CKEDITOR.instances[id].getData();
     }
 
-    public static setData(id: string, data: string) {
-        CKEDITOR.instances[id].setData(data);
+    public static setData(id: string, data: string, callback?: () => void) {
+        CKEDITOR.instances[id].setData(data, !!callback ? {callback: callback} : null);
     }
 
     public static focus(id: string) {

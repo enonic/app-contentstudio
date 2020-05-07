@@ -127,6 +127,20 @@
         align-items: center;
         justify-content: space-between;
 
+        @media screen and (max-width: 720px) {
+          flex-direction: column;
+          align-items: flex-start;
+
+          .alignment-container, .image-style-selector, .custom-width-checkbox {
+            margin-bottom: 10px;
+          }
+
+          .image-style-selector {
+            width: 100%;
+          }
+
+        }
+
         .alignment-container {
           display: flex;
 
@@ -143,6 +157,10 @@
               &:before {
                 color: @admin-font-gray2;
               }
+            }
+
+            &:first-child {
+              padding-left: 0px;
             }
           }
         }

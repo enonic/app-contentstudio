@@ -522,6 +522,7 @@ export class ContentWizardPanel
             });
 
             this.editPermissionsToolbarButton = new DivEl('edit-permissions-button');
+            this.editPermissionsToolbarButton.getEl().setTitle(i18n('field.access'));
             this.editPermissionsToolbarButton.addClass(this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock');
             this.editPermissionsToolbarButton.onClicked(this.handleEditPermissionsButtonClicked.bind(this));
             this.getStepNavigatorContainer().appendChild(this.editPermissionsToolbarButton);
@@ -1031,9 +1032,6 @@ export class ContentWizardPanel
 
         this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
         steps.push(this.settingsWizardStep);
-
-        // this.securityWizardStep = new ContentWizardStep(i18n('field.access'), this.securityWizardStepForm,
-        //     this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock');
 
         return steps;
     }

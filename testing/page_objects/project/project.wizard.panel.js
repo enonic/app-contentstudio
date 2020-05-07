@@ -18,10 +18,13 @@ const XPATH = {
     projectReadAccessWizardStepForm: "//div[contains(@id,'ProjectReadAccessWizardStepForm')]",
     accessFormItem: "//div[contains(@id,'ProjectFormItem') and contains(@class,'access')]",
     localeComboBoxDiv: "//div[contains(@id,'LocaleComboBox')]",
+    projectAccessSelectorTabMenu: "//div[contains(@id,'ProjectAccessSelector') and contains(@class,'tab-menu access-selector')]",
     accessItemByName:
         name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`,
     radioButtonByDescription: descr => XPATH.projectReadAccessWizardStepForm +
                                        `//span[contains(@id,'RadioButton') and descendant::label[contains(.,'${descr}')]]`,
+    wizardStepByTitle:
+        name => `//ul[contains(@id,'WizardStepNavigator')]//li[contains(@id,'TabBarItem') and @title='${name}']`,
 };
 
 class ProjectWizardPanel extends Page {
@@ -183,7 +186,7 @@ class ProjectWizardPanel extends Page {
         let comboBox = new ComboBox();
         await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container + XPATH.projectAccessControlComboBox);
         console.log("Project Wizard, principal is selected: " + principalDisplayName);
-        return await this.pause(300);
+        return await this.pause(400);
     }
 
     async getSelectedProjectAccessItems() {
@@ -258,6 +261,54 @@ class ProjectWizardPanel extends Page {
 
     waitForCustomReadAccessComboboxEnabled() {
         return this.waitForElementEnabled(this.customReadAccessCombobox, appConst.TIMEOUT_2);
+    }
+
+    async waitForProjectAccessSelectorTabMenuExpanded(principalName) {
+        let selector = XPATH.container + XPATH.accessItemByName(principalName) + XPATH.projectAccessSelectorTabMenu;
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getAttribute(selector, "class");
+            return result.includes("expanded");
+        }, appConst.TIMEOUT_3, "Project access menu should be expanded!");
+    }
+
+    getSelectedRoleInProjectAccessControlEntry(name) {
+        let selector = XPATH.container + XPATH.accessItemByName(name) + XPATH.projectAccessSelectorTabMenu + "//a";
+        return this.getText(selector);
+    }
+
+    addPrincipalsInRolesForm(memberDisplayNames) {
+        let result = Promise.resolve();
+        memberDisplayNames.forEach(displayName => {
+            result = result.then(() => this.selectProjectAccessRoles(displayName));
+        });
+        return result;
+    }
+
+    async expandProjectAccessMenuAndSelectRole(principalName, role) {
+        let selector = XPATH.container + XPATH.accessItemByName(principalName) + XPATH.projectAccessSelectorTabMenu;
+        await this.clickOnWizardStep("Roles");
+        await this.clickOnElement(selector);
+        await this.waitForProjectAccessSelectorTabMenuExpanded(principalName);
+        await this.pause(1000);
+        await this.waitForElementDisplayed(selector + `//li[contains(@id,'TabMenuItem') and child::a[text()='${role}']]`,
+            appConst.TIMEOUT_2);
+        await this.clickOnElement(selector + `//li[contains(@id,'TabMenuItem') and child::a[text()='${role}']]`);
+        return await this.pause(500);
+    }
+
+    async getAvailableProjectAccessRoles(principalName) {
+        let selector = XPATH.container + XPATH.accessItemByName(principalName) + XPATH.projectAccessSelectorTabMenu;
+        await this.clickOnWizardStep("Roles");
+        await this.clickOnElement(selector);
+        await this.waitForProjectAccessSelectorTabMenuExpanded(principalName);
+        await this.pause(1000);
+        return await this.getTextInElements(selector + "//li[contains(@id,'TabMenuItem')]//a");
+    }
+
+    async clickOnWizardStep(title) {
+        let stepXpath = XPATH.wizardStepByTitle(title);
+        await this.clickOnElement(stepXpath);
+        return await this.pause(900);
     }
 };
 module.exports = ProjectWizardPanel;

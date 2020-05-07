@@ -31,6 +31,7 @@ import {SelectorOnBlurEvent} from 'lib-admin-ui/ui/selector/SelectorOnBlurEvent'
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
+import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 
 declare var CONFIG;
 
@@ -94,11 +95,8 @@ export class HtmlArea
             property.convertValueType(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
 
-        const textAreaEl = new TextArea(this.getInput().getName() + '-' + index);
-        StylesRequest.fetchStyles(this.content.getId()).then(() => {
-            const value = HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content.getId());
-            textAreaEl.setValue(value, true, false);
-        });
+        const textAreaEl: TextArea = new TextArea(this.getInput().getName() + '-' + index);
+        StylesRequest.fetchStyles(this.content.getId());
 
         const editorId = textAreaEl.getId();
 
@@ -115,6 +113,12 @@ export class HtmlArea
             });
         });
 
+        textAreaEl.onValueChanged((event: ValueChangedEvent) => {
+            const processedValue: string = HTMLAreaHelper.convertPreviewSrcToRenderSrc(event.getNewValue());
+            const valueObj: Value = ValueTypes.STRING.newValue(processedValue);
+            this.notifyOccurrenceValueChanged(textAreaWrapper, valueObj);
+        });
+
         textAreaWrapper.appendChild(textAreaEl);
 
         this.setFocusOnEditorAfterCreate(textAreaWrapper, editorId);
@@ -123,10 +127,7 @@ export class HtmlArea
     }
 
     protected updateFormInputElValue(occurrence: FormInputEl, property: Property) {
-        const textArea = <TextArea> occurrence;
-        const id = textArea.getId();
-
-        this.setEditorContent(id, property);
+        this.setEditorContent(<TextArea>occurrence, property);
     }
 
     resetInputOccurrenceElement(occurrence: Element) {
@@ -150,11 +151,12 @@ export class HtmlArea
             new SelectorOnBlurEvent(this).fire();
         };
 
-        const notifyValueChanged = () => {
+        const editorValueChangedHandler = () => {
             if (!HtmlEditor.exists(id)) {
                 return;
             }
-            this.notifyValueChanged(id, textAreaWrapper);
+
+            this.handleEditorValueChanged(id, textAreaWrapper);
             new HtmlAreaResizeEvent(<any>this).fire();
         };
 
@@ -213,8 +215,6 @@ export class HtmlArea
         };
 
         const editorLoadedHandler = () => {
-            this.setEditorContent(id, property);
-
             if (this.notInLiveEdit()) {
                 if (BrowserHelper.isIE()) {
                     this.setupStickyEditorToolbarForInputOccurence(textAreaWrapper, id);
@@ -222,6 +222,10 @@ export class HtmlArea
             }
 
             this.moveButtonToBottomBar(textAreaWrapper, '.cke_button__sourcedialog');
+        };
+
+        const editorReadyHandler = () => {
+            this.setEditorContent(<TextArea>textAreaWrapper.getFirstChild(), property);
         };
 
         const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
@@ -232,8 +236,9 @@ export class HtmlArea
             .setFocusHandler(focusHandler)
             .setBlurHandler(blurHandler)
             .setKeydownHandler(keydownHandler)
-            .setNodeChangeHandler(notifyValueChanged)
+            .setNodeChangeHandler(editorValueChangedHandler)
             .setEditorLoadedHandler(editorLoadedHandler)
+            .setEditorReadyHandler(editorReadyHandler)
             .setContentPath(this.contentPath)
             .setContent(this.content)
             .setApplicationKeys(this.applicationKeys)
@@ -371,17 +376,8 @@ export class HtmlArea
         }
     }
 
-    isDirty(): boolean {
-        return this.editors.some((editor: HtmlAreaOccurrenceInfo) => {
-            return this.getEditorContent(editor) !== editor.textAreaEl.getValue();
-        });
-    }
-
-    private getEditorContent(editor: HtmlAreaOccurrenceInfo) {
-        return HtmlEditor.getData(editor.id);
-    }
-
-    private setEditorContent(editorId: string, property: Property): void {
+    private setEditorContent(textArea: TextArea, property: Property): void {
+        const editorId: string = textArea.getId();
         const content: string = property.hasNonNullValue() ?
                                     HTMLAreaHelper.convertRenderSrcToPreviewSrc(property.getString(), this.content.getId()) : '';
 
@@ -389,7 +385,11 @@ export class HtmlArea
             const currentData: string = HtmlEditor.getData(editorId);
             // invoke setData only if data changed
             if (content !== currentData) {
-                HtmlEditor.setData(editorId, content);
+                const afterDataSetCallback = () => {
+                    textArea.setValue(HtmlEditor.getData(editorId), true, false);
+                };
+
+                HtmlEditor.setData(editorId, content, afterDataSetCallback);
             }
         } else {
             console.log(`Editor with id '${editorId}' not found`);
@@ -400,10 +400,13 @@ export class HtmlArea
         return !($(this.getHTMLElement()).parents('.inspection-panel').length > 0);
     }
 
-    private notifyValueChanged(id: string, occurrence: Element) {
-        const value: string = HTMLAreaHelper.convertPreviewSrcToRenderSrc(HtmlEditor.getData(id));
-        const valueObj: Value = ValueTypes.STRING.newValue(value);
-        this.notifyOccurrenceValueChanged(occurrence, valueObj);
+    private handleEditorValueChanged(id: string, occurrence: Element) {
+        const value: string = HtmlEditor.getData(id);
+        const textArea: TextArea = <TextArea>occurrence.getFirstChild();
+
+        if (value !== textArea.getValue()) {
+            textArea.setValue(value, false, true);
+        }
     }
 
     private isNotActiveElement(htmlAreaIframe: HTMLElement): boolean {
