@@ -41,7 +41,6 @@ export class EditProjectAccessDialog
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.appendChildToHeader(this.subTitle);
-            this.subTitle.hide();
 
             return rendered;
         });
@@ -67,16 +66,8 @@ export class EditProjectAccessDialog
         this.subTitle = new H6El('sub-title').setHtml(`${i18n('dialog.projectAccess.applying')}...`);
     }
 
-    protected initListeners() {
-        super.initListeners();
-
-        this.onProgressComplete(() => {
-            this.subTitle.hide();
-        });
-    }
-
     protected createHeader(): EditProjectAccessDialogHeader {
-        return new EditProjectAccessDialogHeader(i18n('dialog.permissions'), '');
+        return new EditProjectAccessDialogHeader(i18n('dialog.projectAccess'), '');
     }
 
     protected getHeader(): EditProjectAccessDialogHeader {
