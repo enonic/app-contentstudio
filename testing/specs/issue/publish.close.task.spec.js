@@ -29,10 +29,11 @@ describe('publish.close.task.spec: publish a content and close the task.', funct
         let contentBrowsePanel = new ContentBrowsePanel();
         let displayName = contentBuilder.generateRandomName('folder');
         TEST_FOLDER = contentBuilder.buildFolder(displayName);
-        //Do add new 'Marked as ready' folder:
+        //1. Do add new 'Marked as ready' folder:
         await studioUtils.doAddReadyFolder(TEST_FOLDER);
+        //2. Select the folder:
         await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-        //open 'Create Issue' dialog
+        //3. Open 'Create Issue' dialog
         await contentBrowsePanel.openPublishMenuAndClickOnCreateTask();
         await createTaskDialog.typeTitle(TASK_TITLE);
         //Click on 'Create Task' button and create new issue:
@@ -40,6 +41,7 @@ describe('publish.close.task.spec: publish a content and close the task.', funct
         await taskDetailsDialog.waitForDialogOpened();
     });
 
+    // Verifies: Issue is not closed after publishing (#1301).
     it(`GIVEN Issue Details Dialog is opened AND Items-tab activated WHEN 'Publish...' button has been pressed AND 'Publish Now' has been pressed in the loaded wizard THEN the content should be published`,
         async () => {
             let issueListDialog = new IssueListDialog();

@@ -10,7 +10,6 @@ const contentBuilder = require("../libs/content.builder");
 const UserAccessWidget = require('../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 const EditPermissionsDialog = require('../page_objects/edit.permissions.dialog');
 const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
-const AccessStepForm = require('../page_objects/wizardpanel/access.wizard.step.form');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 
 describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions and add 'Create' operation", function () {
