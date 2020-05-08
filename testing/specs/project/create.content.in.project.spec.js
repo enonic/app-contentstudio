@@ -11,7 +11,6 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardAccessStepForm = require('../../page_objects/wizardpanel/access.wizard.step.form');
 const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
 const ContentWidgetView = require('../../page_objects/browsepanel/detailspanel/content.widget.item.view');
 const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
@@ -87,7 +86,6 @@ describe('create.content.in.project.spec - create new content in the selected co
             //3. Open Edit Permissions Dialog:
             await contentWizardPanel.clickOnEditPermissionsButton();
             await editPermissionsDialog.waitForDialogLoaded();
-
             //3. Open Edit Permissions Dialog
             let result = await editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + " - Owner"), "Expected Acl should be present");
@@ -97,7 +95,6 @@ describe('create.content.in.project.spec - create new content in the selected co
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + " - Contributor"), "Expected Acl should be present");
             assert.equal(result.length, 7, "Total number of ACL entries should be 7");
         });
-
 
     it("GIVEN project with 'Private' access mode is selected AND existing folder is selected WHEN Details Panel has been opened THEN ",
         async () => {
