@@ -55,6 +55,10 @@ export class EditProjectAccessDialog
         super.open();
     }
 
+    setSuppressNotifications(value: boolean = false) {
+        this.progressManager.setSuppressNotifications(value);
+    }
+
     protected initElements() {
         super.initElements();
 
@@ -77,6 +81,7 @@ export class EditProjectAccessDialog
     protected handleClickOutside() {
         return;
     }
+
 }
 
 applyMixins(EditProjectAccessDialog, [TaskProgressInterface]);

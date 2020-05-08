@@ -253,10 +253,14 @@ export class ProjectWizardPanel
                 if (taskId) {
                     let taskState;
 
+                    if (!this.getPersistedItem()) {
+                        this.editProjectAccessDialog.setSuppressNotifications(true);
+                    }
                     this.editProjectAccessDialog.setPath('/' + project.getName());
                     this.editProjectAccessDialog.onProgressComplete((state) => {
                         taskState = state;
                         result.resolve(projectBuilder.setPermissions(permissions).setReadAccess(readAccess).build());
+                        this.editProjectAccessDialog.setSuppressNotifications(false);
                     });
                     this.editProjectAccessDialog.pollTask(taskId);
 
