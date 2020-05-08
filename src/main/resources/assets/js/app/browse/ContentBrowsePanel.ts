@@ -136,17 +136,18 @@ export class ContentBrowsePanel
     }
 
     private handleTreeGridUpdatedEvent(event: DataChangedEvent<ContentSummaryAndCompareStatus>) {
-        this.updateBrowseItems(event.getTreeNodes());
+        this.updateBrowseItems(event.getTreeNodes().map(node => node.getData()));
         this.refreshTreeGridActions();
     }
 
-    private updateBrowseItems(nodes: TreeNode<ContentSummaryAndCompareStatus>[]) {
-        const browseItems: ContentBrowseItem[] = this.treeNodesToBrowseItems(nodes);
+    private updateBrowseItems(items: ContentSummaryAndCompareStatus[]) {
+        const browseItems: ContentBrowseItem[] = <ContentBrowseItem[]>this.dataItemsToBrowseItems(items);
         this.getBrowseItemPanel().updateItems(browseItems);
     }
 
     private refreshTreeGridActions() {
-        this.getBrowseActions().updateActionsEnabledState(this.treeNodesToBrowseItems(this.treeGrid.getSelectedOrHighlightedItems()));
+        this.getBrowseActions()
+            .updateActionsEnabledState(<ContentBrowseItem[]>this.dataItemsToBrowseItems(this.treeGrid.getSelectedOrHighlightedItems()));
     }
 
     protected createBrowseItemPanel(): ContentBrowseItemPanel {
@@ -228,7 +229,7 @@ export class ContentBrowsePanel
         }
 
         if (this.treeGrid.hasHighlightedNode()) {
-            this.doUpdateContextPanel(this.treeGrid.getHighlightedNode().getData());
+            this.doUpdateContextPanel(this.treeGrid.getHighlightedItem());
 
             return;
         }
@@ -265,36 +266,12 @@ export class ContentBrowsePanel
         });
     }
 
-    treeNodeToBrowseItem(node: TreeNode<ContentSummaryAndCompareStatus>): ContentBrowseItem | null {
-        const data: ContentSummaryAndCompareStatus = node ? node.getData() : null;
+    dataToBrowseItem(data: ContentSummaryAndCompareStatus): ContentBrowseItem | null {
         return (!data || !data.getContentSummary()) ? null : <ContentBrowseItem>new ContentBrowseItem(data)
             .setId(data.getId())
             .setDisplayName(data.getContentSummary().getDisplayName())
             .setPath(data.getContentSummary().getPath().toString())
             .setIconUrl(new ContentIconUrlResolver().setContent(data.getContentSummary()).resolve());
-    }
-
-    treeNodesToBrowseItems(nodes: TreeNode<ContentSummaryAndCompareStatus>[]): ContentBrowseItem[] {
-        const browseItems: ContentBrowseItem[] = [];
-
-        // do not proceed duplicated content. still, it can be selected
-        nodes.forEach((node: TreeNode<ContentSummaryAndCompareStatus>, index: number) => {
-            let i = 0;
-            // Take last in a sequence with the same id
-            for (; i <= index; i++) {
-                if (nodes[i].getData().getId() === node.getData().getId()) {
-                    break;
-                }
-            }
-            if (i === index) {
-                const item: ContentBrowseItem = this.treeNodeToBrowseItem(node);
-                if (item) {
-                    browseItems.push(item);
-                }
-            }
-        });
-
-        return browseItems;
     }
 
     private handleGlobalEvents() {
@@ -650,15 +627,15 @@ export class ContentBrowsePanel
             showCreateIssueButtonByDefault: true
         });
 
-        let previousSelectionSize: number = this.treeGrid.getRoot().getFullSelection().length;
+        let previousSelectionSize: number = this.treeGrid.getTotalSelected();
 
         this.treeGrid.onSelectionChanged(() => {
-            const fullSelection: TreeNode<ContentSummaryAndCompareStatus>[] = this.treeGrid.getRoot().getFullSelection();
-            const isSingleSelected = fullSelection.length === 1;
-            const hadMultipleSelection = previousSelectionSize > 1;
+            const totalSelected: number = this.treeGrid.getTotalSelected();
+            const isSingleSelected: boolean = totalSelected === 1;
+            const hadMultipleSelection: boolean = previousSelectionSize > 1;
 
-            previousSelectionSize = fullSelection.length;
-            contentPublishMenuButton.setItem(isSingleSelected ? fullSelection[0].getData() : null);
+            previousSelectionSize = totalSelected;
+            contentPublishMenuButton.setItem(isSingleSelected ? this.treeGrid.getFirstSelectedItem() : null);
             if (hadMultipleSelection && isSingleSelected) {
                 contentPublishMenuButton.updateActiveClass();
             }

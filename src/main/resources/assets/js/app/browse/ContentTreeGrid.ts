@@ -406,7 +406,7 @@ export class ContentTreeGrid
 
     appendUploadNode(item: UploadItem<ContentSummary>) {
         const data: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromUploadItem(item);
-        const parent: TreeNode<ContentSummaryAndCompareStatus> = this.getRoot().getCurrentSelection()[0];
+        const parent: TreeNode<ContentSummaryAndCompareStatus> = this.getFirstSelectedNode();
 
         this.appendNode(data, false).then(() => {
             if (parent) {
@@ -814,15 +814,15 @@ export class ContentTreeGrid
         return null;
     }
 
-    getSelectedOrHighlightedItems(): TreeNode<ContentSummaryAndCompareStatus>[] {
-        const selectedItems: TreeNode<ContentSummaryAndCompareStatus>[] = this.getRoot().getFullSelection();
+    getSelectedOrHighlightedItems(): ContentSummaryAndCompareStatus[] {
+        const selectedItems: ContentSummaryAndCompareStatus[] = this.getFullSelection();
 
         if (selectedItems.length > 0) {
             return selectedItems;
         }
 
         if (this.hasHighlightedNode()) {
-            return [this.getFirstSelectedOrHighlightedNode()];
+            return [this.getHighlightedItem()];
         }
 
         return [];
@@ -972,17 +972,16 @@ export class ContentTreeGrid
     }
 
     selectInlinedContentInGrid(contentPath: ContentPath) {
-        if (this.getFirstSelectedOrHighlightedNode() && !this.isGivenPathSelectedInGrid(contentPath)) {
+        if (this.hasSelectedOrHighlightedNode() && !this.isGivenPathSelectedInGrid(contentPath)) {
             this.selectNodeByPath(contentPath);
         }
     }
 
     private isGivenPathSelectedInGrid(path: ContentPath): boolean {
-        const node: TreeNode<ContentSummaryAndCompareStatus> = this.getFirstSelectedOrHighlightedNode();
+        const item: ContentSummaryAndCompareStatus = this.getFirstSelectedOrHighlightedItem();
 
-        if (node) {
-            const contentSummary: ContentSummaryAndCompareStatus = node.getData();
-            return contentSummary.getPath().equals(path);
+        if (item) {
+            return item.getPath().equals(path);
         }
 
         return false;
