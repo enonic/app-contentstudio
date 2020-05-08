@@ -259,9 +259,7 @@ export class PageComponentsView
                 }
                 if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), LayoutComponentView)) {
                     const componentDataId = this.tree.getDataId(event.getNewComponentView());
-                    const componentNode = this.tree.getRoot().getCurrentRoot().findNode(componentDataId);
-
-                    this.tree.expandNode(componentNode);
+                    this.tree.expandNodeByDataId(componentDataId);
                     return;
                 }
             });
@@ -303,12 +301,11 @@ export class PageComponentsView
 
         if (this.tree.hasChildren(event.getComponentView())) {
             const componentDataId = this.tree.getDataId(event.getComponentView());
-            const componentNode = this.tree.getRoot().getCurrentRoot().findNode(componentDataId);
 
             if (event.isDragged()) {
-                this.tree.collapseNode(componentNode, true);
+                this.tree.collapseNodeByDataId(componentDataId, true);
             } else {
-                this.tree.expandNode(componentNode, true);
+                this.tree.expandNodeByDataId(componentDataId, true);
             }
         }
 
@@ -411,17 +408,17 @@ export class PageComponentsView
         });
 
         this.tree.onSelectionChanged(() => {
-            const fullSelection: TreeNode<ItemView>[] = this.tree.getFullSelection();
-            const currentSelection: TreeNode<ItemView>[] = this.tree.getCurrentSelection();
+            const fullSelection: number = this.tree.getTotalSelected();
+            const currentSelection: ItemView[] = this.tree.getCurrentSelection();
 
-            if (fullSelection.length > 0 && this.isModal()) {
+            if (fullSelection > 0 && this.isModal()) {
                 this.hide();
             }
 
-            const treeNode: TreeNode<ItemView> = currentSelection[0];
+            const selectedItem: ItemView = currentSelection[0];
 
-            if (treeNode && !treeNode.getData().isSelected()) {
-                this.selectItem(treeNode);
+            if (selectedItem && !selectedItem.isSelected()) {
+                this.selectItem(selectedItem);
             }
 
             this.hideContextMenu();
@@ -549,9 +546,9 @@ export class PageComponentsView
         this.lockedViewClickHandler = this.lockedViewClickHandler.bind(this);
     }
 
-    private selectItem(treeNode: TreeNode<ItemView>) {
-        treeNode.getData().selectWithoutMenu();
-        this.scrollToItem(treeNode.getDataId());
+    private selectItem(item: ItemView) {
+        item.selectWithoutMenu();
+        this.scrollToItem(item.getItemId().toString());
     }
 
     private selectItemById() {
@@ -844,7 +841,7 @@ export class PageComponentsView
                         data.getType().getConfig().getHighlighterStyle());
                 }
                 if (BrowserHelper.isIOS()) {
-                    this.selectItem(hoveredNode);
+                    this.selectItem(hoveredNode.getData());
                 }
             }
         }
