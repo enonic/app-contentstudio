@@ -31,21 +31,27 @@ class LoaderComboBox extends Page {
     }
 
     async typeTextAndSelectOption(optionDisplayName, xpath) {
-        let optionSelector = lib.slickRowByDisplayName(XPATH.container, optionDisplayName);
-        if (xpath === undefined) {
-            xpath = '';
+        try {
+            let optionSelector = lib.slickRowByDisplayName(XPATH.container, optionDisplayName);
+            if (xpath === undefined) {
+                xpath = '';
+            }
+            let elems = await this.getDisplayedElements(xpath + this.optionsFilterInput);
+            if (elems.length === 0) {
+                await this.waitForElementDisplayed(xpath + this.optionsFilterInput, appConst.TIMEOUT_3);
+                elems = await this.getDisplayedElements(xpath + this.optionsFilterInput);
+            }
+            //await this.getBrowser().elementSendKeys(elems[0].elementId, [optionDisplayName]);
+            await elems[0].setValue(optionDisplayName);
+            await this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_3);
+            await this.pause(300);
+            await this.clickOnElement(optionSelector);
+            return await this.pause(500);
+        } catch (err) {
+            this.saveScreenshot(appConst.generateRandomName("err_combobox"));
+            throw new Error(err);
         }
-        let elems = await this.getDisplayedElements(xpath + this.optionsFilterInput);
-        if (elems.length === 0) {
-            await this.waitForElementDisplayed(xpath + this.optionsFilterInput, appConst.TIMEOUT_2);
-            elems = await this.getDisplayedElements(xpath + this.optionsFilterInput);
-        }
-        //await this.getBrowser().elementSendKeys(elems[0].elementId, [optionDisplayName]);
-        await elems[0].setValue(optionDisplayName);
-        await this.waitForElementDisplayed(optionSelector);
-        await this.pause(300);
-        await this.clickOnElement(optionSelector);
-        return await this.pause(500);
+
     }
 
     getOptionDisplayNames() {
