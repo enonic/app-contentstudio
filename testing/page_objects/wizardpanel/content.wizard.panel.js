@@ -340,7 +340,7 @@ class ContentWizardPanel extends Page {
     }
 
     waitForEditPermissionsButtonVisible() {
-        return this.waitForElementDisplayed(this.editPermissionsButton);
+        return this.waitForElementDisplayed(this.editPermissionsButton, appConst.TIMEOUT_3);
     }
 
     async clickOnEditPermissionsButton() {
@@ -419,10 +419,15 @@ class ContentWizardPanel extends Page {
     }
 
     async waitAndClickOnSave() {
-        await this.waitForSaveButtonEnabled();
-        await this.clickOnElement(this.saveButton);
-        await this.waitForSavingButtonNotVisible();
-        return await this.pause(1200);
+        try {
+            await this.waitForSaveButtonEnabled();
+            await this.clickOnElement(this.saveButton);
+            await this.waitForSavingButtonNotVisible();
+            return await this.pause(1200);
+        } catch (err) {
+            this.saveScreenshot(appConst.generateRandomName("err_save"));
+            throw new Error(err);
+        }
     }
 
     waitForSavingButtonNotVisible() {
