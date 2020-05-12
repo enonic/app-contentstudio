@@ -8,12 +8,14 @@ import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
 export class InPlaceTextInput
     extends CompositeFormInputEl {
 
-    private input: TextInput;
-    private h2: H2El;
+    readonly input: TextInput;
+    readonly h2: H2El;
     private persistedValue: string;
 
     private modeListeners: { (editMode: boolean, newValue: string, oldValue: string) }[] = [];
     private outsideClickListener: (event: MouseEvent) => void;
+
+    protected escapeValue: boolean = true;
 
     constructor(originalValue?: string, size?: string) {
         super();
@@ -28,7 +30,7 @@ export class InPlaceTextInput
 
     private createHeader(originalValue: string): H2El {
         const h2 = new H2El('inplace-text');
-        h2.setHtml(this.formatTextToDisplay(originalValue), false);
+        h2.setHtml(this.formatTextToDisplay(originalValue), this.escapeValue);
         h2.getEl().setTitle(i18n('action.clickToEdit'));
         h2.onClicked(() => this.setEditMode(true));
         return h2;
@@ -80,7 +82,7 @@ export class InPlaceTextInput
             this.persistedValue = newValue;
             this.input.giveFocus();
         } else {
-            this.h2.setHtml(this.formatTextToDisplay(newValue), false);
+            this.h2.setHtml(this.formatTextToDisplay(newValue), this.escapeValue);
         }
         this.bindOutsideClickListener(enableEdit);
         this.notifyEditModeChanged(enableEdit, newValue, this.persistedValue);
@@ -106,7 +108,7 @@ export class InPlaceTextInput
 
     setValue(value: string, silent?: boolean, userInput?: boolean): InPlaceTextInput {
         super.setValue(value, silent, userInput);
-        this.h2.setHtml(this.formatTextToDisplay(value), false);
+        this.h2.setHtml(this.formatTextToDisplay(value), this.escapeValue);
         return this;
     }
 
