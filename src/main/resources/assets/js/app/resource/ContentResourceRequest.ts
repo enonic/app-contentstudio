@@ -24,27 +24,15 @@ export abstract class ContentResourceRequest<PARSED_TYPE>
     }
 
     fromJsonToContentSummaryArray(json: ContentSummaryJson[]): ContentSummary[] {
-
-        let array: ContentSummary[] = [];
-        json.forEach((itemJson: ContentSummaryJson) => {
-            array.push(this.fromJsonToContentSummary(itemJson));
-        });
-
-        return array;
+        return json.map((itemJson: ContentSummaryJson) => this.fromJsonToContentSummary(itemJson));
     }
 
     fromJsonToContentArray(json: ContentJson[]): Content[] {
-
-        let array: Content[] = [];
-        json.forEach((itemJson: ContentJson) => {
-            array.push(this.fromJsonToContent(itemJson));
-        });
-
-        return array;
+        return json.map((itemJson: ContentJson) => this.fromJsonToContent(itemJson));
     }
 
     fromJsonToContent(json: ContentJson): Content {
-        let type = new ContentTypeName(json.type);
+        const type = new ContentTypeName(json.type);
 
         if (type.isSite()) {
             return new SiteBuilder().fromContentJson(json).build();
