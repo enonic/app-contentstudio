@@ -4,18 +4,17 @@ import {Body} from 'lib-admin-ui/dom/Body';
 import {CompositeFormInputEl} from 'lib-admin-ui/dom/CompositeFormInputEl';
 import {H2El} from 'lib-admin-ui/dom/H2El';
 import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class InPlaceTextInput
     extends CompositeFormInputEl {
 
-    readonly input: TextInput;
-    readonly h2: H2El;
+    private readonly input: TextInput;
+    private readonly h2: H2El;
     private persistedValue: string;
 
     private modeListeners: { (editMode: boolean, newValue: string, oldValue: string) }[] = [];
     private outsideClickListener: (event: MouseEvent) => void;
-
-    protected escapeValue: boolean = true;
 
     constructor(originalValue?: string, size?: string) {
         super();
@@ -30,7 +29,8 @@ export class InPlaceTextInput
 
     private createHeader(originalValue: string): H2El {
         const h2 = new H2El('inplace-text');
-        h2.setHtml(this.formatTextToDisplay(originalValue), this.escapeValue);
+        h2.removeChildren();
+        h2.appendChild(this.formatTextToDisplay(originalValue));
         h2.getEl().setTitle(i18n('action.clickToEdit'));
         h2.onClicked(() => this.setEditMode(true));
         return h2;
@@ -39,7 +39,7 @@ export class InPlaceTextInput
     private createInput(originalValue: string, size: string) {
         const input = new TextInput('inplace-input', size, originalValue);
 
-        input.onValueChanged(event => {
+        input.onValueChanged(() => {
             const isValid = this.isInputValid();
             input.toggleClass('invalid', !isValid);
             this.toggleClass('invalid', !isValid);
@@ -82,7 +82,8 @@ export class InPlaceTextInput
             this.persistedValue = newValue;
             this.input.giveFocus();
         } else {
-            this.h2.setHtml(this.formatTextToDisplay(newValue), this.escapeValue);
+            this.h2.removeChildren();
+            this.h2.appendChild(this.formatTextToDisplay(newValue));
         }
         this.bindOutsideClickListener(enableEdit);
         this.notifyEditModeChanged(enableEdit, newValue, this.persistedValue);
@@ -108,12 +109,13 @@ export class InPlaceTextInput
 
     setValue(value: string, silent?: boolean, userInput?: boolean): InPlaceTextInput {
         super.setValue(value, silent, userInput);
-        this.h2.setHtml(this.formatTextToDisplay(value), this.escapeValue);
+        this.h2.removeChildren();
+        this.h2.appendChild(this.formatTextToDisplay(value));
         return this;
     }
 
-    public formatTextToDisplay(inputValue: string): string {
-        return inputValue;
+    protected formatTextToDisplay(inputValue: string): SpanEl {
+        return SpanEl.fromText(inputValue);
     }
 
     public isEditMode(): boolean {
