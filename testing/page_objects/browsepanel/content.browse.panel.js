@@ -708,5 +708,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
         return this.clickOnElement(selector);
     }
+
+    async expandProjectSelectorAndGetProjectsName() {
+        await this.clickOnProjectSelectorDropDownHandle();
+        let selector = "//ul[contains(@id,'SelectableProjectList')]//div[contains(@id,'ProjectListItemViewer')]" + lib.H6_DISPLAY_NAME;
+        return await this.getTextInElements(selector);
+    }
 };
 module.exports = ContentBrowsePanel;

@@ -344,9 +344,15 @@ class ContentWizardPanel extends Page {
     }
 
     async clickOnEditPermissionsButton() {
-        await this.waitForEditPermissionsButtonVisible();
-        await this.clickOnElement(this.editPermissionsButton);
-        return await this.pause(200);
+        try {
+            await this.waitForEditPermissionsButtonVisible();
+            await this.clickOnElement(this.editPermissionsButton);
+            return await this.pause(200);
+        } catch (err) {
+            this.saveScreenshot(appConst.generateRandomName("err_edit_perm_button"));
+            throw new Error(err);
+        }
+
     }
 
     waitForOpened() {
