@@ -133,12 +133,14 @@
         }
 
         .wizard-step-navigator-and-toolbar {
-          margin-top: 40px;
+          padding-top: 50px;
           padding-left: 40px;
           box-sizing: border-box;
           overflow: initial;
+
           .fold-button {
             margin-left: -40px;
+
             .fold-label {
               position: absolute;
               width: 120px;
@@ -173,16 +175,20 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            margin: -40px 0 0 -40px;
             background: @admin-bg-light-gray;
           }
         }
 
         .wizard-step-navigator {
           width: 100%;
+          margin-top: 35px;
           box-sizing: border-box;
           transform: rotate(90deg);
           transform-origin: 0 0;
+
+          .tab-bar-item {
+            line-height: 18px;
+          }
         }
 
         .minimize-edit {
