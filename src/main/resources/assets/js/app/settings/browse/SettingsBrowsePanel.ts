@@ -3,7 +3,6 @@ import {SettingsItemsTreeGrid} from '../grid/SettingsItemsTreeGrid';
 import {SettingsBrowseToolbar} from './SettingsBrowseToolbar';
 import {SettingsTreeGridActions} from '../grid/SettingsTreeGridActions';
 import {SettingsBrowseItemPanel} from './SettingsBrowseItemPanel';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 import {ProjectContext} from '../../project/ProjectContext';
@@ -45,26 +44,12 @@ export class SettingsBrowsePanel
         return new SettingsBrowseItemPanel();
     }
 
-    treeNodeToBrowseItem(node: TreeNode<SettingsViewItem>): BrowseItem<SettingsViewItem> | null {
-        const data: SettingsViewItem = node ? node.getData() : null;
+    dataToBrowseItem(data: SettingsViewItem): BrowseItem<SettingsViewItem> | null {
         return !data ? null : <BrowseItem<SettingsViewItem>>new BrowseItem<SettingsViewItem>(data)
             .setId(data.getId())
             .setDisplayName(data.getDisplayName())
             .setIconClass(`icon-large ${data.getIconClass()}`)
             .setIconUrl(data.getIconUrl());
-    }
-
-    treeNodesToBrowseItems(nodes: TreeNode<SettingsViewItem>[]): BrowseItem<SettingsViewItem>[] {
-        let browseItems: BrowseItem<SettingsViewItem>[] = [];
-
-        // do not proceed duplicated content. still, it can be selected
-        nodes.forEach((node: TreeNode<SettingsViewItem>) => {
-            const item = this.treeNodeToBrowseItem(node);
-            if (item) {
-                browseItems.push(item);
-            }
-        });
-        return browseItems;
     }
 
     hasItemWithId(id: string) {
