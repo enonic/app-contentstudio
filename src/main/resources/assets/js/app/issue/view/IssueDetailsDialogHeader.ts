@@ -1,6 +1,7 @@
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {InPlaceTextInput} from './InPlaceTextInput';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 class IssueDetailsInPlaceTextInput
     extends InPlaceTextInput {
@@ -11,8 +12,10 @@ class IssueDetailsInPlaceTextInput
         super(title);
     }
 
-    public formatTextToDisplay(inputValue: string): string {
-        return `${inputValue}<span class="title-id">#${this.titleId}</span>`;
+    public formatTextToDisplay(inputValue: string): SpanEl {
+        const container = new SpanEl();
+        container.appendChildren(SpanEl.fromText(inputValue), SpanEl.fromText(`#${this.titleId}`).addClass('title-id'));
+        return container;
     }
 
     setTitleId(id: number): IssueDetailsInPlaceTextInput {
@@ -25,7 +28,7 @@ export class IssueDetailsDialogHeader
     extends DivEl
     implements ModalDialogHeader {
 
-    private input: IssueDetailsInPlaceTextInput;
+    private readonly input: IssueDetailsInPlaceTextInput;
     private titleChangedListeners: { (newTitle: string, oldTitle: string): void }[] = [];
 
     constructor(title: string) {
