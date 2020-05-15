@@ -42,7 +42,6 @@
 
       .appbar {
         background-color: @HEADER_BG_COLOR;
-        border-bottom: 1px solid @admin-bg-light-gray;
 
         &.appbar-settings {
           border-bottom: none;
@@ -81,8 +80,6 @@
         }
 
         .show-issues-button-wrapper .show-issues-dialog-button {
-
-          border-right: 1px solid @admin-font-gray2;
 
           span {
             color: @HEADER_FONT_COLOR;
@@ -192,6 +189,15 @@
             }
           }
         }
+/*
+        &:not(.appbar-settings.tabs-present) + .panel {
+          border-top: 1px solid @admin-bg-light-gray;
+        }*/
+
+        & + .panel {
+          border-top: 1px solid @admin-bg-light-gray;
+        }
+
       }
 
       .split-panel {
