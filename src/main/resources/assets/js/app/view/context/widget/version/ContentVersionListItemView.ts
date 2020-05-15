@@ -11,7 +11,6 @@ import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVer
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
 import * as $ from 'jquery';
-import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
@@ -23,8 +22,9 @@ import {VersionInfoBlock} from './VersionInfoBlock';
 export class ContentVersionListItemView
     extends LiEl {
 
-    private version: ContentVersion;
-    private content: ContentSummaryAndCompareStatus;
+    private readonly version: ContentVersion;
+    private readonly content: ContentSummaryAndCompareStatus;
+    private readonly activeVersionId: string;
     private tooltip: Tooltip;
 
     private statusBlock: DivEl;
@@ -34,11 +34,12 @@ export class ContentVersionListItemView
     private revertButton: ActionButton;
     private compareButton: ActionButton;
 
-    constructor(version: ContentVersion, content: ContentSummaryAndCompareStatus) {
+    constructor(version: ContentVersion, content: ContentSummaryAndCompareStatus, activeVersionId: string) {
         super('content-version-item');
 
         this.version = version;
         this.content = content;
+        this.activeVersionId = activeVersionId;
 
         this.initElements();
         this.initListeners();
@@ -179,7 +180,7 @@ export class ContentVersionListItemView
             .sendAndParse()
             .then((newVersionId) => {
 
-                if (!newVersionId) {
+                if (newVersionId === this.activeVersionId) {
                     NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
                     return;
                 }
@@ -187,7 +188,7 @@ export class ContentVersionListItemView
                 const modifiedDate = version.getModified();
                 const dateTime = `${DateHelper.formatDate(modifiedDate)} ${DateHelper.getFormattedTimeFromDate(modifiedDate, false)}`;
 
-                NotifyManager.get().showFeedback(i18n('notify.version.changed', dateTime));
+                NotifyManager.get().showSuccess(i18n('notify.version.changed', dateTime));
                 new ActiveContentVersionSetEvent(contentId, version.getId()).fire();
             })
             .catch(DefaultErrorHandler.handle);
