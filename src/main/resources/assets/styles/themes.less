@@ -12,7 +12,7 @@
   @HEADER_FONT_COLOR_HOVER: @admin-black;
   @HEADER_ICON_COLOR: @admin-font-gray3;
   @HEADER_ICON_COLOR_HOVER: @admin-black;
-  @ACTION_TOOLBAR_BG_COLOR: #f7f7f8;
+  @ACTION_TOOLBAR_BG_COLOR:@admin-bg-toolbar;
   @TOOLBAR_BG_COLOR: @admin-white;
 }
 
@@ -49,18 +49,30 @@
           z-index: 1;
         }
 
-        .appbar-tab-menu ul.bar .appbar-tab-menu-item {
-          background-color: @HEADER_BG_COLOR;
-          border: 1px solid #ccc;
-          border-bottom: none;
+        .appbar-tab-menu {
+          ul.bar .appbar-tab-menu-item {
+            background-color: @HEADER_BG_COLOR;
+            border: 1px solid @admin-medium-gray-border;
+            border-bottom: none;
 
-          &.active {
-            height: 26px;
-            background-color: @ACTION_TOOLBAR_BG_COLOR;
+            &.active {
+              height: 26px;
+              background-color: @ACTION_TOOLBAR_BG_COLOR;
+            }
+
+            .label {
+              color: @HEADER_FONT_COLOR;
+            }
           }
 
-          .label {
-            color: @HEADER_FONT_COLOR;
+          .tab-menu-button {
+            background-color: @admin-white;
+            border: 1px solid @admin-medium-gray-border;
+            border-bottom: none;
+          }
+
+          ul.menu, ul.menu .appbar-tab-menu-item {
+            background-color: @admin-white;
           }
         }
 
