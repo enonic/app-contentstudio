@@ -53,19 +53,25 @@ export class ImageContentComboBox
     }
 
     protected createOption(data: Object, readOnly?: boolean): Option<MediaTreeSelectorItem> {
+        const item: MediaTreeSelectorItem = this.dataToMediaTreeSelectorItem(data);
 
-        let option;
-
-        if (ObjectHelper.iFrameSafeInstanceOf(data, MediaTreeSelectorItem)) {
-            option = this.optionsFactory.createOption(<MediaTreeSelectorItem>data, readOnly);
-        } else if (ObjectHelper.iFrameSafeInstanceOf(data, ContentSummary)) {
-            option = {
-                value: (<ContentSummary>data).getId(),
-                displayValue: new MediaTreeSelectorItem(<ContentSummary>data)
-            };
+        if (item) {
+            return this.optionsFactory.createOption(item, readOnly);
         }
 
-        return option;
+        return null;
+    }
+
+    private dataToMediaTreeSelectorItem(data: Object): MediaTreeSelectorItem {
+        if (ObjectHelper.iFrameSafeInstanceOf(data, MediaTreeSelectorItem)) {
+            return <MediaTreeSelectorItem>data;
+        }
+
+        if (ObjectHelper.iFrameSafeInstanceOf(data, ContentSummary)) {
+            return new MediaTreeSelectorItem(<ContentSummary>data);
+        }
+
+        return null;
     }
 
     protected createComboboxConfig(builder: ContentComboBoxBuilder<MediaTreeSelectorItem>): ComboBoxConfig<ContentTreeSelectorItem> {

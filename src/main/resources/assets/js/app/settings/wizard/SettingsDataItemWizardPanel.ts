@@ -147,7 +147,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     canClose(): boolean {
-        if (this.hasUnsavedChanges() && this.wizardActions.getSaveAction().isEnabled()) {
+        if (this.hasUnsavedChanges()) {
             this.openSaveBeforeCloseDialog();
             return false;
         } else {

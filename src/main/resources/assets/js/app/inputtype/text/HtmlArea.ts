@@ -67,6 +67,10 @@ export class HtmlArea
             return Q(null);
         });
 
+        this.onAdded(() => {
+            this.refresh();
+        });
+
         this.setupEventListeners();
     }
 
