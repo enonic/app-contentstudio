@@ -419,10 +419,15 @@ class ContentWizardPanel extends Page {
     }
 
     async waitAndClickOnSave() {
-        await this.waitForSaveButtonEnabled();
-        await this.clickOnElement(this.saveButton);
-        await this.waitForSavingButtonNotVisible();
-        return await this.pause(1200);
+        try {
+            await this.waitForSaveButtonEnabled();
+            await this.clickOnElement(this.saveButton);
+            await this.waitForSavingButtonNotVisible();
+            return await this.pause(1200);
+        } catch (err) {
+            this.saveScreenshot(appConst.generateRandomName("err_saving_button"));
+            throw new Error("Content Wizard - Saving Error " + err);
+        }
     }
 
     waitForSavingButtonNotVisible() {
