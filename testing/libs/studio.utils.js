@@ -442,6 +442,17 @@ module.exports = {
         }
     },
 
+    async openFilterPanel() {
+        try {
+            let browsePanel = new BrowsePanel();
+            let filterPanel = new FilterPanel();
+            await browsePanel.clickOnSearchButton();
+            return await filterPanel.waitForOpened();
+        } catch (err) {
+            throw new Error("Error when opening Filter Panel! " + err);
+        }
+    },
+
     navigateToContentStudioApp: function (userName, password) {
         let launcherPanel = new LauncherPanel();
         return launcherPanel.waitForPanelDisplayed(2000).then(result => {

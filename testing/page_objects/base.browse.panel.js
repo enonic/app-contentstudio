@@ -78,16 +78,32 @@ class BaseBrowsePanel extends Page {
         }
     }
 
-    //Clicks on 'circle' with a number and filters items in the grid:
+    //Clicks on 'circle' (Show Selection tooltip)with a number and filters items in the grid:
     async clickOnSelectionToggler() {
         try {
             await this.waitForSelectionTogglerVisible();
             await this.clickOnElement(this.selectionPanelToggler);
-            return this.pause(400);
+            return await this.pause(400);
         } catch (err) {
             this.saveScreenshot("err_clicking_on_selection_toggler");
             throw new Error("Selection Toggler: " + err);
         }
+    }
+
+    //Wait for Selection Controller checkBox gets 'partial', then returns true, otherwise exception will be thrown
+    async isSelectionControllerPartial() {
+        let selector = this.selectionControllerCheckBox + "//input[@type='checkbox']";
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getAttribute(selector, "class");
+            return text.includes('partial');
+        }, appConst.TIMEOUT_2, "Selection Controller checkBox should displayed as partial");
+        return true;
+    }
+
+    // returns true if 'Selection Controller' checkbox is selected:
+    isSelectionControllerSelected() {
+        let selector = this.selectionControllerCheckBox + "//input[@type='checkbox']";
+        return this.isSelected(selector);
     }
 
     //gets list of content display names
