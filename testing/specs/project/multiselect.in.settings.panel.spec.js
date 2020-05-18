@@ -92,9 +92,9 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
     it(`GIVEN Projects is expanded AND 'Selection Controller' checkbox is checked WHEN context menu has been opened THEN 'New' menu-item should be enabled but Delete,Edit items should be disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1. Expand Projects folder then click Selection Controller checkbox and select all project:
+            //1. Expand Projects folder then click 'Selection Controller' checkbox and select all project:
             await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            await settingsBrowsePanel.clickOnSelectionControllerCheckbox(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnSelectionControllerCheckbox();
             //2. Open context menu:
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(PROJECT_DISPLAY_NAME_2);
             await settingsBrowsePanel.waitForContextMenuDisplayed();
