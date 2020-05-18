@@ -130,7 +130,7 @@ export class ImageEditor
 
     public static debug: boolean = false;
 
-    constructor(src?: string) {
+    constructor() {
         super('image-editor');
 
         this.frame = new DivEl('image-frame');
@@ -261,13 +261,6 @@ export class ImageEditor
             ResponsiveManager.unAvailableSizeChanged(this);
             this.unImageError(imageErrorHandler);
         });
-
-        if (src) {
-            this.setSrc(src);
-        }
-
-        this.setFocusAutoPositioned(true);
-        this.setCropAutoPositioned(true);
     }
 
     isElementInsideButtonsContainer(el: HTMLElement): boolean {
