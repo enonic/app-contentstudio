@@ -148,9 +148,7 @@ export class SettingsItemsTreeGrid
 
     private getSettingsItemParentNode(item: SettingsViewItem): TreeNode<SettingsViewItem> {
         if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
-            const projectsNode: TreeNode<SettingsViewItem> = this.getRoot().getCurrentRoot().findNode(
-                SettingsItemsTreeGrid.PROJECTS_FOLDER_ID);
-            return projectsNode;
+            return this.getRoot().getNodeByDataId(SettingsItemsTreeGrid.PROJECTS_FOLDER_ID);
         }
 
         return null;
