@@ -35,28 +35,23 @@
 
         &:not(.active) .version-info .action-button {
           background-color: @admin-dark-gray;
+
+          &:hover {
+            background-color: @form-button-bg;
+          }
         }
 
         &.active {
           background-color: @admin-dark-gray;
           border-color: @admin-dark-gray;
 
-          .action-button {
-            pointer-events: none;
-
-            &:hover {
-              background-color: @form-button-bg;
-            }
-          }
-
-          &.expanded * {
-            cursor: default;
-          }
-
           .viewer .names-and-icon-view .font-icon-default:before {
             background-color: @admin-dark-gray;
           }
 
+          .version-info .action-button:not(:hover) {
+            background-color: @form-button-bg;
+          }
         }
 
         &.online, &.deleted, &.pending {

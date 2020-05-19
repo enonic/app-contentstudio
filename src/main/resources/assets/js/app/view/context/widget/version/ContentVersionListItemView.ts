@@ -4,6 +4,7 @@ import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {ContentVersionViewer} from './ContentVersionViewer';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {EditContentEvent} from '../../../../event/EditContentEvent';
 import {ContentVersion} from '../../../../ContentVersion';
 import {PublishStatus, PublishStatusFormatter} from '../../../../publish/PublishStatus';
 import {CompareStatus, CompareStatusFormatter} from '../../../../content/CompareStatus';
@@ -31,7 +32,7 @@ export class ContentVersionListItemView
     private descriptionBlock: ContentVersionViewer;
     private versionInfoBlock: VersionInfoBlock;
 
-    private revertButton: ActionButton;
+    private actionButton: ActionButton;
     private compareButton: ActionButton;
 
     constructor(version: ContentVersion, content: ContentSummaryAndCompareStatus, activeVersionId: string) {
@@ -54,7 +55,7 @@ export class ContentVersionListItemView
         this.descriptionBlock = new ContentVersionViewer();
         this.descriptionBlock.setObject(this.version);
         this.versionInfoBlock = new VersionInfoBlock(this.version);
-        this.revertButton = this.createRevertButton();
+        this.actionButton = this.version.isActive() ? this.createEditButton() : this.createRevertButton();
         this.compareButton = this.createCompareButton();
     }
 
@@ -127,14 +128,34 @@ export class ContentVersionListItemView
         this.tooltip = new Tooltip(this, this.version.getPublishInfo().getMessage().trim(), 1000);
     }
 
+    private createEditButton(): ActionButton {
+        const editButton: ActionButton = new ActionButton(new Action(i18n('action.edit')));
+
+        if (this.content.isReadOnly()) {
+            editButton.setEnabled(false);
+        } else {
+            editButton.getAction().onExecuted(() => {
+                new EditContentEvent([this.content]).fire();
+            });
+        }
+
+        return editButton;
+    }
+
     private createRevertButton(): ActionButton {
-        const revertButton: ActionButton = new ActionButton(
-            new Action(this.version.isActive() ? i18n('field.version.current') : i18n('field.version.revert')), false);
+        const revertButton: ActionButton = new ActionButton(new Action(i18n('field.version.revert')), false);
 
         if (this.content.isReadOnly()) {
             revertButton.setEnabled(false);
         } else {
             revertButton.setTitle(i18n('field.version.makeCurrent'));
+            revertButton.onClicked((event: MouseEvent) => {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+            revertButton.getAction().onExecuted(() => {
+                this.revert(this.getContentId(), this.version);
+            });
         }
 
         return revertButton;
@@ -152,18 +173,6 @@ export class ContentVersionListItemView
 
     private initListeners() {
         this.compareButton.getAction().onExecuted(this.openCompareDialog.bind(this));
-
-        this.revertButton.onClicked((event: MouseEvent) => {
-            event.preventDefault();
-            event.stopPropagation();
-        });
-
-        if (!this.version.isActive()) {
-            this.revertButton.getAction().onExecuted(() => {
-                this.revert(this.getContentId(), this.version);
-            });
-        }
-
         this.addOnClickHandler();
     }
 
@@ -237,7 +246,7 @@ export class ContentVersionListItemView
                 this.appendChild(this.statusBlock);
             }
 
-            this.versionInfoBlock.appendChild(this.revertButton);
+            this.versionInfoBlock.appendChild(this.actionButton);
             this.descriptionBlock.appendChild(this.compareButton);
 
             this.appendChildren(this.descriptionBlock);

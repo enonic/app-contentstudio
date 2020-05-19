@@ -592,14 +592,8 @@ export class CompareContentVersionsDialog
         const isLeftVersionActive = this.leftDropdown.getSelectedOption().displayValue.isActive();
         const isRightVersionActive = this.rightDropdown.getSelectedOption().displayValue.isActive();
 
-        const leftLabel = i18n(isLeftVersionActive ? 'dialog.compareVersions.current' : 'dialog.compareVersions.olderVersion');
-        const rightLabel = i18n(isRightVersionActive ? 'dialog.compareVersions.current' : 'dialog.compareVersions.newerVersion');
-
         this.revertLeftButton.setEnabled(!isLeftVersionActive);
         this.revertRightButton.setEnabled(!isRightVersionActive);
-
-        this.leftLabel.setValue(leftLabel);
-        this.rightLabel.setValue(rightLabel);
     }
 
     private processContent(contentJson: any): Object {
