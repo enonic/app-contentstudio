@@ -116,6 +116,8 @@ export class SettingsItemsTreeGrid
         if (!this.hasItemWithId(id)) {
             return;
         }
+
+        this.deselectNodes([id]);
         const treeNodeToDelete: TreeNode<SettingsViewItem> = this.getRoot().getCurrentRoot().findNode(id);
         this.deleteNode(treeNodeToDelete.getData());
     }
