@@ -5,6 +5,6 @@ export class NonMobileContextPanelToggleButton
 
     constructor() {
         super();
-        this.addClass('icon-cog non-mobile-details-panel-toggle-button');
+        this.addClass('icon-list non-mobile-details-panel-toggle-button');
     }
 }

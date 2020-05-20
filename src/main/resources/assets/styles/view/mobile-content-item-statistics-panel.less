@@ -103,6 +103,10 @@
     font-size: 22px;
     line-height: @app-header-height;
 
+    &:not(.expanded)::before {
+      font-size: 18px;
+    }
+
     &.expanded {
       .icon-close();
       line-height: @app-header-height;

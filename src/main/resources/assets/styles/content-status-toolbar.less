@@ -1,7 +1,4 @@
 .content-status-toolbar {
-  @mark-size: 20px;
-
-  font-size: 14px;
 
   .content-status-wrapper {
     .content-status-mixin();
@@ -14,51 +11,5 @@
       color: @admin-font-gray1;
     }
   }
-  .menu-button.transparent .@{_COMMON_PREFIX}dropdown-handle:after {
-    border-top-width: 7px;
-    border-left-width: 5px;
-    border-right-width: 5px;
-    top: 55%;
-    left: 45%;
-    margin-left: -4px;
-  }
 
 }
-
-.content-item-preview-panel.mobile {
-
-  .content-status-toolbar {
-
-    height: 36px;
-    line-height: 36px;
-
-    .content-status-wrapper {
-
-      padding-left: 10px;
-
-    }
-
-    &.has-issues {
-      .content-status-wrapper .author{
-        display: none;
-      }
-    }
-
-  }
-}
-
-.content-wizard-toolbar {
-  &._0-240, &._240-360, &._360-540, &._560-720 {
-    .content-status-wrapper {
-
-      .status {
-        margin-right: 10px;
-      }
-
-      .author {
-        display: none;
-      }
-    }
-  }
-}
-
