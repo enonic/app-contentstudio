@@ -16,6 +16,42 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
 
     let SITE;
 
+    //Verifies: https://github.com/enonic/lib-admin-ui/issues/1266 Incorrect behavior of 'Show selection' when a single content is highlighted
+    //          https://github.com/enonic/lib-admin-ui/issues/1201 Selection filter doesn't work when an item is highlighted in the Content Grid #1201
+    it("GIVEN existing folder is highlighted WHEN highlighted row has been checked AND 'Show Selection' clicked THEN 'Selection Controller' checkbox gets selected",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Click on the row :
+            await contentBrowsePanel.clickOnRowByName(appConstant.TEST_FOLDER_NAME);
+            //2. Click on checkbox in the highlighted row:
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConstant.TEST_FOLDER_NAME);
+            //3. Click on Selection Toggle (circle, Show Selection):
+            await contentBrowsePanel.clickOnSelectionToggler();
+            await contentBrowsePanel.pause(500);
+            //4. Verify that the grid is filtered:
+            let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
+            assert.equal(displayNames.length, 1, "Only one item should be present in the filtered grid");
+            let result = await contentBrowsePanel.isSelectionControllerSelected();
+            assert.isTrue(result, "Selection Controller checkBox should be selected");
+        });
+
+    //Verifies https://github.com/enonic/app-contentstudio/issues/595  'Preview' button is enabled after 'selection controller' has been unchecked
+    it("GIVEN Selection Controller checkbox is selected (All items are checked) WHEN Selection Controller checkbox has been unselected THEN 'Preview' button should be disabled AND 'New' is enabled",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. 'Selection Controller' checkbox is selected (All items are checked):
+            await contentBrowsePanel.clickOnSelectionControllerCheckbox();
+            //2. 'Selection Controller' checkbox has been unselected:
+            await contentBrowsePanel.clickOnSelectionControllerCheckbox();
+            await contentBrowsePanel.pause(1000);
+            //3. Verify that 'Preview', Edit button are disabled:
+            await contentBrowsePanel.waitForPreviewButtonDisabled();
+            await contentBrowsePanel.waitForEditButtonDisabled();
+            await contentBrowsePanel.waitForDeleteButtonDisabled();
+            // New... button should be enabled
+            await contentBrowsePanel.waitForNewButtonEnabled();
+        });
+
     it("GIVEN 2 selected images in filtered grid WHEN Selection Toggle(Show Selection) has been clicked THEN 'Selection Controller' checkbox gets selected",
         async () => {
             let contentFilterPanel = new ContentFilterPanel();
