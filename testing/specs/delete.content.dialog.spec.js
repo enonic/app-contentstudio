@@ -112,8 +112,8 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             await deleteContentDialog.waitForDialogOpened();
 
             let itemsToDelete = await deleteContentDialog.getDisplayNamesToDelete();
-            assert.equal(itemsToDelete[1], FOLDER1.displayName, "Expected item to delete should be present");
-            assert.equal(itemsToDelete[0], FOLDER2.displayName, "Expected item to delete should be present");
+            assert.equal(itemsToDelete[0], FOLDER1.displayName, "Expected item to delete should be present");
+            assert.equal(itemsToDelete[1], FOLDER2.displayName, "Expected item to delete should be present");
 
             let isDropdownHandleDisplayed = await deleteContentDialog.isDeleteMenuDropDownHandleDisplayed();
             assert.isTrue(isDropdownHandleDisplayed, "Delete menu should be present in the dialog, because there is one Published folder");
