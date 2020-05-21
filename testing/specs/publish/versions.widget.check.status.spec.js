@@ -62,13 +62,13 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             //3. Click on latest version-item:
             await browseVersionsWidget.clickAndExpandVersion(0);
             //4. Verify 'This version is active' label should be present in the top item:
-            let isDisplayed = await browseVersionsWidget.isActiveLabelDisplayed(0);
-                assert.isTrue(isDisplayed, "'This version is current' button should be present in the latest version");
+            let isDisplayed = await browseVersionsWidget.isEditButtonDisplayed(0);
+            assert.isTrue(isDisplayed, "'Edit' button should be present in the latest version");
             await browseVersionsWidget.clickAndExpandVersion(1);
             studioUtils.saveScreenshot("verify_active_button_in_versions");
             //5. Verify 'This version is active' label should not be present in previous versions:
-            isDisplayed = await browseVersionsWidget.isActiveLabelDisplayed(1);
-            assert.isFalse(isDisplayed, "'This version is active' button should not be present in previous versions");
+            isDisplayed = await browseVersionsWidget.isEditButtonDisplayed(1);
+            assert.isFalse(isDisplayed, "'Edit' button should not be present in previous versions");
         });
 
     it(`GIVEN existing folder(Published) has been modified WHEN Version Panel has been opened THEN 'Modified' status should be in the top version-item`,
