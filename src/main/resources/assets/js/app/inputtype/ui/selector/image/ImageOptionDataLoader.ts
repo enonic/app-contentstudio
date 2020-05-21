@@ -29,16 +29,29 @@ export class ImageOptionDataLoader
     }
 
     protected sendPreLoadRequest(ids: string): Q.Promise<MediaTreeSelectorItem[]> {
-        let contentIds = ids.split(';').map((id) => {
+        const contentIds: ContentId[] = ids.split(';').map((id) => {
             return new ContentId(id);
         });
 
-        return ImageContentLoader.queueContentLoadRequest(contentIds)
-            .then(((contents: ContentSummary[]) => {
-                const data = contents.map(content => new MediaTreeSelectorItem(content, false));
-                this.notifyPreloadedData(data);
-                return data;
-            }));
+        return ImageContentLoader.queueContentLoadRequest(contentIds).then(((contents: ContentSummary[]) => {
+            const missingItems: string[] = contentIds.map((contentId: ContentId) => contentId.toString()).filter((id: string) => {
+                return !contents.some((content: ContentSummary) => content && content.getId() === id);
+            });
+
+            const items: MediaTreeSelectorItem[] = contents.map(content => {
+                const item: MediaTreeSelectorItem = new MediaTreeSelectorItem(content, false);
+
+                if (!content) {
+                    item.setMissingItemId(missingItems.pop());
+                }
+
+                return item;
+            });
+
+            this.notifyPreloadedData(items);
+
+            return items;
+        }));
     }
 
     onPreloadedData(listener: (data: MediaTreeSelectorItem[]) => void) {

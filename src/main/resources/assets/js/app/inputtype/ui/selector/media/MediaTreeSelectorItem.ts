@@ -23,6 +23,11 @@ export class MediaTreeSelectorItem
         return this;
     }
 
+    setMissingItemId(value: string): MediaTreeSelectorItem {
+        this.mediaSelectorDisplayValue.setMissingItemId(value);
+        return this;
+    }
+
     getDisplayValue(): MediaSelectorDisplayValue {
         return this.mediaSelectorDisplayValue;
     }
@@ -49,6 +54,10 @@ export class MediaTreeSelectorItem
 
     getContentId(): ContentId {
         return this.mediaSelectorDisplayValue.getContentId();
+    }
+
+    getMissingItemId(): string {
+        return this.mediaSelectorDisplayValue.getMissingItemId();
     }
 
     getContentPath(): ContentPath {

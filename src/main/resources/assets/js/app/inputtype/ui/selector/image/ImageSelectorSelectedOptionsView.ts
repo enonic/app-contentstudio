@@ -10,6 +10,7 @@ import {SelectionToolbar} from './SelectionToolbar';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {MediaSelectorDisplayValue} from '../media/MediaSelectorDisplayValue';
 import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ImageSelectorSelectedOptionsView
     extends BaseSelectedOptionsView<MediaTreeSelectorItem> {
@@ -163,9 +164,13 @@ export class ImageSelectorSelectedOptionsView
     }
 
     makeEmptyOption(id: string): Option<MediaTreeSelectorItem> {
+        const item: MediaTreeSelectorItem = new MediaTreeSelectorItem(null)
+            .setDisplayValue(MediaSelectorDisplayValue.makeEmpty())
+            .setMissingItemId(id);
+
         return <Option<MediaTreeSelectorItem>>{
             value: id,
-            displayValue: new MediaTreeSelectorItem(null).setDisplayValue(MediaSelectorDisplayValue.makeEmpty()),
+            displayValue: item,
             empty: true
         };
     }
@@ -252,7 +257,8 @@ export class ImageSelectorSelectedOptionsView
         optionView.getIcon().onLoaded(() => this.handleOptionViewImageLoaded(optionView));
 
         if (option.getOption().displayValue.isEmptyContent()) {
-            optionView.showError('No access to image.');
+            const missingItemId: string = option.getOption().displayValue.getMissingItemId();
+            optionView.showError(!!missingItemId ? i18n('text.image.id.notavailable', missingItemId) : i18n('text.image.notavailable'));
         }
     }
 
