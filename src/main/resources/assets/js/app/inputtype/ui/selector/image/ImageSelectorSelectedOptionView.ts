@@ -45,8 +45,6 @@ export class ImageSelectorSelectedOptionView
             this.label.getEl().setInnerHtml(displayValue.getDisplayName());
             this.icon.getEl().setAttribute('title',
                 isMissingContent ? option.value : option.displayValue.getPath() ? option.displayValue.getPath().toString() : '');
-        } else {
-            this.showProgress();
         }
     }
 
@@ -122,6 +120,10 @@ export class ImageSelectorSelectedOptionView
 
             ResponsiveManager.fireResizeEvent();
         });
+
+        if (this.getOption().displayValue.isEmptyContent()) {
+            this.addClass('missing');
+        }
 
         return Q(true);
     }
