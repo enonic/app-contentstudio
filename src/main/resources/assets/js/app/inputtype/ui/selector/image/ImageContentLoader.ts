@@ -3,7 +3,7 @@ import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {GetContentSummaryByIds} from '../../../../resource/GetContentSummaryByIds';
-import {DefaultErrorHandler} from '../../../../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/DefaultErrorHandler';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 type RequestToken = {
     contentId: ContentId;
