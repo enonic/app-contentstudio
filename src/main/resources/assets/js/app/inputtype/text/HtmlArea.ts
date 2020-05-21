@@ -131,6 +131,11 @@ export class HtmlArea
     }
 
     protected updateFormInputElValue(occurrence: FormInputEl, property: Property) {
+        const editor: HtmlAreaOccurrenceInfo = this.getEditorInfo(occurrence.getId());
+        if (editor) {
+            editor.property = property;
+        }
+
         this.setEditorContent(<TextArea>occurrence, property);
     }
 
