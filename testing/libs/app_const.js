@@ -39,6 +39,7 @@ module.exports = Object.freeze({
     projectCreatedMessage: name => `Project \"${name}\" is created.`,
     projectNameAlreadyExistsMessage: name => `Project with name [${name}] already exists`,
     projectDeletedMessage: name => `Project \"${name}\" is deleted.`,
+    NO_CHANGES_TO_REVERT_MESSAGE: "No changes to revert.",
     THIS_PUBLISH_REQUEST_OPEN: 'The publish request is Open.',
     REQUEST_CREATED_MESSAGE: 'New publish request created successfully.',
     TASK_CLOSED_MESSAGE: 'The task is Closed.',
