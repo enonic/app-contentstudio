@@ -73,7 +73,7 @@ export class ContentWizardToolbar
         });
 
         this.componentsViewToggler.onActiveChanged((isActive: boolean) => {
-            this.componentsViewToggler.setTitle(isActive ? i18n('field.hideComponent') : i18n('field.showComponent'));
+            this.componentsViewToggler.setTitle(isActive ? i18n('field.hideComponent') : i18n('field.showComponent'), false);
         });
 
         this.contentWizardToolbarPublishControls.getPublishButton().onInitialized(() => {

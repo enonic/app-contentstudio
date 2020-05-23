@@ -126,7 +126,7 @@ function initApplicationEventListener() {
 function initToolTip() {
     const ID = StyleHelper.getCls('tooltip', StyleHelper.COMMON_PREFIX);
     const CLS_ON = 'tooltip_ON';
-    const FOLLOW = true;
+    const FOLLOW = false;
     const DATA = '_tooltip';
     const OFFSET_X = 0;
     const OFFSET_Y = 20;
@@ -135,11 +135,12 @@ function initToolTip() {
     let pageY = 0;
     let isVisibleCheckInterval;
 
-    const showAt = function (e: any) {
-        const top = pageY + OFFSET_Y;
-        let left = pageX + OFFSET_X;
+    const showAt = function (e: JQuery.MouseEventBase) {
+        const top = e.clientY + OFFSET_Y;
+        let left = e.clientX + OFFSET_X;
 
-        const tooltipText = StringHelper.escapeHtml($(e.currentTarget || e.target).data(DATA));
+        const target = (e.currentTarget || e.target);
+        const tooltipText = StringHelper.escapeHtml($(target).data(DATA));
         if (!tooltipText) { //if no text then probably hovering over children of original element that has title attr
             return;
         }
@@ -151,35 +152,42 @@ function initToolTip() {
         }
         $(`#${ID}`).remove();
         $(`<div id='${ID}' />`).text(tooltipText).css({
-            position: 'absolute', top, left
+            position: 'absolute', top, left, whiteSpace: 'nowrap'
         }).appendTo('body').show();
     };
 
-    const addTooltip = (e: JQueryEventObject) => {
-        $(e.target).data(DATA, $(e.target).attr('title'));
-        $(e.target).removeAttr('title').addClass(CLS_ON);
-        if (e.pageX) {
-            pageX = e.pageX;
+    const addTooltip = (e: JQuery.MouseEventBase) => {
+        const target = (e.currentTarget || e.target);
+        $(target).data(DATA, $(target).attr('title'));
+        $(target).removeAttr('title').addClass(CLS_ON);
+        if (e.clientX) {
+            pageX = e.clientX;
         }
-        if (e.pageY) {
-            pageY = e.pageY;
+        if (e.clientY) {
+            pageY = e.clientY;
         }
         showAt(e);
-        onRemovedOrHidden(<HTMLElement>e.target);
+        onRemovedOrHidden(<HTMLElement>target);
     };
 
-    const removeTooltip = (e: { target: HTMLElement }) => {
-        if ($(e.target).data(DATA)) {
-            $(e.target).attr('title', $(e.target).data(DATA));
+    const removeTooltip = (e: any) => {
+        const target = (e.currentTarget || e.target);
+        const newTitle = $(target).attr('title');
+        if ($(target).data(DATA) && !newTitle) {
+            $(target).attr('title', $(target).data(DATA));
         }
-        $(e.target).removeClass(CLS_ON);
+        $(target).removeClass(CLS_ON);
         $('#' + ID).remove();
         unRemovedOrHidden();
         clearInterval(isVisibleCheckInterval);
+        if (newTitle) {
+            addTooltip(e);
+        }
     };
 
     $(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', addTooltip);
-    $(document).on('mouseleave click', `.${CLS_ON}`, removeTooltip);
+    $(document).on('mouseleave', `.${CLS_ON}`, removeTooltip);
+    $(document).on('click', `.${CLS_ON}`, (e) => setTimeout(() => removeTooltip(e), 100));
     if (FOLLOW) {
         $(document).on('mousemove', `.${CLS_ON}`, showAt);
     }

@@ -1,3 +1,4 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ContextPanel} from './ContextPanel';
 import {FloatingContextPanel} from './FloatingContextPanel';
@@ -127,9 +128,7 @@ export class NonMobileContextPanelsManager {
             this.switchToDockedMode(canSetActivePanel, onResize);
         }
 
-        setTimeout(() => {
-            this.ensureButtonHasCorrectState();
-        }, this.isExpanded() ? 300 : 0);
+        this.ensureButtonHasCorrectState();
     }
 
     private switchToDockedMode(canSetActivePanel: boolean = true, onResize?: boolean) {
@@ -292,6 +291,7 @@ export class NonMobileContextPanelsManager {
     ensureButtonHasCorrectState() {
         this.toggleButton.toggleClass('expanded',
             !this.splitPanelWithGridAndContext.isSecondPanelHidden() || this.floatingPanelIsShown());
+        this.toggleButton.setTitle(this.isExpanded() ? i18n('tooltip.contextPanel.hide') : i18n('tooltip.contextPanel.show'), false);
         this.splitPanelWithGridAndContext.toggleClass('context-panel-expanded', this.isExpanded());
     }
 

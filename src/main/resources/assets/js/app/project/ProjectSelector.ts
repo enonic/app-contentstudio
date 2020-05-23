@@ -1,3 +1,4 @@
+import {i18n} from 'lib-admin-ui/util/Messages';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {DropdownHandle} from 'lib-admin-ui/ui/button/DropdownHandle';
 import {KeyBinding, KeyBindingAction} from 'lib-admin-ui/ui/KeyBinding';
@@ -54,6 +55,7 @@ export class ProjectSelector
         const totalProjects: number = this.projectList.getItemCount();
         this.dropdownHandle.setVisible(totalProjects > 1);
         this.toggleClass('single-repo', totalProjects < 2);
+        this.getEl().setTitle(totalProjects > 1 ? i18n('text.selectContext') : '');
     }
 
     setHeaderPrefix(value: string) {
@@ -228,6 +230,7 @@ export class ProjectSelector
     private showProjectsList() {
         this.addClass('open');
         Body.get().onMouseDown(this.clickOutsideListener);
+        this.getEl().setTitle('');
         this.isProjectsListShown = true;
         this.dropdownHandle.down();
         this.projectList.show();
@@ -241,6 +244,7 @@ export class ProjectSelector
 
     private hideProjectsList() {
         this.removeClass('open');
+        this.getEl().setTitle(i18n('text.selectContext'));
         Body.get().unMouseDown(this.clickOutsideListener);
         this.isProjectsListShown = false;
         this.dropdownHandle.up();
