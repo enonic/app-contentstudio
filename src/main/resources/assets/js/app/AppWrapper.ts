@@ -125,7 +125,9 @@ export class AppWrapper
         const isSidebarVisible: boolean = this.hasClass('sidebar-expanded');
         this.toggleClass('sidebar-expanded', !isSidebarVisible);
         this.toggleSidebarButton.toggleClass('toggled', !isSidebarVisible);
-        this.toggleSidebarButton.setTitle(this.toggleSidebarButton.hasClass('toggled') ? i18n('tooltip.sidebar.close') : i18n('tooltip.sidebar.open'), false);
+        this.toggleSidebarButton.setTitle(
+            this.toggleSidebarButton.hasClass('toggled') ? i18n('tooltip.sidebar.close') : i18n('tooltip.sidebar.open'), false
+        );
         if (!isSidebarVisible) {
             Body.get().onTouchStart(this.touchListener, false);
         } else {
