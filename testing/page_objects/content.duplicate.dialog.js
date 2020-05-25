@@ -69,7 +69,7 @@ class ContentDuplicateDialog extends Page {
     }
 
     async clickOnShowDependentItemLink() {
-        await this.waitForElementEnabled(this.showDependentItemsLink);
+        await this.waitForElementEnabled(this.showDependentItemsLink,appConst.TIMEOUT_2);
         await this.clickOnElement(this.showDependentItemsLink);
         return await this.pause(500);
     }

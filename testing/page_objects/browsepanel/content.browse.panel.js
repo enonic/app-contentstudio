@@ -276,7 +276,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async clickOnSortButton() {
-        await this.waitForElementEnabled(this.sortButton);
+        await this.waitForElementEnabled(this.sortButton, appConst.TIMEOUT_3);
         await this.pause(200);
         await this.clickOnElement(this.sortButton);
         return await this.pause(400);
