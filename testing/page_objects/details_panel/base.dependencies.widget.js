@@ -20,7 +20,7 @@ class BaseDependenciesWidget extends Page {
     }
 
     getNumberOutboundItems() {
-        return this.waitForElementDisplayed(this.showOutboundButton).then(() => {
+        return this.waitForElementDisplayed(this.showOutboundButton, appConst.TIMEOUT_2).then(() => {
             return this.getText(this.showOutboundButton);
         }).then(result => {
             let startIndex = result.indexOf('(');

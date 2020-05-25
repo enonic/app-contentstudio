@@ -98,25 +98,25 @@ class IssueDetailsDialogCommentsTab extends Page {
     }
 
     waitForCommentButtonEnabled() {
-        return this.waitForElementEnabled(this.commentButton).catch(err => {
+        return this.waitForElementEnabled(this.commentButton, appConst.TIMEOUT_2).catch(err => {
             throw  new Error('Issue Details Dialog  ' + err);
         })
     }
 
     waitForCommentAndCloseRequestButtonDisplayed() {
-        return this.waitForElementDisplayed(this.commentAndCloseRequestButton).catch(err => {
+        return this.waitForElementDisplayed(this.commentAndCloseRequestButton, appConst.TIMEOUT_2).catch(err => {
             throw new Error('Comments Tab   ' + err);
         })
     }
 
     waitForCommentAndCloseTaskButtonDisplayed() {
-        return this.waitForElementDisplayed(this.commentAndCloseTaskButton).catch(err => {
+        return this.waitForElementDisplayed(this.commentAndCloseTaskButton, appConst.TIMEOUT_2).catch(err => {
             throw  new Error('Comments Tab   ' + err);
         })
     }
 
     waitForCommentButtonDisabled() {
-        return this.waitForElementDisabled(this.commentButton).catch(err => {
+        return this.waitForElementDisabled(this.commentButton, appConst.TIMEOUT_2).catch(err => {
             throw  new Error('Issue Details Dialog  ' + err);
         })
     }
