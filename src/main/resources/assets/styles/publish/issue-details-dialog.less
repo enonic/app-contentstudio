@@ -46,17 +46,26 @@
 
     .inplace-text-input {
 
-      .inplace-input {
-        width: calc(100% - 55px);
-      }
-
       .inplace-text {
         line-height: 38px;
 
-        .title-id {
-          color: @admin-font-gray1;
-          margin-left: 10px;
+        > span {
+          display: flex;
+
+          .title {
+            max-width: calc(100% - 80px);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+
+          .title-id {
+            color: @admin-font-gray1;
+            margin-left: 10px;
+          }
+
         }
+
       }
     }
 

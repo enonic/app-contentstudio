@@ -18,7 +18,7 @@ export class ContentTreeSelectorItemViewer
         const pendingDelete = object.getContentState().isPendingDelete();
         this.toggleClass('invalid', invalid);
         this.toggleClass('pending-delete', pendingDelete);
-        this.getEl().setTitle(displayName);
+        this.setTitle(displayName);
 
         return displayName;
     }

@@ -135,11 +135,11 @@ function initToolTip() {
     let pageY = 0;
     let isVisibleCheckInterval;
 
-    const showAt = function (e: JQuery.MouseEventBase) {
+    const showAt = function (e: JQuery.MouseEventBase, forceTarget?: HTMLElement) {
         const top = e.clientY + OFFSET_Y;
         let left = e.clientX + OFFSET_X;
 
-        const target = (e.currentTarget || e.target);
+        const target = forceTarget || e.currentTarget || e.target;
         const tooltipText = StringHelper.escapeHtml($(target).data(DATA));
         if (!tooltipText) { //if no text then probably hovering over children of original element that has title attr
             return;
@@ -156,8 +156,8 @@ function initToolTip() {
         }).appendTo('body').show();
     };
 
-    const addTooltip = (e: JQuery.MouseEventBase) => {
-        const target = (e.currentTarget || e.target);
+    const addTooltip = (e: JQuery.MouseEventBase, forceTarget?: HTMLElement) => {
+        const target = forceTarget || e.currentTarget || e.target;
         $(target).data(DATA, $(target).attr('title'));
         $(target).removeAttr('title').addClass(CLS_ON);
         if (e.clientX) {
@@ -166,28 +166,40 @@ function initToolTip() {
         if (e.clientY) {
             pageY = e.clientY;
         }
-        showAt(e);
+        showAt(e, target);
         onRemovedOrHidden(<HTMLElement>target);
+        $(target).on('click', removeTooltipOnClick);
     };
 
-    const removeTooltip = (e: any) => {
-        const target = (e.currentTarget || e.target);
-        const newTitle = $(target).attr('title');
+    const removeTooltipOnClick = (e: JQuery.MouseEventBase) => {
+        setTimeout(() => removeTooltip(e, true), 100);
+    };
+
+    const removeTooltip = (e: any, click: boolean = false) => {
+        const tooltip = $('#' + ID);
+        if (!tooltip.length) {
+            return;
+        }
+        const target = e.currentTarget || e.target;
+        $(target).off('click', removeTooltipOnClick);
+
+        const newTitle = click ? $(target).attr('title') : null;
         if ($(target).data(DATA) && !newTitle) {
             $(target).attr('title', $(target).data(DATA));
         }
+
         $(target).removeClass(CLS_ON);
-        $('#' + ID).remove();
+        tooltip.remove();
         unRemovedOrHidden();
         clearInterval(isVisibleCheckInterval);
         if (newTitle) {
-            addTooltip(e);
+            addTooltip(e, target);
         }
     };
 
     $(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', addTooltip);
     $(document).on('mouseleave', `.${CLS_ON}`, removeTooltip);
-    $(document).on('click', `.${CLS_ON}`, (e) => setTimeout(() => removeTooltip(e), 100));
+    //$(document).on('click', `.${CLS_ON}`, (e) => setTimeout(() => removeTooltip(e, true), 100));
     if (FOLLOW) {
         $(document).on('mousemove', `.${CLS_ON}`, showAt);
     }

@@ -41,7 +41,7 @@ export class NewContentDialogList
         const itemEl = new LiEl('content-types-list-item' + (item.isSite() ? ' site' : ''));
         itemEl.getEl().setTabIndex(0);
         itemEl.appendChild(namesAndIconView);
-        itemEl.getEl().setTitle(item.getName());
+        itemEl.setTitle(item.getName());
         itemEl.onClicked((event: MouseEvent) => this.notifySelected(item));
         itemEl.onKeyPressed((event: KeyboardEvent) => {
             if (event.keyCode === 13) {

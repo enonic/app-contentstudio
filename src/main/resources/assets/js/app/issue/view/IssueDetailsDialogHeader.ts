@@ -14,7 +14,7 @@ class IssueDetailsInPlaceTextInput
 
     public formatTextToDisplay(inputValue: string): SpanEl {
         const container = new SpanEl();
-        container.appendChildren(SpanEl.fromText(inputValue), SpanEl.fromText(`#${this.titleId}`).addClass('title-id'));
+        container.appendChildren(SpanEl.fromText(inputValue).addClass('title'), SpanEl.fromText(`#${this.titleId}`).addClass('title-id'));
         return container;
     }
 
@@ -42,13 +42,13 @@ export class IssueDetailsDialogHeader
         this.appendChild(this.input);
     }
 
-    setTitle(value: string, escapeHtml: boolean = true): IssueDetailsDialogHeader {
+    setHeading(value: string, escapeHtml: boolean = true): IssueDetailsDialogHeader {
         this.input.setValue(value);
         this.input.resetBaseValues();   // reset original value and dirty as if it was newly created
         return this;
     }
 
-    getTitle(): string {
+    getHeading(): string {
         return this.input.getValue();
     }
 

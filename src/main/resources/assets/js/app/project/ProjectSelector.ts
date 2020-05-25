@@ -55,7 +55,7 @@ export class ProjectSelector
         const totalProjects: number = this.projectList.getItemCount();
         this.dropdownHandle.setVisible(totalProjects > 1);
         this.toggleClass('single-repo', totalProjects < 2);
-        this.getEl().setTitle(totalProjects > 1 ? i18n('text.selectContext') : '');
+        this.setTitle(totalProjects > 1 ? i18n('text.selectContext') : '');
     }
 
     setHeaderPrefix(value: string) {
