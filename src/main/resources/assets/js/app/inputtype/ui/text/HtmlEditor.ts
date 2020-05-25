@@ -1017,52 +1017,20 @@ class HtmlEditorConfigBuilder {
 
         const customStyleSet: any[] = [];
 
-        customStyleSet.push({name: 'Normal', element: 'p'});
+        customStyleSet.push({name: i18n('text.htmlEditor.styles.p'), element: 'p'});
 
         this.getAllowedHeadings().forEach((heading: string) => {
-            const headingStyleObject: any = this.headingToStyleObject(heading);
-
-            if (headingStyleObject) {
-                customStyleSet.push(headingStyleObject);
-            }
+            customStyleSet.push({name: i18n('text.htmlEditor.styles.heading', heading.charAt(1)), element: heading});
         });
 
-        customStyleSet.push({name: 'Normal (DIV)', element: 'div'});
-        customStyleSet.push({name: 'Formatted', element: 'pre'});
+        customStyleSet.push({name: i18n('text.htmlEditor.styles.div'), element: 'div'});
+        customStyleSet.push({name: i18n('text.htmlEditor.styles.pre'), element: 'pre'});
 
         if (!this.isToolDisabled('Code')) {
-            customStyleSet.push({name: 'Code', element: 'code'});
+            customStyleSet.push({name: i18n('text.htmlEditor.styles.code'), element: 'code'});
         }
 
         CKEDITOR.stylesSet.add('custom', <any>customStyleSet);
-    }
-
-    private headingToStyleObject(heading: string): any {
-        if (heading === 'h1') {
-            return {name: 'Heading 1', element: 'h1'};
-        }
-
-        if (heading === 'h2') {
-            return {name: 'Heading 2', element: 'h2'};
-        }
-
-        if (heading === 'h3') {
-            return {name: 'Heading 3', element: 'h3'};
-        }
-
-        if (heading === 'h4') {
-            return {name: 'Heading 4', element: 'h4'};
-        }
-
-        if (heading === 'h5') {
-            return {name: 'Heading 5', element: 'h5'};
-        }
-
-        if (heading === 'h6') {
-            return {name: 'Heading 6', element: 'h6'};
-        }
-
-        return null;
     }
 
     private getPluginsToRemove(): string {
