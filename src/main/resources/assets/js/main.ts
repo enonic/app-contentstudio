@@ -7,7 +7,6 @@ import {Element} from 'lib-admin-ui/dom/Element';
 import {showError, showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {i18nInit} from 'lib-admin-ui/util/MessagesInitializer';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {Router} from './app/Router';
 import {ContentDeletePromptEvent} from './app/browse/ContentDeletePromptEvent';
@@ -140,7 +139,7 @@ function initToolTip() {
         let left = e.clientX + OFFSET_X;
 
         const target = forceTarget || e.currentTarget || e.target;
-        const tooltipText = StringHelper.escapeHtml($(target).data(DATA));
+        const tooltipText = $(target).data(DATA);
         if (!tooltipText) { //if no text then probably hovering over children of original element that has title attr
             return;
         }
@@ -199,7 +198,6 @@ function initToolTip() {
 
     $(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', addTooltip);
     $(document).on('mouseleave', `.${CLS_ON}`, removeTooltip);
-    //$(document).on('click', `.${CLS_ON}`, (e) => setTimeout(() => removeTooltip(e, true), 100));
     if (FOLLOW) {
         $(document).on('mousemove', `.${CLS_ON}`, showAt);
     }
