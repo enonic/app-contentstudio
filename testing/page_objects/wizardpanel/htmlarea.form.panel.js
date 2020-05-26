@@ -11,7 +11,7 @@ const XPATH = {
     ckeTextArea: `//div[contains(@id,'cke_TextArea')]`,
     insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
     insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,
-    insertLinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Link')]`,
+    insertLinkButton: `//a[contains(@class,'cke_button__link')]`,
     insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
     insertMacroButton: `//a[contains(@class,'cke_button') and @title='Insert macro']`,
     boldButton: `//a[contains(@class,'cke_button') and contains(@title,'Bold')]`,
@@ -205,15 +205,14 @@ class HtmlAreaForm extends Page {
         })
     }
 
-    clickOnInsertLinkButton() {
-        return this.waitForElementDisplayed(XPATH.insertLinkButton, appConst.TIMEOUT_3).then(result => {
-            return this.clickOnElement(XPATH.insertLinkButton);
-        }).then(() => {
-            let insertLinkDialog = new InsertLinkDialog();
-            return insertLinkDialog.waitForDialogLoaded();
-        }).then(() => {
-            return this.pause(300);
-        })
+    async clickOnInsertLinkButton() {
+        let results = await this.getDisplayedElements(XPATH.insertLinkButton);
+        //await this.waitForElementDisplayed(XPATH.insertLinkButton, appConst.TIMEOUT_3);
+        await this.clickOnElement(XPATH.insertLinkButton);
+        let insertLinkDialog = new InsertLinkDialog();
+        await insertLinkDialog.waitForDialogLoaded();
+
+        return await this.pause(300);
     }
 
     async clickOnSourceButton() {

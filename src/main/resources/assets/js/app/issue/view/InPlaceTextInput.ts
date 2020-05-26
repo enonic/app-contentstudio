@@ -31,7 +31,7 @@ export class InPlaceTextInput
         const h2 = new H2El('inplace-text');
         h2.removeChildren();
         h2.appendChild(this.formatTextToDisplay(originalValue));
-        h2.getEl().setTitle(i18n('action.clickToEdit'));
+        h2.setTitle(i18n('action.clickToEdit'));
         h2.onClicked(() => this.setEditMode(true));
         return h2;
     }

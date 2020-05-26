@@ -9,27 +9,26 @@ export type SortChildOrder = ChildOrder | AscDescOrder;
 export class SortContentTabMenuItem
     extends TabMenuItem {
 
-    private childOrder: SortChildOrder;
+    private readonly childOrder: SortChildOrder;
 
     private selectedChildOrder: ChildOrder;
 
     private selectedIconClass: string;
 
-    private ascButton: Button;
+    private readonly ascButton: Button;
 
-    private descButton: Button;
+    private readonly descButton: Button;
 
     constructor(builder: SortContentTabMenuItemBuilder) {
 
         const isNotSingle = order => !(order instanceof ChildOrder);
 
-        const itemBuilder = new TabMenuItemBuilder().setLabel(builder.label);
         if (isNotSingle(builder.childOrder)) {
             // Disable item click handlers
-            itemBuilder.setClickHandler(() => void 0);
+            builder.setClickHandler(() => void 0);
         }
 
-        super(<TabMenuItemBuilder>itemBuilder);
+        super(<TabMenuItemBuilder>builder);
 
         this.childOrder = builder.childOrder;
 
@@ -131,23 +130,22 @@ export class SortContentTabMenuItem
     }
 }
 
-export class SortContentTabMenuItemBuilder {
-
-    label: string;
+export class SortContentTabMenuItemBuilder
+    extends TabMenuItemBuilder {
 
     childOrder: SortChildOrder;
-
-    setLabel(label: string): SortContentTabMenuItemBuilder {
-        this.label = label;
-        return this;
-    }
 
     setChildOrder(value: SortChildOrder): SortContentTabMenuItemBuilder {
         this.childOrder = value;
         return this;
     }
 
+    setLabel(label: string): SortContentTabMenuItemBuilder {
+        return <SortContentTabMenuItemBuilder>super.setLabel(label);
+    }
+
     build(): SortContentTabMenuItem {
+        this.setAddLabelTitleAttribute(false);
         return new SortContentTabMenuItem(this);
     }
 
