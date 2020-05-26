@@ -699,8 +699,7 @@ export class ContentTreeGrid
         });
     }
 
-    private deleteContentNode(node: TreeNode<ContentSummaryAndCompareStatus>,
-                              update: boolean = true): TreeNode<ContentSummaryAndCompareStatus> {
+    private deleteContentNode(node: TreeNode<ContentSummaryAndCompareStatus>): TreeNode<ContentSummaryAndCompareStatus> {
         const parentNode: TreeNode<ContentSummaryAndCompareStatus> = node.getParent();
 
         if (this.isNodeHighlighted(node)) {
@@ -714,10 +713,6 @@ export class ContentTreeGrid
             data.setContentSummary(new ContentSummaryBuilder(data.getContentSummary()).setHasChildren(false).build());
         }
 
-        if (update) {
-            this.initAndRender();
-        }
-
         return parentNode;
     }
 
@@ -726,7 +721,7 @@ export class ContentTreeGrid
         this.deselectDeletedNodes(nodes);
 
         nodes.forEach((node) => {
-            this.deleteContentNode(node, false);
+            this.deleteContentNode(node);
         });
 
         this.initAndRender();

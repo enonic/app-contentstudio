@@ -118,12 +118,14 @@ export class SettingsItemsTreeGrid
         }
 
         this.deselectNodes([id]);
-        const treeNodeToDelete: TreeNode<SettingsViewItem> = this.getRoot().getCurrentRoot().findNode(id);
-        this.deleteNode(treeNodeToDelete.getData());
+        const treeNodeToDelete: TreeNode<SettingsViewItem> = this.getRoot().getNodeByDataId(id);
+        if (treeNodeToDelete) {
+            this.deleteNode(treeNodeToDelete.getData());
+        }
     }
 
     hasItemWithId(id: string) {
-        return !!this.getRoot().getCurrentRoot().findNode(id);
+        return !!this.getRoot().getNodeByDataId(id);
     }
 
     protected editItem(node: TreeNode<SettingsViewItem>) {
