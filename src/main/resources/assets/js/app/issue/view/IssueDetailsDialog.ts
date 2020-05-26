@@ -686,7 +686,7 @@ export class IssueDetailsDialog
                 this.getItemList().clearItems();
             }
 
-            this.getHeader().setTitleId(issue.getIndex()).setTitle(issue.getTitle());
+            this.getHeader().setTitleId(issue.getIndex()).setHeading(issue.getTitle());
 
             this.detailsSubTitle.setIssue(issue, true);
             this.toggleControlsAccordingToStatus(issue.getIssueStatus());
@@ -947,7 +947,7 @@ export class IssueDetailsDialog
         const statusChanged: boolean = status !== this.issue.getIssueStatus();
 
         const updateIssueRequest = new UpdateIssueRequest(this.issue.getId())
-            .setTitle(this.header.getTitle().trim())
+            .setTitle(this.header.getHeading().trim())
             .setStatus(status)
             .setAutoSave(!statusChanged)
             .setApprovers(this.assigneesCombobox.getSelectedDisplayValues().map(o => o.getKey()))

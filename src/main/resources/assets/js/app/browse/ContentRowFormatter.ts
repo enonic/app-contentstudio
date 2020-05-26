@@ -33,7 +33,7 @@ export class ContentRowFormatter {
         let wrapper = new SpanEl();
 
         if (!StringHelper.isBlank(value)) {
-            wrapper.getEl().setTitle(value);
+            wrapper.setTitle(value);
         }
 
         if (node.getData().getContentSummary()) {

@@ -52,7 +52,7 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         });
     }
 
-    public abstract getName(): string;
+    abstract getName(): string;
 
     protected abstract getFormItems(item?: ITEM): FormItem[];
 

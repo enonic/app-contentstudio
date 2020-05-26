@@ -19,6 +19,7 @@ import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 import {LocaleComboBox} from 'lib-admin-ui/ui/locale/LocaleComboBox';
 import {Locale} from 'lib-admin-ui/locale/Locale';
 import {LocaleLoader} from 'lib-admin-ui/locale/LocaleLoader';
+import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ProjectFormItemBuilder} from './ProjectFormItem';
 
 export class ProjectReadAccessWizardStepForm
@@ -31,6 +32,8 @@ export class ProjectReadAccessWizardStepForm
     private principalsCombobox?: PrincipalComboBox;
 
     private localeCombobox: LocaleComboBox;
+
+    private readAccessType: ProjectReadAccessType;
 
     layout(item: ProjectViewItem): Q.Promise<void> {
         if (!item) {
@@ -79,11 +82,12 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private layoutReadAccess(readAccess: ProjectReadAccess, permissions: ProjectPermissions): Q.Promise<void> {
+        this.readAccessType = readAccess.getType();
         this.readAccessRadioGroup.setValue(readAccess.getType(), true);
 
         this.updateFilteredPrincipalsByPermissions(permissions);
 
-        if (readAccess.getType() !== ProjectReadAccessType.CUSTOM) {
+        if (!readAccess.isCustom()) {
             return Q(null);
         }
 
@@ -110,7 +114,7 @@ export class ProjectReadAccessWizardStepForm
         this.disablePrincipalCombobox();
     }
 
-    public getName(): string {
+    getName(): string {
         return i18n('settings.items.wizard.step.readaccess');
     }
 
@@ -182,9 +186,9 @@ export class ProjectReadAccessWizardStepForm
     private createReadAccessRadioGroupFormItem(): FormItem {
         this.readAccessRadioGroup = new RadioGroup('read-access-radio-group');
 
-        this.readAccessRadioGroup.addOption('public', i18n('settings.items.wizard.readaccess.public'));
-        this.readAccessRadioGroup.addOption('private', i18n('settings.items.wizard.readaccess.private'));
-        this.readAccessRadioGroup.addOption('custom', i18n('settings.items.wizard.readaccess.custom'));
+        this.readAccessRadioGroup.addOption(ProjectReadAccessType.PUBLIC, i18n('settings.items.wizard.readaccess.public'));
+        this.readAccessRadioGroup.addOption(ProjectReadAccessType.PRIVATE, i18n('settings.items.wizard.readaccess.private'));
+        this.readAccessRadioGroup.addOption(ProjectReadAccessType.CUSTOM, i18n('settings.items.wizard.readaccess.custom'));
 
         this.readAccessRadioGroupFormItem = new ProjectFormItemBuilder(this.readAccessRadioGroup)
             .setHelpText(i18n('settings.projects.access.helptext'))
@@ -239,6 +243,20 @@ export class ProjectReadAccessWizardStepForm
         return this.localeCombobox.getValue();
     }
 
+    private showConfirmationDialog(resetValue: string) {
+        const confirmationDialog = new ConfirmationDialog()
+            .setQuestion(i18n('dialog.projectAccess.confirm'))
+            .setYesCallback(() => {
+                confirmationDialog.close();
+            })
+            .setNoCallback(() => {
+                confirmationDialog.close();
+                this.readAccessRadioGroup.setValue(resetValue);
+            });
+
+        confirmationDialog.open();
+    }
+
     protected initListeners() {
         this.localeCombobox.onValueChanged(() => {
             this.notifyDataChanged();
@@ -250,8 +268,15 @@ export class ProjectReadAccessWizardStepForm
 
         this.readAccessRadioGroup.onValueChanged((event: ValueChangedEvent) => {
             const newValue: string = event.getNewValue();
+            const oldValue: string = event.getOldValue();
 
-            if (newValue === 'private' || newValue === 'public') {
+            if ((this.readAccessType === ProjectReadAccessType.PUBLIC && newValue !== ProjectReadAccessType.PUBLIC) ||
+                 (this.readAccessType &&
+                  this.readAccessType !== ProjectReadAccessType.PUBLIC && newValue === ProjectReadAccessType.PUBLIC)) {
+                this.showConfirmationDialog(oldValue);
+            }
+
+            if (newValue === ProjectReadAccessType.PRIVATE || newValue === ProjectReadAccessType.PUBLIC) {
                 this.disablePrincipalCombobox();
             } else {
                 this.enablePrincipalCombobox();
@@ -267,4 +292,9 @@ export class ProjectReadAccessWizardStepForm
         });
     }
 
+    updateReadAccessType(readAccessType: ProjectReadAccessType) {
+        if (this.readAccessType) {
+            this.readAccessType = readAccessType;
+        }
+    }
 }

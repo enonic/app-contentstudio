@@ -24,8 +24,8 @@ export class SortContentTabMenuItems {
             return order;
         };
 
-        const createOrder = (name: string, ascending: ChildOrder, descending: ChildOrder) =>
-            new SortContentTabMenuItemBuilder().setLabel(name).setChildOrder({ascending, descending}).build();
+        const createOrder = (name: string, ascending: ChildOrder, descending: ChildOrder): SortContentTabMenuItem =>
+            new SortContentTabMenuItemBuilder().setLabel(name).setChildOrder({ascending, descending}).setLabel(name).build();
 
         this.SORT_MANUAL_ITEM =
             new SortContentTabMenuItemBuilder()
