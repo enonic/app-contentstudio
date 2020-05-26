@@ -10,6 +10,8 @@ const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
+const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
+const BrowseVersionsWidget = require('../page_objects/browsepanel/detailspanel/browse.versions.widget');
 
 describe('content.workflow.state.spec: creates a folder and changes and checks the workflow state of this content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -91,6 +93,26 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             studioUtils.saveScreenshot("revert_identical_version");
             let message = await wizard.waitForNotificationMessage();
             assert.equal(message, appConstant.NO_CHANGES_TO_REVERT_MESSAGE, "'No changes to revert.' this message should appear");
+        });
+
+    it(`GIVEN existing folder is selected WHEN first version item is expanded AND 'Edit' button has been clicked THEN this content should be loaded in new browser tab`,
+        async () => {
+            let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
+            let browseVersionsWidget = new BrowseVersionsWidget();
+            let wizard = new ContentWizard();
+            //1. Select existing folder:
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            //2. Open Versions Widget:
+            await contentBrowseDetailsPanel.openVersionHistory();
+            await browseVersionsWidget.waitForVersionsLoaded();
+            await browseVersionsWidget.clickAndExpandVersion(0);
+            //3. Click on 'Edit' button:
+            await browseVersionsWidget.clickOnEditButton();
+            await browseVersionsWidget.pause(1000);
+            await studioUtils.doSwitchToNextTab();
+            //4. Verify that the folder is loaded in new browser-tab:
+            let displayName = await wizard.getDisplayName();
+            assert.equal(displayName, TEST_FOLDER.displayName, "Expected and actual display name should be equal");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
