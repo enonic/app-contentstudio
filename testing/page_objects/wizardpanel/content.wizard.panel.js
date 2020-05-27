@@ -292,7 +292,7 @@ class ContentWizardPanel extends Page {
 
     clickOnShowInspectionPanelToggler() {
         return this.clickOnElement(this.showInspectionPanelToggler).catch(err => {
-            return this.saveScreenshot('err_click_on_show_inspection_button');
+            this.saveScreenshot('err_click_on_show_inspection_button');
             throw new Error("Error when clicking on Inspection Panel Toggler " + err);
         })
     }

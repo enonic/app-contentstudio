@@ -34,7 +34,7 @@ const XPATH = {
     increaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Increase Indent')]`,
     decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
     insertMacroButton: `//a[contains(@class,'cke_button') and contains(@title,'Insert macro')]`,
-    formatDropDownHandle: `//span[contains(@class,'cke_combo__format')]//span[@class='cke_combo_open']`,
+    formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
 
     maximizeButton: `//a[contains(@class,'cke_button') and contains(@class,'maximize')]`,
     typeText: function (id, text) {
@@ -44,7 +44,7 @@ const XPATH = {
         return `return CKEDITOR.instances['${id}'].getData()`
     },
     formatOptionByName: function (optionName) {
-        return `//div[@title='Paragraph Format']//li[@class='cke_panel_listItem']//a[@title='${optionName}']`
+        return `//div[@title='Formatting Styles']//li[@class='cke_panel_listItem']//a[@title='${optionName}']`
     }
 };
 
@@ -146,7 +146,7 @@ class HtmlAreaForm extends Page {
     }
 
     async getFormatOptions() {
-        let selector = `//div[@title='Paragraph Format']//li[@class='cke_panel_listItem']//a`;
+        let selector = `//div[@title='Formatting Styles']//li[contains(@class,'cke_panel_listItem')]//a`;
         await this.switchToFrame("//iframe[@class='cke_panel_frame']");
         return await this.getTextInElements(selector);
     }
