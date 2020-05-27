@@ -72,9 +72,7 @@ function getApplication(): Application {
     const application = new Application(
         'content-studio',
         i18n('app.name'),
-        i18n('app.abbr'),
-        CONFIG.appIconUrl,
-        `${i18n('app.name')} v${CONFIG.appVersion}`
+        i18n('app.abbr')
     );
     application.setPath(Router.getPath());
     application.setWindow(window);
@@ -145,8 +143,9 @@ function initToolTip() {
     let isVisibleCheckInterval;
 
     const showAt = function (e: JQuery.MouseEventBase, forceTarget?: HTMLElement) {
-        const top = e.clientY + OFFSET_Y;
+        let top = e.clientY + OFFSET_Y;
         let left = e.clientX + OFFSET_X;
+        const tooltipHeight = 30;
 
         const target = forceTarget || e.currentTarget || e.target;
         const tooltipText = $(target).data(DATA);
@@ -156,8 +155,12 @@ function initToolTip() {
 
         const tooltipWidth = tooltipText.length * 7.5;
         const windowWidth = $(window).width();
+        const windowHeight = $(window).height();
         if (left + tooltipWidth >= windowWidth) {
             left = windowWidth - tooltipWidth;
+        }
+        if (top + tooltipHeight >= windowHeight) {
+            top = windowHeight - tooltipHeight;
         }
         $(`#${ID}`).remove();
         $(`<div id='${ID}' />`).text(tooltipText).css({

@@ -4,8 +4,6 @@ import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
 import {HtmlEditorParams} from '../HtmlEditorParams';
 import {HtmlEditor, HtmlEditorCursorPosition} from '../HtmlEditor';
 
-declare var CONFIG;
-
 export interface FullscreenDialogConfig
     extends HtmlAreaModalDialogConfig {
     editorParams: HtmlEditorParams;

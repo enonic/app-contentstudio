@@ -221,14 +221,6 @@
       .settings-browse-toolbar {
         border-top: 1px solid #eee;
       }
-
-      .settings-item-wizard-panel {
-
-        .toolbar {
-          border-top: 1px solid #ccc;
-        }
-      }
-
     }
   }
 
@@ -255,59 +247,75 @@
     }
   }
 
-  .content-wizard-panel {
-    &.theme-@{theme-name} {
-      .content-wizard-toolbar {
+  .wizard-panel {
 
-        .project-info {
-          .icon-tree-2 {
-            color: @HEADER_ICON_COLOR;
-          }
+    &.settings-item-wizard-panel {
 
-          &:hover {
+      .toolbar {
+        border-top: 1px solid #ccc;
+      }
+
+      .wizard-step-navigator-and-toolbar {
+        &.scroll-stick {
+          border: none;
+        }
+      }
+    }
+
+    &.content-wizard-panel {
+      &.theme-@{theme-name} {
+        .content-wizard-toolbar {
+
+          .project-info {
             .icon-tree-2 {
-              color: @HEADER_ICON_COLOR_HOVER;
+              color: @HEADER_ICON_COLOR;
+            }
+
+            &:hover {
+              .icon-tree-2 {
+                color: @HEADER_ICON_COLOR_HOVER;
+              }
             }
           }
         }
-      }
-      .wizard-step-navigator-and-toolbar {
 
-        background-color: @ACTION_TOOLBAR_BG_COLOR;
+        .wizard-step-navigator-and-toolbar {
 
-        .wizard-step-navigator .tab-bar-item.active:before {
-          border-left-color: @ACTION_TOOLBAR_BG_COLOR;
-        }
+          background-color: @ACTION_TOOLBAR_BG_COLOR;
 
-        .edit-permissions-button, .tab-bar-item {
-
-          color: @HEADER_FONT_COLOR;
-
-          &::before {
-            color: @HEADER_ICON_COLOR;
+          .wizard-step-navigator .tab-bar-item.active:before {
+            border-left-color: @ACTION_TOOLBAR_BG_COLOR;
           }
 
-          &:hover {
-            color: @HEADER_FONT_COLOR_HOVER;
+          .edit-permissions-button, .tab-bar-item {
+
+            color: @HEADER_FONT_COLOR;
 
             &::before {
-              color: @HEADER_ICON_COLOR_HOVER;
+              color: @HEADER_ICON_COLOR;
+            }
+
+            &:hover {
+              color: @HEADER_FONT_COLOR_HOVER;
+
+              &::before {
+                color: @HEADER_ICON_COLOR_HOVER;
+              }
             }
           }
         }
-      }
 
-      .minimized {
-        .wizard-step-navigator {
+        .minimized {
+          .wizard-step-navigator {
+            background-color: @ACTION_TOOLBAR_BG_COLOR;
+          }
+        }
+
+        .application-configurator .selected-options .selected-option:not(.placeholder):not(.invalid),
+        .panel-strip .panel-strip-panel-header.disabled {
           background-color: @ACTION_TOOLBAR_BG_COLOR;
         }
       }
-
-      .application-configurator .selected-options .selected-option:not(.placeholder):not(.invalid),
-      .panel-strip .panel-strip-panel-header.disabled {
-        background-color: @ACTION_TOOLBAR_BG_COLOR;
-      }
     }
   }
-
 }

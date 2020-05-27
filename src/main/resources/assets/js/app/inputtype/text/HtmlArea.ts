@@ -33,8 +33,6 @@ import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 
-declare var CONFIG;
-
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
 

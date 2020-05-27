@@ -11,6 +11,7 @@ import {ContentAppContainer} from './ContentAppContainer';
 import {AppContext} from './AppContext';
 import {AppMode} from './AppMode';
 import {MainAppContainer} from './MainAppContainer';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 
 export class AppWrapper
     extends DivEl {
@@ -283,6 +284,7 @@ class Sidebar
             this.hide();
             this.appendChild(this.createAppNameBlock());
             this.appendChildren(this.appModeSwitcher);
+            this.appendChild(this.createAppVersionBlock());
 
             return rendered;
         });
@@ -303,5 +305,14 @@ class Sidebar
         appNameWrapper.appendChild(appName);
 
         return appNameWrapper;
+    }
+
+    private createAppVersionBlock(): SpanEl {
+        const cleanVersion = StringHelper.cleanVersion(CONFIG.appVersion);
+        const appVersionSpan = SpanEl.fromText(`v${cleanVersion}`, 'app-version');
+        if (CONFIG.appVersion !== cleanVersion) {
+            appVersionSpan.setTitle(`v${CONFIG.appVersion}`);
+        }
+        return appVersionSpan;
     }
 }
