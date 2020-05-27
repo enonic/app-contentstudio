@@ -107,17 +107,27 @@ function startLostConnectionDetector(): ConnectionDetector {
 function initApplicationEventListener() {
 
     let messageId;
+    let appStatusCheckInterval;
 
     ApplicationEvent.on((event: ApplicationEvent) => {
-        if (ApplicationEventType.STOPPED === event.getEventType() || ApplicationEventType.UNINSTALLED ===
-            event.getEventType()) {
-            if (CONFIG.appId === event.getApplicationKey().toString()) {
-                NotifyManager.get().hide(messageId);
-                messageId = showError(i18n('notify.no_connection'), false);
+        if (ApplicationEventType.STOPPED === event.getEventType() ||
+            ApplicationEventType.UNINSTALLED === event.getEventType()) {
+            if (appStatusCheckInterval) {
+                return;
             }
+            appStatusCheckInterval = setInterval(() => {
+                if (!messageId && CONFIG.appId === event.getApplicationKey().toString()) {
+                    NotifyManager.get().hide(messageId);
+                    messageId = showError(i18n('notify.application.notAvailable'), false);
+                }
+            }, 1000);
         }
         if (ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED) {
-            NotifyManager.get().hide(messageId);
+            if (messageId) {
+                NotifyManager.get().hide(messageId);
+                messageId = null;
+            }
+            clearInterval(appStatusCheckInterval);
         }
     });
 }
