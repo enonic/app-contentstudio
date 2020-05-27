@@ -979,7 +979,7 @@ class HtmlEditorConfigBuilder {
             removeButtons: this.disabledTools,
             extraPlugins: 'macro,image2,tableresize,pasteFromGoogleDoc,pasteModeSwitcher',
             extraAllowedContent: this.getExtraAllowedContent(),
-            stylesSet: 'custom',
+            stylesSet: `custom-${this.editorParams.getEditorContainerId()}`,
             image2_disableResizer: true,
             image2_captionedClass: 'captioned',
             image2_alignClasses: [StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS, StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS,
@@ -1011,10 +1011,6 @@ class HtmlEditorConfigBuilder {
     }
 
     private initCustomStyleSet() {
-        if (CKEDITOR.stylesSet.registered['custom']) {
-            return;
-        }
-
         const customStyleSet: any[] = [];
 
         customStyleSet.push({name: i18n('text.htmlEditor.styles.p'), element: 'p'});
@@ -1030,7 +1026,7 @@ class HtmlEditorConfigBuilder {
             customStyleSet.push({name: i18n('text.htmlEditor.styles.code'), element: 'code'});
         }
 
-        CKEDITOR.stylesSet.add('custom', <any>customStyleSet);
+        CKEDITOR.stylesSet.add(`custom-${this.editorParams.getEditorContainerId()}`, <any>customStyleSet);
     }
 
     private getPluginsToRemove(): string {
