@@ -155,10 +155,8 @@
           line-height: 26px;
           text-align: left;
           padding: 5px 0 0 10px;
-          overflow: hidden;
           font-size: 14px;
-          text-overflow: ellipsis;
-
+          .ellipsis();
         }
 
         &:not(:hover) .version-info {
@@ -174,9 +172,7 @@
           }
 
           .version-info-version-id, .version-info-display-name {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            .ellipsis();
           }
 
           .version-info-message {
