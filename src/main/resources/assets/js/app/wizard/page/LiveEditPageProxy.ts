@@ -42,7 +42,6 @@ import {UriHelper} from '../../rendering/UriHelper';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {Component} from '../../page/region/Component';
-import {ComponentFactory} from '../../page/region/ComponentFactory';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {Regions} from '../../page/region/Regions';
 import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
@@ -52,6 +51,7 @@ import {DragMask} from 'lib-admin-ui/ui/mask/DragMask';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
 import {GLOBAL, GlobalLibAdmin, Store} from 'lib-admin-ui/store/Store';
+import {IEObjectHolder} from './IEObjectHolder';
 
 declare var CONFIG;
 
@@ -131,9 +131,7 @@ export class LiveEditPageProxy {
 
     private static debug: boolean = false;
 
-    private regionsCopyForIE: any;
-
-    private controllerCopyForIE: any;
+    private ieObjectHolder: IEObjectHolder;
 
     private modifyPermissions: boolean = false;
 
@@ -962,46 +960,29 @@ export class LiveEditPageProxy {
     }
 
     private copyObjectsBeforeFrameReloadForIE() {
-        this.copyControllerForIE();
-        this.copyRegionsForIE();
-    }
-
-    private copyControllerForIE() {
-        const controller = this.liveEditModel.getPageModel().getController();
-        if (controller) {
-            this.controllerCopyForIE = JSON.parse(JSON.stringify(controller));
-            this.controllerCopyForIE.key = controller.getKey().toString();
-            this.controllerCopyForIE.config = JSON.parse(JSON.stringify(controller.getConfig().toJson()));
-        } else {
-            this.controllerCopyForIE = null;
-        }
-    }
-
-    private copyRegionsForIE() {
+        const controller: PageDescriptor = this.liveEditModel.getPageModel().getController();
         const regions: Regions = this.liveEditModel.getPageModel().getRegions();
-        if (regions) {
-            this.regionsCopyForIE = JSON.parse(JSON.stringify(regions.toJson()));
-        } else {
-            this.regionsCopyForIE = null;
-        }
+
+        this.ieObjectHolder = new IEObjectHolder();
+        this.ieObjectHolder.setController(controller);
+        this.ieObjectHolder.setRegions(regions);
     }
 
     private resetObjectsAfterFrameReloadForIE() {
         this.resetControllerForIE();
         this.resetRegionsForIE();
+        this.ieObjectHolder.reset();
     }
 
     private resetControllerForIE() {
-        if (this.controllerCopyForIE) {
-            const controller: PageDescriptor = PageDescriptor.fromJson(this.controllerCopyForIE);
-            this.liveEditModel.getPageModel().setControllerDescriptor(controller);
+        if (this.ieObjectHolder.hasController()) {
+            this.liveEditModel.getPageModel().setControllerDescriptor(this.ieObjectHolder.getPageDescriptorCopy());
         }
     }
 
     private resetRegionsForIE() {
-        if (this.regionsCopyForIE) {
-            const regions: Regions = ComponentFactory.createRegionsFromJson(this.regionsCopyForIE);
-            this.liveEditModel.getPageModel().setRegions(regions);
+        if (this.ieObjectHolder.hasRegionsCopy()) {
+            this.liveEditModel.getPageModel().setRegions(this.ieObjectHolder.getRegionsCopy());
         }
     }
 
