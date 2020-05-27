@@ -107,6 +107,10 @@ export class HtmlArea
 
         const textAreaWrapper = new DivEl();
 
+        if (this.inputConfig['include']) {
+            textAreaWrapper.addClass('customized-toolbar');
+        }
+
         textAreaEl.onRendered(() => {
             this.authRequest.then(() => {
                 this.initEditor(editorId, property, textAreaWrapper).then(() => {
