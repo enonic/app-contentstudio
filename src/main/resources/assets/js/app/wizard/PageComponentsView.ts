@@ -706,14 +706,14 @@ export class PageComponentsView
     }
 
     private lockedViewClickHandler(event: MouseEvent) {
-        event.stopPropagation();
-        event.preventDefault();
-
         const isUnlocked = !(this.pageView.isLocked() && this.modifyPermissions);
 
         if (isUnlocked) {
             return;
         }
+
+        event.stopPropagation();
+        event.preventDefault();
 
         if (this.contextMenu && this.contextMenu.isVisible()) {
             this.hideContextMenu();

@@ -119,7 +119,6 @@ export class ItemViewContextMenu
         this.onClicked((e: MouseEvent) => {
             // menu itself was clicked so do nothing
             e.preventDefault();
-            e.stopPropagation();
         });
     }
 
