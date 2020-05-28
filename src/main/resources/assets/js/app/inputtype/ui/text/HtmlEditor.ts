@@ -1011,6 +1011,12 @@ class HtmlEditorConfigBuilder {
     }
 
     private initCustomStyleSet() {
+        const customStyleSetID: string = `custom-${this.editorParams.getEditorContainerId()}`;
+
+        if (CKEDITOR.stylesSet.get(customStyleSetID)) {
+            return;
+        }
+
         const customStyleSet: any[] = [];
 
         customStyleSet.push({name: i18n('text.htmlEditor.styles.p'), element: 'p'});
@@ -1026,7 +1032,7 @@ class HtmlEditorConfigBuilder {
             customStyleSet.push({name: i18n('text.htmlEditor.styles.code'), element: 'code'});
         }
 
-        CKEDITOR.stylesSet.add(`custom-${this.editorParams.getEditorContainerId()}`, <any>customStyleSet);
+        CKEDITOR.stylesSet.add(customStyleSetID, <any>customStyleSet);
     }
 
     private getPluginsToRemove(): string {
