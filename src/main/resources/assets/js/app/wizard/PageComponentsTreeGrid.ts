@@ -176,7 +176,9 @@ export class PageComponentsTreeGrid
 
     fetchRoot(): Q.Promise<ItemView[]> {
         if (this.pageView.getFragmentView()) {
-            return Q([this.pageView.getFragmentView()]);
+            return this.fetchDescriptions([this.pageView.getFragmentView()]).then(items => {
+                return items;
+            });
         } else {
             return Q([this.pageView]);
         }
