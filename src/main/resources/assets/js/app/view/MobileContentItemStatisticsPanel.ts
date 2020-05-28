@@ -38,9 +38,7 @@ export class MobileContentItemStatisticsPanel
 
         this.setDoOffset(false);
 
-        this.createFoldButton(actions);
-
-        this.initHeader();
+        this.initHeader(actions);
 
         this.initPreviewPanel();
 
@@ -84,12 +82,8 @@ export class MobileContentItemStatisticsPanel
         });
     }
 
-    private createFoldButton(actions: Action[]) {
-        this.foldButton = new MobilePreviewFoldButton(actions, this.itemHeader);
-    }
-
-    private initHeader() {
-
+    private initHeader(actions: Action[]) {
+        const titleDiv = new DivEl();
         const icon = new IEl('icon-more_vert');
         const backButton = new DivEl('mobile-context-panel-back-button');
         backButton.onClicked((event) => {
@@ -97,7 +91,9 @@ export class MobileContentItemStatisticsPanel
             this.slideAllOut();
             event.stopPropagation();
         });
-        this.itemHeader.appendChildren(this.headerLabel, icon, this.foldButton, backButton);
+        titleDiv.appendChildren(this.headerLabel, icon);
+        this.foldButton = new MobilePreviewFoldButton(actions, titleDiv);
+        this.itemHeader.appendChildren(titleDiv, this.foldButton, backButton);
 
         this.appendChild(this.itemHeader);
     }
