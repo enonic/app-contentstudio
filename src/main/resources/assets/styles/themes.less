@@ -254,12 +254,6 @@
       .toolbar {
         border-top: 1px solid #ccc;
       }
-
-      .wizard-step-navigator-and-toolbar {
-        &.scroll-stick {
-          border: none;
-        }
-      }
     }
 
     &.content-wizard-panel {
@@ -282,6 +276,10 @@
         .wizard-step-navigator-and-toolbar {
 
           background-color: @ACTION_TOOLBAR_BG_COLOR;
+
+          &.scroll-stick {
+            border-top: 1px solid @admin-medium-gray-border;
+          }
 
           .wizard-step-navigator .tab-bar-item.active:before {
             border-left-color: @ACTION_TOOLBAR_BG_COLOR;
