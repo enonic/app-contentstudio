@@ -282,7 +282,7 @@ export class ContentItemPreviewPanel
                 break;
             }
             case PREVIEW_TYPE.FAILED: {
-                this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.description')]);
+                this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.failed.description')]);
                 break;
             }
             case PREVIEW_TYPE.BLANK: {
