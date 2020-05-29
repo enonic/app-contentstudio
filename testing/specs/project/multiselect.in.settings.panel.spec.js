@@ -134,7 +134,6 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Click on both project's checkboxes:
             await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            let actualResultBefore = await settingsBrowsePanel.getDisplayNames();
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             //2. Click on the circle(Selection Toggle):

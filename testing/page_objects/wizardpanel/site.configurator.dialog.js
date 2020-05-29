@@ -36,7 +36,7 @@ class SiteConfiguratorDialog extends Page {
     async typeNumPosts(number) {
         let selector = XPATH.container + "//input[contains(@name,'numPosts')]";
         try {
-            await this.waitForElementDisplayed(selector);
+            await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
             return await this.typeTextInInput(selector, number);
         } catch (err) {
             this.saveScreenshot('site_conf_err_num_posts');
