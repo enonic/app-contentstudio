@@ -62,7 +62,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             //2. Select 2 images:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("book");
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("cape");
-            let isPartial = await contentBrowsePanel.isSelectionControllerPartial();
+            let isPartial = await contentBrowsePanel.waitForSelectionControllerPartial();
             assert.isTrue(isPartial, "Selection Controller checkbox shows that the selection is partial");
             //3. Click on Selection Toggle (circle, Show Selection):
             await contentBrowsePanel.clickOnSelectionToggler();
@@ -91,7 +91,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             await contentBrowsePanel.pause(500);
             studioUtils.saveScreenshot("selection_toggle_checkbox_partial");
             //5. Verify 'Selection Controller' checkBox shows that the selection is partial:
-            let result = await contentBrowsePanel.isSelectionControllerPartial();
+            let result = await contentBrowsePanel.waitForSelectionControllerPartial();
             assert.isTrue(result, "'Selection Controller' shows that selection is partial");
         });
 

@@ -11,7 +11,7 @@ const XPATH = {
     ckeTextArea: `//div[contains(@id,'cke_TextArea')]`,
     insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
     insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,
-    insertLinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Link')]`,
+    insertLinkButton: `//a[contains(@class,'cke_button__link')]`,
     insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
     insertMacroButton: `//a[contains(@class,'cke_button') and @title='Insert macro']`,
     boldButton: `//a[contains(@class,'cke_button') and contains(@title,'Bold')]`,
@@ -34,7 +34,7 @@ const XPATH = {
     increaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Increase Indent')]`,
     decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
     insertMacroButton: `//a[contains(@class,'cke_button') and contains(@title,'Insert macro')]`,
-    formatDropDownHandle: `//span[contains(@class,'cke_combo__format')]//span[@class='cke_combo_open']`,
+    formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
 
     maximizeButton: `//a[contains(@class,'cke_button') and contains(@class,'maximize')]`,
     typeText: function (id, text) {
@@ -44,7 +44,7 @@ const XPATH = {
         return `return CKEDITOR.instances['${id}'].getData()`
     },
     formatOptionByName: function (optionName) {
-        return `//div[@title='Paragraph Format']//li[@class='cke_panel_listItem']//a[@title='${optionName}']`
+        return `//div[@title='Formatting Styles']//li[@class='cke_panel_listItem']//a[@title='${optionName}']`
     }
 };
 
@@ -146,7 +146,7 @@ class HtmlAreaForm extends Page {
     }
 
     async getFormatOptions() {
-        let selector = `//div[@title='Paragraph Format']//li[@class='cke_panel_listItem']//a`;
+        let selector = `//div[@title='Formatting Styles']//li[contains(@class,'cke_panel_listItem')]//a`;
         await this.switchToFrame("//iframe[@class='cke_panel_frame']");
         return await this.getTextInElements(selector);
     }
@@ -205,15 +205,13 @@ class HtmlAreaForm extends Page {
         })
     }
 
-    clickOnInsertLinkButton() {
-        return this.waitForElementDisplayed(XPATH.insertLinkButton, appConst.TIMEOUT_3).then(result => {
-            return this.clickOnElement(XPATH.insertLinkButton);
-        }).then(() => {
-            let insertLinkDialog = new InsertLinkDialog();
-            return insertLinkDialog.waitForDialogLoaded();
-        }).then(() => {
-            return this.pause(300);
-        })
+    async clickOnInsertLinkButton() {
+        let results = await this.getDisplayedElements(XPATH.insertLinkButton);
+        //await this.waitForElementDisplayed(XPATH.insertLinkButton, appConst.TIMEOUT_3);
+        await this.clickOnElement(XPATH.insertLinkButton);
+        let insertLinkDialog = new InsertLinkDialog();
+        await insertLinkDialog.waitForDialogLoaded();
+        return await this.pause(300);
     }
 
     async clickOnSourceButton() {
