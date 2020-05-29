@@ -21,7 +21,7 @@ export class ProjectFormItem extends FormItem {
 
     disableHelpText() {
         if (this.helpTextContainer) {
-            this.helpTextContainer.toggleHelpText();
+            this.helpTextContainer.toggleHelpText(false);
         }
     }
 }
