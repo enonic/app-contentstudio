@@ -62,10 +62,10 @@ describe('Browse panel selections spec', function () {
         let contentBrowsePanel = new ContentBrowsePanel();
         //1. Click on the row(row gets highlighted)
         await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
-        await contentBrowsePanel.pause(500);
+        await contentBrowsePanel.pause(1000);
         //2. Click on the row again:
         await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
-        await contentBrowsePanel.pause(500);
+        await contentBrowsePanel.pause(1000);
         let numberOfHighlighted = await contentBrowsePanel.getNumberOfSelectedRows();
         studioUtils.saveScreenshot('check_row_unselected');
         assert.equal(numberOfHighlighted, 0, "number of highlighted rows should be 0");

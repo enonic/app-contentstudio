@@ -38,7 +38,6 @@ describe('project.save.delete.grid.panel.spec - ui-tests for saving/deleting a p
     it(`GIVEN existing project is selected WHEN the project has been deleted THEN expected notification should appear`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
             let confirmationDialog = new ConfirmationDialog();
             //1.Expand the root folder:
             await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
@@ -51,7 +50,7 @@ describe('project.save.delete.grid.panel.spec - ui-tests for saving/deleting a p
             //5. Click on Yes button:
             await confirmationDialog.clickOnYesButton();
             //6. Verify the notification message:
-            let actualMessage = await projectWizard.waitForNotificationMessage();
+            let actualMessage = await settingsBrowsePanel.waitForNotificationMessage();
             studioUtils.saveScreenshot("project_deleted_1");
             assert.equal(actualMessage, appConstant.projectDeletedMessage(PROJECT_DISPLAY_NAME));
             //7. Verify that the project is not present in Browse Panel:

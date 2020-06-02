@@ -8,13 +8,28 @@ const EditPermissionsDialog = require('../../../page_objects/edit.permissions.di
 const xpath = {
     container: "//div[contains(@id,'WidgetView')]//div[contains(@id,'UserAccessWidgetItemView')]",
     headerString: "//span[contains(@class,'header-string')]",
-    editPermissionsLink: "//a[@class='edit-permissions-link']"
+    editPermissionsLink: "//a[@class='edit-permissions-link']",
+    header: "//span[@class='header-string']",
+    accessList: "//div[contains(@id,'UserAccessListItemView')]",
+    principalCompactViewer: "//div[contains(@id,'PrincipalViewerCompact')]"
 };
 
 class UserAccessWidgetItemView extends Page {
 
     get editPermissionsLink() {
         return xpath.container + xpath.editPermissionsLink;
+    }
+
+    async getHeader() {
+        let locator = xpath.container + xpath.header;
+        await this.waitForElementDisplayed(locator, appConst.TIMEOUT_2);
+        return await this.getText(locator);
+    }
+
+    async getPrincipalsCompactName() {
+        let locator = xpath.container + xpath.accessList + xpath.principalCompactViewer + "/span[contains(@class,'user-icon')]";
+        await this.waitForElementDisplayed(locator, appConst.TIMEOUT_2);
+        return await this.getTextInElements(locator);
     }
 
     async clickOnEditPermissionsLink() {

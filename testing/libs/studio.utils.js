@@ -442,6 +442,17 @@ module.exports = {
         }
     },
 
+    async openFilterPanel() {
+        try {
+            let browsePanel = new BrowsePanel();
+            let filterPanel = new FilterPanel();
+            await browsePanel.clickOnSearchButton();
+            return await filterPanel.waitForOpened();
+        } catch (err) {
+            throw new Error("Error when opening Filter Panel! " + err);
+        }
+    },
+
     navigateToContentStudioApp: function (userName, password) {
         let launcherPanel = new LauncherPanel();
         return launcherPanel.waitForPanelDisplayed(2000).then(result => {
@@ -618,7 +629,7 @@ module.exports = {
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
     },
-    async saveTestProject(name, description, language, principalsToAccess) {
+    async saveTestProject(name, description, language, principalsToAccess, accessMode) {
         let projectWizard = new ProjectWizard();
         let settingsBrowsePanel = new SettingsBrowsePanel();
         await settingsBrowsePanel.openProjectWizard();
@@ -630,11 +641,15 @@ module.exports = {
         if (principalsToAccess) {
             await projectWizard.addPrincipalsInRolesForm(principalsToAccess);
         }
-        await projectWizard.clickOnAccessModeRadio("Private");
+        if (accessMode) {
+            await projectWizard.clickOnAccessModeRadio(accessMode);
+        } else {
+            await projectWizard.clickOnAccessModeRadio("Private");
+        }
         await projectWizard.pause(400);
         await projectWizard.waitAndClickOnSave();
         await projectWizard.waitForNotificationMessage();
-        await projectWizard.pause(2500);
+        await projectWizard.pause(700);
         await settingsBrowsePanel.clickOnCloseIcon(name);
         await projectWizard.waitForWizardClosed();
         return await settingsBrowsePanel.pause(500);

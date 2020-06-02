@@ -7,7 +7,8 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
-
+const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('multiselect.in.settings.panel.spec - tests for selection of several items in setting browse panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -18,11 +19,18 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
     let DESCRIPTION = "Test description";
 
 
-    it(`Preconditions: 2 projects should be added`,
+    it(`WHEN two projects have been saved THEN 2 options should appear in the project selector`,
         async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             //1. Save 2 projects:
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME_1, DESCRIPTION);
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME_2, DESCRIPTION);
+            //2 .Click on Content app-mode button
+            await studioUtils.switchToContentMode();
+            //3. Expand the project selector and verify that 2 new items appeared:
+            let result = await contentBrowsePanel.expandProjectSelectorAndGetProjectsName();
+            assert.isTrue(result.includes(PROJECT_DISPLAY_NAME_1), "Display name of the first project should be present in options");
+            assert.isTrue(result.includes(PROJECT_DISPLAY_NAME_2), "Display name of the second project should be present in options");
         });
 
     //Verifies: Settings Panel - Error after trying to close several opened wizards #1632
@@ -47,7 +55,6 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             result = await settingsBrowsePanel.getNumberOpenedTabItems();
             assert.equal(result, 0, "There should not be a single item in the Tab Bar");
         });
-
 
     it(`WHEN two existing projects are checked THEN Edit,New,Delete buttons should be enabled`,
         async () => {
@@ -85,9 +92,9 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
     it(`GIVEN Projects is expanded AND 'Selection Controller' checkbox is checked WHEN context menu has been opened THEN 'New' menu-item should be enabled but Delete,Edit items should be disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1. Expand Projects folder then click Selection Controller checkbox and select all project:
+            //1. Expand Projects folder then click 'Selection Controller' checkbox and select all project:
             await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            await settingsBrowsePanel.clickOnSelectionControllerCheckbox(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnSelectionControllerCheckbox();
             //2. Open context menu:
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(PROJECT_DISPLAY_NAME_2);
             await settingsBrowsePanel.waitForContextMenuDisplayed();
@@ -127,7 +134,6 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Click on both project's checkboxes:
             await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            let actualResultBefore = await settingsBrowsePanel.getDisplayNames();
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             //2. Click on the circle(Selection Toggle):
@@ -144,6 +150,27 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             //6. Verify that all tabs are closed:
             result = await settingsBrowsePanel.getNumberOpenedTabItems();
             assert.equal(result, 0, "There should not be a single item in the Tab Bar");
+        });
+
+    //Verifies: https://github.com/enonic/app-contentstudio/issues/1466  Name of deleted project remains in Project Selector
+    it(`WHEN existing project has been deleted THEN this project should be removed in options of Project Selector`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let confirmationDialog = new ConfirmationDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1.Expand the root folder:
+            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            //2. Delete the project:
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnDeleteButton();
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
+            await contentBrowsePanel.pause(1000);
+            //3 .Click on Content app-mode button and switch to content browse panel:
+            await studioUtils.switchToContentMode();
+            //4. Verify that deleted project is not present in options of the selector:
+            let result = await contentBrowsePanel.expandProjectSelectorAndGetProjectsName();
+            assert.isFalse(result.includes(PROJECT_DISPLAY_NAME_1));
         });
 
     beforeEach(async () => {

@@ -217,7 +217,7 @@ class UserBrowsePanel extends Page {
     //Click on existing Tab-Item and navigates to the opened wizard:
     async clickOnTabBarItem(displayName) {
         let tabItem = xpath.itemTabByDisplayName(displayName);
-        await this.waitForElementDisplayed(tabItem, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(tabItem)
         return await this.clickOnElement(tabItem);
     }
 

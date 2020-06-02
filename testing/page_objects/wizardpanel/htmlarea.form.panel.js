@@ -211,7 +211,6 @@ class HtmlAreaForm extends Page {
         await this.clickOnElement(XPATH.insertLinkButton);
         let insertLinkDialog = new InsertLinkDialog();
         await insertLinkDialog.waitForDialogLoaded();
-
         return await this.pause(300);
     }
 

@@ -3,11 +3,17 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
+const lib = require('../../libs/elements');
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowseFilterPanel')]",
     clearFilterButton: "//a[contains(@id,'ClearFilterButton']",
     searchInput: "//input[contains(@id,'TextSearchField')]",
     dependenciesSection: "//div[contains(@id,'DependenciesSection')]",
+    aggregationContainer: "//div[contains(@id,'AggregationContainer')]//div[contains(@id,'ContentTypeAggregationGroupView')]",
+    aggregationLabelByName: name => XPATH.aggregationContainer +
+                                    `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]//label`,
+    aggregationCheckboxByName: name => XPATH.aggregationContainer +
+                                       `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]` + lib.CHECKBOX_INPUT,
 };
 
 class BrowseFilterPanel extends Page {
@@ -49,6 +55,13 @@ class BrowseFilterPanel extends Page {
 
     clickOnClearLink() {
         return this.clickOnElement(this.clearFilterLink)
+    }
+
+    async clickOnCheckboxInAggregationView(contentType) {
+        let selector = XPATH.aggregationLabelByName(contentType);
+        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.clickOnElement(selector);
+        return await this.pause(400);
     }
 };
 module.exports = BrowseFilterPanel;

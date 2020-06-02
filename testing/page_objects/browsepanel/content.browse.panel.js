@@ -234,7 +234,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async clickOnUndoDeleteButton() {
-        await this.waitForElementDisplayed(this.undoDeleteButton);
+        await this.waitForElementDisplayed(this.undoDeleteButton, appConst.TIMEOUT_2);
         return await this.clickOnElement(this.undoDeleteButton);
     }
 
@@ -308,7 +308,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async clickOnShowIssuesListButton() {
         try {
-            await this.waitForElementDisplayed(this.showIssuesListButton);
+            await this.waitForElementDisplayed(this.showIssuesListButton, appConst.TIMEOUT_2);
             return await this.clickOnElement(this.showIssuesListButton);
         } catch (err) {
             throw new Error('error when click on the button ' + err);
@@ -522,7 +522,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     isExpanderIconPresent(name) {
         let expanderIcon = XPATH.treeGrid + XPATH.expanderIconByName(name);
-        return this.waitForElementDisplayed(expanderIcon).catch(err => {
+        return this.waitForElementDisplayed(expanderIcon, appConst.TIMEOUT_2).catch(err => {
             this.saveScreenshot('expander_not_exists ' + name);
             return false;
         })
@@ -707,6 +707,12 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         let selector = XPATH.projectSelector + XPATH.projectItemByDisplayName(projectDisplayName);
         await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
         return this.clickOnElement(selector);
+    }
+
+    async expandProjectSelectorAndGetProjectsName() {
+        await this.clickOnProjectSelectorDropDownHandle();
+        let selector = "//ul[contains(@id,'SelectableProjectList')]//div[contains(@id,'ProjectListItemViewer')]" + lib.H6_DISPLAY_NAME;
+        return await this.getTextInElements(selector);
     }
 };
 module.exports = ContentBrowsePanel;

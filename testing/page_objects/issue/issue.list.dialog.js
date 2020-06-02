@@ -205,7 +205,7 @@ class IssuesListDialog extends Page {
 
     isIssuePresent(issueName) {
         let issueXpath = xpath.issueByName(issueName);
-        return this.waitForElementDisplayed(issueXpath).catch(err => {
+        return this.waitForElementDisplayed(issueXpath, appConst.TIMEOUT_2).catch(err => {
             this.saveScreenshot("issue_not_present_" + issueName);
             return false;
         })
@@ -233,11 +233,13 @@ class IssuesListDialog extends Page {
             throw new Error('error when clicked on issue' + err)
         })
     }
-    async waitForIssueNotPresent(issueName){
+
+    async waitForIssueNotPresent(issueName) {
         let issueXpath = xpath.issueByName(issueName);
         return await this.waitForElementNotDisplayed(issueXpath, appConst.TIMEOUT_2);
     }
-    async waitForIssuePresent(issueName){
+
+    async waitForIssuePresent(issueName) {
         let issueXpath = xpath.issueByName(issueName);
         return await this.waitForElementDisplayed(issueXpath, appConst.TIMEOUT_2);
     }
