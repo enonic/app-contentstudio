@@ -1,6 +1,3 @@
-// NOT STABLE ENOUGH ACROSS BROWSERS YET
-// https://developer.mozilla.org/en-US/docs/Web/Guide/CSS/Flexible_boxes
-
 @types-list-max-height: 38vh;
 @file-input-height: 37px;
 @file-input-margin-bottom: 20px;
@@ -154,7 +151,7 @@
     }
 
     section {
-      width: 60%;
+      flex: 1;
 
       .file-input {
         margin-bottom: @file-input-margin-bottom;
@@ -175,7 +172,7 @@
     }
 
     aside {
-      width: 40%;
+      flex: 1;
       margin-left: 5px;
       padding: 0 15px;
       border-left: 1px solid @admin-medium-gray-border;

@@ -180,7 +180,7 @@ export class ContentVersionListItemView
         CompareContentVersionsDialog.get()
             .setContent(this.content.getContentSummary())
             .setLeftVersion(this.version)
-            .setRevertVersionCallback(this.revert)
+            .setRevertVersionCallback(this.revert.bind(this))
             .open();
     }
 
