@@ -433,7 +433,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return this.waitForElementDisplayed(nameXpath, 3000).then(() => {
             return this.clickOnElement(nameXpath);
         }).then(() => {
-            return this.pause(500);
+            return this.pause(600);
         }).catch(err => {
             this.saveScreenshot('err_find_' + displayName);
             throw Error('Row with the displayName ' + displayName + ' was not found' + err)

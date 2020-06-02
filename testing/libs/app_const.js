@@ -58,6 +58,10 @@ module.exports = Object.freeze({
     YOUR_COMMENT_ADDED: 'Your comment is added to the task.',
     CONTENT_REVERTED_MESSAGE: 'The content was reverted to the version from',
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
+    ACCESS_WIDGET_HEADER: {
+        RESTRICTED_ACCESS: "Restricted access to item",
+        EVERYONE_CAN_READ: "Everyone can read this item"
+    },
     //waitForTimeout
     TIMEOUT_10: 10000,
     TIMEOUT_3: 3000,

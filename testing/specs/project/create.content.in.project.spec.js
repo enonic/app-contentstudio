@@ -14,6 +14,7 @@ const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizar
 const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
 const ContentWidgetView = require('../../page_objects/browsepanel/detailspanel/content.widget.item.view');
 const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
+const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 
 describe('create.content.in.project.spec - create new content in the selected context and verify a language in wizards', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -28,7 +29,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             //1. Navigate to Settings Panel:
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1. Save new projects:
+            //1. Save new project (mode access is Private):
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConstant.LANGUAGES.NORSK_NO);
         });
 
@@ -96,11 +97,11 @@ describe('create.content.in.project.spec - create new content in the selected co
             assert.equal(result.length, 7, "Total number of ACL entries should be 7");
         });
 
-    it("GIVEN project with 'Private' access mode is selected AND existing folder is selected WHEN Details Panel has been opened THEN ",
+    it("GIVEN project with 'Private' access mode is selected AND existing folder is selected WHEN Details Panel has been opened THEN 'Restricted access to item' should be in Access Widget",
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            let browseDetailsPanel = new BrowseDetailsPanel();
+            let userAccessWidget = new UserAccessWidget();
             let contentWidget = new ContentWidgetView();
             await projectSelectionDialog.waitForDialogLoaded();
             //1. Select the project in 'Select Context' dialog:
@@ -108,17 +109,10 @@ describe('create.content.in.project.spec - create new content in the selected co
             //2. Select the folder and open details panel
             await studioUtils.findAndSelectItem(TEST_FOLDER_NAME);
             await studioUtils.openBrowseDetailsPanel();
-            let contentName = await contentWidget.getContentName();
-            assert.equal(contentName, TEST_FOLDER_NAME, "Expected name should be displayed in the widget(details panel)");
-            //3. Switch to 'Default' project:
-            await contentBrowsePanel.selectContext("Default");
-            //4.Verify that 'Details Panel' is cleared
-            await browseDetailsPanel.waitForDetailsPanelCleared();
-            //5. Verify that the content is not searchable in the 'Default' context:
-            await studioUtils.typeNameInFilterPanel(TEST_FOLDER_NAME);
-            studioUtils.saveScreenshot("switch_to_default_context");
-            let result = await contentBrowsePanel.getDisplayNamesInGrid();
-            assert.equal(result.length, 0, "Filtered grid should be empty");
+            let actualHeader = await userAccessWidget.getHeader();
+            assert.equal(actualHeader, appConstant.ACCESS_WIDGET_HEADER.RESTRICTED_ACCESS,
+                "'Restricted access to item' - header should be displayed");
+
         });
 
     //verifies Details Panel should be reset after switching to another project #1570
