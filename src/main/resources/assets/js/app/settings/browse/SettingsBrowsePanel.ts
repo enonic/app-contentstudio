@@ -69,7 +69,7 @@ export class SettingsBrowsePanel
     }
 
     hasItemsLoaded(): boolean {
-        return this.treeGrid.getCurrentTotal() > 1;
+        return this.treeGrid.getFullTotal() > 1;
     }
 
 }
