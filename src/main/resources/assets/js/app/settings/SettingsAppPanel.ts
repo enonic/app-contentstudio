@@ -130,6 +130,10 @@ export class SettingsAppPanel
     }
 
     private handleItemUpdated(projectName: string) {
+        if (!this.browsePanel.hasItemsLoaded()) {
+            return;
+        }
+
         new ProjectListRequest().sendAndParse()
             .then((projects: Project[]) => {
 

@@ -68,4 +68,8 @@ export class SettingsBrowsePanel
         this.treeGrid.deleteSettingsItemNode(id);
     }
 
+    hasItemsLoaded(): boolean {
+        return this.treeGrid.getCurrentTotal() > 1;
+    }
+
 }
