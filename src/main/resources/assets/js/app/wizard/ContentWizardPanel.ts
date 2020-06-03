@@ -120,6 +120,7 @@ import {ContentIds} from '../ContentIds';
 import {AfterContentSavedEvent} from '../event/AfterContentSavedEvent';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {ProjectContext} from '../project/ProjectContext';
+import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
@@ -1792,24 +1793,29 @@ export class ContentWizardPanel
         return Q.all(formViewLayoutPromises).thenResolve(null);
     }
 
-    private toggleStepFormsVisibility(loginResult: LoginResult) {
-        const visible: boolean = this.isSecurityFormAllowed(loginResult);
-
+    private toggleElementsVisibility(visible: boolean) {
         this.settingsWizardStepForm.setVisible(visible);
         this.settingsWizardStepForm.getPreviousElement().setVisible(visible);
         this.settingsWizardStep.getTabBarItem().setVisible(visible);
+        this.editPermissionsToolbarButton.setVisible(visible);
     }
 
-    private isSecurityFormAllowed(loginResult: LoginResult): boolean {
+    private toggleStepFormsVisibility(loginResult: LoginResult) {
+        const hasAdminPermissions: boolean = this.hasAdminPermissions(loginResult);
+
+        if (hasAdminPermissions) {
+            this.toggleElementsVisibility(true);
+        } else {
+            ProjectHelper.isUserProjectOwner(loginResult).then((isOwner: boolean) => this.toggleElementsVisibility(isOwner));
+        }
+    }
+
+    private hasAdminPermissions(loginResult: LoginResult): boolean {
         if (loginResult.getPrincipals().some(principalKey => RoleKeys.isAdmin(principalKey))) {
             return true;
         }
 
-        if (loginResult.isContentAdmin()) {
-            return true;
-        }
-
-        if (loginResult.isContentExpert()) {
+        if (loginResult.isContentAdmin() || loginResult.isContentExpert()) {
             return true;
         }
 
