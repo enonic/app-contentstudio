@@ -2,73 +2,90 @@
 :toc: right
 :imagesdir: issues/images
 
-Creating an issue may be useful when you want to create a task, describe it, add related content and then assigning it to a certain user. Issues can also be used as tasks to track activities, needed to perform on the content before the publish.
+There are two types of issues in Content Studio: tasks and publish requests.
 
+*Tasks* are useful when you want to give some other user(s) an assignment of sorts, like spellcheck an article, or add new content to a site.
+*Publish Requests* are typically used when you have made some changes to a content which you want someone else to approve and publish.
 
-== New Issue
+== Issues list
 
-There are three ways to open this dialog in the Content Studio:
+"*Open Issues"* button in the Content Studio header opens the modal dialog with the list of issues (both tasks and publish requests).
+If there are no active issues, the button will say "*No Open Issues*".
 
-* By clicking the `Create Issue…` option button in the toolbar (it will replace the `Publish` button for the fully published content, otherwise it can be found in the publish menu dropdown, next to the `Publish` button);
+image::issues-header.png[Issues button, 478]
 
-* By clicking the `Create Issue…` button in the *Publish Wizard* dialog;
+The list by default shows all active issues. Use Open/Closed toggler to switch between Open and Closed issues.
 
-* By clicking `My Issues` button above the toolbar and then clicking the `New Issue…` button in the opened dialog.
+image::issues-list.png[Issues list, 719]
 
-image::dialog-publish-button.png[]
+TIP: Tasks and Publish Requests are using different icons to make it easier to distinguish them.
 
-=== My issues
+By using the filter above the list you can narrow down the list to issues assigned to current user, created by current user,
+only Publish Requests or only task. By default, if you have any active issues assigned to you, the filter will be preset to show you only them.
 
-*My Issues* dialog can be accessed by clicking the `My Issues` in the top right corner, just button above the `Publish` button.
+image::issues-list-filter.png[Filter in the Issues list, 716]
 
-The dialog will list all opened issues. You can switch to the closed ones by clicking the `Show closed issues` button. You can also filter the list, showing only the issues that were assigned to you  (`Assigned to Me` checkbox), or created by you (`My Issues` checkbox).
+To create a new task, click the <<updating-issue,`New Task…`>> button.
 
-To create a new issue, click the <<updating-issue,`New Issue…`>> button.
+Clicking on an issue from the list will open the <<updating-issue,issue details dialog>>.
 
-Clicking on the issue from the list will open the <<updating-issue,dialog>> to an edit issue.
+== Tasks
 
-image::dialog-issue-list.png[]
+=== Create a task
 
-=== Creating issue
+To create a new task, click "Create Task..." button in the Content Studio toolbar.
 
-To create a new issue, only the *Title* must be specified. All other fields are optional.
+image::create-task-1.png[Create Task, 372]
+
+If some content items are selected in the Content grid, you can expand the toolbar menu and select either "Create Task..." or "Request Publishing...".
+In this case selected items will be automatically added to a new issue you are about to create.
+
+image::create-task-2.png[Create Task, 372]
 
 You can assign multiple users to work on an issue, using the *Assignees* selector, but you can't assign yourself.
 
 To add specific content to an issue, click on the `Add items` button. The *Items* selector will appear. 
 
-image::dialog-issue-1.png[]
+image::dialog-issue-1.png[New task, 708]
 
-If you click `Create Issue…` button in the *Publishing Wizard* dialog, like in the <<actions#publishing-wizard,example>>, when publishing “March Madness” post, all content from the previous dialog will be automatically added to the items list. You can also add or remove from that list the descendants of specific content by clicking on the tree icon next to that content.
+You can read about creating a new Publishing Request in a dedicated <<workflow#publish_request,workflow section>>.
 
-image::dialog-issue-2.png[]
+=== Update an issue
 
-=== Updating issue
+To modify an issue, click on it in the <<issues_list,*Issue list*>> dialog. It will open the dialog with three tabs.
 
-To edit the issue, click on it in the <<my-issues,*My issues*>> dialog. It will open the dialog with three tabs.
+Click the title to edit it, then click anywhere outside of the text field to save the changes.
 
-In the top right corner, you will see the status of the current issue. It can be `Open` or `Close`.
+Under the title you will see the status of the current issue. It can be `Open` or `Close`. Click this button to change the issue status.
+Altenatively, you can use `Close Task` button (for an active issue) or `Reopen Task` (for a closed issue).
 
-Just above the status is the *pencil* icon, clicking on which will allow you to edit the title of the issue.
+image::dialog-issue-edit-1.png[Issue title and comments, 714]
 
 ==== Comments
 
-The first tabs show comments on the current issue. Comments can be added by clicking the `Add Comment` button. To *edit* or *delete* a comment, click on the *kebab* icon to the right of the comment, that will show the menu with those two options. The number next to the tab title shows the total number of comments. 
+The first tab shows comments on the current issue. Comments can be added by clicking the `Comment` button.
 
-image::dialog-issue-edit-1.png[]
+TIP: When you are in the comment field, "Close Task" button changes to "Comment & Close Task" to comment and close with one click.
+
+To *edit* or *delete* a comment, click on the *kebab* icon to the right of the comment, that will show the menu with those two options.
+The number next to the tab title shows the total number of comments.
 
 ==== Items
 
-On the second tab, you can update the list of content, that is associated with this issue. There can be multiple contents or no content at all. The descendants of the content can be added or removed from the list by clicking on the tree icon next to the content. 
+On the second tab, you can update the list of content items in this issue.
+There can be multiple items or no content at all.
+Child/dependent items of the selected content can be toggled by clicking on the tree icon next to the content item.
 
-There is a `Publish & Close Issue` button at the footer of the dialog in this tab, which allows you to close the issue, or schedule the time, that the issue will be closed, if you click the `Schedule…` option in the menu.
+If you are inside a *task* and click the `Publish...` button, you will be taken to the Publishing Wizard where you can publish items immediately
+or schedule publishing.
+For a _Publish Request_ you can publish items or schedule publish directly from this dialog.
 
-The number next to the tab title shows the total number of content, associated with the issue. 
+The number next to the tab title shows the total number of content items inside the issue.
 
-image::dialog-issue-edit-2.png[]
+image::dialog-issue-edit-2.png[Issue content, 700]
 
 ==== Assignees
 
 On the third tab, assignees can be added and removed from this issue. The number next to the tab title shows the total number of assignees. 
 
-image::dialog-issue-edit-3.png[]
+image::dialog-issue-edit-3.png[Issue assignees, 700]
