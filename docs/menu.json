@@ -9,10 +9,6 @@
       "document": "issues"
     },
     {
-      "title": "Content Workflow",
-      "document": "workflow"
-    },
-    {
       "title": "Content Editor",
       "document": "editor",
       "menuItems": [
@@ -37,6 +33,14 @@
             "document" : "editor/rich-text-editor"
         }
       ]
+    },
+    {
+      "title": "Content Projects",
+      "document": "projects"
+    },
+    {
+      "title": "Content Workflow",
+      "document": "workflow"
     },
     {
       "title": "Content Types",
