@@ -489,7 +489,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     getNameOfSelectedRow() {
-        return this.findElements(XPATH.selectedRow).then(result => {
+        return this.waitForElementDisplayed(XPATH.selectedRow, appConst.TIMEOUT_2).then(() => {
             return this.getText(XPATH.selectedRow + lib.H6_DISPLAY_NAME);
         }).catch(err => {
             throw new Error(`Error when getting selected rows ` + err);
