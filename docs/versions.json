@@ -7,11 +7,12 @@
     },
     {
       "label": "stable",
-      "checkout": "master"
+      "checkout": "master",
+      "latest": true
     },
     {
       "label": "unstable",
-      "checkout": "2b063c64dc065b66919c2eeafdba88def6e3a600"
+      "checkout": "05a4549fa6461c47160a0fe0a55d973ba57afb1c"
     }
   ]
 }
