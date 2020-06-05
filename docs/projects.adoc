@@ -2,7 +2,7 @@
 :toc: right
 :imagesdir: projects/images
 
-CAUTION: Content Projects have been introduced in Content Studio 3.0 and require XP 7.3.0 or later
+NOTE: Content Projects have been introduced in Content Studio 3.0 and require XP 7.3.0 or later
 
 By using Content Projects you can split your content into several independent repositories. Each project can have a default language,
 its own set of roles, and be set up as Public, Private or with custom read permissions. When you open Content Studio,
@@ -92,7 +92,7 @@ image::new-project-roles.png[Default project, 529]
 * *Author*: same as *Contributor* + create, modify and delete content. *Author* is not allowed to publish content, create sites
 or change their configuration.
 * *Editor*: same as *Author* + publish content and modify content permissions.
-* *Owner*: same as *Editor* + create and configure sites, modify project settings and delete the project including all of its content items.
+* *Owner*: same as *Editor* + create and configure sites, and modify project settings.
 
 NOTE: Default project doesn't support project roles or customization of read permissions.
 
@@ -106,7 +106,7 @@ Project context can be switched at any time by using project selector in the Con
 
 image::project-switcher.png[Project switcher, 606]
 
-NOTE: <<issues,*Issues*>> are context-dependable which means that an issue can be accessed only from inside the project it was created in.
+NOTE: <<issues#,*Issues*>> are context-dependent which means that an issue can be accessed only from inside the project it was created in.
 
 Current project context is also shown in the Content Wizard header:
 
