@@ -122,7 +122,9 @@ export class ProjectWizardPanel
     updatePersistedItem(): Q.Promise<ProjectViewItem> {
         return this.doUpdatePersistedItem().then((project: Project) => {
             const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
-            this.readAccessWizardStepForm.updateReadAccessType(item.getReadAccess().getType());
+            if (!item.isDefaultProject()) {
+                this.readAccessWizardStepForm.updateReadAccessType(item.getReadAccess().getType());
+            }
             showFeedback(this.getSuccessfulUpdateMessage(item.getName()));
             return item;
         });
