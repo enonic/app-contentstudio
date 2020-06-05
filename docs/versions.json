@@ -8,6 +8,10 @@
     {
       "label": "stable",
       "checkout": "master"
+    },
+    {
+      "label": "unstable",
+      "checkout": "2b063c64dc065b66919c2eeafdba88def6e3a600"
     }
   ]
 }
