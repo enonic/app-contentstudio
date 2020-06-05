@@ -1,0 +1,13 @@
+
+{
+  "versions": [
+    {
+      "label": "2.x",
+      "checkout": "a24d80d3eeef3439ff9f4f192bc3a567da2493f1"
+    },
+    {
+      "label": "stable",
+      "checkout": "master"
+    }
+  ]
+}
