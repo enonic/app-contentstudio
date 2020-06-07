@@ -43,7 +43,16 @@ export class ProjectWizardActions
         const persistedItem: ProjectViewItem = this.wizardPanel.getPersistedItem();
 
         this.save.setEnabled(
-            this.wizardPanel.isValid() && this.wizardPanel.hasUnsavedChanges() && persistedItem.isEditAllowed(this.loginResult));
+            this.wizardPanel.isValid() && this.wizardPanel.hasUnsavedChanges() && this.isEditAllowed());
         this.delete.setEnabled(persistedItem.isDeleteAllowed(this.loginResult));
     }
+
+    isEditAllowed(): boolean {
+        const persistedItem: ProjectViewItem = this.wizardPanel.getPersistedItem();
+        if (!persistedItem) {
+            return true; // New project - edit is allowed
+        }
+        return persistedItem.isEditAllowed(this.loginResult);
+    }
+
 }

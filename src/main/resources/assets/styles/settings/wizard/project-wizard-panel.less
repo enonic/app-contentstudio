@@ -1,5 +1,16 @@
 .project-wizard-panel {
 
+  &.no-modify-permissions {
+
+    .panel-strip-scrollable {
+      opacity: 0.8;
+
+      .header-and-navigator-container, .wizard-step-form {
+        pointer-events: none;
+      }
+    }
+  }
+
   .wizard-step-form {
     &.project-item-wizard-step-form {
       .input-view {
