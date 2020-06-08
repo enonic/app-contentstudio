@@ -68,7 +68,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             assert.isTrue(actualMessages[0].includes("are applied"), "Permissions are applied - the second expected notification message");
         });
 
-    it(`GIVEN existing project context is selected WHEN existing folder has been clicked THEN 'Everyone can read this item' this header should be displayed in Access Widget`,
+    it(`GIVEN existing project context is selected WHEN existing folder has been clicked THEN 'Everyone can read this item' header should be displayed in Access Widget`,
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
             let userAccessWidget = new UserAccessWidget();
