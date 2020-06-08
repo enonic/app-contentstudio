@@ -61,6 +61,8 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             assert.equal(actualMessage, appConstant.projectModifiedMessage(PROJECT_DISPLAY_NAME));
             //6. Click on 'close-icon' button and close the wizard:
             await settingsBrowsePanel.clickOnCloseIcon(PROJECT_DISPLAY_NAME);
+            await projectWizard.waitForWizardClosed();
+            await settingsBrowsePanel.pause(1000);
             //7. Verify that the description is updated in Browse Panel:
             studioUtils.saveScreenshot("project_description_updated");
             let actualDescription = await settingsBrowsePanel.getProjectDescription(PROJECT_DISPLAY_NAME);
