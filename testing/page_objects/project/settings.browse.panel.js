@@ -98,7 +98,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         try {
             let expanderIcon = XPATH.itemsTreeGrid + XPATH.expanderIconByName(name);
             await this.clickOnElement(expanderIcon);
-            return await this.pause(900);
+            return await this.pause(1100);
         } catch (err) {
             this.saveScreenshot('err_click_on_expander');
             throw new Error('error when click on expander-icon ' + err);

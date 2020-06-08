@@ -489,7 +489,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     getNameOfSelectedRow() {
-        return this.findElements(XPATH.selectedRow).then(result => {
+        return this.waitForElementDisplayed(XPATH.selectedRow, appConst.TIMEOUT_2).then(() => {
             return this.getText(XPATH.selectedRow + lib.H6_DISPLAY_NAME);
         }).catch(err => {
             throw new Error(`Error when getting selected rows ` + err);
@@ -590,7 +590,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async openPublishMenu() {
         await this.clickOnElement(this.showPublishMenuButton);
-        await this.pause(300);
+        return await this.pause(300);
     }
 
     async openPublishMenuSelectItem(menuItem) {
@@ -600,7 +600,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
             await this.waitForPublishMenuItemEnabled(menuItem);
             await this.clickOnElement(selector);
-            return this.pause(300);
+            return await this.pause(300);
         } catch (err) {
             this.saveScreenshot("err_click_issue_menuItem");
             throw new Error('error when try to click on publish menu item, ' + err);
@@ -706,7 +706,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.clickOnProjectSelectorDropDownHandle();
         let selector = XPATH.projectSelector + XPATH.projectItemByDisplayName(projectDisplayName);
         await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
-        return this.clickOnElement(selector);
+        return await this.clickOnElement(selector);
     }
 
     async expandProjectSelectorAndGetProjectsName() {

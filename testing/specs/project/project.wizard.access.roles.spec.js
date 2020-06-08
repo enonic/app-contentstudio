@@ -22,7 +22,7 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
             //1. Navigate to Settings Panel:
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1. Save new projects:
+            //1. Save new project:
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, null, PRINCIPALS);
         });
 
