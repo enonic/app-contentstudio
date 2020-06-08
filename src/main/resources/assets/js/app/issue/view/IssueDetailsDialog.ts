@@ -667,7 +667,6 @@ export class IssueDetailsDialog
 
         const shouldUpdateDialog = (this.isRendered() || this.isRendering()) && issue;
         const isPublishRequest = this.isPublishRequest(issue);
-        this.publishProcessor.setCheckPublishable(!isPublishRequest);
         this.toggleClass('publish-request', isPublishRequest);
 
         if (shouldUpdateDialog) {
