@@ -56,6 +56,8 @@ import * as Q from 'q';
 import {Project} from './app/settings/data/project/Project';
 import {ProjectSelectionDialog} from './app/settings/dialog/ProjectSelectionDialog';
 import {SettingsServerEventsListener} from './app/settings/event/SettingsServerEventsListener';
+import {UrlAction} from './app/UrlAction';
+import {Path} from 'lib-admin-ui/rest/Path';
 // End of Polyfills
 
 declare const CONFIG;
@@ -74,10 +76,22 @@ function getApplication(): Application {
         i18n('app.name'),
         i18n('app.abbr')
     );
-    application.setPath(Router.getPath());
+    application.setPath(processApplicationPath());
     application.setWindow(window);
 
     return application;
+}
+
+function processApplicationPath(): Path {
+    const path: Path = Router.getPath();
+
+    if (path.getElement(0) !== UrlAction.ISSUE) {
+        return path;
+    }
+
+    Router.get().setHash(path.toString());
+
+    return Router.getPath();
 }
 
 function startLostConnectionDetector(): ConnectionDetector {
