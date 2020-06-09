@@ -364,6 +364,7 @@ function startServerEventListeners(application: Application) {
 
 async function startApplication() {
     const application: Application = getApplication();
+    const connectionDetector = startLostConnectionDetector();
 
     startServerEventListeners(application);
 
@@ -375,9 +376,9 @@ async function startApplication() {
         })
         .finally(() => {
             if (ContentAppHelper.isContentWizard(application)) {
-                startContentWizard(ContentAppHelper.createWizardParamsFromApp(application));
+                startContentWizard(ContentAppHelper.createWizardParamsFromApp(application), connectionDetector);
             } else {
-                startContentApplication(application);
+                startContentBrowser(application);
             }
         });
 
@@ -455,9 +456,7 @@ const refreshTabOnContentUpdate = (content: Content) => {
     });
 };
 
-async function startContentWizard(wizardParams: ContentWizardPanelParams) {
-    const connectionDetector = startLostConnectionDetector();
-
+async function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: ConnectionDetector) {
     const ContentWizardPanel = (await import('./app/wizard/ContentWizardPanel')).ContentWizardPanel;
 
     let wizard = new ContentWizardPanel(wizardParams, getTheme());
@@ -518,7 +517,7 @@ function getTheme(): string {
     return CONFIG.theme ? (`theme-${CONFIG.theme}` || '') : '';
 }
 
-async function startContentApplication(application: Application) {
+async function startContentBrowser(application: Application) {
 
     await import ('./app/ContentAppPanel');
     const AppWrapper = (await import ('./app/AppWrapper')).AppWrapper;
