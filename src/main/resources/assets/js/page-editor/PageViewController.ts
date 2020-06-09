@@ -51,6 +51,7 @@ export class PageViewController {
 
     setLocked(value: boolean) {
         this.pageLocked = value;
+        this.setHighlightingDisabled(value);
     }
 
     isLocked() {
