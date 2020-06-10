@@ -4,7 +4,12 @@ import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {Delta, DiffPatcher, formatters} from 'jsondiffpatch';
 import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
 import {ContentVersions} from '../ContentVersions';
-import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {
+    DefaultModalDialogHeader,
+    ModalDialog,
+    ModalDialogConfig,
+    ModalDialogHeader
+} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
@@ -21,6 +26,9 @@ import {Menu} from 'lib-admin-ui/ui/menu/Menu';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {ContentVersionViewer} from '../view/context/widget/version/ContentVersionViewer';
+import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
+import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -68,6 +76,37 @@ export class CompareContentVersionsDialog
         });
 
         this.diffPatcher = new DiffPatcher();
+    }
+
+    protected initListeners() {
+        super.initListeners();
+
+        const serverEventsHandler: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
+
+        const deletedHandler = (deletedItems: ContentServerChangeItem[]) => {
+            if (deletedItems.some((item: ContentServerChangeItem) => this.contentId.equals(item.getContentId()))) {
+                this.close();
+            }
+        };
+
+        const updatedHandler = (updatedItems: ContentSummaryAndCompareStatus[]) => {
+            const currentItem: ContentSummaryAndCompareStatus =
+                updatedItems.find((item: ContentSummaryAndCompareStatus) => item.getContentId().equals(this.contentId));
+
+            if (currentItem) {
+                (<CompareContentVersionsDialogHeader>this.header).setSubTitle(currentItem.getPath().toString());
+            }
+        };
+
+        this.onShown(() => {
+            serverEventsHandler.onContentDeleted(deletedHandler);
+            serverEventsHandler.onContentUpdated(updatedHandler);
+        });
+
+        this.onHidden(() => {
+            serverEventsHandler.unContentDeleted(deletedHandler);
+            serverEventsHandler.unContentUpdated(updatedHandler);
+        });
     }
 
     private createVersionDropdown(stylePrefix: string, version: ContentVersion): Dropdown<ContentVersion> {
@@ -592,14 +631,8 @@ export class CompareContentVersionsDialog
         const isLeftVersionActive = this.leftDropdown.getSelectedOption().displayValue.isActive();
         const isRightVersionActive = this.rightDropdown.getSelectedOption().displayValue.isActive();
 
-        const leftLabel = i18n(isLeftVersionActive ? 'dialog.compareVersions.current' : 'dialog.compareVersions.olderVersion');
-        const rightLabel = i18n(isRightVersionActive ? 'dialog.compareVersions.current' : 'dialog.compareVersions.newerVersion');
-
         this.revertLeftButton.setEnabled(!isLeftVersionActive);
         this.revertRightButton.setEnabled(!isRightVersionActive);
-
-        this.leftLabel.setValue(leftLabel);
-        this.rightLabel.setValue(rightLabel);
     }
 
     private processContent(contentJson: any): Object {

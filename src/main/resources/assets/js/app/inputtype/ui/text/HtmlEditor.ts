@@ -894,14 +894,12 @@ class HtmlEditorConfigBuilder {
     private enabledTools: string[] = [];
 
     private tools: any[] = [
-        ['Format', 'Bold', 'Italic', 'Underline'],
+        ['Styles', 'Bold', 'Italic', 'Underline'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
         ['SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
         ['Table'], ['PasteModeSwitcher']
     ];
-
-    private readonly defaultHeadings: string = 'h1;h2;h3;h4;h5;h6';
 
     private constructor(htmlEditorParams: HtmlEditorParams) {
         this.editorParams = htmlEditorParams;
@@ -910,12 +908,14 @@ class HtmlEditorConfigBuilder {
         this.adjustToolsList();
     }
 
-    private getFormatTags(): string {
-        let allowedHeadings: string = this.editorParams.getAllowedHeadings();
+    private getAllowedHeadings(): string[] {
+        const allowedHeadings: string = this.editorParams.getAllowedHeadings();
+
         if (allowedHeadings) {
-            allowedHeadings = allowedHeadings.trim().replace(/  +/g, ' ').replace(/ /g, ';');
+            return allowedHeadings.trim().replace(/  +/g, ' ').replace(/ /g, ';').split(';');
         }
-        return `p;${(allowedHeadings || this.defaultHeadings)};div;pre`;
+
+        return ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
     }
 
     private processCustomToolConfig() {
@@ -963,7 +963,7 @@ class HtmlEditorConfigBuilder {
     }
 
     private createConfig(): Q.Promise<CKEDITOR.config> {
-
+        this.initCustomStyleSet();
         const contentsCss = [this.editorParams.getAssetsUri() + '/styles/html-editor.css'];
 
         const config: CKEDITOR.config = {
@@ -979,7 +979,7 @@ class HtmlEditorConfigBuilder {
             removeButtons: this.disabledTools,
             extraPlugins: 'macro,image2,tableresize,pasteFromGoogleDoc,pasteModeSwitcher',
             extraAllowedContent: this.getExtraAllowedContent(),
-            format_tags: this.getFormatTags(),
+            stylesSet: `custom-${this.editorParams.getEditorContainerId()}`,
             image2_disableResizer: true,
             image2_captionedClass: 'captioned',
             image2_alignClasses: [StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS, StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS,
@@ -990,11 +990,6 @@ class HtmlEditorConfigBuilder {
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
             disableNativeSpellChecker: false
         };
-
-        if (!this.isToolDisabled('Code')) {
-            config.format_tags = config.format_tags + ';code';
-            config['format_code'] = {element: 'code'};
-        }
 
         config['qtRows'] = 10; // Count of rows
         config['qtColumns'] = 10; // Count of columns
@@ -1013,6 +1008,31 @@ class HtmlEditorConfigBuilder {
         });
 
         return deferred.promise;
+    }
+
+    private initCustomStyleSet() {
+        const customStyleSetID: string = `custom-${this.editorParams.getEditorContainerId()}`;
+
+        if (CKEDITOR.stylesSet.get(customStyleSetID)) {
+            return;
+        }
+
+        const customStyleSet: any[] = [];
+
+        customStyleSet.push({name: i18n('text.htmlEditor.styles.p'), element: 'p'});
+
+        this.getAllowedHeadings().forEach((heading: string) => {
+            customStyleSet.push({name: i18n('text.htmlEditor.styles.heading', heading.charAt(1)), element: heading});
+        });
+
+        customStyleSet.push({name: i18n('text.htmlEditor.styles.div'), element: 'div'});
+        customStyleSet.push({name: i18n('text.htmlEditor.styles.pre'), element: 'pre'});
+
+        if (!this.isToolDisabled('Code')) {
+            customStyleSet.push({name: i18n('text.htmlEditor.styles.code'), element: 'code'});
+        }
+
+        CKEDITOR.stylesSet.add(customStyleSetID, <any>customStyleSet);
     }
 
     private getPluginsToRemove(): string {

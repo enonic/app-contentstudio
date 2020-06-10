@@ -23,24 +23,24 @@ describe('wizard.update.permissions.spec: update permissions and check the state
             async () => {
                 let contentWizard = new ContentWizard();
                 let editPermissionsDialog = new EditPermissionsDialog();
-                    //1. Open new folder-wizard, fill in the name input and save it:
+                //1. Open new folder-wizard, fill in the name input and save it:
                 await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
                 await contentWizard.typeDisplayName(displayName);
-                    //2. Save the folder:
+                //2. Save the folder:
                 await contentWizard.waitAndClickOnSave();
-                    //3. Open 'Edit Permissions' dialog:
-                    await contentWizard.clickOnEditPermissionsButton();
-                    //4. Uncheck the 'Inherit permissions'
-                    await editPermissionsDialog.waitForDialogLoaded();
+                //3. Open 'Edit Permissions' dialog:
+                await contentWizard.clickOnEditPermissionsButton();
+                //4. Uncheck the 'Inherit permissions'
+                await editPermissionsDialog.waitForDialogLoaded();
                 await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
 
-                    //5.  Add default permissions for 'Anonymous user' and click on Apply button:
+                //5.  Add default permissions for 'Anonymous user' and click on Apply button:
                 await editPermissionsDialog.filterAndSelectPrincipal(appConstant.systemUsersDisplayName.ANONYMOUS_USER);
                 await editPermissionsDialog.clickOnApplyButton();
 
                 let expectedMessage = appConstant.permissionsAppliedNotificationMessage(displayName);
                 await contentWizard.waitForExpectedNotificationMessage(expectedMessage);
-                    //Verify that 'Saved' button should not change its state - this button should still be present after applying permissions:
+                //Verify that 'Saved' button should not change its state - this button should still be present after applying permissions:
                 await contentWizard.waitForSavedButtonVisible();
             });
 
@@ -51,8 +51,8 @@ describe('wizard.update.permissions.spec: update permissions and check the state
                 await studioUtils.selectAndOpenContentInWizard(displayName);
                 //1. Update the display name:
                 await contentWizard.typeDisplayName(newDisplayName);
-                    await contentWizard.clickOnEditPermissionsButton();
-                    await editPermissionsDialog.waitForDialogLoaded();
+                await contentWizard.clickOnEditPermissionsButton();
+                await editPermissionsDialog.waitForDialogLoaded();
                 //2. Update permissions(add default permissions for 'Everyone')
                 await editPermissionsDialog.filterAndSelectPrincipal(appConstant.systemUsersDisplayName.EVERYONE);
                 return editPermissionsDialog.clickOnApplyButton();

@@ -15,6 +15,8 @@ import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesA
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {Project} from '../settings/data/project/Project';
 import {ProjectIconUrlResolver} from '../project/ProjectIconUrlResolver';
+import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
+import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
 
 export interface ContentWizardToolbarConfig {
     application: Application;
@@ -34,6 +36,8 @@ export class ContentWizardToolbar
     private mobileItemStatisticsButton: TogglerButton;
 
     private stateIcon: DivEl;
+
+    private projectBlock: NamesAndIconView;
 
     private config: ContentWizardToolbarConfig;
 
@@ -69,7 +73,7 @@ export class ContentWizardToolbar
         });
 
         this.componentsViewToggler.onActiveChanged((isActive: boolean) => {
-            this.componentsViewToggler.setTitle(isActive ? i18n('field.hideComponent') : i18n('field.showComponent'));
+            this.componentsViewToggler.setTitle(isActive ? i18n('field.hideComponent') : i18n('field.showComponent'), false);
         });
 
         this.contentWizardToolbarPublishControls.getPublishButton().onInitialized(() => {
@@ -82,6 +86,14 @@ export class ContentWizardToolbar
 
         this.contentWizardToolbarPublishControls.getPublishButton().onPublishRequestActionChanged((added: boolean) => {
             this.toggleClass('publish-request', added);
+        });
+
+        ProjectUpdatedEvent.on((event: ProjectUpdatedEvent) => {
+            if (event.getProjectName() === ProjectContext.get().getProject()) {
+                new ProjectGetRequest(event.getProjectName()).sendAndParse().then((project: Project) => {
+                    this.projectBlock.setMainName(project.getDisplayName());
+                }).catch(DefaultErrorHandler.handle);
+            }
         });
     }
 
@@ -106,24 +118,24 @@ export class ContentWizardToolbar
         const currentProjectName: string = ProjectContext.get().getProject();
         const project: Project = projects.filter((p: Project) => p.getName() === currentProjectName)[0];
 
-        const projectBlock: NamesAndIconView = new NamesAndIconViewBuilder()
+        this.projectBlock = new NamesAndIconViewBuilder()
             .setSize(NamesAndIconViewSize.small)
             .build()
             .setMainName(project.getDisplayName())
             .setIconClass('icon-tree-2');
 
         if (project.getIcon()) {
-            projectBlock.setIconUrl(new ProjectIconUrlResolver()
+            this.projectBlock.setIconUrl(new ProjectIconUrlResolver()
                 .setProjectName(project.getName())
                 .setTimestamp(new Date().getTime())
                 .resolve());
         }
 
-        projectBlock.addClass('project-info');
-        projectBlock.toggleClass('single-repo', projects.length < 2);
-        projectBlock.getFirstChild().onClicked(() => this.handleHomeIconClicked());
+        this.projectBlock.addClass('project-info');
+        this.projectBlock.toggleClass('single-repo', projects.length < 2);
+        this.projectBlock.getFirstChild().onClicked(() => this.handleHomeIconClicked());
 
-        this.prependChild(projectBlock);
+        this.prependChild(this.projectBlock);
     }
 
     private handleHomeIconClicked() {

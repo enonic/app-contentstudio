@@ -44,7 +44,8 @@ export class MoveContentDialog
     constructor() {
         super({
             class: 'move-content-dialog',
-            confirmation: {}
+            confirmation: {},
+            title: i18n('dialog.move')
         });
     }
 
@@ -52,7 +53,7 @@ export class MoveContentDialog
         super.initElements();
 
         this.contentPathSubHeader = new H6El().addClass('content-path');
-        this.descriptionHeader = new H6El().addClass('desc-message');
+        this.descriptionHeader = new H6El().addClass('desc-message').setHtml(i18n('dialog.move.subname'));
         this.initMoveConfirmationDialog();
         this.initProgressManager();
         this.destinationSearchInput = new ContentMoveComboBox();
@@ -102,19 +103,12 @@ export class MoveContentDialog
         });
     }
 
-    private updateHeaderAndDescription() {
-        this.setTitle(i18n('dialog.move'));
-        this.descriptionHeader.setHtml(i18n('dialog.move.subname'));
-    }
-
     private listenOpenMoveDialogEvent() {
         OpenMoveDialogEvent.on((event) => {
 
             this.movedContentSummaries = event.getContentSummaries();
             this.destinationSearchInput.clearCombobox();
             this.rootNode = event.getRootNode();
-
-            this.updateHeaderAndDescription();
 
             const contents = event.getContentSummaries();
 

@@ -27,7 +27,10 @@ import {GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {H6El} from 'lib-admin-ui/dom/H6El';
-import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
+import {
+    RichSelectedOptionView,
+    RichSelectedOptionViewBuilder
+} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
 import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
@@ -182,19 +185,11 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     }
 
     protected createOption(data: Object, readOnly?: boolean): Option<ITEM_TYPE> {
+        const item: ITEM_TYPE = ObjectHelper.iFrameSafeInstanceOf(data, ContentTreeSelectorItem) ?
+            <ITEM_TYPE>data :
+            <ITEM_TYPE>new ContentTreeSelectorItem(<ContentSummary>data);
 
-        let option;
-
-        if (ObjectHelper.iFrameSafeInstanceOf(data, ContentTreeSelectorItem)) {
-            option = this.optionsFactory.createOption(<ITEM_TYPE>data, readOnly);
-        } else {
-            option = {
-                value: (<ContentSummary>data).getId(),
-                displayValue: new ContentTreeSelectorItem(<ContentSummary>data)
-            };
-        }
-
-        return option;
+        return this.optionsFactory.createOption(item, readOnly);
     }
 
     protected reload(inputValue: string): Q.Promise<any> {

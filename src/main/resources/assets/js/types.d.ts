@@ -1,16 +1,24 @@
 declare const CONFIG: {
-    appId: string,
-    xpVersion: string,
-    branch: string,
-    repository: string,
-    adminUrl: string,
-    launcherUrl: string,
-    assetsUri: string,
-    appIconUrl: string,
     adminAssetsUri: string,
-    stylesUrl: string,
-    messages: Array<any>,
+    adminUrl: string,
+    allowScriptsInEditor: string,
+    appIconUrl: string,
+    appId: string,
+    appVersion: string,
+    assetsUri: string,
+    branch: string,
+    launcher: {
+        theme: string
+    }
+    launcherUrl: string,
     mainUrl: string
+    stylesUrl: string,
+    services: {
+        contentUrl: string,
+        i18nUrl: string,
+        stylesUrl: string
+    }
+    theme: string
 };
 
 interface JQuery {

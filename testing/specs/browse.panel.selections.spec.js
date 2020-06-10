@@ -18,6 +18,7 @@ describe('Browse panel selections spec', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Select the existing folder:
             await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
+            await contentBrowsePanel.pause(500);
             let result = await contentBrowsePanel.getNameOfSelectedRow();
             //2. expected content should be highlighted
             assert.equal(result, appConstant.TEST_FOLDER_WITH_IMAGES, "expected content should be highlighted");
@@ -51,6 +52,7 @@ describe('Browse panel selections spec', function () {
             //1. Click on two checkboxes:
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConstant.TEST_FOLDER_2_DISPLAY_NAME);
+            await contentBrowsePanel.pause(500);
             let number = await contentBrowsePanel.getNumberOfSelectedRows();
             studioUtils.saveScreenshot('two_rows_checked');
             assert.equal(number, 0, "the number of highlighted rows should be 0");

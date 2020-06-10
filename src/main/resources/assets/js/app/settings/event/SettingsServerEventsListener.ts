@@ -1,6 +1,6 @@
 import {EventJson} from 'lib-admin-ui/event/EventJson';
 import {ServerEventsListener} from 'lib-admin-ui/event/ServerEventsListener';
-import {NodeEventJson, NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
+import {NodeEventJson, NodeEventNodeJson, NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
 import {SettingsServerEvent} from './SettingsServerEvent';
 import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
@@ -40,9 +40,9 @@ export class SettingsServerEventsListener
             return;
         }
 
-        if (ContentServerEvent.is(nodeEventJson)) {
+        if (this.isRootContentEvent(nodeEventJson)) {
             const event: ContentServerEvent = ContentServerEvent.fromJson(nodeEventJson);
-            this.handleProjectLanguageUpdate(event);
+            this.handleRootContentUpdate(event);
 
             return;
         }
@@ -64,7 +64,11 @@ export class SettingsServerEventsListener
         }
     }
 
-    private handleProjectLanguageUpdate(event: ContentServerEvent) {
+    private isRootContentEvent(nodeEventJson: NodeEventJson) {
+        return nodeEventJson.data.nodes.some((node: NodeEventNodeJson) => node.path === ContentServerChangeItem.pathPrefix);
+    }
+
+    private handleRootContentUpdate(event: ContentServerEvent) {
         if (NodeServerChangeType.UPDATE_PERMISSIONS !== event.getNodeChange().getChangeType() && NodeServerChangeType.UPDATE !==
             event.getNodeChange().getChangeType()) {
             return;
@@ -91,7 +95,7 @@ export class SettingsServerEventsListener
     }
 
     private isRootNodeEventItem(nodeEventItem: NodeServerChangeItem): boolean {
-        return nodeEventItem.getPath() === ContentServerChangeItem.pathPrefix;
+        return nodeEventItem.getPath() === '';
     }
 
     private extractProjectNameFromRootNodeEventItem(nodeEventNodeJson: NodeServerChangeItem): string {

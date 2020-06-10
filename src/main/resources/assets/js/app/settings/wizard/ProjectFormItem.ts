@@ -1,32 +1,27 @@
 import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {HelpTextContainer} from 'lib-admin-ui/form/HelpTextContainer';
 
 export class ProjectFormItem extends FormItem {
 
-    private header: DivEl;
-
-    private helpTextContainer?: HelpTextContainer;
+    private readonly helpTextContainer?: HelpTextContainer;
 
     constructor(builder: ProjectFormItemBuilder) {
         super(builder);
 
-        this.header = new DivEl('form-item-header');
         if (this.getLabel()) {
-            this.header.appendChild(this.getLabel());
+            this.prependChild(this.getLabel());
         }
-        this.prependChild(this.header);
 
         if (builder.helpText) {
             this.helpTextContainer = new HelpTextContainer(builder.helpText);
-            this.header.appendChild(this.helpTextContainer.getHelpText());
+            this.appendChild(this.helpTextContainer.getHelpText());
             this.helpTextContainer.toggleHelpText(true);
         }
     }
 
     disableHelpText() {
         if (this.helpTextContainer) {
-            this.helpTextContainer.toggleHelpText();
+            this.helpTextContainer.toggleHelpText(false);
         }
     }
 }

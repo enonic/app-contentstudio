@@ -11,6 +11,7 @@ import {ContentAppContainer} from './ContentAppContainer';
 import {AppContext} from './AppContext';
 import {AppMode} from './AppMode';
 import {MainAppContainer} from './MainAppContainer';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 
 export class AppWrapper
     extends DivEl {
@@ -125,6 +126,9 @@ export class AppWrapper
         const isSidebarVisible: boolean = this.hasClass('sidebar-expanded');
         this.toggleClass('sidebar-expanded', !isSidebarVisible);
         this.toggleSidebarButton.toggleClass('toggled', !isSidebarVisible);
+        this.toggleSidebarButton.setTitle(
+            this.toggleSidebarButton.hasClass('toggled') ? i18n('tooltip.sidebar.close') : i18n('tooltip.sidebar.open'), false
+        );
         if (!isSidebarVisible) {
             Body.get().onTouchStart(this.touchListener, false);
         } else {
@@ -147,6 +151,7 @@ class ToggleIcon
 
     constructor() {
         super();
+        this.setTitle(i18n('tooltip.sidebar.open'));
     }
 
     doRender(): Q.Promise<boolean> {
@@ -279,6 +284,7 @@ class Sidebar
             this.hide();
             this.appendChild(this.createAppNameBlock());
             this.appendChildren(this.appModeSwitcher);
+            this.appendChild(this.createAppVersionBlock());
 
             return rendered;
         });
@@ -299,5 +305,14 @@ class Sidebar
         appNameWrapper.appendChild(appName);
 
         return appNameWrapper;
+    }
+
+    private createAppVersionBlock(): SpanEl {
+        const cleanVersion = StringHelper.cleanVersion(CONFIG.appVersion);
+        const appVersionSpan = SpanEl.fromText(`v${cleanVersion}`, 'app-version');
+        if (CONFIG.appVersion !== cleanVersion) {
+            appVersionSpan.setTitle(`v${CONFIG.appVersion}`);
+        }
+        return appVersionSpan;
     }
 }

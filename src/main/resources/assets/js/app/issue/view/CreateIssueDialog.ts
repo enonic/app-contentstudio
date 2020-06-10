@@ -149,9 +149,8 @@ export class CreateIssueDialog
     }
 
     private createBackButton(): AEl {
-        const backButton: AEl = new AEl('back-button').setTitle(i18n('action.back'));
-
-        backButton.hide();
+        const backButton: AEl = new AEl('back-button');
+        backButton.setTitle(i18n('action.back')).hide();
 
         backButton.onClicked(() => {
             this.close();

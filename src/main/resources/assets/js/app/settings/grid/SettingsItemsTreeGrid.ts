@@ -116,12 +116,16 @@ export class SettingsItemsTreeGrid
         if (!this.hasItemWithId(id)) {
             return;
         }
-        const treeNodeToDelete: TreeNode<SettingsViewItem> = this.getRoot().getCurrentRoot().findNode(id);
-        this.deleteNode(treeNodeToDelete.getData());
+
+        this.deselectNodes([id]);
+        const treeNodeToDelete: TreeNode<SettingsViewItem> = this.getRoot().getNodeByDataId(id);
+        if (treeNodeToDelete) {
+            this.deleteNode(treeNodeToDelete.getData());
+        }
     }
 
     hasItemWithId(id: string) {
-        return !!this.getRoot().getCurrentRoot().findNode(id);
+        return !!this.getRoot().getNodeByDataId(id);
     }
 
     protected editItem(node: TreeNode<SettingsViewItem>) {
@@ -146,9 +150,7 @@ export class SettingsItemsTreeGrid
 
     private getSettingsItemParentNode(item: SettingsViewItem): TreeNode<SettingsViewItem> {
         if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
-            const projectsNode: TreeNode<SettingsViewItem> = this.getRoot().getCurrentRoot().findNode(
-                SettingsItemsTreeGrid.PROJECTS_FOLDER_ID);
-            return projectsNode;
+            return this.getRoot().getNodeByDataId(SettingsItemsTreeGrid.PROJECTS_FOLDER_ID);
         }
 
         return null;

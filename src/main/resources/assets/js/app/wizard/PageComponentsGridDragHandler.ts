@@ -128,8 +128,8 @@ export class PageComponentsGridDragHandler
 
         (<ComponentView<Component>>item.getData()).moveToRegion(<RegionView>newParent.getData(), insertIndex);
 
-        item.getData().select(null, ItemViewContextMenuPosition.NONE);
         this.contentGrid.refresh();
+        item.getData().select(null, ItemViewContextMenuPosition.NONE);
 
         return data[regionPosition];
     }

@@ -1,0 +1,113 @@
+= Content Projects
+:toc: right
+:imagesdir: projects/images
+
+NOTE: Content Projects have been introduced in Content Studio 3.0 and require XP 7.3.0 or later
+
+By using Content Projects you can split your content into several independent repositories. Each project can have a default language,
+its own set of roles, and be set up as Public, Private or with custom read permissions. When you open Content Studio,
+you will select a project (or context) you will be working in. Projects can be created and managed in the Settings section.
+
+== Settings
+
+Content Studio 3.0 introduced a new top-level menu which can be opened by clicking the burger icon in the top left corner. By using this
+menu you can switch between the "Content" and "Settings" sections.
+
+image::top-level-menu.png[Top Level Menu, 642]
+
+The Settings section lists all Content Projects that current user has permissions for. Users with roles
+_Content Manager Administrator_ and _System Administrator_ will always have full access to all projects.
+
+image::settings-grid.png[Settings section, 600]
+
+You can modify or delete projects in the Settings grid by selecting them and clicking Edit or Delete buttons in the toolbar. You can modify
+and delete multiple projects at once.
+
+CAUTION: Deleting a project will delete its repository and all the data inside. This action cannot be undone.
+
+== Default Project
+
+If you open Content Studio on a clean instance of XP you will see just one project called "_Default_". You can change its
+display name and description, set default language for a new content which will be created in this repository
+and replace the icon in the "Settings" section.
+
+image::default-project.png[Default project, 825]
+
+NOTE: Setting default language will not change language of existing content items in the repository, it will only affect
+new items created after the project has been saved.
+
+== Project Wizard
+
+To create a new project click "_New_" button in the toolbar and select "_Project_" from the modal dialog. This will
+open a new project wizard.
+
+image::new-project-dialog.png[Default project, 470]
+
+
+=== Base fields
+
+Fill in display name and - optionally - description for your new project. Value in the *Identifier* field will be auto-generated
+based on the display name. This value will be used in the repository name of the project and therefore cannot be changed
+after the project has been created. For example, if you enter "_My cool project_" into the *Display name* field, the system will auto
+generate "_my-cool-project_" in the *Identifier* field and upon save the new repository will be called _com.enonic.cms.my-cool-project_.
+
+TIP: You can only use alphanumeric characters and "-" in the project Id field. Value of the field will be validated for uniqueness upon project save.
+
+image::new-project-project.png[Default project, 402]
+
+NOTE: Upload of project icon is not possible until the project is created.
+
+=== Content
+
+In the "_Content_" step you can specify project settings that might affect content items inside the project repository.
+
+If set, *Language* will be set for every new content item created in the root of the project repository.
+
+NOTE: If a new item is created under another content item, it will inherit language of its parent, in this case default project language
+will not be used.
+
+*Access mode* defines READ access to content items inside the project.
+
+* Items inside a *Public* project will by default be visible to Everyone.
+* Items inside a *Private* project will NOT be visible to Everyone. Only principals with project roles (see below) or administrators will
+be able to access the content.
+* By choosing *Custom* access you will limit READ access to specific principals in the system (in addition to project roles and administrators).
+This is useful if you want to give READ access for content inside the project to users from other projects.
+
+CAUTION: If you change Access mode of an *existing project* to or from Public, you will have to confirm the change since
+this will update permissions on every single content item inside the project repository once the project is updated.
+
+NOTE: Principals given Custom access will be added to a special project role called "_Viewer_".
+
+image::new-project-content.png[Default project, 340]
+
+=== Roles
+
+Every project has a fixed set of roles that can be used to assign different levels of permissions inside a project to users or groups.
+A principal must have at least one of these roles to be able to access the project in the Content Studio.
+
+image::new-project-roles.png[Default project, 529]
+
+* *Contributor* has access to the project in Content Studio but can only view the content inside.
+* *Author*: same as *Contributor* + create, modify and delete content. *Author* is not allowed to publish content, create sites
+or change their configuration.
+* *Editor*: same as *Author* + publish content and modify content permissions.
+* *Owner*: same as *Editor* + create and configure sites, and modify project settings.
+
+NOTE: Default project doesn't support project roles or customization of read permissions.
+
+== Project Context
+
+If current user has access to more than one project, he will be asked to select the context when he opens the Content Studio.
+
+image::project-context.png[Project context, 490]
+
+Project context can be switched at any time by using project selector in the Content Studio header:
+
+image::project-switcher.png[Project switcher, 606]
+
+NOTE: <<issues#,*Issues*>> are context-dependent which means that an issue can be accessed only from inside the project it was created in.
+
+Current project context is also shown in the Content Wizard header:
+
+image::content-wizard-context.png[Context in Content Wizard, 790]

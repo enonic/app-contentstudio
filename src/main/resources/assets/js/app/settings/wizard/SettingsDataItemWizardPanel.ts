@@ -298,7 +298,8 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
-        const wizardHeader: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndNameBuilder().build();
+        const wizardHeader: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndNameBuilder()
+            .setDisplayNameLabel(i18n('settings.projects.displayName')).build();
 
         const existing: ITEM = this.getPersistedItem();
         const displayName: string = !!existing ? existing.getDisplayName() : '';

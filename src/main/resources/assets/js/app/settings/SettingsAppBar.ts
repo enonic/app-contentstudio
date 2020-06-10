@@ -15,7 +15,8 @@ export class SettingsAppBar
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addClass('appbar-settings');
-            this.getFirstChild().getChildren()[1].setHtml(i18n('app.settings'));
+            this.setAppName(i18n('app.settings'));
+            this.getAppIcon().addClass('icon-cog');
 
             return rendered;
         });

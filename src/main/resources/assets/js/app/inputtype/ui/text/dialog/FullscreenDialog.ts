@@ -4,8 +4,6 @@ import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
 import {HtmlEditorParams} from '../HtmlEditorParams';
 import {HtmlEditor, HtmlEditorCursorPosition} from '../HtmlEditor';
 
-declare var CONFIG;
-
 export interface FullscreenDialogConfig
     extends HtmlAreaModalDialogConfig {
     editorParams: HtmlEditorParams;
@@ -79,6 +77,7 @@ export class FullscreenDialog
             .setApplicationKeys(this.editorParams.getApplicationKeys())
             .setTools(this.editorParams.getTools())
             .setEditableSourceCode(this.editorParams.getEditableSourceCode())
+            .setAllowedHeadings(this.editorParams.getAllowedHeadings())
             .setCustomStylesToBeUsed(true)
             .setFullscreenMode(true)
             .build();

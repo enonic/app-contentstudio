@@ -33,8 +33,6 @@ import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 
-declare var CONFIG;
-
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
 
@@ -65,6 +63,10 @@ export class HtmlArea
         this.authRequest = HTMLAreaHelper.isSourceCodeEditable().then((value: boolean) => {
             this.editableSourceCode = value;
             return Q(null);
+        });
+
+        this.onAdded(() => {
+            this.refresh();
         });
 
         this.setupEventListeners();
@@ -105,6 +107,10 @@ export class HtmlArea
 
         const textAreaWrapper = new DivEl();
 
+        if (this.inputConfig['include']) {
+            textAreaWrapper.addClass('customized-toolbar');
+        }
+
         textAreaEl.onRendered(() => {
             this.authRequest.then(() => {
                 this.initEditor(editorId, property, textAreaWrapper).then(() => {
@@ -127,6 +133,11 @@ export class HtmlArea
     }
 
     protected updateFormInputElValue(occurrence: FormInputEl, property: Property) {
+        const editor: HtmlAreaOccurrenceInfo = this.getEditorInfo(occurrence.getId());
+        if (editor) {
+            editor.property = property;
+        }
+
         this.setEditorContent(<TextArea>occurrence, property);
     }
 

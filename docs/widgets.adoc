@@ -43,16 +43,43 @@ Details widget was designed to provide all the basic information about the conte
 image::widgets-details-audio.png[]
 
 
-=== Version history
+=== Version History
 
-Version history widget lists all versions of the content and allows to switch between them. The new version is created each time you save the content.
+A new version of content will be created each time you make changes to the content. Version History widget lists all versions of the content
+and allows comparing the versions and reverting to a specific version.
 
-Currently, the active version is labeled with a green stripe at the top with a content status displayed on it.
+To revert to the specific version, click on it to expand details, and then click the `Revert` button.
 
-To switch to the specific version, click on it to expand details, and then click on the `Restore this version` button.
+Current (or active) version of the content is always the one on top of the list. The `Revert` button is replaced here by `Edit` which you can
+click to open the content in a new tab for edit.
 
-image::widgets-version-history.png[]
+image::widgets-version-history-1.png[Version history, 283]
 
+For published versions you can also see info about the publisher, publishing message (if it was provided) and date/time stamp of when the content was published.
+
+image::widgets-version-history-2.png[Version history, 283]
+
+By clicking the  image:widgets-version-compare-icon.png[Version history, 24]  icon you can compare the version with the current (or any other)
+version in the `Compare versions` modal dialog.
+
+NOTE: Version Comparison was introduced in Content Studio 3.0.0 and requires XP 7.3.0 or higher.
+
+Two dropdown on top of the dialog contain the full list of versions: the left one (`Older`) is the one being compared, and the right one (`Newer`)
+is the one being compared against. By default the version you clicked will be selected in the left dropdown and current/active version will
+be selected in the right dropdown, but you can change the selection to compare any versions you like, as long as the "left" version is older
+than the "right" one.
+
+By default the dialog shows only differences between the selected versions, but you can see the entire content JSON by checking off
+`Show entire content` checkbox.
+
+image::widgets-version-compare-dialog.png[Version compare dialog, 909]
+
+NOTE: Both dropdowns have aliases on top of the list which you can use to compare a version with previous, next, published and current
+version without having to browse through the list.
+
+image::widgets-version-compare-dialog-aliases.png[Version aliases, 456]
+
+The "kebab" menu icon on the right of each dropdown has just one option - "Revert" - to revert to this version.
 
 === Dependencies
 

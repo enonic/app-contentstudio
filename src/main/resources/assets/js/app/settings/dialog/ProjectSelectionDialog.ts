@@ -18,7 +18,7 @@ export class ProjectSelectionDialog
     constructor(availableProjects: Project[]) {
         super(<ProjectSelectionDialogConfig>{
             availableProjects: availableProjects,
-            title: i18n('settings.dialog.project.selection'),
+            title: i18n('text.selectContext'),
             class: 'project-selection-dialog'
         });
     }

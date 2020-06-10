@@ -1,9 +1,14 @@
 .appbar-content {
 
-  overflow: visible;
-
   .project-selector {
+    width: 250px;
+
+    @media screen and (max-width: 540px) {
+      max-width: 75%;
+    }
+
     z-index: 2;
+    height: @app-header-height;
 
     &:not(.single-repo) {
       .project-list-item-viewer {
@@ -52,9 +57,7 @@
     }
 
     .selected-project-view {
-      min-width: 200px;
-      height: 44px;
-      padding-left: 4px;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -71,11 +74,12 @@
         width: 100%;
         display: flex;
         align-items: center;
+        overflow: hidden;
 
         .names-and-icon-view {
           .@{_COMMON_PREFIX}wrapper {
             margin-right: 0px;
-            padding: 0px 10px;
+            padding: 0 10px;
           }
 
           .@{_COMMON_PREFIX}names-view {
@@ -135,7 +139,7 @@
               width: 28px;
               line-height: 28px;
               margin-right: 0px;
-              padding: 0px 12px;
+              padding: 0 12px;
 
               .font-icon-default {
                 font-size: 28px;

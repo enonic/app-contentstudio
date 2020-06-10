@@ -7,7 +7,6 @@ import {Element} from 'lib-admin-ui/dom/Element';
 import {showError, showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {i18nInit} from 'lib-admin-ui/util/MessagesInitializer';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {Router} from './app/Router';
 import {ContentDeletePromptEvent} from './app/browse/ContentDeletePromptEvent';
@@ -57,6 +56,8 @@ import * as Q from 'q';
 import {Project} from './app/settings/data/project/Project';
 import {ProjectSelectionDialog} from './app/settings/dialog/ProjectSelectionDialog';
 import {SettingsServerEventsListener} from './app/settings/event/SettingsServerEventsListener';
+import {UrlAction} from './app/UrlAction';
+import {Path} from 'lib-admin-ui/rest/Path';
 // End of Polyfills
 
 declare const CONFIG;
@@ -73,14 +74,24 @@ function getApplication(): Application {
     const application = new Application(
         'content-studio',
         i18n('app.name'),
-        i18n('app.abbr'),
-        CONFIG.appIconUrl,
-        `${i18n('app.name')} v${CONFIG.appVersion}`
+        i18n('app.abbr')
     );
-    application.setPath(Router.getPath());
+    application.setPath(processApplicationPath());
     application.setWindow(window);
 
     return application;
+}
+
+function processApplicationPath(): Path {
+    const path: Path = Router.getPath();
+
+    if (path.getElement(0) !== UrlAction.ISSUE) {
+        return path;
+    }
+
+    Router.get().setHash(path.toString());
+
+    return Router.getPath();
 }
 
 function startLostConnectionDetector(): ConnectionDetector {
@@ -108,17 +119,27 @@ function startLostConnectionDetector(): ConnectionDetector {
 function initApplicationEventListener() {
 
     let messageId;
+    let appStatusCheckInterval;
 
     ApplicationEvent.on((event: ApplicationEvent) => {
-        if (ApplicationEventType.STOPPED === event.getEventType() || ApplicationEventType.UNINSTALLED ===
-            event.getEventType()) {
-            if (CONFIG.appId === event.getApplicationKey().toString()) {
-                NotifyManager.get().hide(messageId);
-                messageId = showError(i18n('notify.no_connection'), false);
+        if (ApplicationEventType.STOPPED === event.getEventType() ||
+            ApplicationEventType.UNINSTALLED === event.getEventType()) {
+            if (appStatusCheckInterval) {
+                return;
             }
+            appStatusCheckInterval = setInterval(() => {
+                if (!messageId && CONFIG.appId === event.getApplicationKey().toString()) {
+                    NotifyManager.get().hide(messageId);
+                    messageId = showError(i18n('notify.application.notAvailable'), false);
+                }
+            }, 1000);
         }
         if (ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED) {
-            NotifyManager.get().hide(messageId);
+            if (messageId) {
+                NotifyManager.get().hide(messageId);
+                messageId = null;
+            }
+            clearInterval(appStatusCheckInterval);
         }
     });
 }
@@ -126,7 +147,7 @@ function initApplicationEventListener() {
 function initToolTip() {
     const ID = StyleHelper.getCls('tooltip', StyleHelper.COMMON_PREFIX);
     const CLS_ON = 'tooltip_ON';
-    const FOLLOW = true;
+    const FOLLOW = false;
     const DATA = '_tooltip';
     const OFFSET_X = 0;
     const OFFSET_Y = 20;
@@ -135,51 +156,75 @@ function initToolTip() {
     let pageY = 0;
     let isVisibleCheckInterval;
 
-    const showAt = function (e: any) {
-        const top = pageY + OFFSET_Y;
-        let left = pageX + OFFSET_X;
+    const showAt = function (e: JQuery.MouseEventBase, forceTarget?: HTMLElement) {
+        let top = e.clientY + OFFSET_Y;
+        let left = e.clientX + OFFSET_X;
+        const tooltipHeight = 30;
 
-        const tooltipText = StringHelper.escapeHtml($(e.currentTarget || e.target).data(DATA));
+        const target = forceTarget || e.currentTarget || e.target;
+        const tooltipText = $(target).data(DATA);
         if (!tooltipText) { //if no text then probably hovering over children of original element that has title attr
             return;
         }
 
         const tooltipWidth = tooltipText.length * 7.5;
         const windowWidth = $(window).width();
+        const windowHeight = $(window).height();
         if (left + tooltipWidth >= windowWidth) {
             left = windowWidth - tooltipWidth;
         }
+        if (top + tooltipHeight >= windowHeight) {
+            top = windowHeight - tooltipHeight;
+        }
         $(`#${ID}`).remove();
         $(`<div id='${ID}' />`).text(tooltipText).css({
-            position: 'absolute', top, left
+            position: 'absolute', top, left, whiteSpace: 'nowrap'
         }).appendTo('body').show();
     };
 
-    const addTooltip = (e: JQueryEventObject) => {
-        $(e.target).data(DATA, $(e.target).attr('title'));
-        $(e.target).removeAttr('title').addClass(CLS_ON);
-        if (e.pageX) {
-            pageX = e.pageX;
+    const addTooltip = (e: JQuery.MouseEventBase, forceTarget?: HTMLElement) => {
+        const target = forceTarget || e.currentTarget || e.target;
+        $(target).data(DATA, $(target).attr('title'));
+        $(target).removeAttr('title').addClass(CLS_ON);
+        if (e.clientX) {
+            pageX = e.clientX;
         }
-        if (e.pageY) {
-            pageY = e.pageY;
+        if (e.clientY) {
+            pageY = e.clientY;
         }
-        showAt(e);
-        onRemovedOrHidden(<HTMLElement>e.target);
+        showAt(e, target);
+        onRemovedOrHidden(<HTMLElement>target);
+        $(target).on('click', removeTooltipOnClick);
     };
 
-    const removeTooltip = (e: { target: HTMLElement }) => {
-        if ($(e.target).data(DATA)) {
-            $(e.target).attr('title', $(e.target).data(DATA));
+    const removeTooltipOnClick = (e: JQuery.MouseEventBase) => {
+        setTimeout(() => removeTooltip(e, true), 100);
+    };
+
+    const removeTooltip = (e: any, click: boolean = false) => {
+        const tooltip = $('#' + ID);
+        if (!tooltip.length) {
+            return;
         }
-        $(e.target).removeClass(CLS_ON);
-        $('#' + ID).remove();
+        const target = e.currentTarget || e.target;
+        $(target).off('click', removeTooltipOnClick);
+
+        const newTitle = click ? $(target).attr('title') : null;
+        if ($(target).data(DATA) && !newTitle) {
+            $(target).attr('title', $(target).data(DATA));
+        }
+
+        $(target).removeClass(CLS_ON);
+        tooltip.remove();
         unRemovedOrHidden();
         clearInterval(isVisibleCheckInterval);
+        if (newTitle) {
+            addTooltip(e, target);
+        }
     };
 
     $(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', addTooltip);
-    $(document).on('mouseleave click', `.${CLS_ON}`, removeTooltip);
+    $(document).on('mouseleave', `.${CLS_ON}`, removeTooltip);
     if (FOLLOW) {
         $(document).on('mousemove', `.${CLS_ON}`, showAt);
     }
@@ -319,6 +364,7 @@ function startServerEventListeners(application: Application) {
 
 async function startApplication() {
     const application: Application = getApplication();
+    const connectionDetector = startLostConnectionDetector();
 
     startServerEventListeners(application);
 
@@ -330,9 +376,9 @@ async function startApplication() {
         })
         .finally(() => {
             if (ContentAppHelper.isContentWizard(application)) {
-                startContentWizard(ContentAppHelper.createWizardParamsFromApp(application));
+                startContentWizard(ContentAppHelper.createWizardParamsFromApp(application), connectionDetector);
             } else {
-                startContentApplication(application);
+                startContentBrowser(application);
             }
         });
 
@@ -410,9 +456,7 @@ const refreshTabOnContentUpdate = (content: Content) => {
     });
 };
 
-async function startContentWizard(wizardParams: ContentWizardPanelParams) {
-    const connectionDetector = startLostConnectionDetector();
-
+async function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: ConnectionDetector) {
     const ContentWizardPanel = (await import('./app/wizard/ContentWizardPanel')).ContentWizardPanel;
 
     let wizard = new ContentWizardPanel(wizardParams, getTheme());
@@ -473,7 +517,7 @@ function getTheme(): string {
     return CONFIG.theme ? (`theme-${CONFIG.theme}` || '') : '';
 }
 
-async function startContentApplication(application: Application) {
+async function startContentBrowser(application: Application) {
 
     await import ('./app/ContentAppPanel');
     const AppWrapper = (await import ('./app/AppWrapper')).AppWrapper;

@@ -69,6 +69,14 @@ export class ProjectWizardPanel
         return new ProjectWizardActions(this);
     }
 
+    getWizardActions(): ProjectWizardActions {
+        return <ProjectWizardActions>this.wizardActions;
+    }
+
+    protected isEditAllowed(): boolean {
+        return this.getWizardActions().isEditAllowed();
+    }
+
     protected createStepsForms(persistedItem: ProjectViewItem): SettingDataItemWizardStepForm<ProjectViewItem>[] {
         this.projectWizardStepForm = new ProjectItemNameWizardStepForm();
         this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm();
@@ -122,7 +130,9 @@ export class ProjectWizardPanel
     updatePersistedItem(): Q.Promise<ProjectViewItem> {
         return this.doUpdatePersistedItem().then((project: Project) => {
             const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
-
+            if (!item.isDefaultProject()) {
+                this.readAccessWizardStepForm.updateReadAccessType(item.getReadAccess().getType());
+            }
             showFeedback(this.getSuccessfulUpdateMessage(item.getName()));
             return item;
         });
@@ -310,6 +320,7 @@ export class ProjectWizardPanel
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.addClass('project-wizard-panel');
+            this.toggleClass('no-modify-permissions', !this.isEditAllowed());
 
             return rendered;
         });

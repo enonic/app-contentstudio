@@ -66,8 +66,7 @@ export class SpecialCharDialog
             }
 
             const span: SpanEl = new SpanEl('chars-block__char');
-            span.setHtml(character, false);
-            span.getEl().setTitle(charDesc);
+            span.setHtml(character, false).setTitle(charDesc);
 
             charsBlock.appendChild(span);
         }

@@ -7,7 +7,7 @@
   height: 100%;
   position: fixed;
   float: right;
-  z-index: 2;
+  z-index: 5;
   width: 100%;
   top: 0;
   box-shadow: 0 4px 20px -8px #000000, 0 0 0 0 rgba(0, 0, 0, 0.3);
@@ -103,6 +103,10 @@
     font-size: 22px;
     line-height: @app-header-height;
 
+    &:not(.expanded)::before {
+      font-size: 18px;
+    }
+
     &.expanded {
       .icon-close();
       line-height: @app-header-height;
@@ -136,8 +140,8 @@
   .mobile-preview-fold-button {
     position: absolute;
     top: @app-header-height;
-    left: 0;
-    width: 100%;
+    width: 200px;
+    left: calc( 50% - 100px);
     border: none;
 
     &:after {

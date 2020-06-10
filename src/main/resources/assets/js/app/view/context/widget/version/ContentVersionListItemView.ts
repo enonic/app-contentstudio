@@ -4,6 +4,7 @@ import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {ContentVersionViewer} from './ContentVersionViewer';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {EditContentEvent} from '../../../../event/EditContentEvent';
 import {ContentVersion} from '../../../../ContentVersion';
 import {PublishStatus, PublishStatusFormatter} from '../../../../publish/PublishStatus';
 import {CompareStatus, CompareStatusFormatter} from '../../../../content/CompareStatus';
@@ -11,7 +12,6 @@ import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVer
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
 import * as $ from 'jquery';
-import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
@@ -23,22 +23,24 @@ import {VersionInfoBlock} from './VersionInfoBlock';
 export class ContentVersionListItemView
     extends LiEl {
 
-    private version: ContentVersion;
-    private content: ContentSummaryAndCompareStatus;
+    private readonly version: ContentVersion;
+    private readonly content: ContentSummaryAndCompareStatus;
+    private readonly activeVersionId: string;
     private tooltip: Tooltip;
 
     private statusBlock: DivEl;
     private descriptionBlock: ContentVersionViewer;
     private versionInfoBlock: VersionInfoBlock;
 
-    private revertButton: ActionButton;
+    private actionButton: ActionButton;
     private compareButton: ActionButton;
 
-    constructor(version: ContentVersion, content: ContentSummaryAndCompareStatus) {
+    constructor(version: ContentVersion, content: ContentSummaryAndCompareStatus, activeVersionId: string) {
         super('content-version-item');
 
         this.version = version;
         this.content = content;
+        this.activeVersionId = activeVersionId;
 
         this.initElements();
         this.initListeners();
@@ -53,7 +55,7 @@ export class ContentVersionListItemView
         this.descriptionBlock = new ContentVersionViewer();
         this.descriptionBlock.setObject(this.version);
         this.versionInfoBlock = new VersionInfoBlock(this.version);
-        this.revertButton = this.createRevertButton();
+        this.actionButton = this.version.isActive() ? this.createEditButton() : this.createRevertButton();
         this.compareButton = this.createCompareButton();
     }
 
@@ -126,14 +128,34 @@ export class ContentVersionListItemView
         this.tooltip = new Tooltip(this, this.version.getPublishInfo().getMessage().trim(), 1000);
     }
 
+    private createEditButton(): ActionButton {
+        const editButton: ActionButton = new ActionButton(new Action(i18n('action.edit')));
+
+        if (this.content.isReadOnly()) {
+            editButton.setEnabled(false);
+        } else {
+            editButton.getAction().onExecuted(() => {
+                new EditContentEvent([this.content]).fire();
+            });
+        }
+
+        return editButton;
+    }
+
     private createRevertButton(): ActionButton {
-        const revertButton: ActionButton = new ActionButton(
-            new Action(this.version.isActive() ? i18n('field.version.current') : i18n('field.version.revert')), false);
+        const revertButton: ActionButton = new ActionButton(new Action(i18n('field.version.revert')), false);
 
         if (this.content.isReadOnly()) {
             revertButton.setEnabled(false);
         } else {
             revertButton.setTitle(i18n('field.version.makeCurrent'));
+            revertButton.onClicked((event: MouseEvent) => {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+            revertButton.getAction().onExecuted(() => {
+                this.revert(this.getContentId(), this.version);
+            });
         }
 
         return revertButton;
@@ -151,18 +173,6 @@ export class ContentVersionListItemView
 
     private initListeners() {
         this.compareButton.getAction().onExecuted(this.openCompareDialog.bind(this));
-
-        this.revertButton.onClicked((event: MouseEvent) => {
-            event.preventDefault();
-            event.stopPropagation();
-        });
-
-        if (!this.version.isActive()) {
-            this.revertButton.getAction().onExecuted(() => {
-                this.revert(this.getContentId(), this.version);
-            });
-        }
-
         this.addOnClickHandler();
     }
 
@@ -170,7 +180,7 @@ export class ContentVersionListItemView
         CompareContentVersionsDialog.get()
             .setContent(this.content.getContentSummary())
             .setLeftVersion(this.version)
-            .setRevertVersionCallback(this.revert)
+            .setRevertVersionCallback(this.revert.bind(this))
             .open();
     }
 
@@ -179,7 +189,7 @@ export class ContentVersionListItemView
             .sendAndParse()
             .then((newVersionId) => {
 
-                if (!newVersionId) {
+                if (newVersionId === this.activeVersionId) {
                     NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
                     return;
                 }
@@ -187,7 +197,7 @@ export class ContentVersionListItemView
                 const modifiedDate = version.getModified();
                 const dateTime = `${DateHelper.formatDate(modifiedDate)} ${DateHelper.getFormattedTimeFromDate(modifiedDate, false)}`;
 
-                NotifyManager.get().showFeedback(i18n('notify.version.changed', dateTime));
+                NotifyManager.get().showSuccess(i18n('notify.version.changed', dateTime));
                 new ActiveContentVersionSetEvent(contentId, version.getId()).fire();
             })
             .catch(DefaultErrorHandler.handle);
@@ -213,15 +223,16 @@ export class ContentVersionListItemView
 
     private addOnClickHandler() {
         this.onClicked(() => {
-            this.collapseAllContentVersionItemViewsExcept(this);
-            const wasExpanded = this.hasClass('expanded');
+            this.collapseAllExpandedSiblings();
             this.toggleTooltip();
             this.toggleClass('expanded');
         });
     }
 
-    private collapseAllContentVersionItemViewsExcept(itemContainer: Element) {
-        $(this.getHTMLElement()).find('.content-version-item').not(itemContainer.getHTMLElement()).removeClass('expanded');
+    private collapseAllExpandedSiblings() {
+        $(this.getHTMLElement())
+            .siblings('.expanded')
+            .removeClass('expanded');
     }
 
     doRender(): Q.Promise<boolean> {
@@ -235,7 +246,7 @@ export class ContentVersionListItemView
                 this.appendChild(this.statusBlock);
             }
 
-            this.versionInfoBlock.appendChild(this.revertButton);
+            this.versionInfoBlock.appendChild(this.actionButton);
             this.descriptionBlock.appendChild(this.compareButton);
 
             this.appendChildren(this.descriptionBlock);

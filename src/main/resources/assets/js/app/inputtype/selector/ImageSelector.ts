@@ -65,7 +65,15 @@ export class ImageSelector
 
         selectedOptionsView.onRemoveSelectedOptions((options: SelectedOption<MediaTreeSelectorItem>[]) => {
             options.forEach((option: SelectedOption<MediaTreeSelectorItem>) => {
-                this.contentComboBox.deselect(option.getOption().displayValue);
+                const item: MediaTreeSelectorItem = option.getOption().displayValue;
+
+                if (item.isEmptyContent()) {
+                    selectedOptionsView.removeOption(option.getOption());
+                    this.handleDeselected(option.getIndex());
+                } else {
+                    this.contentComboBox.deselect(item);
+                }
+
             });
             this.validate(false);
         });
@@ -91,13 +99,14 @@ export class ImageSelector
             .build();
 
         const contentComboBox: ImageContentComboBox
-            = ImageContentComboBox.create()
+            = <ImageContentComboBox>ImageContentComboBox.create()
             .setMaximumOccurrences(input.getOccurrences().getMaximum())
             .setLoader(optionDataLoader)
             .setSelectedOptionsView(this.createSelectedOptionsView())
             .setValue(value)
             .setTreegridDropdownEnabled(this.treeMode)
             .setTreeModeTogglerAllowed(!this.hideToggleIcon)
+            .setDisplayMissingSelectedOptions(true)
             .build();
 
         let comboBox: ComboBox<MediaTreeSelectorItem> = contentComboBox.getComboBox();
