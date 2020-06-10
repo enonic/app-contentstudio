@@ -43,7 +43,7 @@ class LoaderComboBox extends Page {
             }
             //await this.getBrowser().elementSendKeys(elems[0].elementId, [optionDisplayName]);
             await elems[0].setValue(optionDisplayName);
-            await this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_3);
+            await this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_5);
             await this.pause(300);
             await this.clickOnElement(optionSelector);
             return await this.pause(500);
