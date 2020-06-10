@@ -64,12 +64,12 @@ version in the `Compare versions` modal dialog.
 
 NOTE: Version Comparison was introduced in Content Studio 3.0.0 and requires XP 7.3.0 or higher.
 
-Two dropdown on top of the dialog contain the full list of versions: the left one (`Older`) is the one being compared, and the right one (`Newer`)
+Two dropdowns on top of the dialog contain the full list of versions: the left one (`Older`) is the one being compared, and the right one (`Newer`)
 is the one being compared against. By default the version you clicked will be selected in the left dropdown and current/active version will
 be selected in the right dropdown, but you can change the selection to compare any versions you like, as long as the "left" version is older
 than the "right" one.
 
-By default the dialog shows only differences between the selected versions, but you can see the entire content JSON by checking off
+By default, the dialog shows only differences between the selected versions, but you can see the entire content JSON by checking off
 `Show entire content` checkbox.
 
 image::widgets-version-compare-dialog.png[Version compare dialog, 909]

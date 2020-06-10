@@ -5,10 +5,6 @@
       "document": "navigator"
     },
     {
-      "title": "Issues",
-      "document": "issues"
-    },
-    {
       "title": "Content Editor",
       "document": "editor",
       "menuItems": [
@@ -35,11 +31,11 @@
       ]
     },
     {
-      "title": "Content Projects",
+      "title": "Projects",
       "document": "projects"
     },
     {
-      "title": "Content Workflow",
+      "title": "Workflow",
       "document": "workflow"
     },
     {
@@ -49,6 +45,10 @@
     {
       "title": "Actions",
       "document": "actions"
+    },
+    {
+      "title": "Issues",
+      "document": "issues"
     },
     {
       "title": "Widgets",
