@@ -3,8 +3,56 @@
 :imagesdir: release/images
 
 TIP: Release Notes for Content Studio 2.x can be found https://developer.enonic.com/docs/content-studio/2.x/release[here]
+TIP: Content Studio 3 requires XP 7.3.0 or later.
 
-== 3.0.0
+
+== Upgrade notes
+
+=== Widgets
+
+Deprecation of HtmlImports in the new release might affect <<widgets#,widgets>> that worked correctly inside a previous version of
+Content Studio. Should you notice that some widget installed from Enonic Market stopped working, we recommend checking if there's a
+new version of this application on the Market.
+
+If you have developed your own widget that no longer works, check if rendering is dependent on readiness of `HTMLImports` object
+in the global scope. If it does, a fix is suggested below:
+
+.Main client-side JS asset in Content Studio 2.x
+[source,js]
+----
+window['HTMLImports'].whenReady(function() {
+    ...rendering here...
+});
+----
+
+.The same in Content Studio 3.x
+[source,js]
+----
+
+(() => {
+    ...rendering here...
+})();
+
+----
+
+=== Content Wizard links
+
+If you used shortcuts to open Content Wizard for a specific content item via direct link, this will stop working.
+After introduction of Content Projects, internal links in Content Studio include project context.
+
+*Content Studio 2.x:*
+\https://<host>/admin/tool/com.enonic.app.contentstudio/main#/edit/<contentId>
+
+*Content Studio 3.x:*
+\https://<host>/admin/tool/com.enonic.app.contentstudio/main#/<projectId>/edit/<contentId>
+
+== Content Studio 3
+
+=== Language support
+
+We are continuing to expand multi-language support in Content Studio. Version 3.0 welcomes addition of Italian and Belarussian,
+increasing the number of supported languages to *10*: Belarussian, English, French, Italian, Norwegian, Polish, Portuguese,
+Russian, Spanish and Swedish.
 
 === Content Projects
 
