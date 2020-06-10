@@ -49,6 +49,10 @@ class LauncherPanel extends Page {
         })
     }
 
+    isPanelOpened() {
+        return this.isElementDisplayed(XPATH.container);
+    }
+
     isApplicationsLinkDisplayed() {
         return this.waitForElementDisplayed(this.applicationsLink, appConst.TIMEOUT_2).catch(err => {
             return false;

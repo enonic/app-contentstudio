@@ -204,5 +204,15 @@ module.exports = Object.freeze({
         CREATED_BY_ME: 'Created by Me',
         PUBLISH_REQUESTS: 'Publish requests',
         TASKS: 'Tasks'
-    }
+    },
+    SYSTEM_ROLES: {
+        CM_ADMIN: 'Content Manager Administrator',
+        ADMIN_CONSOLE: 'Administration Console Login',
+        CM_APP: 'Content Manager App',
+        ADMINISTRATOR: 'Administrator',
+        USERS_APP: 'Users App',
+        AUTHENTICATED: 'Authenticated',
+        USERS_ADMINISTRATOR: 'Users Administrator',
+        EVERYONE: 'Everyone'
+    },
 });
