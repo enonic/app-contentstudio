@@ -143,17 +143,13 @@ class UserWizard extends wizards.WizardPanel {
         return result;
     }
 
-    filterOptionsAndAddRole(roleDisplayName) {
+    async filterOptionsAndAddRole(roleDisplayName) {
         let loaderComboBox = new LoaderComboBox();
-        return this.typeTextInInput(XPATH.roleOptionsFilterInput, roleDisplayName).then(() => {
-            return loaderComboBox.waitForOptionVisible(XPATH.container, roleDisplayName);
-        }).then(() => {
-            return loaderComboBox.clickOnOption(XPATH.container, roleDisplayName);
-        }).then(() => {
-            return this.pause(500);
-        }).catch(err => {
-            throw new Error('Error when selecting the role-option: ' + roleDisplayName + ' ' + err);
-        })
+        try {
+            return await loaderComboBox.typeTextAndSelectOption(roleDisplayName, XPATH.container);
+        } catch (err) {
+            throw new Error('Error when selecting the role: ' + roleDisplayName + ' ' + err);
+        }
     }
 
     typeEmail(email) {

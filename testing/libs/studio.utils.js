@@ -453,6 +453,15 @@ module.exports = {
         }
     },
 
+    async doLogout() {
+        let launcherPanel = new LauncherPanel();
+        let loginPage = new LoginPage();
+        let isDisplayed = await launcherPanel.isPanelOpened();
+        if (isDisplayed) {
+            await launcherPanel.clickOnLogoutLink();
+        }
+        return await loginPage.waitForPageLoaded(appConst.TIMEOUT_3);
+    },
     navigateToContentStudioApp: function (userName, password) {
         let launcherPanel = new LauncherPanel();
         return launcherPanel.waitForPanelDisplayed(2000).then(result => {

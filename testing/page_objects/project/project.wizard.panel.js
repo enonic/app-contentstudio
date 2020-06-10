@@ -44,11 +44,11 @@ class ProjectWizardPanel extends Page {
         return XPATH.container + XPATH.projectAccessControlComboBox;
     }
 
-    get customReadAccessCombobox() {
+    get customReadAccessOptionsFilterInput() {
         return XPATH.projectReadAccessWizardStepForm + XPATH.accessFormItem + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
-    get localeCombobox() {
+    get localeOptionsFilterInput() {
         return XPATH.projectReadAccessWizardStepForm + XPATH.localeComboBoxDiv + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
@@ -66,6 +66,18 @@ class ProjectWizardPanel extends Page {
 
     get selectedCustomReadAccessOptions() {
         return XPATH.container + XPATH.selectedReadAccessOptions + XPATH.selectedReadAccessOption
+    }
+
+    isDescriptionInputClickable(){
+        return this.isClickable(this.descriptionInput);
+    }
+
+    isDisplayNameInputClickable(){
+        return this.isClickable(this.displayNameInput);
+    }
+
+    isLocaleOptionsFilterInputClickable(){
+        return this.isClickable(this.localeOptionsFilterInput);
     }
 
     async waitAndClickOnSave() {
@@ -170,7 +182,12 @@ class ProjectWizardPanel extends Page {
     }
 
     waitForDescriptionInputDisplayed() {
-        return this.waitForElementDisplayed(this.descriptionInput, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_2);
+    }
+
+    async isNoModify() {
+        let result = await this.getAttribute(XPATH.container, "class");
+        return result.includes("no-modify-permissions");
     }
 
     waitForProjectIdentifierInputDisplayed() {
@@ -256,11 +273,11 @@ class ProjectWizardPanel extends Page {
     }
 
     waitForCustomAccessModeComboboxDisabled() {
-        return this.waitForElementDisabled(this.customReadAccessCombobox, appConst.TIMEOUT_2);
+        return this.waitForElementDisabled(this.customReadAccessOptionsFilterInput, appConst.TIMEOUT_2);
     }
 
     waitForCustomReadAccessComboboxEnabled() {
-        return this.waitForElementEnabled(this.customReadAccessCombobox, appConst.TIMEOUT_2);
+        return this.waitForElementEnabled(this.customReadAccessOptionsFilterInput, appConst.TIMEOUT_2);
     }
 
     async waitForProjectAccessSelectorTabMenuExpanded(principalName) {

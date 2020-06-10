@@ -98,7 +98,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         try {
             let expanderIcon = XPATH.itemsTreeGrid + XPATH.expanderIconByName(name);
             await this.clickOnElement(expanderIcon);
-            return await this.pause(900);
+            return await this.pause(1100);
         } catch (err) {
             this.saveScreenshot('err_click_on_expander');
             throw new Error('error when click on expander-icon ' + err);
@@ -153,6 +153,18 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(nameXpath, 3000);
             await this.clickOnElement(nameXpath);
+            return await this.pause(300);
+        } catch (err) {
+            this.saveScreenshot('err_find_' + displayName);
+            throw Error('Project Browse Panel - Row with the displayName ' + displayName + ' was not found' + err)
+        }
+    }
+
+    async doubleClickOnRowByDisplayName(displayName) {
+        try {
+            let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
+            await this.waitForElementDisplayed(nameXpath, 3000);
+            await this.doDoubleClick(nameXpath);
             return await this.pause(300);
         } catch (err) {
             this.saveScreenshot('err_find_' + displayName);

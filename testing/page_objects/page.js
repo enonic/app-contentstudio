@@ -103,6 +103,11 @@ class Page {
         return await element.waitForExist(ms);
     }
 
+    async isClickable(selector) {
+        let element = await this.findElement(selector);
+        return await element.isClickable();
+    }
+
     async getTextInInput(selector) {
         let inputElement = await this.findElement(selector);
         return await inputElement.getValue(selector);
