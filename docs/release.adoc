@@ -3,7 +3,8 @@
 :imagesdir: release/images
 
 TIP: Release Notes for Content Studio 2.x can be found https://developer.enonic.com/docs/content-studio/2.x/release[here]
-TIP: Content Studio 3 requires XP 7.3.0 or later.
+
+NOTE: Content Studio 3 requires XP 7.3.0 or later.
 
 
 == Upgrade notes
@@ -78,7 +79,7 @@ version of the content directly from the same dialog.
 
 === Light skin
 
-As the first step to support of custom skins, *Content Studio 3.0* introduces `light` skin for the
+As the first step to support of custom skins, *Content Studio 3.0* introduces _light_ skin for the
 header and other visual elements.
 
 image::cs30-light-skin.png[Light skin, 950]
@@ -86,18 +87,18 @@ image::cs30-light-skin.png[Light skin, 950]
 
 === UI improvements
 
-Several minor but important visual improvements have been implemented in *Content Studio 3.0*:
+Several minor but important visual improvements have been implemented in *Content Studio 3*:
 
 * Access step is removed from the Content Wizard form.
-Content permissions can be managed via modal dialog that opens on a click on the `lock` icon in the toolbar.
-* New style of highlighting invalid controls upon form validation
+Content permissions can be managed via modal dialog that opens on with the `lock` icon in the toolbar.
+* New style of highlighting invalid controls upon form validation:
 
 image::cs30-field-validation.png[Invalid fields, 677]
 
-* Fieldset is highlighted with a shallow border on the left side
+* Fieldset is highlighted with a shallow border on the left side:
 
 image::cs30-field-set.png[Field-set, 674]
 
-* Modal dialogs take up the entire screen height in mobile resolution
+* Modal dialogs take up the entire screen height in mobile resolution:
 
 image::cs30-modal-dialog.png[Modal dialog, 389]
