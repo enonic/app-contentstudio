@@ -44,6 +44,8 @@ describe('wizard.update.permissions.spec: update permissions and check the state
                 await contentWizard.waitForSavedButtonVisible();
             });
 
+        //Verifies https://github.com/enonic/app-contentstudio/issues/1916
+        //User with insufficient permissions is allowed to make changes to the Project Wizard form #1916
         it(`GIVEN existing folder is opened WHEN display name has been changed AND new permissions applied THEN 'Save' button gets enabled in the wizard-toolbar`,
             async () => {
                 let contentWizard = new ContentWizard();
