@@ -10,7 +10,7 @@ const builder = require('../../libs/content.builder');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 
-describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Access in project', function () {
+describe('project.contributor.spec - ui-tests for user with Contributor role', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
