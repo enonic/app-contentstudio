@@ -45,10 +45,10 @@ class ImageFormPanel extends Page {
 
     async clickOnFlipButton() {
         try {
-            await this.waitForElementDisplayed(this.buttonFlip);
-            await this.pause(500);
+            await this.waitForElementDisplayed(this.buttonFlip, appConst.TIMEOUT_3);
+            await this.pause(1200);
             await this.clickOnElement(this.buttonFlip);
-            await this.pause(700);
+            return await this.pause(700);
         } catch (err) {
             this.saveScreenshot('err_click_on_flip_button');
             throw new Error('Image Editor, button flip  ' + err);
@@ -57,10 +57,10 @@ class ImageFormPanel extends Page {
 
     async clickOnRotateButton() {
         try {
-            await this.waitForElementDisplayed(this.buttonRotate);
-            await this.pause(700);
+            await this.waitForElementDisplayed(this.buttonRotate, appConst.TIMEOUT_3);
+            await this.pause(1200);
             await this.clickOnElement(this.buttonRotate);
-            await this.pause(700);
+            return await this.pause(700);
         } catch (err) {
             this.saveScreenshot('err_click_on_rotate_button');
             throw new Error('Image Editor, button rotate  ' + err);
