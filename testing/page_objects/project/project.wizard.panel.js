@@ -18,6 +18,7 @@ const XPATH = {
     projectReadAccessWizardStepForm: "//div[contains(@id,'ProjectReadAccessWizardStepForm')]",
     accessFormItem: "//div[contains(@id,'ProjectFormItem') and contains(@class,'access')]",
     localeComboBoxDiv: "//div[contains(@id,'LocaleComboBox')]",
+    languageSelectedOption: "//div[contains(@id,'LocaleSelectedOptionView')]",
     projectAccessSelectorTabMenu: "//div[contains(@id,'ProjectAccessSelector') and contains(@class,'tab-menu access-selector')]",
     accessItemByName:
         name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`,
@@ -68,15 +69,19 @@ class ProjectWizardPanel extends Page {
         return XPATH.container + XPATH.selectedReadAccessOptions + XPATH.selectedReadAccessOption
     }
 
-    isDescriptionInputClickable(){
+    get removeLanguageButton() {
+        return XPATH.container + XPATH.languageSelectedOption + lib.REMOVE_ICON;
+    }
+
+    isDescriptionInputClickable() {
         return this.isClickable(this.descriptionInput);
     }
 
-    isDisplayNameInputClickable(){
+    isDisplayNameInputClickable() {
         return this.isClickable(this.displayNameInput);
     }
 
-    isLocaleOptionsFilterInputClickable(){
+    isLocaleOptionsFilterInputClickable() {
         return this.isClickable(this.localeOptionsFilterInput);
     }
 
@@ -326,6 +331,16 @@ class ProjectWizardPanel extends Page {
         let stepXpath = XPATH.wizardStepByTitle(title);
         await this.clickOnElement(stepXpath);
         return await this.pause(900);
+    }
+
+    async clickOnRemoveLanguage(displayName) {
+        try {
+            await this.clickOnElement(this.removeLanguageButton);
+            return await this.pause(500);
+        } catch (err) {
+            this.saveScreenshot("err_click_on_remove_language_icon");
+            throw new Error('Error when removing the language! ' + err);
+        }
     }
 };
 module.exports = ProjectWizardPanel;

@@ -24,7 +24,7 @@ describe('create.content.in.project.spec - create new content in the selected co
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let TEST_DESCRIPTION = "test description";
 
-    it(`Preconditions: new projects(with Norsk (no) language) and 'Private' access mode should be added`,
+    it(`Preconditions: new project(with Norsk (no) language) and 'Private' access mode should be added`,
         async () => {
             //1. Navigate to Settings Panel:
             await studioUtils.closeProjectSelectionDialog();
