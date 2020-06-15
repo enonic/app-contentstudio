@@ -28,22 +28,23 @@ module.exports = Object.freeze({
     tabBarItemByName: function (name) {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
     },
-    slickRowByDisplayName: function (container, displayName) {
+    slickRowByDisplayName: (container, displayName) => {
         return container +
                `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
     },
-    itemByDisplayName: function (displayName) {
+    itemByDisplayName: displayName => {
         return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
     },
-    itemByName: function (name) {
+    itemByName: name => {
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]`
     },
-    projectByName: (name) => {
+    projectByName: name => {
         return `//div[contains(@id,'NamesView') and descendant::span[contains(@class,'name') and contains(.,'${name}')]]`
     },
     formItemByLabel: (label) => {
         return `//div[contains(@id,'FormItem') and descendant::label[contains(.,'${label}')]]`
     },
+    tabMenuItem: menuName => `//li[contains(@id,'TabMenuItem') and child::a[text()='${menuName}']]`,
     TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,
     CANCEL_BUTTON_DIALOG: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,

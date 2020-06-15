@@ -25,6 +25,8 @@ import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
 import {EditProjectAccessDialog} from '../../wizard/EditProjectAccessDialog';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {UpdateProjectReadAccessRequest} from '../resource/UpdateProjectReadAccessRequest';
 
 export class ProjectWizardPanel
@@ -37,6 +39,8 @@ export class ProjectWizardPanel
     private rolesWizardStepForm?: ProjectRolesWizardStepForm;
 
     private editProjectAccessDialog: EditProjectAccessDialog = new EditProjectAccessDialog();
+
+    private loginResult: LoginResult;
 
     protected getIconClass(): string {
         return ProjectIconUrlResolver.DEFAULT_ICON_CLASS;
@@ -73,8 +77,27 @@ export class ProjectWizardPanel
         return <ProjectWizardActions>this.wizardActions;
     }
 
-    protected isEditAllowed(): boolean {
-        return this.getWizardActions().isEditAllowed();
+    isEditAllowed(loginResult: LoginResult): boolean {
+        const persistedItem = this.getPersistedItem();
+        if (!persistedItem || !loginResult) {
+            return true; // New project - edit is allowed
+        }
+        return persistedItem.isEditAllowed(loginResult);
+    }
+
+    getLoginResult(): Q.Promise<LoginResult> {
+        if (this.loginResult) {
+            return Q.resolve(this.loginResult);
+        }
+
+        return new IsAuthenticatedRequest().sendAndParse().then(loginResult => {
+            this.loginResult = loginResult;
+            return Q.resolve(this.loginResult);
+        });
+    }
+
+    protected checkIfEditIsAllowed(): Q.Promise<boolean> {
+        return this.getLoginResult().then((loginResult: LoginResult) => this.isEditAllowed(loginResult));
     }
 
     protected createStepsForms(persistedItem: ProjectViewItem): SettingDataItemWizardStepForm<ProjectViewItem>[] {
@@ -320,7 +343,7 @@ export class ProjectWizardPanel
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.addClass('project-wizard-panel');
-            this.toggleClass('no-modify-permissions', !this.isEditAllowed());
+            this.checkIfEditIsAllowed().then((isEditAllowed: boolean) => this.toggleClass('no-modify-permissions', !isEditAllowed));
 
             return rendered;
         });
