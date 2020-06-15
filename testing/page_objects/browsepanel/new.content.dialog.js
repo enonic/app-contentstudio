@@ -79,5 +79,10 @@ class NewContentDialog extends Page {
             return false;
         });
     }
+
+    async getItems() {
+        let locator = XPATH.typesList + lib.H6_DISPLAY_NAME;
+        return this.getTextInElements(locator);
+    }
 };
 module.exports = NewContentDialog;

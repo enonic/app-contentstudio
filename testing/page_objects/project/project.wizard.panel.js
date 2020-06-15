@@ -125,6 +125,11 @@ class ProjectWizardPanel extends Page {
 
     async waitForSaveButtonDisabled() {
         try {
+            let result = await this.getDisplayedElements(this.saveButton);
+            if (result.length === 0) {
+                this.saveScreenshot("err_pr_wizard");
+                throw new Error("Save button is not disabled!");
+            }
             return await this.waitForElementDisabled(this.saveButton, appConst.TIMEOUT_2);
         } catch (err) {
             throw new Error("Save button is not disabled :" + err);
@@ -133,6 +138,11 @@ class ProjectWizardPanel extends Page {
 
     async waitForDeleteButtonDisabled() {
         try {
+            let result = await this.getDisplayedElements(this.deleteButton);
+            if (result.length === 0) {
+                this.saveScreenshot("err_pr_wizard");
+                throw new Error("Delete button is not disabled!");
+            }
             return await this.waitForElementDisabled(this.deleteButton, appConst.TIMEOUT_2);
         } catch (err) {
             throw new Error("Delete button is not disabled :" + err);
@@ -203,12 +213,24 @@ class ProjectWizardPanel extends Page {
         return this.waitForElementDisplayed(this.rolesComboBox);
     }
 
-    //Add(Roles) principal with access:
+    //Adds an user with the default role (Contributor) in Roles step form:
     async selectProjectAccessRoles(principalDisplayName) {
         let comboBox = new ComboBox();
         await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container + XPATH.projectAccessControlComboBox);
         console.log("Project Wizard, principal is selected: " + principalDisplayName);
         return await this.pause(400);
+    }
+
+    //click on the role, open menu and select new role for the user:
+    async updateUserAccessRole(userDisplayName, newRole) {
+        let menuLocator = XPATH.container + XPATH.projectAccessControlComboBox + XPATH.accessItemByName(userDisplayName) +
+                          "//div[contains(@id,'TabMenuButton')]";
+        await this.clickOnElement(menuLocator);
+        await this.pause(400);
+        let menuItem = XPATH.container + XPATH.projectAccessControlComboBox + XPATH.accessItemByName(userDisplayName) +
+                       lib.tabMenuItem(newRole);
+        await this.waitForElementDisplayed(menuItem, appConst.TIMEOUT_2);
+        return await this.clickOnElement(menuItem);
     }
 
     async getSelectedProjectAccessItems() {
@@ -221,6 +243,7 @@ class ProjectWizardPanel extends Page {
         }
     }
 
+    //clicks on remove icon and  remove a user from Roles form:
     async removeProjectAccessItem(principalName) {
         try {
             let selector = XPATH.container + XPATH.projectAccessControlComboBox + XPATH.accessItemByName(principalName) + lib.REMOVE_ICON;
