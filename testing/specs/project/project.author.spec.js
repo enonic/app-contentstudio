@@ -1,5 +1,5 @@
 /**
- * Created on 09.06.2020.
+ * Created on 11.06.2020.
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -9,8 +9,10 @@ const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 
-describe('project.contributor.spec - ui-tests for user with Contributor role', function () {
+describe('project.author.spec - ui-tests for user with Author role', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
@@ -22,7 +24,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         async () => {
             //Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
-            let userName = builder.generateRandomName("user");
+            let userName = builder.generateRandomName("author");
             await studioUtils.showLauncherPanel();
             await studioUtils.navigateToUsersApp();
             let roles = [appConstant.SYSTEM_ROLES.ADMIN_CONSOLE];
@@ -31,7 +33,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-    it("GIVEN new project wizard is opened WHEN existing user has been added as contributor THEN expected user should be selected in Project Roles form",
+    it("GIVEN new project wizard is opened WHEN existing user has been added as Author THEN expected user should be selected in Project Roles form",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -47,9 +49,10 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             let result = await projectWizard.isDescriptionInputClickable();
             //3. Select the user in roles, assign Contributor role him:
             await projectWizard.selectProjectAccessRoles(USER.displayName);
+            await projectWizard.updateUserAccessRole(USER.displayName, appConstant.PROJECT_ROLES.AUTHOR);
             await projectWizard.waitAndClickOnSave();
             await projectWizard.waitForNotificationMessage();
-            studioUtils.saveScreenshot("project_contributor_created_1");
+            studioUtils.saveScreenshot("project_author_1");
             //4. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
@@ -58,7 +61,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.doLogout();
         });
 
-    it("GIVEN contributor user is logged in WHEN existing project has been opened THEN all inputs should be disabled",
+    it("GIVEN user with Author role is logged in WHEN existing project has been opened THEN all inputs should be disabled(not clickable)",
         async () => {
             //1. Do Log in with the user and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
@@ -82,11 +85,10 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-    it("GIVEN contributor user is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
+    it("GIVEN user with Author role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
         async () => {
             //1. Do log in with the user and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -97,6 +99,26 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await settingsBrowsePanel.waitForNewButtonDisabled();
             await settingsBrowsePanel.waitForEditButtonDisabled();
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
+            studioUtils.saveScreenshot("project_author_1");
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        });
+
+    it("GIVEN user with Author role is logged in WHEN required context is loaded THEN only New... button should be enabled for Author role",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let newContentDialog = new NewContentDialog();
+            //1. Do log in with the user-author and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await contentBrowsePanel.waitForNewButtonEnabled();
+            //2. Click on New... button
+            await contentBrowsePanel.clickOnNewButton();
+            await newContentDialog.waitForOpened();
+            let items = await newContentDialog.getItems();
+            studioUtils.saveScreenshot("project_author_3");
+            //3. Verify that only 'Folders' and 'Shortcut' are allowed for Author role
+            assert.equal(items.length, 2, "Two items should be available for Author");
+            assert.isTrue(items.includes("Folder"), "Folder is allowed for creating");
+            assert.isTrue(items.includes("Shortcut"), "Shortcut is allowed for creating");
         });
 
     before(() => {
