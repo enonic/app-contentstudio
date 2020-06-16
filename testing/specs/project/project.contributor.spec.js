@@ -23,8 +23,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             //Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName("user");
-            await studioUtils.showLauncherPanel();
-            await studioUtils.navigateToUsersApp();
             let roles = [appConstant.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);

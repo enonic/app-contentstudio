@@ -247,7 +247,7 @@ class Page {
             let notificationXpath = `//div[@class='notification-content']`;
             await this.getBrowser().waitUntil(async () => {
                 return await this.isElementDisplayed(notificationXpath);
-            }, appConst.TIMEOUT_7);
+            }, appConst.TIMEOUT_10);
             await this.pause(400);
             return await this.getText(notificationXpath);
         } catch (err) {

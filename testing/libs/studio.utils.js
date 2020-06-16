@@ -740,6 +740,7 @@ module.exports = {
         let wizardPanel = new UserWizard();
         let browsePanel = new UserBrowsePanel();
         await wizardPanel.waitAndClickOnSave();
+        await wizardPanel.waitForNotificationMessage();
         await wizardPanel.pause(700);
         //Click on Close icon and close the wizard:
         return await browsePanel.doClickOnCloseTabAndWaitGrid(displayName);
