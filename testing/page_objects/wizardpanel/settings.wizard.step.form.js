@@ -89,6 +89,14 @@ class SettingsStepForm extends Page {
             throw new Error('Error when removing the owner! ' + err);
         }
     }
+
+    isLanguageOptionsFilterVisible() {
+        return this.isElementDisplayed(this.languageFilterInput);
+    }
+
+    isOwnerOptionsFilterVisible() {
+        return this.isElementDisplayed(this.ownerFilterInput);
+    }
 };
 module.exports = SettingsStepForm;
 
