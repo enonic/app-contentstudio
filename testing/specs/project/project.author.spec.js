@@ -13,6 +13,8 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
+const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 
 describe('project.author.spec - ui-tests for user with Author role', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -135,7 +137,6 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
             studioUtils.saveScreenshot("project_author_4");
-            //await settingsStepForm.filterOptionsAndSelectLanguage('English (en)');
             await contentWizard.waitAndClickOnSave();
             studioUtils.saveScreenshot("project_author_5");
             //3. Verify that 'Mark as Ready' button is available in the wizard:
@@ -166,7 +167,31 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             //5. Verify that Publish menu item is disabled:
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
 
+                await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
+
+        //Verifies - issue#1920 User with author role - Last stage in publishing workflow for Project gives user option to "Publish Now"
+        it("GIVEN user with 'Author' role is logged in WHEN existing folder has been selected and Publish Request has been created THEN 'Publish Now' button should be disabled on the last stage",
+            async () => {
+                    let contentBrowsePanel = new ContentBrowsePanel();
+                    let createRequestPublishDialog = new CreateRequestPublishDialog();
+                    let publishRequestDetailsDialog = new PublishRequestDetailsDialog()
+                    //1. Do log in with the user-author and navigate to Content Browse Panel:
+                    await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+                    //2. Select the folder and open Request wizard:
+                    await studioUtils.findAndSelectItem(FOLDER_NAME);
+                    await contentBrowsePanel.openPublishMenuSelectItem(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+                    await createRequestPublishDialog.waitForDialogLoaded();
+                    await createRequestPublishDialog.clickOnNextButton();
+                    await createRequestPublishDialog.typeInChangesInput("author's request");
+                    //3. Click on 'Create Request' button:
+                    await createRequestPublishDialog.clickOnCreateRequestButton();
+                    //4. Verify that 'Request Details' dialog is loaded:
+                    await publishRequestDetailsDialog.waitForTabLoaded();
+                    //5. Verify that 'Publish Now' button is disabled:
+                    studioUtils.saveScreenshot("project_author_8");
+                    await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
+            });
 
     before(() => {
         return console.log('specification is starting: ' + this.title);
