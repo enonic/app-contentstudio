@@ -64,7 +64,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.doLogout();
         });
 
-    it("GIVEN user with Owner role is logged in WHEN existing project has been opened THEN all inputs should be disabled(not clickable)",
+    it("GIVEN user with Owner role is logged in WHEN existing project has been opened THEN all inputs should be enabled",
         async () => {
             //1. Do Log in with the user-owner and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
