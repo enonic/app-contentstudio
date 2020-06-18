@@ -20,6 +20,7 @@ import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import eventInfo = CKEDITOR.eventInfo;
 import widget = CKEDITOR.plugins.widget;
+import {UrlHelper} from '../../../util/UrlHelper';
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];
@@ -263,8 +264,9 @@ export class HtmlEditor {
     private handleUploadRequest() {
         this.editor.on('fileUploadRequest', (evt: eventInfo) => {
             const fileLoader = evt.data.fileLoader;
-
+debugger;
             this.fileExists(fileLoader.fileName).then((exists: boolean) => {
+                debugger;
                 if (exists) {
                     NotifyManager.get().showWarning(i18n('notify.fileExists', fileLoader.fileName));
                     (<any>evt.editor.document.findOne('.cke_widget_uploadimage')).remove(); // removing upload preview image
@@ -986,7 +988,7 @@ class HtmlEditorConfigBuilder {
                 StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS,
                 StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS],
             disallowedContent: 'img[width,height]',
-            uploadUrl: UriHelper.getRestUri('content/createMedia'),
+            uploadUrl: UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/content/createMedia`),
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
             disableNativeSpellChecker: false
         };
