@@ -88,7 +88,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-    it("GIVEN user with Owner role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
+    it("GIVEN user with Owner role is logged in WHEN existing project has been selected THEN New..., Delete buttons should be disabled Edit should be enabled",
         async () => {
             //1. Do log in with the user-owner and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
