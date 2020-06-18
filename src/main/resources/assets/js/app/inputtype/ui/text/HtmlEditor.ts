@@ -264,9 +264,9 @@ export class HtmlEditor {
     private handleUploadRequest() {
         this.editor.on('fileUploadRequest', (evt: eventInfo) => {
             const fileLoader = evt.data.fileLoader;
-debugger;
+
             this.fileExists(fileLoader.fileName).then((exists: boolean) => {
-                debugger;
+
                 if (exists) {
                     NotifyManager.get().showWarning(i18n('notify.fileExists', fileLoader.fileName));
                     (<any>evt.editor.document.findOne('.cke_widget_uploadimage')).remove(); // removing upload preview image
