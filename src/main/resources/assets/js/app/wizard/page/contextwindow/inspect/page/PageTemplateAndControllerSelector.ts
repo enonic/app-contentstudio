@@ -54,7 +54,10 @@ export class PageTemplateAndControllerSelector
         this.optionViewer.setDefaultPageTemplate(this.liveEditModel.getPageModel().getDefaultPageTemplate());
         const pageModel = this.liveEditModel.getPageModel();
         if (!pageModel.isPageTemplate() && pageModel.getMode() !== PageMode.FRAGMENT) {
-            this.autoOption = {value: '__auto__', displayValue: new PageTemplateOption()};
+            this.autoOption = Option.create<PageTemplateOption>()
+                .setValue('__auto__')
+                .setDisplayValue(new PageTemplateOption())
+                .build();
         }
 
         this.initPageModelListeners();
@@ -84,9 +87,9 @@ export class PageTemplateAndControllerSelector
         });
 
         this.onOptionSelected((event: OptionSelectedEvent<PageTemplateAndControllerOption>) => {
-            const selectedOption: PageTemplateAndControllerOption = event.getOption().displayValue;
+            const selectedOption: PageTemplateAndControllerOption = event.getOption().getDisplayValue();
             const previousOption: PageTemplateAndControllerOption = event.getPreviousOption() ?
-                                                                    event.getPreviousOption().displayValue :
+                                                                    event.getPreviousOption().getDisplayValue() :
                                                                     null;
 
             const selectedIsTemplate = ObjectHelper.iFrameSafeInstanceOf(selectedOption, PageTemplateOption);
@@ -239,7 +242,11 @@ export class PageTemplateAndControllerSelector
             data.getController().toString()
         ];
 
-        return {value, displayValue, indices};
+        return Option.create<PageTemplateOption>()
+            .setValue(value)
+            .setDisplayValue(displayValue)
+            .setIndices(indices)
+            .build();
     }
 
     private static createControllerOption(data: PageDescriptor): Option<PageControllerOption> {
@@ -250,7 +257,11 @@ export class PageTemplateAndControllerSelector
             data.getDisplayName()
         ];
 
-        return {value, displayValue, indices};
+        return Option.create<PageControllerOption>()
+            .setValue(value)
+            .setDisplayValue(displayValue)
+            .setIndices(indices)
+            .build();
     }
 
     private initOptionsList(templateOptions: Option<PageTemplateOption>[], controllerOptions: Option<PageControllerOption>[]) {

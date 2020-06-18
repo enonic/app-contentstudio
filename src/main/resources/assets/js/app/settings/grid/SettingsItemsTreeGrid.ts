@@ -79,10 +79,6 @@ export class SettingsItemsTreeGrid
         return Q(null);
     }
 
-    getDataId(item: SettingsViewItem): string {
-        return item.getId();
-    }
-
     hasChildren(item: SettingsViewItem): boolean {
         return ObjectHelper.iFrameSafeInstanceOf(item, FolderViewItem);
     }
@@ -97,31 +93,7 @@ export class SettingsItemsTreeGrid
             return;
         }
 
-        this.appendNodeToParent(parentNode, item);
-
-    }
-
-    updateSettingsItemNode(item: SettingsViewItem) {
-        if (!this.hasItemWithId(item.getId())) {
-            return;
-        }
-
-        const treeNodeToUpdate: TreeNode<SettingsViewItem> = this.getRoot().getCurrentRoot().findNode(item.getId());
-        treeNodeToUpdate.setData(item);
-        treeNodeToUpdate.clearViewers();
-        this.invalidateNodes([treeNodeToUpdate]);
-    }
-
-    deleteSettingsItemNode(id: string) {
-        if (!this.hasItemWithId(id)) {
-            return;
-        }
-
-        this.deselectNodes([id]);
-        const treeNodeToDelete: TreeNode<SettingsViewItem> = this.getRoot().getNodeByDataId(id);
-        if (treeNodeToDelete) {
-            this.deleteNode(treeNodeToDelete.getData());
-        }
+        this.appendDataToParentNode(item, parentNode);
     }
 
     hasItemWithId(id: string) {

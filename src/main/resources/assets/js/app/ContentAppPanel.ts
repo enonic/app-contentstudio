@@ -80,29 +80,12 @@ export class ContentAppPanel
         }
     }
 
-    protected handleGlobalEvents() {
-        super.handleGlobalEvents();
-
-        NewContentEvent.on((newContentEvent) => {
-            this.handleNew(newContentEvent);
-        });
-    }
-
     protected createBrowsePanel() {
         return new ContentBrowsePanel();
     }
 
     getBrowsePanel(): ContentBrowsePanel {
         return <ContentBrowsePanel>this.browsePanel;
-    }
-
-    private handleNew(newContentEvent: NewContentEvent) {
-        if (newContentEvent.getContentType().isSite() && this.browsePanel) {
-            const content: Content = newContentEvent.getParentContent();
-            if (!!content) { // refresh site's node
-                this.browsePanel.getTreeGrid().refreshNodeById(content.getId());
-            }
-        }
     }
 
     protected resolveActions(panel: Panel): Action[] {

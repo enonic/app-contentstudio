@@ -139,7 +139,7 @@ export class ImageInspectionPanel
         this.imageSelector.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
             if (this.handleSelectorEvents) {
                 const option: Option<MediaTreeSelectorItem> = event.getSelectedOption().getOption();
-                const imageContentSummary: ContentSummary = (<MediaTreeSelectorItem>option.displayValue).getContentSummary();
+                const imageContentSummary: ContentSummary = (<MediaTreeSelectorItem>option.getDisplayValue()).getContentSummary();
 
                 new GetContentByIdRequest(imageContentSummary.getContentId()).sendAndParse().then((imageContent: Content) => {
                     this.component.setImage(imageContent);

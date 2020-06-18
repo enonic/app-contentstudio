@@ -112,10 +112,11 @@ export class MediaSelector
         uploader.onFileUploaded((event: UploadedEvent<Content>) => {
             const createdContent = event.getUploadItem().getModel();
 
-            const option = <Option<MediaTreeSelectorItem>>{
-                value: createdContent.getContentId().toString(),
-                displayValue: new MediaTreeSelectorItem(createdContent)
-            };
+            const option = Option.create<MediaTreeSelectorItem>()
+                    .setValue(createdContent.getContentId().toString())
+                    .setDisplayValue(new MediaTreeSelectorItem(createdContent))
+                    .build();
+
             this.contentComboBox.selectOption(option);
             const selectedOption = this.getSelectedOptionsView().getById(createdContent.getContentId().toString());
 

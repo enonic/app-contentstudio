@@ -129,9 +129,9 @@ export class CompareContentVersionsDialog
     }
 
     private handleVersionChanged(isLeft?: boolean) {
-        this.leftVersion = this.leftDropdown.getSelectedOption().displayValue;
+        this.leftVersion = this.leftDropdown.getSelectedOption().getDisplayValue();
 
-        this.rightVersion = this.rightDropdown.getSelectedOption().displayValue;
+        this.rightVersion = this.rightDropdown.getSelectedOption().getDisplayValue();
 
         if (!this.leftVersion || !this.rightVersion) {
             return;
@@ -151,7 +151,9 @@ export class CompareContentVersionsDialog
     createVersionRevertButton(dropdown: Dropdown<ContentVersion>): Button {
 
         const revertAction = new Action(i18n('field.version.revert'))
-                                .onExecuted(() => this.revertVersionCallback(this.contentId, dropdown.getSelectedOption().displayValue));
+            .onExecuted(() => {
+                this.revertVersionCallback(this.contentId, dropdown.getSelectedOption().getDisplayValue());
+            });
         revertAction.setTitle(i18n('field.version.makeCurrent'));
 
         const menu = new Menu([revertAction]);
@@ -314,10 +316,10 @@ export class CompareContentVersionsDialog
                 if (!this.leftVersion || !this.rightVersion) {
                     const latestOption = this.getDefaultOption(options);
                     if (!this.leftVersion) {
-                        this.leftVersion = latestOption.displayValue;
+                        this.leftVersion = latestOption.getDisplayValue();
                     }
                     if (!this.rightVersion) {
-                        this.rightVersion = latestOption.displayValue;
+                        this.rightVersion = latestOption.getDisplayValue();
                     }
                 }
 
@@ -331,8 +333,8 @@ export class CompareContentVersionsDialog
 
                 // now after aliases are added we can select newest alias for the right dropdown
                 const latestAlias = this.getDefaultOption(this.rightDropdown.getOptions());
-                if (latestAlias.displayValue.getId() !== this.rightVersion.getId()) {
-                    this.rightVersion = latestAlias.displayValue;
+                if (latestAlias.getDisplayValue().getId() !== this.rightVersion.getId()) {
+                    this.rightVersion = latestAlias.getDisplayValue();
                 }
 
                 this.forceSelectVersion(this.leftDropdown, this.leftVersion, true);
@@ -345,11 +347,11 @@ export class CompareContentVersionsDialog
         let selectedAliasType: AliasType;
         const selectedOption = dropdown.getSelectedOption();
         if (selectedOption) {
-            selectedAliasType = selectedOption.displayValue.getAliasType();
+            selectedAliasType = selectedOption.getDisplayValue().getAliasType();
         }
 
         let nextOption: Option<ContentVersion> = dropdown.getOptionByRow(0);
-        while (nextOption.displayValue.isAlias()) {
+        while (nextOption.getDisplayValue().isAlias()) {
             dropdown.removeOption(nextOption);
             nextOption = dropdown.getOptionByRow(0);
         }
@@ -357,14 +359,14 @@ export class CompareContentVersionsDialog
         let aliasFound;
         this.createAliases(dropdown.getOptions(), isLeft).forEach(alias => {
             dropdown.addOption(alias);
-            if (alias.displayValue.getAliasType() === selectedAliasType) {
+            if (alias.getDisplayValue().getAliasType() === selectedAliasType) {
                 aliasFound = true;
                 dropdown.selectOption(alias, true);
                 // update version with new alias id
                 if (isLeft) {
-                    this.leftVersion = alias.displayValue;
+                    this.leftVersion = alias.getDisplayValue();
                 } else {
-                    this.rightVersion = alias.displayValue;
+                    this.rightVersion = alias.getDisplayValue();
                 }
             }
         });
@@ -381,10 +383,10 @@ export class CompareContentVersionsDialog
     }
 
     private getDefaultOption(opts: Option<ContentVersion>[]): Option<ContentVersion> {
-        let newest = opts.find(opt => opt.displayValue.getAliasType() === AliasType.NEWEST);
+        let newest = opts.find(opt => opt.getDisplayValue().getAliasType() === AliasType.NEWEST);
         if (!newest) {
             opts.forEach(opt => {
-                if (!newest || opt.displayValue.getModified() > newest.displayValue.getModified()) {
+                if (!newest || opt.getDisplayValue().getModified() > newest.getDisplayValue().getModified()) {
                     newest = opt;
                 }
             });
@@ -395,7 +397,7 @@ export class CompareContentVersionsDialog
 
     private getNewestPublishedVersion(options: Option<ContentVersion>[], maxDateTime: number): ContentVersion {
         return options
-            .map(option => option.displayValue)
+            .map(option => option.getDisplayValue())
             .filter(version => !!version.getPublishInfo() && (!maxDateTime || version.getModified().getTime() <= maxDateTime))
             .sort((v1, v2) => v2.getPublishInfo().getTimestamp().getTime() - v1.getPublishInfo().getTimestamp().getTime())[0];
 
@@ -403,12 +405,12 @@ export class CompareContentVersionsDialog
 
     private getNewestVersion(options: Option<ContentVersion>[]): ContentVersion {
         return options
-            .map(option => option.displayValue)
+            .map(option => option.getDisplayValue())
             .sort((v1, v2) => v2.getModified().getTime() - v1.getModified().getTime())[0];
     }
 
     private getVersionIndexInOptions(options: Option<ContentVersion>[], versionId: string) {
-        return options.findIndex((option: Option<ContentVersion>) => option.displayValue.getId() === versionId);
+        return options.findIndex((option: Option<ContentVersion>) => option.getDisplayValue().getId() === versionId);
     }
 
     private getPreviousVersion(options: Option<ContentVersion>[]): ContentVersion {
@@ -418,7 +420,7 @@ export class CompareContentVersionsDialog
             return null;
         }
 
-        return options[versionIndex + 1].displayValue;
+        return options[versionIndex + 1].getDisplayValue();
     }
 
     private getNextVersion(options: Option<ContentVersion>[]): ContentVersion {
@@ -428,7 +430,7 @@ export class CompareContentVersionsDialog
             return null;
         }
 
-        return options[versionIndex - 1].displayValue;
+        return options[versionIndex - 1].getDisplayValue();
     }
 
     private createAliases(options: Option<ContentVersion>[], isLeft: boolean): Option<ContentVersion>[] {
@@ -481,15 +483,15 @@ export class CompareContentVersionsDialog
     }
 
     private doCreateOption(value: string, version: ContentVersion): Option<ContentVersion> {
-        return {
-            value: value,
-            displayValue: version
-        };
+        return Option.create<ContentVersion>()
+            .setValue(value)
+            .setDisplayValue(version)
+            .build();
     }
 
     private optionSorter(a: Option<ContentVersion>, b: Option<ContentVersion>): number {
-        const aVal = a.displayValue;
-        const bVal = b.displayValue;
+        const aVal = a.getDisplayValue();
+        const bVal = b.getDisplayValue();
         if (!aVal.isAlias() && bVal.isAlias()) {
             return 1;
         }
@@ -507,8 +509,8 @@ export class CompareContentVersionsDialog
     }
 
     private leftVersionRequiresForcedSelection() {
-        const leftTime = this.leftDropdown.getSelectedOption().displayValue.getModified();
-        const rightTime = this.rightDropdown.getSelectedOption().displayValue.getModified();
+        const leftTime = this.leftDropdown.getSelectedOption().getDisplayValue().getModified();
+        const rightTime = this.rightDropdown.getSelectedOption().getDisplayValue().getModified();
 
         return leftTime.getTime() > rightTime.getTime();
     }
@@ -525,7 +527,7 @@ export class CompareContentVersionsDialog
         const rightOption = this.rightDropdown.getSelectedOption();
         let isNextSelectedInRightDropdown;
         if (rightOption) {
-            isNextSelectedInRightDropdown = rightOption.displayValue.getAliasType() === AliasType.NEXT;
+            isNextSelectedInRightDropdown = rightOption.getDisplayValue().getAliasType() === AliasType.NEXT;
         }
 
         this.leftDropdown.getOptions().slice().reverse().forEach((option: Option<ContentVersion>) => {
@@ -533,22 +535,22 @@ export class CompareContentVersionsDialog
             // doing reverse to be sure to go through regular versions before aliases
             // and make everything in one go
 
-            if (option.displayValue.isAlias()) {
-                if (isNextSelectedInRightDropdown && option.displayValue.getAliasType() === AliasType.PREV) {
-                    option.readOnly = true;
+            if (option.getDisplayValue().isAlias()) {
+                if (isNextSelectedInRightDropdown && option.getDisplayValue().getAliasType() === AliasType.PREV) {
+                    option.setReadOnly(true);
                     readOnlyOptions.push(option);
                 } else {
                     // don't disable aliases
                     return;
                 }
             } else {
-                option.readOnly = markReadOnly;
+                option.setReadOnly(markReadOnly);
                 if (markReadOnly) {
                     readOnlyOptions.push(option);
                 }
             }
 
-            if (option.value === this.rightVersion.getId()) {
+            if (option.getValue() === this.rightVersion.getId()) {
                 // marking readOnly all versions after rightVersion
                 markReadOnly = true;
             }
@@ -565,12 +567,12 @@ export class CompareContentVersionsDialog
         const leftOption = this.leftDropdown.getSelectedOption();
         let isPrevSelectedInLeftDropdown;
         if (leftOption) {
-            isPrevSelectedInLeftDropdown = leftOption.displayValue.getAliasType() === AliasType.PREV;
+            isPrevSelectedInLeftDropdown = leftOption.getDisplayValue().getAliasType() === AliasType.PREV;
         }
 
-        this.rightDropdown.getOptions().filter(option => option.displayValue.isAlias()).forEach(option => {
-            if (isPrevSelectedInLeftDropdown && option.displayValue.getAliasType() === AliasType.NEXT) {
-                option.readOnly = true;
+        this.rightDropdown.getOptions().filter(option => option.getDisplayValue().isAlias()).forEach(option => {
+            if (isPrevSelectedInLeftDropdown && option.getDisplayValue().getAliasType() === AliasType.NEXT) {
+                option.setReadOnly(true);
                 readOnlyOptions.push(option);
             } else {
                 // dont' disable aliases
@@ -628,8 +630,8 @@ export class CompareContentVersionsDialog
     }
 
     private updateButtonsState() {
-        const isLeftVersionActive = this.leftDropdown.getSelectedOption().displayValue.isActive();
-        const isRightVersionActive = this.rightDropdown.getSelectedOption().displayValue.isActive();
+        const isLeftVersionActive = this.leftDropdown.getSelectedOption().getDisplayValue().isActive();
+        const isRightVersionActive = this.rightDropdown.getSelectedOption().getDisplayValue().isActive();
 
         this.revertLeftButton.setEnabled(!isLeftVersionActive);
         this.revertRightButton.setEnabled(!isRightVersionActive);

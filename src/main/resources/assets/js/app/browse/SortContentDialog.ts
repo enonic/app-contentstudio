@@ -111,7 +111,7 @@ export class SortContentDialog
     show() {
         super.show();
         this.contentGrid.onLoaded(this.gridLoadedHandler);
-        this.contentGrid.reload(this.parentContent);
+        this.contentGrid.reload();
         this.sortContentMenu.focus();
     }
 
@@ -183,7 +183,7 @@ export class SortContentDialog
         if (!newOrder.isManual()) {
             this.curChildOrder = newOrder;
             this.contentGrid.setChildOrder(this.curChildOrder);
-            this.contentGrid.reload(this.parentContent);
+            this.contentGrid.reload();
             this.gridDragHandler.clearContentMovements();
         } else {
             this.prevChildOrder = this.curChildOrder;

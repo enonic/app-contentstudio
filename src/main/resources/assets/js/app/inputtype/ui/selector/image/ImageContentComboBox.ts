@@ -33,7 +33,7 @@ export class ImageContentComboBox
     getContent(contentId: ContentId): ContentSummary {
         let option = this.getOptionByValue(contentId.toString());
         if (option) {
-            return (<MediaTreeSelectorItem>option.displayValue).getContentSummary();
+            return (<MediaTreeSelectorItem>option.getDisplayValue()).getContentSummary();
         }
         return null;
     }

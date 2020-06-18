@@ -102,7 +102,7 @@ export class FragmentInspectionPanel
         this.contentUpdatedListener = (event: ContentUpdatedEvent) => {
             // update currently selected option if this is the one updated
             if (this.component && event.getContentId().equals(this.component.getFragment())) {
-                this.fragmentSelector.getSelectedOption().displayValue = event.getContentSummary();
+                this.fragmentSelector.getSelectedOption().setDisplayValue(event.getContentSummary());
             }
         };
         ContentUpdatedEvent.on(this.contentUpdatedListener);
@@ -176,7 +176,7 @@ export class FragmentInspectionPanel
         this.fragmentSelector.onOptionSelected((selectedOption: OptionSelectedEvent<ContentSummary>) => {
             if (this.handleSelectorEvents) {
                 let option: Option<ContentSummary> = selectedOption.getOption();
-                let fragmentContent = option.displayValue;
+                let fragmentContent = option.getDisplayValue();
 
                 if (this.isInsideLayout()) {
                     new GetContentByIdRequest(fragmentContent.getContentId()).sendAndParse().done((content: Content) => {

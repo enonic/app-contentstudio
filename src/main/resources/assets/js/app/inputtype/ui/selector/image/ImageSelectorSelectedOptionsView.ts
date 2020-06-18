@@ -87,7 +87,7 @@ export class ImageSelectorSelectedOptionsView
         const selectedOption = this.getByOption(optionToRemove);
 
         this.selection = this.selection.filter((option: SelectedOption<MediaTreeSelectorItem>) => {
-            return option.getOption().value !== selectedOption.getOption().value;
+            return option.getOption().getValue() !== selectedOption.getOption().getValue();
         });
 
         this.updateSelectionToolbarLayout();
@@ -118,8 +118,8 @@ export class ImageSelectorSelectedOptionsView
             return true;
         }
 
-        const displayValue = selectedOption.getOption().displayValue;
-        if (displayValue.getContentSummary() == null && option.displayValue.getContentSummary() != null) {
+        const displayValue = selectedOption.getOption().getDisplayValue();
+        if (displayValue.getContentSummary() == null && option.getDisplayValue().getContentSummary() != null) {
             this.updateUploadedOption(option);
             return true;
         }
@@ -153,12 +153,12 @@ export class ImageSelectorSelectedOptionsView
 
     updateUploadedOption(option: Option<MediaTreeSelectorItem>) {
         let selectedOption = this.getByOption(option);
-        let content = option.displayValue.getContentSummary();
+        let content = option.getDisplayValue().getContentSummary();
 
-        let newOption = <Option<MediaTreeSelectorItem>>{
-            value: content.getId(),
-            displayValue: new MediaTreeSelectorItem(content)
-        };
+        let newOption = Option.create<MediaTreeSelectorItem>()
+                .setValue(content.getId())
+                .setDisplayValue(new MediaTreeSelectorItem(content))
+                .build();
 
         selectedOption.getOptionView().setOption(newOption);
     }
@@ -168,11 +168,11 @@ export class ImageSelectorSelectedOptionsView
             .setDisplayValue(MediaSelectorDisplayValue.makeEmpty())
             .setMissingItemId(id);
 
-        return <Option<MediaTreeSelectorItem>>{
-            value: id,
-            displayValue: item,
-            empty: true
-        };
+        return Option.create<MediaTreeSelectorItem>()
+                .setValue(id)
+                .setDisplayValue(item)
+                .setEmpty(true)
+                .build();
     }
 
     private uncheckOthers(option: SelectedOption<MediaTreeSelectorItem>) {
@@ -218,7 +218,7 @@ export class ImageSelectorSelectedOptionsView
     private getNumberOfEditableOptions(): number {
         let count = 0;
         this.selection.forEach(selectedOption => {
-            if (!selectedOption.getOption().displayValue.isEmptyContent()) {
+            if (!selectedOption.getOption().getDisplayValue().isEmptyContent()) {
                 count++;
             }
         });
@@ -256,8 +256,8 @@ export class ImageSelectorSelectedOptionsView
 
         optionView.getIcon().onLoaded(() => this.handleOptionViewImageLoaded(optionView));
 
-        if (option.getOption().displayValue.isEmptyContent()) {
-            const missingItemId: string = option.getOption().displayValue.getMissingItemId();
+        if (option.getOption().getDisplayValue().isEmptyContent()) {
+            const missingItemId: string = option.getOption().getDisplayValue().getMissingItemId();
             optionView.showError(!!missingItemId ? i18n('text.image.id.notavailable', missingItemId) : i18n('text.image.notavailable'));
         }
     }

@@ -311,7 +311,7 @@ export class IssueDetailsDialog
         this.itemSelector.onOptionSelected(option => {
             this.saveOnLoaded = true;
             this.isUpdatePending = true;
-            const ids = [option.getSelectedOption().getOption().displayValue.getContentId()];
+            const ids = [option.getSelectedOption().getOption().getDisplayValue().getContentId()];
             ContentSummaryAndCompareStatusFetcher.fetchByIds(ids).then(result => {
                 this.addListItems(result);
             });
@@ -320,7 +320,7 @@ export class IssueDetailsDialog
         this.itemSelector.onOptionDeselected(option => {
             this.saveOnLoaded = true;
             this.isUpdatePending = true;
-            const id = option.getSelectedOption().getOption().displayValue.getContentId();
+            const id = option.getSelectedOption().getOption().getDisplayValue().getContentId();
             const items = [this.getItemList().getItem(id.toString())];
             this.removeListItems(items);
             this.getItemList().refreshList();

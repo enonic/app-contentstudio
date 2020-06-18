@@ -80,12 +80,12 @@ export class IssueDialogForm
 
         this.contentItemsSelector.onOptionSelected((option) => {
             this.notifyContentItemsAdded(
-                [<ContentTreeSelectorItem>option.getSelectedOption().getOption().displayValue]);
+                [<ContentTreeSelectorItem>option.getSelectedOption().getOption().getDisplayValue()]);
         });
 
         this.contentItemsSelector.onOptionDeselected((option) => {
             this.notifyContentItemsRemoved(
-                [<ContentTreeSelectorItem>option.getSelectedOption().getOption().displayValue]);
+                [<ContentTreeSelectorItem>option.getSelectedOption().getOption().getDisplayValue()]);
         });
     }
 

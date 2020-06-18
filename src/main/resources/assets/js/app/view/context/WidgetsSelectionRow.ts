@@ -5,6 +5,7 @@ import {ContextView} from './ContextView';
 import {Dropdown} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
 
 export class WidgetsSelectionRow
     extends DivEl {
@@ -22,7 +23,7 @@ export class WidgetsSelectionRow
         this.widgetSelectorDropdown.addClass('widget-selector');
 
         this.widgetSelectorDropdown.onOptionSelected((event: OptionSelectedEvent<WidgetViewOption>) => {
-            let widgetView = event.getOption().displayValue.getWidgetView();
+            let widgetView = event.getOption().getDisplayValue().getWidgetView();
             widgetView.setActive();
         });
 
@@ -41,15 +42,15 @@ export class WidgetsSelectionRow
 
     updateWidgetsDropdown(widgetViews: WidgetView[], selectedView?: WidgetView) {
         const previousSelection = this.widgetSelectorDropdown.getSelectedOption();
-        const previousSelectionView = previousSelection ? previousSelection.displayValue.getWidgetView() : null;
+        const previousSelectionView = previousSelection ? previousSelection.getDisplayValue().getWidgetView() : null;
         this.widgetSelectorDropdown.removeAllOptions();
 
         widgetViews.forEach((view: WidgetView) => {
 
-            const option = {
-                value: view.getWidgetName(),
-                displayValue: new WidgetViewOption(view)
-            };
+            const option = Option.create<WidgetViewOption>()
+                .setValue(view.getWidgetName())
+                .setDisplayValue(new WidgetViewOption(view))
+                .build();
 
             this.widgetSelectorDropdown.addOption(option);
         });
@@ -70,7 +71,7 @@ export class WidgetsSelectionRow
     }
 
     private selectOptionByWidgetView(view: WidgetView, silent?: boolean) {
-        const views = this.widgetSelectorDropdown.getOptions().map(option => option.displayValue.getWidgetView());
+        const views = this.widgetSelectorDropdown.getOptions().map(option => option.getDisplayValue().getWidgetView());
         let i = 0;
         if (view) {
             for (; i < views.length; i++) {
@@ -98,7 +99,7 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
             if (WidgetSelectorDropdown.isDefaultOptionDisplayValueViewer(event.target)) {
                 if (this.isDropdownShown()) {
                     if (this.getSelectedOption()) {
-                        let widgetView = this.getSelectedOption().displayValue.getWidgetView();
+                        let widgetView = this.getSelectedOption().getDisplayValue().getWidgetView();
                         if (widgetView !== contextView.getActiveWidget()) {
                             widgetView.setActive();
                         }

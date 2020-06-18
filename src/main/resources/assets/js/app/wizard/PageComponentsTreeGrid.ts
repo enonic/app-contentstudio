@@ -30,6 +30,7 @@ import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
 import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
+import {Component} from '../page/region/Component';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemView> {
@@ -81,7 +82,6 @@ export class PageComponentsTreeGrid
             )
             .setShowToolbar(false)
             .setAutoLoad(true)
-            .setExpandFn((item: ItemView) => !item.getType().equals(LayoutItemType.get()))
             .prependClasses('components-grid')
         );
 
@@ -92,8 +92,8 @@ export class PageComponentsTreeGrid
         (new PageComponentsGridDragHandler(this));
     }
 
-    dataToTreeNode(data: ItemView, parent: TreeNode<ItemView>, expandAllowed?: boolean): TreeNode<ItemView> {
-        const node: TreeNode<ItemView> = super.dataToTreeNode(data, parent, expandAllowed);
+    dataToTreeNode(data: ItemView, parent: TreeNode<ItemView>): TreeNode<ItemView> {
+        const node: TreeNode<ItemView> = super.dataToTreeNode(data, parent);
 
         if (ObjectHelper.iFrameSafeInstanceOf(data.getType(), FragmentItemType)) {
             this.updateTreeNodeWithFragmentsOnLoad(node);
@@ -275,6 +275,50 @@ export class PageComponentsTreeGrid
         let icon = new DivEl('menu-icon icon-menu2');
         wrapper.appendChild(icon);
         return wrapper.toString();
+    }
+
+    addComponentToParent(component: ComponentView<Component>, parent: RegionView) {
+        const parentNode: TreeNode<ItemView> = this.getRoot().getNodeByDataIdFromCurrent(parent.getItemId().toString());
+        if (!parentNode) {
+            return;
+        }
+
+        const index: number = parent.getComponentViews().indexOf(component);
+        if (index < 0) {
+            return;
+        }
+
+        this.insertDataToParentNode(component, parentNode, index);
+    }
+
+    refreshComponentNode(componentView: ComponentView<Component>, oldComponentView: ComponentView<Component>) {
+        const oldDataId: string = oldComponentView.getId();
+        const oldNode: TreeNode<ItemView> = this.getRoot().getNodeByDataIdFromCurrent(oldDataId);
+
+        if (oldNode.hasChildren()) {
+            oldNode.removeChildren();
+        }
+
+        this.updateNodeByData(componentView, oldDataId);
+
+        const dataId: string = componentView.getId();
+
+        if (componentView.isSelected()) {
+            this.selectNode(dataId);
+        }
+    }
+
+    scrollToItem(dataId: string) {
+        const node = this.getRoot().getNodeByDataIdFromCurrent(dataId);
+
+        if (node) {
+            node.getData().scrollComponentIntoView();
+            this.scrollToRow(this.getGrid().getDataView().getRowById(node.getId()));
+        }
+    }
+
+    protected isToBeExpanded(node: TreeNode<ItemView>): boolean {
+        return !node.getData().getType().equals(LayoutItemType.get());
     }
 
 }

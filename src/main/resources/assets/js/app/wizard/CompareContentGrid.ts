@@ -63,15 +63,6 @@ export class CompareContentGrid
         return data.getId();
     }
 
-    refreshNodeData(parentNode: TreeNode<ContentSummaryAndCompareStatus>): Q.Promise<TreeNode<ContentSummaryAndCompareStatus>> {
-        return ContentSummaryAndCompareStatusFetcher.fetch(parentNode.getData().getContentId()).then(
-            (content: ContentSummaryAndCompareStatus) => {
-                parentNode.setData(content);
-                this.refreshNode(parentNode);
-                return parentNode;
-            });
-    }
-
     sortNodeChildren(node: TreeNode<ContentSummaryAndCompareStatus>) {
         let comparator: Comparator<TreeNode<ContentSummaryAndCompareStatus>>;
         if (this.getRoot().getCurrentRoot() === node) {
