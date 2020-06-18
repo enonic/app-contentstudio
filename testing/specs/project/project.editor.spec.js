@@ -162,6 +162,13 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             assert.equal(status, appConstant.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
         });
 
+    afterEach(async () => {
+        let title = await webDriverHelper.browser.getTitle();
+        if (title.includes("Content Studio") || title.includes("Users")) {
+            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        }
+    });
+
     before(() => {
         return console.log('specification is starting: ' + this.title);
     });

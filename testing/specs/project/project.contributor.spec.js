@@ -97,6 +97,13 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
         });
 
+    afterEach(async () => {
+        let title = await webDriverHelper.browser.getTitle();
+        if (title.includes("Content Studio") || title.includes("Users")) {
+            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        }
+    });
+
     before(() => {
         return console.log('specification is starting: ' + this.title);
     });
