@@ -1392,7 +1392,7 @@ export class ImageEditor
         let autoChanged = this.focusData.auto !== auto;
         this.focusData.auto = auto;
 
-        this.toggleClass('focused', !auto);
+        this.toggleClass('autofocused', auto);
 
         if (autoChanged) {
             this.notifyFocusAutoPositionedChanged(auto);
