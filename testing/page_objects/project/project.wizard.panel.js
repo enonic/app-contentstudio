@@ -255,7 +255,7 @@ class ProjectWizardPanel extends Page {
         }
     }
 
-    async selectCustomReadAccessItem(principalDisplayName) {
+    async selectUserInCustomReadAccess(principalDisplayName) {
         let comboBox = new ComboBox();
         await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.projectReadAccessWizardStepForm + XPATH.accessFormItem);
         console.log("Project Wizard, principal is selected: " + principalDisplayName);

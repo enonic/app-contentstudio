@@ -171,6 +171,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         });
 
         //Verifies - issue#1920 User with author role - Last stage in publishing workflow for Project gives user option to "Publish Now"
+    //https://github.com/enonic/app-contentstudio/issues/1920
         it("GIVEN user with 'Author' role is logged in WHEN existing folder has been selected and Publish Request has been created THEN 'Publish Now' button should be disabled on the last stage",
             async () => {
                     let contentBrowsePanel = new ContentBrowsePanel();
