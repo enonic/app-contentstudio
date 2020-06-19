@@ -23,6 +23,7 @@ import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {Content} from '../../content/Content';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
+import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
 
 export class ImageSelector
     extends MediaSelector {
@@ -166,12 +167,19 @@ export class ImageSelector
     }
 
     protected createUploader(): Q.Promise<ImageUploaderEl> {
-        const uploader: ImageUploaderEl = new ImageUploaderEl(this.createUploaderConfig());
+        const config = this.createUploaderConfig();
 
-        this.doInitUploader(uploader);
-
-        return Q(uploader);
-
+        if (this.allowedContentTypes.length > 0) {
+            return new GetMimeTypesByContentTypeNamesRequest(
+                this.allowedContentTypes.map(name => new ContentTypeName(name)))
+                .sendAndParse()
+                .then((mimeTypes: string[]) => {
+                    config.allowMimeTypes = mimeTypes;
+                    return this.doInitUploader(new ImageUploaderEl(config));
+                });
+        } else {
+            return Q(this.doInitUploader(new ImageUploaderEl(config)));
+        }
     }
 
     protected doInitUploader(uploader: ImageUploaderEl): ImageUploaderEl {
