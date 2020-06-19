@@ -116,7 +116,8 @@ module.exports = Object.freeze({
         CONTRIBUTOR: "Contributor",
         AUTHOR: "Author",
         EDITOR: "Editor",
-        OWNER: "Owner"
+        OWNER: "Owner",
+        VIEWER: "Viewer"
     },
     SHOW_ISSUES_BUTTON_LABEL: {
         NO_OPEN_ISSUES: 'No open issues',
