@@ -54,12 +54,9 @@ export class ImageUploaderEl
         this.getResultContainer().getEl().setAttribute('data-drop', i18n('drop.file.short'));
 
         this.initialWidth = 0;
-        this.onShown(() => {
-
-            if (this.getEl().getWidth() === 0) {
-                this.initialWidth = Math.max(this.getParentElement().getEl().getWidth(), this.initialWidth);
-                this.getEl().setMaxWidthPx(this.initialWidth);
-            }
+        this.onRendered(() => {
+            this.initialWidth = Math.max(this.getParentElement().getEl().getWidth(), this.initialWidth);
+            this.getEl().setMaxWidthPx(this.initialWidth);
         });
 
         this.onUploadStarted(() => {
@@ -256,11 +253,6 @@ export class ImageUploaderEl
     }
 
     createResultItem(value: string): DivEl {
-
-        if (!this.initialWidth) {
-            this.initialWidth = this.getParentElement().getEl().getWidth();
-        }
-
         let imageEditor = this.createImageEditor(value);
 
         this.imageEditors.push(imageEditor);
