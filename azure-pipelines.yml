@@ -1,0 +1,16 @@
+trigger:
+  branches:
+    include:
+    - '*'
+
+pool:
+  vmImage: 'ubuntu-16.04'
+container: adoptopenjdk:11-jdk-hotspot
+steps:
+- script: $(Pipeline.Workspace)/s/gradlew build --stacktrace
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: $(Build.SourcesDirectory)/build/libs/
+    targetFolder: $(Build.ArtifactStagingDirectory)
+- publish: $(Build.SourcesDirectory)/build/libs/
+  artifact: content-studio
