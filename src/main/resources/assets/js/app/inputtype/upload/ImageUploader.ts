@@ -174,9 +174,14 @@ export class ImageUploader
                         this.readSizeValue(content, 'imageWidth'),
                         this.readSizeValue(content, 'imageHeight'),
                         this.readOrientation(content));
-                    this.imageUploader.setValue(content.getId(), false, false);
 
-                    this.configEditorsProperties(content);
+                    this.imageUploader.whenRendered(
+                        () => {
+                            this.imageUploader.setValue(content.getId(), false, false);
+                            this.configEditorsProperties(content);
+                        }
+                    );
+
 
                 }).catch((reason: any) => {
                     DefaultErrorHandler.handle(reason);
