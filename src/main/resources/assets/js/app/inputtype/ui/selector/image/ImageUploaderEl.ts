@@ -54,7 +54,7 @@ export class ImageUploaderEl
         this.getResultContainer().getEl().setAttribute('data-drop', i18n('drop.file.short'));
 
         this.initialWidth = 0;
-        this.onRendered(() => {
+        this.whenRendered(() => {
             this.initialWidth = Math.max(this.getParentElement().getEl().getWidth(), this.initialWidth);
             this.getEl().setMaxWidthPx(this.initialWidth);
         });
