@@ -3,10 +3,12 @@ import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
 import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
-import {ProjectViewItem} from '../view/ProjectViewItem';
+import {ProjectViewItem} from '../../../view/ProjectViewItem';
 import * as Q from 'q';
 import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
-import {ProjectFormItem, ProjectFormItemBuilder} from './ProjectFormItem';
+import {ProjectFormItem, ProjectFormItemBuilder} from './element/ProjectFormItem';
+import {ProjectsDropdown} from './element/ProjectsDropdown';
+import {Project} from '../../../data/project/Project';
 
 export class ProjectItemNameWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {
@@ -18,6 +20,10 @@ export class ProjectItemNameWizardStepForm
     private projectNameFormItem: ProjectFormItem;
 
     private descriptionInput: TextInput;
+
+    private parentProjectDropdown: ProjectsDropdown;
+
+    private parentProjectFormItem: ProjectFormItem;
 
     getProjectName(): string {
         return this.projectNameInput.getValue();
@@ -35,8 +41,24 @@ export class ProjectItemNameWizardStepForm
         return this.descriptionInput.getValue();
     }
 
-    disableHelpText() {
+    disableProjectNameHelpText() {
         this.projectNameFormItem.disableHelpText();
+    }
+
+    disableParentProjectHelpText() {
+        this.parentProjectFormItem.disableHelpText();
+    }
+
+    disableParentProjectInput() {
+        this.parentProjectDropdown.disable();
+    }
+
+    getParentProject(): string {
+        return this.parentProjectDropdown.getValue();
+    }
+
+    setParentProject(project: Project) {
+        this.parentProjectDropdown.selectProject(project);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -64,8 +86,11 @@ export class ProjectItemNameWizardStepForm
 
         this.descriptionInput.setValue(item.getDescription(), true);
         this.projectNameInput.setValue(item.getName(), true);
-        this.disableHelpText();
+        this.parentProjectDropdown.selectProjectByName(item.getData().getParent());
+        this.disableProjectNameHelpText();
         this.disableProjectNameInput();
+        this.disableParentProjectHelpText();
+        this.disableParentProjectInput();
 
         return Q(null);
     }
@@ -97,7 +122,14 @@ export class ProjectItemNameWizardStepForm
         this.descriptionInput = new TextInput();
         const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
 
-        return [this.projectNameFormItem, descriptionFormItem];
+        this.parentProjectDropdown = new ProjectsDropdown();
+
+        this.parentProjectFormItem = <ProjectFormItem>new ProjectFormItemBuilder(this.parentProjectDropdown)
+            .setHelpText(i18n('settings.projects.parent.helptext'))
+            .setLabel(i18n('settings.field.project.parent'))
+            .build();
+
+        return [this.projectNameFormItem, descriptionFormItem, this.parentProjectFormItem];
     }
 
     private validateProjectName(): string {

@@ -3,31 +3,36 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import * as Q from 'q';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ProjectCreateRequest} from '../resource/ProjectCreateRequest';
-import {ProjectUpdateRequest} from '../resource/ProjectUpdateRequest';
-import {ProjectDeleteRequest} from '../resource/ProjectDeleteRequest';
+import {ProjectCreateRequest} from '../../resource/ProjectCreateRequest';
+import {ProjectUpdateRequest} from '../../resource/ProjectUpdateRequest';
+import {ProjectDeleteRequest} from '../../resource/ProjectDeleteRequest';
 import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
-import {ProjectItemNameWizardStepForm} from './ProjectItemNameWizardStepForm';
+import {ProjectItemNameWizardStepForm} from './form/ProjectItemNameWizardStepForm';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
-import {Project, ProjectBuilder} from '../data/project/Project';
-import {ProjectViewItem} from '../view/ProjectViewItem';
-import {ProjectWizardActions} from './action/ProjectWizardActions';
-import {ProjectReadAccessWizardStepForm} from './ProjectReadAccessWizardStepForm';
-import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
-import {ProjectPermissions} from '../data/project/ProjectPermissions';
-import {UpdateProjectLanguageRequest} from '../resource/UpdateProjectLanguageRequest';
-import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
-import {UpdateProjectPermissionsRequest} from '../resource/UpdateProjectPermissionsRequest';
-import {ProjectRolesWizardStepForm} from './ProjectRolesWizardStepForm';
+import {Project, ProjectBuilder} from '../../data/project/Project';
+import {ProjectViewItem} from '../../view/ProjectViewItem';
+import {ProjectWizardActions} from '../action/ProjectWizardActions';
+import {ProjectReadAccessWizardStepForm} from './form/ProjectReadAccessWizardStepForm';
+import {SettingDataItemWizardStepForm} from './form/SettingDataItemWizardStepForm';
+import {ProjectPermissions} from '../../data/project/ProjectPermissions';
+import {UpdateProjectLanguageRequest} from '../../resource/UpdateProjectLanguageRequest';
+import {ProjectReadAccess} from '../../data/project/ProjectReadAccess';
+import {UpdateProjectPermissionsRequest} from '../../resource/UpdateProjectPermissionsRequest';
+import {ProjectRolesWizardStepForm} from './form/ProjectRolesWizardStepForm';
 import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
-import {ProjectUpdateIconRequest} from '../resource/ProjectUpdateIconRequest';
-import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
-import {EditProjectAccessDialog} from '../../wizard/EditProjectAccessDialog';
+import {ProjectUpdateIconRequest} from '../../resource/ProjectUpdateIconRequest';
+import {ProjectIconUrlResolver} from '../../../project/ProjectIconUrlResolver';
+import {EditProjectAccessDialog} from '../../../wizard/EditProjectAccessDialog';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {UpdateProjectReadAccessRequest} from '../resource/UpdateProjectReadAccessRequest';
+import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
+import {WizardPanelParams} from 'lib-admin-ui/app/wizard/WizardPanel';
+
+export interface ProjectWizardPanelParams extends WizardPanelParams<ProjectViewItem> {
+    parent?: Project;
+}
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -42,8 +47,16 @@ export class ProjectWizardPanel
 
     private loginResult: LoginResult;
 
+    constructor(params: ProjectWizardPanelParams) {
+        super(params);
+    }
+
     protected getIconClass(): string {
         return ProjectIconUrlResolver.DEFAULT_ICON_CLASS;
+    }
+
+    protected getParams(): ProjectWizardPanelParams {
+        return super.getParams();
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
@@ -100,6 +113,14 @@ export class ProjectWizardPanel
         return this.getLoginResult().then((loginResult: LoginResult) => this.isEditAllowed(loginResult));
     }
 
+    doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
+        return super.doLayout(persistedItem).then(() => {
+            this.projectWizardStepForm.setParentProject(this.getParams().parent);
+
+           return Q(null);
+        });
+    }
+
     protected createStepsForms(persistedItem: ProjectViewItem): SettingDataItemWizardStepForm<ProjectViewItem>[] {
         this.projectWizardStepForm = new ProjectItemNameWizardStepForm();
         this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm();
@@ -129,7 +150,9 @@ export class ProjectWizardPanel
     postPersistNewItem(item: ProjectViewItem): Q.Promise<ProjectViewItem> {
         return super.postPersistNewItem(item).then(() => {
             this.projectWizardStepForm.disableProjectNameInput();
-            this.projectWizardStepForm.disableHelpText();
+            this.projectWizardStepForm.disableProjectNameHelpText();
+            this.projectWizardStepForm.disableParentProjectHelpText();
+            this.projectWizardStepForm.disableParentProjectInput();
 
             return Q(item);
         });
@@ -325,7 +348,8 @@ export class ProjectWizardPanel
     private produceCreateItemRequest(): ProjectCreateRequest {
         const displayName: string = this.wizardHeader.getDisplayName();
 
-        return new ProjectCreateRequest()
+        return <ProjectCreateRequest>new ProjectCreateRequest()
+            .setParent(this.projectWizardStepForm.getParentProject())
             .setDescription(this.projectWizardStepForm.getDescription())
             .setName(this.projectWizardStepForm.getProjectName())
             .setDisplayName(displayName);

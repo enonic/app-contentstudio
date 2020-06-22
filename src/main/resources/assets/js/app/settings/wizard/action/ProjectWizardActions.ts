@@ -1,7 +1,7 @@
 import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {SettingsDataItemWizardActions} from './SettingsDataItemWizardActions';
-import {ProjectWizardPanel} from '../ProjectWizardPanel';
+import {ProjectWizardPanel} from '../panel/ProjectWizardPanel';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 
 export class ProjectWizardActions

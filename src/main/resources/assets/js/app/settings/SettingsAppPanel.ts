@@ -4,12 +4,12 @@ import {SettingsAppBar} from './SettingsAppBar';
 import {NewProjectEvent} from './event/NewProjectEvent';
 import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
 import {AppBarTabMenuItem, AppBarTabMenuItemBuilder} from 'lib-admin-ui/app/bar/AppBarTabMenuItem';
-import {ProjectWizardPanel} from './wizard/ProjectWizardPanel';
+import {ProjectWizardPanel} from './wizard/panel/ProjectWizardPanel';
 import {ContentUnnamed} from 'lib-admin-ui//content/ContentUnnamed';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {TabMenuItem} from 'lib-admin-ui/ui/tab/TabMenuItem';
 import {EditSettingsItemEvent} from './event/EditSettingsItemEvent';
-import {SettingsDataItemWizardPanel} from './wizard/SettingsDataItemWizardPanel';
+import {SettingsDataItemWizardPanel} from './wizard/panel/SettingsDataItemWizardPanel';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
@@ -83,8 +83,11 @@ export class SettingsAppPanel
         if (tabMenuItem != null) {
             this.selectPanel(tabMenuItem);
         } else {
+            const selectedItem: SettingsViewItem = this.browsePanel.getSelectedItem();
+            const parent: Project = !!selectedItem && ObjectHelper.iFrameSafeInstanceOf(selectedItem, ProjectViewItem) ?
+                                    (<ProjectViewItem>selectedItem).getData() : null;
             const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed(i18n('settings.items.type.project'));
-            const wizard: ProjectWizardPanel = new ProjectWizardPanel({tabId});
+            const wizard: ProjectWizardPanel = new ProjectWizardPanel({tabId, parent});
             const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
                 .setLabel(unnamedTabMenuText)
                 .setTabId(wizard.getTabId())
