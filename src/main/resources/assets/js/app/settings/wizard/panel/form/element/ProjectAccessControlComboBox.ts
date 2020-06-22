@@ -1,4 +1,4 @@
-import {ProjectAccessControlEntry} from '../access/ProjectAccessControlEntry';
+import {ProjectAccessControlEntry} from '../../../../access/ProjectAccessControlEntry';
 import {PrincipalContainerCombobox, PrincipalContainerComboboxBuilder} from 'lib-admin-ui/ui/security/PrincipalContainerCombobox';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {PrincipalContainerSelectedOptionsView} from 'lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';

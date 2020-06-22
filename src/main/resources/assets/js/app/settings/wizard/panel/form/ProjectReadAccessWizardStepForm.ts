@@ -1,6 +1,6 @@
 import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
 import * as Q from 'q';
-import {ProjectViewItem} from '../view/ProjectViewItem';
+import {ProjectViewItem} from '../../../view/ProjectViewItem';
 import {RadioGroup} from 'lib-admin-ui/ui/RadioGroup';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Validators} from 'lib-admin-ui/ui/form/Validators';
@@ -10,17 +10,17 @@ import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
 import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
-import {ProjectReadAccess, ProjectReadAccessType} from '../data/project/ProjectReadAccess';
+import {ProjectReadAccess, ProjectReadAccessType} from '../../../data/project/ProjectReadAccess';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
-import {ProjectPermissions} from '../data/project/ProjectPermissions';
+import {ProjectPermissions} from '../../../data/project/ProjectPermissions';
 import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 import {LocaleComboBox} from 'lib-admin-ui/ui/locale/LocaleComboBox';
 import {Locale} from 'lib-admin-ui/locale/Locale';
 import {LocaleLoader} from 'lib-admin-ui/locale/LocaleLoader';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {ProjectFormItemBuilder} from './ProjectFormItem';
+import {ProjectFormItemBuilder} from './element/ProjectFormItem';
 
 export class ProjectReadAccessWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {

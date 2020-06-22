@@ -4,7 +4,7 @@ import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {Form} from 'lib-admin-ui/ui/form/Form';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import * as Q from 'q';
-import {SettingsDataViewItem} from '../view/SettingsDataViewItem';
+import {SettingsDataViewItem} from '../../../view/SettingsDataViewItem';
 import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 
 export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataViewItem<any>>

@@ -10,17 +10,17 @@ import {
 } from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {FormIcon} from 'lib-admin-ui/app/wizard/FormIcon';
-import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
+import {SettingDataItemWizardStepForm} from './form/SettingDataItemWizardStepForm';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
-import {SettingsDataItemFormIcon} from './SettingsDataItemFormIcon';
+import {SettingsDataItemFormIcon} from './form/element/SettingsDataItemFormIcon';
 import {Equitable} from 'lib-admin-ui/Equitable';
-import {SettingsDataItemWizardActions} from './action/SettingsDataItemWizardActions';
-import {SettingsDataViewItem} from '../view/SettingsDataViewItem';
+import {SettingsDataItemWizardActions} from '../action/SettingsDataItemWizardActions';
+import {SettingsDataViewItem} from '../../view/SettingsDataViewItem';
 import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
 
 export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewItem<Equitable>>

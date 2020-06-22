@@ -1,18 +1,18 @@
 import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
-import {ProjectViewItem} from '../view/ProjectViewItem';
+import {ProjectViewItem} from '../../../view/ProjectViewItem';
 import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ProjectAccessControlComboBox} from './ProjectAccessControlComboBox';
+import {ProjectAccessControlComboBox} from './element/ProjectAccessControlComboBox';
 import * as Q from 'q';
-import {ProjectItemPermissionsBuilder, ProjectPermissions} from '../data/project/ProjectPermissions';
-import {ProjectAccessControlEntry} from '../access/ProjectAccessControlEntry';
-import {ProjectAccess} from '../access/ProjectAccess';
+import {ProjectItemPermissionsBuilder, ProjectPermissions} from '../../../data/project/ProjectPermissions';
+import {ProjectAccessControlEntry} from '../../../access/ProjectAccessControlEntry';
+import {ProjectAccess} from '../../../access/ProjectAccess';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
-import {ProjectFormItemBuilder} from './ProjectFormItem';
+import {ProjectFormItemBuilder} from './element/ProjectFormItem';
 
 export class ProjectRolesWizardStepForm extends SettingDataItemWizardStepForm<ProjectViewItem> {
 

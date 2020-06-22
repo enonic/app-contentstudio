@@ -1,8 +1,8 @@
-import {ProjectAccess} from '../access/ProjectAccess';
+import {ProjectAccess} from '../../../../access/ProjectAccess';
 import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
 import {TabMenuItem, TabMenuItemBuilder} from 'lib-admin-ui/ui/tab/TabMenuItem';
 import {NavigatorEvent} from 'lib-admin-ui/ui/NavigatorEvent';
-import {ProjectAccessValueChangedEvent} from '../event/ProjectAccessValueChangedEvent';
+import {ProjectAccessValueChangedEvent} from '../../../../event/ProjectAccessValueChangedEvent';
 import {i18n} from 'lib-admin-ui/util/Messages';
 
 interface ProjectAccessSelectorOption {

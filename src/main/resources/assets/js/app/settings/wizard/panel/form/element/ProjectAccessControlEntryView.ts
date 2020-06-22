@@ -1,8 +1,8 @@
-import {ProjectAccessControlEntry} from '../access/ProjectAccessControlEntry';
+import {ProjectAccessControlEntry} from '../../../../access/ProjectAccessControlEntry';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {ProjectAccessSelector} from './ProjectAccessSelector';
 import {PrincipalContainerSelectedEntryView} from 'lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
-import {ProjectAccessValueChangedEvent} from '../event/ProjectAccessValueChangedEvent';
+import {ProjectAccessValueChangedEvent} from '../../../../event/ProjectAccessValueChangedEvent';
 
 export class ProjectAccessControlEntryView
     extends PrincipalContainerSelectedEntryView<ProjectAccessControlEntry> {
