@@ -23,12 +23,15 @@ const XPATH = {
     displayNameInput: `//input[contains(@name,'displayName')]`,
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
+    publishMenuButton: "//div[contains(@id,'ContentWizardPublishMenuButton')]",
     toolbarPublish: "//div[contains(@id,'ContentWizardToolbarPublishControls')]",
     saveButton: `//button[contains(@id,'ActionButton') and child::span[text()='Save']]`,
     savedButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saved']]`,
     savingButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saving...']]`,
     deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete...']]`,
+    duplicateButton: `//button[contains(@id,'ActionButton') and child::span[text()='Duplicate...']]`,
     publishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Publish...']]",
+    createTaskButton: "//button[contains(@id,'ActionButton') and child::span[text()='Create Task...']]",
     markAsReadyButton: "//button[contains(@id,'ActionButton') and child::span[text()='Mark as ready']]",
     openRequestButton: "//button[contains(@id,'ActionButton') and child::span[text()='Open Request...']]",
     unpublishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Unpublish...']]",
@@ -105,6 +108,10 @@ class ContentWizardPanel extends Page {
 
     get deleteButton() {
         return XPATH.container + XPATH.toolbar + XPATH.deleteButton;
+    }
+
+    get duplicateButton() {
+        return XPATH.container + XPATH.toolbar + XPATH.duplicateButton;
     }
 
     get controllerOptionFilterInput() {
@@ -816,6 +823,12 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
     }
 
+    //Wait for Create Task button is default in the Publish menu:
+    waitForCreateTaskButtonDisplayed() {
+        let selector = XPATH.container + XPATH.publishMenuButton + XPATH.createTaskButton;
+        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+    }
+
     async getToolbarWorkflowState() {
         let selector = XPATH.toolbar + XPATH.toolbarStateIcon;
         await this.waitForElementDisplayed(selector, appConst.TIMEOUT_4);
@@ -869,6 +882,25 @@ class ContentWizardPanel extends Page {
         let selector = XPATH.toolbar + "//div[contains(@class,'project-info')]" + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
         return await this.getText(selector);
+    }
+
+    isDisplayNameInputClickable() {
+        return this.isClickable(this.displayNameInput);
+    }
+
+    async waitForDuplicateButtonDisabled() {
+        try {
+            await this.waitForElementDisplayed(this.duplicateButton, 3000);
+            return await this.waitForElementDisabled(this.duplicateButton, 3000);
+        } catch (err) {
+            this.saveScreenshot('err_duplicate_button_disabled');
+            throw Error('Duplicate button should be disabled, timeout: ' + 3000 + 'ms')
+        }
+    }
+
+    async waitForDeleteButtonDisabled() {
+        await this.waitForElementDisplayed(this.deleteButton, appConst.TIMEOUT_3);
+        return await this.waitForElementDisabled(this.deleteButton, appConst.TIMEOUT_3);
     }
 };
 

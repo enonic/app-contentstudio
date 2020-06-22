@@ -393,11 +393,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         })
     }
 
-    waitForDuplicateButtonDisabled() {
-        return this.waitForElementDisabled(this.duplicateButton, 3000).catch(err => {
+    async waitForDuplicateButtonDisabled() {
+        try {
+            await this.waitForElementDisplayed(this.duplicateButton, 3000);
+            return await this.waitForElementDisabled(this.duplicateButton, 3000);
+        } catch (err) {
             this.saveScreenshot('err_duplicate_disabled_button');
             throw Error('Duplicate button should be disabled, timeout: ' + 3000 + 'ms')
-        })
+        }
     }
 
     waitForMoveButtonDisabled() {
@@ -713,6 +716,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.clickOnProjectSelectorDropDownHandle();
         let selector = "//ul[contains(@id,'SelectableProjectList')]//div[contains(@id,'ProjectListItemViewer')]" + lib.H6_DISPLAY_NAME;
         return await this.getTextInElements(selector);
+    }
+
+    async waitForDeleteButtonDisabled() {
+        await this.waitForElementDisplayed(this.deleteButton, appConst.TIMEOUT_3);
+        return await this.waitForElementDisabled(this.deleteButton, appConst.TIMEOUT_3);
     }
 };
 module.exports = ContentBrowsePanel;
