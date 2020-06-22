@@ -160,18 +160,6 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async doubleClickOnRowByDisplayName(displayName) {
-        try {
-            let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
-            await this.waitForElementDisplayed(nameXpath, 3000);
-            await this.doDoubleClick(nameXpath);
-            return await this.pause(300);
-        } catch (err) {
-            this.saveScreenshot('err_find_' + displayName);
-            throw Error('Project Browse Panel - Row with the displayName ' + displayName + ' was not found' + err)
-        }
-    }
-
     waitForItemByNameVisible(name) {
         let nameXpath = XPATH.itemsTreeGrid + lib.itemByName(name);
         return this.waitForElementDisplayed(nameXpath, 3000).catch(err => {

@@ -202,7 +202,7 @@ class BaseBrowsePanel extends Page {
             await this.waitForElementEnabled(this.editButton, appConst.TIMEOUT_2);
             return await this.clickOnElement(this.editButton);
         } catch (err) {
-            this.saveScreenshot('err_settings_edit_button');
+            this.saveScreenshot('err_browse_panel_edit_button');
             throw new Error('Browse Panel: Edit button is not enabled! ' + err);
         }
     }
@@ -255,6 +255,18 @@ class BaseBrowsePanel extends Page {
         await this.waitForContextMenuItemEnabled(menuItem);
         let el = await this.getDisplayedElements(menuItemSelector);
         return await el[0].click();
+    }
+
+    async doubleClickOnRowByDisplayName(displayName) {
+        try {
+            let nameXpath = this.treeGrid + lib.itemByDisplayName(displayName);
+            await this.waitForElementDisplayed(nameXpath, 3000);
+            await this.doDoubleClick(nameXpath);
+            return await this.pause(300);
+        } catch (err) {
+            this.saveScreenshot('err_find_' + displayName);
+            throw Error('Browse Panel - Row with the displayName ' + displayName + ' was not found' + err)
+        }
     }
 };
 module.exports = BaseBrowsePanel;
