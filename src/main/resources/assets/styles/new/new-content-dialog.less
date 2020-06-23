@@ -96,6 +96,7 @@
   .dialog-content {
     position: relative;
     display: flex;
+    max-height: @types-list-max-height;
 
     @media screen and (max-height: 360px) {
       height: 65%;
@@ -152,6 +153,7 @@
 
     section {
       flex: 1;
+      max-width: 60%;
 
       .file-input {
         margin-bottom: @file-input-margin-bottom;
@@ -176,7 +178,6 @@
       margin-left: 5px;
       padding: 0 15px;
       border-left: 1px solid @admin-medium-gray-border;
-      max-height: @types-list-max-height;
       overflow-y: auto;
 
       h2 {
@@ -236,8 +237,15 @@
         height: 40px;
       }
 
-      .dialog-content .content-types-content {
-        max-height: none;
+      .dialog-content {
+
+        section {
+          max-width: 100%;
+
+          .content-types-content {
+            max-height: none;
+          }
+        }
       }
     }
 }
