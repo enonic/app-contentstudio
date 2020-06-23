@@ -463,7 +463,7 @@ export class PageComponentsView
 
     private bindTreeTextNodeUpdateOnTextComponentModify(textComponentView: TextComponentView) {
         let handler = AppHelper.debounce((event) => {
-            this.tree.updateNode(textComponentView);
+            this.tree.updateNodeByData(textComponentView);
         }, 500, false);
 
         textComponentView.onKeyUp(handler);
@@ -472,7 +472,7 @@ export class PageComponentsView
 
     private bindTreeFragmentNodeUpdateOnComponentLoaded(fragmentComponentView: FragmentComponentView) {
         fragmentComponentView.onFragmentContentLoaded((e) => {
-            this.tree.updateNode(e.getFragmentComponentView());
+            this.tree.updateNodeByData(e.getFragmentComponentView());
         });
     }
 
@@ -484,8 +484,7 @@ export class PageComponentsView
 
     private initKeyBoardBindings() {
         const removeHandler = () => {
-            const selectedNode = this.tree.getSelectedNodes()[0];
-            const itemView = selectedNode ? selectedNode.getData() : null;
+            const itemView = this.tree.getFirstSelectedItem();
 
             if (itemView) {
                 if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
@@ -723,7 +722,7 @@ export class PageComponentsView
                 this.hidePageComponentsIfInMobileView(action);
 
                 if (isViewVisible && action.hasParentAction() && action.getParentAction().getLabel() === i18n('live.view.selectparent')) {
-                    this.tree.getSelectedNodes()[0].getData().hideContextMenu();
+                    this.tree.getFirstSelectedItem().hideContextMenu();
                 }
 
                 setTimeout(() => {

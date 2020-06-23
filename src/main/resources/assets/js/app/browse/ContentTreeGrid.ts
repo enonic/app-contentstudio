@@ -205,7 +205,7 @@ export class ContentTreeGrid
         const treeNode: TreeNode<ContentSummaryAndCompareStatus> = root.findNode(event.getContentId().toString());
         if (treeNode) {
             const content: ContentSummaryAndCompareStatus = treeNode.getData();
-            this.updateNode(ContentSummaryAndCompareStatus.fromContentSummary(content.getContentSummary()));
+            this.updateNodeByData(ContentSummaryAndCompareStatus.fromContentSummary(content.getContentSummary()));
         }
     }
 

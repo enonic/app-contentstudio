@@ -222,8 +222,7 @@ export class ContentBrowsePanel
         }
 
         if (this.treeGrid.isAnySelected()) {
-            const lastSelectedNode: TreeNode<ContentSummaryAndCompareStatus> = this.treeGrid.getSelectedNodes().pop();
-            this.doUpdateContextPanel(this.treeGrid.getSelectedNodes().pop().getData());
+            this.doUpdateContextPanel(this.treeGrid.getCurrentSelection().pop());
 
             return;
         }
