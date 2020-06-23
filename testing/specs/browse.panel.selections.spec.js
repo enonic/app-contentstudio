@@ -60,20 +60,21 @@ describe('Browse panel selections spec', function () {
             assert.equal(number2, 2, "Two rows should be checked");
         });
 
-    it("GIVEN one row is highlighted WHEN the row has been clicked THEN the row gets unselected", async () => {
-        let contentBrowsePanel = new ContentBrowsePanel();
-        //1. Click on the row(row gets highlighted)
-        await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
-        await contentBrowsePanel.pause(1000);
-        //2. Click on the row again:
-        await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
-        await contentBrowsePanel.pause(1000);
-        let numberOfHighlighted = await contentBrowsePanel.getNumberOfSelectedRows();
-        studioUtils.saveScreenshot('check_row_unselected');
-        assert.equal(numberOfHighlighted, 0, "number of highlighted rows should be 0");
-        let numberOfChecked = await contentBrowsePanel.getNumberOfCheckedRows();
-        assert.equal(numberOfChecked, 0, "number of checked rows should be 0");
-    });
+    it("GIVEN one row is highlighted WHEN the row has been clicked THEN the row gets unselected",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Click on the row(row gets highlighted)
+            await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
+            await contentBrowsePanel.pause(1000);
+            //2. Click on the row again:
+            await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
+            await contentBrowsePanel.pause(1000);
+            let numberOfHighlighted = await contentBrowsePanel.getNumberOfSelectedRows();
+            studioUtils.saveScreenshot('check_row_unselected');
+            assert.equal(numberOfHighlighted, 0, "number of highlighted rows should be 0");
+            let numberOfChecked = await contentBrowsePanel.getNumberOfCheckedRows();
+            assert.equal(numberOfChecked, 0, "number of checked rows should be 0");
+        });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
