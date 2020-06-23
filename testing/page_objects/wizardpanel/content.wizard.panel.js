@@ -823,10 +823,15 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
     }
 
-    //Wait for Create Task button is default in the Publish menu:
-    waitForCreateTaskButtonDisplayed() {
-        let selector = XPATH.container + XPATH.publishMenuButton + XPATH.createTaskButton;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+    //Wait for 'Create Task' button gets default action in the Publish menu:
+    async waitForCreateTaskButtonDisplayed() {
+        try {
+            let selector = XPATH.container + XPATH.publishMenuButton + XPATH.createTaskButton;
+            return await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        } catch (err) {
+            this.saveScreenshot("err_publish_menu_default_action");
+            throw new Error("'Create Task...' button should be default action in 'Publish Menu' in Wizard page.  " + err);
+        }
     }
 
     async getToolbarWorkflowState() {

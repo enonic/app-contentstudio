@@ -429,7 +429,7 @@ class Page {
             return this.getAttribute(selector, attribute).then(result => {
                 return result.includes(value);
             });
-        }, appConst.TIMEOUT_2, "Attribute " + attribute + "  contains the value:" + value);
+        }, appConst.TIMEOUT_2, "Attribute " + attribute + "  does not contain the value:" + value);
     }
 
     waitForAttributeNotIncludesValue(selector, attribute, value) {

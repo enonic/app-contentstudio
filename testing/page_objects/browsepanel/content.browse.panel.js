@@ -491,11 +491,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         });
     }
 
-    getNameOfSelectedRow() {
+    getNameInHighlightedRow() {
         return this.waitForElementDisplayed(XPATH.selectedRow, appConst.TIMEOUT_2).then(() => {
             return this.getText(XPATH.selectedRow + lib.H6_DISPLAY_NAME);
         }).catch(err => {
-            throw new Error(`Error when getting selected rows ` + err);
+            throw new Error(`Error when getting name in the highlighted row ` + err);
         });
     }
 
@@ -582,8 +582,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async waitForPublishMenuItemDisabled(menuItem) {
-        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
-        return await this.waitForAttributeHasValue(selector, "class", "disabled");
+        try {
+            let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+            return await this.waitForAttributeHasValue(selector, "class", "disabled");
+        } catch (err) {
+            this.saveScreenshot("err_publish_menuItem");
+            throw new Error(menuItem + " should be disabled! " + err);
+        }
     }
 
     async waitForPublishMenuItemEnabled(menuItem) {

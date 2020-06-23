@@ -123,7 +123,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
         });
 
-    it("GIVEN user with 'Contributor' role is logged in WHEN existing folder has been selected THEN Publish menu item should be disabled for users with 'Contributor' role",
+    it("GIVEN user with 'Contributor' role is logged in WHEN existing folder(Ready to publish) has been selected THEN 'Publish' menu item should be disabled for users with 'Contributor' role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-contributor and navigate to Content Browse Panel:
@@ -141,6 +141,32 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
             //6. Verify that 'Publish' menu item is disabled:
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
+
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        });
+
+    //Verifies - https://github.com/enonic/app-contentstudio/issues/1984
+    //Request Publishing menu item should be disabled for contributor (content's status  is 'Work in progress')
+    it("GIVEN user with 'Contributor' role is logged in WHEN existing folder(Work in Progress) has been selected THEN 'Publish', 'Request Publishing' menu items should be disabled for users with 'Contributor' role",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            //2. Select existing folder(ready to publish):
+            await studioUtils.findAndSelectItem(FOLDER_WORK_IN_PROGRESS.displayName);
+            //3. Verify that Edit, New, Delete buttons are disabled:
+            await contentBrowsePanel.waitForEditButtonDisabled();
+            await contentBrowsePanel.waitForDeleteButtonDisabled();
+            await contentBrowsePanel.waitForNewButtonDisabled();
+            //4. Open Publish Menu:
+            await contentBrowsePanel.openPublishMenu();
+            studioUtils.saveScreenshot("project_contributor_10");
+            //5. Verify that 'Create Task' and 'Request Publishing' menu items are enabled for Contributor role:
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
+            //6. Verify that 'Request Publish' menu item is disabled
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            //7. Verify that 'Publish' menu item is disabled:
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
 
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
@@ -189,7 +215,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-    it("GIVEN user with 'Contributor' role is logged in WHEN existing folder has been selected and Publish Request has been created THEN 'Publish Now' button should be disabled on the last stage",
+    it("GIVEN user with 'Contributor' role is logged in WHEN existing folder(Ready to publish) has been selected and Publish Request has been created THEN 'Publish Now' button should be disabled on the last stage",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();

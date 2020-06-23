@@ -210,12 +210,13 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         });
     }
 
-    getNameOfSelectedRow() {
-        return this.findElements(XPATH.selectedRow).then(result => {
-            return this.getText(XPATH.selectedRow + lib.H6_DISPLAY_NAME);
-        }).catch(err => {
-            throw new Error(`Error when getting selected rows ` + err);
-        });
+    async getNameInHighlightedRow() {
+        try {
+            await this.waitForElementDisplayed(XPATH.selectedRow, appConst.TIMEOUT_3);
+            return await this.getText(XPATH.selectedRow + lib.H6_DISPLAY_NAME);
+        } catch (err) {
+            throw new Error(`Error when getting name in the selected row ` + err);
+        }
     }
 
     getNumberOfCheckedRows() {

@@ -77,6 +77,7 @@ class CreateRequestPublishDialog extends Page {
     async clickOnItemToPublishAndSwitchToWizard(displayName) {
         let selector = xpath.publishItemList + xpath.itemToRequest(displayName);
         await this.clickOnElement(selector);
+        await this.pause(900);
         return await this.getBrowser().switchWindow(displayName);
     }
 
@@ -231,7 +232,7 @@ class CreateRequestPublishDialog extends Page {
     async clickOnCreateRequestButton() {
         await this.waitForCreateRequestButtonEnabled();
         await this.clickOnElement(this.createRequestButton);
-        return this.pause(400);
+        return this.pause(700);
     }
 };
 module.exports = CreateRequestPublishDialog;

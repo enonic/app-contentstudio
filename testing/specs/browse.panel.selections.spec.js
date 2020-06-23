@@ -13,17 +13,17 @@ describe('Browse panel selections spec', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-    it("WHEN one row with content has been clicked THEN the row is getting selected AND 'Selection Toggler' should not be visible",
+    it("WHEN one row with content has been clicked THEN the row gets highlighted AND 'Selection Toggler' should not be visible",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the existing folder:
+            //1. click on existing folder(the row gets highlighted):
             await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
-            await contentBrowsePanel.pause(500);
-            let result = await contentBrowsePanel.getNameOfSelectedRow();
-            //2. expected content should be highlighted
-            assert.equal(result, appConstant.TEST_FOLDER_WITH_IMAGES, "expected content should be highlighted");
+            await contentBrowsePanel.pause(900);
+            studioUtils.saveScreenshot('row_clicked_1');
+            let actualName = await contentBrowsePanel.getNameInHighlightedRow();
+            //2. expected content should be highlighted:
+            assert.equal(actualName, appConstant.TEST_FOLDER_WITH_IMAGES, "expected content should be highlighted");
             let number = await contentBrowsePanel.getNumberOfSelectedRows();
-            studioUtils.saveScreenshot('row_clicked');
             assert.equal(number, 1, "One row should be highlighted");
             //3. But there are no any checked rows:
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
@@ -32,7 +32,7 @@ describe('Browse panel selections spec', function () {
             assert.isFalse(isVisible, "'Selection Toggler' should not be visible on the toolbar");
         });
 
-    it("WHEN one row with content has been checked THEN the row gets checked AND 'Selection Toggler' is getting visible",
+    it("WHEN one row with content has been checked THEN the row gets checked AND 'Selection Toggler' gets visible",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Click on the checkbox and select the row:
@@ -46,7 +46,7 @@ describe('Browse panel selections spec', function () {
             assert.isTrue(isVisible, "Selection Toggler should appear in the toolbar");
         });
 
-    it("GIVEN one row is checked WHEN one more row with content has been checked THEN 2 rows should be checked AND 0 rows should be highlighted",
+    it("GIVEN one row is checked WHEN one more row has been checked THEN 2 rows should be checked AND 0 rows should be highlighted",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Click on two checkboxes:
