@@ -87,6 +87,16 @@ export class SettingsItemsTreeGrid
         return ObjectHelper.iFrameSafeInstanceOf(item, FolderViewItem);
     }
 
+    getItemById(id: string): SettingsViewItem {
+        const node: TreeNode<SettingsViewItem> = this.getRoot().getNodeByDataId(id);
+
+        if (node) {
+            return node.getData();
+        }
+
+        return null;
+    }
+
     appendSettingsItemNode(item: SettingsViewItem) {
         if (this.hasItemWithId(item.getId())) {
             return;

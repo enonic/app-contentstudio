@@ -5,17 +5,31 @@ import {NewProjectEvent} from '../event/NewProjectEvent';
 import {SettingsTypeListBox} from './SettingsTypeListBox';
 import {SettingsType} from './SettingsType';
 import {SettingsTypes} from './SettingsTypes';
+import {Project} from '../data/project/Project';
+import {ProjectsChainBlock} from './ProjectsChainBlock';
 
 export class NewSettingsItemDialog
     extends ModalDialog {
 
     private itemsList: SettingsTypeListBox;
 
+    private projectsChainBlock: ProjectsChainBlock;
+
     constructor() {
         super(<ModalDialogConfig>{
             title: i18n('settings.dialog.new'),
             class: 'new-settings-item-dialog'
         });
+
+        this.projectsChainBlock = new ProjectsChainBlock();
+        this.projectsChainBlock.hide();
+    }
+
+    setProjectsChain(projects: Project[]) {
+        this.projectsChainBlock.setProjectsChain(projects);
+        if (!this.projectsChainBlock.isEmpty()) {
+            this.projectsChainBlock.show();
+        }
     }
 
     protected initElements() {
@@ -43,6 +57,7 @@ export class NewSettingsItemDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
+            this.appendChildToHeader(this.projectsChainBlock);
             this.appendChildToContentPanel(this.itemsList);
             this.addCancelButtonToBottom(null, true);
 
@@ -58,6 +73,8 @@ export class NewSettingsItemDialog
     close() {
         super.close();
         this.remove();
+        this.projectsChainBlock.reset();
+        this.projectsChainBlock.hide();
     }
 }
 
