@@ -232,20 +232,19 @@
     .dialog-dropzone-container();
   }
 
-    @media screen and (max-width: 720px) {
-      .modal-dialog-footer {
-        height: 40px;
-      }
+  @media screen and (max-width: 720px) {
+    .modal-dialog-footer {
+      height: 40px;
+    }
 
-      .dialog-content {
+    .dialog-content {
+      section {
+        max-width: 100%;
 
-        section {
-          max-width: 100%;
-
-          .content-types-content {
-            max-height: none;
-          }
+        .content-types-content {
+          max-height: none;
         }
       }
     }
+  }
 }
