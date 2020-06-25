@@ -36,7 +36,8 @@ class LauncherPanel extends Page {
 
     async clickOnContentStudioLink() {
         await this.waitForElementDisplayed(this.contentStudioLink, appConst.TIMEOUT_5);
-        return await this.clickOnElement(this.contentStudioLink);
+        await this.clickOnElement(this.contentStudioLink);
+        return await this.pause(1000);
     }
 
     clickOnLogoutLink() {

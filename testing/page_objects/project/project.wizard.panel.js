@@ -183,7 +183,6 @@ class ProjectWizardPanel extends Page {
             this.saveScreenshot("err_selected_locale");
             throw new Error("Selected language was not found " + err);
         }
-
     }
 
     waitForProjectIdentifierInputDisabled() {

@@ -200,7 +200,8 @@ class BaseBrowsePanel extends Page {
     async clickOnEditButton() {
         try {
             await this.waitForElementEnabled(this.editButton, appConst.TIMEOUT_2);
-            return await this.clickOnElement(this.editButton);
+            await this.clickOnElement(this.editButton);
+            return this.pause(500);
         } catch (err) {
             this.saveScreenshot('err_browse_panel_edit_button');
             throw new Error('Browse Panel: Edit button is not enabled! ' + err);
@@ -216,7 +217,7 @@ class BaseBrowsePanel extends Page {
             throw Error('Row with the name ' + name + ' was not found' + err);
         }).then(() => {
             return this.pause(300);
-        });
+        })
     }
 
     async waitForContextMenuDisplayed() {
