@@ -62,9 +62,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             //4. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
-            //Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
-            //await studioUtils.doLogout();
         });
 
     it("Precondition 2: 'Work in Progress' and Ready folders should be created in the just created project",
@@ -103,7 +100,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             assert.isFalse(result, "Locale input should not be clickable");
             result = await projectWizard.isDisplayNameInputClickable();
             assert.isFalse(result, "Display Name input should not be clickable");
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     it("GIVEN contributor user is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
@@ -142,8 +138,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
             //6. Verify that 'Publish' menu item is disabled:
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
-
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     //Verifies - https://github.com/enonic/app-contentstudio/issues/1984
@@ -168,8 +162,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
             //7. Verify that 'Publish' menu item is disabled:
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
-
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     it("GIVEN user with 'Contributor' role is logged in WHEN double click on an existing folder THEN the folder should be opened in the new browser tab AND all inputs should be disabled",
@@ -192,8 +184,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             assert.isFalse(isVisible, "Language comboBox should not be visible for Contributor role");
             isVisible = await settingsStepForm.isOwnerOptionsFilterVisible();
             assert.isFalse(isVisible, "Owner comboBox should not be visible for Contributor role");
-
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     //Verifies - https://github.com/enonic/app-contentstudio/issues/1984
@@ -211,8 +201,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentWizardPanel.pause(1000);
             //3. Verify that Create Task is default action in publish menu:
             await contentWizardPanel.waitForCreateTaskButtonDisplayed();
-
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     it("GIVEN user with 'Contributor' role is logged in WHEN existing folder(Ready to publish) has been selected and Publish Request has been created THEN 'Publish Now' button should be disabled on the last stage",

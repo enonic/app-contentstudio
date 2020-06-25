@@ -494,8 +494,8 @@ module.exports = {
         let loginPage = new LoginPage();
         await loginPage.doLogin(userName, password);
         let launcherPanel = new LauncherPanel();
-        await launcherPanel.clickOnContentStudioLink();
-        return await loginPage.pause(700);
+        return await launcherPanel.clickOnContentStudioLink();
+
     },
     doSwitchToContentBrowsePanel: function () {
         console.log('testUtils:switching to Content Browse panel...');

@@ -74,7 +74,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             //site has been published and children are not included
             await studioUtils.doPublish(SITE.displayName);
-            //'PUBLISH TREE...' button should appear on browse-toolbar
+            //'PUBLISH TREE...' button should appear in browse-toolbar
             await contentBrowsePanel.waitForPublishTreeButtonVisible();
         });
 
@@ -85,7 +85,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             await studioUtils.findAndSelectItem(SITE.displayName);
             //PUBLISH TREE.. button has been pressed then Publish Now pressed
             await studioUtils.doPublishTree();
-            //'UNPUBLISH...' button should appear on browse-toolbar
+            //'UNPUBLISH...' button should appear in browse-toolbar
             await contentBrowsePanel.waitForUnPublishButtonVisible();
         });
 

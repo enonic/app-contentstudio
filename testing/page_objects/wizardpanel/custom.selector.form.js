@@ -18,12 +18,10 @@ class CustomSelectorForm extends Page {
         return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
-    selectOption(option) {
+    async selectOption(option) {
         let loaderComboBox = new LoaderComboBox();
-        return this.typeTextInInput(this.optionsFilterInput, option).then(() => {
-            return loaderComboBox.selectOption(option);
-        });
-
+        await this.typeTextInInput(this.optionsFilterInput, option);
+        return await loaderComboBox.selectOption(option);
     }
 
     async swapOptions(sourceName, destinationName) {

@@ -67,6 +67,28 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             assert.isTrue(actualMessages[0].includes("Permissions"), "Permissions are applied - the second expected notification message");
             assert.isTrue(actualMessages[0].includes("are applied"), "Permissions are applied - the second expected notification message");
         });
+    //Verifies https://github.com/enonic/app-contentstudio/issues/1889
+    //Project Wizard - access mode is not updated after the mode change has been confirmed
+    it("GIVEN existing project was switched to 'Public' mode WHEN the project has been reopened THEN 'Public' Access Mode (radio button) should be selected",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let projectWizard = new ProjectWizard();
+            let confirmationDialog = new ConfirmationDialog();
+            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.openSettingsPanel();
+            //1.Expand Projects-folder and reopen the project:
+            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
+            //2. Verify that 'Public' radio is selected:
+            let isSelected = await projectWizard.isAccessModeRadioSelected("Public");
+            assert.isTrue(isSelected, "'Public' radio button should be selected");
+            isSelected = await projectWizard.isAccessModeRadioSelected("Private");
+            assert.isFalse(isSelected, "'Private' radio button should not be selected");
+            isSelected = await projectWizard.isAccessModeRadioSelected("Custom");
+            assert.isFalse(isSelected, "'Custom' radio button should not be selected");
+        });
 
     it(`GIVEN existing project context is selected WHEN existing folder has been clicked THEN 'Everyone can read this item' header should be displayed in Access Widget`,
         async () => {
