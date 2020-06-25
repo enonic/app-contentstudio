@@ -86,7 +86,6 @@ export class ProjectItemNameWizardStepForm
 
         this.descriptionInput.setValue(item.getDescription(), true);
         this.projectNameInput.setValue(item.getName(), true);
-        this.parentProjectDropdown.selectProjectByName(item.getData().getParent());
         this.disableProjectNameHelpText();
         this.disableProjectNameInput();
         this.disableParentProjectHelpText();

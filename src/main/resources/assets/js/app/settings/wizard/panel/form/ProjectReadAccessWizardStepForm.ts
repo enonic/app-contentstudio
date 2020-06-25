@@ -8,7 +8,6 @@ import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
-import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
 import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
 import {ProjectReadAccess, ProjectReadAccessType} from '../../../data/project/ProjectReadAccess';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
@@ -21,9 +20,13 @@ import {Locale} from 'lib-admin-ui/locale/Locale';
 import {LocaleLoader} from 'lib-admin-ui/locale/LocaleLoader';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ProjectFormItemBuilder} from './element/ProjectFormItem';
+import {Button} from 'lib-admin-ui/ui/button/Button';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 
 export class ProjectReadAccessWizardStepForm
-    extends SettingDataItemWizardStepForm<ProjectViewItem> {
+    extends ProjectWizardStepForm {
 
     private readAccessRadioGroup?: RadioGroup;
 
@@ -34,6 +37,10 @@ export class ProjectReadAccessWizardStepForm
     private localeCombobox: LocaleComboBox;
 
     private readAccessType: ProjectReadAccessType;
+
+    private copyParentLanguageButton?: Button;
+
+    private copyParentAccessModeButton?: Button;
 
     layout(item: ProjectViewItem): Q.Promise<void> {
         if (!item) {
@@ -68,6 +75,15 @@ export class ProjectReadAccessWizardStepForm
         });
     }
 
+    private updateCopyParentLanguageButtonState() {
+        if (!this.parentProject || !this.copyParentLanguageButton) {
+            return;
+        }
+
+        this.copyParentLanguageButton.setEnabled(
+            !ObjectHelper.stringEquals(this.parentProject.getLanguage(), this.localeCombobox.getValue()));
+    }
+
     private getLocales(): Q.Promise<Locale[]> {
         const localeLoader: LocaleLoader = <LocaleLoader>this.localeCombobox.getLoader();
         if (localeLoader.isLoaded()) {
@@ -81,13 +97,14 @@ export class ProjectReadAccessWizardStepForm
         return locales.find((locale: Locale) => locale.getId() === language);
     }
 
-    private layoutReadAccess(readAccess: ProjectReadAccess, permissions: ProjectPermissions): Q.Promise<void> {
+    private layoutReadAccess(readAccess: ProjectReadAccess, permissions: ProjectPermissions, silent: boolean = true): Q.Promise<void> {
         this.readAccessType = readAccess.getType();
-        this.readAccessRadioGroup.setValue(readAccess.getType(), true);
+        this.readAccessRadioGroup.setValue(readAccess.getType(), silent);
 
         this.updateFilteredPrincipalsByPermissions(permissions);
 
         if (!readAccess.isCustom()) {
+            this.disablePrincipalCombobox();
             return Q(null);
         }
 
@@ -95,7 +112,7 @@ export class ProjectReadAccessWizardStepForm
 
         return new GetPrincipalsByKeysRequest(readAccess.getPrincipals()).sendAndParse().then((principals: Principal[]) => {
             principals.forEach((principal: Principal) => {
-                this.principalsCombobox.select(principal, false, true);
+                this.principalsCombobox.select(principal, false, silent);
                 this.principalsCombobox.resetBaseValues();
             });
 
@@ -180,7 +197,7 @@ export class ProjectReadAccessWizardStepForm
             return [this.createLanguageFormItem()];
         }
 
-        return [this.createLanguageFormItem(), this.createReadAccessRadioGroupFormItem()];
+        return [this.createLanguageFormItem(item), this.createReadAccessRadioGroupFormItem()];
     }
 
     private createReadAccessRadioGroupFormItem(): FormItem {
@@ -201,6 +218,9 @@ export class ProjectReadAccessWizardStepForm
         this.principalsCombobox = this.createPrincipalsCombobox();
         this.principalsCombobox.insertAfterEl(this.readAccessRadioGroup);
 
+        this.copyParentAccessModeButton = this.createCopyParentAccessModeButton();
+        this.readAccessRadioGroupFormItem.appendChild(this.copyParentAccessModeButton);
+
         return this.readAccessRadioGroupFormItem;
     }
 
@@ -209,6 +229,29 @@ export class ProjectReadAccessWizardStepForm
         const principalsCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).build();
 
         return principalsCombobox;
+    }
+
+    private createCopyParentAccessModeButton(): Button {
+        const button: Button = new Button(i18n('settings.wizard.project.copy')).setEnabled(false);
+        button.addClass('copy-parent-button');
+
+        button.onClicked(() => {
+            this.layoutReadAccess(this.parentProject.getReadAccess(), this.parentProject.getPermissions(), false);
+
+            NotifyManager.get().showSuccess(
+                i18n('settings.wizard.project.copy.success', i18n('settings.items.wizard.readaccess.label'),
+                    this.parentProject.getDisplayName()));
+        });
+
+        return button;
+    }
+
+    private updateCopyParentAccessModeButtonState() {
+        if (!this.parentProject || !this.copyParentAccessModeButton) {
+            return;
+        }
+
+        this.copyParentAccessModeButton.setEnabled(!this.parentProject.getReadAccess().equals(this.getReadAccess()));
     }
 
     private getDefaultFilteredPrincipals(): PrincipalKey[] {
@@ -230,13 +273,40 @@ export class ProjectReadAccessWizardStepForm
         this.principalsCombobox.removeClass('disabled');
     }
 
-    private createLanguageFormItem(): FormItem {
+    private createLanguageFormItem(item?: ProjectViewItem): FormItem {
         this.localeCombobox = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).build();
 
-        return new ProjectFormItemBuilder(this.localeCombobox)
+        const formItem: FormItem =  new ProjectFormItemBuilder(this.localeCombobox)
             .setHelpText(i18n('settings.projects.language.helptext'))
             .setLabel(i18n('field.lang'))
             .build();
+
+        if (item) {
+            this.copyParentLanguageButton = this.createCopyParentLanguageButton();
+            formItem.appendChild(this.copyParentLanguageButton);
+        }
+
+        return formItem;
+    }
+
+    private createCopyParentLanguageButton(): Button {
+        const button: Button = new Button(i18n('settings.wizard.project.copy')).setEnabled(false);
+        button.addClass('copy-parent-button');
+
+        button.onClicked(() => {
+            const parentLanguage: string = this.parentProject.getLanguage();
+
+            if (parentLanguage) {
+                this.localeCombobox.setValue(this.parentProject.getLanguage());
+            } else {
+                this.localeCombobox.clearCombobox();
+            }
+
+            NotifyManager.get().showSuccess(
+                i18n('settings.wizard.project.copy.success', i18n('field.lang'), this.parentProject.getDisplayName()));
+        });
+
+        return button;
     }
 
     getLanguage(): string {
@@ -260,6 +330,7 @@ export class ProjectReadAccessWizardStepForm
     protected initListeners() {
         this.localeCombobox.onValueChanged(() => {
             this.notifyDataChanged();
+            this.updateCopyParentLanguageButtonState();
         });
 
         if (!this.readAccessRadioGroup) {
@@ -284,11 +355,13 @@ export class ProjectReadAccessWizardStepForm
 
             this.readAccessRadioGroupFormItem.validate(new ValidationResult(), true);
 
+            this.updateCopyParentAccessModeButtonState();
             this.notifyDataChanged();
         });
 
         this.principalsCombobox.onValueChanged(() => {
             this.notifyDataChanged();
+            this.updateCopyParentAccessModeButtonState();
         });
     }
 
@@ -296,5 +369,10 @@ export class ProjectReadAccessWizardStepForm
         if (this.readAccessType) {
             this.readAccessType = readAccessType;
         }
+    }
+
+    protected updateOnProjectSet() {
+        this.updateCopyParentLanguageButtonState();
+        this.updateCopyParentAccessModeButtonState();
     }
 }

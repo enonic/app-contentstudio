@@ -1,4 +1,3 @@
-import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
 import {ProjectViewItem} from '../../../view/ProjectViewItem';
 import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
 import {i18n} from 'lib-admin-ui/util/Messages';
@@ -13,12 +12,19 @@ import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
 import {ProjectFormItemBuilder} from './element/ProjectFormItem';
+import {Button} from 'lib-admin-ui/ui/button/Button';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 
-export class ProjectRolesWizardStepForm extends SettingDataItemWizardStepForm<ProjectViewItem> {
+export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
     private accessCombobox: ProjectAccessControlComboBox;
 
     private accessComboBoxFormItem: FormItem;
+
+    private copyParentRolesButton?: Button;
 
     protected getFormItems(item?: ProjectViewItem): FormItem[] {
         this.accessCombobox = new ProjectAccessControlComboBox();
@@ -31,7 +37,35 @@ export class ProjectRolesWizardStepForm extends SettingDataItemWizardStepForm<Pr
             .setHelpText(i18n('settings.projects.roles.helptext'))
             .build();
 
+        if (item && !item.isDefaultProject()) {
+            this.copyParentRolesButton = this.createCopyParentRolesButton();
+            this.accessComboBoxFormItem.appendChild(this.copyParentRolesButton);
+        }
+
         return [this.accessComboBoxFormItem];
+    }
+
+    private createCopyParentRolesButton(): Button {
+        const button: Button = new Button(i18n('settings.wizard.project.copy')).setEnabled(false);
+        button.addClass('copy-parent-button');
+
+        button.onClicked(() => {
+            this.layoutAccessCombobox(this.parentProject.getPermissions(), false).then(() => {
+                NotifyManager.get().showSuccess(
+                    i18n('settings.wizard.project.copy.success', i18n('settings.items.wizard.step.roles'),
+                        this.parentProject.getDisplayName()));
+            });
+        });
+
+        return button;
+    }
+
+    private updateCopyParentRolesButtonState() {
+        if (!this.parentProject || !this.copyParentRolesButton) {
+            return;
+        }
+
+        this.copyParentRolesButton.setEnabled(!ObjectHelper.equals(this.parentProject.getPermissions(), this.getPermissions()));
     }
 
     getName(): string {
@@ -39,8 +73,15 @@ export class ProjectRolesWizardStepForm extends SettingDataItemWizardStepForm<Pr
     }
 
     protected initListeners() {
-        this.accessCombobox.onValueChanged(this.notifyDataChanged.bind(this));
-        this.accessCombobox.onOptionValueChanged(this.notifyDataChanged.bind(this));
+        this.accessCombobox.onValueChanged(() => {
+            this.notifyDataChanged();
+            this.updateCopyParentRolesButtonState();
+        });
+
+        this.accessCombobox.onOptionValueChanged(() => {
+            this.notifyDataChanged();
+            this.updateCopyParentRolesButtonState();
+        });
     }
 
     layout(item: ProjectViewItem): Q.Promise<void> {
@@ -48,17 +89,22 @@ export class ProjectRolesWizardStepForm extends SettingDataItemWizardStepForm<Pr
             return Q(null);
         }
 
-        return this.getPrincipalsFromPermissions(item.getPermissions()).then((principals: Principal[]) => {
+        return this.layoutAccessCombobox(item.getPermissions());
+    }
+
+    private layoutAccessCombobox(permissions: ProjectPermissions, silent: boolean = true): Q.Promise<void> {
+        return this.getPrincipalsFromPermissions(permissions).then((principals: Principal[]) => {
             this.accessCombobox.clearSelection(true, false);
 
-            const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(item.getPermissions(), principals);
+            const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(permissions, principals);
+
             itemsToSelect.forEach((selectedItem: ProjectAccessControlEntry) => {
-                this.accessCombobox.select(selectedItem, false, true);
+                this.accessCombobox.select(selectedItem, false, silent);
                 this.accessCombobox.resetBaseValues();
             });
 
             return Q(null);
-        });
+        }).catch(DefaultErrorHandler.handle);
     }
 
     private getPrincipalsFromPermissions(permissions: ProjectPermissions): Q.Promise<Principal[]> {
@@ -136,5 +182,9 @@ export class ProjectRolesWizardStepForm extends SettingDataItemWizardStepForm<Pr
 
             return rendered;
         });
+    }
+
+    protected updateOnProjectSet() {
+        this.updateCopyParentRolesButtonState();
     }
 }

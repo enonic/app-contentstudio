@@ -3,8 +3,6 @@ import {Project} from '../../../../data/project/Project';
 import {ProjectViewer} from '../../../viewer/ProjectViewer';
 import * as Q from 'q';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ProjectGetRequest} from '../../../../resource/ProjectGetRequest';
 import {ProjectsLoader} from './ProjectsLoader';
 import {i18n} from 'lib-admin-ui/util/Messages';
 
@@ -32,16 +30,6 @@ export class ProjectsDropdown extends RichDropdown<Project> {
 
             return rendered;
         });
-    }
-
-    selectProjectByName(projectName: string) {
-        if (!projectName) {
-            return;
-        }
-
-        new ProjectGetRequest(projectName).sendAndParse().then((project: Project) => {
-            this.selectOption(this.createOption(project));
-        }).catch(DefaultErrorHandler.handle);
     }
 
     selectProject(project: Project) {

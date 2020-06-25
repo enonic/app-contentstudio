@@ -28,11 +28,6 @@ import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
-import {WizardPanelParams} from 'lib-admin-ui/app/wizard/WizardPanel';
-
-export interface ProjectWizardPanelParams extends WizardPanelParams<ProjectViewItem> {
-    parent?: Project;
-}
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -47,16 +42,8 @@ export class ProjectWizardPanel
 
     private loginResult: LoginResult;
 
-    constructor(params: ProjectWizardPanelParams) {
-        super(params);
-    }
-
     protected getIconClass(): string {
         return ProjectIconUrlResolver.DEFAULT_ICON_CLASS;
-    }
-
-    protected getParams(): ProjectWizardPanelParams {
-        return super.getParams();
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
@@ -111,14 +98,6 @@ export class ProjectWizardPanel
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {
         return this.getLoginResult().then((loginResult: LoginResult) => this.isEditAllowed(loginResult));
-    }
-
-    doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
-        return super.doLayout(persistedItem).then(() => {
-            this.projectWizardStepForm.setParentProject(this.getParams().parent);
-
-           return Q(null);
-        });
     }
 
     protected createStepsForms(persistedItem: ProjectViewItem): SettingDataItemWizardStepForm<ProjectViewItem>[] {
@@ -370,6 +349,14 @@ export class ProjectWizardPanel
             this.checkIfEditIsAllowed().then((isEditAllowed: boolean) => this.toggleClass('no-modify-permissions', !isEditAllowed));
 
             return rendered;
+        });
+    }
+
+    setParentProject(project: Project) {
+        this.whenRendered(() => {
+            this.projectWizardStepForm.setParentProject(project);
+            this.readAccessWizardStepForm.setParentProject(project);
+            this.rolesWizardStepForm.setParentProject(project);
         });
     }
 }
