@@ -24,15 +24,24 @@ export class ProjectsChainBlock extends H6El {
     setProjectsChain(projects: Project[] = []) {
         this.projectsChain = projects;
 
-        this.projectsChain.forEach((project: Project, index: number) => {
-            this.chainItems.appendChild(this.createChainEntry(project, index));
-        });
+        if (projects.length > 0) {
+            this.projectsChain.forEach((project: Project, index: number) => {
+                this.chainItems.appendChild(this.createChainEntry(project, index));
+            });
+        } else {
+            this.chainItems.appendChild(this.createEmptyChainEntry());
+        }
+
     }
 
     private createChainEntry(project: Project, index: number): SpanEl {
+        return this.doCreateChainEntry(this.generateChainEntryText(project, index));
+    }
+
+    private doCreateChainEntry(text: string): SpanEl {
         const item: SpanEl = new SpanEl('item');
 
-        item.setHtml(this.generateChainEntryText(project, index));
+        item.setHtml(text);
 
         return item;
     }
@@ -41,6 +50,10 @@ export class ProjectsChainBlock extends H6El {
         const delimiter: string = index > 0 ? `${ProjectsChainBlock.separator} ` : '';
         const language: string = !!project.getLanguage() ? ` (${project.getLanguage()})` : '';
         return `${delimiter}${project.getDisplayName()}${language}`;
+    }
+
+    private createEmptyChainEntry(): SpanEl {
+        return this.doCreateChainEntry(i18n('settings.field.project.parent.none'));
     }
 
     isEmpty(): boolean {
