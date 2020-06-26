@@ -35,7 +35,7 @@ export class ProjectList
         let level: number = 0;
 
         while (parentName) {
-            const parent: Project = items.find((item: Project) => item.getName() === parentName);
+            const parent: Project = items.find((p: Project) => p.getName() === parentName);
 
             if (parent) {
                 level++;
