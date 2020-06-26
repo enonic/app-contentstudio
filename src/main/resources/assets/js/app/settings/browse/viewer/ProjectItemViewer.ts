@@ -22,7 +22,7 @@ export class ProjectItemViewer
         const namesView: NamesView = this.namesAndIconView.getNamesView();
 
         const displayNameEl: Element = new SpanEl('display-name').setHtml(item.getDisplayName());
-        const nameEl: Element = new SpanEl('name').setHtml(`(${item.getName()})`);
+        const nameEl: Element = new SpanEl('name').setHtml(item.getLanguage() ? `(${item.getLanguage()})` : '');
 
         namesView.setMainNameElements([displayNameEl, nameEl]);
     }
