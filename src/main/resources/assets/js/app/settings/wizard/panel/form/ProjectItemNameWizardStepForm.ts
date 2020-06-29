@@ -1,4 +1,3 @@
-import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
 import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
 import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
 import {i18n} from 'lib-admin-ui/util/Messages';
@@ -9,10 +8,11 @@ import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 import {ProjectFormItem, ProjectFormItemBuilder} from './element/ProjectFormItem';
 import {ProjectsDropdown} from './element/ProjectsDropdown';
 import {Project} from '../../../data/project/Project';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 
 export class ProjectItemNameWizardStepForm
-    extends SettingDataItemWizardStepForm<ProjectViewItem> {
+    extends ProjectWizardStepForm {
 
     private static PROJECT_NAME_CHARS: RegExp = /^([a-z0-9\\-])([a-z0-9_\\-])*$/;
 
@@ -54,12 +54,27 @@ export class ProjectItemNameWizardStepForm
         this.parentProjectDropdown.disable();
     }
 
+    showProjectsChain(parentName?: string) {
+        this.parentProjectDropdown.showProjectsChain(parentName);
+    }
+
     getParentProject(): string {
         return this.parentProjectDropdown.getValue();
     }
 
     setParentProject(project: Project) {
         this.parentProjectDropdown.selectProject(project);
+    }
+
+    onParentProjectChanged(callback: (project: Project) => void) {
+        this.parentProjectDropdown.onOptionSelected((event: OptionSelectedEvent<Project>) => {
+            callback(event.getOption().displayValue);
+        });
+
+
+        this.parentProjectDropdown.onOptionDeselected(() => {
+           callback(null);
+        });
     }
 
     doRender(): Q.Promise<boolean> {
@@ -87,10 +102,8 @@ export class ProjectItemNameWizardStepForm
 
         this.descriptionInput.setValue(item.getDescription(), true);
         this.projectNameInput.setValue(item.getName(), true);
-        this.parentProjectDropdown.selectProjectByName(item.getData().getParent())
-            .then(() => this.disableParentProjectInput())
-            .catch(DefaultErrorHandler.handle);
-
+        this.showProjectsChain(item.getData().getParent());
+        this.disableParentProjectInput();
         this.disableProjectNameHelpText();
         this.disableProjectNameInput();
         this.disableParentProjectHelpText();
@@ -113,7 +126,7 @@ export class ProjectItemNameWizardStepForm
         });
     }
 
-    protected getFormItems(item?: ProjectViewItem): FormItem[] {
+    protected getFormItems(): FormItem[] {
         this.projectNameInput = new TextInput();
         this.projectNameFormItem = <ProjectFormItem>new ProjectFormItemBuilder(this.projectNameInput)
             .setHelpText(i18n('settings.projects.name.helptext'))

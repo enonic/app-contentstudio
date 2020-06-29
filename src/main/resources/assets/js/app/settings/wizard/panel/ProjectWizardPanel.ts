@@ -28,11 +28,6 @@ import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
-import {WizardPanelParams} from 'lib-admin-ui/app/wizard/WizardPanel';
-
-export interface ProjectWizardPanelParams extends WizardPanelParams<ProjectViewItem> {
-    parent?: Project;
-}
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -47,16 +42,8 @@ export class ProjectWizardPanel
 
     private loginResult: LoginResult;
 
-    constructor(params: ProjectWizardPanelParams) {
-        super(params);
-    }
-
     protected getIconClass(): string {
         return ProjectIconUrlResolver.DEFAULT_ICON_CLASS;
-    }
-
-    protected getParams(): ProjectWizardPanelParams {
-        return super.getParams();
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
@@ -80,6 +67,16 @@ export class ProjectWizardPanel
             .replace(/\./g, '');
 
         return prettified;
+    }
+
+    doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
+        return super.doLayout(persistedItem).then(() => {
+            this.projectWizardStepForm.onParentProjectChanged((project: Project) => {
+                this.readAccessWizardStepForm.setParentProject(project);
+                this.rolesWizardStepForm.setParentProject(project);
+            });
+            return Q(null);
+        });
     }
 
     protected createWizardActions(): ProjectWizardActions {
@@ -111,14 +108,6 @@ export class ProjectWizardPanel
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {
         return this.getLoginResult().then((loginResult: LoginResult) => this.isEditAllowed(loginResult));
-    }
-
-    doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
-        return super.doLayout(persistedItem).then(() => {
-            this.projectWizardStepForm.setParentProject(this.getParams().parent);
-
-           return Q(null);
-        });
     }
 
     protected createStepsForms(persistedItem: ProjectViewItem): SettingDataItemWizardStepForm<ProjectViewItem>[] {
@@ -153,6 +142,7 @@ export class ProjectWizardPanel
             this.projectWizardStepForm.disableProjectNameHelpText();
             this.projectWizardStepForm.disableParentProjectHelpText();
             this.projectWizardStepForm.disableParentProjectInput();
+            this.projectWizardStepForm.showProjectsChain(item.getData().getParent());
 
             return Q(item);
         });
@@ -176,9 +166,6 @@ export class ProjectWizardPanel
     updatePersistedItem(): Q.Promise<ProjectViewItem> {
         return this.doUpdatePersistedItem().then((project: Project) => {
             const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
-            if (!item.isDefaultProject()) {
-                this.readAccessWizardStepForm.updateReadAccessType(item.getReadAccess().getType());
-            }
             showFeedback(this.getSuccessfulUpdateMessage(item.getName()));
             return item;
         });
@@ -370,6 +357,14 @@ export class ProjectWizardPanel
             this.checkIfEditIsAllowed().then((isEditAllowed: boolean) => this.toggleClass('no-modify-permissions', !isEditAllowed));
 
             return rendered;
+        });
+    }
+
+    setParentProject(project: Project) {
+        this.whenRendered(() => {
+            this.projectWizardStepForm.setParentProject(project);
+            this.readAccessWizardStepForm.setParentProject(project);
+            this.rolesWizardStepForm.setParentProject(project);
         });
     }
 }

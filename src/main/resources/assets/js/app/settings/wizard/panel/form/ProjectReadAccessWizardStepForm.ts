@@ -8,7 +8,6 @@ import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
-import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
 import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
 import {ProjectReadAccess, ProjectReadAccessType} from '../../../data/project/ProjectReadAccess';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
@@ -21,9 +20,13 @@ import {Locale} from 'lib-admin-ui/locale/Locale';
 import {LocaleLoader} from 'lib-admin-ui/locale/LocaleLoader';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ProjectFormItemBuilder} from './element/ProjectFormItem';
+import {Button} from 'lib-admin-ui/ui/button/Button';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 
 export class ProjectReadAccessWizardStepForm
-    extends SettingDataItemWizardStepForm<ProjectViewItem> {
+    extends ProjectWizardStepForm {
 
     private readAccessRadioGroup?: RadioGroup;
 
@@ -33,7 +36,9 @@ export class ProjectReadAccessWizardStepForm
 
     private localeCombobox: LocaleComboBox;
 
-    private readAccessType: ProjectReadAccessType;
+    private copyParentLanguageButton?: Button;
+
+    private copyParentAccessModeButton?: Button;
 
     layout(item: ProjectViewItem): Q.Promise<void> {
         if (!item) {
@@ -68,6 +73,15 @@ export class ProjectReadAccessWizardStepForm
         });
     }
 
+    private updateCopyParentLanguageButtonState() {
+        if (!this.copyParentLanguageButton) {
+            return;
+        }
+
+        this.copyParentLanguageButton.setEnabled(this.parentProject &&
+            !ObjectHelper.stringEquals(this.parentProject.getLanguage(), this.localeCombobox.getValue()));
+    }
+
     private getLocales(): Q.Promise<Locale[]> {
         const localeLoader: LocaleLoader = <LocaleLoader>this.localeCombobox.getLoader();
         if (localeLoader.isLoaded()) {
@@ -81,13 +95,13 @@ export class ProjectReadAccessWizardStepForm
         return locales.find((locale: Locale) => locale.getId() === language);
     }
 
-    private layoutReadAccess(readAccess: ProjectReadAccess, permissions: ProjectPermissions): Q.Promise<void> {
-        this.readAccessType = readAccess.getType();
-        this.readAccessRadioGroup.setValue(readAccess.getType(), true);
+    private layoutReadAccess(readAccess: ProjectReadAccess, permissions: ProjectPermissions, silent: boolean = true): Q.Promise<void> {
+        this.readAccessRadioGroup.setValue(readAccess.getType(), silent);
 
         this.updateFilteredPrincipalsByPermissions(permissions);
 
         if (!readAccess.isCustom()) {
+            this.disablePrincipalCombobox();
             return Q(null);
         }
 
@@ -95,7 +109,7 @@ export class ProjectReadAccessWizardStepForm
 
         return new GetPrincipalsByKeysRequest(readAccess.getPrincipals()).sendAndParse().then((principals: Principal[]) => {
             principals.forEach((principal: Principal) => {
-                this.principalsCombobox.select(principal, false, true);
+                this.principalsCombobox.select(principal, false, silent);
                 this.principalsCombobox.resetBaseValues();
             });
 
@@ -175,8 +189,8 @@ export class ProjectReadAccessWizardStepForm
         return new ValidationRecording();
     }
 
-    protected getFormItems(item?: ProjectViewItem): FormItem[] {
-        if (!!item && item.isDefaultProject()) {
+    protected getFormItems(): FormItem[] {
+        if (!!this.item && this.item.isDefaultProject()) {
             return [this.createLanguageFormItem()];
         }
 
@@ -201,6 +215,11 @@ export class ProjectReadAccessWizardStepForm
         this.principalsCombobox = this.createPrincipalsCombobox();
         this.principalsCombobox.insertAfterEl(this.readAccessRadioGroup);
 
+        if (!this.item || this.item.getData().getParent()) {
+            this.copyParentAccessModeButton = this.createCopyParentAccessModeButton();
+            this.readAccessRadioGroupFormItem.appendChild(this.copyParentAccessModeButton);
+        }
+
         return this.readAccessRadioGroupFormItem;
     }
 
@@ -209,6 +228,29 @@ export class ProjectReadAccessWizardStepForm
         const principalsCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).build();
 
         return principalsCombobox;
+    }
+
+    private createCopyParentAccessModeButton(): Button {
+        const button: Button = new Button(i18n('settings.wizard.project.copy')).setEnabled(false);
+        button.addClass('copy-parent-button');
+
+        button.onClicked(() => {
+            this.layoutReadAccess(this.parentProject.getReadAccess(), this.parentProject.getPermissions(), false);
+
+            NotifyManager.get().showSuccess(
+                i18n('settings.wizard.project.copy.success', i18n('settings.items.wizard.readaccess.label'),
+                    this.parentProject.getDisplayName()));
+        });
+
+        return button;
+    }
+
+    private updateCopyParentAccessModeButtonState() {
+        if (!this.copyParentAccessModeButton) {
+            return;
+        }
+
+        this.copyParentAccessModeButton.setEnabled(this.parentProject && !this.parentProject.getReadAccess().equals(this.getReadAccess()));
     }
 
     private getDefaultFilteredPrincipals(): PrincipalKey[] {
@@ -233,33 +275,58 @@ export class ProjectReadAccessWizardStepForm
     private createLanguageFormItem(): FormItem {
         this.localeCombobox = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).build();
 
-        return new ProjectFormItemBuilder(this.localeCombobox)
+        const formItem: FormItem = new ProjectFormItemBuilder(this.localeCombobox)
             .setHelpText(i18n('settings.projects.language.helptext'))
             .setLabel(i18n('field.lang'))
             .build();
+
+        if (!this.item || this.item.getData().getParent()) {
+            this.copyParentLanguageButton = this.createCopyParentLanguageButton();
+            formItem.appendChild(this.copyParentLanguageButton);
+        }
+
+        return formItem;
+    }
+
+    private createCopyParentLanguageButton(): Button {
+        const button: Button = new Button(i18n('settings.wizard.project.copy')).setEnabled(false);
+        button.addClass('copy-parent-button');
+
+        button.onClicked(() => {
+            const parentLanguage: string = this.parentProject.getLanguage();
+
+            this.localeCombobox.setValue(!!parentLanguage ? parentLanguage : '');
+
+            NotifyManager.get().showSuccess(
+                i18n('settings.wizard.project.copy.success', i18n('field.lang'), this.parentProject.getDisplayName()));
+        });
+
+        return button;
     }
 
     getLanguage(): string {
         return this.localeCombobox.getValue();
     }
 
-    private showConfirmationDialog(resetValue: string) {
+    private showConfirmationDialog(newValue: string, resetValue: string) {
         const confirmationDialog = new ConfirmationDialog()
             .setQuestion(i18n('dialog.projectAccess.confirm'))
             .setYesCallback(() => {
                 confirmationDialog.close();
+                this.handleAccessValueChanged(newValue);
             })
             .setNoCallback(() => {
                 confirmationDialog.close();
-                this.readAccessRadioGroup.setValue(resetValue);
+                this.readAccessRadioGroup.setValue(resetValue, true);
             });
 
         confirmationDialog.open();
     }
 
-    protected initListeners() {
+    protected initListeners(item?: ProjectViewItem) {
         this.localeCombobox.onValueChanged(() => {
             this.notifyDataChanged();
+            this.updateCopyParentLanguageButtonState();
         });
 
         if (!this.readAccessRadioGroup) {
@@ -270,31 +337,53 @@ export class ProjectReadAccessWizardStepForm
             const newValue: string = event.getNewValue();
             const oldValue: string = event.getOldValue();
 
-            if ((this.readAccessType === ProjectReadAccessType.PUBLIC && newValue !== ProjectReadAccessType.PUBLIC) ||
-                 (this.readAccessType &&
-                  this.readAccessType !== ProjectReadAccessType.PUBLIC && newValue === ProjectReadAccessType.PUBLIC)) {
-                this.showConfirmationDialog(oldValue);
-            }
-
-            if (newValue === ProjectReadAccessType.PRIVATE || newValue === ProjectReadAccessType.PUBLIC) {
-                this.disablePrincipalCombobox();
+            if (this.isConfirmationNeeded(event)) {
+                this.showConfirmationDialog(newValue, oldValue);
             } else {
-                this.enablePrincipalCombobox();
+                this.handleAccessValueChanged(newValue);
             }
-
-            this.readAccessRadioGroupFormItem.validate(new ValidationResult(), true);
-
-            this.notifyDataChanged();
         });
 
         this.principalsCombobox.onValueChanged(() => {
             this.notifyDataChanged();
+            this.updateCopyParentAccessModeButtonState();
         });
     }
 
-    updateReadAccessType(readAccessType: ProjectReadAccessType) {
-        if (this.readAccessType) {
-            this.readAccessType = readAccessType;
+    private isConfirmationNeeded(event: ValueChangedEvent): boolean {
+        if (!this.item) {
+            return false;
+        }
+
+        const newValue: string = event.getNewValue();
+        const oldValue: string = event.getOldValue();
+
+        return ((oldValue === ProjectReadAccessType.PUBLIC && newValue !== ProjectReadAccessType.PUBLIC) ||
+                (oldValue !== ProjectReadAccessType.PUBLIC && newValue === ProjectReadAccessType.PUBLIC));
+    }
+
+    private handleAccessValueChanged(newValue: string) {
+        if (newValue === ProjectReadAccessType.PRIVATE || newValue === ProjectReadAccessType.PUBLIC) {
+            this.disablePrincipalCombobox();
+        } else {
+            this.enablePrincipalCombobox();
+        }
+
+        this.readAccessRadioGroupFormItem.validate(new ValidationResult(), true);
+
+        this.updateCopyParentAccessModeButtonState();
+        this.notifyDataChanged();
+    }
+
+    protected updateOnParentProjectSet() {
+        if (!this.parentProject) {
+            this.copyParentLanguageButton.hide();
+            this.copyParentAccessModeButton.hide();
+        } else {
+            this.copyParentLanguageButton.show();
+            this.copyParentAccessModeButton.show();
+            this.updateCopyParentLanguageButtonState();
+            this.updateCopyParentAccessModeButtonState();
         }
     }
 }
