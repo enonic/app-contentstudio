@@ -11,6 +11,7 @@ import {ProjectsDropdown} from './element/ProjectsDropdown';
 import {Project} from '../../../data/project/Project';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ProjectItemNameWizardStepForm
     extends ProjectWizardStepForm {
@@ -99,10 +100,13 @@ export class ProjectItemNameWizardStepForm
 
         this.descriptionInput.setValue(item.getDescription(), true);
         this.projectNameInput.setValue(item.getName(), true);
+        this.parentProjectDropdown.selectProjectByName(item.getData().getParent())
+            .then(() => this.disableParentProjectInput())
+            .catch(DefaultErrorHandler.handle);
+
         this.disableProjectNameHelpText();
         this.disableProjectNameInput();
         this.disableParentProjectHelpText();
-        this.disableParentProjectInput();
 
         return Q(null);
     }
