@@ -21,6 +21,7 @@ import {ProjectUpdatedEvent} from './event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from './event/ProjectDeletedEvent';
 import {ProjectListRequest} from './resource/ProjectListRequest';
 import {ProjectGetRequest} from './resource/ProjectGetRequest';
+import {ProjectHelper} from './data/project/ProjectHelper';
 
 export class SettingsAppPanel
     extends NavigatedAppPanel<SettingsViewItem> {
@@ -75,7 +76,7 @@ export class SettingsAppPanel
             const wizard: ProjectWizardPanel = new ProjectWizardPanel({tabId, persistedItem: projectItem});
 
             if (projectItem.getData() && projectItem.getData().getParent()) {
-                this.fetchProject(projectItem.getData().getParent())
+                ProjectHelper.fetchProject(projectItem.getData().getParent())
                     .then((project: Project) => wizard.setParentProject(project))
                     .catch(DefaultErrorHandler.handle);
             }
@@ -84,12 +85,6 @@ export class SettingsAppPanel
         }
 
         return null;
-    }
-
-    private fetchProject(name: string): Q.Promise<Project> {
-        return new ProjectGetRequest(name).sendAndParse().then((project: Project) => {
-            return project;
-        });
     }
 
     private handleNewProject() {
@@ -194,13 +189,15 @@ export class SettingsAppPanel
     }
 
     private updateProjectWizard(projectWizardPanel: ProjectWizardPanel, projectItem: ProjectViewItem) {
-        if (projectWizardPanel.isItemPersisted()) {
-            if (projectWizardPanel.hasPersistedItemWithId(projectItem.getId())) {
-                this.updateTabLabel(AppBarTabId.forEdit(projectItem.getName()), projectItem.getDisplayName());
-                projectWizardPanel.updatePersistedSettingsDataItem(projectItem);
-            } else if (projectWizardPanel.getPersistedItem().getData().getParent() === projectItem.getName()) {
-                projectWizardPanel.setParentProject(projectItem.getData());
-            }
+        if (!projectWizardPanel.isItemPersisted()) {
+            return;
+        }
+
+        if (projectWizardPanel.hasPersistedItemWithId(projectItem.getId())) {
+            this.updateTabLabel(AppBarTabId.forEdit(projectItem.getName()), projectItem.getDisplayName());
+            projectWizardPanel.updatePersistedSettingsDataItem(projectItem);
+        } else if (projectWizardPanel.getPersistedItem().getData().getParent() === projectItem.getName()) {
+            projectWizardPanel.setParentProject(projectItem.getData());
         }
     }
 

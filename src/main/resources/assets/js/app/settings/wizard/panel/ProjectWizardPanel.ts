@@ -69,6 +69,16 @@ export class ProjectWizardPanel
         return prettified;
     }
 
+    doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
+        return super.doLayout(persistedItem).then(() => {
+            this.projectWizardStepForm.onParentProjectChanged((project: Project) => {
+                this.readAccessWizardStepForm.setParentProject(project);
+                this.rolesWizardStepForm.setParentProject(project);
+            });
+            return Q(null);
+        });
+    }
+
     protected createWizardActions(): ProjectWizardActions {
         return new ProjectWizardActions(this);
     }
@@ -155,9 +165,6 @@ export class ProjectWizardPanel
     updatePersistedItem(): Q.Promise<ProjectViewItem> {
         return this.doUpdatePersistedItem().then((project: Project) => {
             const item: ProjectViewItem = ProjectViewItem.create().setData(project).build();
-            if (!item.isDefaultProject()) {
-                this.readAccessWizardStepForm.updateReadAccessType(item.getReadAccess().getType());
-            }
             showFeedback(this.getSuccessfulUpdateMessage(item.getName()));
             return item;
         });

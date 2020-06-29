@@ -36,8 +36,6 @@ export class ProjectReadAccessWizardStepForm
 
     private localeCombobox: LocaleComboBox;
 
-    private readAccessType: ProjectReadAccessType;
-
     private copyParentLanguageButton?: Button;
 
     private copyParentAccessModeButton?: Button;
@@ -76,11 +74,11 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private updateCopyParentLanguageButtonState() {
-        if (!this.parentProject || !this.copyParentLanguageButton) {
+        if (!this.copyParentLanguageButton) {
             return;
         }
 
-        this.copyParentLanguageButton.setEnabled(
+        this.copyParentLanguageButton.setEnabled(this.parentProject &&
             !ObjectHelper.stringEquals(this.parentProject.getLanguage(), this.localeCombobox.getValue()));
     }
 
@@ -98,7 +96,6 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private layoutReadAccess(readAccess: ProjectReadAccess, permissions: ProjectPermissions, silent: boolean = true): Q.Promise<void> {
-        this.readAccessType = readAccess.getType();
         this.readAccessRadioGroup.setValue(readAccess.getType(), silent);
 
         this.updateFilteredPrincipalsByPermissions(permissions);
@@ -192,12 +189,12 @@ export class ProjectReadAccessWizardStepForm
         return new ValidationRecording();
     }
 
-    protected getFormItems(item?: ProjectViewItem): FormItem[] {
-        if (!!item && item.isDefaultProject()) {
+    protected getFormItems(): FormItem[] {
+        if (!!this.item && this.item.isDefaultProject()) {
             return [this.createLanguageFormItem()];
         }
 
-        return [this.createLanguageFormItem(item), this.createReadAccessRadioGroupFormItem()];
+        return [this.createLanguageFormItem(), this.createReadAccessRadioGroupFormItem()];
     }
 
     private createReadAccessRadioGroupFormItem(): FormItem {
@@ -218,8 +215,10 @@ export class ProjectReadAccessWizardStepForm
         this.principalsCombobox = this.createPrincipalsCombobox();
         this.principalsCombobox.insertAfterEl(this.readAccessRadioGroup);
 
-        this.copyParentAccessModeButton = this.createCopyParentAccessModeButton();
-        this.readAccessRadioGroupFormItem.appendChild(this.copyParentAccessModeButton);
+        if (!this.item || this.item.getData().getParent()) {
+            this.copyParentAccessModeButton = this.createCopyParentAccessModeButton();
+            this.readAccessRadioGroupFormItem.appendChild(this.copyParentAccessModeButton);
+        }
 
         return this.readAccessRadioGroupFormItem;
     }
@@ -247,11 +246,11 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private updateCopyParentAccessModeButtonState() {
-        if (!this.parentProject || !this.copyParentAccessModeButton) {
+        if (!this.copyParentAccessModeButton) {
             return;
         }
 
-        this.copyParentAccessModeButton.setEnabled(!this.parentProject.getReadAccess().equals(this.getReadAccess()));
+        this.copyParentAccessModeButton.setEnabled(this.parentProject && !this.parentProject.getReadAccess().equals(this.getReadAccess()));
     }
 
     private getDefaultFilteredPrincipals(): PrincipalKey[] {
@@ -273,15 +272,15 @@ export class ProjectReadAccessWizardStepForm
         this.principalsCombobox.removeClass('disabled');
     }
 
-    private createLanguageFormItem(item?: ProjectViewItem): FormItem {
+    private createLanguageFormItem(): FormItem {
         this.localeCombobox = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).build();
 
-        const formItem: FormItem =  new ProjectFormItemBuilder(this.localeCombobox)
+        const formItem: FormItem = new ProjectFormItemBuilder(this.localeCombobox)
             .setHelpText(i18n('settings.projects.language.helptext'))
             .setLabel(i18n('field.lang'))
             .build();
 
-        if (item) {
+        if (!this.item || this.item.getData().getParent()) {
             this.copyParentLanguageButton = this.createCopyParentLanguageButton();
             formItem.appendChild(this.copyParentLanguageButton);
         }
@@ -296,11 +295,7 @@ export class ProjectReadAccessWizardStepForm
         button.onClicked(() => {
             const parentLanguage: string = this.parentProject.getLanguage();
 
-            if (parentLanguage) {
-                this.localeCombobox.setValue(this.parentProject.getLanguage());
-            } else {
-                this.localeCombobox.clearCombobox();
-            }
+            this.localeCombobox.setValue(!!parentLanguage ? parentLanguage : '');
 
             NotifyManager.get().showSuccess(
                 i18n('settings.wizard.project.copy.success', i18n('field.lang'), this.parentProject.getDisplayName()));
@@ -313,21 +308,22 @@ export class ProjectReadAccessWizardStepForm
         return this.localeCombobox.getValue();
     }
 
-    private showConfirmationDialog(resetValue: string) {
+    private showConfirmationDialog(newValue: string, resetValue: string) {
         const confirmationDialog = new ConfirmationDialog()
             .setQuestion(i18n('dialog.projectAccess.confirm'))
             .setYesCallback(() => {
                 confirmationDialog.close();
+                this.handleAccessValueChanged(newValue);
             })
             .setNoCallback(() => {
                 confirmationDialog.close();
-                this.readAccessRadioGroup.setValue(resetValue);
+                this.readAccessRadioGroup.setValue(resetValue, true);
             });
 
         confirmationDialog.open();
     }
 
-    protected initListeners() {
+    protected initListeners(item?: ProjectViewItem) {
         this.localeCombobox.onValueChanged(() => {
             this.notifyDataChanged();
             this.updateCopyParentLanguageButtonState();
@@ -341,22 +337,11 @@ export class ProjectReadAccessWizardStepForm
             const newValue: string = event.getNewValue();
             const oldValue: string = event.getOldValue();
 
-            if ((this.readAccessType === ProjectReadAccessType.PUBLIC && newValue !== ProjectReadAccessType.PUBLIC) ||
-                 (this.readAccessType &&
-                  this.readAccessType !== ProjectReadAccessType.PUBLIC && newValue === ProjectReadAccessType.PUBLIC)) {
-                this.showConfirmationDialog(oldValue);
-            }
-
-            if (newValue === ProjectReadAccessType.PRIVATE || newValue === ProjectReadAccessType.PUBLIC) {
-                this.disablePrincipalCombobox();
+            if (this.isConfirmationNeeded(event)) {
+                this.showConfirmationDialog(newValue, oldValue);
             } else {
-                this.enablePrincipalCombobox();
+                this.handleAccessValueChanged(newValue);
             }
-
-            this.readAccessRadioGroupFormItem.validate(new ValidationResult(), true);
-
-            this.updateCopyParentAccessModeButtonState();
-            this.notifyDataChanged();
         });
 
         this.principalsCombobox.onValueChanged(() => {
@@ -365,14 +350,40 @@ export class ProjectReadAccessWizardStepForm
         });
     }
 
-    updateReadAccessType(readAccessType: ProjectReadAccessType) {
-        if (this.readAccessType) {
-            this.readAccessType = readAccessType;
+    private isConfirmationNeeded(event: ValueChangedEvent): boolean {
+        if (!this.item) {
+            return false;
         }
+
+        const newValue: string = event.getNewValue();
+        const oldValue: string = event.getOldValue();
+
+        return ((oldValue === ProjectReadAccessType.PUBLIC && newValue !== ProjectReadAccessType.PUBLIC) ||
+                (oldValue !== ProjectReadAccessType.PUBLIC && newValue === ProjectReadAccessType.PUBLIC));
     }
 
-    protected updateOnProjectSet() {
-        this.updateCopyParentLanguageButtonState();
+    private handleAccessValueChanged(newValue: string) {
+        if (newValue === ProjectReadAccessType.PRIVATE || newValue === ProjectReadAccessType.PUBLIC) {
+            this.disablePrincipalCombobox();
+        } else {
+            this.enablePrincipalCombobox();
+        }
+
+        this.readAccessRadioGroupFormItem.validate(new ValidationResult(), true);
+
         this.updateCopyParentAccessModeButtonState();
+        this.notifyDataChanged();
+    }
+
+    protected updateOnParentProjectSet() {
+        if (!this.parentProject) {
+            this.copyParentLanguageButton.hide();
+            this.copyParentAccessModeButton.hide();
+        } else {
+            this.copyParentLanguageButton.show();
+            this.copyParentAccessModeButton.show();
+            this.updateCopyParentLanguageButtonState();
+            this.updateCopyParentAccessModeButtonState();
+        }
     }
 }

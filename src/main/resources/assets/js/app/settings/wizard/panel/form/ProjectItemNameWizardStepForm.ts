@@ -9,9 +9,11 @@ import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 import {ProjectFormItem, ProjectFormItemBuilder} from './element/ProjectFormItem';
 import {ProjectsDropdown} from './element/ProjectsDropdown';
 import {Project} from '../../../data/project/Project';
+import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 
 export class ProjectItemNameWizardStepForm
-    extends SettingDataItemWizardStepForm<ProjectViewItem> {
+    extends ProjectWizardStepForm {
 
     private static PROJECT_NAME_CHARS: RegExp = /^([a-z0-9\\-])([a-z0-9_\\-])*$/;
 
@@ -59,6 +61,17 @@ export class ProjectItemNameWizardStepForm
 
     setParentProject(project: Project) {
         this.parentProjectDropdown.selectProject(project);
+    }
+
+    onParentProjectChanged(callback: (project: Project) => void) {
+        this.parentProjectDropdown.onOptionSelected((event: OptionSelectedEvent<Project>) => {
+            callback(event.getOption().displayValue);
+        });
+
+
+        this.parentProjectDropdown.onOptionDeselected(() => {
+           callback(null);
+        });
     }
 
     doRender(): Q.Promise<boolean> {
@@ -109,7 +122,7 @@ export class ProjectItemNameWizardStepForm
         });
     }
 
-    protected getFormItems(item?: ProjectViewItem): FormItem[] {
+    protected getFormItems(): FormItem[] {
         this.projectNameInput = new TextInput();
         this.projectNameFormItem = <ProjectFormItem>new ProjectFormItemBuilder(this.projectNameInput)
             .setHelpText(i18n('settings.projects.name.helptext'))

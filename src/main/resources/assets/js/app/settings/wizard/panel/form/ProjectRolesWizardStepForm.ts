@@ -26,7 +26,7 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
     private copyParentRolesButton?: Button;
 
-    protected getFormItems(item?: ProjectViewItem): FormItem[] {
+    protected getFormItems(): FormItem[] {
         this.accessCombobox = new ProjectAccessControlComboBox();
 
         const loader: PrincipalLoader = <PrincipalLoader>this.accessCombobox.getLoader();
@@ -37,7 +37,7 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
             .setHelpText(i18n('settings.projects.roles.helptext'))
             .build();
 
-        if (item && !item.isDefaultProject()) {
+        if (!this.item || this.item.getData().getParent()) {
             this.copyParentRolesButton = this.createCopyParentRolesButton();
             this.accessComboBoxFormItem.appendChild(this.copyParentRolesButton);
         }
@@ -61,11 +61,12 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
     }
 
     private updateCopyParentRolesButtonState() {
-        if (!this.parentProject || !this.copyParentRolesButton) {
+        if (!this.copyParentRolesButton) {
             return;
         }
 
-        this.copyParentRolesButton.setEnabled(!ObjectHelper.equals(this.parentProject.getPermissions(), this.getPermissions()));
+        this.copyParentRolesButton.setEnabled(
+            this.parentProject && !ObjectHelper.equals(this.parentProject.getPermissions(), this.getPermissions()));
     }
 
     getName(): string {
@@ -184,7 +185,12 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
         });
     }
 
-    protected updateOnProjectSet() {
-        this.updateCopyParentRolesButtonState();
+    protected updateOnParentProjectSet() {
+        if (!this.parentProject) {
+            this.copyParentRolesButton.hide();
+        } else {
+            this.copyParentRolesButton.show();
+            this.updateCopyParentRolesButtonState();
+        }
     }
 }

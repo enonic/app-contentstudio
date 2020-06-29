@@ -37,6 +37,6 @@ export class ProjectsDropdown extends RichDropdown<Project> {
             return;
         }
 
-        this.selectOption(this.createOption(project));
+        this.selectOption(this.createOption(project), true);
     }
 }

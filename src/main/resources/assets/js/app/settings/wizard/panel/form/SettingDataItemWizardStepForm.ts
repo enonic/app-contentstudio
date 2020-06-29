@@ -10,6 +10,8 @@ import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataViewItem<any>>
     extends WizardStepForm {
 
+    protected item?: ITEM;
+
     private form: Form;
 
     private dataChangedListeners: { (): void }[] = [];
@@ -21,7 +23,8 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
     }
 
     setup(item?: ITEM) {
-        this.addFormItems(item);
+        this.item = item;
+        this.addFormItems();
         this.initListeners();
     }
 
@@ -54,7 +57,7 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
 
     abstract getName(): string;
 
-    protected abstract getFormItems(item?: ITEM): FormItem[];
+    protected abstract getFormItems(): FormItem[];
 
     protected abstract initListeners();
 
@@ -64,10 +67,10 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         });
     }
 
-    private addFormItems(item?: ITEM) {
+    private addFormItems() {
         const fieldSet: Fieldset = new Fieldset();
 
-        this.getFormItems(item).forEach((formItem: FormItem) => {
+        this.getFormItems().forEach((formItem: FormItem) => {
             fieldSet.add(formItem);
         });
 
