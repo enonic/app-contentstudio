@@ -1,4 +1,3 @@
-import {SettingDataItemWizardStepForm} from './SettingDataItemWizardStepForm';
 import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
 import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
 import {i18n} from 'lib-admin-ui/util/Messages';
@@ -11,7 +10,6 @@ import {ProjectsDropdown} from './element/ProjectsDropdown';
 import {Project} from '../../../data/project/Project';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ProjectItemNameWizardStepForm
     extends ProjectWizardStepForm {
@@ -54,6 +52,10 @@ export class ProjectItemNameWizardStepForm
 
     disableParentProjectInput() {
         this.parentProjectDropdown.disable();
+    }
+
+    showProjectsChain(parentName?: string) {
+        this.parentProjectDropdown.showProjectsChain(parentName);
     }
 
     getParentProject(): string {
@@ -100,10 +102,8 @@ export class ProjectItemNameWizardStepForm
 
         this.descriptionInput.setValue(item.getDescription(), true);
         this.projectNameInput.setValue(item.getName(), true);
-        this.parentProjectDropdown.selectProjectByName(item.getData().getParent())
-            .then(() => this.disableParentProjectInput())
-            .catch(DefaultErrorHandler.handle);
-
+        this.showProjectsChain(item.getData().getParent());
+        this.disableParentProjectInput();
         this.disableProjectNameHelpText();
         this.disableProjectNameInput();
         this.disableParentProjectHelpText();

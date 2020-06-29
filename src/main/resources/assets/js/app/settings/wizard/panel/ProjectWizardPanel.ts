@@ -142,6 +142,7 @@ export class ProjectWizardPanel
             this.projectWizardStepForm.disableProjectNameHelpText();
             this.projectWizardStepForm.disableParentProjectHelpText();
             this.projectWizardStepForm.disableParentProjectInput();
+            this.projectWizardStepForm.showProjectsChain(item.getData().getParent());
 
             return Q(item);
         });

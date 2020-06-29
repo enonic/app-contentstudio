@@ -6,6 +6,7 @@ import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {ProjectsLoader} from './ProjectsLoader';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectsChainBlock} from '../../../../dialog/ProjectsChainBlock';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ProjectsDropdown extends RichDropdown<Project> {
 
@@ -37,17 +38,6 @@ export class ProjectsDropdown extends RichDropdown<Project> {
         });
     }
 
-    selectProjectByName(projectName: string): Q.Promise<void> {
-        if (!projectName) {
-            return Q(null);
-        }
-
-        return new ProjectGetRequest(projectName).sendAndParse().then((project: Project) => {
-            this.selectOption(this.createOption(project));
-            return Q(null);
-        });
-    }
-
     selectProject(project: Project) {
         if (!project) {
             return;
@@ -56,22 +46,14 @@ export class ProjectsDropdown extends RichDropdown<Project> {
         this.selectOption(this.createOption(project), true);
     }
 
-    disable() {
-        super.disable();
-        this.showProjectsChain();
-    }
-
-    private showProjectsChain() {
-        const selectedOption: Option<Project> = this.getSelectedOption();
-        const selectedProject: Project = !!selectedOption ? selectedOption.displayValue : null;
-
-        if (!selectedProject) {
+    showProjectsChain(parentName?: string) {
+        if (!parentName) {
             this.doShowProjectsChain([]);
             return;
         }
 
         this.getAllProjects().then((projects: Project[]) => {
-            const projectsChain: Project[] = this.buildProjectsChain(selectedProject, projects);
+            const projectsChain: Project[] = this.buildProjectsChain(parentName, projects);
             this.doShowProjectsChain(projectsChain);
         }).catch(DefaultErrorHandler.handle);
     }
@@ -89,10 +71,10 @@ export class ProjectsDropdown extends RichDropdown<Project> {
         return this.loader.load();
     }
 
-    private buildProjectsChain(selectedProject: Project, allProjects: Project[]): Project[] {
-        const parentProjects: Project[] = [selectedProject];
+    private buildProjectsChain(parentName: string, allProjects: Project[]): Project[] {
+        const parentProjects: Project[] = [];
 
-        let parentProjectName: string = selectedProject.getParent();
+        let parentProjectName: string = parentName;
 
         while (parentProjectName) {
                 const parentProject: Project = allProjects.find((project: Project) => project.getName() === parentProjectName);
