@@ -59,29 +59,24 @@ export class ProjectList
     private sortProjects(items: Project[]): Project[] {
         const result: Project[] = [];
 
-        const defaultProject: Project = items.find((project: Project) => ProjectHelper.isDefault(project));
+        items.sort(this.putDefaultFirstSorter);
 
-        if (defaultProject) {
-            result.push(defaultProject);
-            result.push(...this.unwrapProjectChildren(defaultProject));
-        }
-
-        const level0projects: Project[] = items.filter(
-            (project: Project) => !ProjectHelper.isDefault(project) && this.projectLevel.get(project.getName()) === 0);
-        level0projects.forEach((level0project: Project) => {
-            result.push(level0project);
-            result.push(...this.unwrapProjectChildren(level0project));
+        this.getProjectsWithoutParent(items).forEach((level0project: Project) => {
+            result.push(...this.unwrapProjectWithChildren(level0project));
         });
 
         return result;
     }
 
-    private unwrapProjectChildren(project: Project): Project[] {
-        const result: Project[] = [];
+    private getProjectsWithoutParent(items: Project[]): Project[] {
+        return items.filter((project: Project) => this.projectLevel.get(project.getName()) === 0);
+    }
+
+    private unwrapProjectWithChildren(project: Project): Project[] {
+        const result: Project[] = [project];
 
         this.projectChildren.get(project.getName()).forEach((child: Project) => {
-            result.push(child);
-            result.push(...this.unwrapProjectChildren(child));
+            result.push(...this.unwrapProjectWithChildren(child));
         });
 
         return result;
@@ -89,5 +84,17 @@ export class ProjectList
 
     protected getItemId(item: Project): string {
         return item.getName();
+    }
+
+    private putDefaultFirstSorter(a: Project, b: Project): number {
+        if (ProjectHelper.isDefault(a)) {
+            return -1;
+        }
+
+        if (ProjectHelper.isDefault(b)) {
+            return 1;
+        }
+
+        return 0;
     }
 }
