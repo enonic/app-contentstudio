@@ -9,6 +9,7 @@ import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 import {ProjectFormItem, ProjectFormItemBuilder} from './element/ProjectFormItem';
 import {ProjectsDropdown} from './element/ProjectsDropdown';
 import {Project} from '../../../data/project/Project';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ProjectItemNameWizardStepForm
     extends SettingDataItemWizardStepForm<ProjectViewItem> {
@@ -86,11 +87,13 @@ export class ProjectItemNameWizardStepForm
 
         this.descriptionInput.setValue(item.getDescription(), true);
         this.projectNameInput.setValue(item.getName(), true);
-        this.parentProjectDropdown.selectProjectByName(item.getData().getParent());
+        this.parentProjectDropdown.selectProjectByName(item.getData().getParent())
+            .then(() => this.disableParentProjectInput())
+            .catch(DefaultErrorHandler.handle);
+
         this.disableProjectNameHelpText();
         this.disableProjectNameInput();
         this.disableParentProjectHelpText();
-        this.disableParentProjectInput();
 
         return Q(null);
     }
