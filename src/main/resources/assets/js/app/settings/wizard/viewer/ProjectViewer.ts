@@ -45,7 +45,7 @@ export class ProjectViewer extends NamesAndIconViewer<Project> {
         const namesView: NamesView = this.namesAndIconView.getNamesView();
 
         const displayNameEl: Element = new SpanEl('display-name').setHtml(project.getDisplayName());
-        const nameEl: Element = new SpanEl('name').setHtml(`(${project.getName()})`);
+        const nameEl: Element = new SpanEl('name').setHtml(project.getLanguage() ? `(${project.getLanguage()})` : '');
 
         namesView.setMainNameElements([displayNameEl, nameEl]);
     }
