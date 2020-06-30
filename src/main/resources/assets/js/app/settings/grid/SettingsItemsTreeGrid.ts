@@ -19,9 +19,11 @@ import {FolderItemBuilder, FolderViewItem} from '../view/FolderViewItem';
 export class SettingsItemsTreeGrid
     extends TreeGrid<SettingsViewItem> {
 
+    private static PROJECTS_FOLDER_ID: string = 'projects';
+
     private treeGridActions: SettingsTreeGridActions;
 
-    private static PROJECTS_FOLDER_ID: string = 'projects';
+    private projects: Project[];
 
     constructor() {
         const builder = new TreeGridBuilder<SettingsViewItem>().setColumnConfig([{
@@ -50,12 +52,15 @@ export class SettingsItemsTreeGrid
         };
 
         builder.setColumnUpdater(updateColumns);
+        builder.setExpandAll(true);
 
         super(builder);
 
         this.treeGridActions = new SettingsTreeGridActions(this);
 
         this.setContextMenu(new TreeGridContextMenu(this.treeGridActions));
+
+        this.projects = [];
 
         this.getGrid().subscribeOnDblClick((event, data) => {
             if (this.isActive()) {
@@ -70,13 +75,23 @@ export class SettingsItemsTreeGrid
             return this.fetchRootItems();
         } else if (this.isProjectsFolder(parentNode.getData())) {
             return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-                return projects.map(project => ProjectViewItem.create()
+                this.projects = projects;
+
+                return this.getProjectsPyParent(null).map(project => ProjectViewItem.create()
                     .setData(project)
                     .build());
             });
-        }
+        } else {
+            const items: ProjectViewItem[] = this.getProjectsPyParent(parentNode.getData().getId()).map(project => ProjectViewItem.create()
+                .setData(project)
+                .build());
 
-        return Q(null);
+            return Q(items);
+        }
+    }
+
+    private getProjectsPyParent(parentName: string): Project[] {
+        return this.projects.filter((project: Project) => project.getParent() === parentName);
     }
 
     getDataId(item: SettingsViewItem): string {
@@ -84,7 +99,8 @@ export class SettingsItemsTreeGrid
     }
 
     hasChildren(item: SettingsViewItem): boolean {
-        return ObjectHelper.iFrameSafeInstanceOf(item, FolderViewItem);
+        return ObjectHelper.iFrameSafeInstanceOf(item, FolderViewItem) ||
+            this.projects.some((project: Project) => project.getParent() === item.getId());
     }
 
     getItemById(id: string): SettingsViewItem {
@@ -107,8 +123,15 @@ export class SettingsItemsTreeGrid
             return;
         }
 
-        this.appendNodeToParent(parentNode, item);
+        if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
+            this.projects.push((<ProjectViewItem>item).getData());
+        }
 
+        if (parentNode.hasParent() && parentNode.getParent().isExpanded()) {
+            parentNode.setExpanded(true);
+        }
+
+        this.appendNodeToParent(parentNode, item);
     }
 
     updateSettingsItemNode(item: SettingsViewItem) {
@@ -127,10 +150,17 @@ export class SettingsItemsTreeGrid
             return;
         }
 
+        this.projects = this.projects.filter((project: Project) => project.getName() !== id);
+
         this.deselectNodes([id]);
+
         const treeNodeToDelete: TreeNode<SettingsViewItem> = this.getRoot().getNodeByDataId(id);
+
         if (treeNodeToDelete) {
             this.deleteNode(treeNodeToDelete.getData());
+            if (treeNodeToDelete.hasParent()) {
+                this.invalidateNodes([treeNodeToDelete.getParent()]);
+            }
         }
     }
 
@@ -159,10 +189,16 @@ export class SettingsItemsTreeGrid
     }
 
     private getSettingsItemParentNode(item: SettingsViewItem): TreeNode<SettingsViewItem> {
-        if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
+            return null;
+        }
+
+        const projectItem: ProjectViewItem = <ProjectViewItem>item;
+
+        if (!projectItem.getData().getParent()) {
             return this.getRoot().getNodeByDataId(SettingsItemsTreeGrid.PROJECTS_FOLDER_ID);
         }
 
-        return null;
+        return this.getRoot().getNodeByDataId(projectItem.getData().getParent());
     }
 }
