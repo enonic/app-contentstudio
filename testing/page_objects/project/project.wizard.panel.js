@@ -92,23 +92,23 @@ class ProjectWizardPanel extends Page {
     }
 
     async getProjectIdentifierValidationMessage() {
-        await this.waitForElementDisplayed(this.projectIdentifierValidationMessage, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(this.projectIdentifierValidationMessage, appConst.shortTimeout);
         return await this.getText(this.projectIdentifierValidationMessage);
     }
 
     async getProjectIdentifierValidationMessageNotVisible() {
-        return await this.waitForElementNotDisplayed(this.projectIdentifierValidationMessage, appConst.TIMEOUT_2);
+        return await this.waitForElementNotDisplayed(this.projectIdentifierValidationMessage, appConst.shortTimeout);
     }
 
     waitForLoaded() {
-        return this.waitForElementDisplayed(this.descriptionInput, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.descriptionInput, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_open_insert_anchor_dialog');
             throw new Error('Project Wizard was not loaded!' + err);
         });
     }
 
     waitForWizardClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_5);
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
     }
 
     getTabTitle() {
@@ -117,7 +117,7 @@ class ProjectWizardPanel extends Page {
 
     async waitForSaveButtonEnabled() {
         try {
-            return await this.waitForElementEnabled(this.saveButton, appConst.TIMEOUT_2);
+            return await this.waitForElementEnabled(this.saveButton, appConst.shortTimeout);
         } catch (err) {
             throw new Error("Save button is not enabled :" + err);
         }
@@ -130,7 +130,7 @@ class ProjectWizardPanel extends Page {
                 this.saveScreenshot("err_pr_wizard");
                 throw new Error("Save button is not disabled!");
             }
-            return await this.waitForElementDisabled(this.saveButton, appConst.TIMEOUT_2);
+            return await this.waitForElementDisabled(this.saveButton, appConst.shortTimeout);
         } catch (err) {
             throw new Error("Save button is not disabled :" + err);
         }
@@ -143,7 +143,7 @@ class ProjectWizardPanel extends Page {
                 this.saveScreenshot("err_pr_wizard");
                 throw new Error("Delete button is not disabled!");
             }
-            return await this.waitForElementDisabled(this.deleteButton, appConst.TIMEOUT_2);
+            return await this.waitForElementDisabled(this.deleteButton, appConst.shortTimeout);
         } catch (err) {
             throw new Error("Delete button is not disabled :" + err);
         }
@@ -151,7 +151,7 @@ class ProjectWizardPanel extends Page {
 
     async waitForDeleteButtonEnabled() {
         try {
-            return await this.waitForElementEnabled(this.deleteButton, appConst.TIMEOUT_10);
+            return await this.waitForElementEnabled(this.deleteButton, appConst.longTimeout);
         } catch (err) {
             throw new Error("Delete button is not enabled :" + err);
         }
@@ -177,7 +177,7 @@ class ProjectWizardPanel extends Page {
     async getSelectedLanguage() {
         try {
             let selector = XPATH.container + lib.SELECTED_LOCALE;
-            await this.waitForElementDisplayed(selector, 1000);
+            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             return await this.getText(selector);
         } catch (err) {
             this.saveScreenshot("err_selected_locale");
@@ -186,7 +186,7 @@ class ProjectWizardPanel extends Page {
     }
 
     waitForProjectIdentifierInputDisabled() {
-        return this.waitForElementDisabled(this.projectIdentifierInput, appConst.TIMEOUT_2);
+        return this.waitForElementDisabled(this.projectIdentifierInput, appConst.shortTimeout);
     }
 
     async typeInProjectIdentifier(identifier) {
@@ -196,7 +196,7 @@ class ProjectWizardPanel extends Page {
     }
 
     waitForDescriptionInputDisplayed() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(XPATH.container, appConst.shortTimeout);
     }
 
     async isNoModify() {
@@ -205,7 +205,7 @@ class ProjectWizardPanel extends Page {
     }
 
     waitForProjectIdentifierInputDisplayed() {
-        return this.waitForElementDisplayed(this.projectIdentifierInput, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.projectIdentifierInput, appConst.shortTimeout);
     }
 
     waitForRolesComboboxDisplayed() {
@@ -228,7 +228,7 @@ class ProjectWizardPanel extends Page {
         await this.pause(400);
         let menuItem = XPATH.container + XPATH.projectAccessControlComboBox + XPATH.accessItemByName(userDisplayName) +
                        lib.tabMenuItem(newRole);
-        await this.waitForElementDisplayed(menuItem, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(menuItem, appConst.shortTimeout);
         return await this.clickOnElement(menuItem);
     }
 
@@ -289,22 +289,22 @@ class ProjectWizardPanel extends Page {
     //Click on radio button and selects 'Access mode'
     async clickOnAccessModeRadio(mode) {
         let selector = XPATH.radioButtonByDescription(mode) + "/input[@type='radio']";
-        await this.waitForElementDisplayed(XPATH.radioButtonByDescription(mode), appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(XPATH.radioButtonByDescription(mode), appConst.shortTimeout);
         return await this.clickOnElement(selector);
     }
 
     async isAccessModeRadioSelected(mode) {
         let selector = XPATH.radioButtonByDescription(mode) + "/input[@type='radio']";
-        await this.waitForElementDisplayed(XPATH.radioButtonByDescription(mode), appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(XPATH.radioButtonByDescription(mode), appConst.shortTimeout);
         return await this.isSelected(selector);
     }
 
     waitForCustomAccessModeComboboxDisabled() {
-        return this.waitForElementDisabled(this.customReadAccessOptionsFilterInput, appConst.TIMEOUT_2);
+        return this.waitForElementDisabled(this.customReadAccessOptionsFilterInput, appConst.shortTimeout);
     }
 
     waitForCustomReadAccessComboboxEnabled() {
-        return this.waitForElementEnabled(this.customReadAccessOptionsFilterInput, appConst.TIMEOUT_2);
+        return this.waitForElementEnabled(this.customReadAccessOptionsFilterInput, appConst.shortTimeout);
     }
 
     async waitForProjectAccessSelectorTabMenuExpanded(principalName) {
@@ -312,7 +312,7 @@ class ProjectWizardPanel extends Page {
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(selector, "class");
             return result.includes("expanded");
-        }, appConst.TIMEOUT_3, "Project access menu should be expanded!");
+        }, appConst.mediumTimeout, "Project access menu should be expanded!");
     }
 
     getSelectedRoleInProjectAccessControlEntry(name) {
@@ -335,7 +335,7 @@ class ProjectWizardPanel extends Page {
         await this.waitForProjectAccessSelectorTabMenuExpanded(principalName);
         await this.pause(1000);
         await this.waitForElementDisplayed(selector + `//li[contains(@id,'TabMenuItem') and child::a[text()='${role}']]`,
-            appConst.TIMEOUT_2);
+            appConst.shortTimeout);
         await this.clickOnElement(selector + `//li[contains(@id,'TabMenuItem') and child::a[text()='${role}']]`);
         return await this.pause(500);
     }

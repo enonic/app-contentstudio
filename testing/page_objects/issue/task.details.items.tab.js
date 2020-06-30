@@ -38,7 +38,6 @@ class TaskDetailsDialogItemsTab extends Page {
         return xpath.container + xpath.reopenTaskButton;
     }
 
-
     get publishButton() {
         return xpath.container + xpath.buttonRow + xpath.publishButton;
     }
@@ -89,7 +88,7 @@ class TaskDetailsDialogItemsTab extends Page {
     }
 
     async waitForPublishButtonEnabled() {
-        return await this.waitForElementEnabled(this.publishButton, appConst.TIMEOUT_3);
+        return await this.waitForElementEnabled(this.publishButton, appConst.mediumTimeout);
     }
 
     waitForContentOptionsFilterInputDisplayed() {
@@ -123,7 +122,7 @@ class TaskDetailsDialogItemsTab extends Page {
     //Show dependent items
     async clickOnShowDependentItems(text) {
         try {
-            await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.mediumTimeout);
             await this.clickOnElement(this.showDependentItemsLink);
             return await this.pause(400);
         } catch (err) {
@@ -132,7 +131,7 @@ class TaskDetailsDialogItemsTab extends Page {
     }
 
     waitForShowDependentItemsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot("err_show_dep_items_link_should_be_displayed")
             throw new Error("Show Dependent Items link should be displayed! " + err);
         })
@@ -141,7 +140,7 @@ class TaskDetailsDialogItemsTab extends Page {
     //Hide dependent items
     async clickOnHideDependentItems() {
         try {
-            await this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.shortTimeout);
             await this.clickOnElement(this.hideDependentItemsLink);
             return await this.pause(300);
         } catch (err) {
@@ -150,7 +149,7 @@ class TaskDetailsDialogItemsTab extends Page {
     }
 
     waitForHideDependentItemsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.shortTimeout).catch(err => {
             this.saveScreenshot("err_hide_dependent_items_should_be_displayed");
             throw new Error("Hide Dependent Items link should be displayed! " + err);
         })
@@ -158,7 +157,7 @@ class TaskDetailsDialogItemsTab extends Page {
 
     clickOnIncludeChildItems(displayName) {
         let includeIcon = xpath.selectionItemByDisplayName(displayName) + xpath.includeChildrenToggler;
-        return this.waitForElementDisplayed(includeIcon, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(includeIcon, appConst.shortTimeout).then(() => {
             return this.clickOnElement(includeIcon)
         }).then(() => {
             return this.pause(2000);
@@ -169,7 +168,7 @@ class TaskDetailsDialogItemsTab extends Page {
 
     excludeDependantItem(displayName) {
         let removeIcon = xpath.dependantSelectionItemByDisplayName(displayName) + "//div[contains(@class,'icon remove')]";
-        return this.waitForElementDisplayed(removeIcon, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(removeIcon, appConst.shortTimeout).then(() => {
             return this.clickOnElement(removeIcon)
         }).then(() => {
             return this.pause(1000);
@@ -180,7 +179,7 @@ class TaskDetailsDialogItemsTab extends Page {
 
     excludeItem(displayName) {
         let removeIcon = xpath.selectionItemByDisplayName(displayName) + "//div[contains(@class,'icon remove')]";
-        return this.waitForElementDisplayed(removeIcon, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(removeIcon, appConst.shortTimeout).then(() => {
             return this.clickOnElement(removeIcon)
         }).then(() => {
             return this.pause(1000);
@@ -191,10 +190,10 @@ class TaskDetailsDialogItemsTab extends Page {
 
     async clickOnCloseTaskButton() {
         try {
-            await this.waitForElementDisplayed(this.closeTaskButton, appConst.TIMEOUT_3);
+            await this.waitForElementDisplayed(this.closeTaskButton, appConst.mediumTimeout);
             await this.clickOnElement(this.closeTaskButton);
             //Reopen Task button should appear!
-            return await this.waitForElementDisplayed(this.reopenTaskButton, appConst.TIMEOUT_3);
+            return await this.waitForElementDisplayed(this.reopenTaskButton, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot('err_click_close_task_button');
             throw  new Error('Error when clicking on the `Close Task`  ' + err);
@@ -202,7 +201,7 @@ class TaskDetailsDialogItemsTab extends Page {
     }
     async waitForReopenTaskButtonDisplayed(){
         try {
-            return await this.waitForElementDisplayed(this.reopenTaskButton, appConst.TIMEOUT_3);
+            return await this.waitForElementDisplayed(this.reopenTaskButton, appConst.mediumTimeout);
         }catch(err){
             throw new Error("Reopen Task button is not displayed: "+ err)
         }

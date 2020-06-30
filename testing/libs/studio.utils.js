@@ -173,7 +173,7 @@ module.exports = {
         let browsePanel = new BrowsePanel();
         let newContentDialog = new NewContentDialog();
         let contentWizardPanel = new ContentWizardPanel();
-        await browsePanel.waitForNewButtonEnabled(appConst.TIMEOUT_3);
+        await browsePanel.waitForNewButtonEnabled(appConst.mediumTimeout);
         await browsePanel.clickOnNewButton();
         await newContentDialog.waitForOpened();
         await newContentDialog.clickOnContentType(contentType);
@@ -460,7 +460,7 @@ module.exports = {
         if (isDisplayed) {
             await launcherPanel.clickOnLogoutLink();
         }
-        return await loginPage.waitForPageLoaded(appConst.TIMEOUT_3);
+        return await loginPage.waitForPageLoaded(appConst.mediumTimeout);
     },
     navigateToContentStudioApp: function (userName, password) {
         let launcherPanel = new LauncherPanel();
@@ -503,7 +503,7 @@ module.exports = {
         return webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin").then(() => {
             console.log("switched to content browse panel...");
         }).then(() => {
-            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_10);
+            return browsePanel.waitForGridLoaded(appConst.longTimeout);
         }).catch(err => {
             throw new Error("Error when switching to Content Studio App " + err);
         })
@@ -514,7 +514,7 @@ module.exports = {
             console.log("switched to Home...");
         }).then(() => {
             let homePage = new HomePage();
-            return homePage.waitForLoaded(appConst.TIMEOUT_3);
+            return homePage.waitForLoaded(appConst.mediumTimeout);
         });
     },
     async doCloseWindowTabAndSwitchToBrowsePanel() {
@@ -694,7 +694,7 @@ module.exports = {
             console.log("switched to Users app...");
             return browsePanel.waitForSpinnerNotVisible();
         }).then(() => {
-            return browsePanel.waitForUsersGridLoaded(appConst.TIMEOUT_3);
+            return browsePanel.waitForUsersGridLoaded(appConst.mediumTimeout);
         }).catch(err => {
             throw new Error("Error when switching to Users App " + err);
         })

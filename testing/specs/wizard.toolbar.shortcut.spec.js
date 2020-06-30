@@ -62,7 +62,7 @@ describe('Wizard toolbar - shortcut spec`', function () {
         //1. Open existing folder:
         await studioUtils.selectAndOpenContentInWizard(DISPLAY_NAME);
         await contentWizard.hotKeyCloseWizard();
-        await contentBrowsePanel.waitForGridLoaded(appConstant.TIMEOUT_2);
+        await contentBrowsePanel.waitForGridLoaded(appConstant.shortTimeout);
     });
 
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+Enter' have been pressed THEN the content should be should be saved then closed AND grid is loaded`,
@@ -76,7 +76,7 @@ describe('Wizard toolbar - shortcut spec`', function () {
             await settingsStepForm.filterOptionsAndSelectLanguage('English (en)');
             //3. Press 'Ctrl+Enter
             await contentWizard.hotKeySaveAndCloseWizard();
-            await contentBrowsePanel.waitForGridLoaded(appConstant.TIMEOUT_2);
+            await contentBrowsePanel.waitForGridLoaded(appConstant.shortTimeout);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

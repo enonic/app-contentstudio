@@ -205,13 +205,15 @@ class Page {
     }
 
     async waitForElementDisplayed(selector, ms) {
+        let elements = await this.findElements(selector);
         let element = await this.findElement(selector);
         return await element.waitForDisplayed(ms);
+        //return await element.waitForDisplayed({timeout: ms});
     }
 
     waitForSpinnerNotVisible(ms) {
         let timeout;
-        timeout = ms === undefined ? appConst.TIMEOUT_7 : ms;
+        timeout = ms === undefined ? appConst.longTimeout : ms;
         let message = "Spinner still displayed! timeout is " + timeout;
         return this.browser.waitUntil(() => {
             return this.isElementNotDisplayed(`//div[@class='spinner']`);
@@ -219,7 +221,7 @@ class Page {
     }
 
     waitUntilElementNotVisible(selector, timeout) {
-        let message = "Element still displayed! timeout is " + appConst.TIMEOUT_7 + "  " + selector;
+        let message = "Element still displayed! timeout is " + appConst.longTimeout + "  " + selector;
         return this.browser.waitUntil(() => {
             return this.isElementNotDisplayed(selector);
         }, timeout, message);
@@ -258,7 +260,7 @@ class Page {
     //returns array of messages
     async waitForNotificationMessages() {
         try {
-            await this.waitForElementDisplayed("//div[@class='notification-content']", appConst.TIMEOUT_3);
+            await this.waitForElementDisplayed("//div[@class='notification-content']", appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot('err_notification_messages');
             throw new Error('Error when wait for notification message: ' + err);
@@ -269,7 +271,7 @@ class Page {
 
     waitForExpectedNotificationMessage(expectedMessage) {
         let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-content') and contains(.,'${expectedMessage}')]`;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_notification_mess');
             throw new Error('expected notification message was not shown! ' + err);
         })
@@ -277,14 +279,14 @@ class Page {
 
     waitForErrorNotificationMessage() {
         let selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']//div[contains(@class,'notification-content')]`;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).then(() => {
             return this.getText(selector);
         })
     }
 
     async waitForNotificationWarning() {
         let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-content')]`;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         await this.pause(500);
         return await this.getText(selector);
     }
@@ -382,7 +384,7 @@ class Page {
 
     async switchToFrame(selector) {
         try {
-            await this.waitUntilDisplayed(selector, appConst.TIMEOUT_2);
+            await this.waitUntilDisplayed(selector, appConst.shortTimeout);
             let el = await this.findElement(selector);
             //return await this.browser.switchToFrame(el.elementId); // Fail! Firefox and Chrome
             return await this.getBrowser().switchToFrame(el);
@@ -403,7 +405,6 @@ class Page {
     async doDoubleClick(selector) {
         try {
             let el = await this.findElement(selector);
-            await el.moveTo();
             return await el.doubleClick();
         } catch (err) {
             throw Error('Error when doubleClick on the element' + err);
@@ -419,7 +420,7 @@ class Page {
             return this.getAttribute(selector, 'class').then(result => {
                 return result.includes('invalid');
             });
-        }, 3000).catch(err => {
+        }, appConst.mediumTimeout).catch(err => {
             return false;
         });
     }
@@ -429,7 +430,7 @@ class Page {
             return this.getAttribute(selector, attribute).then(result => {
                 return result.includes(value);
             });
-        }, appConst.TIMEOUT_2, "Attribute " + attribute + "  does not contain the value:" + value);
+        }, appConst.shortTimeout, "Attribute " + attribute + "  does not contain the value:" + value);
     }
 
     waitForAttributeNotIncludesValue(selector, attribute, value) {
@@ -437,7 +438,7 @@ class Page {
             return this.getAttribute(selector, attribute).then(result => {
                 return !result.includes(value);
             });
-        }, appConst.TIMEOUT_2, "Attribute " + attribute + "  contains the value: " + value);
+        }, appConst.shortTimeout, "Attribute " + attribute + "  contains the value: " + value);
     }
 
     //is checkbox selected...

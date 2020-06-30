@@ -24,7 +24,7 @@ class FreeFormOptionSet1 extends Page {
 
     async clickOnImageRadioButton() {
         try {
-            await this.waitForElementDisplayed(this.imageRadioButton, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.imageRadioButton, appConst.shortTimeout);
             return await this.clickOnElement(this.imageRadioButton);
         } catch (err) {
             this.saveScreenshot("err_free_form_image_radio");
@@ -34,7 +34,7 @@ class FreeFormOptionSet1 extends Page {
 
     async clickOnTextRadioButton() {
         try {
-            await this.waitForElementDisplayed(this.textRadioButton, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.textRadioButton, appConst.shortTimeout);
             return await this.clickOnElement(this.textRadioButton);
         } catch (err) {
             this.saveScreenshot("err_free_form_text_radio");

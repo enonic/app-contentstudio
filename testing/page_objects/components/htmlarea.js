@@ -16,7 +16,7 @@ const component = {
 
 class HtmlArea extends Page {
     typeTextInHtmlArea(selector, text) {
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).then(() => {
             return this.getIdOfHtmlArea(selector + lib.TEXT_AREA);
         }).then(id => {
             this.execute(component.typeText(id, text));
@@ -29,7 +29,7 @@ class HtmlArea extends Page {
 
     getTextFromHtmlArea(container) {
         return this.waitForElementDisplayed(container + "//div[contains(@id,'cke_TextArea')]",
-            appConst.TIMEOUT_3).then(() => {
+            appConst.mediumTimeout).then(() => {
             return this.getIdOfHtmlArea(container + lib.TEXT_AREA);
         }).then(id => {
             return this.execute(component.getText(id));

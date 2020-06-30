@@ -40,10 +40,10 @@ class PageInspectionPanel extends Page {
     //clicks on dropdown handle and select an option
     selectPageTemplateOrController(displayName) {
         let optionSelector = lib.slickRowByDisplayName(xpath.pageTemplateSelector, displayName);
-        return this.waitForElementDisplayed(this.pageTemplateDropdownHandle, appConst.TIMEOUT_5).then(() => {
+        return this.waitForElementDisplayed(this.pageTemplateDropdownHandle, appConst.longTimeout).then(() => {
             return this.clickOnPageTemplateDropdownHandle();
         }).then(() => {
-            return this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_3);
+            return this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
         }).then(() => {
             return this.clickOnElement(optionSelector);
         }).then(() => {

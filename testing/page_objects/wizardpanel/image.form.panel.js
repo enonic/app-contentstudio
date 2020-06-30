@@ -45,7 +45,7 @@ class ImageFormPanel extends Page {
 
     async clickOnFlipButton() {
         try {
-            await this.waitForElementDisplayed(this.buttonFlip, appConst.TIMEOUT_3);
+            await this.waitForElementDisplayed(this.buttonFlip, appConst.mediumTimeout);
             await this.pause(1200);
             await this.clickOnElement(this.buttonFlip);
             return await this.pause(700);
@@ -57,7 +57,7 @@ class ImageFormPanel extends Page {
 
     async clickOnRotateButton() {
         try {
-            await this.waitForElementDisplayed(this.buttonRotate, appConst.TIMEOUT_3);
+            await this.waitForElementDisplayed(this.buttonRotate, appConst.mediumTimeout);
             await this.pause(1200);
             await this.clickOnElement(this.buttonRotate);
             return await this.pause(700);
@@ -77,13 +77,13 @@ class ImageFormPanel extends Page {
     }
 
     waitForResetFilterDisplayed() {
-        return this.waitForElementDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.buttonResetFilters, appConst.shortTimeout).catch(err => {
             throw new Error("Image Wizard - Reset Filter button, " + err);
         });
     }
 
     waitForResetFilterNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.shortTimeout);
     }
 
     //TODO type all data
@@ -96,7 +96,7 @@ class ImageFormPanel extends Page {
     }
 
     waitForCaptionDisplayed() {
-        return this.waitForElementDisplayed(this.captionTextArea, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.captionTextArea, appConst.shortTimeout);
     }
 
     getCaption() {
@@ -107,7 +107,7 @@ class ImageFormPanel extends Page {
 
     async waitForResetFiltersDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.buttonResetFilters, appConst.shortTimeout);
         } catch (err) {
             throw new Error("Button 'Reset filters' is not displayed in 2 seconds " + err);
         }
@@ -115,7 +115,7 @@ class ImageFormPanel extends Page {
 
     async waitForResetFiltersNotDisplayed() {
         try {
-            await this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.TIMEOUT_2);
+            await this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.shortTimeout);
         } catch (err) {
             throw new Error("Button 'Reset filters' is still displayed in 2 seconds " + err);
         }

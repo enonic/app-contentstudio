@@ -37,7 +37,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
                 //console.log("COMPARE: " + (width.value) + " " + (getPanelWidth(width.value) > 0));
                 return getPanelWidth(width) > 100;
             })
-        }, appConst.TIMEOUT_2, "Details Panel was not loaded in 2000!!!");
+        }, appConst.shortTimeout, "Details Panel was not loaded in 2000!!!");
     }
 
     isDetailsPanelLoaded() {

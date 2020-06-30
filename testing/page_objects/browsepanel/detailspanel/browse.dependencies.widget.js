@@ -29,8 +29,8 @@ class BrowseDependenciesWidget extends Page {
     }
 
     waitForWidgetLoaded() {
-        return this.waitForElementDisplayed(this.dependenciesWidget, appConst.TIMEOUT_2).catch(err => {
-            throw new Error('Content Wizard: Dependencies Widget was not loaded in ' + appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.dependenciesWidget, appConst.shortTimeout).catch(err => {
+            throw new Error('Content Wizard: Dependencies Widget was not loaded in ' + appConst.shortTimeout);
         });
     }
 };

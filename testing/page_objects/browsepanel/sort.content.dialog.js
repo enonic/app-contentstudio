@@ -36,11 +36,11 @@ class SortContentDialog extends Page {
     }
 
     waitForDialogVisible() {
-        return this.waitForElementDisplayed(XPATH.saveButton, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(XPATH.saveButton, appConst.shortTimeout);
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_close_sort_content_dialog');
             throw new Error('Sort content dialog must be closed' + err);
         })
@@ -77,7 +77,7 @@ class SortContentDialog extends Page {
 
     async getSelectedOrder() {
         let selector = XPATH.container + XPATH.menuButton + "//a";
-        //await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        //await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         return await this.getAttribute(selector, "title");
     }
 };

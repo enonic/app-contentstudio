@@ -20,10 +20,10 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    let FOLDER_NAME = studioUtils.generateRandomName("folder");
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
+    const FOLDER_NAME = studioUtils.generateRandomName("folder");
     let USER;
-    let PASSWORD = "1q2w3e";
+    const PASSWORD = "1q2w3e";
 
     it(`Preconditions: new system user should be created`,
         async () => {
@@ -85,7 +85,6 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             assert.isFalse(result, "Locale input should not be clickable");
             result = await projectWizard.isDisplayNameInputClickable();
             assert.isFalse(result, "Display Name input should not be clickable");
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     it("GIVEN user with Author role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
@@ -99,14 +98,13 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             //2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Verify that all button are disabled in the toolbar:
+            studioUtils.saveScreenshot("project_author_1");
             await settingsBrowsePanel.waitForNewButtonDisabled();
             await settingsBrowsePanel.waitForEditButtonDisabled();
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
-            studioUtils.saveScreenshot("project_author_1");
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-    it("GIVEN user with Author role is logged in WHEN required context is loaded THEN only New... button should be enabled for Author role",
+    it("GIVEN user with Author role is logged in WHEN New Content dialog is opened THEN creating of Folder and Shortcut are allowed for Author role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
@@ -122,12 +120,10 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             assert.equal(items.length, 2, "Two items should be available for Author");
             assert.isTrue(items.includes("Folder"), "Folder is allowed for creating");
             assert.isTrue(items.includes("Shortcut"), "Shortcut is allowed for creating");
-
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     //Verify that user with Author role can not select a language or owner in Wizard, but can make a content ready for publishing( Mark as Ready)
-    it("GIVEN user with Author role is logged in WHEN new folder has been saved THEN Mark as Ready should be as default action in Publish Menu",
+    it("GIVEN user with 'Author' role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
             let settingsStepForm = new SettingsStepForm();
@@ -145,7 +141,6 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             assert.isFalse(isVisible, "Language comboBox should not be visible for Author role");
             isVisible = await settingsStepForm.isOwnerOptionsFilterVisible();
             assert.isFalse(isVisible, "Owner comboBox should not be visible for Author role");
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     //Verify that 'Author' can not publish content:
@@ -166,35 +161,40 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
             //5. Verify that Publish menu item is disabled:
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
-
-                await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-        //Verifies - issue#1920 User with author role - Last stage in publishing workflow for Project gives user option to "Publish Now"
+    //Verifies - issue#1920 User with author role - Last stage in publishing workflow for Project gives user option to "Publish Now"
     //https://github.com/enonic/app-contentstudio/issues/1920
-        it("GIVEN user with 'Author' role is logged in WHEN existing folder has been selected and Publish Request has been created THEN 'Publish Now' button should be disabled on the last stage",
-            async () => {
-                    let contentBrowsePanel = new ContentBrowsePanel();
-                    let createRequestPublishDialog = new CreateRequestPublishDialog();
-                    let publishRequestDetailsDialog = new PublishRequestDetailsDialog()
-                    //1. Do log in with the user-author and navigate to Content Browse Panel:
-                    await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-                    //2. Select the folder and open Request wizard:
-                    await studioUtils.findAndSelectItem(FOLDER_NAME);
-                    await contentBrowsePanel.openPublishMenuSelectItem(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
-                    await createRequestPublishDialog.waitForDialogLoaded();
-                    await createRequestPublishDialog.clickOnNextButton();
-                    await createRequestPublishDialog.typeInChangesInput("author's request");
-                    //3. Click on 'Create Request' button:
-                    await createRequestPublishDialog.clickOnCreateRequestButton();
-                    //4. Verify that 'Request Details' dialog is loaded:
-                    await publishRequestDetailsDialog.waitForTabLoaded();
-                    //5. Verify that 'Publish Now' button is disabled:
-                    studioUtils.saveScreenshot("project_author_8");
-                    await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
-            });
+    it("GIVEN user with 'Author' role is logged in WHEN existing folder has been selected and Publish Request has been created THEN 'Publish Now' button should be disabled on the last stage",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let createRequestPublishDialog = new CreateRequestPublishDialog();
+            let publishRequestDetailsDialog = new PublishRequestDetailsDialog()
+            //1. Do log in with the user-author and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            //2. Select the folder and open Request wizard:
+            await studioUtils.findAndSelectItem(FOLDER_NAME);
+            await contentBrowsePanel.openPublishMenuSelectItem(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            await createRequestPublishDialog.waitForDialogLoaded();
+            await createRequestPublishDialog.clickOnNextButton();
+            await createRequestPublishDialog.typeInChangesInput("author's request");
+            //3. Click on 'Create Request' button:
+            await createRequestPublishDialog.clickOnCreateRequestButton();
+            //4. Verify that 'Request Details' dialog is loaded:
+            await publishRequestDetailsDialog.waitForTabLoaded();
+            //5. Verify that 'Publish Now' button is disabled:
+            studioUtils.saveScreenshot("project_author_8");
+            await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
+        });
 
+    afterEach(async () => {
+        let title = await webDriverHelper.browser.getTitle();
+        if (title.includes("Content Studio") || title.includes("Users")) {
+            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        }
+    });
     before(() => {
         return console.log('specification is starting: ' + this.title);
     });
+
 });

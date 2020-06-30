@@ -54,7 +54,7 @@ class InsertImageDialog extends Page {
     }
 
     clickOnCustomWidthCheckBox() {
-        return this.waitForElementDisplayed(this.customWidthCheckbox, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout).then(() => {
             return this.clickOnElement(this.customWidthCheckbox);
         }).then(() => {
             return this.pause(400);
@@ -65,7 +65,7 @@ class InsertImageDialog extends Page {
     }
 
     isCustomWidthCheckBoxSelected() {
-        return this.waitForElementDisplayed(this.customWidthCheckbox, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(this.customWidthCheckbox, appConst.shortTimeout).then(() => {
             return this.isSelected(this.customWidthCheckbox + lib.CHECKBOX_INPUT);
         }).catch(err => {
             this.saveScreenshot("err_clicking_on_custom_width_checkbox");
@@ -74,11 +74,11 @@ class InsertImageDialog extends Page {
     }
 
     waitForCustomWidthCheckBoxDisabled() {
-        return this.waitForElementDisabled(this.customWidthCheckbox + lib.CHECKBOX_INPUT, appConst.TIMEOUT_2);
+        return this.waitForElementDisabled(this.customWidthCheckbox + lib.CHECKBOX_INPUT, appConst.shortTimeout);
     }
 
     waitForCustomWidthCheckBoxEnabled() {
-        return this.waitForElementEnabled(this.customWidthCheckbox + lib.CHECKBOX_INPUT, appConst.TIMEOUT_2);
+        return this.waitForElementEnabled(this.customWidthCheckbox + lib.CHECKBOX_INPUT, appConst.shortTimeout);
     }
 
     clickOnStyleSelectorDropDownHandle() {
@@ -91,9 +91,9 @@ class InsertImageDialog extends Page {
     async doFilterStyleAndClickOnOption(styleOption) {
         let optionSelector = lib.slickRowByDisplayName(XPATH.container, styleOption);
         try {
-            await this.waitForElementDisplayed(this.styleOptionsFilterInput, appConst.TIMEOUT_5);
+            await this.waitForElementDisplayed(this.styleOptionsFilterInput, appConst.longTimeout);
             await this.typeTextInInput(this.styleOptionsFilterInput, styleOption);
-            await this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_3);
+            await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
             await this.clickOnElement(optionSelector);
             return this.pause(400);
         } catch (err) {
@@ -129,19 +129,19 @@ class InsertImageDialog extends Page {
     }
 
     waitForDialogVisible() {
-        return this.waitForElementDisplayed(this.cancelButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_open_insert_image_dialog');
             throw new Error('Insert Image Dialog should be opened!' + err);
         });
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
     }
 
     async waitForImageRangeValue() {
         try {
-            await this.waitForElementDisplayed(XPATH.imageRangeValue, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(XPATH.imageRangeValue, appConst.shortTimeout);
             return await this.getText(XPATH.imageRangeValue);
         } catch (err) {
             throw new Error("Error when getting text in element with image range " + err);
@@ -150,20 +150,20 @@ class InsertImageDialog extends Page {
     }
 
     waitForImageRangeNotVisible() {
-        return this.waitForElementNotDisplayed(XPATH.imageRangeValue, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(XPATH.imageRangeValue, appConst.shortTimeout);
     }
 
     filterAndSelectImage(imageDisplayName) {
         let comboBox = new ComboBox();
-        return this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.shortTimeout).then(() => {
             return comboBox.typeTextAndSelectOption(imageDisplayName, XPATH.container);
         }).then(() => {
-            return this.waitForSpinnerNotVisible(appConst.TIMEOUT_2);
+            return this.waitForSpinnerNotVisible(appConst.shortTimeout);
         })
     }
 
     waitForStyleSelectorVisible() {
-        return this.waitForElementDisplayed(this.styleSelector, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.styleSelector, appConst.shortTimeout);
     }
 
     async getStyleSelectorOptions() {
