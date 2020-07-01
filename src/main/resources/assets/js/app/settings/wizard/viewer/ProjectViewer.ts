@@ -8,8 +8,8 @@ import {Element} from 'lib-admin-ui/dom/Element';
 
 export class ProjectViewer extends NamesAndIconViewer<Project> {
 
-    constructor() {
-        super('project-viewer');
+    constructor(className?: string) {
+        super('project-viewer ' + (!!className ? className : ''));
     }
 
     resolveDisplayName(project: Project): string {

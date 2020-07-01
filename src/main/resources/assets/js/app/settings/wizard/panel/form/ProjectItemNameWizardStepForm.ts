@@ -6,10 +6,11 @@ import {ProjectViewItem} from '../../../view/ProjectViewItem';
 import * as Q from 'q';
 import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 import {ProjectFormItem, ProjectFormItemBuilder} from './element/ProjectFormItem';
-import {ProjectsDropdown} from './element/ProjectsDropdown';
+import {ProjectsComboBox} from './element/ProjectsComboBox';
 import {Project} from '../../../data/project/Project';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 export class ProjectItemNameWizardStepForm
     extends ProjectWizardStepForm {
@@ -22,7 +23,7 @@ export class ProjectItemNameWizardStepForm
 
     private descriptionInput: TextInput;
 
-    private parentProjectDropdown: ProjectsDropdown;
+    private parentProjectDropdown: ProjectsComboBox;
 
     private parentProjectFormItem: ProjectFormItem;
 
@@ -51,7 +52,7 @@ export class ProjectItemNameWizardStepForm
     }
 
     disableParentProjectInput() {
-        this.parentProjectDropdown.disable();
+        this.parentProjectDropdown.setReadOnly(true);
     }
 
     showProjectsChain(parentName?: string) {
@@ -67,8 +68,8 @@ export class ProjectItemNameWizardStepForm
     }
 
     onParentProjectChanged(callback: (project: Project) => void) {
-        this.parentProjectDropdown.onOptionSelected((event: OptionSelectedEvent<Project>) => {
-            callback(event.getOption().displayValue);
+        this.parentProjectDropdown.onOptionSelected((event: SelectedOptionEvent<Project>) => {
+            callback(event.getSelectedOption().getOption().displayValue);
         });
 
 
@@ -138,7 +139,7 @@ export class ProjectItemNameWizardStepForm
         this.descriptionInput = new TextInput();
         const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
 
-        this.parentProjectDropdown = new ProjectsDropdown();
+        this.parentProjectDropdown = new ProjectsComboBox();
 
         this.parentProjectFormItem = <ProjectFormItem>new ProjectFormItemBuilder(this.parentProjectDropdown)
             .setHelpText(i18n('settings.projects.parent.helptext'))
