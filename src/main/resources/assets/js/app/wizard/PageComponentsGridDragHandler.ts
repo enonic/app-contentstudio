@@ -123,7 +123,6 @@ export class PageComponentsGridDragHandler
 
         (<ComponentView<Component>>item).moveToRegion(<RegionView>newParent, insertIndex);
 
-        this.contentGrid.refresh();
         item.select(null, ItemViewContextMenuPosition.NONE);
 
         return data[regionPosition];

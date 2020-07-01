@@ -156,6 +156,7 @@ export class SortContentDialog
 
     private handleOpenSortDialogEvent(event: OpenSortDialogEvent) {
         this.parentContent = event.getContent();
+        this.contentGrid.setContentId(this.parentContent.getContentId());
         this.curChildOrder = this.getParentChildOrder();
         this.prevChildOrder = null;
         this.sortContentMenu.selectNavigationItemByOrder(this.curChildOrder);
