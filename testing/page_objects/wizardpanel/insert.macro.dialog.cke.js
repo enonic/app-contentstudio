@@ -47,14 +47,14 @@ class InsertMacroModalDialog extends Page {
     }
 
     waitForDialogVisible() {
-        return this.waitForElementDisplayed(this.insertButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_open_insert_macro_dialog');
             throw new Error('Insert Image Dialog should be opened!' + err);
         });
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
     }
 };
 module.exports = InsertMacroModalDialog;

@@ -34,7 +34,7 @@ class ContentWidgetItemView extends Page {
 
     async waitForNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+            return await this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
         } catch (err) {
             this.saveScreenshot("err_widget_item_is_visible");
             throw new Error("Widget Item should not be displayed " + err);

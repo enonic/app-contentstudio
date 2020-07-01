@@ -70,7 +70,7 @@ class BaseBrowsePanel extends Page {
     //wait for the "Show Selection" circle appears in the toolbar
     async waitForSelectionTogglerVisible() {
         try {
-            await this.waitForElementDisplayed(this.selectionPanelToggler, appConst.TIMEOUT_3);
+            await this.waitForElementDisplayed(this.selectionPanelToggler, appConst.mediumTimeout);
             let attr = await this.getAttribute(this.selectionPanelToggler, 'class');
             return attr.includes('any-selected');
         } catch (err) {
@@ -80,7 +80,7 @@ class BaseBrowsePanel extends Page {
 
     async waitForSelectionTogglerNotVisible() {
         try {
-            await this.waitForElementNotDisplayed(this.selectionPanelToggler, appConst.TIMEOUT_3);
+            await this.waitForElementNotDisplayed(this.selectionPanelToggler, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot("err_selection_toggler_should_not_visible");
             throw new Error("Selection toggler should not be visible")
@@ -105,8 +105,7 @@ class BaseBrowsePanel extends Page {
         await this.getBrowser().waitUntil(async () => {
             let text = await this.getAttribute(selector, "class");
             return text.includes('partial');
-        }, appConst.TIMEOUT_2, "Selection Controller checkBox should displayed as partial");
-        return true;
+        }, appConst.shortTimeout, "Selection Controller checkBox should displayed as partial");
     }
 
     async isSelectionControllerPartial() {
@@ -130,22 +129,22 @@ class BaseBrowsePanel extends Page {
     }
 
     waitForNewButtonDisabled() {
-        return this.waitForElementDisabled(this.newButton, 3000).catch(err => {
+        return this.waitForElementDisabled(this.newButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_new_disabled_button');
-            throw Error('New... button should be disabled, timeout: ' + 3000 + 'ms')
+            throw Error('New... button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
         })
     }
 
     //Wait for `New` button is visible
     waitForNewButtonVisible() {
-        return this.waitForElementDisplayed(this.newButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.newButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot("err_new_project_button");
             throw new Error("New button is not visible! " + err);
         })
     }
 
     waitForNewButtonEnabled() {
-        return this.waitForElementEnabled(this.newButton, 3000).catch(err => {
+        return this.waitForElementEnabled(this.newButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_new_button');
             throw new Error('New button is not enabled in : ' + err);
         })
@@ -156,16 +155,16 @@ class BaseBrowsePanel extends Page {
     }
 
     waitForDeleteButtonDisabled() {
-        return this.waitForElementDisabled(this.deleteButton, 3000).catch(err => {
+        return this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_delete_disabled_button');
             throw Error('Browse toolbar - Delete button should be disabled, timeout: ' + 3000 + 'ms')
         })
     }
 
     waitForDeleteButtonEnabled() {
-        return this.waitForElementEnabled(this.deleteButton, 3000).catch(err => {
+        return this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_delete_button');
-            throw Error('Delete button is not enabled after ' + 3000 + 'ms')
+            throw Error('Delete button is not enabled after ' + appConst.mediumTimeout + 'ms')
         })
     }
 
@@ -174,16 +173,16 @@ class BaseBrowsePanel extends Page {
     }
 
     waitForEditButtonDisabled() {
-        return this.waitForElementDisabled(this.editButton, 3000).catch(err => {
+        return this.waitForElementDisabled(this.editButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_edit_disabled_button');
-            throw Error('Edit button should be disabled, timeout: ' + 3000 + 'ms')
+            throw Error('Edit button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
         })
     }
 
     waitForEditButtonEnabled() {
-        return this.waitForElementEnabled(this.editButton, appConst.TIMEOUT_5).catch(err => {
+        return this.waitForElementEnabled(this.editButton, appConst.longTimeout).catch(err => {
             this.saveScreenshot('err_edit_button');
-            throw Error('Edit button is not enabled after ' + appConst.TIMEOUT_5 + 'ms')
+            throw Error('Edit button is not enabled after ' + appConst.longTimeout + 'ms')
         })
     }
 
@@ -199,7 +198,7 @@ class BaseBrowsePanel extends Page {
 
     async clickOnEditButton() {
         try {
-            await this.waitForElementEnabled(this.editButton, appConst.TIMEOUT_2);
+            await this.waitForElementEnabled(this.editButton, appConst.mediumTimeout);
             await this.clickOnElement(this.editButton);
             return this.pause(500);
         } catch (err) {
@@ -210,7 +209,7 @@ class BaseBrowsePanel extends Page {
 
     clickOnRowByName(name) {
         let nameXpath = this.treeGrid + lib.itemByName(name);
-        return this.waitForElementDisplayed(nameXpath, 3000).then(() => {
+        return this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout).then(() => {
             return this.clickOnElement(nameXpath);
         }).catch(err => {
             this.saveScreenshot('err_find_' + name);
@@ -224,7 +223,7 @@ class BaseBrowsePanel extends Page {
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getDisplayedElements(lib.TREE_GRID_CONTEXT_MENU);
             return result.length;
-        }, appConst.TIMEOUT_3, "Context menu was not loaded");
+        }, appConst.mediumTimeout, "Context menu was not loaded");
     }
 
     async waitForContextMenuItemEnabled(menuItem) {
@@ -236,7 +235,7 @@ class BaseBrowsePanel extends Page {
         return await this.browser.waitUntil(async () => {
             let result = await el[0].getAttribute("class");
             return !result.includes("disabled");
-        }, appConst.TIMEOUT_3, "context menu item is not enabled in 3000 ms");
+        }, appConst.mediumTimeout, "context menu item is not enabled in 3000 ms");
     }
 
     async waitForContextMenuItemDisabled(menuItem) {
@@ -248,7 +247,7 @@ class BaseBrowsePanel extends Page {
         return await this.browser.waitUntil(async () => {
             let result = await el[0].getAttribute("class");
             return result.includes("disabled");
-        }, appConst.TIMEOUT_3, "context menu item is not disabled in 3000 ms");
+        }, appConst.mediumTimeout, "context menu item is not disabled in 3000 ms");
     }
 
     async clickOnMenuItem(menuItem) {
@@ -261,7 +260,7 @@ class BaseBrowsePanel extends Page {
     async doubleClickOnRowByDisplayName(displayName) {
         try {
             let nameXpath = this.treeGrid + lib.itemByDisplayName(displayName);
-            await this.waitForElementDisplayed(nameXpath, 3000);
+            await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             await this.doDoubleClick(nameXpath);
             return await this.pause(300);
         } catch (err) {

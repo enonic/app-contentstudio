@@ -83,7 +83,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             assert.isFalse(result, "Locale input should not be clickable");
             result = await projectWizard.isDisplayNameInputClickable();
             assert.isFalse(result, "Display Name input should not be clickable");
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            // await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     it("GIVEN user with Editor role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
@@ -100,10 +100,9 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await settingsBrowsePanel.waitForEditButtonDisabled();
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
             studioUtils.saveScreenshot("project_editor_1");
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-    it("GIVEN user with Editor role is logged in WHEN required context is loaded THEN only New... button should be enabled for Editor role",
+    it("GIVEN user with Editor role is logged in WHEN New Content Dialog has been opened THEN only Folder and Shortcut types are allowed for Editor role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
@@ -119,12 +118,10 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             assert.equal(items.length, 2, "Two items should be available for Editor");
             assert.isTrue(items.includes("Folder"), "Folder is allowed for creating");
             assert.isTrue(items.includes("Shortcut"), "Shortcut is allowed for creating");
-
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     //Verify that Editor can select a language:
-    it("GIVEN user with Editor role is logged in WHEN new folder has been saved THEN Mark as Ready should be as default action in Publish Menu",
+    it("GIVEN user with Editor role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
             let settingsStepForm = new SettingsStepForm();
@@ -139,8 +136,6 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             studioUtils.saveScreenshot("project_editor_5");
             //3. Verify that 'Mark as Ready' button is available in the wizard:
             await contentWizard.waitForMarkAsReadyButtonVisible();
-
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     //Verify that 'Editor' can publish content:

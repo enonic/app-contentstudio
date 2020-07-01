@@ -68,7 +68,7 @@ class BaseDetailsDialog extends Page {
     }
 
     async clickOnCancelTopButton() {
-        await this.waitForElementDisplayed(this.cancelTopButton, appConst.TIMEOUT_3);
+        await this.waitForElementDisplayed(this.cancelTopButton, appConst.mediumTimeout);
         await this.clickOnElement(this.cancelTopButton);
         return await this.pause(500);
     }
@@ -80,7 +80,7 @@ class BaseDetailsDialog extends Page {
     // Click on "To Issues list"
     async clickOnBackButton() {
         try {
-            await this.waitForElementDisplayed(this.backButton, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.backButton, appConst.mediumTimeout);
             return this.clickOnElement(this.backButton);
         } catch (err) {
             throw new Error("Issue Details Dialog-  button back(To issues list) is not present!" + err);
@@ -115,14 +115,13 @@ class BaseDetailsDialog extends Page {
     waitForIssueTitleInputNotEditable() {
         return this.getBrowser().waitUntil(() => {
             return this.isElementDisplayed(`//div[contains(@id,'IssueDetailsInPlaceTextInput') and contains (@class,'readonly')]`);
-        }, appConst.TIMEOUT_3, "Issue details dialog - title should not be editable!");
-
+        }, appConst.mediumTimeout, "Issue details dialog - title should not be editable!");
     }
 
     async clickOnIssueStatusSelectorAndCloseIssue() {
         let menuItemSelector = XPATH.issueStatusMenuItem('Closed');
         await this.clickOnElement(this.issueStatusSelector);
-        await this.waitForElementDisplayed(menuItemSelector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(menuItemSelector, appConst.mediumTimeout);
         await this.clickOnElement(menuItemSelector);
         return await this.pause(300);
     }
@@ -130,7 +129,7 @@ class BaseDetailsDialog extends Page {
     async clickOnIssueStatusSelectorAndOpenIssue() {
         let menuItemSelector = XPATH.issueStatusMenuItem('Open');
         await this.clickOnElement(this.issueStatusSelector);
-        await this.waitForElementDisplayed(menuItemSelector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(menuItemSelector, appConst.mediumTimeout);
         await this.clickOnElement(menuItemSelector);
         return await this.pause(300);
     }
@@ -159,6 +158,11 @@ class BaseDetailsDialog extends Page {
 
     async clickOnCommentsTabBarItem() {
         await this.clickOnElement(this.commentsTabBarItem);
+        return await this.pause(400);
+    }
+
+    async clickOnAssigneesTabBarItem() {
+        await this.clickOnElement(this.assigneesTabBarItem);
         return await this.pause(400);
     }
 };

@@ -24,13 +24,13 @@ class ConfirmationDialog extends Page {
     }
 
     async clickOnYesButton() {
-        await this.waitForElementDisplayed(this.yesButton, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(this.yesButton, appConst.shortTimeout);
         await this.clickOnElement(this.yesButton);
-        return await this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2)
+        return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout)
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
             throw new Error("Confirmation dialog is not loaded! " + err);
         })
     }
@@ -40,7 +40,7 @@ class ConfirmationDialog extends Page {
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
     }
 
     isWarningMessageVisible() {

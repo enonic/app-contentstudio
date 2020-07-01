@@ -39,7 +39,7 @@ class SettingsItemStatisticsPanel extends Page {
 
     async waitForDescriptionDisplayed() {
         try {
-            return await this.waitForElementDisplayed(XPATH.container + XPATH.descriptionBlock, appConst.TIMEOUT_3);
+            return await this.waitForElementDisplayed(XPATH.container + XPATH.descriptionBlock, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot('err_description_block_should_be_displayed');
             throw new Error("Project's description is not displayed ! " + err);
@@ -48,7 +48,7 @@ class SettingsItemStatisticsPanel extends Page {
 
     async waitForHeaderDisplayed() {
         try {
-            return await this.waitForElementDisplayed(XPATH.container + XPATH.header, appConst.TIMEOUT_3);
+            return await this.waitForElementDisplayed(XPATH.container + XPATH.header, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot('err_header_should_be_displayed');
             throw new Error("Statistics Panel - Project's display name is not displayed ! " + err);
@@ -57,7 +57,7 @@ class SettingsItemStatisticsPanel extends Page {
 
     async waitForDescriptionNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(XPATH.container + XPATH.descriptionBlock, appConst.TIMEOUT_2);
+            return await this.waitForElementNotDisplayed(XPATH.container + XPATH.descriptionBlock, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot('err_description_block_should_not_be_displayed');
             throw new Error("Project's description should not be displayed ! " + err);

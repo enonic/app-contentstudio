@@ -22,20 +22,20 @@ class UserAccessWidgetItemView extends Page {
 
     async getHeader() {
         let locator = xpath.container + xpath.header;
-        await this.waitForElementDisplayed(locator, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         return await this.getText(locator);
     }
 
     async getPrincipalsCompactName() {
         let locator = xpath.container + xpath.accessList + xpath.principalCompactViewer + "/span[contains(@class,'user-icon')]";
-        await this.waitForElementDisplayed(locator, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         return await this.getTextInElements(locator);
     }
 
     async clickOnEditPermissionsLink() {
         try {
             await this.waitForSpinnerNotVisible(appConst.TIMEOUT_4);
-            await this.waitForElementDisplayed(this.editPermissionsLink, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.editPermissionsLink, appConst.shortTimeout);
             return await this.clickOnElement(this.editPermissionsLink);
         } catch (err) {
             throw new Error('Error when clicking on `Edit Permissions link`! ' + err);
@@ -55,7 +55,7 @@ class UserAccessWidgetItemView extends Page {
     }
 
     waitForLoaded() {
-        return this.waitForElementDisplayed(this.editPermissionsLink, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.editPermissionsLink, appConst.shortTimeout).catch(err => {
             throw new Error('Access widget was not loaded! ' + err);
         });
     }

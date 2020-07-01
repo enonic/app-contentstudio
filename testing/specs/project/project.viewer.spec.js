@@ -107,7 +107,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //3. Verify that all button are disabled in the toolbar:
+            //3. Verify that all button are disabled in the project-toolbar:
             studioUtils.saveScreenshot("project_viewer_1");
             await settingsBrowsePanel.waitForNewButtonDisabled();
             await settingsBrowsePanel.waitForEditButtonDisabled();
@@ -127,7 +127,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
         });
 
     //Verify that 'Viewer' can not publish content:
-    it("GIVEN user with 'Viewer' role is logged in WHEN existing folder has been selected THEN Publish menu item should be disabled for users with Viewer role",
+    it("GIVEN user with 'Viewer' role is logged in WHEN existing folder has been selected THEN 'Publish' menu item should be disabled for users with Viewer role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-viewer and navigate to Content Browse Panel:
@@ -138,6 +138,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await contentBrowsePanel.waitForEditButtonDisabled();
             await contentBrowsePanel.waitForDeleteButtonDisabled();
             await contentBrowsePanel.waitForNewButtonDisabled();
+            await contentBrowsePanel.waitForDuplicateButtonDisabled();
             //4. Open Publish Menu:
             await contentBrowsePanel.openPublishMenu();
             studioUtils.saveScreenshot("project_viewer_3");

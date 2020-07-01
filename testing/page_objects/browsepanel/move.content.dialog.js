@@ -41,14 +41,14 @@ class MoveContentDialog extends Page {
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(this.moveButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.moveButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_move_content_dialog_load');
             throw new Error('Move Content dialog was not loaded! ' + err);
         });
     }
 
     waitForClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(error => {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(error => {
             this.saveScreenshot('err_move_content_dialog_close');
             throw new Error('Move Content Dialog was not closed');
         });

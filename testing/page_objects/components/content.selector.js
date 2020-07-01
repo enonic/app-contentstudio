@@ -31,7 +31,7 @@ class ContentSelector extends LoaderComboBox {
     }
 
     waitForModeTogglerDisplayed() {
-        return this.waitForElementDisplayed(this.modeTogglerButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.modeTogglerButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_content_selector_mode_toggler');
             throw new Error('content selector ' + err);
         });

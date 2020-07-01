@@ -39,14 +39,14 @@ class EditPermissionsDialog extends Page {
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.applyButton, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
     }
 
     waitForDialogClosed() {
         let message = "Edit Permissions Dialog is not closed! timeout is " + 3000;
         return this.getBrowser().waitUntil(() => {
             return this.isElementNotDisplayed(xpath.container);
-        }, appConst.TIMEOUT_3, message).then(() => {
+        }, appConst.mediumTimeout, message).then(() => {
             return this.pause(400);
         })
     }
@@ -94,7 +94,7 @@ class EditPermissionsDialog extends Page {
         try {
             let permToggle = xpath.permissionToggleByOperationName(operationName);
             let selector = xpath.aclEntryByName(principalName) + permToggle;
-            await this.waitForElementDisplayed(selector, 1000);
+            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             return await this.clickOnElement(selector);
         } catch (err) {
             this.saveScreenshot('err_click_on_permission_toggle');
@@ -115,7 +115,7 @@ class EditPermissionsDialog extends Page {
     async isOperationAllowed(principalName, operation) {
         let permToggle = xpath.permissionToggleByOperationName(operation);
         let selector = xpath.aclEntryByName(principalName) + permToggle;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         let result = await this.getAttribute(selector, 'class');
         return result.includes('allow');
     }
@@ -123,7 +123,7 @@ class EditPermissionsDialog extends Page {
     async isOperationDenied(principalName, operation) {
         let permToggle = xpath.permissionToggleByOperationName(operation);
         let selector = xpath.aclEntryByName(principalName) + permToggle;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         let result = await this.getAttribute(selector, 'class');
         return result.includes('deny');
     }

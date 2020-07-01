@@ -61,7 +61,7 @@ class ContentPublishDialog extends Page {
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(this.publishNowButton, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.publishNowButton, appConst.shortTimeout);
     }
 
     waitForDialogClosed() {
@@ -72,7 +72,7 @@ class ContentPublishDialog extends Page {
     }
 
     clickOnPublishNowButton() {
-        return this.waitForElementEnabled(this.publishNowButton, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementEnabled(this.publishNowButton, appConst.shortTimeout).then(() => {
             return this.clickOnElement(this.publishNowButton);
         }).catch(err => {
             this.saveScreenshot('err_click_on_publish_button_publish_dialog');
@@ -86,7 +86,7 @@ class ContentPublishDialog extends Page {
 
     async clickOnAddScheduleButton() {
         try {
-            await this.waitForElementDisplayed(this.addScheduleButton, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.addScheduleButton, appConst.shortTimeout);
             await this.clickOnElement(this.addScheduleButton);
             await this.pause(500);
         } catch (err) {
@@ -104,7 +104,7 @@ class ContentPublishDialog extends Page {
 
     async clickOnShowDependentItems() {
         try {
-            await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.shortTimeout);
             return await this.clickOnElement(this.showDependentItemsLink);
         } catch (err) {
             this.saveScreenshot('err_publish_dialog_show_dependent_button');
@@ -119,19 +119,19 @@ class ContentPublishDialog extends Page {
     }
 
     waitForShowDependentButtonDisplayed() {
-        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.shortTimeout).catch(err => {
             throw new Error("Show dependent items link should be visible!" + err)
         })
     }
 
     waitForScheduleButtonDisplayed() {
-        return this.waitForElementDisplayed(this.scheduleButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.scheduleButton, appConst.shortTimeout).catch(err => {
             throw new Error("Schedule button should be visible!" + err);
         })
     }
 
     waitForHideDependentItemsDisplayed() {
-        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.shortTimeout).catch(err => {
             throw new Error("Hide dependent items link should be visible!" + err)
         })
     }
@@ -143,7 +143,7 @@ class ContentPublishDialog extends Page {
 
     async getWorkflowState(displayName) {
         let xpath = XPATH.contentSummaryByDisplayName(displayName);
-        await this.waitForElementDisplayed(xpath, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
             return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
@@ -163,29 +163,29 @@ class ContentPublishDialog extends Page {
     }
 
     async getTextInChangeLog() {
-        await this.waitForExist(this.changeLogInput,appConst.TIMEOUT_2);
+        await this.waitForExist(this.changeLogInput, appConst.shortTimeout);
         return await this.getTextInInput(this.changeLogInput);
     }
 
     isAddScheduleButtonDisplayed() {
-        return this.waitForElementDisplayed(this.addScheduleButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.addScheduleButton, appConst.shortTimeout).catch(err => {
             throw new Error("`Add Schedule` button is not displayed " + err);
         })
     }
 
     waitForAddScheduleButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.addScheduleButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementNotDisplayed(this.addScheduleButton, appConst.shortTimeout).catch(err => {
             throw new Error("`Add Schedule` button should not be displayed " + err);
         })
     }
 
     isLogMessageLinkDisplayed() {
-        return this.isElementDisplayed(this.logMessageLink, appConst.TIMEOUT_2);
+        return this.isElementDisplayed(this.logMessageLink, appConst.shortTimeout);
     }
 
     async waitForPublishNowButtonEnabled() {
         try {
-            return await this.waitForElementEnabled(this.publishNowButton, appConst.TIMEOUT_2);
+            return await this.waitForElementEnabled(this.publishNowButton, appConst.shortTimeout);
         } catch (err) {
             this.saveScreenshot("publish_now_disabled");
             throw new Error("Publish Wizard - 'Publish Now' button should be enabled " + err);
@@ -193,12 +193,12 @@ class ContentPublishDialog extends Page {
     }
 
     waitForPublishNowButtonDisabled() {
-        return this.waitForElementDisabled(this.publishNowButton, appConst.TIMEOUT_2);
+        return this.waitForElementDisabled(this.publishNowButton, appConst.shortTimeout);
     }
 
     async isPublishItemRemovable(displayName) {
         let selector = XPATH.itemToPublish(displayName);
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         let attr = await this.getAttribute(selector, "class");
         return attr.includes("removable");
     }
@@ -223,7 +223,7 @@ class ContentPublishDialog extends Page {
 
     async removeDependentItem(displayName) {
         let selector = XPATH.itemToPublish(displayName) + XPATH.removeItemIcon;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         await this.clickOnElement(selector);
         return await this.pause(300);
     }

@@ -19,7 +19,7 @@ class HomePage extends Page {
     }
 
     waitForLoaded() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
     }
 
     isLoaded() {
