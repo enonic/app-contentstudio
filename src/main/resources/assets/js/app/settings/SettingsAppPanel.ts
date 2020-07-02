@@ -20,8 +20,9 @@ import {ProjectViewItem} from './view/ProjectViewItem';
 import {ProjectUpdatedEvent} from './event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from './event/ProjectDeletedEvent';
 import {ProjectListRequest} from './resource/ProjectListRequest';
-import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {ProjectHelper} from './data/project/ProjectHelper';
+import {ProjectSelectionDialog} from './dialog/ProjectSelectionDialog';
+import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
 
 export class SettingsAppPanel
     extends NavigatedAppPanel<SettingsViewItem> {
@@ -47,11 +48,16 @@ export class SettingsAppPanel
             this.handleItemEdit(event.getItems());
         });
 
+        ProjectCreatedEvent.on(() => {
+            ProjectSelectionDialog.get().setUpdateOnOpen(true);
+        });
+
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
             if (!this.browsePanel) {
                 return;
             }
 
+            ProjectSelectionDialog.get().setUpdateOnOpen(true);
             this.handleItemDeleted(event.getProjectName());
         });
 
@@ -153,6 +159,7 @@ export class SettingsAppPanel
         }
 
         new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+            ProjectSelectionDialog.get().setProjects(projects);
             this.doHandleItemUpdated(projectName, projects);
         }).catch(DefaultErrorHandler.handle);
     }

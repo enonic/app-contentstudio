@@ -577,7 +577,10 @@ function initProjectContext(application: Application): Q.Promise<void> {
     const projectName: string = application.getPath().getElement(0);
 
     return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+        ProjectSelectionDialog.get().setProjects(projects);
+
         const isProjectExisting: boolean = projects.some((project: Project) => project.getName() === projectName);
+
         if (isProjectExisting) {
             ProjectContext.get().setProject(projectName);
             return Q(null);
@@ -588,7 +591,7 @@ function initProjectContext(application: Application): Q.Promise<void> {
             return Q(null);
         }
 
-        new ProjectSelectionDialog(projects).open();
+        ProjectSelectionDialog.get().open();
 
         return Q(null);
     });

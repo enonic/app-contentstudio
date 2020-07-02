@@ -21,6 +21,8 @@ export class ProjectList
     }
 
     setItems(items: Project[], silent?: boolean) {
+        this.projectLevel = new Map<string, number>();
+        this.projectChildren = new Map<string, Project[]>();
         this.buildProjectLevelsMap(items);
         this.buildChildrenMap(items);
         super.setItems(this.sortProjects(items), silent);
