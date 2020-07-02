@@ -1002,7 +1002,6 @@ export class ImagePreviewScrollHandler {
         const outer = document.createElement('div');
         outer.style.visibility = 'hidden';
         outer.style.width = '100px';
-        outer.style.msOverflowStyle = 'scrollbar'; // needed for WinJS apps
 
         document.body.appendChild(outer);
 
