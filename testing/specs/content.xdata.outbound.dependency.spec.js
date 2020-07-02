@@ -16,9 +16,9 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
-    let CONTENT_WITH_XDATA = contentBuilder.generateRandomName('test');
-    let CONTENT_WITH_XDATA_2 = contentBuilder.generateRandomName('test');
-    let IMAGE_DISPLAY_NAME = "kotey";
+    const CONTENT_WITH_XDATA = contentBuilder.generateRandomName('test');
+    const CONTENT_WITH_XDATA_2 = contentBuilder.generateRandomName('test');
+    const IMAGE_DISPLAY_NAME = "kotey";
 
     it(`Preconditions: new site should be added`,
         async () => {

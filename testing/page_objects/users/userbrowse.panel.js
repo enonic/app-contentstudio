@@ -82,6 +82,14 @@ class UserBrowsePanel extends Page {
         });
     }
 
+    clickOnEditButton() {
+        return this.waitForElementEnabled(this.editButton, appConst.mediumTimeout).catch(err => {
+            throw new Error("Edit button is not enabled!" + err);
+        }).then(() => {
+            return this.clickOnElement(this.editButton);
+        });
+    }
+
     waitForUsersGridLoaded(ms) {
         return this.waitForElementDisplayed(xpath.grid, ms).then(() => {
             return this.waitForSpinnerNotVisible();
