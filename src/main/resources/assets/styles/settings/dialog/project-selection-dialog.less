@@ -5,21 +5,14 @@
     &:hover {
       background-color: @admin-almost-white;
     }
+    cursor: pointer;
 
-    .project-list-item-viewer {
-      cursor: pointer;
+    &.selected {
+      background-color: #3e77ac;
+    }
 
-      .names-and-icon-view {
-        cursor: pointer;
-
-        .@{_COMMON_PREFIX}main-name {
-          cursor: pointer;
-        }
-
-        .@{_COMMON_PREFIX}sub-name {
-          cursor: pointer;
-        }
-      }
+    .project-viewer {
+      .viewer-selectable();
     }
   }
 

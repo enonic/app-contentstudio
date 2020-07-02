@@ -24,7 +24,7 @@ export class ContentAppContainer
             this.handleProjectNotSet();
         } else {
             new ContentEventsListener().start();
-            this.appBar.updateSelectorValues();
+            this.appBar.updateSelectedProjectValue();
             this.initListeners();
         }
     }
@@ -34,7 +34,7 @@ export class ContentAppContainer
 
         const projectSetHandler = () => {
             this.appBar.enable();
-            this.appBar.updateSelectorValues();
+            this.appBar.updateSelectedProjectValue();
             new ContentEventsListener().start();
             this.initListeners();
             ProjectChangedEvent.un(projectSetHandler);
@@ -64,7 +64,7 @@ export class ContentAppContainer
     }
 
     private handleProjectUpdatedEvent() {
-        (<ContentAppBar>this.appBar).updateSelectorValues();
+        (<ContentAppBar>this.appBar).updateSelectedProjectValue();
     }
 
     private handleProjectDeletedEvent(projectName: string) {
