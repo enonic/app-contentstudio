@@ -13,7 +13,7 @@
     width: auto;
   }
 
-  &:after {
+  &::after {
     content: '';
     position: absolute;
     right: 0;
@@ -37,7 +37,7 @@
         margin-right: 0;
         padding: 0 10px;
 
-        .font-icon-default:before {
+        .font-icon-default::before {
           font-size: 30px;
         }
       }
@@ -59,7 +59,6 @@
           display: none;
         }
       }
-
     }
 
     &.no-project {
