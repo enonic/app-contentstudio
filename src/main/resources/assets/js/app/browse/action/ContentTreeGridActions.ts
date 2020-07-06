@@ -327,11 +327,12 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
         let treePublishEnabled: boolean = true;
         let unpublishEnabled: boolean = true;
+        const anyIsInherited: boolean = this.anyInherited(contentSummaries);
 
-        const deleteEnabled: boolean = this.anyDeletable(contentSummaries) && noManagedActionExecuting;
-        const duplicateEnabled: boolean = contentSummaries.length >= 1 && noManagedActionExecuting;
-        const moveEnabled: boolean = !this.isAllItemsSelected(contentBrowseItems.length) && noManagedActionExecuting;
-        const markAsReadyEnabled: boolean = this.isMarkAsReadyHasToBeEnabled(contentBrowseItems);
+        const deleteEnabled: boolean = !anyIsInherited && this.anyDeletable(contentSummaries) && noManagedActionExecuting;
+        const duplicateEnabled: boolean = !anyIsInherited && contentSummaries.length >= 1 && noManagedActionExecuting;
+        const moveEnabled: boolean = !anyIsInherited && !this.isAllItemsSelected(contentBrowseItems.length) && noManagedActionExecuting;
+        const markAsReadyEnabled: boolean = !anyIsInherited && this.isMarkAsReadyHasToBeEnabled(contentBrowseItems);
         const requestPublishEnabled: boolean = this.isRequestPublishHasToBeEnabled(contentBrowseItems);
 
         let allAreOnline: boolean = contentBrowseItems.length > 0;
@@ -380,7 +381,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             DELETE: deleteEnabled,
             DUPLICATE: duplicateEnabled,
             MOVE: moveEnabled,
-            SORT: contentSummaries.length === 1 && contentSummaries[0].hasChildren(),
+            SORT: contentSummaries.length === 1 && contentSummaries[0].hasChildren() && !contentSummaries[0].isInherited(),
             PUBLISH: publishEnabled,
             PUBLISH_TREE: treePublishEnabled,
             UNPUBLISH: unpublishEnabled,
@@ -596,6 +597,12 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         });
     }
 
+    private anyInherited(contentSummaries: ContentSummary[]): boolean {
+        return contentSummaries.some((content: ContentSummary) => {
+            return !!content && content.isInherited();
+        });
+    }
+
     private isMarkAsReadyHasToBeEnabled(contentBrowseItems: ContentBrowseItem[]): boolean {
         const items: ContentSummaryAndCompareStatus[] = contentBrowseItems.map(item => item.getModel());
 
@@ -620,6 +627,9 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     private updateCanDuplicateActionSingleItemSelected(selectedItem: ContentSummary): Q.Promise<void> {
+        if (selectedItem.isInherited()) {
+            return Q(null);
+        }
         // Need to check if parent allows content creation
         return new GetContentByPathRequest(selectedItem.getPath().getParentPath()).sendAndParse().then((content: Content) =>
             new GetPermittedActionsRequest()
