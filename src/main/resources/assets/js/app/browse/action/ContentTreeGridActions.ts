@@ -38,23 +38,25 @@ import {ManagedActionManager} from 'lib-admin-ui/managedaction/ManagedActionMana
 import {ManagedActionState} from 'lib-admin-ui/managedaction/ManagedActionState';
 import {ManagedActionExecutor} from 'lib-admin-ui/managedaction/ManagedActionExecutor';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import {ContentTreeGridAction} from './ContentTreeGridAction';
 
 type ActionsMap = {
-    SHOW_NEW_DIALOG?: Action,
+    SHOW_NEW_DIALOG?: ContentTreeGridAction,
     PREVIEW?: Action,
-    EDIT?: Action,
-    DELETE?: Action,
-    DUPLICATE?: Action,
-    MOVE?: Action,
-    SORT?: Action,
-    PUBLISH?: Action,
-    PUBLISH_TREE?: Action,
-    UNPUBLISH?: Action,
-    MARK_AS_READY?: Action,
-    REQUEST_PUBLISH?: Action,
-    CREATE_ISSUE?: Action,
+    EDIT?: ContentTreeGridAction,
+    DELETE?: ContentTreeGridAction,
+    DUPLICATE?: ContentTreeGridAction,
+    MOVE?: ContentTreeGridAction,
+    SORT?: ContentTreeGridAction,
+    PUBLISH?: ContentTreeGridAction,
+    PUBLISH_TREE?: ContentTreeGridAction,
+    UNPUBLISH?: ContentTreeGridAction,
+    MARK_AS_READY?: ContentTreeGridAction,
+    REQUEST_PUBLISH?: ContentTreeGridAction,
+    CREATE_ISSUE?: ContentTreeGridAction,
     TOGGLE_SEARCH_PANEL?: Action,
-    UNDO_PENDING_DELETE?: Action,
+    UNDO_PENDING_DELETE?: ContentTreeGridAction,
 };
 
 type ActionsState = {
@@ -319,109 +321,36 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     private resetDefaultActionsMultipleItemsSelected(contentBrowseItems: ContentBrowseItem[]) {
-        const contentSummaries: ContentSummary[] = contentBrowseItems.map((elem: ContentBrowseItem) => {
-            return elem.getModel().getContentSummary();
-        });
-
-        const noManagedActionExecuting: boolean = !ManagedActionManager.instance().isExecuting();
-
-        let treePublishEnabled: boolean = true;
-        let unpublishEnabled: boolean = true;
-        const anyIsInherited: boolean = this.anyInherited(contentSummaries);
-
-        const deleteEnabled: boolean = !anyIsInherited && this.anyDeletable(contentSummaries) && noManagedActionExecuting;
-        const duplicateEnabled: boolean = !anyIsInherited && contentSummaries.length >= 1 && noManagedActionExecuting;
-        const moveEnabled: boolean = !anyIsInherited && !this.isAllItemsSelected(contentBrowseItems.length) && noManagedActionExecuting;
-        const markAsReadyEnabled: boolean = !anyIsInherited && this.isMarkAsReadyHasToBeEnabled(contentBrowseItems);
-        const requestPublishEnabled: boolean = this.isRequestPublishHasToBeEnabled(contentBrowseItems);
-
-        let allAreOnline: boolean = contentBrowseItems.length > 0;
-        let allArePendingDelete: boolean = contentBrowseItems.length > 0;
-        let anyIsPendingDelete: boolean = false;
-        let someArePublished: boolean = false;
-        let allAreReadonly: boolean = contentBrowseItems.length > 0;
-        const isMultipleOrValid: boolean = contentSummaries.length > 1 || (contentSummaries.length === 1 && contentSummaries[0].isValid());
-
-        contentBrowseItems.forEach((browseItem) => {
-            const content: ContentSummaryAndCompareStatus = browseItem.getModel();
-
-            if (allAreOnline && !content.isOnline()) {
-                allAreOnline = false;
-            }
-            if (allArePendingDelete && !content.isPendingDelete()) {
-                allArePendingDelete = false;
-            }
-            if (content.isPendingDelete()) {
-                anyIsPendingDelete = true;
-            }
-            if (!someArePublished && content.isPublished()) {
-                someArePublished = true;
-            }
-            if (allAreReadonly && !content.isReadOnly()) {
-                allAreReadonly = false;
-            }
-        });
-
-        const publishEnabled: boolean = !allAreOnline && noManagedActionExecuting && isMultipleOrValid;
-        if (this.isEveryLeaf(contentSummaries)) {
-            treePublishEnabled = false;
-            unpublishEnabled = someArePublished;
-        } else if (this.isOneNonLeaf(contentSummaries)) {
-            unpublishEnabled = someArePublished;
-        } else if (this.isNonLeafInMany(contentSummaries)) {
-            unpublishEnabled = someArePublished;
-        }
-
-        treePublishEnabled = treePublishEnabled && noManagedActionExecuting;
-        unpublishEnabled = unpublishEnabled && noManagedActionExecuting;
+        const items: ContentSummaryAndCompareStatus[] = contentBrowseItems.map((item: ContentBrowseItem) => item.getModel());
+        const state: ContentTreeGridItemsState = new ContentTreeGridItemsState(items);
 
         this.enableActions({
-            SHOW_NEW_DIALOG: contentSummaries.length < 2,
-            EDIT: !allAreReadonly && this.anyEditable(contentSummaries),
-            DELETE: deleteEnabled,
-            DUPLICATE: duplicateEnabled,
-            MOVE: moveEnabled,
-            SORT: contentSummaries.length === 1 && contentSummaries[0].hasChildren() && !contentSummaries[0].isInherited(),
-            PUBLISH: publishEnabled,
-            PUBLISH_TREE: treePublishEnabled,
-            UNPUBLISH: unpublishEnabled,
-            MARK_AS_READY: markAsReadyEnabled,
-            REQUEST_PUBLISH: requestPublishEnabled,
-            CREATE_ISSUE: true
+            SHOW_NEW_DIALOG: this.actionsMap.SHOW_NEW_DIALOG.isToBeEnabled(state),
+            EDIT: this.actionsMap.EDIT.isToBeEnabled(state),
+            SORT: this.actionsMap.SORT.isToBeEnabled(state),
+            MARK_AS_READY: this.actionsMap.MARK_AS_READY.isToBeEnabled(state),
+            REQUEST_PUBLISH: this.actionsMap.REQUEST_PUBLISH.isToBeEnabled(state),
+            CREATE_ISSUE: true,
+            DELETE: this.actionsMap.DELETE.isToBeEnabled(state),
+            DUPLICATE: this.actionsMap.DUPLICATE.isToBeEnabled(state),
+            MOVE: this.actionsMap.MOVE.isToBeEnabled(state),
+            PUBLISH: this.actionsMap.PUBLISH.isToBeEnabled(state),
+            PUBLISH_TREE: this.actionsMap.PUBLISH_TREE.isToBeEnabled(state),
+            UNPUBLISH: this.actionsMap.UNPUBLISH.isToBeEnabled(state)
         });
 
-        if (anyIsPendingDelete) {
-            const invisibleActions: Action[] = allArePendingDelete ? this.getAllActionsNoPendingDelete() : this.getAllActions();
+        if (state.hasAnyPendingDelete()) {
+            const invisibleActions: Action[] = state.hasAllPendingDelete()
+                                               ? this.getAllActionsNoPendingDelete()
+                                               : this.getAllActions();
             invisibleActions.forEach(action => action.setVisible(false));
-
-            this.actionsMap.PUBLISH.setVisible(allArePendingDelete || publishEnabled);
-
-            this.enableActions({
-                PUBLISH_TREE: false,
-                UNPUBLISH: allArePendingDelete || publishEnabled,
-                PUBLISH: allArePendingDelete || publishEnabled
-            });
-
         } else {
             this.getAllCommonActions().forEach(action => action.setVisible(true));
-
-            this.actionsMap.UNPUBLISH.setVisible(unpublishEnabled);
-            this.actionsMap.PUBLISH.setVisible(publishEnabled);
+            this.actionsMap.UNPUBLISH.setVisible(this.actionsMap.UNPUBLISH.isEnabled());
         }
 
-        this.getPendingDeleteActions().forEach((action) => action.setVisible(allArePendingDelete));
-    }
-
-    private isEveryLeaf(contentSummaries: ContentSummary[]): boolean {
-        return contentSummaries.every((obj: ContentSummary) => !obj.hasChildren());
-    }
-
-    private isOneNonLeaf(contentSummaries: ContentSummary[]): boolean {
-        return contentSummaries.length === 1 && contentSummaries[0].hasChildren();
-    }
-
-    private isNonLeafInMany(contentSummaries: ContentSummary[]): boolean {
-        return contentSummaries.length > 1 && contentSummaries.some((obj: ContentSummary) => obj.hasChildren());
+        this.actionsMap.PUBLISH.setVisible(state.hasAllPendingDelete() || this.actionsMap.PUBLISH.isEnabled());
+        this.getPendingDeleteActions().forEach((action) => action.setVisible(state.hasAllPendingDelete()));
     }
 
     private doUpdateActionsEnabledState(contentBrowseItems: ContentBrowseItem[]): Q.Promise<any> {
@@ -585,51 +514,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         return deferred.promise;
     }
 
-    private anyEditable(contentSummaries: ContentSummary[]): boolean {
-        return contentSummaries.some((content) => {
-            return !!content && content.isEditable();
-        });
-    }
-
-    private anyDeletable(contentSummaries: ContentSummary[]): boolean {
-        return contentSummaries.some((content) => {
-            return !!content && content.isDeletable();
-        });
-    }
-
-    private anyInherited(contentSummaries: ContentSummary[]): boolean {
-        return contentSummaries.some((content: ContentSummary) => {
-            return !!content && content.isInherited();
-        });
-    }
-
-    private isMarkAsReadyHasToBeEnabled(contentBrowseItems: ContentBrowseItem[]): boolean {
-        const items: ContentSummaryAndCompareStatus[] = contentBrowseItems.map(item => item.getModel());
-
-        const allValid: boolean = items.every(item => item.getContentSummary().isValid());
-        if (!allValid) {
-            return false;
-        }
-
-        return items.some((item: ContentSummaryAndCompareStatus) => item.canBeMarkedAsReady());
-    }
-
-    private isRequestPublishHasToBeEnabled(contentBrowseItems: ContentBrowseItem[]): boolean {
-        const items: ContentSummaryAndCompareStatus[] = contentBrowseItems.map(item => item.getModel());
-
-        const allValid: boolean = items.every(item => item.getContentSummary().isValid());
-
-        if (!allValid) {
-            return false;
-        }
-
-        return items.some(item => (!item.isOnline() && !item.isPendingDelete()));
-    }
-
     private updateCanDuplicateActionSingleItemSelected(selectedItem: ContentSummary): Q.Promise<void> {
-        if (selectedItem.isInherited()) {
-            return Q(null);
-        }
         // Need to check if parent allows content creation
         return new GetContentByPathRequest(selectedItem.getPath().getParentPath()).sendAndParse().then((content: Content) =>
             new GetPermittedActionsRequest()
@@ -640,10 +525,6 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
                                      !ManagedActionManager.instance().isExecuting();
                 this.enableActions({DUPLICATE: canDuplicate});
             }));
-    }
-
-    private isAllItemsSelected(items: number): boolean {
-        return items === this.grid.getRoot().getDefaultRoot().treeToList(false, false).length;
     }
 
     getDeleteAction(): Action {

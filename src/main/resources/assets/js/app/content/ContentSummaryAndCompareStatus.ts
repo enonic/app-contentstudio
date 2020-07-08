@@ -120,6 +120,22 @@ export class ContentSummaryAndCompareStatus
         return !!this.contentSummary ? this.contentSummary.hasChildren() : false;
     }
 
+    isInherited(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isInherited() : false;
+    }
+
+    isValid(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isValid() : false;
+    }
+
+    isDeletable(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isDeletable() : false;
+    }
+
+    isEditable(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isEditable() : false;
+    }
+
     getStatusText(): string {
         let value = CompareStatusFormatter.formatStatusTextFromContent(this);
 
