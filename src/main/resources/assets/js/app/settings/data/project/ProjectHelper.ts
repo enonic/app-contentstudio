@@ -9,13 +9,13 @@ import {ProjectPermissions} from './ProjectPermissions';
 export class ProjectHelper {
 
     public static isUserProjectOwnerOrEditor(loginResult: LoginResult): Q.Promise<boolean> {
-        return new ProjectGetRequest(ProjectContext.get().getProject()).sendAndParse().then((project: Project) => {
+        return new ProjectGetRequest(ProjectContext.get().getProject().getName()).sendAndParse().then((project: Project) => {
             return Q(ProjectHelper.isProjectOwnerOrEditor(loginResult, project));
         });
     }
 
     public static isUserProjectOwner(loginResult: LoginResult): Q.Promise<boolean> {
-        return new ProjectGetRequest(ProjectContext.get().getProject()).sendAndParse().then((project: Project) => {
+        return new ProjectGetRequest(ProjectContext.get().getProject().getName()).sendAndParse().then((project: Project) => {
             return Q(ProjectHelper.isProjectOwner(loginResult, project));
         });
     }

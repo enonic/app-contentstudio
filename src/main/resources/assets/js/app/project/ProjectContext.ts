@@ -1,17 +1,18 @@
 import {ProjectChangedEvent} from './ProjectChangedEvent';
+import {Project} from '../settings/data/project/Project';
 
 export class ProjectContext {
 
     private static INSTANCE: ProjectContext;
 
-    public static DEFAULT_PROJECT: string = 'default';
+    private defaultProject: Project;
 
-    private project: string;
+    private currentProject: Project;
 
     private state: State = State.NOT_INITIALIZED;
 
     private constructor() {
-        this.project = ProjectContext.DEFAULT_PROJECT;
+    //
     }
 
     static get(): ProjectContext {
@@ -22,14 +23,26 @@ export class ProjectContext {
         return ProjectContext.INSTANCE;
     }
 
-    getProject(): string {
-        return this.project;
+    getProject(): Project {
+        return this.currentProject;
     }
 
-    setProject(project: string) {
-        this.project = project;
+    setProject(project: Project) {
+        this.currentProject = project;
         this.state = State.INITIALIZED;
         new ProjectChangedEvent().fire();
+    }
+
+    updateDefaultProject(project: Project) {
+        this.defaultProject = project;
+
+        if (this.state === State.NOT_INITIALIZED) {
+            this.currentProject = this.defaultProject;
+        }
+    }
+
+    resetToDefaultProject() {
+        this.setProject(this.defaultProject);
     }
 
     isInitialized(): boolean {

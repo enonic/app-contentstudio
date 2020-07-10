@@ -85,7 +85,7 @@ export class ContentAppBarTabId
     }
 
     toString(): string {
-        const project: string = ProjectContext.get().getProject();
+        const project: string = ProjectContext.get().getProject().getName();
 
         return `${this.getMode()}:${project}/${this.getId()}`;
     }

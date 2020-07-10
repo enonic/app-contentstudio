@@ -102,14 +102,14 @@ export class ContentEventsProcessor {
         const mode: string = event.isInbound() ? UrlAction.INBOUND : UrlAction.OUTBOUND;
         const id: string = event.getId().toString();
         const type: string = event.getContentType() ? event.getContentType().toString() : null;
-        const project: string = ProjectContext.get().getProject();
+        const project: string = ProjectContext.get().getProject().getName();
         const url = `${AppMode.MAIN}#/${project}/${mode}/${id}` + (!!type ? `/${type}` : '');
 
         ContentEventsProcessor.openTab(url);
     }
 
     private static generateURL(params: ContentWizardPanelParams): string {
-        const project: string = ProjectContext.get().getProject();
+        const project: string = ProjectContext.get().getProject().getName();
 
         if (params.tabId && params.tabId.isBrowseMode()) {
             return `${project}/${UrlAction.BROWSE}/${params.tabId.getId()}`;

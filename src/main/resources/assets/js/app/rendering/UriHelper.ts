@@ -9,14 +9,14 @@ export class UriHelper {
 
     public static getPortalUri(path: string, renderingMode: RenderingMode, branch: Branch = Branch.DRAFT): string {
         const relPath: string = UIUriHelper.relativePath(path);
-        const project: string = ProjectContext.get().getProject();
+        const project: string = ProjectContext.get().getProject().getName();
         const uri: string = [renderingMode, project, branch, relPath].join(ContentPath.ELEMENT_DIVIDER);
 
         return UIUriHelper.addSitePrefix(uri);
     }
 
     public static getPathFromPortalInlineUri(portalUri: string, renderingMode: RenderingMode, branch: Branch = Branch.DRAFT): string {
-        const project: string = ProjectContext.get().getProject();
+        const project: string = ProjectContext.get().getProject().getName();
         const searchEntry: string = [renderingMode, project, branch].join(ContentPath.ELEMENT_DIVIDER);
 
         const index = portalUri.indexOf(searchEntry);

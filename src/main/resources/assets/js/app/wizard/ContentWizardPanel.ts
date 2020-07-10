@@ -1255,7 +1255,7 @@ export class ContentWizardPanel
         });
 
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
-            if (event.getProjectName() === ProjectContext.get().getProject()) {
+            if (event.getProjectName() === ProjectContext.get().getProject().getName()) {
                 this.contentDeleted = true;
                 this.close();
             }

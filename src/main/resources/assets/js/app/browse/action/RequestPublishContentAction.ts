@@ -19,6 +19,6 @@ export class RequestPublishContentAction
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return state.hasAllValid() && state.hasAnyCanBeRequestedToPublish();
+        return !state.isEmpty() && state.hasAllValid() && state.hasAnyCanBeRequestedToPublish();
     }
 }

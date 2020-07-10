@@ -18,6 +18,14 @@ export class ShowNewContentDialogAction extends ContentTreeGridAction {
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return state.isEmpty() || state.isSingle();
+        return state.canCreate() && (state.isEmpty() || state.isSingle());
+    }
+
+    stash() {
+        //
+    }
+
+    unStash() {
+        //
     }
 }

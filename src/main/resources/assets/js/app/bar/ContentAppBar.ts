@@ -46,7 +46,7 @@ export class ContentAppBar
             return;
         }
 
-        new ProjectGetRequest(ProjectContext.get().getProject()).sendAndParse().then((project: Project) => {
+        new ProjectGetRequest(ProjectContext.get().getProject().getName()).sendAndParse().then((project: Project) => {
             this.selectedProjectViewer.setObject(project);
         }).catch(DefaultErrorHandler.handle);
 

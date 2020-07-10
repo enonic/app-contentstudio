@@ -1,9 +1,13 @@
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ManagedActionManager} from 'lib-admin-ui/managedaction/ManagedActionManager';
+import {ProjectContext} from '../../project/ProjectContext';
+import {Permission} from '../../access/Permission';
 
 export class ContentTreeGridItemsState {
 
     private items: ContentSummaryAndCompareStatus[] = [];
+
+    private allowedPermissions: Permission[] = [];
 
     private anyDeletable: boolean = false;
 
@@ -11,9 +15,13 @@ export class ContentTreeGridItemsState {
 
     private anyInherited: boolean = false;
 
+    private allInherited: boolean = false;
+
+    private allInheritedHaveLangDifferentFromCurrent: boolean = false;
+
     private allValid: boolean = false;
 
-    private allAreOnline: boolean = false;
+    private allOnline: boolean = false;
 
     private allPendingDelete: boolean = false;
 
@@ -31,14 +39,25 @@ export class ContentTreeGridItemsState {
 
     private anyCanBeRequestedToPublish: boolean = false;
 
+    private createAllowed: boolean = false;
+
+    private deleteAllowed: boolean = false;
+
+    private modifyAllowed: boolean = false;
+
+    private publishAllowed: boolean = false;
+
+    private anyInProgress: boolean = false;
+
     private managedActionExecuting: boolean = false;
 
-    constructor(items: ContentSummaryAndCompareStatus[]) {
-        this.setItems(items);
+    constructor(items: ContentSummaryAndCompareStatus[], allowedPermissions: Permission[]) {
+        this.setItems(items, allowedPermissions);
     }
 
-    setItems(items: ContentSummaryAndCompareStatus[]) {
+    setItems(items: ContentSummaryAndCompareStatus[], allowedPermissions: Permission[]) {
         this.items = items;
+        this.allowedPermissions = allowedPermissions;
         this.reset();
         this.update();
     }
@@ -46,9 +65,11 @@ export class ContentTreeGridItemsState {
     private reset() {
         this.anyDeletable = false;
         this.anyInherited = false;
+        this.allInherited = this.items.length > 0;
+        this.allInheritedHaveLangDifferentFromCurrent = this.items.length > 0;
         this.anyEditable = false;
         this.allValid = true;
-        this.allAreOnline = this.items.length > 0;
+        this.allOnline = this.items.length > 0;
         this.allPendingDelete = this.items.length > 0;
         this.anyPendingDelete = false;
         this.anyPublished = false;
@@ -57,13 +78,25 @@ export class ContentTreeGridItemsState {
         this.anyValidNonOnline = false;
         this.anyCanBeMarkedAsReady = false;
         this.anyCanBeRequestedToPublish = false;
+        this.anyInProgress = false;
         this.managedActionExecuting = ManagedActionManager.instance().isExecuting();
     }
 
     private update() {
+        const currentProjectLanguage: string = ProjectContext.get().getProject().getLanguage();
+        if (!currentProjectLanguage) {
+            this.allInheritedHaveLangDifferentFromCurrent = false;
+        }
+
+        this.createAllowed = this.isCreateAllowed();
+        this.deleteAllowed = this.isDeleteAllowed();
+        this.modifyAllowed = this.isModifyAllowed();
+        this.publishAllowed = this.isPublishAllowed();
+
         this.items.forEach((content: ContentSummaryAndCompareStatus) => {
             if (!content.isOnline()) {
-                this.allAreOnline = false;
+                this.allOnline = false;
+
                 if (content.isValid()) {
                     this.anyValidNonOnline = true;
                 }
@@ -99,6 +132,12 @@ export class ContentTreeGridItemsState {
 
             if (content.isInherited()) {
                 this.anyInherited = true;
+                if (this.allInheritedHaveLangDifferentFromCurrent && content.getContentSummary().getLanguage() === currentProjectLanguage) {
+                    this.allInheritedHaveLangDifferentFromCurrent = false;
+                }
+            } else {
+                this.allInherited = false;
+                this.allInheritedHaveLangDifferentFromCurrent = false;
             }
 
             if (content.canBeMarkedAsReady()) {
@@ -109,7 +148,27 @@ export class ContentTreeGridItemsState {
                 this.anyDeletable = true;
             }
 
+            if (content.getContentSummary().isInProgress()) {
+                this.anyInProgress = true;
+            }
+
         });
+    }
+
+    private isCreateAllowed(): boolean {
+        return this.allowedPermissions.indexOf(Permission.CREATE) > -1;
+    }
+
+    private isDeleteAllowed(): boolean {
+        return this.allowedPermissions.indexOf(Permission.DELETE) > -1 && !this.managedActionExecuting;
+    }
+
+    private isPublishAllowed(): boolean {
+        return this.allowedPermissions.indexOf(Permission.PUBLISH) > -1 && !this.managedActionExecuting;
+    }
+
+    private isModifyAllowed(): boolean {
+        return this.allowedPermissions.indexOf(Permission.MODIFY) > -1 && !this.managedActionExecuting;
     }
 
     isSingle(): boolean {
@@ -137,7 +196,7 @@ export class ContentTreeGridItemsState {
     }
 
     hasAllOnline(): boolean {
-        return this.allAreOnline;
+        return this.allOnline;
     }
 
     hasValidNonOnline(): boolean {
@@ -174,6 +233,34 @@ export class ContentTreeGridItemsState {
 
     hasAnyDeletable(): boolean {
         return this.anyDeletable;
+    }
+
+    hasAllInherited(): boolean {
+        return this.allInherited;
+    }
+
+    hasAllInheritedWithLangDifferentFromCurrent(): boolean {
+        return this.allInheritedHaveLangDifferentFromCurrent;
+    }
+
+    canCreate(): boolean {
+        return this.createAllowed;
+    }
+
+    canDelete(): boolean {
+        return this.deleteAllowed;
+    }
+
+    canModify(): boolean {
+        return this.modifyAllowed;
+    }
+
+    canPublish(): boolean {
+        return this.publishAllowed;
+    }
+
+    hasAnyInProgress(): boolean {
+        return this.anyInProgress;
     }
 
     isManagedActionExecuting(): boolean {

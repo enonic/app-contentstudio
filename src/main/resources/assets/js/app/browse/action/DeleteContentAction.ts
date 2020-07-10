@@ -36,6 +36,7 @@ export class DeleteContentAction extends ContentTreeGridAction {
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return !state.isManagedActionExecuting() && state.hasAnyDeletable() && !state.hasAnyInherited();
+        return !state.isEmpty() && !state.isManagedActionExecuting() && state.hasAnyDeletable() && !state.hasAnyInherited() &&
+               state.canDelete();
     }
 }

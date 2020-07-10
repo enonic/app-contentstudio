@@ -89,7 +89,7 @@ export class ContentWizardToolbar
         });
 
         ProjectUpdatedEvent.on((event: ProjectUpdatedEvent) => {
-            if (event.getProjectName() === ProjectContext.get().getProject()) {
+            if (event.getProjectName() === ProjectContext.get().getProject().getName()) {
                 new ProjectGetRequest(event.getProjectName()).sendAndParse().then((project: Project) => {
                     this.projectBlock.setMainName(project.getDisplayName());
                 }).catch(DefaultErrorHandler.handle);
@@ -107,7 +107,7 @@ export class ContentWizardToolbar
             this.addProjectButton(projects);
         }).catch((reason: any) => {
             this.addProjectButton([Project.create()
-                .setName(ProjectContext.get().getProject())
+                .setName(ProjectContext.get().getProject().getName())
                 .build()
             ]);
             DefaultErrorHandler.handle(reason);
@@ -115,7 +115,7 @@ export class ContentWizardToolbar
     }
 
     private addProjectButton(projects: Project[]) {
-        const currentProjectName: string = ProjectContext.get().getProject();
+        const currentProjectName: string = ProjectContext.get().getProject().getName();
         const project: Project = projects.filter((p: Project) => p.getName() === currentProjectName)[0];
 
         this.projectBlock = new NamesAndIconViewBuilder()
@@ -145,7 +145,7 @@ export class ContentWizardToolbar
             // add tab id for browsers that can focus tabs by id
             tabId = application.getId();
         }
-        window.open(`#/${ProjectContext.get().getProject()}/browse`, tabId);
+        window.open(`#/${ProjectContext.get().getProject().getName()}/browse`, tabId);
     }
 
     private addActionButtons() {

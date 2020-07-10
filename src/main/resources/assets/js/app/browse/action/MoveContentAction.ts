@@ -19,6 +19,7 @@ export class MoveContentAction extends ContentTreeGridAction {
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return !state.isManagedActionExecuting() && !state.hasAnyInherited() && !this.grid.isAllSelected();
+        return !state.isEmpty() && !state.isManagedActionExecuting() && !state.hasAnyInherited() && !this.grid.isAllSelected() &&
+               state.canDelete();
     }
 }

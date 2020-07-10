@@ -28,6 +28,18 @@ export class EditContentAction extends ContentTreeGridAction {
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return state.hasAnyEditable();
+        return !state.isEmpty() && state.hasAnyEditable();
+    }
+
+    updateLabel(state: ContentTreeGridItemsState) {
+        if (state.hasAllInheritedWithLangDifferentFromCurrent()) {
+            this.setLabel( i18n('action.translate'));
+        } else {
+            this.setLabel(i18n('action.edit'));
+        }
+    }
+
+    resetLabel() {
+        this.setLabel(i18n('action.edit'));
     }
 }

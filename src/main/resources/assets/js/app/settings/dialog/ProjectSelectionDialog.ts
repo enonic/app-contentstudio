@@ -41,7 +41,7 @@ export class ProjectSelectionDialog
 
         this.projectsList.getItemViews().forEach((itemView: ProjectListItem) => {
             itemView.onClicked(() => {
-                ProjectContext.get().setProject(itemView.getProject().getName());
+                ProjectContext.get().setProject(itemView.getProject());
                 this.close();
             });
         });
@@ -70,7 +70,7 @@ export class ProjectSelectionDialog
         const defaultProject: Project = this.projectsList.getItemCount() > 0 ? this.projectsList.getItems()[0] : null;
 
         if (defaultProject) {
-            ProjectContext.get().setProject(defaultProject.getName());
+            ProjectContext.get().setProject(defaultProject);
         }
     }
 
@@ -104,11 +104,11 @@ export class ProjectSelectionDialog
     }
 
     private selectCurrentProject() {
-        const currentProject: string = ProjectContext.get().isInitialized() ? ProjectContext.get().getProject() : null;
+        const currentProjectName: string = ProjectContext.get().isInitialized() ? ProjectContext.get().getProject().getName() : null;
 
-        if (currentProject) {
+        if (currentProjectName) {
             this.projectsList.getItemViews().forEach((itemView: ProjectListItem) => {
-                itemView.toggleClass('selected', itemView.getProject().getName() === currentProject);
+                itemView.toggleClass('selected', itemView.getProject().getName() === currentProjectName);
             });
         }
     }

@@ -579,15 +579,20 @@ function initProjectContext(application: Application): Q.Promise<void> {
     return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
         ProjectSelectionDialog.get().setProjects(projects);
 
-        const isProjectExisting: boolean = projects.some((project: Project) => project.getName() === projectName);
+        const currentProject: Project = projects.find((project: Project) => project.getName() === projectName);
+        const defaultProject: Project = projects.find((project: Project) => project.getName() === Project.DEFAULT_PROJECT_NAME);
 
-        if (isProjectExisting) {
-            ProjectContext.get().setProject(projectName);
+        if (defaultProject) {
+            ProjectContext.get().updateDefaultProject(defaultProject);
+        }
+
+        if (currentProject) {
+            ProjectContext.get().setProject(currentProject);
             return Q(null);
         }
 
         if (projects.length === 1) {
-            ProjectContext.get().setProject(projects[0].getName());
+            ProjectContext.get().setProject(projects[0]);
             return Q(null);
         }
 
