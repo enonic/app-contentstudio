@@ -9,6 +9,7 @@ const xpath = {
     overwriteChildPermissionsCheckbox: `//div[contains(@class,'overwrite-child')]`,
     inheritPermissionsCheckbox: `//div[contains(@class,'inherit-perm')]`,
     permissionSelector: `//[contains(@id,'PermissionSelector')]`,
+    aceSelectedOptions: "//div[contains(@id,'ACESelectedOptionsView')]",
     permissionToggleByOperationName: name => `//a[contains(@id,'PermissionToggle') and text()='${name}']`,
     aclEntryByName:
         name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`,
@@ -53,6 +54,11 @@ class EditPermissionsDialog extends Page {
 
     getDisplayNameOfSelectedPrincipals() {
         let selector = xpath.container + lib.H6_DISPLAY_NAME;
+        return this.getTextInElements(selector);
+    }
+
+    getNameOfAccessControlEntries() {
+        let selector = xpath.container + xpath.aceSelectedOptions + lib.P_SUB_NAME;
         return this.getTextInElements(selector);
     }
 

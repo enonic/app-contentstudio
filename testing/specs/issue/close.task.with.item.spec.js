@@ -59,7 +59,7 @@ describe('close.task.with.item.spec: close an task and verify control elements o
             await taskDetailsDialog.clickOnCloseTaskButton();
             //modal dialog has been closed:
             await taskDetailsDialog.clickOnCancelTopButton();
-            // 'issue-menu button is getting not visible on the preview toolbar, (the content is selected)');
+            //Verify that 'issue-menu' button gets not visible in the preview toolbar, (the content is selected);
             await contentItemPreviewPanel.waitForIssueMenuButtonNotVisible();
         });
 

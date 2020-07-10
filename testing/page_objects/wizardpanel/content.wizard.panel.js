@@ -593,6 +593,10 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    isPageControllerFilterInputClickable() {
+        return this.isClickable(this.controllerOptionFilterInput);
+    }
+
     //Select a page descriptor and wait for Context Window is loaded
     async selectPageDescriptor(pageControllerDisplayName) {
         await this.switchToLiveEditFrame();
