@@ -28,6 +28,9 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
     let FOLDER_READY_TO_PUBLISH;
     let FOLDER_NAME_1 = studioUtils.generateRandomName("folder");
     let FOLDER_NAME_2 = studioUtils.generateRandomName("folder");
+    const CONTROLLER_NAME = 'main region';
+    const SITE_NAME = contentBuilder.generateRandomName('site');
+    let SITE;
 
     it(`Preconditions: new system user should be created`,
         async () => {
@@ -74,9 +77,29 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
             await studioUtils.doAddFolder(FOLDER_WORK_IN_PROGRESS);
             await studioUtils.doAddReadyFolder(FOLDER_READY_TO_PUBLISH);
+
+            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConstant.APP_CONTENT_TYPES]);
+            await studioUtils.doAddSite(SITE);
             //Do log out:
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
+        });
+
+    //Verifies: https://github.com/enonic/app-contentstudio/issues/1925
+    // Page Controller should be disabled when an user has no permissions in a project (Contributor) #1925
+    it("GIVEN user with 'Contributor' role is logged in WHEN existing site(controller is not selected) is opened THEN Page Controller should be disabled",
+        async () => {
+            let contentWizardPanel = new ContentWizardPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            //2. Open existing site(controller is not selected yet):
+            await contentBrowsePanel.doubleClickOnRowByDisplayName(SITE.displayName);
+            await studioUtils.doSwitchToNewWizard();
+            await contentWizardPanel.pause(1000);
+            //3. Verify that Page Controller is disabled (not clickable):
+            let result = await contentWizardPanel.isPageControllerFilterInputClickable();
+            assert.isFalse(result, "Page Controller selector should be disabled for user with contributor role")
         });
 
     it("GIVEN contributor user is logged in WHEN existing project has been opened THEN all inputs should be disabled",
@@ -207,7 +230,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
-            let publishRequestDetailsDialog = new PublishRequestDetailsDialog()
+            let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
             //1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Select the folder and open Request wizard:
@@ -223,6 +246,20 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             //5. Verify that 'Publish Now' button is disabled:
             studioUtils.saveScreenshot("project_contributor_4");
             await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
+        });
+
+    //Verifies - User with contributor role - Duplicate button gets enabled after selecting 2 items in grid #1922
+    //https://github.com/enonic/app-contentstudio/issues/1922
+    it("GIVEN user with 'Contributor' role is logged in WHEN 2 folders have been selected THEN 'Duplicate' button should be disabled",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            //2. Select 2 folders:
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(FOLDER_READY_TO_PUBLISH.displayName);
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(FOLDER_WORK_IN_PROGRESS.displayName);
+            //3. Verify that 'Duplicate' button is disabled:
+            await contentBrowsePanel.waitForDuplicateButtonDisabled();
         });
 
     afterEach(async () => {
