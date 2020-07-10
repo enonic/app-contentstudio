@@ -451,6 +451,10 @@ class Page {
         let elems = await this.getDisplayedElements(selector);
         return await elems[0].isSelected();
     }
+
+    refresh() {
+        return this.getBrowser().refresh();
+    }
 }
 
 module.exports = Page;
