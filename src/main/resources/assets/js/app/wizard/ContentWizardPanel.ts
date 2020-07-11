@@ -1987,6 +1987,7 @@ export class ContentWizardPanel
     updatePersistedItem(): Q.Promise<Content> {
         const persistedContent: Content = this.getPersistedItem();
         const viewedContent: Content = this.assembleViewedContent(persistedContent.newBuilder(), true).build();
+        const isInherited: boolean = persistedContent.isInherited();
 
         const updateContentRoutine: UpdatePersistedContentRoutine = new UpdatePersistedContentRoutine(this, persistedContent, viewedContent)
             .setRequireValid(this.requireValid)
@@ -2002,7 +2003,7 @@ export class ContentWizardPanel
             }
 
             if (context.dataUpdated || context.pageUpdated) {
-                this.showFeedbackContentSaved(content);
+                this.showFeedbackContentSaved(content, isInherited);
             }
 
             this.getWizardHeader().resetBaseValues();
@@ -2016,10 +2017,12 @@ export class ContentWizardPanel
         });
     }
 
-    private showFeedbackContentSaved(content: Content) {
+    private showFeedbackContentSaved(content: Content, wasInherited: boolean = false) {
         const name = content.getName();
         let message;
-        if (name.isUnnamed()) {
+        if (wasInherited) {
+            message = i18n('notify.content.localized');
+        } else if (name.isUnnamed()) {
             message = i18n('notify.item.savedUnnamed');
         } else if (this.isMarkedAsReady) {
             if (this.isMarkedAsReadyOnPublish) {
