@@ -1729,6 +1729,8 @@ export class ContentWizardPanel
                             setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
                         });
 
+                        this.settingsWizardStepForm.updateInitialLanguage();
+
                         return Q(null);
                     });
                 });

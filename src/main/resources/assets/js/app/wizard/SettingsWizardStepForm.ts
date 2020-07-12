@@ -52,7 +52,7 @@ export class SettingsWizardStepForm
     layout(content: Content) {
         this.content = content;
 
-        this.localeCombo = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).build();
+        this.localeCombo = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).setValue(content.getLanguage()).build();
         let localeFormItem = new FormItemBuilder(this.localeCombo).setLabel(i18n('field.lang')).build();
 
         let loader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]);
@@ -77,27 +77,6 @@ export class SettingsWizardStepForm
         });
 
         this.setModel(new ContentSettingsModel(content));
-
-        const language: string = this.getInitialLanguage(content);
-        this.localeCombo.setValue(language);
-
-        if (language !== content.getLanguage()) {
-            this.model.setLanguage(language);
-            NotifyManager.get().showFeedback(i18n('notify.wizard.language.copiedFromParent'));
-        }
-    }
-
-    private getInitialLanguage(content: Content): string {
-        if (content.isInherited()) {
-                const currentLanguage: string = ProjectContext.get().getProject().getLanguage();
-                if (currentLanguage && currentLanguage !== content.getLanguage()) {
-                    return currentLanguage;
-                }
-
-                return content.getLanguage();
-        }
-
-        return content.getLanguage();
     }
 
     update(content: Content, unchangedOnly: boolean = true) {
@@ -150,6 +129,18 @@ export class SettingsWizardStepForm
 
     apply(builder: ContentBuilder) {
         this.model.apply(builder);
+    }
+
+    updateInitialLanguage() {
+        if (!this.content.isInherited()) {
+            return;
+        }
+
+        const currentProjectLanguage: string = ProjectContext.get().getProject().getLanguage();
+        if (currentProjectLanguage && currentProjectLanguage !== this.content.getLanguage()) {
+            this.model.setLanguage(currentProjectLanguage);
+            NotifyManager.get().showFeedback(i18n('notify.wizard.language.copiedFromParent'));
+        }
     }
 
     giveFocus(): boolean {
