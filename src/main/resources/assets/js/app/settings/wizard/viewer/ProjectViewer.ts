@@ -1,12 +1,9 @@
 import {Project} from '../../data/project/Project';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectIconUrlResolver} from '../../../project/ProjectIconUrlResolver';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {NamesView} from 'lib-admin-ui/app/NamesView';
-import {Element} from 'lib-admin-ui/dom/Element';
+import {ExtendedViewer} from '../../../view/ExtendedViewer';
 
-export class ProjectViewer extends NamesAndIconViewer<Project> {
+export class ProjectViewer extends ExtendedViewer<Project> {
 
     constructor(className?: string) {
         super('project-viewer ' + (!!className ? className : ''));
@@ -35,18 +32,7 @@ export class ProjectViewer extends NamesAndIconViewer<Project> {
             .resolve() : null;
     }
 
-    doLayout(project: Project) {
-        super.doLayout(project);
-
-        if (!project) {
-            return;
-        }
-
-        const namesView: NamesView = this.namesAndIconView.getNamesView();
-
-        const displayNameEl: Element = new SpanEl('display-name').setHtml(project.getDisplayName());
-        const nameEl: Element = new SpanEl('name').setHtml(project.getLanguage() ? `(${project.getLanguage()})` : '');
-
-        namesView.setMainNameElements([displayNameEl, nameEl]);
+    protected resolveSecondaryName(project: Project): string {
+        return project.getLanguage() ? `(${project.getLanguage()})` : '';
     }
 }

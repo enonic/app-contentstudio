@@ -6,9 +6,10 @@ import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
 import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
+import {ExtendedViewer} from '../view/ExtendedViewer';
 
 export class ContentSummaryAndCompareStatusViewer
-    extends NamesAndIconViewer<ContentSummaryAndCompareStatus> {
+    extends ExtendedViewer<ContentSummaryAndCompareStatus> {
 
     constructor() {
         super('content-summary-and-compare-status-viewer');
@@ -86,6 +87,14 @@ export class ContentSummaryAndCompareStatusViewer
 
     private resolveSubNameForUploadItem(object: ContentSummaryAndCompareStatus): string {
         return object.getUploadItem().getName();
+    }
+
+    protected resolveSecondaryName(object: ContentSummaryAndCompareStatus): string {
+        if (object.isInherited() && object.getContentSummary().getLanguage()) {
+            return `(${object.getContentSummary().getLanguage()})`;
+        }
+
+        return '';
     }
 
     resolveSubTitle(object: ContentSummaryAndCompareStatus): string {
