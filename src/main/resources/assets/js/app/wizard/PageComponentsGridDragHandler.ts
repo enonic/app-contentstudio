@@ -24,8 +24,8 @@ export class PageComponentsGridDragHandler
     extends GridDragHandler<ItemView> {
 
     protected handleDragInit(e: DragEvent) {
-        let row = this.getRowByTarget(new ElementHelper(<HTMLElement>e.target));
-        const data: ItemView = this.contentGrid.getDataByRow(row.getSiblingIndex());
+        const row: ElementHelper = this.getRowByTarget(new ElementHelper(<HTMLElement>e.target));
+        const data: ItemView = this.contentGrid.getDataByRow(this.getRowIndex(row));
 
         // prevent the grid from cancelling drag'n'drop by default
         if (!!data && data.isDraggableView() && !BrowserHelper.isMobile()) {
