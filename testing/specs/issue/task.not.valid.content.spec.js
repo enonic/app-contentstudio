@@ -78,6 +78,7 @@ describe('task.not.valid.content.spec: create a task with not valid content', fu
             await taskDetailsDialogItemsTab.waitForPublishButtonEnabled();
         });
 
+    //Verifies: Items that were removed in Issue Details items appear again in Publish Wizard dialog #783
     it(`GIVEN dependant item has been excluded WHEN 'Publish...' button has been clicked and Publish Wizard is loaded THEN excluded item should not be present in the wizard`,
         async () => {
             let issueListDialog = new IssueListDialog();
