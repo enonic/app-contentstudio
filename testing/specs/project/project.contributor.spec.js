@@ -28,7 +28,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
     let FOLDER_READY_TO_PUBLISH;
     let FOLDER_NAME_1 = studioUtils.generateRandomName("folder");
     let FOLDER_NAME_2 = studioUtils.generateRandomName("folder");
-    const CONTROLLER_NAME = 'main region';
     const SITE_NAME = contentBuilder.generateRandomName('site');
     let SITE;
 
@@ -212,7 +211,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizardPanel = new ContentWizardPanel();
-            let settingsStepForm = new SettingsStepForm();
             //1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Double click on existing folder(status is Work in progress):

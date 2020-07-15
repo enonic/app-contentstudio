@@ -58,7 +58,6 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await settingsBrowsePanel.openProjectWizard();
             await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
             await projectWizard.clickOnAccessModeRadio("Private");
-            let result = await projectWizard.isDescriptionInputClickable();
             //3. Select the user in roles, assign Owner role him:
             await projectWizard.selectProjectAccessRoles(USER.displayName);
             await projectWizard.updateUserAccessRole(USER.displayName, appConstant.PROJECT_ROLES.OWNER);
@@ -139,7 +138,6 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
             //2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             studioUtils.saveScreenshot("project_owner_1");

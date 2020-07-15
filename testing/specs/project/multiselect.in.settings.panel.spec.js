@@ -81,7 +81,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             await settingsBrowsePanel.waitForContextMenuDisplayed();
             studioUtils.saveScreenshot("multiselect_context_menu_1");
             //Verify that New.. item is enabled:
-            let result = await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
+            await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
             //Verify that Delete menu item is disabled:
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Delete');
@@ -97,7 +97,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             await settingsBrowsePanel.waitForContextMenuDisplayed();
             studioUtils.saveScreenshot("multiselect_context_menu_2");
             //Verify that New.. item is enabled:
-            let result = await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
+            await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             //Verify that Edit menu item is disabled:
             await settingsBrowsePanel.waitForContextMenuItemDisabled('Edit');
             //Verify that Delete menu item is disabled:

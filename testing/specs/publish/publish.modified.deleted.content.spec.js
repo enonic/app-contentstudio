@@ -20,7 +20,6 @@ describe('publish.modified.deleted.content.spec - modify 2 published folders, se
     let FOLDER2;
     it(`Precondition: 2 'published' folders should be added`,
         async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
             let parentFolder = contentBuilder.generateRandomName('folder');
             let childFolder = contentBuilder.generateRandomName('folder');
             FOLDER1 = contentBuilder.buildFolder(parentFolder);

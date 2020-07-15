@@ -66,7 +66,6 @@ describe('Generate name for fragments  specification', function () {
             let contentWizard = new ContentWizard();
             let imageInspectPanel = new ImageInspectPanel();
             let pageComponentView = new PageComponentView();
-            let insertImageDialog = new InsertImageDialog();
             //1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.clickOnShowComponentViewToggler();
@@ -90,7 +89,6 @@ describe('Generate name for fragments  specification', function () {
     it(`GIVEN an layout component is inserted WHEN the empty layout has been saved as fragment THEN expected fragment-name should be generated`,
         async () => {
             let contentWizard = new ContentWizard();
-            let layoutInspectPanel = new LayoutInspectPanel();
             let pageComponentView = new PageComponentView();
             //1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);

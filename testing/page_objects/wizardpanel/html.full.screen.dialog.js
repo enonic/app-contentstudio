@@ -32,7 +32,7 @@ class HtmlFullScreenDialog extends Page {
         }
     }
 
-    typeTextInHtmlArea(strings) {
+    typeTextInHtmlArea(text) {
         let htmlArea = new HtmlArea();
         return htmlArea.typeTextInHtmlArea(xpath.container, text);
     }
@@ -41,6 +41,6 @@ class HtmlFullScreenDialog extends Page {
         let htmlArea = new HtmlArea();
         return htmlArea.getTextFromHtmlArea(xpath.container);
     }
-};
+}
 module.exports = HtmlFullScreenDialog;
 

@@ -78,7 +78,6 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
 
     it(`GIVEN new project wizard - description has been typed WHEN 'close' icon has been clicked THEN Confirmation Dialog should appear`,
         async () => {
-            let projectDisplayName = studioUtils.generateRandomName("project");
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             let confirmationDialog = new ConfirmationDialog();
@@ -97,10 +96,8 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
 
     it(`GIVEN no changes in new project wizard WHEN 'close' icon has been clicked THEN Confirmation Dialog should not appear`,
         async () => {
-            let projectDisplayName = studioUtils.generateRandomName("project");
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            let confirmationDialog = new ConfirmationDialog();
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
             //2. Click on close-icon

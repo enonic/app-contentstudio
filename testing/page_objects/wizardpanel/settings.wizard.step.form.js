@@ -70,7 +70,7 @@ class SettingsStepForm extends Page {
         return this.getText(selector);
     }
 
-    async clickOnRemoveLanguage(displayName) {
+    async clickOnRemoveLanguage() {
         try {
             await this.clickOnElement(this.removeLanguageButton);
             return await this.pause(500);
@@ -80,7 +80,7 @@ class SettingsStepForm extends Page {
         }
     }
 
-    async clickOnRemoveOwner(displayName) {
+    async clickOnRemoveOwner() {
         try {
             await this.clickOnElement(this.removeOwnerButton);
             return await this.pause(500);

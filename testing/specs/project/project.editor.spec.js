@@ -47,7 +47,6 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await settingsBrowsePanel.openProjectWizard();
             await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
             await projectWizard.clickOnAccessModeRadio("Private");
-            let result = await projectWizard.isDescriptionInputClickable();
             //3. Select the user in roles, assign Contributor role him:
             await projectWizard.selectProjectAccessRoles(USER.displayName);
             await projectWizard.updateUserAccessRole(USER.displayName, appConstant.PROJECT_ROLES.EDITOR);

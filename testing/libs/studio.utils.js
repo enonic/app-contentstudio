@@ -373,12 +373,10 @@ module.exports = {
         return await deleteContentDialog.waitForDialogClosed();
     },
     async selectContentAndOpenWizard(name) {
-        let browsePanel = new BrowsePanel();
-        let contentWizardPanel = new ContentWizardPanel();
         await this.findAndSelectItem(name);
-        return await this.doClickOnEditAndOpenContent(name);
+        return await this.doClickOnEditAndOpenContent();
     },
-    async doClickOnEditAndOpenContent(name) {
+    async doClickOnEditAndOpenContent() {
         let browsePanel = new BrowsePanel();
         let contentWizardPanel = new ContentWizardPanel();
         await browsePanel.waitForEditButtonEnabled();

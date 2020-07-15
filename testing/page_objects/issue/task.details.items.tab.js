@@ -124,7 +124,7 @@ class TaskDetailsDialogItemsTab extends Page {
     };
 
     //Show dependent items
-    async clickOnShowDependentItems(text) {
+    async clickOnShowDependentItems() {
         try {
             await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.longTimeout);
             await this.clickOnElement(this.showDependentItemsLink);
