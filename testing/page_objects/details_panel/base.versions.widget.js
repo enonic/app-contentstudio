@@ -32,15 +32,15 @@ class BaseVersionsWidget extends Page {
 
     //waits for Version Widget is loaded, Exception will be thrown after the timeout exceeded
     waitForVersionsLoaded() {
-        return this.waitForElementDisplayed(this.versionsWidget, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.versionsWidget, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot("err_load_versions_widget");
-            throw new Error('Version Widget was not loaded in ' + appConst.TIMEOUT_2);
+            throw new Error('Version Widget was not loaded in ' + appConst.mediumTimeout);
         });
     }
 
     //waits for Version Widget is loaded, returns false after the timeout exceeded
     isWidgetLoaded() {
-        return this.waitForElementDisplayed(this.versionsWidget, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.versionsWidget, appConst.mediumTimeout).catch(err => {
             return false;
         });
     }
@@ -48,7 +48,7 @@ class BaseVersionsWidget extends Page {
     async clickOnRevertButton() {
         try {
             let selector = xpath.versionItemExpanded + "//button/span[text()='Revert']";
-            await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.clickOnElement(selector);
             return await this.pause(2000);
         } catch (err) {
@@ -58,12 +58,12 @@ class BaseVersionsWidget extends Page {
 
     async waitForVersionItemPublished(index) {
         try {
-            await this.waitForElementDisplayed(this.versionItems, 2000);
+            await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
             let elements = await this.findElements(this.versionItems);
             await this.getBrowser().waitUntil(async () => {
                 let result = await elements[index].getAttribute("class");
                 return result.includes('online');
-            }, appConst.TIMEOUT_3);
+            }, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot("err_wait_for_published_status");
             throw new Error("Version Panel - error when waiting for published status: " + err);
@@ -72,7 +72,7 @@ class BaseVersionsWidget extends Page {
 
     async isEditButtonDisplayed(index) {
         try {
-            await this.waitForElementDisplayed(this.versionItems, 2000);
+            await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
             let elements = await this.findElements(this.versionItems);
             let result = await elements[index].$$(".//button/span[text()='Edit']");
             return result.length > 0;
@@ -83,7 +83,7 @@ class BaseVersionsWidget extends Page {
     }
 
     async clickOnEditButton() {
-        await this.waitForElementDisplayed(this.versionItems, 2000);
+        await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
         let elements = await this.findElements(this.versionItems);
         let result = await elements[0].$$(".//button/span[text()='Edit']");
         if (!result.length) {
@@ -105,7 +105,7 @@ class BaseVersionsWidget extends Page {
     async clickOnCompareWithCurrentVersionButton(index) {
         try {
             //wait for the list of versions is loaded:
-            await this.waitForElementDisplayed(this.versionsWidget + xpath.versionsList, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.versionsWidget + xpath.versionsList, appConst.mediumTimeout);
             let elements = await this.findElements(this.compareWithCurrentVersionButton);
             await elements[index].click();
             return await this.pause(400);

@@ -29,7 +29,7 @@ class PageComponentView extends Page {
 
     clickOnComponent(displayName) {
         let selector = xpath.container + lib.itemByDisplayName(displayName);
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).then(() => {
             return this.clickOnElement(selector);
         }).catch(err => {
             throw new Error("Page Component View - Error when clicking on the component " + err);
@@ -41,7 +41,7 @@ class PageComponentView extends Page {
     async openMenu(componentName) {
         try {
             let menuButton = xpath.componentByName(componentName) + "/../..//div[contains(@class,'menu-icon')]";
-            await this.waitForElementDisplayed(menuButton, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(menuButton, appConst.shortTimeout);
             await this.clickOnElement(menuButton);
             return await this.pause(500);
         } catch (err) {
@@ -53,7 +53,7 @@ class PageComponentView extends Page {
     async openMenuByDescription(description) {
         try {
             let menuButton = xpath.componentByDescription(description) + "/../..//div[contains(@class,'menu-icon')]";
-            await this.waitForElementDisplayed(menuButton, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(menuButton, appConst.shortTimeout);
             await this.clickOnElement(menuButton);
             return await this.pause(500);
         } catch (err) {
@@ -65,7 +65,7 @@ class PageComponentView extends Page {
     async clickOnComponent(componentName) {
         try {
             let component = xpath.componentByName(componentName);
-            await this.waitForElementDisplayed(component, appConst.TIMEOUT_3);
+            await this.waitForElementDisplayed(component, appConst.shortTimeout);
             await this.clickOnElement(component);
             return await this.pause(500);
         } catch (err) {
@@ -76,7 +76,7 @@ class PageComponentView extends Page {
 
     async isComponentSelected(displayName) {
         let rowXpath = lib.slickRowByDisplayName(xpath.container, displayName) + "//div[contains(@class,'slick-cell')]";
-        await this.waitForElementDisplayed(rowXpath, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(rowXpath, appConst.shortTimeout);
         let cell = await this.findElement(rowXpath);
         let attr = await cell.getAttribute("class");
         return attr.includes("selected");
@@ -84,7 +84,7 @@ class PageComponentView extends Page {
 
     isMenuItemPresent(name) {
         let selector = xpath.contextMenuItemByName(name);
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(selector, appConst.shortTimeout).catch(err => {
             console.log(err);
             return false;
         })
@@ -109,7 +109,7 @@ class PageComponentView extends Page {
 
     clickOnMenuItem(menuItem) {
         let selector = xpath.contextMenuItemByName(menuItem);
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot("err_menu_item");
             throw new Error("Page Component View: Menu Item still not visible - " + menuItem + " " + err);
         }).then(() => {
@@ -120,11 +120,11 @@ class PageComponentView extends Page {
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout);
     }
 
     waitForClosed() {
-        return this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
     }
 
     async swapComponents(sourceName, destinationName) {

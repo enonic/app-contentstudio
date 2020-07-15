@@ -62,7 +62,7 @@ class ImageSelectorForm extends Page {
     getFlatModeOptionImageNames() {
         let titles = [];
         let imgSelector = XPATH.flatOptionView;
-        return this.waitForElementDisplayed(imgSelector, appConst.TIMEOUT_3).then(() => {
+        return this.waitForElementDisplayed(imgSelector, appConst.mediumTimeout).then(() => {
             return this.findElements(imgSelector);
         }).then(result => {
             result.forEach(el => {
@@ -106,7 +106,7 @@ class ImageSelectorForm extends Page {
 
     async clickOnApplyButton() {
         let selector = XPATH.imageContentComboBox + "//span[text()='Apply']";
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         return await this.clickOnElement(selector);
     }
 

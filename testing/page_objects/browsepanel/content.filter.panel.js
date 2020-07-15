@@ -35,7 +35,7 @@ class BrowseFilterPanel extends Page {
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
     }
 
     isPanelVisible() {
@@ -43,11 +43,11 @@ class BrowseFilterPanel extends Page {
     }
 
     waitForClearLinkDisplayed() {
-        return this.waitForElementDisplayed(this.clearFilterLink, appConst.TIMEOUT_3)
+        return this.waitForElementDisplayed(this.clearFilterLink, appConst.mediumTimeout)
     }
 
     waitForDependenciesSectionVisible() {
-        return this.waitForElementDisplayed(XPATH.container + XPATH.dependenciesSection, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(XPATH.container + XPATH.dependenciesSection, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot("err_load_dependencies_section");
             throw new Error(" Filter Panel: Dependencies section should be visible! " + err);
         })
@@ -59,7 +59,7 @@ class BrowseFilterPanel extends Page {
 
     async clickOnCheckboxInAggregationView(contentType) {
         let selector = XPATH.aggregationLabelByName(contentType);
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         await this.clickOnElement(selector);
         return await this.pause(400);
     }

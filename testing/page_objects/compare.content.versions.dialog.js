@@ -50,23 +50,23 @@ class CompareContentVersionsDialog extends Page {
     }
 
     async waitForLeftRevertButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.TIMEOUT_2);
+        return await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.mediumTimeout);
     }
 
     async waitForRightRevertMenuButtonDisplayed() {
-        return await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.TIMEOUT_2);
+        return await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.mediumTimeout);
     }
 
     async waitForRightRevertMenuButtonDisabled() {
-        return await this.waitForElementDisabled(this.rightRevertMenuButton, appConst.TIMEOUT_2);
+        return await this.waitForElementDisabled(this.rightRevertMenuButton, appConst.mediumTimeout);
     }
 
     async waitForLeftRevertMenuButtonEnabled() {
-        return await this.waitForElementEnabled(this.leftRevertMenuButton, appConst.TIMEOUT_2);
+        return await this.waitForElementEnabled(this.leftRevertMenuButton, appConst.mediumTimeout);
     }
 
     async clickOnRightRevertButton() {
-        await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(this.leftRevertMenuButton, appConst.mediumTimeout);
         return await this.clickOnElement(this.leftRevertMenuButton);
     }
 
@@ -77,13 +77,13 @@ class CompareContentVersionsDialog extends Page {
 
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
             throw new Error("CompareContentVersions Dialog is not loaded " + err);
         })
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
             throw new Error("CompareContentVersions Dialog must be closed " + err);
         })
     }

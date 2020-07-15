@@ -40,14 +40,12 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let newSettingsItemDialog = new NewSettingsItemDialog();
-            //1. Expand 'Projects' folder:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConst.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2. Do right click on 'Default' folder and Open Context menu:
+            //1. Do right click on 'Default' folder and Open Context menu:
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName("Default");
             //Verify that 'New...' button should be enabled:
             await settingsBrowsePanel.waitForContextMenuDisplayed();
             studioUtils.saveScreenshot("default_context_menu");
-            //Verify that New.. is enabled:
+            //2. Verify that New.. is enabled:
             let result = await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
             //Verify that Delete menu item is disabled:
@@ -72,9 +70,7 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
-            //1. Expand 'Projects' folder:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConst.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2. Right click on the existing project:
+            //1. Right click on the existing project:
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.waitForContextMenuDisplayed();
             //2. Click on 'Delete' menu item:

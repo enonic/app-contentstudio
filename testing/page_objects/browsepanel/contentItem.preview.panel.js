@@ -32,20 +32,20 @@ class ContentItemPreviewPanel extends Page {
     }
 
     waitForPanelVisible() {
-        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_2).catch(err => {
-            throw new Error('Content Item preview toolbar was not loaded in ' + appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
+            throw new Error('Content Item preview toolbar was not loaded in ' + appConst.shortTimeout);
         });
     }
 
     //wait for content status cleared
     waitForStatusCleared() {
         let selector = xpath.toolbar + "//div[@class='content-status-wrapper']/span[contains(@class,'status')]";
-        return this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(selector, appConst.shortTimeout);
     }
 
     waitForAuthorCleared() {
         let selector = xpath.toolbar + "//div[@class='content-status-wrapper']/span[contains(@class,'author')]";
-        return this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(selector, appConst.shortTimeout);
     }
 
     async clickOnIssueMenuDropDownHandle() {
@@ -58,11 +58,11 @@ class ContentItemPreviewPanel extends Page {
     }
 
     waitForIssueDropDownHandleDisplayed() {
-        return this.waitForElementDisplayed(this.issueDropdownHandle, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.issueDropdownHandle, appConst.shortTimeout);
     }
 
     waitForIssueDropDownHandleNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.issueDropdownHandle, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementNotDisplayed(this.issueDropdownHandle, appConst.shortTimeout).catch(err => {
             throw new Error('Item Preview Toolbar - dropdown handle should not be displayed !  ' + err);
 
         });
@@ -71,7 +71,7 @@ class ContentItemPreviewPanel extends Page {
     async clickOnIssueMenuItem(issueName) {
         try {
             let selector = xpath.toolbar + xpath.issueMenuItemByName(issueName);
-            await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.clickOnElement(selector);
         } catch (err) {
             this.saveScreenshot("err_issue_menu_item");
@@ -83,7 +83,7 @@ class ContentItemPreviewPanel extends Page {
     async waitForIssueMenuButtonNotVisible() {
         try {
             let selector = xpath.toolbar + `//div[contains(@id,'MenuButton') and descendant::span[contains(@class,'icon-issue')]]//button`;
-            await this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_3);
+            await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot("err_preview_toolbar_issue_icon");
             throw new Error("Issue icon still visible in the toolbar " + err);
@@ -93,7 +93,7 @@ class ContentItemPreviewPanel extends Page {
     async clickOnIssueMenuButton() {
         try {
             let selector = xpath.toolbar + xpath.issueMenuButton;
-            await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.clickOnElement(selector);
             return await this.pause(400);
         } catch (err) {
@@ -113,14 +113,14 @@ class ContentItemPreviewPanel extends Page {
 
     async getIssueNameInMenuButton() {
         let selector = xpath.toolbar + xpath.issueMenuButton + '//button/span';
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_4);
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         return await this.getText(selector);
     }
 
     async waitForElementDisplayedInFrame(selector) {
         try {
             await this.switchToFrame(xpath.container + "//iframe[contains(@src,'admin/site')]");
-            let result = await this.waitForElementDisplayed(selector, appConst.TIMEOUT_4);
+            let result = await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.switchToParentFrame();
             return result
         } catch (err) {
@@ -132,7 +132,7 @@ class ContentItemPreviewPanel extends Page {
     async waitForElementNotDisplayedInFrame(selector) {
         try {
             await this.switchToFrame(xpath.container + "//iframe[contains(@src,'admin/site')]");
-            let result = await this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_3);
+            let result = await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
             await this.switchToParentFrame();
             return result
         } catch (err) {
@@ -155,7 +155,7 @@ class ContentItemPreviewPanel extends Page {
 
     waitForIssueNameInMenuButton(issueName) {
         let selector = xpath.toolbar + xpath.issueMenuButtonByName(issueName);
-        return this.waitUntilDisplayed(selector, appConst.TIMEOUT_2);
+        return this.waitUntilDisplayed(selector, appConst.shortTimeout);
     }
 
     //switches to iframe and gets text in the panel

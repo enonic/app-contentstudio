@@ -37,9 +37,9 @@ class NewPrincipalDialog extends Page {
 
     async waitForDialogLoaded() {
         try {
-            return await this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3);
+            return await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
         } catch (err) {
-            throw new Error("New Principal dialog is not loaded in: " + appConst.TIMEOUT_3 + " ms  " + err);
+            throw new Error("New Principal dialog is not loaded in: " + appConst.mediumTimeout + " ms  " + err);
         }
     }
 
@@ -56,7 +56,7 @@ class NewPrincipalDialog extends Page {
 
     waitForExpanderIconDisplayed(name) {
         let selector = XPATH.container + XPATH.expanderIconByName(name);
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).catch(err => {
             console.log("Expander is not visible " + err);
             return false;
         })
@@ -64,7 +64,7 @@ class NewPrincipalDialog extends Page {
 
     async waitForDialogClosed() {
         try {
-            return await this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+            return await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot('err_principal_dialog_close');
             throw new Error("New Principal Dialog was not closed  " + err);
@@ -79,7 +79,7 @@ class NewPrincipalDialog extends Page {
 
     waitForProviderNameDisplayed(name) {
         let selector = XPATH.container + XPATH.itemViewer + lib.itemByName(name);
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(selector, appConst.shortTimeout);
     }
 };
 module.exports = NewPrincipalDialog;

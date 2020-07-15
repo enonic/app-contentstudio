@@ -39,7 +39,6 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
             //1. Save new project:
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, DESCRIPTION);
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //2.Click on the row with the project. This row should be highlighted:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Wait for expected description block appears in statistics panel:
@@ -54,8 +53,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
             let confirmationDialog = new ConfirmationDialog();
-            //1. Select existing project then delete it:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            //1. Select an existing project then delete it:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnDeleteButton();
             await confirmationDialog.waitForDialogOpened();

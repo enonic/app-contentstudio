@@ -189,7 +189,7 @@ class UserWizard extends wizards.WizardPanel {
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(this.displayNameInput, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.displayNameInput, appConst.mediumTimeout).catch(err => {
             throw new Error('User Wizard is not loaded! ' + err);
         });
     }

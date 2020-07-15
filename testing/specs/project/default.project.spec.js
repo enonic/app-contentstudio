@@ -19,9 +19,7 @@ describe('default.project.spec - ui-tests for Default project', function () {
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.'Projects' folder has been expanded:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2. Open 'Default' project:
+            //1. Open 'Default' project:
             await settingsBrowsePanel.clickOnRowByDisplayName("Default");
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
@@ -37,14 +35,12 @@ describe('default.project.spec - ui-tests for Default project', function () {
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.'Projects' folder has been expanded:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2. Open 'Default' project:
+            //1. Open 'Default' project:
             await settingsBrowsePanel.clickOnRowByDisplayName("Default");
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
             await projectWizard.selectLanguage(appConstant.LANGUAGES.EN);
-            //3. Verify that 'Save' button gets enabled, then click on it
+            //2. Verify that 'Save' button gets enabled, then click on it
             await projectWizard.waitAndClickOnSave();
             let actualMessage = await projectWizard.waitForNotificationMessage();
             studioUtils.saveScreenshot("default_project_updated_2");
@@ -55,9 +51,7 @@ describe('default.project.spec - ui-tests for Default project', function () {
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.'Projects' folder has been expanded:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2. Open 'Default' project:
+            //1. Open 'Default' project:
             await settingsBrowsePanel.clickOnRowByDisplayName("Default");
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();

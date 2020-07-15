@@ -28,7 +28,8 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             //2 .Click on Content app-mode button
             await studioUtils.switchToContentMode();
             //3. Expand the project selector and verify that 2 new items appeared:
-            let result = await contentBrowsePanel.expandProjectSelectorAndGetProjectsName();
+            let projectSelectionDialog = await contentBrowsePanel.clickOnProjectViewerButton();
+            let result = await projectSelectionDialog.getProjectsDisplayName();
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME_1), "Display name of the first project should be present in options");
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME_2), "Display name of the second project should be present in options");
         });
@@ -39,7 +40,6 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             //2. Click on 'Edit' button:
@@ -60,7 +60,6 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             //'New...' button should be enabled :
@@ -75,7 +74,6 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Click on both just created project's checkboxes:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             //2. Open context menu:
@@ -92,8 +90,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
     it(`GIVEN Projects is expanded AND 'Selection Controller' checkbox is checked WHEN context menu has been opened THEN 'New' menu-item should be enabled but Delete,Edit items should be disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1. Expand Projects folder then click 'Selection Controller' checkbox and select all project:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            //1. Click on 'Selection Controller' checkbox and select all project:
             await settingsBrowsePanel.clickOnSelectionControllerCheckbox();
             //2. Open context menu:
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(PROJECT_DISPLAY_NAME_2);
@@ -111,7 +108,6 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             let actualResultBefore = await settingsBrowsePanel.getDisplayNames();
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
@@ -133,7 +129,6 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             //2. Click on the circle(Selection Toggle):
@@ -158,18 +153,17 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1.Expand the root folder:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2. Delete the project:
+            //1. Delete the project:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnDeleteButton();
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();
             await contentBrowsePanel.pause(1000);
-            //3 .Click on Content app-mode button and switch to content browse panel:
+            //2 .Click on Content app-mode button and switch to content browse panel:
             await studioUtils.switchToContentMode();
-            //4. Verify that deleted project is not present in options of the selector:
-            let result = await contentBrowsePanel.expandProjectSelectorAndGetProjectsName();
+            //3. Verify that deleted project is not present in projectSelectionDialog:
+            let projectSelectionDialog = await contentBrowsePanel.clickOnProjectViewerButton();
+            let result = await projectSelectionDialog.getProjectsDisplayName();
             assert.isFalse(result.includes(PROJECT_DISPLAY_NAME_1));
         });
 

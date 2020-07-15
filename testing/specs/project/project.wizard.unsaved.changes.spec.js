@@ -49,7 +49,6 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             //4. Click on No button:
             await confirmationDialog.clickOnNoButton();
             await settingsBrowsePanel.pause(500);
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //5. Verify that new project is not created:
             await settingsBrowsePanel.waitForProjectNotDisplayed(projectDisplayName);
         });
@@ -73,7 +72,6 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             await confirmationDialog.clickOnYesButton();
             await projectWizard.waitForWizardClosed();
             await settingsBrowsePanel.pause(200);
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //5. Verify that new project is not created:
             await settingsBrowsePanel.waitForItemByDisplayNameDisplayed(projectDisplayName);
         });

@@ -15,17 +15,22 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
+const contentBuilder = require("../../libs/content.builder");
+const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 
 describe('project.author.spec - ui-tests for user with Author role', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    let FOLDER_NAME = studioUtils.generateRandomName("folder");
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
+    const FOLDER_NAME = studioUtils.generateRandomName("folder");
     let USER;
-    let PASSWORD = "1q2w3e";
+    const PASSWORD = "1q2w3e";
+    const CONTROLLER_NAME = 'main region';
+    const SITE_NAME = contentBuilder.generateRandomName('site');
+    let SITE;
 
-    it(`Preconditions: new system user should be created`,
+    it(`Precondition 1: new system user should be created`,
         async () => {
             //Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
@@ -36,7 +41,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-    it("GIVEN new project wizard is opened WHEN existing user has been added as Author THEN expected user should be selected in Project Roles form",
+    it("GIVEN new project wizard is opened WHEN existing user has been added as 'Author' THEN expected user should be selected in Project Roles form",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -61,22 +66,50 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
             //Do log out:
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        });
+
+    it("Precondition 2: new site should be created in the just created project",
+        async () => {
+            let projectSelectionDialog = new ProjectSelectionDialog();
+            //1. Do Log in with 'SU':
+            await studioUtils.navigateToContentStudioApp();
+            await projectSelectionDialog.waitForDialogLoaded();
+            //2. Select the new user context:
+            await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
+            //3. SU adds new site:
+            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
+            //Do log out:
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
 
-    it("GIVEN user with Author role is logged in WHEN existing project has been opened THEN all inputs should be disabled(not clickable)",
+    it("GIVEN user with 'Author' role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",
+        async () => {
+            //1. Do Log in with the user:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            //2. load existing site from the current project:
+            let url = "http://localhost:8080/admin/site/preview" + `/${PROJECT_DISPLAY_NAME}/draft/${SITE_NAME}`;
+            await webDriverHelper.browser.url(url);
+            //3. Verify that expected site is loaded:
+            let actualTitle = await webDriverHelper.browser.getTitle();
+            assert.equal(actualTitle, SITE_NAME, "expected site should be loaded");
+
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        });
+
+    it("GIVEN user with 'Author' role is logged in WHEN existing project has been opened THEN all inputs should be disabled(not clickable)",
         async () => {
             //1. Do Log in with the user and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2.Double click on the project:
+            //1.Double click on the project:
             await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //3. Verify that the project is opened:
+            //2. Verify that the project is opened:
             await projectWizard.waitForLoaded();
-            //4. Verify that all inputs in the project page are disabled for author:
+            //3. Verify that all inputs in the project page are disabled for author:
             let isPageDisabled = await projectWizard.isNoModify();
             assert.isTrue(isPageDisabled, "Wizard page should be disabled for 'Author' role");
             let result = await projectWizard.isDescriptionInputClickable();
@@ -85,28 +118,24 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             assert.isFalse(result, "Locale input should not be clickable");
             result = await projectWizard.isDisplayNameInputClickable();
             assert.isFalse(result, "Display Name input should not be clickable");
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-    it("GIVEN user with Author role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
+    it("GIVEN user with 'Author' role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
         async () => {
             //1. Do log in with the user and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Verify that all button are disabled in the toolbar:
+            studioUtils.saveScreenshot("project_author_1");
             await settingsBrowsePanel.waitForNewButtonDisabled();
             await settingsBrowsePanel.waitForEditButtonDisabled();
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
-            studioUtils.saveScreenshot("project_author_1");
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-    it("GIVEN user with Author role is logged in WHEN required context is loaded THEN only New... button should be enabled for Author role",
+    it("GIVEN user with Author role is logged in WHEN New Content dialog is opened THEN creating of Folder and Shortcut are allowed for Author role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
@@ -122,12 +151,10 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             assert.equal(items.length, 2, "Two items should be available for Author");
             assert.isTrue(items.includes("Folder"), "Folder is allowed for creating");
             assert.isTrue(items.includes("Shortcut"), "Shortcut is allowed for creating");
-
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     //Verify that user with Author role can not select a language or owner in Wizard, but can make a content ready for publishing( Mark as Ready)
-    it("GIVEN user with Author role is logged in WHEN new folder has been saved THEN Mark as Ready should be as default action in Publish Menu",
+    it("GIVEN user with 'Author' role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
             let settingsStepForm = new SettingsStepForm();
@@ -145,7 +172,6 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             assert.isFalse(isVisible, "Language comboBox should not be visible for Author role");
             isVisible = await settingsStepForm.isOwnerOptionsFilterVisible();
             assert.isFalse(isVisible, "Owner comboBox should not be visible for Author role");
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     //Verify that 'Author' can not publish content:
@@ -166,35 +192,40 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
             //5. Verify that Publish menu item is disabled:
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
-
-                await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-        //Verifies - issue#1920 User with author role - Last stage in publishing workflow for Project gives user option to "Publish Now"
+    //Verifies - issue#1920 User with author role - Last stage in publishing workflow for Project gives user option to "Publish Now"
     //https://github.com/enonic/app-contentstudio/issues/1920
-        it("GIVEN user with 'Author' role is logged in WHEN existing folder has been selected and Publish Request has been created THEN 'Publish Now' button should be disabled on the last stage",
-            async () => {
-                    let contentBrowsePanel = new ContentBrowsePanel();
-                    let createRequestPublishDialog = new CreateRequestPublishDialog();
-                    let publishRequestDetailsDialog = new PublishRequestDetailsDialog()
-                    //1. Do log in with the user-author and navigate to Content Browse Panel:
-                    await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-                    //2. Select the folder and open Request wizard:
-                    await studioUtils.findAndSelectItem(FOLDER_NAME);
-                    await contentBrowsePanel.openPublishMenuSelectItem(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
-                    await createRequestPublishDialog.waitForDialogLoaded();
-                    await createRequestPublishDialog.clickOnNextButton();
-                    await createRequestPublishDialog.typeInChangesInput("author's request");
-                    //3. Click on 'Create Request' button:
-                    await createRequestPublishDialog.clickOnCreateRequestButton();
-                    //4. Verify that 'Request Details' dialog is loaded:
-                    await publishRequestDetailsDialog.waitForTabLoaded();
-                    //5. Verify that 'Publish Now' button is disabled:
-                    studioUtils.saveScreenshot("project_author_8");
-                    await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
-            });
+    it("GIVEN user with 'Author' role is logged in WHEN existing folder has been selected and Publish Request has been created THEN 'Publish Now' button should be disabled on the last stage",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let createRequestPublishDialog = new CreateRequestPublishDialog();
+            let publishRequestDetailsDialog = new PublishRequestDetailsDialog()
+            //1. Do log in with the user-author and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            //2. Select the folder and open Request wizard:
+            await studioUtils.findAndSelectItem(FOLDER_NAME);
+            await contentBrowsePanel.openPublishMenuSelectItem(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            await createRequestPublishDialog.waitForDialogLoaded();
+            await createRequestPublishDialog.clickOnNextButton();
+            await createRequestPublishDialog.typeInChangesInput("author's request");
+            //3. Click on 'Create Request' button:
+            await createRequestPublishDialog.clickOnCreateRequestButton();
+            //4. Verify that 'Request Details' dialog is loaded:
+            await publishRequestDetailsDialog.waitForTabLoaded();
+            //5. Verify that 'Publish Now' button is disabled:
+            studioUtils.saveScreenshot("project_author_8");
+            await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
+        });
 
+    afterEach(async () => {
+        let title = await webDriverHelper.browser.getTitle();
+        if (title.includes("Content Studio") || title.includes("Users")) {
+            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        }
+    });
     before(() => {
         return console.log('specification is starting: ' + this.title);
     });
+
 });

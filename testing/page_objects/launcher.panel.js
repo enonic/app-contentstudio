@@ -30,13 +30,14 @@ class LauncherPanel extends Page {
     }
 
     async clickOnUsersLink() {
-        await this.waitForElementDisplayed(this.usersLink, appConst.TIMEOUT_3);
+        await this.waitForElementDisplayed(this.usersLink, appConst.mediumTimeout);
         return await this.clickOnElement(this.usersLink);
     }
 
     async clickOnContentStudioLink() {
-        await this.waitForElementDisplayed(this.contentStudioLink, appConst.TIMEOUT_5);
-        return await this.clickOnElement(this.contentStudioLink);
+        await this.waitForElementDisplayed(this.contentStudioLink, appConst.longTimeout);
+        await this.clickOnElement(this.contentStudioLink);
+        return await this.pause(1000);
     }
 
     clickOnLogoutLink() {
@@ -54,13 +55,13 @@ class LauncherPanel extends Page {
     }
 
     isApplicationsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.applicationsLink, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.applicationsLink, appConst.shortTimeout).catch(err => {
             return false;
         })
     }
 
     isUsersLinkDisplayed() {
-        return this.waitForElementDisplayed(this.usersLink, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.usersLink, appConst.shortTimeout).catch(err => {
             return false;
         })
     }
