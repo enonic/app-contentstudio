@@ -35,6 +35,7 @@ import {ManagedActionExecutor} from 'lib-admin-ui/managedaction/ManagedActionExe
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
+import {MarkAsReadyContentAction} from './MarkAsReadyContentAction';
 
 export enum ActionName {
     SHOW_NEW_DIALOG, PREVIEW, EDIT, DELETE, DUPLICATE, MOVE, SORT, PUBLISH, PUBLISH_TREE, UNPUBLISH, MARK_AS_READY, REQUEST_PUBLISH,
@@ -74,8 +75,8 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         this.actionsMap.set(ActionName.PUBLISH, new PublishContentAction(this.grid));
         this.actionsMap.set(ActionName.PUBLISH_TREE, new PublishTreeContentAction(this.grid));
         this.actionsMap.set(ActionName.UNPUBLISH, new UnpublishContentAction(this.grid));
-        this.actionsMap.set(ActionName.MARK_AS_READY, new RequestPublishContentAction(this.grid));
-        this.actionsMap.set(ActionName.REQUEST_PUBLISH, new ShowNewContentDialogAction(this.grid));
+        this.actionsMap.set(ActionName.MARK_AS_READY, new MarkAsReadyContentAction(this.grid));
+        this.actionsMap.set(ActionName.REQUEST_PUBLISH, new RequestPublishContentAction(this.grid));
         this.actionsMap.set(ActionName.CREATE_ISSUE, new CreateIssueAction(this.grid));
         this.actionsMap.set(ActionName.TOGGLE_SEARCH_PANEL, new ToggleSearchPanelAction(this.grid));
         this.actionsMap.set(ActionName.UNDO_PENDING_DELETE, new UndoPendingDeleteContentAction(this.grid));
