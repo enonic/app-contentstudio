@@ -203,7 +203,7 @@ module.exports = {
         await this.openContentWizard(appConst.contentTypes.FOLDER);
         await contentWizardPanel.typeData(folder);
         await contentWizardPanel.clickOnMarkAsReadyButton();
-        await this.doCloseWizardAndSwitchToGrid()
+        await this.doCloseWizardAndSwitchToGrid();
         return await webDriverHelper.browser.pause(1000);
     },
     async doAddFolder(folder) {
@@ -214,7 +214,7 @@ module.exports = {
         //2. Save the folder:
         await contentWizardPanel.waitAndClickOnSave();
         //3.Close the wizard:
-        await this.doCloseWizardAndSwitchToGrid()
+        await this.doCloseWizardAndSwitchToGrid();
         return await webDriverHelper.browser.pause(1000);
     },
     doCloseWizardAndSwitchToGrid: function () {
@@ -437,7 +437,7 @@ module.exports = {
             await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
             return await browsePanel.pause(300);
         } catch (err) {
-            this.saveScreenshot(appConst.generateRandomName('err_spinner'))
+            this.saveScreenshot(appConst.generateRandomName('err_spinner'));
             throw new Error("Filter Panel-  error : " + err);
         }
     },

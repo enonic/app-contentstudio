@@ -59,8 +59,8 @@ class MoveContentDialog extends Page {
     }
 
     async clickOnMoveButton(contentTypeName) {
-        await this.clickOnElement(this.moveButton)
-        await this.pause(700);
+        await this.clickOnElement(this.moveButton);
+        return await this.pause(700);
     }
 
     async typeTextAndClickOnOption(displayName){

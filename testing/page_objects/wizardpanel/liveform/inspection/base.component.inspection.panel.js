@@ -13,5 +13,5 @@ class BaseComponentInspectionPanel extends Page {
         await this.clickOnElement(selector);
         return this.pause(2000);
     }
-};
+}
 module.exports = BaseComponentInspectionPanel;

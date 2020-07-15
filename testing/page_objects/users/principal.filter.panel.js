@@ -48,11 +48,6 @@ class PrincipalFilterPanel extends Page {
         return this.clickOnElement(selector);
     }
 
-    clickOnUserAggregation() {
-        let userSelector = xpath.container + xpath.aggregationGroupView + xpath.userAggregationCheckbox + '/label';
-        return this.clickOnElement(userSelector);
-    }
-
     async clickOnRoleAggregation() {
         let selector = xpath.container + xpath.aggregationGroupView + xpath.roleAggregationCheckbox + '/label';
         await this.clickOnElement(selector);

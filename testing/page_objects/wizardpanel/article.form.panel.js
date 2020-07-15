@@ -24,7 +24,7 @@ class ArticleForm extends Page {
             return this.typeTextInInput(this.bodyTextArea, articleData.body);
         });
     }
-};
+}
 module.exports = ArticleForm;
 
 

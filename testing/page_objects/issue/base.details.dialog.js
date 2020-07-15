@@ -165,5 +165,5 @@ class BaseDetailsDialog extends Page {
         await this.clickOnElement(this.assigneesTabBarItem);
         return await this.pause(400);
     }
-};
+}
 module.exports = BaseDetailsDialog;

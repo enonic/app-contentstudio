@@ -48,7 +48,7 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
                 //3. Select the image in Inspect Panel:
                 await imageInspectPanel.typeNameAndSelectImage(IMAGE_DISPLAY_NAME);
                 let message = await contentWizard.waitForNotificationMessage();
-                let expectedMessage = appConstant.itemSavedNotificationMessage(SITE.displayName)
+                    let expectedMessage = appConstant.itemSavedNotificationMessage(SITE.displayName);
                 assert.equal(message, expectedMessage, "expected notification message should appear");
                 //4. Open Site Configurator dialog, type a number , then click on Apply button:
                 await siteFormPanel.openSiteConfiguratorDialog(appConstant.APP_CONTENT_TYPES);

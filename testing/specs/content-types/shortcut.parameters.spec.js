@@ -73,7 +73,7 @@ describe('Shortcut parameters specification', function () {
             let shortcutForm = new ShortcutForm();
             await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
             let result = await shortcutForm.getParameterName();
-            assert.equal(result, PARAM_NAME, "Expected parameter should be present")
+            assert.equal(result, PARAM_NAME, "Expected parameter should be present");
             result = await shortcutForm.getParameterValue();
             assert.equal(result, PARAM_VALUE, "Expected value of the parameter should be present");
         });

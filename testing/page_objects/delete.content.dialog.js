@@ -118,7 +118,7 @@ class DeleteContentDialog extends Page {
     }
 
     async getContentStatus(displayName) {
-        let selector = XPATH.container + XPATH.getContentStatus(displayName)
+        let selector = XPATH.container + XPATH.getContentStatus(displayName);
         return await this.getText(selector);
     }
 

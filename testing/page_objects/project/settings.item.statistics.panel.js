@@ -9,7 +9,7 @@ const XPATH = {
     container: "//div[contains(@id,'SettingsItemStatisticsPanel')]",
     descriptionBlock: "//div[contains(@id,'DescriptionBlock')]",
     header: "//div[contains(@id,'ItemStatisticsHeader')]"
-}
+};
 
 class SettingsItemStatisticsPanel extends Page {
 
@@ -19,7 +19,7 @@ class SettingsItemStatisticsPanel extends Page {
 
     async getDescription() {
         try {
-            await this.waitForDescriptionDisplayed()
+            await this.waitForDescriptionDisplayed();
             return await this.getText(this.description + "/div[@class='text']");
         } catch (err) {
             this.saveScreenshot('err_get_project_description');
@@ -29,7 +29,7 @@ class SettingsItemStatisticsPanel extends Page {
 
     async getItemDisplayName() {
         try {
-            await this.waitForHeaderDisplayed()
+            await this.waitForHeaderDisplayed();
             return await this.getText(XPATH.container + XPATH.header + "//h1[@class='title']");
         } catch (err) {
             this.saveScreenshot('err_get_project_display_name');

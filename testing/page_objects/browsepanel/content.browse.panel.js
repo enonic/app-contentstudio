@@ -58,7 +58,7 @@ const XPATH = {
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
     },
     defaultActionByName: name => `//button[contains(@id, 'ActionButton') and child::span[contains(.,'${name}')]]`,
-}
+};
 
 class ContentBrowsePanel extends BaseBrowsePanel {
 
@@ -343,7 +343,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return await this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), appConst.mediumTimeout);
         } catch (err) {
             console.log("item is not displayed:" + contentName);
-            this.saveScreenshot('err_find_' + contentName)
+            this.saveScreenshot('err_find_' + contentName);
             throw new Error('content is not displayed ! ' + contentName + "  " + err);
         }
     }
@@ -428,13 +428,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return this.waitForElementEnabled(this.moveButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_move_enabled_button');
             throw Error('Move button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
-        })
-    }
-
-    waitForMoveButtonDisabled() {
-        return this.waitForElementDisabled(this.moveButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_move_disabled_button');
-            throw Error('Move button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
         })
     }
 
@@ -648,7 +641,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 //find workflow state by the display name
     async getWorkflowState(displayName) {
         let xpath = XPATH.contentSummaryByDisplayName(displayName);
-        await this.waitForElementDisplayed(xpath, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
             return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
@@ -665,7 +658,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 //find workflow state by the name
     async getWorkflowStateByName(name) {
         let xpath = XPATH.contentSummaryByName(name);
-        await this.waitForElementDisplayed(xpath, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
             return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
@@ -682,7 +675,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async waitForDefaultAction(actionName) {
         try {
             let selector = XPATH.contentPublishMenuButton + XPATH.defaultActionByName(actionName);
-            return await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+            return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
             throw Error(`Publish Menu -  '${actionName}'  this default action should be visible!: ` + err);
         }

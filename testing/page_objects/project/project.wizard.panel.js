@@ -158,7 +158,7 @@ class ProjectWizardPanel extends Page {
     }
 
     async typeDisplayName(name) {
-        await this.waitForElementDisplayed(this.displayNameInput)
+        await this.waitForElementDisplayed(this.displayNameInput);
         return await this.typeTextInInput(this.displayNameInput, name);
     }
 

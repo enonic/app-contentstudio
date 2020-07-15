@@ -18,7 +18,6 @@ describe('fragment.inspect.panel.update.path.spec - Select a site with not valid
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-    let SITE;
     let FRAGMENT_LAYOUT_DESCRIPTION = "layout";
 
     //Verifies:

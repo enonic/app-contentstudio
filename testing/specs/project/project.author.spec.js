@@ -200,7 +200,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
-            let publishRequestDetailsDialog = new PublishRequestDetailsDialog()
+            let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
             //1. Do log in with the user-author and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Select the folder and open Request wizard:

@@ -19,7 +19,7 @@ const XPATH = {
         return lib.itemByName(name) +
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
     },
-}
+};
 
 class ImageSelectorForm extends Page {
 

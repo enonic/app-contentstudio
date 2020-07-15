@@ -82,7 +82,7 @@ class InsertImageDialog extends Page {
     }
 
     clickOnStyleSelectorDropDownHandle() {
-        return this.clickOnElement(this.styleSelectorDropDownHandle).catch(() => {
+        return this.clickOnElement(this.styleSelectorDropDownHandle).catch(err => {
             this.saveScreenshot("err_style_selector_drop_down_handle");
             throw new Error('Error when clicking on drop down handle! ' + err);
         })

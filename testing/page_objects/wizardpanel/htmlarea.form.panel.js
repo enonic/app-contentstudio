@@ -33,7 +33,6 @@ const XPATH = {
     strikethroughButton: `//a[contains(@class,'cke_button') and contains(@title,'Strikethrough')]`,
     increaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Increase Indent')]`,
     decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
-    insertMacroButton: `//a[contains(@class,'cke_button') and contains(@title,'Insert macro')]`,
     formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
 
     maximizeButton: `//a[contains(@class,'cke_button') and contains(@class,'maximize')]`,

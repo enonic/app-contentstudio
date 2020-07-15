@@ -45,10 +45,10 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             let contentDuplicateDialog = new ContentDuplicateDialog();
             //1. Two folders have been selected:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConstant.TEST_FOLDER_NAME);
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConstant.TEST_FOLDER_2_NAME)
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConstant.TEST_FOLDER_2_NAME);
             //2. Open Duplicate dialog:
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
-            studioUtils.saveScreenshot("duplicate_dialog_2_items")
+            studioUtils.saveScreenshot("duplicate_dialog_2_items");
             let names = await contentDuplicateDialog.getDisplayNamesToDuplicate();
             assert.equal(names.length, 2, '2 items to duplicate should be displayed');
             assert.equal(names[0], appConstant.TEST_FOLDER_WITH_IMAGES, 'expected parent\'s display name should be present');

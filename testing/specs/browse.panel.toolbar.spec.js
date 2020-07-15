@@ -78,7 +78,7 @@ describe('Browse panel, toolbar spec. Check state of buttons after closing a wiz
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
             let folder = contentBuilder.buildFolder(displayName);
-            await studioUtils.doAddFolder(folder)
+            await studioUtils.doAddFolder(folder);
             await studioUtils.findAndSelectItem(folder.displayName);
             await contentBrowsePanel.waitForEditButtonEnabled();
             //'Sort' button should be disabled, because this folder is empty!

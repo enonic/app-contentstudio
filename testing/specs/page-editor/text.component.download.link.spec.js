@@ -73,7 +73,7 @@ describe('Text Component with CKE - insert download-link  specification', functi
             //1. Select the site and click on Preview button
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPreviewButton();
-            await studioUtils.switchToContentTabWindow(SITE.displayName)
+            await studioUtils.switchToContentTabWindow(SITE.displayName);
             //2. Verify that new added link is present
             let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);
             studioUtils.saveScreenshot('download_link_present');

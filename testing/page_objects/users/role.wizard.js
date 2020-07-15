@@ -23,7 +23,7 @@ class RoleWizard extends WizardPanel {
     }
 
     waitForLoaded() {
-        return this.waitForElementDisplayed(xpath.container + this.displayNameInput, appConst.TIMEOUT_3).catch(e => {
+        return this.waitForElementDisplayed(xpath.container + this.displayNameInput, appConst.mediumTimeout).catch(e => {
             throw new Error("Role wizard was not loaded! " + e);
         });
     }

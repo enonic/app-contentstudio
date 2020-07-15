@@ -20,7 +20,7 @@ class BaseBrowsePanel extends Page {
         return this.waitForElementDisplayed(lib.GRID_CANVAS, ms).then(() => {
             return this.waitForSpinnerNotVisible(ms);
         }).catch(err => {
-            throw new Error('Browse panel was not loaded in ' + ms);
+            throw new Error('Browse panel was not loaded in ' + ms + " " + err);
         });
     }
 
@@ -269,5 +269,5 @@ class BaseBrowsePanel extends Page {
             throw Error('Browse Panel - Row with the displayName ' + displayName + ' was not found' + err)
         }
     }
-};
+}
 module.exports = BaseBrowsePanel;

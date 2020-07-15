@@ -32,7 +32,7 @@ class BaseDependenciesWidget extends Page {
     waitForOutboundButtonNotVisible() {
         return this.waitForElementNotDisplayed(this.showOutboundButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_outbound_button_should_be_hidden');
-            throw new Error('showOutboundButton still visible in ' + appConst.shortTimeout);
+            throw new Error('showOutboundButton still visible in ' + err);
         });
     }
 
@@ -43,17 +43,17 @@ class BaseDependenciesWidget extends Page {
     waitForOutboundButtonVisible() {
         return this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_outbound_button');
-            throw new Error('showOutboundButton is not visible in ' + appConst.shortTimeout);
+            throw new Error('showOutboundButton is not visible in ' + err);
         });
     }
 
     waitForInboundButtonVisible() {
         return this.waitForElementDisplayed(this.showInboundButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_inbound_button');
-            throw new Error('showInboundButton: is not visible in ' + appConst.shortTimeout);
+            throw new Error('showInboundButton: is not visible in ' + err);
         });
     }
-};
+}
 module.exports = BaseDependenciesWidget;
 
 

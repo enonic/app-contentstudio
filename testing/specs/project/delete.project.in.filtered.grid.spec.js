@@ -29,7 +29,7 @@ describe("delete.project.in.filtered.grid.spec - Delete projects in filtered gri
             await studioUtils.switchToContentMode();
             //3. Expand the project selector and verify that 2 new items appeared:
             let projectSelectionDialog = await contentBrowsePanel.clickOnProjectViewerButton();
-            let result = await projectSelectionDialog.getProjectsDisplayName()
+            let result = await projectSelectionDialog.getProjectsDisplayName();
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME_1), "Display name of the first project should be present in options");
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME_2), "Display name of the second project should be present in options");
         });

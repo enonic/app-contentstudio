@@ -136,7 +136,7 @@ class TaskDetailsDialogItemsTab extends Page {
 
     waitForShowDependentItemsLinkDisplayed() {
         return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot("err_show_dep_items_link_should_be_displayed")
+            this.saveScreenshot("err_show_dep_items_link_should_be_displayed");
             throw new Error("Show Dependent Items link should be displayed! " + err);
         })
     }
