@@ -6,6 +6,7 @@ import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
 import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import {ExtendedViewer} from '../view/ExtendedViewer';
+import {ProjectContext} from '../project/ProjectContext';
 
 export class ContentSummaryAndCompareStatusViewer
     extends ExtendedViewer<ContentSummaryAndCompareStatus> {
@@ -90,8 +91,14 @@ export class ContentSummaryAndCompareStatusViewer
     }
 
     protected resolveSecondaryName(object: ContentSummaryAndCompareStatus): string {
-        if (object.isInherited() && object.getContentSummary().getLanguage()) {
-            return `(${object.getContentSummary().getLanguage()})`;
+        const itemLang: string = object.getContentSummary().getLanguage();
+
+        if (itemLang) {
+            const projectLang: string = ProjectContext.get().getProject().getLanguage();
+
+            if (projectLang !== itemLang) {
+                return `(${object.getContentSummary().getLanguage()})`;
+            }
         }
 
         return '';
