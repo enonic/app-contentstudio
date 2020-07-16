@@ -189,7 +189,7 @@ export class ContentSummaryAndCompareStatus
     }
 
     isReadOnly(): boolean {
-        return this.readOnly;
+        return !!this.readOnly;
     }
 
     isPendingDelete(): boolean {

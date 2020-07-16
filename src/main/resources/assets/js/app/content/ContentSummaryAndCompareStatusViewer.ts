@@ -3,7 +3,6 @@ import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import {ExtendedViewer} from '../view/ExtendedViewer';
@@ -73,6 +72,7 @@ export class ContentSummaryAndCompareStatusViewer
         const isPendingDelete: boolean = contentSummary.getContentState().isPendingDelete();
         this.toggleClass('invalid', invalid);
         this.toggleClass('pending-delete', isPendingDelete);
+        this.toggleClass('readonly', object.isReadOnly());
 
         if (!invalid && !object.isOnline() && !object.isPendingDelete()) {
             const status: string = contentSummary.getWorkflow().getStateAsString();
