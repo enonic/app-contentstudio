@@ -40,9 +40,13 @@ export class ProjectSelectionDialog
         this.projectsList.setItems(projects);
 
         this.projectsList.getItemViews().forEach((itemView: ProjectListItem) => {
-            itemView.onClicked(() => {
-                ProjectContext.get().setProject(itemView.getProject());
-                this.close();
+            itemView.onClicked((event: MouseEvent) => {
+                if (!event.ctrlKey && !event.shiftKey) {
+                    ProjectContext.get().setProject(itemView.getProject());
+                    this.close();
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
             });
         });
     }

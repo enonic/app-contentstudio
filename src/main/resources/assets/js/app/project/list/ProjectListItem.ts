@@ -1,9 +1,9 @@
 import {Project} from '../../settings/data/project/Project';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {AEl} from 'lib-admin-ui/dom/AEl';
 import {ProjectViewer} from '../../settings/wizard/viewer/ProjectViewer';
 
 export class ProjectListItem
-    extends DivEl {
+    extends AEl {
 
     private projectViewer: ProjectViewer;
 
