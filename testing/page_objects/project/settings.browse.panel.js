@@ -6,6 +6,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
+const SubprojectWizard = require('../../page_objects/project/subproject.wizard.panel');
 const NewSettingsItemDialog = require('../../page_objects/project/new.settings.item.dialog');
 
 const XPATH = {
@@ -240,11 +241,18 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         let projectWizard = new ProjectWizard();
         //2.'New...' button has been clicked:
         await this.clickOnNewButton();
-        //3. 'NewSettingsItem' dialog should be loaded:
+        //3. 'NewSettingsItem' modal dialog should be loaded:
         await newSettingsItemDialog.waitForDialogLoaded();
-        //4. Expected title should be loaded:
+        //4. Click on 'Project' item:
         await newSettingsItemDialog.clickOnProjectItem();
-        return await projectWizard.waitForLoaded();
+        await projectWizard.waitForLoaded();
+        return projectWizard;
+    }
+
+    async selectParentAndOpenNewSubprojectWizard(parentName) {
+        await this.clickOnRowByDisplayName(parentName);
+        await this.openProjectWizard();
+        return new SubprojectWizard();
     }
 
     rightClickOnProjects() {

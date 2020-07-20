@@ -20,6 +20,7 @@ const XPATH = {
     localeComboBoxDiv: "//div[contains(@id,'LocaleComboBox')]",
     languageSelectedOption: "//div[contains(@id,'LocaleSelectedOptionView')]",
     projectAccessSelectorTabMenu: "//div[contains(@id,'ProjectAccessSelector') and contains(@class,'tab-menu access-selector')]",
+    parentProjectComboboxDiv: "//div[contains(@id,'ProjectsComboBox')]",
     accessItemByName:
         name => `//div[contains(@id,'PrincipalContainerSelectedOptionView') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`,
     radioButtonByDescription: descr => XPATH.projectReadAccessWizardStepForm +
@@ -51,6 +52,10 @@ class ProjectWizardPanel extends Page {
 
     get localeOptionsFilterInput() {
         return XPATH.projectReadAccessWizardStepForm + XPATH.localeComboBoxDiv + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+    }
+
+    get projectsOptionsFilterInput() {
+        return XPATH.container + XPATH.parentProjectComboboxDiv + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
     get saveButton() {
@@ -217,6 +222,14 @@ class ProjectWizardPanel extends Page {
         let comboBox = new ComboBox();
         await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container + XPATH.projectAccessControlComboBox);
         console.log("Project Wizard, principal is selected: " + principalDisplayName);
+        return await this.pause(400);
+    }
+
+    //selects an project(parent) :
+    async selectParentProject(projectDisplayName) {
+        let comboBox = new ComboBox();
+        await comboBox.typeTextAndSelectOption(projectDisplayName, XPATH.container + XPATH.parentProjectComboboxDiv);
+        console.log("Project Wizard, parent project is selected: " + projectDisplayName);
         return await this.pause(400);
     }
 
