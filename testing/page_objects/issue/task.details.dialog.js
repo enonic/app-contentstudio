@@ -122,15 +122,15 @@ class TaskDetailsDialog extends BaseDetailsDialog {
         })
     }
 
-    clickOnItemsTabBarItem() {
-        return this.waitForElementDisplayed(this.itemsTabBarItem, appConst.mediumTimeout).then(() => {
-            return this.clickOnElement(this.itemsTabBarItem);
-        }).catch(err => {
+    async clickOnItemsTabBarItem() {
+        try {
+            await this.waitForElementDisplayed(this.itemsTabBarItem, appConst.mediumTimeout);
+            await this.clickOnElement(this.itemsTabBarItem);
+        } catch (err) {
             this.saveScreenshot('err_click_on_items_tabbar_item');
             throw new Error('Task Details Dialog: error when clicking on Items tab bar item: ' + err)
-        }).then(() => {
-            return this.pause(500);
-        });
+        }
+        return await this.pause(500);
     }
 };
 module.exports = TaskDetailsDialog;

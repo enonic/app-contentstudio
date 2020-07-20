@@ -14,6 +14,8 @@ const XPATH = {
     removeItemIcon: `//div[contains(@class,'icon remove')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     changeLogInput:"//input[contains(@id,'AutosizeTextInput')]",
+    dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
+    dependantItemViewer: "//div[contains(@id,'DependantItemViewer')]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToPublish:
@@ -61,7 +63,7 @@ class ContentPublishDialog extends Page {
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(this.publishNowButton, appConst.shortTimeout);
+        return this.waitForElementDisplayed(this.publishNowButton, appConst.longTimeout);
     }
 
     waitForDialogClosed() {
@@ -238,6 +240,11 @@ class ContentPublishDialog extends Page {
         let selector = XPATH.publishItemList + XPATH.itemToPublish(displayName);
         await this.clickOnElement(selector);
         return await this.getBrowser().switchWindow(displayName);
+    }
+
+    async getDisplayNameInDependentItems() {
+        let locator = XPATH.container + XPATH.dependantList + XPATH.dependantItemViewer + lib.H6_DISPLAY_NAME;
+        return this.getTextInElements(locator);
     }
 };
 module.exports = ContentPublishDialog;

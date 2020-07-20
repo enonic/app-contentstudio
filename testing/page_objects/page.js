@@ -44,6 +44,11 @@ class Page {
         return this.browser.pause(ms);
     }
 
+    async scrollAndClickOnElement(selector) {
+        let element = await this.findElement(selector);
+        await element.scrollIntoView();
+        return await element.click();
+    }
     async clickOnElement(selector) {
         let element = await this.findElement(selector);
         //await element.waitForDisplayed(1500);
@@ -450,6 +455,10 @@ class Page {
     async isDisplayedElementSelected(selector) {
         let elems = await this.getDisplayedElements(selector);
         return await elems[0].isSelected();
+    }
+
+    refresh() {
+        return this.getBrowser().refresh();
     }
 }
 

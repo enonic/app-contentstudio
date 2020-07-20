@@ -48,6 +48,7 @@ module.exports = Object.freeze({
     TASK_OPENED_MESSAGE: 'The task is Open.',
     TWO_ITEMS_PUBLISHED: `2 items are published.`,
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
+    TEST_FOLDER_WITH_IMAGES_2: "Images for simple page",
     TEST_FOLDER_2_DISPLAY_NAME: `folder for selenium tests`,
     TEST_FOLDER_2_NAME: `selenium-tests-folder`,
     TEST_FOLDER_NAME: 'all-content-types-images',

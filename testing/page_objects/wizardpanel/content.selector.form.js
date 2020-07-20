@@ -1,12 +1,12 @@
 /**
- * Created on 03.06.2019.
+ * Created on 09.07.2020.
  */
 
-const BaseSelectorForm = require('./base.selector.form');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const BaseSelectorForm = require('./base.selector.form');
 const XPATH = {
-    container: lib.FORM_VIEW + "//div[contains(@id,'CustomSelector')]",
+    container: lib.FORM_VIEW + "//div[contains(@id,'ContentSelector')]",
 };
 
 class CustomSelectorForm extends BaseSelectorForm {
@@ -16,13 +16,12 @@ class CustomSelectorForm extends BaseSelectorForm {
     }
 
     selectedOptionByDisplayName(displayName) {
-        return `//div[contains(@id,'CustomSelectorSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]`
+        return `//div[contains(@id,'ContentSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${displayName}']]`
     }
 
     getSelectedOptions() {
-        let selector = "//div[contains(@id,'CustomSelectorSelectedOptionView')]//h6[contains(@class,'main-name')]";
+        let selector = "//div[contains(@id,'ContentSelectedOptionView')]//h6[contains(@class,'main-name')]";
         return this.getTextInElements(selector);
     }
-
 };
 module.exports = CustomSelectorForm;

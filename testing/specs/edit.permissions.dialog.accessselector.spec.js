@@ -83,6 +83,22 @@ describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions 
             await editPermissionsDialog.isOperationAllowed(appConstant.roleName.CONTENT_MANAGER_APP, 'Read');
         });
 
+    it(`WHEN folder with updated permissions is selected AND Edit Permissions dialog is opened THEN ACL-entries should be consistently sorted by name`,
+        async () => {
+            let editPermissionsDialog = new EditPermissionsDialog();
+            let userAccessWidget = new UserAccessWidget();
+            //1. Select the folder and open Details Panel
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            await studioUtils.openBrowseDetailsPanel();
+            //2. Open Edit Permissions dialog:
+            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
+            let entries = await editPermissionsDialog.getNameOfAccessControlEntries();
+            //3. Verify the order of ACE:
+            assert.equal(entries[0], '/roles/cms.admin', " ACL-entries should be consistently sorted by name");
+            assert.equal(entries[1], '/roles/cms.cm.app', " ACL-entries should be consistently sorted by name");
+            assert.equal(entries[2], '/roles/system.admin', " ACL-entries should be consistently sorted by name");
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

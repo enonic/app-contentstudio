@@ -15,6 +15,8 @@ const xpath = {
     reopenTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Task']]`,
     includeChildrenToggler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     itemsToPublish: `//div[contains(@id,'TogglableStatusSelectionItem')]`,
+    dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
+    dependantItemViewer: "//div[contains(@id,'DependantItemViewer')]",
     selectionItemByDisplayName:
         text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${text}')]]`,
 
@@ -34,6 +36,7 @@ class TaskDetailsDialogItemsTab extends Page {
     get closeTaskButton() {
         return xpath.container + xpath.closeTaskButton;
     }
+
     get reopenTaskButton() {
         return xpath.container + xpath.reopenTaskButton;
     }
@@ -54,16 +57,16 @@ class TaskDetailsDialogItemsTab extends Page {
         return xpath.container + xpath.showDependentItemsLink;
     }
 
-    clickOnIncludeChildrenToggler(displayName) {
-        let selector = xpath.selectionItemByDisplayName(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_1).then(() => {
-            return this.clickOnElement(selector);
-        }).then(() => {
-            return this.pause(1000);
-        }).catch(err => {
+    async clickOnIncludeChildrenToggler(displayName) {
+        try {
+            let selector = xpath.selectionItemByDisplayName(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
+            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+            await this.clickOnElement(selector);
+            return await this.pause(500);
+        } catch (err) {
             this.saveScreenshot('err_click_on_dependent');
             throw new Error('Error when clicking on dependant ' + displayName + ' ' + err);
-        })
+        }
     }
 
     // clicks on Publish... button and  opens 'Publishing Wizard'
@@ -72,7 +75,8 @@ class TaskDetailsDialogItemsTab extends Page {
             let res = await this.findElements(this.publishButton);
             await this.clickOnElement(this.publishButton);
             let publishContentDialog = new ContentPublishDialog();
-            publishContentDialog.waitForDialogOpened();
+            await publishContentDialog.waitForDialogOpened();
+            return publishContentDialog;
         } catch (err) {
             this.saveScreenshot('err_click_on_publish_and_close');
             throw new Error('Error when clicking on Publish and close ' + err);
@@ -122,7 +126,7 @@ class TaskDetailsDialogItemsTab extends Page {
     //Show dependent items
     async clickOnShowDependentItems(text) {
         try {
-            await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.longTimeout);
             await this.clickOnElement(this.showDependentItemsLink);
             return await this.pause(400);
         } catch (err) {
@@ -199,11 +203,12 @@ class TaskDetailsDialogItemsTab extends Page {
             throw  new Error('Error when clicking on the `Close Task`  ' + err);
         }
     }
-    async waitForReopenTaskButtonDisplayed(){
+
+    async waitForReopenTaskButtonDisplayed() {
         try {
             return await this.waitForElementDisplayed(this.reopenTaskButton, appConst.mediumTimeout);
-        }catch(err){
-            throw new Error("Reopen Task button is not displayed: "+ err)
+        } catch (err) {
+            throw new Error("Reopen Task button is not displayed: " + err)
         }
     }
 
@@ -214,6 +219,11 @@ class TaskDetailsDialogItemsTab extends Page {
         } catch (err) {
             throw new Error("Task Details dialog -  " + err);
         }
+    }
+
+    async getDisplayNameInDependentItems() {
+        let locator = xpath.container + xpath.dependantList + xpath.dependantItemViewer + lib.H6_DISPLAY_NAME;
+        return this.getTextInElements(locator);
     }
 };
 module.exports = TaskDetailsDialogItemsTab;

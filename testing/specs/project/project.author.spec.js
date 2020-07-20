@@ -15,6 +15,8 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
+const contentBuilder = require("../../libs/content.builder");
+const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 
 describe('project.author.spec - ui-tests for user with Author role', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -24,8 +26,11 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     const FOLDER_NAME = studioUtils.generateRandomName("folder");
     let USER;
     const PASSWORD = "1q2w3e";
+    const CONTROLLER_NAME = 'main region';
+    const SITE_NAME = contentBuilder.generateRandomName('site');
+    let SITE;
 
-    it(`Preconditions: new system user should be created`,
+    it(`Precondition 1: new system user should be created`,
         async () => {
             //Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
@@ -36,7 +41,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
-    it("GIVEN new project wizard is opened WHEN existing user has been added as Author THEN expected user should be selected in Project Roles form",
+    it("GIVEN new project wizard is opened WHEN existing user has been added as 'Author' THEN expected user should be selected in Project Roles form",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -61,10 +66,39 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
             //Do log out:
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        });
+
+    it("Precondition 2: new site should be created in the just created project",
+        async () => {
+            let projectSelectionDialog = new ProjectSelectionDialog();
+            //1. Do Log in with 'SU':
+            await studioUtils.navigateToContentStudioApp();
+            await projectSelectionDialog.waitForDialogLoaded();
+            //2. Select the new user context:
+            await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
+            //3. SU adds new site:
+            SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
+            //Do log out:
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
 
-    it("GIVEN user with Author role is logged in WHEN existing project has been opened THEN all inputs should be disabled(not clickable)",
+    it("GIVEN user with 'Author' role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",
+        async () => {
+            //1. Do Log in with the user:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            //2. load existing site from the current project:
+            let url = "http://localhost:8080/admin/site/preview" + `/${PROJECT_DISPLAY_NAME}/draft/${SITE_NAME}`;
+            await webDriverHelper.browser.url(url);
+            //3. Verify that expected site is loaded:
+            let actualTitle = await webDriverHelper.browser.getTitle();
+            assert.equal(actualTitle, SITE_NAME, "expected site should be loaded");
+
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        });
+
+    it("GIVEN user with 'Author' role is logged in WHEN existing project has been opened THEN all inputs should be disabled(not clickable)",
         async () => {
             //1. Do Log in with the user and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
@@ -87,7 +121,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             assert.isFalse(result, "Display Name input should not be clickable");
         });
 
-    it("GIVEN user with Author role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
+    it("GIVEN user with 'Author' role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
         async () => {
             //1. Do log in with the user and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);

@@ -106,6 +106,7 @@ class BaseBrowsePanel extends Page {
             let text = await this.getAttribute(selector, "class");
             return text.includes('partial');
         }, appConst.shortTimeout, "Selection Controller checkBox should displayed as partial");
+        return true;
     }
 
     async isSelectionControllerPartial() {
