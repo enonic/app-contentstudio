@@ -96,12 +96,49 @@ describe('subproject.in.default.spec - ui-tests for subproject with Default pare
             await subprojectWizard.typeDisplayName("test subproject");
             await subprojectWizard.selectProjectAccessRoles(appConstant.systemUsersDisplayName.SUPER_USER);
             //2. Click on 'Copy roles from parent':
-            await subprojectWizard.waitForCopyRolesFromParentEnabled();
             await subprojectWizard.clickOnCopyRolesFromParent();
             //3. Verify that notification message appears
             await subprojectWizard.waitForNotificationMessage();
             //4. Verify that 'Copy roles from parent' gets disabled
             await subprojectWizard.waitForCopyRolesFromParentDisabled();
+        });
+
+    it("GIVEN language in subproject is selected WHEN 'Copy language' button has been pressed THEN 'Copy language from parent' button gets disabled",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            //1.Select 'Default' project and open wizard for new subproject:
+            let subprojectWizard = await settingsBrowsePanel.selectParentAndOpenNewSubprojectWizard("Default");
+            await subprojectWizard.clickOnAccessModeRadio("Private");
+            await subprojectWizard.selectLanguage(appConstant.LANGUAGES.EN);
+            await subprojectWizard.typeDisplayName("test subproject");
+            //2. Click on 'Copy language from parent':
+            await subprojectWizard.clickOnCopyLanguageFromParent();
+            //3. Verify that notification message appears:
+            await subprojectWizard.waitForNotificationMessage();
+            //4. Verify that 'Copy language from parent' button gets disabled:
+            studioUtils.saveScreenshot("copy_language_from_parent");
+            await subprojectWizard.waitForCopyLanguageFromParentDisabled();
+            //5. Verify that locale options filter gets visible and enabled:
+            let isClickable = await subprojectWizard.isLocaleOptionsFilterInputClickable();
+            assert.isTrue(isClickable, "locale options filter gets visible and enabled");
+        });
+
+    it("GIVEN 'Public access mode' in subproject is selected WHEN 'Copy Access Mode' button has been pressed THEN 'Copy access mode from parent' button gets disabled",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            //1.Select 'Default' project and open wizard for new subproject:
+            let subprojectWizard = await settingsBrowsePanel.selectParentAndOpenNewSubprojectWizard("Default");
+            await subprojectWizard.clickOnAccessModeRadio("Public");
+            await subprojectWizard.typeDisplayName("test subproject");
+            //2. Click on 'Copy access mode from parent':
+            await subprojectWizard.clickOnCopyAccessModeFromParent();
+            await subprojectWizard.waitForNotificationMessage();
+            //3. Verify that 'Copy access mode from parent' button gets disabled:
+            studioUtils.saveScreenshot("copy_access_mode_from_parent");
+            await subprojectWizard.waitForCopyAccessModeFromParentDisabled();
+            //4. Verify that access mode changed to 'Private':
+            let isSelected = await subprojectWizard.isAccessModeRadioSelected("Private");
+            assert.isTrue(isSelected, "Private radio button gets selected now");
         });
 
     beforeEach(async () => {
