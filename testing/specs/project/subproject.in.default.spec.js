@@ -50,7 +50,7 @@ describe('subproject.in.default.spec - ui-tests for subproject with Default pare
             let subprojectWizard = await settingsBrowsePanel.selectParentAndOpenNewSubprojectWizard("Default");
             await subprojectWizard.typeDisplayName("test subproject");
             await subprojectWizard.clickOnAccessModeRadio("Private");
-            //2. Verify that copy Access mode button gets enabled:
+            //2. Verify that 'Copy Access mode' button gets disabled:
             await subprojectWizard.waitForCopyAccessModeFromParentDisabled();
 
             await subprojectWizard.waitForCopyLanguageFromParentDisabled();

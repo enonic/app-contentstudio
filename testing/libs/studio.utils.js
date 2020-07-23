@@ -29,6 +29,7 @@ const UserWizard = require('../page_objects/users/user.wizard');
 const NewPrincipalDialog = require('../page_objects/users/new.principal.dialog');
 const PrincipalFilterPanel = require('../page_objects/users/principal.filter.panel');
 const ConfirmationDialog = require('../page_objects/confirmation.dialog');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 
 module.exports = {
     setTextInCKE: function (id, text) {
@@ -631,7 +632,8 @@ module.exports = {
     },
     async switchToContentMode() {
         await this.clickOnElement(lib.MODE_CONTENT_BUTTON);
-        return await webDriverHelper.browser.pause(200);
+        await webDriverHelper.browser.pause(200);
+        return new ContentBrowsePanel();
     },
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
