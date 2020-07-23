@@ -175,6 +175,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return projectSelectionDialog;
     }
 
+    //Opens menu and select the project
     async selectContext(projectDisplayName) {
         let projectSelectionDialog = await this.clickOnProjectViewerButton();
         await projectSelectionDialog.selectContext(projectDisplayName);
@@ -531,7 +532,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         })
     }
 
-// this method does not wait, it just checks the attribute
+    // this method does not wait, it just checks the attribute
     isRedIconDisplayed(contentName) {
         let xpath = XPATH.contentSummaryByName(contentName);
         return this.getAttribute(xpath, 'class').then(result => {
@@ -539,7 +540,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         });
     }
 
-// this method waits until 'invalid' appears in the @class
+    // this method waits until 'invalid' appears in the @class
     waitForRedIconDisplayed(contentName) {
         let xpath = XPATH.contentSummaryByName(contentName);
         return this.waitUntilInvalid(xpath);
@@ -709,6 +710,12 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         let selector = this.projectViewerButton + lib.H6_DISPLAY_NAME + "//span[@class='display-name']";
         return this.getText(selector);
     }
+
+    async getContextLanguage() {
+        let locator = XPATH.projectViewerButton + lib.H6_DISPLAY_NAME + "//span[@class='name']";
+        return this.getText(locator);
+    }
+
 
     async waitForDeleteButtonDisabled() {
         await this.waitForElementDisplayed(this.deleteButton, appConst.mediumTimeout);

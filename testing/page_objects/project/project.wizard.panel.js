@@ -370,6 +370,7 @@ class ProjectWizardPanel extends Page {
 
     async clickOnRemoveLanguage() {
         try {
+            await this.waitForElementDisplayed(this.removeLanguageButton);
             await this.clickOnElement(this.removeLanguageButton);
             return await this.pause(500);
         } catch (err) {
