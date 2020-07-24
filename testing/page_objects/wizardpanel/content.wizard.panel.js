@@ -251,7 +251,7 @@ class ContentWizardPanel extends Page {
 
     //Gets titles of all x-data forms
     getXdataTitles() {
-        let selector = "//div[contains(@id,'PanelStripHeader') and child::div[@class='x-data-toggler']]/span"
+        let selector = "//div[contains(@id,'PanelStripHeader') and child::div[@class='x-data-toggler']]/span";
         return this.getTextInElements(selector).catch(err => {
             throw new Error("Error when getting title from x-data " + err);
         })
@@ -634,7 +634,7 @@ class ContentWizardPanel extends Page {
 
     async typeData(content) {
         let contentStepForm = new ContentStepForm();
-        await this.waitForElementDisplayed(this.displayNameInput, appConst.shortTimeout)
+        await this.waitForElementDisplayed(this.displayNameInput, appConst.shortTimeout);
         await this.typeDisplayName(content.displayName);
         if (content.data != null) {
             await contentStepForm.type(content.data, content.contentType);

@@ -120,5 +120,5 @@ class ImageFormPanel extends Page {
             throw new Error("Button 'Reset filters' is still displayed in 2 seconds " + err);
         }
     }
-};
+}
 module.exports = ImageFormPanel;

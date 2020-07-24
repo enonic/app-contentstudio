@@ -84,7 +84,7 @@ class CreateTaskDialog extends Page {
             return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
         }).catch(err => {
             this.saveScreenshot('err_close_task_dialog');
-            throw new Error('Create Task dialog must be closed!')
+            throw new Error('Create Task dialog must be closed! ' + err);
         })
     }
 

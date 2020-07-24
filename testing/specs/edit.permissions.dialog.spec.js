@@ -31,7 +31,8 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
             let result = await editPermissionsDialog.isInheritPermissionsCheckBoxSelected();
             assert.isTrue(result, '`Inherit permissions` checkbox should be selected by default');
             //"Overwrite child permissions" checkbox should be not selected
-            let isChecked = editPermissionsDialog.isOverwriteChildPermissionsCheckBoxSelected();
+            let isSelected = await editPermissionsDialog.isOverwriteChildPermissionsCheckBoxSelected();
+            assert.isFalse(isSelected, "Overwrite child permissions checkbox should not be selected");
         });
 
     //verifies: https://github.com/enonic/app-contentstudio/issues/277  incorrect state of the checkbox, when dialog is closed and reopened again

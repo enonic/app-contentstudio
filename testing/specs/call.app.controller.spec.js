@@ -5,7 +5,7 @@ const chai = require('chai');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
-const Page = require('../page_objects/page')
+const Page = require('../page_objects/page');
 
 describe('Call the `Application controller` specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);

@@ -26,7 +26,7 @@ describe('site.wizard.add.application.spec: Select an application in the wizard 
             await contentWizard.typeDisplayName(displayName);
             //2. Save the name:
             await contentWizard.waitAndClickOnSave();
-            let message = contentWizard.waitForNotificationMessage();
+            let message = await contentWizard.waitForNotificationMessage();
             //3. Add the application:
             await siteForm.addApplications([appConstant.SIMPLE_SITE_APP]);
             //4. Controller-selector should appear in the Page Editor:

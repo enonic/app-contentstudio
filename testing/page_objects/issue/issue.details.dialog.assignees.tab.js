@@ -22,5 +22,5 @@ class IssueDetailsDialogAssigneesTab extends Page {
         let locator = this.principalComboBox + lib.PRINCIPAL_SELECTED_OPTION + lib.H6_DISPLAY_NAME;
         return this.getTextInElements(locator);
     }
-};
+}
 module.exports = IssueDetailsDialogAssigneesTab;

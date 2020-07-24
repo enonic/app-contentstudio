@@ -25,7 +25,7 @@ class BrowseDetailsPanel extends BaseDetailsPanel {
 
     waitForDetailsPanelLoaded() {
         return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
-            throw new Error('Details Panel was not loaded in ' + appConst.shortTimeout);
+            throw new Error('Details Panel was not loaded in ' + err);
         });
     }
 

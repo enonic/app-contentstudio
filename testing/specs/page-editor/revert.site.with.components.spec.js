@@ -33,7 +33,6 @@ describe("revert.site.with.component.spec: Insert image component then revert th
             async () => {
                 let contentWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
-                let imageInspectPanel = new ImageInspectPanel();
                 let liveFormPanel = new LiveFormPanel();
                 await studioUtils.selectContentAndOpenWizard(SITE.displayName);
                 //1. Open  'Page Component View' dialog:
@@ -81,7 +80,6 @@ describe("revert.site.with.component.spec: Insert image component then revert th
             async () => {
                 let contentWizard = new ContentWizard();
                 let versionPanel = new WizardVersionsWidget();
-                let imageInspectPanel = new ImageInspectPanel();
                 let liveFormPanel = new LiveFormPanel();
                 await studioUtils.selectContentAndOpenWizard(SITE.displayName);
                 //1. Open  'Versions Panel':

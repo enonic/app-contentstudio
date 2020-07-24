@@ -33,7 +33,6 @@ const XPATH = {
     strikethroughButton: `//a[contains(@class,'cke_button') and contains(@title,'Strikethrough')]`,
     increaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Increase Indent')]`,
     decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
-    insertMacroButton: `//a[contains(@class,'cke_button') and contains(@title,'Insert macro')]`,
     formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
 
     maximizeButton: `//a[contains(@class,'cke_button') and contains(@class,'maximize')]`,
@@ -131,7 +130,7 @@ class HtmlAreaForm extends Page {
         return this.pause(300);
     }
 
-//double clicks on the html-area
+    //double clicks on the html-area
     async doubleClickOnHtmlArea() {
         await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
         await this.doDoubleClick(XPATH.ckeTextArea);
@@ -197,13 +196,12 @@ class HtmlAreaForm extends Page {
         return await this.clickOnElement(XPATH.insertMacroButton);
     }
 
-    showToolbarAndClickOnInsertLinkButton() {
-        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout).then(() => {
-            return this.clickOnElement(XPATH.ckeTextArea);
-        }).then(() => {
-            //click on `Insert Link` button and wait for modal dialog is loaded
-            return this.clickOnInsertLinkButton();
-        })
+    async showToolbarAndClickOnInsertLinkButton() {
+        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
+        await this.clickOnElement(XPATH.ckeTextArea);
+        //click on `Insert Link` button and wait for modal dialog is loaded
+        return await this.clickOnInsertLinkButton();
+
     }
 
     async clickOnInsertLinkButton() {
@@ -212,7 +210,8 @@ class HtmlAreaForm extends Page {
         await this.clickOnElement(XPATH.insertLinkButton);
         let insertLinkDialog = new InsertLinkDialog();
         await insertLinkDialog.waitForDialogLoaded();
-        return await this.pause(300);
+        await this.pause(300);
+        return new InsertLinkDialog();
     }
 
     async clickOnSourceButton() {
