@@ -106,15 +106,11 @@ class InsertImageDialog extends Page {
         return this.clickOnElement(this.cancelButton);
     }
 
-    clickOnInsertButton() {
-        return this.clickOnElement(this.insertButton).catch(err => {
-            this.saveScreenshot('err_click_on_insert_image_button');
-            throw new Error('Insert Image Dialog, error when click on the Insert button  ' + err);
-        }).then(() => {
-            return this.waitForDialogClosed();
-        }).then(() => {
-            return this.pause(500);
-        });
+    async clickOnInsertButton() {
+        await this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout);
+        await this.clickOnElement(this.insertButton);
+        await this.waitForDialogClosed();
+        return await this.pause(500);
     }
 
     clickOnUpdateButton() {

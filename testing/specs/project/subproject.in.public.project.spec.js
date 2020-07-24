@@ -67,7 +67,7 @@ describe('subproject.in.public.project.spec - ui-tests for subproject in existin
             assert.equal(actualLanguage, "(no)", "Expected language should be displayed in the App Bar")
         });
 
-    it("GIVEN existing subproject is opened WHEN the language has ben updated THEN expected language should be displayed in the project's context",
+    it("GIVEN existing subproject is opened WHEN the language has been updated THEN expected language should be displayed in the subproject's context",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let subprojectWizard = new SubprojectWizard();
