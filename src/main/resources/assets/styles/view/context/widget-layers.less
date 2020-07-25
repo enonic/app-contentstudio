@@ -1,0 +1,156 @@
+.layers-widget {
+
+  .layers-item-view {
+    margin: 0px 10px;
+    position: relative;
+
+    .data {
+      padding: 7px 10px 7px 10px;
+      border: 1px solid @admin-bg-light-gray;
+      cursor: pointer;
+      position: relative;
+
+      *:not(:disabled) {
+        cursor: pointer;
+      }
+
+      .header {
+        display: flex;
+
+        .layer-name {
+          flex-grow: 1;
+
+          .language {
+            padding-left: 5px;
+            color: @admin-font-gray1;
+          }
+        }
+
+        .content-status-mixin();
+      }
+
+      .body {
+        padding: 15px 0px;
+      }
+
+      .footer {
+        display: none;
+
+        .action-button {
+          text-align: center;
+          flex-basis: 80%;
+          padding: 5px 0px;
+          background-color: @admin-dark-gray;
+
+          &:hover {
+            background-color: @admin-shadow-gray;
+          }
+        }
+      }
+    }
+
+    &:first-child {
+      .relation {
+        display: none;
+      }
+    }
+
+    &.active .data {
+      border-color: @admin-blue;
+      .footer {
+        display: flex;
+        justify-content: center;
+      }
+    }
+
+    &.current {
+      .data {
+        box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
+
+        &:before {
+          content: " ";
+          width: 0;
+          height: 0;
+          border-top: 8px solid transparent;
+          border-bottom: 8px solid transparent;
+          border-left: 8px solid @admin-font-gray1;
+          position: absolute;
+          left: -10px;
+          top: calc(50% - 8px);
+        }
+      }
+
+      .relation {
+        .arrow {
+          display: block;
+        }
+      }
+    }
+
+    &.inherited .data {
+      .content-summary-viewer {
+        opacity: 0.5;
+      }
+
+      .footer {
+        .action-button {
+          background-color: @admin-button-blue2;
+
+          &:hover {
+            background-color: @admin-button-blue1;
+          }
+        }
+      }
+    }
+
+    &:not(.inherited) {
+      .relation {
+        .arrow {
+          display: block;
+        }
+      }
+    }
+
+    .relation {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+
+      .line {
+        width: 3px;
+        background: @admin-font-gray1;
+        height: 10px;
+      }
+
+      .arrow {
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 10px solid @admin-font-gray1;
+        display: none;
+      }
+
+      .show-more {
+        color: @admin-blue;
+        cursor: pointer;
+        position: absolute;
+        top: 10px;
+        z-index: 1;
+        background-color: @admin-white;
+
+        &:hover {
+          color: @admin-input-blue;
+        }
+      }
+
+      &.has-more {
+        .line {
+          height: 34px;
+        }
+      }
+    }
+  }
+
+}

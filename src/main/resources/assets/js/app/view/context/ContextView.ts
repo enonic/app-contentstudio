@@ -37,6 +37,7 @@ import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/A
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
+import {LayersWidgetItemView} from './widget/layers/LayersWidgetItemView';
 
 export class ContextView
     extends DivEl {
@@ -402,6 +403,15 @@ export class ContextView
             .setContextView(this)
             .addWidgetItemView(new DependenciesWidgetItemView()).build();
 
+        const layersWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.layers'))
+            .setDescription(i18n('field.contextPanel.layers.description'))
+            .setWidgetClass('layers-widget')
+            .setIconClass('icon-tree-2')
+            .setType(InternalWidgetType.LAYERS)
+            .setContextView(this)
+            .addWidgetItemView(new LayersWidgetItemView()).build();
+
         this.emulatorWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.emulator'))
             .setDescription(i18n('field.contextPanel.emulator.description'))
@@ -413,7 +423,7 @@ export class ContextView
 
         this.defaultWidgetView = this.propertiesWidgetView;
 
-        this.addWidgets([this.propertiesWidgetView, versionsWidgetView, dependenciesWidgetView]);
+        this.addWidgets([this.propertiesWidgetView, versionsWidgetView, dependenciesWidgetView, layersWidgetView]);
         if (!this.isInsideWizard()) {
             this.addWidget(this.emulatorWidgetView);
         }
