@@ -15,7 +15,7 @@ import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOpt
 export class ProjectItemNameWizardStepForm
     extends ProjectWizardStepForm {
 
-    private static PROJECT_NAME_CHARS: RegExp = /^([a-z0-9\\-])([a-z0-9_\\-])*$/;
+    private static PROJECT_NAME_CHARS: RegExp = /^([a-z0-9-])([a-z0-9_-])*$/;
 
     private projectNameInput: TextInput;
 
