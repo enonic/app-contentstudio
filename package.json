@@ -32,7 +32,7 @@
     "@types/jqueryui": "^1.12.13",
     "@types/q": "^1.5.4",
     "autoprefixer": "^9.8.5",
-    "browserslist": "^4.12.2",
+    "browserslist": "^4.13.0",
     "browserslist-config-enonic": "^1.0.5",
     "circular-dependency-plugin": "^5.2.0",
     "copy-webpack-plugin": "^6.0.3",
