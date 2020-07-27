@@ -103,6 +103,7 @@ class CreateRequestPublishDialog extends Page {
             throw new Error("Request Publishing dialog:  'invalid' icon should be visible :" + err);
         }
     }
+
     async waitForInvalidIconNotDisplayed() {
         try {
             await this.waitForElementNotDisplayed(this.invalidIcon, appConst.mediumTimeout);
@@ -117,10 +118,6 @@ class CreateRequestPublishDialog extends Page {
     }
 
     waitForCreateRequestButtonDisplayed() {
-        return this.waitUntilDisplayed(this.createRequestButton, appConst.mediumTimeout);
-    }
-
-    waitForCreateRequestButtonEnabled() {
         return this.waitUntilDisplayed(this.createRequestButton, appConst.mediumTimeout);
     }
 
@@ -172,8 +169,8 @@ class CreateRequestPublishDialog extends Page {
 
     async getAssigneesOptions() {
         let selector = xpath.container + xpath.assigneesComboBox + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
-        let result = await this.getTextInDisplayedElements(selector);
-        return result;
+        return await this.getTextInDisplayedElements(selector);
+
     }
 
     async clickOnPreviousButton() {
@@ -198,7 +195,6 @@ class CreateRequestPublishDialog extends Page {
     }
 
     waitForShowDependentItemsLinkDisplayed() {
-        let selector = xpath.container + lib.SHOW_DEPENDENT_ITEM_LINK;
         return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.mediumTimeout).catch(err => {
             throw new Error("Request Publishing Dialog - Show dependent Link " + err);
         })

@@ -35,10 +35,6 @@ class CompareContentVersionsDialog extends Page {
         return XPATH.container + XPATH.containerRight + lib.DROP_DOWN_HANDLE;
     }
 
-    get cancelButtonTop() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
-    }
-
     async clickOnLeftRevertMenuButton() {
         await this.waitForLeftRevertButtonDisplayed();
         await this.clickOnElement(this.leftRevertMenuButton);

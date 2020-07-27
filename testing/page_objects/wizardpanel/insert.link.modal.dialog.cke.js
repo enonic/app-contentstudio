@@ -89,20 +89,15 @@ class InsertLinkDialog extends Page {
         return await this.pause(300);
     }
 
-    clickOnInsertButton() {
-        return this.clickOnElement(this.insertButton).catch((err) => {
-            this.saveScreenshot('err_click_on_insert_link_icon');
-            throw new Error('Insert Link Dialog, error when click on the Insert button  ' + err);
-        })
+    async clickOnInsertButton() {
+        await this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout);
+        await this.clickOnElement(this.insertButton);
+        return await this.pause(500);
     }
 
-    clickOnInsertButtonAndWaitForClosed() {
-        return this.clickOnElement(this.insertButton).catch((err) => {
-            this.saveScreenshot('err_click_on_insert_link_icon');
-            throw new Error('Insert Link Dialog, error when click on the Insert button  ' + err);
-        }).then(() => {
-            return this.waitForDialogClosed();
-        })
+    async clickOnInsertButtonAndWaitForClosed() {
+        await this.clickOnInsertButton();
+        return await this.waitForDialogClosed();
     }
 
     waitForValidationMessage() {

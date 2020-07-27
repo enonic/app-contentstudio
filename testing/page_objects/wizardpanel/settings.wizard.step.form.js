@@ -39,7 +39,7 @@ class SettingsStepForm extends Page {
             return Promise.resolve();
         } else {
             return this.typeTextInInput(this.languageFilterInput, language).then(() => {
-                let loaderComboBox = new LoaderComboBox()
+                let loaderComboBox = new LoaderComboBox();
                 return loaderComboBox.selectOption(language);
             }).catch(err => {
                 this.saveScreenshot(appConst.generateRandomName('err_option'));
@@ -51,7 +51,7 @@ class SettingsStepForm extends Page {
     async filterOptionsAndSelectOwner(owner) {
         try {
             await this.typeTextInInput(this.ownerFilterInput, owner);
-            let loaderComboBox = new LoaderComboBox()
+            let loaderComboBox = new LoaderComboBox();
             await loaderComboBox.selectOption(owner);
             return this.pause(400);
         } catch (err) {
@@ -70,7 +70,7 @@ class SettingsStepForm extends Page {
         return this.getText(selector);
     }
 
-    async clickOnRemoveLanguage(displayName) {
+    async clickOnRemoveLanguage() {
         try {
             await this.clickOnElement(this.removeLanguageButton);
             return await this.pause(500);
@@ -80,7 +80,7 @@ class SettingsStepForm extends Page {
         }
     }
 
-    async clickOnRemoveOwner(displayName) {
+    async clickOnRemoveOwner() {
         try {
             await this.clickOnElement(this.removeOwnerButton);
             return await this.pause(500);

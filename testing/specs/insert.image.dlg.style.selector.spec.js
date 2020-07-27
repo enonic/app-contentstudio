@@ -59,6 +59,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
             await insertImageDialog.waitForCustomWidthCheckBoxDisabled();
             //6. 'Custom Width' checkbox should be unchecked:
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
+            assert.isFalse(isChecked, "'Custom Width' checkbox should be unchecked");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

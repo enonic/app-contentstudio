@@ -171,7 +171,7 @@ class IssuesListDialog extends Page {
     }
 
     getTypeFilterSelectedOption() {
-        let selector = xpath.container + xpath.typeFilter + "//button/span"
+        let selector = xpath.container + xpath.typeFilter + "//button/span";
         return this.getText(selector);
     }
 
@@ -292,7 +292,7 @@ class IssuesListDialog extends Page {
 
     async getNumberInSelectedOption() {
         try {
-            let selector = xpath.container + xpath.typeFilter + "//button/span"
+            let selector = xpath.container + xpath.typeFilter + "//button/span";
             let textInSelectedOption = await this.getText(selector);
             let startIndex = textInSelectedOption.indexOf('(');
             if (startIndex == -1) {

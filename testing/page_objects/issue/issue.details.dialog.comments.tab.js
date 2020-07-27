@@ -97,12 +97,6 @@ class IssueDetailsDialogCommentsTab extends Page {
         await this.pause(500);
     }
 
-    waitForCommentButtonEnabled() {
-        return this.waitForElementEnabled(this.commentButton, appConst.shortTimeout).catch(err => {
-            throw  new Error('Issue Details Dialog  ' + err);
-        })
-    }
-
     waitForCommentAndCloseRequestButtonDisplayed() {
         return this.waitForElementDisplayed(this.commentAndCloseRequestButton, appConst.shortTimeout).catch(err => {
             throw new Error('Comments Tab   ' + err);
@@ -120,5 +114,5 @@ class IssueDetailsDialogCommentsTab extends Page {
             throw  new Error('Issue Details Dialog  ' + err);
         })
     }
-};
+}
 module.exports = IssueDetailsDialogCommentsTab;

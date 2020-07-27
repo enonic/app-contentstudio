@@ -77,9 +77,8 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
     it(`GIVEN 'htmlArea' content is opened WHEN 'insert link' icon has been clicked THEN 'Insert Link Dialog' should appear`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            let insertLinkDialog = new InsertLinkDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
-            await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+            let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             //'Insert Link Dialog should appear:
             await insertLinkDialog.waitForDialogLoaded();
         });
@@ -111,12 +110,11 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
     it(`GIVEN wizard for 'htmlArea 0:1' is opened AND 'Insert Link' button has been pressed WHEN 'url-link' has been inserted, THEN correct data should be in CKE`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
-            let insertLinkDialog = new InsertLinkDialog();
             let contentWizard = new ContentWizard();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await contentWizard.pause(1000);
             //Open Insert Link dialog:
-            await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+            let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
             await insertLinkDialog.typeText('test');
             //type the URL:
             await insertLinkDialog.typeUrl('http://google.com');

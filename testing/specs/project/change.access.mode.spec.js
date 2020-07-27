@@ -49,7 +49,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //1.Expand Projects-folder then Open existing project:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            //await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
@@ -77,7 +77,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //1.Expand Projects-folder and reopen the project:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            //await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();

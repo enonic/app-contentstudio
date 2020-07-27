@@ -119,7 +119,7 @@ class UserBrowsePanel extends Page {
     }
 
     waitForFolderUsersVisible() {
-        return this.waitForElementDisplayed(xpath.rowByName('users'), appConst.mediumTimeout).catch(() => {
+        return this.waitForElementDisplayed(xpath.rowByName('users'), appConst.mediumTimeout).catch(err => {
             console.log("element is not visible: row with Users");
             throw new Error(`Users folder was not found! ` + err);
         });
@@ -225,7 +225,7 @@ class UserBrowsePanel extends Page {
     //Click on existing Tab-Item and navigates to the opened wizard:
     async clickOnTabBarItem(displayName) {
         let tabItem = xpath.itemTabByDisplayName(displayName);
-        await this.waitForElementDisplayed(tabItem)
+        await this.waitForElementDisplayed(tabItem);
         return await this.clickOnElement(tabItem);
     }
 

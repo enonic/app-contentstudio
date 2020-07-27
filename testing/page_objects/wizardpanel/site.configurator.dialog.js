@@ -51,7 +51,7 @@ class SiteConfiguratorDialog extends Page {
             return this.clickOnElement(areaSelector);
         }).then(() => {
             return this.waitForElementDisplayed(insertImageButton, appConst.mediumTimeout);
-        }).then(result => {
+        }).then(() => {
             return this.clickOnElement(insertImageButton);
         })
     }
@@ -76,5 +76,5 @@ class SiteConfiguratorDialog extends Page {
     waitForDialogClosed() {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
     }
-};
+}
 module.exports = SiteConfiguratorDialog;

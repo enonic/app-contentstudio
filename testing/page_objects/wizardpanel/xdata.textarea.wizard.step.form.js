@@ -45,5 +45,5 @@ class XDataTextArea extends Page {
             throw new Error('getting Validation text: ' + err);
         })
     }
-};
+}
 module.exports = XDataTextArea;
