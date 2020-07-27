@@ -50,7 +50,6 @@ export class LayersView extends ListBox<LayerContent> {
             return Q(null);
         }).catch((reason: any) => {
             DefaultErrorHandler.handle(reason);
-            console.log('AAAA');
         });
     }
 
