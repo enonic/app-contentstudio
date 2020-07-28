@@ -40,6 +40,8 @@ export class ProjectReadAccessWizardStepForm
 
     private copyParentAccessModeButton?: Button;
 
+    private copyParentAccessClicked: boolean = false;
+
     layout(item: ProjectViewItem): Q.Promise<void> {
         if (!item) {
             return Q(null);
@@ -84,6 +86,7 @@ export class ProjectReadAccessWizardStepForm
 
     private getLocales(): Q.Promise<Locale[]> {
         const localeLoader: LocaleLoader = <LocaleLoader>this.localeCombobox.getLoader();
+
         if (localeLoader.isLoaded()) {
             return Q(this.localeCombobox.getDisplayValues());
         }
@@ -234,14 +237,6 @@ export class ProjectReadAccessWizardStepForm
         const button: Button = new Button(i18n('settings.wizard.project.copy')).setEnabled(false);
         button.addClass('copy-parent-button');
 
-        button.onClicked(() => {
-            this.layoutReadAccess(this.parentProject.getReadAccess(), this.parentProject.getPermissions(), false);
-
-            NotifyManager.get().showSuccess(
-                i18n('settings.wizard.project.copy.success', i18n('settings.items.wizard.readaccess.label'),
-                    this.parentProject.getDisplayName()));
-        });
-
         return button;
     }
 
@@ -314,10 +309,12 @@ export class ProjectReadAccessWizardStepForm
             .setYesCallback(() => {
                 confirmationDialog.close();
                 this.handleAccessValueChanged(newValue);
+                this.copyParentAccessClicked = false;
             })
             .setNoCallback(() => {
                 confirmationDialog.close();
                 this.readAccessRadioGroup.setValue(resetValue, true);
+                this.copyParentAccessClicked = false;
             });
 
         confirmationDialog.open();
@@ -341,6 +338,7 @@ export class ProjectReadAccessWizardStepForm
                 this.showConfirmationDialog(newValue, oldValue);
             } else {
                 this.handleAccessValueChanged(newValue);
+                this.copyParentAccessClicked = false;
             }
         });
 
@@ -348,6 +346,13 @@ export class ProjectReadAccessWizardStepForm
             this.notifyDataChanged();
             this.updateCopyParentAccessModeButtonState();
         });
+
+        if (this.copyParentAccessModeButton) {
+            this.copyParentAccessModeButton.onClicked(() => {
+                this.copyParentAccessClicked = true;
+                this.layoutReadAccess(this.parentProject.getReadAccess(), this.parentProject.getPermissions(), false);
+            });
+        }
     }
 
     private isConfirmationNeeded(event: ValueChangedEvent): boolean {
@@ -373,6 +378,12 @@ export class ProjectReadAccessWizardStepForm
 
         this.updateCopyParentAccessModeButtonState();
         this.notifyDataChanged();
+
+        if (this.copyParentAccessClicked) {
+            NotifyManager.get().showSuccess(
+                i18n('settings.wizard.project.copy.success', i18n('settings.items.wizard.readaccess.label'),
+                    this.parentProject.getDisplayName()));
+        }
     }
 
     protected updateOnParentProjectSet() {
