@@ -95,14 +95,20 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
     private layoutAccessCombobox(permissions: ProjectPermissions, silent: boolean = true): Q.Promise<void> {
         return this.getPrincipalsFromPermissions(permissions).then((principals: Principal[]) => {
-            this.accessCombobox.clearSelection(true, false);
+            this.accessCombobox.clearSelection(true, false, false, false);
 
             const itemsToSelect: ProjectAccessControlEntry[] = this.createItemsToSelect(permissions, principals);
 
-            itemsToSelect.forEach((selectedItem: ProjectAccessControlEntry) => {
-                this.accessCombobox.select(selectedItem, false, silent);
-                this.accessCombobox.resetBaseValues();
-            });
+            if (itemsToSelect.length > 0) {
+                itemsToSelect.forEach((selectedItem: ProjectAccessControlEntry) => {
+                    this.accessCombobox.select(selectedItem, false, silent);
+                    this.accessCombobox.resetBaseValues();
+                });
+            } else {
+                this.notifyDataChanged();
+                this.updateCopyParentRolesButtonState();
+            }
+
 
             return Q(null);
         }).catch(DefaultErrorHandler.handle);
