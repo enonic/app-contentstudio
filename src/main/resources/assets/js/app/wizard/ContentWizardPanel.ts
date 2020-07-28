@@ -356,7 +356,8 @@ export class ContentWizardPanel
         return new ContentWizardToolbar({
             application: this.contentParams.application,
             actions: this.wizardActions,
-            workflowStateIconsManager: this.workflowStateIconsManager
+            workflowStateIconsManager: this.workflowStateIconsManager,
+            contentId: this.contentParams.contentId
         });
     }
 

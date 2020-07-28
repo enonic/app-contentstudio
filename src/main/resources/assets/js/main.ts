@@ -58,6 +58,7 @@ import {ProjectSelectionDialog} from './app/settings/dialog/ProjectSelectionDial
 import {SettingsServerEventsListener} from './app/settings/event/SettingsServerEventsListener';
 import {UrlAction} from './app/UrlAction';
 import {Path} from 'lib-admin-ui/rest/Path';
+import {ProjectChangedEvent} from './app/project/ProjectChangedEvent';
 // End of Polyfills
 
 declare const CONFIG;
@@ -459,7 +460,36 @@ const refreshTabOnContentUpdate = (content: Content) => {
 async function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: ConnectionDetector) {
     const ContentWizardPanel = (await import('./app/wizard/ContentWizardPanel')).ContentWizardPanel;
 
-    let wizard = new ContentWizardPanel(wizardParams, getTheme());
+    let wizard: any = createWizard(ContentWizardPanel, wizardParams, connectionDetector);
+    Body.get().addClass('wizard-page').appendChild(wizard);
+
+    // TODO: Remove hack, that connects content events in `FormView`
+    FormEditEvent.on((event) => {
+        const model = ContentSummaryAndCompareStatus.fromContentSummary(event.getModels());
+        new EditContentEvent([model]).fire();
+    });
+
+    EditContentEvent.on(ContentEventsProcessor.handleEdit);
+
+    let changingProject: boolean = false;
+
+    wizard.onClosed(event => {
+        if (!changingProject) {
+            window.close();
+        }
+    });
+
+    ProjectChangedEvent.on(() => {
+        changingProject = true;
+        wizard.remove();
+        changingProject = false;
+        wizard = createWizard(ContentWizardPanel, wizardParams, connectionDetector);
+        Body.get().addClass('wizard-page').appendChild(wizard);
+    });
+}
+
+function createWizard(contentWizardPanelClass: any, wizardParams: ContentWizardPanelParams, connectionDetector: ConnectionDetector) {
+    const wizard = new contentWizardPanelClass(wizardParams, getTheme());
 
     wizard.onDataLoaded((content: Content) => {
         let contentType = wizard.getContentType();
@@ -501,16 +531,7 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams, connec
         }
     });
 
-    wizard.onClosed(event => window.close());
-
-    // TODO: Remove hack, that connects content events in `FormView`
-    FormEditEvent.on((event) => {
-        const model = ContentSummaryAndCompareStatus.fromContentSummary(event.getModels());
-        new EditContentEvent([model]).fire();
-    });
-    EditContentEvent.on(ContentEventsProcessor.handleEdit);
-
-    Body.get().addClass('wizard-page').appendChild(wizard);
+    return wizard;
 }
 
 function getTheme(): string {

@@ -15,11 +15,15 @@ import {Project} from '../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
+import {ProjectSelectionDialog} from '../settings/dialog/ProjectSelectionDialog';
+import {ProjectFetchByContentIdRequest} from '../settings/resource/ProjectFetchByContentIdRequest';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 
 export interface ContentWizardToolbarConfig {
     application: Application;
     actions: ContentWizardActions;
     workflowStateIconsManager: WorkflowStateIconsManager;
+    contentId: ContentId;
 }
 
 export class ContentWizardToolbar
@@ -95,8 +99,15 @@ export class ContentWizardToolbar
         });
 
         this.whenRendered(() => {
-            this.projectViewer.getNamesAndIconView().getFirstChild().onClicked(() => this.handleHomeIconClicked());
+            // this.projectViewer.getNamesAndIconView().getFirstChild().onClicked(() => this.handleHomeIconClicked());
+            this.projectViewer.getNamesAndIconView().onClicked(() => {
+                new ProjectFetchByContentIdRequest(this.config.contentId).sendAndParse().then((projects: Project[]) => {
+                    ProjectSelectionDialog.get().setProjects(projects);
+                    ProjectSelectionDialog.get().open();
+                }).catch(DefaultErrorHandler.handle);
+            });
         });
+
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
@@ -105,6 +116,8 @@ export class ContentWizardToolbar
     }
 
     private addHomeButton() {
+        this.projectViewer = new ProjectViewer();
+
         new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
             this.addProjectButton(projects);
         }).catch((reason: any) => {
@@ -120,9 +133,7 @@ export class ContentWizardToolbar
         const currentProjectName: string = ProjectContext.get().getProject().getName();
         const project: Project = projects.filter((p: Project) => p.getName() === currentProjectName)[0];
 
-        this.projectViewer = new ProjectViewer();
         this.projectViewer.setObject(project);
-
         this.projectViewer.addClass('project-info');
         this.projectViewer.toggleClass('single-repo', projects.length < 2);
 

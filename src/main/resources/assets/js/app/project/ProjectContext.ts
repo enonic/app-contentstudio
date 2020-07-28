@@ -12,7 +12,7 @@ export class ProjectContext {
     private state: State = State.NOT_INITIALIZED;
 
     private constructor() {
-    //
+        //
     }
 
     static get(): ProjectContext {
@@ -28,9 +28,13 @@ export class ProjectContext {
     }
 
     setProject(project: Project) {
+        const projectChanged: boolean = this.state === State.NOT_INITIALIZED || !project.equals(this.currentProject);
         this.currentProject = project;
         this.state = State.INITIALIZED;
-        new ProjectChangedEvent().fire();
+
+        if (projectChanged) {
+            new ProjectChangedEvent().fire();
+        }
     }
 
     updateDefaultProject(project: Project) {
