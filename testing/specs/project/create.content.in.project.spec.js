@@ -68,7 +68,7 @@ describe('create.content.in.project.spec - create new content in the selected co
             assert.equal(actualLanguage, appConstant.LANGUAGES.NORSK_NO, "Expected language should be selected in the wizard step form");
             //4. Verify that expected project display name is present in the wizard-toolbar:
             let actualProjectName = await contentWizardPanel.getProjectDisplayName();
-            assert.equal(actualProjectName, PROJECT_DISPLAY_NAME, "Actual and expected display name should be equal");
+            assert.equal(actualProjectName, PROJECT_DISPLAY_NAME + "(no)", "Actual and expected display name should be equal");
         });
 
     it(`WHEN new folder wizard has been saved THEN expected project-ACL entries should be present in Access form`,

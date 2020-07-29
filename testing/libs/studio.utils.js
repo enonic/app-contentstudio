@@ -621,12 +621,21 @@ module.exports = {
             "};" +
             "xhr.send();");
     },
-    async openAppModeSwitcher() {
-        await this.clickOnElement(lib.APP_MODE_SWITCHER_TOGGLER);
-        return await webDriverHelper.browser.pause(200);
+    async openContentStudioMenu() {
+        let result = await this.isContentStudioMenuOpened();
+        if (!result) {
+            await this.waitForElementDisplayed(lib.APP_MODE_SWITCHER_TOGGLER);
+            await this.clickOnElement(lib.APP_MODE_SWITCHER_TOGGLER);
+            return await webDriverHelper.browser.pause(200);
+        }
+    },
+    async isContentStudioMenuOpened() {
+        let element = await webDriverHelper.browser.$("//div[contains(@id,'AppWrapper')]");
+        let atrValue = await element.getAttribute("class");
+        return atrValue.includes("sidebar-expanded");
     },
     async openSettingsPanel() {
-        await this.openAppModeSwitcher();
+        await this.openContentStudioMenu();
         await this.clickOnElement(lib.SETTINGS_BUTTON);
         return await webDriverHelper.browser.pause(300);
     },
