@@ -9,7 +9,6 @@ import {AppMode} from './AppMode';
 import {ProjectContext} from './project/ProjectContext';
 import {UrlAction} from './UrlAction';
 import {ProjectChangedEvent} from './project/ProjectChangedEvent';
-import {ProjectUpdatedEvent} from './settings/event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from './settings/event/ProjectDeletedEvent';
 import {Project} from './settings/data/project/Project';
 
@@ -25,7 +24,6 @@ export class ContentAppContainer
             this.handleProjectNotSet();
         } else {
             new ContentEventsListener().start();
-            this.appBar.updateSelectedProjectValue();
             this.initListeners();
         }
     }
@@ -35,7 +33,6 @@ export class ContentAppContainer
 
         const projectSetHandler = () => {
             this.appBar.enable();
-            this.appBar.updateSelectedProjectValue();
             new ContentEventsListener().start();
             this.initListeners();
             ProjectChangedEvent.un(projectSetHandler);
@@ -58,14 +55,6 @@ export class ContentAppContainer
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
             this.handleProjectDeletedEvent(event.getProjectName());
         });
-
-        ProjectUpdatedEvent.on(() => {
-            this.handleProjectUpdatedEvent();
-        });
-    }
-
-    private handleProjectUpdatedEvent() {
-        (<ContentAppBar>this.appBar).updateSelectedProjectValue();
     }
 
     private handleProjectDeletedEvent(projectName: string) {
