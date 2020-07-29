@@ -8,8 +8,9 @@ import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {ProjectContext} from '../project/ProjectContext';
 import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 import {ProjectSelectionDialog} from '../settings/dialog/ProjectSelectionDialog';
-import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
+import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
 
 export class ContentAppBar
     extends AppBar {
@@ -23,6 +24,10 @@ export class ContentAppBar
 
         this.initElements();
         this.initListeners();
+
+        if (ProjectContext.get().isInitialized()) {
+            this.handleProjectUpdate();
+        }
     }
 
     private initElements() {
@@ -35,21 +40,25 @@ export class ContentAppBar
             ProjectSelectionDialog.get().open();
         });
 
+        const handler: () => void = this.handleProjectUpdate.bind(this);
 
-        ProjectChangedEvent.on(() => {
-            this.updateSelectedProjectValue();
-        });
+        ProjectChangedEvent.on(handler);
+        ProjectUpdatedEvent.on(handler);
     }
 
-    updateSelectedProjectValue() {
+    private handleProjectUpdate() {
         if (!ProjectContext.get().isInitialized()) {
             return;
         }
 
-        new ProjectGetRequest(ProjectContext.get().getProject().getName()).sendAndParse().then((project: Project) => {
-            this.selectedProjectViewer.setObject(project);
-        }).catch(DefaultErrorHandler.handle);
+        const currentProjectName: string = ProjectContext.get().getProject().getName();
 
+        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+            ProjectSelectionDialog.get().setProjects(projects);
+            const project: Project = projects.find((p: Project) => p.getName() === currentProjectName);
+            this.selectedProjectViewer.setObject(project);
+            this.selectedProjectViewer.toggleClass('multi-projects', projects.length > 1);
+        }).catch(DefaultErrorHandler.handle);
     }
 
     disable() {
@@ -65,6 +74,7 @@ export class ContentAppBar
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
+            this.selectedProjectViewer.setTitle(i18n('text.selectContext'));
             this.addClass('appbar-content');
             this.insertChild(this.selectedProjectViewer, 0);
             const buttonWrapper: DivEl = new DivEl('show-issues-button-wrapper');
