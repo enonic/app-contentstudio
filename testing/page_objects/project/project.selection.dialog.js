@@ -65,7 +65,7 @@ class ProjectSelectionDialog extends Page {
 
     async selectContext(projectDisplayName) {
         let selector = XPATH.container + XPATH.projectList + lib.itemByDisplayName(projectDisplayName);
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+        await this.waitForElementDisplayed(selector, appConst.longTimeout);
         return await this.scrollAndClickOnElement(selector);
     }
 
