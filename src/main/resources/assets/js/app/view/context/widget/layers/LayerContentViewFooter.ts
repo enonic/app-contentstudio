@@ -4,6 +4,7 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {EditContentEvent} from '../../../../event/EditContentEvent';
 import {LayerContent} from './LayerContent';
+import {ProjectContext} from '../../../../project/ProjectContext';
 
 export class LayerContentViewFooter extends DivEl {
 
@@ -25,11 +26,10 @@ export class LayerContentViewFooter extends DivEl {
     }
 
     private createActionButton(): ActionButton {
-        const labelText: string = this.layerContent.getItem().isInherited() ? i18n('action.translate') : i18n('action.open');
-        const button: ActionButton = new ActionButton(new Action(labelText));
+        const button: ActionButton = new ActionButton(new Action(this.getLabelText()));
 
         button.getAction().onExecuted(() => {
-            new EditContentEvent([this.layerContent.getItem()]).fire();
+            new EditContentEvent([this.layerContent.getItem()], this.layerContent.getProject()).fire();
         });
 
         return button;
@@ -39,6 +39,17 @@ export class LayerContentViewFooter extends DivEl {
         this.actionButton.onClicked((event: MouseEvent) => {
             event.stopPropagation();
         });
+    }
+
+    private getLabelText(): string {
+        const isCurrentProject: boolean = this.layerContent.getProject().getName() === ProjectContext.get().getProject().getName();
+        const isInherited: boolean = this.layerContent.getItem().isInherited();
+
+        if (isCurrentProject && isInherited) {
+            return i18n('action.translate');
+        }
+
+        return  i18n('action.open');
     }
 
     doRender(): Q.Promise<boolean> {

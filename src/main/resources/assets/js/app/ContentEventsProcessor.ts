@@ -70,6 +70,7 @@ export class ContentEventsProcessor {
             const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
                 .setTabId(tabId)
                 .setContentTypeName(contentTypeName)
+                .setProject(event.getProject())
                 .setContentId(contentSummary.getContentId());
 
             const win: Window = ContentEventsProcessor.openWizardTab(wizardParams);
@@ -109,7 +110,7 @@ export class ContentEventsProcessor {
     }
 
     private static generateURL(params: ContentWizardPanelParams): string {
-        const project: string = ProjectContext.get().getProject().getName();
+        const project: string = params.project.getName();
 
         if (params.tabId && params.tabId.isBrowseMode()) {
             return `${project}/${UrlAction.BROWSE}/${params.tabId.getId()}`;
