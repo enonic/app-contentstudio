@@ -91,7 +91,7 @@ export class ContentSummaryAndCompareStatusViewer
     }
 
     protected resolveSecondaryName(object: ContentSummaryAndCompareStatus): string {
-        const itemLang: string = object.getContentSummary().getLanguage();
+        const itemLang: string = object.getContentSummary() ? object.getContentSummary().getLanguage() : null;
 
         if (itemLang) {
             const projectLang: string = ProjectContext.get().getProject().getLanguage();
