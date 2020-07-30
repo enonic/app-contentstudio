@@ -7,6 +7,7 @@ import {MultiLayersContentLoader} from './MultiLayersContentLoader';
 import {LayerContent} from './LayerContent';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ProjectContext} from '../../../../project/ProjectContext';
 
 export class LayersView extends ListBox<LayerContent> {
 
@@ -36,6 +37,11 @@ export class LayersView extends ListBox<LayerContent> {
             this.activeItemView = itemContainer;
             this.activeItemView.addClass(LayersView.ACTIVE_CLASS);
         });
+
+        if (item.getProject().getName() === ProjectContext.get().getProject().getName()) {
+            this.activeItemView = itemContainer;
+            this.activeItemView.addClass(LayersView.ACTIVE_CLASS);
+        }
 
         return itemContainer;
     }

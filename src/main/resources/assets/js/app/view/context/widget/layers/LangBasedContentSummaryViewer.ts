@@ -14,8 +14,8 @@ export class LangBasedContentSummaryViewer extends ContentSummaryViewer {
     }
 
     resolveIconEl(object: ContentSummary): Flag {
-        const language: string = object.isInherited() ? this.project.getLanguage() : object.getLanguage();
-        return new Flag(language);
+        const language: string = object.isInherited() ? null : object.getLanguage();
+        return !!language ? new Flag(language) : null;
     }
 
 }

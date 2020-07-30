@@ -38,6 +38,8 @@ import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
 import {LayersWidgetItemView} from './widget/layers/LayersWidgetItemView';
+import {ProjectContext} from '../../project/ProjectContext';
+import {Project} from '../../settings/data/project/Project';
 
 export class ContextView
     extends DivEl {
@@ -57,6 +59,7 @@ export class ContextView
     private pageEditorWidgetView: WidgetView;
     private propertiesWidgetView: WidgetView;
     private emulatorWidgetView: WidgetView;
+    private layersWidgetView: WidgetView;
 
     private data: PageEditorData;
 
@@ -66,9 +69,9 @@ export class ContextView
 
     private pageEditorVisible: boolean;
 
-    private sizeChangedListeners: {(): void}[] = [];
+    private sizeChangedListeners: { (): void }[] = [];
 
-    private widgetsUpdateList: {[key: string]: (key: string, type: ApplicationEventType) => void } = {};
+    private widgetsUpdateList: { [key: string]: (key: string, type: ApplicationEventType) => void } = {};
 
     public static debug: boolean = false;
 
@@ -165,7 +168,48 @@ export class ContextView
 
         ProjectChangedEvent.on(() => {
             this.setItem(null);
+            this.toggleLayersWidget();
         });
+
+        if (ProjectContext.get().isInitialized()) {
+            this.toggleLayersWidget();
+        }
+    }
+
+    private toggleLayersWidget() {
+        const currentProject: Project = ProjectContext.get().getProject();
+
+        if (currentProject.getParent()) {
+            this.addLayersWidget();
+        } else {
+            this.removeLayersWidget();
+        }
+    }
+
+    private addLayersWidget() {
+        if (!this.layersWidgetView) {
+            this.layersWidgetView = this.createLayersWidgetView();
+        }
+
+        if (!this.hasLayersWidget()) {
+            this.insertWidget(this.layersWidgetView, 3);
+            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
+        }
+    }
+
+    private removeLayersWidget() {
+        if (!this.layersWidgetView) {
+            return;
+        }
+
+        if (this.hasLayersWidget()) {
+            this.removeWidget(this.layersWidgetView);
+            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
+        }
+    }
+
+    private hasLayersWidget(): boolean {
+        return !!this.widgetViews.find((widgetView: WidgetView) => widgetView === this.layersWidgetView);
     }
 
     private initDivForNoSelection() {
@@ -403,15 +447,6 @@ export class ContextView
             .setContextView(this)
             .addWidgetItemView(new DependenciesWidgetItemView()).build();
 
-        const layersWidgetView = WidgetView.create()
-            .setName(i18n('field.contextPanel.layers'))
-            .setDescription(i18n('field.contextPanel.layers.description'))
-            .setWidgetClass('layers-widget')
-            .setIconClass('icon-tree-2')
-            .setType(InternalWidgetType.LAYERS)
-            .setContextView(this)
-            .addWidgetItemView(new LayersWidgetItemView()).build();
-
         this.emulatorWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.emulator'))
             .setDescription(i18n('field.contextPanel.emulator.description'))
@@ -423,12 +458,24 @@ export class ContextView
 
         this.defaultWidgetView = this.propertiesWidgetView;
 
-        this.addWidgets([this.propertiesWidgetView, versionsWidgetView, dependenciesWidgetView, layersWidgetView]);
+        this.addWidgets([this.propertiesWidgetView, versionsWidgetView, dependenciesWidgetView]);
+
         if (!this.isInsideWizard()) {
             this.addWidget(this.emulatorWidgetView);
         }
 
         this.setActiveWidget(this.defaultWidgetView);
+    }
+
+    private createLayersWidgetView() {
+        return WidgetView.create()
+            .setName(i18n('field.contextPanel.layers'))
+            .setDescription(i18n('field.contextPanel.layers.description'))
+            .setWidgetClass('layers-widget')
+            .setIconClass('icon-tree-2')
+            .setType(InternalWidgetType.LAYERS)
+            .setContextView(this)
+            .addWidgetItemView(new LayersWidgetItemView()).build();
     }
 
     private isInsideWizard(): boolean {
