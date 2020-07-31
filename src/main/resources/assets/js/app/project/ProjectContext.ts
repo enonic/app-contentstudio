@@ -9,6 +9,8 @@ export class ProjectContext {
 
     private currentProject: Project;
 
+    private projectsList: Project[];
+
     private state: State = State.NOT_INITIALIZED;
 
     private constructor() {
@@ -47,6 +49,14 @@ export class ProjectContext {
 
     isInitialized(): boolean {
         return this.state === State.INITIALIZED;
+    }
+
+    getProjects(): Project[] {
+        return this.projectsList;
+    }
+
+    setProjects(value: Project[]) {
+        this.projectsList = value;
     }
 }
 

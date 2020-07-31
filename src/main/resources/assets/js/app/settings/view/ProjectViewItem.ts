@@ -75,7 +75,7 @@ export class ProjectViewItem
     }
 
     isDeleteAllowed(loginResult: LoginResult): boolean {
-        return loginResult.isContentAdmin() && !this.isDefaultProject();
+        return loginResult.isContentAdmin() && !this.isDefaultProject() && !ProjectHelper.hasChildrenProjects(this.data);
     }
 
     equals(o: Equitable): boolean {

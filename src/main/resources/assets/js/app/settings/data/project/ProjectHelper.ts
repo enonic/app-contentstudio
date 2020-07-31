@@ -43,6 +43,10 @@ export class ProjectHelper {
         return project.getName() === Project.DEFAULT_PROJECT_NAME;
     }
 
+    public static hasChildrenProjects(project: Project): boolean {
+        return ProjectContext.get().getProjects().some((p: Project) => p.getParent() === project.getName());
+    }
+
     public static fetchProject(name: string): Q.Promise<Project> {
         return new ProjectGetRequest(name).sendAndParse().then((project: Project) => project);
     }
