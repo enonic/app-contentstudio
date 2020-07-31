@@ -37,6 +37,7 @@ class SubprojectWizardPanel extends ProjectWizardPanel {
     }
 
     async clickOnCopyRolesFromParent() {
+        await this.clickOnWizardStep("Roles");
         await this.waitForCopyRolesFromParentEnabled();
         return await this.clickOnElement(this.copyRolesFromParentButton);
     }
