@@ -58,7 +58,7 @@ ext {
     configDir = "$xpHome${File.separator}config"
     xpServer = new ServerInstance()
     contentStudioFile = "$deployDir${File.separator}contentstudio-${appVersion}.jar"
-    contentStudioAppUrl = "https://repo.enonic.com/public/com/enonic/app/contentstudio/${appVersion}/contentstudio-${appVersion}.jar"
+    contentStudioAppUrl = "https://repo.enonic.com/dev/com/enonic/app/contentstudio/${appVersion}/contentstudio-${appVersion}.jar"
 }
 
 task ensureScreenshotsDirectory {
@@ -211,6 +211,6 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven {
-        url 'https://repo.enonic.com/public'
+        url 'https://repo.enonic.com/dev'
     }
 }
