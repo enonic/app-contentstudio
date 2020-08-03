@@ -17,10 +17,12 @@ export class SettingsTreeGridActions
     private NEW: Action;
     private EDIT: Action;
     private DELETE: Action;
+    private grid: SettingsItemsTreeGrid;
 
     private actions: Action[] = [];
 
     constructor(grid: SettingsItemsTreeGrid) {
+        this.grid = grid;
         this.NEW = new NewSettingsItemAction(grid);
         this.EDIT = new EditSettingsItemAction(grid);
         this.DELETE = new DeleteSettingsItemAction(grid);
@@ -42,15 +44,20 @@ export class SettingsTreeGridActions
         });
     }
 
-    isEditAllowed(selectedItems: SettingsViewItem[], loginResult: LoginResult): boolean {
+    private isEditAllowed(selectedItems: SettingsViewItem[], loginResult: LoginResult): boolean {
         return selectedItems.length > 0 ? selectedItems.every((item: SettingsViewItem) => item.isEditAllowed(loginResult)) : false;
     }
 
-    isDeleteAllowed(selectedItems: SettingsViewItem[], loginResult: LoginResult): boolean {
-        return selectedItems.length > 0 ? selectedItems.every((item: SettingsViewItem) => item.isDeleteAllowed(loginResult)) : false;
+    private isDeleteAllowed(selectedItems: SettingsViewItem[], loginResult: LoginResult): boolean {
+        return selectedItems.length > 0 ?
+               selectedItems.every((item: SettingsViewItem) => !this.itemHasChildren(item) && item.isDeleteAllowed(loginResult)) : false;
     }
 
-    isNewAllowed(selectedItems: SettingsViewItem[], loginResult: LoginResult): boolean {
+    private itemHasChildren(item: SettingsViewItem): boolean {
+        return this.grid.hasChildren(item);
+    }
+
+    private isNewAllowed(selectedItems: SettingsViewItem[], loginResult: LoginResult): boolean {
         return loginResult.isContentAdmin();
     }
 }
