@@ -42,7 +42,7 @@ configurations.all {
 repositories {
     mavenLocal()
     jcenter()
-    xp.enonicRepo()
+    xp.enonicRepo('dev')
     maven {
     	  url 'https://plugins.gradle.org/m2/'
     }
