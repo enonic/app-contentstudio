@@ -14,10 +14,10 @@ import {SettingsViewItem} from '../view/SettingsViewItem';
 export class SettingsTreeGridActions
     implements TreeGridActions<SettingsViewItem> {
 
-    private NEW: Action;
-    private EDIT: Action;
-    private DELETE: Action;
-    private grid: SettingsItemsTreeGrid;
+    private readonly NEW: Action;
+    private readonly EDIT: Action;
+    private readonly DELETE: Action;
+    private readonly grid: SettingsItemsTreeGrid;
 
     private actions: Action[] = [];
 
