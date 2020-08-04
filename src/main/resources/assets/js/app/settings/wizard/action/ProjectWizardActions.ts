@@ -10,7 +10,7 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 export class ProjectWizardActions
     extends SettingsDataItemWizardActions<ProjectViewItem> {
 
-    private wizardPanel: ProjectWizardPanel;
+    private readonly wizardPanel: ProjectWizardPanel;
 
     constructor(wizardPanel: ProjectWizardPanel) {
         super(wizardPanel);
@@ -29,12 +29,12 @@ export class ProjectWizardActions
 
     private updateActionsEnabledState() {
         this.wizardPanel.getLoginResult().then((loginResult: LoginResult) => {
-            this.save.setEnabled(this.isSaveToBeEnabled(loginResult));
+            this.save.setEnabled(this.isEditAllowed(loginResult));
             this.toggleDeleteAction(loginResult);
         });
     }
 
-    private isSaveToBeEnabled(loginResult: LoginResult): boolean {
+    private isEditAllowed(loginResult: LoginResult): boolean {
         return this.wizardPanel.isValid() && this.wizardPanel.hasUnsavedChanges() && this.wizardPanel.isEditAllowed(loginResult);
     }
 
