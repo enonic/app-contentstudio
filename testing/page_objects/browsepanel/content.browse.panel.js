@@ -82,6 +82,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Sort...')]]`;
     }
 
+    get localizeButton() {
+        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Localize')]]`;
+    }
+
     get searchButton() {
         return XPATH.toolbar + XPATH.searchButton;
     }
@@ -407,6 +411,16 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         } catch (err) {
             this.saveScreenshot('err_duplicate_disabled_button');
             throw Error('Duplicate button should be disabled, timeout: ' + 3000 + 'ms')
+        }
+    }
+
+    async waitForLocalizeButtonEnabled() {
+        try {
+            await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
+        } catch (err) {
+            this.saveScreenshot('err_localize_disabled_button');
+            throw Error('Localize button should be disabled, timeout: ' + 3000 + 'ms')
         }
     }
 

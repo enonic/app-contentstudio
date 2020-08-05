@@ -19,6 +19,7 @@ const InsertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
 const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
+const BrowseLayersWidget = require('../page_objects/browsepanel/detailspanel/browse.layers.widget');
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
 const ProjectSelectionDialog = require('../page_objects/project/project.selection.dialog');
@@ -597,7 +598,7 @@ module.exports = {
             return console.log('screenshot was not saved ' + screenshotsDir + 'utils  ' + err);
         })
     },
-    openDependencyWidgetInBrowsePanel: function () {
+    openDependencyWidgetInBrowsePanel() {
         let browsePanel = new BrowsePanel();
         let browseDependenciesWidget = new BrowseDependenciesWidget();
         return browsePanel.openDetailsPanel().then(() => {
@@ -605,6 +606,15 @@ module.exports = {
         }).then(() => {
             return browseDependenciesWidget.waitForWidgetLoaded();
         })
+    },
+    async openLayersWidgetInBrowsePanel() {
+        let browsePanel = new BrowsePanel();
+        let browseDetailsPanel = new BrowseDetailsPanel();
+        let browseLayersWidget = new BrowseLayersWidget();
+        await browsePanel.openDetailsPanel();
+        await browseDetailsPanel.openLayers();
+        await browseLayersWidget.waitForWidgetLoaded();
+        return browseLayersWidget;
     },
     isStringEmpty(str) {
         return (!str || 0 === str.length);

@@ -78,7 +78,8 @@ module.exports = Object.freeze({
     IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
     WIDGET_TITLE: {
         VERSION_HISTORY: 'Version history',
-        DEPENDENCIES: 'Dependencies'
+        DEPENDENCIES: 'Dependencies',
+        LAYERS: 'Layers'
     },
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',
