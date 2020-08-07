@@ -45,11 +45,11 @@ export class LayerContentViewFooter extends DivEl {
         const isCurrentProject: boolean = this.layerContent.getProject().getName() === ProjectContext.get().getProject().getName();
         const isInherited: boolean = this.layerContent.getItem().isInherited();
 
-        if (isCurrentProject && isInherited) {
-            return i18n('action.translate');
+        if (isCurrentProject) {
+            return isInherited ? i18n('action.translate') : i18n('action.edit');
         }
 
-        return  i18n('action.open');
+        return i18n('action.open');
     }
 
     doRender(): Q.Promise<boolean> {
