@@ -65,7 +65,7 @@ export class ContentEventsProcessor {
 
             const contentSummary: ContentSummary = content.getContentSummary();
             const contentTypeName: ContentTypeName = contentSummary.getType();
-            const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(contentSummary.getId());
+            const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(`${event.getProject().getName()}/${contentSummary.getId()}`);
 
             const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
                 .setTabId(tabId)
