@@ -41,7 +41,7 @@ const XPATH = {
     projectItemByName: function (name) {
         return `//div[contains(@id,'NamesView') and descendant::span[@class='display-name' and contains(.,'${name}')]]`
     },
-    expanderIconByName: name => `${lib.itemByName(
+    expanderIconByName: name => `${lib.itemByDisplayName(
         name)}/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`,
 
     getProjectDescription: name => `${lib.itemByName(
@@ -309,5 +309,5 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     getTextInShowIssuesButton() {
         return this.getText("//button[contains(@id,'ShowIssuesDialogButton')]//span");
     }
-};
+}
 module.exports = SettingsBrowsePanel;
