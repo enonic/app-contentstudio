@@ -28,7 +28,7 @@ class CompareContentVersionsDialog extends Page {
     }
 
     get cancelButtonTop() {
-        return XPATH.container + +lib.CANCEL_BUTTON_TOP;
+        return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
 
     get currentVersionDropdownHandle() {
@@ -67,10 +67,8 @@ class CompareContentVersionsDialog extends Page {
     }
 
     async clickOnCancelTopButton() {
-
         return await this.clickOnElement(this.leftRevertMenuButton);
     }
-
 
     waitForDialogOpened() {
         return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
@@ -88,5 +86,5 @@ class CompareContentVersionsDialog extends Page {
         await this.clickOnElement(this.cancelButtonTop);
         return await this.waitForDialogClosed();
     }
-};
+}
 module.exports = CompareContentVersionsDialog;
