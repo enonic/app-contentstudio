@@ -23,3 +23,32 @@ jobs:
       - run: ./gradlew build
 
       - uses: codecov/codecov-action@v1.0.10
+
+     ### PUBLISHING STEPS ###
+
+      - name: Read version property
+        id: read_version
+        uses: christian-draeger/read-properties@1.0.1
+        with:
+            path: './gradle.properties'
+            property: 'version'
+
+      - name: Get publishing variables
+        id: get_publish_vars
+        run: |
+            PUBLISH=${{ github.ref == 'refs/heads/master' || contains(github.ref, 'refs/heads/7.') }}
+
+            echo ::set-output name=publish::$PUBLISH
+
+            if ${{ contains(steps.read_version.outputs.value, '-SNAPSHOT') }};
+            then
+              echo "::set-output name=release::false"
+              echo "::set-output name=repo::snapshot"
+            else
+              echo "::set-output name=release::true"
+              echo "::set-output name=repo::public"
+            fi
+
+      - name: Publish
+        if: steps.get_publish_vars.outputs.publish == 'true'
+        run: ./gradlew publish -PrepoKey=${{ steps.get_publish_vars.outputs.repo }} -PrepoUser=${{ secrets.ARTIFACTORY_USERNAME }} -PrepoPassword=${{ secrets.ARTIFACTORY_PASSWORD }}
