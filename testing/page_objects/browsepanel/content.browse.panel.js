@@ -337,15 +337,18 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(this.duplicateButton);
             //Wait for modal dialog loaded:
             let contentDuplicateDialog = new ContentDuplicateDialog();
-            return await contentDuplicateDialog.waitForDialogOpened();
+            await contentDuplicateDialog.waitForDialogOpened();
+            return contentDuplicateDialog;
         } catch (err) {
             throw new Error('error when clicking on the Duplicate button ' + err);
         }
     }
 
-    async waitForContentDisplayed(contentName) {
+    async waitForContentDisplayed(contentName, ms) {
         try {
-            return await this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), appConst.mediumTimeout);
+            let timeout = ms ? ms : appConst.mediumTimeout;
+            console.log("waitForContentDisplayed, timeout is:" + timeout);
+            return await this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), timeout);
         } catch (err) {
             console.log("item is not displayed:" + contentName);
             this.saveScreenshot('err_find_' + contentName);
@@ -460,7 +463,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     waitForRowByNameVisible(name) {
         let nameXpath = XPATH.treeGrid + lib.itemByName(name);
-        return this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(nameXpath, appConst.longTimeout).catch(err => {
             this.saveScreenshot('err_find_' + name);
             throw Error('Row with the name ' + name + ' is not visible after ' + 3000 + 'ms')
         })
@@ -741,5 +744,12 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return this.waitForAttributeHasValue(this.showIssuesListButton, "class", "has-assigned-issues");
     }
 
-};
+    async isContentInherited(contentName) {
+        await this.waitForContentDisplayed(contentName, 15000);
+        let locator = lib.slickRowByDisplayName(XPATH.treeGrid, contentName)
+        let attr = await this.getAttribute(locator, 'class');
+        return attr.includes('inherited');
+    }
+}
+
 module.exports = ContentBrowsePanel;
