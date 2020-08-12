@@ -11,7 +11,7 @@ import {ProjectContext} from '../../../../project/ProjectContext';
 
 export class LayersView extends ListBox<LayerContent> {
 
-    private static ACTIVE_CLASS: string = 'active';
+    private static ACTIVE_CLASS: string = 'layer-active';
 
     private currentItem: ContentSummaryAndCompareStatus;
 

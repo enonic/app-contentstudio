@@ -4,7 +4,7 @@
     margin: 0px 10px;
     position: relative;
 
-    .data {
+    .layers-item-view-data {
       padding: 7px 10px 7px 10px;
       border: 2px solid @admin-bg-light-gray;
       cursor: pointer;
@@ -14,13 +14,13 @@
         cursor: pointer;
       }
 
-      .header {
+      &-header {
         display: flex;
 
-        .layer-name {
+        .layer-details {
           flex-grow: 1;
 
-          .language {
+          .layer-language {
             padding-left: 5px;
             color: @admin-font-gray1;
           }
@@ -29,11 +29,11 @@
         .content-status-mixin();
       }
 
-      .body {
+      &-body {
         padding: 15px 0px;
       }
 
-      .footer {
+      &-footer {
         display: none;
 
         .action-button {
@@ -50,37 +50,37 @@
     }
 
     &:first-child {
-      .relation {
+      .layers-item-view-relation {
         display: none;
       }
     }
 
-    &.active .data {
-      .footer {
+    &.layer-active .layers-item-view-data {
+      &-footer {
         display: flex;
         justify-content: center;
       }
     }
 
-    &.current {
-      .data {
+    &.layer-current {
+      .layers-item-view-data {
         border-color: @admin-blue;
         box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
       }
 
-      .relation {
+      .layers-item-view-relation {
         .arrow {
           display: block;
         }
       }
     }
 
-    &.inherited .data {
-      > div:not(.footer) {
+    &.item-inherited .layers-item-view-data {
+      > div:not(.layers-item-view-data-footer) {
         opacity: 0.5;
       }
 
-      .footer {
+      &-footer {
         .action-button {
           background-color: @admin-button-blue2;
 
@@ -91,27 +91,27 @@
       }
     }
 
-    &:not(.inherited) {
-      .relation {
+    &:not(.item-inherited) {
+      .layers-item-view-relation {
         .arrow {
           display: block;
         }
       }
     }
 
-    .relation {
+    &-relation {
       display: flex;
       flex-direction: column;
       align-items: center;
       position: relative;
 
-      .line {
+      &-line {
         width: 3px;
         background: @admin-font-gray1;
         height: 10px;
       }
 
-      .arrow {
+      &-arrow {
         width: 0;
         height: 0;
         border-left: 5px solid transparent;

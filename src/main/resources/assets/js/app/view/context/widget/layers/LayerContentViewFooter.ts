@@ -12,8 +12,8 @@ export class LayerContentViewFooter extends DivEl {
 
     private actionButton: ActionButton;
 
-    constructor(layerContent: LayerContent) {
-        super('footer');
+    constructor(layerContent: LayerContent, cls: string) {
+        super(cls);
 
         this.layerContent = layerContent;
 
