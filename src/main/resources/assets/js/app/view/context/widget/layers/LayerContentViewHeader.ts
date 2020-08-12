@@ -11,8 +11,8 @@ export class LayerContentViewHeader extends DivEl {
 
     private itemStatusBlock: SpanEl;
 
-    constructor(layerContent: LayerContent) {
-        super('header');
+    constructor(layerContent: LayerContent, cls: string) {
+        super(cls);
 
         this.layerContent = layerContent;
 
@@ -20,13 +20,13 @@ export class LayerContentViewHeader extends DivEl {
     }
 
     private initElements() {
-        this.layerNameBlock = new DivEl('layer-name');
-        const layerName: SpanEl = new SpanEl('name');
+        this.layerNameBlock = new DivEl('layer-details');
+        const layerName: SpanEl = new SpanEl('layer-name');
         layerName.setHtml(this.layerContent.getProject().getDisplayName());
         this.layerNameBlock.appendChild(layerName);
 
         if (this.layerContent.getProject().getLanguage()) {
-            const layerLang: SpanEl = new SpanEl('language');
+            const layerLang: SpanEl = new SpanEl('layer-language');
             layerLang.setHtml(`(${this.layerContent.getProject().getLanguage()})`);
             this.layerNameBlock.appendChild(layerLang);
         }

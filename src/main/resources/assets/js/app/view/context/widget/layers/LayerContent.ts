@@ -4,9 +4,9 @@ import {ContentId} from 'lib-admin-ui/content/ContentId';
 
 export class LayerContent {
 
-    private item: ContentSummaryAndCompareStatus;
+    private readonly item: ContentSummaryAndCompareStatus;
 
-    private project: Project;
+    private readonly project: Project;
 
     constructor(item: ContentSummaryAndCompareStatus, project: Project) {
         this.item = item;

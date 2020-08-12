@@ -8,18 +8,20 @@ import {LayerContentViewRelation} from './LayerContentViewRelation';
 
 export class LayerContentView extends LiEl {
 
-    private static CURRENT_CLASS: string = 'current';
+    private static VIEW_CLASS: string = 'layers-item-view';
 
-    private static INHERITED_CLASS: string = 'inherited';
+    private static CURRENT_CLASS: string = 'layer-current';
 
-    private item: LayerContent;
+    private static INHERITED_CLASS: string = 'item-inherited';
+
+    private readonly item: LayerContent;
 
     private dataBlock: LayerContentViewDataBlock;
 
     private relationBlock: LayerContentViewRelation;
 
     constructor(layerContent: LayerContent) {
-        super('layers-item-view');
+        super(LayerContentView.VIEW_CLASS);
 
         this.item = layerContent;
 
@@ -27,8 +29,8 @@ export class LayerContentView extends LiEl {
     }
 
     private initElements() {
-        this.relationBlock = new LayerContentViewRelation();
-        this.dataBlock = new LayerContentViewDataBlock(this.item);
+        this.relationBlock = new LayerContentViewRelation(`${LayerContentView.VIEW_CLASS}-relation`);
+        this.dataBlock = new LayerContentViewDataBlock(this.item, `${LayerContentView.VIEW_CLASS}-data`);
     }
 
     doRender(): Q.Promise<boolean> {

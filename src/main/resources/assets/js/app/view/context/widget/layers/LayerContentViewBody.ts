@@ -8,8 +8,8 @@ export class LayerContentViewBody extends DivEl {
 
     private itemViewer: LangBasedContentSummaryViewer;
 
-    constructor(layerContent: LayerContent) {
-        super('body');
+    constructor(layerContent: LayerContent, cls: string) {
+        super(cls);
 
         this.layerContent = layerContent;
 

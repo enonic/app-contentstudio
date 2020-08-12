@@ -6,7 +6,7 @@ import {LayerContentViewFooter} from './LayerContentViewFooter';
 
 export class LayerContentViewDataBlock extends DivEl {
 
-    private layerContent: LayerContent;
+    private readonly layerContent: LayerContent;
 
     private header: LayerContentViewHeader;
 
@@ -14,18 +14,18 @@ export class LayerContentViewDataBlock extends DivEl {
 
     private footer: LayerContentViewFooter;
 
-    constructor(layerContent: LayerContent) {
-        super('data');
+    constructor(layerContent: LayerContent, cls: string) {
+        super(cls);
 
         this.layerContent = layerContent;
 
-        this.initElements();
+        this.initElements(cls);
     }
 
-    private initElements() {
-        this.header = new LayerContentViewHeader(this.layerContent);
-        this.body = new LayerContentViewBody(this.layerContent);
-        this.footer = new LayerContentViewFooter(this.layerContent);
+    private initElements(parentCls: string) {
+        this.header = new LayerContentViewHeader(this.layerContent, `${parentCls}-header`);
+        this.body = new LayerContentViewBody(this.layerContent, `${parentCls}-body`);
+        this.footer = new LayerContentViewFooter(this.layerContent, `${parentCls}-footer`);
     }
 
     doRender(): Q.Promise<boolean> {
