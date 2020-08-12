@@ -38,18 +38,28 @@ class BrowseLayersWidget extends Page {
         return this.getText(locator);
     }
 
-    waitForLocalizeButtonEnabled(layerName) {
+    async waitForLocalizeButtonEnabled(layerName) {
         let locator = xpath.widgetItemView + xpath.layerViewByName(layerName) +
-                      "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button";
-        return this.getText(locator);
+                      "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button[child::span[text()='Localize']]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.waitForElementEnabled(locator, appConst.mediumTimeout);
     }
 
-    clickOnLocalizeButton(layerName) {
+    async waitForOpenButtonEnabled(layerName) {
+        let locator = xpath.widgetItemView + xpath.layerViewByName(layerName) +
+                      "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button[child::span[text()='Open']]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.waitForElementEnabled(locator, appConst.mediumTimeout);
+    }
+
+    async clickOnLocalizeButton(layerName) {
         let locator = xpath.widgetItemView + xpath.layerViewByName(layerName) +
                       "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button/span[text()='Localize']";
-        return this.clickOnElement(locator);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.clickOnElement(locator);
     }
-};
+}
+
 module.exports = BrowseLayersWidget;
 
 

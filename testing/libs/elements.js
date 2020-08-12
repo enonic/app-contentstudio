@@ -12,7 +12,6 @@ module.exports = Object.freeze({
     NAMES_VIEW_BY_DISPLAY_NAME: "//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'%s')]]",
     SLICK_VIEW_PORT: `//div[contains(@class,'slick-viewport')]`,
     SLICK_ROW: "//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row')]",
-    SLICK_ROW_BY_NAME: "//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::p[contains(@class,'sub-name') and contains(.,'%s')]]",
     H6_DISPLAY_NAME: "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
     P_SUB_NAME: "//p[contains(@class,'sub-name')]",
     TEXT_INPUT: "//input[contains(@id,'TextInput')]",

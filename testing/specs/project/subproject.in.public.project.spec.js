@@ -118,6 +118,34 @@ describe('subproject.in.public.project.spec - ui-tests for subproject in existin
             await projectWizard.waitForDeleteButtonDisabled();
         });
 
+    it("WHEN existing parent project and its child project are selected THEN 'Delete' button should be disabled in the browse-toolbar",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            //1.parent project and its child project are selected:
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(SUBPROJECT_DISPLAY_NAME);
+            //2. Verify that 'Delete' button is disabled in browse-panel:
+            await settingsBrowsePanel.waitForDeleteButtonDisabled();
+        });
+
+    //Verifies issue: Do not allow deletion of a project if it has child subprojects #2105
+    it("WHEN project and its subproject are selected THEN 'Delete' menu item should be disabled in context-menu",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            //1.parent project and its child project are selected:
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(SUBPROJECT_DISPLAY_NAME);
+            //2. Verify that 'Delete' button is disabled in browse-panel:
+            await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(SUBPROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.waitForContextMenuDisplayed();
+            studioUtils.saveScreenshot("multiselect_subproject_context_menu");
+            //Verify that New.. and Edit items are enabled:
+            await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
+            await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
+            //Verify that 'Delete' menu item is disabled:
+            await settingsBrowsePanel.waitForContextMenuItemDisabled('Delete');
+        });
+
     //Verifies issue https://github.com/enonic/app-contentstudio/issues/2091
     //Content Browse Panel - The closest allowed context should be loaded after a subproject is deleted
     it("GIVEN existing subproject has been deleted WHEN content mode has been switched THEN Default context should be loaded",

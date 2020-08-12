@@ -25,10 +25,11 @@ class SiteForm extends Page {
         return lib.FORM_VIEW + XPATH.descriptionInput;
     }
 
-    type(siteData) {
-        return this.typeDescription(siteData.description).then(() => {
-            return this.addApplications(siteData.applications);
-        });
+    async type(siteData) {
+        await this.typeDescription(siteData.description);
+        if (siteData.applications) {
+            await this.addApplications(siteData.applications);
+        }
     }
 
     typeDescription(description) {
@@ -92,7 +93,8 @@ class SiteForm extends Page {
             })
         }, 2000);
     }
-};
+}
+;
 module.exports = SiteForm;
 
 
