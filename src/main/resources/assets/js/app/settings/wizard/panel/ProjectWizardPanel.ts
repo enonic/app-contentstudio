@@ -43,7 +43,7 @@ export class ProjectWizardPanel
     private loginResult: LoginResult;
 
     protected getIconClass(): string {
-        return this.getPersistedItem().getIconClass();
+        return !!this.getPersistedItem() ? this.getPersistedItem().getIconClass() : ProjectIconUrlResolver.getDefaultProjectIcon();
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
@@ -74,9 +74,16 @@ export class ProjectWizardPanel
             this.projectWizardStepForm.onParentProjectChanged((project: Project) => {
                 this.readAccessWizardStepForm.setParentProject(project);
                 this.rolesWizardStepForm.setParentProject(project);
+                this.updateFormIcon(project);
             });
             return Q(null);
         });
+    }
+
+    private updateFormIcon(project: Project) {
+        const isLayer = !!project;
+        this.formIcon.toggleClass(ProjectIconUrlResolver.getDefaultProjectIcon(), !isLayer);
+        this.formIcon.toggleClass(ProjectIconUrlResolver.getDefaultLayerIcon(), isLayer);
     }
 
     protected createWizardActions(): ProjectWizardActions {

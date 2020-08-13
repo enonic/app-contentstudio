@@ -8,7 +8,6 @@ import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 import {ProjectFormItem, ProjectFormItemBuilder} from './element/ProjectFormItem';
 import {ProjectsComboBox} from './element/ProjectsComboBox';
 import {Project} from '../../../data/project/Project';
-import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 

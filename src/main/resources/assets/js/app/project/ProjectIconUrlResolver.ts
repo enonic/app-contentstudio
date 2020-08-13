@@ -22,6 +22,14 @@ export class ProjectIconUrlResolver
         return !!project.getParent() ? ProjectIconUrlResolver.DEFAULT_LAYER_ICON_CLASS : ProjectIconUrlResolver.DEFAULT_PROJECT_ICON_CLASS;
     }
 
+    static getDefaultProjectIcon() {
+        return ProjectIconUrlResolver.DEFAULT_PROJECT_ICON_CLASS;
+    }
+
+    static getDefaultLayerIcon() {
+        return ProjectIconUrlResolver.DEFAULT_LAYER_ICON_CLASS;
+    }
+
     setProjectName(value: string): ProjectIconUrlResolver {
         this.name = value;
         return this;
