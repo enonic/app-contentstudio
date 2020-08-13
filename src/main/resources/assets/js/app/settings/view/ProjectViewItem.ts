@@ -32,7 +32,7 @@ export class ProjectViewItem
     }
 
     getIconClass(): string {
-        return ProjectIconUrlResolver.DEFAULT_ICON_CLASS;
+        return ProjectIconUrlResolver.getDefaultIcon(this.data);
     }
 
     getIconUrl(): string {

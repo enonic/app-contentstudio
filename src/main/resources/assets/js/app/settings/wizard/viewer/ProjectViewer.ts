@@ -22,7 +22,7 @@ export class ProjectViewer extends ExtendedViewer<Project> {
     }
 
     resolveIconClass(project: Project): string {
-        return ProjectIconUrlResolver.DEFAULT_ICON_CLASS;
+        return ProjectIconUrlResolver.getDefaultIcon(project);
     }
 
     resolveIconUrl(project: Project): string {
