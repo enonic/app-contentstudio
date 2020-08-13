@@ -472,7 +472,7 @@ export class ContextView
             .setName(i18n('field.contextPanel.layers'))
             .setDescription(i18n('field.contextPanel.layers.description'))
             .setWidgetClass('layers-widget')
-            .setIconClass('icon-tree-2')
+            .setIconClass('icon-layer')
             .setType(InternalWidgetType.LAYERS)
             .setContextView(this)
             .addWidgetItemView(new LayersWidgetItemView()).build();
