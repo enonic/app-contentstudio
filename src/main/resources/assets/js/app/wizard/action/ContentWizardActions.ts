@@ -202,23 +202,40 @@ export class ContentWizardActions
             this.wizardPanel.unLiveModelChanged(this.checkSaveActionStateHandler);
         }
 
+        let checkSaveStateOnWizardRendered: boolean = false;
+
         this.checkSaveActionStateHandler = AppHelper.debounce(() => {
-            let isEnabled: boolean = this.wizardPanel.hasUnsavedChanges();
+            if (this.wizardPanel.isRendered()) {
+                this.doCheckSaveActionStateHandler();
+            } else {
+                if (!checkSaveStateOnWizardRendered) {
+                    this.wizardPanel.whenRendered(() => {
+                        this.doCheckSaveActionStateHandler();
+                        checkSaveStateOnWizardRendered = false;
+                    });
 
-            if (this.persistedContent) {
-                isEnabled = isEnabled &&
-                            this.persistedContent.isEditable() &&
-                            !this.isPendingDelete() &&
-                            this.userCanModify;
+                    checkSaveStateOnWizardRendered = true;
+                }
+
             }
-            this.enableActions({ SAVE: isEnabled });
-
-            this.getSaveAction().setLabel(i18n(isEnabled || !this.getSaveAction().isSavedStateEnabled() ? 'action.save' : 'action.saved'));
-
         }, 100, false);
 
         this.wizardPanel.onDataChanged(this.checkSaveActionStateHandler);
         this.wizardPanel.onLiveModelChanged(this.checkSaveActionStateHandler);
+    }
+
+    private doCheckSaveActionStateHandler() {
+        let isEnabled: boolean = this.wizardPanel.hasUnsavedChanges();
+
+        if (this.persistedContent) {
+            isEnabled = isEnabled &&
+                        this.persistedContent.isEditable() &&
+                        !this.isPendingDelete() &&
+                        this.userCanModify;
+        }
+        this.enableActions({ SAVE: isEnabled });
+
+        this.getSaveAction().setLabel(i18n(isEnabled || !this.getSaveAction().isSavedStateEnabled() ? 'action.save' : 'action.saved'));
     }
 
     refreshSaveActionState() {
