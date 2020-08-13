@@ -43,7 +43,7 @@ export class ProjectWizardPanel
     private loginResult: LoginResult;
 
     protected getIconClass(): string {
-        return ProjectIconUrlResolver.DEFAULT_ICON_CLASS;
+        return this.getPersistedItem().getIconClass();
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
