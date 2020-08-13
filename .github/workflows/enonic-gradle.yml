@@ -36,7 +36,7 @@ jobs:
       - name: Get publishing variables
         id: get_publish_vars
         run: |
-            PUBLISH=${{ github.ref == 'refs/heads/master' || contains(github.ref, 'refs/heads/7.') }}
+            PUBLISH=${{ github.ref == 'refs/heads/master' || contains(github.ref, 'refs/heads/3.') }}
 
             echo ::set-output name=publish::$PUBLISH
 
