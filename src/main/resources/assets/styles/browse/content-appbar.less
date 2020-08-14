@@ -68,13 +68,12 @@
 
     &:hover {
       .names-and-icon-view {
-
-        &:before {
+        &::before {
           color: darken(@admin-white, 10%);
         }
 
         .@{_COMMON_PREFIX}wrapper {
-          .font-icon-default:before {
+          .font-icon-default::before {
             color: darken(@admin-white, 10%);
           }
         }
@@ -98,6 +97,7 @@
 
       .names-and-icon-view {
         .icon-compare;
+
         overflow: visible;
 
         &:before {
