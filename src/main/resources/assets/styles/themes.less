@@ -57,7 +57,8 @@
 
         .project-viewer {
           .names-and-icon-view {
-            &::before, .font-icon-default::before {
+            &::before,
+            .font-icon-default::before {
               color: @HEADER_ICON_COLOR;
             }
 
@@ -68,9 +69,11 @@
 
           &:hover {
             .names-and-icon-view {
-              &:before, .font-icon-default:before {
+              &:before,
+              .font-icon-default:before {
                 color: @HEADER_ICON_COLOR_HOVER;
               }
+
               .display-name {
                 color: @HEADER_FONT_COLOR_HOVER;
               }
