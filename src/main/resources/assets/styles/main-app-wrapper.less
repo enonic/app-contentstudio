@@ -161,7 +161,7 @@
     height: @app-header-height;
     width: @app-header-height;
     text-align: center;
-    background-color: transparent;
+    background-color: @admin-bg-dark-gray;
     cursor: pointer;
     z-index: 4;
     outline-width: 2px;
@@ -203,7 +203,7 @@
     }
 
     &:hover {
-      background: none;
+      background-color: @admin-bg-dark-gray;
       .lines {
         &:before {
           top: 8px;
@@ -215,6 +215,7 @@
     }
 
     &.toggled {
+      background-color: transparent;
       -webkit-transform: scale3d(.8, .8, .8);
       transform: scale3d(.8, .8, .8);
       padding: 4px 4px 8px 16px;

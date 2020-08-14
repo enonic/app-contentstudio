@@ -34,12 +34,19 @@
       display: flex;
       align-items: center;
 
+      &::before {
+        color: @admin-white;
+      }
+
       .@{_COMMON_PREFIX}wrapper {
         margin-right: 0;
         padding: 0 10px;
 
-        .font-icon-default::before {
-          font-size: 30px;
+        .font-icon-default {
+          &::before {
+            color: @admin-white;
+            font-size: 30px;
+          }
         }
       }
 
@@ -47,6 +54,7 @@
         margin-left: 0;
 
         .@{_COMMON_PREFIX}main-name {
+          color: @admin-white;
           font-size: 16px;
           height: 20px;
           line-height: 20px;
@@ -54,6 +62,27 @@
 
         .@{_COMMON_PREFIX}sub-name {
           display: none;
+        }
+      }
+    }
+
+    &:hover {
+      .names-and-icon-view {
+
+        &:before {
+          color: darken(@admin-white, 10%);
+        }
+
+        .@{_COMMON_PREFIX}wrapper {
+          .font-icon-default:before {
+            color: darken(@admin-white, 10%);
+          }
+        }
+
+        .@{_COMMON_PREFIX}names-view {
+          .@{_COMMON_PREFIX}main-name {
+            color: darken(@admin-white, 10%);
+          }
         }
       }
     }
@@ -66,6 +95,18 @@
 
     &.multi-projects {
       pointer-events: auto;
+
+      .names-and-icon-view {
+        .icon-compare;
+        overflow: visible;
+
+        &:before {
+          position: absolute;
+          right: -36px;
+          top: 12px;
+          font-size: 24px;
+        }
+      }
     }
   }
 }
