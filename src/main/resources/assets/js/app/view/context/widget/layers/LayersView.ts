@@ -93,9 +93,7 @@ export class LayersView extends ListBox<LayerContent> {
             this.hideItemsBetween(0, parentIndex);
         }
 
-        const totalBetweenParentAndRoot: number = reversedItemViews.length - parentIndex - 2;
-
-        if (totalBetweenParentAndRoot > 0) {
+        if (parentIndex < reversedItemViews.length - 1) {
             this.hideItemsBetween(parentIndex, reversedItemViews.length);
         }
     }
@@ -103,7 +101,7 @@ export class LayersView extends ListBox<LayerContent> {
     private hideItemsBetween(itemIndex: number, parentIndex: number) {
         const reversedItemViews: LayerContentView[] = <LayerContentView[]>this.getItemViews().reverse();
         const currentItem: LayerContentView = reversedItemViews[itemIndex];
-        currentItem.getRelationBlock().addClass('has-more');
+        currentItem.addClass('has-more');
 
         const showMoreButtonEl: DivEl = new DivEl('show-more');
         showMoreButtonEl.setHtml(i18n('widget.layers.showmore', parentIndex - itemIndex -1));
@@ -119,7 +117,7 @@ export class LayersView extends ListBox<LayerContent> {
 
         showMoreButtonEl.onClicked(() => {
             showMoreButtonEl.hide();
-            currentItem.getRelationBlock().removeClass('has-more');
+            currentItem.removeClass('has-more');
 
             hiddenItems.forEach((hiddenItem: LayerContentView) => {
                 hiddenItem.show();

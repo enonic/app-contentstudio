@@ -136,13 +136,24 @@
           color: @admin-input-blue;
         }
       }
+    }
 
-      &.has-more {
-        .layers-item-view-relation-line {
-          height: 34px;
-        }
+    &.has-more {
+      .layers-item-view-relation-line {
+        height: 34px;
       }
     }
+
+    &:nth-child(2).has-more {
+      .show-more {
+        top: 0;
+      }
+
+      .layers-item-view-relation-line {
+        height: 28px;
+      }
+    }
+
   }
 
 }
