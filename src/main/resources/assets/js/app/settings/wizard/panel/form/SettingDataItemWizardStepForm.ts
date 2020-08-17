@@ -28,6 +28,10 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         this.initListeners();
     }
 
+    setItem(item: ITEM) {
+        this.item = item;
+    }
+
     abstract layout(item: ITEM): Q.Promise<void>;
 
     doRender(): Q.Promise<boolean> {

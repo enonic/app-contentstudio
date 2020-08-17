@@ -57,6 +57,10 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         return super.postPersistNewItem(item).then(() => {
             this.notifyNewItemSaved(item);
 
+            this.wizardStepForms.forEach((stepForm: SettingDataItemWizardStepForm<ITEM>) => {
+                stepForm.setItem(item);
+            });
+
             return item;
         });
     }
