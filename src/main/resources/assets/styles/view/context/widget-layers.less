@@ -6,7 +6,7 @@
 
     .layers-item-view-data {
       padding: 7px 10px 7px 10px;
-      border: 2px solid @admin-bg-light-gray;
+      border: 2px solid @admin-medium-gray-border;
       cursor: pointer;
       position: relative;
 
@@ -76,7 +76,7 @@
     }
 
     &.item-inherited .layers-item-view-data {
-      > div:not(.layers-item-view-data-footer) {
+      &-body {
         opacity: 0.5;
       }
 

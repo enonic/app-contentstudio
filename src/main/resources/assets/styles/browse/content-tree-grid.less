@@ -16,7 +16,11 @@
     }
 
     &.inherited {
-      opacity: 0.5;
+
+      .@{_COMMON_PREFIX}wrapper,
+      .@{_COMMON_PREFIX}names-view {
+        opacity: 0.5;
+      }
     }
 
     &:not(.selected) {
