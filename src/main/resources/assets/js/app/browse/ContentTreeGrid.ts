@@ -109,7 +109,7 @@ export class ContentTreeGrid
             id: 'displayName',
             field: 'contentSummary.displayName',
             formatter: ContentRowFormatter.nameFormatter,
-            style: {minWidth: 130}
+            style: {cssClass: 'name', minWidth: 130}
         }, {
             name: 'CompareStatus',
             id: 'compareStatus',

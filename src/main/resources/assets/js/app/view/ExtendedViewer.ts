@@ -22,7 +22,7 @@ export class ExtendedViewer<OBJECT> extends NamesAndIconViewer<OBJECT> {
         const namesView: NamesView = this.namesAndIconView.getNamesView();
 
         const displayNameEl: Element = new SpanEl('display-name').setHtml(this.resolveDisplayName(object));
-        const nameEl: Element = new SpanEl('name').setHtml(this.resolveSecondaryName(object));
+        const nameEl: Element = new SpanEl('display-name-postfix').setHtml(this.resolveSecondaryName(object));
 
         namesView.setMainNameElements([displayNameEl, nameEl]);
     }
