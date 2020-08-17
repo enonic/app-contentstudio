@@ -8,7 +8,7 @@ import {LayerContentViewRelation} from './LayerContentViewRelation';
 
 export class LayerContentView extends LiEl {
 
-    private static VIEW_CLASS: string = 'layers-item-view';
+    static VIEW_CLASS: string = 'layers-item-view';
 
     private static CURRENT_CLASS: string = 'layer-current';
 

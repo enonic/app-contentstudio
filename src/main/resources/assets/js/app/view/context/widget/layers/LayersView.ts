@@ -11,7 +11,7 @@ import {ProjectContext} from '../../../../project/ProjectContext';
 
 export class LayersView extends ListBox<LayerContent> {
 
-    private static ACTIVE_CLASS: string = 'layer-active';
+    private static EXPANDED_CLASS: string = `${LayerContentView.VIEW_CLASS}-expanded`;
 
     private currentItem: ContentSummaryAndCompareStatus;
 
@@ -26,7 +26,7 @@ export class LayersView extends ListBox<LayerContent> {
 
         itemContainer.getDataBlock().onClicked(() => {
             if (this.activeItemView) {
-                this.activeItemView.removeClass(LayersView.ACTIVE_CLASS);
+                this.activeItemView.removeClass(LayersView.EXPANDED_CLASS);
             }
 
             if (this.activeItemView === itemContainer) {
@@ -35,12 +35,12 @@ export class LayersView extends ListBox<LayerContent> {
             }
 
             this.activeItemView = itemContainer;
-            this.activeItemView.addClass(LayersView.ACTIVE_CLASS);
+            this.activeItemView.addClass(LayersView.EXPANDED_CLASS);
         });
 
         if (item.getProject().getName() === ProjectContext.get().getProject().getName()) {
             this.activeItemView = itemContainer;
-            this.activeItemView.addClass(LayersView.ACTIVE_CLASS);
+            this.activeItemView.addClass(LayersView.EXPANDED_CLASS);
         }
 
         return itemContainer;
