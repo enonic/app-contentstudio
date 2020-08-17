@@ -18,7 +18,7 @@ export class LayerContentViewBody extends DivEl {
 
     private initElements() {
         this.itemViewer = new LangBasedContentSummaryViewer(this.layerContent.getProject());
-        this.itemViewer.setObject(this.layerContent.getItem().getContentSummary());
+        this.itemViewer.setObject(this.layerContent.getItem());
     }
 
     doRender(): Q.Promise<boolean> {

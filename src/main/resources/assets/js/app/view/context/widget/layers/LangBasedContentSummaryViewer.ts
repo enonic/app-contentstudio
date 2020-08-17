@@ -1,9 +1,9 @@
-import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
 import {Flag} from 'lib-admin-ui/locale/Flag';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {Project} from '../../../../settings/data/project/Project';
+import {ContentSummaryAndCompareStatusViewer} from '../../../../content/ContentSummaryAndCompareStatusViewer';
+import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 
-export class LangBasedContentSummaryViewer extends ContentSummaryViewer {
+export class LangBasedContentSummaryViewer extends ContentSummaryAndCompareStatusViewer {
 
     private project: Project;
 
@@ -13,8 +13,8 @@ export class LangBasedContentSummaryViewer extends ContentSummaryViewer {
         this.project = project;
     }
 
-    resolveIconEl(object: ContentSummary): Flag {
-        const language: string = object.isInherited() ? null : object.getLanguage();
+    resolveIconEl(object: ContentSummaryAndCompareStatus): Flag {
+        const language: string = object.isInherited() ? null : object.getContentSummary().getLanguage();
         return !!language ? new Flag(language) : null;
     }
 
