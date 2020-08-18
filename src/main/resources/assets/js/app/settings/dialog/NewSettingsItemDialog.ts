@@ -20,16 +20,20 @@ export class NewSettingsItemDialog
             title: i18n('settings.dialog.new'),
             class: 'new-settings-item-dialog'
         });
-
-        this.projectsChainBlock = new ProjectsChainBlock();
-        this.projectsChainBlock.hide();
     }
 
     setProjectsChain(projects: Project[]) {
-        this.projectsChainBlock.setProjectsChain(projects);
-        if (!this.projectsChainBlock.isEmpty()) {
-            this.projectsChainBlock.show();
+        this.toggleClass('project-selected', projects.length > 0);
+        if (!projects) {
+            return;
         }
+        if (this.projectsChainBlock) {
+            this.projectsChainBlock.reset();
+        } else {
+            this.projectsChainBlock = new ProjectsChainBlock();
+            this.appendChildToHeader(this.projectsChainBlock);
+        }
+        this.projectsChainBlock.setProjectsChain(projects);
     }
 
     protected initElements() {
@@ -57,7 +61,6 @@ export class NewSettingsItemDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.appendChildToHeader(this.projectsChainBlock);
             this.appendChildToContentPanel(this.itemsList);
             this.addCancelButtonToBottom(null, true);
 
@@ -73,8 +76,9 @@ export class NewSettingsItemDialog
     close() {
         super.close();
         this.remove();
-        this.projectsChainBlock.reset();
-        this.projectsChainBlock.hide();
+        if (this.projectsChainBlock) {
+            this.projectsChainBlock.reset();
+        }
     }
 }
 
