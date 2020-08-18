@@ -1,5 +1,20 @@
 .new-settings-item-dialog {
 
+  .projects-chain {
+    display: none;
+    padding-left: 3px;
+  }
+
+  &.project-selected {
+    .projects-chain {
+      display: block;
+    }
+
+    .viewer.project {
+      display: none;
+    }
+  }
+
   .viewer {
 
     padding: 5px 20px;
