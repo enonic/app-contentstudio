@@ -52,7 +52,7 @@ export class NewSettingsItemDialog
     protected postInitElements() {
         super.postInitElements();
 
-        this.itemsList.addItem(SettingsTypes.PROJECT);
+        this.itemsList.addItems(SettingsTypes.getInstantiable());
     }
 
     doRender(): Q.Promise<boolean> {
