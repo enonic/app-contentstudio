@@ -1,11 +1,11 @@
 import {Flag} from 'lib-admin-ui/locale/Flag';
 import {Project} from '../../../../settings/data/project/Project';
 import {ContentSummaryAndCompareStatusViewer} from '../../../../content/ContentSummaryAndCompareStatusViewer';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {ProjectIconUrlResolver} from '../../../../project/ProjectIconUrlResolver';
 
 export class LangBasedContentSummaryViewer extends ContentSummaryAndCompareStatusViewer {
 
-    private project: Project;
+    private readonly project: Project;
 
     constructor(project: Project) {
         super();
@@ -13,8 +13,16 @@ export class LangBasedContentSummaryViewer extends ContentSummaryAndCompareStatu
         this.project = project;
     }
 
-    resolveIconEl(object: ContentSummaryAndCompareStatus): Flag {
-        const language: string = object.isInherited() ? null : object.getContentSummary().getLanguage();
+    resolveIconUrl(): string {
+        return null;
+    }
+
+    resolveIconClass(): string {
+        return ProjectIconUrlResolver.getDefaultIcon(this.project);
+    }
+
+    resolveIconEl(): Flag {
+        const language = this.project.getLanguage();
         return !!language ? new Flag(language) : null;
     }
 
