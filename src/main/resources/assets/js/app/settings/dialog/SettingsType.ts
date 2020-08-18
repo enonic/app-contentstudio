@@ -3,19 +3,22 @@ import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 export class SettingsType {
 
-    private name: string;
+    private readonly name: string;
 
-    private displayName: string;
+    private readonly displayName: string;
 
-    private description: string;
+    private readonly description: string;
 
-    private iconClass: string;
+    private readonly iconClass: string;
+
+    private readonly instantiable: boolean;
 
     constructor(builder: SettingsTypeBuilder) {
         this.name = builder.name;
         this.displayName = builder.displayName;
         this.description = builder.description;
         this.iconClass = builder.iconClass;
+        this.instantiable = builder.instantiable;
     }
 
     static create(): SettingsTypeBuilder {
@@ -36,6 +39,10 @@ export class SettingsType {
 
     getDescription(): string {
         return this.description;
+    }
+
+    getInstantiable(): boolean {
+        return this.instantiable;
     }
 
     equals(o: Equitable): boolean {
@@ -61,6 +68,8 @@ export class SettingsTypeBuilder {
 
     iconClass: string;
 
+    instantiable: boolean = true;
+
     setName(value: string): SettingsTypeBuilder {
         this.name = value;
         return this;
@@ -78,6 +87,11 @@ export class SettingsTypeBuilder {
 
     setIconClass(value: string): SettingsTypeBuilder {
         this.iconClass = value;
+        return this;
+    }
+
+    setInstantiable(value: boolean): SettingsTypeBuilder {
+        this.instantiable = value;
         return this;
     }
 
