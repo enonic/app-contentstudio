@@ -27,4 +27,9 @@ export class LayersWidgetItemView
         return Q(null);
     }
 
+    reload() {
+        if (this.layersView && this.layersView.isVisible()) {
+            return this.layersView.reload();
+        }
+    }
 }

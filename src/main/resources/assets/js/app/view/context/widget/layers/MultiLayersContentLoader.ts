@@ -10,7 +10,7 @@ import {LayerContent} from './LayerContent';
 
 export class MultiLayersContentLoader {
 
-    private originalItem: LayerContent;
+    private originalItem: ContentSummaryAndCompareStatus;
 
     private items: LayerContent[];
 
@@ -19,13 +19,13 @@ export class MultiLayersContentLoader {
     private projects: Project[];
 
     constructor(item: ContentSummaryAndCompareStatus) {
-        this.originalItem = new LayerContent(item, ProjectContext.get().getProject());
-
-        this.items = [this.originalItem];
-        this.loadPromise = Q.defer<LayerContent[]>();
+        this.originalItem = item;
     }
 
     load(): Q.Promise<LayerContent[]> {
+        this.items = [];
+        this.loadPromise = Q.defer<LayerContent[]>();
+
         this.loadSameContentInOtherProjects();
 
         return this.loadPromise.promise;
@@ -40,14 +40,17 @@ export class MultiLayersContentLoader {
     }
 
     private loadSameContentInOtherProjects() {
-        const currentProject: Project = ProjectContext.get().getProject();
-
-        if (!currentProject.getParent()) {
-            this.resolveLoad();
-            return;
-        }
-
         new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+            const currentProjectName: string = ProjectContext.get().getProject().getName();
+            const currentProject: Project = projects.find((project: Project) => project.getName() === currentProjectName);
+
+            this.items.push(new LayerContent(this.originalItem, currentProject));
+
+            if (!currentProject.getParent()) {
+                this.resolveLoad();
+                return;
+            }
+
             this.projects = projects;
             this.loadContentFromProject(currentProject.getParent());
         }).catch(this.rejectLoad.bind(this));
@@ -64,7 +67,7 @@ export class MultiLayersContentLoader {
     }
 
     private doLoadContentFromProject(project: Project) {
-        const id: string = this.originalItem.getItemId();
+        const id: string = this.originalItem.getId();
 
         new ContentsExistRequest([id])
             .setRequestProject(project)
