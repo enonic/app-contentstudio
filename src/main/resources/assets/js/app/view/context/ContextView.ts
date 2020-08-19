@@ -40,6 +40,7 @@ import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
 import {LayersWidgetItemView} from './widget/layers/LayersWidgetItemView';
 import {ProjectContext} from '../../project/ProjectContext';
 import {Project} from '../../settings/data/project/Project';
+import {ProjectUpdatedEvent} from '../../settings/event/ProjectUpdatedEvent';
 
 export class ContextView
     extends DivEl {
@@ -60,6 +61,7 @@ export class ContextView
     private propertiesWidgetView: WidgetView;
     private emulatorWidgetView: WidgetView;
     private layersWidgetView: WidgetView;
+    private layersWidgetItemView: LayersWidgetItemView;
 
     private data: PageEditorData;
 
@@ -169,6 +171,12 @@ export class ContextView
         ProjectChangedEvent.on(() => {
             this.setItem(null);
             this.toggleLayersWidget();
+        });
+
+        ProjectUpdatedEvent.on(() => {
+           if (this.activeWidget === this.layersWidgetView) {
+               this.layersWidgetItemView.reload();
+           }
         });
 
         if (ProjectContext.get().isInitialized()) {
@@ -468,6 +476,8 @@ export class ContextView
     }
 
     private createLayersWidgetView() {
+        this.layersWidgetItemView = new LayersWidgetItemView();
+
         return WidgetView.create()
             .setName(i18n('field.contextPanel.layers'))
             .setDescription(i18n('field.contextPanel.layers.description'))
@@ -475,7 +485,7 @@ export class ContextView
             .setIconClass('icon-layer')
             .setType(InternalWidgetType.LAYERS)
             .setContextView(this)
-            .addWidgetItemView(new LayersWidgetItemView()).build();
+            .addWidgetItemView(this.layersWidgetItemView).build();
     }
 
     private isInsideWizard(): boolean {
