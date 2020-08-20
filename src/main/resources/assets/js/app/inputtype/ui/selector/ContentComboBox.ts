@@ -102,12 +102,8 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         }
     }
 
-    protected doCreateLoaderBuilder(): ContentSummaryOptionDataLoaderBuilder {
-        return ContentSummaryOptionDataLoader.create();
-    }
-
     protected createLoaderBuilder(builder: ContentComboBoxBuilder<ITEM_TYPE>): ContentSummaryOptionDataLoaderBuilder {
-        return this.doCreateLoaderBuilder()
+        return ContentSummaryOptionDataLoader.create()
             .setLoadStatus(builder.showStatus);
     }
 
