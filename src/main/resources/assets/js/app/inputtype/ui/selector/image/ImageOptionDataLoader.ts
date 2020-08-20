@@ -92,15 +92,7 @@ export class ImageOptionDataLoader
         return item ? new MediaTreeSelectorItem(item.getContent(), item.isSelectable(), item.isExpandable()) : null;
     }
 
-    static create(): ImageOptionDataLoaderBuilder {
-        return new ImageOptionDataLoaderBuilder();
-    }
-}
-
-export class ImageOptionDataLoaderBuilder
-    extends ContentSummaryOptionDataLoaderBuilder {
-
-    build(): ImageOptionDataLoader {
-        return new ImageOptionDataLoader(this);
+    static build(builder: ContentSummaryOptionDataLoaderBuilder): ImageOptionDataLoader {
+        return new ImageOptionDataLoader(builder);
     }
 }

@@ -23,8 +23,8 @@ import {Content} from '../../content/Content';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
-import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from '../ui/selector/image/ImageOptionDataLoader';
-import {ContentComboBox, ContentComboBoxBuilder} from '../ui/selector/ContentComboBox';
+import {ImageOptionDataLoader} from '../ui/selector/image/ImageOptionDataLoader';
+import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 
 export class ImageSelector
@@ -84,8 +84,8 @@ export class ImageSelector
         return selectedOptionsView;
     }
 
-    protected doCreateOptionDataLoaderBuilder(): ImageOptionDataLoaderBuilder {
-        return ImageOptionDataLoader.create();
+    protected createOptionDataLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
+        return ImageOptionDataLoader.build(this.createOptionDataLoaderBuilder());
     }
 
     protected doCreateContentComboBoxBuilder(): ImageContentComboBoxBuilder {

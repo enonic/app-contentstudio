@@ -142,8 +142,13 @@ export class ContentSelector
         });
     }
 
-    protected doCreateOptionDataLoaderBuilder(): ContentSummaryOptionDataLoaderBuilder {
-        return ContentSummaryOptionDataLoader.create();
+    protected createOptionDataLoaderBuilder(): ContentSummaryOptionDataLoaderBuilder {
+        return ContentSummaryOptionDataLoader.create()
+            .setAllowedContentPaths(this.allowedContentPaths)
+            .setContentTypeNames(this.allowedContentTypes)
+            .setRelationshipType(this.relationshipType)
+            .setContent(this.config.content)
+            .setLoadStatus(this.showStatus);
     }
 
     protected doCreateContentComboBoxBuilder(): ContentComboBoxBuilder<ContentTreeSelectorItem> {
@@ -151,14 +156,7 @@ export class ContentSelector
     }
 
     protected createOptionDataLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
-        return this
-            .doCreateOptionDataLoaderBuilder()
-            .setAllowedContentPaths(this.allowedContentPaths)
-            .setContentTypeNames(this.allowedContentTypes)
-            .setRelationshipType(this.relationshipType)
-            .setContent(this.config.content)
-            .setLoadStatus(this.showStatus)
-            .build();
+        return this.createOptionDataLoaderBuilder().build();
     }
 
     protected createContentComboBoxBuilder(input: Input, propertyArray: PropertyArray): ContentComboBoxBuilder<ContentTreeSelectorItem> {
