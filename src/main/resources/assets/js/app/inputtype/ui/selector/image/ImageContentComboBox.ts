@@ -7,27 +7,33 @@ import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {OptionDataHelper} from 'lib-admin-ui/ui/selector/OptionDataHelper';
 import {ComboBox, ComboBoxConfig} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
 import {ContentComboBox, ContentComboBoxBuilder} from '../ContentComboBox';
-import {ImageOptionDataLoader} from './ImageOptionDataLoader';
+import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from './ImageOptionDataLoader';
 import {ImageContentComboboxKeyEventsHandler} from './ImageContentComboboxKeyEventsHandler';
 import {ImageSelectorSelectedOptionsView} from './ImageSelectorSelectedOptionsView';
 import {ImageSelectorViewer} from './ImageSelectorViewer';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
-import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 
 export class ImageContentComboBox
     extends ContentComboBox<MediaTreeSelectorItem> {
 
+    protected maxHeight: number = 250;
+
     constructor(builder: ImageContentComboBoxBuilder) {
-        let loader = builder.loader || ImageOptionDataLoader.create().setContent(builder.content).setContentTypeNames(
-            [ContentTypeName.IMAGE.toString(), ContentTypeName.MEDIA_VECTOR.toString()]).build();
-
-        builder.setLoader(loader).setMaxHeight(250);
-
         super(builder);
 
         this.addClass('image-content-combo-box');
         this.toggleGridOptions(builder.treegridDropdownEnabled);
         this.setKeyEventsHandler(new ImageContentComboboxKeyEventsHandler(this));
+    }
+
+    protected doCreateLoaderBuilder(): ImageOptionDataLoaderBuilder {
+        return ImageOptionDataLoader.create();
+    }
+
+    protected createLoaderBuilder(builder: ImageContentComboBoxBuilder): ImageOptionDataLoaderBuilder {
+        return <ImageOptionDataLoaderBuilder>super.createLoaderBuilder(builder)
+            .setContent(builder.content)
+            .setContentTypeNames([ContentTypeName.IMAGE.toString(), ContentTypeName.MEDIA_VECTOR.toString()]);
     }
 
     getContent(contentId: ContentId): ContentSummary {
@@ -74,13 +80,6 @@ export class ImageContentComboBox
         return null;
     }
 
-    protected createComboboxConfig(builder: ContentComboBoxBuilder<MediaTreeSelectorItem>): ComboBoxConfig<ContentTreeSelectorItem> {
-        const config = super.createComboboxConfig(builder);
-        config.treegridDropdownAllowed = true; // to make use DropdownTreeGrid for displaying options
-
-        return config;
-    }
-
     getLoader(): ImageOptionDataLoader {
         return <ImageOptionDataLoader>super.getLoader();
     }
@@ -107,6 +106,8 @@ export class ImageContentComboBoxBuilder
     loader: ImageOptionDataLoader;
 
     content: ContentSummary;
+
+    isRequestMissingOptions: boolean = false;
 
     setContent(value: ContentSummary): ImageContentComboBoxBuilder {
         this.content = value;
