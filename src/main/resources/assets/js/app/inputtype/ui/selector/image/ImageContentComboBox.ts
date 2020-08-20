@@ -5,13 +5,14 @@ import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {OptionDataHelper} from 'lib-admin-ui/ui/selector/OptionDataHelper';
-import {ComboBox, ComboBoxConfig} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
+import {ComboBox} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
 import {ContentComboBox, ContentComboBoxBuilder} from '../ContentComboBox';
-import {ImageOptionDataLoader, ImageOptionDataLoaderBuilder} from './ImageOptionDataLoader';
+import {ImageOptionDataLoader} from './ImageOptionDataLoader';
 import {ImageContentComboboxKeyEventsHandler} from './ImageContentComboboxKeyEventsHandler';
 import {ImageSelectorSelectedOptionsView} from './ImageSelectorSelectedOptionsView';
 import {ImageSelectorViewer} from './ImageSelectorViewer';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
+import {ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
 
 export class ImageContentComboBox
     extends ContentComboBox<MediaTreeSelectorItem> {
@@ -26,12 +27,8 @@ export class ImageContentComboBox
         this.setKeyEventsHandler(new ImageContentComboboxKeyEventsHandler(this));
     }
 
-    protected doCreateLoaderBuilder(): ImageOptionDataLoaderBuilder {
-        return ImageOptionDataLoader.create();
-    }
-
-    protected createLoaderBuilder(builder: ImageContentComboBoxBuilder): ImageOptionDataLoaderBuilder {
-        return <ImageOptionDataLoaderBuilder>super.createLoaderBuilder(builder)
+    protected createLoaderBuilder(builder: ImageContentComboBoxBuilder): ContentSummaryOptionDataLoaderBuilder {
+        return super.createLoaderBuilder(builder)
             .setContent(builder.content)
             .setContentTypeNames([ContentTypeName.IMAGE.toString(), ContentTypeName.MEDIA_VECTOR.toString()]);
     }
