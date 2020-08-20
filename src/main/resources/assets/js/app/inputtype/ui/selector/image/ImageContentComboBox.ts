@@ -27,6 +27,10 @@ export class ImageContentComboBox
         this.setKeyEventsHandler(new ImageContentComboboxKeyEventsHandler(this));
     }
 
+    protected createLoader(builder: ImageContentComboBoxBuilder): ImageOptionDataLoader {
+        return ImageOptionDataLoader.build(this.createLoaderBuilder(builder));
+    }
+
     protected createLoaderBuilder(builder: ImageContentComboBoxBuilder): ContentSummaryOptionDataLoaderBuilder {
         return super.createLoaderBuilder(builder)
             .setContent(builder.content)
