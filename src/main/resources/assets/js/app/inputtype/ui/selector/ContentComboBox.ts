@@ -88,9 +88,16 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         builder.setMaxHeight(this.maxHeight);
 
         if (builder.showStatus) {
-            const columns = [new GridColumnBuilder().setId('status').setName('Status').setField(
-                'displayValue').setFormatter(
-                ContentRowFormatter.statusSelectorFormatter).setCssClass('status').setBoundaryWidth(75, 75).build()];
+            const columns = [
+                new GridColumnBuilder()
+                    .setId('status')
+                    .setName('Status')
+                    .setField('displayValue')
+                    .setFormatter(ContentRowFormatter.statusSelectorFormatter)
+                    .setCssClass('status')
+                    .setBoundaryWidth(75, 75)
+                    .build()
+            ];
 
             builder.setCreateColumns(columns);
         }
