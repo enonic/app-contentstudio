@@ -27,7 +27,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
     private treeFilterValue: string;
 
-    readonly loadStatus: boolean;
+    protected readonly loadStatus: boolean;
 
     private loadModeChangedListeners: { (isTreeMode: boolean): void }[] = [];
 

@@ -8,6 +8,7 @@ import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 import {OptionDataLoaderData} from 'lib-admin-ui/ui/selector/OptionDataLoader';
+import {ContentAndStatusTreeSelectorItem} from '../../../../item/ContentAndStatusTreeSelectorItem';
 
 export class ImageOptionDataLoader
     extends ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {
@@ -83,13 +84,16 @@ export class ImageOptionDataLoader
     }
 
     private wrapItems(items: ContentTreeSelectorItem[] = []): MediaTreeSelectorItem[] {
-        return items.map(item =>
-            new MediaTreeSelectorItem(item.getContent(), item.isSelectable(), item.isExpandable())
-        );
+        return items.map(item => this.wrapItem(item));
     }
 
     private wrapItem(item: ContentTreeSelectorItem): MediaTreeSelectorItem {
-        return item ? new MediaTreeSelectorItem(item.getContent(), item.isSelectable(), item.isExpandable()) : null;
+        if (!item) {
+            return null;
+        }
+        return this.loadStatus ?
+               MediaTreeSelectorItem.createMediaTreeSelectorItemWithStatus(<ContentAndStatusTreeSelectorItem>item) :
+               new MediaTreeSelectorItem(item.getContent(), item.isSelectable(), item.isExpandable());
     }
 
     static build(builder: ContentSummaryOptionDataLoaderBuilder): ImageOptionDataLoader {
