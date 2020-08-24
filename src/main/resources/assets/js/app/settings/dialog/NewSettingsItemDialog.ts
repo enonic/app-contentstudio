@@ -15,6 +15,8 @@ export class NewSettingsItemDialog
 
     private projectsChainBlock: ProjectsChainBlock;
 
+    private projects: Project[];
+
     constructor() {
         super(<ModalDialogConfig>{
             title: i18n('settings.dialog.new'),
@@ -23,6 +25,7 @@ export class NewSettingsItemDialog
     }
 
     setProjectsChain(projects: Project[]) {
+        this.projects = projects;
         this.toggleClass('project-selected', projects.length > 0);
         if (!projects) {
             return;
@@ -49,6 +52,10 @@ export class NewSettingsItemDialog
             this.close();
             if (SettingsTypes.PROJECT.equals(item)) {
                 new NewProjectEvent().fire();
+            }
+
+            if (SettingsTypes.LAYER.equals(item)) {
+                new NewProjectEvent(this.projects ? this.projects[this.projects.length - 1] : undefined).fire();
             }
         });
     }
