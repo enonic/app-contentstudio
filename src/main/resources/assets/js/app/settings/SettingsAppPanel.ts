@@ -40,8 +40,8 @@ export class SettingsAppPanel
     protected handleGlobalEvents() {
         super.handleGlobalEvents();
 
-        NewProjectEvent.on(() => {
-            this.handleNewProject();
+        NewProjectEvent.on((event: NewProjectEvent) => {
+            this.handleNewProject(event.getParentProject());
         });
 
         EditSettingsItemEvent.on((event: EditSettingsItemEvent) => {
@@ -93,19 +93,16 @@ export class SettingsAppPanel
         return null;
     }
 
-    private handleNewProject() {
+    private handleNewProject(parentProject?: Project) {
         const tabId: AppBarTabId = AppBarTabId.forNew('project');
         const tabMenuItem: AppBarTabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
 
         if (tabMenuItem != null) {
             this.selectPanel(tabMenuItem);
         } else {
-            const selectedItem: SettingsViewItem = this.browsePanel.getSelectedItem();
-            const parent: Project = !!selectedItem && ObjectHelper.iFrameSafeInstanceOf(selectedItem, ProjectViewItem) ?
-                                    (<ProjectViewItem>selectedItem).getData() : null;
             const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed(i18n('settings.items.type.project'));
             const wizard: ProjectWizardPanel = new ProjectWizardPanel({tabId});
-            wizard.setParentProject(parent);
+            wizard.setParentProject(parentProject);
 
             const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
                 .setLabel(unnamedTabMenuText)
