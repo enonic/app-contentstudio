@@ -17,6 +17,7 @@ import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
+import {Project} from '../../../data/project/Project';
 
 export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
@@ -37,12 +38,12 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
             .setHelpText(i18n('settings.projects.roles.helptext'))
             .build();
 
-        if (!this.item || this.item.getData().getParent()) {
-            this.copyParentRolesButton = this.createCopyParentRolesButton();
-            this.accessComboBoxFormItem.appendChild(this.copyParentRolesButton);
-        }
-
         return [this.accessComboBoxFormItem];
+    }
+
+    setParentProject(project: Project) {
+        this.copyParentRolesButton = this.createCopyParentRolesButton();
+        this.accessComboBoxFormItem.appendChild(this.copyParentRolesButton);
     }
 
     private createCopyParentRolesButton(): Button {

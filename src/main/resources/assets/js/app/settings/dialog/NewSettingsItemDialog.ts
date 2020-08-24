@@ -50,13 +50,7 @@ export class NewSettingsItemDialog
 
         this.itemsList.onItemClicked((item: SettingsType) => {
             this.close();
-            if (SettingsTypes.PROJECT.equals(item)) {
-                new NewProjectEvent().fire();
-            }
-
-            if (SettingsTypes.LAYER.equals(item)) {
-                new NewProjectEvent(this.projects ? this.projects[this.projects.length - 1] : undefined).fire();
-            }
+            new NewProjectEvent(item, this.projects ? this.projects[this.projects.length - 1] : undefined).fire();
         });
     }
 

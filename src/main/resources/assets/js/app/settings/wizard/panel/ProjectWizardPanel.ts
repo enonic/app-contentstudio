@@ -28,6 +28,8 @@ import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
+import {SettingsType} from '../../dialog/SettingsType';
+import {SettingsTypes} from '../../dialog/SettingsTypes';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -67,23 +69,6 @@ export class ProjectWizardPanel
             .replace(/\./g, '');
 
         return prettified;
-    }
-
-    doLayout(persistedItem: ProjectViewItem): Q.Promise<void> {
-        return super.doLayout(persistedItem).then(() => {
-            this.projectWizardStepForm.onParentProjectChanged((project: Project) => {
-                this.readAccessWizardStepForm.setParentProject(project);
-                this.rolesWizardStepForm.setParentProject(project);
-                this.updateFormIcon(project);
-            });
-            return Q(null);
-        });
-    }
-
-    private updateFormIcon(project: Project) {
-        const isLayer = !!project;
-        this.formIcon.toggleClass(ProjectIconUrlResolver.getDefaultProjectIcon(), !isLayer);
-        this.formIcon.toggleClass(ProjectIconUrlResolver.getDefaultLayerIcon(), isLayer);
     }
 
     protected createWizardActions(): ProjectWizardActions {
@@ -145,11 +130,14 @@ export class ProjectWizardPanel
 
     postPersistNewItem(item: ProjectViewItem): Q.Promise<ProjectViewItem> {
         return super.postPersistNewItem(item).then(() => {
-            this.projectWizardStepForm.disableProjectNameInput();
             this.projectWizardStepForm.disableProjectNameHelpText();
-            this.projectWizardStepForm.disableParentProjectHelpText();
-            this.projectWizardStepForm.disableParentProjectInput();
-            this.projectWizardStepForm.showProjectsChain(item.getData().getParent());
+            const parentProject = item.getData().getParent();
+            if (parentProject) {
+                this.projectWizardStepForm.showProjectsChain(parentProject);
+                this.projectWizardStepForm.disableProjectNameInput();
+                this.projectWizardStepForm.disableParentProjectHelpText();
+                this.projectWizardStepForm.disableParentProjectInput();
+            }
 
             return Q(item);
         });
@@ -367,11 +355,28 @@ export class ProjectWizardPanel
         });
     }
 
-    setParentProject(project: Project) {
+    setParentProject(project?: Project) {
         this.whenRendered(() => {
             this.projectWizardStepForm.setParentProject(project);
+            if (!!project && this.getPersistedItem()) { // Existing layer
+                this.projectWizardStepForm.disableParentProjectElements(project.getName());
+            }
             this.readAccessWizardStepForm.setParentProject(project);
             this.rolesWizardStepForm.setParentProject(project);
+            if (project) {
+                this.projectWizardStepForm.onParentProjectChanged((_project: Project) => {
+                    this.readAccessWizardStepForm.setParentProject(_project);
+                    this.rolesWizardStepForm.setParentProject(_project);
+                });
+            }
+        });
+    }
+
+    setFormIcon(projectType: SettingsType) {
+        this.whenRendered(() => {
+            const isLayer = projectType.equals(SettingsTypes.LAYER);
+            this.formIcon.toggleClass(ProjectIconUrlResolver.getDefaultProjectIcon(), !isLayer);
+            this.formIcon.toggleClass(ProjectIconUrlResolver.getDefaultLayerIcon(), isLayer);
         });
     }
 }

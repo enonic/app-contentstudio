@@ -23,6 +23,7 @@ import {ProjectListRequest} from './resource/ProjectListRequest';
 import {ProjectHelper} from './data/project/ProjectHelper';
 import {ProjectSelectionDialog} from './dialog/ProjectSelectionDialog';
 import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
+import {SettingsTypes} from './dialog/SettingsTypes';
 
 export class SettingsAppPanel
     extends NavigatedAppPanel<SettingsViewItem> {
@@ -41,7 +42,7 @@ export class SettingsAppPanel
         super.handleGlobalEvents();
 
         NewProjectEvent.on((event: NewProjectEvent) => {
-            this.handleNewProject(event.getParentProject());
+            this.handleNewProject(event);
         });
 
         EditSettingsItemEvent.on((event: EditSettingsItemEvent) => {
@@ -93,7 +94,8 @@ export class SettingsAppPanel
         return null;
     }
 
-    private handleNewProject(parentProject?: Project) {
+    private handleNewProject(event: NewProjectEvent) {
+        const parentProject = event.getParentProject();
         const tabId: AppBarTabId = AppBarTabId.forNew('project');
         const tabMenuItem: AppBarTabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
 
@@ -102,7 +104,11 @@ export class SettingsAppPanel
         } else {
             const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed(i18n('settings.items.type.project'));
             const wizard: ProjectWizardPanel = new ProjectWizardPanel({tabId});
-            wizard.setParentProject(parentProject);
+            wizard.setFormIcon(event.getProjectType());
+
+            if (!event.getProjectType().equals(SettingsTypes.PROJECT)) {
+                wizard.setParentProject(parentProject);
+            }
 
             const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
                 .setLabel(unnamedTabMenuText)
@@ -202,6 +208,7 @@ export class SettingsAppPanel
             projectWizardPanel.updatePersistedSettingsDataItem(projectItem);
         } else if (projectWizardPanel.getPersistedItem().getData().getParent() === projectItem.getName()) {
             projectWizardPanel.setParentProject(projectItem.getData());
+            projectWizardPanel.setFormIcon(!!projectItem.getData().getParent() ? SettingsTypes.LAYER : SettingsTypes.PROJECT);
         }
     }
 

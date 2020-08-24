@@ -67,14 +67,14 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         });
     }
 
-    private addFormItems() {
+    addFormItem(formItem: FormItem) {
         const fieldSet: Fieldset = new Fieldset();
-
-        this.getFormItems().forEach((formItem: FormItem) => {
-            fieldSet.add(formItem);
-        });
-
+        fieldSet.add(formItem);
         this.form.add(fieldSet);
+    }
+
+    private addFormItems() {
+        this.getFormItems().forEach((formItem: FormItem) => this.addFormItem(formItem));
     }
 
 }

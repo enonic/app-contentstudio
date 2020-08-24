@@ -1,6 +1,7 @@
 import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
 import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {Validators} from 'lib-admin-ui/ui/form/Validators';
 import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
 import {ProjectViewItem} from '../../../view/ProjectViewItem';
 import * as Q from 'q';
@@ -55,14 +56,18 @@ export class ProjectItemNameWizardStepForm
     }
 
     showProjectsChain(parentName?: string) {
+        if (!this.parentProjectDropdown) {
+            return;
+        }
         this.parentProjectDropdown.showProjectsChain(parentName);
     }
 
     getParentProject(): string {
-        return this.parentProjectDropdown.getValue();
+        return this.parentProjectDropdown ? this.parentProjectDropdown.getValue() : undefined;
     }
 
     setParentProject(project: Project) {
+        this.appendParentProjectDropdown();
         this.parentProjectDropdown.selectProject(project);
     }
 
@@ -92,7 +97,7 @@ export class ProjectItemNameWizardStepForm
     }
 
     public isValid(): boolean {
-        return this.isProjectNameValid();
+        return this.isProjectNameValid() && this.isParentProjectSet();
     }
 
     layout(item: ProjectViewItem): Q.Promise<void> {
@@ -102,13 +107,16 @@ export class ProjectItemNameWizardStepForm
 
         this.descriptionInput.setValue(item.getDescription(), true);
         this.projectNameInput.setValue(item.getName(), true);
-        this.showProjectsChain(item.getData().getParent());
-        this.disableParentProjectInput();
         this.disableProjectNameHelpText();
         this.disableProjectNameInput();
-        this.disableParentProjectHelpText();
 
         return Q(null);
+    }
+
+    disableParentProjectElements(parentProject: string) {
+        this.showProjectsChain(parentProject);
+        this.disableParentProjectHelpText();
+        this.disableParentProjectInput();
     }
 
     public getName(): string {
@@ -126,6 +134,23 @@ export class ProjectItemNameWizardStepForm
         });
     }
 
+    private appendParentProjectDropdown() {
+        this.parentProjectDropdown = new ProjectsComboBox();
+
+        this.parentProjectFormItem = <ProjectFormItem>new ProjectFormItemBuilder(this.parentProjectDropdown)
+            .setHelpText(i18n('settings.projects.parent.helptext'))
+            .setLabel(i18n('settings.field.project.parent'))
+            .setValidator(Validators.required)
+            .build();
+
+        this.parentProjectDropdown.onValueChanged(() => {
+            this.parentProjectFormItem.validate(new ValidationResult(), true);
+            this.notifyDataChanged();
+        });
+
+        this.addFormItem(this.parentProjectFormItem);
+    }
+
     protected getFormItems(): FormItem[] {
         this.projectNameInput = new TextInput();
         this.projectNameFormItem = <ProjectFormItem>new ProjectFormItemBuilder(this.projectNameInput)
@@ -138,14 +163,7 @@ export class ProjectItemNameWizardStepForm
         this.descriptionInput = new TextInput();
         const descriptionFormItem: FormItem = new FormItemBuilder(this.descriptionInput).setLabel(i18n('field.description')).build();
 
-        this.parentProjectDropdown = new ProjectsComboBox();
-
-        this.parentProjectFormItem = <ProjectFormItem>new ProjectFormItemBuilder(this.parentProjectDropdown)
-            .setHelpText(i18n('settings.projects.parent.helptext'))
-            .setLabel(i18n('settings.field.project.parent'))
-            .build();
-
-        return [this.projectNameFormItem, descriptionFormItem, this.parentProjectFormItem];
+        return [this.projectNameFormItem, descriptionFormItem];
     }
 
     private validateProjectName(): string {
@@ -155,5 +173,9 @@ export class ProjectItemNameWizardStepForm
     private isProjectNameValid(): boolean {
         const projectNameRegExp: RegExp = ProjectItemNameWizardStepForm.PROJECT_NAME_CHARS;
         return projectNameRegExp.test(this.projectNameInput.getValue());
+    }
+
+    private isParentProjectSet(): boolean {
+        return !this.parentProjectDropdown || !!this.parentProjectDropdown.getValue();
     }
 }

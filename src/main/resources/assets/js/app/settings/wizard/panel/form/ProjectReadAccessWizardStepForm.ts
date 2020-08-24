@@ -24,6 +24,7 @@ import {Button} from 'lib-admin-ui/ui/button/Button';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
+import {Project} from '../../../data/project/Project';
 
 export class ProjectReadAccessWizardStepForm
     extends ProjectWizardStepForm {
@@ -35,6 +36,8 @@ export class ProjectReadAccessWizardStepForm
     private principalsCombobox?: PrincipalComboBox;
 
     private localeCombobox: LocaleComboBox;
+
+    private localeFormItem: FormItem;
 
     private copyParentLanguageButton?: Button;
 
@@ -218,12 +221,15 @@ export class ProjectReadAccessWizardStepForm
         this.principalsCombobox = this.createPrincipalsCombobox();
         this.principalsCombobox.insertAfterEl(this.readAccessRadioGroup);
 
-        if (!this.item || this.item.getData().getParent()) {
-            this.copyParentAccessModeButton = this.createCopyParentAccessModeButton();
-            this.readAccessRadioGroupFormItem.appendChild(this.copyParentAccessModeButton);
-        }
-
         return this.readAccessRadioGroupFormItem;
+    }
+
+    setParentProject(project: Project) {
+        this.copyParentAccessModeButton = this.createCopyParentAccessModeButton();
+        this.readAccessRadioGroupFormItem.appendChild(this.copyParentAccessModeButton);
+
+        this.copyParentLanguageButton = this.createCopyParentLanguageButton();
+        this.localeFormItem.appendChild(this.copyParentLanguageButton);
     }
 
     private createPrincipalsCombobox(): PrincipalComboBox {
@@ -270,17 +276,12 @@ export class ProjectReadAccessWizardStepForm
     private createLanguageFormItem(): FormItem {
         this.localeCombobox = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).build();
 
-        const formItem: FormItem = new ProjectFormItemBuilder(this.localeCombobox)
+        this.localeFormItem = new ProjectFormItemBuilder(this.localeCombobox)
             .setHelpText(i18n('settings.projects.language.helptext'))
             .setLabel(i18n('field.lang'))
             .build();
 
-        if (!this.item || this.item.getData().getParent()) {
-            this.copyParentLanguageButton = this.createCopyParentLanguageButton();
-            formItem.appendChild(this.copyParentLanguageButton);
-        }
-
-        return formItem;
+        return this.localeFormItem;
     }
 
     private createCopyParentLanguageButton(): Button {
