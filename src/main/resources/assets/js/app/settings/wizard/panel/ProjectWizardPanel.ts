@@ -104,6 +104,7 @@ export class ProjectWizardPanel
 
     protected createStepsForms(persistedItem: ProjectViewItem): SettingDataItemWizardStepForm<ProjectViewItem>[] {
         this.projectWizardStepForm = new ProjectItemNameWizardStepForm();
+
         this.readAccessWizardStepForm = new ProjectReadAccessWizardStepForm();
 
         const isDefaultProject: boolean = !!persistedItem && persistedItem.isDefaultProject();
@@ -363,12 +364,11 @@ export class ProjectWizardPanel
             }
             this.readAccessWizardStepForm.setParentProject(project);
             this.rolesWizardStepForm.setParentProject(project);
-            if (project) {
-                this.projectWizardStepForm.onParentProjectChanged((_project: Project) => {
-                    this.readAccessWizardStepForm.setParentProject(_project);
-                    this.rolesWizardStepForm.setParentProject(_project);
-                });
-            }
+
+            this.projectWizardStepForm.onParentProjectChanged((_project: Project) => {
+                this.readAccessWizardStepForm.setParentProject(_project);
+                this.rolesWizardStepForm.setParentProject(_project);
+            });
         });
     }
 

@@ -224,12 +224,34 @@ export class ProjectReadAccessWizardStepForm
         return this.readAccessRadioGroupFormItem;
     }
 
-    setParentProject(project: Project) {
-        this.copyParentAccessModeButton = this.createCopyParentAccessModeButton();
-        this.readAccessRadioGroupFormItem.appendChild(this.copyParentAccessModeButton);
+    private removeCopyButtons() {
+        if (this.copyParentAccessModeButton) {
+            this.readAccessRadioGroupFormItem.removeChild(this.copyParentAccessModeButton);
+        }
+        if (this.copyParentLanguageButton) {
+            this.localeFormItem.removeChild(this.copyParentLanguageButton);
+        }
+    }
 
-        this.copyParentLanguageButton = this.createCopyParentLanguageButton();
+    private appendCopyButtons() {
+        if (!this.copyParentAccessModeButton) {
+            this.copyParentAccessModeButton = this.createCopyParentAccessModeButton();
+        }
+        if (!this.copyParentLanguageButton) {
+            this.copyParentLanguageButton = this.createCopyParentLanguageButton();
+        }
+
+        this.readAccessRadioGroupFormItem.appendChild(this.copyParentAccessModeButton);
         this.localeFormItem.appendChild(this.copyParentLanguageButton);
+    }
+
+    setParentProject(project: Project) {
+        if (project) {
+            this.appendCopyButtons();
+        } else {
+            this.removeCopyButtons();
+        }
+        super.setParentProject(project);
     }
 
     private createPrincipalsCombobox(): PrincipalComboBox {
@@ -242,6 +264,14 @@ export class ProjectReadAccessWizardStepForm
     private createCopyParentAccessModeButton(): Button {
         const button: Button = new Button(i18n('settings.wizard.project.copy')).setEnabled(false);
         button.addClass('copy-parent-button');
+
+        button.onClicked(() => {
+            if (!this.parentProject) {
+                return;
+            }
+            this.copyParentAccessClicked = true;
+            this.layoutReadAccess(this.parentProject.getReadAccess(), this.parentProject.getPermissions(), false);
+        });
 
         return button;
     }
@@ -289,6 +319,10 @@ export class ProjectReadAccessWizardStepForm
         button.addClass('copy-parent-button');
 
         button.onClicked(() => {
+            if (!this.parentProject) {
+                return;
+            }
+
             const parentLanguage: string = this.parentProject.getLanguage();
 
             this.localeCombobox.setValue(!!parentLanguage ? parentLanguage : '');
@@ -347,13 +381,6 @@ export class ProjectReadAccessWizardStepForm
             this.notifyDataChanged();
             this.updateCopyParentAccessModeButtonState();
         });
-
-        if (this.copyParentAccessModeButton) {
-            this.copyParentAccessModeButton.onClicked(() => {
-                this.copyParentAccessClicked = true;
-                this.layoutReadAccess(this.parentProject.getReadAccess(), this.parentProject.getPermissions(), false);
-            });
-        }
     }
 
     private isConfirmationNeeded(event: ValueChangedEvent): boolean {
