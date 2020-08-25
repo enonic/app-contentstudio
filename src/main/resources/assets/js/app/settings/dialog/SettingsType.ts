@@ -7,6 +7,8 @@ export class SettingsType {
 
     private readonly displayName: string;
 
+    private readonly displayNamePlaceholder: string;
+
     private readonly description: string;
 
     private readonly iconClass: string;
@@ -19,6 +21,7 @@ export class SettingsType {
         this.description = builder.description;
         this.iconClass = builder.iconClass;
         this.instantiable = builder.instantiable;
+        this.displayNamePlaceholder = builder.displayNamePlaceholder;
     }
 
     static create(): SettingsTypeBuilder {
@@ -43,6 +46,10 @@ export class SettingsType {
 
     getInstantiable(): boolean {
         return this.instantiable;
+    }
+
+    getDisplayNamePlaceholder(): string {
+        return this.displayNamePlaceholder;
     }
 
     equals(o: Equitable): boolean {
@@ -70,6 +77,8 @@ export class SettingsTypeBuilder {
 
     instantiable: boolean = true;
 
+    displayNamePlaceholder: string;
+
     setName(value: string): SettingsTypeBuilder {
         this.name = value;
         return this;
@@ -92,6 +101,11 @@ export class SettingsTypeBuilder {
 
     setInstantiable(value: boolean): SettingsTypeBuilder {
         this.instantiable = value;
+        return this;
+    }
+
+    setDisplayNamePlaceholder(value: string): SettingsTypeBuilder {
+        this.displayNamePlaceholder = value;
         return this;
     }
 

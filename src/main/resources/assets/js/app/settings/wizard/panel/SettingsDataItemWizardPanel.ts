@@ -22,6 +22,14 @@ import {Equitable} from 'lib-admin-ui/Equitable';
 import {SettingsDataItemWizardActions} from '../action/SettingsDataItemWizardActions';
 import {SettingsDataViewItem} from '../../view/SettingsDataViewItem';
 import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
+import {SettingsType} from '../../dialog/SettingsType';
+import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
+
+class SettingsWizardPanelParams<ITEM extends SettingsDataViewItem<Equitable>> implements WizardPanelParams<ITEM> {
+    tabId: AppBarTabId;
+    type: SettingsType;
+    persistedItem?: ITEM;
+}
 
 export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewItem<Equitable>>
     extends WizardPanel<ITEM> {
@@ -40,13 +48,20 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     private isClosePending: boolean = false;
 
-    constructor(params: WizardPanelParams<ITEM>) {
+    private readonly type: SettingsType;
+
+    constructor(params: SettingsWizardPanelParams<ITEM>) {
         super(params);
 
+        this.type = params.type;
         this.loadData();
         this.initElements();
         this.listenEvents();
         ResponsiveManager.onAvailableSizeChanged(this);
+    }
+
+    protected getType(): SettingsType {
+        return this.type;
     }
 
     public getFormIcon(): SettingsDataItemFormIcon {
@@ -299,7 +314,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
         const wizardHeader: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndNameBuilder()
-            .setDisplayNameLabel(i18n('settings.projects.displayName')).build();
+            .setDisplayNameLabel(this.type.getDisplayNamePlaceholder()).build();
 
         const existing: ITEM = this.getPersistedItem();
         const displayName: string = !!existing ? existing.getDisplayName() : '';

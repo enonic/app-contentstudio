@@ -243,15 +243,19 @@ export class ProjectReadAccessWizardStepForm
 
         this.readAccessRadioGroupFormItem.appendChild(this.copyParentAccessModeButton);
         this.localeFormItem.appendChild(this.copyParentLanguageButton);
+
+        this.updateCopyParentLanguageButtonState();
+        this.updateCopyParentAccessModeButtonState();
     }
 
     setParentProject(project: Project) {
+        super.setParentProject(project);
+
         if (project) {
             this.appendCopyButtons();
         } else {
             this.removeCopyButtons();
         }
-        super.setParentProject(project);
     }
 
     private createPrincipalsCombobox(): PrincipalComboBox {
@@ -411,18 +415,6 @@ export class ProjectReadAccessWizardStepForm
             NotifyManager.get().showSuccess(
                 i18n('settings.wizard.project.copy.success', i18n('settings.items.wizard.readaccess.label'),
                     this.parentProject.getDisplayName()));
-        }
-    }
-
-    protected updateOnParentProjectSet() {
-        if (!this.parentProject) {
-            this.copyParentLanguageButton.hide();
-            this.copyParentAccessModeButton.hide();
-        } else {
-            this.copyParentLanguageButton.show();
-            this.copyParentAccessModeButton.show();
-            this.updateCopyParentLanguageButtonState();
-            this.updateCopyParentAccessModeButtonState();
         }
     }
 }
