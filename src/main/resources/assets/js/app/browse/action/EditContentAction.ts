@@ -32,7 +32,7 @@ export class EditContentAction extends ContentTreeGridAction {
     }
 
     updateLabel(state: ContentTreeGridItemsState) {
-        if (state.hasAllInheritedWithLangDifferentFromCurrent()) {
+        if (state.hasAllInherited()) {
             this.setLabel( i18n('action.translate'));
         } else {
             this.setLabel(i18n('action.edit'));
