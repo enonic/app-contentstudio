@@ -6,6 +6,7 @@ import {FormView} from 'lib-admin-ui/form/FormView';
 import * as Q from 'q';
 import {SettingsDataViewItem} from '../../../view/SettingsDataViewItem';
 import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
+import {SettingsType} from '../../../dialog/SettingsType';
 
 export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataViewItem<any>>
     extends WizardStepForm {
@@ -59,7 +60,7 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         });
     }
 
-    abstract getName(): string;
+    abstract getName(type: SettingsType): string;
 
     protected abstract getFormItems(): FormItem[];
 

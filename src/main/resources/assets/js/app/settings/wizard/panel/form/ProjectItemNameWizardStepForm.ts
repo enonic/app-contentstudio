@@ -11,6 +11,7 @@ import {ProjectsComboBox} from './element/ProjectsComboBox';
 import {Project} from '../../../data/project/Project';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {SettingsType} from '../../../dialog/SettingsType';
 
 export class ProjectItemNameWizardStepForm
     extends ProjectWizardStepForm {
@@ -121,8 +122,8 @@ export class ProjectItemNameWizardStepForm
         this.disableParentProjectInput();
     }
 
-    public getName(): string {
-        return i18n('settings.items.type.project');
+    public getName(type: SettingsType): string {
+        return type.getDisplayName();
     }
 
     protected initListeners() {
