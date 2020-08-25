@@ -1,9 +1,5 @@
-import * as Q from 'q';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {LayerContentView} from './LayerContentView';
-import {MultiLayersContentLoader} from './MultiLayersContentLoader';
 import {LayerContent} from './LayerContent';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
@@ -13,12 +9,10 @@ export class LayersView extends ListBox<LayerContent> {
 
     private static EXPANDED_CLASS: string = `${LayerContentView.VIEW_CLASS}-expanded`;
 
-    private currentItem: ContentSummaryAndCompareStatus;
-
     private activeItemView: LayerContentView;
 
-    setCurrentItem(item: ContentSummaryAndCompareStatus) {
-        this.currentItem = item;
+    constructor() {
+        super('layers-view');
     }
 
     createItemView(item: LayerContent, readOnly: boolean): LayerContentView {
@@ -48,24 +42,6 @@ export class LayersView extends ListBox<LayerContent> {
 
     getItemId(item: LayerContent): string {
         return `${item.getItem().getId()}:${item.getProject().getName()}`;
-    }
-
-    reload(): Q.Promise<void> {
-        return this.loadData().then((items: LayerContent[]) => {
-            this.updateView(items);
-            return Q(null);
-        }).catch((reason: any) => {
-            DefaultErrorHandler.handle(reason);
-        });
-    }
-
-    private loadData(): Q.Promise<LayerContent[]> {
-        return new MultiLayersContentLoader(this.currentItem).load();
-    }
-
-    private updateView(items: LayerContent[]) {
-        this.clearItems();
-        this.setItems(items);
     }
 
     setItems(items: LayerContent[], silent?: boolean): void {

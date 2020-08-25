@@ -28,4 +28,12 @@ export class LayerContent {
     getContentId(): ContentId {
         return this.item.getContentId();
     }
+
+    getProjectName(): string {
+        return this.project.getName();
+    }
+
+    hasItem(): boolean {
+        return !!this.item;
+    }
 }
