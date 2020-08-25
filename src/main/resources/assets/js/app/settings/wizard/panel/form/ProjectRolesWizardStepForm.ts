@@ -42,8 +42,16 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
     }
 
     setParentProject(project: Project) {
-        this.copyParentRolesButton = this.createCopyParentRolesButton();
-        this.accessComboBoxFormItem.appendChild(this.copyParentRolesButton);
+        if (project) {
+            if (!this.copyParentRolesButton) {
+                this.copyParentRolesButton = this.createCopyParentRolesButton();
+            }
+            this.accessComboBoxFormItem.appendChild(this.copyParentRolesButton);
+        } else if (this.copyParentRolesButton) {
+            this.accessComboBoxFormItem.removeChild(this.copyParentRolesButton);
+        }
+
+        super.setParentProject(project);
     }
 
     private createCopyParentRolesButton(): Button {

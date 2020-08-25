@@ -67,6 +67,8 @@ export class ProjectItemNameWizardStepForm
     }
 
     setParentProject(project: Project) {
+        super.setParentProject(project);
+
         this.appendParentProjectDropdown();
         this.parentProjectDropdown.selectProject(project);
     }
