@@ -106,7 +106,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         const steps: WizardStep[] = [];
 
         this.wizardStepForms.forEach((stepForm: SettingDataItemWizardStepForm<ITEM>) => {
-            steps.push(new WizardStep(stepForm.getName(), stepForm));
+            steps.push(new WizardStep(stepForm.getName(this.getType()), stepForm));
         });
 
         return steps;
