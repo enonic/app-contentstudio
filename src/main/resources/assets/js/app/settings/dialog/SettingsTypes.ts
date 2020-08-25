@@ -9,6 +9,7 @@ export class SettingsTypes {
             .setName('Project')
             .setDescription(i18n('settings.items.type.projectDescription'))
             .setDisplayName(i18n('settings.items.type.project'))
+            .setDisplayNamePlaceholder(i18n('settings.projects.displayName'))
             .setIconClass(ProjectIconUrlResolver.getDefaultProjectIcon())
             .build();
 
@@ -17,6 +18,7 @@ export class SettingsTypes {
             .setName('Layer')
             .setDescription(i18n('settings.items.type.layerDescription'))
             .setDisplayName(i18n('settings.items.type.layer'))
+            .setDisplayNamePlaceholder(i18n('settings.layers.displayName'))
             .setIconClass(ProjectIconUrlResolver.getDefaultLayerIcon())
             .build();
 

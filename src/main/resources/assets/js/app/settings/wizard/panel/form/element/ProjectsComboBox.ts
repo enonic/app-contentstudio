@@ -56,7 +56,7 @@ export class ProjectsComboBox extends RichComboBox<Project> {
             return;
         }
 
-        this.selectOption(this.createOption(project), true);
+        this.selectOption(this.createOption(project));
     }
 
     showProjectsChain(parentName?: string) {

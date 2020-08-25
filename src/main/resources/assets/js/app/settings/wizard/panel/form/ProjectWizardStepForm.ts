@@ -8,14 +8,6 @@ export abstract class ProjectWizardStepForm extends SettingDataItemWizardStepFor
 
     setParentProject(project: Project) {
         this.parentProject = project;
-
-        this.whenRendered(() => {
-            this.updateOnParentProjectSet();
-        });
-    }
-
-    protected updateOnParentProjectSet() {
-    //
     }
 
 }

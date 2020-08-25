@@ -42,16 +42,17 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
     }
 
     setParentProject(project: Project) {
+        super.setParentProject(project);
+
         if (project) {
             if (!this.copyParentRolesButton) {
                 this.copyParentRolesButton = this.createCopyParentRolesButton();
             }
             this.accessComboBoxFormItem.appendChild(this.copyParentRolesButton);
+            this.updateCopyParentRolesButtonState();
         } else if (this.copyParentRolesButton) {
             this.accessComboBoxFormItem.removeChild(this.copyParentRolesButton);
         }
-
-        super.setParentProject(project);
     }
 
     private createCopyParentRolesButton(): Button {
@@ -198,14 +199,5 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
             return rendered;
         });
-    }
-
-    protected updateOnParentProjectSet() {
-        if (!this.parentProject) {
-            this.copyParentRolesButton.hide();
-        } else {
-            this.copyParentRolesButton.show();
-            this.updateCopyParentRolesButtonState();
-        }
     }
 }

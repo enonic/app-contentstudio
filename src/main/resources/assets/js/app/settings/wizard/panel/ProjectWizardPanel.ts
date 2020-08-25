@@ -21,15 +21,12 @@ import {UpdateProjectPermissionsRequest} from '../../resource/UpdateProjectPermi
 import {ProjectRolesWizardStepForm} from './form/ProjectRolesWizardStepForm';
 import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 import {ProjectUpdateIconRequest} from '../../resource/ProjectUpdateIconRequest';
-import {ProjectIconUrlResolver} from '../../../project/ProjectIconUrlResolver';
 import {EditProjectAccessDialog} from '../../../wizard/EditProjectAccessDialog';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
-import {SettingsType} from '../../dialog/SettingsType';
-import {SettingsTypes} from '../../dialog/SettingsTypes';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -45,7 +42,7 @@ export class ProjectWizardPanel
     private loginResult: LoginResult;
 
     protected getIconClass(): string {
-        return !!this.getPersistedItem() ? this.getPersistedItem().getIconClass() : ProjectIconUrlResolver.getDefaultProjectIcon();
+        return !!this.getPersistedItem() ? this.getPersistedItem().getIconClass() : this.getType().getIconClass();
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
@@ -371,12 +368,10 @@ export class ProjectWizardPanel
             });
         });
     }
-
+/*
     setFormIcon(projectType: SettingsType) {
-        this.whenRendered(() => {
-            const isLayer = projectType.equals(SettingsTypes.LAYER);
-            this.formIcon.toggleClass(ProjectIconUrlResolver.getDefaultProjectIcon(), !isLayer);
-            this.formIcon.toggleClass(ProjectIconUrlResolver.getDefaultLayerIcon(), isLayer);
-        });
-    }
+        const isLayer = projectType.equals(SettingsTypes.LAYER);
+        this.formIcon.toggleClass(ProjectIconUrlResolver.getDefaultProjectIcon(), !isLayer);
+        this.formIcon.toggleClass(ProjectIconUrlResolver.getDefaultLayerIcon(), isLayer);
+    }*/
 }

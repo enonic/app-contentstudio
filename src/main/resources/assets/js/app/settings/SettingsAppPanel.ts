@@ -80,7 +80,11 @@ export class SettingsAppPanel
     private getWizardPanelFor(item: SettingsViewItem, tabId: AppBarTabId): SettingsDataItemWizardPanel<SettingsDataViewItem<any>> {
         if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
             const projectItem: ProjectViewItem = <ProjectViewItem>item;
-            const wizard: ProjectWizardPanel = new ProjectWizardPanel({tabId, persistedItem: projectItem});
+            const wizard: ProjectWizardPanel = new ProjectWizardPanel({
+                tabId,
+                persistedItem: projectItem,
+                type: projectItem.getType()
+            });
 
             if (projectItem.getData() && projectItem.getData().getParent()) {
                 ProjectHelper.fetchProject(projectItem.getData().getParent())
@@ -102,11 +106,16 @@ export class SettingsAppPanel
         if (tabMenuItem != null) {
             this.selectPanel(tabMenuItem);
         } else {
-            const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed(i18n('settings.items.type.project'));
-            const wizard: ProjectWizardPanel = new ProjectWizardPanel({tabId});
-            wizard.setFormIcon(event.getProjectType());
+            const isLayer = event.getProjectType().equals(SettingsTypes.LAYER);
+            const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed(
+                isLayer ? i18n('settings.items.type.layer') : i18n('settings.items.type.project')
+            );
+            const wizard: ProjectWizardPanel = new ProjectWizardPanel({
+                tabId,
+                type: event.getProjectType()
+            });
 
-            if (!event.getProjectType().equals(SettingsTypes.PROJECT)) {
+            if (isLayer) {
                 wizard.setParentProject(parentProject);
             }
 
@@ -208,7 +217,6 @@ export class SettingsAppPanel
             projectWizardPanel.updatePersistedSettingsDataItem(projectItem);
         } else if (projectWizardPanel.getPersistedItem().getData().getParent() === projectItem.getName()) {
             projectWizardPanel.setParentProject(projectItem.getData());
-            projectWizardPanel.setFormIcon(!!projectItem.getData().getParent() ? SettingsTypes.LAYER : SettingsTypes.PROJECT);
         }
     }
 
