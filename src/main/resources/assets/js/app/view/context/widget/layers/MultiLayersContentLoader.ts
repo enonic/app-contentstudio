@@ -1,89 +1,56 @@
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import * as Q from 'q';
 import {Project} from '../../../../settings/data/project/Project';
-import {ProjectContext} from '../../../../project/ProjectContext';
 import {ProjectListRequest} from '../../../../settings/resource/ProjectListRequest';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentsExistRequest} from '../../../../resource/ContentsExistRequest';
 import {ContentsExistResult} from '../../../../resource/ContentsExistResult';
 import {LayerContent} from './LayerContent';
+import {MultiLayersContentFilter} from './MultiLayersContentFilter';
 
 export class MultiLayersContentLoader {
 
-    private originalItem: ContentSummaryAndCompareStatus;
-
-    private items: LayerContent[];
-
-    private loadPromise: Q.Deferred<LayerContent[]>;
-
-    private projects: Project[];
-
-    constructor(item: ContentSummaryAndCompareStatus) {
-        this.originalItem = item;
-    }
+    private item: ContentSummaryAndCompareStatus;
 
     load(): Q.Promise<LayerContent[]> {
-        this.items = [];
-        this.loadPromise = Q.defer<LayerContent[]>();
-
-        this.loadSameContentInOtherProjects();
-
-        return this.loadPromise.promise;
+        return this.loadSameContentInOtherProjects().then((layerContents: LayerContent[]) => this.filter(layerContents));
     }
 
-    private resolveLoad() {
-        this.loadPromise.resolve(this.items);
+    setItem(item: ContentSummaryAndCompareStatus) {
+        this.item = item;
     }
 
-    private rejectLoad(reason: any) {
-        this.loadPromise.reject(reason);
+    private filter(layerContents: LayerContent[]): LayerContent[] {
+        return new MultiLayersContentFilter().filter(layerContents);
     }
 
-    private loadSameContentInOtherProjects() {
-        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-            const currentProjectName: string = ProjectContext.get().getProject().getName();
-            const currentProject: Project = projects.find((project: Project) => project.getName() === currentProjectName);
+    private loadSameContentInOtherProjects(): Q.Promise<LayerContent[]> {
+        return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+            const loadPromises: Q.Promise<LayerContent>[] = [];
 
-            this.items.push(new LayerContent(this.originalItem, currentProject));
+            projects.forEach((project) => {
+                loadPromises.push(this.doLoadContentFromProject(project));
+            });
 
-            if (!currentProject.getParent()) {
-                this.resolveLoad();
-                return;
-            }
-
-            this.projects = projects;
-            this.loadContentFromProject(currentProject.getParent());
-        }).catch(this.rejectLoad.bind(this));
+            return Q.all(loadPromises);
+        });
     }
 
-    private loadContentFromProject(name: string) {
-        const parentProject: Project = this.projects.find((project: Project) => project.getName() === name);
+    private doLoadContentFromProject(project: Project): Q.Promise<LayerContent> {
+        const id: string = this.item.getId();
 
-        if (parentProject) {
-            this.doLoadContentFromProject(parentProject);
-        } else {
-            this.resolveLoad();
-        }
-    }
-
-    private doLoadContentFromProject(project: Project) {
-        const id: string = this.originalItem.getId();
-
-        new ContentsExistRequest([id])
+        return new ContentsExistRequest([id])
             .setRequestProject(project)
             .sendAndParse()
             .then((result: ContentsExistResult) => {
                 if (!!result.getContentsExistMap()[id]) {
-                    ContentSummaryAndCompareStatusFetcher.fetch(this.originalItem.getContentId(), project)
+                    return ContentSummaryAndCompareStatusFetcher.fetch(this.item.getContentId(), project)
                         .then((item: ContentSummaryAndCompareStatus) => {
-                            const layerContent: LayerContent = new LayerContent(item, project);
-                            this.items.unshift(layerContent);
-                            this.loadContentFromProject(project.getParent());
-                        }).catch(this.rejectLoad.bind(this));
+                            return new LayerContent(item, project);
+                        });
                 } else {
-                    this.resolveLoad();
+                    return new LayerContent(null, project);
                 }
-
-            }).catch(this.rejectLoad.bind(this));
+            });
     }
 }

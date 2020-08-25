@@ -5,7 +5,7 @@ import {ProjectIconUrlResolver} from '../../../../project/ProjectIconUrlResolver
 
 export class LangBasedContentSummaryViewer extends ContentSummaryAndCompareStatusViewer {
 
-    private readonly project: Project;
+    protected readonly project: Project;
 
     constructor(project: Project) {
         super();
@@ -22,7 +22,7 @@ export class LangBasedContentSummaryViewer extends ContentSummaryAndCompareStatu
     }
 
     resolveIconEl(): Flag {
-        const language = this.project.getLanguage();
+        const language: string = this.project.getLanguage();
         return !!language ? new Flag(language) : null;
     }
 
