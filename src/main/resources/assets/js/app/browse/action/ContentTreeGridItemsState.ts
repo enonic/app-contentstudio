@@ -17,8 +17,6 @@ export class ContentTreeGridItemsState {
 
     private allInherited: boolean = false;
 
-    private allInheritedHaveLangDifferentFromCurrent: boolean = false;
-
     private allValid: boolean = false;
 
     private allOnline: boolean = false;
@@ -66,7 +64,6 @@ export class ContentTreeGridItemsState {
         this.anyDeletable = false;
         this.anyInherited = false;
         this.allInherited = this.items.length > 0;
-        this.allInheritedHaveLangDifferentFromCurrent = this.items.length > 0;
         this.anyEditable = false;
         this.allValid = true;
         this.allOnline = this.items.length > 0;
@@ -84,9 +81,6 @@ export class ContentTreeGridItemsState {
 
     private update() {
         const currentProjectLanguage: string = ProjectContext.get().getProject().getLanguage();
-        if (!currentProjectLanguage) {
-            this.allInheritedHaveLangDifferentFromCurrent = false;
-        }
 
         this.createAllowed = this.isCreateAllowed();
         this.deleteAllowed = this.isDeleteAllowed();
@@ -132,12 +126,8 @@ export class ContentTreeGridItemsState {
 
             if (content.isInherited()) {
                 this.anyInherited = true;
-                if (this.allInheritedHaveLangDifferentFromCurrent && content.getContentSummary().getLanguage() === currentProjectLanguage) {
-                    this.allInheritedHaveLangDifferentFromCurrent = false;
-                }
             } else {
                 this.allInherited = false;
-                this.allInheritedHaveLangDifferentFromCurrent = false;
             }
 
             if (content.canBeMarkedAsReady()) {
@@ -237,10 +227,6 @@ export class ContentTreeGridItemsState {
 
     hasAllInherited(): boolean {
         return this.allInherited;
-    }
-
-    hasAllInheritedWithLangDifferentFromCurrent(): boolean {
-        return this.allInheritedHaveLangDifferentFromCurrent;
     }
 
     canCreate(): boolean {
