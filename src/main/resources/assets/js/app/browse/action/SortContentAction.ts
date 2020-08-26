@@ -18,6 +18,6 @@ export class SortContentAction extends ContentTreeGridAction {
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return !state.isEmpty() && state.isSingleNonLeaf() && !state.hasAnyInherited() && state.canCreate();
+        return !state.isEmpty() && state.isSingleNonLeaf() && state.canCreate();
     }
 }
