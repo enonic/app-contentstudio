@@ -6,6 +6,16 @@
     display: flex;
     flex-direction: column;
 
+
+    .action-button {
+      text-align: center;
+      background-color: @admin-dark-gray;
+
+      &:hover {
+        background-color: @admin-shadow-gray;
+      }
+    }
+
     .layers-view {
       flex-grow: 1;
 
@@ -46,14 +56,8 @@
             display: none;
 
             .action-button {
-              text-align: center;
               flex-basis: 80%;
               padding: 5px 0px;
-              background-color: @admin-dark-gray;
-
-              &:hover {
-                background-color: @admin-shadow-gray;
-              }
             }
           }
         }
@@ -78,7 +82,7 @@
           }
 
           .layers-item-view-relation {
-            .arrow {
+            &-arrow {
               display: block;
             }
           }
@@ -106,7 +110,7 @@
 
         &:not(.item-inherited) {
           .layers-item-view-relation {
-            .arrow {
+            &-arrow {
               display: block;
             }
           }
@@ -168,7 +172,6 @@
 
     .show-all-button {
       margin: 20px;
-      text-align: center;
       padding: 5px;
     }
   }
