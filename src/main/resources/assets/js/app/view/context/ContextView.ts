@@ -41,6 +41,8 @@ import {LayersWidgetItemView} from './widget/layers/LayersWidgetItemView';
 import {ProjectContext} from '../../project/ProjectContext';
 import {Project} from '../../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../../settings/event/ProjectUpdatedEvent';
+import {ProjectListRequest} from '../../settings/resource/ProjectListRequest';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ContextView
     extends DivEl {
@@ -190,7 +192,13 @@ export class ContextView
         if (currentProject.getParent()) {
             this.addLayersWidget();
         } else {
-            this.removeLayersWidget();
+            new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+                if (projects.some((project: Project) => project.getParent() === currentProject.getName())) {
+                    this.addLayersWidget();
+                } else {
+                    this.removeLayersWidget();
+                }
+            }).catch(DefaultErrorHandler.handle);
         }
     }
 
