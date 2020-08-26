@@ -13,7 +13,7 @@ export class LayersContentTreeListItemViewer extends LangBasedContentSummaryView
             return super.resolveDisplayName(object);
         }
 
-        return i18n('dialog.layers.tree.missing');
+        return i18n('field.unnamed');
     }
 
     resolveSubName(object: ContentSummaryAndCompareStatus): string {
