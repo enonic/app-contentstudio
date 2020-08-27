@@ -18,7 +18,6 @@ export class ContentTreeSelectorItemViewer
         const pendingDelete = object.getContentState().isPendingDelete();
         this.toggleClass('invalid', invalid);
         this.toggleClass('pending-delete', pendingDelete);
-        this.setTitle(displayName);
 
         return displayName;
     }
@@ -28,13 +27,18 @@ export class ContentTreeSelectorItemViewer
     }
 
     resolveSubName(object: ContentTreeSelectorItem, relativePath: boolean = false): string {
-        let contentName = object.getName();
+        const contentName = object.getName();
+        let subName = '';
         if (relativePath) {
-            return !contentName.isUnnamed() ? object.getName().toString() : ContentUnnamed.prettifyUnnamed();
+            subName = !contentName.isUnnamed() ? contentName.toString() : ContentUnnamed.prettifyUnnamed();
         } else {
-            return !contentName.isUnnamed() ? object.getPath().toString() :
+            subName = !contentName.isUnnamed() ? object.getPath().toString() :
                    ContentPath.fromParent(object.getPath().getParentPath(), ContentUnnamed.prettifyUnnamed()).toString();
         }
+
+        this.setTitle(subName);
+
+        return subName;
     }
 
     resolveSubTitle(object: ContentTreeSelectorItem): string {
