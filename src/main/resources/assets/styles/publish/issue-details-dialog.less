@@ -185,18 +185,6 @@
     }
   }
 
-  &:not(.closed) {
-    &:not(.is-processing) {
-      .modal-dialog-footer {
-        .button-container {
-          .close-issue {
-            display: block !important;
-          }
-        }
-      }
-    }
-  }
-
   &.closed {
     .modal-dialog-footer {
       .button-container {
@@ -252,12 +240,11 @@
 
       &.close-issue {
         order: 1;
-        margin-right: auto;
         margin-left: 0;
-        background-color: @admin-button-gray3;
+        background-color: @form-button-bg;
 
         &:hover:not(:disabled) {
-          background-color: @admin-button-gray3;
+          background-color: @form-button-bg-hover;
         }
       }
 
@@ -356,6 +343,10 @@
         .button-container {
           .comment-issue {
             display: block !important;
+
+            &:not([disabled]) ~ .close-issue {
+              display: block !important;
+            }
           }
         }
       }
