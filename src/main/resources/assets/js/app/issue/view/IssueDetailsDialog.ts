@@ -1046,7 +1046,6 @@ export class IssueDetailsDialog
     resetCommentsTabButtons() {
         this.commentAction.setEnabled(false);
         this.closeAction.setVisible(false);
-        //this.updateCloseButtonLabel(false);
     }
 
     private toggleControlsAccordingToStatus(status: IssueStatus) {
