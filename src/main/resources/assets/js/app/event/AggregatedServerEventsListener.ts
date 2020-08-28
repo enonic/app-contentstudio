@@ -52,9 +52,7 @@ export class AggregatedServerEventsListener
     }
 
     private handleContentServerEvent(contentEvent: ContentServerEvent) {
-        if (this.isInCurrentProject(contentEvent)) {
-            this.aggregator.appendEvent(contentEvent);
-        }
+        this.aggregator.appendEvent(contentEvent);
     }
 
     private isInCurrentProject(event: NodeServerEvent): boolean {
