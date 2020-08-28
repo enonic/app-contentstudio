@@ -39,28 +39,13 @@ export class LayersWidgetItemView
         return this.reload();
     }
 
-    private filterWidgetItems(items: LayerContent[]): LayerContent[] {
-        const result: LayerContent[] = [];
-
-        let projectName: string = ProjectContext.get().getProject().getName();
-        let layerContent: LayerContent = items.find((item: LayerContent) => item.getProjectName() === projectName);
-
-        while (layerContent) {
-            result.unshift(layerContent);
-            projectName = layerContent.getProject().getParent();
-            layerContent = !!projectName ? items.find((item: LayerContent) => item.getProjectName() === projectName) : null;
-        }
-
-        return result;
-    }
-
     reload(): Q.Promise<any> {
         if (!this.layersView || !this.layersView.isVisible()) {
             return Q(null);
         }
 
         return this.loader.load().then((items: LayerContent[]) => {
-            this.layersView.setItems(this.filterWidgetItems(items));
+            this.layersView.setItems(items);
             this.showAllButton.setItems(items);
         }).catch(DefaultErrorHandler.handle);
     }

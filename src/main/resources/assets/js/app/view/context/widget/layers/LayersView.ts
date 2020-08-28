@@ -4,6 +4,7 @@ import {LayerContent} from './LayerContent';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectContext} from '../../../../project/ProjectContext';
+import {LayerContentViewRelation} from './LayerContentViewRelation';
 
 export class LayersView extends ListBox<LayerContent> {
 
@@ -45,13 +46,56 @@ export class LayersView extends ListBox<LayerContent> {
     }
 
     setItems(items: LayerContent[], silent?: boolean): void {
-        super.setItems(items, silent);
+        super.setItems(this.filterWidgetItems(items), silent);
+
+        const totalDescendants: number = this.countDescendants(ProjectContext.get().getProject().getName(), items);
+
+        if (totalDescendants > 0) {
+            this.appendMoreBlockToLastItem(totalDescendants);
+        }
 
         if (this.getItemCount() < 2) {
             return;
         }
 
         this.hideInheritedItems();
+    }
+
+    private countDescendants(projectName: string, items: LayerContent[]): number {
+        let total: number = 0;
+
+        const children: LayerContent[] = items.filter((item: LayerContent) => item.getProject().getParent() === projectName);
+
+        children.forEach((child: LayerContent) => {
+            total++;
+            total += this.countDescendants(child.getProjectName(), items);
+        });
+
+        return total;
+    }
+
+    private appendMoreBlockToLastItem(more: number) {
+        const relationBlock: LayerContentViewRelation = new LayerContentViewRelation(`${LayerContentView.VIEW_CLASS}-relation`);
+        this.appendChild(relationBlock);
+
+        const showMoreButtonEl: DivEl = new DivEl('show-more');
+        showMoreButtonEl.setHtml(i18n('widget.layers.more', more));
+        relationBlock.appendChild(showMoreButtonEl);
+    }
+
+    private filterWidgetItems(items: LayerContent[]): LayerContent[] {
+        const result: LayerContent[] = [];
+
+        let projectName: string = ProjectContext.get().getProject().getName();
+        let layerContent: LayerContent = items.find((item: LayerContent) => item.getProjectName() === projectName);
+
+        while (layerContent) {
+            result.unshift(layerContent);
+            projectName = layerContent.getProject().getParent();
+            layerContent = !!projectName ? items.find((item: LayerContent) => item.getProjectName() === projectName) : null;
+        }
+
+        return result;
     }
 
     private hideInheritedItems() {
