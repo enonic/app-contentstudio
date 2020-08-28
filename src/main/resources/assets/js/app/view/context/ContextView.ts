@@ -43,6 +43,7 @@ import {Project} from '../../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../../settings/event/ProjectUpdatedEvent';
 import {ProjectListRequest} from '../../settings/resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 
 export class ContextView
     extends DivEl {
@@ -170,6 +171,13 @@ export class ContextView
                 });
         });
 
+        const onCreateUpdate = this.createUpdateHandler.bind(this);
+        const onDelete = this.deleteHandler.bind(this);
+        contentServerEventsHandler.onContentCreated(onCreateUpdate);
+        contentServerEventsHandler.onContentUpdated(onCreateUpdate);
+        contentServerEventsHandler.onContentDeleted(onDelete);
+        contentServerEventsHandler.onContentDeletedInOtherRepos(onDelete);
+
         ProjectChangedEvent.on(() => {
             this.setItem(null);
             this.toggleLayersWidget();
@@ -183,6 +191,26 @@ export class ContextView
 
         if (ProjectContext.get().isInitialized()) {
             this.toggleLayersWidget();
+        }
+    }
+
+    private createUpdateHandler(data: ContentSummaryAndCompareStatus[]) {
+        const itemIds: string[] = data.map((d: ContentSummaryAndCompareStatus) => d.getId());
+        this.createUpdateDeleteHandler(itemIds);
+    }
+
+    private deleteHandler(data: ContentServerChangeItem[]) {
+        const itemIds: string[] = data.map((d: ContentServerChangeItem) => d.getId());
+        this.createUpdateDeleteHandler(itemIds);
+    }
+
+    private createUpdateDeleteHandler(itemsIds: string[]) {
+        if (!!this.item && this.activeWidget === this.layersWidgetView) {
+            const currentItemId: string = this.item.getId();
+
+            if (itemsIds.some((itemId: string) => itemId === currentItemId)) {
+                this.layersWidgetItemView.reload();
+            }
         }
     }
 
