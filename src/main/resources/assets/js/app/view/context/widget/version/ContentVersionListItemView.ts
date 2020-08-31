@@ -84,23 +84,7 @@ export class ContentVersionListItemView
             return '';
         }
 
-        let statusPostfix = '';
-
-        if (this.isPublishPending()) {
-           statusPostfix += ` ${PublishStatus.PENDING}`;
-        }
-
-        if (this.content.isPendingDelete() && this.version.hasPublishInfo()) {
-            statusPostfix += ` ${PublishStatus.ONLINE}`;
-        }
-
-        if (this.version.isActive() && this.content.isPendingDelete()) {
-            statusPostfix += ` ${CompareStatusFormatter.formatStatusClass(CompareStatus.PENDING_DELETE)}`;
-        }
-
-        return this.version.isActive() ?
-            `${CompareStatusFormatter.formatStatusClassFromContent(this.content)}${statusPostfix}` :
-            `${PublishStatus.ONLINE}${statusPostfix}`;
+        return this.content.getStatusClass();
     }
 
     private getStatusText(): string {
@@ -108,15 +92,14 @@ export class ContentVersionListItemView
             return '';
         }
 
-        const statusPostfix: string = this.isPublishPending() ? ` (${PublishStatusFormatter.formatStatus(PublishStatus.PENDING)})` : '';
+        if (this.version.getPublishInfo() && this.content.isPublished() && this.content.getPublishStatus() === PublishStatus.EXPIRED) {
+            const expiredDate = this.version.getPublishInfo().getPublishedTo();
+            const expiredDateFormatted = `${DateHelper.formatDate(expiredDate)} ${DateHelper.getFormattedTimeFromDate(expiredDate, false)}`;
 
-        return this.version.isActive() ?
-            this.content.getStatusText() :
-            `${PublishStatusFormatter.formatStatus(PublishStatus.ONLINE)}${statusPostfix}`;
-    }
+            return i18n('widget.versionhistory.expired', expiredDateFormatted);
+        }
 
-    private isPublishPending(): boolean {
-        return this.content.getPublishStatus() === PublishStatus.PENDING;
+        return this.content.getStatusText();
     }
 
     private createTooltip() {
