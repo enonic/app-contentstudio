@@ -65,17 +65,6 @@ export class MediaSelector
         return '';
     }
 
-    protected createOptionDataLoader() {
-        return ContentSummaryOptionDataLoader.create()
-            .setAllowedContentPaths(this.allowedContentPaths)
-            .setContentTypeNames(this.allowedContentTypes)
-            .setRelationshipType(this.relationshipType)
-            .setContent(this.config.content)
-            .setLoadStatus(this.showStatus)
-            .build();
-
-    }
-
     protected createUploader(): Q.Promise<MediaUploaderEl> {
         const config: MediaUploaderElConfig = this.createUploaderConfig();
 
