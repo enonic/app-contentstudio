@@ -9,10 +9,9 @@ const XPATH = {
     projectRolesWizardStepFormDiv: "//div[contains(@id,'ProjectRolesWizardStepForm')]",
     copyButton: "//button[child::span[text()='Copy from parent']]",
     projectSelectedOptionView: "//div[contains(@id,'ProjectSelectedOptionView')]",
-
 };
 
-class SubprojectWizardPanel extends ProjectWizardPanel {
+class LayerWizardPanel extends ProjectWizardPanel {
 
     get copyLanguageFromParentButton() {
         return XPATH.container + XPATH.languageProjectFormItem + XPATH.copyButton;
@@ -75,4 +74,4 @@ class SubprojectWizardPanel extends ProjectWizardPanel {
     }
 }
 
-module.exports = SubprojectWizardPanel;
+module.exports = LayerWizardPanel;

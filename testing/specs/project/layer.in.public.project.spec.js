@@ -7,17 +7,16 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
-const SubprojectWizard = require('../../page_objects/project/subproject.wizard.panel');
+const LayerWizard = require('../../page_objects/project/layer.wizard.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
-describe('subproject.in.public.project.spec - ui-tests for subproject in existing project', function () {
+describe('layer.in.public.project.spec - ui-tests for layer in existing project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    const SUBPROJECT_DISPLAY_NAME = studioUtils.generateRandomName("sub");
+    const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const TEST_DESCRIPTION = "test description";
 
     it(`Preconditions: new project(with Norsk (no) language) and 'Private' access mode should be added`,
@@ -29,69 +28,69 @@ describe('subproject.in.public.project.spec - ui-tests for subproject in existin
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConstant.LANGUAGES.NORSK_NO, null, "Public");
         });
 
-    it("GIVEN select 'public' project and open wizard for new subproject WHEN 'Private' radio has been clicked and name input filled in THEN 'Copy Access mode' button gets enabled",
+    it("GIVEN select 'public' project and open wizard for new layer WHEN 'Private' radio has been clicked and name input filled in THEN 'Copy Access mode' button gets enabled",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1.Select 'public' project and open wizard for new subproject:
-            let subprojectWizard = await settingsBrowsePanel.selectParentAndOpenNewSubprojectWizard(PROJECT_DISPLAY_NAME);
-            await subprojectWizard.typeDisplayName("test subproject1");
+            //1.Select 'public' project and open wizard for new layer:
+            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(PROJECT_DISPLAY_NAME);
+            await layerWizard.typeDisplayName("test layer1");
             //2. Click on 'Private' radio button:
-            await subprojectWizard.clickOnAccessModeRadio("Private");
+            await layerWizard.clickOnAccessModeRadio("Private");
             //3. Verify that 'Copy Access mode from parent' button gets enabled:
-            await subprojectWizard.waitForCopyAccessModeFromParentEnabled();
+            await layerWizard.waitForCopyAccessModeFromParentEnabled();
             //4. Verify that 'Copy language from parent' button is enabled:
-            await subprojectWizard.waitForCopyLanguageFromParentEnabled();
+            await layerWizard.waitForCopyLanguageFromParentEnabled();
             //And 'Copy roles from parent' is disabled
-            await subprojectWizard.waitForCopyRolesFromParentDisabled();
+            await layerWizard.waitForCopyRolesFromParentDisabled();
         });
 
-    it("GIVEN Buttons: 'Copy language from parent' has been clicked and 'Save' pressed WHEN subproject's context has been switched THEN expected language should be displayed in the project context",
+    it("GIVEN Buttons: 'Copy language from parent' has been clicked and 'Save' pressed WHEN layer's context has been switched THEN expected language should be displayed in the project context",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1.Select 'public' project and open wizard for new subproject:
-            let subprojectWizard = await settingsBrowsePanel.selectParentAndOpenNewSubprojectWizard(PROJECT_DISPLAY_NAME);
-            await subprojectWizard.typeDisplayName(SUBPROJECT_DISPLAY_NAME);
+            //1.Select 'public' project and open wizard for new layer:
+            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(PROJECT_DISPLAY_NAME);
+            await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
             //2. Click on 'Private' radio button:
-            await subprojectWizard.clickOnAccessModeRadio("Private");
+            await layerWizard.clickOnAccessModeRadio("Private");
             //3. Click on 'Copy language from parent' button:
-            await subprojectWizard.clickOnCopyLanguageFromParent();
-            await subprojectWizard.waitForNotificationMessage();
-            //4. Save the subproject:
-            await subprojectWizard.waitAndClickOnSave();
-            await subprojectWizard.waitForNotificationMessage();
-            await subprojectWizard.pause(500);
+            await layerWizard.clickOnCopyLanguageFromParent();
+            await layerWizard.waitForNotificationMessage();
+            //4. Save the layer:
+            await layerWizard.waitAndClickOnSave();
+            await layerWizard.waitForNotificationMessage();
+            await layerWizard.pause(500);
             //5. Switch to Content Mode:
             let contentBrowsePanel = await studioUtils.switchToContentMode();
-            //6. Open modal dialog and select the subproject's context:
-            await contentBrowsePanel.selectContext(SUBPROJECT_DISPLAY_NAME);
+            //6. Open modal dialog and select the layer's context:
+            await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
             //7. Verify that expected language is copied from the parent project:
             let actualLanguage = await contentBrowsePanel.getContextLanguage();
             assert.equal(actualLanguage, "(no)", "Expected language should be displayed in the App Bar")
         });
 
-    it("GIVEN existing subproject is opened WHEN the language has been updated THEN expected language should be displayed in the subproject's context",
+    it("GIVEN existing layer is opened WHEN the language has been updated THEN expected language should be displayed in the layer's context",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let subprojectWizard = new SubprojectWizard();
-            //1.Open the subproject:
-            await settingsBrowsePanel.clickOnRowByDisplayName(SUBPROJECT_DISPLAY_NAME);
+            let layerWizard = new LayerWizard();
+            //1.Open the layer:
+            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
-            await subprojectWizard.waitForLoaded();
+            await layerWizard.waitForLoaded();
             //2. Update the language:
-            await subprojectWizard.clickOnRemoveLanguage();
-            await subprojectWizard.selectLanguage(appConstant.LANGUAGES.EN);
-            await subprojectWizard.waitAndClickOnSave();
-            await subprojectWizard.waitForNotificationMessage();
+            await layerWizard.clickOnRemoveLanguage();
+            await layerWizard.selectLanguage(appConstant.LANGUAGES.EN);
+            await layerWizard.waitAndClickOnSave();
+            await layerWizard.waitForNotificationMessage();
             //3. Switch to content mode and select the context:
             let contentBrowsePanel = await studioUtils.switchToContentMode();
-            await contentBrowsePanel.selectContext(SUBPROJECT_DISPLAY_NAME);
+            await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
             //4. Verify that language is updated in the browse panel - App Bar
             let actualLanguage = await contentBrowsePanel.getContextLanguage();
             assert.equal(actualLanguage, "(en)", "Expected language should be displayed in the App Bar");
         });
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/2105
-    //Do not allow deletion of a project if it has child subprojects.
+    //Do not allow deletion of a project if it has child layer.
     it("WHEN existing parent project is selected THEN Delete button should be disabled",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -105,8 +104,8 @@ describe('subproject.in.public.project.spec - ui-tests for subproject in existin
         });
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/2105
-    //Do not allow deletion of a project if it has child subprojects.
-    it("WHEN existing parent project(with child subproject) is opened THEN 'Delete' button should be disabled in the wizard-toolbar",
+    //Do not allow deletion of a project if it has child layer.
+    it("WHEN existing parent project(with child layer) is opened THEN 'Delete' button should be disabled in the wizard-toolbar",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -123,22 +122,22 @@ describe('subproject.in.public.project.spec - ui-tests for subproject in existin
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1.parent project and its child project are selected:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME);
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(SUBPROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(LAYER_DISPLAY_NAME);
             //2. Verify that 'Delete' button is disabled in browse-panel:
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
         });
 
-    //Verifies issue: Do not allow deletion of a project if it has child subprojects #2105
-    it("WHEN project and its subproject are selected THEN 'Delete' menu item should be disabled in context-menu",
+    //Verifies issue: Do not allow deletion of a project if it has child layer #2105
+    it("WHEN project and its layer are selected THEN 'Delete' menu item should be disabled in context-menu",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1.parent project and its child project are selected:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME);
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(SUBPROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(LAYER_DISPLAY_NAME);
             //2. Verify that 'Delete' button is disabled in browse-panel:
-            await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(SUBPROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.waitForContextMenuDisplayed();
-            studioUtils.saveScreenshot("multiselect_subproject_context_menu");
+            studioUtils.saveScreenshot("multiselect_layer_context_menu");
             //Verify that New.. and Edit items are enabled:
             await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
@@ -147,18 +146,18 @@ describe('subproject.in.public.project.spec - ui-tests for subproject in existin
         });
 
     //Verifies issue https://github.com/enonic/app-contentstudio/issues/2091
-    //Content Browse Panel - The closest allowed context should be loaded after a subproject is deleted
-    it("GIVEN existing subproject has been deleted WHEN content mode has been switched THEN Default context should be loaded",
+    //Content Browse Panel - The closest allowed context should be loaded after a layer is deleted
+    it("GIVEN existing layer has been deleted WHEN content mode has been switched THEN Default context should be loaded",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let contentBrowsePanel = await studioUtils.switchToContentMode();
-            //1. Switch to supbprojects's context:
-            await contentBrowsePanel.selectContext(SUBPROJECT_DISPLAY_NAME);
-            let actualSubProjectName1 = await contentBrowsePanel.getSelectedProjectDisplayName();
+            //1. Switch to layer's context:
+            await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
+            let actualContextName1 = await contentBrowsePanel.getSelectedProjectDisplayName();
             await studioUtils.openSettingsPanel();
 
-            //2. Switch to Settings and delete the subproject:
-            await settingsBrowsePanel.clickOnRowByDisplayName(SUBPROJECT_DISPLAY_NAME);
+            //2. Switch to Settings and delete the layer:
+            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnDeleteButton();
             let confirmationDialog = new ConfirmationDialog();
             await confirmationDialog.clickOnYesButton();
@@ -167,42 +166,41 @@ describe('subproject.in.public.project.spec - ui-tests for subproject in existin
 
             //3. Switch to content mode and verify that parent project's context is loaded:
             await studioUtils.switchToContentMode();
-            let expectedMessage = appConstant.projectDeletedMessage(SUBPROJECT_DISPLAY_NAME);
+            let expectedMessage = appConstant.projectDeletedMessage(LAYER_DISPLAY_NAME);
             assert.equal(message, expectedMessage, "'Project is deleted' this message should appear");
-            let actualSubProjectName2 = await contentBrowsePanel.getSelectedProjectDisplayName();
-            assert.equal(actualSubProjectName1, SUBPROJECT_DISPLAY_NAME,
-                "Subproject's context should be loaded before the deleting of the subproject");
-            assert.equal(actualSubProjectName2, PROJECT_DISPLAY_NAME, "Parent context should be loaded after deleting of the subproject");
+            let actualContextName2 = await contentBrowsePanel.getSelectedProjectDisplayName();
+            assert.equal(actualContextName1, LAYER_DISPLAY_NAME, "layer's context should be loaded before the deleting of the layer");
+            assert.equal(actualContextName2, PROJECT_DISPLAY_NAME, "Parent context should be loaded after deleting its layer");
         });
 
-    it("GIVEN new subproject is created WHEN the subproject has been deleted in the wizard THEN subproject should not be present in grid",
+    it("GIVEN new layer is created WHEN the layer has been deleted in the wizard THEN layer should not be present in the grid",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
-            //1.Select 'public' project and open wizard for new subproject:
-            let subprojectWizard = await settingsBrowsePanel.selectParentAndOpenNewSubprojectWizard(PROJECT_DISPLAY_NAME);
-            //2. Save new subproject:
-            await subprojectWizard.typeDisplayName(SUBPROJECT_DISPLAY_NAME);
-            await subprojectWizard.clickOnAccessModeRadio("Private");
-            await subprojectWizard.waitAndClickOnSave();
-            await subprojectWizard.waitForNotificationMessage();
-            await subprojectWizard.pause(500);
+            //1.Select 'public' project and open wizard for new layer:
+            let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(PROJECT_DISPLAY_NAME);
+            //2. Save new layer:
+            await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
+            await layerWizard.clickOnAccessModeRadio("Private");
+            await layerWizard.waitAndClickOnSave();
+            await layerWizard.waitForNotificationMessage();
+            await layerWizard.pause(500);
             //3. Click on 'Delete' button and confirm the deleting:
-            await subprojectWizard.clickOnDeleteButton();
+            await layerWizard.clickOnDeleteButton();
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
             await settingsBrowsePanel.waitForGridLoaded(appConstant.shortTimeout);
-            //4. Verify that the subproject is deleted:
-            await settingsBrowsePanel.waitForProjectNotDisplayed(SUBPROJECT_DISPLAY_NAME);
+            //4. Verify that the laer is deleted:
+            await settingsBrowsePanel.waitForProjectNotDisplayed(LAYER_DISPLAY_NAME);
             //5. Verify that expander-icon gets not visible in the parent project
             let result = await settingsBrowsePanel.isExpanderIconPresent(PROJECT_DISPLAY_NAME);
             assert.isFalse(result, "Expander icon gets not displayed in the parent project");
         });
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/2105
-    //Do not allow deletion of a project if it has child subprojects.
-    it("GIVEN subproject was deleted WHEN the parent project is opened THEN 'Delete' button gets enabled in the wizard-toolbar",
+    //Do not allow deletion of a project if it has child layer.
+    it("GIVEN layer was deleted WHEN the parent project is opened THEN 'Delete' button gets enabled in the wizard-toolbar",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -215,13 +213,13 @@ describe('subproject.in.public.project.spec - ui-tests for subproject in existin
         });
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/2105
-    //Do not allow deletion of a project if it has child subprojects.
-    it("GIVEN subproject was deleted WHEN the parent project is selected THEN 'Delete' button gets enabled after deleting the subproject",
+    //Do not allow deletion of a project if it has child layer.
+    it("GIVEN layer was deleted WHEN the parent project has been selected THEN 'Delete' button gets enabled now",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1.Select the parent project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //2. Verify that 'Delete' button is enabled after deleting the supbroject
+            //2. Verify that 'Delete' button is enabled after deleting the layer
             await settingsBrowsePanel.waitForDeleteButtonEnabled();
         });
 

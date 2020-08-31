@@ -6,7 +6,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
-const SubprojectWizard = require('../../page_objects/project/subproject.wizard.panel');
+const LayerWizard = require('./layer.wizard.panel');
 const NewSettingsItemDialog = require('../../page_objects/project/new.settings.item.dialog');
 
 const XPATH = {
@@ -35,8 +35,6 @@ const XPATH = {
     projectCheckboxByName: name => {
         return `${lib.projectByName(name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
-    checkboxByDisplayName: displayName => XPATH.container + lib.itemByDisplayName(displayName) +
-                                          "/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label",
 
     projectItemByName: function (name) {
         return `//div[contains(@id,'NamesView') and descendant::span[@class='display-name' and contains(.,'${name}')]]`
@@ -179,18 +177,6 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async clickCheckboxAndSelectRowByDisplayName(displayName) {
-        try {
-            const displayNameXpath = XPATH.checkboxByDisplayName(displayName);
-            await this.waitForElementDisplayed(displayNameXpath, appConst.shortTimeout);
-            await this.clickOnElement(displayNameXpath);
-            return await this.pause(400);
-        } catch (err) {
-            this.saveScreenshot('err_find_item');
-            throw Error(`Row with the displayName ${displayName} was not found.` + err);
-        }
-    }
-
     clickOnCheckboxAndSelectRowByName(name) {
         let nameXpath = XPATH.projectCheckboxByName(name);
         return this.waitForElementDisplayed(nameXpath, appConst.shortTimeout).then(() => {
@@ -236,6 +222,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         })
     }
 
+    //1. Click on New button then click on 'Project' dialog-item.
     async openProjectWizard() {
         let newSettingsItemDialog = new NewSettingsItemDialog();
         let projectWizard = new ProjectWizard();
@@ -244,15 +231,29 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         //3. 'NewSettingsItem' modal dialog should be loaded:
         await newSettingsItemDialog.waitForDialogLoaded();
         //4. Click on 'Project' item:
-        await newSettingsItemDialog.clickOnProjectItem();
+        await newSettingsItemDialog.clickOnProjectItem("Project");
         await projectWizard.waitForLoaded();
         return projectWizard;
     }
 
-    async selectParentAndOpenNewSubprojectWizard(parentName) {
+    //Click on 'Layer' dialog item
+    async openLayerWizard() {
+        let newSettingsItemDialog = new NewSettingsItemDialog();
+        let layerWizard = new LayerWizard();
+        //2.'New...' button has been clicked:
+        await this.clickOnNewButton();
+        //3. 'NewSettingsItem' modal dialog should be loaded:
+        await newSettingsItemDialog.waitForDialogLoaded();
+        //4. Click on 'Layer' dialog item:
+        await newSettingsItemDialog.clickOnProjectItem("Layer");
+        await layerWizard.waitForLoaded();
+        return layerWizard;
+    }
+
+    async selectParentAndOpenNewLayerWizard(parentName) {
         await this.clickOnRowByDisplayName(parentName);
-        await this.openProjectWizard();
-        return new SubprojectWizard();
+        return await this.openLayerWizard();
+
     }
 
     rightClickOnProjects() {
@@ -310,4 +311,5 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         return this.getText("//button[contains(@id,'ShowIssuesDialogButton')]//span");
     }
 }
+
 module.exports = SettingsBrowsePanel;

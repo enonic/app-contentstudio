@@ -62,10 +62,20 @@ class NewSettingsItemDialog extends Page {
         return this.waitForElementDisplayed(this.cancelButtonTop, appConst.shortTimeout);
     }
 
-    async clickOnProjectItem() {
-        let selector = XPATH.container + lib.itemByDisplayName("Project");
+    async clickOnProjectItem(dialogItem) {
+        let selector = XPATH.container + lib.itemByDisplayName(dialogItem);
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         return await this.clickOnElement(selector);
+    }
+
+    waitForProjectDialogItem() {
+        let selector = XPATH.container + lib.itemByDisplayName("Project");
+        return this.waitForElementDisplayed(selector, appConst.shortTimeout);
+    }
+
+    waitForLayerDialogItem() {
+        let selector = XPATH.container + lib.itemByDisplayName("Layer");
+        return this.waitForElementDisplayed(selector, appConst.shortTimeout);
     }
 };
 module.exports = NewSettingsItemDialog;
