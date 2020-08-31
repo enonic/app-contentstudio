@@ -50,8 +50,6 @@ const XPATH = {
         return `${lib.itemByName(
             name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
-    checkboxByDisplayName: displayName => `${lib.itemByDisplayName(
-        displayName)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`,
 
     expanderIconByName: function (name) {
         return lib.itemByName(name) +
@@ -477,18 +475,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         })
     }
 
-    async clickCheckboxAndSelectRowByDisplayName(displayName) {
-        try {
-            const displayNameXpath = XPATH.checkboxByDisplayName(displayName);
-            await this.waitForElementDisplayed(displayNameXpath, appConst.mediumTimeout);
-            await this.clickOnElement(displayNameXpath);
-            return await this.pause(400);
-        } catch (err) {
-            this.saveScreenshot('err_find_item');
-            throw Error(`Row with the displayName ${displayName} was not found.` + err);
-        }
-    }
-
     async clickOnCheckboxAndSelectRowByName(name) {
         try {
             let nameXpath = XPATH.checkboxByName(name);
@@ -729,7 +715,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async getContextLanguage() {
-        let locator = XPATH.projectViewerButton + lib.H6_DISPLAY_NAME + "//span[@class='name']";
+        let locator = XPATH.projectViewerButton + lib.H6_DISPLAY_NAME + "//span[@class='display-name-postfix']";
         return this.getText(locator);
     }
 

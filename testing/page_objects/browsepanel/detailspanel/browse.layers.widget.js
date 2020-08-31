@@ -8,7 +8,7 @@ const xpath = {
     widget: "//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'LayersWidgetItemView')]",
     widgetItemView: `//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'LayersWidgetItemView')]`,
     layerViewByName:
-        layerName => `//div[contains(@id,'LayerContentViewHeader') and descendant::span[@class='name' and text()='${layerName}']]`
+        layerName => `//div[contains(@id,'LayerContentViewHeader') and descendant::span[@class='layer-name' and text()='${layerName}']]`
 };
 
 class BrowseLayersWidget extends Page {
@@ -27,14 +27,15 @@ class BrowseLayersWidget extends Page {
         });
     }
 
-    getLayersName() {
+    async getLayersName() {
         let locator = xpath.widgetItemView +
-                      "//div[contains(@id,'LayerContentViewHeader')]/div[contains(@class,'layer-name')]/span[@class='name']";
-        return this.getTextInElements(locator);
+                      "//div[contains(@id,'LayerContentViewHeader')]/div[contains(@class,'layer-details')]/span[@class='layer-name']";
+        await this.waitForElementDisplayed(locator);
+        return await this.getTextInElements(locator);
     }
 
     getLayerLanguage(layerName) {
-        let locator = xpath.widgetItemView + xpath.layerViewByName(layerName) + "//span[@class='language']";
+        let locator = xpath.widgetItemView + xpath.layerViewByName(layerName) + "//span[@class='layer-language']";
         return this.getText(locator);
     }
 

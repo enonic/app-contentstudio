@@ -12,6 +12,8 @@ const XPATH = {
     contextMenuItemByName: (name) => {
         return `${lib.TREE_GRID_CONTEXT_MENU}/li[contains(@id,'MenuItem') and contains(.,'${name}')]`;
     },
+    checkboxByDisplayName: displayName => `${lib.itemByDisplayName(
+        displayName)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`,
 };
 
 class BaseBrowsePanel extends Page {
@@ -267,6 +269,18 @@ class BaseBrowsePanel extends Page {
         } catch (err) {
             this.saveScreenshot('err_find_' + displayName);
             throw Error('Browse Panel - Row with the displayName ' + displayName + ' was not found' + err)
+        }
+    }
+
+    async clickCheckboxAndSelectRowByDisplayName(displayName) {
+        try {
+            const displayNameXpath = XPATH.checkboxByDisplayName(displayName);
+            await this.waitForElementDisplayed(displayNameXpath, appConst.mediumTimeout);
+            await this.clickOnElement(displayNameXpath);
+            return await this.pause(400);
+        } catch (err) {
+            this.saveScreenshot('err_find_item');
+            throw Error(`Row with the displayName ${displayName} was not found.` + err);
         }
     }
 }

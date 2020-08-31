@@ -29,6 +29,9 @@ describe('new.settings.item.dialog.spec - ui-tests for New Settings Item Dialog'
             //5. Required buttons should be present:
             await newSettingsItemDialog.waitForCancelButtonDisplayed();
             await newSettingsItemDialog.waitForCancelButtonTopDisplayed();
+            //6. Verify that Layer and Project dialog items are present:
+            await newSettingsItemDialog.waitForProjectDialogItem();
+            await newSettingsItemDialog.waitForLayerDialogItem();
         });
 
     it(`GIVEN NewSettingsItem is opened WHEN 'Cancel' button has been pressed THEN the dialog should be closed`,
