@@ -258,6 +258,8 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     protected abstract getSuccessfulUpdateMessage(name: string): string;
 
+    protected abstract getIconTooltip(): string;
+
     protected abstract handleDataChanged();
 
     protected createMainToolbar(): Toolbar {
@@ -270,11 +272,12 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     protected createFormIcon(): FormIcon {
-        const icon: SettingsDataItemFormIcon = new SettingsDataItemFormIcon(
-            this.getPersistedItem() ? this.getPersistedItem().getIconUrl() : null);
+        const icon: SettingsDataItemFormIcon = this.createSettingsDataItemFormIcon();
+
         icon.addClass(`icon icon-xlarge ${this.getIconClass()}`);
+
         if (!this.getPersistedItem()) {
-            icon.setDisabled(true, i18n('settings.projects.tooltip.saveProject'));
+            icon.setDisabled(true, this.getIconTooltip());
         }
 
         icon.onIconChanged(() => {
@@ -284,6 +287,11 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         });
 
         return icon;
+    }
+
+    protected createSettingsDataItemFormIcon(): SettingsDataItemFormIcon {
+        return new SettingsDataItemFormIcon(
+            this.getPersistedItem() ? this.getPersistedItem().getIconUrl() : null);
     }
 
     protected updateIcon(): Q.Promise<any> {

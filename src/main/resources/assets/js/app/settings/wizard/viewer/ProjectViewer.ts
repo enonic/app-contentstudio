@@ -2,6 +2,7 @@ import {Project} from '../../data/project/Project';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectIconUrlResolver} from '../../../project/ProjectIconUrlResolver';
 import {ExtendedViewer} from '../../../view/ExtendedViewer';
+import {Flag} from 'lib-admin-ui/locale/Flag';
 
 export class ProjectViewer extends ExtendedViewer<Project> {
 
@@ -23,6 +24,15 @@ export class ProjectViewer extends ExtendedViewer<Project> {
 
     resolveIconClass(project: Project): string {
         return ProjectIconUrlResolver.getDefaultIcon(project);
+    }
+
+    resolveIconEl(project: Project): Flag {
+        if (project.getIcon()) {
+            return null;
+        }
+
+        const language: string = project.getLanguage();
+        return !!language ? new Flag(language) : null;
     }
 
     resolveIconUrl(project: Project): string {
