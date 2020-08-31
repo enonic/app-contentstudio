@@ -43,7 +43,7 @@
     "file-loader": "^6.0.0",
     "js-yaml": "^3.14.0",
     "less": "^3.12.2",
-    "less-loader": "^6.2.0",
+    "less-loader": "^7.0.0",
     "mini-css-extract-plugin": "^0.11.0",
     "postcss-loader": "^3.0.0",
     "postcss-normalize": "^9.0.0",
