@@ -48,14 +48,23 @@
           .viewer .names-and-icon-view .font-icon-default:before {
             background-color: @admin-dark-gray;
           }
-
-          .version-info .action-button:not(:hover) {
-            background-color: @form-button-bg;
-          }
         }
 
-        &.online, &.deleted, &.pending {
-          color: @admin-white;
+        &[class*='deleted'] {
+          background-color: @admin-bg-light-gray;
+          border-color: @admin-bg-light-gray;
+
+          .status {
+            text-decoration-line: line-through;
+          }
+
+          .viewer .names-and-icon-view .font-icon-default:before {
+            background-color: @admin-bg-light-gray;
+          }
+
+          .version-info button {
+            display: none;
+          }
         }
 
         &.online {
@@ -63,21 +72,33 @@
           border-color: @admin-green;
         }
 
-        &.online {
+        &.online_expired {
+          background-color: lighten(@admin-green, 35%);
+          border-color: lighten(@admin-green, 35%);
 
-          .viewer .names-and-icon-view {
-
-            .font-icon-default:before {
-              color: @admin-white;
-              background-color: @admin-green;
-            }
+          .icon-version-published:before {
+            background-color: lighten(@admin-green, 35%) !important;
           }
+
+          .names-and-icon-view {
+            color: @admin-bg-dark-gray;
+          }
+        }
+
+        &[class*='online'] {
 
           .version-info {
             color: @admin-black;
           }
 
           .viewer {
+            .names-and-icon-view {
+
+              .icon-version-published:before {
+                color: @admin-white;
+                background-color: @admin-green;
+              }
+            }
 
             button.compare {
 
@@ -94,17 +115,13 @@
           }
         }
 
-        &.pending:not(.modified) {
+        &.online_pending:not(.modified) {
           background-color: @admin-orange;
           border-color: @admin-orange;
 
           .viewer .names-and-icon-view .font-icon-default:before {
             background-color: @admin-orange;
           }
-        }
-
-        &.deleted {
-          opacity: 0.5;
         }
 
         .viewer {
@@ -211,8 +228,8 @@
           }
         }
 
-        &.online, &.active, &.pending {
-          .status, .icon-user, .viewer .names-and-icon-view *, .viewer .font-icon-default:before {
+        &[class*='online']:not(.online_expired), &.active:not([class*='deleted']):not(.online_expired) {
+          .status, .viewer .names-and-icon-view *, .viewer .font-icon-default:before {
             color: @admin-white;
           }
 

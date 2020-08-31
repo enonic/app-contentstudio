@@ -15,7 +15,7 @@ export class VersionInfoBlock
     private publisherBlock: NamesAndIconView;
 
     constructor(contentVersion: ContentVersion) {
-        super('version-info hidden');
+        super('version-info');
 
         this.contentVersion = contentVersion;
         this.initElements();
