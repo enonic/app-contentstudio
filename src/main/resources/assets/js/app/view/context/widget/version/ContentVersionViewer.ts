@@ -22,7 +22,7 @@ export class ContentVersionViewer
 
     setObject(version: ContentVersion) {
         const modifiedDate = version.hasPublishInfo() ?
-                                version.getPublishInfo().getTimestamp() : version.getModified();
+                                version.getPublishInfo().getPublishDate() : version.getModified();
         const modifierName = version.hasPublishInfo() ?
                                 version.getPublishInfo().getPublisherDisplayName() : version.getModifierDisplayName();
         const isAlias = version.isAlias();
