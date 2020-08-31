@@ -93,7 +93,6 @@
 
           .viewer {
             .names-and-icon-view {
-
               .icon-version-published:before {
                 color: @admin-white;
                 background-color: @admin-green;
@@ -112,15 +111,6 @@
                 color: @admin-font-gray;
               }
             }
-          }
-        }
-
-        &.online_pending:not(.modified) {
-          background-color: @admin-orange;
-          border-color: @admin-orange;
-
-          .viewer .names-and-icon-view .font-icon-default:before {
-            background-color: @admin-orange;
           }
         }
 
@@ -228,14 +218,26 @@
           }
         }
 
-        &[class*='online']:not(.online_expired), &.active:not([class*='deleted']):not(.online_expired) {
-          .status, .viewer .names-and-icon-view *, .viewer .font-icon-default:before {
+        &[class*='online']:not(.online_expired),
+        &.active:not([class*='deleted']):not(.online_expired) {
+          .status,
+          .viewer .names-and-icon-view *,
+          .viewer .font-icon-default::before {
             color: @admin-white;
           }
 
           &:hover .version-info {
             background-color: @admin-bg-light-gray;
             border-color: @admin-bg-light-gray;
+          }
+        }
+
+        &.online_pending:not(.modified) {
+          background-color: @admin-orange;
+          border-color: @admin-orange;
+
+          .viewer .names-and-icon-view .font-icon-default:before {
+            background-color: @admin-orange;
           }
         }
 
