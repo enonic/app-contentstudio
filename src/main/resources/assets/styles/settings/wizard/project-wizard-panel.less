@@ -1,5 +1,28 @@
 .project-wizard-panel {
 
+  .header-and-navigator-container {
+
+    .@{_COMMON_PREFIX}form-icon {
+      &.not-empty {
+        .flag-icon {
+          display: none;
+        }
+      }
+
+      &:not(.has-lang) {
+        .flag-icon {
+          display: none;
+        }
+      }
+
+      &.has-lang {
+        &:before {
+          display: none;
+        }
+      }
+    }
+  }
+
   &.no-modify-permissions {
 
     .panel-strip-scrollable {

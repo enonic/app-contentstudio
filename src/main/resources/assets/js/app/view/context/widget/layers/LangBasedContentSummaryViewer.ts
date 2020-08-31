@@ -14,7 +14,10 @@ export class LangBasedContentSummaryViewer extends ContentSummaryAndCompareStatu
     }
 
     resolveIconUrl(): string {
-        return null;
+        return this.project.getIcon() ? new ProjectIconUrlResolver()
+            .setProjectName(this.project.getName())
+            .setTimestamp(new Date().getTime())
+            .resolve() : null;
     }
 
     resolveIconClass(): string {
@@ -22,6 +25,10 @@ export class LangBasedContentSummaryViewer extends ContentSummaryAndCompareStatu
     }
 
     resolveIconEl(): Flag {
+        if (this.project.getIcon()) {
+            return null;
+        }
+
         const language: string = this.project.getLanguage();
         return !!language ? new Flag(language) : null;
     }

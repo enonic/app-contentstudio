@@ -27,6 +27,8 @@ import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
+import {SettingsDataItemFormIcon} from './form/element/SettingsDataItemFormIcon';
+import {ProjectDataItemFormIcon} from './form/element/ProjectDataItemFormIcon';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -214,6 +216,14 @@ export class ProjectWizardPanel
         return i18n('notify.settings.project.modified', name);
     }
 
+    protected getIconTooltip(): string {
+        return i18n('settings.projects.tooltip.saveProject');
+    }
+
+    protected createSettingsDataItemFormIcon(): ProjectDataItemFormIcon {
+        return new ProjectDataItemFormIcon(this.getPersistedItem());
+    }
+
     private isProjectMetaChanged(): boolean {
         if (!ObjectHelper.stringEquals(this.getPersistedItem().getDescription(), this.projectWizardStepForm.getDescription())) {
             return true;
@@ -260,6 +270,7 @@ export class ProjectWizardPanel
 
     protected handleDataChanged() {
         this.updateToolbarActions();
+        (<ProjectDataItemFormIcon>this.formIcon).updateLanguage(this.readAccessWizardStepForm.getLanguage());
     }
 
     private updateLanguageAndPermissionsIfNeeded(project: Project): Q.Promise<Project> {
