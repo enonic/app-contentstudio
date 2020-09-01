@@ -77,10 +77,11 @@ export class LayersView extends ListBox<LayerContent> {
     private appendMoreBlockToLastItem(more: number) {
         const relationBlock: LayerContentViewRelation = new LayerContentViewRelation(`${LayerContentView.VIEW_CLASS}-relation`);
         this.appendChild(relationBlock);
+        this.getItemViews().pop().addClass('has-children');
 
-        const showMoreButtonEl: DivEl = new DivEl('show-more');
-        showMoreButtonEl.setHtml(i18n('widget.layers.more', more));
-        relationBlock.appendChild(showMoreButtonEl);
+        const moreButtonEl: DivEl = new DivEl('has-children-button');
+        moreButtonEl.setHtml(i18n('widget.layers.more', more));
+        relationBlock.appendChild(moreButtonEl);
     }
 
     private filterWidgetItems(items: LayerContent[]): LayerContent[] {
@@ -121,11 +122,11 @@ export class LayersView extends ListBox<LayerContent> {
     private hideItemsBetween(itemIndex: number, parentIndex: number) {
         const reversedItemViews: LayerContentView[] = <LayerContentView[]>this.getItemViews().reverse();
         const currentItem: LayerContentView = reversedItemViews[itemIndex];
-        currentItem.addClass('has-more');
+        currentItem.addClass('has-hidden-parents');
 
-        const showMoreButtonEl: DivEl = new DivEl('show-more');
-        showMoreButtonEl.setHtml(i18n('widget.layers.showmore', parentIndex - itemIndex -1));
-        currentItem.getRelationBlock().appendChild(showMoreButtonEl);
+        const showParentsButtonEl: DivEl = new DivEl('show-parents-button');
+        showParentsButtonEl.setHtml(i18n('widget.layers.showmore', parentIndex - itemIndex -1));
+        currentItem.getRelationBlock().appendChild(showParentsButtonEl);
 
         const hiddenItems: LayerContentView[] = [];
 
@@ -135,9 +136,9 @@ export class LayersView extends ListBox<LayerContent> {
             itemToHide.hide();
         }
 
-        showMoreButtonEl.onClicked(() => {
-            showMoreButtonEl.hide();
-            currentItem.removeClass('has-more');
+        showParentsButtonEl.onClicked(() => {
+            showParentsButtonEl.hide();
+            currentItem.removeClass('has-hidden-parents');
 
             hiddenItems.forEach((hiddenItem: LayerContentView) => {
                 hiddenItem.show();

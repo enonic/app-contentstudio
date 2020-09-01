@@ -61,7 +61,7 @@
           }
         }
 
-        &:last-child {
+        &.has-children +.layers-item-view-relation {
           .layers-item-view-relation-line {
             height: 34px;
           }
@@ -70,7 +70,7 @@
             display: block;
           }
 
-          .show-more {
+          .has-children-button {
             color: @admin-font-gray2;
             cursor: default;
 
@@ -155,8 +155,7 @@
             display: none;
           }
 
-          .show-more {
-            color: @admin-blue;
+          .show-parents-button, .has-children-button {
             cursor: pointer;
             position: absolute;
             top: 10px;
@@ -167,16 +166,20 @@
               color: @admin-input-blue;
             }
           }
+
+          .show-parents-button {
+            color: @admin-blue;
+          }
         }
 
-        &.has-more {
+        &.has-hidden-parents {
           .layers-item-view-relation-line {
             height: 34px;
           }
         }
 
-        &:nth-child(2).has-more {
-          .show-more {
+        &:nth-child(2).has-hidden-parents {
+          .show-parents-button {
             top: 0;
           }
 
