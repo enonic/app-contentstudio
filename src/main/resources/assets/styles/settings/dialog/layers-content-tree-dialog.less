@@ -43,6 +43,18 @@
         background-color: @admin-almost-white;
       }
 
+      .action-wrapper {
+        cursor: pointer;
+        display: none;
+        margin-top: 5px;
+
+        .action-button {
+          flex-basis: 30%;
+          text-align: center;
+          padding: 5px;
+        }
+      }
+
       &.current {
         border: 2px solid @admin-blue;
 
@@ -61,18 +73,6 @@
 
       .@{_COMMON_PREFIX}wrapper {
         cursor: default;
-      }
-
-      .action-wrapper {
-        cursor: pointer;
-        display: none;
-        margin-top: 5px;
-
-        .action-button {
-          flex-basis: 30%;
-          text-align: center;
-          padding: 5px;
-        }
       }
 
       &.expanded {
