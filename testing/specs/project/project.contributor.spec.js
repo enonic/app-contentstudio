@@ -48,7 +48,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1. Do Log in with 'SU' and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp();
+            await studioUtils.navigateToContentStudioWithProjects();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
 
@@ -73,7 +73,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             FOLDER_WORK_IN_PROGRESS = contentBuilder.buildFolder(FOLDER_NAME_1);
             FOLDER_READY_TO_PUBLISH = contentBuilder.buildFolder(FOLDER_NAME_2);
             //1. Do Log in with 'SU' and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp();
+            await studioUtils.navigateToContentStudioWithProjects();
             await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
             await studioUtils.doAddFolder(FOLDER_WORK_IN_PROGRESS);
             await studioUtils.doAddReadyFolder(FOLDER_READY_TO_PUBLISH);

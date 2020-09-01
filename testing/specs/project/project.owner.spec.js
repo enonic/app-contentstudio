@@ -50,7 +50,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1. Do Log in with 'SU' and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp();
+            await studioUtils.navigateToContentStudioWithProjects();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
 
@@ -80,7 +80,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let issueDetailsDialogAssigneesTab = new IssueDetailsDialogAssigneesTab();
             FOLDER_ISSUE = contentBuilder.buildFolder(FOLDER_NAME_2);
             //1. Do Log in with 'SU' and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp();
+            await studioUtils.navigateToContentStudioWithProjects();
             await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
             //2. Add new folder:
             await studioUtils.doAddReadyFolder(FOLDER_ISSUE);

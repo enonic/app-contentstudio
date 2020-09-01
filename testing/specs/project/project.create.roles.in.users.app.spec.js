@@ -21,7 +21,7 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
         async () => {
             let userBrowsePanel = new UserBrowsePanel();
             //1. Save new project:
-            await studioUtils.navigateToContentStudioApp();
+            await studioUtils.navigateToContentStudioWithProjects();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, "test description");
@@ -75,7 +75,7 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let userBrowsePanel = new UserBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
-            await studioUtils.navigateToContentStudioApp();
+            await studioUtils.navigateToContentStudioWithProjects();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //1.Expand the root folder:

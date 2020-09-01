@@ -109,7 +109,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {
