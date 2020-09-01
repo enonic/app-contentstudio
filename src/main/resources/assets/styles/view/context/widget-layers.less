@@ -61,25 +61,6 @@
           }
         }
 
-        &.has-children + .layers-item-view-relation {
-          .layers-item-view-relation-line {
-            height: 34px;
-          }
-
-          .layers-item-view-relation-arrow {
-            display: block;
-          }
-
-          .has-children-button {
-            color: @admin-font-gray2;
-            cursor: default;
-
-            &:hover {
-              color: @admin-font-gray2;
-            }
-          }
-        }
-
         &:first-child {
           .layers-item-view-relation {
             display: none;
@@ -169,6 +150,25 @@
 
             &:hover {
               color: @admin-input-blue;
+            }
+          }
+        }
+
+        &.has-children + .layers-item-view-relation {
+          .layers-item-view-relation-line {
+            height: 34px;
+          }
+
+          .layers-item-view-relation-arrow {
+            display: block;
+          }
+
+          .has-children-button {
+            color: @admin-font-gray2;
+            cursor: default;
+
+            &:hover {
+              color: @admin-font-gray2;
             }
           }
         }
