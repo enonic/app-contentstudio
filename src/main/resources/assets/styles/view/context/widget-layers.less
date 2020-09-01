@@ -61,7 +61,7 @@
           }
         }
 
-        &.has-children +.layers-item-view-relation {
+        &.has-children + .layers-item-view-relation {
           .layers-item-view-relation-line {
             height: 34px;
           }
@@ -155,7 +155,12 @@
             display: none;
           }
 
-          .show-parents-button, .has-children-button {
+          .show-parents-button {
+            color: @admin-blue;
+          }
+
+          .show-parents-button,
+          .has-children-button {
             cursor: pointer;
             position: absolute;
             top: 10px;
@@ -165,10 +170,6 @@
             &:hover {
               color: @admin-input-blue;
             }
-          }
-
-          .show-parents-button {
-            color: @admin-blue;
           }
         }
 
