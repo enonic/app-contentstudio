@@ -46,7 +46,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1. Do Log in with 'SU' and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp();
+            await studioUtils.navigateToContentStudioWithProjects();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
 
@@ -72,7 +72,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
             //1. Do Log in with 'SU':
-            await studioUtils.navigateToContentStudioApp();
+            await studioUtils.navigateToContentStudioWithProjects();
             await projectSelectionDialog.waitForDialogLoaded();
             //2. Select the new user context:
             await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
@@ -101,7 +101,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     it("GIVEN user with 'Author' role is logged in WHEN existing project has been opened THEN all inputs should be disabled(not clickable)",
         async () => {
             //1. Do Log in with the user and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
