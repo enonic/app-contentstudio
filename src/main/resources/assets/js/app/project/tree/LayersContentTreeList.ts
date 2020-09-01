@@ -3,9 +3,12 @@ import {LayerContent} from '../../view/context/widget/layers/LayerContent';
 import {LayersContentTreeListItemView} from './LayersContentTreeListItemView';
 import {LayersContentTreeListHelper} from './LayersContentTreeListHelper';
 
-export class LayersContentTreeList extends ListBox<LayerContent> {
+export class LayersContentTreeList
+    extends ListBox<LayerContent> {
 
     private helper: LayersContentTreeListHelper;
+
+    private activeItemView: LayersContentTreeListItemView;
 
     constructor() {
         super('layers-content-tree-list');
@@ -25,7 +28,23 @@ export class LayersContentTreeList extends ListBox<LayerContent> {
     }
 
     protected createItemView(item: LayerContent, readOnly: boolean): LayersContentTreeListItemView {
-        return new LayersContentTreeListItemView(item, this.helper.calcLevel(item));
+        const itemView: LayersContentTreeListItemView = new LayersContentTreeListItemView(item, this.helper.calcLevel(item));
+
+        itemView.onClicked(() => {
+            if (this.activeItemView) {
+                this.activeItemView.removeClass('expanded');
+            }
+
+            if (this.activeItemView === itemView) {
+                this.activeItemView = null;
+                return;
+            }
+
+            this.activeItemView = itemView;
+            this.activeItemView.addClass('expanded');
+        });
+
+        return itemView;
     }
 
 }
