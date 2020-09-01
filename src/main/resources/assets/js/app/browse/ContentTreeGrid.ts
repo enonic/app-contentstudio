@@ -806,11 +806,17 @@ export class ContentTreeGrid
             return {cssClasses: `readonly' title='${i18n('field.readOnly')}'`};
         }
 
-        if (!!node.getData().getContentSummary() && node.getData().getContentSummary().isInherited()) {
-            return {cssClasses: 'inherited'};
+        let cssClasses: string = '';
+
+        if (!!node.getData().getContentSummary() && node.getData().getContentSummary().isDataInherited()) {
+            cssClasses += 'data-inherited';
         }
 
-        return null;
+        if (!!node.getData().getContentSummary() && node.getData().getContentSummary().isSortInherited()) {
+            cssClasses += ' sort-inherited';
+        }
+
+        return {cssClasses: cssClasses};
     }
 
     getSelectedOrHighlightedItems(): ContentSummaryAndCompareStatus[] {
