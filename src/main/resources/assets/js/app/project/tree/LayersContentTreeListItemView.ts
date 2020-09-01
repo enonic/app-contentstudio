@@ -2,6 +2,8 @@ import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {LayerContent} from '../../view/context/widget/layers/LayerContent';
 import {LayersContentTreeListItemViewer} from './LayersContentTreeListItemViewer';
 import {ProjectContext} from '../ProjectContext';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {LayersContentActionButton} from './LayersContentActionButton';
 
 export class LayersContentTreeListItemView extends LiEl {
 
@@ -11,12 +13,15 @@ export class LayersContentTreeListItemView extends LiEl {
 
     private viewer: LayersContentTreeListItemViewer;
 
+    private actionButton: LayersContentActionButton;
+
     constructor(item: LayerContent, level: number) {
         super();
 
         this.item = item;
         this.level = level;
         this.viewer = new LayersContentTreeListItemViewer(item.getProject());
+        this.actionButton = new LayersContentActionButton(this.item);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -32,6 +37,10 @@ export class LayersContentTreeListItemView extends LiEl {
             if (this.item.hasItem() && this.item.getItem().isInherited()) {
                 this.addClass('inherited');
             }
+
+            const buttonWrapperDiv: DivEl = new DivEl('action-wrapper');
+            buttonWrapperDiv.appendChild(this.actionButton);
+            this.appendChild(buttonWrapperDiv);
 
             return rendered;
         });

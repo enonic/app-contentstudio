@@ -25,7 +25,9 @@
         .level(5);
       }
 
-      .viewer {
+      .content-summary-and-compare-status-viewer {
+        .viewer-selectable();
+
         display: flex;
         align-items: center;
 
@@ -37,8 +39,20 @@
         .content-status-mixin();
       }
 
+      &:hover {
+        background-color: @admin-almost-white;
+      }
+
       &.current {
         border: 2px solid @admin-blue;
+
+        .action-button {
+          background-color: @admin-button-blue2;
+
+          &:hover {
+            background-color: @admin-button-blue1;
+          }
+        }
       }
 
       &.inherited .viewer .names-and-icon-view {
@@ -47,6 +61,25 @@
 
       .@{_COMMON_PREFIX}wrapper {
         cursor: default;
+      }
+
+      .action-wrapper {
+        cursor: pointer;
+        display: none;
+        margin-top: 5px;
+
+        .action-button {
+          flex-basis: 30%;
+          text-align: center;
+          padding: 5px;
+        }
+      }
+
+      &.expanded {
+        .action-wrapper {
+          display: flex;
+          justify-content: center;
+        }
       }
     }
   }
