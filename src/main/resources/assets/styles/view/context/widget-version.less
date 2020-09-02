@@ -72,7 +72,6 @@
         }
 
         &[class*='online'] {
-
           background-color: @admin-green;
           border-color: @admin-green;
           .version-info {
@@ -83,7 +82,7 @@
             .names-and-icon-view {
 
               .@{_COMMON_PREFIX}wrapper {
-                .font-icon-default.icon-version-published:before {
+                .font-icon-default.icon-version-published::before {
                   color: @admin-white;
                   background-color: @admin-green;
                 }
@@ -243,7 +242,7 @@
           background-color: @admin-orange;
           border-color: @admin-orange;
 
-          .viewer .names-and-icon-view .font-icon-default.icon-version-published:before {
+          .viewer .names-and-icon-view .font-icon-default.icon-version-published::before {
             background-color: @admin-orange;
           }
         }
