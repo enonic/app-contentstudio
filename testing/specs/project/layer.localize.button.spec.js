@@ -113,7 +113,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
 
 
     beforeEach(async () => {
-        return await studioUtils.navigateToContentStudioApp();
+        return await studioUtils.navigateToContentStudioWithProjects();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

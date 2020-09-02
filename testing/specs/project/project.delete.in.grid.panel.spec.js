@@ -55,7 +55,7 @@ describe('project.save.delete.grid.panel.spec - ui-tests for saving/deleting a p
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });

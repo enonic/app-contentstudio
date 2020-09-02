@@ -82,8 +82,8 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Select the layer's context:
             await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
-            //2. Open the site and add an application and save it:
-            await studioUtils.selectAndOpenContentInWizard(SITE_NAME);
+            //2. Select the site and click on Localize button then add an application and save it:
+            await studioUtils.selectContentAndClickOnLocalize(SITE_NAME);
             await siteFormPanel.addApplications([appConstant.APP_CONTENT_TYPES]);
             await contentWizard.waitAndClickOnSave();
             //3. Close the site-wizard:
@@ -139,7 +139,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
         });
 
     beforeEach(async () => {
-        return await studioUtils.navigateToContentStudioApp();
+        return await studioUtils.navigateToContentStudioWithProjects();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {
