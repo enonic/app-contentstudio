@@ -2,6 +2,7 @@ import {Flag} from 'lib-admin-ui/locale/Flag';
 import {Project} from '../../../../settings/data/project/Project';
 import {ContentSummaryAndCompareStatusViewer} from '../../../../content/ContentSummaryAndCompareStatusViewer';
 import {ProjectIconUrlResolver} from '../../../../project/ProjectIconUrlResolver';
+import * as Q from 'q';
 
 export class LangBasedContentSummaryViewer extends ContentSummaryAndCompareStatusViewer {
 
@@ -31,6 +32,15 @@ export class LangBasedContentSummaryViewer extends ContentSummaryAndCompareStatu
 
         const language: string = this.project.getLanguage();
         return !!language ? new Flag(language) : null;
+    }
+
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addClass('lang-based-content-summary-viewer');
+
+            return rendered;
+        });
     }
 
 }
