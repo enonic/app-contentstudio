@@ -108,7 +108,7 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });

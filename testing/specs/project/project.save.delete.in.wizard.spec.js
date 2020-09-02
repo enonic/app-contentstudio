@@ -81,7 +81,7 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });

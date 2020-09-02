@@ -72,7 +72,6 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            let confirmationDialog = new ConfirmationDialog();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //1. reopen the project:
@@ -92,7 +91,6 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
             let userAccessWidget = new UserAccessWidget();
-            let contentBrowsePanel = new ContentBrowsePanel();
             await projectSelectionDialog.waitForDialogLoaded();
             //1. Select the project in 'Select Context' dialog
             await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
@@ -107,7 +105,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

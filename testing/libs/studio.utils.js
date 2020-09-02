@@ -192,6 +192,15 @@ module.exports = {
         return await contentWizardPanel.waitForOpened();
     },
 
+    async selectContentAndClickOnLocalize(contentName) {
+        let contentWizardPanel = new ContentWizardPanel();
+        let browsePanel = new BrowsePanel();
+        await this.findAndSelectItem(contentName);
+        await browsePanel.clickOnLocalizeButton();
+        await this.doSwitchToNewWizard();
+        return await contentWizardPanel.waitForOpened();
+    },
+
     async doAddShortcut(shortcut) {
         let contentWizardPanel = new ContentWizardPanel();
         //Open new shortcut-wizard:
@@ -462,23 +471,36 @@ module.exports = {
         }
         return await loginPage.waitForPageLoaded(appConst.mediumTimeout);
     },
-    navigateToContentStudioApp: function (userName, password) {
-        let launcherPanel = new LauncherPanel();
-        return launcherPanel.waitForPanelDisplayed(2000).then(result => {
-            if (result) {
-                console.log("Launcher Panel is opened, click on the `Content Studio` link...");
-                return launcherPanel.clickOnContentStudioLink();
-            } else {
-                console.log("Login Page is opened, type a password and name...");
-                return this.doLoginAndClickOnContentStudio(userName, password);
-            }
-        }).then(() => {
-            return this.doSwitchToContentBrowsePanel();
-        }).catch(err => {
+    async navigateToContentStudioApp(userName, password) {
+        try {
+            await this.clickOnContentStudioLink(userName, password);
+            return await this.doSwitchToContentBrowsePanel();
+        } catch (err) {
             console.log('tried to navigate to Content Studio app, but: ' + err);
             this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
             throw new Error('error when navigate to Content Studio app ' + err);
-        });
+        }
+    },
+    async clickOnContentStudioLink(userName, password) {
+        let launcherPanel = new LauncherPanel();
+        let result = await launcherPanel.waitForPanelDisplayed(2000);
+        console.log("Launcher Panel is opened, click on the `Content Studio` link...");
+        if (result) {
+            await launcherPanel.clickOnContentStudioLink(userName, password);
+        } else {
+            console.log("Login Page is opened, type a password and name...");
+            return await this.doLoginAndClickOnContentStudio(userName, password);
+        }
+    },
+    async navigateToContentStudioWithProjects(userName, password) {
+        try {
+            await this.clickOnContentStudioLink(userName, password);
+            await webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin");
+            return await webDriverHelper.browser.pause(300);
+        } catch (err) {
+            this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
+            throw new Error('error when navigate to Content Studio app ' + err);
+        }
     },
     //Clicks on Cancel button and switches to Default project
     async closeProjectSelectionDialog() {
@@ -497,16 +519,16 @@ module.exports = {
         return await launcherPanel.clickOnContentStudioLink();
 
     },
-    doSwitchToContentBrowsePanel: function () {
-        console.log('testUtils:switching to Content Browse panel...');
-        let browsePanel = new BrowsePanel();
-        return webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin").then(() => {
+    async doSwitchToContentBrowsePanel() {
+        try {
+            console.log('testUtils:switching to Content Browse panel...');
+            let browsePanel = new BrowsePanel();
+            await webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin");
             console.log("switched to content browse panel...");
-        }).then(() => {
-            return browsePanel.waitForGridLoaded(appConst.longTimeout);
-        }).catch(err => {
+            return await browsePanel.waitForGridLoaded(appConst.longTimeout);
+        } catch (err) {
             throw new Error("Error when switching to Content Studio App " + err);
-        })
+        }
     },
     doSwitchToHome: function () {
         console.log('testUtils:switching to Home page...');

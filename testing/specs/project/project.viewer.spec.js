@@ -38,7 +38,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1. Do Log in with 'SU' and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp();
+            await studioUtils.navigateToContentStudioWithProjects();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
 
@@ -61,7 +61,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             let projectSelectionDialog = new ProjectSelectionDialog();
             TEST_FOLDER = contentBuilder.buildFolder(FOLDER_NAME);
             //1. Do Log in with 'SU' and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp();
+            await studioUtils.navigateToContentStudioWithProjects();
             await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
 
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
@@ -95,7 +95,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
     it("GIVEN user with Viewer role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
         async () => {
             //1. Do log in with the user and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //2.Click(select) on existing project:
@@ -111,7 +111,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-viewer and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //2. Verify that 'New' button is disabled for users with Viewer role
             await contentBrowsePanel.waitForNewButtonDisabled();
         });

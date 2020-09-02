@@ -52,7 +52,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });
