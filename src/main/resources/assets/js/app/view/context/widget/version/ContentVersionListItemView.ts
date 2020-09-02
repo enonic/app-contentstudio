@@ -92,13 +92,6 @@ export class ContentVersionListItemView
             return '';
         }
 
-        if (this.version.getPublishInfo() && this.content.isPublished() && this.content.getPublishStatus() === PublishStatus.EXPIRED) {
-            const expiredDate = this.version.getPublishInfo().getPublishedTo();
-            const expiredDateFormatted = `${DateHelper.formatDate(expiredDate)} ${DateHelper.getFormattedTimeFromDate(expiredDate, false)}`;
-
-            return i18n('widget.versionhistory.expired', expiredDateFormatted);
-        }
-
         return this.content.getStatusText();
     }
 
@@ -178,7 +171,7 @@ export class ContentVersionListItemView
                 }
 
                 const modifiedDate = version.getModified();
-                const dateTime = `${DateHelper.formatDate(modifiedDate)} ${DateHelper.getFormattedTimeFromDate(modifiedDate, false)}`;
+                const dateTime = `${DateHelper.formatDateTime(modifiedDate)}`;
 
                 NotifyManager.get().showSuccess(i18n('notify.version.changed', dateTime));
                 new ActiveContentVersionSetEvent(contentId, version.getId()).fire();
