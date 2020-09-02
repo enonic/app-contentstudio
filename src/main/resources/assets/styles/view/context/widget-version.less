@@ -67,35 +67,26 @@
           }
         }
 
-        &.online {
-          background-color: @admin-green;
-          border-color: @admin-green;
-        }
-
         &.online_expired {
-          background-color: lighten(@admin-green, 35%);
-          border-color: lighten(@admin-green, 35%);
-
-          .icon-version-published:before {
-            background-color: lighten(@admin-green, 35%) !important;
-          }
-
-          .names-and-icon-view {
-            color: @admin-bg-dark-gray;
-          }
+          opacity: 0.6;
         }
 
         &[class*='online'] {
 
+          background-color: @admin-green;
+          border-color: @admin-green;
           .version-info {
             color: @admin-black;
           }
 
           .viewer {
             .names-and-icon-view {
-              .icon-version-published:before {
-                color: @admin-white;
-                background-color: @admin-green;
+
+              .@{_COMMON_PREFIX}wrapper {
+                .font-icon-default.icon-version-published:before {
+                  color: @admin-white;
+                  background-color: @admin-green;
+                }
               }
             }
 
@@ -121,18 +112,34 @@
           position: relative;
 
           .names-and-icon-view {
-
             flex: 1;
+            display: flex;
 
-            .font-icon-default {
-              &:before {
-                font-size: 26px;
-                color: @admin-dark-gray;
+            .@{_COMMON_PREFIX}wrapper {
+              height: 100%;
+
+              .font-icon-default {
+                &:before {
+                  font-size: 26px;
+                  color: @admin-dark-gray;
+                }
+
+                &.icon-version-published:before {
+                  color: @admin-green;
+                }
               }
             }
 
-            .icon-version-published:before {
-              color: @admin-green;
+            .@{_COMMON_PREFIX}names-view {
+              .@{_COMMON_PREFIX}main-name {
+                height: inherit;
+                line-height: inherit;
+                text-align: right;
+              }
+
+              &.small .@{_COMMON_PREFIX}main-name {
+                font-size: 13px;
+              }
             }
           }
 
@@ -218,8 +225,8 @@
           }
         }
 
-        &[class*='online']:not(.online_expired),
-        &.active:not([class*='deleted']):not(.online_expired) {
+        &[class*='online'],
+        &.active:not([class*='deleted']) {
           .status,
           .viewer .names-and-icon-view *,
           .viewer .font-icon-default::before {
@@ -236,7 +243,7 @@
           background-color: @admin-orange;
           border-color: @admin-orange;
 
-          .viewer .names-and-icon-view .font-icon-default:before {
+          .viewer .names-and-icon-view .font-icon-default.icon-version-published:before {
             background-color: @admin-orange;
           }
         }
