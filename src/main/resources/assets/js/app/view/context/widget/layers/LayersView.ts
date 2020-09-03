@@ -105,7 +105,7 @@ export class LayersView extends ListBox<LayerContent> {
         let parentIndex: number = -1;
         reversedItemViews.find((item: LayerContentView, index: number) => {
             parentIndex = index;
-            return (index !== 0 && !item.getItem().isInherited()) || index === reversedItemViews.length -1;
+            return (index !== 0 && !item.getItem().isDataInherited()) || index === reversedItemViews.length -1;
         });
 
         const totalBetweenCurrentAndParent: number = parentIndex - 1;

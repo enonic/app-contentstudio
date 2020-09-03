@@ -42,7 +42,7 @@ export class LayerContentView extends LiEl {
                 this.addClass(LayerContentView.CURRENT_CLASS);
             }
 
-            if (this.item.getItem().isInherited()) {
+            if (this.item.getItem().isDataInherited()) {
                 this.addClass(LayerContentView.INHERITED_CLASS);
             }
 

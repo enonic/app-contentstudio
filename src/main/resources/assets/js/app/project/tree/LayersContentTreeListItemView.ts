@@ -34,7 +34,7 @@ export class LayersContentTreeListItemView extends LiEl {
                 this.addClass('current');
             }
 
-            if (this.item.hasItem() && this.item.getItem().isInherited()) {
+            if (this.item.hasItem() && this.item.getItem().isDataInherited()) {
                 this.addClass('inherited');
             }
 

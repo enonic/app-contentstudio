@@ -124,7 +124,7 @@ export class ContentTreeGridItemsState {
                 this.allLeafs = false;
             }
 
-            if (content.isInherited()) {
+            if (content.isDataInherited()) {
                 this.anyInherited = true;
             } else {
                 this.allInherited = false;

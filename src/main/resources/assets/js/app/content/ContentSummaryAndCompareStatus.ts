@@ -124,6 +124,10 @@ export class ContentSummaryAndCompareStatus
         return !!this.contentSummary ? this.contentSummary.isInherited() : false;
     }
 
+    isDataInherited(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isDataInherited() : false;
+    }
+
     isValid(): boolean {
         return !!this.contentSummary ? this.contentSummary.isValid() : false;
     }

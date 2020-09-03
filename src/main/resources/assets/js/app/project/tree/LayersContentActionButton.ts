@@ -27,7 +27,7 @@ export class LayersContentActionButton extends ActionButton {
 
     private getLabelText(): string {
         const isCurrentProject: boolean = this.item.getProject().getName() === ProjectContext.get().getProject().getName();
-        const isInherited: boolean = this.item.getItem().isInherited();
+        const isInherited: boolean = this.item.getItem().isDataInherited();
 
         if (isCurrentProject) {
             return isInherited ? i18n('action.translate') : i18n('action.edit');
