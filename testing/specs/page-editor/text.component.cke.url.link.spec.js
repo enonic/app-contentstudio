@@ -110,7 +110,7 @@ describe('Text Component with CKE - insert link and table  specification', funct
             await contentBrowsePanel.pause(2000);
             let title = await studioUtils.getTitle();
             studioUtils.saveScreenshot('site_preview_button_clicked');
-            assert.equal(title, 'Accelerate your digital projects with the Enonic Platform', 'expected title should be loaded');
+            assert.equal(title, 'Headless CMS and Application Platform', 'expected title should be loaded');
         });
 
     it("WHEN site is selected THEN the link should appear in Preview Panel",
