@@ -61,18 +61,21 @@ implements Cloneable {
     }
 
     getFirstPublished(): Date {
-        return this.contentPublishInfo.getFirst();
+        return this.contentPublishInfo?.getFirst();
     }
 
     getPublishedFrom(): Date {
-        return this.contentPublishInfo.getFrom();
+        return this.contentPublishInfo?.getFrom();
     }
 
     getPublishedTo(): Date {
-        return this.contentPublishInfo.getTo();
+        return this.contentPublishInfo?.getTo();
     }
 
     getPublishDate(): Date {
+        if (!this.contentPublishInfo) {
+            return this.timestamp;
+        }
         return new Date(Math.max(Number(this.timestamp), Number(this.contentPublishInfo.getFrom())));
     }
 }

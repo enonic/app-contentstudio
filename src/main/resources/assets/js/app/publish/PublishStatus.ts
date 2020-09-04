@@ -30,4 +30,24 @@ export class PublishStatusFormatter {
 
         return status;
     }
+
+    public static formatCompositeStatus(publishStatus: PublishStatus): string {
+        let status;
+
+        switch (publishStatus) {
+        case PublishStatus.ONLINE:
+            status = i18n('status.online');
+            break;
+        case PublishStatus.PENDING:
+            status = `${i18n('status.online')} (${i18n('status.pending')})`;
+            break;
+        case PublishStatus.EXPIRED:
+            status = `${i18n('status.online')} (${i18n('status.expired')})`;
+            break;
+        default:
+            status = i18n('status.unknown');
+        }
+
+        return status;
+    }
 }
