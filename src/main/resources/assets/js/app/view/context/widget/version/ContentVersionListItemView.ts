@@ -92,7 +92,9 @@ export class ContentVersionListItemView
             return '';
         }
 
-        return this.content.getStatusText();
+        return this.version.isActive() ?
+               this.content.getStatusText() :
+               PublishStatusFormatter.formatCompositeStatus(this.content.getPublishStatus());
     }
 
     private createTooltip() {
