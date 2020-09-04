@@ -108,7 +108,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
             //3. Close the task:
-            await taskDetailsDialog.clickOnCloseTaskButton();
+            await taskDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             await taskDetailsDialog.clickOnBackButton();
             await issueListDialog.pause(4000);
             let closedNumber = await issueListDialog.getNumberInClosedButton();

@@ -67,7 +67,7 @@ describe('issue.status.selector.spec: open and close task by clicking on menu bu
                 await taskDetailsDialog.waitForIssueTitleInputNotEditable();
             });
 
-        it(`GIVEN existing 'closed' task AND 'Details Dialog' is opened WHEN 'Status menu' has been opened and 'Open' item selected THEN the task gets 'open' AND 'Close Issue' button gets visible`,
+        it(`GIVEN existing 'closed' task AND 'Details Dialog' is opened WHEN 'Status menu' has been opened and 'Open' item selected THEN the task gets 'open'`,
             async () => {
                 let taskDetailsDialog = new TaskDetailsDialog();
                 let issueListDialog = new IssueListDialog();
@@ -82,8 +82,9 @@ describe('issue.status.selector.spec: open and close task by clicking on menu bu
                 studioUtils.saveScreenshot("status_menu_task_reopened");
                 //4. 'The task is opened' - this message should appear:
                 await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.TASK_OPENED_MESSAGE);
-                //5. 'Close Issue' button should appear in the dialog, because the issue is reopened
-                await taskDetailsDialog.waitForCloseButtonLoaded();
+                //5. 'Open' text should appear in the status selector button:
+                let actualStatus = await taskDetailsDialog.getCurrentStatusInStatusSelector();
+                assert.equal(actualStatus, "Open", "'Open' status should be displayed in the status selector button");
             });
 
         it.skip(

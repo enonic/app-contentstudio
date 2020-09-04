@@ -40,8 +40,8 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             let isActive = await taskDetailsDialog.isCommentsTabBarItemActive();
             assert.isTrue(isActive, 'Comments Tab should be active');
 
-            let isCloseButtonDisplayed = await taskDetailsDialog.isCloseTaskButtonDisplayed();
-            assert.isTrue(isCloseButtonDisplayed, 'Close Task button should be present');
+            let actualStatus = await taskDetailsDialog.getCurrentStatusInStatusSelector();
+            assert.equal(actualStatus, "Open", "'Open' status should be displayed in status selector button");
             //Comment button should be disabled, because it is empty.
             let isCommentButtonDisabled = await commentsTab.isCommentButtonEnabled();
             assert.isFalse(isCommentButtonDisabled, 'Comment button should be disabled');
