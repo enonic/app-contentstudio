@@ -123,7 +123,7 @@ class BaseDetailsDialog extends Page {
         await this.clickOnElement(this.issueStatusSelector);
         await this.waitForElementDisplayed(menuItemSelector, appConst.mediumTimeout);
         await this.clickOnElement(menuItemSelector);
-        return await this.pause(300);
+        return await this.waitForNotificationMessage();
     }
 
     async clickOnIssueStatusSelectorAndOpenIssue() {
@@ -131,15 +131,11 @@ class BaseDetailsDialog extends Page {
         await this.clickOnElement(this.issueStatusSelector);
         await this.waitForElementDisplayed(menuItemSelector, appConst.mediumTimeout);
         await this.clickOnElement(menuItemSelector);
-        return await this.pause(300);
+        return await this.waitForNotificationMessage();
     }
 
     pressEscKey() {
         return this.getBrowser().keys(['Escape']);
-    }
-
-    isCloseTaskButtonDisplayed() {
-        return this.isElementDisplayed(this.closeTaskButton);
     }
 
     async getIssueTitle() {
@@ -165,5 +161,11 @@ class BaseDetailsDialog extends Page {
         await this.clickOnElement(this.assigneesTabBarItem);
         return await this.pause(400);
     }
+
+    getCurrentStatusInStatusSelector() {
+        let locator = this.issueStatusSelector + "//div[contains(@id,'TabMenuButton')]/a";
+        return this.getText(locator);
+    }
 }
+
 module.exports = BaseDetailsDialog;
