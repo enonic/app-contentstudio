@@ -40,7 +40,7 @@
     "cssnano": "^4.1.10",
     "enonic-admin-artifacts": "^1.5.10",
     "error-logger-webpack-plugin": "^1.1.0",
-    "file-loader": "^6.0.0",
+    "file-loader": "^6.1.0",
     "js-yaml": "^3.14.0",
     "less": "^3.12.2",
     "less-loader": "^7.0.0",
