@@ -6,7 +6,7 @@ import {Body} from 'lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
-import {SortContentEvent} from './SortContentEvent';
+import {SortContentEvent} from './sort/SortContentEvent';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {TreeNodesOfContentPath} from './TreeNodesOfContentPath';
 import {TreeNodeParentOfContent} from './TreeNodeParentOfContent';

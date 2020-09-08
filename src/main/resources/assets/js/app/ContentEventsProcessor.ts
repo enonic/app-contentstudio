@@ -2,7 +2,7 @@ import {showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentWizardPanelParams} from './wizard/ContentWizardPanelParams';
 import {NewContentEvent} from './create/NewContentEvent';
-import {SortContentEvent} from './browse/SortContentEvent';
+import {SortContentEvent} from './browse/sort/SortContentEvent';
 import {OpenSortDialogEvent} from './browse/OpenSortDialogEvent';
 import {MoveContentEvent} from './move/MoveContentEvent';
 import {OpenMoveDialogEvent} from './move/OpenMoveDialogEvent';

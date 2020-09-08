@@ -1,6 +1,6 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {BaseContentModelEvent} from './BaseContentModelEvent';
+import {BaseContentModelEvent} from '../BaseContentModelEvent';
 
 export class SortContentEvent extends BaseContentModelEvent {
 

@@ -560,7 +560,7 @@ async function startContentBrowser(application: Application) {
     });
 
     const IssueListDialog = (await import('./app/issue/view/IssueListDialog')).IssueListDialog;
-    const SortContentDialog = (await import('./app/browse/SortContentDialog')).SortContentDialog;
+    const SortContentDialog = (await import('./app/browse/sort/dialog/SortContentDialog')).SortContentDialog;
     const MoveContentDialog = (await import('./app/move/MoveContentDialog')).MoveContentDialog;
 
     // tslint:disable-next-line:no-unused-expression

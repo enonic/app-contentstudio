@@ -1,29 +1,30 @@
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {SaveSortedContentAction} from './action/SaveSortedContentAction';
-import {SortContentTreeGrid} from './SortContentTreeGrid';
-import {SortContentTabMenu} from './SortContentTabMenu';
-import {ContentGridDragHandler} from './ContentGridDragHandler';
-import {OpenSortDialogEvent} from './OpenSortDialogEvent';
-import {OrderChildContentRequest} from '../resource/OrderChildContentRequest';
-import {OrderChildMovements} from '../resource/order/OrderChildMovements';
-import {OrderContentRequest} from '../resource/OrderContentRequest';
-import {Content} from '../content/Content';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {SaveSortedContentAction} from '../../action/SaveSortedContentAction';
+import {SortContentTreeGrid} from '../SortContentTreeGrid';
+import {SortContentTabMenu} from '../menu/SortContentTabMenu';
+import {ContentGridDragHandler} from '../../ContentGridDragHandler';
+import {OpenSortDialogEvent} from '../../OpenSortDialogEvent';
+import {OrderChildContentRequest} from '../../../resource/OrderChildContentRequest';
+import {OrderChildMovements} from '../../../resource/order/OrderChildMovements';
+import {OrderContentRequest} from '../../../resource/OrderContentRequest';
+import {Content} from '../../../content/Content';
+import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {TabMenuItem, TabMenuItemBuilder} from 'lib-admin-ui/ui/tab/TabMenuItem';
 import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
 import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {ModalDialog, ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {SortContentTabMenuItem} from '../menu/SortContentTabMenuItem';
 
 export class SortContentDialog
     extends ModalDialog {
 
     private sortAction: SaveSortedContentAction;
 
-    private parentContent: ContentSummaryAndCompareStatus;
+    private selectedContent: ContentSummaryAndCompareStatus;
 
     private contentGrid: SortContentTreeGrid;
 
@@ -38,6 +39,8 @@ export class SortContentDialog
     private gridLoadedHandler: () => void;
 
     private saveButton: DialogButton;
+
+    private subHeader: H6El;
 
     constructor() {
         super(<ModalDialogConfig>{
@@ -55,6 +58,7 @@ export class SortContentDialog
         this.gridDragHandler = new ContentGridDragHandler(this.contentGrid);
         this.sortAction = new SaveSortedContentAction(this);
         this.saveButton = this.addAction(this.sortAction);
+        this.subHeader = new H6El();
     }
 
     protected postInitElements() {
@@ -70,7 +74,6 @@ export class SortContentDialog
             this.handleSortOrderChanged();
             this.saveButton.giveFocus();
         });
-
 
         this.gridDragHandler.onPositionChanged(() => {
             this.sortContentMenu.selectManualSortingItem();
@@ -94,11 +97,9 @@ export class SortContentDialog
         return super.doRender().then((rendered: boolean) => {
             this.saveButton.addClass('save-button');
             this.sortContentMenu.show();
-            this.appendChildToHeader(this.sortContentMenu);
 
-            const header = new H6El();
-            header.setHtml(i18n('dialog.sort.preface'));
-            this.appendChildToHeader(header);
+            this.appendChildToHeader(this.sortContentMenu);
+            this.appendChildToHeader(this.subHeader);
 
             this.contentGrid.getEl().addClass('sort-content-grid');
             this.appendChildToContentPanel(this.contentGrid);
@@ -111,7 +112,7 @@ export class SortContentDialog
     show() {
         super.show();
         this.contentGrid.onLoaded(this.gridLoadedHandler);
-        this.contentGrid.reload(this.parentContent);
+        this.contentGrid.reload(this.selectedContent);
         this.sortContentMenu.focus();
     }
 
@@ -120,11 +121,13 @@ export class SortContentDialog
         this.contentGrid.unLoaded(this.gridLoadedHandler);
         super.close();
         this.contentGrid.reset();
+        this.contentGrid.removeClass('inherited');
         this.gridDragHandler.clearContentMovements();
+        this.sortContentMenu.deselectNavigationItem();
     }
 
     getContent(): ContentSummaryAndCompareStatus {
-        return this.parentContent;
+        return this.selectedContent;
     }
 
     private initTabMenu() {
@@ -155,24 +158,48 @@ export class SortContentDialog
     }
 
     private handleOpenSortDialogEvent(event: OpenSortDialogEvent) {
-        this.parentContent = event.getContent();
-        this.curChildOrder = this.getParentChildOrder();
+        this.selectedContent = event.getContent();
         this.prevChildOrder = null;
-        this.sortContentMenu.selectNavigationItemByOrder(this.curChildOrder);
 
-        if (!this.parentContent.hasChildren()) {
-            this.contentGrid.getEl().setAttribute('data-content', event.getContent().getPath().toString());
+        this.toggleInheritedSortingOption();
+        this.toggleGridVisibility();
+
+        this.open();
+    }
+
+    private toggleInheritedSortingOption() {
+        this.curChildOrder = this.getParentChildOrder();
+
+        if (this.selectedContent.isSortInherited()) {
+            this.handleSortInherited();
+        } else {
+            this.sortContentMenu.removeInheritedItem();
+            this.subHeader.setHtml(i18n('dialog.sort.preface'));
+            this.sortContentMenu.selectNavigationItemByOrder(this.curChildOrder);
+        }
+    }
+
+    private handleSortInherited() {
+        const order: ChildOrder = this.selectedContent.getContentSummary().getChildOrder();
+        const item: SortContentTabMenuItem = this.sortContentMenu.getItemByOrder(order);
+        this.sortContentMenu.addInheritedItem();
+        this.contentGrid.addClass('inherited');
+        this.sortContentMenu.selectInheritedSortingItem(order, item.getLabel(), item.getSelectedIconClass());
+        this.subHeader.setHtml(i18n('dialog.sort.preface.inherited'));
+    }
+
+    private toggleGridVisibility() {
+        if (!this.selectedContent.hasChildren()) {
+            this.contentGrid.getEl().setAttribute('data-content', this.selectedContent.getPath().toString());
             this.contentGrid.addClass('no-content');
         } else {
             this.contentGrid.removeClass('no-content');
             this.contentGrid.getEl().removeAttribute('data-content');
         }
-
-        this.open();
     }
 
     private handleSortOrderChanged() {
-        const newOrder: ChildOrder = this.sortContentMenu.getSelectedNavigationItem().getSelectedChildOrder();
+        const newOrder: ChildOrder = this.sortContentMenu.getSelectedNavigationItem().getOrder();
 
         if (!this.curChildOrder.equals(newOrder)) {
             this.setSortOrder(newOrder);
@@ -183,12 +210,16 @@ export class SortContentDialog
         if (!newOrder.isManual()) {
             this.curChildOrder = newOrder;
             this.contentGrid.setChildOrder(this.curChildOrder);
-            this.contentGrid.reload(this.parentContent);
+            this.contentGrid.reload(this.selectedContent);
             this.gridDragHandler.clearContentMovements();
+            if (this.selectedContent.isSortInherited()) {
+                this.contentGrid.addClass('inherited');
+            }
         } else {
             this.prevChildOrder = this.curChildOrder;
             this.curChildOrder = newOrder;
             this.contentGrid.setChildOrder(this.curChildOrder);
+            this.contentGrid.removeClass('inherited');
         }
     }
 
@@ -212,7 +243,7 @@ export class SortContentDialog
     private setContentChildOrder(): Q.Promise<Content> {
         return new OrderContentRequest()
             .setSilent(false)
-            .setContentId(this.parentContent.getContentId())
+            .setContentId(this.selectedContent.getContentId())
             .setChildOrder(this.curChildOrder)
             .sendAndParse();
     }
@@ -224,15 +255,15 @@ export class SortContentDialog
         return new OrderChildContentRequest()
             .setSilent(false)
             .setManualOrder(true)
-            .setContentId(this.parentContent.getContentId())
+            .setContentId(this.selectedContent.getContentId())
             .setChildOrder(order)
             .setContentMovements(movements)
             .sendAndParse();
     }
 
     private getParentChildOrder(): ChildOrder {
-        if (this.parentContent && this.parentContent.getContentSummary()) {
-            return this.parentContent.getContentSummary().getChildOrder();
+        if (this.selectedContent && this.selectedContent.getContentSummary()) {
+            return this.selectedContent.getContentSummary().getChildOrder();
         }
 
         return null;
