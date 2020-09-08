@@ -138,6 +138,11 @@
 
       .sort-content-grid {
         flex: 1 0 auto;
+
+        &.inherited {
+          opacity: 0.5;
+          pointer-events: none;
+        }
       }
     }
   }
@@ -171,6 +176,7 @@
     }
     .tab-menu-item {
       display: flex;
+      align-items: center;
       height: 32px;
       padding: 2px 3px 2px 5px;
       line-height: 32px;
@@ -228,6 +234,20 @@
       }
       &.active {
         .sorting-order.selected::before {
+          outline: 1px solid @admin-button-blue2;
+        }
+      }
+
+      &.inherited {
+        .label {
+          &:before {
+            position: absolute;
+            right: 15px;
+            font-size: 16px;
+          }
+        }
+
+        &.active {
           outline: 1px solid @admin-button-blue2;
         }
       }

@@ -4,9 +4,9 @@ import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
 import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
-import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentResponse} from '../resource/ContentResponse';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
+import {ContentResponse} from '../../resource/ContentResponse';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 
 export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus> {

@@ -1,5 +1,5 @@
 import {ContentTreeGrid} from '../ContentTreeGrid';
-import {SortContentEvent} from '../SortContentEvent';
+import {SortContentEvent} from '../sort/SortContentEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentTreeGridAction} from './ContentTreeGridAction';

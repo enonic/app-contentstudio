@@ -1,4 +1,4 @@
-import {SortContentDialog} from '../SortContentDialog';
+import {SortContentDialog} from '../sort/dialog/SortContentDialog';
 import {SaveSortedContentEvent} from '../SaveSortedContentEvent';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Action} from 'lib-admin-ui/ui/Action';

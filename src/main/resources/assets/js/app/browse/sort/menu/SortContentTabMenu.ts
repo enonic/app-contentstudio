@@ -1,19 +1,25 @@
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {SortContentTabMenuItem} from './SortContentTabMenuItem';
-import {SortContentTabMenuItems} from './SortContentTabMenuItems';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {DropdownHandle} from 'lib-admin-ui/ui/button/DropdownHandle';
 import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
 import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
+import {InheritedSortContentTabMenuItem} from './InheritedSortContentTabMenuItem';
+import {QueryField} from 'lib-admin-ui/query/QueryField';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {AscDescSortContentTabMenuItem} from './AscDescSortContentTabMenuItem';
+import {ManualSortContentTabMenuItem} from './ManualSortContentTabMenuItem';
 
 export class SortContentTabMenu
     extends TabMenu {
 
     private sortOrderChangedListeners: {():void}[] = [];
 
-    private navigationItems: SortContentTabMenuItems;
-
     private dropdownHandle: DropdownHandle;
+
+    private inheritedItem: InheritedSortContentTabMenuItem;
+
+    private sortManualItem: SortContentTabMenuItem;
 
     private iconClass: string;
 
@@ -22,8 +28,7 @@ export class SortContentTabMenu
 
         this.iconClass = '';
 
-        this.navigationItems = new SortContentTabMenuItems();
-        this.addNavigationItems(this.navigationItems.getAllItems());
+        this.addNavigationItems(this.createNavigationItems());
 
         this.dropdownHandle = new DropdownHandle();
         this.appendChild(this.dropdownHandle);
@@ -32,6 +37,24 @@ export class SortContentTabMenu
         this.initEventHandlers();
 
         this.selectNavigationItem(0);
+    }
+
+    private createNavigationItems(): SortContentTabMenuItem[] {
+        const items: SortContentTabMenuItem[] = [];
+
+        this.sortManualItem = new ManualSortContentTabMenuItem();
+        this.inheritedItem = new InheritedSortContentTabMenuItem();
+
+        items.push(
+            AscDescSortContentTabMenuItem.create().setFieldName(QueryField.MODIFIED_TIME).setLabel(i18n('field.sortType.modified')).build(),
+            AscDescSortContentTabMenuItem.create().setFieldName(QueryField.CREATED_TIME).setLabel(i18n('field.sortType.created')).build(),
+            AscDescSortContentTabMenuItem.create().setFieldName(QueryField.DISPLAY_NAME).setLabel(
+                i18n('field.sortType.displayName')).build(),
+            AscDescSortContentTabMenuItem.create().setFieldName(QueryField.PUBLISH_FIRST).setLabel(i18n('field.sortType.publish')).build(),
+            this.sortManualItem
+        );
+
+        return items;
     }
 
     initEventHandlers() {
@@ -71,7 +94,7 @@ export class SortContentTabMenu
         });
 
         this.onSortOrderChanged(() => {
-            const selectedItem = this.getSelectedNavigationItem();
+            const selectedItem: SortContentTabMenuItem = this.getSelectedNavigationItem();
 
             if (this.iconClass) {
                 this.getTabMenuButtonEl().getLabel().removeClass(this.iconClass);
@@ -88,9 +111,9 @@ export class SortContentTabMenu
     handleMenuKeyDown(event: KeyboardEvent) {
         const item = <SortContentTabMenuItem>this.getFocusedTab();
         if (KeyHelper.isArrowLeftKey(event)) {
-            item.giveFocusToAscending();
+            item.giveFocusToPrevElem();
         } else if (KeyHelper.isArrowRightKey(event)) {
-            item.giveFocusToDescending();
+            item.giveFocusToNextElem();
         } else {
             super.handleMenuKeyDown(event);
         }
@@ -112,7 +135,6 @@ export class SortContentTabMenu
     protected hideMenu() {
         super.hideMenu();
         this.dropdownHandle.up();
-
     }
 
     protected showMenu() {
@@ -130,8 +152,8 @@ export class SortContentTabMenu
         return (<SortContentTabMenuItem>super.getSelectedNavigationItem());
     }
 
-    getSortMenuNavigationItems(): SortContentTabMenuItems {
-        return this.navigationItems;
+    getNavigationItems(): SortContentTabMenuItem[] {
+        return <SortContentTabMenuItem[]>super.getNavigationItems();
     }
 
     addNavigationItems(items: SortContentTabMenuItem[]) {
@@ -142,22 +164,13 @@ export class SortContentTabMenu
         }
     }
 
-    replaceNavigationItems(items: SortContentTabMenuItem[]) {
-        this.removeNavigationItems();
-        this.addNavigationItems(items);
-    }
-
     selectNavigationItemByOrder(order: ChildOrder) {
-
         if (order.isManual()) {
-            this.selectNavigationItem(this.navigationItems.getManualItemIndex());
-
+            this.selectNavigationItem(this.sortManualItem.getIndex());
             return;
         }
 
-        const items = this.navigationItems.getAllItems();
-
-        items.some((item, index) => {
+        this.getNavigationItems().some((item: SortContentTabMenuItem, index) => {
             if (item.hasChildOrder(order)) {
                 this.selectNavigationItem(index);
                 return true;
@@ -166,8 +179,33 @@ export class SortContentTabMenu
         });
     }
 
+    getItemByOrder(order: ChildOrder): SortContentTabMenuItem {
+        if (order.isManual()) {
+            return this.sortManualItem;
+        }
+
+        return this.getNavigationItems().find((item: SortContentTabMenuItem) => {
+            return item.hasChildOrder(order);
+        });
+    }
+
     selectManualSortingItem() {
-        this.selectNavigationItemByOrder(this.navigationItems.SORT_MANUAL_ITEM.getSelectedChildOrder());
+        this.selectNavigationItem(this.sortManualItem.getIndex());
+    }
+
+    selectInheritedSortingItem(order: ChildOrder, label: string, iconClass: string) {
+        this.inheritedItem.setOrder(order, label, iconClass);
+        this.selectNavigationItem(this.inheritedItem.getIndex());
+    }
+
+    addInheritedItem() {
+        if (!this.getNavigationItems().some((item: SortContentTabMenuItem) => item === this.inheritedItem)) {
+            this.addNavigationItem(this.inheritedItem);
+        }
+    }
+
+    removeInheritedItem() {
+        this.removeNavigationItem(this.inheritedItem);
     }
 
     onSortOrderChanged(listener: () => void) {
