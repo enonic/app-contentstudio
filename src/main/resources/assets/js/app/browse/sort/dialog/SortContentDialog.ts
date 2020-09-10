@@ -30,10 +30,6 @@ export class SortContentDialog
 
     private sortContentMenu: SortContentTabMenu;
 
-    private curChildOrder: ChildOrder;
-
-    private prevChildOrder: ChildOrder;
-
     private gridDragHandler: ContentGridDragHandler;
 
     private gridLoadedHandler: () => void;
@@ -114,6 +110,7 @@ export class SortContentDialog
         this.contentGrid.onLoaded(this.gridLoadedHandler);
         this.contentGrid.reload(this.selectedContent);
         this.sortContentMenu.focus();
+        this.saveButton.setEnabled(false);
     }
 
     close() {
@@ -140,7 +137,9 @@ export class SortContentDialog
     }
 
     private handleSortApplied() {
-        if (this.curChildOrder.equals(this.getParentChildOrder()) && !this.curChildOrder.isManual()) {
+        const selectedOrder: ChildOrder = this.getSelectedOrder();
+
+        if (selectedOrder.equals(this.getParentChildOrder()) && !selectedOrder.isManual()) {
             this.close();
         } else {
             this.saveSortOrder().catch(DefaultErrorHandler.handle).done(this.onAfterSetOrder.bind(this));
@@ -150,7 +149,7 @@ export class SortContentDialog
     private saveSortOrder(): Q.Promise<Content> {
         this.showLoadingSpinner();
 
-        if (this.curChildOrder.isManual()) {
+        if (this.getSelectedOrder().isManual()) {
             return this.setManualReorder();
         } else {
             return this.setContentChildOrder();
@@ -159,23 +158,18 @@ export class SortContentDialog
 
     private handleOpenSortDialogEvent(event: OpenSortDialogEvent) {
         this.selectedContent = event.getContent();
-        this.prevChildOrder = null;
-
         this.toggleInheritedSortingOption();
         this.toggleGridVisibility();
-
         this.open();
     }
 
     private toggleInheritedSortingOption() {
-        this.curChildOrder = this.getParentChildOrder();
-
         if (this.selectedContent.isSortInherited()) {
             this.handleSortInherited();
         } else {
             this.sortContentMenu.removeInheritedItem();
             this.subHeader.setHtml(i18n('dialog.sort.preface'));
-            this.sortContentMenu.selectNavigationItemByOrder(this.curChildOrder);
+            this.sortContentMenu.selectNavigationItemByOrder(this.getParentChildOrder());
         }
     }
 
@@ -199,26 +193,23 @@ export class SortContentDialog
     }
 
     private handleSortOrderChanged() {
-        const newOrder: ChildOrder = this.sortContentMenu.getSelectedNavigationItem().getOrder();
+        const newOrder: ChildOrder = this.getSelectedOrder();
+        const isOrderChanged: boolean = !this.getParentChildOrder().equals(newOrder);
 
-        if (!this.curChildOrder.equals(newOrder)) {
-            this.setSortOrder(newOrder);
-        }
+        this.saveButton.setEnabled(isOrderChanged);
+        this.setSortOrder(newOrder);
     }
 
     private setSortOrder(newOrder: ChildOrder) {
         if (!newOrder.isManual()) {
-            this.curChildOrder = newOrder;
-            this.contentGrid.setChildOrder(this.curChildOrder);
+            this.contentGrid.setChildOrder(newOrder);
             this.contentGrid.reload(this.selectedContent);
             this.gridDragHandler.clearContentMovements();
             if (this.selectedContent.isSortInherited()) {
                 this.contentGrid.addClass('inherited');
             }
         } else {
-            this.prevChildOrder = this.curChildOrder;
-            this.curChildOrder = newOrder;
-            this.contentGrid.setChildOrder(this.curChildOrder);
+            this.contentGrid.setChildOrder(newOrder);
             this.contentGrid.removeClass('inherited');
         }
     }
@@ -226,10 +217,6 @@ export class SortContentDialog
     private onAfterSetOrder() {
         this.hideLoadingSpinner();
         this.close();
-    }
-
-    private hasChangedPrevChildOrder(): boolean {
-        return this.prevChildOrder && !this.prevChildOrder.equals(this.getParentChildOrder());
     }
 
     private showLoadingSpinner() {
@@ -244,21 +231,24 @@ export class SortContentDialog
         return new OrderContentRequest()
             .setSilent(false)
             .setContentId(this.selectedContent.getContentId())
-            .setChildOrder(this.curChildOrder)
+            .setChildOrder(this.getSelectedOrder())
             .sendAndParse();
     }
 
     private setManualReorder(): Q.Promise<Content> {
-        const order: ChildOrder = this.hasChangedPrevChildOrder() ? this.prevChildOrder : null;
         const movements: OrderChildMovements = this.gridDragHandler.getContentMovements();
 
         return new OrderChildContentRequest()
             .setSilent(false)
             .setManualOrder(true)
             .setContentId(this.selectedContent.getContentId())
-            .setChildOrder(order)
+            .setChildOrder(this.getSelectedOrder())
             .setContentMovements(movements)
             .sendAndParse();
+    }
+
+    private getSelectedOrder(): ChildOrder {
+        return this.sortContentMenu.getSelectedNavigationItem().getOrder();
     }
 
     private getParentChildOrder(): ChildOrder {

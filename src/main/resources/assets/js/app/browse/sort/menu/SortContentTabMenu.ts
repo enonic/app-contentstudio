@@ -205,7 +205,9 @@ export class SortContentTabMenu
     }
 
     removeInheritedItem() {
-        this.removeNavigationItem(this.inheritedItem);
+        if (this.getNavigationItems().some((item: SortContentTabMenuItem) => item === this.inheritedItem)) {
+            this.removeNavigationItem(this.inheritedItem);
+        }
     }
 
     onSortOrderChanged(listener: () => void) {
