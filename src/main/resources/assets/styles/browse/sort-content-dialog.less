@@ -216,6 +216,21 @@
           display: none;
         }
       }
+
+      &.inherited {
+        .label {
+          &:before {
+            position: absolute;
+            right: 15px;
+            font-size: 16px;
+          }
+        }
+
+        &.active {
+          outline: 1px solid @admin-button-blue2;
+        }
+      }
+
       &.single {
         .label {
           color: @admin-button-blue2;
@@ -234,20 +249,6 @@
       }
       &.active {
         .sorting-order.selected::before {
-          outline: 1px solid @admin-button-blue2;
-        }
-      }
-
-      &.inherited {
-        .label {
-          &:before {
-            position: absolute;
-            right: 15px;
-            font-size: 16px;
-          }
-        }
-
-        &.active {
           outline: 1px solid @admin-button-blue2;
         }
       }
