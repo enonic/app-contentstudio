@@ -44,10 +44,11 @@ class BaseDetailsPanel extends Page {
 
     async openLayers() {
         await this.clickOnWidgetSelectorDropdownHandle();
-        let dependenciesOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.LAYERS);
-        await this.waitForElementDisplayed(dependenciesOption, appConst.mediumTimeout);
-        let result = await this.getDisplayedElements(dependenciesOption);
-        return await result[0].click();
+        let layersOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.LAYERS);
+        await this.waitForElementDisplayed(layersOption, appConst.mediumTimeout);
+        let result = await this.getDisplayedElements(layersOption);
+        await result[0].click();
+        return await this.pause(500);
     }
 };
 module.exports = BaseDetailsPanel;

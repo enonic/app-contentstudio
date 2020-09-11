@@ -467,6 +467,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         })
     }
 
+    waitForRowByDisplayNameVisible(name) {
+        let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(name);
+        return this.waitForElementDisplayed(nameXpath, appConst.longTimeout).catch(err => {
+            this.saveScreenshot('err_find_' + name);
+            throw Error('Row with the name ' + name + ' is not visible after ' + 3000 + 'ms')
+        })
+    }
+
     waitForContentByDisplayNameVisible(displayName) {
         let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(displayName);
         return this.waitForElementDisplayed(nameXpath, 3000).catch(err => {

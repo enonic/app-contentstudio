@@ -105,8 +105,8 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await studioUtils.findAndSelectItem(SITE_NAME);
             studioUtils.saveScreenshot("site_widget_after_localizing");
             let browseLayersWidget = await studioUtils.openLayersWidgetInBrowsePanel();
-            //3.Verify that the layer-item is expanded and 'Open' button should be enabled in the item.
-            await browseLayersWidget.waitForOpenButtonEnabled(LAYER_DISPLAY_NAME);
+            //3.Verify that the layer-item is expanded and 'Edit' button should be enabled in the item.
+            await browseLayersWidget.waitForEditButtonEnabled(LAYER_DISPLAY_NAME);
         });
 
     it("GIVEN the local copy of inherited site is selected WHEN Layers widget has been opened THEN only one item with button 'Open' should be present in the widget",
@@ -121,7 +121,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             //3.Verify that only one item with button 'Open' should be present in the widget:
             let layers = await browseLayersWidget.getLayersName();
             assert.equal(layers.length, 1, "Only one item should be present in the widget");
-            await browseLayersWidget.waitForOpenButtonEnabled(LAYER_DISPLAY_NAME);
+            await browseLayersWidget.waitForEditButtonEnabled(LAYER_DISPLAY_NAME);
         });
 
     it("Postcondition: delete the layer",
