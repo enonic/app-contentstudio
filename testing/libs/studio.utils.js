@@ -81,6 +81,10 @@ module.exports = {
         let script = `return CKEDITOR.instances['${id}'].getData()`;
         return webDriverHelper.browser.execute(script);
     },
+    scrollViewPort(viewportElement, step) {
+
+        return webDriverHelper.browser.execute("arguments[0].scrollTop=arguments[1]", viewportElement, step);
+    },
     async insertUrlLinkInCke(text, url) {
         let insertLinkDialog = new InsertLinkDialog();
         await insertLinkDialog.typeText(text);

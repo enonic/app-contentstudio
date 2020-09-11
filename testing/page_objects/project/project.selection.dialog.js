@@ -51,7 +51,7 @@ class ProjectSelectionDialog extends Page {
         return this.getText(XPATH.container + XPATH.title);
     }
 
-    async waitForCancelButtonDisplayed() {
+    async waitForCancelButtonTopDisplayed() {
         try {
             return await this.waitForElementDisplayed(this.cancelButtonTop, appConst.shortTimeout);
         } catch (err) {
@@ -59,14 +59,13 @@ class ProjectSelectionDialog extends Page {
         }
     }
 
-    waitForCancelButtonTopDisplayed() {
-        return this.waitForElementDisplayed(this.cancelButtonTop, appConst.shortTimeout);
-    }
-
     async selectContext(projectDisplayName) {
         let selector = XPATH.container + XPATH.projectList + lib.itemByDisplayName(projectDisplayName);
         await this.waitForElementDisplayed(selector, appConst.longTimeout);
-        return await this.scrollAndClickOnElement(selector);
+        await this.scrollAndClickOnElement(selector);
+        // let browsePanel = new BrowsePanel();
+        // await browsePanel.waitForGridLoaded(appConst.longTimeout);
+        // return browsePanel;
     }
 
     async getProjectsDisplayName() {
@@ -77,7 +76,6 @@ class ProjectSelectionDialog extends Page {
     async getProjectLanguage(projectDisplayName) {
         let locator = XPATH.container + XPATH.projectList + lib.itemByDisplayName(projectDisplayName) + lib.P_SUB_NAME;
         return this.getText(locator);
-
     }
 };
 module.exports = ProjectSelectionDialog;
