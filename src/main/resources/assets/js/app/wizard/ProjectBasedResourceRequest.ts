@@ -6,14 +6,19 @@ import {Project} from '../settings/data/project/Project';
 export abstract class ProjectBasedResourceRequest<PARSED_TYPE>
     extends ResourceRequest<PARSED_TYPE> {
 
-    private project: Project;
+    private projectName: string;
 
     getRestPath(): Path {
-        return Path.fromParent(super.getRestPath(), UrlHelper.getCMSPath(this.project));
+        return Path.fromParent(super.getRestPath(), UrlHelper.getCMSPathWithProject(this.projectName));
     }
 
     setRequestProject(value: Project): ProjectBasedResourceRequest<PARSED_TYPE> {
-        this.project = value;
+        this.projectName = !!value ? value.getName() : null;
+        return this;
+    }
+
+    setRequestProjectName(value: string): ProjectBasedResourceRequest<PARSED_TYPE> {
+        this.projectName = value;
         return this;
     }
 

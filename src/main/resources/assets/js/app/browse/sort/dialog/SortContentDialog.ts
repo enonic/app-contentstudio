@@ -18,6 +18,12 @@ import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {ModalDialog, ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {SortContentTabMenuItem} from '../menu/SortContentTabMenuItem';
+import {Project} from '../../../settings/data/project/Project';
+import {ProjectContext} from '../../../project/ProjectContext';
+import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
+import {ContentsExistResult} from '../../../resource/ContentsExistResult';
+import {ContentSummaryAndCompareStatusFetcher} from '../../../resource/ContentSummaryAndCompareStatusFetcher';
+import {LayerContent} from '../../../view/context/widget/layers/LayerContent';
 
 export class SortContentDialog
     extends ModalDialog {
@@ -68,7 +74,6 @@ export class SortContentDialog
 
         this.sortContentMenu.onSortOrderChanged(() => {
             this.handleSortOrderChanged();
-            this.saveButton.giveFocus();
         });
 
         this.gridDragHandler.onPositionChanged(() => {
@@ -118,7 +123,6 @@ export class SortContentDialog
         this.contentGrid.unLoaded(this.gridLoadedHandler);
         super.close();
         this.contentGrid.reset();
-        this.contentGrid.removeClass('inherited');
         this.gridDragHandler.clearContentMovements();
         this.sortContentMenu.deselectNavigationItem();
     }
@@ -159,6 +163,7 @@ export class SortContentDialog
     private handleOpenSortDialogEvent(event: OpenSortDialogEvent) {
         this.selectedContent = event.getContent();
         this.toggleInheritedSortingOption();
+        this.updateSubHeaderText();
         this.toggleGridVisibility();
         this.open();
     }
@@ -167,19 +172,50 @@ export class SortContentDialog
         if (this.selectedContent.isSortInherited()) {
             this.handleSortInherited();
         } else {
-            this.sortContentMenu.removeInheritedItem();
-            this.subHeader.setHtml(i18n('dialog.sort.preface'));
             this.sortContentMenu.selectNavigationItemByOrder(this.getParentChildOrder());
+            this.addInheritedOptionIfParentExists();
         }
     }
 
+    private addInheritedOptionIfParentExists() {
+        const parentProject: string = ProjectContext.get().getProject().getParent();
+
+        if (parentProject) {
+            this.fetchParentLayerContent().then((parentLayerContent: ContentSummaryAndCompareStatus) => {
+                if (!parentLayerContent) {
+                    this.sortContentMenu.removeInheritedItem();
+                } else {
+                   this.addInheritedItemByOrder(parentLayerContent.getContentSummary().getChildOrder());
+                }
+            }).catch(DefaultErrorHandler.handle);
+        } else {
+            this.sortContentMenu.removeInheritedItem();
+        }
+    }
+
+    private fetchParentLayerContent(): Q.Promise<any> {
+        const parentProject: string = ProjectContext.get().getProject().getParent();
+
+       return new ContentsExistRequest([this.selectedContent.getId()])
+            .setRequestProjectName(parentProject)
+            .sendAndParse()
+            .then((result: ContentsExistResult) => {
+                if (!!result.getContentsExistMap()[this.selectedContent.getId()]) {
+                    return ContentSummaryAndCompareStatusFetcher.fetch(this.selectedContent.getContentId(), parentProject);
+                } else {
+                    return Q(null);
+                }
+            });
+    }
+
     private handleSortInherited() {
-        const order: ChildOrder = this.selectedContent.getContentSummary().getChildOrder();
+        this.addInheritedItemByOrder(this.selectedContent.getContentSummary().getChildOrder());
+        this.sortContentMenu.selectInheritedSortingItem();
+    }
+
+    private addInheritedItemByOrder(order: ChildOrder) {
         const item: SortContentTabMenuItem = this.sortContentMenu.getItemByOrder(order);
-        this.sortContentMenu.addInheritedItem();
-        this.contentGrid.addClass('inherited');
-        this.sortContentMenu.selectInheritedSortingItem(order, item.getLabel(), item.getSelectedIconClass());
-        this.subHeader.setHtml(i18n('dialog.sort.preface.inherited'));
+        this.sortContentMenu.addInheritedItem(order, item.getLabel(), item.getSelectedIconClass());
     }
 
     private toggleGridVisibility() {
@@ -197,20 +233,14 @@ export class SortContentDialog
         const isOrderChanged: boolean = !this.getParentChildOrder().equals(newOrder);
 
         this.saveButton.setEnabled(isOrderChanged);
-        this.setSortOrder(newOrder);
-    }
+        this.saveButton.giveFocus();
+        this.contentGrid.setChildOrder(newOrder);
+        this.contentGrid.toggleClass('inherited', this.sortContentMenu.isInheritedItemSelected());
+        this.updateSubHeaderText();
 
-    private setSortOrder(newOrder: ChildOrder) {
         if (!newOrder.isManual()) {
-            this.contentGrid.setChildOrder(newOrder);
             this.contentGrid.reload(this.selectedContent);
             this.gridDragHandler.clearContentMovements();
-            if (this.selectedContent.isSortInherited()) {
-                this.contentGrid.addClass('inherited');
-            }
-        } else {
-            this.contentGrid.setChildOrder(newOrder);
-            this.contentGrid.removeClass('inherited');
         }
     }
 
@@ -257,5 +287,13 @@ export class SortContentDialog
         }
 
         return null;
+    }
+
+    private updateSubHeaderText() {
+        if (this.sortContentMenu.isInheritedItemSelected()) {
+            this.subHeader.setHtml(i18n('dialog.sort.preface.inherited'));
+        } else {
+            this.subHeader.setHtml(i18n('dialog.sort.preface'));
+        }
     }
 }

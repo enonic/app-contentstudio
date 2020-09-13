@@ -18,7 +18,7 @@ export class CompareContentRequest
         this.addRequestPathElements('compare');
     }
 
-    static fromContentSummaries(contentSummaries: ContentSummary[], project?: Project): CompareContentRequest {
+    static fromContentSummaries(contentSummaries: ContentSummary[], projectName?: string): CompareContentRequest {
 
         let ids: string[] = [];
 
@@ -27,7 +27,7 @@ export class CompareContentRequest
             ids.push(contentSummary.getContentId().toString());
         });
 
-        return <CompareContentRequest>(new CompareContentRequest(ids).setRequestProject(project));
+        return <CompareContentRequest>(new CompareContentRequest(ids).setRequestProjectName(projectName));
     }
 
     getParams(): Object {

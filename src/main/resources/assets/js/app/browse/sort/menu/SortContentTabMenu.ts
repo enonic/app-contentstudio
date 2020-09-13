@@ -193,12 +193,13 @@ export class SortContentTabMenu
         this.selectNavigationItem(this.sortManualItem.getIndex());
     }
 
-    selectInheritedSortingItem(order: ChildOrder, label: string, iconClass: string) {
-        this.inheritedItem.setOrder(order, label, iconClass);
+    selectInheritedSortingItem() {
         this.selectNavigationItem(this.inheritedItem.getIndex());
     }
 
-    addInheritedItem() {
+    addInheritedItem(order: ChildOrder, label: string, iconClass: string) {
+        this.inheritedItem.setOrder(order, label, iconClass);
+
         if (!this.getNavigationItems().some((item: SortContentTabMenuItem) => item === this.inheritedItem)) {
             this.addNavigationItem(this.inheritedItem);
         }
@@ -208,6 +209,10 @@ export class SortContentTabMenu
         if (this.getNavigationItems().some((item: SortContentTabMenuItem) => item === this.inheritedItem)) {
             this.removeNavigationItem(this.inheritedItem);
         }
+    }
+
+    isInheritedItemSelected(): boolean {
+        return this.inheritedItem === this.getSelectedNavigationItem();
     }
 
     onSortOrderChanged(listener: () => void) {

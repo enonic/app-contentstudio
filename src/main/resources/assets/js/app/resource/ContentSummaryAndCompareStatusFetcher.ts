@@ -59,11 +59,11 @@ export class ContentSummaryAndCompareStatusFetcher {
             });
     }
 
-    static fetch(contentId: ContentId, project?: Project): Q.Promise<ContentSummaryAndCompareStatus> {
+    static fetch(contentId: ContentId, projectName?: string): Q.Promise<ContentSummaryAndCompareStatus> {
 
-        return new GetContentByIdRequest(contentId).setRequestProject(project).sendAndParse().then((content: Content) => {
+        return new GetContentByIdRequest(contentId).setRequestProjectName(projectName).sendAndParse().then((content: Content) => {
 
-            return CompareContentRequest.fromContentSummaries([content], project).sendAndParse()
+            return CompareContentRequest.fromContentSummaries([content], projectName).sendAndParse()
                 .then((compareResults: CompareContentResults) => {
 
                     return ContentSummaryAndCompareStatusFetcher.updateCompareStatus([content], compareResults)[0];
