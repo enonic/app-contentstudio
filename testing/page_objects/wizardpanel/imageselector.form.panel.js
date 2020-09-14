@@ -8,7 +8,7 @@ const LoaderComboBox = require('../components/loader.combobox');
 const XPATH = {
     wizardStep: `//li[contains(@id,'TabBarItem')]/a[text()='Image selector']`,
     imageContentComboBox: `//div[contains(@id,'ImageContentComboBox')]`,
-    flatOptionView: `//div[contains(@id,'ImageSelectorViewer')]//img`,
+    flatOptionView: `//div[contains(@id,'ImageSelectorViewer')]`,
     modeTogglerButton: `//button[contains(@id,'ModeTogglerButton')]`,
     selectedOption: "//div[contains(@id,'ImageSelectorSelectedOptionView')]",
     selectedOptions: "//div[contains(@id,'ImageSelectorSelectedOptionsView')]",
