@@ -48,6 +48,8 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Select the layer's context:
             await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            //Wait for content is inherited from the parent project:
+            await contentBrowsePanel.pause(3000);
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             studioUtils.saveScreenshot("localize_button_browse_panel_enabled");
             //2. Verify that Localize button is enabled in the browse toolbar

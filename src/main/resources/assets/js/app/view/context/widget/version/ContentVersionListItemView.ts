@@ -84,23 +84,7 @@ export class ContentVersionListItemView
             return '';
         }
 
-        let statusPostfix = '';
-
-        if (this.isPublishPending()) {
-           statusPostfix += ` ${PublishStatus.PENDING}`;
-        }
-
-        if (this.content.isPendingDelete() && this.version.hasPublishInfo()) {
-            statusPostfix += ` ${PublishStatus.ONLINE}`;
-        }
-
-        if (this.version.isActive() && this.content.isPendingDelete()) {
-            statusPostfix += ` ${CompareStatusFormatter.formatStatusClass(CompareStatus.PENDING_DELETE)}`;
-        }
-
-        return this.version.isActive() ?
-            `${CompareStatusFormatter.formatStatusClassFromContent(this.content)}${statusPostfix}` :
-            `${PublishStatus.ONLINE}${statusPostfix}`;
+        return this.content.getStatusClass();
     }
 
     private getStatusText(): string {
@@ -108,15 +92,9 @@ export class ContentVersionListItemView
             return '';
         }
 
-        const statusPostfix: string = this.isPublishPending() ? ` (${PublishStatusFormatter.formatStatus(PublishStatus.PENDING)})` : '';
-
         return this.version.isActive() ?
-            this.content.getStatusText() :
-            `${PublishStatusFormatter.formatStatus(PublishStatus.ONLINE)}${statusPostfix}`;
-    }
-
-    private isPublishPending(): boolean {
-        return this.content.getPublishStatus() === PublishStatus.PENDING;
+               this.content.getStatusText() :
+               PublishStatusFormatter.formatCompositeStatus(this.content.getPublishStatus());
     }
 
     private createTooltip() {
@@ -195,7 +173,7 @@ export class ContentVersionListItemView
                 }
 
                 const modifiedDate = version.getModified();
-                const dateTime = `${DateHelper.formatDate(modifiedDate)} ${DateHelper.getFormattedTimeFromDate(modifiedDate, false)}`;
+                const dateTime = `${DateHelper.formatDateTime(modifiedDate)}`;
 
                 NotifyManager.get().showSuccess(i18n('notify.version.changed', dateTime));
                 new ActiveContentVersionSetEvent(contentId, version.getId()).fire();

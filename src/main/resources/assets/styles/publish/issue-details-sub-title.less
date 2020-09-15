@@ -34,7 +34,7 @@
 
     .issue-icon {
       position: absolute;
-      top: -4px;
+      top: -3px;
       left: -20px;
       width: 32px;
       height: 32px;
@@ -65,14 +65,10 @@
 
     .tab-menu-button {
       display: inline-block;
-      padding: 2px 20px 3px;
+      padding: 2px 40px 3px 30px;
       font-weight: bold;
-      line-height: 19px;
-      border-radius: 8px;
-
-      &:before {
-        content: '';
-      }
+      line-height: 22px;
+      border-radius: 6px;
 
       .label {
         margin: 0;
@@ -96,7 +92,6 @@
         height: 40px;
         border-radius: 20px;
         background-color: @admin-white;
-        //box-shadow: -3px -1px 4px -2px rgba(0,0,0,0.75);
         box-shadow: -3px -1px 4px 0px rgba(0, 0, 0, 0.3);
       }
 
@@ -104,6 +99,24 @@
         padding: 2px 5px 3px;
         border-radius: 4px;
         line-height: 19px;
+      }
+    }
+
+    .@{_COMMON_PREFIX}dropdown-handle {
+      z-index: 2;
+      pointer-events: none;
+      width: 30px;
+      height: 30px;
+
+      &.down {
+        height: 28px;
+      }
+
+      &::after {
+        border-left-width: 6px;
+        border-right-width: 6px;
+        border-top-width: 8px;
+        border-top-color: @admin-white;
       }
     }
   }

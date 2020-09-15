@@ -8,7 +8,7 @@ const LoaderComboBox = require('../components/loader.combobox');
 const XPATH = {
     wizardStep: `//li[contains(@id,'TabBarItem')]/a[text()='Image selector']`,
     imageContentComboBox: `//div[contains(@id,'ImageContentComboBox')]`,
-    flatOptionView: `//div[contains(@id,'ImageSelectorViewer')]//img`,
+    flatOptionView: `//div[contains(@id,'ImageSelectorViewer')]`,
     modeTogglerButton: `//button[contains(@id,'ModeTogglerButton')]`,
     selectedOption: "//div[contains(@id,'ImageSelectorSelectedOptionView')]",
     selectedOptions: "//div[contains(@id,'ImageSelectorSelectedOptionsView')]",
@@ -82,16 +82,37 @@ class ImageSelectorForm extends Page {
         return result;
     }
 
-    clickOnElements(elements) {
+    clickOnElements(elements, viewport) {
         let result = Promise.resolve();
+        let i = 0;
         elements.forEach(el => {
             result = result.then(() => {
-                return el.click()
+                return el.click();
             }).then(() => {
-                return this.pause(300);
+                return this.pause(500);
+            }).then(() => {
+                i++;
+                if (i === 3) {
+                    return this.doScroll(viewport, 180);
+                }
+            }).then(() => {
+                return this.pause(500);
             });
         });
         return result;
+    }
+
+    async clickOnElements1(elements, viewport) {
+        let i = 0;
+        for (const item of elements) {
+            await item.click();
+            await this.pause(300);
+            i++;
+            if (i === 3) {
+                await this.doScroll(viewport, 180);
+            }
+            await this.pause(300);
+        }
     }
 
     async clickOnDropDownHandleAndSelectImages(numberImages) {
@@ -99,9 +120,17 @@ class ImageSelectorForm extends Page {
         await this.pause(700);
         let selector = XPATH.imageContentComboBox + lib.SLICK_ROW + "//div[contains(@class,'checkboxsel')]";
         let elems = await this.findElements(selector);
-        await this.clickOnElements(elems.slice(0, numberImages));
+        let viewportElement = await this.findElements(
+            XPATH.imageContentComboBox + "//div[contains(@id,'OptionsTreeGrid')]" + "//div[contains(@class, 'slick-viewport')]");
+        //Scrolls and clicks on options in the dropdown:
+        await this.clickOnElements(elems.slice(0, numberImages), viewportElement[0]);
         await this.clickOnApplyButton();
         return await this.pause(1000);
+    }
+
+    //Scrolls viewport in dropdown:
+    doScroll(viewportElement, step) {
+        return this.getBrowser().execute("arguments[0].scrollTop=arguments[1]", viewportElement, step);
     }
 
     async clickOnApplyButton() {

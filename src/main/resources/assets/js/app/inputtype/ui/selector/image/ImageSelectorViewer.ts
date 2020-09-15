@@ -30,6 +30,6 @@ export class ImageSelectorViewer
     }
 
     protected getHintTargetEl(): ElementHelper {
-        return this.getNamesAndIconView().getIconImageEl().getEl();
+        return this.getEl();
     }
 }

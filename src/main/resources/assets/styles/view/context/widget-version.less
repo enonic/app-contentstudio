@@ -48,36 +48,46 @@
           .viewer .names-and-icon-view .font-icon-default:before {
             background-color: @admin-dark-gray;
           }
+        }
 
-          .version-info .action-button:not(:hover) {
-            background-color: @form-button-bg;
+        &[class*='deleted'] {
+          background-color: @admin-bg-light-gray;
+          border-color: @admin-bg-light-gray;
+
+          .status {
+            text-decoration-line: line-through;
+          }
+
+          .viewer .names-and-icon-view .font-icon-default:before {
+            background-color: @admin-bg-light-gray;
+          }
+
+          .version-info button {
+            display: none;
           }
         }
 
-        &.online, &.deleted, &.pending {
-          color: @admin-white;
+        &.online_expired {
+          opacity: 0.6;
         }
 
-        &.online {
+        &[class*='online'] {
           background-color: @admin-green;
           border-color: @admin-green;
-        }
-
-        &.online {
-
-          .viewer .names-and-icon-view {
-
-            .font-icon-default:before {
-              color: @admin-white;
-              background-color: @admin-green;
-            }
-          }
-
           .version-info {
             color: @admin-black;
           }
 
           .viewer {
+            .names-and-icon-view {
+
+              .@{_COMMON_PREFIX}wrapper {
+                .font-icon-default.icon-version-published::before {
+                  color: @admin-white;
+                  background-color: @admin-green;
+                }
+              }
+            }
 
             button.compare {
 
@@ -94,19 +104,6 @@
           }
         }
 
-        &.pending:not(.modified) {
-          background-color: @admin-orange;
-          border-color: @admin-orange;
-
-          .viewer .names-and-icon-view .font-icon-default:before {
-            background-color: @admin-orange;
-          }
-        }
-
-        &.deleted {
-          opacity: 0.5;
-        }
-
         .viewer {
 
           display: flex;
@@ -114,18 +111,34 @@
           position: relative;
 
           .names-and-icon-view {
-
             flex: 1;
+            display: flex;
 
-            .font-icon-default {
-              &:before {
-                font-size: 26px;
-                color: @admin-dark-gray;
+            .@{_COMMON_PREFIX}wrapper {
+              height: 100%;
+
+              .font-icon-default {
+                &:before {
+                  font-size: 26px;
+                  color: @admin-dark-gray;
+                }
+
+                &.icon-version-published::before {
+                  color: @admin-green;
+                }
               }
             }
 
-            .icon-version-published:before {
-              color: @admin-green;
+            .@{_COMMON_PREFIX}names-view {
+              .@{_COMMON_PREFIX}main-name {
+                height: inherit;
+                line-height: inherit;
+                text-align: right;
+              }
+
+              &.small .@{_COMMON_PREFIX}main-name {
+                font-size: 13px;
+              }
             }
           }
 
@@ -211,14 +224,26 @@
           }
         }
 
-        &.online, &.active, &.pending {
-          .status, .icon-user, .viewer .names-and-icon-view *, .viewer .font-icon-default:before {
+        &[class*='online'],
+        &.active:not([class*='deleted']) {
+          .status,
+          .viewer .names-and-icon-view *,
+          .viewer .font-icon-default::before {
             color: @admin-white;
           }
 
           &:hover .version-info {
             background-color: @admin-bg-light-gray;
             border-color: @admin-bg-light-gray;
+          }
+        }
+
+        &.online_pending:not(.modified) {
+          background-color: @admin-orange;
+          border-color: @admin-orange;
+
+          .viewer .names-and-icon-view .font-icon-default.icon-version-published::before {
+            background-color: @admin-orange;
           }
         }
 

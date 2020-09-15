@@ -277,7 +277,7 @@ export class ContentServerEventsHandler {
     }
 
     private notifyContentDeleted(paths: ContentServerChangeItem[]) {
-        this.contentDeletedInOtherReposListeners.forEach((listener: (paths: ContentServerChangeItem[]) => void) => {
+        this.contentDeletedListeners.forEach((listener: (paths: ContentServerChangeItem[]) => void) => {
             listener(paths);
         });
     }
@@ -458,15 +458,20 @@ export class ContentServerEventsHandler {
             }, []);
 
             const deletedItems: ContentServerChangeItem[] = changeItems.filter(d => d.getBranch() === Branch.DRAFT);
+            if (deletedItems.length) {
+                this.handleContentDeleted(deletedItems);
+            }
+
             const unpublishedItems: ContentServerChangeItem[] = changeItems.filter(
                 d => deletedItems.every(deleted => !ObjectHelper.equals(deleted.getContentId(),
                     d.getContentId())));
 
-            this.handleContentDeleted(deletedItems);
-            ContentSummaryAndCompareStatusFetcher.fetchByPaths(unpublishedItems.map(item => item.getContentPath()))
-                .then((summaries) => {
-                    this.handleContentUnpublished(summaries);
-                });
+            if (unpublishedItems.length) {
+                ContentSummaryAndCompareStatusFetcher.fetchByPaths(unpublishedItems.map(item => item.getContentPath()))
+                    .then((summaries) => {
+                        this.handleContentUnpublished(summaries);
+                    });
+            }
 
         } else if (type === NodeServerChangeType.MOVE) {
             ContentSummaryAndCompareStatusFetcher.fetchByPaths(this.extractNewContentPaths(currentRepoChanges))

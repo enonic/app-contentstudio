@@ -15,7 +15,7 @@ export class VersionInfoBlock
     private publisherBlock: NamesAndIconView;
 
     constructor(contentVersion: ContentVersion) {
-        super('version-info hidden');
+        super('version-info');
 
         this.contentVersion = contentVersion;
         this.initElements();
@@ -31,7 +31,7 @@ export class VersionInfoBlock
         }
 
         const modifiedDate = this.contentVersion.getModified();
-        const dateTime = `${DateHelper.formatDate(modifiedDate)} ${DateHelper.getFormattedTimeFromDate(modifiedDate, false)}`;
+        const dateTime = `${DateHelper.formatDateTime(modifiedDate)}`;
         this.publisherBlock = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
         this.publisherBlock
             .setMainName(dateTime)

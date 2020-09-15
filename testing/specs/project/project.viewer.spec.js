@@ -73,7 +73,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
     it("GIVEN user with Viewer role is logged in WHEN existing project has been opened THEN all inputs should be disabled(not clickable)",
         async () => {
             //1. Do Log in with the user and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -121,7 +121,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-viewer and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //2. Select existing folder:
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             //3. Verify that Edit, New, Delete buttons are disabled:

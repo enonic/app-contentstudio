@@ -1,5 +1,6 @@
 import {ContentVersionPublishInfoJson} from './resource/json/ContentVersionPublishInfoJson';
 import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {ContentPublishInfo} from './ContentPublishInfo';
 
 export class ContentVersionPublishInfo
 implements Cloneable {
@@ -11,6 +12,8 @@ implements Cloneable {
     private publisher: string;
 
     private timestamp: Date;
+
+    private contentPublishInfo: ContentPublishInfo;
 
     private constructor(source?: ContentVersionPublishInfo) {
         if (source) {
@@ -36,6 +39,7 @@ implements Cloneable {
         contentVersionPublishInfo.publisher = contentVersionPublishInfoJson.publisher;
         contentVersionPublishInfo.publisherDisplayName = contentVersionPublishInfoJson.publisherDisplayName;
         contentVersionPublishInfo.timestamp = new Date(contentVersionPublishInfoJson.timestamp);
+        contentVersionPublishInfo.contentPublishInfo = ContentPublishInfo.fromJson(contentVersionPublishInfoJson.contentPublishInfo);
 
         return contentVersionPublishInfo;
     }
@@ -54,5 +58,24 @@ implements Cloneable {
 
     getTimestamp(): Date {
         return this.timestamp;
+    }
+
+    getFirstPublished(): Date {
+        return this.contentPublishInfo?.getFirst();
+    }
+
+    getPublishedFrom(): Date {
+        return this.contentPublishInfo?.getFrom();
+    }
+
+    getPublishedTo(): Date {
+        return this.contentPublishInfo?.getTo();
+    }
+
+    getPublishDate(): Date {
+        if (!this.contentPublishInfo) {
+            return this.timestamp;
+        }
+        return new Date(Math.max(Number(this.timestamp), Number(this.contentPublishInfo.getFrom())));
     }
 }

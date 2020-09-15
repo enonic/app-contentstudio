@@ -105,10 +105,6 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
         return this.waitForElementDisabled(this.publishNowButton, appConst.mediumTimeout);
     }
 
-    waitForCloseRequestButtonDisplayed() {
-        return this.waitForElementDisplayed(this.closeRequestButton, appConst.mediumTimeout);
-    }
-
     waitContentOptionsFilterInputDisplayed() {
         return this.waitForElementDisplayed(this.contentOptionsFilterInput, appConst.mediumTimeout).catch(err => {
             throw new Error('Error when checking the `Options filter input` in Issue Details ' + err)

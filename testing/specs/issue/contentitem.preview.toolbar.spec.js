@@ -152,7 +152,7 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
             await contentItemPreviewPanel.clickOnIssueMenuButton();
             await taskDetailsDialog.waitForDialogOpened();
             //2. Close the task:
-            await taskDetailsDialog.clickOnCloseTaskButton();
+            await taskDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             //3. Close the modal dialog:
             await taskDetailsDialog.clickOnCancelTopButton();
             studioUtils.saveScreenshot("issue_menu_button_updated");

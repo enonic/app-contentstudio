@@ -5,7 +5,6 @@ const XPATH = {
     container: `//div[contains(@id,'IssueDetailsDialog')]`,
     issueNameInPlaceInput: `//div[contains(@id,'IssueDetailsInPlaceTextInput')]`,
     editIssueTitleToggle: `//h2[@class='inplace-text' and @title='Click to  edit']`,
-    closeTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='Close Task']]`,
     reopenTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='Reopen Task']]`,
     commentButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment']]`,
     itemsTabBarItem: "//li[contains(@id,'TabBarItem') and child::a[contains(.,'Items')]]",
@@ -24,12 +23,12 @@ const XPATH = {
 
 class TaskDetailsDialog extends BaseDetailsDialog {
 
-    get closeTaskButton() {
-        return XPATH.container + XPATH.closeTaskButton;
-    }
-
     get reopenTaskButton() {
         return XPATH.container + XPATH.reopenTaskButton;
+    }
+
+    get issueStatusSelector() {
+        return XPATH.container + XPATH.issueStatusSelector;
     }
 
     get itemsTabBarItem() {
@@ -71,32 +70,11 @@ class TaskDetailsDialog extends BaseDetailsDialog {
         });
     }
 
-    waitForCloseButtonLoaded() {
-        return this.waitForElementDisplayed(XPATH.closeTaskButton, appConst.mediumTimeout).catch(err => {
-            throw new Error('Task Details dialog `Close button` is not loaded ' + err)
-        });
-    }
-
-    async clickOnCloseTaskButton() {
-        try {
-            await this.waitForElementDisplayed(this.closeTaskButton, appConst.mediumTimeout);
-            await this.clickOnElement(this.closeTaskButton);
-            //reopen Issue button should appear!
-            return await this.waitForElementDisplayed(this.reopenTaskButton, appConst.mediumTimeout);
-        } catch (err) {
-            this.saveScreenshot('err_click_close_task_button');
-            throw  new Error('Error when clicking on the `Close Task`  ' + err);
-        }
-    }
-
     async clickOnReopenTaskButton() {
         await this.clickOnElement(this.reopenTaskButton);
         await this.pause(800);
     }
 
-    isCloseTaskButtonDisplayed() {
-        return this.isElementDisplayed(this.closeTaskButton);
-    }
 
     async getIssueTitle() {
         let result = await this.getText(XPATH.issueNameInPlaceInput + '/h2');

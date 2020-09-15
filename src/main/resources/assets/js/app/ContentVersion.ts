@@ -88,6 +88,20 @@ export class ContentVersion implements Cloneable {
         return this.publishInfo;
     }
 
+    isCurrentlyPublished(): boolean {
+        if (!this.hasPublishInfo()) {
+            return false;
+        }
+        const dateNow = Date.now();
+        const publishedFrom = this.publishInfo.getPublishedFrom() || dateNow;
+        const publishedTo = this.publishInfo.getPublishedTo() || dateNow;
+        if (dateNow < Number(publishedFrom) || dateNow > Number(publishedTo)) {
+            return false;
+        }
+
+        return true;
+    }
+
     getWorkflowInfo(): Workflow {
         return this.workflowInfo;
     }
