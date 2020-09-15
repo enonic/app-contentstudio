@@ -64,7 +64,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
     it("GIVEN user with Editor role is logged in WHEN existing project has been opened THEN all inputs should be disabled(not clickable)",
         async () => {
             //1. Do Log in with the user and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -87,7 +87,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
     it("GIVEN user with Editor role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
         async () => {
             //1. Do log in with the user and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //2.Click(select) on existing project:
@@ -104,7 +104,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
             //1. Do log in with the user-editor and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             await contentBrowsePanel.waitForNewButtonEnabled();
             //2. Click on New... button
             await contentBrowsePanel.clickOnNewButton();
@@ -123,7 +123,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             let contentWizard = new ContentWizard();
             let settingsStepForm = new SettingsStepForm();
             //1. Do log in with the user-editor and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //2. Open folder-wizard and save new folder:
             await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
@@ -140,7 +140,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-editor and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             //2. The folder has been 'Marked as ready' in browse panel:
             await contentBrowsePanel.clickOnMarkAsReadyButton();

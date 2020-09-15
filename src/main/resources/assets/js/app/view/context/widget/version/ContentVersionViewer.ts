@@ -22,17 +22,33 @@ export class ContentVersionViewer
 
     setObject(version: ContentVersion) {
         const modifiedDate = version.hasPublishInfo() ?
-                                version.getPublishInfo().getTimestamp() : version.getModified();
+                                version.getPublishInfo().getPublishDate() : version.getModified();
         const modifierName = version.hasPublishInfo() ?
                                 version.getPublishInfo().getPublisherDisplayName() : version.getModifierDisplayName();
         const isAlias = version.isAlias();
-        const dateTime = `${DateHelper.formatDate(modifiedDate)} ${DateHelper.getFormattedTimeFromDate(modifiedDate, false)}`;
+        let dateTime = `${DateHelper.formatDateTime(modifiedDate)}`;
         const subName = i18n('dialog.compareVersions.versionSubName', isAlias ? dateTime : '', modifierName);
+
+        if (version.hasPublishInfo() && !version.isCurrentlyPublished()) {
+            dateTime = '';
+            const publishedFrom = version.getPublishInfo().getPublishedFrom();
+            if (publishedFrom) {
+                dateTime = `${i18n('text.from')}: ${DateHelper.formatDateTime(publishedFrom)}`;
+            }
+            const publishedTo = version.getPublishInfo().getPublishedTo();
+            if (publishedTo) {
+                if (dateTime.length > 0) {
+                    dateTime += '<br>';
+                }
+                dateTime += `${i18n('text.to')}: ${DateHelper.formatDateTime(publishedTo)}`;
+            }
+            this.namesAndIconView.getNamesView().addClass('small');
+        }
 
         this.toggleClass('divider', version.isActive() && !version.isAlias());
 
         this.namesAndIconView
-            .setMainName(isAlias ? version.getAliasDisplayName() : dateTime)
+            .setMainName(isAlias ? version.getAliasDisplayName() : dateTime, false)
             .setSubName(subName)
             .setIconClass(version.hasPublishInfo()
                 ? 'icon-version-published'
