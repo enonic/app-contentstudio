@@ -17,7 +17,10 @@
     .layers-view {
       max-height: 100%;
       overflow: auto;
+      display: flex;
+      flex-direction: column;
       flex-grow: 1;
+      padding-top: 10px;
 
       .layers-item-view {
         margin: 0px 10px;
@@ -57,7 +60,7 @@
             display: none;
 
             .action-button {
-              padding: 5px 50px;
+              padding: 5px 60px;
               max-width: 200px;
             }
           }
@@ -156,8 +159,10 @@
         }
 
         &.has-children + .layers-item-view-relation {
+          flex-grow: 1;
+
           .layers-item-view-relation-line {
-            height: 34px;
+            height: 100%;
           }
 
           .layers-item-view-relation-arrow {
@@ -167,6 +172,7 @@
           .has-children-button {
             color: @admin-font-gray2;
             cursor: default;
+            top: 50%;
 
             &:hover {
               color: @admin-font-gray2;
