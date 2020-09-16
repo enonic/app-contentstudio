@@ -22,6 +22,7 @@ const XPATH = {
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     selectedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
     checkedRows: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-cell-checkboxsel selected')]`,
+    showIssuesButton: "//button[contains(@id,'ShowIssuesDialogButton')]//span",
 
     contextMenuItemByName: (name) => {
         return `${lib.TREE_GRID_CONTEXT_MENU}/li[contains(@id,'MenuItem') and contains(.,'${name}')]`;
@@ -253,7 +254,6 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     async selectParentAndOpenNewLayerWizard(parentName) {
         await this.clickOnRowByDisplayName(parentName);
         return await this.openLayerWizard();
-
     }
 
     rightClickOnProjects() {
@@ -307,8 +307,9 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         return result.length;
     }
 
-    getTextInShowIssuesButton() {
-        return this.getText("//button[contains(@id,'ShowIssuesDialogButton')]//span");
+    async getTextInShowIssuesButton() {
+        await this.waitForElementDisplayed(XPATH.showIssuesButton, appConst.mediumTimeout);
+        return await this.getText(XPATH.showIssuesButton);
     }
 }
 

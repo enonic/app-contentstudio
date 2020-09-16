@@ -46,14 +46,14 @@ class SiteForm extends Page {
         return result;
     }
 
-    filterOptionsAndSelectApplication(displayName) {
-        let loaderComboBox = new LoaderComboBox();
-        return this.typeTextInInput(this.applicationsOptionsFilterInput, displayName).then(() => {
-            return loaderComboBox.selectOption(displayName);
-        }).catch(err => {
+    async filterOptionsAndSelectApplication(displayName) {
+        try {
+            let loaderComboBox = new LoaderComboBox();
+            return await loaderComboBox.typeTextAndSelectOption(displayName, "//div[contains(@id,'SiteConfiguratorComboBox')]");
+        } catch (err) {
             this.saveScreenshot(appConst.generateRandomName('err_option'));
             throw new Error('application selector :' + err);
-        });
+        }
     }
 
     getAppDisplayNames() {

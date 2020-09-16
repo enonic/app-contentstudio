@@ -714,7 +714,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
         await browseDetailsPanel.waitForDetailsPanelLoaded();
         await browseDetailsPanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
-        return await this.pause(500);
+        await this.pause(500);
+        return browseDetailsPanel;
     }
 
     getSelectedProjectDisplayName() {

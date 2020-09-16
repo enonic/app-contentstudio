@@ -14,7 +14,7 @@ const xpath = {
 class BaseLayersWidget extends Page {
 
     get widgetItemView() {
-        return this.versionsWidget + lib.COMPARE_WITH_CURRENT_VERSION;
+        return this.layersWidget + lib.COMPARE_WITH_CURRENT_VERSION;
     }
 
     get showAllButton() {
@@ -27,7 +27,6 @@ class BaseLayersWidget extends Page {
 
     waitForWidgetLoaded() {
         return this.waitForElementDisplayed(this.layersWidget, appConst.shortTimeout).catch(err => {
-            console.log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz!!!!!!!!!!!!!!!!!!!!!!!!! ssssssssssssssssssssssssssssssssssssss clicked");
             throw new Error('Browse Panel: Layers Widget is not loaded in ' + appConst.shortTimeout);
         });
     }
@@ -59,10 +58,15 @@ class BaseLayersWidget extends Page {
     }
 
     async waitForEditButtonEnabled(layerName) {
-        let locator = xpath.widgetItemView + xpath.layerViewByName(layerName) +
-                      "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button[child::span[text()='Edit']]";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.waitForElementEnabled(locator, appConst.mediumTimeout);
+        try {
+            let locator = this.widgetItemView + xpath.layerViewByName(layerName) +
+                          "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button[child::span[text()='Edit']]";
+            await this.waitForElementDisplayed(this.widgetItemView + xpath.layerViewByName(layerName), appConst.mediumTimeout);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(locator, appConst.mediumTimeout);
+        } catch (err) {
+            throw new Error("Error getting button in the layer view item: " + err);
+        }
     }
 
     async clickOnLocalizeButton(layerName) {
