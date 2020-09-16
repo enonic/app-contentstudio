@@ -19,6 +19,11 @@ class BaseDetailsPanel extends Page {
         });
     }
 
+    async getOptionsName() {
+        let locator = this.widgetSelectorDropdown + lib.DIV_GRID + "//div[contains(@id,'WidgetViewer')]" + lib.H6_DISPLAY_NAME;
+        return await this.getTextInElements(locator);
+    }
+
     //clicks on dropdown handle and select the 'Version History' menu item
     async openVersionHistory() {
         try {
@@ -43,11 +48,15 @@ class BaseDetailsPanel extends Page {
     }
 
     async openLayers() {
-        await this.clickOnWidgetSelectorDropdownHandle();
-        let layersOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.LAYERS);
-        await this.waitForElementDisplayed(layersOption, appConst.mediumTimeout);
-        let result = await this.getDisplayedElements(layersOption);
-        await result[0].click();
+        try {
+            await this.clickOnWidgetSelectorDropdownHandle();
+            let layersOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.LAYERS);
+            await this.waitForElementDisplayed(layersOption, appConst.mediumTimeout);
+            let result = await this.getDisplayedElements(layersOption);
+            await result[0].click();
+        } catch (err) {
+            throw new Error("Error when opening Layers widget")
+        }
         return await this.pause(500);
     }
 };

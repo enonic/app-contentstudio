@@ -124,10 +124,12 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await browseLayersWidget.waitForEditButtonEnabled(LAYER_DISPLAY_NAME);
         });
 
-    it("Postcondition: delete the layer",
+    //Verifies:  Options in Widget Selector are not updated after creating/deleting layer #2286
+    it("GIVEN single child layer has been deleted WHEN content mode has been switched AND 'Widget Options' has been expanded THEN 'Layers' option should not be present in the dropdown list",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(LAYER_DISPLAY_NAME);
@@ -135,7 +137,12 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
-            await settingsBrowsePanel.waitForGridLoaded(appConstant.shortTimeout);
+            await studioUtils.switchToContentMode();
+            let detailsPanel = await contentBrowsePanel.openDetailsPanel();
+            await detailsPanel.clickOnWidgetSelectorDropdownHandle();
+            let actualOptions = await detailsPanel.getOptionsName();
+            assert.isTrue(actualOptions.includes("Details"), "Details option should be present in the dropdown");
+            assert.isFalse(actualOptions.includes("Layers"), "Layers option should not be present after deleting the child layer");
         });
 
     beforeEach(async () => {
