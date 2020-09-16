@@ -109,13 +109,6 @@ export class ContextView
     }
 
     private subscribeToEvents() {
-        this.onRendered(() => {
-            // Remove `.no-selection` css class, making context-container visible, to calculate the offset right
-            this.layout(false);
-            this.updateContextContainerHeight();
-            this.layout(!this.item);
-        });
-
         const handleWidgetsUpdate = (e) => this.handleWidgetsUpdate(e);
         ApplicationEvent.on(handleWidgetsUpdate);
         this.onRemoved(() => ApplicationEvent.un(handleWidgetsUpdate));
@@ -420,11 +413,6 @@ export class ContextView
         }
 
         return this.activeWidget.updateWidgetItemViews().then(() => {
-            // update active widget's height
-            setTimeout(() => {
-                this.updateContextContainerHeight();
-            }, 400);
-
             this.activeWidget.slideIn();
         });
     }

@@ -1,5 +1,4 @@
 .layers-widget {
-  height: 100%;
 
   .widget-item-view {
     height: 100%;
@@ -16,6 +15,8 @@
     }
 
     .layers-view {
+      max-height: 100%;
+      overflow: auto;
       flex-grow: 1;
 
       .layers-item-view {
@@ -56,8 +57,8 @@
             display: none;
 
             .action-button {
-              flex-basis: 80%;
-              padding: 5px 0px;
+              padding: 5px 50px;
+              max-width: 200px;
             }
           }
         }
@@ -193,8 +194,10 @@
     }
 
     .show-all-button {
-      margin: 20px;
-      padding: 5px;
+      position: relative;
+      max-width: 250px;
+      padding: 8px 70px;
+      margin: 20px auto;
     }
   }
 
