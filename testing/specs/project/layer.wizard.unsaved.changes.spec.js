@@ -96,7 +96,7 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             assert.equal(actualMessage, appConstant.PROJECT_UNSAVED_CHANGES_MESSAGE);
         });
 
-    it("WHEN existing layer selected and  has been deleted THEN expected notification message should appear",
+    it("WHEN existing layer selected and has been deleted THEN expected notification message should appear",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();

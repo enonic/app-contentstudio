@@ -15,6 +15,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     webDriverHelper.setupBrowser();
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
+    let PROJECT2_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let TEST_DESCRIPTION = "my description";
     let NEW_DESCRIPTION = "new description";
 
@@ -113,11 +114,30 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
-
             //2. Verify that combobox in 'Custom mode access' gets disabled:
             await projectWizard.waitForCustomAccessModeComboboxDisabled();
             //3. Verify that 'Save' button gets enabled:
             await projectWizard.waitForSaveButtonEnabled();
+        });
+
+    //Verifies: Confirmation dialog doesn't appear when switching access mode for a newly created project #2098
+    it(`GIVEN name and public private access mode is saved in new project wizard WHEN 'Public' radio has been clicked THEN 'Custom Access' combobox gets disabled`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let projectWizard = new ProjectWizard();
+            let confirmationDialog = new ConfirmationDialog();
+            //1. Open new project wizard:
+            await settingsBrowsePanel.openProjectWizard();
+            //2. Type a display name and select Private access:
+            await projectWizard.typeDisplayName(PROJECT2_DISPLAY_NAME);
+            await projectWizard.clickOnAccessModeRadio("Private");
+            //3. Save the project
+            await projectWizard.waitAndClickOnSave();
+            await projectWizard.waitForNotificationMessage();
+            //4. Do not close the wizard and update the access mode:
+            await projectWizard.clickOnAccessModeRadio("Public");
+            //5. Verify that Confirmation Dialog is loaded:
+            await confirmationDialog.waitForDialogOpened();
         });
 
     beforeEach(async () => {
