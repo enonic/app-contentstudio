@@ -12,6 +12,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SettingsForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('layer.localize.button.spec - checks Localize button in browse toolbar and Layers widget', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -20,7 +21,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
     const FOLDER_NAME = studioUtils.generateRandomName('folder');
     const EXPECTED_LANGUAGE_IN_WIZARD = "norsk (no)";
 
-    it("Precondition 1 - layer(in Default) with Norsk(no) language should be created",
+    it("Precondition 1 - layer(in Default) with 'Norsk(no)' language should be created",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             await studioUtils.closeProjectSelectionDialog();
@@ -113,6 +114,20 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             assert.equal(actualProjectName, LAYER_DISPLAY_NAME + "(no)", "Expected project displayName should be displayed in the wizard");
         });
 
+    it("Postconditions: the layer should be deleted",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let confirmationDialog = new ConfirmationDialog();
+            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.openSettingsPanel();
+            //1.Select the layer:
+            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnDeleteButton();
+            //2. Confirm the deleting:
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
+            await settingsBrowsePanel.waitForNotificationMessage();
+        });
 
     beforeEach(async () => {
         return await studioUtils.navigateToContentStudioWithProjects();
