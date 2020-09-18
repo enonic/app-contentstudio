@@ -121,7 +121,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
         });
 
     //Verifies: Confirmation dialog doesn't appear when switching access mode for a newly created project #2098
-    it(`GIVEN name and public private access mode is saved in new project wizard WHEN 'Public' radio has been clicked THEN 'Custom Access' combobox gets disabled`,
+    it("GIVEN name and private access mode is saved in new project wizard WHEN 'Public' radio has been clicked THEN confirmation Dialog should be loaded",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -138,6 +138,27 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.clickOnAccessModeRadio("Public");
             //5. Verify that Confirmation Dialog is loaded:
             await confirmationDialog.waitForDialogOpened();
+        });
+
+    it("GIVEN access mode has been changed WHEN 'Cancel top' button has been clicked in the 'Confirmation' dialog THEN access mode returns to the initial state",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let projectWizard = new ProjectWizard();
+            let confirmationDialog = new ConfirmationDialog();
+            //1.Click on the existing project and press 'Edit' button:
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT2_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnEditButton();
+            await projectWizard.waitForLoaded();
+            //2. Update the access mode:
+            await projectWizard.clickOnAccessModeRadio("Public");
+            await confirmationDialog.waitForDialogOpened();
+            //3.Click on 'Cancel top' button:
+            await confirmationDialog.clickOnCancelTopButton();
+            let isSelected = await projectWizard.isAccessModeRadioSelected("Private");
+            //4. Verify that access mode returns to the initial state:
+            assert.isTrue(isSelected, "Private mode should be reverted in the Access Mode form");
+            //5. Verify that 'Save' button is disabled
+            await projectWizard.waitForSaveButtonDisabled();
         });
 
     beforeEach(async () => {

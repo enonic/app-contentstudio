@@ -213,6 +213,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             let contentWizardPanel = new ContentWizardPanel();
             //1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await contentBrowsePanel.pause(1000);
             //2. Double click on existing folder(status is Work in progress):
             await contentBrowsePanel.doubleClickOnRowByDisplayName(FOLDER_WORK_IN_PROGRESS.displayName);
             await studioUtils.doSwitchToNewWizard();
