@@ -193,7 +193,8 @@ module.exports = {
         await this.findAndSelectItem(contentName);
         await browsePanel.clickOnEditButton();
         await this.doSwitchToNewWizard();
-        return await contentWizardPanel.waitForOpened();
+        await contentWizardPanel.waitForOpened();
+        return contentWizardPanel;
     },
 
     async selectContentAndClickOnLocalize(contentName) {

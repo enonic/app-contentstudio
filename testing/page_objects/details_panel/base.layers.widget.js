@@ -50,9 +50,9 @@ class BaseLayersWidget extends Page {
         return await this.waitForElementEnabled(locator, appConst.mediumTimeout);
     }
 
-    async waitForOpenButtonEnabled(layerName) {
+    async waitForEditButtonEnabled(layerName) {
         let locator = this.widgetItemView + xpath.layerViewByName(layerName) +
-                      "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button[child::span[text()='Open']]";
+                      "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button[child::span[text()='Edit']]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.waitForElementEnabled(locator, appConst.mediumTimeout);
     }
@@ -61,7 +61,6 @@ class BaseLayersWidget extends Page {
         try {
             let locator = this.widgetItemView + xpath.layerViewByName(layerName) +
                           "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button[child::span[text()='Edit']]";
-            await this.waitForElementDisplayed(this.widgetItemView + xpath.layerViewByName(layerName), appConst.mediumTimeout);
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
             return await this.waitForElementEnabled(locator, appConst.mediumTimeout);
         } catch (err) {

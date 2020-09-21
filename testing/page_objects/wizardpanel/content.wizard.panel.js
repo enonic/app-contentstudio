@@ -16,6 +16,7 @@ const CreateRequestPublishDialog = require('../../page_objects/issue/create.requ
 const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
 const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
+const WizardLayersWidget = require('../../page_objects/wizardpanel/details/wizard.layers.widget');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
@@ -911,7 +912,16 @@ class ContentWizardPanel extends Page {
         await this.waitForElementDisplayed(this.deleteButton, appConst.mediumTimeout);
         return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
     }
-};
+
+    async openLayersWidget() {
+        let wizardDetailsPanel = new DetailsPanel();
+        let layersWidget = new WizardLayersWidget();
+        await this.openDetailsPanel();
+        await wizardDetailsPanel.openLayers();
+        await layersWidget.waitForWidgetLoaded();
+        return layersWidget;
+    }
+}
 
 module.exports = ContentWizardPanel;
 
