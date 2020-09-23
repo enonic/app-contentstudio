@@ -3,6 +3,7 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
+const lib = require('../../libs/elements');
 const LayersContentTreeDialog = require('../project/layers.content.tree.dialog');
 
 const xpath = {
@@ -81,6 +82,25 @@ class BaseLayersWidget extends Page {
         await this.clickOnElement(this.showAllButton);
         await layersContentTreeDialog.waitForDialogLoaded();
         return layersContentTreeDialog;
+    }
+
+    async getContentNameWithLanguage(layerName) {
+        let locator = this.widgetItemView + xpath.layerViewByName(layerName) +
+                      "/following-sibling::div[contains(@id,'LayerContentViewBody')]" +
+                      "//div[contains(@id,'LangBasedContentSummaryViewer')]" + lib.H6_DISPLAY_NAME;
+        let locatorName = locator + "//span[@class='display-name']";
+        let locatorPostfix = locator + "//span[@class='display-name-postfix']";
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+
+        let displayName = await this.getText(locatorName);
+        let postfix = await this.getText(locatorPostfix);
+        return displayName + postfix;
+    }
+
+    async getContentStatus(layerName) {
+        let locator = this.widgetItemView + "//div[contains(@id,'LayerContentViewHeader')]//span[contains(@class,'status')]";
+        await this.waitForElementDisplayed(locator);
+        return await this.getText(locator);
     }
 }
 
