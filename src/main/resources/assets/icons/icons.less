@@ -265,9 +265,11 @@
 }
 
 .icon-version-unpublished {
-  .icon-version-published();
+  .icon;
 
-  transform: rotate(180deg);
+  &:before {
+    content: "\e2c1";
+  }
 }
 
 .icon-publish-request {
