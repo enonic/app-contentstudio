@@ -241,8 +241,8 @@
   .icon;
 
   &:before {
-    color: #609E24;
     content: "\e907";
+    color: @admin-green;
     background-color: @admin-white;
     border-radius: 20px;
   }
@@ -262,6 +262,12 @@
   &:before {
     content: "\e909";
   }
+}
+
+.icon-version-unpublished {
+  .icon-version-published();
+
+  transform: rotate(180deg);
 }
 
 .icon-publish-request {

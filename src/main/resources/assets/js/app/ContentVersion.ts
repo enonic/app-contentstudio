@@ -80,6 +80,14 @@ export class ContentVersion implements Cloneable {
         return this.workspaces && this.workspaces.length > 1;
     }
 
+    isPublished(): boolean {
+        return !!this.hasPublishInfo() && !!this.getPublishInfo().getPublishedFrom();
+    }
+
+    isUnpublished(): boolean {
+        return !!this.hasPublishInfo() && !this.getPublishInfo().getPublishedFrom() && !!this.getPublishInfo().getFirstPublished();
+    }
+
     hasPublishInfo(): boolean {
         return !!this.publishInfo;
     }

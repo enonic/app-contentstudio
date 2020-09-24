@@ -47,14 +47,19 @@ export class ContentVersionViewer
 
         this.toggleClass('divider', version.isActive() && !version.isAlias());
 
-        this.namesAndIconView
+        let iconClass = 'icon-version-modified';
+        if (version.isPublished()) {
+            iconClass = 'icon-version-published';
+        } else if (version.isUnpublished()) {
+            iconClass = 'icon-version-unpublished';
+        } else if (version.isInReadyState()) {
+            iconClass = 'icon-state-ready';
+        }
+
+    this.namesAndIconView
             .setMainName(isAlias ? version.getAliasDisplayName() : dateTime, false)
             .setSubName(subName)
-            .setIconClass(version.hasPublishInfo()
-                ? 'icon-version-published'
-                : version.isInReadyState()
-                    ? 'icon-state-ready'
-                    : 'icon-version-modified');
+            .setIconClass(iconClass);
 
         return super.setObject(version);
     }
