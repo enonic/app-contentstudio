@@ -132,7 +132,7 @@ export class SettingsWizardStepForm
     }
 
     updateInitialLanguage() {
-        if (!this.content.isInherited()) {
+        if (!this.content.isDataInherited()) {
             return;
         }
 
