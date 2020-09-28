@@ -9,12 +9,16 @@ export class CustomSelectorLoader
 
     protected request: CustomSelectorRequest;
 
-    constructor(requestPath: string) {
+    constructor(requestPath?: string) {
         super();
 
         if (requestPath) {
-            this.getRequest().setRequestPath(requestPath);
+            this.setRequestPath(requestPath);
         }
+    }
+
+    setRequestPath(requestPath: string) {
+        this.getRequest().setRequestPath(requestPath);
     }
 
     protected createRequest(): CustomSelectorRequest {
