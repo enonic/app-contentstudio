@@ -30,6 +30,7 @@ const XPATH = {
     savingButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saving...']]`,
     deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete...']]`,
     duplicateButton: `//button[contains(@id,'ActionButton') and child::span[text()='Duplicate...']]`,
+    previewButton: `//button[contains(@id,'ActionButton') and child::span[text()='Preview']]`,
     publishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Publish...']]",
     createTaskButton: "//button[contains(@id,'ActionButton') and child::span[text()='Create Task...']]",
     markAsReadyButton: "//button[contains(@id,'ActionButton') and child::span[text()='Mark as ready']]",
@@ -112,6 +113,10 @@ class ContentWizardPanel extends Page {
 
     get duplicateButton() {
         return XPATH.container + XPATH.toolbar + XPATH.duplicateButton;
+    }
+
+    get previewButton() {
+        return XPATH.container + XPATH.toolbar + XPATH.previewButton;
     }
 
     get controllerOptionFilterInput() {
@@ -911,7 +916,18 @@ class ContentWizardPanel extends Page {
         await this.waitForElementDisplayed(this.deleteButton, appConst.mediumTimeout);
         return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
     }
-};
+
+    async clickOnPreviewButton() {
+        try {
+            await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.previewButton);
+            return await this.pause(2000);
+        } catch (err) {
+            this.saveScreenshot('err_wizard_preview');
+            throw new Error('Error when clicking on Preview button ' + err);
+        }
+    }
+}
 
 module.exports = ContentWizardPanel;
 

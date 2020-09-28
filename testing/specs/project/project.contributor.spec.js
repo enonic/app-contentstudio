@@ -93,6 +93,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await contentBrowsePanel.pause(1000);
             //2. Open existing site(controller is not selected yet):
             await contentBrowsePanel.doubleClickOnRowByDisplayName(SITE.displayName);
             await studioUtils.doSwitchToNewWizard();
