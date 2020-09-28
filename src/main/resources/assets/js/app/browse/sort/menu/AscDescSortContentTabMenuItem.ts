@@ -6,84 +6,48 @@ import * as Q from 'q';
 
 export class AscDescSortContentTabMenuItem extends SortContentTabMenuItem {
 
-    private readonly ascButton: Button;
+    private readonly sortButton: Button;
 
-    private readonly descButton: Button;
-
-    private readonly ascending: ChildOrder;
-
-    private readonly descending: ChildOrder;
+    private readonly direction: string;
 
     constructor(builder: AscDescSortContentTabMenuItemBuilder) {
         super(builder);
 
-        this.ascending = this.createChildOrder(this.fieldName, ChildOrder.ASC_ORDER_DIRECTION_VALUE);
-        this.descending = this.createChildOrder(this.fieldName, ChildOrder.DESC_ORDER_DIRECTION_VALUE);
-        this.ascButton = this.createButton(this.ascending, true);
-        this.descButton = this.createButton(this.descending, false);
-        this.descButton.addClass('selected');
-        this.sortOrder = this.descending;
-        this.iconClass = `icon-sort-${this.descending.isAlpha() ? 'alpha' : 'num'}-desc`;
+        this.direction = builder.direction;
+        this.sortOrder = this.createChildOrder(this.fieldName, this.direction);
+        this.sortButton = this.createButton();
+        this.iconClass = `icon-sort-${this.sortOrder.isAlpha() ? 'alpha' : 'num'}-desc`;
     }
 
-    private createButton(order: ChildOrder, asc: boolean): Button {
-        const type: string = asc ? 'ascending' : 'descending';
-        const iconClass: string = `icon-sort-${order.isAlpha() ? 'alpha' : 'num'}-${type.slice(0, -6)}`;
+    private createButton(): Button {
+        const type: string = this.isAscending() ? 'ascending' : 'descending';
+        const iconClass: string = `icon-sort-${this.sortOrder.isAlpha() ? 'alpha' : 'num'}-${type.slice(0, -6)}`;
 
         const button: Button = new Button();
         button.addClass('sorting-order').addClass(iconClass);
         button.setTitle(i18n(`field.sortType.${type}`));
         button.onClicked(() => {
-            this.sortOrder = order;
-            this.iconClass = iconClass;
             this.select();
-        });
-        button.onFocus(() => {
-            this.sortOrder = order;
-            this.iconClass = iconClass;
         });
 
         return button;
     }
 
-    private markSelected() {
-        if (this.sortOrder.equals(this.ascending)) {
-            this.descButton.removeClass('selected');
-            this.ascButton.addClass('selected');
-        } else if (this.sortOrder.equals(this.descending)) {
-            this.ascButton.removeClass('selected');
-            this.descButton.addClass('selected');
-        }
+    private isAscending(): boolean {
+        return this.direction === ChildOrder.ASC_ORDER_DIRECTION_VALUE;
     }
 
     getTooltip() {
-        const type: string = this.sortOrder.equals(this.ascending) ? 'ascending' : 'descending';
+        const type: string = this.isAscending() ? 'ascending' : 'descending';
         return i18n(`tooltip.sortType.${type}`, this.getLabel());
-    }
-
-    giveFocusToPrevElem() {
-        return this.ascButton.giveFocus();
-    }
-
-    giveFocusToNextElem() {
-        return this.descButton.giveFocus();
-    }
-
-    select() {
-        this.markSelected();
-        super.select();
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.appendChildren(this.ascButton, this.descButton);
+            this.appendChildren(this.sortButton);
 
             return rendered;
         });
-    }
-
-    hasChildOrder(order: ChildOrder): boolean {
-        return order.equals(this.ascending) || order.equals(this.descending);
     }
 
     static create(): AscDescSortContentTabMenuItemBuilder {
@@ -96,10 +60,17 @@ export class AscDescSortContentTabMenuItemBuilder
 
     singleOption: boolean = false;
 
+    direction: string = ChildOrder.DESC_ORDER_DIRECTION_VALUE;
+
     clickHandler: () => void = () => void 0;
 
     setLabel(label: string): AscDescSortContentTabMenuItemBuilder {
         return <AscDescSortContentTabMenuItemBuilder>super.setLabel(label);
+    }
+
+    setDirection(value: string): AscDescSortContentTabMenuItemBuilder {
+        this.direction = value;
+        return this;
     }
 
     build(): AscDescSortContentTabMenuItem {

@@ -52,7 +52,7 @@ export abstract class SortContentTabMenuItem
     }
 
     hasChildOrder(order: ChildOrder): boolean {
-        return this.sortOrder === order;
+        return this.sortOrder.equals(order);
     }
 }
 
