@@ -1989,7 +1989,7 @@ export class ContentWizardPanel
     updatePersistedItem(): Q.Promise<Content> {
         const persistedContent: Content = this.getPersistedItem();
         const viewedContent: Content = this.assembleViewedContent(persistedContent.newBuilder(), true).build();
-        const isInherited: boolean = persistedContent.isInherited();
+        const isInherited: boolean = persistedContent.isDataInherited();
 
         const updateContentRoutine: UpdatePersistedContentRoutine = new UpdatePersistedContentRoutine(this, persistedContent, viewedContent)
             .setRequireValid(this.requireValid)
