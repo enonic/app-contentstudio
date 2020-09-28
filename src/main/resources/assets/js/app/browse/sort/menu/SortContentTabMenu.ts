@@ -46,11 +46,22 @@ export class SortContentTabMenu
         this.inheritedItem = new InheritedSortContentTabMenuItem();
 
         items.push(
-            AscDescSortContentTabMenuItem.create().setFieldName(QueryField.MODIFIED_TIME).setLabel(i18n('field.sortType.modified')).build(),
-            AscDescSortContentTabMenuItem.create().setFieldName(QueryField.CREATED_TIME).setLabel(i18n('field.sortType.created')).build(),
-            AscDescSortContentTabMenuItem.create().setFieldName(QueryField.DISPLAY_NAME).setLabel(
-                i18n('field.sortType.displayName')).build(),
-            AscDescSortContentTabMenuItem.create().setFieldName(QueryField.PUBLISH_FIRST).setLabel(i18n('field.sortType.publish')).build(),
+            AscDescSortContentTabMenuItem.create().setDirection(ChildOrder.ASC_ORDER_DIRECTION_VALUE).setFieldName(
+                QueryField.MODIFIED_TIME).setLabel(i18n('field.sortType.modified')).build(),
+            AscDescSortContentTabMenuItem.create().setDirection(ChildOrder.DESC_ORDER_DIRECTION_VALUE).setFieldName(
+                QueryField.MODIFIED_TIME).setLabel(i18n('field.sortType.modified')).build(),
+            AscDescSortContentTabMenuItem.create().setDirection(ChildOrder.ASC_ORDER_DIRECTION_VALUE).setFieldName(
+                QueryField.CREATED_TIME).setLabel(i18n('field.sortType.created')).build(),
+            AscDescSortContentTabMenuItem.create().setDirection(ChildOrder.DESC_ORDER_DIRECTION_VALUE).setFieldName(
+                QueryField.CREATED_TIME).setLabel(i18n('field.sortType.created')).build(),
+            AscDescSortContentTabMenuItem.create().setDirection(ChildOrder.ASC_ORDER_DIRECTION_VALUE).setFieldName(
+                QueryField.DISPLAY_NAME).setLabel(i18n('field.sortType.displayName')).build(),
+            AscDescSortContentTabMenuItem.create().setDirection(ChildOrder.DESC_ORDER_DIRECTION_VALUE).setFieldName(
+                QueryField.DISPLAY_NAME).setLabel(i18n('field.sortType.displayName')).build(),
+            AscDescSortContentTabMenuItem.create().setDirection(ChildOrder.ASC_ORDER_DIRECTION_VALUE).setFieldName(
+                QueryField.PUBLISH_FIRST).setLabel(i18n('field.sortType.publish')).build(),
+            AscDescSortContentTabMenuItem.create().setDirection(ChildOrder.DESC_ORDER_DIRECTION_VALUE).setFieldName(
+                QueryField.PUBLISH_FIRST).setLabel(i18n('field.sortType.publish')).build(),
             this.sortManualItem
         );
 

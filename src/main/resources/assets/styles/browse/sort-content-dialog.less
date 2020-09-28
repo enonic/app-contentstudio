@@ -176,7 +176,6 @@
     }
 
     .menu {
-      width: auto;
 
       .tab-menu-item {
         display: flex;
@@ -245,9 +244,9 @@
         }
 
         &.single {
-          .label {
-            color: @admin-button-blue2;
+          flex-grow: 1;
 
+          .label {
             &:focus {
               background-color: @admin-bg-light-gray;
             }
@@ -256,20 +255,44 @@
           &:focus-within {
             background-color: @admin-bg-light-gray;
           }
+
+          &.manual {
+            .label {
+              color: @admin-button-blue2;
+            }
+          }
         }
 
         &:not(.single) {
           background-color: transparent;
           cursor: default;
+
+          &:nth-child(odd) {
+            flex-grow: 1;
+          }
+
+          &:nth-child(even) {
+            .label {
+              display: none;
+            }
+          }
         }
 
         &.active {
-          .sorting-order.selected::before {
+          .sorting-order::before {
             outline: 1px solid @admin-button-blue2;
           }
         }
       }
     }
+
+    &.expanded {
+      .menu {
+        display: flex !important;
+        flex-wrap: wrap;
+      }
+    }
+
     .@{_COMMON_PREFIX}dropdown-handle {
       z-index: 3;
     }

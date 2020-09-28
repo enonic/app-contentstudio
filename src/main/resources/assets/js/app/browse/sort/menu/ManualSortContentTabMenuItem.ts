@@ -2,6 +2,7 @@ import {SortContentTabMenuItem, SortContentTabMenuItemBuilder} from './SortConte
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {QueryField} from 'lib-admin-ui/query/QueryField';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
+import * as Q from 'q';
 
 export class ManualSortContentTabMenuItem extends SortContentTabMenuItem {
 
@@ -10,6 +11,14 @@ export class ManualSortContentTabMenuItem extends SortContentTabMenuItem {
             new ManualSortContentTabMenuItemBuilder().setFieldName(QueryField.MANUAL_ORDER_VALUE).setLabel(i18n('field.sortType.manual')));
 
             this.sortOrder = this.createChildOrder(QueryField.MANUAL_ORDER_VALUE, ChildOrder.DESC_ORDER_DIRECTION_VALUE);
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addClass('manual');
+
+            return rendered;
+        });
     }
 }
 

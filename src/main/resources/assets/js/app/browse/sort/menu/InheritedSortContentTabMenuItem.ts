@@ -39,8 +39,6 @@ export class InheritedSortContentTabMenuItem extends SortContentTabMenuItem {
 export class InheritedSortContentTabMenuItemBuilder
     extends SortContentTabMenuItemBuilder {
 
-    singleOption: boolean = false;
-
     setLabel(label: string): InheritedSortContentTabMenuItemBuilder {
         return <InheritedSortContentTabMenuItemBuilder>super.setLabel(label);
     }

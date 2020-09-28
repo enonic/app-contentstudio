@@ -18,12 +18,12 @@ import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {ModalDialog, ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {SortContentTabMenuItem} from '../menu/SortContentTabMenuItem';
-import {Project} from '../../../settings/data/project/Project';
 import {ProjectContext} from '../../../project/ProjectContext';
 import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
 import {ContentsExistResult} from '../../../resource/ContentsExistResult';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../resource/ContentSummaryAndCompareStatusFetcher';
-import {LayerContent} from '../../../view/context/widget/layers/LayerContent';
+import {RestoreInheritRequest} from '../../../resource/RestoreInheritRequest';
+import {ContentInheritType} from 'lib-admin-ui/content/ContentInheritType';
 
 export class SortContentDialog
     extends ModalDialog {
@@ -150,13 +150,15 @@ export class SortContentDialog
         }
     }
 
-    private saveSortOrder(): Q.Promise<Content> {
+    private saveSortOrder(): Q.Promise<any> {
         this.showLoadingSpinner();
 
         if (this.getSelectedOrder().isManual()) {
-            return this.setManualReorder();
+            return this.saveManualOrder();
+        } else if (this.sortContentMenu.isInheritedItemSelected()) {
+            return this.saveInheritedOrder();
         } else {
-            return this.setContentChildOrder();
+            return this.saveContentChildOrder();
         }
     }
 
@@ -230,9 +232,8 @@ export class SortContentDialog
 
     private handleSortOrderChanged() {
         const newOrder: ChildOrder = this.getSelectedOrder();
-        const isOrderChanged: boolean = !this.getParentChildOrder().equals(newOrder);
 
-        this.saveButton.setEnabled(isOrderChanged);
+        this.saveButton.setEnabled(this.isOrderChanged());
         this.saveButton.giveFocus();
         this.contentGrid.setChildOrder(newOrder);
         this.contentGrid.toggleClass('inherited', this.sortContentMenu.isInheritedItemSelected());
@@ -242,6 +243,11 @@ export class SortContentDialog
             this.contentGrid.reload(this.selectedContent);
             this.gridDragHandler.clearContentMovements();
         }
+    }
+
+    private isOrderChanged(): boolean {
+        return !this.getParentChildOrder().equals(this.getSelectedOrder()) ||
+               this.selectedContent.isSortInherited() !== this.sortContentMenu.isInheritedItemSelected();
     }
 
     private onAfterSetOrder() {
@@ -257,7 +263,7 @@ export class SortContentDialog
         this.saveButton.removeClass('spinner');
     }
 
-    private setContentChildOrder(): Q.Promise<Content> {
+    private saveContentChildOrder(): Q.Promise<Content> {
         return new OrderContentRequest()
             .setSilent(false)
             .setContentId(this.selectedContent.getContentId())
@@ -265,7 +271,7 @@ export class SortContentDialog
             .sendAndParse();
     }
 
-    private setManualReorder(): Q.Promise<Content> {
+    private saveManualOrder(): Q.Promise<Content> {
         const movements: OrderChildMovements = this.gridDragHandler.getContentMovements();
 
         return new OrderChildContentRequest()
@@ -274,6 +280,13 @@ export class SortContentDialog
             .setContentId(this.selectedContent.getContentId())
             .setChildOrder(this.getSelectedOrder())
             .setContentMovements(movements)
+            .sendAndParse();
+    }
+
+    private saveInheritedOrder(): Q.Promise<any> {
+        return new RestoreInheritRequest()
+            .setContentId(this.selectedContent.getContentId())
+            .setInherit([ContentInheritType.SORT])
             .sendAndParse();
     }
 
