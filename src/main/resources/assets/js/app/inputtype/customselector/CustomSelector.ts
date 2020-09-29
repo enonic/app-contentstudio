@@ -46,9 +46,10 @@ export class CustomSelector
     }
 
     private subscribeToContentUpdates() {
-        ContentServerEventsHandler.getInstance().onContentUpdated(
-            (data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data)
-        );
+        const handler = (data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data);
+
+        ContentServerEventsHandler.getInstance().onContentUpdated(handler);
+        ContentServerEventsHandler.getInstance().onContentRenamed(handler);
     }
 
     private handleContentUpdated(data: ContentSummaryAndCompareStatus[]) {
