@@ -124,6 +124,7 @@ import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
+import {UrlAction} from '../UrlAction';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -821,12 +822,15 @@ export class ContentWizardPanel
 
         let shownAndLoadedHandler = () => {
             if (this.getPersistedItem()) {
-                Router.get().setHash('edit/' + this.getPersistedItem().getId());
+                const action: string = (this.getPersistedItem().isDataInherited() && this.isLocalizeInUrl())
+                                       ? UrlAction.LOCALIZE
+                                       : UrlAction.EDIT;
+                Router.get().setHash(`${action}/${this.getPersistedItem().getId()}`);
                 if (!window.name) {
-                    window.name = `edit:${this.getPersistedItem().getId()}`;
+                    window.name = `${action}:${this.getPersistedItem().getId()}`;
                 }
             } else {
-                Router.get().setHash('new/' + this.contentType.getName());
+                Router.get().setHash(`${UrlAction.NEW}/${this.contentType.getName()}`);
             }
         };
 
@@ -934,6 +938,10 @@ export class ContentWizardPanel
             }
         });
 
+    }
+
+    private isLocalizeInUrl(): boolean {
+        return Router.getPath().getElements().some((pathEl: string) => pathEl === UrlAction.LOCALIZE);
     }
 
     private onFileUploaded(event: UploadedEvent<Content>) {
@@ -1729,7 +1737,9 @@ export class ContentWizardPanel
                             setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
                         });
 
-                        this.settingsWizardStepForm.updateInitialLanguage();
+                        if (this.isLocalizeInUrl()) {
+                            this.settingsWizardStepForm.updateInitialLanguage();
+                        }
 
                         return Q(null);
                     });
@@ -2006,6 +2016,10 @@ export class ContentWizardPanel
 
             if (context.dataUpdated || context.pageUpdated) {
                 this.showFeedbackContentSaved(content, isInherited);
+            }
+
+            if (isInherited && this.isLocalizeInUrl()) {
+                Router.get().setHash(`${UrlAction.EDIT}/${this.getPersistedItem().getId()}`);
             }
 
             this.getWizardHeader().resetBaseValues();
