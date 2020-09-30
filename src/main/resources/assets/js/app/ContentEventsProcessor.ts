@@ -66,11 +66,14 @@ export class ContentEventsProcessor {
             const contentSummary: ContentSummary = content.getContentSummary();
             const contentTypeName: ContentTypeName = contentSummary.getType();
             const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(`${event.getProject().getName()}/${contentSummary.getId()}`);
+            const isLocalize: boolean = content.isDataInherited() && event.getProject().getName() ===
+                                        ProjectContext.get().getProject().getName();
 
             const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
                 .setTabId(tabId)
                 .setContentTypeName(contentTypeName)
                 .setProject(event.getProject())
+                .setLocalize(isLocalize)
                 .setContentId(contentSummary.getContentId());
 
             const win: Window = ContentEventsProcessor.openWizardTab(wizardParams);
@@ -117,7 +120,8 @@ export class ContentEventsProcessor {
         }
 
         if (!!params.contentId) {
-            return `${project}/${UrlAction.EDIT}/${params.contentId.toString()}`;
+            const action: string = params.localize ? UrlAction.LOCALIZE : UrlAction.EDIT;
+            return `${project}/${action}/${params.contentId.toString()}`;
         }
 
         if (params.parentContentId) {

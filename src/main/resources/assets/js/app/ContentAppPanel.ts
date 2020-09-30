@@ -55,6 +55,7 @@ export class ContentAppPanel
         const type = path ? path.getElement(3) : null;
 
         switch (actionAsTabMode) {
+        case UrlAction.LOCALIZE:
         case UrlAction.EDIT:
             if (id) {
                 ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
