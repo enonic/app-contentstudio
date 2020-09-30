@@ -62,7 +62,8 @@ export class SortContentTabMenu
                 QueryField.PUBLISH_FIRST).setLabel(i18n('field.sortType.publish')).build(),
             AscDescSortContentTabMenuItem.create().setDirection(ChildOrder.DESC_ORDER_DIRECTION_VALUE).setFieldName(
                 QueryField.PUBLISH_FIRST).setLabel(i18n('field.sortType.publish')).build(),
-            this.sortManualItem
+            this.sortManualItem,
+            this.inheritedItem
         );
 
         return items;
@@ -210,15 +211,12 @@ export class SortContentTabMenu
 
     addInheritedItem(order: ChildOrder, label: string, iconClass: string) {
         this.inheritedItem.setOrder(order, label, iconClass);
-
-        if (!this.getNavigationItems().some((item: SortContentTabMenuItem) => item === this.inheritedItem)) {
-            this.addNavigationItem(this.inheritedItem);
-        }
+        this.inheritedItem.show();
     }
 
     removeInheritedItem() {
         if (this.getNavigationItems().some((item: SortContentTabMenuItem) => item === this.inheritedItem)) {
-            this.removeNavigationItem(this.inheritedItem);
+            this.inheritedItem.hide();
         }
     }
 

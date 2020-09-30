@@ -15,16 +15,15 @@ export class AscDescSortContentTabMenuItem extends SortContentTabMenuItem {
 
         this.direction = builder.direction;
         this.sortOrder = this.createChildOrder(this.fieldName, this.direction);
+        this.iconClass = `icon-sort-${this.sortOrder.isAlpha() ? 'alpha' : 'num'}-${this.direction.toLowerCase()}`;
         this.sortButton = this.createButton();
-        this.iconClass = `icon-sort-${this.sortOrder.isAlpha() ? 'alpha' : 'num'}-desc`;
     }
 
     private createButton(): Button {
         const type: string = this.isAscending() ? 'ascending' : 'descending';
-        const iconClass: string = `icon-sort-${this.sortOrder.isAlpha() ? 'alpha' : 'num'}-${type.slice(0, -6)}`;
 
         const button: Button = new Button();
-        button.addClass('sorting-order').addClass(iconClass);
+        button.addClass('sorting-order').addClass(this.iconClass);
         button.setTitle(i18n(`field.sortType.${type}`));
         button.onClicked(() => {
             this.select();

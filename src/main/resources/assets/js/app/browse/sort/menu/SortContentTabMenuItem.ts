@@ -9,7 +9,7 @@ export abstract class SortContentTabMenuItem
 
     protected sortOrder: ChildOrder;
 
-    protected iconClass: string;
+    protected iconClass?: string;
 
     protected constructor(builder: SortContentTabMenuItemBuilder) {
         super(<TabMenuItemBuilder>builder);
