@@ -240,6 +240,9 @@ export class ContextView
         }
 
         if (this.hasLayersWidget()) {
+            if (this.activeWidget === this.layersWidgetView) {
+                this.setActiveWidget(this.defaultWidgetView);
+            }
             this.removeWidget(this.layersWidgetView);
             this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
         }
