@@ -80,8 +80,6 @@ export class ContentTreeGridItemsState {
     }
 
     private update() {
-        const currentProjectLanguage: string = ProjectContext.get().getProject().getLanguage();
-
         this.createAllowed = this.isCreateAllowed();
         this.deleteAllowed = this.isDeleteAllowed();
         this.modifyAllowed = this.isModifyAllowed();
