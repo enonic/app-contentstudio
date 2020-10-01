@@ -141,13 +141,7 @@ export class SortContentDialog
     }
 
     private handleSortApplied() {
-        const selectedOrder: ChildOrder = this.getSelectedOrder();
-
-        if (selectedOrder.equals(this.getParentChildOrder()) && !selectedOrder.isManual()) {
-            this.close();
-        } else {
-            this.saveSortOrder().catch(DefaultErrorHandler.handle).done(this.onAfterSetOrder.bind(this));
-        }
+        this.saveSortOrder().catch(DefaultErrorHandler.handle).done(this.onAfterSetOrder.bind(this));
     }
 
     private saveSortOrder(): Q.Promise<any> {
@@ -247,7 +241,8 @@ export class SortContentDialog
 
     private isOrderChanged(): boolean {
         return !this.getParentChildOrder().equals(this.getSelectedOrder()) ||
-               this.selectedContent.isSortInherited() !== this.sortContentMenu.isInheritedItemSelected();
+               this.selectedContent.isSortInherited() !== this.sortContentMenu.isInheritedItemSelected() ||
+               this.sortContentMenu.isManualItemSelected() && this.gridDragHandler.getContentMovements().getReorderChildren().length > 0;
     }
 
     private onAfterSetOrder() {
