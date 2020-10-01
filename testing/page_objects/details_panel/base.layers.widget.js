@@ -51,6 +51,13 @@ class BaseLayersWidget extends Page {
         return await this.waitForElementEnabled(locator, appConst.mediumTimeout);
     }
 
+    async waitForLocalizeButtonDisabled(layerName) {
+        let locator = this.widgetItemView + xpath.layerViewByName(layerName) +
+                      "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button[child::span[text()='Localize']]";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.waitForElementDisabled(locator, appConst.mediumTimeout);
+    }
+
     async waitForEditButtonEnabled(layerName) {
         let locator = this.widgetItemView + xpath.layerViewByName(layerName) +
                       "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button[child::span[text()='Edit']]";
