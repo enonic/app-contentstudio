@@ -420,11 +420,20 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
             return await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
         } catch (err) {
+            this.saveScreenshot('err_localize_enabled_button');
+            throw Error('Localize button should be enabled, timeout: ' + 3000 + 'ms')
+        }
+    }
+
+    async waitForLocalizeButtonDisabled() {
+        try {
+            await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.localizeButton, appConst.mediumTimeout);
+        } catch (err) {
             this.saveScreenshot('err_localize_disabled_button');
             throw Error('Localize button should be disabled, timeout: ' + 3000 + 'ms')
         }
     }
-
 
     waitForMoveButtonDisabled() {
         return this.waitForElementDisabled(this.moveButton, appConst.mediumTimeout).catch(err => {
