@@ -19,7 +19,12 @@ export class MoveContentAction extends ContentTreeGridAction {
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return !state.isEmpty() && !state.isManagedActionExecuting() && !this.grid.isAllSelected() &&
+        return !state.isEmpty() && !state.isManagedActionExecuting() &&
+               (this.getCurrentSelectedOrHighlightedTotal() < this.grid.getDefaultFullTotal()) &&
                state.canDelete();
+    }
+
+    private getCurrentSelectedOrHighlightedTotal(): number {
+        return this.grid.hasHighlightedNode() ? 1 : this.grid.getTotalSelected();
     }
 }

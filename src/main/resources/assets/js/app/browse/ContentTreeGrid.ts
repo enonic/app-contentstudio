@@ -991,4 +991,8 @@ export class ContentTreeGrid
 
         return false;
     }
+
+    getDefaultFullTotal(): number {
+        return this.getRoot().getDefaultRoot().treeToList(false, false).length;
+    }
 }
