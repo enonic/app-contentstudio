@@ -112,7 +112,7 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/2337
     //User's Layer is not displayed in Project if the user does not have rights to the parent project
-    it("WHEN user contributor navigated to 'Settings Panel' THEN parent project and its layer should not be visible",
+    it("WHEN user contributor navigated to 'Settings Panel' THEN parent project and its layer should be visible",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
