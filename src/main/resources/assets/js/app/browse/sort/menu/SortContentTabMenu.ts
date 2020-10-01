@@ -224,6 +224,10 @@ export class SortContentTabMenu
         return this.inheritedItem === this.getSelectedNavigationItem();
     }
 
+    isManualItemSelected(): boolean {
+        return this.sortManualItem === this.getSelectedNavigationItem();
+    }
+
     onSortOrderChanged(listener: () => void) {
         this.sortOrderChangedListeners.push(listener);
     }
