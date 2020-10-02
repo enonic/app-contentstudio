@@ -15,10 +15,10 @@ const ProjectSelectionDialog = require('../../page_objects/project/project.selec
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
-    toolbar: `//div[contains(@id,'ContentBrowseToolbar')]`,
-    treeGridToolbar: `//div[contains(@id,'ContentTreeGridToolbar')]`,
-    treeGrid: `//div[contains(@id,'ContentTreeGrid')]`,
-    appBar: `//div[contains(@id,'AppBar')]`,
+    toolbar: "//div[contains(@id,'ContentBrowseToolbar')]",
+    treeGridToolbar: "//div[contains(@id,'ContentTreeGridToolbar')]",
+    treeGrid: "//div[contains(@id,'ContentTreeGrid')]",
+    appBar: "//div[contains(@id,'AppBar')]",
     projectViewerButton: "//div[contains(@id,'ProjectViewer')]",
     highlightedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
     checkedRows: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-cell-checkboxsel selected')]`,
@@ -175,6 +175,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.clickOnElement(this.projectViewerButton);
         await projectSelectionDialog.waitForDialogLoaded();
         return projectSelectionDialog;
+    }
+
+    async isProjectViewerClickable() {
+        await this.waitForElementDisplayed(this.projectViewerButton, appConst.shortTimeout);
+        return await this.isClickable(this.projectViewerButton);
     }
 
     //Opens menu and select the project

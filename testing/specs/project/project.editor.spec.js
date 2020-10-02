@@ -81,7 +81,16 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             assert.isFalse(result, "Locale input should not be clickable");
             result = await projectWizard.isDisplayNameInputClickable();
             assert.isFalse(result, "Display Name input should not be clickable");
-            // await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        });
+
+    //Verifies Project selector button should not be clickable if current user has access to only one project #2089
+    it("WHEN current user has access to only one project THEN ProjectViewer button should not be clickable",
+        async () => {
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            let contentBrowsePanel = new ContentBrowsePanel();
+            studioUtils.saveScreenshot("project_editor_button_not_clckable");
+            let isClickable = await contentBrowsePanel.isProjectViewerClickable();
+            assert.isFalse(isClickable, "ProjectViewer button should not be clickable");
         });
 
     it("GIVEN user with Editor role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",

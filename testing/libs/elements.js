@@ -21,7 +21,7 @@ module.exports = Object.freeze({
     GRID_CANVAS: `//div[contains(@class,'grid-canvas')]`,
     DIV_GRID: "//div[contains(@id,'Grid') and contains(@class,'grid no-header')]",
     SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,
-    TEXT_INPUT: `//input[@type='text']`,
+    TEXT_INPUT: "//input[@type='text']",
     DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
     VALIDATION_RECORDING_VIEWER: "//div[contains(@id,'ValidationRecordingViewer')]//li",
     CONTENT_SUMMARY_AND_STATUS_VIEWER: "//div[contains(@id,'ContentSummaryAndCompareStatusViewer')]",
