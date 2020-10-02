@@ -44,6 +44,8 @@ import {ProjectUpdatedEvent} from '../../settings/event/ProjectUpdatedEvent';
 import {ProjectListRequest} from '../../settings/resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
+import {ProjectCreatedEvent} from '../../settings/event/ProjectCreatedEvent';
+import {ProjectDeletedEvent} from '../../settings/event/ProjectDeletedEvent';
 
 export class ContextView
     extends DivEl {
@@ -173,6 +175,14 @@ export class ContextView
 
         ProjectChangedEvent.on(() => {
             this.setItem(null);
+            this.toggleLayersWidget();
+        });
+
+        ProjectCreatedEvent.on(() => {
+            this.toggleLayersWidget();
+        });
+
+        ProjectDeletedEvent.on(() => {
             this.toggleLayersWidget();
         });
 
