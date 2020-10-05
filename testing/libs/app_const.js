@@ -91,6 +91,10 @@ module.exports = Object.freeze({
     TEMPLATE_SUPPORT: {
         SITE: 'Site',
     },
+    SORTING_ORDER: {
+        MODIFIED_DATE: 'Modified date',
+        CREATED_DATE: 'Created date',
+    },
     TEST_IMAGES: {
         HAND: 'hand',
         WHALE: 'whale',
