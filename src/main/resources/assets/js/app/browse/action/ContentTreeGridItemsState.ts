@@ -47,6 +47,8 @@ export class ContentTreeGridItemsState {
 
     private anyInProgress: boolean = false;
 
+    private allReadOnly: boolean = false;
+
     private managedActionExecuting: boolean = false;
 
     constructor(items: ContentSummaryAndCompareStatus[], allowedPermissions: Permission[]) {
@@ -76,6 +78,7 @@ export class ContentTreeGridItemsState {
         this.anyCanBeMarkedAsReady = false;
         this.anyCanBeRequestedToPublish = false;
         this.anyInProgress = false;
+        this.allReadOnly = true;
         this.managedActionExecuting = ManagedActionManager.instance().isExecuting();
     }
 
@@ -102,7 +105,7 @@ export class ContentTreeGridItemsState {
                 this.allValid = false;
             }
 
-            if (!content.isReadOnly() && content.isEditable()) {
+            if (content.isEditable()) {
                 this.anyEditable = true;
             }
 
@@ -138,6 +141,10 @@ export class ContentTreeGridItemsState {
 
             if (content.getContentSummary().isInProgress()) {
                 this.anyInProgress = true;
+            }
+
+            if (!content.isReadOnly()) {
+                this.allReadOnly = false;
             }
 
         });
@@ -245,6 +252,10 @@ export class ContentTreeGridItemsState {
 
     hasAnyInProgress(): boolean {
         return this.anyInProgress;
+    }
+
+    hasAllReadOnly(): boolean {
+        return this.allReadOnly;
     }
 
     isManagedActionExecuting(): boolean {

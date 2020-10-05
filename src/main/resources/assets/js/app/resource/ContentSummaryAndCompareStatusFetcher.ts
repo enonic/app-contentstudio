@@ -66,7 +66,12 @@ export class ContentSummaryAndCompareStatusFetcher {
             return CompareContentRequest.fromContentSummaries([content], projectName).sendAndParse()
                 .then((compareResults: CompareContentResults) => {
 
-                    return ContentSummaryAndCompareStatusFetcher.updateCompareStatus([content], compareResults)[0];
+                    const result: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatusFetcher.updateCompareStatus([content],
+                        compareResults)[0];
+
+                    return ContentSummaryAndCompareStatusFetcher.updateReadOnly([result]).then(() => {
+                        return result;
+                    });
                 });
         });
 

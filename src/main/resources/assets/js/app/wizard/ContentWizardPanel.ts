@@ -821,15 +821,7 @@ export class ContentWizardPanel
     private initListeners() {
 
         let shownAndLoadedHandler = () => {
-            if (this.getPersistedItem()) {
-                const action: string = (this.getPersistedItem().isDataInherited() && this.isLocalizeInUrl())
-                                       ? UrlAction.LOCALIZE
-                                       : UrlAction.EDIT;
-                Router.get().setHash(`${action}/${this.getPersistedItem().getId()}`);
-                if (!window.name) {
-                    window.name = `${action}:${this.getPersistedItem().getId()}`;
-                }
-            } else {
+            if (!this.getPersistedItem()) {
                 Router.get().setHash(`${UrlAction.NEW}/${this.contentType.getName()}`);
             }
         };
@@ -1711,6 +1703,11 @@ export class ContentWizardPanel
                         new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                             this.setModifyPermissions(loginResult);
                             this.toggleStepFormsVisibility(loginResult);
+                            this.updateUrlAction();
+
+                            if (this.isLocalizeInUrl()) {
+                                this.settingsWizardStepForm.updateInitialLanguage();
+                            }
                         });
 
                         this.syncPersistedItemWithContentData(content.getContentData());
@@ -1736,10 +1733,6 @@ export class ContentWizardPanel
                         this.onLiveModelChanged(() => {
                             setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
                         });
-
-                        if (this.isLocalizeInUrl()) {
-                            this.settingsWizardStepForm.updateInitialLanguage();
-                        }
 
                         return Q(null);
                     });
@@ -2602,5 +2595,16 @@ export class ContentWizardPanel
     private canEveryoneRead(content: Content): boolean {
         const entry: AccessControlEntry = content.getPermissions().getEntry(RoleKeys.EVERYONE);
         return !!entry && entry.isAllowed(Permission.READ);
+    }
+
+    private updateUrlAction() {
+        const action: string = (this.modifyPermissions && this.getPersistedItem().isDataInherited() &&
+                                this.isLocalizeInUrl())
+                               ? UrlAction.LOCALIZE
+                               : UrlAction.EDIT;
+        Router.get().setHash(`${action}/${this.getPersistedItem().getId()}`);
+        if (!window.name) {
+            window.name = `${action}:${this.getPersistedItem().getId()}`;
+        }
     }
 }
