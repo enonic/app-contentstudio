@@ -802,10 +802,6 @@ export class ContentTreeGrid
             return {cssClasses: 'empty-node'};
         }
 
-        if (node.getData().isReadOnly()) {
-            return {cssClasses: `readonly' title='${i18n('field.readOnly')}'`};
-        }
-
         let cssClasses: string = '';
 
         if (!!node.getData().getContentSummary() && node.getData().getContentSummary().isDataInherited()) {
@@ -814,6 +810,10 @@ export class ContentTreeGrid
 
         if (!!node.getData().getContentSummary() && node.getData().getContentSummary().isSortInherited()) {
             cssClasses += ' sort-inherited';
+        }
+
+        if (node.getData().isReadOnly()) {
+            cssClasses += `readonly' title='${i18n('field.readOnly')}'`;
         }
 
         return {cssClasses: cssClasses};

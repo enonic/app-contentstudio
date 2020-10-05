@@ -46,6 +46,10 @@ export class LayerContentView extends LiEl {
                 this.addClass(LayerContentView.INHERITED_CLASS);
             }
 
+            if (this.item.getItem().isReadOnly()) {
+                this.addClass('readonly');
+            }
+
             return rendered;
         });
     }

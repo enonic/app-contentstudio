@@ -17,8 +17,7 @@ export class EditContentAction extends ContentTreeGridAction {
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[]
-            = this.grid.getSelectedDataList().filter((content) => !content.isReadOnly());
+        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList();
 
         if (contents.length > EditContentAction.MAX_ITEMS_TO_EDIT) {
             showWarning(i18n('notify.edit.tooMuch'));
@@ -32,8 +31,10 @@ export class EditContentAction extends ContentTreeGridAction {
     }
 
     updateLabel(state: ContentTreeGridItemsState) {
-        if (state.hasAllInherited()) {
-            this.setLabel( i18n('action.translate'));
+        if (state.hasAllReadOnly()) {
+            this.setLabel( i18n('action.open'));
+        } else if (state.hasAllInherited()) {
+            this.setLabel(i18n('action.translate'));
         } else {
             this.setLabel(i18n('action.edit'));
         }

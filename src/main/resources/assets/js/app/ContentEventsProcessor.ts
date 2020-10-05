@@ -66,7 +66,7 @@ export class ContentEventsProcessor {
             const contentSummary: ContentSummary = content.getContentSummary();
             const contentTypeName: ContentTypeName = contentSummary.getType();
             const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(`${event.getProject().getName()}/${contentSummary.getId()}`);
-            const isLocalize: boolean = content.isDataInherited() && event.getProject().getName() ===
+            const isLocalize: boolean = !content.isReadOnly() && content.isDataInherited() && event.getProject().getName() ===
                                         ProjectContext.get().getProject().getName();
 
             const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
