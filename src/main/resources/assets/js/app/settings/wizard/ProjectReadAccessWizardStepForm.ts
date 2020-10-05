@@ -297,4 +297,8 @@ export class ProjectReadAccessWizardStepForm
             this.readAccessType = readAccessType;
         }
     }
+
+    isEmpty(): boolean {
+        return !this.getLanguage() && (!this.readAccessRadioGroup || !this.readAccessRadioGroup.getValue());
+    }
 }

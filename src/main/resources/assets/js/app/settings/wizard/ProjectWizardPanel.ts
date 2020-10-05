@@ -119,6 +119,7 @@ export class ProjectWizardPanel
         return !StringHelper.isBlank(this.projectWizardStepForm.getProjectName()) ||
                !StringHelper.isBlank(this.projectWizardStepForm.getDescription()) ||
                (this.rolesWizardStepForm && !this.rolesWizardStepForm.getPermissions().isEmpty()) ||
+               !this.readAccessWizardStepForm.isEmpty() ||
                super.isNewItemChanged();
     }
 
