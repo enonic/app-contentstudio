@@ -49,6 +49,6 @@ export class MarkAsReadyContentAction
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return !state.isEmpty() && state.hasAllValid() && state.canModify() && !state.hasAnyInherited() && state.hasAnyCanBeMarkedAsReady();
+        return !state.isEmpty() && state.hasAllValid() && state.canModify() && state.hasAnyCanBeMarkedAsReady();
     }
 }
