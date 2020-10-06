@@ -76,6 +76,18 @@ class BaseLayersWidget extends Page {
         }
     }
 
+    async waitForOpenButtonEnabled(layerName) {
+        try {
+            let locator = this.widgetItemView + xpath.layerViewByName(layerName) +
+                          "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button[child::span[text()='Open']]";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(locator, appConst.mediumTimeout);
+        } catch (err) {
+            throw new Error("Error getting button in the layer view item: " + err);
+        }
+    }
+
+
     async clickOnLocalizeButton(layerName) {
         let locator = this.widgetItemView + xpath.layerViewByName(layerName) +
                       "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button/span[text()='Localize']";

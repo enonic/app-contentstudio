@@ -82,19 +82,19 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/2328
     //Localize button should be disabled when read-only content is selected
-    it("GIVEN user with 'Contributor'-layer role is logged in WHEN 'inherited' site has been selected THEN 'Localize' button should be disabled in the browse toolbar",
+    it("GIVEN user with 'Contributor'-layer role is logged in WHEN 'inherited' site has been selected THEN 'Open' button should be enabled in the browse toolbar",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //2. Select the site:
             await studioUtils.findAndSelectItem(SITE_NAME);
-            //3. Verify that 'Localize' button is disabled:
-            await contentBrowsePanel.waitForLocalizeButtonDisabled();
+            //3. Verify that 'Open' button gets visible and enabled :
+            await contentBrowsePanel.waitForOpenButtonEnabled();
 
             let browseLayersWidget = await studioUtils.openLayersWidgetInBrowsePanel();
-            //5. Verify that 'Localize' button is disabled in the first item:
-            await browseLayersWidget.waitForLocalizeButtonDisabled(LAYER_DISPLAY_NAME);
+            //5. Verify that 'Open' button is enabled in the first widget-item:
+            await browseLayersWidget.waitForOpenButtonEnabled(LAYER_DISPLAY_NAME);
         });
 
     it("GIVEN user with 'contributor'-layer role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",
