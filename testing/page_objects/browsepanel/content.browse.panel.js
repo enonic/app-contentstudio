@@ -84,6 +84,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Localize')]]`;
     }
 
+    get openButton() {
+        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Open')]]`;
+    }
+
     get searchButton() {
         return XPATH.toolbar + XPATH.searchButton;
     }
@@ -437,6 +441,16 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         } catch (err) {
             this.saveScreenshot('err_localize_disabled_button');
             throw Error('Localize button should be disabled, timeout: ' + 3000 + 'ms')
+        }
+    }
+
+    async waitForOpenButtonEnabled() {
+        try {
+            await this.waitForElementDisplayed(this.openButton, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(this.openButton, appConst.mediumTimeout);
+        } catch (err) {
+            this.saveScreenshot('err_open_button_is_not_enabled');
+            throw Error('Open button should be disabled, timeout: ' + 3000 + 'ms')
         }
     }
 
