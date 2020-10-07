@@ -16,14 +16,15 @@ export class VersionList
 
     private content: ContentSummaryAndCompareStatus;
     private loadedListeners: { (): void }[] = [];
-    private activeVersionId: string;
+    private activeVersionId: string; //remove
+    private activeVersion: ContentVersion;
 
     constructor() {
         super('all-content-versions');
     }
 
-    setContentData(item: ContentSummaryAndCompareStatus) {
-        this.content = item;
+    setContent(content: ContentSummaryAndCompareStatus) {
+        this.content = content;
     }
 
     getContentId(): ContentId {
@@ -42,7 +43,7 @@ export class VersionList
     }
 
     createItemView(version: ContentVersion, readOnly: boolean): Element {
-        const itemContainer: LiEl = new VersionListItem(version, this.content, this.activeVersionId);
+        const itemContainer: LiEl = new VersionListItem(version, this.content, this.activeVersion.getId());
         itemContainer.toggleClass('active', version.isActive());
 
         return itemContainer;
@@ -74,7 +75,8 @@ export class VersionList
         }
 
         return new GetContentVersionsRequest(this.getContentId()).sendAndParse().then((contentVersions: ContentVersions) => {
-            this.activeVersionId = contentVersions.getActiveVersion().getId();
+            //this.activeVersionId = contentVersions.getActiveVersion().getId();
+            this.activeVersion = contentVersions.getActiveVersion();
             return contentVersions.getContentVersions();
         });
     }
