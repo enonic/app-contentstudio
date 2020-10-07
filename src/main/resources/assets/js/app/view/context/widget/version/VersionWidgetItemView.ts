@@ -3,10 +3,14 @@ import {WidgetItemView} from '../../WidgetItemView';
 import {VersionList} from './VersionList';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {PublishStatusFormatter} from '../../../../publish/PublishStatus';
 
 export class VersionWidgetItemView extends WidgetItemView {
 
     private versionListView: VersionList;
+
+    private statusBlock: DivEl;
 
     private gridLoadDeferred: Q.Deferred<any>;
 
@@ -32,20 +36,25 @@ export class VersionWidgetItemView extends WidgetItemView {
                 }
             });
 
-            this.appendChild(this.versionListView);
+            this.statusBlock = new DivEl('status');
+            this.appendChildren(this.statusBlock, this.versionListView);
         });
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
+    public setContentAndUpdateView(content: ContentSummaryAndCompareStatus): Q.Promise<any> {
         if (VersionWidgetItemView.debug) {
-            console.debug('VersionsWidgetItemView.setItem: ', item);
+            console.debug('VersionsWidgetItemView.setItem: ', content);
         }
 
-        if (this.versionListView) {
-            this.versionListView.setContentData(item);
-            return this.reloadActivePanel();
+        if (!this.versionListView) {
+            return Q<any>(null);
         }
-        return Q<any>(null);
+
+        this.statusBlock.setClass(`status ${content.getStatusClass()}`);
+        this.statusBlock.setHtml(content.getStatusText());
+
+        this.versionListView.setContent(content);
+        return this.reloadActivePanel();
     }
 
     private managePublishEvent() {
@@ -88,5 +97,4 @@ export class VersionWidgetItemView extends WidgetItemView {
             return Q(null);
         }
     }
-
 }

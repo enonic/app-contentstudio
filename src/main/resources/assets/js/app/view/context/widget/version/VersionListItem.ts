@@ -40,17 +40,13 @@ export class VersionListItem
 
         this.version = version;
         this.content = content;
-        this.activeVersionId = activeVersionId;
+        this.activeVersionId = activeVersionId; // do we need this???
 
         this.initElements();
         this.initListeners();
     }
 
     private initElements() {
-        if (this.hasWorkspaces()) {
-            this.statusBlock = this.createStatusBlock();
-        }
-
         this.createTooltip();
         this.descriptionBlock = new ContentVersionViewer();
         this.descriptionBlock.setObject(this.version);
@@ -70,31 +66,12 @@ export class VersionListItem
         return this.content ? this.content.getCompareStatus() : null;
     }
 
-    private createStatusBlock(): DivEl {
-        const statusText: string = this.getStatusText();
-
-        const statusDiv = new DivEl('status');
-        statusDiv.setHtml(statusText);
-
-        return statusDiv;
-    }
-
     private getStatusClass(): string {
         if (!this.hasWorkspaces()) {
             return '';
         }
 
         return this.content.getStatusClass();
-    }
-
-    private getStatusText(): string {
-        if (!this.hasWorkspaces()) {
-            return '';
-        }
-
-        return this.version.isActive() ?
-               this.content.getStatusText() :
-               PublishStatusFormatter.formatCompositeStatus(this.content.getPublishStatus());
     }
 
     private createTooltip() {
@@ -214,7 +191,7 @@ export class VersionListItem
     }
 
     doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered) => {
+        return super.doRender().then((rendered) => {/*
             if (this.statusBlock) {
                 const statusClass: string = this.getStatusClass();
                 if (statusClass) {
@@ -222,7 +199,7 @@ export class VersionListItem
                     this.addClass(statusClass.toLowerCase());
                 }
                 this.appendChild(this.statusBlock);
-            }
+            }*/
 
             this.versionInfoBlock.appendChild(this.actionButton);
             this.descriptionBlock.appendChild(this.compareButton);
