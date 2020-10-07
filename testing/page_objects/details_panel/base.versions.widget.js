@@ -6,7 +6,7 @@ const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
 
 const xpath = {
-    versionsList: `//ul[contains(@id,'VersionsView')]`,
+    versionsList: `//ul[contains(@id,'VersionList')]`,
     versionItem: `//li[contains(@class,'content-version-item')]`,
     versionItemExpanded: `//li[contains(@class,'content-version-item expanded')]`,
 };

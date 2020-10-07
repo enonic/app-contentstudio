@@ -5,7 +5,7 @@ const BaseVersionsWidget = require('../../details_panel/base.versions.widget');
 
 const XPATH = {
     widget: `//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'VersionsWidgetItemView')]`,
-    versionsList: `//ul[contains(@id,'VersionsView')]`,
+    versionsList: `//ul[contains(@id,'VersionList')]`,
     versionItem: `//li[contains(@class,'content-version-item')]`,
 };
 
