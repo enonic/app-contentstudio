@@ -283,5 +283,16 @@ class BaseBrowsePanel extends Page {
             throw Error(`Row with the displayName ${displayName} was not found.` + err);
         }
     }
+
+    async clickOnDeleteButton() {
+        try {
+            await this.waitForElementEnabled(this.deleteButton, appConst.shortTimeout);
+            return await this.clickOnElement(this.deleteButton);
+        } catch (err) {
+            this.saveScreenshot('err_browsepanel_delete_button');
+            throw new Error('Delete button is not enabled! ' + err);
+        }
+    }
 }
+
 module.exports = BaseBrowsePanel;

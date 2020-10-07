@@ -139,15 +139,6 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         return this.clickOnElement(this.homeButton);
     }
 
-    clickOnDeleteButton() {
-        return this.waitForElementEnabled(this.deleteButton, appConst.shortTimeout).then(() => {
-            return this.clickOnElement(this.deleteButton);
-        }).catch(err => {
-            this.saveScreenshot('err_browsepanel_delete');
-            throw new Error('Delete button is not enabled! ' + err);
-        })
-    }
-
     async clickOnRowByDisplayName(displayName) {
         try {
             let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
@@ -283,6 +274,18 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         await this.clickOnEditButton();
         //3. wait for Project is loaded in the wizard page:
         return await projectWizard.waitForLoaded();
+    }
+
+    async checkAndOpenProjectByDisplayName(displayName) {
+        let projectWizard = new ProjectWizard();
+        // the root folder(Projects) should be expanded:
+        //1. check the project:
+        await this.clickOnCheckboxAndSelectRowByName(displayName);
+        //2. wait for Edit button gets enabled:
+        await this.clickOnEditButton();
+        //3. wait for Project is loaded:
+        await projectWizard.waitForLoaded();
+        return projectWizard;
     }
 
     getProjectDisplayName(name) {
