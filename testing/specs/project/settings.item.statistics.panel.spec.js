@@ -15,6 +15,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
     webDriverHelper.setupBrowser();
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
+    let NEW_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let DESCRIPTION = "Test description";
 
     it(`WHEN existing 'Projects' folder has been highlighted THEN expected description and title should appear in statistics panel`,
@@ -47,14 +48,35 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             //4. Verify that the text:
             assert.equal(actualDescription, DESCRIPTION, "Expected description should be displayed");
         });
+    //Verifies:  Item Statistics panel is not refreshed after updating an item in wizard. #1493
+    //https://github.com/enonic/lib-admin-ui/issues/1493
+    it("GIVEN existing project is checked WHEN the project has been opened and updated THEN the project should be updated in Statistics Panel",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
+            //1.Click on the checkbox, select and open the project:
+            let projectWizard = await settingsBrowsePanel.checkAndOpenProjectByDisplayName(PROJECT_DISPLAY_NAME);
+            await projectWizard.typeDisplayName(NEW_DISPLAY_NAME);
+            //2. Update the displayName and save the project
+            await projectWizard.waitAndClickOnSave();
+            await projectWizard.waitForNotificationMessage();
+            await projectWizard.pause(700);
+            await settingsBrowsePanel.clickOnCloseIcon(NEW_DISPLAY_NAME);
+            await projectWizard.waitForWizardClosed();
+            //3. Verify that the displayName is updated in Statistics Panel:
+            let displayName = await settingsItemStatisticsPanel.getItemDisplayName();
+            studioUtils.saveScreenshot("project_item_statistics");
+            //4. Verify that the text:
+            assert.equal(displayName, NEW_DISPLAY_NAME, "Expected display name should be present");
+        });
 
-    it(`GIVEN existing project is selected WHEN the project has been deleted THEN statistics panel should be cleared`,
+    it("GIVEN existing project is selected WHEN the project has been deleted THEN statistics panel should be cleared",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
             let confirmationDialog = new ConfirmationDialog();
             //1. Select an existing project then delete it:
-            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnRowByDisplayName(NEW_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnDeleteButton();
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();

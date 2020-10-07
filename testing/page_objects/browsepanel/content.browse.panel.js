@@ -369,15 +369,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         });
     }
 
-    clickOnDeleteButton() {
-        return this.waitForElementEnabled(this.deleteButton, appConst.shortTimeout).then(() => {
-            return this.clickOnElement(this.deleteButton);
-        }).catch(err => {
-            this.saveScreenshot('err_browsepanel_delete');
-            throw new Error('Delete button is not enabled! ' + err);
-        })
-    }
-
     async clickOnPreviewButton() {
         try {
             await this.waitForElementEnabled(this.previewButton, appConst.shortTimeout);
