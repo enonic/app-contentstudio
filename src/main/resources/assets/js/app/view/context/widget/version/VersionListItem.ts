@@ -20,7 +20,7 @@ import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {VersionInfoBlock} from './VersionInfoBlock';
 
-export class ContentVersionListItemView
+export class VersionListItem
     extends LiEl {
 
     private readonly version: ContentVersion;

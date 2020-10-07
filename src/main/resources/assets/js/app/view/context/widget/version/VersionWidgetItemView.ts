@@ -1,12 +1,12 @@
 import * as Q from 'q';
 import {WidgetItemView} from '../../WidgetItemView';
-import {VersionsView} from './VersionsView';
+import {VersionList} from './VersionList';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 
-export class VersionsWidgetItemView extends WidgetItemView {
+export class VersionWidgetItemView extends WidgetItemView {
 
-    private versionsView: VersionsView;
+    private versionListView: VersionList;
 
     private gridLoadDeferred: Q.Deferred<any>;
 
@@ -18,31 +18,31 @@ export class VersionsWidgetItemView extends WidgetItemView {
     }
 
     public layout(): Q.Promise<any> {
-        if (VersionsWidgetItemView.debug) {
+        if (VersionWidgetItemView.debug) {
             console.debug('VersionsWidgetItemView.layout');
         }
         this.removeChildren();
 
         return super.layout().then(() => {
-            this.versionsView = new VersionsView();
-            this.versionsView.onLoaded(() => {
+            this.versionListView = new VersionList();
+            this.versionListView.onLoaded(() => {
                 if (this.gridLoadDeferred) {
                     this.gridLoadDeferred.resolve(null);
                     this.gridLoadDeferred = null;
                 }
             });
 
-            this.appendChild(this.versionsView);
+            this.appendChild(this.versionListView);
         });
     }
 
     public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
-        if (VersionsWidgetItemView.debug) {
+        if (VersionWidgetItemView.debug) {
             console.debug('VersionsWidgetItemView.setItem: ', item);
         }
 
-        if (this.versionsView) {
-            this.versionsView.setContentData(item);
+        if (this.versionListView) {
+            this.versionListView.setContentData(item);
             return this.reloadActivePanel();
         }
         return Q<any>(null);
@@ -53,9 +53,9 @@ export class VersionsWidgetItemView extends WidgetItemView {
         let serverEvents = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentPublished((contents: ContentSummaryAndCompareStatus[]) => {
-            if (this.versionsView && this.versionsView.getContentId()) {
+            if (this.versionListView && this.versionListView.getContentId()) {
                 // check for item because it can be null after publishing pending for delete item
-                let itemId = this.versionsView.getContentId();
+                let itemId = this.versionListView.getContentId();
                 let isPublished = contents.some((content) => {
                     return itemId.equals(content.getContentId());
                 });
@@ -68,7 +68,7 @@ export class VersionsWidgetItemView extends WidgetItemView {
     }
 
     private reloadActivePanel(): Q.Promise<any> {
-        if (VersionsWidgetItemView.debug) {
+        if (VersionWidgetItemView.debug) {
             console.debug('VersionsWidgetItemView.reloadActivePanel');
         }
 
@@ -76,9 +76,9 @@ export class VersionsWidgetItemView extends WidgetItemView {
             return this.gridLoadDeferred.promise;
         }
 
-        if (this.versionsView) {
+        if (this.versionListView) {
             this.gridLoadDeferred = Q.defer<any>();
-            this.versionsView.reload()
+            this.versionListView.reload()
                 .then(() => this.gridLoadDeferred.resolve(null))
                 .catch(reason => this.gridLoadDeferred.reject(reason))
                 .finally(() => this.gridLoadDeferred = null);

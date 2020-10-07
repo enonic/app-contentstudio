@@ -9,9 +9,9 @@ import {ContentVersions} from '../../../../ContentVersions';
 import {GetContentVersionsRequest} from '../../../../resource/GetContentVersionsRequest';
 import {CompareStatus} from '../../../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {ContentVersionListItemView} from './ContentVersionListItemView';
+import {VersionListItem} from './VersionListItem';
 
-export class VersionsView
+export class VersionList
     extends ListBox<ContentVersion> {
 
     private content: ContentSummaryAndCompareStatus;
@@ -42,7 +42,7 @@ export class VersionsView
     }
 
     createItemView(version: ContentVersion, readOnly: boolean): Element {
-        const itemContainer: LiEl = new ContentVersionListItemView(version, this.content, this.activeVersionId);
+        const itemContainer: LiEl = new VersionListItem(version, this.content, this.activeVersionId);
         itemContainer.toggleClass('active', version.isActive());
 
         return itemContainer;
