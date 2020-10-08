@@ -4,7 +4,8 @@ import {VersionList} from './VersionList';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {PublishStatusFormatter} from '../../../../publish/PublishStatus';
+import {i18n} from 'lib-admin-ui/util/Messages';
+import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 
 export class VersionWidgetItemView extends WidgetItemView {
 
@@ -41,6 +42,24 @@ export class VersionWidgetItemView extends WidgetItemView {
         });
     }
 
+    private getContentStatus(content: ContentSummaryAndCompareStatus): string {
+        const contentSummary = content.getContentSummary();
+        if (content.isScheduledPublishing()) {
+            this.statusBlock.addClass('small');
+            return i18n('widget.versionhistory.scheduled', DateHelper.formatDateTime(contentSummary.getPublishFromTime()));
+        }
+        if (content.isExpiredPublishing()) {
+            this.statusBlock.addClass('small');
+            return i18n('widget.versionhistory.expired', DateHelper.formatDateTime(contentSummary.getPublishToTime()));
+        }
+        if (content.isOnline() && !!contentSummary.getPublishToTime()) {
+            this.statusBlock.addClass('small');
+            return i18n('widget.versionhistory.publishedUntil', DateHelper.formatDateTime(contentSummary.getPublishToTime()));
+        }
+
+        return content.getStatusText();
+    }
+
     public setContentAndUpdateView(content: ContentSummaryAndCompareStatus): Q.Promise<any> {
         if (VersionWidgetItemView.debug) {
             console.debug('VersionsWidgetItemView.setItem: ', content);
@@ -51,7 +70,7 @@ export class VersionWidgetItemView extends WidgetItemView {
         }
 
         this.statusBlock.setClass(`status ${content.getStatusClass()}`);
-        this.statusBlock.setHtml(content.getStatusText());
+        this.statusBlock.setHtml(this.getContentStatus(content));
 
         this.versionListView.setContent(content);
         return this.reloadActivePanel();
