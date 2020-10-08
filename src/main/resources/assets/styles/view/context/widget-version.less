@@ -24,8 +24,7 @@
       }
 
       &.expired {
-        color: rgba(203, 3, 0, 0.8);
-        background-color: rgba(96, 158, 36, 0.5);
+        background-color: rgba(203, 3, 0, 0.5);
       }
 
       &.pending {
@@ -41,28 +40,16 @@
       }
     }
 
-    .names-and-icon-view {
-      .@{_COMMON_PREFIX}names-view {
-        margin: 0;
-      }
-    }
-
-    .all-content-versions {
+    .version-list {
 
       *:not(:disabled) {
         cursor: pointer;
       }
 
-      .content-version-item {
+      &-item {
         margin: 5px 0;
         box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
         border: 2px solid @admin-white;
-
-        &:first-of-type {
-          button.compare {
-            display: none !important;
-          }
-        }
 
         &:hover {
           background-color: @admin-bg-light-gray;
@@ -85,7 +72,7 @@
             background-color: @admin-dark-gray;
           }
         }
-
+        /*
         &[class*='deleted'] {
           background-color: @admin-bg-light-gray;
           border-color: @admin-bg-light-gray;
@@ -99,44 +86,44 @@
           }
         }
 
-        &.online_expired {
-          opacity: 0.6;
-        }
-
-        &[class*='online'] {
-          background-color: @admin-green;
-          border-color: @admin-green;
-          .version-info {
-            color: @admin-black;
-          }
-
-          .viewer {
-            .names-and-icon-view {
-
-              .@{_COMMON_PREFIX}wrapper {
-                .font-icon-default.icon-version-published::before {
-                  color: @admin-white;
-                  background-color: @admin-green;
+                &.online_expired {
+                  opacity: 0.6;
                 }
-              }
-            }
 
-            button.compare {
+                &[class*='online'] {
+                  background-color: @admin-green;
+                  border-color: @admin-green;
+                  .version-info {
+                    color: @admin-black;
+                  }
 
-              top: -25px;
+                  .version-viewer {
+                    .names-and-icon-view {
 
-              &:before {
-                color: @admin-white;
-              }
+                      .@{_COMMON_PREFIX}wrapper {
+                        .font-icon-default.icon-version-published::before {
+                          color: @admin-white;
+                          background-color: @admin-green;
+                        }
+                      }
+                    }
 
-              &:hover:before {
-                color: @admin-font-gray;
-              }
-            }
-          }
-        }
+                    button.compare {
 
-        .viewer {
+                      top: -25px;
+
+                      &:before {
+                        color: @admin-white;
+                      }
+
+                      &:hover:before {
+                        color: @admin-font-gray;
+                      }
+                    }
+                  }
+                }
+        */
+        .version-viewer {
 
           display: flex;
           padding: 7px 7px 7px 10px;
@@ -166,6 +153,8 @@
             }
 
             .@{_COMMON_PREFIX}names-view {
+              margin: 0;
+
               .@{_COMMON_PREFIX}main-name {
                 height: inherit;
                 line-height: inherit;
@@ -251,7 +240,7 @@
 
           }
         }
-
+/*
         &[class*='online'],
         &.active:not([class*='deleted']) {
           .viewer .names-and-icon-view *,
@@ -273,7 +262,7 @@
             background-color: @admin-orange;
           }
         }
-
+*/
         &:not(.expanded) {
           .version-info {
             display: none;

@@ -20,7 +20,7 @@ export class VersionList
     private activeVersion: ContentVersion;
 
     constructor() {
-        super('all-content-versions');
+        super('version-list');
     }
 
     setContent(content: ContentSummaryAndCompareStatus) {

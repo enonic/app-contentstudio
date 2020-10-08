@@ -2,6 +2,7 @@ import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {ContentVersionViewer} from './ContentVersionViewer';
+import {VersionViewer} from './VersionViewer';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../event/EditContentEvent';
@@ -28,15 +29,14 @@ export class VersionListItem
     private readonly activeVersionId: string;
     private tooltip: Tooltip;
 
-    private statusBlock: DivEl;
-    private descriptionBlock: ContentVersionViewer;
+    private versionViewer: VersionViewer;
     private versionInfoBlock: VersionInfoBlock;
 
     private actionButton: ActionButton;
     private compareButton: ActionButton;
 
     constructor(version: ContentVersion, content: ContentSummaryAndCompareStatus, activeVersionId: string) {
-        super('content-version-item');
+        super('version-list-item');
 
         this.version = version;
         this.content = content;
@@ -47,31 +47,18 @@ export class VersionListItem
     }
 
     private initElements() {
-        this.createTooltip();
+        this.createTooltip();/*
         this.descriptionBlock = new ContentVersionViewer();
-        this.descriptionBlock.setObject(this.version);
+        this.descriptionBlock.setObject(this.version);*/
+        this.versionViewer = new VersionViewer();
+        this.versionViewer.setObject(this.version);
         this.versionInfoBlock = new VersionInfoBlock(this.version);
         this.actionButton = this.version.isActive() ? this.createEditButton() : this.createRevertButton();
-        this.compareButton = this.createCompareButton();
-    }
 
-    private hasWorkspaces(): boolean {
-        if (this.getCompareStatus() == null || !this.version.hasWorkspaces()) {
-            return false;
+        if (!this.version.isActive()) {
+            const compareButton = this.createCompareButton();
+            this.versionViewer.appendChild(compareButton);
         }
-        return true;
-    }
-
-    private getCompareStatus(): CompareStatus {
-        return this.content ? this.content.getCompareStatus() : null;
-    }
-
-    private getStatusClass(): string {
-        if (!this.hasWorkspaces()) {
-            return '';
-        }
-
-        return this.content.getStatusClass();
     }
 
     private createTooltip() {
@@ -123,11 +110,12 @@ export class VersionListItem
             .setTitle(i18n('tooltip.widget.versions.compareWithCurrentVersion'))
             .addClass('compare icon-compare icon-medium transparent');
 
+        compareButton.getAction().onExecuted(this.openCompareDialog.bind(this));
+
         return compareButton;
     }
 
     private initListeners() {
-        this.compareButton.getAction().onExecuted(this.openCompareDialog.bind(this));
         this.addOnClickHandler();
     }
 
@@ -191,20 +179,11 @@ export class VersionListItem
     }
 
     doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered) => {/*
-            if (this.statusBlock) {
-                const statusClass: string = this.getStatusClass();
-                if (statusClass) {
-                    this.statusBlock.addClass(statusClass.toLowerCase());
-                    this.addClass(statusClass.toLowerCase());
-                }
-                this.appendChild(this.statusBlock);
-            }*/
-
+        return super.doRender().then((rendered) => {
             this.versionInfoBlock.appendChild(this.actionButton);
-            this.descriptionBlock.appendChild(this.compareButton);
+            //this.versionViewer.appendChild(this.compareButton);
 
-            this.appendChildren(this.descriptionBlock);
+            this.appendChildren(this.versionViewer);
             this.appendChild(this.versionInfoBlock);
 
             return rendered;
