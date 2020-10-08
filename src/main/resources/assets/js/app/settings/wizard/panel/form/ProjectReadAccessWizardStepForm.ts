@@ -206,9 +206,9 @@ export class ProjectReadAccessWizardStepForm
     private createReadAccessRadioGroupFormItem(): FormItem {
         this.readAccessRadioGroup = new RadioGroup('read-access-radio-group');
 
-        this.readAccessRadioGroup.addOption(ProjectReadAccessType.PUBLIC, i18n('settings.items.wizard.readaccess.public'));
-        this.readAccessRadioGroup.addOption(ProjectReadAccessType.PRIVATE, i18n('settings.items.wizard.readaccess.private'));
-        this.readAccessRadioGroup.addOption(ProjectReadAccessType.CUSTOM, i18n('settings.items.wizard.readaccess.custom'));
+        this.readAccessRadioGroup.addOption(ProjectReadAccessType.PUBLIC, i18n('settings.items.wizard.readaccess.public.description'));
+        this.readAccessRadioGroup.addOption(ProjectReadAccessType.PRIVATE, i18n('settings.items.wizard.readaccess.private.description'));
+        this.readAccessRadioGroup.addOption(ProjectReadAccessType.CUSTOM, i18n('settings.items.wizard.readaccess.custom.description'));
 
         this.readAccessRadioGroupFormItem = new ProjectFormItemBuilder(this.readAccessRadioGroup)
             .setHelpText(i18n('settings.projects.access.helptext'))

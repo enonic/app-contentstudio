@@ -1,6 +1,6 @@
 import {BrowseItemPanel} from 'lib-admin-ui/app/browse/BrowseItemPanel';
 import {ItemStatisticsPanel} from 'lib-admin-ui/app/view/ItemStatisticsPanel';
-import {SettingsItemStatisticsPanel} from './SettingsItemStatisticsPanel';
+import {SettingsItemStatisticsPanel} from './statistics/SettingsItemStatisticsPanel';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 
 export class SettingsBrowseItemPanel
