@@ -14,10 +14,11 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-    let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    let PROJECT2_DISPLAY_NAME = studioUtils.generateRandomName("project");
-    let TEST_DESCRIPTION = "my description";
-    let NEW_DESCRIPTION = "new description";
+    const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
+    const PROJECT2_DISPLAY_NAME = studioUtils.generateRandomName("project");
+    const LAYER_NAME = studioUtils.generateRandomName("layer");
+    const TEST_DESCRIPTION = "my description";
+    const NEW_DESCRIPTION = "new description";
 
     it(`GIVEN a display name, description and access mode has been filled in WHEN 'Save' button has been pressed THEN all data should be saved`,
         async () => {
@@ -140,6 +141,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await confirmationDialog.waitForDialogOpened();
         });
 
+    //Verifies - Access mode should not be changed after canceling changes in Confirmation modal dialog #2295
     it("GIVEN access mode has been changed WHEN 'Cancel top' button has been clicked in the 'Confirmation' dialog THEN access mode returns to the initial state",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -159,6 +161,47 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             assert.isTrue(isSelected, "Private mode should be reverted in the Access Mode form");
             //5. Verify that 'Save' button is disabled
             await projectWizard.waitForSaveButtonDisabled();
+        });
+
+    //Verifies bug - https://github.com/enonic/lib-admin-ui/issues/1475
+    // Browse Panel - grid is not refreshed after adding items in the filtered grid
+    it("GIVEN existing project is checked and filtered WHEN child layer has been added AND Selection Controller has been uchecked THEN new created layer should be present in grid",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            //1.Check the existing project:
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT2_DISPLAY_NAME);
+            //2. Click on 'Show Selection' icon(filter the grid):
+            await settingsBrowsePanel.clickOnSelectionToggler();
+            //3. Open new layer wizard, type a data and save it:
+            let layerWizard = await settingsBrowsePanel.openLayerWizard();
+            await layerWizard.typeDisplayName(LAYER_NAME);
+            await layerWizard.clickOnAccessModeRadio("Public");
+            await layerWizard.waitAndClickOnSave();
+            await layerWizard.waitForNotificationMessage();
+            //4. Close the wizard:
+            await settingsBrowsePanel.clickOnCloseIcon(LAYER_NAME);
+            //5. Click on 'Selection Controller' checkbox and clear the filtering:
+            await settingsBrowsePanel.clickOnSelectionControllerCheckbox();
+            //6. Verify that new layer is present in grid:
+            await settingsBrowsePanel.waitForItemDisplayed(LAYER_NAME);
+        });
+
+    it("Layer and its parent project are successively deleted",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let confirmationDialog = new ConfirmationDialog();
+            //1.Select the layer and delete it:
+            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_NAME);
+            await settingsBrowsePanel.clickOnDeleteButton();
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
+            await settingsBrowsePanel.waitForNotificationMessage();
+            //2. Select The parent project and delete it:
+            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT2_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnDeleteButton();
+            await confirmationDialog.waitForDialogOpened();
+            await confirmationDialog.clickOnYesButton();
+            await settingsBrowsePanel.waitForNotificationMessage();
         });
 
     beforeEach(async () => {

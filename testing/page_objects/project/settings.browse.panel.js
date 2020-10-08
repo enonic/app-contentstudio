@@ -110,8 +110,8 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             return await this.waitForElementDisplayed(XPATH.itemsTreeGrid + lib.itemByName(projectName), appConst.mediumTimeout);
         } catch (err) {
             console.log("item is not displayed:" + projectName);
-            this.saveScreenshot('err_find_' + projectName)
-            throw new Error('projectName is not displayed ! ' + projectName + "  " + err);
+            this.saveScreenshot('err_find_' + projectName);
+            throw new Error('project is not displayed ! ' + projectName + "  " + err);
         }
     }
 
@@ -121,7 +121,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             return await this.waitForElementDisplayed(selector, appConst.longTimeout);
         } catch (err) {
             console.log("item is not displayed:" + displayName);
-            this.saveScreenshot('err_find_' + displayName)
+            this.saveScreenshot('err_find_' + displayName);
             throw new Error('Settings: item was not found ! ' + displayName + "  " + err);
         }
     }

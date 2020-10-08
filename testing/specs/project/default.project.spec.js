@@ -47,7 +47,7 @@ describe('default.project.spec - ui-tests for Default project', function () {
             assert.equal(actualMessage, 'Project "default" is modified.', "Expected message should appear");
         });
 
-    it("WHEN Default project has been re-opened THEN expected language and description should be displayed",
+    it("WHEN Default project has been reopened THEN expected language and description should be displayed",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
