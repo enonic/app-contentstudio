@@ -1,14 +1,12 @@
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
-import {ContentVersionViewer} from './ContentVersionViewer';
 import {VersionViewer} from './VersionViewer';
+import {VersionActionViewer} from './VersionActionViewer';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../event/EditContentEvent';
 import {ContentVersion} from '../../../../ContentVersion';
-import {PublishStatus, PublishStatusFormatter} from '../../../../publish/PublishStatus';
-import {CompareStatus, CompareStatusFormatter} from '../../../../content/CompareStatus';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
@@ -19,7 +17,6 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {VersionInfoBlock} from './VersionInfoBlock';
 
 export class VersionListItem
     extends LiEl {
@@ -29,11 +26,10 @@ export class VersionListItem
     private readonly activeVersionId: string;
     private tooltip: Tooltip;
 
-    private versionViewer: VersionViewer;
-    private versionInfoBlock: VersionInfoBlock;
+    private versionViewers: [VersionViewer | VersionActionViewer];
 
+    private expandable: boolean = false;
     private actionButton: ActionButton;
-    private compareButton: ActionButton;
 
     constructor(version: ContentVersion, content: ContentSummaryAndCompareStatus, activeVersionId: string) {
         super('version-list-item');
@@ -43,21 +39,49 @@ export class VersionListItem
         this.activeVersionId = activeVersionId; // do we need this???
 
         this.initElements();
-        this.initListeners();
+    }
+
+    private createVersionActionViewer() {
+        const versionActionViewer = new VersionActionViewer();
+        versionActionViewer.setObject(this.version.getPublishInfo());
+
+        this.versionViewers = [versionActionViewer];
+
+        if (this.version.getPublishInfo().getMessage()) {
+            const messageBlock = new DivEl('publish-message');
+            messageBlock.setHtml(this.version.getPublishInfo().getMessage());
+            versionActionViewer.appendChild(messageBlock);
+        }
+    }
+
+    private createVersionViewer() {
+        this.expandable = true;
+
+        const versionViewer = new VersionViewer();
+        this.addOnClickHandler(versionViewer);
+        versionViewer.setObject(this.version);
+        if (this.version.isActive()) {
+            versionViewer.addClass('active');
+        } else {
+            const compareButton = this.createCompareButton();
+            versionViewer.appendChild(compareButton);
+        }
+
+        if (this.versionViewers) {
+            this.versionViewers.push(versionViewer);
+        } else {
+            this.versionViewers = [versionViewer];
+        }
     }
 
     private initElements() {
-        this.createTooltip();/*
-        this.descriptionBlock = new ContentVersionViewer();
-        this.descriptionBlock.setObject(this.version);*/
-        this.versionViewer = new VersionViewer();
-        this.versionViewer.setObject(this.version);
-        this.versionInfoBlock = new VersionInfoBlock(this.version);
-        this.actionButton = this.version.isActive() ? this.createEditButton() : this.createRevertButton();
+        this.createTooltip();
 
-        if (!this.version.isActive()) {
-            const compareButton = this.createCompareButton();
-            this.versionViewer.appendChild(compareButton);
+        if (this.version.hasPublishInfo()) {
+            this.createVersionActionViewer();
+        }
+        if (!this.version.isUnpublished()) {
+            this.createVersionViewer();
         }
     }
 
@@ -115,10 +139,6 @@ export class VersionListItem
         return compareButton;
     }
 
-    private initListeners() {
-        this.addOnClickHandler();
-    }
-
     private openCompareDialog() {
         CompareContentVersionsDialog.get()
             .setContent(this.content.getContentSummary())
@@ -164,11 +184,17 @@ export class VersionListItem
         }
     }
 
-    private addOnClickHandler() {
-        this.onClicked(() => {
+    private addOnClickHandler(viewer: VersionViewer) {
+        viewer.onClicked(() => {
             this.collapseAllExpandedSiblings();
             this.toggleTooltip();
             this.toggleClass('expanded');
+
+            if (this.hasClass('expanded') && !this.actionButton) {
+                this.actionButton = this.version.isActive() ? this.createEditButton() : this.createRevertButton();
+                this.actionButton.addClass('version-action-button');
+                viewer.appendChild(this.actionButton);
+            }
         });
     }
 
@@ -180,11 +206,8 @@ export class VersionListItem
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.versionInfoBlock.appendChild(this.actionButton);
-            //this.versionViewer.appendChild(this.compareButton);
 
-            this.appendChildren(this.versionViewer);
-            this.appendChild(this.versionInfoBlock);
+            this.appendChildren(...this.versionViewers);
 
             return rendered;
         });

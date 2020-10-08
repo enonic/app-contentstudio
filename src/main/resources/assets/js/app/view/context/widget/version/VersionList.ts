@@ -3,7 +3,6 @@ import {Element} from 'lib-admin-ui/dom/Element';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
-import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersions} from '../../../../ContentVersions';
 import {GetContentVersionsRequest} from '../../../../resource/GetContentVersionsRequest';
@@ -16,7 +15,6 @@ export class VersionList
 
     private content: ContentSummaryAndCompareStatus;
     private loadedListeners: { (): void }[] = [];
-    private activeVersionId: string; //remove
     private activeVersion: ContentVersion;
 
     constructor() {
@@ -42,11 +40,8 @@ export class VersionList
         }).catch(DefaultErrorHandler.handle);
     }
 
-    createItemView(version: ContentVersion, readOnly: boolean): Element {
-        const itemContainer: LiEl = new VersionListItem(version, this.content, this.activeVersion.getId());
-        itemContainer.toggleClass('active', version.isActive());
-
-        return itemContainer;
+    createItemView(version: ContentVersion): Element {
+        return new VersionListItem(version, this.content, this.activeVersion.getId());
     }
 
     getItemId(item: ContentVersion): string {

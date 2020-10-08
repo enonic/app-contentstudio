@@ -78,4 +78,33 @@ implements Cloneable {
         }
         return new Date(Math.max(Number(this.timestamp), Number(this.contentPublishInfo.getFrom())));
     }
+
+    isCurrentlyPublished(): boolean {
+        const dateNow = Date.now();
+        const publishedFrom = this.getPublishedFrom() || dateNow;
+        const publishedTo = this.getPublishedTo() || dateNow;
+        if (dateNow < Number(publishedFrom) || dateNow > Number(publishedTo)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    isPublished(): boolean {
+        if (!this.contentPublishInfo) {
+            return false;
+        }
+        return !!this.getPublishedFrom() || !!this.getPublishedTo();
+    }
+
+    isUnpublished(): boolean {
+        if (!this.contentPublishInfo) {
+            return false;
+        }
+        return !!this.getFirstPublished() && !this.getPublishedFrom() && !this.getPublishedTo();
+    }
+
+    isEmpty(): boolean {
+        return !this.contentPublishInfo;
+    }
 }

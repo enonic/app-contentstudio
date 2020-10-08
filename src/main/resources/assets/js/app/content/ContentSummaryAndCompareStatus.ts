@@ -135,11 +135,10 @@ export class ContentSummaryAndCompareStatus
         }
 
         if (this.isPublished() || this.isModified()) {
-            const publishStatus = this.getPublishStatus();
-            if (PublishStatusChecker.isScheduled(publishStatus)) {
+            if (this.isScheduledPublishing()) {
                 return i18n('status.online.scheduled');
             }
-            if (PublishStatusChecker.isExpired(publishStatus)) {
+            if (this.isExpiredPublishing()) {
                 return i18n('status.online.expired');
             }
         }
@@ -219,6 +218,14 @@ export class ContentSummaryAndCompareStatus
 
     isModified(): boolean {
         return CompareStatusChecker.isModified(this.getCompareStatus());
+    }
+
+    isScheduledPublishing(): boolean {
+        return PublishStatusChecker.isScheduled(this.getPublishStatus());
+    }
+
+    isExpiredPublishing(): boolean {
+        return PublishStatusChecker.isExpired(this.getPublishStatus());
     }
 
     canBeMarkedAsReady(): boolean {
