@@ -191,7 +191,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
             await settingsBrowsePanel.waitForGridLoaded(appConstant.shortTimeout);
-            //4. Verify that the laer is deleted:
+            //4. Verify that the layer is deleted in Browse Panel:
             await settingsBrowsePanel.waitForProjectNotDisplayed(LAYER_DISPLAY_NAME);
             //5. Verify that expander-icon gets not visible in the parent project
             let result = await settingsBrowsePanel.isExpanderIconPresent(PROJECT_DISPLAY_NAME);
