@@ -15,7 +15,8 @@ export class VersionViewer
     }
 
     resolveDisplayName(version: ContentVersion): string {
-        return `${DateHelper.getFormattedTimeFromDate(version.getModified())}`;
+        const action = version.isInReadyState() ? i18n('status.markedAsReady') : i18n('status.modified');
+        return `${DateHelper.getFormattedTimeFromDate(version.getModified())} ${action}`;
     }
 
     resolveSubName(version: ContentVersion): string {

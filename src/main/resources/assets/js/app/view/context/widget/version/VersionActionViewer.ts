@@ -25,7 +25,16 @@ export class VersionActionViewer
         if (publishInfo.isEmpty()) {
             return '';
         }
-        return `${DateHelper.getFormattedTimeFromDate(publishInfo.getTimestamp())}`;
+
+        let action = '';
+        if (publishInfo.isPublished()) {
+            action = i18n('status.published');
+        }
+        if (publishInfo.isUnpublished()) {
+            action = i18n('status.unpublished');
+        }
+
+        return `${DateHelper.getFormattedTimeFromDate(publishInfo.getTimestamp())} ${action}`;
     }
 
     resolveSubName(publishInfo: ContentVersionPublishInfo): string {

@@ -1,7 +1,6 @@
 .widget-view.internal-widget {
 
   .version-widget-item-view {
-    padding: 0 5px;
     box-sizing: border-box;
     width: 100%;
     height: 100%;
@@ -35,7 +34,9 @@
         background-color: @admin-orange;
       }
 
-      &.online, &.modified, &.deleted {
+      &.online,
+      &.modified,
+      &.deleted {
         background-color: @admin-green;
       }
 
@@ -45,14 +46,40 @@
     }
 
     .version-list {
+      padding: 0 5px;
 
       &-item {
+
+        &:first-child {
+          .version-date {
+            margin-top: 10px;
+          }
+        }
+
+        .version-date {
+          margin: 20px 0 0 5px;
+          font-size: 15px;
+          display: block;
+        }
+
+        &.hide-date {
+          .version-date:first-child {
+            display: none;
+          }
+        }
+
         &.active {
           border-color: @admin-dark-gray;
         }
 
         .viewer {
+
+          &:first-child {
+            margin-top: 0;
+          }
+
           &.version-viewer {
+            padding: 7px 7px 7px 12px;
             flex-direction: column;
             box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
             border: 2px solid @admin-white;
@@ -94,10 +121,15 @@
                 border: none;
                 outline: none;
               }
+
+              + .names-and-icon-view {
+                padding-right: 30px;
+              }
             }
           }
 
           &.version-action-viewer {
+            padding: 5px 7px 5px 12px;
             flex-direction: column-reverse;
 
             .publish-message {
@@ -108,7 +140,6 @@
           }
 
           display: flex;
-          padding: 7px 7px 7px 10px;
           position: relative;
           margin: 10px 0;
 
@@ -205,6 +236,7 @@
         &.expanded {
           .version-viewer {
             border-color: @admin-black;
+
             &:hover {
               border-color: @admin-black;
             }

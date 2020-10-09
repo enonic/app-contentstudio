@@ -1,4 +1,5 @@
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
+import {Element} from 'lib-admin-ui/dom/Element';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {VersionViewer} from './VersionViewer';
@@ -23,22 +24,20 @@ export class VersionListItem
 
     private readonly version: ContentVersion;
     private readonly content: ContentSummaryAndCompareStatus;
-    private readonly activeVersionId: string;
     private tooltip: Tooltip;
 
-    private versionViewers: [VersionViewer | VersionActionViewer];
+    private versionViewers: Element[];
 
     private expandable: boolean = false;
     private actionButton: ActionButton;
 
-    constructor(version: ContentVersion, content: ContentSummaryAndCompareStatus, activeVersionId: string) {
+    constructor(version: ContentVersion, content: ContentSummaryAndCompareStatus, skipDuplicateVersion: boolean = false) {
         super('version-list-item');
 
         this.version = version;
         this.content = content;
-        this.activeVersionId = activeVersionId; // do we need this???
 
-        this.initElements();
+        this.initElements(skipDuplicateVersion);
     }
 
     private createVersionActionViewer() {
@@ -54,7 +53,7 @@ export class VersionListItem
         }
     }
 
-    private createVersionViewer() {
+    private createVersionViewer(dateBlock: DivEl) {
         this.expandable = true;
 
         const versionViewer = new VersionViewer();
@@ -67,21 +66,35 @@ export class VersionListItem
             versionViewer.appendChild(compareButton);
         }
 
+        const viewers: Element[] = [];
+        if (dateBlock) {
+            viewers.push(dateBlock);
+        }
+        viewers.push(versionViewer);
+
         if (this.versionViewers) {
-            this.versionViewers.push(versionViewer);
+            this.versionViewers = this.versionViewers.concat(viewers);
         } else {
-            this.versionViewers = [versionViewer];
+            this.versionViewers = viewers;
         }
     }
 
-    private initElements() {
+    private initElements(skipDuplicateVersion: boolean) {
         this.createTooltip();
 
         if (this.version.hasPublishInfo()) {
             this.createVersionActionViewer();
         }
-        if (!this.version.isUnpublished()) {
-            this.createVersionViewer();
+        if (!this.version.isUnpublished() && !skipDuplicateVersion) {
+            let dateBlock: DivEl;
+            if (this.version.hasPublishInfo()) {
+                const publishDate = this.version.getPublishInfo().getTimestamp();
+                const modifiedDate = this.version.getModified();
+                if (DateHelper.formatDate(publishDate) !== DateHelper.formatDate(modifiedDate)) {
+                    dateBlock = this.createVersionDateBlock(modifiedDate);
+                }
+            }
+            this.createVersionViewer(dateBlock);
         }
     }
 
@@ -150,13 +163,7 @@ export class VersionListItem
     private revert(contentId: ContentId, version: ContentVersion) {
         new RevertVersionRequest(version.getId(), contentId.toString())
             .sendAndParse()
-            .then((newVersionId) => {
-
-                if (newVersionId === this.activeVersionId) {
-                    NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
-                    return;
-                }
-
+            .then(() => {
                 const modifiedDate = version.getModified();
                 const dateTime = `${DateHelper.formatDateTime(modifiedDate)}`;
 
@@ -204,10 +211,21 @@ export class VersionListItem
             .removeClass('expanded');
     }
 
+    private createVersionDateBlock(date: Date): DivEl {
+        const dateDiv: DivEl = new DivEl('version-date');
+        dateDiv.setHtml(DateHelper.formatDate(date));
+
+        return dateDiv;
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
 
-            this.appendChildren(...this.versionViewers);
+            const actionDate = this.version.hasPublishInfo() ?
+                               this.version.getPublishInfo().getTimestamp() : this.version.getModified();
+            const dateDiv = this.createVersionDateBlock(actionDate);
+
+            this.appendChildren(dateDiv, ...this.versionViewers);
 
             return rendered;
         });
