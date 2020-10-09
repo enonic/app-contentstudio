@@ -216,7 +216,7 @@ export class HtmlEditor {
 
     private handleTooltipForClickableElements() {
         let tooltipElem: CKEDITOR.dom.element = null;
-        const tooltipText = i18n('editor.dblclicktoedit');
+        const tooltipText: string = i18n('editor.dblclicktoedit');
 
         const mouseOverHandler = AppHelper.debounce((ev: eventInfo) => {
             const targetEl: CKEDITOR.dom.element = ev.data.getTarget();
@@ -231,8 +231,19 @@ export class HtmlEditor {
         }, 200);
 
         this.editor.on('instanceReady', () => {
-            tooltipElem = this.editorParams.isInline() ? this.editor.container : this.editor.document.getBody().getParent();
-            this.editor.editable().on('mouseover', mouseOverHandler);
+            try {
+                tooltipElem = this.editorParams.isInline() ? this.editor.container : this.editor.document.getBody().getParent();
+
+                if (!!tooltipElem) {
+                    this.editor.editable().on('mouseover', mouseOverHandler);
+                }
+            } catch (e) {
+                console.log('Failed to init tooltip handler', e);
+            }
+        });
+
+        this.editor.once('autoGrow', (event: CKEDITOR.eventInfo) => {
+            event.cancel();
         });
     }
 
