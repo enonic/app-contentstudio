@@ -1,5 +1,6 @@
 import * as Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
+import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
@@ -10,12 +11,17 @@ import {CompareStatus} from '../../../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {VersionListItem} from './VersionListItem';
 
+interface VersionDate {
+    [date: number]: string;
+}
+
 export class VersionList
     extends ListBox<ContentVersion> {
 
     private content: ContentSummaryAndCompareStatus;
     private loadedListeners: { (): void }[] = [];
-    private activeVersion: ContentVersion;
+    private lastDate: string;
+    private versionDates: VersionDate = {};
 
     constructor() {
         super('version-list');
@@ -23,6 +29,7 @@ export class VersionList
 
     setContent(content: ContentSummaryAndCompareStatus) {
         this.content = content;
+        this.lastDate = null;
     }
 
     getContentId(): ContentId {
@@ -41,7 +48,23 @@ export class VersionList
     }
 
     createItemView(version: ContentVersion): Element {
-        return new VersionListItem(version, this.content, this.activeVersion.getId());
+        const skipDuplicateVersion = this.versionDates[Number(version.getModified())] !== version.getId();
+
+        const actionDate = version.hasPublishInfo() ? version.getPublishInfo().getTimestamp() : version.getModified();
+        const thisDate = DateHelper.formatDate(actionDate);
+
+        const versionListItem = new VersionListItem(version, this.content, skipDuplicateVersion);
+        if (thisDate === this.lastDate) {
+            versionListItem.addClass('hide-date');
+        }
+
+        if (version.isPublished() && !skipDuplicateVersion) {
+            this.lastDate = DateHelper.formatDate(version.getModified());
+        } else {
+            this.lastDate = thisDate;
+        }
+
+        return versionListItem;
     }
 
     getItemId(item: ContentVersion): string {
@@ -70,8 +93,9 @@ export class VersionList
         }
 
         return new GetContentVersionsRequest(this.getContentId()).sendAndParse().then((contentVersions: ContentVersions) => {
-            //this.activeVersionId = contentVersions.getActiveVersion().getId();
-            this.activeVersion = contentVersions.getActiveVersion();
+            contentVersions.getContentVersions().forEach((version: ContentVersion) => {
+                this.versionDates[Number(version.getModified())] = version.getId();
+            });
             return contentVersions.getContentVersions();
         });
     }
