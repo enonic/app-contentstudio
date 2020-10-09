@@ -1,5 +1,4 @@
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {CompareStatusFormatter} from '../../../../content/CompareStatus';
 import {LayerContent} from './LayerContent';
 
@@ -9,7 +8,7 @@ export class LayerContentViewHeader extends DivEl {
 
     private layerNameBlock: DivEl;
 
-    private itemStatusBlock: SpanEl;
+    private itemStatusBlock: DivEl;
 
     constructor(layerContent: LayerContent, cls: string) {
         super(cls);
@@ -21,17 +20,17 @@ export class LayerContentViewHeader extends DivEl {
 
     private initElements() {
         this.layerNameBlock = new DivEl('layer-details');
-        const layerName: SpanEl = new SpanEl('layer-name');
+        const layerName: DivEl = new DivEl('layer-name');
         layerName.setHtml(this.layerContent.getProject().getDisplayName());
         this.layerNameBlock.appendChild(layerName);
 
         if (this.layerContent.getProject().getLanguage()) {
-            const layerLang: SpanEl = new SpanEl('layer-language');
+            const layerLang: DivEl = new DivEl('layer-language');
             layerLang.setHtml(`(${this.layerContent.getProject().getLanguage()})`);
             this.layerNameBlock.appendChild(layerLang);
         }
 
-        this.itemStatusBlock = new SpanEl('status');
+        this.itemStatusBlock = new DivEl('status');
         this.itemStatusBlock.setHtml(CompareStatusFormatter.formatStatusTextFromContent(this.layerContent.getItem()));
         this.itemStatusBlock.addClass(CompareStatusFormatter.formatStatusClassFromContent(this.layerContent.getItem()));
     }
