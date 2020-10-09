@@ -165,7 +165,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
 
     //Verifies bug - https://github.com/enonic/lib-admin-ui/issues/1475
     // Browse Panel - grid is not refreshed after adding items in the filtered grid
-    it("GIVEN existing project is checked and filtered WHEN child layer has been added AND Selection Controller has been uchecked THEN new created layer should be present in grid",
+    it("GIVEN existing project is checked and filtered WHEN child layer has been added AND Selection Controller has been unchecked THEN new created layer should be present in grid",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1.Check the existing project:
