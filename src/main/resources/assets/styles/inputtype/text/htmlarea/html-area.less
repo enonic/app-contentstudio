@@ -15,6 +15,18 @@
       display: flex;
       flex-wrap: wrap;
 
+      .cke_combo {
+        margin-bottom: 0;
+
+        + .cke_toolgroup {
+          float: none;
+
+          a.cke_button {
+            margin-bottom: 5px;
+          }
+        }
+      }
+
       .cke_toolgroup {
         margin-bottom: 4px;
 
@@ -36,18 +48,6 @@
 
     .cke_button__fullscreen, .cke_button__sourcedialog {
       float: right;
-    }
-  }
-
-  .cke_combo {
-    margin-bottom: 0;
-
-    + .cke_toolgroup {
-      float: none;
-
-      a.cke_button {
-        margin-bottom: 5px;
-      }
     }
   }
 
