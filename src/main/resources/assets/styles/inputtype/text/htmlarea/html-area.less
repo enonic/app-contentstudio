@@ -33,14 +33,22 @@
 
   .cke_bottom {
     padding: 1px 8px 2px;
+
+    .cke_button__fullscreen, .cke_button__sourcedialog {
+      float: right;
+    }
   }
 
   .cke_combo {
     margin-bottom: 0;
-  }
 
-  .cke_button__fullscreen, .cke_button__sourcedialog {
-    float: right;
+    + .cke_toolgroup {
+      float: none;
+
+      a.cke_button {
+        margin-bottom: 5px;
+      }
+    }
   }
 
   .cke_path {
