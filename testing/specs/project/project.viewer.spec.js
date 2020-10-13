@@ -117,6 +117,8 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
         });
 
     //Verify that 'Viewer' can not publish content:
+    //Verifies https://github.com/enonic/app-contentstudio/issues/2363
+    //Publish menu should be disabled for users with Viewer role #2363
     it("GIVEN user with 'Viewer' role is logged in WHEN existing folder has been selected THEN 'Publish' menu item should be disabled for users with Viewer role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -124,8 +126,9 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //2. Select existing folder:
             await studioUtils.findAndSelectItem(FOLDER_NAME);
-            //3. Verify that Edit, New, Delete buttons are disabled:
-            await contentBrowsePanel.waitForEditButtonDisabled();
+            //3. Verify that Open button is enabled
+            await contentBrowsePanel.waitForOpenButtonEnabled();
+            //3. Verify that, New, Delete buttons are disabled:
             await contentBrowsePanel.waitForDeleteButtonDisabled();
             await contentBrowsePanel.waitForNewButtonDisabled();
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
@@ -133,8 +136,8 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await contentBrowsePanel.openPublishMenu();
             studioUtils.saveScreenshot("project_viewer_3");
             //5. Verify that 'Create Task' and 'Request Publishing' menu items are enabled for Viewer role:
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.CREATE_TASK);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
             //6. Verify that 'Publish' menu item is disabled:
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
         });

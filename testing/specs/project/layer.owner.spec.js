@@ -92,8 +92,23 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             await studioUtils.findAndSelectItem(SITE_NAME);
             //3. Verify that 'Localize' button appears in the browse toolbar:
             await contentBrowsePanel.waitForLocalizeButtonEnabled();
+            //4. Verify that workflow state the same as in the parent project:
+            let actualWorkflow = await contentBrowsePanel.getWorkflowState(SITE_NAME);
+            assert.equal(actualWorkflow, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 
+    //Verifies - https://github.com/enonic/app-contentstudio/issues/2309
+    //Incorrect default action for inherited content #2309
+    it("GIVEN user with 'Owner'-layer role is logged in WHEN 'inherited' site has been selected THEN 'Localize' button should appear in the browse toolbar",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Do log in with the user-owner and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            //2. Select the site:
+            await studioUtils.findAndSelectItem(SITE_NAME);
+            //3. Verify that 'Mark as Ready' is default action in Publish Menu
+            await contentBrowsePanel.waitForDefaultAction(appConstant.PUBLISH_MENU.MARK_AS_READY);
+        });
 
     it("GIVEN user with 'Owner'-layer role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",
         async () => {
