@@ -2173,7 +2173,7 @@ export class ContentWizardPanel
     }
 
     private resolveContentNameForUpdateRequest(): ContentName {
-        if (StringHelper.isEmpty(this.getWizardHeader().getName())) {
+        if (StringHelper.isBlank(this.getWizardHeader().getName())) {
             if (this.getPersistedItem().getName().isUnnamed()) {
                 return this.getPersistedItem().getName();
             } else {
