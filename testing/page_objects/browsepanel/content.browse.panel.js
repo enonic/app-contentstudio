@@ -759,12 +759,18 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async isContentInherited(contentName) {
-        await this.waitForContentDisplayed(contentName, 15000);
-        let locator = lib.slickRowByDisplayName(XPATH.treeGrid, contentName)
+        await this.waitForContentDisplayed(contentName, appConst.mediumTimeout);
+        let locator = lib.slickRowByName(XPATH.treeGrid, contentName)
         let attr = await this.getAttribute(locator, 'class');
         return attr.includes('data-inherited');
     }
 
+    async isContentByDisplayNameInherited(contentName) {
+        await this.waitForContentDisplayed(contentName, appConst.mediumTimeout);
+        let locator = lib.slickRowByDisplayName(XPATH.treeGrid, contentName);
+        let attr = await this.getAttribute(locator, 'class');
+        return attr.includes('data-inherited');
+    }
     async clickOnLocalizeButton() {
         await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
         await this.clickOnElement(this.localizeButton);
