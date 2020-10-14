@@ -231,9 +231,7 @@ export class HtmlEditor {
         }, 200);
 
         this.editor.on('instanceReady', () => {
-            tooltipElem = this.editorParams.isInline() ? this.editor.container : this.editor.document.getBody().getParent();
             try {
-                this.editor.editable().on('mouseover', mouseOverHandler);
                 tooltipElem = this.editorParams.isInline() ? this.editor.container : this.editor.document.getBody().getParent();
 
                 if (!!tooltipElem) {
