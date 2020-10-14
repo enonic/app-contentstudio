@@ -63,9 +63,8 @@ export class VersionList
                 const modifiedDate = DateHelper.formatDate(version.getModified());
                 if (!version.isUnpublished()) {
                     versionHistoryItems.push(VersionHistoryItem.fromContentVersion(version, (modifiedDate === lastDate)));
-                } else {
-                    lastDate = modifiedDate;
                 }
+                lastDate = modifiedDate;
             }
         });
 
