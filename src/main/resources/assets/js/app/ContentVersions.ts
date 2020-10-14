@@ -26,10 +26,14 @@ export class ContentVersions {
         });
 
         if (contentVersionForViewJson.activeVersion) {
-            const activeVersion = ContentVersion.fromJson(contentVersionForViewJson.activeVersion.contentVersion,
-                [contentVersionForViewJson.activeVersion.branch]);
+            const activeVersionId = ContentVersion.fromJson(contentVersionForViewJson.activeVersion.contentVersion,
+                [contentVersionForViewJson.activeVersion.branch]).getId();
 
-            contentVersions.find((contentVersion: ContentVersion) => contentVersion.getId() === activeVersion.getId()).setActive(true);
+            let activeVersion = contentVersions.find((contentVersion: ContentVersion) => contentVersion.getId() === activeVersionId);
+            if (!activeVersion) {
+                activeVersion = contentVersions[0];
+            }
+            activeVersion.setActive(true);
         }
 
         return new ContentVersions(contentVersions);
