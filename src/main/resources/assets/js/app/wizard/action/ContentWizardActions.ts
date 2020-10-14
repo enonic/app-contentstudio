@@ -225,7 +225,7 @@ export class ContentWizardActions
     }
 
     private doCheckSaveActionStateHandler() {
-        let isEnabled: boolean = this.wizardPanel.hasUnsavedChanges();
+        let isEnabled: boolean = this.wizardPanel.isHeaderValid() && this.wizardPanel.hasUnsavedChanges();
 
         if (this.persistedContent) {
             isEnabled = isEnabled &&
