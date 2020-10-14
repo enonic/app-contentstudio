@@ -1,13 +1,10 @@
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
-import {Element} from 'lib-admin-ui/dom/Element';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {VersionViewer} from './VersionViewer';
-import {VersionActionViewer} from './VersionActionViewer';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../event/EditContentEvent';
-import {ContentVersion} from '../../../../ContentVersion';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
@@ -41,7 +38,7 @@ export class VersionListItem
             this.addOnClickHandler(versionViewer);
         }
         versionViewer.setObject(this.version);
-        if (!this.version.isActive()) {
+        if (!this.version.isActive() && !this.version.isPublishAction()) {
             const compareButton = this.createCompareButton();
             versionViewer.appendChild(compareButton);
         }
@@ -128,10 +125,6 @@ export class VersionListItem
                 new ActiveContentVersionSetEvent(this.content.getContentId(), this.version.getId()).fire();
             })
             .catch(DefaultErrorHandler.handle);
-    }
-
-    private getContentId(): ContentId {
-        return this.content ? this.content.getContentId() : null;
     }
 
     private toggleTooltip() {

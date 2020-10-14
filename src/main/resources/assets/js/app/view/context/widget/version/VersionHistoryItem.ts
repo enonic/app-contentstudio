@@ -67,7 +67,7 @@ export class VersionHistoryItem {
     }
 
     isPublishAction(): boolean {
-        return !!this.id;
+        return !this.id;
     }
 
     getId(): string {
