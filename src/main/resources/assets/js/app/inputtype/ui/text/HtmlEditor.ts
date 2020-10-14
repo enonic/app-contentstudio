@@ -231,20 +231,27 @@ export class HtmlEditor {
         }, 200);
 
         this.editor.on('instanceReady', () => {
-            try {
-                tooltipElem = this.editorParams.isInline() ? this.editor.container : this.editor.document.getBody().getParent();
+            tooltipElem = this.getTooltipContainer();
 
-                if (!!tooltipElem) {
-                    this.editor.editable().on('mouseover', mouseOverHandler);
-                }
-            } catch (e) {
-                console.log('Failed to init tooltip handler', e);
+            if (!!tooltipElem) {
+                this.editor.editable().on('mouseover', mouseOverHandler);
             }
+
         });
 
         this.editor.once('autoGrow', (event: CKEDITOR.eventInfo) => {
             event.cancel();
         });
+    }
+
+    private getTooltipContainer(): CKEDITOR.dom.element {
+        if (this.editorParams.isInline()) {
+            return this.editor.container;
+        }
+
+        const body: CKEDITOR.dom.element = this.editor.document.getBody();
+
+        return !!body ? body.getParent() : null;
     }
 
     private handleFileUpload() {
