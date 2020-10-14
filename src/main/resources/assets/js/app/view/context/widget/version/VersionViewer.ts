@@ -1,31 +1,28 @@
-import {ContentVersion} from '../../../../ContentVersion';
 import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {VersionHistoryItem} from './VersionHistoryItem';
 
 export class VersionViewer
-    extends NamesAndIconViewer<ContentVersion> {
+    extends NamesAndIconViewer<VersionHistoryItem> {
 
-    constructor() {
-        super('version-viewer');
+    resolveIconClass(version: VersionHistoryItem): string {
+        return version.getIconCls() || '';
     }
 
-    resolveIconClass(version: ContentVersion): string {
-        return version.isInReadyState() ? 'icon-state-ready' : 'icon-version-modified';
+    resolveDisplayName(version: VersionHistoryItem): string {
+        return `${DateHelper.getFormattedTimeFromDate(version.getDateTime())} ${version.getStatus()}`;
     }
 
-    resolveDisplayName(version: ContentVersion): string {
-        const action = version.isInReadyState() ? i18n('status.markedAsReady') : i18n('status.modified');
-        return `${DateHelper.getFormattedTimeFromDate(version.getModified())} ${action}`;
+    resolveSubName(version: VersionHistoryItem): string {
+        return i18n('dialog.compareVersions.versionSubName', '', version.getUser());
     }
 
-    resolveSubName(version: ContentVersion): string {
-        return i18n('dialog.compareVersions.versionSubName', '', version.getModifierDisplayName());
-    }
-
-    setObject(version: ContentVersion) {
-        this.toggleClass('divider', version.isActive() && !version.isAlias());
-
+    setObject(version: VersionHistoryItem) {
+        this.addClass(version.isPublishAction() ? 'version-action-viewer' : 'version-viewer');
+        if (version.isActive()) {
+            this.addClass('active');
+        }
         return super.setObject(version);
     }
 }

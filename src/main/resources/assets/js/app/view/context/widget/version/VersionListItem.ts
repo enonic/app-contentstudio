@@ -18,93 +18,50 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {VersionHistoryItem} from './VersionHistoryItem';
 
 export class VersionListItem
     extends LiEl {
 
-    private readonly version: ContentVersion;
+    private readonly version: VersionHistoryItem;
     private readonly content: ContentSummaryAndCompareStatus;
     private tooltip: Tooltip;
-
-    private versionViewers: Element[];
-
-    private expandable: boolean = false;
     private actionButton: ActionButton;
 
-    constructor(version: ContentVersion, content: ContentSummaryAndCompareStatus, skipDuplicateVersion: boolean = false) {
+    constructor(version: VersionHistoryItem, content: ContentSummaryAndCompareStatus) {
         super('version-list-item');
 
         this.version = version;
         this.content = content;
-
-        this.initElements(skipDuplicateVersion);
     }
 
-    private createVersionActionViewer() {
-        const versionActionViewer = new VersionActionViewer();
-        versionActionViewer.setObject(this.version.getPublishInfo());
-
-        this.versionViewers = [versionActionViewer];
-
-        if (this.version.getPublishInfo().getMessage()) {
-            const messageBlock = new DivEl('publish-message');
-            messageBlock.setHtml(this.version.getPublishInfo().getMessage());
-            versionActionViewer.appendChild(messageBlock);
-        }
-    }
-
-    private createVersionViewer(dateBlock: DivEl) {
-        this.expandable = true;
-
+    private createVersionViewer(): VersionViewer {
         const versionViewer = new VersionViewer();
-        this.addOnClickHandler(versionViewer);
+        if (this.version.isRevertable()) {
+            this.addOnClickHandler(versionViewer);
+        }
         versionViewer.setObject(this.version);
-        if (this.version.isActive()) {
-            versionViewer.addClass('active');
-        } else {
+        if (!this.version.isActive()) {
             const compareButton = this.createCompareButton();
             versionViewer.appendChild(compareButton);
         }
 
-        const viewers: Element[] = [];
-        if (dateBlock) {
-            viewers.push(dateBlock);
+        if (this.version.getMessage()) {
+            const messageBlock = new DivEl('publish-message');
+            messageBlock.setHtml(this.version.getMessage());
+            versionViewer.appendChild(messageBlock);
         }
-        viewers.push(versionViewer);
 
-        if (this.versionViewers) {
-            this.versionViewers = this.versionViewers.concat(viewers);
-        } else {
-            this.versionViewers = viewers;
-        }
-    }
-
-    private initElements(skipDuplicateVersion: boolean) {
-        this.createTooltip();
-
-        if (this.version.hasPublishInfo()) {
-            this.createVersionActionViewer();
-        }
-        if (!this.version.isUnpublished() && !skipDuplicateVersion) {
-            let dateBlock: DivEl;
-            if (this.version.hasPublishInfo()) {
-                const publishDate = this.version.getPublishInfo().getTimestamp();
-                const modifiedDate = this.version.getModified();
-                if (DateHelper.formatDate(publishDate) !== DateHelper.formatDate(modifiedDate)) {
-                    dateBlock = this.createVersionDateBlock(modifiedDate);
-                }
-            }
-            this.createVersionViewer(dateBlock);
-        }
+        return versionViewer;
     }
 
     private createTooltip() {
 
-        if (!this.version.getPublishInfo() || !this.version.getPublishInfo().getMessage()) {
+        if (!this.version.getMessage()) {
             return;
         }
 
-        this.tooltip = new Tooltip(this, this.version.getPublishInfo().getMessage().trim(), 1000);
+        this.tooltip = new Tooltip(this, this.version.getMessage().trim(), 1000);
     }
 
     private createEditButton(): ActionButton {
@@ -133,7 +90,7 @@ export class VersionListItem
                 event.stopPropagation();
             });
             revertButton.getAction().onExecuted(() => {
-                this.revert(this.getContentId(), this.version);
+                this.revert();
             });
         }
 
@@ -155,20 +112,20 @@ export class VersionListItem
     private openCompareDialog() {
         CompareContentVersionsDialog.get()
             .setContent(this.content.getContentSummary())
-            .setLeftVersion(this.version)
+            //.setLeftVersion(this.version)
             .setRevertVersionCallback(this.revert.bind(this))
             .open();
     }
 
-    private revert(contentId: ContentId, version: ContentVersion) {
-        new RevertVersionRequest(version.getId(), contentId.toString())
+    private revert() {
+        new RevertVersionRequest(this.version.getId(), this.content.getContentId().toString())
             .sendAndParse()
             .then(() => {
-                const modifiedDate = version.getModified();
+                const modifiedDate = this.version.getDateTime();
                 const dateTime = `${DateHelper.formatDateTime(modifiedDate)}`;
 
                 NotifyManager.get().showSuccess(i18n('notify.version.changed', dateTime));
-                new ActiveContentVersionSetEvent(contentId, version.getId()).fire();
+                new ActiveContentVersionSetEvent(this.content.getContentId(), this.version.getId()).fire();
             })
             .catch(DefaultErrorHandler.handle);
     }
@@ -220,12 +177,13 @@ export class VersionListItem
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
+            this.createTooltip();
 
-            const actionDate = this.version.hasPublishInfo() ?
-                               this.version.getPublishInfo().getTimestamp() : this.version.getModified();
-            const dateDiv = this.createVersionDateBlock(actionDate);
+            if (!this.version.skipsDate()) {
+                this.appendChild(this.createVersionDateBlock(this.version.getDateTime()));
+            }
 
-            this.appendChildren(dateDiv, ...this.versionViewers);
+            this.appendChild(this.createVersionViewer());
 
             return rendered;
         });

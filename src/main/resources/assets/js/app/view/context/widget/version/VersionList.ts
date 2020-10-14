@@ -10,17 +10,17 @@ import {GetContentVersionsRequest} from '../../../../resource/GetContentVersions
 import {CompareStatus} from '../../../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {VersionListItem} from './VersionListItem';
+import {VersionHistoryItem} from './VersionHistoryItem';
 
 interface VersionDate {
     [date: number]: string;
 }
 
 export class VersionList
-    extends ListBox<ContentVersion> {
+    extends ListBox<VersionHistoryItem> {
 
     private content: ContentSummaryAndCompareStatus;
     private loadedListeners: { (): void }[] = [];
-    private lastDate: string;
     private versionDates: VersionDate = {};
 
     constructor() {
@@ -29,7 +29,6 @@ export class VersionList
 
     setContent(content: ContentSummaryAndCompareStatus) {
         this.content = content;
-        this.lastDate = null;
     }
 
     getContentId(): ContentId {
@@ -47,27 +46,37 @@ export class VersionList
         }).catch(DefaultErrorHandler.handle);
     }
 
-    createItemView(version: ContentVersion): Element {
-        const skipDuplicateVersion = this.versionDates[Number(version.getModified())] !== version.getId();
+    private versionsToHistoryItems(contentVersions: ContentVersion[]): VersionHistoryItem[] {
+        const versionHistoryItems: VersionHistoryItem[] = [];
+        let lastDate = null;
+        contentVersions.forEach((version: ContentVersion) => {
 
-        const actionDate = version.hasPublishInfo() ? version.getPublishInfo().getTimestamp() : version.getModified();
-        const thisDate = DateHelper.formatDate(actionDate);
+            const skipDuplicateVersion = this.versionDates[Number(version.getModified())] !== version.getId();
 
-        const versionListItem = new VersionListItem(version, this.content, skipDuplicateVersion);
-        if (thisDate === this.lastDate) {
-            versionListItem.addClass('hide-date');
-        }
+            if (version.hasPublishInfo()) {
+                const publishDate = DateHelper.formatDate(version.getPublishInfo().getTimestamp());
+                versionHistoryItems.push(VersionHistoryItem.fromPublishInfo(version.getPublishInfo(), (publishDate === lastDate)));
+                lastDate = publishDate;
+            }
 
-        if (version.isPublished() && !skipDuplicateVersion) {
-            this.lastDate = DateHelper.formatDate(version.getModified());
-        } else {
-            this.lastDate = thisDate;
-        }
+            if (!skipDuplicateVersion) {
+                const modifiedDate = DateHelper.formatDate(version.getModified());
+                if (!version.isUnpublished()) {
+                    versionHistoryItems.push(VersionHistoryItem.fromContentVersion(version, (modifiedDate === lastDate)));
+                } else {
+                    lastDate = modifiedDate;
+                }
+            }
+        });
 
-        return versionListItem;
+        return versionHistoryItems;
     }
 
-    getItemId(item: ContentVersion): string {
+    createItemView(version: VersionHistoryItem): Element {
+        return new VersionListItem(version, this.content);
+    }
+
+    getItemId(item: VersionHistoryItem): string {
         return item.getId();
     }
 
@@ -102,7 +111,7 @@ export class VersionList
 
     private updateView(contentVersions: ContentVersion[]) {
         this.clearItems();
-        this.setItems(contentVersions);
+        this.setItems(this.versionsToHistoryItems(contentVersions));
     }
 
 }
