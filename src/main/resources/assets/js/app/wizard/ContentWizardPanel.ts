@@ -76,10 +76,7 @@ import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {TogglerButton} from 'lib-admin-ui/ui/button/TogglerButton';
-import {
-    WizardHeaderWithDisplayNameAndName,
-    WizardHeaderWithDisplayNameAndNameBuilder
-} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
+import {WizardHeaderWithDisplayNameAndNameBuilder} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {Application} from 'lib-admin-ui/application/Application';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ApplicationEvent} from 'lib-admin-ui/application/ApplicationEvent';
@@ -124,6 +121,7 @@ import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
+import {ContentWizardHeader} from './ContentWizardHeader';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -365,11 +363,11 @@ export class ContentWizardPanel
     }
 
     protected createWizardHeader(): WizardHeader {
-        const header: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndNameBuilder()
+        const header: ContentWizardHeader = new ContentWizardHeader(new WizardHeaderWithDisplayNameAndNameBuilder()
             .setDisplayNameGenerator(this.displayNameResolver)
-            .setDisplayNameLabel(this.contentType ? this.contentType.getDisplayNameLabel() : null)
-            .build();
+            .setDisplayNameLabel(this.contentType ? this.contentType.getDisplayNameLabel() : null));
 
+        header.setPersistedName(this.isItemPersisted() ? this.getPersistedItem().getName().toString() : '');
         header.setPath(this.getWizardHeaderPath());
 
         const existing: Content = this.getPersistedItem();
@@ -390,8 +388,8 @@ export class ContentWizardPanel
         return '/';
     }
 
-    public getWizardHeader(): WizardHeaderWithDisplayNameAndName {
-        return <WizardHeaderWithDisplayNameAndName>super.getWizardHeader();
+    public getWizardHeader(): ContentWizardHeader {
+        return <ContentWizardHeader>super.getWizardHeader();
     }
 
     public getLivePanel(): LiveFormPanel {
@@ -2583,5 +2581,17 @@ export class ContentWizardPanel
     private canEveryoneRead(content: Content): boolean {
         const entry: AccessControlEntry = content.getPermissions().getEntry(RoleKeys.EVERYONE);
         return !!entry && entry.isAllowed(Permission.READ);
+    }
+
+    protected setPersistedItem(newPersistedItem: Content): void {
+        super.setPersistedItem(newPersistedItem);
+
+        if (this.getWizardHeader()) {
+            this.getWizardHeader().setPersistedName(newPersistedItem.getName().toString());
+        }
+    }
+
+    isHeaderValid(): boolean {
+        return !this.wizardHeader || this.wizardHeader.isValid();
     }
 }

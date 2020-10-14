@@ -1,5 +1,28 @@
 .content-wizard-panel {
 
+  .wizard-header {
+    .path-error {
+      color: @admin-level-3;
+      display: none;
+    }
+
+    input:last-of-type {
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    &.path-exists {
+      .path-error {
+        display: inline-block;
+      }
+
+      input:last-of-type {
+        border: 1px solid @admin-input-red;
+        box-shadow: 0 0 3px 1px darken(@admin-input-red, 10%);
+      }
+    }
+  }
+
   &:not(.rendered) {
     .content-wizard-toolbar {
       .cycle-button, .toggle-button.icon-clipboard, .toggle-button.icon-cog {
