@@ -102,7 +102,7 @@ export class VersionHistoryListItem
                 event.stopPropagation();
             });
             revertButton.getAction().onExecuted(() => {
-                this.revert();
+                this.revert(this.version.getId(), this.version.getDateTime());
             });
         }
 
@@ -124,20 +124,24 @@ export class VersionHistoryListItem
     private openCompareDialog() {
         CompareContentVersionsDialog.get()
             .setContent(this.content.getContentSummary())
-            //.setLeftVersion(this.version)
+            .setLeftVersion(this.version.getId())
             .setRevertVersionCallback(this.revert.bind(this))
             .open();
     }
 
-    private revert() {
-        new RevertVersionRequest(this.version.getId(), this.content.getContentId().toString())
+    private revert(versionId: string, versionDate: Date) {
+        new RevertVersionRequest(versionId, this.content.getContentId().toString())
             .sendAndParse()
-            .then(() => {
-                const modifiedDate = this.version.getDateTime();
-                const dateTime = `${DateHelper.formatDateTime(modifiedDate)}`;
+            .then((newVersionId: string) => {
+                if (newVersionId === versionId) {
+                    NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
+                    return;
+                }
 
+                const dateTime = `${DateHelper.formatDateTime(versionDate)}`;
                 NotifyManager.get().showSuccess(i18n('notify.version.changed', dateTime));
-                new ActiveContentVersionSetEvent(this.content.getContentId(), this.version.getId()).fire();
+
+                new ActiveContentVersionSetEvent(this.content.getContentId(), versionId).fire();
             })
             .catch(DefaultErrorHandler.handle);
     }
