@@ -125,6 +125,7 @@ export class VersionHistoryListItem
         CompareContentVersionsDialog.get()
             .setContent(this.content.getContentSummary())
             .setLeftVersion(this.version.getId())
+            .resetRightVersion()
             .setRevertVersionCallback(this.revert.bind(this))
             .open();
     }
