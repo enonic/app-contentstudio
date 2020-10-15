@@ -66,7 +66,7 @@ export class ProjectsComboBox extends RichComboBox<Project> {
         }
 
         this.getAllProjects().then((projects: Project[]) => {
-            const projectsChain: Project[] = this.buildProjectsChain(parentName, projects);
+            const projectsChain: Project[] = ProjectsChainBlock.buildProjectsChain(parentName, projects);
             this.doShowProjectsChain(projectsChain);
         }).catch(DefaultErrorHandler.handle);
     }
@@ -82,25 +82,6 @@ export class ProjectsComboBox extends RichComboBox<Project> {
         }
 
         return this.getLoader().load();
-    }
-
-    private buildProjectsChain(parentName: string, allProjects: Project[]): Project[] {
-        const parentProjects: Project[] = [];
-
-        let parentProjectName: string = parentName;
-
-        while (parentProjectName) {
-                const parentProject: Project = allProjects.find((project: Project) => project.getName() === parentProjectName);
-
-                if (parentProject) {
-                    parentProjects.unshift(parentProject);
-                    parentProjectName = parentProject.getParent();
-                } else {
-                    parentProjectName = null;
-                }
-        }
-
-        return parentProjects;
     }
 
     protected createComboboxConfig(builder: RichComboBoxBuilder<Project>): ComboBoxConfig<Project> {
