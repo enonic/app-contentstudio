@@ -69,20 +69,6 @@
         border-color: @admin-dark-gray;
       }
 
-      &.expanded {
-        .version-viewer {
-          border-color: @admin-black;
-
-          &:hover {
-            border-color: @admin-black;
-          }
-
-          .version-action-button {
-            display: block;
-          }
-        }
-      }
-
       .version-viewer {
         &:first-child {
           margin-top: 0;
@@ -139,6 +125,26 @@
             }
           }
         }
+      }
+
+      &.expanded {
+        .version-viewer {
+          border-color: @admin-black;
+
+          &:hover {
+            border-color: @admin-black;
+          }
+
+          .version-action-button {
+            display: block;
+          }
+        }
+      }
+
+      .version-viewer {
+        display: flex;
+        position: relative;
+        margin: 10px 0;
 
         &.publish-action {
           padding: 5px 7px 5px 12px;
@@ -150,10 +156,6 @@
             font-style: italic;
           }
         }
-
-        display: flex;
-        position: relative;
-        margin: 10px 0;
 
         .names-and-icon-view {
           flex: 1;
