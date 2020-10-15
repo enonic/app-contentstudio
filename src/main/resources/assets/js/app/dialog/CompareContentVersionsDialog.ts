@@ -340,7 +340,7 @@ export class CompareContentVersionsDialog
 
                 // now after aliases are added we can select newest alias for the right dropdown
                 const latestAlias = this.getNewestVersionOption(this.rightDropdown.getOptions());
-                this.forceSelectVersion(this.rightDropdown, latestAlias.value, true);
+                this.forceSelectVersion(this.rightDropdown, latestAlias.value, false);
             });
     }
 
