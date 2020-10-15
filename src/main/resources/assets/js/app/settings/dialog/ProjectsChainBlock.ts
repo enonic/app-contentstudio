@@ -23,6 +23,7 @@ export class ProjectsChainBlock extends H6El {
 
     setProjectsChain(projects: Project[] = []) {
         this.projectsChain = projects;
+        this.chainItems.removeChildren();
 
         if (projects.length > 0) {
             this.projectsChain.forEach((project: Project, index: number) => {
@@ -54,6 +55,25 @@ export class ProjectsChainBlock extends H6El {
 
     private createEmptyChainEntry(): SpanEl {
         return this.doCreateChainEntry(i18n('settings.field.project.parent.none'));
+    }
+
+    public static buildProjectsChain(parentName: string, allProjects: Project[]): Project[] {
+        const parentProjects: Project[] = [];
+
+        let parentProjectName: string = parentName;
+
+        while (parentProjectName) {
+            const parentProject: Project = allProjects.find((project: Project) => project.getName() === parentProjectName);
+
+            if (parentProject) {
+                parentProjects.unshift(parentProject);
+                parentProjectName = parentProject.getParent();
+            } else {
+                parentProjectName = null;
+            }
+        }
+
+        return parentProjects;
     }
 
     isEmpty(): boolean {

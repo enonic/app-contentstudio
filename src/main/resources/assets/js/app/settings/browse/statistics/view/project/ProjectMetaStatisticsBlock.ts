@@ -8,6 +8,8 @@ import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {Locale} from 'lib-admin-ui/locale/Locale';
+import {GetLocalesRequest} from 'lib-admin-ui/locale/GetLocalesRequest';
 
 export class ProjectMetaStatisticsBlock extends StatisticsBlock {
 
@@ -17,7 +19,21 @@ export class ProjectMetaStatisticsBlock extends StatisticsBlock {
 
     private canReadColumn: StatisticsBlockColumn;
 
+    private locales: Locale[];
+
     protected item: ProjectViewItem;
+
+    constructor() {
+        super();
+
+        new GetLocalesRequest().sendAndParse().then((locales: Locale[]) => {
+            this.locales = locales;
+
+            if (this.item) {
+                this.langColumn.setItems(this.getLanguage());
+            }
+        }).catch(DefaultErrorHandler.handle);
+    }
 
     protected createColumns(): StatisticsBlockColumn[] {
         this.langColumn = new StatisticsBlockColumn(i18n('field.lang'), new TextListBox());
@@ -34,11 +50,30 @@ export class ProjectMetaStatisticsBlock extends StatisticsBlock {
     setItem(item: ProjectViewItem) {
         super.setItem(item);
 
-        this.langColumn.setItems(!!item.getLanguage() ? [item.getLanguage()] : []);
+        this.langColumn.setItems(this.getLanguage());
         this.accessModeColumn.setItems([i18n(`settings.items.wizard.readaccess.${item.getReadAccess().getType()}`)]);
         this.canReadColumn.setItems([]);
 
         this.fetchAndSetCanReadPrincipals();
+    }
+
+    private getLanguage(): string[] {
+        const itemLang: string = this.item.getLanguage();
+
+        if (!itemLang) {
+            return [];
+        }
+
+        if (this.locales) {
+            const locale: Locale = this.locales.find((l: Locale) => l.getProcessedTag() === itemLang);
+
+            if (locale) {
+                return [`${locale.getDisplayName()} (${locale.getProcessedTag()})`];
+            }
+        }
+
+        return [this.item.getLanguage()];
+
     }
 
     private fetchAndSetCanReadPrincipals() {

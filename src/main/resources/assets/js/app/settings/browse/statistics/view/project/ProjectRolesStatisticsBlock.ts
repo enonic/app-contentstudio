@@ -41,7 +41,12 @@ export class ProjectRolesStatisticsBlock extends StatisticsBlock {
         this.authorsColumn.setItems([]);
         this.contributorsColumn.setItems([]);
 
-        this.fetchAndSetPrincipals();
+        if (item.isDefaultProject()) {
+            this.hide();
+        } else {
+            this.show();
+            this.fetchAndSetPrincipals();
+        }
     }
 
     private fetchAndSetPrincipals() {
