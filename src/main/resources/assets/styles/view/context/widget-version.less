@@ -69,20 +69,6 @@
         border-color: @admin-dark-gray;
       }
 
-      &.expanded {
-        .version-viewer:not(.publish-action) {
-          border-color: @admin-black;
-
-          &:hover {
-            border-color: @admin-black;
-          }
-
-          .version-action-button {
-            display: block;
-          }
-        }
-      }
-
       .version-viewer {
         display: flex;
         position: relative;
@@ -189,6 +175,20 @@
             &.small .@{_COMMON_PREFIX}main-name {
               font-size: 13px;
             }
+          }
+        }
+      }
+
+      &.expanded {
+        .version-viewer:not(.publish-action) {
+          border-color: @admin-black;
+
+          &:hover {
+            border-color: @admin-black;
+          }
+
+          .version-action-button {
+            display: block;
           }
         }
       }
