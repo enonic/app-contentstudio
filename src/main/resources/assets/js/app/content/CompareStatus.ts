@@ -54,7 +54,7 @@ export class CompareStatusFormatter {
             status = i18n('status.deleted');
             break;
         case CompareStatus.EQUAL:
-            status = i18n('status.online');
+            status = i18n('status.published');
             break;
         case CompareStatus.MOVED:
             status = i18n('status.moved');

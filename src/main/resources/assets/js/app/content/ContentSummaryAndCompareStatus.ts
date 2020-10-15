@@ -127,7 +127,7 @@ export class ContentSummaryAndCompareStatus
 
     getStatusText(): string {
         if (this.isUnpublished()) {
-            return i18n('status.offline');
+            return i18n('status.unpublished');
         }
 
         if (this.isNew()) {
@@ -136,10 +136,10 @@ export class ContentSummaryAndCompareStatus
 
         if (this.isPublished() || this.isModified()) {
             if (this.isScheduledPublishing()) {
-                return i18n('status.online.scheduled');
+                return i18n('status.published.scheduled');
             }
             if (this.isExpiredPublishing()) {
-                return i18n('status.online.expired');
+                return i18n('status.published.expired');
             }
         }
 

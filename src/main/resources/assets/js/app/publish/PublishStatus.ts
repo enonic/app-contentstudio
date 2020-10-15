@@ -9,7 +9,7 @@ export class PublishStatusFormatter {
 
         switch (publishStatus) {
         case PublishStatus.ONLINE:
-            return i18n('status.online');
+            return i18n('status.published');
             break;
         case PublishStatus.PENDING:
             return i18n('status.scheduled');
