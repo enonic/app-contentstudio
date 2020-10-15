@@ -231,7 +231,11 @@ export class HtmlEditor {
         }, 200);
 
         this.editor.on('instanceReady', () => {
-            tooltipElem = this.getTooltipContainer();
+            try {
+                tooltipElem = this.getTooltipContainer();
+            } catch (e) {
+                console.log('Failed to init tooltip handler');
+            }
 
             if (!!tooltipElem) {
                 this.editor.editable().on('mouseover', mouseOverHandler);
