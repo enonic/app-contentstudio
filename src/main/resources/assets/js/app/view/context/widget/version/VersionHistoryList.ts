@@ -9,14 +9,14 @@ import {ContentVersions} from '../../../../ContentVersions';
 import {GetContentVersionsRequest} from '../../../../resource/GetContentVersionsRequest';
 import {CompareStatus} from '../../../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {VersionListItem} from './VersionListItem';
+import {VersionHistoryListItem} from './VersionHistoryListItem';
 import {VersionHistoryItem} from './VersionHistoryItem';
 
 interface VersionDate {
     [date: number]: string;
 }
 
-export class VersionList
+export class VersionHistoryList
     extends ListBox<VersionHistoryItem> {
 
     private content: ContentSummaryAndCompareStatus;
@@ -49,20 +49,26 @@ export class VersionList
     private versionsToHistoryItems(contentVersions: ContentVersion[]): VersionHistoryItem[] {
         const versionHistoryItems: VersionHistoryItem[] = [];
         let lastDate = null;
+        const createdTime = Number(this.content.getContentSummary().getCreatedTime());
         contentVersions.forEach((version: ContentVersion) => {
 
             const skipDuplicateVersion = this.versionDates[Number(version.getModified())] !== version.getId();
 
             if (version.hasPublishInfo()) {
                 const publishDate = DateHelper.formatDate(version.getPublishInfo().getTimestamp());
-                versionHistoryItems.push(VersionHistoryItem.fromPublishInfo(version.getPublishInfo(), (publishDate === lastDate)));
+                versionHistoryItems.push(
+                    VersionHistoryItem.fromPublishInfo(version.getPublishInfo()).setSkipDate(publishDate === lastDate)
+                );
                 lastDate = publishDate;
             }
 
             if (!skipDuplicateVersion) {
+                const isFirstVersion = createdTime === Number(version.getModified());
                 const modifiedDate = DateHelper.formatDate(version.getModified());
                 if (!version.isUnpublished()) {
-                    versionHistoryItems.push(VersionHistoryItem.fromContentVersion(version, (modifiedDate === lastDate)));
+                    versionHistoryItems.push(
+                        VersionHistoryItem.fromContentVersion(version, isFirstVersion).setSkipDate(modifiedDate === lastDate)
+                    );
                 }
                 lastDate = modifiedDate;
             }
@@ -72,7 +78,7 @@ export class VersionList
     }
 
     createItemView(version: VersionHistoryItem): Element {
-        return new VersionListItem(version, this.content);
+        return new VersionHistoryListItem(version, this.content);
     }
 
     getItemId(item: VersionHistoryItem): string {

@@ -27,7 +27,7 @@
       }
 
       &.expired {
-        background-color: rgba(203, 3, 0, 0.5);
+        background-color: rgba(0, 128, 0, 0.4);
       }
 
       &.pending {
@@ -71,24 +71,26 @@
           border-color: @admin-dark-gray;
         }
 
-        .viewer {
+        .version-viewer {
           &:first-child {
             margin-top: 0;
           }
 
-          &.version-viewer {
+          &:not(.publish-action) {
             padding: 7px 7px 7px 12px;
             flex-direction: column;
             box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.1);
             border: 2px solid @admin-white;
 
-            * {
-              cursor: pointer;
-            }
+            &:not(.active) {
+              * {
+                cursor: pointer;
+              }
 
-            &:hover {
-              background-color: @admin-bg-light-gray;
-              border-color: @admin-bg-light-gray;
+              &:hover {
+                background-color: @admin-bg-light-gray;
+                border-color: @admin-bg-light-gray;
+              }
             }
 
             .version-action-button {
@@ -126,7 +128,7 @@
             }
           }
 
-          &.version-action-viewer {
+          &.publish-action {
             padding: 5px 7px 5px 12px;
             flex-direction: column-reverse;
 
@@ -179,58 +181,6 @@
           }
         }
 
-        &.expanded .version-viewer .version-action-button {
-          display: block;
-        }
-
-        .version-info {
-          padding: 7px;
-          font-size: 12px;
-
-          .names-and-icon-view {
-            padding: 10px 0;
-          }
-
-          .version-info-version-id, .version-info-display-name {
-            .ellipsis();
-          }
-
-          .version-info-message {
-            padding-top: 3px;
-
-            .message {
-              border-left: 2px solid @admin-bg-light-gray;
-              color: @admin-font-gray2;
-              padding-left: 5px;
-              margin-left: 20px;
-            }
-          }
-
-          .names-and-icon-view .font-icon-default:before {
-            color: @admin-dark-gray !important;
-          }
-
-          .icon-state-in-progress, .icon-state-invalid, .icon-state-ready {
-            font-size: 24px;
-            margin-left: 9px;
-          }
-
-          .label {
-            width: 85px;
-            float: left;
-          }
-
-          button {
-            width: 80%;
-            text-align: center;
-            margin: 10px auto 5px auto;
-            padding-top: 5px;
-            padding-bottom: 5px;
-            display: block;
-
-          }
-        }
-
         &.expanded {
           .version-viewer {
             border-color: @admin-black;
@@ -238,14 +188,13 @@
             &:hover {
               border-color: @admin-black;
             }
+
+            .version-action-button {
+              display: block;
+            }
           }
-
         }
-
       }
-
     }
-
   }
-
 }

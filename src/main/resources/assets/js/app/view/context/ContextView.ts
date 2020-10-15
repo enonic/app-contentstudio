@@ -7,7 +7,7 @@ import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {InternalWidgetType, WidgetView} from './WidgetView';
 import {WidgetsSelectionRow} from './WidgetsSelectionRow';
-import {VersionWidgetItemView} from './widget/version/VersionWidgetItemView';
+import {VersionHistoryView} from './widget/version/VersionHistoryView';
 import {DependenciesWidgetItemView} from './widget/dependency/DependenciesWidgetItemView';
 import {StatusWidgetItemView} from './widget/details/StatusWidgetItemView';
 import {PropertiesWidgetItemView} from './widget/details/PropertiesWidgetItemView';
@@ -391,7 +391,7 @@ export class ContextView
             .setIconClass('icon-history')
             .setType(InternalWidgetType.HISTORY)
             .setContextView(this)
-            .addWidgetItemView(new VersionWidgetItemView()).build();
+            .addWidgetItemView(new VersionHistoryView()).build();
 
         const dependenciesWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.dependencies'))

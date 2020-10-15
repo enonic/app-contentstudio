@@ -1,7 +1,7 @@
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
-import {VersionViewer} from './VersionViewer';
+import {VersionHistoryListItemViewer} from './VersionHistoryListItemViewer';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../../../event/EditContentEvent';
@@ -14,10 +14,9 @@ import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {VersionHistoryItem} from './VersionHistoryItem';
 
-export class VersionListItem
+export class VersionHistoryListItem
     extends LiEl {
 
     private readonly version: VersionHistoryItem;
@@ -32,8 +31,8 @@ export class VersionListItem
         this.content = content;
     }
 
-    private createVersionViewer(): VersionViewer {
-        const versionViewer = new VersionViewer();
+    private createVersionViewer(): VersionHistoryListItemViewer {
+        const versionViewer = new VersionHistoryListItemViewer();
         if (this.version.isRevertable()) {
             this.addOnClickHandler(versionViewer);
         }
@@ -53,12 +52,28 @@ export class VersionListItem
     }
 
     private createTooltip() {
-
-        if (!this.version.getMessage()) {
+        if (!this.version.isPublishAction()) {
             return;
         }
 
-        this.tooltip = new Tooltip(this, this.version.getMessage().trim(), 1000);
+        if (!this.version.getActiveFrom() && !this.version.getActiveTo()) {
+            return;
+        }
+
+        let message = '';
+        if (!!this.version.getActiveFrom() && !!this.version.getActiveTo()) {
+            message = i18n(
+                'tooltip.publishedFromTo',
+                DateHelper.formatDateTime(this.version.getActiveFrom(), false),
+                DateHelper.formatDateTime(this.version.getActiveTo(), false)
+                );
+        } else if (!!this.version.getActiveFrom()) {
+            message = i18n('tooltip.publishedFrom', DateHelper.formatDateTime(this.version.getActiveFrom(), false));
+        } else if (!!this.version.getActiveTo()) {
+            message = i18n('tooltip.publishedTo', DateHelper.formatDateTime(this.version.getActiveTo(), false));
+        }
+
+        this.tooltip = new Tooltip(this, message, 1000);
     }
 
     private createEditButton(): ActionButton {
@@ -141,7 +156,7 @@ export class VersionListItem
         }
     }
 
-    private addOnClickHandler(viewer: VersionViewer) {
+    private addOnClickHandler(viewer: VersionHistoryListItemViewer) {
         viewer.onClicked(() => {
             this.collapseAllExpandedSiblings();
             this.toggleTooltip();

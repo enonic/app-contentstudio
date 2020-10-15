@@ -1,15 +1,15 @@
 import * as Q from 'q';
 import {WidgetItemView} from '../../WidgetItemView';
-import {VersionList} from './VersionList';
+import {VersionHistoryList} from './VersionHistoryList';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 
-export class VersionWidgetItemView extends WidgetItemView {
+export class VersionHistoryView extends WidgetItemView {
 
-    private versionListView: VersionList;
+    private versionListView: VersionHistoryList;
 
     private statusBlock: DivEl;
 
@@ -23,13 +23,13 @@ export class VersionWidgetItemView extends WidgetItemView {
     }
 
     public layout(): Q.Promise<any> {
-        if (VersionWidgetItemView.debug) {
+        if (VersionHistoryView.debug) {
             console.debug('VersionsWidgetItemView.layout');
         }
         this.removeChildren();
 
         return super.layout().then(() => {
-            this.versionListView = new VersionList();
+            this.versionListView = new VersionHistoryList();
             this.versionListView.onLoaded(() => {
                 if (this.gridLoadDeferred) {
                     this.gridLoadDeferred.resolve(null);
@@ -61,7 +61,7 @@ export class VersionWidgetItemView extends WidgetItemView {
     }
 
     public setContentAndUpdateView(content: ContentSummaryAndCompareStatus): Q.Promise<any> {
-        if (VersionWidgetItemView.debug) {
+        if (VersionHistoryView.debug) {
             console.debug('VersionsWidgetItemView.setItem: ', content);
         }
 
@@ -96,7 +96,7 @@ export class VersionWidgetItemView extends WidgetItemView {
     }
 
     private reloadActivePanel(): Q.Promise<any> {
-        if (VersionWidgetItemView.debug) {
+        if (VersionHistoryView.debug) {
             console.debug('VersionsWidgetItemView.reloadActivePanel');
         }
 
