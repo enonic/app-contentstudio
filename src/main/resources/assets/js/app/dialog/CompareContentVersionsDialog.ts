@@ -270,6 +270,11 @@ export class CompareContentVersionsDialog
         return this;
     }
 
+    resetRightVersion(): CompareContentVersionsDialog {
+        this.rightVersionId = null;
+        return this;
+    }
+
     setContent(content: ContentSummary): CompareContentVersionsDialog {
         this.contentId = content ? content.getContentId() : null;
         (<CompareContentVersionsDialogHeader>this.header).setSubTitle(content ? content.getPath().toString() : null);

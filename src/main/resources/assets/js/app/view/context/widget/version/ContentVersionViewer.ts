@@ -35,7 +35,7 @@ export class ContentVersionViewer
             .setMainName(isAlias ? version.getAliasDisplayName() : dateTime)
             .setSubName(subName)
             .setIconClass(version.hasPublishInfo()
-                          ? 'icon-version-published'
+                          ? (version.isPublished() ? 'icon-version-published' : 'icon-version-unpublished')
                           : version.isInReadyState()
                             ? 'icon-state-ready'
                             : 'icon-version-modified');
