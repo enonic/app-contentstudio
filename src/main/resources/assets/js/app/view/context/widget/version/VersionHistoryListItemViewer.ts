@@ -3,8 +3,12 @@ import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {VersionHistoryItem} from './VersionHistoryItem';
 
-export class VersionViewer
+export class VersionHistoryListItemViewer
     extends NamesAndIconViewer<VersionHistoryItem> {
+
+    constructor() {
+        super('version-viewer');
+    }
 
     resolveIconClass(version: VersionHistoryItem): string {
         return version.getIconCls() || '';
@@ -15,14 +19,12 @@ export class VersionViewer
     }
 
     resolveSubName(version: VersionHistoryItem): string {
-        return i18n('dialog.compareVersions.versionSubName', '', version.getUser());
+        return i18n('widget.versionhistory.byUser', version.getUser());
     }
 
     setObject(version: VersionHistoryItem) {
-        this.addClass(version.isPublishAction() ? 'version-action-viewer' : 'version-viewer');
-        if (version.isActive()) {
-            this.addClass('active');
-        }
+        this.toggleClass('publish-action', version.isPublishAction());
+        this.toggleClass('active', version.isActive());
         return super.setObject(version);
     }
 }

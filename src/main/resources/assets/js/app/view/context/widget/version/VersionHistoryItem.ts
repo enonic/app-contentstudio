@@ -10,6 +10,10 @@ export class VersionHistoryItem {
 
     private dateTime: Date;
 
+    private activeFrom: Date;
+
+    private activeTo: Date;
+
     private status: string;
 
     private iconCls: string;
@@ -18,24 +22,22 @@ export class VersionHistoryItem {
 
     private active: boolean;
 
-    private first: boolean;
-
     private revertable: boolean;
 
-    private readonly skipDate: boolean;
+    private skipDate: boolean = false;
 
-    constructor(skipDate: boolean = false) {
-        this.skipDate = skipDate;
-    }
-
-    static fromPublishInfo(publishInfo: ContentVersionPublishInfo, skipDate: boolean = false): VersionHistoryItem {
-        const item = new VersionHistoryItem(skipDate);
+    static fromPublishInfo(publishInfo: ContentVersionPublishInfo): VersionHistoryItem {
+        const item = new VersionHistoryItem();
 
         item.active = false;
         item.revertable = false;
         item.dateTime = publishInfo.getTimestamp();
         item.user = publishInfo.getPublisherDisplayName();
         if (publishInfo.isPublished()) {
+            if (publishInfo.getPublishedFrom() > publishInfo.getTimestamp()) {
+                item.activeFrom = publishInfo.getPublishedFrom();
+            }
+            item.activeTo = publishInfo.getPublishedTo();
             item.iconCls = 'icon-version-published';
             item.status = i18n('status.published');
         } else if (publishInfo.isUnpublished()) {
@@ -47,15 +49,18 @@ export class VersionHistoryItem {
         return item;
     }
 
-    static fromContentVersion(contentVersion: ContentVersion, skipDate: boolean = false): VersionHistoryItem {
-        const item = new VersionHistoryItem(skipDate);
+    static fromContentVersion(contentVersion: ContentVersion, isFirst: boolean = false): VersionHistoryItem {
+        const item = new VersionHistoryItem();
 
         item.id = contentVersion.getId();
         item.active = contentVersion.isActive();
         item.revertable = !contentVersion.isActive();
         item.dateTime = contentVersion.getModified();
         item.user = contentVersion.getModifierDisplayName();
-        if (contentVersion.isInReadyState()) {
+        if (isFirst) {
+            item.iconCls = 'icon-wand';
+            item.status = i18n('status.created');
+        } else if (contentVersion.isInReadyState()) {
             item.iconCls = 'icon-state-ready';
             item.status = i18n('status.markedAsReady');
         } else {
@@ -64,6 +69,11 @@ export class VersionHistoryItem {
         }
 
         return item;
+    }
+
+    setSkipDate(value: boolean): VersionHistoryItem {
+        this.skipDate = value;
+        return this;
     }
 
     isPublishAction(): boolean {
@@ -80,6 +90,14 @@ export class VersionHistoryItem {
 
     getDateTime(): Date {
         return this.dateTime;
+    }
+
+    getActiveFrom(): Date {
+        return this.activeFrom;
+    }
+
+    getActiveTo(): Date {
+        return this.activeTo;
     }
 
     getIconCls(): string {
