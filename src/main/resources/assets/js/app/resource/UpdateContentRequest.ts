@@ -120,13 +120,15 @@ export class UpdateContentRequest
     }
 
     getParams(): Object {
+        const contentName: string = this.name.isUnnamed() ? this.name.getValue() : this.name.toString();
+
         return {
             contentId: this.id,
             requireValid: this.requireValid,
-            contentName: this.name.isUnnamed() ? this.name.getValue() : this.name.toString(),
+            contentName: !!contentName ? contentName.trim() : '',
             data: this.data.toJson(),
             meta: (this.meta || []).map((extraData: ExtraData) => extraData.toJson()),
-            displayName: this.displayName,
+            displayName: !!this.displayName ? this.displayName.trim() : '',
             language: this.language,
             owner: this.owner ? this.owner.toString() : undefined,
             publishFrom: this.publishFrom,
