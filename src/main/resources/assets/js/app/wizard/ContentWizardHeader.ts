@@ -44,7 +44,11 @@ export class ContentWizardHeader
 
         this.onPropertyChanged((event: PropertyChangedEvent) => {
             if (event.getPropertyName() === `<${i18n('field.path')}>`) {
-                debouncedNameUniqueChecker();
+                if (this.getName() === '') {
+                    this.updateIsNameUnique(true);
+                } else {
+                    debouncedNameUniqueChecker();
+                }
             }
         });
     }
