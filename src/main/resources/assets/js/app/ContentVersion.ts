@@ -96,13 +96,6 @@ export class ContentVersion implements Cloneable {
         return this.publishInfo;
     }
 
-    isCurrentlyPublished(): boolean {
-        if (!this.hasPublishInfo()) {
-            return false;
-        }
-        return this.getPublishInfo().isCurrentlyPublished();
-    }
-
     getWorkflowInfo(): Workflow {
         return this.workflowInfo;
     }

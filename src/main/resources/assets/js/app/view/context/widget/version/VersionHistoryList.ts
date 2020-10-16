@@ -48,14 +48,14 @@ export class VersionHistoryList
 
     private versionsToHistoryItems(contentVersions: ContentVersion[]): VersionHistoryItem[] {
         const versionHistoryItems: VersionHistoryItem[] = [];
-        let lastDate = null;
-        const createdTime = Number(this.content.getContentSummary().getCreatedTime());
-        contentVersions.forEach((version: ContentVersion) => {
+        let lastDate: string = null;
+        const createdTime: number = Number(this.content.getContentSummary().getCreatedTime());
 
-            const skipDuplicateVersion = this.versionDates[Number(version.getModified())] !== version.getId();
+        contentVersions.forEach((version: ContentVersion) => {
+            const skipDuplicateVersion: boolean = this.versionDates[Number(version.getModified())] !== version.getId();
 
             if (version.hasPublishInfo()) {
-                const publishDate = DateHelper.formatDate(version.getPublishInfo().getTimestamp());
+                const publishDate: string = DateHelper.formatDate(version.getPublishInfo().getTimestamp());
                 versionHistoryItems.push(
                     VersionHistoryItem.fromPublishInfo(version.getPublishInfo()).setSkipDate(publishDate === lastDate)
                 );
@@ -63,13 +63,15 @@ export class VersionHistoryList
             }
 
             if (!skipDuplicateVersion) {
-                const isFirstVersion = createdTime === Number(version.getModified());
-                const modifiedDate = DateHelper.formatDate(version.getModified());
+                const isFirstVersion: boolean = createdTime === Number(version.getModified());
+                const modifiedDate: string = DateHelper.formatDate(version.getModified());
+
                 if (!version.isUnpublished()) {
                     versionHistoryItems.push(
                         VersionHistoryItem.fromContentVersion(version, isFirstVersion).setSkipDate(modifiedDate === lastDate)
                     );
                 }
+
                 lastDate = modifiedDate;
             }
         });
