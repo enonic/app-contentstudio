@@ -7,11 +7,10 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {
-
-    private nameErrorBlock: SpanEl;
 
     private isNameUnique: boolean = true;
 
@@ -25,23 +24,27 @@ export class ContentWizardHeader
     }
 
     private initElements() {
-        this.nameErrorBlock = new SpanEl('path-error');
-        this.nameErrorBlock.setHtml(i18n('path.not.available'));
-        this.appendChild(this.nameErrorBlock);
+        const nameErrorBlock: SpanEl = new SpanEl('path-error');
+        nameErrorBlock.setHtml(i18n('path.not.available'));
+        this.appendChild(nameErrorBlock);
     }
 
     private initListeners() {
+        const debouncedNameUniqueChecker: () => void = AppHelper.debounce(() => {
+            if (this.isNameChanged()) {
+                new ContentExistsByPathRequest(this.getName()).sendAndParse().then((exists: boolean) => {
+                    if (exists === this.isNameUnique) {
+                        this.updateIsNameUnique(!exists);
+                    }
+                }).catch(DefaultErrorHandler.handle);
+            } else if (!this.isNameUnique) {
+                this.updateIsNameUnique(true);
+            }
+        }, 900);
+
         this.onPropertyChanged((event: PropertyChangedEvent) => {
             if (event.getPropertyName() === `<${i18n('field.path')}>`) {
-                if (this.isNameChanged()) {
-                    new ContentExistsByPathRequest(this.getName()).sendAndParse().then((exists: boolean) => {
-                        if (exists === this.isNameUnique) {
-                            this.updateIsNameUnique(!exists);
-                        }
-                    }).catch(DefaultErrorHandler.handle);
-                } else if (!this.isNameUnique) {
-                    this.updateIsNameUnique(true);
-                }
+                debouncedNameUniqueChecker();
             }
         });
     }
