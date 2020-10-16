@@ -32,7 +32,9 @@ export class ContentSummaryAndCompareStatus
 
     public static fromContentAndCompareAndPublishStatus(contentSummary: ContentSummary, compareStatus: CompareStatus,
                                                         publishStatus: PublishStatus) {
-        const contentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromContentAndCompareStatus(contentSummary, compareStatus);
+        const contentSummaryAndCompareStatus: ContentSummaryAndCompareStatus =
+            ContentSummaryAndCompareStatus.fromContentAndCompareStatus(contentSummary, compareStatus);
+
         if (!contentSummaryAndCompareStatus.isNew()) {
             contentSummaryAndCompareStatus.setPublishStatus(publishStatus);
         }
@@ -156,12 +158,14 @@ export class ContentSummaryAndCompareStatus
             return 'new';
         }
 
-        const publishStatus = this.getPublishStatus();
+        const publishStatus: PublishStatus = this.getPublishStatus();
+
         if (PublishStatusChecker.isScheduled(publishStatus) || PublishStatusChecker.isExpired(publishStatus)) {
             return publishStatus;
         }
 
-        const statusClass = CompareStatusFormatter.formatStatusClass(this.getCompareStatus());
+        const statusClass: string = CompareStatusFormatter.formatStatusClass(this.getCompareStatus());
+
         return statusClass.replace('_', '-').replace(' ', '_') || 'unknown';
     }
 

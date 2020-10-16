@@ -6,6 +6,7 @@ import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummary
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 
 export class VersionHistoryView extends WidgetItemView {
 
@@ -43,15 +44,18 @@ export class VersionHistoryView extends WidgetItemView {
     }
 
     private getContentStatus(content: ContentSummaryAndCompareStatus): string {
-        const contentSummary = content.getContentSummary();
+        const contentSummary: ContentSummary = content.getContentSummary();
+
         if (content.isScheduledPublishing()) {
             this.statusBlock.addClass('small');
             return i18n('widget.versionhistory.scheduled', DateHelper.formatDateTime(contentSummary.getPublishFromTime()));
         }
+
         if (content.isExpiredPublishing()) {
             this.statusBlock.addClass('small');
             return i18n('widget.versionhistory.expired', DateHelper.formatDateTime(contentSummary.getPublishToTime()));
         }
+
         if (content.isOnline() && !!contentSummary.getPublishToTime()) {
             this.statusBlock.addClass('small');
             return i18n('widget.versionhistory.publishedUntil', DateHelper.formatDateTime(contentSummary.getPublishToTime()));
@@ -77,8 +81,7 @@ export class VersionHistoryView extends WidgetItemView {
     }
 
     private managePublishEvent() {
-
-        let serverEvents = ContentServerEventsHandler.getInstance();
+        const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
 
         serverEvents.onContentPublished((contents: ContentSummaryAndCompareStatus[]) => {
             if (this.versionListView && this.versionListView.getContentId()) {
@@ -112,8 +115,8 @@ export class VersionHistoryView extends WidgetItemView {
                 .finally(() => this.gridLoadDeferred = null);
 
             return this.gridLoadDeferred.promise;
-        } else {
-            return Q(null);
         }
+
+        return Q(null);
     }
 }

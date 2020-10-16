@@ -152,7 +152,7 @@ export class CompareContentVersionsDialog
     }
 
     createVersionRevertButton(dropdown: Dropdown<ContentVersion>): Button {
-        const revertAction = new Action(i18n('field.version.revert')).onExecuted(() => {
+        const revertAction: Action = new Action(i18n('field.version.revert')).onExecuted(() => {
             const version: ContentVersion = dropdown.getSelectedOption().displayValue;
             this.revertVersionCallback(version.getId(), version.getModified());
         });

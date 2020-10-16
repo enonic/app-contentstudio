@@ -72,24 +72,6 @@ implements Cloneable {
         return this.contentPublishInfo?.getTo();
     }
 
-    getPublishDate(): Date {
-        if (!this.contentPublishInfo) {
-            return this.timestamp;
-        }
-        return new Date(Math.max(Number(this.timestamp), Number(this.contentPublishInfo.getFrom())));
-    }
-
-    isCurrentlyPublished(): boolean {
-        const dateNow = Date.now();
-        const publishedFrom = this.getPublishedFrom() || dateNow;
-        const publishedTo = this.getPublishedTo() || dateNow;
-        if (dateNow < Number(publishedFrom) || dateNow > Number(publishedTo)) {
-            return false;
-        }
-
-        return true;
-    }
-
     isPublished(): boolean {
         if (!this.contentPublishInfo) {
             return false;

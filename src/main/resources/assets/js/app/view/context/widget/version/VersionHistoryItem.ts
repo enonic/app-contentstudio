@@ -27,12 +27,13 @@ export class VersionHistoryItem {
     private skipDate: boolean = false;
 
     static fromPublishInfo(publishInfo: ContentVersionPublishInfo): VersionHistoryItem {
-        const item = new VersionHistoryItem();
+        const item: VersionHistoryItem = new VersionHistoryItem();
 
         item.active = false;
         item.revertable = false;
         item.dateTime = publishInfo.getTimestamp();
         item.user = publishInfo.getPublisherDisplayName();
+
         if (publishInfo.isPublished()) {
             if (publishInfo.getPublishedFrom() > publishInfo.getTimestamp()) {
                 item.activeFrom = publishInfo.getPublishedFrom();
@@ -44,19 +45,21 @@ export class VersionHistoryItem {
             item.iconCls = 'icon-version-unpublished';
             item.status = i18n('status.unpublished');
         }
+
         item.message = publishInfo.getMessage();
 
         return item;
     }
 
     static fromContentVersion(contentVersion: ContentVersion, isFirst: boolean = false): VersionHistoryItem {
-        const item = new VersionHistoryItem();
+        const item: VersionHistoryItem = new VersionHistoryItem();
 
         item.id = contentVersion.getId();
         item.active = contentVersion.isActive();
         item.revertable = !contentVersion.isActive();
         item.dateTime = contentVersion.getModified();
         item.user = contentVersion.getModifierDisplayName();
+
         if (isFirst) {
             item.iconCls = 'icon-wand';
             item.status = i18n('status.created');

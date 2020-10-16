@@ -32,18 +32,21 @@ export class VersionHistoryListItem
     }
 
     private createVersionViewer(): VersionHistoryListItemViewer {
-        const versionViewer = new VersionHistoryListItemViewer();
+        const versionViewer: VersionHistoryListItemViewer = new VersionHistoryListItemViewer();
+
         if (this.version.isRevertable()) {
             this.addOnClickHandler(versionViewer);
         }
+
         versionViewer.setObject(this.version);
+
         if (!this.version.isActive() && !this.version.isPublishAction()) {
-            const compareButton = this.createCompareButton();
+            const compareButton: ActionButton = this.createCompareButton();
             versionViewer.appendChild(compareButton);
         }
 
         if (this.version.getMessage()) {
-            const messageBlock = new DivEl('publish-message');
+            const messageBlock: DivEl = new DivEl('publish-message');
             messageBlock.setHtml(this.version.getMessage());
             versionViewer.appendChild(messageBlock);
         }
@@ -60,20 +63,27 @@ export class VersionHistoryListItem
             return;
         }
 
-        let message = '';
+        this.tooltip = new Tooltip(this, this.getTooltipText(), 1000);
+    }
+
+    private getTooltipText(): string {
         if (!!this.version.getActiveFrom() && !!this.version.getActiveTo()) {
-            message = i18n(
+            return i18n(
                 'tooltip.publishedFromTo',
                 DateHelper.formatDateTime(this.version.getActiveFrom(), false),
                 DateHelper.formatDateTime(this.version.getActiveTo(), false)
-                );
-        } else if (!!this.version.getActiveFrom()) {
-            message = i18n('tooltip.publishedFrom', DateHelper.formatDateTime(this.version.getActiveFrom(), false));
-        } else if (!!this.version.getActiveTo()) {
-            message = i18n('tooltip.publishedTo', DateHelper.formatDateTime(this.version.getActiveTo(), false));
+            );
         }
 
-        this.tooltip = new Tooltip(this, message, 1000);
+        if (!!this.version.getActiveFrom()) {
+            return i18n('tooltip.publishedFrom', DateHelper.formatDateTime(this.version.getActiveFrom(), false));
+        }
+
+        if (!!this.version.getActiveTo()) {
+            return i18n('tooltip.publishedTo', DateHelper.formatDateTime(this.version.getActiveTo(), false));
+        }
+
+        return '';
     }
 
     private createEditButton(): ActionButton {
