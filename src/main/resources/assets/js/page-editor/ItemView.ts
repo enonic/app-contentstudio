@@ -1035,7 +1035,7 @@ export class ItemView
     }
 
     protected createInsertAction(): Action {
-        return new Action(i18n('live.view.insert')).setChildActions(this.getInsertActions(this.liveEditModel)).setVisible(false);
+        return new Action(i18n('widget.components.insert')).setChildActions(this.getInsertActions(this.liveEditModel)).setVisible(false);
     }
 
     protected createSelectParentAction(): Action {
@@ -1059,7 +1059,7 @@ export class ItemView
     }
 
     private createInsertSubAction(label: string, componentItemType: ItemType): Action {
-        let action = new Action(i18n('live.view.insert.' + label)).onExecuted(() => {
+        let action = new Action(i18n('widget.components.insert.' + label)).onExecuted(() => {
             let componentView = this.createView(componentItemType);
             this.addComponentView(componentView, this.getNewItemIndex(), true);
         });

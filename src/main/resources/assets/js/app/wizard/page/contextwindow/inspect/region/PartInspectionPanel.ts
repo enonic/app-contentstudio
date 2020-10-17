@@ -32,6 +32,6 @@ export class PartInspectionPanel
     }
 
     getName(): string {
-        return i18n('live.view.insert.part');
+        return i18n('widget.components.insert.part');
     }
 }

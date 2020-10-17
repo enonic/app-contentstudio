@@ -215,7 +215,7 @@ export class FragmentInspectionPanel
     }
 
     getName(): string {
-        return i18n('live.view.insert.fragment');
+        return i18n('widget.components.insert.fragment');
     }
 
 }
