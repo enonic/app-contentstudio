@@ -110,7 +110,7 @@ module.exports = {
             exclude: /a\.js|node_modules/,
             failOnError: true
         }),
-        new ErrorLoggerPlugin({showColumn: false})
+        //new ErrorLoggerPlugin({showColumn: false})
     ],
     mode: isProd ? 'production' : 'development',
     devtool: isProd ? false : 'source-map'
