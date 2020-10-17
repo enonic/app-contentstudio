@@ -35,7 +35,7 @@ export class TextInspectionPanel
     }
 
     getName(): string {
-        return i18n('live.view.insert.text');
+        return i18n('widget.components.insert.text');
     }
 
 }
