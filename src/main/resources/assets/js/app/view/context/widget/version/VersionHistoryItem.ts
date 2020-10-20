@@ -68,7 +68,7 @@ export class VersionHistoryItem {
             item.status = i18n('status.markedAsReady');
         } else {
             item.iconCls = 'icon-version-modified';
-            item.status = i18n('status.modified');
+            item.status = i18n('status.edited');
         }
 
         return item;
