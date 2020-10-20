@@ -60,7 +60,7 @@ export class ContentWizardHeader
             if (this.isNameChanged()) {
                 new ContentExistsByPathRequest(this.getNewPath().toString()).sendAndParse().then((exists: boolean) => {
                     if (exists === this.isNameUnique) {
-                        this.updateIsNameUnique(!exists);
+                        this.updateIsNameUnique(!exists || !this.isNameChanged());
                     }
                 }).catch(DefaultErrorHandler.handle);
             } else if (!this.isNameUnique) {
@@ -99,6 +99,7 @@ export class ContentWizardHeader
 
     setPersistedPath(value: ContentPath) {
         this.persistedPath = value;
+        this.updateIsNameUnique(true);
     }
 
     setOnline(value: boolean) {
@@ -106,6 +107,6 @@ export class ContentWizardHeader
     }
 
     isValid(): boolean {
-        return super.isValid() && this.isNameUnique;
+        return !!this.getName() && this.isNameUnique;
     }
 }
