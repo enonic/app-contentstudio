@@ -15,6 +15,7 @@ import {Project} from '../data/project/Project';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 import {ProjectViewItem} from '../view/ProjectViewItem';
 import {FolderItemBuilder, FolderViewItem} from '../view/FolderViewItem';
+import {DataChangedEvent, DataChangedType} from 'lib-admin-ui/ui/treegrid/DataChangedEvent';
 
 export class SettingsItemsTreeGrid
     extends TreeGrid<SettingsViewItem> {
@@ -143,6 +144,7 @@ export class SettingsItemsTreeGrid
             node.setData(item);
             node.clearViewers();
             this.invalidateNodes([node]);
+            this.notifyDataChanged(new DataChangedEvent<SettingsViewItem>([node], DataChangedType.UPDATED));
         });
     }
 
