@@ -42,11 +42,17 @@ export class RenameContentDialog extends ModalDialog {
         this.statusBlock = new DivEl('status-block');
     }
 
+    private getNameInputValue(): string {
+        return this.nameInput.getValue().trim();
+    }
+
     protected initListeners(): void {
         super.initListeners();
 
         const debouncedNameUniqueChecker: () => void = AppHelper.debounce(() => {
-            if (!StringHelper.isBlank(this.nameInput.getValue()) && this.nameInput.getValue() !== this.initialPath.getName()) {
+            if (this.getNameInputValue() === this.initialPath.getName()) {
+                this.setNameAvailable(true);
+            } else if (!StringHelper.isBlank(this.getNameInputValue()) && this.getNameInputValue() !== this.currentPath.getName()) {
                 new ContentExistsByPathRequest(this.getNewPath().toString()).sendAndParse().then((exists: boolean) => {
                     this.setNameAvailable(!exists);
                 }).catch(DefaultErrorHandler.handle);
@@ -87,12 +93,12 @@ export class RenameContentDialog extends ModalDialog {
     }
 
     private getNewPath(): ContentPath {
-        return ContentPath.fromParent(this.initialPath.getParentPath(), this.nameInput.getValue());
+        return ContentPath.fromParent(this.initialPath.getParentPath(), this.getNameInputValue());
     }
 
     onRenamed(handler: (newName: string) => void) {
         this.renameAction.onExecuted(() => {
-            handler(this.nameInput.getValue());
+            handler(this.getNameInputValue());
         });
     }
 
