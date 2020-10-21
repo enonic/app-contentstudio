@@ -15,7 +15,7 @@ const makeChromeOptions = (headless, width) => ({
         ...(headless ? ["--headless", "--disable-gpu", "--no-sandbox"] : []),
         "--lang=en",
         '--disable-extensions',
-        `window-size=${width},1100`
+        `--window-size=${width},1100`
     ]
 });
 

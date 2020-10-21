@@ -76,10 +76,7 @@ import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {TogglerButton} from 'lib-admin-ui/ui/button/TogglerButton';
-import {
-    WizardHeaderWithDisplayNameAndName,
-    WizardHeaderWithDisplayNameAndNameBuilder
-} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
+import {WizardHeaderWithDisplayNameAndNameBuilder} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {Application} from 'lib-admin-ui/application/Application';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ApplicationEvent} from 'lib-admin-ui/application/ApplicationEvent';
@@ -124,6 +121,7 @@ import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
+import {ContentWizardHeader} from './ContentWizardHeader';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -327,10 +325,11 @@ export class ContentWizardPanel
                 this.site = loader.siteContent;
                 this.contentType = loader.contentType;
                 this.parentContent = loader.parentContent;
-                this.persistedContent = this.currentContent =
+                this.currentContent =
                     ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
                         loader.content, loader.compareStatus, loader.publishStatus
                     );
+                this.setPersistedContent(this.currentContent);
 
             }).then(() => super.doLoadData());
     }
@@ -365,11 +364,11 @@ export class ContentWizardPanel
     }
 
     protected createWizardHeader(): WizardHeader {
-        const header: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndNameBuilder()
+        const header: ContentWizardHeader = new ContentWizardHeader(new WizardHeaderWithDisplayNameAndNameBuilder()
             .setDisplayNameGenerator(this.displayNameResolver)
-            .setDisplayNameLabel(this.contentType ? this.contentType.getDisplayNameLabel() : null)
-            .build();
+            .setDisplayNameLabel(this.contentType ? this.contentType.getDisplayNameLabel() : null));
 
+        header.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem().getPath() : null);
         header.setPath(this.getWizardHeaderPath());
 
         const existing: Content = this.getPersistedItem();
@@ -390,8 +389,8 @@ export class ContentWizardPanel
         return '/';
     }
 
-    public getWizardHeader(): WizardHeaderWithDisplayNameAndName {
-        return <WizardHeaderWithDisplayNameAndName>super.getWizardHeader();
+    public getWizardHeader(): ContentWizardHeader {
+        return <ContentWizardHeader>super.getWizardHeader();
     }
 
     public getLivePanel(): LiveFormPanel {
@@ -980,7 +979,7 @@ export class ContentWizardPanel
         newContent.setCompareStatus(compareStatus);
 
         this.currentContent = newContent;
-        this.persistedContent = newContent;
+        this.setPersistedContent(newContent);
         this.getMainToolbar().setItem(newContent);
         this.wizardActions.setContent(newContent).refreshState();
         this.workflowStateIconsManager.updateIcons();
@@ -1090,7 +1089,7 @@ export class ContentWizardPanel
             contents.forEach(content => {
                 if (this.isCurrentContentId(content.getContentId())) {
                     this.currentContent = content;
-                    this.persistedContent = content;
+                    this.setPersistedContent(content);
                     this.getMainToolbar().setItem(content);
                     this.wizardActions.setContent(content).refreshState();
                     this.workflowStateIconsManager.updateIcons();
@@ -1265,7 +1264,7 @@ export class ContentWizardPanel
     private setUpdatedContent(updatedContent: ContentSummaryAndCompareStatus) {
         const isUpdatedAndRenamed = this.isContentUpdatedAndRenamed(updatedContent);
         this.currentContent = updatedContent;
-        this.persistedContent = updatedContent;
+        this.setPersistedContent(updatedContent);
         this.getMainToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
         if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
@@ -1517,7 +1516,7 @@ export class ContentWizardPanel
     private updatePersistedContent(persistedContent: Content) {
         return ContentSummaryAndCompareStatusFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
             this.currentContent = summaryAndStatus;
-            this.persistedContent = summaryAndStatus;
+            this.setPersistedContent(summaryAndStatus);
             this.getMainToolbar().setItem(summaryAndStatus);
             this.wizardActions.setContent(summaryAndStatus).refreshState();
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
@@ -2161,7 +2160,7 @@ export class ContentWizardPanel
     }
 
     private resolveContentNameForUpdateRequest(): ContentName {
-        if (StringHelper.isEmpty(this.getWizardHeader().getName())) {
+        if (StringHelper.isBlank(this.getWizardHeader().getName())) {
             if (this.getPersistedItem().getName().isUnnamed()) {
                 return this.getPersistedItem().getName();
             } else {
@@ -2583,5 +2582,26 @@ export class ContentWizardPanel
     private canEveryoneRead(content: Content): boolean {
         const entry: AccessControlEntry = content.getPermissions().getEntry(RoleKeys.EVERYONE);
         return !!entry && entry.isAllowed(Permission.READ);
+    }
+
+    protected setPersistedItem(newPersistedItem: Content): void {
+        super.setPersistedItem(newPersistedItem);
+
+        if (this.getWizardHeader()) {
+            this.getWizardHeader().setPersistedPath(newPersistedItem.getPath());
+            this.getWizardHeader().setOnline(this.persistedContent.isOnline());
+        }
+    }
+
+    isHeaderValid(): boolean {
+        return !this.wizardHeader || this.wizardHeader.isValid();
+    }
+
+    private setPersistedContent(content: ContentSummaryAndCompareStatus) {
+        this.persistedContent = content;
+
+        if (this.getWizardHeader()) {
+            this.getWizardHeader().setOnline(this.persistedContent.isOnline());
+        }
     }
 }

@@ -43,10 +43,12 @@ module.exports = Object.freeze({
     THIS_PUBLISH_REQUEST_OPEN: 'The publish request is Open.',
     REQUEST_CREATED_MESSAGE: 'New publish request created successfully.',
     TASK_CLOSED_MESSAGE: 'The task is Closed.',
+    TASK_CREATED_MESSAGE: "New task created successfully.",
     PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request is Closed.',
     TASK_OPENED_MESSAGE: 'The task is Open.',
     TWO_ITEMS_PUBLISHED: `2 items are published.`,
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
+    TEST_FOLDER_WITH_IMAGES_2: "Images for simple page",
     TEST_FOLDER_2_DISPLAY_NAME: `folder for selenium tests`,
     TEST_FOLDER_2_NAME: `selenium-tests-folder`,
     TEST_FOLDER_NAME: 'all-content-types-images',
@@ -64,12 +66,11 @@ module.exports = Object.freeze({
     },
     //waitForTimeout
     TIMEOUT_10: 10000,
-    TIMEOUT_3: 3000,
+    mediumTimeout: 3000,
     TIMEOUT_4: 4000,
     TIMEOUT_5: 5000,
-    TIMEOUT_7: 7000,
-    TIMEOUT_10: 10000,
-    TIMEOUT_2: 2000,
+    longTimeout: 7000,
+    shortTimeout: 2000,
     TIMEOUT_1: 1000,
     SUITE_TIMEOUT: 180000,
     DELETE_INBOUND_MESSAGE: 'The content you are about to delete has inbound references. Please verify them before deletion.',
@@ -116,7 +117,8 @@ module.exports = Object.freeze({
         CONTRIBUTOR: "Contributor",
         AUTHOR: "Author",
         EDITOR: "Editor",
-        OWNER: "Owner"
+        OWNER: "Owner",
+        VIEWER: "Viewer"
     },
     SHOW_ISSUES_BUTTON_LABEL: {
         NO_OPEN_ISSUES: 'No open issues',
@@ -183,7 +185,7 @@ module.exports = Object.freeze({
         PUBLISHED: 'Published',
         UNPUBLISHED: 'Unpublished',
         MODIFIED: 'Modified',
-        DELETED: 'Deleted',
+        MARKED_FOR_DELETION: 'Marked for deletion',
     },
     PUBLISH_MENU: {
         REQUEST_PUBLISH: "Request Publishing...",

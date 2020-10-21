@@ -59,11 +59,13 @@ export class WidgetsSelectionRow
             this.widgetSelectorDropdown.addClass('single-optioned');
         }
 
-        const visibleNow = this.isVisible();
+        const visibleNow: boolean = this.isVisible();
 
         if (visibleNow) {
             this.setVisible(false);
         }
+
+        this.widgetSelectorDropdown.deselectOptions(true);
         this.selectOptionByWidgetView(selectedView || previousSelectionView, true);
         if (visibleNow) {
             this.setVisible(true);

@@ -364,7 +364,11 @@ export class LinkModalDialog
     private createSelector( getValueFn: Function,
                             loaderBuilder: ContentSummaryOptionDataLoaderBuilder
                             ): ContentComboBox<ContentTreeSelectorItem> {
-        const selector = ContentComboBox.create().setLoader(loaderBuilder.build()).setMaximumOccurrences(1).build();
+        const selector = ContentComboBox.create()
+            .setShowStatus(true)
+            .setMaximumOccurrences(1)
+            .setLoader(loaderBuilder.setLoadStatus(true).build())
+            .build();
 
         selector.setValue(getValueFn.call(this));
 

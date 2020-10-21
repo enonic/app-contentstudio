@@ -1,9 +1,9 @@
 Enonic XP - Content Studio App
 ===
 
-[![Travis Build Status][travis-image]][travis-url]
+[![Actions Status](https://github.com/enonic/app-contentstudio/workflows/Gradle%20Build/badge.svg)](https://github.com/enonic/app-contentstudio/actions)
 [![License][license-image]][license-url]
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3372bea65e16411181979c842ca475fa)](https://www.codacy.com/app/enonic/app-contentstudio?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=enonic/app-contentstudio&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/4fa8601d04634ceea2a38235734cd5c2)](https://www.codacy.com/manual/enonic/app-contentstudio?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=enonic/app-contentstudio&amp;utm_campaign=Badge_Grade)
 
 Create sites and manage content in [Enonic XP](https://github.com/enonic/xp).
 

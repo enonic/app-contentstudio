@@ -57,10 +57,10 @@ class SiteForm extends Page {
 
     getAppDisplayNames() {
         let selector = XPATH.applicationsSelectedOptions + lib.H6_DISPLAY_NAME;
-        return this.getTextInElements();
+        return this.getTextInElements(selector);
     }
 
-    removeApplication(displayName) {
+    removeApplication() {
         let selector = XPATH.selectedAppByDisplayName() + lib.REMOVE_ICON;
         return this.clickOnElement(selector);
     }

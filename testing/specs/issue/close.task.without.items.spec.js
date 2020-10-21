@@ -40,7 +40,7 @@ describe('close.task.without.items.spec: create task without items, close the ta
             await issueListDialog.clickOnIssue(issueTitle);
             await taskDetailsDialog.waitForDialogOpened();
             //2. Click on 'Close Issue' button:
-            await taskDetailsDialog.clickOnCloseTaskButton();
+            await taskDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             studioUtils.saveScreenshot("empty_issue_closed");
             //'The issue is Closed.' - this message should appear
             await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.TASK_CLOSED_MESSAGE);
@@ -61,8 +61,8 @@ describe('close.task.without.items.spec: create task without items, close the ta
             studioUtils.saveScreenshot("empty_task_reopened");
             //3. 'The issue is Open - this message should appear:
             await taskDetailsDialog.waitForExpectedNotificationMessage(appConstant.TASK_OPENED_MESSAGE);
-            let result = await taskDetailsDialog.isCloseTaskButtonDisplayed();
-            assert.isTrue(result, '`Close Issue` button should appear again, because the issue is reopened');
+            let actualStatus = await taskDetailsDialog.getCurrentStatusInStatusSelector();
+            assert.equal(actualStatus, "Open", "'Open' status should be displayed in status selector button");
         });
 
     it(`GIVEN Task Details dialog is opened WHEN 'Esc' key has been pressed THEN modal dialog should be closed`,

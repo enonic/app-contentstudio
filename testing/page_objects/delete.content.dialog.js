@@ -38,11 +38,11 @@ class DeleteContentDialog extends Page {
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(this.deleteNowButton, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.deleteNowButton, appConst.shortTimeout);
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_close_delete_content_dialog');
             throw new Error('Delete content dialog must be closed');
         })
@@ -94,7 +94,7 @@ class DeleteContentDialog extends Page {
 
     isItemHasInboundLink(itemDisplayName) {
         let selector = XPATH.deleteItemByDisplayName(itemDisplayName) + XPATH.inboundLink;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(selector, appConst.shortTimeout);
     }
 
     getNumberOfInboundDependency(itemDisplayName) {
@@ -107,7 +107,7 @@ class DeleteContentDialog extends Page {
             await this.getBrowser().waitUntil(async () => {
                 let text = await this.getText(this.deleteNowButton);
                 return text.includes('(');
-            }, appConst.TIMEOUT_3);
+            }, appConst.mediumTimeout);
             let result = await this.getText(this.deleteNowButton);
             let startIndex = result.indexOf('(');
             let endIndex = result.indexOf(')');
@@ -118,7 +118,7 @@ class DeleteContentDialog extends Page {
     }
 
     async getContentStatus(displayName) {
-        let selector = XPATH.container + XPATH.getContentStatus(displayName)
+        let selector = XPATH.container + XPATH.getContentStatus(displayName);
         return await this.getText(selector);
     }
 

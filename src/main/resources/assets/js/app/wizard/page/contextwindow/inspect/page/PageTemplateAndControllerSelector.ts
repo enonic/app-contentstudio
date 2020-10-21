@@ -37,6 +37,8 @@ export class PageTemplateAndControllerSelector
 
     private autoOption: Option<PageTemplateOption>;
 
+    private preselectedValue: string;
+
     constructor() {
         const optionViewer = new PageTemplateAndSelectorViewer();
         super(
@@ -179,15 +181,27 @@ export class PageTemplateAndControllerSelector
             this.loadPageTemplates(),
             this.loadPageControllers()
         ]).spread((templateOptions: Option<PageTemplateOption>[], controllerOptions: Option<PageControllerOption>[]) => {
-            const selectedValue: string = this.getValue();
-            this.removeAllOptions();
-            this.initOptionsList(templateOptions, controllerOptions);
-            if (selectedValue) {
-                this.setValue(selectedValue, true);
-            } else {
-                this.selectInitialOption();
-            }
+            this.handleReloaded(templateOptions, controllerOptions);
         }).catch(DefaultErrorHandler.handle);
+    }
+
+    private handleReloaded(templateOptions: Option<PageTemplateOption>[], controllerOptions: Option<PageControllerOption>[]) {
+        const preselectedValue: string = this.getPreselectedValue();
+        this.removeAllOptions();
+        this.initOptionsList(templateOptions, controllerOptions);
+        if (preselectedValue) {
+            const isAlreadySelected: boolean = !!this.getSelectedOption() && this.getSelectedOption().value === preselectedValue;
+            if (!isAlreadySelected) {
+                this.setValue(preselectedValue, true);
+            }
+        } else {
+            this.selectInitialOption();
+        }
+        this.preselectedValue = null;
+    }
+
+    private getPreselectedValue(): string {
+        return this.preselectedValue || this.getValue();
     }
 
     private loadPageTemplates(): Q.Promise<Option<PageTemplateOption>[]> {
@@ -315,6 +329,8 @@ export class PageTemplateAndControllerSelector
         let optionToSelect = this.getOptionByValue(key);
         if (optionToSelect) {
             this.selectOption(optionToSelect, true);
+        } else {
+            this.preselectedValue = key;
         }
     }
 }

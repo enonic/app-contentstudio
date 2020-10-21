@@ -82,7 +82,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             //3. click on 'Custom' radio:
             await projectWizard.clickOnAccessModeRadio("Custom");
             //4. Select SU in the selector's options:
-            await projectWizard.selectCustomReadAccessItem(appConstant.systemUsersDisplayName.SUPER_USER);
+            await projectWizard.selectUserInCustomReadAccess(appConstant.systemUsersDisplayName.SUPER_USER);
             await projectWizard.waitAndClickOnSave();
             //5. Verify that SU is added in 'Custom Read Access'
             let result = await projectWizard.getSelectedCustomReadAccessOptions();
@@ -124,7 +124,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });

@@ -26,14 +26,14 @@ class ShortcutForm extends Page {
     }
 
     waitForParametersFormVisible() {
-        return this.waitForElementDisplayed(xpath.parametersFormOccurrence, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(xpath.parametersFormOccurrence, appConst.shortTimeout).catch(err => {
             this.saveScreenshot("err_shortcut_parameters_form");
             throw new Error("shortcut - parameters form should be visible " + err);
         })
     }
 
     waitForParametersFormNotVisible() {
-        return this.waitForElementNotDisplayed(xpath.parametersFormOccurrence, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementNotDisplayed(xpath.parametersFormOccurrence, appConst.shortTimeout).catch(err => {
             this.saveScreenshot("err_shortcut_parameters_form");
             throw new Error("shortcut - parameters form should not be visible " + err);
         })
@@ -65,20 +65,20 @@ class ShortcutForm extends Page {
 
 
     waitForAddParametersButtonVisible() {
-        return this.waitForElementDisplayed(this.addParametersButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.addParametersButton, appConst.shortTimeout).catch(err => {
             return false;
         })
     }
 
     waitForCollapseLinkVisible() {
-        return this.waitForElementDisplayed(xpath.stepForm + xpath.collapseButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(xpath.stepForm + xpath.collapseButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot("err_shortcut_collapse_link");
             throw new Error("shortcut - collapse link is not visible " + err);
         })
     }
 
     waitForExpandLinkVisible() {
-        return this.waitForElementDisplayed(xpath.stepForm + xpath.expandButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(xpath.stepForm + xpath.expandButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot("err_shortcut_collapse_link");
             throw new Error("shortcut - Expand link is not visible " + err);
         })
@@ -103,7 +103,7 @@ class ShortcutForm extends Page {
     }
 
     clickOnAddParametersButton() {
-        return this.waitForElementDisplayed(xpath.addParametersButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(xpath.addParametersButton, appConst.shortTimeout).catch(err => {
             throw new Error("Add parameters Button is not visible in 2 sec: " + err);
         }).then(() => {
             return this.clickOnElement(xpath.addParametersButton)

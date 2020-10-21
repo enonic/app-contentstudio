@@ -75,10 +75,18 @@ class UserBrowsePanel extends Page {
     }
 
     clickOnNewButton() {
-        return this.waitForElementEnabled(this.newButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementEnabled(this.newButton, appConst.mediumTimeout).catch(err => {
             throw new Error("New button is not enabled!" + err);
         }).then(() => {
             return this.clickOnElement(this.newButton);
+        });
+    }
+
+    clickOnEditButton() {
+        return this.waitForElementEnabled(this.editButton, appConst.mediumTimeout).catch(err => {
+            throw new Error("Edit button is not enabled!" + err);
+        }).then(() => {
+            return this.clickOnElement(this.editButton);
         });
     }
 
@@ -94,7 +102,7 @@ class UserBrowsePanel extends Page {
     }
 
     isItemDisplayed(itemName) {
-        return this.waitForElementDisplayed(xpath.rowByName(itemName), appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(xpath.rowByName(itemName), appConst.shortTimeout).catch(err => {
             console.log("item is not displayed:" + itemName + +" " + err);
             return false;
         });
@@ -102,7 +110,7 @@ class UserBrowsePanel extends Page {
 
     clickOnRowByName(name) {
         let nameXpath = xpath.rowByName(name);
-        return this.clickOnElement(nameXpath, appConst.TIMEOUT_3).catch(err => {
+        return this.clickOnElement(nameXpath, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_find_' + name);
             throw Error('Row with the name ' + name + ' was not found.  ' + err);
         }).then(() => {
@@ -111,7 +119,7 @@ class UserBrowsePanel extends Page {
     }
 
     waitForFolderUsersVisible() {
-        return this.waitForElementDisplayed(xpath.rowByName('users'), appConst.TIMEOUT_2).catch(() => {
+        return this.waitForElementDisplayed(xpath.rowByName('users'), appConst.mediumTimeout).catch(err => {
             console.log("element is not visible: row with Users");
             throw new Error(`Users folder was not found! ` + err);
         });
@@ -133,30 +141,30 @@ class UserBrowsePanel extends Page {
     }
 
     waitForNewButtonEnabled() {
-        return this.waitForElementEnabled(this.newButton, appConst.TIMEOUT_3);
+        return this.waitForElementEnabled(this.newButton, appConst.mediumTimeout);
     }
 
     waitForDeleteButtonEnabled() {
-        return this.waitForElementEnabled(this.deleteButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout).catch(err => {
             throw new Error('Delete button is not enabled ! ' + err);
         });
     }
 
     waitForDeleteButtonDisabled() {
-        return this.waitForElementDisabled(this.deleteButton, appConst.TIMEOUT_3);
+        return this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
     }
 
     isEditButtonEnabled() {
-        return this.waitForElementEnabled(this.editButton, appConst.TIMEOUT_2);
+        return this.waitForElementEnabled(this.editButton, appConst.shortTimeout);
     }
 
     waitForEditButtonDisabled() {
-        return this.waitForElementDisabled(this.editButton, appConst.TIMEOUT_2);
+        return this.waitForElementDisabled(this.editButton, appConst.mediumTimeout);
     }
 
     waitForRowByNameVisible(name) {
         let nameXpath = xpath.rowByName(name);
-        return this.waitForElementDisplayed(nameXpath, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_find_' + name);
             throw Error('Row with the name ' + name + ' is not visible in ' + 3000 + 'ms')
         })
@@ -164,14 +172,14 @@ class UserBrowsePanel extends Page {
 
     waitForRowByDisplayNameVisible(displayName) {
         let nameXpath = xpath.rowByDisplayName(displayName);
-        return this.waitForElementDisplayed(nameXpath, appConst.TIMEOUT_3).catch(err => {
-            throw Error('Row with the name ' + displayName + ' is not visible in ' + 3000 + 'ms')
+        return this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout).catch(err => {
+            throw Error('Row with the name ' + displayName + ' is not visible in ' + appConst.mediumTimeout + 'ms')
         })
     }
 
     clickCheckboxAndSelectRowByDisplayName(displayName) {
         let displayNameXpath = xpath.checkboxByDisplayName(displayName);
-        return this.waitForElementDisplayed(displayNameXpath, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(displayNameXpath, appConst.shortTimeout).then(() => {
             return this.clickOnElement(displayNameXpath);
         }).catch(err => {
             this.saveScreenshot('err_find_item');
@@ -217,15 +225,15 @@ class UserBrowsePanel extends Page {
     //Click on existing Tab-Item and navigates to the opened wizard:
     async clickOnTabBarItem(displayName) {
         let tabItem = xpath.itemTabByDisplayName(displayName);
-        await this.waitForElementDisplayed(tabItem)
+        await this.waitForElementDisplayed(tabItem);
         return await this.clickOnElement(tabItem);
     }
 
     async doClickOnCloseTabAndWaitGrid(displayName) {
         try {
             let closeIcon = xpath.closeItemTabButton(displayName);
-            await this.waitForElementDisplayed(closeIcon, appConst.TIMEOUT_2);
-            await this.waitForElementEnabled(closeIcon, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(closeIcon, appConst.shortTimeout);
+            await this.waitForElementEnabled(closeIcon, appConst.shortTimeout);
             await this.clickOnElement(closeIcon);
         } catch (err) {
             throw new Error('Item Tab Button was not found!' + displayName + "  " + err);
@@ -239,7 +247,7 @@ class UserBrowsePanel extends Page {
             throw new Error('Confirmation dialog should not appear when try to close the ' + displayName);
         }
         await this.waitForSpinnerNotVisible();
-        return await this.waitForUsersGridLoaded(appConst.TIMEOUT_3);
+        return await this.waitForUsersGridLoaded(appConst.mediumTimeout);
     }
 
     clickOnExpanderIcon(name) {
@@ -258,12 +266,12 @@ class UserBrowsePanel extends Page {
             return this.getAttribute(selector, 'class').then(result => {
                 return result.includes('any-selected');
             })
-        }, appConst.TIMEOUT_3, 'expected style not present after 3s');
+        }, appConst.mediumTimeout, 'expected style not present after 3s');
     }
 
     rightClickOnRowByDisplayName(displayName) {
         const selector = xpath.rowByDisplayName(displayName);
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).then(() => {
             return this.doRightClick(selector);
         }).catch(err => {
             this.saveScreenshot(`err_find_${displayName}`);

@@ -20,6 +20,7 @@ import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import eventInfo = CKEDITOR.eventInfo;
 import widget = CKEDITOR.plugins.widget;
+import {UrlHelper} from '../../../util/UrlHelper';
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];
@@ -215,7 +216,7 @@ export class HtmlEditor {
 
     private handleTooltipForClickableElements() {
         let tooltipElem: CKEDITOR.dom.element = null;
-        const tooltipText = i18n('editor.dblclicktoedit');
+        const tooltipText: string = i18n('editor.dblclicktoedit');
 
         const mouseOverHandler = AppHelper.debounce((ev: eventInfo) => {
             const targetEl: CKEDITOR.dom.element = ev.data.getTarget();
@@ -230,9 +231,31 @@ export class HtmlEditor {
         }, 200);
 
         this.editor.on('instanceReady', () => {
-            tooltipElem = this.editorParams.isInline() ? this.editor.container : this.editor.document.getBody().getParent();
-            this.editor.editable().on('mouseover', mouseOverHandler);
+            try {
+                tooltipElem = this.getTooltipContainer();
+            } catch (e) {
+                console.log('Failed to init tooltip handler');
+            }
+
+            if (!!tooltipElem) {
+                this.editor.editable().on('mouseover', mouseOverHandler);
+            }
+
         });
+
+        this.editor.once('autoGrow', (event: CKEDITOR.eventInfo) => {
+            event.cancel();
+        });
+    }
+
+    private getTooltipContainer(): CKEDITOR.dom.element {
+        if (this.editorParams.isInline()) {
+            return this.editor.container;
+        }
+
+        const body: CKEDITOR.dom.element = this.editor.document.getBody();
+
+        return !!body ? body.getParent() : null;
     }
 
     private handleFileUpload() {
@@ -265,6 +288,7 @@ export class HtmlEditor {
             const fileLoader = evt.data.fileLoader;
 
             this.fileExists(fileLoader.fileName).then((exists: boolean) => {
+
                 if (exists) {
                     NotifyManager.get().showWarning(i18n('notify.fileExists', fileLoader.fileName));
                     (<any>evt.editor.document.findOne('.cke_widget_uploadimage')).remove(); // removing upload preview image
@@ -986,7 +1010,7 @@ class HtmlEditorConfigBuilder {
                 StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS,
                 StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS],
             disallowedContent: 'img[width,height]',
-            uploadUrl: UriHelper.getRestUri('content/createMedia'),
+            uploadUrl: UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/content/createMedia`),
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
             disableNativeSpellChecker: false
         };

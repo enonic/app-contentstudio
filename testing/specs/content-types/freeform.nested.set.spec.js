@@ -14,7 +14,6 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 describe('freeform.nested.set.spec: updates a content with nested set and checks `Save` button in the wizard-toolbar', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
-    let siteDisplayName;
     let SITE;
     let contentDisplayName;
 
@@ -43,7 +42,7 @@ describe('freeform.nested.set.spec: updates a content with nested set and checks
             await freeFormOptionSet1.clickOnImageRadioButton();
             studioUtils.saveScreenshot('set_in_set_save_issue');
             //"Save" button gets enabled, because radio button has been checked"
-            return contentWizard.waitForSaveButtonEnabled();
+            await contentWizard.waitForSaveButtonEnabled();
         });
 
     it(`GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN two radio buttons have been clicked sequentially THEN Save button gets enabled in the wizard-toolbar`,

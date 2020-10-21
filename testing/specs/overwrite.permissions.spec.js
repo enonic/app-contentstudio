@@ -67,7 +67,7 @@ describe('overwrite.permissions.spec: open details panel, update permissions in 
                 //3. Select the parent folder and open "Edit Permissions Dialog"
                 await openEditPermissionsDialog(parentFolder.displayName);
                 //4.Remove 'Anonymous User'- entry (parent folder)
-                await editPermissionsDialog.removeAclEntry("users/anonymous")
+                await editPermissionsDialog.removeAclEntry("users/anonymous");
                 //5. Click on Apply button and close the dialog:
                 await editPermissionsDialog.clickOnApplyButton();
                 //6. Select the child folder and open 'Edit permission' dialog

@@ -22,9 +22,9 @@ export class ContentVersionViewer
 
     setObject(version: ContentVersion) {
         const modifiedDate = version.hasPublishInfo() ?
-                                version.getPublishInfo().getTimestamp() : version.getModified();
+                             version.getPublishInfo().getTimestamp() : version.getModified();
         const modifierName = version.hasPublishInfo() ?
-                                version.getPublishInfo().getPublisherDisplayName() : version.getModifierDisplayName();
+                             version.getPublishInfo().getPublisherDisplayName() : version.getModifierDisplayName();
         const isAlias = version.isAlias();
         const dateTime = `${DateHelper.formatDate(modifiedDate)} ${DateHelper.getFormattedTimeFromDate(modifiedDate, false)}`;
         const subName = i18n('dialog.compareVersions.versionSubName', isAlias ? dateTime : '', modifierName);
@@ -35,10 +35,10 @@ export class ContentVersionViewer
             .setMainName(isAlias ? version.getAliasDisplayName() : dateTime)
             .setSubName(subName)
             .setIconClass(version.hasPublishInfo()
-                ? 'icon-version-published'
-                : version.isInReadyState()
-                    ? 'icon-state-ready'
-                    : 'icon-version-modified');
+                          ? (version.isPublished() ? 'icon-version-published' : 'icon-version-unpublished')
+                          : version.isInReadyState()
+                            ? 'icon-state-ready'
+                            : 'icon-version-modified');
 
         return super.setObject(version);
     }

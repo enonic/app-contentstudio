@@ -16,13 +16,13 @@ class PropertiesItemView extends Page {
     }
 
     waitForLanguageVisible() {
-        return this.waitForElementDisplayed(this.languageProperty, appConst.TIMEOUT_2).catch(err => {
-            throw new Error('Properties widget- language is not displayed ' + appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.languageProperty, appConst.shortTimeout).catch(err => {
+            throw new Error('Properties widget- language is not displayed ' + appConst.shortTimeout);
         });
     }
 
     waitForLanguageNotVisible() {
-        return this.waitForElementNotDisplayed(this.languageProperty, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementNotDisplayed(this.languageProperty, appConst.shortTimeout).catch(err => {
             throw new Error("Language should not be present in the preoperties widget! " + err);
         });
     }

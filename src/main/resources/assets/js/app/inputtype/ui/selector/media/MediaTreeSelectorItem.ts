@@ -6,16 +6,40 @@ import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {MediaSelectorDisplayValue} from './MediaSelectorDisplayValue';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
+import {ContentAndStatusTreeSelectorItem} from '../../../../item/ContentAndStatusTreeSelectorItem';
+import {CompareStatus} from '../../../../content/CompareStatus';
+import {PublishStatus} from '../../../../publish/PublishStatus';
 
 export class MediaTreeSelectorItem
     extends ContentTreeSelectorItem {
 
     private mediaSelectorDisplayValue: MediaSelectorDisplayValue;
 
+    private compareStatus: CompareStatus;
+
+    private publishStatus: PublishStatus;
+
     constructor(content: ContentSummary, selectable?: boolean, expandable?: boolean) {
         super(content, selectable, expandable);
         this.mediaSelectorDisplayValue =
             content ? MediaSelectorDisplayValue.fromContentSummary(content) : MediaSelectorDisplayValue.makeEmpty();
+    }
+
+    static createMediaTreeSelectorItemWithStatus(item: ContentAndStatusTreeSelectorItem): MediaTreeSelectorItem {
+        const mediaTreeSelectorItem = new MediaTreeSelectorItem(item.getContent(), item.isSelectable(), item.isExpandable());
+
+        mediaTreeSelectorItem.compareStatus = item.getCompareStatus();
+        mediaTreeSelectorItem.publishStatus = item.getPublishStatus();
+
+        return mediaTreeSelectorItem;
+    }
+
+    getPublishStatus(): PublishStatus {
+        return this.publishStatus;
+    }
+
+    getCompareStatus(): CompareStatus {
+        return this.compareStatus;
     }
 
     setDisplayValue(value: MediaSelectorDisplayValue): MediaTreeSelectorItem {

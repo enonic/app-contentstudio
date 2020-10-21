@@ -10,7 +10,6 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
-const ImageInspectPanel = require('../../page_objects/wizardpanel/liveform/inspection/image.inspection.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe("revert.site.with.component.spec: Insert image component then revert the previous version and check Live Frame",
@@ -33,7 +32,6 @@ describe("revert.site.with.component.spec: Insert image component then revert th
             async () => {
                 let contentWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
-                let imageInspectPanel = new ImageInspectPanel();
                 let liveFormPanel = new LiveFormPanel();
                 await studioUtils.selectContentAndOpenWizard(SITE.displayName);
                 //1. Open  'Page Component View' dialog:
@@ -81,7 +79,6 @@ describe("revert.site.with.component.spec: Insert image component then revert th
             async () => {
                 let contentWizard = new ContentWizard();
                 let versionPanel = new WizardVersionsWidget();
-                let imageInspectPanel = new ImageInspectPanel();
                 let liveFormPanel = new LiveFormPanel();
                 await studioUtils.selectContentAndOpenWizard(SITE.displayName);
                 //1. Open  'Versions Panel':

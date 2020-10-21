@@ -29,7 +29,7 @@ class ProjectSelectionDialog extends Page {
 
     waitForDialogLoaded() {
         let selector = XPATH.container + XPATH.projectList + lib.itemByDisplayName("Default");
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(selector, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_open_project_selection_dialog');
             throw new Error('Project Selection dialog should be opened!' + err);
         });
@@ -41,7 +41,7 @@ class ProjectSelectionDialog extends Page {
 
     async waitForDialogClosed() {
         try {
-            return await this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+            return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
         } catch (err) {
             throw new Error("Dialog should be closed " + err);
         }
@@ -53,20 +53,31 @@ class ProjectSelectionDialog extends Page {
 
     async waitForCancelButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.cancelButtonTop, appConst.TIMEOUT_2);
+            return await this.waitForElementDisplayed(this.cancelButtonTop, appConst.shortTimeout);
         } catch (err) {
             throw new Error("Project Selection dialog - Cancel button is not displayed :" + err);
         }
     }
 
     waitForCancelButtonTopDisplayed() {
-        return this.waitForElementDisplayed(this.cancelButtonTop, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.cancelButtonTop, appConst.shortTimeout);
     }
 
     async selectContext(projectDisplayName) {
         let selector = XPATH.container + XPATH.projectList + lib.itemByDisplayName(projectDisplayName);
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
-        return await this.clickOnElement(selector);
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+        return await this.scrollAndClickOnElement(selector);
+    }
+
+    async getProjectsDisplayName() {
+        let locator = XPATH.container + XPATH.projectList + lib.H6_DISPLAY_NAME;
+        return this.getTextInElements(locator);
+    }
+
+    async getProjectLanguage(projectDisplayName) {
+        let locator = XPATH.container + XPATH.projectList + lib.itemByDisplayName(projectDisplayName) + lib.P_SUB_NAME;
+        return this.getText(locator);
+
     }
 };
 module.exports = ProjectSelectionDialog;

@@ -24,7 +24,7 @@ import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './../ModalD
 import {ImageStyleSelector} from './ImageStyleSelector';
 import {MediaTreeSelectorItem} from '../../../selector/media/MediaTreeSelectorItem';
 import {ImageUploaderEl} from '../../../selector/image/ImageUploaderEl';
-import {ImageContentComboBox} from '../../../selector/image/ImageContentComboBox';
+import {ImageContentComboBox, ImageContentComboBoxBuilder} from '../../../selector/image/ImageContentComboBox';
 import {ContentSelectedOptionsView} from '../../../selector/ContentComboBox';
 import {MediaUploaderElOperation} from '../../../upload/MediaUploaderEl';
 import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
@@ -214,8 +214,12 @@ export class ImageModalDialog
 
     private createImageSelector(id: string): FormItem {
 
-        const imageSelector = ImageContentComboBox.create().setMaximumOccurrences(1).setContent(
-            this.content).setSelectedOptionsView(new ContentSelectedOptionsView()).build();
+        const imageSelector = (<ImageContentComboBoxBuilder>ImageContentComboBox.create()
+            .setShowStatus(true)
+            .setMaximumOccurrences(1))
+            .setContent(this.content)
+            .setSelectedOptionsView(new ContentSelectedOptionsView())
+            .build();
 
         const formItemBuilder = new ModalDialogFormItemBuilder(id, i18n('dialog.image.formitem.image')).setValidator(
             Validators.required).setInputEl(imageSelector);
@@ -1002,7 +1006,6 @@ export class ImagePreviewScrollHandler {
         const outer = document.createElement('div');
         outer.style.visibility = 'hidden';
         outer.style.width = '100px';
-        outer.style.msOverflowStyle = 'scrollbar'; // needed for WinJS apps
 
         document.body.appendChild(outer);
 

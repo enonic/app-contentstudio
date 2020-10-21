@@ -62,7 +62,6 @@ export class PageComponentsTreeGrid
             ])
             .setOptions(
                 new GridOptionsBuilder<TreeNode<ItemView>>()
-                    .setAutoHeight(true)
                     .setShowHeaderRow(false)
                     .setHideColumnHeaders(true)
                     .setForceFitColumns(true)

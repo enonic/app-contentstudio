@@ -708,7 +708,7 @@ export class PageComponentsView
             this.beforeActionHandler = (action: Action) => {
 
                 PageViewController.get().setContextMenuDisabled(true);
-                if (action.hasParentAction() && action.getParentAction().getLabel() === i18n('live.view.insert')) {
+                if (action.hasParentAction() && action.getParentAction().getLabel() === i18n('widget.components.insert')) {
                     this.notifyBeforeInsertAction();
                 }
             };

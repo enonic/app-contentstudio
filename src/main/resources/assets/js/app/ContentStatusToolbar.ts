@@ -47,9 +47,6 @@ export class ContentStatusToolbar
 
     private updateStatus(content: ContentSummaryAndCompareStatus) {
         this.status.setClass('status');
-        if (this.isOnline(content)) {
-            this.status.addClass('online');
-        }
         if (content) {
             this.status.addClass(content.getStatusClass());
             this.status.setHtml(content.getStatusText());

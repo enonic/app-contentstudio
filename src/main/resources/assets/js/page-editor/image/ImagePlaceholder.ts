@@ -39,14 +39,8 @@ export class ImagePlaceholder
     }
 
     private initImageCombobox(imageView: ImageComponentView) {
-        let loader = ImageOptionDataLoader.create()
-            .setContent(imageView.getLiveEditModel().getContent())
-            .setContentTypeNames([ContentTypeName.IMAGE.toString(), ContentTypeName.MEDIA_VECTOR.toString()])
-            .build();
-
         this.comboBox = ImageContentComboBox.create()
             .setMaximumOccurrences(1)
-            .setLoader(loader)
             .setContent(imageView.getLiveEditModel().getContent())
             .setTreegridDropdownEnabled(false)
             .setMinWidth(270)

@@ -9,7 +9,7 @@ class BaseDetailsPanel extends Page {
 
     //drop down menu for switch to Details, Version History, Dependencies
     clickOnWidgetSelectorDropdownHandle() {
-        return this.waitForElementDisplayed(this.widgetSelectorDropdownHandle, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.widgetSelectorDropdownHandle, appConst.mediumTimeout).catch(err => {
             console.log("widget Selector DropdownHandle is not visible in  3 sec:");
             throw new Error('widgetSelectorDropdownHandle is not visible in  3 sec!  ' + err);
         }).then(() => {
@@ -24,7 +24,7 @@ class BaseDetailsPanel extends Page {
         try {
             await this.clickOnWidgetSelectorDropdownHandle();
             let versionHistoryOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.VERSION_HISTORY);
-            await this.waitForElementDisplayed(versionHistoryOption, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(versionHistoryOption, appConst.mediumTimeout);
             let elements = await this.getDisplayedElements(versionHistoryOption);
             await elements[0].click();
             return await this.pause(200);
@@ -37,7 +37,7 @@ class BaseDetailsPanel extends Page {
     async openDependencies() {
         await this.clickOnWidgetSelectorDropdownHandle();
         let dependenciesOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.DEPENDENCIES);
-        await this.waitForElementDisplayed(dependenciesOption, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(dependenciesOption, appConst.mediumTimeout);
         let result = await this.getDisplayedElements(dependenciesOption);
         return await this.getBrowser().elementClick(result[0].elementId);
     }

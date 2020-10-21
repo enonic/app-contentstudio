@@ -35,7 +35,7 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
             //2. click on 'Custom' radio:
             await projectWizard.clickOnAccessModeRadio("Custom");
             //3. Select the just created user in the selector's options:
-            await projectWizard.selectCustomReadAccessItem(USER.displayName);
+            await projectWizard.selectUserInCustomReadAccess(USER.displayName);
             await projectWizard.waitAndClickOnSave();
             studioUtils.saveScreenshot("custom_read_access_1");
             //4. Verify that the user is added in 'Custom Read Access'
@@ -72,7 +72,7 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });

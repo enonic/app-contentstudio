@@ -100,9 +100,7 @@ describe('create.content.in.project.spec - create new content in the selected co
     it("GIVEN project with 'Private' access mode is selected AND existing folder is selected WHEN Details Panel has been opened THEN 'Restricted access to item' should be in Access Widget",
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
             let userAccessWidget = new UserAccessWidget();
-            let contentWidget = new ContentWidgetView();
             await projectSelectionDialog.waitForDialogLoaded();
             //1. Select the project in 'Select Context' dialog:
             await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
@@ -143,7 +141,7 @@ describe('create.content.in.project.spec - create new content in the selected co
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

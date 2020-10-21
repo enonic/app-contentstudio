@@ -56,7 +56,7 @@ class InsertLinkDialog extends Page {
         let loaderComboBox = new LoaderComboBox();
         let selector = XPATH.container + lib.tabBarItemByName('Download');
         return this.clickOnElement(selector).then(() => {
-            return this.waitForElementDisplayed(loaderComboBox.optionsFilterInput, appConst.TIMEOUT_2);
+            return this.waitForElementDisplayed(loaderComboBox.optionsFilterInput, appConst.shortTimeout);
         }).then(() => {
             return loaderComboBox.typeTextAndSelectOption(targetDisplayName, XPATH.container);
         })
@@ -65,7 +65,7 @@ class InsertLinkDialog extends Page {
     fillEmailForm(email) {
         let selector = XPATH.container + lib.tabBarItemByName('Email');
         return this.clickOnElement(selector).then(() => {
-            return this.waitForElementDisplayed(this.emailInput, appConst.TIMEOUT_2);
+            return this.waitForElementDisplayed(this.emailInput, appConst.shortTimeout);
         }).then(() => {
             return this.typeTextInInput(this.emailInput, email);
         }).catch(err => {
@@ -89,24 +89,19 @@ class InsertLinkDialog extends Page {
         return await this.pause(300);
     }
 
-    clickOnInsertButton() {
-        return this.clickOnElement(this.insertButton).catch((err) => {
-            this.saveScreenshot('err_click_on_insert_link_icon');
-            throw new Error('Insert Link Dialog, error when click on the Insert button  ' + err);
-        })
+    async clickOnInsertButton() {
+        await this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout);
+        await this.clickOnElement(this.insertButton);
+        return await this.pause(500);
     }
 
-    clickOnInsertButtonAndWaitForClosed() {
-        return this.clickOnElement(this.insertButton).catch((err) => {
-            this.saveScreenshot('err_click_on_insert_link_icon');
-            throw new Error('Insert Link Dialog, error when click on the Insert button  ' + err);
-        }).then(() => {
-            return this.waitForDialogClosed();
-        })
+    async clickOnInsertButtonAndWaitForClosed() {
+        await this.clickOnInsertButton();
+        return await this.waitForDialogClosed();
     }
 
     waitForValidationMessage() {
-        return this.waitForElementDisplayed(XPATH.container + lib.VALIDATION_RECORDING_VIEWER, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(XPATH.container + lib.VALIDATION_RECORDING_VIEWER, appConst.shortTimeout).catch(err => {
             return false;
         });
     }
@@ -116,14 +111,14 @@ class InsertLinkDialog extends Page {
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.cancelButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_open_insert_link_dialog');
             throw new Error('Insert Link Dialog should be opened!' + err);
         });
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
     }
 
     clickOnBarItem(name) {

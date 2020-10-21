@@ -25,11 +25,11 @@ class XDataImageSelector extends Page {
 
     async waitForImageSelected() {
         let selector = XPATH.container + "//div[contains (@id,'ImageSelectorSelectedOptionView')]";
-        return await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return await this.waitForElementDisplayed(selector, appConst.shortTimeout);
     }
 
     waitForImageOptionsFilterInputVisible() {
-        return this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.shortTimeout).catch(err => {
             throw new Error("x-data with Image Selector - image options filter input is not visible! " + err);
         });
     }
