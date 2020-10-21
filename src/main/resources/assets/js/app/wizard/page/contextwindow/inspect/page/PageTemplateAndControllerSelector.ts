@@ -190,7 +190,7 @@ export class PageTemplateAndControllerSelector
         this.removeAllOptions();
         this.initOptionsList(templateOptions, controllerOptions);
         if (preselectedValue) {
-            const isAlreadySelected: boolean = !!this.getSelectedOption() && this.getSelectedOption().value === preselectedValue;
+            const isAlreadySelected: boolean = !!this.getSelectedOption() && this.getSelectedOption().getValue() === preselectedValue;
             if (!isAlreadySelected) {
                 this.setValue(preselectedValue, true);
             }
