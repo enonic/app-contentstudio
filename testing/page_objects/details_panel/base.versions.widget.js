@@ -6,9 +6,8 @@ const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
 
 const xpath = {
-    versionsList: `//ul[contains(@id,'VersionList')]`,
-    versionItem: `//li[contains(@class,'content-version-item')]`,
-    versionItemExpanded: `//li[contains(@class,'content-version-item expanded')]`,
+    versionsList: "//ul[contains(@id,'VersionHistoryList')]",
+    versionItemExpanded: "//li[contains(@class,'version-list-item expanded')]",
 };
 
 class BaseVersionsWidget extends Page {
@@ -34,7 +33,7 @@ class BaseVersionsWidget extends Page {
     waitForVersionsLoaded() {
         return this.waitForElementDisplayed(this.versionsWidget, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot("err_load_versions_widget");
-            throw new Error('Version Widget was not loaded in ' + appConst.mediumTimeout);
+            throw new Error('Version Widget was not loaded in ' + appConst.mediumTimeout + " " + err);
         });
     }
 
@@ -56,19 +55,11 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    async waitForVersionItemPublished(index) {
-        try {
-            await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
-            let elements = await this.findElements(this.versionItems);
-            await this.getBrowser().waitUntil(async () => {
-                let result = await elements[index].getAttribute("class");
-                return result.includes('online');
-            }, appConst.mediumTimeout);
-        } catch (err) {
-            this.saveScreenshot("err_wait_for_published_status");
-            throw new Error("Version Panel - error when waiting for published status: " + err);
-        }
+    async waitForPublishedWidgetItemVisible() {
+
+        return await this.waitForElementDisplayed(this.publishActionItems, appConst.mediumTimeout);
     }
+
 
     async isEditButtonDisplayed(index) {
         try {
@@ -82,24 +73,10 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    async clickOnEditButton() {
-        await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
-        let elements = await this.findElements(this.versionItems);
-        let result = await elements[0].$$(".//button/span[text()='Edit']");
-        if (!result.length) {
-            this.saveScreenshot("err_versions_widget_edit_button_not_found");
-            throw new Error("Versions Widget - Edit button was not found!");
-        }
-        return await result[0].click();
-    }
-
-    async getContentStatus(index) {
-        let elements = await this.findElements(this.versionItems);
-        let statusElements = await elements[index].$$("./div[contains(@class,'status')]");
-        if (statusElements.length === 0) {
-            return ""
-        }
-        return await statusElements[0].getText();
+    getContentStatus() {
+        let locator = this.versionsWidget + "/div[contains(@class,'status')]";
+        //let statusElements = await elements[index].$$("./div[contains(@class,'status')]");
+        return this.getText(locator);
     }
 
     async clickOnCompareWithCurrentVersionButton(index) {
@@ -113,7 +90,7 @@ class BaseVersionsWidget extends Page {
             throw new Error("Version Widget - error when clicking on CompareWithCurrentVersionButton " + err);
         }
     }
-};
+}
 module.exports = BaseVersionsWidget;
 
 
