@@ -12,12 +12,16 @@ exports.get = function (req) {
     }
 
     var styles = getStyles(contentId, project);
+    var cssUrls = [];
     for (var i = 0; i < styles.css.length; i++) {
-        styles.css[i] = portalLib.assetUrl({
-            path: styles.css[i],
-            application: styles.app[i]
-        });
+        if (styles.css[i]) {
+            cssUrls.push(portalLib.assetUrl({
+                path: styles.css[i],
+                application: styles.app[i]
+            }));
+        }
     }
+    styles.css = cssUrls;
     delete styles.app;
 
     return {
