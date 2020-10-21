@@ -69,7 +69,7 @@ export class SettingsBrowsePanel
     }
 
     hasItemsLoaded(): boolean {
-        return this.treeGrid.getFullTotal() > 1;
+        return this.treeGrid.getRoot().getDefaultRoot().treeToList().length > 1;
     }
 
     getSelectedItem(): SettingsViewItem {
