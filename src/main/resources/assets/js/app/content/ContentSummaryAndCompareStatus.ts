@@ -7,6 +7,7 @@ import {PublishStatus, PublishStatusFormatter} from '../publish/PublishStatus';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ContentInheritType} from 'lib-admin-ui/content/ContentInheritType';
 
 export class ContentSummaryAndCompareStatus
     implements Equitable {
@@ -124,12 +125,24 @@ export class ContentSummaryAndCompareStatus
         return !!this.contentSummary ? this.contentSummary.isInherited() : false;
     }
 
+    getInherit(): ContentInheritType[] {
+        return !!this.contentSummary ? this.contentSummary.getInherit() : [];
+    }
+
     isDataInherited(): boolean {
         return !!this.contentSummary ? this.contentSummary.isDataInherited() : false;
     }
 
     isSortInherited(): boolean {
         return !!this.contentSummary ? this.contentSummary.isSortInherited() : false;
+    }
+
+    isParentInherited(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isParentInherited() : false;
+    }
+
+    isNameInherited(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isNameInherited() : false;
     }
 
     isValid(): boolean {
