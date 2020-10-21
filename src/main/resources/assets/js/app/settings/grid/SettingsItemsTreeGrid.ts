@@ -139,10 +139,11 @@ export class SettingsItemsTreeGrid
             return;
         }
 
-        const treeNodeToUpdate: TreeNode<SettingsViewItem> = this.getRoot().getCurrentRoot().findNode(item.getId());
-        treeNodeToUpdate.setData(item);
-        treeNodeToUpdate.clearViewers();
-        this.invalidateNodes([treeNodeToUpdate]);
+        this.getRoot().getNodesByDataId(item.getId()).forEach((node: TreeNode<SettingsViewItem>) => {
+            node.setData(item);
+            node.clearViewers();
+            this.invalidateNodes([node]);
+        });
     }
 
     deleteSettingsItemNode(id: string) {
