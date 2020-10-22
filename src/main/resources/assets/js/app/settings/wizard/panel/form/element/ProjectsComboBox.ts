@@ -56,7 +56,20 @@ export class ProjectsComboBox extends RichComboBox<Project> {
             return;
         }
 
-        this.selectOption(this.createOption(project));
+        const newOption: Option<Project> = this.createOption(project);
+        const existingOption: Option<Project> = this.getOptionByValue(project.getName());
+
+        if (existingOption) {
+            this.updateOption(existingOption, newOption);
+        }
+
+        this.getSelectedOptions().forEach((selectedOption: SelectedOption<Project>) => {
+           if (selectedOption.getOption().value === project.getName()) {
+               selectedOption.getOptionView().setOption(newOption);
+           }
+        });
+
+        this.selectOption(newOption);
     }
 
     showProjectsChain(parentName?: string) {

@@ -138,6 +138,10 @@ export class ProjectItemNameWizardStepForm
     }
 
     private appendParentProjectDropdown() {
+        if (!!this.parentProjectDropdown) {
+            return;
+        }
+
         this.parentProjectDropdown = new ProjectsComboBox();
 
         this.parentProjectFormItem = <ProjectFormItem>new ProjectFormItemBuilder(this.parentProjectDropdown)

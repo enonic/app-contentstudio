@@ -364,6 +364,10 @@ export class ProjectWizardPanel
         });
     }
 
+    getParentProject(): string {
+        return !!this.projectWizardStepForm ? this.projectWizardStepForm.getParentProject() : null;
+    }
+
     setParentProject(project?: Project) {
         this.whenRendered(() => {
             this.projectWizardStepForm.setParentProject(project);
