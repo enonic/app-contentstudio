@@ -37,7 +37,7 @@ export class ContentWizardHeader
         nameErrorBlock.setHtml(i18n('path.not.available'));
         this.appendChild(nameErrorBlock);
 
-        const lockElem: SpanEl = new SpanEl('lock-name icon-lock');
+        const lockElem: SpanEl = new SpanEl('lock-name icon-pencil');
         lockElem.setTitle(i18n('path.lock'));
         this.appendChild(lockElem);
 
