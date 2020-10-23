@@ -121,8 +121,8 @@ export class ContentSummaryAndCompareStatus
         return !!this.contentSummary ? this.contentSummary.hasChildren() : false;
     }
 
-    isInherited(): boolean {
-        return !!this.contentSummary ? this.contentSummary.isInherited() : false;
+    isFullyInherited(): boolean {
+        return (this.getInherit().length * 2) === Object.keys(ContentInheritType).length;
     }
 
     getInherit(): ContentInheritType[] {

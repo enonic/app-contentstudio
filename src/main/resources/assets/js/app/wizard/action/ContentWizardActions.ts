@@ -509,7 +509,7 @@ export class ContentWizardActions
             .sendAndParse()
             .then((result: ContentsExistResult) => {
                 if (!!result.getContentsExistMap()[id]) {
-                    return (this.content.getInherit().length * 2) < Object.keys(ContentInheritType).length;
+                    return !this.content.isFullyInherited();
                 }
 
                 return false;
