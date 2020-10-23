@@ -368,7 +368,7 @@ export class ContentWizardPanel
             .setDisplayNameGenerator(this.displayNameResolver)
             .setDisplayNameLabel(this.contentType ? this.contentType.getDisplayNameLabel() : null));
 
-        header.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem().getPath() : null);
+        header.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
         header.setPath(this.getWizardHeaderPath());
 
         const existing: Content = this.getPersistedItem();
@@ -2168,7 +2168,7 @@ export class ContentWizardPanel
             }
         }
 
-        const name = this.getWizardHeader().getName();
+        const name: string = this.getWizardHeader().getName();
         assert(name != null, 'name cannot be null');
         if (name.indexOf(ContentUnnamed.UNNAMED_PREFIX) === 0) {
             return new ContentUnnamed(name);
@@ -2588,7 +2588,7 @@ export class ContentWizardPanel
         super.setPersistedItem(newPersistedItem);
 
         if (this.getWizardHeader()) {
-            this.getWizardHeader().setPersistedPath(newPersistedItem.getPath());
+            this.getWizardHeader().setPersistedPath(newPersistedItem);
             this.getWizardHeader().setOnline(this.persistedContent.isOnline());
         }
     }
