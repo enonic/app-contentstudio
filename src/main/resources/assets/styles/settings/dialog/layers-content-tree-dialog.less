@@ -6,11 +6,8 @@
     padding-bottom: 15px;
 
     .layers-content-tree-list {
-      .layers-content-tree-list-item-view {
-        padding: 10px;
-        margin: 10px 0;
-        border: 1px solid @admin-medium-gray-border;
-        box-shadow: 2px 1px 2px 1px rgba(0, 0, 0, 0.1);
+      .layers-item-view-data {
+        margin-bottom: 10px;
 
         &.level-1 {
           .level(1);
@@ -31,68 +28,12 @@
         &.level-5 {
           .level(5);
         }
-
-        .content-summary-and-compare-status-viewer {
-          .viewer-selectable();
-
-          display: flex;
-          align-items: center;
-
-          .names-and-icon-view {
-            flex-grow: 1;
-            cursor: default;
-          }
-
-          .content-status-mixin();
-        }
-
-        &:hover {
-          background-color: @admin-almost-white;
-        }
-
-        .action-wrapper {
-          cursor: pointer;
-          display: none;
-          margin-top: 5px;
-
-          .action-button {
-            flex-basis: 20%;
-            text-align: center;
-            padding: 5px;
-          }
-        }
-
-        &.current {
-          border: 2px solid @admin-blue;
-
-          .action-button {
-            background-color: @admin-button-blue2;
-
-            &:hover {
-              background-color: @admin-button-blue1;
-            }
-          }
-        }
-
-        &.inherited .viewer .names-and-icon-view {
-          opacity: 0.5;
-        }
-
-        .@{_COMMON_PREFIX}wrapper {
-          cursor: default;
-        }
-
-        &.expanded {
-          .action-wrapper {
-            display: flex;
-            justify-content: center;
-          }
-        }
       }
     }
 
     .level(@level: 0) {
-      .viewer {
+      .layers-item-view-data-body,
+      .layers-item-view-data-header {
         margin-left: 15px * @level;
       }
     }

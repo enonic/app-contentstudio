@@ -3,8 +3,16 @@ import {LayerContent} from './LayerContent';
 import {LayerContentViewHeader} from './LayerContentViewHeader';
 import {LayerContentViewBody} from './LayerContentViewBody';
 import {LayerContentViewFooter} from './LayerContentViewFooter';
+import {ProjectContext} from '../../../../project/ProjectContext';
+import {LayerContentView} from './LayerContentView';
 
 export class LayerContentViewDataBlock extends DivEl {
+
+    private static CURRENT_CLASS: string = 'layer-current';
+
+    private static INHERITED_CLASS: string = 'item-inherited';
+
+    private static READONLY_CLASS: string = 'readonly';
 
     private readonly layerContent: LayerContent;
 
@@ -33,6 +41,18 @@ export class LayerContentViewDataBlock extends DivEl {
             this.appendChildren(this.header);
             this.appendChildren(this.body);
             this.appendChildren(this.footer);
+
+            if (ProjectContext.get().getProject().getName() === this.layerContent.getProject().getName()) {
+                this.addClass(LayerContentViewDataBlock.CURRENT_CLASS);
+            }
+
+            if (this.layerContent.getItem().isDataInherited()) {
+                this.addClass(LayerContentViewDataBlock.INHERITED_CLASS);
+            }
+
+            if (this.layerContent.getItem().isReadOnly()) {
+                this.addClass(LayerContentViewDataBlock.READONLY_CLASS);
+            }
 
             return rendered;
         });
