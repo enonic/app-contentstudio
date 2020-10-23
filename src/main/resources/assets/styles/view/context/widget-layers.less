@@ -26,47 +26,11 @@
         position: relative;
 
         .layers-item-view-data {
-          border: 1px solid @admin-medium-gray-border;
-          box-shadow: 2px 1px 2px 1px rgba(0, 0, 0, 0.1);
-          padding: 7px 10px 7px 10px;
-          cursor: pointer;
-          position: relative;
-
-          *:not(:disabled) {
-            cursor: pointer;
-          }
-
           &-header {
-            display: flex;
-
             .layer-details {
-              display: flex;
-              flex-grow: 1;
-
               .layer-name {
                 max-width: 100px;
-                word-break: break-word;
               }
-
-              .layer-language {
-                padding-left: 5px;
-                color: @admin-font-gray1;
-              }
-            }
-
-            .content-status-mixin();
-          }
-
-          &-body {
-            padding: 15px 0px;
-          }
-
-          &-footer {
-            display: none;
-
-            .action-button {
-              padding: 5px 60px;
-              max-width: 200px;
             }
           }
         }

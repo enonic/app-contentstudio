@@ -1,14 +1,15 @@
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {LayerContent} from '../../view/context/widget/layers/LayerContent';
-import {LayersContentTreeListItemView} from './LayersContentTreeListItemView';
 import {LayersContentTreeListHelper} from './LayersContentTreeListHelper';
+import {LayerContentViewDataBlock} from '../../view/context/widget/layers/LayerContentViewDataBlock';
+import {LayerContentView} from '../../view/context/widget/layers/LayerContentView';
 
 export class LayersContentTreeList
     extends ListBox<LayerContent> {
 
     private helper: LayersContentTreeListHelper;
 
-    private activeItemView: LayersContentTreeListItemView;
+    private activeItemView: LayerContentViewDataBlock;
 
     constructor() {
         super('layers-content-tree-list');
@@ -27,8 +28,9 @@ export class LayersContentTreeList
         super.setItems(this.helper.sort(), silent);
     }
 
-    protected createItemView(item: LayerContent, readOnly: boolean): LayersContentTreeListItemView {
-        const itemView: LayersContentTreeListItemView = new LayersContentTreeListItemView(item, this.helper.calcLevel(item));
+    protected createItemView(item: LayerContent, readOnly: boolean): LayerContentViewDataBlock {
+        const itemView: LayerContentViewDataBlock = new LayerContentViewDataBlock(item, `${LayerContentView.VIEW_CLASS}-data`);
+        itemView.addClass(`level-${this.helper.calcLevel(item)}`);
 
         itemView.onClicked(() => {
             if (this.activeItemView) {

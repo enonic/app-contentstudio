@@ -10,10 +10,6 @@ export class LayerContentView extends LiEl {
 
     static VIEW_CLASS: string = 'layers-item-view';
 
-    private static CURRENT_CLASS: string = 'layer-current';
-
-    private static INHERITED_CLASS: string = 'item-inherited';
-
     private readonly item: LayerContent;
 
     private dataBlock: LayerContentViewDataBlock;
@@ -37,18 +33,6 @@ export class LayerContentView extends LiEl {
         return super.doRender().then((rendered) => {
             this.appendChild(this.relationBlock);
             this.appendChild(this.dataBlock);
-
-            if (ProjectContext.get().getProject().getName() === this.item.getProject().getName()) {
-                this.addClass(LayerContentView.CURRENT_CLASS);
-            }
-
-            if (this.item.getItem().isDataInherited()) {
-                this.addClass(LayerContentView.INHERITED_CLASS);
-            }
-
-            if (this.item.getItem().isReadOnly()) {
-                this.addClass('readonly');
-            }
 
             return rendered;
         });
