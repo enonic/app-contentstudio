@@ -208,14 +208,12 @@ export class SettingsAppPanel
     }
 
     private updateProjectWizard(projectWizardPanel: ProjectWizardPanel, projectItem: ProjectViewItem) {
-        if (projectWizardPanel.isItemPersisted()) {
-            if (projectWizardPanel.hasPersistedItemWithId(projectItem.getId())) {
-                this.updateTabLabel(AppBarTabId.forEdit(projectItem.getName()), projectItem.getDisplayName());
-                projectWizardPanel.updatePersistedSettingsDataItem(projectItem);
-            } else if (projectWizardPanel.getPersistedItem().getData().getParent() === projectItem.getName()) {
-                projectWizardPanel.setParentProject(projectItem.getData());
-            }
-        } else if (projectWizardPanel.getParentProject() === projectItem.getName()) {
+        if (projectWizardPanel.hasPersistedItemWithId(projectItem.getId())) {
+            this.updateTabLabel(AppBarTabId.forEdit(projectItem.getName()), projectItem.getDisplayName());
+            projectWizardPanel.updatePersistedSettingsDataItem(projectItem);
+        }
+
+        if (projectWizardPanel.getParentProject() === projectItem.getName()) {
             projectWizardPanel.setParentProject(projectItem.getData());
         }
     }
