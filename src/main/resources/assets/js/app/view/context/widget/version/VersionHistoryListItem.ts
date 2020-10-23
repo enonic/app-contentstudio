@@ -36,6 +36,9 @@ export class VersionHistoryListItem
 
         if (this.version.isRevertable()) {
             this.addOnClickHandler(versionViewer);
+            ActiveContentVersionSetEvent.on((event: ActiveContentVersionSetEvent) => {
+                this.version.setActiveVersionId(event.getVersionId());
+            });
         }
 
         versionViewer.setObject(this.version);
@@ -144,7 +147,7 @@ export class VersionHistoryListItem
         new RevertVersionRequest(versionId, this.content.getContentId().toString())
             .sendAndParse()
             .then((newVersionId: string) => {
-                if (newVersionId === versionId) {
+                if (newVersionId === this.version.getActiveVersionId()) {
                     NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
                     return;
                 }
