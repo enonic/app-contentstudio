@@ -343,19 +343,24 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private showConfirmationDialog(newValue: string, resetValue: string) {
-        const confirmationDialog = new ConfirmationDialog()
+        let confirmed: boolean = false;
+
+        const confirmationDialog: ConfirmationDialog = new ConfirmationDialog()
             .setQuestion(i18n('dialog.projectAccess.confirm'))
             .setYesCallback(() => {
-                confirmationDialog.close();
+                confirmed = true;
                 this.handleAccessValueChanged(newValue);
-                this.copyParentAccessClicked = false;
-            })
-            .setNoCallback(() => {
-                confirmationDialog.close();
-                this.readAccessRadioGroup.setValue(resetValue, true);
                 this.copyParentAccessClicked = false;
             });
 
+        confirmationDialog.onClosed(() => {
+            setTimeout(() => {
+                if (!confirmed) {
+                    this.readAccessRadioGroup.setValue(resetValue, true);
+                    this.copyParentAccessClicked = false;
+                }
+            }, 200);
+        });
         confirmationDialog.open();
     }
 
