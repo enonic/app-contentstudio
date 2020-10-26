@@ -20,16 +20,15 @@ export class VersionHistoryItem {
 
     private message: string;
 
-    private active: boolean;
-
     private revertable: boolean;
 
     private skipDate: boolean = false;
 
+    private activeVersionId: string;
+
     static fromPublishInfo(publishInfo: ContentVersionPublishInfo): VersionHistoryItem {
         const item: VersionHistoryItem = new VersionHistoryItem();
 
-        item.active = false;
         item.revertable = false;
         item.dateTime = publishInfo.getTimestamp();
         item.user = publishInfo.getPublisherDisplayName();
@@ -55,7 +54,6 @@ export class VersionHistoryItem {
         const item: VersionHistoryItem = new VersionHistoryItem();
 
         item.id = contentVersion.getId();
-        item.active = contentVersion.isActive();
         item.revertable = !contentVersion.isActive();
         item.dateTime = contentVersion.getModified();
         item.user = contentVersion.getModifierDisplayName();
@@ -72,6 +70,15 @@ export class VersionHistoryItem {
         }
 
         return item;
+    }
+
+    getActiveVersionId(): string {
+        return this.activeVersionId;
+    }
+
+    setActiveVersionId(value: string): VersionHistoryItem {
+        this.activeVersionId = value;
+        return this;
     }
 
     setSkipDate(value: boolean): VersionHistoryItem {
@@ -120,7 +127,7 @@ export class VersionHistoryItem {
     }
 
     isActive(): boolean {
-        return this.active;
+        return this.activeVersionId === this.id;
     }
 
     skipsDate(): boolean {

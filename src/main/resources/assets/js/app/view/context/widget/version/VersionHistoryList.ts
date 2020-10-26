@@ -22,6 +22,7 @@ export class VersionHistoryList
     private content: ContentSummaryAndCompareStatus;
     private loadedListeners: { (): void }[] = [];
     private versionDates: VersionDate = {};
+    private activeVersionId: string;
 
     constructor() {
         super('version-list');
@@ -68,7 +69,9 @@ export class VersionHistoryList
 
                 if (!version.isUnpublished()) {
                     versionHistoryItems.push(
-                        VersionHistoryItem.fromContentVersion(version, isFirstVersion).setSkipDate(modifiedDate === lastDate)
+                        VersionHistoryItem.fromContentVersion(version, isFirstVersion)
+                            .setSkipDate(modifiedDate === lastDate)
+                            .setActiveVersionId(this.activeVersionId)
                     );
                 }
 
@@ -111,6 +114,9 @@ export class VersionHistoryList
         return new GetContentVersionsRequest(this.getContentId()).sendAndParse().then((contentVersions: ContentVersions) => {
             contentVersions.getContentVersions().forEach((version: ContentVersion) => {
                 this.versionDates[Number(version.getModified())] = version.getId();
+                if (version.isActive()) {
+                    this.activeVersionId = version.getId();
+                }
             });
             return contentVersions.getContentVersions();
         });
