@@ -57,7 +57,7 @@ export class ContentWizardHeader
 
                     const contentName: ContentName = StringHelper.isBlank(newName) ? ContentUnnamed.newUnnamed() : new ContentName(newName);
                     UpdateContentRequest.create(this.persistedContent).setContentName(contentName).sendAndParse().then(() => {
-                        showFeedback(i18n('notify.name.saved'));
+                        showFeedback(i18n('notify.wizard.contentRenamed'));
                     }).catch(DefaultErrorHandler.handle);
                 });
             }
