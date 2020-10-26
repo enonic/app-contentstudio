@@ -10,6 +10,7 @@ import {Content} from '../content/Content';
 import {Site} from '../content/Site';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
+import {Page} from '../page/Page';
 
 export class UpdatePersistedContentRoutine
     extends Flow {
@@ -29,15 +30,13 @@ export class UpdatePersistedContentRoutine
     }
 
     public execute(): Q.Promise<RoutineContext> {
-
-        let context = new RoutineContext();
+        let context: RoutineContext = new RoutineContext();
         context.content = this.persistedContent;
         return this.doExecute(context);
     }
 
     doExecuteNext(context: RoutineContext): Q.Promise<RoutineContext> {
-
-        let promise;
+        let promise: Q.Promise<void>;
         const isContentChanged = this.hasContentChanged();
 
         if (isContentChanged || this.hasNamesChanged()) {
@@ -56,8 +55,7 @@ export class UpdatePersistedContentRoutine
     }
 
     private doHandleUpdateContent(context: RoutineContext, markUpdated: boolean = true): Q.Promise<void> {
-
-        return this.produceUpdateContentRequest(context.content, this.viewedContent).sendAndParse().then(
+        return this.produceUpdateContentRequest(this.viewedContent).sendAndParse().then(
             (content: Content): void => {
 
                 // NB: reloading the page because it may use any changed data
@@ -67,12 +65,10 @@ export class UpdatePersistedContentRoutine
                     context.dataUpdated = true;
                 }
                 context.content = content;
-
             });
     }
 
     private doHandlePage(context: RoutineContext): Q.Promise<void> {
-
         const pageCUDRequest: PageCUDRequest = this.producePageCUDRequest(context.content, this.viewedContent);
 
         if (pageCUDRequest != null) {
@@ -116,14 +112,13 @@ export class UpdatePersistedContentRoutine
     }
 
     private hasPageChanged(): boolean {
-        const persistedPage = this.persistedContent.getPage();
-        const viewedPage = this.viewedContent.getPage();
+        const persistedPage: Page = this.persistedContent.getPage();
+        const viewedPage: Page = this.viewedContent.getPage();
 
         return persistedPage ? !persistedPage.equals(viewedPage) : !!viewedPage;
     }
 
     private producePageCUDRequest(persistedContent: Content, viewedContent: Content): PageCUDRequest {
-
         if (persistedContent.isPage() && !viewedContent.isPage()) {
             return new DeletePageRequest(persistedContent.getContentId());
         } else if (!persistedContent.isPage() && viewedContent.isPage()) {
@@ -147,23 +142,10 @@ export class UpdatePersistedContentRoutine
         }
     }
 
-    private produceUpdateContentRequest(persistedContent: Content, viewedContent: Content): UpdateContentRequest {
+    private produceUpdateContentRequest(viewedContent: Content): UpdateContentRequest {
         const workflow: Workflow = viewedContent.getWorkflow().newBuilder().setState(this.workflowState).build();
 
-        return new UpdateContentRequest(persistedContent.getId())
-            .setRequireValid(this.requireValid)
-            .setContentName(viewedContent.getName())
-            .setDisplayName(viewedContent.getDisplayName())
-            .setData(viewedContent.getContentData())
-            .setExtraData(viewedContent.getAllExtraData())
-            .setOwner(viewedContent.getOwner())
-            .setLanguage(viewedContent.getLanguage())
-            .setPublishFrom(viewedContent.getPublishFromTime())
-            .setPublishTo(viewedContent.getPublishToTime())
-            .setPermissions(viewedContent.getPermissions())
-            .setInheritPermissions(viewedContent.isInheritPermissionsEnabled())
-            .setOverwritePermissions(viewedContent.isOverwritePermissionsEnabled())
-            .setWorkflow(workflow);
+        return UpdateContentRequest.create(viewedContent).setRequireValid(this.requireValid).setWorkflow(workflow);
     }
 
     setRequireValid(requireValid: boolean): UpdatePersistedContentRoutine {

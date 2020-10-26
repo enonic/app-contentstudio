@@ -10,13 +10,19 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {RenameContentDialog} from './RenameContentDialog';
+import {Content} from '../content/Content';
+import {UpdateContentRequest} from '../resource/UpdateContentRequest';
+import {ContentName} from 'lib-admin-ui/content/ContentName';
+import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {
 
     private isNameUnique: boolean = true;
 
-    private persistedPath: ContentPath;
+    private persistedContent: Content;
 
     private renameDialog: RenameContentDialog;
 
@@ -48,10 +54,15 @@ export class ContentWizardHeader
 
                 this.renameDialog.onRenamed((newName: string) => {
                     this.setName(newName);
+
+                    const contentName: ContentName = StringHelper.isBlank(newName) ? ContentUnnamed.newUnnamed() : new ContentName(newName);
+                    UpdateContentRequest.create(this.persistedContent).setContentName(contentName).sendAndParse().then(() => {
+                        showFeedback(i18n('notify.wizard.contentRenamed'));
+                    }).catch(DefaultErrorHandler.handle);
                 });
             }
 
-            this.renameDialog.setInitialPath(this.persistedPath).setCurrentPath(this.getNewPath()).open();
+            this.renameDialog.setInitialPath(this.persistedContent.getPath()).setCurrentPath(this.getNewPath()).open();
         });
     }
 
@@ -90,15 +101,15 @@ export class ContentWizardHeader
     private isNameChanged(): boolean {
         const name: string = this.getName();
 
-        return name !== '' && name !== this.persistedPath.getName();
+        return name !== '' && name !== this.persistedContent.getPath().getName();
     }
 
     private getNewPath(): ContentPath {
-        return ContentPath.fromParent(this.persistedPath.getParentPath(), this.getName());
+        return ContentPath.fromParent(this.persistedContent.getPath().getParentPath(), this.getName());
     }
 
-    setPersistedPath(value: ContentPath) {
-        this.persistedPath = value;
+    setPersistedPath(value: Content) {
+        this.persistedContent = value;
         this.updateIsNameUnique(true);
     }
 
