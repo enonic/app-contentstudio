@@ -113,6 +113,8 @@ export class CompareContentVersionsDialog
 
         ActiveContentVersionSetEvent.on((event: ActiveContentVersionSetEvent) => {
             this.activeVersionId = event.getVersionId();
+            this.rightVersionId = null;
+            this.reloadVersions();
         });
     }
 
@@ -341,10 +343,8 @@ export class CompareContentVersionsDialog
                 const leftAliases = this.createAliases(options, newestVersionOption.displayValue.getModified().getTime());
                 const rightAliases = this.createAliases(options);
 
-                this.leftDropdown.setOptions(leftAliases.concat(options));
-                this.leftDropdown.sort(this.optionSorter.bind(this));
-                this.rightDropdown.setOptions(rightAliases.concat(options));
-                this.rightDropdown.sort(this.optionSorter.bind(this));
+                this.leftDropdown.setOptions(leftAliases.concat(options).sort(this.optionSorter.bind(this)));
+                this.rightDropdown.setOptions(rightAliases.concat(options).sort(this.optionSorter.bind(this)));
 
                 this.forceSelectVersion(this.leftDropdown, this.leftVersionId, true);
 
@@ -530,8 +530,11 @@ export class CompareContentVersionsDialog
     }
 
     private forceSelectVersion(dropdown: Dropdown<ContentVersion>, versionId: string, silent?: boolean) {
-        dropdown.resetActiveSelection();
-        dropdown.setValue(versionId, silent);
+        const newOption = dropdown.getOptionByValue(versionId);
+        const selectedValue = dropdown.getValue();
+        if (!!newOption && versionId !== selectedValue) {
+            dropdown.selectOption(newOption, silent);
+        }
     }
 
     private disableLeftVersions() {
