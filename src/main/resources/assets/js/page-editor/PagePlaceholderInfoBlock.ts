@@ -24,12 +24,12 @@ export class PagePlaceholderInfoBlock
 
     toggleHeader(hasControllers: boolean) {
         this.line1.setHtml(hasControllers ? i18n('live.view.page.selectcontroller')
-            : i18n('live.view.page.nocontrollers'));
+            : i18n('text.nocontrollers'));
     }
 
     setEmptyText() {
         this.toggleHeader(false);
-        this.line2.setHtml(i18n('live.view.page.addapplications'));
+        this.line2.setHtml(i18n('text.addapplications'));
     }
 
 }
