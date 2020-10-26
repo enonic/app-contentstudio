@@ -29,6 +29,7 @@ import {ContentVersionViewer} from '../view/context/widget/version/ContentVersio
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -67,7 +68,9 @@ export class CompareContentVersionsDialog
 
     private versionIdCounters: { [id: string]: number };
 
-    private revertVersionCallback: (versionId: string, versionDate: Date) => void;
+    private revertVersionCallback: (versionId: string, versionDate: Date, activeVersionId?: string) => void;
+
+    private activeVersionId: string;
 
     protected constructor() {
         super(<ModalDialogConfig>{
@@ -106,6 +109,10 @@ export class CompareContentVersionsDialog
         this.onHidden(() => {
             serverEventsHandler.unContentDeleted(deletedHandler);
             serverEventsHandler.unContentUpdated(updatedHandler);
+        });
+
+        ActiveContentVersionSetEvent.on((event: ActiveContentVersionSetEvent) => {
+            this.activeVersionId = event.getVersionId();
         });
     }
 
@@ -154,7 +161,7 @@ export class CompareContentVersionsDialog
     createVersionRevertButton(dropdown: Dropdown<ContentVersion>): Button {
         const revertAction: Action = new Action(i18n('field.version.revert')).onExecuted(() => {
             const version: ContentVersion = dropdown.getSelectedOption().displayValue;
-            this.revertVersionCallback(version.getId(), version.getModified());
+            this.revertVersionCallback(version.getId(), version.getModified(), this.activeVersionId);
         });
         revertAction.setTitle(i18n('field.version.makeCurrent'));
 
@@ -315,6 +322,9 @@ export class CompareContentVersionsDialog
                 });
                 for (let i = 0; i < versions.length; i++) {
                     const version = versions[i];
+                    if (version.isActive()) {
+                        this.activeVersionId = version.getId();
+                    }
                     const option = this.createOption(version);
                     options.push(option);
                 }

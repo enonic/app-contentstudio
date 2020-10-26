@@ -143,11 +143,12 @@ export class VersionHistoryListItem
             .open();
     }
 
-    private revert(versionId: string, versionDate: Date) {
+    private revert(versionId: string, versionDate: Date, activeVersionId?: string) {
+        const currentActiveVersionId = activeVersionId ? activeVersionId : this.version.getActiveVersionId();
         new RevertVersionRequest(versionId, this.content.getContentId().toString())
             .sendAndParse()
             .then((newVersionId: string) => {
-                if (newVersionId === this.version.getActiveVersionId()) {
+                if (newVersionId === currentActiveVersionId) {
                     NotifyManager.get().showFeedback(i18n('notify.revert.noChanges'));
                     return;
                 }
@@ -155,7 +156,7 @@ export class VersionHistoryListItem
                 const dateTime = `${DateHelper.formatDateTime(versionDate)}`;
                 NotifyManager.get().showSuccess(i18n('notify.version.changed', dateTime));
 
-                new ActiveContentVersionSetEvent(this.content.getContentId(), versionId).fire();
+                new ActiveContentVersionSetEvent(this.content.getContentId(), newVersionId).fire();
             })
             .catch(DefaultErrorHandler.handle);
     }
