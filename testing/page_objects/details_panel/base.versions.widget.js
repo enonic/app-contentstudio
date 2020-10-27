@@ -56,7 +56,6 @@ class BaseVersionsWidget extends Page {
     }
 
     async waitForPublishedWidgetItemVisible() {
-
         return await this.waitForElementDisplayed(this.publishActionItems, appConst.mediumTimeout);
     }
 
@@ -91,6 +90,7 @@ class BaseVersionsWidget extends Page {
         }
     }
 }
+
 module.exports = BaseVersionsWidget;
 
 

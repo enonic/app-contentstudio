@@ -23,5 +23,11 @@ class OptionSetFormView extends Page {
     clickOnOption1Radio() {
         return this.clickOnElement(this.option1Radio);
     }
+
+    async expandFormByLabel(formName) {
+        let locator = `//div[contains(@id,'FormOccurrenceDraggableLabel') and text()=${formName}]`;
+        let elements = await this.findElements(locator).click();
+        await elems[0].click();
+    }
 };
 module.exports = OptionSetFormView;

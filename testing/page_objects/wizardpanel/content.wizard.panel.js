@@ -19,6 +19,7 @@ const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.d
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
+    wizardHeader: "//div[contains(@id,'ContentWizardHeader')]",
     pageEditorTogglerButton: "//button[contains(@id, 'CycleButton') ]",
     displayNameInput: `//input[contains(@name,'displayName')]`,
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
@@ -926,6 +927,11 @@ class ContentWizardPanel extends Page {
             this.saveScreenshot('err_wizard_preview');
             throw new Error('Error when clicking on Preview button ' + err);
         }
+    }
+
+    waitForValidationPathMessageDisplayed() {
+        let locator = XPATH.wizardHeader + "//span[@class='path-error']";
+        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 }
 

@@ -51,5 +51,5 @@ class SingleSelectionOptionSet extends Page {
         await this.getBrowser().elementClick(elems[index].elementId);
         return await this.pause(500);
     }
-};
+}
 module.exports = SingleSelectionOptionSet;

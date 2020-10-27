@@ -14,15 +14,14 @@ describe('save.folder.failed.attempt.spec: Save a folder with a name that is alr
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
 
-    it(`Preconditions: new folder should be added`,
+    it("Preconditions: new folder should be added",
         async () => {
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddFolder(TEST_FOLDER);
         });
 
-    //Verifies https://github.com/enonic/app-contentstudio/issues/1022 Save button should remain enabled after failed attempt to save a content
-    it(`GIVEN new wizard is opened WHEN type the existing name AND click on Save button THEN Save button should remain enabled after failed attempt to save the content`,
+    it("GIVEN new wizard is opened WHEN type the existing name AND click on Save button THEN Save button should be disabled after failed attempt to save the content",
         async () => {
             let wizard = new ContentWizard();
             //1. Open new folder-wizard:
@@ -34,8 +33,10 @@ describe('save.folder.failed.attempt.spec: Save a folder with a name that is alr
             let expectedMessage = appConstant.saveFailedAttempt(TEST_FOLDER.displayName);
             studioUtils.saveScreenshot("save_folder_failed_attempt");
             await wizard.waitForExpectedNotificationMessage(expectedMessage);
-            //4. 'Save' button remains enabled:
-            await wizard.waitForSaveButtonEnabled();
+            //4. 'Save' button should be disabled:
+            await wizard.waitForSaveButtonDisabled();
+            //5. Verify the validation message 'Not available' is displayed in displayName input:
+            await wizard.waitForValidationPathMessageDisplayed()
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
