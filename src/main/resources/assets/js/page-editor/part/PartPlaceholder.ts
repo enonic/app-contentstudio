@@ -33,7 +33,7 @@ export class PartPlaceholder
 
         this.comboBox.onOptionSelected((event: SelectedOptionEvent<PartDescriptor>) => {
             this.partComponentView.showLoadingSpinner();
-            const descriptor: Descriptor = event.getSelectedOption().getOption().displayValue;
+            const descriptor: Descriptor = event.getSelectedOption().getOption().getDisplayValue();
             partComponent.setDescriptor(descriptor);
         });
 

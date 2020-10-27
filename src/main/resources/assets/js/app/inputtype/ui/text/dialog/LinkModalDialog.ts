@@ -269,7 +269,10 @@ export class LinkModalDialog
         const dropDown = new Dropdown<string>('anchor', <DropdownConfig<string>>{});
 
         anchorList.forEach((anchor: string) => {
-            dropDown.addOption(<Option<string>>{value: LinkModalDialog.anchorPrefix + anchor, displayValue: anchor});
+            dropDown.addOption(Option.create<string>()
+                .setValue(LinkModalDialog.anchorPrefix + anchor)
+                .setDisplayValue(anchor)
+                .build());
         });
 
         if (this.getAnchor()) {
@@ -427,10 +430,10 @@ export class LinkModalDialog
                 const value = new MediaTreeSelectorItem(null).setDisplayValue(
                     MediaSelectorDisplayValue.fromUploadItem(uploadItem));
 
-                const option = <Option<MediaTreeSelectorItem>>{
-                    value: value.getId(),
-                    displayValue: value
-                };
+                const option = Option.create<MediaTreeSelectorItem>()
+                        .setValue(value.getId())
+                        .setDisplayValue(value)
+                        .build();
                 contentSelector.selectOption(option);
             });
         });
@@ -441,8 +444,8 @@ export class LinkModalDialog
 
             let selectedOption = contentSelector.getSelectedOptionView().getById(item.getId());
             let option = selectedOption.getOption();
-            option.displayValue = new MediaTreeSelectorItem(createdContent);
-            option.value = createdContent.getContentId().toString();
+            option.setDisplayValue(new MediaTreeSelectorItem(createdContent));
+            option.setValue(createdContent.getContentId().toString());
 
             selectedOption.getOptionView().setOption(option);
         });

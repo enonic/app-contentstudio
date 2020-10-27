@@ -149,7 +149,7 @@ export class CustomSelector
             this.ignorePropertyChange = true;
 
             const option = event.getSelectedOption();
-            let value = new Value(String(option.getOption().value), ValueTypes.STRING);
+            let value = new Value(String(option.getOption().getValue()), ValueTypes.STRING);
             if (option.getIndex() >= 0) {
                 this.getPropertyArray().set(option.getIndex(), value);
             } else {

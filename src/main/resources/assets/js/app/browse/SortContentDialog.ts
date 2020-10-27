@@ -111,7 +111,7 @@ export class SortContentDialog
     show() {
         super.show();
         this.contentGrid.onLoaded(this.gridLoadedHandler);
-        this.contentGrid.reload(this.parentContent);
+        this.contentGrid.reload();
         this.sortContentMenu.focus();
     }
 
@@ -156,6 +156,7 @@ export class SortContentDialog
 
     private handleOpenSortDialogEvent(event: OpenSortDialogEvent) {
         this.parentContent = event.getContent();
+        this.contentGrid.setContentId(this.parentContent.getContentId());
         this.curChildOrder = this.getParentChildOrder();
         this.prevChildOrder = null;
         this.sortContentMenu.selectNavigationItemByOrder(this.curChildOrder);
@@ -183,7 +184,7 @@ export class SortContentDialog
         if (!newOrder.isManual()) {
             this.curChildOrder = newOrder;
             this.contentGrid.setChildOrder(this.curChildOrder);
-            this.contentGrid.reload(this.parentContent);
+            this.contentGrid.reload();
             this.gridDragHandler.clearContentMovements();
         } else {
             this.prevChildOrder = this.curChildOrder;

@@ -75,14 +75,9 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
     }
 
     fetchChildren(): Q.Promise<ContentSummaryAndCompareStatus[]> {
-        let parentContentId: ContentId;
         let parentNode = this.getRoot().getCurrentRoot();
         if (parentNode.getData()) {
-            parentContentId = parentNode.getData().getContentSummary().getContentId();
-            this.contentId = parentContentId;
             parentNode.setData(null);
-        } else {
-            parentContentId = this.contentId;
         }
 
         let from = parentNode.getChildren().length;
@@ -91,7 +86,7 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
             from--;
         }
 
-        return ContentSummaryAndCompareStatusFetcher.fetchChildren(parentContentId, from, SortContentTreeGrid.MAX_FETCH_SIZE,
+        return ContentSummaryAndCompareStatusFetcher.fetchChildren(this.contentId, from, SortContentTreeGrid.MAX_FETCH_SIZE,
             this.curChildOrder).then((data: ContentResponse<ContentSummaryAndCompareStatus>) => {
             let contents = parentNode.getChildren().map((el) => {
                 return el.getData();
@@ -114,8 +109,8 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
         return data.getId();
     }
 
-    getContentId() {
-        return this.contentId;
+    setContentId(value: ContentId) {
+        this.contentId = value;
     }
 
     getChildOrder(): ChildOrder {

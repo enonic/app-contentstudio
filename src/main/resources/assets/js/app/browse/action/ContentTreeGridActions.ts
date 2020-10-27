@@ -633,7 +633,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     private isAllItemsSelected(items: number): boolean {
-        return items === this.grid.getRoot().getDefaultRoot().treeToList(false, false).length;
+        return items === this.grid.getFullTotal();
     }
 
     getDeleteAction(): Action {

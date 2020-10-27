@@ -122,10 +122,22 @@ export class TableDialog
     private createHeadersDropdown(): Dropdown<string> {
         const headerDropdown: Dropdown<string> = new Dropdown<string>('headers', <DropdownConfig<string>>{});
 
-        headerDropdown.addOption(<Option<string>>{value: '', displayValue: i18n('dialog.table.headers.none')});
-        headerDropdown.addOption(<Option<string>>{value: 'row', displayValue: i18n('dialog.table.headers.row')});
-        headerDropdown.addOption(<Option<string>>{value: 'col', displayValue: i18n('dialog.table.headers.col')});
-        headerDropdown.addOption(<Option<string>>{value: 'both', displayValue: i18n('dialog.table.headers.both')});
+        headerDropdown.addOption(Option.create<string>()
+            .setValue('')
+            .setDisplayValue(i18n('dialog.table.headers.none'))
+            .build());
+        headerDropdown.addOption(Option.create<string>()
+            .setValue('row')
+            .setDisplayValue(i18n('dialog.table.headers.row'))
+            .build());
+        headerDropdown.addOption(Option.create<string>()
+            .setValue('col')
+            .setDisplayValue(i18n('dialog.table.headers.col'))
+            .build());
+        headerDropdown.addOption(Option.create<string>()
+            .setValue('both')
+            .setDisplayValue(i18n('dialog.table.headers.both'))
+            .build());
 
         return headerDropdown;
     }
@@ -133,10 +145,22 @@ export class TableDialog
     private createAlignmentDropdown(): Dropdown<string> {
         const alignmentDropdown: Dropdown<string> = new Dropdown<string>('headers', <DropdownConfig<string>>{});
 
-        alignmentDropdown.addOption(<Option<string>>{value: '', displayValue: i18n('dialog.table.alignment.none')});
-        alignmentDropdown.addOption(<Option<string>>{value: 'left', displayValue: i18n('dialog.table.alignment.left')});
-        alignmentDropdown.addOption(<Option<string>>{value: 'center', displayValue: i18n('dialog.table.alignment.center')});
-        alignmentDropdown.addOption(<Option<string>>{value: 'right', displayValue: i18n('dialog.table.alignment.right')});
+        alignmentDropdown.addOption(Option.create<string>()
+            .setValue('')
+            .setDisplayValue(i18n('dialog.table.alignment.none'))
+            .build());
+        alignmentDropdown.addOption(Option.create<string>()
+            .setValue('left')
+            .setDisplayValue(i18n('dialog.table.alignment.left'))
+            .build());
+        alignmentDropdown.addOption(Option.create<string>()
+            .setValue('center')
+            .setDisplayValue(i18n('dialog.table.alignment.center'))
+            .build());
+        alignmentDropdown.addOption(Option.create<string>()
+            .setValue('right')
+            .setDisplayValue(i18n('dialog.table.alignment.right'))
+            .build());
 
         return alignmentDropdown;
     }

@@ -37,14 +37,16 @@ export class ImageSelectorSelectedOptionView
     setOption(option: Option<MediaTreeSelectorItem>) {
         super.setOption(option);
 
-        let displayValue: MediaTreeSelectorItem = option.displayValue;
+        let displayValue: MediaTreeSelectorItem = option.getDisplayValue();
 
         if (displayValue.getContentSummary()) {
-            const isMissingContent = option.displayValue.isEmptyContent();
+            const isMissingContent = option.getDisplayValue().isEmptyContent();
             this.updateIconSrc(displayValue);
             this.label.getEl().setInnerHtml(displayValue.getDisplayName());
             this.icon.getEl().setAttribute('title',
-                isMissingContent ? option.value : option.displayValue.getPath() ? option.displayValue.getPath().toString() : '');
+                isMissingContent ?
+                    option.getValue() : option.getDisplayValue().getPath() ?
+                                           option.getDisplayValue().getPath().toString() : '');
         }
     }
 
@@ -107,21 +109,21 @@ export class ImageSelectorSelectedOptionView
         });
 
         this.onShown(() => {
-            if (this.getOption().displayValue.getContentSummary()) {
+            if (this.getOption().getDisplayValue().getContentSummary()) {
                 if (!this.icon.isLoaded()) {
                     this.showSpinner();
                 }
             }
         });
         this.icon.onLoaded(() => {
-            if (this.getOption().displayValue.getContentSummary()) {
+            if (this.getOption().getDisplayValue().getContentSummary()) {
                 this.showResult();
             }
 
             ResponsiveManager.fireResizeEvent();
         });
 
-        if (this.getOption().displayValue.isEmptyContent()) {
+        if (this.getOption().getDisplayValue().isEmptyContent()) {
             this.addClass('missing');
         }
 

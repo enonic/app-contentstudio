@@ -45,16 +45,16 @@ export class SiteConfiguratorSelectedOptionsView
         emptyApp.applicationKey = key;
         emptyApp.displayName = id;
 
-        return <Option<Application>>{
-            value: id,
-            displayValue: emptyApp.build(),
-            empty: true
-        };
+        return Option.create<Application>()
+                .setValue(id)
+                .setDisplayValue(emptyApp.build())
+                .setEmpty(true)
+                .build();
     }
 
     createSelectedOption(option: Option<Application>): SelectedOption<Application> {
 
-        let siteConfig = this.siteConfigProvider.getConfig(option.displayValue.getApplicationKey());
+        let siteConfig = this.siteConfigProvider.getConfig(option.getDisplayValue().getApplicationKey());
         let optionView = new SiteConfiguratorSelectedOptionView(option, siteConfig, this.formContext);
 
         optionView.onSiteConfigFormDisplayed((applicationKey: ApplicationKey) => {
@@ -66,8 +66,8 @@ export class SiteConfiguratorSelectedOptionsView
     }
 
     removeOption(optionToRemove: Option<Application>, silent: boolean = false) {
-        this.items =
-            this.items.filter(item => !item.getSiteConfig().getApplicationKey().equals(optionToRemove.displayValue.getApplicationKey()));
+        this.items =  this.items
+            .filter(item => !item.getSiteConfig().getApplicationKey().equals(optionToRemove.getDisplayValue().getApplicationKey()));
         super.removeOption(optionToRemove, silent);
     }
 

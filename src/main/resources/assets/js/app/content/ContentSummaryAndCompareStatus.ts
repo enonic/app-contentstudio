@@ -7,10 +7,11 @@ import {PublishStatus, PublishStatusChecker, PublishStatusFormatter} from '../pu
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import { IDentifiable } from 'lib-admin-ui/IDentifiable';
 import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ContentSummaryAndCompareStatus
-    implements Equitable {
+    implements Equitable, IDentifiable {
 
     private uploadItem: UploadItem<ContentSummary>;
 

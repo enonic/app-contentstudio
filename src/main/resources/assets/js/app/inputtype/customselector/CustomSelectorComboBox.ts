@@ -40,7 +40,7 @@ export class CustomSelectorSelectedOptionView
 
     protected createView(_content: CustomSelectorItem): CustomSelectorItemViewer {
         let viewer = new CustomSelectorItemViewer();
-        viewer.setObject(this.getOption().displayValue);
+        viewer.setObject(this.getOption().getDisplayValue());
 
         return viewer;
     }

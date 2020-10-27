@@ -41,11 +41,11 @@ export class FragmentDropdown
         indices.push(fragment.getDisplayName());
         indices.push(fragment.getName().toString());
 
-        return <Option<ContentSummary>>{
-            value: fragment.getId().toString(),
-            displayValue: fragment,
-            indices: indices
-        };
+        return Option.create<ContentSummary>()
+                .setValue(fragment.getId().toString())
+                .setDisplayValue(fragment)
+                .setIndices(indices)
+                .build();
     }
 
     addFragmentOption(fragment: ContentSummary) {
@@ -74,7 +74,7 @@ export class FragmentDropdown
         if (id) {
             let option = this.getOptionByValue(id);
             if (option) {
-                return option.displayValue;
+                return option.getDisplayValue();
             }
         }
         return null;

@@ -53,6 +53,7 @@ import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
 import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
+import { IDentifiable } from 'lib-admin-ui/IDentifiable';
 
 export interface ElementDimensions {
     top: number;
@@ -142,7 +143,7 @@ export class ItemViewBuilder {
 }
 
 export class ItemView
-    extends Element {
+    extends Element implements IDentifiable {
 
     protected liveEditModel: LiveEditModel;
 
@@ -718,6 +719,7 @@ export class ItemView
 
     private setItemId(value: ItemViewId) {
         this.getEl().setAttribute('data-' + ItemViewId.DATA_ATTRIBUTE, value.toString());
+        this.getEl().setId(value.toString());
     }
 
     getItemId(): ItemViewId {

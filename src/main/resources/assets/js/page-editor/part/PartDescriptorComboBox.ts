@@ -31,7 +31,7 @@ export class PartDescriptorComboBox
     getDescriptor(descriptorKey: DescriptorKey): PartDescriptor {
         let option = this.getOptionByValue(descriptorKey.toString());
         if (option) {
-            return option.displayValue;
+            return option.getDisplayValue();
         }
         return null;
     }
@@ -42,10 +42,10 @@ export class PartDescriptorComboBox
         if (descriptor) {
             let optionToSelect: Option<PartDescriptor> = this.getOptionByValue(descriptor.getKey().toString());
             if (!optionToSelect) {
-                optionToSelect = {
-                    value: descriptor.getKey().toString(),
-                    displayValue: descriptor
-                };
+                optionToSelect = Option.create<PartDescriptor>()
+                    .setValue(descriptor.getKey().toString())
+                    .setDisplayValue(descriptor)
+                    .build();
                 this.addOption(optionToSelect);
             }
             this.selectOption(optionToSelect);
@@ -70,7 +70,7 @@ export class PartDescriptorSelectedOptionView
     constructor(option: Option<PartDescriptor>) {
         super(option);
 
-        this.descriptor = option.displayValue;
+        this.descriptor = option.getDisplayValue();
         this.addClass('part-descriptor-selected-option-view');
     }
 

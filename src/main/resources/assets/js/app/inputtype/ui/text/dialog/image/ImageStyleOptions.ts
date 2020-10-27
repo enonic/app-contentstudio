@@ -37,10 +37,10 @@ export class ImageStyleOptions {
 
         const imageStyleOption = new ImageStyleOption(imageStyle);
 
-        return {
-            value: imageStyleOption.getName(),
-            displayValue: imageStyleOption
-        };
+        return Option.create<ImageStyleOption>()
+            .setValue(imageStyleOption.getName())
+            .setDisplayValue(imageStyleOption)
+            .build();
     }
 
     static getOptions(contentId: string): Option<ImageStyleOption>[] {

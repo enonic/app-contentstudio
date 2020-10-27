@@ -1,9 +1,10 @@
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import { IDentifiable } from 'lib-admin-ui/IDentifiable';
 
 export abstract class SettingsViewItem
-    implements Equitable {
+    implements Equitable, IDentifiable {
 
     constructor(builder: SettingsTreeItemBuilder) {
         return;
