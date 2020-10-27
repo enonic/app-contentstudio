@@ -46,23 +46,18 @@ image::widgets-details-audio.png[,212]
 === Version History
 
 A new version of content will be created each time you make changes to the content. Version History widget lists all versions of the content
-and allows comparing the versions and reverting to a specific version.
+and allows comparing the versions and reverting content to a specific version. In addition to versions, the widget also shows
+publish and unpublish actions. Current content status is displayed in the Widget header.
 
-To revert to the specific version, click on it to expand details, and then click the `Revert` button.
+To revert to the specific version, click on the version box to expand details, and then click the `Revert` button. Note that current version
+cannot be reverted and is therefore not expandable, as well as Publish/Unpublish actions.
 
-Current (or active) version of the content is always the one on top of the list. The `Revert` button is replaced here by `Edit` which you can
-click to open the content in a new tab for edit.
+image::widgets-version-history.png[Version history, 283]
 
-image::widgets-version-history-1.png[Version history, 283]
-
-For published versions you can also see info about the publisher, publishing message (if it was provided) and date/time stamp of when the content was published.
-
-image::widgets-version-history-2.png[Version history, 283]
-
-By clicking the  image:widgets-version-compare-icon.png[Version history, 24]  icon you can compare the version with the current (or any other)
+By clicking the  image:widgets-version-compare-icon.png[Version history, 24] icon you can compare the version with the current (or any other)
 version in the `Compare versions` modal dialog.
 
-NOTE: Version Comparison was introduced in Content Studio 3.0.0 and requires XP 7.3.0 or higher.
+NOTE: Version Comparison has been introduced in Content Studio 3.0.0 and requires XP 7.3.0 or higher.
 
 Two dropdowns on top of the dialog contain the full list of versions: the left one (`Older`) is the one being compared, and the right one (`Newer`)
 is the one being compared against. By default the version you clicked will be selected in the left dropdown and current/active version will
