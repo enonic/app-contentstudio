@@ -44,7 +44,9 @@ export class ImageSelectorSelectedOptionView
             this.updateIconSrc(displayValue);
             this.label.getEl().setInnerHtml(displayValue.getDisplayName());
             this.icon.getEl().setAttribute('title',
-                isMissingContent ? option.getValue() : option.getDisplayValue().getPath() ? option.getDisplayValue().getPath().toString() : '');
+                isMissingContent ?
+                    option.getValue() : option.getDisplayValue().getPath() ?
+                                           option.getDisplayValue().getPath().toString() : '');
         }
     }
 
