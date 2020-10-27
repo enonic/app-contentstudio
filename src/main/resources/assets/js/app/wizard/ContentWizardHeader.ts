@@ -118,6 +118,10 @@ export class ContentWizardHeader
     }
 
     isValid(): boolean {
+        return super.isValid() && this.isNameUnique;
+    }
+
+    isValidForSaving(): boolean {
         return !!this.getName() && this.isNameUnique;
     }
 }

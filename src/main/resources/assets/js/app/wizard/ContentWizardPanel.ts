@@ -2593,8 +2593,8 @@ export class ContentWizardPanel
         }
     }
 
-    isHeaderValid(): boolean {
-        return !this.wizardHeader || this.wizardHeader.isValid();
+    isHeaderValidForSaving(): boolean {
+        return !this.getWizardHeader() || this.getWizardHeader().isValidForSaving();
     }
 
     private setPersistedContent(content: ContentSummaryAndCompareStatus) {
