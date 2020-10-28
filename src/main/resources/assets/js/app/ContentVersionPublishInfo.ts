@@ -72,10 +72,21 @@ implements Cloneable {
         return this.contentPublishInfo?.getTo();
     }
 
-    getPublishDate(): Date {
+    isPublished(): boolean {
         if (!this.contentPublishInfo) {
-            return this.timestamp;
+            return false;
         }
-        return new Date(Math.max(Number(this.timestamp), Number(this.contentPublishInfo.getFrom())));
+        return !!this.getPublishedFrom() || !!this.getPublishedTo();
+    }
+
+    isUnpublished(): boolean {
+        if (!this.contentPublishInfo) {
+            return false;
+        }
+        return !!this.getFirstPublished() && !this.getPublishedFrom() && !this.getPublishedTo();
+    }
+
+    isEmpty(): boolean {
+        return !this.contentPublishInfo;
     }
 }

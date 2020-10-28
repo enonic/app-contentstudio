@@ -95,26 +95,6 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             assert.equal(message, appConstant.NO_CHANGES_TO_REVERT_MESSAGE, "'No changes to revert.' this message should appear");
         });
 
-    it(`GIVEN existing folder is selected WHEN first version item is expanded AND 'Edit' button has been clicked THEN this content should be loaded in new browser tab`,
-        async () => {
-            let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
-            let browseVersionsWidget = new BrowseVersionsWidget();
-            let wizard = new ContentWizard();
-            //1. Select existing folder:
-            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            //2. Open Versions Widget:
-            await contentBrowseDetailsPanel.openVersionHistory();
-            await browseVersionsWidget.waitForVersionsLoaded();
-            await browseVersionsWidget.clickAndExpandVersion(0);
-            //3. Click on 'Edit' button:
-            await browseVersionsWidget.clickOnEditButton();
-            await browseVersionsWidget.pause(1000);
-            await studioUtils.doSwitchToNextTab();
-            //4. Verify that the folder is loaded in new browser-tab:
-            let displayName = await wizard.getDisplayName();
-            assert.equal(displayName, TEST_FOLDER.displayName, "Expected and actual display name should be equal");
-        });
-
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

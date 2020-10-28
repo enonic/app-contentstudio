@@ -62,13 +62,13 @@ export class ImageSelector
 
         selectedOptionsView.onEditSelectedOptions((options: SelectedOption<MediaTreeSelectorItem>[]) => {
             options.forEach((option: SelectedOption<MediaTreeSelectorItem>) => {
-                this.notifyEditContentRequested(option.getOption().displayValue.getContentSummary());
+                this.notifyEditContentRequested(option.getOption().getDisplayValue().getContentSummary());
             });
         });
 
         selectedOptionsView.onRemoveSelectedOptions((options: SelectedOption<MediaTreeSelectorItem>[]) => {
             options.forEach((option: SelectedOption<MediaTreeSelectorItem>) => {
-                const item: MediaTreeSelectorItem = option.getOption().displayValue;
+                const item: MediaTreeSelectorItem = option.getOption().getDisplayValue();
 
                 if (item.isEmptyContent()) {
                     selectedOptionsView.removeOption(option.getOption());
@@ -118,7 +118,7 @@ export class ImageSelector
         comboBox.onOptionDeselected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
             // property not found.
             const option = event.getSelectedOption();
-            if (option.getOption().displayValue.getContentSummary()) {
+            if (option.getOption().getDisplayValue().getContentSummary()) {
                 this.handleDeselected(option.getIndex());
             }
             this.validate(false);
@@ -128,7 +128,7 @@ export class ImageSelector
             this.fireFocusSwitchEvent(event);
 
             if (!this.isLayoutInProgress()) {
-                let contentId = event.getSelectedOption().getOption().displayValue.getContentId();
+                let contentId = event.getSelectedOption().getOption().getDisplayValue().getContentId();
                 if (!contentId) {
                     return;
                 }

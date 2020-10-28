@@ -13,21 +13,21 @@ export class EmulatorDevice
     implements Equitable {
 
     // tslint:disable max-line-length
-    public static FULLSCREEN: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.fullsize'), DeviceType.MONITOR, 100, 100, '%',
+    public static FULLSCREEN: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.fullsize'), DeviceType.MONITOR, 100, 100, '%',
         true, false);
-    public static SMALL_PHONE: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.smallphone'), DeviceType.MOBILE, 320, 480, 'px',
+    public static SMALL_PHONE: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.smallphone'), DeviceType.MOBILE, 320, 480, 'px',
         false, true);
-    public static MEDIUM_PHONE: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.mediumphone'), DeviceType.MOBILE, 375, 667, 'px',
+    public static MEDIUM_PHONE: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.mediumphone'), DeviceType.MOBILE, 375, 667, 'px',
         false, true);
-    public static LARGE_PHONE: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.largephone'), DeviceType.MOBILE, 414, 736, 'px',
+    public static LARGE_PHONE: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.largephone'), DeviceType.MOBILE, 414, 736, 'px',
         false, true);
-    public static TABLET: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.tablet'), DeviceType.TABLET, 768, 1024, 'px', false,
+    public static TABLET: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.tablet'), DeviceType.TABLET, 768, 1024, 'px', false,
         true);
-    public static NOTEBOOK_13: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.notebook13'), DeviceType.MONITOR, 1280, 800, 'px',
+    public static NOTEBOOK_13: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.notebook13'), DeviceType.MONITOR, 1280, 800, 'px',
         false, false);
-    public static NOTEBOOK_15: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.notebook15'), DeviceType.MONITOR, 1366, 768, 'px',
+    public static NOTEBOOK_15: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.notebook15'), DeviceType.MONITOR, 1366, 768, 'px',
         false, false);
-    public static HDTV: EmulatorDevice = new EmulatorDevice(i18n('live.view.device.highDefinitionTV'), DeviceType.MONITOR, 1920, 1080, 'px',
+    public static HDTV: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.highDefinitionTV'), DeviceType.MONITOR, 1920, 1080, 'px',
         false, false);
     // tslint:enable
 

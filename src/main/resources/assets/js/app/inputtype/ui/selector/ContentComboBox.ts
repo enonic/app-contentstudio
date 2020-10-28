@@ -125,7 +125,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     getSelectedContent(): ContentSummary {
         let option = this.getOptionByValue(this.getValue());
         if (option) {
-            return (<ITEM_TYPE>option.displayValue).getContent();
+            return (<ITEM_TYPE>option.getDisplayValue()).getContent();
         }
         return null;
     }
@@ -133,7 +133,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     getContent(contentId: ContentId): ContentSummary {
         let option = this.getOptionByValue(contentId.toString());
         if (option) {
-            return (<ITEM_TYPE>option.displayValue).getContent();
+            return (<ITEM_TYPE>option.getDisplayValue()).getContent();
         }
         return null;
     }
@@ -242,7 +242,8 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
                     this.getComboBox().showDropdown();
                     this.getComboBox().getInput().setReadOnly(false);
                 }
-                this.notifyLoaded(this.getComboBox().getOptions().map(option => option.displayValue));
+
+                this.notifyLoaded(this.getComboBox().getOptions().map(option => option.getDisplayValue()));
 
                 deferred.resolve(null);
             }).catch((reason: any) => {
@@ -266,7 +267,7 @@ export class ContentSelectedOptionsView
     extends BaseSelectedOptionsView<ContentTreeSelectorItem> {
 
     createSelectedOption(option: Option<ContentTreeSelectorItem>): SelectedOption<ContentTreeSelectorItem> {
-        let optionView = !!option.displayValue ? new ContentSelectedOptionView(option) : new MissingContentSelectedOptionView(option);
+        let optionView = !!option.getDisplayValue() ? new ContentSelectedOptionView(option) : new MissingContentSelectedOptionView(option);
         return new SelectedOption<ContentTreeSelectorItem>(optionView, this.count());
     }
 }
@@ -278,7 +279,7 @@ export class MissingContentSelectedOptionView
 
     constructor(option: Option<ContentTreeSelectorItem>) {
         super(option);
-        this.id = option.value;
+        this.id = option.getValue();
         this.setEditable(false);
     }
 

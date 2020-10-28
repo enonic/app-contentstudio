@@ -107,6 +107,4 @@ const init = () => {
     }
 };
 
-const i18nPromise = (window.parent && window.parent['CONFIG']) ? i18nInit(window.parent['CONFIG'].services.i18nUrl) : null;
-
-i18nPromise ? i18nPromise.then(() => init()) : init();
+init();

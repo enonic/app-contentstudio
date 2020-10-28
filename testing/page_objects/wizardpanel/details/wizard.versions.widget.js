@@ -4,9 +4,11 @@
 const BaseVersionsWidget = require('../../details_panel/base.versions.widget');
 
 const xpath = {
-    widget: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'VersionsWidgetItemView')]`,
-    versionsList: `//ul[contains(@id,'VersionsView')]`,
-    versionItem: `//li[contains(@class,'content-version-item')]`,
+    widget: "//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'VersionHistoryView')]",
+    versionsList: "//ul[contains(@id,'VersionHistoryList')]",
+    versionItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action'))]]",
+    publishActionItems: "//li[contains(@class,'version-list-item')and child::div[contains(@class,'publish-action')]]",
+
 };
 
 class WizardVersionsWidget extends BaseVersionsWidget {
@@ -18,6 +20,10 @@ class WizardVersionsWidget extends BaseVersionsWidget {
     get versionItems() {
         return this.versionsWidget + xpath.versionsList + xpath.versionItem;
     }
-};
-module.exports = WizardVersionsWidget;
 
+    get publishActionItems() {
+        return this.versionsWidget + xpath.versionsList + xpath.publishActionItems;
+    }
+
+}
+module.exports = WizardVersionsWidget;

@@ -95,10 +95,6 @@ export class SettingsItemsTreeGrid
         return this.projects.filter((project: Project) => project.getParent() === parentName);
     }
 
-    getDataId(item: SettingsViewItem): string {
-        return item.getId();
-    }
-
     hasChildren(item: SettingsViewItem): boolean {
         return ObjectHelper.iFrameSafeInstanceOf(item, FolderViewItem) ||
             this.projects.some((project: Project) => project.getParent() === item.getId());

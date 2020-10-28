@@ -179,7 +179,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private initSelectorListeners() {
         this.selector.onOptionSelected((event: OptionSelectedEvent<Descriptor>) => {
-            const descriptor: Descriptor = event.getOption().displayValue;
+            const descriptor: Descriptor = event.getOption().getDisplayValue();
             this.component.setDescriptor(descriptor);
             this.setupComponentForm(descriptor);
         });

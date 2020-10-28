@@ -3,17 +3,18 @@ import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {BaseContentModelEvent} from '../browse/BaseContentModelEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {ContentTreeGrid} from '../browse/ContentTreeGrid';
 
 export class MoveContentEvent extends BaseContentModelEvent {
-    private rootNode: TreeNode<ContentSummaryAndCompareStatus>;
+    private treeGrid: ContentTreeGrid;
 
-    constructor(model: ContentSummaryAndCompareStatus[], rootNode?: TreeNode<ContentSummaryAndCompareStatus>) {
+    constructor(model: ContentSummaryAndCompareStatus[], treeGrid?: ContentTreeGrid) {
         super(model);
-        this.rootNode = rootNode;
+        this.treeGrid = treeGrid;
     }
 
-    getRootNode(): TreeNode<ContentSummaryAndCompareStatus> {
-        return this.rootNode;
+    getTreeGrid(): ContentTreeGrid {
+        return this.treeGrid;
     }
 
     static on(handler: (event: MoveContentEvent) => void) {

@@ -3,14 +3,16 @@ import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/Conten
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {CompareStatus, CompareStatusChecker, CompareStatusFormatter} from './CompareStatus';
-import {PublishStatus, PublishStatusFormatter} from '../publish/PublishStatus';
+import {PublishStatus, PublishStatusChecker, PublishStatusFormatter} from '../publish/PublishStatus';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ContentInheritType} from 'lib-admin-ui/content/ContentInheritType';
+import { IDentifiable } from 'lib-admin-ui/IDentifiable';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ContentSummaryAndCompareStatus
-    implements Equitable {
+    implements Equitable, IDentifiable {
 
     private uploadItem: UploadItem<ContentSummary>;
 
@@ -32,8 +34,14 @@ export class ContentSummaryAndCompareStatus
 
     public static fromContentAndCompareAndPublishStatus(contentSummary: ContentSummary, compareStatus: CompareStatus,
                                                         publishStatus: PublishStatus) {
-        return new ContentSummaryAndCompareStatus().setContentSummary(contentSummary).setCompareStatus(compareStatus).setPublishStatus(
-            publishStatus);
+        const contentSummaryAndCompareStatus: ContentSummaryAndCompareStatus =
+            ContentSummaryAndCompareStatus.fromContentAndCompareStatus(contentSummary, compareStatus);
+
+        if (!contentSummaryAndCompareStatus.isNew()) {
+            contentSummaryAndCompareStatus.setPublishStatus(publishStatus);
+        }
+
+        return contentSummaryAndCompareStatus;
     }
 
     public static fromUploadItem(item: UploadItem<ContentSummary>): ContentSummaryAndCompareStatus {
@@ -158,28 +166,45 @@ export class ContentSummaryAndCompareStatus
     }
 
     getStatusText(): string {
-        let value = CompareStatusFormatter.formatStatusTextFromContent(this);
-
-        const isExpired = PublishStatus.EXPIRED === this.getPublishStatus();
-
-        const isPending = PublishStatus.PENDING === this.getPublishStatus() &&
-                          (CompareStatus.NEWER === this.getCompareStatus() || CompareStatus.EQUAL === this.getCompareStatus());
-
-        if (isExpired || isPending) {
-            value += ' (' + PublishStatusFormatter.formatStatus(this.getPublishStatus()) + ')';
+        if (this.isUnpublished()) {
+            return i18n('status.unpublished');
         }
 
-        return value;
+        if (this.isNew()) {
+            return i18n('status.new');
+        }
+
+        if (this.isPublished() || this.isModified()) {
+            if (this.isScheduledPublishing()) {
+                return i18n('status.published.scheduled');
+            }
+            if (this.isExpiredPublishing()) {
+                return i18n('status.published.expired');
+            }
+        }
+
+        return CompareStatusFormatter.formatStatusText(this.getCompareStatus());
     }
 
     getStatusClass(): string {
-        let value = CompareStatusFormatter.formatStatusClassFromContent(this).toLowerCase();
 
-        if (PublishStatus.EXPIRED === this.getPublishStatus() || PublishStatus.PENDING === this.getPublishStatus()) {
-            value += ' ' + this.getPublishStatus();
+        if (this.isUnpublished()) {
+            return 'offline';
         }
 
-        return value.toLowerCase().replace('_', '-').replace(' ', '_') || 'unknown';
+        if (this.isNew()) {
+            return 'new';
+        }
+
+        const publishStatus: PublishStatus = this.getPublishStatus();
+
+        if (PublishStatusChecker.isScheduled(publishStatus) || PublishStatusChecker.isExpired(publishStatus)) {
+            return publishStatus;
+        }
+
+        const statusClass: string = CompareStatusFormatter.formatStatusClass(this.getCompareStatus());
+
+        return statusClass.replace('_', '-').replace(' ', '_') || 'unknown';
     }
 
     equals(o: Equitable): boolean {
@@ -227,6 +252,22 @@ export class ContentSummaryAndCompareStatus
 
     isNew(): boolean {
         return CompareStatusChecker.isNew(this.getCompareStatus());
+    }
+
+    isUnpublished(): boolean {
+        return this.isNew() && !!this.getContentSummary().getPublishFirstTime();
+    }
+
+    isModified(): boolean {
+        return CompareStatusChecker.isModified(this.getCompareStatus());
+    }
+
+    isScheduledPublishing(): boolean {
+        return PublishStatusChecker.isScheduled(this.getPublishStatus());
+    }
+
+    isExpiredPublishing(): boolean {
+        return PublishStatusChecker.isExpired(this.getPublishStatus());
     }
 
     canBeMarkedAsReady(): boolean {

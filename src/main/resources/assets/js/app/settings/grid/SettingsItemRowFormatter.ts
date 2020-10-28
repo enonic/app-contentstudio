@@ -10,13 +10,14 @@ import {Viewer} from 'lib-admin-ui/ui/Viewer';
 export class SettingsItemRowFormatter {
 
     public static nameFormatter({}: any, {}: any, {}: any, {}: any, dataContext: TreeNode<SettingsViewItem>) {
-        let viewer = <any>dataContext.getViewer('displayName');
+        let viewer: SettingsItemViewer = <SettingsItemViewer>dataContext.getViewer('displayName');
 
         if (!viewer) {
             viewer = SettingsItemRowFormatter.getViewerForSettingsItem(dataContext.getData());
             dataContext.setViewer('displayName', viewer);
         }
 
+        viewer.setObject(dataContext.getData());
         return viewer.toString();
     }
 

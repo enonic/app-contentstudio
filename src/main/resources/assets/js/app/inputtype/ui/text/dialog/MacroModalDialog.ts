@@ -140,7 +140,7 @@ export class MacroModalDialog
             this.macroFormItem.addClass('selected-item-preview');
             this.addClass('shows-preview');
 
-            this.macroDockedPanel.setMacroDescriptor(event.getSelectedOption().getOption().displayValue);
+            this.macroDockedPanel.setMacroDescriptor(event.getSelectedOption().getOption().getDisplayValue());
         });
 
         (<MacroComboBox>this.macroFormItem.getInput()).getComboBox().onOptionDeselected(() => {

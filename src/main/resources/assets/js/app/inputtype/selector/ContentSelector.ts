@@ -188,7 +188,7 @@ export class ContentSelector
         contentComboBox.onOptionSelected((event: SelectedOptionEvent<ContentTreeSelectorItem>) => {
             this.fireFocusSwitchEvent(event);
 
-            const contentId: ContentId = event.getSelectedOption().getOption().displayValue.getContentId();
+            const contentId: ContentId = event.getSelectedOption().getOption().getDisplayValue().getContentId();
 
             if (contentId) {
                 this.setContentIdProperty(contentId);
@@ -329,7 +329,7 @@ export class ContentSelector
     }
 
     protected updateSelectedOptionIsEditable(selectedOption: SelectedOption<ContentTreeSelectorItem>) {
-        let selectedContentId = selectedOption.getOption().displayValue.getContentId();
+        let selectedContentId = selectedOption.getOption().getDisplayValue().getContentId();
         let refersToItself = selectedContentId.toString() === this.config.content.getId();
         selectedOption.getOptionView().toggleClass('non-editable', refersToItself);
     }

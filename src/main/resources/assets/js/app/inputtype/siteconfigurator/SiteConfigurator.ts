@@ -220,7 +220,7 @@ export class SiteConfigurator
 
             view.getFormView().update(configSet, false);
 
-            const key = selectedOption.getOption().displayValue.getApplicationKey();
+            const key = selectedOption.getOption().getDisplayValue().getApplicationKey();
             if (key) {
                 saveAndForceValidate(selectedOption);
             }
@@ -260,7 +260,7 @@ export class SiteConfigurator
                 if (view) {
                     view.update();
 
-                    if (view.getOption().empty) {
+                    if (view.getOption().isEmpty()) {
                         view.removeClass('empty');
                     }
                 }
