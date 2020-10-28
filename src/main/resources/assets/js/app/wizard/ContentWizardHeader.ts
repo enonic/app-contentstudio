@@ -53,6 +53,7 @@ export class ContentWizardHeader
                 this.renameDialog = new RenameContentDialog();
 
                 this.renameDialog.onRenamed((newName: string) => {
+                    this.setOnline(false);
                     this.setName(newName);
 
                     const contentName: ContentName = StringHelper.isBlank(newName) ? ContentUnnamed.newUnnamed() : new ContentName(newName);
