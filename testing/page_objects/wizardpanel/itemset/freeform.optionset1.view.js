@@ -41,5 +41,13 @@ class FreeFormOptionSet1 extends Page {
             throw new Error("Free Form Wizard - Error when clicking on Text radio button");
         }
     }
-};
+
+    async expandFormByLabel(formName) {
+        let locator = `//div[contains(@id,'FormOccurrenceDraggableLabel') and text()='${formName}']`;
+        let elements = await this.findElements(locator);
+        await elements[0].click();
+        await this.pause(300);
+    }
+}
+
 module.exports = FreeFormOptionSet1;
