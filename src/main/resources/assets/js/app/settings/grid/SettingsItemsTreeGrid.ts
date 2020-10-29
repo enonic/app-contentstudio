@@ -53,7 +53,6 @@ export class SettingsItemsTreeGrid
         };
 
         builder.setColumnUpdater(updateColumns);
-        builder.setExpandAll(true);
 
         super(builder);
 
@@ -128,43 +127,15 @@ export class SettingsItemsTreeGrid
             parentNode.setExpanded(true);
         }
 
-        this.appendNodeToParent(parentNode, item);
-    }
-
-    updateSettingsItemNode(item: SettingsViewItem) {
-        if (!this.hasItemWithId(item.getId())) {
-            return;
-        }
-
-        this.getRoot().getNodesByDataId(item.getId()).forEach((node: TreeNode<SettingsViewItem>) => {
-            node.setData(item);
-            node.clearViewers();
-            this.invalidateNodes([node]);
-            this.notifyDataChanged(new DataChangedEvent<SettingsViewItem>([node], DataChangedType.UPDATED));
-        });
-    }
-
-    deleteSettingsItemNode(id: string) {
-        if (!this.hasItemWithId(id)) {
-            return;
-        }
-
-        this.projects = this.projects.filter((project: Project) => project.getName() !== id);
-
-        this.deselectNodes([id]);
-
-        const treeNodeToDelete: TreeNode<SettingsViewItem> = this.getRoot().getNodeByDataId(id);
-
-        if (treeNodeToDelete) {
-            this.deleteNode(treeNodeToDelete.getData());
-            if (treeNodeToDelete.hasParent()) {
-                this.invalidateNodes([treeNodeToDelete.getParent()]);
-            }
-        }
+        this.appendDataToParentNode(item, parentNode);
     }
 
     hasItemWithId(id: string) {
         return !!this.getRoot().getNodeByDataId(id);
+    }
+
+    protected isToBeExpanded(node: TreeNode<SettingsViewItem>): boolean {
+        return true;
     }
 
     protected editItem(node: TreeNode<SettingsViewItem>) {

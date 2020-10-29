@@ -113,7 +113,7 @@ export class SortContentDialog
     show() {
         super.show();
         this.contentGrid.onLoaded(this.gridLoadedHandler);
-        this.contentGrid.reload(this.selectedContent);
+        this.contentGrid.reload();
         this.sortContentMenu.focus();
         this.saveButton.setEnabled(false);
     }
@@ -234,7 +234,7 @@ export class SortContentDialog
         this.updateSubHeaderText();
 
         if (!newOrder.isManual()) {
-            this.contentGrid.reload(this.selectedContent);
+            this.contentGrid.reload();
             this.gridDragHandler.clearContentMovements();
         }
     }

@@ -29,21 +29,21 @@ export class ProjectOptionDataLoader
 
     fetch(node: TreeNode<Option<Project>>): Q.Promise<Project> {
         if (this.isLoaded()) {
-            return Q(this.getProjectByName(node.getData().displayValue.getName()));
+            return Q(this.getProjectByName(node.getData().getDisplayValue().getName()));
         }
 
         return this.load().then(() => {
-            return this.getProjectByName(node.getData().displayValue.getName());
+            return this.getProjectByName(node.getData().getDisplayValue().getName());
         });
     }
 
     fetchChildren(parentNode: TreeNode<Option<Project>>, from: number = 0, size: number = -1): Q.Promise<OptionDataLoaderData<Project>> {
         if (this.isLoaded()) {
-            return Q(this.getAndWrapDirectProjectChildren(parentNode.getData().displayValue));
+            return Q(this.getAndWrapDirectProjectChildren(parentNode.getData().getDisplayValue()));
         }
 
         return this.load().then(() => {
-            return this.getAndWrapDirectProjectChildren(parentNode.getData().displayValue);
+            return this.getAndWrapDirectProjectChildren(parentNode.getData().getDisplayValue());
         });
     }
 

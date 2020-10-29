@@ -25,8 +25,8 @@ export class LayersContentTreeListItemViewer extends LangBasedContentSummaryView
 
         if (!!object) {
             this.statusView = new DivEl('status');
-            this.statusView.setHtml(CompareStatusFormatter.formatStatusTextFromContent(object));
-            this.statusView.addClass(CompareStatusFormatter.formatStatusClassFromContent(object));
+            this.statusView.setHtml(CompareStatusFormatter.formatStatusText(object.getCompareStatus()));
+            this.statusView.addClass(CompareStatusFormatter.formatStatusClass(object.getCompareStatus()));
             this.appendChild(this.statusView);
         }
     }
