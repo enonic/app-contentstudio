@@ -15,10 +15,16 @@ exports.post = processRequest;
 
 const getPhrases = function(customBundles) {
     const locales = admin.getLocales();
+    const phrases = {};
     let bundles = ['i18n/common', 'i18n/phrases', 'i18n/dialogs'];
     if (customBundles.length) {
         bundles = bundles.concat(customBundles);
     }
 
-    return i18n.getPhrases(locales, bundles);
+    for (const bundleIndex in bundles) {
+        const bundlePhrases = i18n.getPhrases(locales, [bundles[bundleIndex]]);
+        for (const key in bundlePhrases) { phrases[key] = bundlePhrases[key] }
+    }
+
+    return phrases;
 };
