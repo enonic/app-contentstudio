@@ -591,50 +591,6 @@ export class ContentTreeGrid
         });
     }
 
-    deleteContentNodes(ids: string[], paths: ContentPath[]) {
-        ids.forEach((id: string) => {
-            const nodesToDelete: TreeNode<ContentSummaryAndCompareStatus>[] = this.getRoot().getNodesByDataId(id);
-            nodesToDelete.forEach((node: TreeNode<ContentSummaryAndCompareStatus>) => {
-                if (node.getData().getCompareStatus() !== CompareStatus.NEW) {
-                    node.clearViewers();
-                } else {
-                    this.deleteNode(node);
-                }
-            });
-        });
-
-        this.updateNodesHasChildren(paths);
-    }
-
-    // update parent if all children were deleted
-    private updateNodesHasChildren(paths: ContentPath[]) {
-        this.getUniqueParentsNodes(paths)
-            .filter((parentNode: TreeNode<ContentSummaryAndCompareStatus>) => parentNode.isExpandable() && !parentNode.hasChildren())
-            .forEach((parentNode: TreeNode<ContentSummaryAndCompareStatus>) => {
-                this.reloadNodeData(parentNode).catch(DefaultErrorHandler.handle);
-            });
-    }
-
-    private getUniqueParentsNodes(paths: ContentPath[]): TreeNode<ContentSummaryAndCompareStatus>[] {
-        const uniquePaths: ContentPath[] = paths.map(path => path.getParentPath()).filter((parent, index, self) => {
-            return self.indexOf(parent) === index;
-        });
-
-        return this.getRoot().getAllNodes().filter((node: TreeNode<ContentSummaryAndCompareStatus>) => {
-            if (!node.hasData()) {
-                return false;
-            }
-
-            const nodePath: ContentPath = node.getData().getPath();
-
-            if (!nodePath) {
-                return false;
-            }
-
-            return uniquePaths.some((path: ContentPath) => path.equals(nodePath));
-        });
-    }
-
     private updatePathsInChildren(node: TreeNode<ContentSummaryAndCompareStatus>) {
         node.getChildren().forEach((child) => {
             const nodeSummary: ContentSummary = node.getData() ? node.getData().getContentSummary() : null;
@@ -735,6 +691,11 @@ export class ContentTreeGrid
 
         if (!parentNode.isExpandable() && parentNode.hasData()) {
             parentNode.setExpandable(true);
+            const oldData: ContentSummaryAndCompareStatus = parentNode.getData();
+            const newContentSummary: ContentSummary = new ContentSummaryBuilder(oldData.getContentSummary()).setHasChildren(true).build();
+            const newData: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
+                newContentSummary, oldData.getCompareStatus(), oldData.getPublishStatus());
+            parentNode.setData(newData);
             this.invalidateNodes([parentNode]);
             return;
         }

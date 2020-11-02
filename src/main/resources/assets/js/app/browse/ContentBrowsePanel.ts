@@ -345,7 +345,7 @@ export class ContentBrowsePanel
         });
 
         handler.onContentDeleted((data: ContentServerChangeItem[]) => {
-            this.handleContentDeleted(data.map(d => d.getId()), data.map(d => d.getContentPath()));
+            this.handleContentDeleted(data.map(d => d.getId()));
         });
 
         handler.onContentPending((data: ContentSummaryAndCompareStatus[]) => this.handleContentPending(data));
@@ -358,7 +358,7 @@ export class ContentBrowsePanel
 
         handler.onContentMoved((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             // combination of delete and create
-            this.handleContentDeleted(data.map(d => d.getId()), oldPaths);
+            this.handleContentDeleted(data.map(d => d.getId()));
             this.handleContentCreated(data);
         });
 
@@ -416,12 +416,12 @@ export class ContentBrowsePanel
             .catch(DefaultErrorHandler.handle);
     }
 
-    private handleContentDeleted(ids: string[], paths: ContentPath[]) {
+    private handleContentDeleted(ids: string[]) {
         if (ContentBrowsePanel.debug) {
             console.debug('ContentBrowsePanel: deleted', ids);
         }
 
-        this.treeGrid.deleteContentNodes(ids, paths);
+        ids.forEach((id: string) => this.treeGrid.deleteNodeByDataId(id));
         this.updateContentPanelOnNodesDelete(ids);
         this.refreshFilterWithDelay();
     }
