@@ -919,15 +919,6 @@ class ContentWizardPanel extends Page {
         return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
     }
 
-    async openLayersWidget() {
-        let wizardDetailsPanel = new DetailsPanel();
-        let layersWidget = new WizardLayersWidget();
-        await this.openDetailsPanel();
-        await wizardDetailsPanel.openLayers();
-        await layersWidget.waitForWidgetLoaded();
-        return layersWidget;
-    }
-
     async clickOnPreviewButton() {
         try {
             await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout);
