@@ -25,7 +25,7 @@ export class LayoutPlaceholder
 
         this.comboBox.onOptionSelected((event: SelectedOptionEvent<LayoutDescriptor>) => {
             this.layoutComponentView.showLoadingSpinner();
-            const descriptor = event.getSelectedOption().getOption().displayValue;
+            const descriptor = event.getSelectedOption().getOption().getDisplayValue();
 
             const layoutComponent: LayoutComponent = this.layoutComponentView.getComponent();
             layoutComponent.setDescriptor(descriptor);

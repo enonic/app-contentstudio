@@ -430,8 +430,8 @@ export class LiveEditPageProxy {
     private handlePlaceholderIFrameLoadedEvent(iframe: IFrameEl) {
         let window = iframe.getHTMLElement()['contentWindow'];
 
-        $(window.document.body).find('.page-placeholder-info-line1').text(i18n('live.view.page.nocontrollers'));
-        $(window.document.body).find('.page-placeholder-info-line2').text(i18n('live.view.page.addapplications'));
+        $(window.document.body).find('.page-placeholder-info-line1').text(i18n('text.nocontrollers'));
+        $(window.document.body).find('.page-placeholder-info-line2').text(i18n('text.addapplications'));
     }
 
     public loadComponent(componentView: ComponentView<Component>, componentUrl: string): Q.Promise<string> {

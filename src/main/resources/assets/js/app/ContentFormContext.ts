@@ -7,7 +7,6 @@ import {Content} from './content/Content';
 import {Site} from './content/Site';
 import {FormContext, FormContextBuilder} from 'lib-admin-ui/form/FormContext';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {FormState} from 'lib-admin-ui/app/wizard/WizardPanel';
 
 export class ContentFormContext
     extends FormContext {
@@ -19,8 +18,6 @@ export class ContentFormContext
     private persistedContent: Content;
 
     private contentTypeName: ContentTypeName;
-
-    private formState: FormState;
 
     private contentUpdatedListeners: { (content: Content): void }[] = [];
 
@@ -34,15 +31,10 @@ export class ContentFormContext
         } else if (builder.persistedContent) {
             this.contentTypeName = builder.persistedContent.getType();
         }
-        this.formState = builder.formState;
     }
 
     getSite(): Site {
         return this.site;
-    }
-
-    getFormState(): FormState {
-        return this.formState;
     }
 
     getContentId(): ContentId {
@@ -110,8 +102,6 @@ export class ContentFormContextBuilder
 
     contentTypeName: ContentTypeName;
 
-    formState: FormState;
-
     public setSite(value: Site): ContentFormContextBuilder {
         this.site = value;
         return this;
@@ -129,11 +119,6 @@ export class ContentFormContextBuilder
 
     public setContentTypeName(value: ContentTypeName): ContentFormContextBuilder {
         this.contentTypeName = value;
-        return this;
-    }
-
-    public setFormState(value: FormState): ContentFormContextBuilder {
-        this.formState = value;
         return this;
     }
 

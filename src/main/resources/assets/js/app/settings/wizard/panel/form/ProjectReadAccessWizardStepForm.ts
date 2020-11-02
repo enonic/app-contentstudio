@@ -422,4 +422,8 @@ export class ProjectReadAccessWizardStepForm
                     this.parentProject.getDisplayName()));
         }
     }
+
+    isEmpty(): boolean {
+        return !this.getLanguage() && (!this.readAccessRadioGroup || !this.readAccessRadioGroup.getValue());
+    }
 }

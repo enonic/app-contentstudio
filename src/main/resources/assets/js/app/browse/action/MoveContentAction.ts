@@ -15,7 +15,7 @@ export class MoveContentAction extends ContentTreeGridAction {
     protected handleExecuted() {
         const contents: ContentSummaryAndCompareStatus[]
             = this.grid.getSelectedDataList();
-        new MoveContentEvent(contents, this.grid.getRoot().getDefaultRoot()).fire();
+        new MoveContentEvent(contents, this.grid).fire();
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

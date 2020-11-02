@@ -127,7 +127,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     }
 
     fetch(node: TreeNode<Option<DATA>>): Q.Promise<DATA> {
-        this.treeRequest.setParentContent(node.getDataId() ? node.getData().displayValue.getContent() : null);
+        this.treeRequest.setParentContent(node.getDataId() ? node.getData().getDisplayValue().getContent() : null);
         return this.loadItems().then(items => items[0]);
     }
 
@@ -145,7 +145,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         this.treeRequest.setFrom(from);
         this.treeRequest.setSize(size);
 
-        this.treeRequest.setParentContent(parentNode.getDataId() ? parentNode.getData().displayValue.getContent() : null);
+        this.treeRequest.setParentContent(parentNode.getDataId() ? parentNode.getData().getDisplayValue().getContent() : null);
 
         this.treeRequest.setSearchString(this.treeFilterValue);
 

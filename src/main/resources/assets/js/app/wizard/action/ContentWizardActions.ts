@@ -239,8 +239,13 @@ export class ContentWizardActions
         this.wizardPanel.onLiveModelChanged(this.checkSaveActionStateHandler);
     }
 
+    private isUnnamedContent() {
+        return !this.wizardPanel.getWizardHeader().getName() && (!this.persistedContent || this.persistedContent.getName().isUnnamed());
+    }
+
     private doCheckSaveActionStateHandler() {
-        let isEnabled: boolean = this.wizardPanel.hasUnsavedChanges();
+        let isEnabled: boolean = this.wizardPanel.hasUnsavedChanges() &&
+                                 (this.isUnnamedContent() || this.wizardPanel.isHeaderValidForSaving());
 
         if (this.persistedContent) {
             isEnabled = isEnabled &&
@@ -250,7 +255,8 @@ export class ContentWizardActions
         }
         this.enableActions({ SAVE: isEnabled });
 
-        this.getSaveAction().setLabel(i18n(isEnabled || !this.getSaveAction().isSavedStateEnabled() ? 'action.save' : 'action.saved'));
+        this.getSaveAction().setLabel(i18n(this.wizardPanel.hasUnsavedChanges() || isEnabled || !this.getSaveAction().isSavedStateEnabled()
+                                           ? 'action.save' : 'action.saved'));
     }
 
     refreshSaveActionState() {

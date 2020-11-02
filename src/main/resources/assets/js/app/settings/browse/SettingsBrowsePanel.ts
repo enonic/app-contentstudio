@@ -61,15 +61,15 @@ export class SettingsBrowsePanel
     }
 
     updateSettingsItem(item: SettingsViewItem) {
-        this.treeGrid.updateSettingsItemNode(item);
+        this.treeGrid.updateNodeByData(item);
     }
 
     deleteSettingsItem(id: string) {
-        this.treeGrid.deleteSettingsItemNode(id);
+        this.treeGrid.deleteNodeByDataId(id);
     }
 
     hasItemsLoaded(): boolean {
-        return this.treeGrid.getRoot().getDefaultRoot().treeToList().length > 1;
+        return this.treeGrid.getFullTotal() > 1;
     }
 
     getSelectedItem(): SettingsViewItem {

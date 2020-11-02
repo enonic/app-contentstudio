@@ -21,7 +21,7 @@ class ProjectACESelectedOptionsView
     extends PrincipalContainerSelectedOptionsView<ProjectAccessControlEntry> {
 
     protected createSelectedEntryView(option: Option<ProjectAccessControlEntry>): ProjectAccessControlEntryView {
-        return new ProjectAccessControlEntryView(option.displayValue, option.readOnly);
+        return new ProjectAccessControlEntryView(option.getDisplayValue(), option.isReadOnly());
     }
 
 }

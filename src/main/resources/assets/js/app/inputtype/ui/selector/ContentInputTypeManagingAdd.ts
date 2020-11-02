@@ -104,7 +104,7 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         let selectedOptions = this.getSelectedOptions();
         for (let i = 0; i < selectedOptions.length; i++) {
             let option = selectedOptions[i];
-            if (contentPath.equals(this.getContentPath(option.getOption().displayValue))) {
+            if (contentPath.equals(this.getContentPath(option.getOption().getDisplayValue()))) {
                 return option;
             }
         }

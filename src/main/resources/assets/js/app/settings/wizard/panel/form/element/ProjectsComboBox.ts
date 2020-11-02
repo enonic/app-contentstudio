@@ -31,12 +31,8 @@ export class ProjectsComboBox extends RichComboBox<Project> {
     }
 
     protected createOption(project: Project): Option<Project> {
-        return {
-            value: project.getName(),
-            displayValue: project,
-            expandable: this.helper.isExpandable(project),
-            selectable: this.helper.isSelectable(project)
-        };
+        return Option.create<Project>().setValue(project.getName()).setDisplayValue(project).setExpandable(
+            this.helper.isExpandable(project)).setSelectable(this.helper.isSelectable(project)).build();
     }
 
     protected createOptions(items: any[]): Q.Promise<Option<Project>[]> {
@@ -64,7 +60,7 @@ export class ProjectsComboBox extends RichComboBox<Project> {
         }
 
         this.getSelectedOptions().forEach((selectedOption: SelectedOption<Project>) => {
-           if (selectedOption.getOption().value === project.getName()) {
+           if (selectedOption.getOption().getValue() === project.getName()) {
                selectedOption.getOptionView().setOption(newOption);
            }
         });
@@ -119,7 +115,7 @@ class ProjectSelectedOptionView
 
     setOption(option: Option<Project>) {
         this.option = option;
-        this.setObject(option.displayValue);
+        this.setObject(option.getDisplayValue());
     }
 
     getOption(): Option<Project> {

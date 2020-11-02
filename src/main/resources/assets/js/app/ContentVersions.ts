@@ -19,17 +19,22 @@ export class ContentVersions {
     }
 
     static fromJson(contentVersionForViewJson: GetContentVersionsForViewResultsJson): ContentVersions {
+        const contentVersions: ContentVersion[] = [];
 
-        let contentVersions: ContentVersion[] = [];
         contentVersionForViewJson.contentVersions.forEach((contentVersionViewJson: ContentVersionViewJson) => {
             contentVersions.push(ContentVersion.fromJson(contentVersionViewJson, contentVersionViewJson.workspaces));
         });
 
         if (contentVersionForViewJson.activeVersion) {
-            const activeVersion = ContentVersion.fromJson(contentVersionForViewJson.activeVersion.contentVersion,
-                [contentVersionForViewJson.activeVersion.branch]);
+            const activeVersionId: string = ContentVersion.fromJson(contentVersionForViewJson.activeVersion.contentVersion,
+                [contentVersionForViewJson.activeVersion.branch]).getId();
 
-            contentVersions.find((contentVersion: ContentVersion) => contentVersion.getId() === activeVersion.getId()).setActive(true);
+            let activeVersion: ContentVersion =
+                contentVersions.find((contentVersion: ContentVersion) => contentVersion.getId() === activeVersionId);
+            if (!activeVersion) {
+                activeVersion = contentVersions[0];
+            }
+            activeVersion.setActive(true);
         }
 
         return new ContentVersions(contentVersions);

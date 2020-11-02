@@ -76,7 +76,7 @@ export class ProjectItemNameWizardStepForm
 
     onParentProjectChanged(callback: (project: Project) => void) {
         this.parentProjectDropdown.onOptionSelected((event: SelectedOptionEvent<Project>) => {
-            callback(event.getSelectedOption().getOption().displayValue);
+            callback(event.getSelectedOption().getOption().getDisplayValue());
         });
 
 

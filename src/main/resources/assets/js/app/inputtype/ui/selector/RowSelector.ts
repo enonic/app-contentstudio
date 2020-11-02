@@ -53,17 +53,17 @@ export class RowSelector
     private static comboBoxFilter(item: Option<string>, args: any) {
         // Do not change to one-liner `return !(...);`. Bugs expected with UglifyJs + SlickGrid filter compilation.
         const isEmptyInput = args == null || args.searchString == null;
-        return isEmptyInput || item.displayValue.toUpperCase().indexOf(args.searchString.toUpperCase()) !== -1;
+        return isEmptyInput || item.getDisplayValue().toUpperCase().indexOf(args.searchString.toUpperCase()) !== -1;
     }
 
     private initListeners() {
         this.comboBox.onOptionSelected((event: SelectedOptionEvent<string>) => {
             this.comboBox.hide();
             const selectedOption = event.getSelectedOption().getOptionView().getOption();
-            selectedOption.readOnly = true;
+            selectedOption.setReadOnly(true);
             this.comboBox.getSelectedOptions().forEach(option => {
-                if (option.value !== selectedOption.value) {
-                    option.readOnly = false;
+                if (option.getValue() !== selectedOption.getValue()) {
+                    option.setReadOnly(false);
                     this.deselect(option);
                 }
             });
@@ -114,12 +114,12 @@ export class RowSelector
 
     static createOptions(options: string[]): Option<string>[] {
         return options.map((displayValue: string, index: number) => {
-            return <Option<string>>{
-                value: index.toString(),
-                displayValue,
-                indices: [displayValue],
-                selectable: true
-            };
+            return Option.create<string>()
+                .setValue(index.toString())
+                .setDisplayValue(displayValue)
+                .setIndices([displayValue])
+                .setSelectable(true)
+                .build();
         });
     }
 
@@ -152,13 +152,14 @@ export class RowSelector
     }
 
     updateOptionValue(option: Option<string>, value: string, selectable?: boolean): Option<string> {
-        const newOption = <Option<string>>{
-            value: option.value,
-            displayValue: value,
-            indices: [value],
-            selectable: selectable != null ? selectable : option.selectable,
-            readOnly: option.readOnly
-        };
+        const newOption = Option.create<string>()
+                .setValue(option.getValue())
+                .setDisplayValue(value)
+                .setIndices([value])
+                .setSelectable(selectable != null ? selectable : option.isSelectable())
+                .setReadOnly(option.isReadOnly())
+                .build();
+
 
         this.comboBox.updateOption(option, newOption);
 

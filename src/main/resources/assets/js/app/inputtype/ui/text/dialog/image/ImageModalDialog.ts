@@ -234,7 +234,7 @@ export class ImageModalDialog
         formItem.addClass('image-selector');
 
         imageSelectorComboBox.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
-            const imageSelectorItem: MediaTreeSelectorItem = event.getSelectedOption().getOption().displayValue;
+            const imageSelectorItem: MediaTreeSelectorItem = event.getSelectedOption().getOption().getDisplayValue();
             if (!imageSelectorItem.getContentId()) {
                 return;
             }
@@ -858,7 +858,7 @@ export class ImageDialogToolbar
 
     private getProcessingStyleCls(): string {
         if (this.isProcessingStyleSelected()) {
-            return this.imageStyleSelector.getSelectedOption().displayValue.getName();
+            return this.imageStyleSelector.getSelectedOption().getDisplayValue().getName();
         }
 
         return '';
@@ -875,12 +875,12 @@ export class ImageDialogToolbar
     private isProcessingStyleSelected(): boolean {
         return (!!this.imageStyleSelector &&
                 !!this.imageStyleSelector.getSelectedOption() &&
-                !this.imageStyleSelector.getSelectedOption().displayValue.isEmpty());
+                !this.imageStyleSelector.getSelectedOption().getDisplayValue().isEmpty());
     }
 
     getProcessingStyle(): Style {
         if (this.isProcessingStyleSelected()) {
-            return this.imageStyleSelector.getSelectedOption().displayValue.getStyle();
+            return this.imageStyleSelector.getSelectedOption().getDisplayValue().getStyle();
         }
 
         return;

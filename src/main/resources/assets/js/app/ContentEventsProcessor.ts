@@ -99,7 +99,7 @@ export class ContentEventsProcessor {
 
     static handleMove(event: MoveContentEvent) {
         const contents: ContentSummaryAndCompareStatus[] = event.getModels();
-        new OpenMoveDialogEvent(contents.map(content => content.getContentSummary()), event.getRootNode()).fire();
+        new OpenMoveDialogEvent(contents.map(content => content.getContentSummary()), event.getTreeGrid()).fire();
     }
 
     static handleShowDependencies(event: ShowDependenciesEvent) {

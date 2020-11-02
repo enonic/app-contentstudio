@@ -6,30 +6,24 @@ import {ProjectViewItem} from '../view/ProjectViewItem';
 import {FolderViewItem} from '../view/FolderViewItem';
 import {ProjectViewer} from '../wizard/viewer/ProjectViewer';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {Project} from '../data/project/Project';
 
 export class SettingsItemRowFormatter {
 
     public static nameFormatter({}: any, {}: any, {}: any, {}: any, dataContext: TreeNode<SettingsViewItem>) {
-        let viewer = <any>dataContext.getViewer('displayName');
-
-        if (!viewer) {
-            viewer = SettingsItemRowFormatter.getViewerForSettingsItem(dataContext.getData());
-            dataContext.setViewer('displayName', viewer);
-        }
-
-        return viewer.toString();
+        return SettingsItemRowFormatter.getViewerForSettingsItem(dataContext).toString();
     }
 
-    private static getViewerForSettingsItem(item: SettingsViewItem): Viewer<any> {
-        if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
-            const viewer: ProjectViewer = new ProjectViewer();
-            viewer.setObject((<ProjectViewItem>item).getData());
+    private static getViewerForSettingsItem(dataContext: TreeNode<SettingsViewItem>): Viewer<any> {
+        if (ObjectHelper.iFrameSafeInstanceOf(dataContext.getData(), ProjectViewItem)) {
+            const viewer: Viewer<Project> = dataContext.getViewer('displayName') || new ProjectViewer();
+            viewer.setObject((<ProjectViewItem>dataContext.getData()).getData());
             return viewer;
         }
 
-        if (ObjectHelper.iFrameSafeInstanceOf(item, FolderViewItem)) {
-            const viewer: FolderItemViewer = new FolderItemViewer();
-            viewer.setObject(item);
+        if (ObjectHelper.iFrameSafeInstanceOf(dataContext.getData(), FolderViewItem)) {
+            const viewer: Viewer<SettingsViewItem> = dataContext.getViewer('displayName') || new FolderItemViewer();
+            viewer.setObject(dataContext.getData());
             return viewer;
         }
 

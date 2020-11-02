@@ -13,68 +13,27 @@ export enum CompareStatus {
 
 export class CompareStatusFormatter {
 
-    public static formatStatusTextFromContent(content: ContentSummaryAndCompareStatus): string {
-        if (!content) {
-            return '';
-        }
-
-        if (content.getCompareStatus() === CompareStatus.NEW) {
-
-            if (content.getContentSummary().getPublishFirstTime()) {
-                return i18n('status.offline');
-            }
-
-            return i18n('status.new');
-        }
-
-        return CompareStatusFormatter.formatStatusText(content.getCompareStatus());
-    }
-
-    public static formatStatusClassFromContent(content: ContentSummaryAndCompareStatus): string {
-        if (!content) {
-            return '';
-        }
-
-        if (content.getCompareStatus() === CompareStatus.NEW) {
-
-            if (content.getContentSummary().getPublishFirstTime()) {
-                return 'offline';
-            }
-
-            return 'new';
-        }
-
-        return CompareStatusFormatter.formatStatusClass(content.getCompareStatus());
-    }
-
     public static formatStatusClass(compareStatus: CompareStatus): string {
-
-        let status;
 
         switch (compareStatus) {
         case CompareStatus.NEW:
-            status = 'New';
+            return 'new';
             break;
         case CompareStatus.NEWER:
-            status = 'Modified';
-            break;
-        case CompareStatus.OLDER:
-            status = 'Out-of-date';
+            return 'modified';
             break;
         case CompareStatus.PENDING_DELETE:
-            status = 'Deleted';
+            return 'deleted';
             break;
         case CompareStatus.EQUAL:
-            status = 'Online';
+            return 'online';
             break;
         case CompareStatus.MOVED:
-            status = 'Moved';
+            return 'moved';
             break;
         default:
-            status = 'Unknown';
+            return 'unknown';
         }
-
-        return status.toLowerCase();
     }
 
     public static formatStatusText(compareStatus: CompareStatus): string {
@@ -95,7 +54,7 @@ export class CompareStatusFormatter {
             status = i18n('status.deleted');
             break;
         case CompareStatus.EQUAL:
-            status = i18n('status.online');
+            status = i18n('status.published');
             break;
         case CompareStatus.MOVED:
             status = i18n('status.moved');
@@ -124,5 +83,9 @@ export class CompareStatusChecker {
 
     public static isNew(compareStatus: CompareStatus): boolean {
         return compareStatus === CompareStatus.NEW;
+    }
+
+    public static isModified(compareStatus: CompareStatus): boolean {
+        return compareStatus === CompareStatus.NEWER;
     }
 }
