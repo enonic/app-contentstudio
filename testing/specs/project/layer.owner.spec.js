@@ -121,7 +121,41 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             let actualTitle = await webDriverHelper.browser.getTitle();
             assert.equal(actualTitle, SITE_NAME, "expected site should be loaded");
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            //Do log out:
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doLogout();
         });
+
+    it("Precondition: Existing site has been marked as ready in the parent project",
+        async () => {
+            let projectSelectionDialog = new ProjectSelectionDialog();
+            //1. Do Log in with 'SU':
+            await studioUtils.navigateToContentStudioWithProjects();
+            await projectSelectionDialog.waitForDialogLoaded();
+            //2. Select the new user context:
+            await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
+            await studioUtils.findAndSelectItem(SITE_NAME);
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await contentBrowsePanel.clickOnMarkAsReadyButton();
+            //Do log out:
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doLogout();
+        });
+
+    it("GIVEN user with 'Owner'-layer role is logged in WHEN 'inherited' site was marked as ready in the parent project THEN workflow in child layer should be 'Ready for publishing'",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Do log in with the user-owner and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            //2. Select the site:
+            await studioUtils.findAndSelectItem(SITE_NAME);
+            //3. Verify that 'Localize' button appears in the browse toolbar:
+            await contentBrowsePanel.waitForLocalizeButtonEnabled();
+            //4. Verify that workflow state the same as in the parent project:
+            let actualWorkflow = await contentBrowsePanel.getWorkflowState(SITE_NAME);
+            assert.equal(actualWorkflow, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+        });
+
 
     afterEach(async () => {
         let title = await webDriverHelper.browser.getTitle();
@@ -132,5 +166,4 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
     before(() => {
         return console.log('specification is starting: ' + this.title);
     });
-
 });

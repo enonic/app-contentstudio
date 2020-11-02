@@ -37,7 +37,8 @@ class ConfirmationDialog extends Page {
     async clickOnCancelTopButton() {
         await this.waitForElementDisplayed(this.cancelTopButton, appConst.shortTimeout);
         await this.clickOnElement(this.cancelTopButton);
-        return await this.waitForDialogClosed();
+        await this.waitForDialogClosed();
+        return await this.pause(appConst.TIMEOUT_1);
     }
 
     waitForDialogOpened() {

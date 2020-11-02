@@ -9,14 +9,13 @@ const LayersContentTreeDialog = require('../project/layers.content.tree.dialog')
 const xpath = {
     showAllButton: "//button[contains(@id,'ShowAllContentLayersButton')]",
     layerViewByName:
-        layerName => `//div[contains(@id,'LayerContentViewHeader') and descendant::span[@class='layer-name' and text()='${layerName}']]`
+        layerName => `//div[contains(@id,'LayerContentViewHeader') and descendant::div[@class='layer-name' and text()='${layerName}']]`,
+    layerDetailsDiv: "//div[contains(@id,'LayerContentViewHeader')]/div[contains(@class,'layer-details')]",
+    layerLanguageDiv: "//div[@class='layer-language']",
+    layerNameDiv: "//div[@class='layer-name']",
 };
 
 class BaseLayersWidget extends Page {
-
-    get widgetItemView() {
-        return this.layersWidget + lib.COMPARE_WITH_CURRENT_VERSION;
-    }
 
     get showAllButton() {
         return this.layersWidget + xpath.showAllButton;
@@ -33,14 +32,13 @@ class BaseLayersWidget extends Page {
     }
 
     async getLayersName() {
-        let locator = this.widgetItemView +
-                      "//div[contains(@id,'LayerContentViewHeader')]/div[contains(@class,'layer-details')]/span[@class='layer-name']";
-        await this.waitForElementDisplayed(locator);
+        let locator = this.widgetItemView + xpath.layerDetailsDiv + xpath.layerNameDiv;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInElements(locator);
     }
 
     getLayerLanguage(layerName) {
-        let locator = this.widgetItemView + xpath.layerViewByName(layerName) + "//span[@class='layer-language']";
+        let locator = this.widgetItemView + xpath.layerViewByName(layerName) + xpath.layerLanguageDiv;
         return this.getText(locator);
     }
 
@@ -117,7 +115,7 @@ class BaseLayersWidget extends Page {
     }
 
     async getContentStatus(layerName) {
-        let locator = this.widgetItemView + "//div[contains(@id,'LayerContentViewHeader')]//span[contains(@class,'status')]";
+        let locator = this.widgetItemView + "//div[contains(@id,'LayerContentViewHeader')]//div[contains(@class,'status')]";
         await this.waitForElementDisplayed(locator);
         return await this.getText(locator);
     }
