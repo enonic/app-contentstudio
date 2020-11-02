@@ -9,7 +9,10 @@ const XPATH = {
     container: "//div[contains(@id,'LayersContentTreeDialog')]",
     title: "//h2[@class='title']",
     layersTreeList: "//ul[contains(@id,'LayersContentTreeList')]",
-    itemView: "//li[contains(@id,'LayersContentTreeListItemView')]",
+    itemView: "//div[contains(@id,'LayerContentViewDataBlock')]",
+    layerByName: name => {
+        return `//div[@class='layer-name' and contains(.,'${name}')]`
+    },
 };
 
 class LayersContentTreeDialog extends Page {
@@ -53,7 +56,7 @@ class LayersContentTreeDialog extends Page {
     }
 
     async getLayersName() {
-        let locator = XPATH.container + XPATH.itemView + lib.P_SUB_NAME;
+        let locator = XPATH.container + XPATH.itemView + "//div[@class='layer-name']";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInElements(locator);
 
@@ -68,18 +71,18 @@ class LayersContentTreeDialog extends Page {
     }
 
     async clickOnLayerByName(layerName) {
-        let selector = XPATH.container + XPATH.layersTreeList + XPATH.itemView + lib.itemByName(layerName);
+        let selector = XPATH.container + XPATH.layersTreeList + XPATH.itemView + XPATH.layerByName(layerName);
         await this.waitForElementDisplayed(selector, appConst.longTimeout);
         await this.clickOnElement(selector);
     }
 
     async getButtonLabelInItemView(layerName) {
         let itemLocator = XPATH.container + XPATH.layersTreeList +
-                          `//li[contains(@id,'LayersContentTreeListItemView') and descendant::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${layerName}')]]`;
+                          `//div[contains(@id,'LayerContentViewDataBlock') and descendant::div[contains(@class,'layer-name') and contains(.,'${layerName}')]]`;
         let buttonLocator = itemLocator + "//button[contains(@id,'LayersContentActionButton')]";
         await this.waitForElementDisplayed(buttonLocator, appConst.mediumTimeout);
         return await this.getText(buttonLocator + "//span");
     }
-};
+}
 module.exports = LayersContentTreeDialog;
 

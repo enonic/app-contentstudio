@@ -147,7 +147,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             //2. Select existing folder(ready to publish):
             await studioUtils.findAndSelectItem(FOLDER_READY_TO_PUBLISH.displayName);
             //3. Verify that Edit, New, Delete buttons are disabled:
-            await contentBrowsePanel.waitForEditButtonDisabled();
+            await contentBrowsePanel.waitForOpenButtonEnabled();
             await contentBrowsePanel.waitForDeleteButtonDisabled();
             await contentBrowsePanel.waitForNewButtonDisabled();
             //4. Open Publish Menu:
@@ -169,8 +169,8 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Select existing folder(ready to publish):
             await studioUtils.findAndSelectItem(FOLDER_WORK_IN_PROGRESS.displayName);
-            //3. Verify that Edit, New, Delete buttons are disabled:
-            await contentBrowsePanel.waitForEditButtonDisabled();
+            //3. Verify that New, Delete buttons are disabled:
+            await contentBrowsePanel.waitForOpenButtonEnabled();
             await contentBrowsePanel.waitForDeleteButtonDisabled();
             await contentBrowsePanel.waitForNewButtonDisabled();
             //4. Open Publish Menu:

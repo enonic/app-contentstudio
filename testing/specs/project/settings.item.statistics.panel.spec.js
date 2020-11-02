@@ -29,7 +29,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             studioUtils.saveScreenshot("project_item_statistics");
             //3. Verify the text of the description:
             assert.equal(actualDescription, "Manage projects and layers", "Expected description should be displayed");
-            let actualDisplayName = await settingsItemStatisticsPanel.getItemDisplayName();
+            let actualDisplayName = await settingsItemStatisticsPanel.getFolderDisplayName();
             //3. Verify the display name in statistics panel:
             assert.equal(actualDisplayName, "Projects", "Expected display name should be displayed");
         });

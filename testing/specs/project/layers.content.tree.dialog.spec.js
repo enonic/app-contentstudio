@@ -75,8 +75,8 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
             let layers = await layersContentTreeDialog.getLayersName();
             //4. Verify that all items are present in the Layers Tree:
             assert.equal(layers[0], PROJECT_DISPLAY_NAME, "Expected project should be present in the tree layers");
-            assert.equal(layers[1], LAYER1_DISPLAY_NAME + " (en)", "The first layer should be present in the tree layers");
-            assert.equal(layers[2], LAYER2_DISPLAY_NAME + " (no)", "The second layer should be present in the tree layers");
+            assert.equal(layers[1], LAYER1_DISPLAY_NAME, "The first layer should be present in the tree layers");
+            assert.equal(layers[2], LAYER2_DISPLAY_NAME, "The second layer should be present in the tree layers");
         });
 
     it("GIVEN inherited content is selected AND Layers Tree dialog is opened WHEN current list item has been clicked THEN 'Localise' button gets visible in the tree list item",
