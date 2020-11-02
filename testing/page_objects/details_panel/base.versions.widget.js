@@ -59,7 +59,6 @@ class BaseVersionsWidget extends Page {
         return await this.waitForElementDisplayed(this.publishActionItems, appConst.mediumTimeout);
     }
 
-
     async isEditButtonDisplayed(index) {
         try {
             await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
@@ -72,10 +71,10 @@ class BaseVersionsWidget extends Page {
         }
     }
 
-    getContentStatus() {
+    async getContentStatus() {
         let locator = this.versionsWidget + "/div[contains(@class,'status')]";
-        //let statusElements = await elements[index].$$("./div[contains(@class,'status')]");
-        return this.getText(locator);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 
     async clickOnCompareWithCurrentVersionButton(index) {

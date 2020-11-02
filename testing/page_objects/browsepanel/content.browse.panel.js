@@ -190,7 +190,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async selectContext(projectDisplayName) {
         let projectSelectionDialog = await this.clickOnProjectViewerButton();
         await projectSelectionDialog.selectContext(projectDisplayName);
-        return await projectSelectionDialog.waitForDialogClosed();
+        await projectSelectionDialog.waitForDialogClosed();
+        return await this.pause(300);
     }
 
     hotKeyPublish() {
@@ -744,7 +745,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async getContextLanguage() {
         let locator = XPATH.projectViewerButton + lib.H6_DISPLAY_NAME + "//span[@class='display-name-postfix']";
-        return this.getText(locator);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 
 
@@ -771,6 +773,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         let attr = await this.getAttribute(locator, 'class');
         return attr.includes('data-inherited');
     }
+
     async clickOnLocalizeButton() {
         await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
         await this.clickOnElement(this.localizeButton);
