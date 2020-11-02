@@ -4,50 +4,50 @@
 
 TIP: Release Notes for Content Studio 2.x can be found https://developer.enonic.com/docs/content-studio/2.x/release[here]
 
-NOTE: Content Studio 3 requires XP 7.3.0 or later.
+== Content Studio 3.1
 
+NOTE: Content Studio 3.1 requires XP 7.5.0 or later.
 
-== Upgrade notes
+=== Improved Version History
 
-=== Widgets
+<<widgets#version_history,Version History widget>> has gotten a brand new look and now shows a lot of additional information: when content has been created,
+when scheduled publishing will go online, when a publishing will expire, when content was unpublished etc.
+Versions have been neatly grouped by date to make it easier to see content changes happened within the same day.
 
-Deprecation of HtmlImports in the new release might affect <<widgets#,widgets>> that worked correctly inside a previous version of
-Content Studio. Should you notice that some widget installed from Enonic Market stopped working, we recommend checking if there's a
-new version of this application on the Market.
+image::cs31-version-history.png[Version history, 234]
 
-If you have developed your own widget that no longer works, check if rendering is dependent on readiness of `HTMLImports` object
-in the global scope. If it does, a fix is suggested below:
+=== Control of name uniqueness
 
-.Main client-side JS asset in Content Studio 2.x
-[source,js]
-----
-window['HTMLImports'].whenReady(function() {
-    ...rendering here...
-});
-----
+When user enters or modifies content name, Content Studio will instantly perform a check for whether another content with this name
+already exists and warn the user if it does, disabling saving of the content until user has provided a unique name.
 
-.The same in Content Studio 3.x
-[source,js]
-----
+image::cs31-name-unavailable.png[Name unavailable, 649]
 
-(() => {
-    ...rendering here...
-})();
+=== Locking name of a published content
 
-----
+To prevent a user from accidentally changing name of a published content, Content Studio now locks the field once the content has been published.
 
-=== Content Wizard links
+image::cs31-name-locked.png[Name locked, 649]
 
-If you used shortcuts to open Content Wizard for a specific content item via direct link, this will stop working.
-After introduction of Content Projects, internal links in Content Studio include project context.
+User has to click the "pencil" icon which will open a dedicated dialog for renaming the content. The new name will be verified for uniqueness
+before the content can be renamed.
 
-*Content Studio 2.x:*
-\https://<host>/admin/tool/com.enonic.app.contentstudio/main#/edit/<contentId>
+image::cs31-rename-dialog.png[Rename dialog, 768]
 
-*Content Studio 3.x:*
-\https://<host>/admin/tool/com.enonic.app.contentstudio/main#/<projectId>/edit/<contentId>
+=== New look and behaviour of item- and option-sets
+
+The look of item- and option-sets have been completely revamped to make them look lighter and more readable, especially for the nested sets.
+
+image::cs31-item-set-expanded.png[Expanded item-sets, 695]
+
+Behaviour has been slightly changed as well - all item- and option-sets are now by default collapsed in the Content Wizard form.
+
+image::cs31-item-set-collapsed.png[Collapsed item-sets, 695]
+image::cs31-option-set.png[Option sets, 683]
 
 == Content Studio 3
+
+NOTE: Content Studio 3 requires XP 7.3.0 or later.
 
 === Language support
 
@@ -102,3 +102,45 @@ image::cs30-field-set.png[Field-set, 674]
 * Modal dialogs take up the entire screen height in mobile resolution:
 
 image::cs30-modal-dialog.png[Modal dialog, 389]
+
+
+
+== Upgrade notes for Content Studio 3.x
+
+=== Widgets
+
+Deprecation of HtmlImports in the 3.0 release might affect <<widgets#,widgets>> that worked correctly inside a previous version of
+Content Studio. Should you notice that some widget installed from Enonic Market stopped working, we recommend checking if there's a
+new version of this application on the Market.
+
+If you have developed your own widget that no longer works, check if rendering is dependent on readiness of `HTMLImports` object
+in the global scope. If it does, a fix is suggested below:
+
+.Main client-side JS asset in Content Studio 2.x
+[source,js]
+----
+window['HTMLImports'].whenReady(function() {
+    ...rendering here...
+});
+----
+
+.The same in Content Studio 3.x
+[source,js]
+----
+
+(() => {
+    ...rendering here...
+})();
+
+----
+
+=== Content Wizard links
+
+If you used shortcuts to open Content Wizard for a specific content item via direct link, this will stop working.
+After introduction of Content Projects, internal links in Content Studio include project context.
+
+*Content Studio 2.x:*
+\https://<host>/admin/tool/com.enonic.app.contentstudio/main#/edit/<contentId>
+
+*Content Studio 3.x:*
+\https://<host>/admin/tool/com.enonic.app.contentstudio/main#/<projectId>/edit/<contentId>

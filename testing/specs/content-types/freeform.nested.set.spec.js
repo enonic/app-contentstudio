@@ -51,14 +51,19 @@ describe('freeform.nested.set.spec: updates a content with nested set and checks
             let freeFormOptionSet1 = new FreeFormOptionSet1();
             //1. Open existing content with options set:
             await studioUtils.selectAndOpenContentInWizard(contentDisplayName);
-            //2. Click text-radio button:
+            //2. Expand forms and click on text-radio button:
+            await freeFormOptionSet1.expandFormByLabel("Form config");
+            await freeFormOptionSet1.expandFormByLabel("height(30)");
+            await freeFormOptionSet1.expandFormByLabel("element type");
+            await freeFormOptionSet1.expandFormByLabel("input type");
             await freeFormOptionSet1.clickOnTextRadioButton();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);
-            //Click on required radio-button:
+            //3. Click on required radio-button:
             await freeFormOptionSet1.clickOnImageRadioButton();
             //"Save" button gets enabled, because required radio button has been checked
             await contentWizard.waitForSaveButtonEnabled();
+            //4. Verify that the content gets valid now:
             let result = await contentWizard.isContentInvalid();
             assert.isFalse(result, "Red icon should not be displayed, because required input is filled");
         });

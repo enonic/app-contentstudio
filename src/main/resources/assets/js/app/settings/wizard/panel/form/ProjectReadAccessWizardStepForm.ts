@@ -426,4 +426,8 @@ export class ProjectReadAccessWizardStepForm
     isEmpty(): boolean {
         return !this.getLanguage() && (!this.readAccessRadioGroup || !this.readAccessRadioGroup.getValue());
     }
+
+    isEmpty(): boolean {
+        return !this.getLanguage() && (!this.readAccessRadioGroup || !this.readAccessRadioGroup.getValue());
+    }
 }
