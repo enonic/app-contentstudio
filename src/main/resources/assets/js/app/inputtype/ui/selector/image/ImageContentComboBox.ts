@@ -51,6 +51,7 @@ export class ImageContentComboBox
 
     protected toggleGridOptions(treeMode: boolean) {
         const grid = this.getComboBox().getComboBoxDropdownGrid().getGrid();
+        grid.toggleClass('tree-mode', treeMode);
 
         grid.getOptions().setRowHeight(treeMode ? 50 : 198)
             .setEnableGalleryMode(!treeMode)

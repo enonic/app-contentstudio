@@ -68,13 +68,18 @@ export class ContentWizardHeader
     }
 
     private initListeners() {
+        let asyncNameChecksRunning: number = 0;
+
         const debouncedNameUniqueChecker: () => void = AppHelper.debounce(() => {
             if (this.isNameChanged()) {
+                asyncNameChecksRunning++;
+
                 new ContentExistsByPathRequest(this.getNewPath().toString()).sendAndParse().then((exists: boolean) => {
-                    if (exists === this.isNameUnique) {
+                    if (asyncNameChecksRunning === 1 && exists === this.isNameUnique) {
                         this.updateIsNameUnique(!exists || !this.isNameChanged());
                     }
-                }).catch(DefaultErrorHandler.handle);
+
+                }).catch(DefaultErrorHandler.handle).finally(() => asyncNameChecksRunning--);
             } else if (!this.isNameUnique) {
                 this.updateIsNameUnique(true);
             }
