@@ -42,6 +42,7 @@ import {DragHelper} from 'lib-admin-ui/ui/DragHelper';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
 
 export class PageComponentsView
     extends DivEl {
@@ -223,13 +224,13 @@ export class PageComponentsView
     private initLiveEditEvents() {
         this.liveEditPage.onItemViewSelected((event: ItemViewSelectedEvent) => {
             if (!event.isNewlyCreated() && !this.pageView.isLocked()) {
-                this.selectedItemId = this.tree.getDataId(event.getItemView());
+                this.selectedItemId = event.getItemView().getItemId().toString();
                 this.selectItemById();
             }
         });
 
         this.liveEditPage.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
-            this.tree.deselectNodes([this.tree.getDataId(event.getItemView())]);
+            this.tree.deselectNodes([event.getItemView().getItemId().toString()]);
             this.selectedItemId = null;
         });
 
@@ -239,13 +240,13 @@ export class PageComponentsView
         });
 
         this.liveEditPage.onComponentRemoved((event: ComponentRemovedEvent) => {
-            this.tree.deleteNodeByDataId(event.getComponentView().getId());
+            this.tree.deleteNodeByDataId(event.getComponentView().getItemId().toString());
             this.highlightInvalidItems();
         });
 
         this.liveEditPage.onComponentLoaded((event: ComponentLoadedEvent) => {
             this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView());
-            this.tree.scrollToItem(event.getNewComponentView().getId());
+            this.tree.scrollToItem(event.getNewComponentView().getItemId().toString());
 
             if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), FragmentComponentView)) {
                 this.bindTreeFragmentNodeUpdateOnComponentLoaded(<FragmentComponentView>event.getNewComponentView());
@@ -254,7 +255,7 @@ export class PageComponentsView
             }
 
             if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), LayoutComponentView)) {
-                const componentDataId = this.tree.getDataId(event.getNewComponentView());
+                const componentDataId = event.getNewComponentView().getItemId().toString();
                 this.tree.expandNodeByDataId(componentDataId);
                 return;
             }
@@ -262,7 +263,7 @@ export class PageComponentsView
         });
 
         this.liveEditPage.onComponentReset((event: ComponentResetEvent) => {
-            const oldDataId: string = event.getOldComponentView().getId();
+            const oldDataId: string = event.getOldComponentView().getItemId().toString();
 
             this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView());
 
@@ -272,16 +273,16 @@ export class PageComponentsView
 
     private addComponent(event: ComponentAddedEvent) {
         this.tree.addComponentToParent(event.getComponentView(), event.getParentRegionView());
-        this.tree.expandNodeByDataId(event.getParentRegionView().getId());
+        this.tree.expandNodeByDataId(event.getParentRegionView().getItemId().toString());
     }
 
     private handleComponentAdded(event: ComponentAddedEvent) {
         if (event.getComponentView().isSelected()) {
-            this.tree.selectNode(event.getComponentView().getId());
+            this.tree.selectNode(event.getComponentView().getItemId().toString());
         }
 
-        if (this.tree.hasChildren(event.getComponentView())) {
-            const componentDataId = this.tree.getDataId(event.getComponentView());
+        if (this.tree.hasChildren(new ItemViewTreeGridWrapper(event.getComponentView()))) {
+            const componentDataId = event.getComponentView().getItemId().toString();
 
             if (event.isDragged()) {
                 this.tree.collapseNodeByDataId(componentDataId);
@@ -327,7 +328,7 @@ export class PageComponentsView
                 return;
             }
 
-            let clickedItemView: ItemView = this.tree.getGrid().getDataView().getItem(data.row).getData();
+            let clickedItemView: ItemView = this.tree.getGrid().getDataView().getItem(data.row).getData().getItemView();
             let isTextComponent = ObjectHelper.iFrameSafeInstanceOf(clickedItemView, TextComponentView);
 
             if (isTextComponent) {
@@ -370,16 +371,16 @@ export class PageComponentsView
 
         this.tree.onSelectionChanged(() => {
             const fullSelection: number = this.tree.getTotalSelected();
-            const currentSelection: ItemView[] = this.tree.getCurrentSelection();
+            const currentSelection: ItemViewTreeGridWrapper[] = this.tree.getCurrentSelection();
 
             if (fullSelection > 0 && this.isModal()) {
                 this.hide();
             }
 
-            const selectedItem: ItemView = currentSelection[0];
+            const selectedItem: ItemViewTreeGridWrapper = currentSelection[0];
 
-            if (selectedItem && !selectedItem.isSelected()) {
-                this.selectItem(selectedItem);
+            if (selectedItem && !selectedItem.getItemView().isSelected()) {
+                this.selectItem(selectedItem.getItemView());
             }
 
             this.hideContextMenu();
@@ -404,7 +405,7 @@ export class PageComponentsView
             this.subscribeOnFragmentLoadError();
         });
 
-        this.tree.onDataChanged((event: DataChangedEvent<ItemView>) => {
+        this.tree.onDataChanged((event: DataChangedEvent<ItemViewTreeGridWrapper>) => {
             if (event.getType() !== DataChangedType.UPDATED) {
                 this.constrainToParent();
             }
@@ -441,7 +442,7 @@ export class PageComponentsView
 
     private bindTextComponentViewsUpdateOnTextModify() {
         this.tree.getGrid().getDataView().getItems().map((dataItem) => {
-            return dataItem.getData();
+            return dataItem.getData().getItemView();
         }).filter((itemView: ItemView) => {
             return ObjectHelper.iFrameSafeInstanceOf(itemView, TextComponentView);
         }).filter((textComponentView: TextComponentView) => {
@@ -453,7 +454,7 @@ export class PageComponentsView
 
     private subscribeOnFragmentLoadError() {
         this.tree.getGrid().getDataView().getItems().map((dataItem) => {
-            return dataItem.getData();
+            return dataItem.getData().getItemView();
         }).filter((itemView: ItemView) => {
             return ObjectHelper.iFrameSafeInstanceOf(itemView, FragmentComponentView);
         }).forEach((fragmentComponentView: FragmentComponentView) => {
@@ -463,7 +464,7 @@ export class PageComponentsView
 
     private bindTreeTextNodeUpdateOnTextComponentModify(textComponentView: TextComponentView) {
         let handler = AppHelper.debounce((event) => {
-            this.tree.updateNodeByData(textComponentView);
+            this.tree.updateNodeByData(new ItemViewTreeGridWrapper(textComponentView));
         }, 500, false);
 
         textComponentView.onKeyUp(handler);
@@ -472,7 +473,7 @@ export class PageComponentsView
 
     private bindTreeFragmentNodeUpdateOnComponentLoaded(fragmentComponentView: FragmentComponentView) {
         fragmentComponentView.onFragmentContentLoaded((e) => {
-            this.tree.updateNodeByData(e.getFragmentComponentView());
+            this.tree.updateNodeByData(new ItemViewTreeGridWrapper(e.getFragmentComponentView()));
         });
     }
 
@@ -484,12 +485,12 @@ export class PageComponentsView
 
     private initKeyBoardBindings() {
         const removeHandler = () => {
-            const itemView = this.tree.getFirstSelectedItem();
+            const itemViewWrapper: ItemViewTreeGridWrapper = this.tree.getFirstSelectedItem();
 
-            if (itemView) {
-                if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-                    itemView.deselect();
-                    itemView.remove();
+            if (itemViewWrapper) {
+                if (ObjectHelper.iFrameSafeInstanceOf(itemViewWrapper, ComponentView)) {
+                    itemViewWrapper.getItemView().deselect();
+                    itemViewWrapper.getItemView().remove();
                 }
             }
             return true;
@@ -682,7 +683,7 @@ export class PageComponentsView
         let pageView: PageView;
 
         if (node) {
-            itemView = node.getData();
+            itemView = node.getData().getItemView();
             pageView = <PageView>itemView.getPageView();
         } else {
             pageView = this.pageView;
@@ -722,7 +723,7 @@ export class PageComponentsView
                 this.hidePageComponentsIfInMobileView(action);
 
                 if (isViewVisible && action.hasParentAction() && action.getParentAction().getLabel() === i18n('live.view.selectparent')) {
-                    this.tree.getFirstSelectedItem().hideContextMenu();
+                    this.tree.getFirstSelectedItem().getItemView().hideContextMenu();
                 }
 
                 setTimeout(() => {
@@ -781,15 +782,15 @@ export class PageComponentsView
         } else {
             const elementHelper = new ElementHelper(rowElement);
             const dimensions = elementHelper.getDimensions();
-            const data: ItemView = this.tree.getDataByRow(new ElementHelper(rowElement).getSiblingIndex());
+            const data: ItemViewTreeGridWrapper = this.tree.getDataByRow(new ElementHelper(rowElement).getSiblingIndex());
 
             if (data) {
                 if (!BrowserHelper.isMobile()) {
                     Highlighter.get().highlightElement(dimensions,
-                        data.getType().getConfig().getHighlighterStyle());
+                        data.getItemView().getType().getConfig().getHighlighterStyle());
                 }
                 if (BrowserHelper.isIOS()) {
-                    this.selectItem(data);
+                    this.selectItem(data.getItemView());
                 }
             }
         }
