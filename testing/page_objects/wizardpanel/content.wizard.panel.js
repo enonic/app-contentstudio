@@ -11,17 +11,19 @@ const ContextWindow = require('./liveform/liveform.context.window');
 const DetailsPanel = require('./details/wizard.details.panel');
 const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
-const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const VersionsWidget = require('./details/wizard.versions.widget');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
 const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
+const RenamePublishedContentDialog = require('./rename.content.dialog');
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
     wizardHeader: "//div[contains(@id,'ContentWizardHeader')]",
     pageEditorTogglerButton: "//button[contains(@id, 'CycleButton') ]",
-    displayNameInput: `//input[contains(@name,'displayName')]`,
+    displayNameInput: "//input[@name='displayName']",
+    pathInput: "//input[@name='name']",
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
     publishMenuButton: "//div[contains(@id,'ContentWizardPublishMenuButton')]",
@@ -55,6 +57,7 @@ const XPATH = {
     wizardStepNavigatorAndToolbar: "//div[contains(@id,'WizardStepNavigatorAndToolbar')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
+    iconModifyPath: "//span[contains(@class,'icon-pencil')]",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -70,6 +73,10 @@ class ContentWizardPanel extends Page {
 
     get displayNameInput() {
         return XPATH.container + XPATH.displayNameInput;
+    }
+
+    get pathInput() {
+        return XPATH.container + XPATH.pathInput;
     }
 
     get pageEditorTogglerButton() {
@@ -143,6 +150,10 @@ class ContentWizardPanel extends Page {
 
     get editPermissionsButton() {
         return XPATH.wizardStepNavigatorAndToolbar + XPATH.editPermissionsButton;
+    }
+
+    get modifyPathIcon() {
+        return XPATH.wizardHeader + XPATH.iconModifyPath;
     }
 
     waitForInspectionPanelTogglerVisible() {
@@ -431,6 +442,10 @@ class ContentWizardPanel extends Page {
 
     getDisplayName() {
         return this.getTextInInput(this.displayNameInput);
+    }
+
+    getPath() {
+        return this.getTextInInput(this.pathInput);
     }
 
     clearDisplayNameInput() {
@@ -932,6 +947,22 @@ class ContentWizardPanel extends Page {
     waitForValidationPathMessageDisplayed() {
         let locator = XPATH.wizardHeader + "//span[@class='path-error']";
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    async clickOnModifyPathIcon() {
+        await this.waitForElementDisplayed(this.modifyPathIcon, appConst.mediumTimeout);
+        await this.clickOnElement(this.modifyPathIcon);
+        let renamePublishedContentDialog = new RenamePublishedContentDialog();
+        renamePublishedContentDialog.waitForDialogLoaded();
+        return renamePublishedContentDialog;
+    }
+
+    waitForModifyPathIconDisplayed() {
+        return this.waitForElementDisplayed(this.modifyPathIcon, appConst.mediumTimeout);
+    }
+
+    waitForModifyPathIconNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.modifyPathIcon, appConst.mediumTimeout);
     }
 }
 
