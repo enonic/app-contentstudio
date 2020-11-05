@@ -186,6 +186,7 @@ module.exports = Object.freeze({
         UNPUBLISHED: 'Unpublished',
         MODIFIED: 'Modified',
         MARKED_FOR_DELETION: 'Marked for deletion',
+        MOVED: 'Moved',
     },
     PUBLISH_MENU: {
         REQUEST_PUBLISH: "Request Publishing...",
