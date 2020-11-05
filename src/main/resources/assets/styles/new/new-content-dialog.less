@@ -1,19 +1,5 @@
-@types-list-max-height: 38vh;
 @file-input-height: 37px;
 @file-input-margin-bottom: 20px;
-
-
-.display-flex(@dir, @justify, @align) {
-  display: -webkit-flex;
-  -webkit-flex-direction: @dir;
-  -webkit-justify-content: @justify;
-  -webkit-align-items: @align;
-
-  display: flex;
-  flex-direction: @dir;
-  justify-content: @justify;
-  align-items: @align;
-}
 
 .new-content-dialog {
   @media screen and (max-height: 360px) {
@@ -89,24 +75,12 @@
     }
   }
 
-  &.filter-visible .dialog-content .content-types-content {
-    max-height: calc(@types-list-max-height - @file-input-height - @file-input-margin-bottom);
-  }
-
   .dialog-content {
     position: relative;
     display: flex;
-    max-height: @types-list-max-height;
 
     @media screen and (max-height: 360px) {
       height: 65%;
-    }
-
-    .content-types-content {
-      max-height: @types-list-max-height;
-      overflow-y: auto;
-      overflow-x: hidden;
-      transition: max-height 0.2s;
     }
 
     .recent-content-types-list {
@@ -147,7 +121,7 @@
       }
 
       &:hover {
-        background-color: #ebebeb;
+        background-color: @admin-bg-light-gray;
       }
     }
 
@@ -164,8 +138,11 @@
 
         input {
           height: @file-input-height;
-        }
 
+          &:focus {
+            outline: none;
+          }
+        }
       }
 
       @media screen and (max-width: 720px) {
@@ -240,6 +217,10 @@
     .dialog-content {
       section {
         max-width: 100%;
+
+        .file-input {
+          display: block !important;
+        }
 
         .content-types-content {
           max-height: none;
