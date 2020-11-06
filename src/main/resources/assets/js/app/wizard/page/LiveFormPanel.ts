@@ -286,30 +286,34 @@ export class LiveFormPanel
     }
 
     private initContentUpdatedHandler() {
-        this.contentUpdatedHandler = (summaryAndStatuses: ContentSummaryAndCompareStatus[]) => {
-            // Update action with new content on save if it gets updated
-            summaryAndStatuses.some((summaryAndStatus: ContentSummaryAndCompareStatus) => {
-                if (this.content.getContentId().equals(summaryAndStatus.getContentId())) {
-                    this.saveAsTemplateAction.setContentSummary(summaryAndStatuses[0].getContentSummary());
-                    return true;
-                }
-            });
-        };
-
-        this.contentPermissionsUpdatedHandler = (contentIds: ContentIds) => {
-            const thisContentId: ContentId = this.content.getContentId();
-            const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
-
-            if (!isThisContentUpdated) {
-                return;
-            }
-
-            ContentSummaryAndCompareStatusFetcher.fetch(thisContentId)
-                .then((contentSummary: ContentSummaryAndCompareStatus) => this.saveAsTemplateAction.setContentSummary(
-                    contentSummary.getContentSummary()))
-                .catch(DefaultErrorHandler.handle);
-        };
+        this.contentUpdatedHandler = this.handleContentUpdate.bind(this);
+        this.contentPermissionsUpdatedHandler = this.handleContentPermissionsUpdate.bind(this);
     }
+
+    private handleContentUpdate(summaryAndStatuses: ContentSummaryAndCompareStatus[]) {
+        // Update action with new content on save if it gets updated
+        summaryAndStatuses.some((summaryAndStatus: ContentSummaryAndCompareStatus) => {
+            if (this.content.getContentId().equals(summaryAndStatus.getContentId())) {
+                this.saveAsTemplateAction.setContentSummary(summaryAndStatuses[0].getContentSummary());
+                return true;
+            }
+        });
+    }
+
+    private handleContentPermissionsUpdate(contentIds: ContentIds) {
+        const thisContentId: ContentId = this.content.getContentId();
+        const isThisContentUpdated: boolean = contentIds.contains(thisContentId);
+
+        if (!isThisContentUpdated) {
+            return;
+        }
+
+        ContentSummaryAndCompareStatusFetcher.fetch(thisContentId)
+            .then((contentSummary: ContentSummaryAndCompareStatus) => this.saveAsTemplateAction.setContentSummary(
+                contentSummary.getContentSummary()))
+            .catch(DefaultErrorHandler.handle);
+    }
+
 
     private createLiveEditPageProxy(): LiveEditPageProxy {
         let liveEditPageProxy = new LiveEditPageProxy();
