@@ -11,7 +11,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const ScheduleForm = require('../../page_objects/wizardpanel/schedule.wizard.step.form');
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
 
-describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard`', function () {
+describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
