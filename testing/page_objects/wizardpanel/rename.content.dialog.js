@@ -26,13 +26,27 @@ class RenameContentDialog extends Page {
         return XPATH.container + lib.TEXT_INPUT;
     }
 
+    get validationPathMessage() {
+        return XPATH.container + "//div[contains(@class,'input-wrapper')]/div[@class='status-block']";
+    }
+
     async typeInNewNameInput(text) {
-        this.waitForNewNameInputDisplayed();
-        return await this.typeTextInInput(this.newNameInput, text);
+        await this.waitForNewNameInputDisplayed();
+        await this.typeTextInInput(this.newNameInput, text);
+        return await this.pause(700);
     }
 
     waitForNewNameInputDisplayed() {
         return this.waitForElementDisplayed(this.newNameInput, appConst.mediumTimeout);
+    }
+
+    async waitForValidationMessageDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.validationPathMessage, appConst.mediumTimeout);
+        } catch (err) {
+            this.saveScreenshot("err_validation_path_dialog");
+            throw new Error("Rename content dialog: Validation path message should be displayed! " + err)
+        }
     }
 
     waitForRenameButtonEnabled() {
@@ -54,7 +68,7 @@ class RenameContentDialog extends Page {
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(this.renameButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_open_rename_content_dialog');
             throw new Error('Rename published content Dialog should be opened!' + err);
         });
@@ -70,6 +84,11 @@ class RenameContentDialog extends Page {
 
     getPath() {
         return this.getText(XPATH.container + "//h6[@class='content-path']");
+    }
+
+    async getValidationPathMessage() {
+        await this.waitForValidationMessageDisplayed();
+        return await this.getText(this.validationPathMessage);
     }
 }
 

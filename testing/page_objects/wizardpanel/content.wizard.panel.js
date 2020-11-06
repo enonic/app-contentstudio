@@ -953,7 +953,7 @@ class ContentWizardPanel extends Page {
         await this.waitForElementDisplayed(this.modifyPathIcon, appConst.mediumTimeout);
         await this.clickOnElement(this.modifyPathIcon);
         let renamePublishedContentDialog = new RenamePublishedContentDialog();
-        renamePublishedContentDialog.waitForDialogLoaded();
+        await renamePublishedContentDialog.waitForDialogLoaded();
         return renamePublishedContentDialog;
     }
 
