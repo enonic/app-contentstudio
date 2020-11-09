@@ -24,8 +24,6 @@ export class DuplicateContentAction
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return !state.isEmpty() && !state.isManagedActionExecuting() && (!state.isSingle() || state.canCreate()) && state.canCreate() &&
-               state.isSingle() ||
-               state.isMultiple();
+        return !state.isEmpty() && !state.isManagedActionExecuting() && state.canCreate();
     }
 }
