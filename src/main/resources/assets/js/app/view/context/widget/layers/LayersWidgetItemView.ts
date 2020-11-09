@@ -7,6 +7,7 @@ import {MultiLayersContentLoader} from './MultiLayersContentLoader';
 import {LayerContent} from './LayerContent';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ProjectContext} from '../../../../project/ProjectContext';
+import {LayersContentTreeDialog} from '../../../../settings/dialog/LayersContentTreeDialog';
 
 export class LayersWidgetItemView
     extends WidgetItemView {
@@ -47,6 +48,9 @@ export class LayersWidgetItemView
         return this.loader.load().then((items: LayerContent[]) => {
             this.layersView.setItems(items);
             this.showAllButton.setItems(items);
+            if (LayersContentTreeDialog.get().isOpen()) {
+                LayersContentTreeDialog.get().setItems(items);
+            }
         }).catch(DefaultErrorHandler.handle);
     }
 }
