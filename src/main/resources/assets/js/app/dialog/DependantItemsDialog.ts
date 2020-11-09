@@ -97,7 +97,6 @@ export abstract class DependantItemsDialog
             if (this.autoUpdateTitle) {
                 this.setTitle(this.config.title + (count > 1 ? 's' : ''));
             }
-            this.notifyResize();
         };
         this.itemList.onItemsRemoved(itemsChangedListener);
         this.itemList.onItemsAdded(itemsChangedListener);
@@ -105,7 +104,6 @@ export abstract class DependantItemsDialog
         this.dependantContainerHeader.onClicked(() => {
             const doShow = !this.dependantList.isVisible();
             this.setDependantListVisible(doShow);
-            this.notifyResize();
         });
 
         const dependantsChangedListener = () => {
@@ -115,7 +113,6 @@ export abstract class DependantItemsDialog
             if (doShow) {
                 // update dependants header according to list visibility
                 this.updateDependantsHeader(this.getDependantsHeader(this.dependantList.isVisible()));
-                this.notifyResize();
             }
         };
         this.dependantList.onItemsRemoved(dependantsChangedListener);
@@ -346,7 +343,6 @@ export abstract class DependantItemsDialog
                     this.addDependantItems(newItems);
                     this.loading = false;
                     this.hideLoadMask();
-                    this.notifyResize();
                     if (this.loadingRequested) {
                         this.loadingRequested = false;
                         this.postLoad();
