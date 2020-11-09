@@ -172,6 +172,7 @@ export class ContextView
         contentServerEventsHandler.onContentUpdated(onCreateUpdate);
         contentServerEventsHandler.onContentDeleted(onDelete);
         contentServerEventsHandler.onContentDeletedInOtherRepos(onDelete);
+        contentServerEventsHandler.onContentPublished(onCreateUpdate);
 
         ProjectChangedEvent.on(() => {
             this.setItem(null);
