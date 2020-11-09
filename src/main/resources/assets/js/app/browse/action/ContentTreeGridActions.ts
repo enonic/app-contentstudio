@@ -521,7 +521,8 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         if (!contentTypesAllowChildren || !this.canCreate(allowedPermissions)) {
             this.enableActions({
                 SHOW_NEW_DIALOG: false,
-                SORT: false
+                SORT: false,
+                DUPLICATE: false
             });
         }
 
