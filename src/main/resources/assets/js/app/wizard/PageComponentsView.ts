@@ -235,8 +235,9 @@ export class PageComponentsView
         });
 
         this.liveEditPage.onComponentAdded((event: ComponentAddedEvent) => {
-            this.addComponent(event);
-            this.handleComponentAdded(event);
+            this.addComponent(event).then(() => {
+                this.handleComponentAdded(event);
+            })
         });
 
         this.liveEditPage.onComponentRemoved((event: ComponentRemovedEvent) => {
@@ -271,9 +272,9 @@ export class PageComponentsView
         });
     }
 
-    private addComponent(event: ComponentAddedEvent) {
+    private addComponent(event: ComponentAddedEvent): Q.Promise<boolean> {
         this.tree.addComponentToParent(event.getComponentView(), event.getParentRegionView());
-        this.tree.expandNodeByDataId(event.getParentRegionView().getItemId().toString());
+        return this.tree.expandNodeByDataId(event.getParentRegionView().getItemId().toString());
     }
 
     private handleComponentAdded(event: ComponentAddedEvent) {
