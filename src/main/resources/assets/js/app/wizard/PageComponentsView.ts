@@ -30,8 +30,6 @@ import {ComponentView} from '../../page-editor/ComponentView';
 import {ClickPosition} from '../../page-editor/ClickPosition';
 import {PageViewController} from '../../page-editor/PageViewController';
 import {Content} from '../content/Content';
-import {Component} from '../page/region/Component';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {DataChangedEvent, DataChangedType} from 'lib-admin-ui/ui/treegrid/DataChangedEvent';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
@@ -41,7 +39,6 @@ import {H2El} from 'lib-admin-ui/dom/H2El';
 import {DragHelper} from 'lib-admin-ui/ui/DragHelper';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
 
 export class PageComponentsView
@@ -237,7 +234,7 @@ export class PageComponentsView
         this.liveEditPage.onComponentAdded((event: ComponentAddedEvent) => {
             this.addComponent(event).then(() => {
                 this.handleComponentAdded(event);
-            })
+            });
         });
 
         this.liveEditPage.onComponentRemoved((event: ComponentRemovedEvent) => {
