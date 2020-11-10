@@ -70,6 +70,9 @@ export class ContentPublishMenuButton
     private isRefreshDisabled: boolean = false;
     private debouncedFetch: (highlightedOrSelected: ContentSummaryAndCompareStatus) => void;
 
+    protected autoWidth: boolean = true;
+    protected rightAligned: boolean = true;
+
     constructor(config: ContentPublishMenuButtonConfig) {
         super(config.publishAction);
         this.addClass('content-publish-menu transparent');
