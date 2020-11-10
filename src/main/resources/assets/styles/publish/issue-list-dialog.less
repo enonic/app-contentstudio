@@ -4,12 +4,8 @@
     display: block;
   }
 
-  .panel {
-    position: inherit;
-    overflow: initial;
-  }
-
   .issues-panel {
+    position: relative;
 
     .filters-block {
       display: flex;
@@ -23,7 +19,7 @@
       }
 
       .menu-button {
-        border: 1px solid #cccccc;
+        border: 1px solid @admin-medium-gray-border;
         height: 32px;
 
         .@{_COMMON_PREFIX}dropdown-handle {
@@ -31,8 +27,6 @@
           &:after {
             border-top-color: @admin-black;
           }
-
-          left: auto;
         }
 
         .action-button {
@@ -41,9 +35,6 @@
           span {
             color: @admin-black;
           }
-
-          margin-right: 41px;
-          margin-left: 0px;
         }
       }
 
@@ -73,8 +64,7 @@
     }
 
     .issue-list {
-      overflow: auto;
-      min-height: 30px;
+      padding-top: 5px;
 
       .issue-list-item {
         display: flex;
@@ -157,7 +147,6 @@
       color: rgba(0, 0, 0, 0.25);
       line-height: 30px;
       text-align: center;
-      .ellipsis();
     }
 
     .creator, .assignee {
@@ -197,7 +186,7 @@
         label {
           display: none;
         }
-
+/*
         .menu-button {
           .@{_COMMON_PREFIX}dropdown-handle {
             width: 30px;
@@ -209,7 +198,7 @@
             padding-right: 12px;
           }
         }
-
+*/
         span {
           font-size: 13px;
         }

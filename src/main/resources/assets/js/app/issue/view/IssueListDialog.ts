@@ -70,6 +70,13 @@ export class IssueListDialog
         ProjectChangedEvent.on(() => {
             this.reloadRequired = true;
         });
+
+        this.getBody().onScroll(() => this.issuesPanel.repositionFixedElements());
+    }
+
+    protected resizeHandler() {
+        super.resizeHandler();
+        this.issuesPanel.repositionFixedElements();
     }
 
     doRender(): Q.Promise<boolean> {
@@ -116,7 +123,6 @@ export class IssueListDialog
         this.showLoadMask();
         this.issuesPanel.reload()
             .then(() => {
-                this.notifyResize();
                 return this.updateTabAndFiltersLabels();
             })
             .then(() => {
@@ -217,11 +223,10 @@ export class IssueListDialog
 
     private createIssuePanel(): IssuesPanel {
         const issuePanel: IssuesPanel = new IssuesPanel();
+        issuePanel.setDoOffset(false);
         issuePanel.setLoadMask(this.loadMask);
 
         issuePanel.onIssueSelected(issue => this.notifyIssueSelected(issue.getIssue()));
-        issuePanel.onIssueLoaded(() => this.notifyResize());
-        issuePanel.onShown(() => this.notifyResize());
 
         return issuePanel;
     }
