@@ -452,7 +452,13 @@ export class ContentBrowsePanel
         if (ContentBrowsePanel.debug) {
             console.debug('ContentBrowsePanel: published', data);
         }
+
         this.doHandleContentUpdate(data);
+
+        if (this.treeGrid.hasSelectedOrHighlightedNode() &&
+            data.some((publishedItem: ContentSummaryAndCompareStatus) => !this.treeGrid.hasNodeWithDataId(publishedItem.getId()))) {
+            this.refreshTreeGridActions();
+        }
     }
 
     private handleContentUnpublished(data: ContentSummaryAndCompareStatus[]) {
