@@ -380,7 +380,8 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: renamed', data, oldPaths);
         }
 
-        this.treeGrid.renameContentNodes(data, oldPaths).then(this.refreshFilterWithDelay.bind(this));
+        this.treeGrid.renameContentNodes(data);
+        this.refreshFilterWithDelay();
     }
 
     private handleContentUpdated(data: ContentSummaryAndCompareStatus[]) {
