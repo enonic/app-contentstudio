@@ -111,9 +111,9 @@ export class ContextView
     }
 
     private subscribeToEvents() {
-        const handleWidgetsUpdate = (e) => this.handleWidgetsUpdate(e);
-        ApplicationEvent.on(handleWidgetsUpdate);
-        this.onRemoved(() => ApplicationEvent.un(handleWidgetsUpdate));
+        const handleApplicationEvents = (e) => this.handleApplicationEvents(e);
+        ApplicationEvent.on(handleApplicationEvents);
+        this.onRemoved(() => ApplicationEvent.un(handleApplicationEvents));
 
         ActiveContentVersionSetEvent.on(() => {
             if (ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible() && !!this.activeWidget &&
@@ -285,7 +285,7 @@ export class ContextView
         });
     }
 
-    private handleWidgetsUpdate(event: ApplicationEvent) {
+    private handleApplicationEvents(event: ApplicationEvent) {
         const isWidgetUpdated = [
                                     ApplicationEventType.INSTALLED,
                                     ApplicationEventType.UNINSTALLED,
@@ -305,40 +305,63 @@ export class ContextView
     }
 
     private handleWidgetUpdate(key: string, type: ApplicationEventType) {
-        let widgetView = this.getWidgetByKey(key);
-        const isActive = widgetView && this.activeWidget.getWidgetName() === widgetView.getWidgetName();
+        if (this.isWidgetRemoveEvent(type)) {
+            this.handleWidgetRemoveEvent(key);
+        } else if (!!this.getWidgetByKey(key)) {
+            this.handleWidgetUpdateEvent(key);
+        } else {
+            this.handleWidgetAddedEvent(key);
+        }
+    }
 
-        const isRemoved = [
-                              ApplicationEventType.UNINSTALLED,
-                              ApplicationEventType.STOPPED
-                          ].indexOf(type) > -1;
+    private isWidgetRemoveEvent(type: ApplicationEventType): boolean {
+        return [
+                   ApplicationEventType.UNINSTALLED,
+                   ApplicationEventType.STOPPED
+               ].indexOf(type) > -1;
+    }
 
-        const isUpdated = !!widgetView;
+    private handleWidgetRemoveEvent(key: string) {
+        this.removeWidgetByKey(key);
 
-        const updateView = (useDefault?: boolean) => {
-            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
-            if (useDefault) {
-                this.activateDefaultWidget();
-            } else {
-                this.activeWidget.setActive();
-            }
-            this.widgetsSelectionRow.updateState(this.activeWidget);
-        };
-
-        if (isRemoved) {
-            this.removeWidgetByKey(key);
-
-            updateView(isActive);
-
-            return;
+        if (this.isActiveWidget(key)) {
+            this.activateDefaultWidget();
         }
 
-        this.fetchWidgetByKey(key).then((widget: Widget) => {
-            widgetView = WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
-            isUpdated ? this.updateWidget(widgetView) : this.addWidget(widgetView);
+        this.updateView();
+    }
 
-            updateView();
+    private isActiveWidget(key: string): boolean {
+       return this.activeWidget && this.activeWidget.getWidgetKey() === key;
+    }
+
+    private handleWidgetUpdateEvent(key: string) {
+        this.fetchWidgetByKey(key).then((widget: Widget) => {
+            const widgetView: WidgetView =
+                WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
+            this.updateWidget(widgetView);
+
+            if (this.isActiveWidget(key)) {
+                this.resetActiveWidget();
+                widgetView.setActive();
+            }
+
+            this.updateView();
         });
+    }
+
+    private handleWidgetAddedEvent(key: string) {
+        this.fetchWidgetByKey(key).then((widget: Widget) => {
+            const widgetView: WidgetView =
+                WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
+            this.addWidget(widgetView);
+            this.updateView();
+        });
+    }
+
+    private updateView() {
+        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
+        this.widgetsSelectionRow.updateState(this.activeWidget);
     }
 
     getCustomWidgetViewsAndUpdateDropdown(): Q.Promise<void> {

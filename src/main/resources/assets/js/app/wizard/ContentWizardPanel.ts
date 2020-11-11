@@ -1310,7 +1310,7 @@ export class ContentWizardPanel
         let isEqualToForm;
         let imageHasChanged;
 
-        const current = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem())).build();
+        const current = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem()), true).build();
 
         if (content.getType().isImage()) {
             imageHasChanged = content.getIconUrl() !== current.getIconUrl();

@@ -388,12 +388,12 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: updated', data);
         }
 
-        this.doHandleContentUpdate(data);
+        if (!data || data.length === 0) {
+            return;
+        }
 
-        // Update since CompareStatus changed
-        // ContentSummaryAndCompareStatusFetcher.updateReadOnly().then(() => {
-            this.updatePreviewIfNeeded(data);
-        // });
+        this.doHandleContentUpdate(data);
+        this.updatePreviewIfNeeded(data);
     }
 
     private handleContentPermissionsUpdated(contentIds: ContentIds) {
@@ -453,7 +453,13 @@ export class ContentBrowsePanel
         if (ContentBrowsePanel.debug) {
             console.debug('ContentBrowsePanel: published', data);
         }
+
         this.doHandleContentUpdate(data);
+
+        if (this.treeGrid.hasSelectedOrHighlightedNode() &&
+            data.some((publishedItem: ContentSummaryAndCompareStatus) => !this.treeGrid.hasNodeWithDataId(publishedItem.getId()))) {
+            this.refreshTreeGridActions();
+        }
     }
 
     private handleContentUnpublished(data: ContentSummaryAndCompareStatus[]) {
