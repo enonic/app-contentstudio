@@ -42,6 +42,12 @@ export class RenameContentDialog extends ModalDialog {
         this.statusBlock = new DivEl('status-block');
     }
 
+    protected postInitElements() {
+        super.postInitElements();
+
+        this.setElementToFocusOnShow(this.nameInput);
+    }
+
     private getNameInputValue(): string {
         return this.nameInput.getValue().trim();
     }
