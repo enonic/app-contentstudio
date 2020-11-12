@@ -3,7 +3,6 @@
  */
 const Page = require('./page');
 const appConst = require('../libs/app_const');
-const lib = require('../libs/elements');
 const XPATH = {
     container: `//div[contains(@id,'ConfirmationDialog')]`,
     yesButton: `//button[contains(@id,'DialogButton') and descendant::u[text()='Y'] and child::span[text()='es']]`,
@@ -24,21 +23,10 @@ class ConfirmationDialog extends Page {
         return XPATH.container + XPATH.noButton;
     }
 
-    get cancelTopButton() {
-        return XPATH.container + lib.CANCEL_BUTTON_TOP;
-    }
-
     async clickOnYesButton() {
         await this.waitForElementDisplayed(this.yesButton, appConst.shortTimeout);
         await this.clickOnElement(this.yesButton);
         return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout)
-    }
-
-    async clickOnCancelTopButton() {
-        await this.waitForElementDisplayed(this.cancelTopButton, appConst.shortTimeout);
-        await this.clickOnElement(this.cancelTopButton);
-        await this.waitForDialogClosed();
-        return await this.pause(appConst.TIMEOUT_1);
     }
 
     waitForDialogOpened() {

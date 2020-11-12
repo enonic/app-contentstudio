@@ -13,9 +13,10 @@ const xpath = {
 
 class ContentWidgetItemView extends Page {
 
-    getContentName() {
+    async getContentName() {
         let selector = xpath.container + xpath.contentSummary + lib.H6_DISPLAY_NAME;
-        return this.getText(selector);
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        return await this.getText(selector);
     }
 
     async getContentWorkflowState() {
@@ -40,7 +41,7 @@ class ContentWidgetItemView extends Page {
             throw new Error("Widget Item should not be displayed " + err);
         }
     }
-};
+}
 module.exports = ContentWidgetItemView;
 
 

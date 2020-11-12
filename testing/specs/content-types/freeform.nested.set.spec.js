@@ -52,10 +52,7 @@ describe('freeform.nested.set.spec: updates a content with nested set and checks
             //1. Open existing content with options set:
             await studioUtils.selectAndOpenContentInWizard(contentDisplayName);
             //2. Expand forms and click on text-radio button:
-            await freeFormOptionSet1.expandFormByLabel("Form config");
-            await freeFormOptionSet1.expandFormByLabel("height(30)");
-            await freeFormOptionSet1.expandFormByLabel("element type");
-            await freeFormOptionSet1.expandFormByLabel("input type");
+            //#1556 Single occurrence of item-set should be expanded by default
             await freeFormOptionSet1.clickOnTextRadioButton();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);
