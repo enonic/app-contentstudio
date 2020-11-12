@@ -35,12 +35,6 @@
           }
         }
 
-        &:first-child {
-          .layers-item-view-relation {
-            display: none;
-          }
-        }
-
         &-expanded .layers-item-view-data {
           &-footer {
             display: flex;
@@ -115,6 +109,10 @@
           }
         }
 
+        &:first-child &-relation {
+          display: none;
+        }
+
         &.layer-current {
           .layers-item-view-data {
             border: 2px solid @admin-blue;
@@ -164,7 +162,6 @@
             height: 28px;
           }
         }
-
       }
     }
 
