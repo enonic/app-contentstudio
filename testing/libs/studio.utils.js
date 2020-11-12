@@ -187,7 +187,8 @@ module.exports = {
         await this.findAndSelectItem(contentName);
         await browsePanel.clickOnEditButton();
         await this.doSwitchToNewWizard();
-        return await contentWizardPanel.waitForOpened();
+        await contentWizardPanel.waitForOpened();
+        return contentWizardPanel;
     },
 
     async doAddShortcut(shortcut) {
@@ -214,7 +215,7 @@ module.exports = {
         //2. Save the folder:
         await contentWizardPanel.waitAndClickOnSave();
         //3.Close the wizard:
-        await this.doCloseWizardAndSwitchToGrid()
+        await this.doCloseWizardAndSwitchToGrid();
         return await webDriverHelper.browser.pause(1000);
     },
     doCloseWizardAndSwitchToGrid: function () {
@@ -373,12 +374,10 @@ module.exports = {
         return await deleteContentDialog.waitForDialogClosed();
     },
     async selectContentAndOpenWizard(name) {
-        let browsePanel = new BrowsePanel();
-        let contentWizardPanel = new ContentWizardPanel();
         await this.findAndSelectItem(name);
-        return await this.doClickOnEditAndOpenContent(name);
+        return await this.doClickOnEditAndOpenContent();
     },
-    async doClickOnEditAndOpenContent(name) {
+    async doClickOnEditAndOpenContent() {
         let browsePanel = new BrowsePanel();
         let contentWizardPanel = new ContentWizardPanel();
         await browsePanel.waitForEditButtonEnabled();
