@@ -310,6 +310,7 @@ export class ContentWizardActions
         this.persistedContent = null;
         this.stateManager.enableActions({});
         this.enableActions({SAVE: this.wizardPanel.hasUnsavedChanges(), DELETE: true});
+        this.actionsMap.RESET.setVisible(false);
         (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(true);
     }
 
