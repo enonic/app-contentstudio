@@ -134,6 +134,11 @@ export class SettingsItemsTreeGrid
         return !!this.getRoot().getNodeByDataId(id);
     }
 
+    deleteSettingsItem(id: string) {
+        this.deleteNodeByDataId(id);
+        this.projects = this.projects.filter((project: Project) => project.getName() !== id);
+    }
+
     protected isToBeExpanded(node: TreeNode<SettingsViewItem>): boolean {
         return true;
     }

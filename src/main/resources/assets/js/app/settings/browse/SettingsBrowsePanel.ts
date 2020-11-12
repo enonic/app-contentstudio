@@ -65,7 +65,7 @@ export class SettingsBrowsePanel
     }
 
     deleteSettingsItem(id: string) {
-        this.treeGrid.deleteNodeByDataId(id);
+        this.treeGrid.deleteSettingsItem(id);
     }
 
     hasItemsLoaded(): boolean {
