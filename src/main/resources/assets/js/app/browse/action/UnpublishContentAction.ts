@@ -1,20 +1,25 @@
 import {ContentUnpublishPromptEvent} from '../ContentUnpublishPromptEvent';
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Action} from 'lib-admin-ui/ui/Action';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentTreeGridAction} from './ContentTreeGridAction';
+import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
-export class UnpublishContentAction extends Action {
+export class UnpublishContentAction extends ContentTreeGridAction {
 
     constructor(grid: ContentTreeGrid) {
-        super(i18n('action.unpublishMore'));
+        super(grid, i18n('action.unpublishMore'));
 
         this.setEnabled(false);
+    }
 
-        this.onExecuted(() => {
-            let contents: ContentSummaryAndCompareStatus[]
-                = grid.getSelectedDataList();
-            new ContentUnpublishPromptEvent(contents).fire();
-        });
+    protected handleExecuted() {
+        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList();
+        new ContentUnpublishPromptEvent(contents).fire();
+    }
+
+    isToBeEnabled(state: ContentTreeGridItemsState): boolean {
+        return !state.isEmpty() && !state.isManagedActionExecuting() && state.canPublish() &&
+               (state.hasAnyPublished() || state.hasAllPendingDelete());
     }
 }

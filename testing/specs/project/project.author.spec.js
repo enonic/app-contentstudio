@@ -87,7 +87,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     it("GIVEN user with 'Author' role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",
         async () => {
             //1. Do Log in with the user:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //2. load existing site from the current project:
             let url = "http://localhost:8080/admin/site/preview" + `/${PROJECT_DISPLAY_NAME}/draft/${SITE_NAME}`;
             await webDriverHelper.browser.url(url);
@@ -105,12 +105,11 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2.Double click on the project:
+            //1.Double click on the project:
             await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //3. Verify that the project is opened:
+            //2. Verify that the project is opened:
             await projectWizard.waitForLoaded();
-            //4. Verify that all inputs in the project page are disabled for author:
+            //3. Verify that all inputs in the project page are disabled for author:
             let isPageDisabled = await projectWizard.isNoModify();
             assert.isTrue(isPageDisabled, "Wizard page should be disabled for 'Author' role");
             let result = await projectWizard.isDescriptionInputClickable();
@@ -124,11 +123,9 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     it("GIVEN user with 'Author' role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
         async () => {
             //1. Do log in with the user and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Verify that all button are disabled in the toolbar:
@@ -143,7 +140,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
             //1. Do log in with the user-author and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             await contentBrowsePanel.waitForNewButtonEnabled();
             //2. Click on 'New...' button
             await contentBrowsePanel.clickOnNewButton();
@@ -162,7 +159,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             let contentWizard = new ContentWizard();
             let settingsStepForm = new SettingsStepForm();
             //1. Do log in with the user-author and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //2. Open folder-wizard and save new folder:
             await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
@@ -203,7 +200,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
-            let publishRequestDetailsDialog = new PublishRequestDetailsDialog()
+            let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
             //1. Do log in with the user-author and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Select the folder and open Request wizard:

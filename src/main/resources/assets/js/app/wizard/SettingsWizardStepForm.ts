@@ -12,6 +12,8 @@ import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {Form} from 'lib-admin-ui/ui/form/Form';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {ProjectContext} from '../project/ProjectContext';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 
 export class SettingsWizardStepForm
     extends WizardStepForm {
@@ -127,6 +129,18 @@ export class SettingsWizardStepForm
 
     apply(builder: ContentBuilder) {
         this.model.apply(builder);
+    }
+
+    updateInitialLanguage() {
+        if (!this.content.isDataInherited()) {
+            return;
+        }
+
+        const currentProjectLanguage: string = ProjectContext.get().getProject().getLanguage();
+        if (currentProjectLanguage && currentProjectLanguage !== this.content.getLanguage()) {
+            this.model.setLanguage(currentProjectLanguage);
+            NotifyManager.get().showFeedback(i18n('notify.wizard.language.copiedFromParent'));
+        }
     }
 
     giveFocus(): boolean {

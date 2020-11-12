@@ -6,7 +6,7 @@ import {Body} from 'lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
-import {SortContentEvent} from './SortContentEvent';
+import {SortContentEvent} from './sort/SortContentEvent';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentTreeGridToolbar} from './ContentTreeGridToolbar';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
@@ -107,7 +107,7 @@ export class ContentTreeGrid
             id: 'displayName',
             field: 'contentSummary.displayName',
             formatter: ContentRowFormatter.nameFormatter,
-            style: {minWidth: 130}
+            style: {cssClass: 'name', minWidth: 130}
         }, {
             name: 'CompareStatus',
             id: 'compareStatus',
@@ -629,11 +629,21 @@ export class ContentTreeGrid
             return {cssClasses: 'empty-node'};
         }
 
-        if (node.getData().isReadOnly()) {
-            return {cssClasses: `readonly' title='${i18n('field.readOnly')}'`};
+        let cssClasses: string = '';
+
+        if (!!node.getData().getContentSummary() && node.getData().getContentSummary().isDataInherited()) {
+            cssClasses += 'data-inherited';
         }
 
-        return null;
+        if (!!node.getData().getContentSummary() && node.getData().getContentSummary().isSortInherited()) {
+            cssClasses += ' sort-inherited';
+        }
+
+        if (node.getData().isReadOnly()) {
+            cssClasses += `readonly' title='${i18n('field.readOnly')}'`;
+        }
+
+        return {cssClasses: cssClasses};
     }
 
     getSelectedOrHighlightedItems(): ContentSummaryAndCompareStatus[] {
@@ -770,5 +780,9 @@ export class ContentTreeGrid
         }
 
         return false;
+    }
+
+    getDefaultFullTotal(): number {
+        return this.getRoot().getDefaultRoot().treeToList(false, false).length;
     }
 }

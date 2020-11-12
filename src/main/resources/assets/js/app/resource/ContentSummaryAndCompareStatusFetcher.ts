@@ -17,6 +17,7 @@ import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryRequest} from './ContentSummaryRequest';
 import {FieldOrderExpr, FieldOrderExprBuilder} from 'lib-admin-ui/content/order/FieldOrderExpr';
+import {Project} from '../settings/data/project/Project';
 
 export class ContentSummaryAndCompareStatusFetcher {
 
@@ -58,14 +59,19 @@ export class ContentSummaryAndCompareStatusFetcher {
             });
     }
 
-    static fetch(contentId: ContentId): Q.Promise<ContentSummaryAndCompareStatus> {
+    static fetch(contentId: ContentId, projectName?: string): Q.Promise<ContentSummaryAndCompareStatus> {
 
-        return new GetContentByIdRequest(contentId).sendAndParse().then((content: Content) => {
+        return new GetContentByIdRequest(contentId).setRequestProjectName(projectName).sendAndParse().then((content: Content) => {
 
-            return CompareContentRequest.fromContentSummaries([content]).sendAndParse()
+            return CompareContentRequest.fromContentSummaries([content], projectName).sendAndParse()
                 .then((compareResults: CompareContentResults) => {
 
-                    return ContentSummaryAndCompareStatusFetcher.updateCompareStatus([content], compareResults)[0];
+                    const result: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatusFetcher.updateCompareStatus([content],
+                        compareResults)[0];
+
+                    return ContentSummaryAndCompareStatusFetcher.updateReadOnly([result]).then(() => {
+                        return result;
+                    });
                 });
         });
 

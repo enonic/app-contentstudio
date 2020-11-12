@@ -1,19 +1,24 @@
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {CreateIssuePromptEvent} from '../CreateIssuePromptEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Action} from 'lib-admin-ui/ui/Action';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentTreeGridAction} from './ContentTreeGridAction';
+import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
-export class CreateIssueAction extends Action {
+export class CreateIssueAction extends ContentTreeGridAction {
 
     constructor(grid: ContentTreeGrid) {
-        super(i18n('action.createTaskMore'));
+        super(grid, i18n('action.createTaskMore'));
 
         this.setEnabled(false);
+    }
 
-        this.onExecuted(() => {
-            const contents: ContentSummaryAndCompareStatus[] = grid.getSelectedDataList();
-            new CreateIssuePromptEvent(contents).fire();
-        });
+    protected handleExecuted() {
+        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList();
+        new CreateIssuePromptEvent(contents).fire();
+    }
+
+    isToBeEnabled(state: ContentTreeGridItemsState): boolean {
+        return true;
     }
 }

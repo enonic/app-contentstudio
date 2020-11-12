@@ -4,6 +4,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {CompareContentResults} from './CompareContentResults';
 import {CompareContentResultsJson} from './json/CompareContentResultsJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {Project} from '../settings/data/project/Project';
 
 export class CompareContentRequest
     extends ContentResourceRequest<CompareContentResults> {
@@ -17,7 +18,7 @@ export class CompareContentRequest
         this.addRequestPathElements('compare');
     }
 
-    static fromContentSummaries(contentSummaries: ContentSummary[]): CompareContentRequest {
+    static fromContentSummaries(contentSummaries: ContentSummary[], projectName?: string): CompareContentRequest {
 
         let ids: string[] = [];
 
@@ -26,7 +27,7 @@ export class CompareContentRequest
             ids.push(contentSummary.getContentId().toString());
         });
 
-        return new CompareContentRequest(ids);
+        return <CompareContentRequest>(new CompareContentRequest(ids).setRequestProjectName(projectName));
     }
 
     getParams(): Object {

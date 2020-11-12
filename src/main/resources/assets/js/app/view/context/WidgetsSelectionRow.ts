@@ -67,6 +67,7 @@ export class WidgetsSelectionRow
 
         this.widgetSelectorDropdown.deselectOptions(true);
         this.selectOptionByWidgetView(selectedView || previousSelectionView, true);
+
         if (visibleNow) {
             this.setVisible(true);
         }

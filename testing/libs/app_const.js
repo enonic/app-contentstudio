@@ -59,6 +59,8 @@ module.exports = Object.freeze({
     APP_WITH_METADATA_MIXIN: 'Third Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
     YOUR_COMMENT_ADDED: 'Your comment is added to the task.',
+    LOCALIZED_MESSAGE_1: "Language was copied from current project.",
+    LOCALIZED_MESSAGE_2: "Inherited content was localized",
     CONTENT_REVERTED_MESSAGE: 'The content was reverted to the version from',
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
     ACCESS_WIDGET_HEADER: {
@@ -79,7 +81,8 @@ module.exports = Object.freeze({
     IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
     WIDGET_TITLE: {
         VERSION_HISTORY: 'Version history',
-        DEPENDENCIES: 'Dependencies'
+        DEPENDENCIES: 'Dependencies',
+        LAYERS: 'Layers'
     },
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',
@@ -88,6 +91,10 @@ module.exports = Object.freeze({
     },
     TEMPLATE_SUPPORT: {
         SITE: 'Site',
+    },
+    SORTING_ORDER: {
+        MODIFIED_DATE: 'Modified date',
+        CREATED_DATE: 'Created date',
     },
     TEST_IMAGES: {
         HAND: 'hand',

@@ -320,20 +320,23 @@ function preLoadApplication() {
 
         if (!body.isRendered() && !body.isRendering()) {
             dataPreloaded = true;
+            const projectName: string = application.getPath().getElement(0);
             // body is not rendered if the tab is in background
             if (wizardParams.contentId) {
-                new GetContentByIdRequest(wizardParams.contentId).sendAndParse().then((content: Content) => {
-                    refreshTab(content);
+                new GetContentByIdRequest(wizardParams.contentId).setRequestProjectName(projectName).sendAndParse().then(
+                    (content: Content) => {
+                        refreshTab(content);
 
-                    if (shouldUpdateFavicon(content.getType())) {
-                        refreshTabOnContentUpdate(content);
-                    }
+                        if (shouldUpdateFavicon(content.getType())) {
+                            refreshTabOnContentUpdate(content);
+                        }
 
-                });
+                    });
             } else {
-                new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then((contentType) => {
-                    updateTabTitle(ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
-                });
+                new GetContentTypeByNameRequest(wizardParams.contentTypeName).setRequestProjectName(projectName).sendAndParse().then(
+                    (contentType) => {
+                        updateTabTitle(ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
+                    });
             }
         }
     }
@@ -560,7 +563,7 @@ async function startContentBrowser(application: Application) {
     });
 
     const IssueListDialog = (await import('./app/issue/view/IssueListDialog')).IssueListDialog;
-    const SortContentDialog = (await import('./app/browse/SortContentDialog')).SortContentDialog;
+    const SortContentDialog = (await import('./app/browse/sort/dialog/SortContentDialog')).SortContentDialog;
     const MoveContentDialog = (await import('./app/move/MoveContentDialog')).MoveContentDialog;
 
     // tslint:disable-next-line:no-unused-expression
@@ -577,18 +580,26 @@ function initProjectContext(application: Application): Q.Promise<void> {
     const projectName: string = application.getPath().getElement(0);
 
     return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-        const isProjectExisting: boolean = projects.some((project: Project) => project.getName() === projectName);
-        if (isProjectExisting) {
-            ProjectContext.get().setProject(projectName);
+        ProjectSelectionDialog.get().setProjects(projects);
+
+        const currentProject: Project = projects.find((project: Project) => project.getName() === projectName);
+        const defaultProject: Project = projects.find((project: Project) => project.getName() === Project.DEFAULT_PROJECT_NAME);
+
+        if (defaultProject) {
+            ProjectContext.get().updateDefaultProject(defaultProject);
+        }
+
+        if (currentProject) {
+            ProjectContext.get().setProject(currentProject);
             return Q(null);
         }
 
         if (projects.length === 1) {
-            ProjectContext.get().setProject(projects[0].getName());
+            ProjectContext.get().setProject(projects[0]);
             return Q(null);
         }
 
-        new ProjectSelectionDialog(projects).open();
+        ProjectSelectionDialog.get().open();
 
         return Q(null);
     });

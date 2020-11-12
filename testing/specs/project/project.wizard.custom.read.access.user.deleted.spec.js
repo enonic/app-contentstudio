@@ -55,14 +55,12 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.Expand Projects-folder then Open new project wizard:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2.Click on the project and press 'Edit' button:
+            //1.Click on the project and press 'Edit' button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
             studioUtils.saveScreenshot("custom_read_access_2");
-            //3. Verify that 'Private' radio button is selected.
+            //2. Verify that 'Private' radio button is selected.
             let isSelected = await projectWizard.isAccessModeRadioSelected("Custom");
             assert.isFalse(isSelected, "'Custom' radio button should not be selected");
             isSelected = await projectWizard.isAccessModeRadioSelected("Private");

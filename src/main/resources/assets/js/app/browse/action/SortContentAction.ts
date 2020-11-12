@@ -1,18 +1,23 @@
 import {ContentTreeGrid} from '../ContentTreeGrid';
-import {SortContentEvent} from '../SortContentEvent';
+import {SortContentEvent} from '../sort/SortContentEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Action} from 'lib-admin-ui/ui/Action';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentTreeGridAction} from './ContentTreeGridAction';
+import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
-export class SortContentAction extends Action {
+export class SortContentAction extends ContentTreeGridAction {
 
     constructor(grid: ContentTreeGrid) {
-        super(i18n('action.sortMore'));
+        super(grid, i18n('action.sortMore'));
         this.setEnabled(false);
-        this.onExecuted(() => {
-            let contents: ContentSummaryAndCompareStatus[]
-                = grid.getSelectedDataList();
-            new SortContentEvent(contents).fire();
-        });
+    }
+
+    protected handleExecuted() {
+        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList();
+        new SortContentEvent(contents).fire();
+    }
+
+    isToBeEnabled(state: ContentTreeGridItemsState): boolean {
+        return !state.isEmpty() && state.isSingleNonLeaf() && state.canCreate();
     }
 }

@@ -28,7 +28,7 @@ export class RepositoryId
     }
 
     static fromCurrentProject(): RepositoryId {
-        return RepositoryId.fromProjectName(ProjectContext.get().getProject());
+        return RepositoryId.fromProjectName(ProjectContext.get().getProject().getName());
     }
 
     toString(): string {

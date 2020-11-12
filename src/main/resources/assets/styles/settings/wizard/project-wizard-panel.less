@@ -1,4 +1,26 @@
 .project-wizard-panel {
+  .header-and-navigator-container {
+
+    .@{_COMMON_PREFIX}form-icon {
+      &.not-empty {
+        .flag-icon {
+          display: none;
+        }
+      }
+
+      &:not(.has-lang) {
+        .flag-icon {
+          display: none;
+        }
+      }
+
+      &.has-lang {
+        &::before {
+          display: none;
+        }
+      }
+    }
+  }
 
   &.no-modify-permissions {
 
@@ -12,11 +34,39 @@
   }
 
   .wizard-step-form {
+    .form-view .input-view {
+      .copy-parent-button {
+        margin-top: 10px;
+      }
+    }
+
     &.project-item-wizard-step-form {
       .input-view {
         .form-input {
           &:disabled {
             border: none;
+          }
+
+          &.parent-selector {
+            display: block;
+            max-width: none;
+
+            &.readonly {
+              .selected-option,
+              .option-filter-input {
+                display: none !important;
+              }
+
+              .projects-chain {
+                .title {
+                  display: none;
+                }
+
+                .items .item:first-child {
+                  margin-left: 0;
+                }
+              }
+            }
           }
         }
       }

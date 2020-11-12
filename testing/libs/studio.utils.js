@@ -19,6 +19,7 @@ const InsertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
 const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
+const BrowseLayersWidget = require('../page_objects/browsepanel/detailspanel/browse.layers.widget');
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
 const ProjectSelectionDialog = require('../page_objects/project/project.selection.dialog');
@@ -29,6 +30,7 @@ const UserWizard = require('../page_objects/users/user.wizard');
 const NewPrincipalDialog = require('../page_objects/users/new.principal.dialog');
 const PrincipalFilterPanel = require('../page_objects/users/principal.filter.panel');
 const ConfirmationDialog = require('../page_objects/confirmation.dialog');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 
 module.exports = {
     setTextInCKE: function (id, text) {
@@ -78,6 +80,10 @@ module.exports = {
     getTextInCKE: function (id) {
         let script = `return CKEDITOR.instances['${id}'].getData()`;
         return webDriverHelper.browser.execute(script);
+    },
+    scrollViewPort(viewportElement, step) {
+
+        return webDriverHelper.browser.execute("arguments[0].scrollTop=arguments[1]", viewportElement, step);
     },
     async insertUrlLinkInCke(text, url) {
         let insertLinkDialog = new InsertLinkDialog();
@@ -191,6 +197,15 @@ module.exports = {
         return contentWizardPanel;
     },
 
+    async selectContentAndClickOnLocalize(contentName) {
+        let contentWizardPanel = new ContentWizardPanel();
+        let browsePanel = new BrowsePanel();
+        await this.findAndSelectItem(contentName);
+        await browsePanel.clickOnLocalizeButton();
+        await this.doSwitchToNewWizard();
+        return await contentWizardPanel.waitForOpened();
+    },
+
     async doAddShortcut(shortcut) {
         let contentWizardPanel = new ContentWizardPanel();
         //Open new shortcut-wizard:
@@ -204,7 +219,7 @@ module.exports = {
         await this.openContentWizard(appConst.contentTypes.FOLDER);
         await contentWizardPanel.typeData(folder);
         await contentWizardPanel.clickOnMarkAsReadyButton();
-        await this.doCloseWizardAndSwitchToGrid()
+        await this.doCloseWizardAndSwitchToGrid();
         return await webDriverHelper.browser.pause(1000);
     },
     async doAddFolder(folder) {
@@ -436,7 +451,7 @@ module.exports = {
             await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
             return await browsePanel.pause(300);
         } catch (err) {
-            this.saveScreenshot(appConst.generateRandomName('err_spinner'))
+            this.saveScreenshot(appConst.generateRandomName('err_spinner'));
             throw new Error("Filter Panel-  error : " + err);
         }
     },
@@ -509,7 +524,6 @@ module.exports = {
         return await launcherPanel.clickOnContentStudioLink();
 
     },
-
     async doSwitchToContentBrowsePanel() {
         try {
             console.log('testUtils:switching to Content Browse panel...');
@@ -611,7 +625,7 @@ module.exports = {
             return console.log('screenshot was not saved ' + screenshotsDir + 'utils  ' + err);
         })
     },
-    openDependencyWidgetInBrowsePanel: function () {
+    openDependencyWidgetInBrowsePanel() {
         let browsePanel = new BrowsePanel();
         let browseDependenciesWidget = new BrowseDependenciesWidget();
         return browsePanel.openDetailsPanel().then(() => {
@@ -619,6 +633,15 @@ module.exports = {
         }).then(() => {
             return browseDependenciesWidget.waitForWidgetLoaded();
         })
+    },
+    async openLayersWidgetInBrowsePanel() {
+        let browsePanel = new BrowsePanel();
+        let browseDetailsPanel = new BrowseDetailsPanel();
+        let browseLayersWidget = new BrowseLayersWidget();
+        await browsePanel.openDetailsPanel();
+        await browseDetailsPanel.openLayers();
+        await browseLayersWidget.waitForWidgetLoaded();
+        return browseLayersWidget;
     },
     isStringEmpty(str) {
         return (!str || 0 === str.length);
@@ -635,18 +658,28 @@ module.exports = {
             "};" +
             "xhr.send();");
     },
-    async openAppModeSwitcher() {
-        await this.clickOnElement(lib.APP_MODE_SWITCHER_TOGGLER);
-        return await webDriverHelper.browser.pause(200);
+    async openContentStudioMenu() {
+        let result = await this.isContentStudioMenuOpened();
+        if (!result) {
+            await this.waitForElementDisplayed(lib.APP_MODE_SWITCHER_TOGGLER);
+            await this.clickOnElement(lib.APP_MODE_SWITCHER_TOGGLER);
+            return await webDriverHelper.browser.pause(200);
+        }
+    },
+    async isContentStudioMenuOpened() {
+        let element = await webDriverHelper.browser.$("//div[contains(@id,'AppWrapper')]");
+        let atrValue = await element.getAttribute("class");
+        return atrValue.includes("sidebar-expanded");
     },
     async openSettingsPanel() {
-        await this.openAppModeSwitcher();
+        await this.openContentStudioMenu();
         await this.clickOnElement(lib.SETTINGS_BUTTON);
         return await webDriverHelper.browser.pause(300);
     },
     async switchToContentMode() {
         await this.clickOnElement(lib.MODE_CONTENT_BUTTON);
-        return await webDriverHelper.browser.pause(200);
+        await webDriverHelper.browser.pause(200);
+        return new ContentBrowsePanel();
     },
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);

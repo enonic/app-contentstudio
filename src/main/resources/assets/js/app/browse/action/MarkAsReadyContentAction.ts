@@ -1,33 +1,30 @@
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {MarkAsReadyRequest} from '../../resource/MarkAsReadyRequest';
-import {Action} from 'lib-admin-ui/ui/Action';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentTreeGridAction} from './ContentTreeGridAction';
+import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
 export class MarkAsReadyContentAction
-    extends Action {
+    extends ContentTreeGridAction {
 
-    private grid: ContentTreeGrid;
     private confirmDialog: ConfirmationDialog;
 
     constructor(grid: ContentTreeGrid) {
-        super(i18n('action.markAsReady'));
+        super(grid, i18n('action.markAsReady'));
         this.setEnabled(false);
 
-        this.grid = grid;
         this.confirmDialog = new ConfirmationDialog().setQuestion(i18n('dialog.markAsReady.question'));
-
-        this.onExecuted(this.handleExecuted.bind(this));
     }
 
-    private handleExecuted() {
-        const contentToMarkAsReady = this.grid.getSelectedDataList().filter(
+    protected handleExecuted() {
+        const contentToMarkAsReady: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList().filter(
             (item: ContentSummaryAndCompareStatus) => item.canBeMarkedAsReady()
         );
-        const isSingleItem = contentToMarkAsReady.length === 1;
+        const isSingleItem: boolean = contentToMarkAsReady.length === 1;
 
         if (isSingleItem) {
             MarkAsReadyContentAction.markAsReady(contentToMarkAsReady);
@@ -49,5 +46,9 @@ export class MarkAsReadyContentAction
                 showFeedback(i18n('notify.item.markedAsReady.multiple', content.length));
             }
         }).catch(DefaultErrorHandler.handle);
+    }
+
+    isToBeEnabled(state: ContentTreeGridItemsState): boolean {
+        return !state.isEmpty() && state.hasAllValid() && state.canModify() && state.hasAnyCanBeMarkedAsReady();
     }
 }

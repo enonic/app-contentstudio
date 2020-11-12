@@ -7,6 +7,7 @@ import {PublishStatus, PublishStatusChecker, PublishStatusFormatter} from '../pu
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ContentInheritType} from 'lib-admin-ui/content/ContentInheritType';
 import { IDentifiable } from 'lib-admin-ui/IDentifiable';
 import {i18n} from 'lib-admin-ui/util/Messages';
 
@@ -128,6 +129,42 @@ export class ContentSummaryAndCompareStatus
         return !!this.contentSummary ? this.contentSummary.hasChildren() : false;
     }
 
+    isFullyInherited(): boolean {
+        return (this.getInherit().length * 2) === Object.keys(ContentInheritType).length;
+    }
+
+    getInherit(): ContentInheritType[] {
+        return !!this.contentSummary ? this.contentSummary.getInherit() : [];
+    }
+
+    isDataInherited(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isDataInherited() : false;
+    }
+
+    isSortInherited(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isSortInherited() : false;
+    }
+
+    isParentInherited(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isParentInherited() : false;
+    }
+
+    isNameInherited(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isNameInherited() : false;
+    }
+
+    isValid(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isValid() : false;
+    }
+
+    isDeletable(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isDeletable() : false;
+    }
+
+    isEditable(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isEditable() : false;
+    }
+
     getStatusText(): string {
         if (this.isUnpublished()) {
             return i18n('status.unpublished');
@@ -198,7 +235,7 @@ export class ContentSummaryAndCompareStatus
     }
 
     isReadOnly(): boolean {
-        return this.readOnly;
+        return !!this.readOnly;
     }
 
     isPendingDelete(): boolean {

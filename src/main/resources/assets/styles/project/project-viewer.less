@@ -1,0 +1,23 @@
+.project-viewer {
+  .names-and-icon-view {
+    z-index: 0;
+  }
+}
+
+.viewer-selectable() {
+  &.viewer {
+    cursor: pointer;
+
+    .names-and-icon-view {
+      cursor: pointer;
+
+      .@{_COMMON_PREFIX}main-name {
+        cursor: pointer;
+      }
+
+      .@{_COMMON_PREFIX}sub-name {
+        cursor: pointer;
+      }
+    }
+  }
+}

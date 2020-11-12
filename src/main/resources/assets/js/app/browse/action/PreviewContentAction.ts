@@ -1,31 +1,36 @@
 import {PreviewContentHandler} from './handler/PreviewContentHandler';
 import {ContentTreeGrid} from '../ContentTreeGrid';
-import {BasePreviewAction} from '../../action/BasePreviewAction';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {ContentTreeGridAction} from './ContentTreeGridAction';
+import {PreviewActionHelper} from '../../action/PreviewActionHelper';
+import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 
 export class PreviewContentAction
-    extends BasePreviewAction {
+    extends ContentTreeGridAction {
 
     private previewContentHandler: PreviewContentHandler;
 
+    private helper: PreviewActionHelper;
+
     constructor(grid: ContentTreeGrid) {
-        super(i18n('action.preview'));
+        super(grid, i18n('action.preview'), BrowserHelper.isOSX() ? 'alt+space' : 'mod+alt+space', true);
         this.setEnabled(false);
+        this.helper = new PreviewActionHelper();
 
         this.previewContentHandler = new PreviewContentHandler();
+    }
 
-        this.onExecuted(() => {
-            if (!this.previewContentHandler.isBlocked()) {
-                let contentSummaries: ContentSummary[] = grid.getSelectedDataList().map(data => data.getContentSummary()).filter(
-                    contentSummary => this.previewContentHandler.getRenderableIds().indexOf(contentSummary.getContentId().toString()) >= 0);
+    protected handleExecuted() {
+        if (!this.previewContentHandler.isBlocked()) {
+            let contentSummaries: ContentSummary[] = this.grid.getSelectedDataList().map(data => data.getContentSummary()).filter(
+                contentSummary => this.previewContentHandler.getRenderableIds().indexOf(contentSummary.getContentId().toString()) >= 0);
 
-                this.openWindows(contentSummaries);
-            } else {
-                showWarning(i18n('notify.preview.tooMuch', PreviewContentHandler.BLOCK_COUNT));
-            }
-        });
+            this.helper.openWindows(contentSummaries);
+        } else {
+            showWarning(i18n('notify.preview.tooMuch', PreviewContentHandler.BLOCK_COUNT));
+        }
     }
 
     getPreviewHandler(): PreviewContentHandler {

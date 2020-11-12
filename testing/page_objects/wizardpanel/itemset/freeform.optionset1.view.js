@@ -46,7 +46,7 @@ class FreeFormOptionSet1 extends Page {
         let locator = `//div[contains(@id,'FormOccurrenceDraggableLabel') and text()='${formName}']`;
         let elements = await this.findElements(locator);
         await elements[0].click();
-        await this.pause(300);
+        return await this.pause(300);
     }
 }
 

@@ -23,6 +23,12 @@
 
     &.theme-@{theme-name} {
       .sidebar-toggler {
+        background-color: transparent;
+
+        &:hover {
+          background-color: transparent;
+        }
+
         span {
           background-color: @HEADER_FONT_COLOR;
 
@@ -47,6 +53,32 @@
           border-bottom: none;
           overflow: visible;
           z-index: 1;
+        }
+
+        .project-viewer {
+          .names-and-icon-view {
+            &::before,
+            .font-icon-default::before {
+              color: @HEADER_ICON_COLOR;
+            }
+
+            .display-name {
+              color: @HEADER_FONT_COLOR;
+            }
+          }
+
+          &:hover {
+            .names-and-icon-view {
+              &::before,
+              .font-icon-default::before {
+                color: @HEADER_ICON_COLOR_HOVER;
+              }
+
+              .display-name {
+                color: @HEADER_FONT_COLOR_HOVER;
+              }
+            }
+          }
         }
 
         .appbar-tab-menu {
@@ -112,96 +144,6 @@
 
             &::before {
               color: @HEADER_ICON_COLOR_HOVER;
-            }
-          }
-        }
-
-        .project-selector {
-
-          .selected-project-view {
-
-            &:hover {
-              .@{_COMMON_PREFIX}dropdown-handle {
-                &::after {
-                  border-top-color: @HEADER_FONT_COLOR_HOVER;
-                }
-              }
-            }
-
-            &:not(:hover) {
-              .names-and-icon-view {
-
-                .@{_COMMON_PREFIX}names-view {
-                  .@{_COMMON_PREFIX}main-name {
-                    color: @HEADER_FONT_COLOR;
-                  }
-                }
-
-                .icon-tree-2 {
-                  color: @HEADER_ICON_COLOR;
-                }
-              }
-
-              .@{_COMMON_PREFIX}dropdown-handle {
-
-                &::after {
-                  border-top-color: @HEADER_FONT_COLOR;
-                }
-              }
-            }
-          }
-
-          .project-list-item-viewer {
-
-            .names-and-icon-view {
-              .@{_COMMON_PREFIX}names-view {
-                .@{_COMMON_PREFIX}main-name {
-                  color: @HEADER_FONT_COLOR_HOVER;
-                }
-                .@{_COMMON_PREFIX}sub-name {
-                  color: @HEADER_FONT_COLOR;
-                }
-              }
-
-              .icon-tree-2 {
-                color: @HEADER_FONT_COLOR_HOVER;
-              }
-            }
-          }
-
-          .project-list-items {
-            background-color: @HEADER_BG_COLOR;
-
-            .project-list-item {
-
-              &.selected {
-                .names-and-icon-view {
-
-                  .@{_COMMON_PREFIX}names-view {
-                    .@{_COMMON_PREFIX}main-name,
-                    .@{_COMMON_PREFIX}sub-name {
-                      color: @admin-white;
-                    }
-                  }
-
-                  .icon-tree-2 {
-                    color: @admin-white;
-                  }
-                }
-              }
-
-              &:not(.selected):hover {
-                background-color: @HEADER_BG_COLOR_HOVER;
-
-                .names-and-icon-view {
-
-                  .@{_COMMON_PREFIX}names-view {
-                    .@{_COMMON_PREFIX}sub-name {
-                      color: @HEADER_FONT_COLOR_HOVER;
-                    }
-                  }
-                }
-              }
             }
           }
         }

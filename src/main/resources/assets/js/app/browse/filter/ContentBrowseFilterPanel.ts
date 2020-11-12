@@ -49,6 +49,8 @@ import {Expand} from 'lib-admin-ui/rest/Expand';
 import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationView';
 import {ContentIds} from '../../ContentIds';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
+import {ProjectContext} from '../../project/ProjectContext';
+import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
@@ -65,8 +67,20 @@ export class ContentBrowseFilterPanel
 
         super();
 
-        this.initAggregationGroupView([this.contentTypeAggregation, this.lastModifiedAggregation]);
+        if (ProjectContext.get().isInitialized()) {
+            this.initElementsAndListeners();
+        } else {
+            const projectSetHandler = () => {
+                ProjectChangedEvent.un(projectSetHandler);
+                this.initElementsAndListeners();
+            };
 
+            ProjectChangedEvent.on(projectSetHandler);
+        }
+    }
+
+    private initElementsAndListeners() {
+        this.initAggregationGroupView([this.contentTypeAggregation, this.lastModifiedAggregation]);
         this.handleEvents();
     }
 

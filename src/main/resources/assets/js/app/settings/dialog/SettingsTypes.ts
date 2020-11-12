@@ -1,5 +1,6 @@
 import {SettingsType} from './SettingsType';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
 
 export class SettingsTypes {
 
@@ -8,12 +9,26 @@ export class SettingsTypes {
             .setName('Project')
             .setDescription(i18n('settings.items.type.projectDescription'))
             .setDisplayName(i18n('settings.items.type.project'))
-            .setIconClass('icon-tree-2')
+            .setDisplayNamePlaceholder(i18n('settings.projects.displayName'))
+            .setIconClass(ProjectIconUrlResolver.getDefaultProjectIcon())
             .build();
 
-    private static TYPES: SettingsType[] = [SettingsTypes.PROJECT];
+    public static LAYER: SettingsType =
+        SettingsType.create()
+            .setName('Layer')
+            .setDescription(i18n('settings.items.type.layerDescription'))
+            .setDisplayName(i18n('settings.items.type.layer'))
+            .setDisplayNamePlaceholder(i18n('settings.layers.displayName'))
+            .setIconClass(ProjectIconUrlResolver.getDefaultLayerIcon())
+            .build();
 
-    getType(name: string): SettingsType {
+    private static TYPES: SettingsType[] = [SettingsTypes.PROJECT, SettingsTypes.LAYER];
+
+    static getType(name: string): SettingsType {
         return SettingsTypes.TYPES.find(type => type.getName() === name);
+    }
+
+    static getInstantiable(): SettingsType[] {
+        return SettingsTypes.TYPES.filter(type => type.getInstantiable());
     }
 }

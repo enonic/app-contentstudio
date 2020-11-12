@@ -79,7 +79,7 @@ describe('wizard.update.permissions.spec: update permissions and check the state
                 await editPermissionsDialog.filterAndSelectPrincipal(appConstant.systemUsersDisplayName.SUPER_USER);
                 await editPermissionsDialog.clickOnApplyButton();
                 //3. Go to the wizard:
-                await studioUtils.switchToContentTabWindow(displayName);
+                    await studioUtils.switchToContentTabWindow(displayName);
                 // 'Save(Disabled)' button should still be present after applying permissions in browse-panel:
                 await contentWizard.waitForSaveButtonVisible();
                 await contentWizard.waitForSaveButtonDisabled();
