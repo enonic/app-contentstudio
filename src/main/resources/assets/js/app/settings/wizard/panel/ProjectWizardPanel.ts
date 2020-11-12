@@ -27,7 +27,6 @@ import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
-import {SettingsDataItemFormIcon} from './form/element/SettingsDataItemFormIcon';
 import {ProjectDataItemFormIcon} from './form/element/ProjectDataItemFormIcon';
 
 export class ProjectWizardPanel
@@ -359,10 +358,26 @@ export class ProjectWizardPanel
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.addClass('project-wizard-panel');
-            this.checkIfEditIsAllowed().then((isEditAllowed: boolean) => this.toggleClass('no-modify-permissions', !isEditAllowed));
+            this.checkIfEditIsAllowed().then((isEditAllowed: boolean) => {
+                this.toggleClass('no-modify-permissions', !isEditAllowed);
+
+                if (!isEditAllowed) {
+                    this.disableInputs();
+                }
+            });
 
             return rendered;
         });
+    }
+
+    private disableInputs() {
+        this.formIcon.getEl().setDisabled(true);
+        this.wizardHeader.disableDisplayNameInput();
+        this.wizardHeader.disableNameInput();
+
+        this.projectWizardStepForm.disable();
+        this.readAccessWizardStepForm.disable();
+        this.rolesWizardStepForm.disable();
     }
 
     getParentProject(): string {

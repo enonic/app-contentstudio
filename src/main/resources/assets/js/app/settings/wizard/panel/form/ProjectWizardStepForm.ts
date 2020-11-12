@@ -10,4 +10,8 @@ export abstract class ProjectWizardStepForm extends SettingDataItemWizardStepFor
         this.parentProject = project;
     }
 
+    disable() {
+    //
+    }
+
 }

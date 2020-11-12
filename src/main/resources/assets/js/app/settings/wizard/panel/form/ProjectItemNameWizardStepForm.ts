@@ -85,6 +85,11 @@ export class ProjectItemNameWizardStepForm
         });
     }
 
+    disable() {
+        this.projectNameInput.getEl().setDisabled(true);
+        this.descriptionInput.getEl().setDisabled(true);
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.addClass('project-item-wizard-step-form');

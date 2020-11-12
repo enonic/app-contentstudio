@@ -1,7 +1,7 @@
 import {ProjectViewItem} from '../../../view/ProjectViewItem';
 import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ProjectAccessControlComboBox} from './element/ProjectAccessControlComboBox';
+import {ProjectAccessControlComboBox, ProjectACESelectedOptionsView} from './element/ProjectAccessControlComboBox';
 import * as Q from 'q';
 import {ProjectItemPermissionsBuilder, ProjectPermissions} from '../../../data/project/ProjectPermissions';
 import {ProjectAccessControlEntry} from '../../../access/ProjectAccessControlEntry';
@@ -18,6 +18,7 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {Project} from '../../../data/project/Project';
+import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
 
 export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
@@ -77,6 +78,13 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
         this.copyParentRolesButton.setEnabled(
             this.parentProject && !ObjectHelper.equals(this.parentProject.getPermissions(), this.getPermissions()));
+    }
+
+    disable() {
+        this.accessCombobox.getComboBox().setEnabled(false);
+        this.accessCombobox.addClass('disabled');
+        this.accessCombobox.getSelectedOptionView().getSelectedOptions().forEach(
+            (o: SelectedOption<ProjectAccessControlEntry>) => o.getOptionView().setEditable(false));
     }
 
     getName(): string {
@@ -194,7 +202,6 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-            this.addClass('project-item-wizard-step-form');
             this.accessComboBoxFormItem.addClass('project-access-control-form-item');
 
             return rendered;

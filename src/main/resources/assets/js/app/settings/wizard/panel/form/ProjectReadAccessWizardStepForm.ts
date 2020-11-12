@@ -78,6 +78,12 @@ export class ProjectReadAccessWizardStepForm
         });
     }
 
+    disable() {
+        this.readAccessRadioGroup.setDisabled(true);
+        this.disableLocaleCombobox();
+        this.disablePrincipalCombobox();
+    }
+
     private updateCopyParentLanguageButtonState() {
         if (!this.copyParentLanguageButton) {
             return;
@@ -297,14 +303,21 @@ export class ProjectReadAccessWizardStepForm
         principalsLoader.skipPrincipals(principals);
     }
 
+    private disableLocaleCombobox() {
+        this.localeCombobox.addClass('disabled');
+        this.localeCombobox.getComboBox().setEnabled(false);
+    }
+
     private disablePrincipalCombobox() {
         this.principalsCombobox.getComboBox().setEnabled(false);
         this.principalsCombobox.addClass('disabled');
+        this.principalsCombobox.setReadOnly(true);
     }
 
     private enablePrincipalCombobox() {
         this.principalsCombobox.getComboBox().setEnabled(true);
         this.principalsCombobox.removeClass('disabled');
+        this.principalsCombobox.setReadOnly(false);
     }
 
     private createLanguageFormItem(): FormItem {
