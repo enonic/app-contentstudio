@@ -934,6 +934,15 @@ class ContentWizardPanel extends Page {
         let locator = XPATH.wizardHeader + "//span[@class='path-error']";
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
+
+    async openLayersWidget() {
+        let detailsPanel = new DetailsPanel();
+        let wizardLayersWidget = new WizardLayersWidget();
+        await this.openDetailsPanel();
+        await detailsPanel.openLayers();
+        await wizardLayersWidget.waitForWidgetLoaded();
+        return wizardLayersWidget;
+    }
 }
 
 module.exports = ContentWizardPanel;
