@@ -440,6 +440,10 @@ class ContentWizardPanel extends Page {
         return this.typeTextInInput(this.displayNameInput, displayName);
     }
 
+    typeInPathInput(path) {
+        return this.typeTextInInput(this.pathInput, path);
+    }
+
     getDisplayName() {
         return this.getTextInInput(this.displayNameInput);
     }
