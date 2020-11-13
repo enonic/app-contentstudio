@@ -72,6 +72,10 @@ implements Cloneable {
         return this.contentPublishInfo?.getTo();
     }
 
+    setPublishedFrom(date: Date) {
+        return this.contentPublishInfo.setFrom(date);
+    }
+
     isPublished(): boolean {
         if (!this.contentPublishInfo) {
             return false;

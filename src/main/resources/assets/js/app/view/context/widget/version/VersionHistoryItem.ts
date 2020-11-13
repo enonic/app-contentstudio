@@ -1,7 +1,6 @@
 import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersionPublishInfo} from '../../../../ContentVersionPublishInfo';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 export class VersionHistoryItem {
 
@@ -41,12 +40,7 @@ export class VersionHistoryItem {
             } else {
                 item.status = i18n('status.published');
                 item.iconCls = 'icon-version-published';
-                if (VersionHistoryItem.equalDates(publishInfo.getPublishedFrom(), item.dateTime)) {
-                    // Version date/time and publishFrom on the server might be off by several milliseconds, in this case make them equal
-                    item.activeFrom = item.dateTime;
-                } else {
-                    item.activeFrom = publishInfo.getPublishedFrom();
-                }
+                item.activeFrom = publishInfo.getPublishedFrom();
             }
             item.activeTo = publishInfo.getPublishedTo();
         } else if (publishInfo.isUnpublished()) {
@@ -79,10 +73,6 @@ export class VersionHistoryItem {
         }
 
         return item;
-    }
-
-    static equalDates(date1: Date, date2: Date): boolean {
-        return Math.abs(Number(date1) - Number(date2)) < 1000;
     }
 
     getActiveVersionId(): string {

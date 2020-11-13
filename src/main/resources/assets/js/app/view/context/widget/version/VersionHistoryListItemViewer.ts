@@ -22,7 +22,7 @@ export class VersionHistoryListItemViewer
             // Publishing can be set in the past, even before creation date.
             // To not break the logical sequence in the Version History, such publishing will still be shown based
             // on version.getDateTime() but display FULL date/time from which the publishing was made active.
-            dateTimeToString = DateHelper.getFormattedTimeFromDate(dateTime);
+            dateTimeToString = DateHelper.formatDateTime(dateTime, false);
         }
 
         return `${dateTimeToString} ${version.getStatus()}`;

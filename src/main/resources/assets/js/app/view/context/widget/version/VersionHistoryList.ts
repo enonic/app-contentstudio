@@ -52,32 +52,38 @@ export class VersionHistoryList
         let lastDate: string = null;
         const createdTime: number = Number(this.content.getContentSummary().getCreatedTime());
 
-        contentVersions.forEach((version: ContentVersion) => {
-            const skipDuplicateVersion: boolean = this.versionDates[Number(version.getModified())] !== version.getId();
+        contentVersions
+            .sort((v1: ContentVersion, v2: ContentVersion) => {
+                return Number(v2.getDisplayDate()) - Number(v1.getDisplayDate());
+            })
+            .forEach((version: ContentVersion) => {
+                const displayDate = version.getDisplayDate();
+                const skipDuplicateVersion: boolean = this.versionDates[Number(version.getModified())] !== version.getId();
 
-            if (version.hasPublishInfo()) {
-                const publishDate: string = DateHelper.formatDate(version.getPublishInfo().getTimestamp());
-                versionHistoryItems.push(
-                    VersionHistoryItem.fromPublishInfo(version.getPublishInfo()).setSkipDate(publishDate === lastDate)
-                );
-                lastDate = publishDate;
-            }
-
-            if (!skipDuplicateVersion) {
-                const isFirstVersion: boolean = createdTime === Number(version.getModified());
-                const modifiedDate: string = DateHelper.formatDate(version.getModified());
-
-                if (!version.isUnpublished()) {
+                if (version.hasPublishInfo()) {
+                    const publishInfo = version.getPublishInfo();
+                    const publishDate: string = DateHelper.formatDate(displayDate);
                     versionHistoryItems.push(
-                        VersionHistoryItem.fromContentVersion(version, isFirstVersion)
-                            .setSkipDate(modifiedDate === lastDate)
-                            .setActiveVersionId(this.activeVersionId)
+                        VersionHistoryItem.fromPublishInfo(publishInfo).setSkipDate(publishDate === lastDate)
                     );
+                    lastDate = publishDate;
                 }
 
-                lastDate = modifiedDate;
-            }
-        });
+                if (!skipDuplicateVersion) {
+                    const isFirstVersion: boolean = createdTime === Number(version.getModified());
+                    const modifiedDate: string = DateHelper.formatDate(version.getModified());
+
+                    if (!version.isUnpublished()) {
+                        versionHistoryItems.push(
+                            VersionHistoryItem.fromContentVersion(version, isFirstVersion)
+                                .setSkipDate(modifiedDate === lastDate)
+                                .setActiveVersionId(this.activeVersionId)
+                        );
+                    }
+
+                    lastDate = modifiedDate;
+                }
+            });
 
         return versionHistoryItems;
     }
@@ -113,7 +119,7 @@ export class VersionHistoryList
 
         this.versionDates = {};
         return new GetContentVersionsRequest(this.getContentId()).sendAndParse().then((contentVersions: ContentVersions) => {
-            contentVersions.getContentVersions().forEach((version: ContentVersion) => {
+            contentVersions.getContentVersions().forEach((version: ContentVersion, index: number) => {
                 this.versionDates[Number(version.getModified())] = version.getId();
                 if (version.isActive()) {
                     this.activeVersionId = version.getId();

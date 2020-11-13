@@ -204,7 +204,7 @@ export class VersionHistoryListItem
             this.createTooltip();
 
             if (!this.version.skipsDate()) {
-                this.appendChild(this.createVersionDateBlock(this.version.getDateTime()));
+                this.appendChild(this.createVersionDateBlock(this.version.getActiveFrom() || this.version.getDateTime()));
             }
 
             this.appendChild(this.createVersionViewer());
