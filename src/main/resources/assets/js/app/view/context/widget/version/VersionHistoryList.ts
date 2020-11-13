@@ -21,7 +21,7 @@ export class VersionHistoryList
 
     private content: ContentSummaryAndCompareStatus;
     private loadedListeners: { (): void }[] = [];
-    private versionDates: VersionDate = {};
+    private versionDates: VersionDate;
     private activeVersionId: string;
 
     constructor() {
@@ -111,6 +111,7 @@ export class VersionHistoryList
             throw new Error('Required contentId not set for ActiveContentVersionsTreeGrid');
         }
 
+        this.versionDates = {};
         return new GetContentVersionsRequest(this.getContentId()).sendAndParse().then((contentVersions: ContentVersions) => {
             contentVersions.getContentVersions().forEach((version: ContentVersion) => {
                 this.versionDates[Number(version.getModified())] = version.getId();

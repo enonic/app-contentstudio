@@ -83,7 +83,15 @@ implements Cloneable {
         if (!this.contentPublishInfo) {
             return false;
         }
-        return !!this.getFirstPublished() && !this.getPublishedFrom() && !this.getPublishedTo();
+
+        return !this.getPublishedFrom() && !this.getPublishedTo();
+    }
+
+    isScheduled(): boolean {
+        if (!this.isPublished()) {
+            return false;
+        }
+        return this.getPublishedFrom() > this.getTimestamp() && this.getPublishedFrom() > new Date(Date.now());
     }
 
     isEmpty(): boolean {
