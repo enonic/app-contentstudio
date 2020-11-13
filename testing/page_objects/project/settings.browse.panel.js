@@ -107,7 +107,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     async waitForItemDisplayed(projectName) {
         try {
-            return await this.waitForElementDisplayed(XPATH.itemsTreeGrid + lib.itemByName(projectName), appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(XPATH.itemsTreeGrid + XPATH.projectItemByName(projectName), appConst.mediumTimeout);
         } catch (err) {
             console.log("item is not displayed:" + projectName);
             this.saveScreenshot('err_find_' + projectName);

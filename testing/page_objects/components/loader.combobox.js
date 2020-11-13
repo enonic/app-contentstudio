@@ -53,7 +53,8 @@ class LoaderComboBox extends Page {
     getOptionDisplayNames() {
         //TODO implement it
     }
-};
+}
+
 module.exports = LoaderComboBox;
 
 
