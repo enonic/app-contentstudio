@@ -16,14 +16,19 @@
     }
   }
 
-  .button-container {
-    width: 100%;
-    text-align: right;
+  .dialog-buttons {
+    .button-container {
+      flex-direction: row-reverse;
+      justify-content: space-between;
 
-    .dialog-button.prev {
-      float: left;
-      margin: 0;
-      background-color: @form-button-bg;
+      .dialog-button.prev {
+        margin: 0;
+        background-color: @form-button-bg;
+      }
+
+      .dialog-button.next {
+        margin: 0 0 0 auto;
+      }
     }
   }
 }

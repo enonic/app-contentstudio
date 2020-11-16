@@ -1,18 +1,7 @@
 .delete-dialog {
-  .modal-dialog-wrapper .modal-dialog-footer {
-    .dialog-buttons {
-      .delete-dialog-menu {
-        button {
-          .dialog-button(@form-button-font, @input-red-text);
-        }
-
-        .@{_COMMON_PREFIX}dropdown-handle {
-          margin: 0;
-          width: 36px;
-          padding: 0;
-          height: 100%;
-        }
-      }
+  .dialog-buttons .dropdown-dialog-menu {
+    button {
+      .button(@form-button-font, @input-red-text);
     }
   }
 
