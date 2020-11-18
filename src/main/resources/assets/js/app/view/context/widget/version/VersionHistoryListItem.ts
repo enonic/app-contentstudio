@@ -70,23 +70,20 @@ export class VersionHistoryListItem
     }
 
     private getTooltipText(): string {
-        if (!!this.version.getActiveFrom() && !!this.version.getActiveTo()) {
-            return i18n(
-                'tooltip.publishedFromTo',
-                DateHelper.formatDateTime(this.version.getActiveFrom(), false),
-                DateHelper.formatDateTime(this.version.getActiveTo(), false)
-            );
-        }
+        let tooltip = i18n('tooltip.state.published',
+            DateHelper.formatDateTime(this.version.getDateTime(), false),
+            this.version.getUser(),
+        );
 
         if (!!this.version.getActiveFrom()) {
-            return i18n('tooltip.publishedFrom', DateHelper.formatDateTime(this.version.getActiveFrom(), false));
+            tooltip += ' ' + i18n('tooltip.from', DateHelper.formatDateTime(this.version.getActiveFrom(), false));
         }
 
         if (!!this.version.getActiveTo()) {
-            return i18n('tooltip.publishedTo', DateHelper.formatDateTime(this.version.getActiveTo(), false));
+            tooltip += ' ' + i18n('tooltip.to', DateHelper.formatDateTime(this.version.getActiveTo(), false));
         }
 
-        return '';
+        return tooltip;
     }
 
     private createEditButton(): ActionButton {
@@ -207,7 +204,7 @@ export class VersionHistoryListItem
             this.createTooltip();
 
             if (!this.version.skipsDate()) {
-                this.appendChild(this.createVersionDateBlock(this.version.getDateTime()));
+                this.appendChild(this.createVersionDateBlock(this.version.getActiveFrom() || this.version.getDateTime()));
             }
 
             this.appendChild(this.createVersionViewer());

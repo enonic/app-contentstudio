@@ -38,10 +38,21 @@ export class ContentVersion implements Cloneable {
         this.workspaces = builder.workspaces || [];
         this.publishInfo = builder.publishInfo;
         this.workflowInfo = builder.workflowInfo;
+
+        if (this.publishInfo && this.publishInfo.getPublishedFrom()) {
+            if (ContentVersion.equalDates(this.publishInfo.getPublishedFrom(), this.publishInfo.getTimestamp())) {
+                // Version date/time and publishFrom on the server might be off by several milliseconds, in this case make them equal
+                this.publishInfo.setPublishedFrom(this.publishInfo.getTimestamp());
+            }
+        }
     }
 
     static fromJson(contentVersionJson: ContentVersionJson, workspaces?: string[]): ContentVersion {
         return new ContentVersionBuilder().fromJson(contentVersionJson, workspaces).build();
+    }
+
+    static equalDates(date1: Date, date2: Date): boolean {
+        return Math.abs(Number(date1) - Number(date2)) < 100; // Allow 100 ms difference
     }
 
     getModifier(): string {
@@ -54,6 +65,25 @@ export class ContentVersion implements Cloneable {
 
     getDisplayName(): string {
         return this.displayName;
+    }
+
+    getDisplayDate(): Date {
+        const publishInfo = this.getPublishInfo();
+        if (this.isPublished()) {
+            if (publishInfo.isScheduled()) {
+                return publishInfo.getTimestamp();
+            }
+            if (publishInfo.getPublishedFrom() < publishInfo.getTimestamp()) {
+                return publishInfo.getTimestamp();
+            }
+            return publishInfo.getPublishedFrom();
+        }
+
+        if (this.isUnpublished()) {
+            return publishInfo.getTimestamp();
+        }
+
+        return this.getModified();
     }
 
     getModified(): Date {
@@ -85,7 +115,7 @@ export class ContentVersion implements Cloneable {
     }
 
     isUnpublished(): boolean {
-        return !!this.hasPublishInfo() && !this.getPublishInfo().getPublishedFrom() && !!this.getPublishInfo().getFirstPublished();
+        return !!this.hasPublishInfo() && !this.getPublishInfo().getPublishedFrom();
     }
 
     hasPublishInfo(): boolean {

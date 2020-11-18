@@ -411,7 +411,7 @@ export class CompareContentVersionsDialog
     private getNewestPublishedVersion(options: Option<ContentVersion>[], maxDateTime: number): ContentVersion {
         return options
             .map(option => option.displayValue)
-            .filter(version => !!version.getPublishInfo() && (!maxDateTime || version.getModified().getTime() <= maxDateTime))
+            .filter((version: ContentVersion) => version.isPublished() && (!maxDateTime || version.getModified().getTime() <= maxDateTime))
             .sort((v1, v2) => v2.getPublishInfo().getTimestamp().getTime() - v1.getPublishInfo().getTimestamp().getTime())[0];
 
     }
