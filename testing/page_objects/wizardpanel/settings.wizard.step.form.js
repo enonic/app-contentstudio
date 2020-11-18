@@ -53,16 +53,22 @@ class SettingsStepForm extends Page {
             await this.typeTextInInput(this.ownerFilterInput, owner);
             let loaderComboBox = new LoaderComboBox();
             await loaderComboBox.selectOption(owner);
-            return this.pause(400);
+            return await this.pause(200);
         } catch (err) {
             this.saveScreenshot(appConst.generateRandomName('err_option'));
             throw new Error('Settings form, language selector :' + err);
         }
     }
 
-    getSelectedLanguage() {
+    async getSelectedLanguage() {
         let selector = xpath.container + xpath.selectedLocale + lib.H6_DISPLAY_NAME;
-        return this.getText(selector);
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        return await this.getText(selector);
+    }
+
+    waitForSelectedLanguageNotDisplayed() {
+        let selector = xpath.container + xpath.selectedLocale + lib.H6_DISPLAY_NAME;
+        return this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
     }
 
     getSelectedOwner() {
@@ -97,7 +103,8 @@ class SettingsStepForm extends Page {
     isOwnerOptionsFilterVisible() {
         return this.isElementDisplayed(this.ownerFilterInput);
     }
-};
+}
+
 module.exports = SettingsStepForm;
 
 
