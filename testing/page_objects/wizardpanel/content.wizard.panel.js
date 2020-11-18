@@ -36,6 +36,7 @@ const XPATH = {
     deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete...']]`,
     duplicateButton: `//button[contains(@id,'ActionButton') and child::span[text()='Duplicate...']]`,
     previewButton: `//button[contains(@id,'ActionButton') and child::span[text()='Preview']]`,
+    resetButton: "//button[contains(@id,'ActionButton') and child::span[text()='Reset']]",
     publishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Publish...']]",
     createTaskButton: "//button[contains(@id,'ActionButton') and child::span[text()='Create Task...']]",
     markAsReadyButton: "//button[contains(@id,'ActionButton') and child::span[text()='Mark as ready']]",
@@ -91,6 +92,10 @@ class ContentWizardPanel extends Page {
 
     get saveButton() {
         return XPATH.container + XPATH.saveButton;
+    }
+
+    get resetButton() {
+        return XPATH.container + XPATH.resetButton;
     }
 
     get savedButton() {
@@ -979,7 +984,29 @@ class ContentWizardPanel extends Page {
         await wizardLayersWidget.waitForWidgetLoaded();
         return wizardLayersWidget;
     }
+
+    waitForResetButtonDisplayed() {
+        return this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
+    }
+
+    waitForResetButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.resetButton, appConst.longTimeout);
+    }
+
+    async clickOnResetButton() {
+        await this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
+        return await this.clickOnElement(this.resetButton);
+    }
+
+    async clickOnResetAndWaitForConfirmationDialog() {
+        await this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
+        await this.clickOnElement(this.resetButton);
+        let dialog = new ConfirmationDialog();
+        await dialog.waitForDialogOpened();
+        return dialog;
+    }
 }
+
 
 module.exports = ContentWizardPanel;
 
