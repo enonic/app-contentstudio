@@ -65,11 +65,21 @@ export class SettingsBrowsePanel
     }
 
     deleteSettingsItem(id: string) {
-        this.treeGrid.deleteNodeByDataId(id);
+        this.treeGrid.deleteSettingsItem(id);
     }
 
     hasItemsLoaded(): boolean {
         return this.treeGrid.getFullTotal() > 1;
+    }
+
+    getSelectedItem(): SettingsViewItem {
+        const selectedItems: SettingsViewItem[] = this.treeGrid.getSelectedDataList();
+
+        if (selectedItems.length === 1) {
+            return selectedItems[0];
+        }
+
+        return null;
     }
 
 }

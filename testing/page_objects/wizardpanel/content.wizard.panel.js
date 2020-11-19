@@ -11,17 +11,21 @@ const ContextWindow = require('./liveform/liveform.context.window');
 const DetailsPanel = require('./details/wizard.details.panel');
 const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
-const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const VersionsWidget = require('./details/wizard.versions.widget');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
 const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
+const RenamePublishedContentDialog = require('./rename.content.dialog');
+const WizardLayersWidget = require('./details/wizard.layers.widget');
+
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
     wizardHeader: "//div[contains(@id,'ContentWizardHeader')]",
     pageEditorTogglerButton: "//button[contains(@id, 'CycleButton') ]",
-    displayNameInput: `//input[contains(@name,'displayName')]`,
+    displayNameInput: "//input[@name='displayName']",
+    pathInput: "//input[@name='name']",
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
     publishMenuButton: "//div[contains(@id,'ContentWizardPublishMenuButton')]",
@@ -32,6 +36,7 @@ const XPATH = {
     deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete...']]`,
     duplicateButton: `//button[contains(@id,'ActionButton') and child::span[text()='Duplicate...']]`,
     previewButton: `//button[contains(@id,'ActionButton') and child::span[text()='Preview']]`,
+    resetButton: "//button[contains(@id,'ActionButton') and child::span[text()='Reset']]",
     publishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Publish...']]",
     createTaskButton: "//button[contains(@id,'ActionButton') and child::span[text()='Create Task...']]",
     markAsReadyButton: "//button[contains(@id,'ActionButton') and child::span[text()='Mark as ready']]",
@@ -55,6 +60,7 @@ const XPATH = {
     wizardStepNavigatorAndToolbar: "//div[contains(@id,'WizardStepNavigatorAndToolbar')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
+    iconModifyPath: "//span[contains(@class,'icon-pencil')]",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -72,6 +78,10 @@ class ContentWizardPanel extends Page {
         return XPATH.container + XPATH.displayNameInput;
     }
 
+    get pathInput() {
+        return XPATH.container + XPATH.pathInput;
+    }
+
     get pageEditorTogglerButton() {
         return XPATH.toolbar + XPATH.pageEditorTogglerButton;
     }
@@ -82,6 +92,10 @@ class ContentWizardPanel extends Page {
 
     get saveButton() {
         return XPATH.container + XPATH.saveButton;
+    }
+
+    get resetButton() {
+        return XPATH.container + XPATH.resetButton;
     }
 
     get savedButton() {
@@ -143,6 +157,10 @@ class ContentWizardPanel extends Page {
 
     get editPermissionsButton() {
         return XPATH.wizardStepNavigatorAndToolbar + XPATH.editPermissionsButton;
+    }
+
+    get modifyPathIcon() {
+        return XPATH.wizardHeader + XPATH.iconModifyPath;
     }
 
     waitForInspectionPanelTogglerVisible() {
@@ -429,8 +447,16 @@ class ContentWizardPanel extends Page {
         return this.typeTextInInput(this.displayNameInput, displayName);
     }
 
+    typeInPathInput(path) {
+        return this.typeTextInInput(this.pathInput, path);
+    }
+
     getDisplayName() {
         return this.getTextInInput(this.displayNameInput);
+    }
+
+    getPath() {
+        return this.getTextInInput(this.pathInput);
     }
 
     clearDisplayNameInput() {
@@ -933,7 +959,54 @@ class ContentWizardPanel extends Page {
         let locator = XPATH.wizardHeader + "//span[@class='path-error']";
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
+
+    async clickOnModifyPathIcon() {
+        await this.waitForElementDisplayed(this.modifyPathIcon, appConst.mediumTimeout);
+        await this.clickOnElement(this.modifyPathIcon);
+        let renamePublishedContentDialog = new RenamePublishedContentDialog();
+        await renamePublishedContentDialog.waitForDialogLoaded();
+        return renamePublishedContentDialog;
+    }
+
+    waitForModifyPathIconDisplayed() {
+        return this.waitForElementDisplayed(this.modifyPathIcon, appConst.mediumTimeout);
+    }
+
+    waitForModifyPathIconNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.modifyPathIcon, appConst.mediumTimeout);
+    }
+
+    async openLayersWidget() {
+        let detailsPanel = new DetailsPanel();
+        let wizardLayersWidget = new WizardLayersWidget();
+        await this.openDetailsPanel();
+        await detailsPanel.openLayers();
+        await wizardLayersWidget.waitForWidgetLoaded();
+        return wizardLayersWidget;
+    }
+
+    waitForResetButtonDisplayed() {
+        return this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
+    }
+
+    waitForResetButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.resetButton, appConst.longTimeout);
+    }
+
+    async clickOnResetButton() {
+        await this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
+        return await this.clickOnElement(this.resetButton);
+    }
+
+    async clickOnResetAndWaitForConfirmationDialog() {
+        await this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
+        await this.clickOnElement(this.resetButton);
+        let dialog = new ConfirmationDialog();
+        await dialog.waitForDialogOpened();
+        return dialog;
+    }
 }
+
 
 module.exports = ContentWizardPanel;
 

@@ -37,6 +37,15 @@ import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/A
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
+import {LayersWidgetItemView} from './widget/layers/LayersWidgetItemView';
+import {ProjectContext} from '../../project/ProjectContext';
+import {Project} from '../../settings/data/project/Project';
+import {ProjectUpdatedEvent} from '../../settings/event/ProjectUpdatedEvent';
+import {ProjectListRequest} from '../../settings/resource/ProjectListRequest';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
+import {ProjectCreatedEvent} from '../../settings/event/ProjectCreatedEvent';
+import {ProjectDeletedEvent} from '../../settings/event/ProjectDeletedEvent';
 
 export class ContextView
     extends DivEl {
@@ -56,6 +65,8 @@ export class ContextView
     private pageEditorWidgetView: WidgetView;
     private propertiesWidgetView: WidgetView;
     private emulatorWidgetView: WidgetView;
+    private layersWidgetView: WidgetView;
+    private layersWidgetItemView: LayersWidgetItemView;
 
     private data: PageEditorData;
 
@@ -65,9 +76,9 @@ export class ContextView
 
     private pageEditorVisible: boolean;
 
-    private sizeChangedListeners: {(): void}[] = [];
+    private sizeChangedListeners: { (): void }[] = [];
 
-    private widgetsUpdateList: {[key: string]: (key: string, type: ApplicationEventType) => void } = {};
+    private widgetsUpdateList: { [key: string]: (key: string, type: ApplicationEventType) => void } = {};
 
     public static debug: boolean = false;
 
@@ -100,16 +111,9 @@ export class ContextView
     }
 
     private subscribeToEvents() {
-        this.onRendered(() => {
-            // Remove `.no-selection` css class, making context-container visible, to calculate the offset right
-            this.layout(false);
-            this.updateContextContainerHeight();
-            this.layout(!this.item);
-        });
-
-        const handleWidgetsUpdate = (e) => this.handleWidgetsUpdate(e);
-        ApplicationEvent.on(handleWidgetsUpdate);
-        this.onRemoved(() => ApplicationEvent.un(handleWidgetsUpdate));
+        const handleApplicationEvents = (e) => this.handleApplicationEvents(e);
+        ApplicationEvent.on(handleApplicationEvents);
+        this.onRemoved(() => ApplicationEvent.un(handleApplicationEvents));
 
         ActiveContentVersionSetEvent.on(() => {
             if (ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible() && !!this.activeWidget &&
@@ -162,9 +166,101 @@ export class ContextView
                 });
         });
 
+        const onCreateUpdate = this.createUpdateHandler.bind(this);
+        const onDelete = this.deleteHandler.bind(this);
+        contentServerEventsHandler.onContentCreated(onCreateUpdate);
+        contentServerEventsHandler.onContentUpdated(onCreateUpdate);
+        contentServerEventsHandler.onContentDeleted(onDelete);
+        contentServerEventsHandler.onContentDeletedInOtherRepos(onDelete);
+        contentServerEventsHandler.onContentPublished(onCreateUpdate);
+
         ProjectChangedEvent.on(() => {
             this.setItem(null);
+            this.toggleLayersWidget();
         });
+
+        ProjectCreatedEvent.on(() => {
+            this.toggleLayersWidget();
+        });
+
+        ProjectDeletedEvent.on(() => {
+            this.toggleLayersWidget();
+        });
+
+        ProjectUpdatedEvent.on(() => {
+           if (this.activeWidget === this.layersWidgetView) {
+               this.layersWidgetItemView.reload();
+           }
+        });
+
+        if (ProjectContext.get().isInitialized()) {
+            this.toggleLayersWidget();
+        }
+    }
+
+    private createUpdateHandler(data: ContentSummaryAndCompareStatus[]) {
+        const itemIds: string[] = data.map((d: ContentSummaryAndCompareStatus) => d.getId());
+        this.createUpdateDeleteHandler(itemIds);
+    }
+
+    private deleteHandler(data: ContentServerChangeItem[]) {
+        const itemIds: string[] = data.map((d: ContentServerChangeItem) => d.getId());
+        this.createUpdateDeleteHandler(itemIds);
+    }
+
+    private createUpdateDeleteHandler(itemsIds: string[]) {
+        if (!!this.item && this.activeWidget === this.layersWidgetView) {
+            const currentItemId: string = this.item.getId();
+
+            if (itemsIds.some((itemId: string) => itemId === currentItemId)) {
+                this.layersWidgetItemView.reload();
+            }
+        }
+    }
+
+    private toggleLayersWidget() {
+        const currentProject: Project = ProjectContext.get().getProject();
+
+        if (currentProject.getParent()) {
+            this.addLayersWidget();
+        } else {
+            new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+                if (projects.some((project: Project) => project.getParent() === currentProject.getName())) {
+                    this.addLayersWidget();
+                } else {
+                    this.removeLayersWidget();
+                }
+            }).catch(DefaultErrorHandler.handle);
+        }
+    }
+
+    private addLayersWidget() {
+        if (!this.layersWidgetView) {
+            this.layersWidgetView = this.createLayersWidgetView();
+        }
+
+        if (!this.hasLayersWidget()) {
+            this.insertWidget(this.layersWidgetView, 3);
+            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
+        }
+    }
+
+    private removeLayersWidget() {
+        if (!this.layersWidgetView) {
+            return;
+        }
+
+        if (this.hasLayersWidget()) {
+            if (this.activeWidget === this.layersWidgetView) {
+                this.setActiveWidget(this.defaultWidgetView);
+            }
+            this.removeWidget(this.layersWidgetView);
+            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
+        }
+    }
+
+    private hasLayersWidget(): boolean {
+        return !!this.widgetViews.find((widgetView: WidgetView) => widgetView === this.layersWidgetView);
     }
 
     private initDivForNoSelection() {
@@ -189,7 +285,7 @@ export class ContextView
         });
     }
 
-    private handleWidgetsUpdate(event: ApplicationEvent) {
+    private handleApplicationEvents(event: ApplicationEvent) {
         const isWidgetUpdated = [
                                     ApplicationEventType.INSTALLED,
                                     ApplicationEventType.UNINSTALLED,
@@ -209,40 +305,63 @@ export class ContextView
     }
 
     private handleWidgetUpdate(key: string, type: ApplicationEventType) {
-        let widgetView = this.getWidgetByKey(key);
-        const isActive = widgetView && this.activeWidget.getWidgetName() === widgetView.getWidgetName();
+        if (this.isWidgetRemoveEvent(type)) {
+            this.handleWidgetRemoveEvent(key);
+        } else if (!!this.getWidgetByKey(key)) {
+            this.handleWidgetUpdateEvent(key);
+        } else {
+            this.handleWidgetAddedEvent(key);
+        }
+    }
 
-        const isRemoved = [
-                              ApplicationEventType.UNINSTALLED,
-                              ApplicationEventType.STOPPED
-                          ].indexOf(type) > -1;
+    private isWidgetRemoveEvent(type: ApplicationEventType): boolean {
+        return [
+                   ApplicationEventType.UNINSTALLED,
+                   ApplicationEventType.STOPPED
+               ].indexOf(type) > -1;
+    }
 
-        const isUpdated = !!widgetView;
+    private handleWidgetRemoveEvent(key: string) {
+        this.removeWidgetByKey(key);
 
-        const updateView = (useDefault?: boolean) => {
-            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
-            if (useDefault) {
-                this.activateDefaultWidget();
-            } else {
-                this.activeWidget.setActive();
-            }
-            this.widgetsSelectionRow.updateState(this.activeWidget);
-        };
-
-        if (isRemoved) {
-            this.removeWidgetByKey(key);
-
-            updateView(isActive);
-
-            return;
+        if (this.isActiveWidget(key)) {
+            this.activateDefaultWidget();
         }
 
-        this.fetchWidgetByKey(key).then((widget: Widget) => {
-            widgetView = WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
-            isUpdated ? this.updateWidget(widgetView) : this.addWidget(widgetView);
+        this.updateView();
+    }
 
-            updateView();
+    private isActiveWidget(key: string): boolean {
+       return this.activeWidget && this.activeWidget.getWidgetKey() === key;
+    }
+
+    private handleWidgetUpdateEvent(key: string) {
+        this.fetchWidgetByKey(key).then((widget: Widget) => {
+            const widgetView: WidgetView =
+                WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
+            this.updateWidget(widgetView);
+
+            if (this.isActiveWidget(key)) {
+                this.resetActiveWidget();
+                widgetView.setActive();
+            }
+
+            this.updateView();
         });
+    }
+
+    private handleWidgetAddedEvent(key: string) {
+        this.fetchWidgetByKey(key).then((widget: Widget) => {
+            const widgetView: WidgetView =
+                WidgetView.create().setName(widget.getDisplayName()).setContextView(this).setWidget(widget).build();
+            this.addWidget(widgetView);
+            this.updateView();
+        });
+    }
+
+    private updateView() {
+        this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
+        this.widgetsSelectionRow.updateState(this.activeWidget);
     }
 
     getCustomWidgetViewsAndUpdateDropdown(): Q.Promise<void> {
@@ -331,11 +450,6 @@ export class ContextView
         }
 
         return this.activeWidget.updateWidgetItemViews().then(() => {
-            // update active widget's height
-            setTimeout(() => {
-                this.updateContextContainerHeight();
-            }, 400);
-
             this.activeWidget.slideIn();
         });
     }
@@ -414,11 +528,25 @@ export class ContextView
         this.defaultWidgetView = this.propertiesWidgetView;
 
         this.addWidgets([this.propertiesWidgetView, versionsWidgetView, dependenciesWidgetView]);
+
         if (!this.isInsideWizard()) {
             this.addWidget(this.emulatorWidgetView);
         }
 
         this.setActiveWidget(this.defaultWidgetView);
+    }
+
+    private createLayersWidgetView() {
+        this.layersWidgetItemView = new LayersWidgetItemView();
+
+        return WidgetView.create()
+            .setName(i18n('field.contextPanel.layers'))
+            .setDescription(i18n('field.contextPanel.layers.description'))
+            .setWidgetClass('layers-widget')
+            .setIconClass('icon-layer')
+            .setType(InternalWidgetType.LAYERS)
+            .setContextView(this)
+            .addWidgetItemView(this.layersWidgetItemView).build();
     }
 
     private isInsideWizard(): boolean {

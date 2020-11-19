@@ -15,7 +15,17 @@ export class VersionHistoryListItemViewer
     }
 
     resolveDisplayName(version: VersionHistoryItem): string {
-        return `${DateHelper.getFormattedTimeFromDate(version.getDateTime())} ${version.getStatus()}`;
+        const dateTime = version.getActiveFrom() || version.getDateTime();
+        let dateTimeToString = DateHelper.getFormattedTimeFromDate(dateTime);
+
+        if (!!version.getActiveFrom() && version.getActiveFrom() < version.getDateTime()) {
+            // Publishing can be set in the past, even before creation date.
+            // To not break the logical sequence in the Version History, such publishing will still be shown based
+            // on version.getDateTime() but display FULL date/time from which the publishing was made active.
+            dateTimeToString = DateHelper.formatDateTime(dateTime, false);
+        }
+
+        return `${dateTimeToString} ${version.getStatus()}`;
     }
 
     resolveSubName(version: VersionHistoryItem): string {

@@ -14,7 +14,7 @@ export class Router {
     }
 
     private updateProjectInHash() {
-        const project: string = ProjectContext.get().getProject();
+        const project: string = ProjectContext.get().getProject().getName();
         const currentHash: string = hasher.getHash();
         const newHash: string = project + currentHash.substring(currentHash.indexOf('/'));
         hasher.setHash(newHash);
@@ -31,7 +31,7 @@ export class Router {
     setHash(path: string) {
         this.setPrevHash();
 
-        const project: string = ProjectContext.get().getProject();
+        const project: string = ProjectContext.get().getProject().getName();
         hasher.changed.active = false;
         hasher.setHash(`${project}/${path}`);
         hasher.changed.active = true;

@@ -27,13 +27,16 @@ describe('new.settings.item.dialog.spec - ui-tests for New Settings Item Dialog'
             //4. Required buttons should be present:
             await newSettingsItemDialog.waitForCancelButtonDisplayed();
             await newSettingsItemDialog.waitForCancelButtonTopDisplayed();
+            //5. Verify that Layer and Project dialog items are present:
+            await newSettingsItemDialog.waitForProjectDialogItem();
+            await newSettingsItemDialog.waitForLayerDialogItem();
         });
 
     it(`GIVEN NewSettingsItem is opened WHEN 'Cancel' button has been pressed THEN the dialog should be closed`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let newSettingsItemDialog = new NewSettingsItemDialog();
-            //1.'New...' button has been clicked:
+            //2.'New...' button has been clicked:
             await settingsBrowsePanel.clickOnNewButton();
             //2. 'NewSettingsItem' dialog should be loaded:
             await newSettingsItemDialog.waitForDialogLoaded();

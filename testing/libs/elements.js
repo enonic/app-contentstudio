@@ -12,7 +12,6 @@ module.exports = Object.freeze({
     NAMES_VIEW_BY_DISPLAY_NAME: "//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'%s')]]",
     SLICK_VIEW_PORT: `//div[contains(@class,'slick-viewport')]`,
     SLICK_ROW: "//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row')]",
-    SLICK_ROW_BY_NAME: "//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::p[contains(@class,'sub-name') and contains(.,'%s')]]",
     H6_DISPLAY_NAME: "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]",
     P_SUB_NAME: "//p[contains(@class,'sub-name')]",
     TEXT_INPUT: "//input[contains(@id,'TextInput')]",
@@ -22,7 +21,7 @@ module.exports = Object.freeze({
     GRID_CANVAS: `//div[contains(@class,'grid-canvas')]`,
     DIV_GRID: "//div[contains(@id,'Grid') and contains(@class,'grid no-header')]",
     SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,
-    TEXT_INPUT: `//input[@type='text']`,
+    TEXT_INPUT: "//input[@type='text']",
     DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
     VALIDATION_RECORDING_VIEWER: "//div[contains(@id,'ValidationRecordingViewer')]//li",
     CONTENT_SUMMARY_AND_STATUS_VIEWER: "//div[contains(@id,'ContentSummaryAndCompareStatusViewer')]",
@@ -32,6 +31,10 @@ module.exports = Object.freeze({
     slickRowByDisplayName: (container, displayName) => {
         return container +
                `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
+    },
+    slickRowByName: (container, displayName) => {
+        return container +
+               `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::p[contains(@class,'sub-name') and contains(.,'${displayName}')]]`;
     },
     itemByDisplayName: displayName => {
         return `//div[contains(@id,'NamesView') and child::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`

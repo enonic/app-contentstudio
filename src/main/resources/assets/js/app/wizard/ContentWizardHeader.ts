@@ -63,7 +63,7 @@ export class ContentWizardHeader
                 });
             }
 
-            this.renameDialog.setInitialPath(this.persistedContent.getPath()).setCurrentPath(this.getNewPath()).open();
+            this.renameDialog.setInitialPath(this.persistedContent.getPath()).open();
         });
     }
 

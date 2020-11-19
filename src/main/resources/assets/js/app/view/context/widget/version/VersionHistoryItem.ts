@@ -34,12 +34,15 @@ export class VersionHistoryItem {
         item.user = publishInfo.getPublisherDisplayName();
 
         if (publishInfo.isPublished()) {
-            if (publishInfo.getPublishedFrom() > publishInfo.getTimestamp()) {
+            if (publishInfo.isScheduled()) {
+                item.status = i18n('status.scheduled');
+                item.iconCls = 'icon-clock';
+            } else {
+                item.status = i18n('status.published');
+                item.iconCls = 'icon-version-published';
                 item.activeFrom = publishInfo.getPublishedFrom();
             }
             item.activeTo = publishInfo.getPublishedTo();
-            item.iconCls = 'icon-version-published';
-            item.status = i18n('status.published');
         } else if (publishInfo.isUnpublished()) {
             item.iconCls = 'icon-version-unpublished';
             item.status = i18n('status.unpublished');

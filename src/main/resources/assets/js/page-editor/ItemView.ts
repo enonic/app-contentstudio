@@ -719,7 +719,6 @@ export class ItemView
 
     private setItemId(value: ItemViewId) {
         this.getEl().setAttribute('data-' + ItemViewId.DATA_ATTRIBUTE, value.toString());
-        this.getEl().setId(value.toString());
     }
 
     getItemId(): ItemViewId {

@@ -58,7 +58,6 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await settingsBrowsePanel.openProjectWizard();
             await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
             await projectWizard.clickOnAccessModeRadio("Private");
-            let result = await projectWizard.isDescriptionInputClickable();
             //3. Select the user in roles, assign Owner role him:
             await projectWizard.selectProjectAccessRoles(USER.displayName);
             await projectWizard.updateUserAccessRole(USER.displayName, appConstant.PROJECT_ROLES.OWNER);
@@ -114,11 +113,10 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
     it("GIVEN user with 'Owner' role is logged in WHEN existing project has been opened THEN all inputs should be enabled",
         async () => {
             //1. Do Log in with the user-owner and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //2.Double click on the project:
             await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Verify that the project is opened:
@@ -140,8 +138,6 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             studioUtils.saveScreenshot("project_owner_1");
@@ -220,7 +216,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
-            let publishRequestDetailsDialog = new PublishRequestDetailsDialog()
+            let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Select the folder and open new Request wizard:
@@ -252,7 +248,6 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //2.Double click on the project:
             await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. wait for the project is opened:

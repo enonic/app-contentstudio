@@ -13,7 +13,8 @@ export enum InternalWidgetType {
     HISTORY,
     DEPENDENCIES,
     EMULATOR,
-    COMPONENTS
+    COMPONENTS,
+    LAYERS
 }
 
 export class WidgetView

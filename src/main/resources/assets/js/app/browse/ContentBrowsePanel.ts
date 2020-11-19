@@ -3,7 +3,7 @@ import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
-import {ContentTreeGridActions} from './action/ContentTreeGridActions';
+import {ActionName, ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
 import {ContentTreeGrid, State} from './ContentTreeGrid';
 import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
@@ -172,14 +172,14 @@ export class ContentBrowsePanel
     protected createMainContentSplitPanel(gridAndItemsSplitPanel: SplitPanel): SplitPanel {
         const browseActions: ContentTreeGridActions = this.getBrowseActions();
         const mobileActions: Action[] = [
-            browseActions.getUnpublishAction(),
-            browseActions.getPublishAction(),
-            browseActions.getMoveAction(),
-            browseActions.getSortAction(),
-            browseActions.getDeleteAction(),
-            browseActions.getDuplicateAction(),
-            browseActions.getEditAction(),
-            browseActions.getShowNewDialogAction()
+            browseActions.getAction(ActionName.UNPUBLISH),
+            browseActions.getAction(ActionName.PUBLISH),
+            browseActions.getAction(ActionName.MOVE),
+            browseActions.getAction(ActionName.SORT),
+            browseActions.getAction(ActionName.DELETE),
+            browseActions.getAction(ActionName.DUPLICATE),
+            browseActions.getAction(ActionName.EDIT),
+            browseActions.getAction(ActionName.SHOW_NEW_DIALOG)
         ];
         this.contextSplitPanel = new ContextSplitPanel(gridAndItemsSplitPanel, mobileActions);
 
@@ -275,7 +275,8 @@ export class ContentBrowsePanel
 
     private handleGlobalEvents() {
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
-            this.getBrowseActions().getToggleSearchPanelAction().setVisible(item.isInRangeOrSmaller(ResponsiveRanges._540_720));
+            this.getBrowseActions().getAction(ActionName.TOGGLE_SEARCH_PANEL).setVisible(
+                item.isInRangeOrSmaller(ResponsiveRanges._540_720));
         });
 
         ToggleSearchPanelEvent.on(() => {
@@ -379,7 +380,8 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: renamed', data, oldPaths);
         }
 
-        this.treeGrid.renameContentNodes(data, oldPaths).then(this.refreshFilterWithDelay.bind(this));
+        this.treeGrid.renameContentNodes(data);
+        this.refreshFilterWithDelay();
     }
 
     private handleContentUpdated(data: ContentSummaryAndCompareStatus[]) {
@@ -387,12 +389,12 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: updated', data);
         }
 
-        this.doHandleContentUpdate(data);
+        if (!data || data.length === 0) {
+            return;
+        }
 
-        // Update since CompareStatus changed
-        // ContentSummaryAndCompareStatusFetcher.updateReadOnly().then(() => {
-            this.updatePreviewIfNeeded(data);
-        // });
+        this.doHandleContentUpdate(data);
+        this.updatePreviewIfNeeded(data);
     }
 
     private handleContentPermissionsUpdated(contentIds: ContentIds) {
@@ -452,7 +454,13 @@ export class ContentBrowsePanel
         if (ContentBrowsePanel.debug) {
             console.debug('ContentBrowsePanel: published', data);
         }
+
         this.doHandleContentUpdate(data);
+
+        if (this.treeGrid.hasSelectedOrHighlightedNode() &&
+            data.some((publishedItem: ContentSummaryAndCompareStatus) => !this.treeGrid.hasNodeWithDataId(publishedItem.getId()))) {
+            this.refreshTreeGridActions();
+        }
     }
 
     private handleContentUnpublished(data: ContentSummaryAndCompareStatus[]) {
@@ -619,12 +627,12 @@ export class ContentBrowsePanel
     private createContentPublishMenuButton() {
         const browseActions: ContentTreeGridActions = this.getBrowseActions();
         const contentPublishMenuButton: ContentBrowsePublishMenuButton = new ContentBrowsePublishMenuButton({
-            publishAction: browseActions.getPublishAction(),
-            publishTreeAction: browseActions.getPublishTreeAction(),
-            unpublishAction: browseActions.getUnpublishAction(),
-            markAsReadyAction: browseActions.getMarkAsReadyAction(),
-            createIssueAction: browseActions.getCreateIssueAction(),
-            requestPublishAction: browseActions.getRequestPublishAction(),
+            publishAction: browseActions.getAction(ActionName.PUBLISH),
+            publishTreeAction: browseActions.getAction(ActionName.PUBLISH_TREE),
+            unpublishAction: browseActions.getAction(ActionName.UNPUBLISH),
+            markAsReadyAction: browseActions.getAction(ActionName.MARK_AS_READY),
+            createIssueAction: browseActions.getAction(ActionName.CREATE_ISSUE),
+            requestPublishAction: browseActions.getAction(ActionName.REQUEST_PUBLISH),
             showCreateIssueButtonByDefault: true
         });
 
@@ -652,16 +660,16 @@ export class ContentBrowsePanel
             contentPublishMenuButton.setRefreshDisabled(true);
         });
 
-        browseActions.onActionsUnstashed(() => {
+        browseActions.onActionsUnStashed(() => {
             contentPublishMenuButton.setRefreshDisabled(false);
         });
     }
 
     private markContentAsReadyOnPublishActions() {
         const handler: () => void = this.markSingleContentAsReady.bind(this);
-        this.getBrowseActions().getPublishAction().onBeforeExecute(handler);
-        this.getBrowseActions().getPublishTreeAction().onBeforeExecute(handler);
-        this.getBrowseActions().getRequestPublishAction().onBeforeExecute(handler);
+        this.getBrowseActions().getAction(ActionName.PUBLISH).onBeforeExecute(handler);
+        this.getBrowseActions().getAction(ActionName.PUBLISH_TREE).onBeforeExecute(handler);
+        this.getBrowseActions().getAction(ActionName.REQUEST_PUBLISH).onBeforeExecute(handler);
     }
 
     private markSingleContentAsReady() {
@@ -671,6 +679,6 @@ export class ContentBrowsePanel
             return;
         }
 
-        this.getBrowseActions().getMarkAsReadyAction().execute();
+        this.getBrowseActions().getAction(ActionName.MARK_AS_READY).execute();
     }
 }

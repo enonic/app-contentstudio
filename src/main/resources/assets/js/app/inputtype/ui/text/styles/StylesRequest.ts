@@ -48,7 +48,7 @@ export class StylesRequest
     getParams(): Object {
         return {
             contentId: this.contentId,
-            project: ProjectContext.get().getProject()
+            project: ProjectContext.get().getProject().getName()
         };
     }
 

@@ -9,8 +9,8 @@ import {AppMode} from './AppMode';
 import {ProjectContext} from './project/ProjectContext';
 import {UrlAction} from './UrlAction';
 import {ProjectChangedEvent} from './project/ProjectChangedEvent';
-import {ProjectUpdatedEvent} from './settings/event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from './settings/event/ProjectDeletedEvent';
+import {Project} from './settings/data/project/Project';
 
 export class ContentAppContainer
     extends MainAppContainer {
@@ -24,7 +24,6 @@ export class ContentAppContainer
             this.handleProjectNotSet();
         } else {
             new ContentEventsListener().start();
-            this.appBar.updateSelectorValues();
             this.initListeners();
         }
     }
@@ -34,7 +33,6 @@ export class ContentAppContainer
 
         const projectSetHandler = () => {
             this.appBar.enable();
-            this.appBar.updateSelectorValues();
             new ContentEventsListener().start();
             this.initListeners();
             ProjectChangedEvent.un(projectSetHandler);
@@ -57,22 +55,14 @@ export class ContentAppContainer
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
             this.handleProjectDeletedEvent(event.getProjectName());
         });
-
-        ProjectUpdatedEvent.on(() => {
-            this.handleProjectUpdatedEvent();
-        });
-    }
-
-    private handleProjectUpdatedEvent() {
-        (<ContentAppBar>this.appBar).updateSelectorValues();
     }
 
     private handleProjectDeletedEvent(projectName: string) {
-        const currentProject: string = ProjectContext.get().getProject();
-        const isCurrentProjectDeleted: boolean = projectName === currentProject;
+        const currentProject: Project = ProjectContext.get().getProject();
+        const isCurrentProjectDeleted: boolean = projectName === currentProject.getName();
 
         if (isCurrentProjectDeleted) {
-            ProjectContext.get().setProject(ProjectContext.DEFAULT_PROJECT);
+            ProjectContext.get().resetToDefaultProject();
         }
     }
 

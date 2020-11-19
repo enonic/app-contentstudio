@@ -78,14 +78,12 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
             await studioUtils.navigateToContentStudioWithProjects();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1.Expand the root folder:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2. click on the project and delete it:
+            //1. click on the project and delete it:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnDeleteButton();
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();
-            //3. Go to Users app:
+            //2. Go to Users app:
             await studioUtils.showLauncherPanel();
             await studioUtils.navigateToUsersApp();
             //3. Type the project's name in the filter-input:

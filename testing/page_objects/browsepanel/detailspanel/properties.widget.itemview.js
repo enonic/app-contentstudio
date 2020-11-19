@@ -6,13 +6,18 @@ const appConst = require('../../../libs/app_const');
 
 const xpath = {
     container: `//div[contains(@id,'WidgetView')]//div[contains(@id,'PropertiesWidgetItemView')]`,
-    languageProperty: `//dd[contains(.,'Language:')]/following-sibling::dt[1]`
+    languageProperty: "//dd[contains(.,'Language:')]/following-sibling::dt[1]",
+    publishFromProperty: "//dd[contains(.,'Publish From:')]/following-sibling::dt[1]",
 };
 
 class PropertiesItemView extends Page {
 
     get languageProperty() {
         return xpath.container + xpath.languageProperty;
+    }
+
+    get publishFromProperty() {
+        return xpath.container + xpath.publishFromProperty;
     }
 
     waitForLanguageVisible() {
@@ -23,13 +28,18 @@ class PropertiesItemView extends Page {
 
     waitForLanguageNotVisible() {
         return this.waitForElementNotDisplayed(this.languageProperty, appConst.shortTimeout).catch(err => {
-            throw new Error("Language should not be present in the preoperties widget! " + err);
+            throw new Error("Language should not be present in the properties widget! " + err);
         });
     }
 
     async getLanguage() {
         await this.waitForLanguageVisible();
         return await this.getText(this.languageProperty);
+    }
+
+    async getPublishFrom() {
+        await this.waitForElementDisplayed(this.publishFromProperty, appConst.shortTimeout);
+        return await this.getText(this.publishFromProperty);
     }
 };
 module.exports = PropertiesItemView;

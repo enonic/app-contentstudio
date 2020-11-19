@@ -28,7 +28,8 @@ describe("delete.project.in.filtered.grid.spec - Delete projects in filtered gri
             //2 .Click on Content app-mode button
             await studioUtils.switchToContentMode();
             //3. Expand the project selector and verify that 2 new items appeared:
-            let result = await contentBrowsePanel.expandProjectSelectorAndGetProjectsName();
+            let projectSelectionDialog = await contentBrowsePanel.clickOnProjectViewerButton();
+            let result = await projectSelectionDialog.getProjectsDisplayName();
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME_1), "Display name of the first project should be present in options");
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME_2), "Display name of the second project should be present in options");
         });
@@ -40,7 +41,6 @@ describe("delete.project.in.filtered.grid.spec - Delete projects in filtered gri
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmationDialog = new ConfirmationDialog();
             //1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             //2. Click on 'Show Selection' button:

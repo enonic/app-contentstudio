@@ -48,8 +48,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             let confirmationDialog = new ConfirmationDialog();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1.Expand Projects-folder then Open existing project:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            //1.Open existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
@@ -73,11 +72,9 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            let confirmationDialog = new ConfirmationDialog();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1.Expand Projects-folder and reopen the project:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            //1. reopen the project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
@@ -94,7 +91,6 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
             let userAccessWidget = new UserAccessWidget();
-            let contentBrowsePanel = new ContentBrowsePanel();
             await projectSelectionDialog.waitForDialogLoaded();
             //1. Select the project in 'Select Context' dialog
             await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);

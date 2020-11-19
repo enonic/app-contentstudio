@@ -19,8 +19,6 @@ export class RenameContentDialog extends ModalDialog {
 
     private initialPath: ContentPath;
 
-    private currentPath: ContentPath;
-
     private contentPathSubHeader: H6El;
 
     private statusBlock: DivEl;
@@ -42,6 +40,12 @@ export class RenameContentDialog extends ModalDialog {
         this.statusBlock = new DivEl('status-block');
     }
 
+    protected postInitElements() {
+        super.postInitElements();
+
+        this.setElementToFocusOnShow(this.nameInput);
+    }
+
     private getNameInputValue(): string {
         return this.nameInput.getValue().trim();
     }
@@ -50,14 +54,12 @@ export class RenameContentDialog extends ModalDialog {
         super.initListeners();
 
         const debouncedNameUniqueChecker: () => void = AppHelper.debounce(() => {
-            if (this.getNameInputValue() === this.initialPath.getName()) {
-                this.setNameAvailable(true);
-            } else if (!StringHelper.isBlank(this.getNameInputValue()) && this.getNameInputValue() !== this.currentPath.getName()) {
+            if (StringHelper.isBlank(this.getNameInputValue()) || this.getNameInputValue() === this.initialPath.getName()) {
+                this.disableRename();
+            } else {
                 new ContentExistsByPathRequest(this.getNewPath().toString()).sendAndParse().then((exists: boolean) => {
                     this.setNameAvailable(!exists);
                 }).catch(DefaultErrorHandler.handle);
-            } else {
-                this.disableRename();
             }
         }, 500);
 
@@ -87,11 +89,6 @@ export class RenameContentDialog extends ModalDialog {
         return this;
     }
 
-    setCurrentPath(value: ContentPath): RenameContentDialog {
-        this.currentPath = value;
-        return this;
-    }
-
     private getNewPath(): ContentPath {
         return ContentPath.fromParent(this.initialPath.getParentPath(), this.getNameInputValue());
     }
@@ -105,7 +102,7 @@ export class RenameContentDialog extends ModalDialog {
     show(): void {
         this.disableRename();
         this.nameInput.resetBaseValues();
-        this.nameInput.setValue(this.currentPath.getName(), true);
+        this.nameInput.setValue(this.initialPath.getName(), true);
         this.contentPathSubHeader.setHtml(this.initialPath.toString());
         this.statusBlock.removeClass('available');
         super.show();

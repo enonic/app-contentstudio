@@ -137,6 +137,7 @@
     border-right: 1px solid @admin-font-gray;
 
     .@{_COMMON_PREFIX}wrapper {
+      display: flex;
       height: @app-header-height-inner;
       width: @app-header-height-inner;
       line-height: @app-header-height-inner;
@@ -165,6 +166,12 @@
     content: "";
     background-image: url("../../icons/publish-request-open.svg");
     background-size: contain;
+  }
+
+  .project-viewer {
+    .@{_COMMON_PREFIX}sub-name {
+      display: none;
+    }
   }
 
 }

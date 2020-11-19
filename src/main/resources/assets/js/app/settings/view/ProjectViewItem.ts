@@ -7,6 +7,8 @@ import {SettingsDataItemBuilder, SettingsDataViewItem} from './SettingsDataViewI
 import {ProjectReadAccess} from '../data/project/ProjectReadAccess';
 import {ProjectHelper} from '../data/project/ProjectHelper';
 import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
+import {SettingsType} from '../dialog/SettingsType';
+import {SettingsTypes} from '../dialog/SettingsTypes';
 
 export class ProjectViewItem
     extends SettingsDataViewItem<Project> {
@@ -32,7 +34,7 @@ export class ProjectViewItem
     }
 
     getIconClass(): string {
-        return ProjectIconUrlResolver.DEFAULT_ICON_CLASS;
+        return ProjectIconUrlResolver.getDefaultIcon(this.data);
     }
 
     getIconUrl(): string {
@@ -56,6 +58,10 @@ export class ProjectViewItem
 
     getLanguage(): string {
         return this.data.getLanguage();
+    }
+
+    getType(): SettingsType {
+        return !!this.data.getParent() ? SettingsTypes.LAYER : SettingsTypes.PROJECT;
     }
 
     isDefaultProject(): boolean {

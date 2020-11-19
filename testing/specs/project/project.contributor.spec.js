@@ -28,7 +28,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
     let FOLDER_READY_TO_PUBLISH;
     let FOLDER_NAME_1 = studioUtils.generateRandomName("folder");
     let FOLDER_NAME_2 = studioUtils.generateRandomName("folder");
-    const CONTROLLER_NAME = 'main region';
     const SITE_NAME = contentBuilder.generateRandomName('site');
     let SITE;
 
@@ -110,12 +109,11 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2.Double click on the project:
+            //1.Double click on the project:
             await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //3. Verify that the project is opened:
+            //2. Verify that the project is opened:
             await projectWizard.waitForLoaded();
-            //4. Verify that all inputs in the project page are disabled for contributor:
+            //3. Verify that all inputs in the project page are disabled for contributor:
             let isPageDisabled = await projectWizard.isNoModify();
             assert.isTrue(isPageDisabled, "Wizard page should be disabled for contributor");
             let result = await projectWizard.isDescriptionInputClickable();
@@ -133,8 +131,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Verify that all buttons are disabled in the toolbar:
@@ -151,7 +147,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             //2. Select existing folder(ready to publish):
             await studioUtils.findAndSelectItem(FOLDER_READY_TO_PUBLISH.displayName);
             //3. Verify that Edit, New, Delete buttons are disabled:
-            await contentBrowsePanel.waitForEditButtonDisabled();
+            await contentBrowsePanel.waitForOpenButtonEnabled();
             await contentBrowsePanel.waitForDeleteButtonDisabled();
             await contentBrowsePanel.waitForNewButtonDisabled();
             //4. Open Publish Menu:
@@ -173,8 +169,8 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Select existing folder(ready to publish):
             await studioUtils.findAndSelectItem(FOLDER_WORK_IN_PROGRESS.displayName);
-            //3. Verify that Edit, New, Delete buttons are disabled:
-            await contentBrowsePanel.waitForEditButtonDisabled();
+            //3. Verify that New, Delete buttons are disabled:
+            await contentBrowsePanel.waitForOpenButtonEnabled();
             await contentBrowsePanel.waitForDeleteButtonDisabled();
             await contentBrowsePanel.waitForNewButtonDisabled();
             //4. Open Publish Menu:
@@ -216,9 +212,9 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizardPanel = new ContentWizardPanel();
-            let settingsStepForm = new SettingsStepForm();
             //1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await contentBrowsePanel.pause(1000);
             //2. Double click on existing folder(status is Work in progress):
             await contentBrowsePanel.doubleClickOnRowByDisplayName(FOLDER_WORK_IN_PROGRESS.displayName);
             await studioUtils.doSwitchToNewWizard();

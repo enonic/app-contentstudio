@@ -47,7 +47,6 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await settingsBrowsePanel.openProjectWizard();
             await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
             await projectWizard.clickOnAccessModeRadio("Private");
-            let result = await projectWizard.isDescriptionInputClickable();
             //3. Select the user in roles, assign Contributor role him:
             await projectWizard.selectProjectAccessRoles(USER.displayName);
             await projectWizard.updateUserAccessRole(USER.displayName, appConstant.PROJECT_ROLES.EDITOR);
@@ -69,7 +68,6 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //2.Double click on the project:
             await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Verify that the project is opened:
@@ -83,7 +81,16 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             assert.isFalse(result, "Locale input should not be clickable");
             result = await projectWizard.isDisplayNameInputClickable();
             assert.isFalse(result, "Display Name input should not be clickable");
-            // await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        });
+
+    //Verifies Project selector button should not be clickable if current user has access to only one project #2089
+    it("WHEN current user has access to only one project THEN ProjectViewer button should not be clickable",
+        async () => {
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            let contentBrowsePanel = new ContentBrowsePanel();
+            studioUtils.saveScreenshot("project_editor_button_not_clckable");
+            let isClickable = await contentBrowsePanel.isProjectViewerClickable();
+            assert.isFalse(isClickable, "ProjectViewer button should not be clickable");
         });
 
     it("GIVEN user with Editor role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
@@ -92,7 +99,6 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Verify that all button are disabled in the toolbar:

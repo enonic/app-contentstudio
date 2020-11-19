@@ -121,6 +121,7 @@ import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
+import {UrlAction} from '../UrlAction';
 import {ContentWizardHeader} from './ContentWizardHeader';
 
 export class ContentWizardPanel
@@ -819,13 +820,8 @@ export class ContentWizardPanel
     private initListeners() {
 
         let shownAndLoadedHandler = () => {
-            if (this.getPersistedItem()) {
-                Router.get().setHash('edit/' + this.getPersistedItem().getId());
-                if (!window.name) {
-                    window.name = `edit:${this.getPersistedItem().getId()}`;
-                }
-            } else {
-                Router.get().setHash('new/' + this.contentType.getName());
+            if (!this.getPersistedItem()) {
+                Router.get().setHash(`${UrlAction.NEW}/${this.contentType.getName()}`);
             }
         };
 
@@ -933,6 +929,10 @@ export class ContentWizardPanel
             }
         });
 
+    }
+
+    private isLocalizeInUrl(): boolean {
+        return Router.getPath().getElements().some((pathEl: string) => pathEl === UrlAction.LOCALIZE);
     }
 
     private onFileUploaded(event: UploadedEvent<Content>) {
@@ -1254,7 +1254,7 @@ export class ContentWizardPanel
         });
 
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
-            if (event.getProjectName() === ProjectContext.get().getProject()) {
+            if (event.getProjectName() === ProjectContext.get().getProject().getName()) {
                 this.contentDeleted = true;
                 this.close();
             }
@@ -1310,7 +1310,7 @@ export class ContentWizardPanel
         let isEqualToForm;
         let imageHasChanged;
 
-        const current = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem())).build();
+        const current = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem()), true).build();
 
         if (content.getType().isImage()) {
             imageHasChanged = content.getIconUrl() !== current.getIconUrl();
@@ -1702,6 +1702,11 @@ export class ContentWizardPanel
                         new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
                             this.setModifyPermissions(loginResult);
                             this.toggleStepFormsVisibility(loginResult);
+                            this.updateUrlAction();
+
+                            if (this.isLocalizeInUrl()) {
+                                this.settingsWizardStepForm.updateInitialLanguage();
+                            }
                         });
 
                         this.syncPersistedItemWithContentData(content.getContentData());
@@ -1986,6 +1991,7 @@ export class ContentWizardPanel
     updatePersistedItem(): Q.Promise<Content> {
         const persistedContent: Content = this.getPersistedItem();
         const viewedContent: Content = this.assembleViewedContent(persistedContent.newBuilder(), true).build();
+        const isInherited: boolean = persistedContent.isDataInherited();
 
         const updateContentRoutine: UpdatePersistedContentRoutine = new UpdatePersistedContentRoutine(this, persistedContent, viewedContent)
             .setRequireValid(this.requireValid)
@@ -2001,7 +2007,11 @@ export class ContentWizardPanel
             }
 
             if (context.dataUpdated || context.pageUpdated) {
-                this.showFeedbackContentSaved(content);
+                this.showFeedbackContentSaved(content, isInherited);
+            }
+
+            if (isInherited && this.isLocalizeInUrl()) {
+                Router.get().setHash(`${UrlAction.EDIT}/${this.getPersistedItem().getId()}`);
             }
 
             this.getWizardHeader().resetBaseValues();
@@ -2015,10 +2025,12 @@ export class ContentWizardPanel
         });
     }
 
-    private showFeedbackContentSaved(content: Content) {
+    private showFeedbackContentSaved(content: Content, wasInherited: boolean = false) {
         const name = content.getName();
         let message;
-        if (name.isUnnamed()) {
+        if (wasInherited) {
+            message = i18n('notify.content.localized');
+        } else if (name.isUnnamed()) {
             message = i18n('notify.item.savedUnnamed');
         } else if (this.isMarkedAsReady) {
             if (this.isMarkedAsReadyOnPublish) {
@@ -2582,6 +2594,17 @@ export class ContentWizardPanel
     private canEveryoneRead(content: Content): boolean {
         const entry: AccessControlEntry = content.getPermissions().getEntry(RoleKeys.EVERYONE);
         return !!entry && entry.isAllowed(Permission.READ);
+    }
+
+    private updateUrlAction() {
+        const action: string = (this.modifyPermissions && this.getPersistedItem().isDataInherited() &&
+                                this.isLocalizeInUrl())
+                               ? UrlAction.LOCALIZE
+                               : UrlAction.EDIT;
+        Router.get().setHash(`${action}/${this.getPersistedItem().getId()}`);
+        if (!window.name) {
+            window.name = `${action}:${this.getPersistedItem().getId()}`;
+        }
     }
 
     protected setPersistedItem(newPersistedItem: Content): void {

@@ -31,7 +31,6 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             let roles = [appConstant.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     it("GIVEN SU is logged in AND new project wizard is opened WHEN existing user has been added as Viewer THEN expected user should be selected in Custom Access form",
@@ -55,8 +54,6 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             //4. Verify that expected user is present in selected options:
             let customReadAccessItems = await projectWizard.getSelectedCustomReadAccessOptions();
             assert.equal(customReadAccessItems[0], USER.displayName, "expected user should be selected in Custom Read access form");
-            //Do log out:
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     it("Precondition 2: ready for publishing folder should be created in the just created project",
@@ -68,7 +65,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
 
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
-            //Do log out:
+            //SU is logged out:
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             await studioUtils.doLogout();
         });
@@ -80,7 +77,6 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //2.Double click on the project:
             await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Verify that the project is opened:
@@ -94,7 +90,6 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             assert.isFalse(result, "Locale input should not be clickable");
             result = await projectWizard.isDisplayNameInputClickable();
             assert.isFalse(result, "Display Name input should not be clickable");
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     it("GIVEN user with Viewer role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
@@ -103,8 +98,6 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Verify that all button are disabled in the project-toolbar:
@@ -112,21 +105,20 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await settingsBrowsePanel.waitForNewButtonDisabled();
             await settingsBrowsePanel.waitForEditButtonDisabled();
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     it("GIVEN user with Viewer role is logged in WHEN required context is loaded THEN New... button should be disabled for Viewer role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-viewer and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //2. Verify that 'New' button is disabled for users with Viewer role
             await contentBrowsePanel.waitForNewButtonDisabled();
-
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
     //Verify that 'Viewer' can not publish content:
+    //Verifies https://github.com/enonic/app-contentstudio/issues/2363
+    //Publish menu should be disabled for users with Viewer role #2363
     it("GIVEN user with 'Viewer' role is logged in WHEN existing folder has been selected THEN 'Publish' menu item should be disabled for users with Viewer role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -134,8 +126,9 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //2. Select existing folder:
             await studioUtils.findAndSelectItem(FOLDER_NAME);
-            //3. Verify that Edit, New, Delete buttons are disabled:
-            await contentBrowsePanel.waitForEditButtonDisabled();
+            //3. Verify that Open button is enabled
+            await contentBrowsePanel.waitForOpenButtonEnabled();
+            //3. Verify that, New, Delete buttons are disabled:
             await contentBrowsePanel.waitForDeleteButtonDisabled();
             await contentBrowsePanel.waitForNewButtonDisabled();
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
@@ -143,14 +136,18 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             await contentBrowsePanel.openPublishMenu();
             studioUtils.saveScreenshot("project_viewer_3");
             //5. Verify that 'Create Task' and 'Request Publishing' menu items are enabled for Viewer role:
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
-            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.CREATE_TASK);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
             //6. Verify that 'Publish' menu item is disabled:
             await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
-
-            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         });
 
+    afterEach(async () => {
+        let title = await webDriverHelper.browser.getTitle();
+        if (title.includes("Content Studio") || title.includes("Users")) {
+            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        }
+    });
 
     before(() => {
         return console.log('specification is starting: ' + this.title);

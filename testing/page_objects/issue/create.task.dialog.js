@@ -16,7 +16,7 @@ const XPATH = {
     itemsComboBox: `//div[contains(@id,'LoaderComboBox') and @name='contentSelector']`,
     assigneesComboBox: `//div[contains(@id,'LoaderComboBox') and @name='principalSelector']`,
     selectionItemByDisplayName:
-        text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]`,
+        text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::span[contains(@class,'display-name') and text()='${text}']]`,
 };
 
 class CreateTaskDialog extends Page {
@@ -167,5 +167,5 @@ class CreateTaskDialog extends Page {
         }
     }
 
-};
+}
 module.exports = CreateTaskDialog;

@@ -9,17 +9,23 @@ import {ListIssuesRequest} from '../resource/ListIssuesRequest';
 import {IssueStatus} from '../IssueStatus';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ProjectContext} from '../../project/ProjectContext';
 
 export class ShowIssuesDialogButton extends ActionButton {
 
     private countSpan: SpanEl;
+
+    private updateHandler: () => void;
 
     constructor() {
         super(new ShowIssuesDialogAction());
 
         this.addClass('show-issues-dialog-button');
 
-        this.fetchIssuesAndCreateLink();
+        this.updateHandler = AppHelper.debounce(() => {
+            this.fetchIssuesAndCreateLink();
+        }, 200);
 
         this.initEventsListeners();
     }
@@ -29,11 +35,9 @@ export class ShowIssuesDialogButton extends ActionButton {
     }
 
     private initEventsListeners() {
-        const updateFunc: () => void = () => this.fetchIssuesAndCreateLink();
-
-        IssueServerEventsHandler.getInstance().onIssueCreated(updateFunc);
-        IssueServerEventsHandler.getInstance().onIssueUpdated(updateFunc);
-        ProjectChangedEvent.on(updateFunc);
+        IssueServerEventsHandler.getInstance().onIssueCreated(this.updateHandler);
+        IssueServerEventsHandler.getInstance().onIssueUpdated(this.updateHandler);
+        ProjectChangedEvent.on(this.updateHandler);
     }
 
     private setIssueCount(count: number) {
@@ -57,6 +61,19 @@ export class ShowIssuesDialogButton extends ActionButton {
     }
 
     private fetchIssuesAndCreateLink() {
+        if (ProjectContext.get().isInitialized()) {
+            this.doFetchIssuesAndCreateLink();
+        } else {
+            const projectSetHandler = () => {
+                ProjectChangedEvent.un(projectSetHandler);
+                this.doFetchIssuesAndCreateLink();
+            };
+
+            ProjectChangedEvent.on(projectSetHandler);
+        }
+    }
+
+    private doFetchIssuesAndCreateLink() {
         this.resetButton();
 
         this.fetchNumberOfOpenIssuesAssignedToMe().then((totalAssignedToMe: number) => {

@@ -72,9 +72,7 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.'Projects' folder has been expanded:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2. click on Default folder then click on Edit button:
+            //1. click on Default folder then click on Edit button:
             await settingsBrowsePanel.clickOnRowByDisplayName("Default");
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();

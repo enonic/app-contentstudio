@@ -1,3 +1,4 @@
+import {Project} from '../settings/data/project/Project';
 import {IconUrlResolver} from 'lib-admin-ui/icon/IconUrlResolver';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
@@ -5,7 +6,9 @@ import {assertNotNull} from 'lib-admin-ui/util/Assert';
 export class ProjectIconUrlResolver
     extends IconUrlResolver {
 
-    public static DEFAULT_ICON_CLASS: string = 'icon-tree-2';
+    private static DEFAULT_PROJECT_ICON_CLASS: string = 'icon-tree-2';
+
+    private static DEFAULT_LAYER_ICON_CLASS: string = 'icon-layer';
 
     private static PREFIX: string = UriHelper.getRestUri('project/icon/');
 
@@ -14,6 +17,18 @@ export class ProjectIconUrlResolver
     private size: number;
 
     private ts: number;
+
+    static getDefaultIcon(project: Project) {
+        return !!project.getParent() ? ProjectIconUrlResolver.DEFAULT_LAYER_ICON_CLASS : ProjectIconUrlResolver.DEFAULT_PROJECT_ICON_CLASS;
+    }
+
+    static getDefaultProjectIcon() {
+        return ProjectIconUrlResolver.DEFAULT_PROJECT_ICON_CLASS;
+    }
+
+    static getDefaultLayerIcon() {
+        return ProjectIconUrlResolver.DEFAULT_LAYER_ICON_CLASS;
+    }
 
     setProjectName(value: string): ProjectIconUrlResolver {
         this.name = value;

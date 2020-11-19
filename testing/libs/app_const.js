@@ -46,7 +46,8 @@ module.exports = Object.freeze({
     TASK_CREATED_MESSAGE: "New task created successfully.",
     PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request is Closed.',
     TASK_OPENED_MESSAGE: 'The task is Open.',
-    TWO_ITEMS_PUBLISHED: `2 items are published.`,
+    TWO_ITEMS_PUBLISHED: "2 items are published.",
+    CONTENT_RENAMED: "Content has been renamed",
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
     TEST_FOLDER_WITH_IMAGES_2: "Images for simple page",
     TEST_FOLDER_2_DISPLAY_NAME: `folder for selenium tests`,
@@ -58,6 +59,8 @@ module.exports = Object.freeze({
     APP_WITH_METADATA_MIXIN: 'Third Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
     YOUR_COMMENT_ADDED: 'Your comment is added to the task.',
+    LOCALIZED_MESSAGE_1: "Language was copied from current project.",
+    LOCALIZED_MESSAGE_2: "Inherited content was localized",
     CONTENT_REVERTED_MESSAGE: 'The content was reverted to the version from',
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
     ACCESS_WIDGET_HEADER: {
@@ -78,7 +81,8 @@ module.exports = Object.freeze({
     IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
     WIDGET_TITLE: {
         VERSION_HISTORY: 'Version history',
-        DEPENDENCIES: 'Dependencies'
+        DEPENDENCIES: 'Dependencies',
+        LAYERS: 'Layers'
     },
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',
@@ -87,6 +91,10 @@ module.exports = Object.freeze({
     },
     TEMPLATE_SUPPORT: {
         SITE: 'Site',
+    },
+    SORTING_ORDER: {
+        MODIFIED_DATE: 'Modified date',
+        CREATED_DATE: 'Created date',
     },
     TEST_IMAGES: {
         HAND: 'hand',
@@ -186,6 +194,7 @@ module.exports = Object.freeze({
         UNPUBLISHED: 'Unpublished',
         MODIFIED: 'Modified',
         MARKED_FOR_DELETION: 'Marked for deletion',
+        MOVED: 'Moved',
     },
     PUBLISH_MENU: {
         REQUEST_PUBLISH: "Request Publishing...",

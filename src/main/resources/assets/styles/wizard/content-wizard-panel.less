@@ -33,6 +33,8 @@
       .lock-name {
         display: inline;
         cursor: pointer;
+        position: relative;
+        top: -7px;
       }
 
       input:last-of-type {
@@ -40,11 +42,13 @@
       }
 
       .name-static {
-        display: inline;
+        display: inline-block;
         font-size: 16px;
         height: 28px;
         line-height: 28px;
         margin-right: 15px;
+        max-width: 80%;
+        .ellipsis();
       }
     }
   }

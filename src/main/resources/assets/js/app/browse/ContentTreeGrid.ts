@@ -6,7 +6,7 @@ import {Body} from 'lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
-import {SortContentEvent} from './SortContentEvent';
+import {SortContentEvent} from './sort/SortContentEvent';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentTreeGridToolbar} from './ContentTreeGridToolbar';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
@@ -107,7 +107,7 @@ export class ContentTreeGrid
             id: 'displayName',
             field: 'contentSummary.displayName',
             formatter: ContentRowFormatter.nameFormatter,
-            style: {minWidth: 130}
+            style: {cssClass: 'name', minWidth: 130}
         }, {
             name: 'CompareStatus',
             id: 'compareStatus',
@@ -555,54 +555,23 @@ export class ContentTreeGrid
         return deferred.promise;
     }
 
-    private placeContentNode(parent: TreeNode<ContentSummaryAndCompareStatus>,
-                             child: TreeNode<ContentSummaryAndCompareStatus>): Q.Promise<TreeNode<ContentSummaryAndCompareStatus>> {
-        return this.fetchChildrenIds(parent).then((result: ContentId[]) => {
-            const map: string[] = result.map((el) => {
-                return el.toString();
-            });
-            const index: number = map.indexOf(child.getData().getId());
-
-            if (!parent.hasParent() ||
-                (child.getData() && parent.hasChildren()) ||
-                (child.getData() && !parent.hasChildren() && !child.getData().getContentSummary().hasChildren())) {
-                const isParentExpanded: boolean = parent.isExpanded();
-                parent.moveChild(child, index);
-                parent.setExpanded(isParentExpanded); // in case of a single child it forces its parent to stay expanded
-            }
-
-            child.clearViewers();
-
-            return child;
+    private updatePathsInChildren(parentNode: TreeNode<ContentSummaryAndCompareStatus>) {
+        parentNode.getChildren().forEach((child: TreeNode<ContentSummaryAndCompareStatus>) => {
+            this.updatePathInChild(parentNode, child);
         });
     }
 
-    private placeContentNodes(nodes: TreeNode<ContentSummaryAndCompareStatus>[]): Q.Promise<any> {
-        const parallelPromises: Q.Promise<any>[] = [];
+    private updatePathInChild(parentNode: TreeNode<ContentSummaryAndCompareStatus>, child: TreeNode<ContentSummaryAndCompareStatus>) {
+        const nodeSummary: ContentSummary = parentNode.getData() ? parentNode.getData().getContentSummary() : null;
+        const childSummary: ContentSummary = child.getData() ? child.getData().getContentSummary() : null;
 
-        nodes.forEach((node: TreeNode<ContentSummaryAndCompareStatus>) => {
-            parallelPromises.push(this.placeContentNode(node.getParent(), node));
-        });
-
-        return Q.allSettled(parallelPromises).then((results) => {
-            this.reInitData();
-            this.invalidate();
-            return results;
-        });
-    }
-
-    private updatePathsInChildren(node: TreeNode<ContentSummaryAndCompareStatus>) {
-        node.getChildren().forEach((child) => {
-            const nodeSummary: ContentSummary = node.getData() ? node.getData().getContentSummary() : null;
-            const childSummary: ContentSummary = child.getData() ? child.getData().getContentSummary() : null;
-
-            if (nodeSummary && childSummary) {
-                const path: ContentPath = ContentPath.fromParent(nodeSummary.getPath(), childSummary.getPath().getName());
-                child.getData().setContentSummary(new ContentSummaryBuilder(childSummary).setPath(path).build());
-                child.clearViewers();
-                this.updatePathsInChildren(child);
-            }
-        });
+        if (nodeSummary && childSummary) {
+            const path: ContentPath = ContentPath.fromParent(nodeSummary.getPath(), childSummary.getPath().getName());
+            const newData: ContentSummaryAndCompareStatus = child.getData();
+            newData.setContentSummary(new ContentSummaryBuilder(childSummary).setPath(path).build());
+            this.doUpdateNodeByData(child, newData);
+            this.updatePathsInChildren(child);
+        }
     }
 
     sortNodesChildren(data: ContentSummaryAndCompareStatus[]) {
@@ -629,11 +598,21 @@ export class ContentTreeGrid
             return {cssClasses: 'empty-node'};
         }
 
-        if (node.getData().isReadOnly()) {
-            return {cssClasses: `readonly' title='${i18n('field.readOnly')}'`};
+        let cssClasses: string = '';
+
+        if (!!node.getData().getContentSummary() && node.getData().getContentSummary().isDataInherited()) {
+            cssClasses += 'data-inherited';
         }
 
-        return null;
+        if (!!node.getData().getContentSummary() && node.getData().getContentSummary().isSortInherited()) {
+            cssClasses += ' sort-inherited';
+        }
+
+        if (node.getData().isReadOnly()) {
+            cssClasses += `readonly' title='${i18n('field.readOnly')}'`;
+        }
+
+        return {cssClasses: cssClasses};
     }
 
     getSelectedOrHighlightedItems(): ContentSummaryAndCompareStatus[] {
@@ -650,30 +629,14 @@ export class ContentTreeGrid
         return [];
     }
 
-    renameContentNodes(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]): Q.Promise<void> {
-        this.processRenamedNodes(data, oldPaths);
-        return Q(null);
-    }
+    renameContentNodes(renamedItems: ContentSummaryAndCompareStatus[]) {
+        this.updateNodesByData(renamedItems);
 
-    private processRenamedNodes(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) {
-        const renamedNodes: TreeNode<ContentSummaryAndCompareStatus>[] = []; //this.getNodes(oldPaths);
-
-        data.forEach((newData: ContentSummaryAndCompareStatus) => {
-            this.updatePathsOfRenamedNodes(newData, renamedNodes);
-        });
-
-        this.placeContentNodes(renamedNodes);
-    }
-
-    private updatePathsOfRenamedNodes(newData: ContentSummaryAndCompareStatus, oldNodes: TreeNode<ContentSummaryAndCompareStatus>[]) {
-        oldNodes.forEach((node) => {
-            if (node.getDataId() === newData.getId()) {
-                node.setData(newData);
-                node.clearViewers();
-                this.updatePathsInChildren(node);
-            }
+        renamedItems.forEach((renamedItem: ContentSummaryAndCompareStatus) => {
+            this.getRoot().getNodesByDataId(renamedItem.getId()).forEach(this.updatePathsInChildren.bind(this));
         });
     }
+
 
     addContentNodes(itemsToAdd: ContentSummaryAndCompareStatus[]) {
         const parentsOfChildrenToAdd: Map<TreeNode<ContentSummaryAndCompareStatus>, ContentSummaryAndCompareStatus[]> =
@@ -770,5 +733,9 @@ export class ContentTreeGrid
         }
 
         return false;
+    }
+
+    getDefaultFullTotal(): number {
+        return this.getRoot().getDefaultRoot().treeToList(false, false).length;
     }
 }
