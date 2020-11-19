@@ -67,6 +67,11 @@ module.exports = Object.freeze({
         RESTRICTED_ACCESS: "Restricted access to item",
         EVERYONE_CAN_READ: "Everyone can read this item"
     },
+    PROJECT_ACCESS_MODE: {
+        PRIVATE: "Private",
+        PUBLIC: "Public",
+        CUSTOM: "Custom"
+    },
     //waitForTimeout
     TIMEOUT_10: 10000,
     mediumTimeout: 3000,

@@ -5,9 +5,9 @@ const Page = require('../../page');
 
 const xpath = {
     itemSet: "//div[contains(@id,'FormItemSetView')]",
-    elementTypeInput: "//div[contains(@id,'FormOptionSetView')]//span[contains(@id,'RadioButton') and descendant::label[text()='Input']]",
-    elementTypeButton: "//div[contains(@id,'FormOptionSetView')]//span[contains(@id,'RadioButton') and descendant::label[text()='Button']]",
-    elementTypeSelect: "//div[contains(@id,'FormOptionSetView')]//span[contains(@id,'RadioButton') and descendant::label[text()='Select']]",
+    elementTypeInput: "//div[contains(@id,'FormOptionSetView')]//span[contains(@id,'RadioButton') and descendant::label[text()='Input']]//label",
+    elementTypeButton: "//div[contains(@id,'FormOptionSetView')]//span[contains(@id,'RadioButton') and descendant::label[text()='Button']]//label",
+    elementTypeSelect: "//div[contains(@id,'FormOptionSetView')]//span[contains(@id,'RadioButton') and descendant::label[text()='Select']]//label",
 };
 
 class FreeFormView extends Page {
@@ -29,5 +29,5 @@ class FreeFormView extends Page {
     clickOnElementTypeButton() {
         return this.clickOnElement(this.elementTypeButton);
     }
-};
+}
 module.exports = FreeFormView;
