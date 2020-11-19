@@ -4,7 +4,7 @@
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
 const xpath = {
-    container: "//div[contains(@id,'FormView')]//div[contains(@id,'FormOptionSetView') and descendant::div[text()='Single selection']]",
+    container: "//div[contains(@id,'FormView')]//div[contains(@id,'FormOptionSetView') and descendant::p[text()='Single selection']]",
     nameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='Name']]" + lib.TEXT_INPUT,
     addItemSetButton: "//button[contains(@id,'Button') and child::span[text()='Add My Item-set']]",
     removeItemSetOccurrenceButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "/a[@class='remove-button']",
