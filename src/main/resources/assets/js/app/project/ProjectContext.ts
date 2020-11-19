@@ -5,8 +5,6 @@ export class ProjectContext {
 
     private static INSTANCE: ProjectContext;
 
-    private defaultProject: Project;
-
     private currentProject: Project;
 
     private state: State = State.NOT_INITIALIZED;
@@ -31,18 +29,6 @@ export class ProjectContext {
         this.currentProject = project;
         this.state = State.INITIALIZED;
         new ProjectChangedEvent().fire();
-    }
-
-    updateDefaultProject(project: Project) {
-        this.defaultProject = project;
-
-        if (this.state === State.NOT_INITIALIZED) {
-            this.currentProject = this.defaultProject;
-        }
-    }
-
-    resetToDefaultProject() {
-        this.setProject(this.defaultProject);
     }
 
     isInitialized(): boolean {
