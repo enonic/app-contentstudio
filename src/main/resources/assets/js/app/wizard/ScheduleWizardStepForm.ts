@@ -141,4 +141,9 @@ export class ScheduleWizardStepForm
         return this.isVisible() && this.formView.hasHelpText();
     }
 
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+
+        this.formView.setEnabled(enable);
+    }
 }

@@ -331,8 +331,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         const existing: ITEM = this.getPersistedItem();
         const displayName: string = !!existing ? existing.getDisplayName() : '';
 
-        wizardHeader.disableNameInput();
-        wizardHeader.setAutoGenerationEnabled(false);
+        wizardHeader.toggleNameInput(false);
         wizardHeader.setPath('');
         wizardHeader.initNames(displayName, 'not_used', false, true, true);
 

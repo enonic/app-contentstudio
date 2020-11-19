@@ -82,4 +82,12 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         this.getFormItems().forEach((formItem: FormItem) => this.addFormItem(formItem));
     }
 
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+
+        this.getFormItems().forEach((formItem: FormItem) => {
+            formItem.getInput().setEnabled(enable);
+        });
+    }
+
 }

@@ -715,7 +715,7 @@ export class ImageDialogToolbar
         checkbox.setLabel(i18n('dialog.image.customwidth'));
 
         if (StyleHelper.isOriginalImage(this.getProcessingStyleCls())) {
-            checkbox.setDisabled(true, 'disabled');
+            checkbox.setEnabled(false);
         }
 
         checkbox.onChange(() => {
@@ -803,11 +803,11 @@ export class ImageDialogToolbar
         this.initSelectedStyle(imageStyleSelector);
         imageStyleSelector.onOptionSelected(() => {
             if (StyleHelper.isOriginalImage(this.getProcessingStyleCls())) {
-                this.customWidthCheckbox.setChecked(false).setDisabled(true, 'disabled');
+                this.customWidthCheckbox.setChecked(false).setEnabled(false);
                 this.rangeInputContainer.hide();
                 this.previewEl.getEl().removeAttribute('style');
             } else {
-                this.customWidthCheckbox.setDisabled(false, 'disabled');
+                this.customWidthCheckbox.setEnabled(true);
             }
 
             this.notifyStylesChanged();

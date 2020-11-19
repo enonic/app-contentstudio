@@ -246,6 +246,10 @@ export class ContentSelector
         this.contentComboBox.resetBaseValues();
     }
 
+    setEnabled(enable: boolean): void {
+        this.contentComboBox.setEnabled(enable);
+    }
+
     resetPropertyValues() {
         const values = this.contentComboBox.getSelectedDisplayValues();
 

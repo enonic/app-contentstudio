@@ -78,6 +78,12 @@ export class ProjectReadAccessWizardStepForm
         });
     }
 
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+
+        this.principalsCombobox.setEnabled(enable);
+    }
+
     private updateCopyParentLanguageButtonState() {
         if (!this.copyParentLanguageButton) {
             return;
@@ -107,11 +113,11 @@ export class ProjectReadAccessWizardStepForm
         this.updateFilteredPrincipalsByPermissions(permissions);
 
         if (!readAccess.isCustom()) {
-            this.disablePrincipalCombobox();
+            this.principalsCombobox.setEnabled(false);
             return Q(null);
         }
 
-        this.enablePrincipalCombobox();
+        this.principalsCombobox.setEnabled(true);
 
         return new GetPrincipalsByKeysRequest(readAccess.getPrincipals()).sendAndParse().then((principals: Principal[]) => {
             principals.forEach((principal: Principal) => {
@@ -131,7 +137,7 @@ export class ProjectReadAccessWizardStepForm
         }
 
         this.filterPrincipals(this.getDefaultFilteredPrincipals());
-        this.disablePrincipalCombobox();
+        this.principalsCombobox.setEnabled(false);
     }
 
     getName(): string {
@@ -297,16 +303,6 @@ export class ProjectReadAccessWizardStepForm
         principalsLoader.skipPrincipals(principals);
     }
 
-    private disablePrincipalCombobox() {
-        this.principalsCombobox.getComboBox().setEnabled(false);
-        this.principalsCombobox.addClass('disabled');
-    }
-
-    private enablePrincipalCombobox() {
-        this.principalsCombobox.getComboBox().setEnabled(true);
-        this.principalsCombobox.removeClass('disabled');
-    }
-
     private createLanguageFormItem(): FormItem {
         this.localeCombobox = <LocaleComboBox>LocaleComboBox.create().setMaximumOccurrences(1).build();
 
@@ -405,12 +401,7 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private handleAccessValueChanged(newValue: string) {
-        if (newValue === ProjectReadAccessType.PRIVATE || newValue === ProjectReadAccessType.PUBLIC) {
-            this.disablePrincipalCombobox();
-        } else {
-            this.enablePrincipalCombobox();
-        }
-
+        this.principalsCombobox.setEnabled(newValue === ProjectReadAccessType.CUSTOM);
         this.readAccessRadioGroupFormItem.validate(new ValidationResult(), true);
 
         this.updateCopyParentAccessModeButtonState();

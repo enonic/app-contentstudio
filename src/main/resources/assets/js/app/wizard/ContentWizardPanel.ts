@@ -216,8 +216,6 @@ export class ContentWizardPanel
 
     private pageEditorUpdatedDuringSave: boolean;
 
-    private modifyPermissions: boolean = false;
-
     private applicationLoadCount: number;
 
     private debouncedEditorRefresh: (clearInspection: boolean) => void;
@@ -225,6 +223,8 @@ export class ContentWizardPanel
     private isFirstUpdateAndRenameEventSkiped: boolean;
 
     private workflowStateIconsManager: WorkflowStateIconsManager;
+
+    private loginResult: LoginResult;
 
     public static debug: boolean = false;
 
@@ -470,7 +470,7 @@ export class ContentWizardPanel
             this.appendChild(this.getContentWizardToolbarPublishControls().getMobilePublishControls());
 
             if (this.getLivePanel()) {
-                this.getLivePanel().setModifyPermissions(this.modifyPermissions);
+                this.getLivePanel().setModifyPermissions(this.canModify);
             }
 
             if (this.contentType.hasDisplayNameExpression()) {
@@ -651,7 +651,7 @@ export class ContentWizardPanel
 
     giveInitialFocus() {
 
-        if (!this.modifyPermissions) {
+        if (!this.canModify) {
             return;
         }
 
@@ -1699,16 +1699,6 @@ export class ContentWizardPanel
                     this.setSteps(steps);
 
                     return this.layoutWizardStepForms(content).then(() => {
-                        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                            this.setModifyPermissions(loginResult);
-                            this.toggleStepFormsVisibility(loginResult);
-                            this.updateUrlAction();
-
-                            if (this.isLocalizeInUrl()) {
-                                this.settingsWizardStepForm.updateInitialLanguage();
-                            }
-                        });
-
                         this.syncPersistedItemWithContentData(content.getContentData());
                         this.xDataWizardStepForms.resetState();
 
@@ -2330,17 +2320,8 @@ export class ContentWizardPanel
         return this.formContext;
     }
 
-    private setModifyPermissions(loginResult: LoginResult) {
-        this.modifyPermissions =
-            this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY);
-        this.getEl().toggleClass('no-modify-permissions', !this.modifyPermissions);
-        if (this.getLivePanel()) {
-            this.getLivePanel().setModifyPermissions(this.modifyPermissions);
-        }
-    }
-
     hasModifyPermissions(): boolean {
-        return this.modifyPermissions;
+        return this.canModify;
     }
 
     /**
@@ -2597,7 +2578,7 @@ export class ContentWizardPanel
     }
 
     private updateUrlAction() {
-        const action: string = (this.modifyPermissions && this.getPersistedItem().isDataInherited() &&
+        const action: string = (this.canModify && this.getPersistedItem().isDataInherited() &&
                                 this.isLocalizeInUrl())
                                ? UrlAction.LOCALIZE
                                : UrlAction.EDIT;
@@ -2627,4 +2608,28 @@ export class ContentWizardPanel
             this.getWizardHeader().setOnline(this.persistedContent.isOnline());
         }
     }
+
+    protected checkIfEditIsAllowed(): Q.Promise<boolean> {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+            this.loginResult = loginResult;
+
+            return Q(this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY));
+        });
+    }
+
+    protected handleCanModify(canModify: boolean): void {
+        super.handleCanModify(canModify);
+
+        if (this.getLivePanel()) {
+            this.getLivePanel().setModifyPermissions(this.canModify);
+        }
+
+        this.toggleStepFormsVisibility(this.loginResult);
+        this.updateUrlAction();
+
+        if (this.isLocalizeInUrl()) {
+            this.settingsWizardStepForm.updateInitialLanguage();
+        }
+    }
+
 }

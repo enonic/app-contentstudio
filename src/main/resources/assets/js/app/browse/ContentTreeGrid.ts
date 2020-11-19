@@ -367,22 +367,6 @@ export class ContentTreeGrid
             });
     }
 
-    private fetchChildrenIds(parentNode: TreeNode<ContentSummaryAndCompareStatus>): Q.Promise<ContentId[]> {
-        this.removeEmptyNode(parentNode);
-
-        if (!this.isFiltered() || parentNode !== this.getRoot().getCurrentRoot()) {
-            const parentContentId: ContentId = parentNode.getData() ? parentNode.getData().getContentId() : null;
-            return ContentSummaryAndCompareStatusFetcher.fetchChildrenIds(parentContentId);
-        } else {
-            const size: number = parentNode.getChildren().length + 1;
-            return this.sendContentQueryRequest(0, size).then(this.getContentIDsFromContentQueryResult.bind(this));
-        }
-    }
-
-    private getContentIDsFromContentQueryResult(queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>): ContentId[] {
-        return queryResult.getContents().map((content => content.getContentId()));
-    }
-
     appendUploadNode(item: UploadItem<ContentSummary>) {
         const data: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromUploadItem(item);
         const parent: TreeNode<ContentSummaryAndCompareStatus> = this.getFirstSelectedOrHighlightedNode();

@@ -48,7 +48,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
     protected preventReload: boolean;
 
-    protected treeModeToggler: ModeTogglerButton;
+    protected treeModeToggler?: ModeTogglerButton;
 
     protected maxHeight: number = 230;
 
@@ -128,6 +128,14 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
             return (<ITEM_TYPE>option.getDisplayValue()).getContent();
         }
         return null;
+    }
+
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+
+        if (this.treeModeToggler) {
+            this.treeModeToggler.setEnabled(enable);
+        }
     }
 
     getContent(contentId: ContentId): ContentSummary {
