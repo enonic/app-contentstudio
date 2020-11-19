@@ -158,6 +158,7 @@ export class SortContentDialog
 
     private handleOpenSortDialogEvent(event: OpenSortDialogEvent) {
         this.selectedContent = event.getContent();
+        this.contentGrid.setContentId(this.selectedContent.getContentId());
         this.toggleInheritedSortingOption();
         this.updateSubHeaderText();
         this.toggleGridVisibility();
