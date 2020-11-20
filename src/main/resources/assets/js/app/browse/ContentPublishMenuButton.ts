@@ -71,7 +71,7 @@ export class ContentPublishMenuButton
     private debouncedFetch: (highlightedOrSelected: ContentSummaryAndCompareStatus) => void;
 
     protected autoWidth: boolean = true;
-    protected rightAligned: boolean = true;
+    protected rightAlign: boolean = true;
 
     constructor(config: ContentPublishMenuButtonConfig) {
         super(config.publishAction);
