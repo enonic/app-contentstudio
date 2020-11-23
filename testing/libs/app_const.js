@@ -47,6 +47,7 @@ module.exports = Object.freeze({
     PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request is Closed.',
     TASK_OPENED_MESSAGE: 'The task is Open.',
     TWO_ITEMS_PUBLISHED: "2 items are published.",
+    ITEM_IS_UNDELETED_MESSAGE: "Item is undeleted",
     CONTENT_RENAMED: "Content has been renamed",
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
     TEST_FOLDER_WITH_IMAGES_2: "Images for simple page",
