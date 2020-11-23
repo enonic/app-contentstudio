@@ -117,8 +117,8 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.clickOnUndoDeleteButton();
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
-            let expectedMessage = "Item is undeleted";
-            assert.equal(actualMessage, expectedMessage, "'Item is undeleted' - message should appear");
+            let expectedMessage = appConstant.ITEM_IS_UNDELETED_MESSAGE;
+            assert.equal(actualMessage, expectedMessage, "'Item is undeleted' - message should appear.");
             //2. Open version panel and verify status in the top version-item:
             await contentBrowsePanel.openDetailsPanel();
             await contentBrowseDetailsPanel.openVersionHistory();
