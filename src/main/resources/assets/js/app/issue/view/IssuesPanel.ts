@@ -96,10 +96,6 @@ export class IssuesPanel
         return this.filter();
     }
 
-    repositionFixedElements(): void {
-        this.typeFilter.setMenuPosition();
-    }
-
     private updateStatusFilterSelection() {
         const currentStatus = this.statusFilter.getStatus();
         const newStatus = currentStatus === IssueStatus.OPEN ? IssueStatus.CLOSED : IssueStatus.OPEN;

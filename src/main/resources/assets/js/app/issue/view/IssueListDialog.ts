@@ -70,13 +70,6 @@ export class IssueListDialog
         ProjectChangedEvent.on(() => {
             this.reloadRequired = true;
         });
-
-        this.getBody().onScroll(() => this.issuesPanel.repositionFixedElements());
-    }
-
-    protected resizeHandler() {
-        super.resizeHandler();
-        this.issuesPanel.repositionFixedElements();
     }
 
     doRender(): Q.Promise<boolean> {
