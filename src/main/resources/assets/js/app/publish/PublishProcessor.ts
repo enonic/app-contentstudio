@@ -238,6 +238,17 @@ export class PublishProcessor {
                this.dependantList.getItems().some(this.isItemInProgress.bind(this));
     }
 
+    public getItemsTotalInProgress(): number {
+        return this.itemList.getItems().filter(this.isOfflineItemInProgress.bind(this)).length +
+               this.dependantList.getItems().filter(this.isItemInProgress.bind(this)).length;
+    }
+
+    public getContentIsProgressIds(): ContentId[] {
+        return this.itemList.getItems().filter(this.isOfflineItemInProgress.bind(this)).concat(
+            this.dependantList.getItems().filter(this.isItemInProgress.bind(this))).map(
+            (item: ContentSummaryAndCompareStatus) => item.getContentId());
+    }
+
     private isOfflineItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
         return !item.isOnline() && this.isItemInProgress(item) && !item.getContentSummary().getContentState().isPendingDelete();
     }
