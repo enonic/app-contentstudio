@@ -271,13 +271,7 @@
     z-index: @z-index-mask - 1;
     cursor: pointer;
     color: @admin-font-gray2;
-    /*
-        &:before {
-          display: inline-block;
-          transform: rotate(180deg);
-          transition: 0.3s;
-        }
-    */
+
     &:hover {
       color: @admin-bg-dark-gray;
     }
@@ -285,6 +279,8 @@
 
   .context-panel {
     overflow: visible;
+    height: calc(100vh - @app-header-height);
+
     &.floating-context-panel {
       top: @app-header-height + 1;
       z-index: @z-index-tab-menu - 1;

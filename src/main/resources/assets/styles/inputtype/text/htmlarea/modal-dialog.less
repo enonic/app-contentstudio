@@ -1,80 +1,5 @@
-.modal-dialog-margin-mixin(@label-width: @form-label-width) {
-  .form-view {
-    .input-view {
-      & > label {
-        float: left;
-        max-width: @label-width - 10px;
-      }
-
-      label + .form-input,
-      label + .input-wrapper {
-        margin-left: @label-width - 12px;
-      }
-
-      &.invalid {
-        label + .form-input,
-        label + .input-wrapper,
-        .validation-viewer {
-          margin-left: @label-width - 30px;
-        }
-      }
-    }
-  }
-
-}
-
-.hasSelectedItemPreview() {
-  .selected-item-preview {
-    label {
-      display: none;
-    }
-    .input-wrapper {
-      margin-left: 0 !important;
-    }
-    .loader-combobox {
-      display: none;
-    }
-  }
-}
-
-.hideCancelTopButton() {
-  .modal-dialog-content-wrapper .cancel-button-top {
-    display: none;
-  }
-}
-
-.showsSelectedOption(@displayIcon:false) {
-
-  .selected-options .selected-option {
-    margin: 0;
-    width: 100%;
-    border: none;
-    overflow-y: hidden;
-
-    .@{_COMMON_PREFIX}wrapper {
-      display: none;
-    }
-
-    .@{_COMMON_PREFIX}wrapper when (@displayIcon = true) {
-      display: flex;
-    }
-  }
-
-  .input-wrapper {
-    display: flex;
-  }
-
-  .names-and-icon-view .@{_COMMON_PREFIX}names-view {
-    margin-left: 0;
-  }
-}
-
 .html-area-modal-dialog {
   box-sizing: content-box;
-
-  &:not(.image-modal-dialog) {
-    max-width: 600px;
-  }
 
   &.link-modal-dialog {
 
@@ -99,19 +24,7 @@
     }
   }
 
-  &._540-720 {
-    .modal-dialog-margin-mixin();
-  }
-
   &._0-240, &._240-360, &._360-540 {
-    .dialog-content {
-      div.input-view.invalid + div.validation-viewer {
-        padding-left: 11px;
-      }
-      .form-view.display-validation-errors .input-view label + .input-wrapper {
-        margin-left: 0;
-      }
-    }
     &.link-modal-dialog,
     &.search-and-replace-modal-dialog {
       .dialog-content .form-view .input-view {
@@ -134,22 +47,9 @@
     }
   }
 
-  &.animated {
-    transition: margin-top 0.2s;
-  }
-
   .dialog-content {
 
-    @media screen and (max-height: 360px) {
-      height: 65%;
-    }
-
     transition: max-height 0.2s;
-
-    input {
-      width: 100%;
-
-    }
 
     .panel {
       position: inherit;
@@ -161,10 +61,7 @@
     }
 
     .docked-panel {
-      width: auto;
       box-shadow: none;
-      position: inherit !important;
-      margin-top: 15px;
 
       .tab-bar {
         width: 63%;
@@ -193,9 +90,6 @@
     }
 
     .form-view {
-      margin-bottom: 0;
-      padding: 0 !important;
-
       fieldset:not(:last-child) {
         margin-bottom: 5px;
       }
@@ -259,4 +153,44 @@
     }
   }
 
+}
+
+.hasSelectedItemPreview() {
+  .selected-item-preview {
+    label {
+      display: none;
+    }
+    .input-wrapper {
+      margin-left: 0 !important;
+    }
+    .loader-combobox {
+      display: none;
+    }
+  }
+}
+
+.showsSelectedOption(@displayIcon:false) {
+
+  .selected-options .selected-option {
+    margin: 0;
+    width: 100%;
+    border: none;
+    overflow-y: hidden;
+
+    .@{_COMMON_PREFIX}wrapper {
+      display: none;
+    }
+
+    .@{_COMMON_PREFIX}wrapper when (@displayIcon = true) {
+      display: flex;
+    }
+  }
+
+  .input-wrapper {
+    display: flex;
+  }
+
+  .names-and-icon-view .@{_COMMON_PREFIX}names-view {
+    margin-left: 0;
+  }
 }
