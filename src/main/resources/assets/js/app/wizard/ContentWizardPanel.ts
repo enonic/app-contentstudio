@@ -1554,6 +1554,7 @@ export class ContentWizardPanel
 
     private updateThumbnailWithContent(content: Content) {
         const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
+        thumbnailUploader.toggleClass('has-origin-project', !!content.getOriginProject());
         const id = content.getContentId().toString();
 
         thumbnailUploader

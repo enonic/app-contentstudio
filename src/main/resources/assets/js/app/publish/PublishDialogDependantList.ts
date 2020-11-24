@@ -60,6 +60,8 @@ export class PublishDialogDependantList
             statusView.getEl().setTitle(i18n('field.readOnly'));
         }
 
+        statusView.toggleClass('has-origin-project', item.hasOriginProject());
+
         this.initListItemListeners(item, statusView);
 
         return statusView;
