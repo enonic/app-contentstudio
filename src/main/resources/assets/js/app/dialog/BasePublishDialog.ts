@@ -96,6 +96,14 @@ export abstract class BasePublishDialog
         this.publishProcessor.onLoadingFailed(this.handleLoadFailed.bind(this));
         this.publishProcessor.onItemsChanged(this.handleLoadFinished.bind(this));
 
+        this.publishIssuesStateBar.onExcludeAllInProgressClicked(() => {
+            this.publishProcessor.excludeAllInProgress();
+        });
+
+        this.publishIssuesStateBar.onExcludeAllInvalidClicked(() => {
+            this.publishProcessor.excludeAllInvalid();
+        });
+
         this.handleIssueGlobalEvents();
     }
 
@@ -159,7 +167,8 @@ export abstract class BasePublishDialog
             this.publishIssuesStateBar.reset();
         } else {
             this.publishIssuesStateBar.addClass('has-issues');
-            this.publishIssuesStateBar.setContainsInProgressVisible(containsItemsInProgress);
+            this.publishIssuesStateBar.setTotalInProgress(this.publishProcessor.getInProgressIds().length);
+            this.publishIssuesStateBar.setTotalInvalid(this.publishProcessor.getInvalidIds().length);
             this.publishIssuesStateBar.setContainsInvalidVisible(!allValid);
             this.publishIssuesStateBar.setContainsNotPublishableVisible(!allPublishable);
         }

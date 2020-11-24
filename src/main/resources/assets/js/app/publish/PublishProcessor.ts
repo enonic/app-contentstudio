@@ -22,7 +22,9 @@ export class PublishProcessor {
 
     private dependantIds: ContentId[] = [];
 
-    private containsInvalid: boolean;
+    private invalidIds: ContentId[] = [];
+
+    private inProgressIds: ContentId[] = [];
 
     private allPublishable: boolean;
 
@@ -88,6 +90,10 @@ export class PublishProcessor {
                 this.reloadDependenciesDebounced(true);
             }
         });
+
+        this.itemList.onItemsChanged(() => {
+            this.reloadDependenciesDebounced(false);
+        });
     }
 
     reloadPublishDependencies(resetDependantItems?: boolean) {
@@ -110,7 +116,8 @@ export class PublishProcessor {
     private handleNoPublishItemsToLoad(resetDependantItems?: boolean) {
         this.dependantIds = [];
         this.dependantList.setRequiredIds([]);
-        this.containsInvalid = false;
+        this.inProgressIds = [];
+        this.invalidIds = [];
         this.allPublishable = false;
         this.allPendingDelete = false;
 
@@ -162,7 +169,8 @@ export class PublishProcessor {
 
         this.dependantIds = result.getDependants().slice();
         this.dependantList.setRequiredIds(result.getRequired());
-        this.containsInvalid = result.isContainsInvalid();
+        this.invalidIds = result.getInvalid();
+        this.inProgressIds = result.getInProgress();
         this.allPublishable = result.isAllPublishable();
         this.allPendingDelete = result.isAllPendingDelete();
     }
@@ -198,20 +206,20 @@ export class PublishProcessor {
         return this.countToPublish(this.itemList.getItems()) + this.dependantIds.length;
     }
 
-    public isAllPublishable() {
+    public isAllPublishable(): boolean {
         return this.allPublishable;
     }
 
-    public isAllPendingDelete() {
+    public isAllPendingDelete(): boolean {
         return this.allPendingDelete;
     }
 
-    public containsInvalidItems() {
-        return this.containsInvalid || this.itemList.getItems().some(this.isItemInvalid);
+    public containsInvalidItems(): boolean {
+        return this.invalidIds.length > 0;
     }
 
-    private isItemInvalid(item: ContentSummaryAndCompareStatus): boolean {
-        return !item.getContentSummary().isValid();
+    public getInvalidIds(): ContentId[] {
+        return this.invalidIds;
     }
 
     public setCheckPublishable(flag: boolean) {
@@ -234,27 +242,11 @@ export class PublishProcessor {
     }
 
     public containsItemsInProgress(): boolean {
-        return this.itemList.getItems().some(this.isOfflineItemInProgress.bind(this)) ||
-               this.dependantList.getItems().some(this.isItemInProgress.bind(this));
+        return this.inProgressIds.length > 0;
     }
 
-    public getItemsTotalInProgress(): number {
-        return this.itemList.getItems().filter(this.isOfflineItemInProgress.bind(this)).length +
-               this.dependantList.getItems().filter(this.isItemInProgress.bind(this)).length;
-    }
-
-    public getContentIsProgressIds(): ContentId[] {
-        return this.itemList.getItems().filter(this.isOfflineItemInProgress.bind(this)).concat(
-            this.dependantList.getItems().filter(this.isItemInProgress.bind(this))).map(
-            (item: ContentSummaryAndCompareStatus) => item.getContentId());
-    }
-
-    private isOfflineItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
-        return !item.isOnline() && this.isItemInProgress(item) && !item.getContentSummary().getContentState().isPendingDelete();
-    }
-
-    private isItemInProgress(item: ContentSummaryAndCompareStatus): boolean {
-        return item.getContentSummary().isValid() && item.getContentSummary().isInProgress();
+    public getInProgressIds(): ContentId[] {
+        return this.inProgressIds;
     }
 
     public getDependantIds(): ContentId[] {
@@ -300,6 +292,30 @@ export class PublishProcessor {
             (oldDependantItem: ContentSummaryAndCompareStatus) => !dependants.some(
                 (newDependantItem) => oldDependantItem.equals(newDependantItem)));
         this.dependantList.removeItems(itemsToRemove);
+    }
+
+    public excludeAllInProgress() {
+        if (this.inProgressIds.length > 0) {
+            this.excludedIds.push(...this.inProgressIds);
+            this.itemList.removeItemsByIds(this.inProgressIds);
+            this.reloadDependenciesDebounced(true);
+        }
+    }
+
+    public excludeAllInvalid() {
+        if (this.invalidIds.length > 0) {
+            this.excludedIds.push(...this.invalidIds);
+            this.itemList.removeItemsByIds(this.invalidIds);
+            this.reloadDependenciesDebounced(true);
+        }
+    }
+
+    public getItemsTotalInProgress(): number {
+        return this.inProgressIds.length;
+    }
+
+    public getContentIsProgressIds(): ContentId[] {
+        return this.inProgressIds;
     }
 
     onLoadingStarted(listener: () => void) {
