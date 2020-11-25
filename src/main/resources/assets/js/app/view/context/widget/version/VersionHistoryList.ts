@@ -47,6 +47,17 @@ export class VersionHistoryList
         }).catch(DefaultErrorHandler.handle);
     }
 
+    private isRepublished(contentVersions: ContentVersion[], version: ContentVersion, index: number) {
+        return contentVersions.some((v: ContentVersion, i: number) => {
+            if (i <= index || !version.isPublished() || !v.isPublished()) {
+                return false;
+            }
+            const date1 = DateHelper.formatDateTime(v.getPublishInfo().getPublishedFrom());
+            const date2 = DateHelper.formatDateTime(version.getPublishInfo().getPublishedFrom());
+            return date1 === date2;
+        });
+    }
+
     private versionsToHistoryItems(contentVersions: ContentVersion[]): VersionHistoryItem[] {
         const versionHistoryItems: VersionHistoryItem[] = [];
         let lastDate: string = null;
@@ -56,7 +67,7 @@ export class VersionHistoryList
             .sort((v1: ContentVersion, v2: ContentVersion) => {
                 return Number(v2.getDisplayDate()) - Number(v1.getDisplayDate());
             })
-            .forEach((version: ContentVersion) => {
+            .forEach((version: ContentVersion, index) => {
                 const displayDate = version.getDisplayDate();
                 const skipDuplicateVersion: boolean = this.versionDates[Number(version.getModified())] !== version.getId();
 
@@ -64,7 +75,9 @@ export class VersionHistoryList
                     const publishInfo = version.getPublishInfo();
                     const publishDate: string = DateHelper.formatDate(displayDate);
                     versionHistoryItems.push(
-                        VersionHistoryItem.fromPublishInfo(publishInfo).setSkipDate(publishDate === lastDate)
+                        VersionHistoryItem.fromPublishInfo(publishInfo)
+                            .setSkipDate(publishDate === lastDate)
+                            .setRepublished(this.isRepublished(contentVersions, version, index))
                     );
                     lastDate = publishDate;
                 }
