@@ -158,7 +158,7 @@ export class ProjectItemNameWizardStepForm
         this.addFormItem(this.parentProjectFormItem);
     }
 
-    protected getFormItems(): FormItem[] {
+    protected createFormItems(): FormItem[] {
         this.projectNameInput = new TextInput();
         this.projectNameFormItem = <ProjectFormItem>new ProjectFormItemBuilder(this.projectNameInput)
             .setHelpText(i18n('settings.projects.name.helptext'))

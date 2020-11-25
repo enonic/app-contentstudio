@@ -201,7 +201,7 @@ export class ProjectReadAccessWizardStepForm
         return new ValidationRecording();
     }
 
-    protected getFormItems(): FormItem[] {
+    protected createFormItems(): FormItem[] {
         if (!!this.item && this.item.isDefaultProject()) {
             return [this.createLanguageFormItem()];
         }

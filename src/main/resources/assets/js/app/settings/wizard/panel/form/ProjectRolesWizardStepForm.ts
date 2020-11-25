@@ -28,7 +28,7 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
     private copyParentRolesButton?: Button;
 
-    protected getFormItems(): FormItem[] {
+    protected createFormItems(): FormItem[] {
         this.accessCombobox = new ProjectAccessControlComboBox();
 
         const loader: PrincipalLoader = <PrincipalLoader>this.accessCombobox.getLoader();
