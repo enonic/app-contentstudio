@@ -18,7 +18,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
         webDriverHelper.setupBrowser();
         let CONTENT_NAME = contentBuilder.generateRandomName('content');
 
-        let IMAGE_DISPLAY_NAME1 = appConstant.TEST_IMAGES.FOSS;
+        let IMAGE_DISPLAY_NAME1 = appConstant.TEST_IMAGES.PES;
         let SITE;
 
         it(`Precondition: new site should be added`,
@@ -62,7 +62,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 await contentWizard.waitUntilInvalidIconAppears();
             });
 
-        it("GIVEN existing content with Image selector is opened WHEN required image is deleted THEN the content should be displayed with red icon",
+        it("GIVEN searching for item with invalid required image WHEN item appears in browse panel THEN the content should be displayed with red icon",
             async () => {
                 let contentBrowsePanel = new ContentBrowsePanel();
                 //1. Select existing content with one required image:
