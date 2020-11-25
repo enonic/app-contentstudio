@@ -15,7 +15,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
     webDriverHelper.setupBrowser();
 
     let SITE;
-    let IMAGE_DISPLAY_NAME = "Pop_03";
+    let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.POP_03;
 
     it(`Preconditions: new site should be added`,
         async () => {
