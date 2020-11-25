@@ -94,7 +94,7 @@ export class NewContentDialog
 
             this.appendChild(this.dropzoneContainer);
 
-            this.header.insertChild(this.newContentUploader, 1);
+            this.header.appendToTitle(this.newContentUploader);
 
             return rendered;
         });
@@ -385,9 +385,14 @@ export class NewContentDialogHeader
 
     private pathEl: PEl;
 
+    private titleWrapper: DivEl;
+
     constructor(title: string, path: string) {
         super(title);
 
+        this.titleWrapper = new DivEl('title-wrapper');
+        this.appendChild(this.titleWrapper);
+        this.titleWrapper.appendChild(this.getFirstChild());
         this.pathEl = new PEl('path');
         this.pathEl.getEl().setAttribute('data-desc', `${i18n('dialog.newContent.pathDescription')}:`);
         this.pathEl.setHtml(path);
@@ -396,5 +401,9 @@ export class NewContentDialogHeader
 
     setPath(path: string) {
         this.pathEl.setHtml(path).setVisible(!StringHelper.isBlank(path));
+    }
+
+    appendToTitle(element: Element) {
+        this.titleWrapper.appendChild(element);
     }
 }

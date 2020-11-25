@@ -37,7 +37,7 @@ export class ProjectItemNameWizardStepForm
     }
 
     disableProjectNameInput() {
-        this.projectNameInput.getEl().setDisabled(true);
+        this.projectNameInput.whenRendered(() => this.projectNameInput.setEnabled(false));
     }
 
     getDescription(): string {
