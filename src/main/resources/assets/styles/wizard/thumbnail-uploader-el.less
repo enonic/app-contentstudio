@@ -66,8 +66,8 @@
     .icon-state-ready;
   }
 
-  &.has-origin-project:not(.invalid) .result-container {
-    .icon-cloud-download(22px, -4px, -6px);
+  &.has-origin-project .result-container {
+    .icon-cloud-download(24px, -4px, -6px);
   }
 
   &.invalid, &.in-progress, &.ready {
@@ -78,6 +78,30 @@
       background-color: @admin-white;
       right: -8px;
       top: 5px;
+    }
+  }
+}
+
+._0-240, ._240-360, ._360-540 {
+  .thumbnail-uploader-el {
+    width: 32px;
+    height: 32px;
+    margin: 5px 20px;
+
+    .dropzone-container .dropzone {
+      height: 100%;
+      min-height: auto;
+    }
+
+    &.has-origin-project .result-container {
+      .icon-cloud-download(18px, -6px, -6px);
+    }
+
+    .result-container {
+      &::before {
+        font-size: 14px;
+        top: 2px;
+      }
     }
   }
 }
