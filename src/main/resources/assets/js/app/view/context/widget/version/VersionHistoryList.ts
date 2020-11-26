@@ -48,13 +48,16 @@ export class VersionHistoryList
     }
 
     private isRepublished(contentVersions: ContentVersion[], version: ContentVersion, index: number) {
+        if (!version.isPublished()) {
+            return false;
+        }
+        const publishedFrom = DateHelper.formatDateTime(version.getPublishInfo().getPublishedFrom());
         return contentVersions.some((v: ContentVersion, i: number) => {
-            if (i <= index || !version.isPublished() || !v.isPublished()) {
+            if (i <= index || !v.isPublished()) {
                 return false;
             }
-            const date1 = DateHelper.formatDateTime(v.getPublishInfo().getPublishedFrom());
-            const date2 = DateHelper.formatDateTime(version.getPublishInfo().getPublishedFrom());
-            return date1 === date2;
+            const vPublishedFrom = DateHelper.formatDateTime(v.getPublishInfo().getPublishedFrom());
+            return publishedFrom === vPublishedFrom;
         });
     }
 
