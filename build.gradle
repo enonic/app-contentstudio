@@ -13,6 +13,23 @@ allprojects {
     apply from: "$rootDir/gradle/lib-admin.gradle"
     apply from: "$rootDir/gradle/node.gradle"
 
+    dependencies {
+        compile("com.enonic.xp:core-api:${xpVersion}") {
+            force = true
+        }
+        compile ("com.enonic.xp:portal-api:${xpVersion}") {
+            force = true
+        }
+        include "com.enonic.xp:lib-admin:${xpVersion}"
+        include "com.enonic.xp:lib-portal:${xpVersion}"
+        include "com.enonic.xp:lib-context:${xpVersion}"
+        include "com.enonic.xp:lib-content:${xpVersion}"
+        include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
+        include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
+        testCompile 'junit:junit:4.12'
+        testCompile 'org.mockito:mockito-core:2.23.0'
+    }
+
     app {
         systemVersion = "${xpVersion}"
         vendorName = 'Enonic AS'
@@ -40,6 +57,25 @@ subprojects {
     apply plugin: 'com.enonic.defaults'
     apply plugin: 'com.enonic.xp.app'
 
+    sourceSets {
+        main {
+            java {
+                srcDirs "$rootDir/src/main/java"
+            }
+            resources {
+                srcDirs "$rootDir/src/main/resources"
+            }
+        }
+        test {
+            java {
+                srcDirs "$rootDir/src/test/java"
+            }
+            resources {
+                srcDirs "$rootDir/src/test/resources"
+            }
+        }
+    }
+
     app {
         devSourcePaths += file( "$rootDir/../lib-admin-ui/src/main/resources" )
     }
@@ -50,32 +86,24 @@ subprojects {
         }
     }
 
-    unpackDevResources.dependsOn tasks.getByPath(':unpackDevResources')
-    npmInstall.mustRunAfter unpackDevResources
-    processResources.dependsOn += unpackDevResources
+    unpackDevResources.enabled = false
 
-    if ( hasEnvironment() && isLibAdminUiIncluded() )
+    def unpackDevResourcesRoot = rootProject.tasks.getByPath(':unpackDevResources')
+    npmInstall.mustRunAfter unpackDevResourcesRoot
+    processResources.dependsOn += unpackDevResourcesRoot
+
+    if ( hasLibAdminUi() )
     {
         build.dependsOn += libAdminBuildTask
         clean.dependsOn += libAdminCleanTask
-        unpackDevResources.dependsOn += libAdminBuildTask
-
-        def webpackTask = tasks.findByPath( ':webpack' )
-        if ( webpackTask != null ) webpackTask.dependsOn += unpackDevResources
     }
-}
 
-dependencies {
-    include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
+    def webpackTask = tasks.findByPath( ':webpack' )
+    if ( webpackTask != null ) webpackTask.dependsOn += unpackDevResourcesRoot
 }
 
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-}
-
-task flush( type: Delete, dependsOn: clean ) {
-    description = 'Clean the project from built sources and dependencies'
-    delete '.xp'
 }
 
 task lint( type: NpmTask, dependsOn: npmInstall ) {
@@ -85,7 +113,8 @@ task lint( type: NpmTask, dependsOn: npmInstall ) {
     outputs.upToDateWhen { false }
 }
 
-if ( hasEnvironment() && isLibAdminUiIncluded() )
+if ( hasLibAdminUi() )
 {
     flush.dependsOn += libAdminFlushTask
+    unpackDevResources.dependsOn += libAdminBuildTask
 }

@@ -1,27 +1,12 @@
 apply plugin: 'org.asciidoctor.convert'
 apply plugin: 'org.aim42.htmlSanityCheck'
 
+archivesBaseName='contentstudio'
+
 app {
     name = 'com.enonic.app.contentstudio'
     group = 'com.enonic.app'
     displayName = 'Content Studio'
-}
-
-dependencies {
-    compile("com.enonic.xp:core-api:${xpVersion}") {
-        force = true
-    }
-    compile ("com.enonic.xp:portal-api:${xpVersion}") {
-        force = true
-    }
-    include "com.enonic.xp:lib-admin:${xpVersion}"
-    include "com.enonic.xp:lib-portal:${xpVersion}"
-    include "com.enonic.xp:lib-context:${xpVersion}"
-    include "com.enonic.xp:lib-content:${xpVersion}"
-    include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
-    include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:2.23.0'
 }
 
 task lint {
@@ -32,7 +17,7 @@ task webpack( type: NpmTask, dependsOn: [npmInstall, lint] ) {
     environment = [ 'NODE_ENV': nodeEnvironment() ]
     description = 'Build UI resources (ts, css, etc).'
     args = [ 'run', 'build' ]
-    inputs.dir '.xp/dev'
+    inputs.dir "$rootDir/.xp/dev"
     inputs.dir "$rootDir/src/main"
     inputs.file 'webpack.config.js'
     outputs.dir "$buildDir/resources/main"
