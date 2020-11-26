@@ -51,7 +51,7 @@ export class PageComponentsTreeGrid
                     .setBehavior('selectAndMove')
                     .setResizable(true)
                     .build(),
-                new GridColumnBuilder<TreeNode<ContentSummaryAndCompareStatus>>()
+                new GridColumnBuilder<TreeNode<ItemViewTreeGridWrapper>>()
                     .setName(i18n('field.menu'))
                     .setId('menu')
                     .setMinWidth(30)
