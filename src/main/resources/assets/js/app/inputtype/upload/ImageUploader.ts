@@ -228,7 +228,7 @@ export class ImageUploader
 
     private hasOriginalCropAutoProperty(): boolean {
         const content: Content = <Content>this.getContext().content;
-        const property: Property = this.getMetaProperty(content, 'zoomPosition');
+        const property: Property = this.getMediaProperty(content, 'zoomPosition');
 
         return !!property;
     }

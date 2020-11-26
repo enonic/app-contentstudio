@@ -160,7 +160,7 @@ export class ImageEditor
 
         let resizeHandler = () => {
             if (this.isVisible()) {
-                this.updateImageDimensions(false, true);
+                this.updateImageDimensions(false);
                 this.updateStickyToolbar();
             }
         };
@@ -401,7 +401,7 @@ export class ImageEditor
         return this.image.isLoaded() && !this.image.isPlaceholder();
     }
 
-    private updateImageDimensions(reset: boolean = false, scale: boolean = false) {
+    private updateImageDimensions(reset: boolean = false, scale: boolean = true) {
         let zoomPct: SVGRect;
         let cropPct: SVGRect;
         let focusPosPct: Point;
@@ -441,7 +441,7 @@ export class ImageEditor
         if (reset) {
             if (this.revertZoomData) {
                 // zoom was set while images was not yet loaded (saved in px);
-                this.setZoomPositionPx(this.denormalizeRect(this.revertZoomData));
+                this.setZoomPositionPx(this.denormalizeRect(this.revertZoomData), false);
 
                 this.revertZoomData = null;
             } else if (this.cropData.auto) {
@@ -452,7 +452,7 @@ export class ImageEditor
             // crop depends on zoom so init it after
             if (this.revertCropData) {
                 // crop was set while images was not yet loaded (saved in px);
-                this.setCropPositionPx(this.denormalizeRect(this.revertCropData));
+                this.setCropPositionPx(this.denormalizeRect(this.revertCropData), false);
 
                 this.revertCropData = null;
             } else if (this.cropData.auto) {
@@ -1216,7 +1216,7 @@ export class ImageEditor
             this.setEditMode(true, applyChanges);
         }
 
-        this.updateImageDimensions(false, true);
+        this.updateImageDimensions(false);
         this.bindFocusMouseListeners();
         this.updateFocusMaskPosition();
     }
@@ -1232,7 +1232,7 @@ export class ImageEditor
 
         if (exitEditMode) {
             this.setEditMode(false, applyChanges);
-            this.updateImageDimensions(false, true);
+            this.updateImageDimensions(false);
         }
     }
 
@@ -1537,7 +1537,7 @@ export class ImageEditor
             this.setEditMode(true, applyChanges);
         }
 
-        this.updateImageDimensions(false, true);
+        this.updateImageDimensions(false);
         this.bindCropMouseListeners();
         this.updateCropMaskPosition();
         this.updateZoomPosition();
@@ -1554,7 +1554,7 @@ export class ImageEditor
 
         if (exitEditMode) {
             this.setEditMode(false, applyChanges);
-            this.updateImageDimensions(false, true);
+            this.updateImageDimensions(false);
         }
     }
 
@@ -1666,10 +1666,6 @@ export class ImageEditor
 
     getCropPosition(): Rect {
         return this.rectFromSVG(this.normalizeRect(this.getCropPositionPx()));
-    }
-
-    isCropAutoPositioned(): boolean {
-        return this.cropData.auto;
     }
 
     private getCropPositionPx(): SVGRect {

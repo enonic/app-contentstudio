@@ -190,22 +190,21 @@ export class ImageUploaderEl
             this.notifyFocusPositionChanged(focus);
         };
 
+        imageEditor.onCropPositionChanged(cropPositionHandler);
+        imageEditor.onFocusPositionChanged(focusPositionHandler);
+        imageEditor.onOrientationChanged(orientationHandler);
+        imageEditor.onShaderVisibilityChanged(shaderVisibilityChangedHandler);
+        imageEditor.onEditModeChanged(editModeChangedHandler);
+        imageEditor.onFocusAutoPositionedChanged(focusAutoPositionedChangedHandler);
+        imageEditor.onCropAutoPositionedChanged(cropAutoPositionedChangedHandler);
+        imageEditor.getUploadButton().onClicked(uploadButtonClickedHandler);
+        imageEditor.getLastButtonInContainer().onBlur(getLastButtonInContainerBlurHandler);
+
         const editorImage = imageEditor.getImage();
         editorImage.onLoaded(() => {
             if (!editorImage.isPlaceholder()) {
                 this.togglePlaceholder(false);
             }
-            imageEditor.onCropPositionChanged(cropPositionHandler);
-            imageEditor.onFocusPositionChanged(focusPositionHandler);
-            imageEditor.onOrientationChanged(orientationHandler);
-            imageEditor.onShaderVisibilityChanged(shaderVisibilityChangedHandler);
-            imageEditor.onEditModeChanged(editModeChangedHandler);
-            imageEditor.onFocusAutoPositionedChanged(focusAutoPositionedChangedHandler);
-            imageEditor.onCropAutoPositionedChanged(cropAutoPositionedChangedHandler);
-            imageEditor.getUploadButton().onClicked(uploadButtonClickedHandler);
-            imageEditor.getLastButtonInContainer().onBlur(getLastButtonInContainerBlurHandler);
-
-            cropAutoPositionedChangedHandler(imageEditor.isCropAutoPositioned());
         });
 
         imageEditor.onImageError(imageErrorHandler);
