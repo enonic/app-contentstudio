@@ -26,6 +26,8 @@ export class VersionHistoryItem {
 
     private activeVersionId: string;
 
+    private republished: boolean = false;
+
     static fromPublishInfo(publishInfo: ContentVersionPublishInfo): VersionHistoryItem {
         const item: VersionHistoryItem = new VersionHistoryItem();
 
@@ -87,6 +89,15 @@ export class VersionHistoryItem {
     setSkipDate(value: boolean): VersionHistoryItem {
         this.skipDate = value;
         return this;
+    }
+
+    setRepublished(value: boolean): VersionHistoryItem {
+        this.republished = value;
+        return this;
+    }
+
+    isRepublished(): boolean {
+        return this.republished;
     }
 
     isPublishAction(): boolean {
