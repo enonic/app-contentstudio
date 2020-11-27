@@ -8,7 +8,7 @@ const path = require('path');
 const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
-    context: path.join(__dirname, '../src/main/resources/assets'),
+    context: path.join(__dirname, '../../src/main/resources/assets'),
     entry: {
         'js/main': './js/main.ts',
         'lib/vendors': './lib/index.js',
