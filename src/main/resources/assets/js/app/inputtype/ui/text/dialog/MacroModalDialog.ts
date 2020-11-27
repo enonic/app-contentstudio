@@ -47,11 +47,11 @@ export class MacroModalDialog
             applicationKeys: applicationKeys,
             class: 'macro-modal-dialog macro-selector',
             content: content,
+            allowOverflow: true,
             confirmation: {
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
-            },
-            overflowAllowed: true
+            }
         });
 
         this.getEditor().focusManager.add(new CKEDITOR.dom.element(this.getHTMLElement()), true);

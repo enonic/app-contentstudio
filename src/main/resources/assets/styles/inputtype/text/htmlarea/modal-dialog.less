@@ -1,28 +1,4 @@
 .html-area-modal-dialog {
-  box-sizing: content-box;
-
-  &.link-modal-dialog {
-
-    .input-view {
-
-      .edit {
-        display: block;
-      }
-
-      &.invalid {
-        .media-uploader-el .upload-button {
-          right: 10px;
-          top: 10px;
-        }
-      }
-
-      @media screen and (max-width: 720px) {
-        .input-wrapper {
-          position: relative;
-        }
-      }
-    }
-  }
 
   &._0-240, &._240-360, &._360-540 {
     &.link-modal-dialog,
@@ -53,11 +29,6 @@
 
     .panel {
       position: inherit;
-
-      &.tree-grid {
-        position: static;
-        overflow: visible;
-      }
     }
 
     .docked-panel {
@@ -72,63 +43,24 @@
         border-top: 1px solid @admin-medium-gray-border;
         padding-top: 10px;
       }
-
-    }
-
-    .checkbox.form-input {
-      margin-top: 3px;
     }
 
     .input-view.invalid:not(:last-child) {
       margin-bottom: 0;
     }
 
-    div.input-view.invalid + div.validation-viewer {
-      background-color: @input-light-red;
-      padding-bottom: 10px;
-      padding-left: @form-label-width;
-    }
-
     .form-view {
       fieldset:not(:last-child) {
-        margin-bottom: 5px;
+        margin-bottom: 0;
       }
       fieldset:not(:first-child) {
-        margin-top: 5px;
+        margin-top: 0;
       }
     }
-
-  }
-
-  .dialog-buttons {
-
-    &:before {
-      position: absolute;
-      width: 100%;
-      line-height: 34px;
-
-      @media screen and (max-height: 360px) {
-        line-height: 70px;
-      }
-    }
-
   }
 
   &.link-modal-dialog,
   &.search-and-replace-modal-dialog {
-    input[type="checkbox"] + label {
-      padding-left: 130px;
-      padding-right: 0;
-      box-sizing: border-box;
-      .ellipsis();
-      &::before {
-        position: absolute;
-        margin-top: 2px;
-        margin-left: 108px;
-        left: 0;
-      }
-    }
-
     .dialog-content .panel {
       overflow: visible;
     }
@@ -142,11 +74,6 @@
   }
 
   &.source-code-modal-dialog {
-
-    .modal-dialog-body {
-      overflow: auto;
-    }
-
     textarea {
       min-height: 350px;
       max-height: 350px;
