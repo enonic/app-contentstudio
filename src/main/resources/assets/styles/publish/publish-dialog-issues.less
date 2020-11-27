@@ -9,18 +9,23 @@
   }
 
   h6 {
-    margin: 10px 0;
+    margin: 5px 0;
   }
 
   .not-publishable {
     line-height: 16px;
   }
 
-  .state-line {
-    line-height: 20px;
+  h6.state-line {
+    display: flex;
+    align-items: center;
+
+    &:first-child {
+      margin-top: 0;
+    }
 
     span {
-      padding-left: 5px;
+      padding-left: 7px;
     }
 
     .part1 {
@@ -28,11 +33,10 @@
     }
 
     .state-icon {
-
       display: inline-block;
       &:before {
+        display: block;
         font-size: 16px;
-        line-height: 16px;
       }
     }
 
