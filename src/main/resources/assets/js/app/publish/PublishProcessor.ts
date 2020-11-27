@@ -26,6 +26,8 @@ export class PublishProcessor {
 
     private inProgressIds: ContentId[] = [];
 
+    private requiredIds: ContentId[] = [];
+
     private allPublishable: boolean;
 
     private allPendingDelete: boolean;
@@ -118,6 +120,7 @@ export class PublishProcessor {
         this.dependantList.setRequiredIds([]);
         this.inProgressIds = [];
         this.invalidIds = [];
+        this.requiredIds = [];
         this.allPublishable = false;
         this.allPendingDelete = false;
 
@@ -171,6 +174,7 @@ export class PublishProcessor {
         this.dependantList.setRequiredIds(result.getRequired());
         this.invalidIds = result.getInvalid();
         this.inProgressIds = result.getInProgress();
+        this.requiredIds = result.getRequired();
         this.allPublishable = result.isAllPublishable();
         this.allPendingDelete = result.isAllPendingDelete();
     }
@@ -222,6 +226,10 @@ export class PublishProcessor {
         return this.invalidIds;
     }
 
+    public getInvalidIdsWithoutRequired(): ContentId[] {
+        return this.invalidIds.filter((id: ContentId) => !this.requiredIds.some((requiredId: ContentId) => requiredId.equals(id)));
+    }
+
     public setCheckPublishable(flag: boolean) {
         this.checkPublishable = flag;
     }
@@ -247,6 +255,17 @@ export class PublishProcessor {
 
     public getInProgressIds(): ContentId[] {
         return this.inProgressIds;
+    }
+
+    public getInProgressIdsWithoutInvalid(): ContentId[] {
+        return this.inProgressIds
+            .filter((id: ContentId) => !this.invalidIds.some((invalidId: ContentId) => invalidId.equals(id)));
+    }
+
+    public getInProgressIdsWithoutInvalidAndRequired(): ContentId[] {
+        return this.inProgressIds
+            .filter((id: ContentId) => !this.invalidIds.some((invalidId: ContentId) => invalidId.equals(id)))
+            .filter((id: ContentId) => !this.requiredIds.some((requiredId: ContentId) => requiredId.equals(id)));
     }
 
     public getDependantIds(): ContentId[] {
@@ -295,17 +314,21 @@ export class PublishProcessor {
     }
 
     public excludeAllInProgress() {
-        if (this.inProgressIds.length > 0) {
-            this.excludedIds.push(...this.inProgressIds);
-            this.itemList.removeItemsByIds(this.inProgressIds);
+        const ids: ContentId[] = this.getInProgressIdsWithoutInvalidAndRequired();
+
+        if (ids.length > 0) {
+            this.excludedIds.push(...ids);
+            this.itemList.removeItemsByIds(ids);
             this.reloadDependenciesDebounced(true);
         }
     }
 
     public excludeAllInvalid() {
-        if (this.invalidIds.length > 0) {
-            this.excludedIds.push(...this.invalidIds);
-            this.itemList.removeItemsByIds(this.invalidIds);
+        const ids: ContentId[] = this.getInvalidIdsWithoutRequired();
+
+        if (ids.length > 0) {
+            this.excludedIds.push(...ids);
+            this.itemList.removeItemsByIds(ids);
             this.reloadDependenciesDebounced(true);
         }
     }

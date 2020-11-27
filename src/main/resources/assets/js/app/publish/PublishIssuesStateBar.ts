@@ -75,17 +75,21 @@ export class PublishIssuesStateBar
         });
     }
 
+    setContainsInProgress(value: boolean) {
+        this.containsInProgressElement.setVisible(value);
+    }
+
+    setTotalInProgress(count: number) {
+        this.excludeAllInProgressButton.setVisible(count > 0);
+        this.excludeAllInProgressButton.setLabel(i18n('dialog.publish.exclude', count));
+    }
+
     setContainsInvalidVisible(flag: boolean) {
         this.containsInvalidElement.setVisible(flag);
     }
 
-    setTotalInProgress(count: number) {
-        this.containsInProgressElement.setVisible(count > 0);
-        this.excludeAllInProgressButton.setLabel(i18n('dialog.publish.exclude', count));
-    }
-
     setTotalInvalid(count: number) {
-        this.containsInvalidElement.setVisible(count > 0);
+        this.excludeAllInvalidButton.setVisible(count > 0);
         this.excludeAllInvalidButton.setLabel(i18n('dialog.publish.exclude', count));
     }
 
