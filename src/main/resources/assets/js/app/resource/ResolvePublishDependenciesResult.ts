@@ -66,8 +66,7 @@ export class ResolvePublishDependenciesResult {
         const allPublishable: boolean = json.allPublishable;
         const allPendingDelete: boolean = json.allPendingDelete;
         const invalidIds: ContentId[] = json.invalidContents ? json.invalidContents.map(dependant => new ContentId(dependant.id)) : [];
-        const notReadyIds: ContentId[] = json.notReadyContents ? json.notReadyContents.map(dependant => new ContentId(dependant.id)).filter(
-            (id: ContentId) => !invalidIds.some((invalidId: ContentId) => invalidId.equals(id))) : [];
+        const notReadyIds: ContentId[] = json.notReadyContents ? json.notReadyContents.map(dependant => new ContentId(dependant.id)) : [];
 
         return ResolvePublishDependenciesResult.create().setDependentContents(dependants).setRequestedContents(
             requested)
