@@ -583,11 +583,6 @@ function initProjectContext(application: Application): Q.Promise<void> {
         ProjectSelectionDialog.get().setProjects(projects);
 
         const currentProject: Project = projects.find((project: Project) => project.getName() === projectName);
-        const defaultProject: Project = projects.find((project: Project) => project.getName() === Project.DEFAULT_PROJECT_NAME);
-
-        if (defaultProject) {
-            ProjectContext.get().updateDefaultProject(defaultProject);
-        }
 
         if (currentProject) {
             ProjectContext.get().setProject(currentProject);

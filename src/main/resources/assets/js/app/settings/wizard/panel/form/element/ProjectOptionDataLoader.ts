@@ -20,7 +20,7 @@ export class ProjectOptionDataLoader
             return true;
         }
 
-        return project.getDisplayName().toLowerCase().indexOf(searchString) !== -1;
+        return project.getDisplayName().toLowerCase().indexOf(searchString.toLowerCase()) !== -1;
     }
 
     checkReadonly(options: Project[]): Q.Promise<string[]> {

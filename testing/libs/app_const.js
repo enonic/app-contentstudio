@@ -47,6 +47,7 @@ module.exports = Object.freeze({
     PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request is Closed.',
     TASK_OPENED_MESSAGE: 'The task is Open.',
     TWO_ITEMS_PUBLISHED: "2 items are published.",
+    ITEM_IS_UNDELETED_MESSAGE: "Item is undeleted",
     CONTENT_RENAMED: "Content has been renamed",
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
     TEST_FOLDER_WITH_IMAGES_2: "Images for simple page",
@@ -66,6 +67,11 @@ module.exports = Object.freeze({
     ACCESS_WIDGET_HEADER: {
         RESTRICTED_ACCESS: "Restricted access to item",
         EVERYONE_CAN_READ: "Everyone can read this item"
+    },
+    PROJECT_ACCESS_MODE: {
+        PRIVATE: "Private",
+        PUBLIC: "Public",
+        CUSTOM: "Custom"
     },
     //waitForTimeout
     TIMEOUT_10: 10000,
@@ -107,7 +113,9 @@ module.exports = Object.freeze({
         SHIP: 'cat',
         FOSS: 'foss',
         SENG: 'seng',
-        PES: 'morgopes'
+        PES: 'morgopes',
+        NORD: 'nord',
+        CAPE: 'cape'
     },
     MENU_ITEMS: {
         INSERT: 'Insert',

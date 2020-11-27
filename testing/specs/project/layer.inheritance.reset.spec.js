@@ -56,7 +56,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await layerWizard.waitForNotificationMessage();
         });
 
-    it("GIVEN site is selected 'Localize' button has been pressed WHEN 'Save' button has been pressed THEN 'Reset' button should appear in the wizard toolbar",
+    it("GIVEN site is selected AND 'Localize' button has been pressed WHEN 'Save' button has been pressed THEN 'Reset' button should appear in the wizard toolbar",
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
             //1. Select the layer's context:
@@ -69,7 +69,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await contentWizard.waitForResetButtonDisplayed();
         });
 
-    it("GIVEN 'Reset' button has been pressed AND Confirmation dialog opened WHEN 'No' button has been clicked THEN the site remains localized",
+    it("GIVEN 'Reset' button has been pressed AND Confirmation dialog is opened WHEN 'No' button has been clicked THEN the site remains localized",
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
             let settingsStepForm = new SettingsStepForm();
@@ -90,7 +90,7 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await contentWizard.waitForResetButtonDisplayed();
         });
 
-    it("GIVEN 'Reset' button has been pressed AND Confirmation dialog opened WHEN 'Yes' button has been clicked THEN the site should be reverted to the inherited state",
+    it("GIVEN 'Reset' button has been pressed AND Confirmation dialog is opened WHEN 'Yes' button has been clicked THEN the site should be reverted to the inherited state",
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
             let settingsStepForm = new SettingsStepForm();

@@ -563,7 +563,7 @@ class ContentWizardPanel extends Page {
         let selector = this.thumbnailUploader;
         return this.waitUntilInvalid(selector).catch(err => {
             this.saveScreenshot('err_wizard_validation_icon1');
-            throw new Error('Validation Error: invalid-icon did not appear in content-wizard after 2 seconds' + err);
+            throw new Error('Validation Error: invalid-icon did not appear in content-wizard after 2 seconds ' + err);
         });
     }
 
@@ -1006,7 +1006,6 @@ class ContentWizardPanel extends Page {
         return dialog;
     }
 }
-
 
 module.exports = ContentWizardPanel;
 
