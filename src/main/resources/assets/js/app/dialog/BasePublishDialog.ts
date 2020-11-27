@@ -167,8 +167,9 @@ export abstract class BasePublishDialog
             this.publishIssuesStateBar.reset();
         } else {
             this.publishIssuesStateBar.addClass('has-issues');
-            this.publishIssuesStateBar.setTotalInProgress(this.publishProcessor.getInProgressIds().length);
-            this.publishIssuesStateBar.setTotalInvalid(this.publishProcessor.getInvalidIds().length);
+            this.publishIssuesStateBar.setContainsInProgress(this.publishProcessor.getInProgressIdsWithoutInvalid().length > 0);
+            this.publishIssuesStateBar.setTotalInProgress(this.publishProcessor.getInProgressIdsWithoutInvalidAndRequired().length);
+            this.publishIssuesStateBar.setTotalInvalid(this.publishProcessor.getInvalidIdsWithoutRequired().length);
             this.publishIssuesStateBar.setContainsInvalidVisible(!allValid);
             this.publishIssuesStateBar.setContainsNotPublishableVisible(!allPublishable);
         }
