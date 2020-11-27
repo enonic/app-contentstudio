@@ -89,7 +89,9 @@ subprojects {
     unpackDevResources.enabled = false
 
     def unpackDevResourcesRoot = rootProject.tasks.getByPath(':unpackDevResources')
+    def npmInstallRoot = rootProject.tasks.getByPath(':npmInstall')
     npmInstall.mustRunAfter unpackDevResourcesRoot
+    npmInstall.dependsOn += npmInstallRoot
     processResources.dependsOn += unpackDevResourcesRoot
 
     if ( hasLibAdminUi() )
