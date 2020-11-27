@@ -1,0 +1,26 @@
+{
+    "extends": "../../tsconfig",
+    "compilerOptions": {
+        "target": "es5",
+        "outDir": "build/resources/main/dev/lib-contentstudio/",
+        "declaration": true,
+        "declarationDir": "build/resources/main/dev/lib-contentstudio/",
+        "sourceMap": false,
+        "declarationMap": false,
+        "allowSyntheticDefaultImports": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "forceConsistentCasingInFileNames": true,
+        "allowJs": false,
+        "noImplicitReturns": false,
+        "noImplicitThis": true,
+        "strictNullChecks": false,
+        "moduleResolution": "node"
+    },
+    "exclude": [
+        "build/**/*",
+        "out/**/*",
+        "./node_modules/*"
+    ],
+    "compileOnSave": false,
+    "buildOnSave": false
+}
