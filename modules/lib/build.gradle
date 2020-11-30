@@ -6,6 +6,14 @@ app {
     displayName = 'Content Studio Library'
 }
 
+dependencies {
+    compile "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
+}
+
+compileJava {
+    enabled = false
+}
+
 task lint {
     dependsOn tasks.getByPath(':lint')
 }
@@ -42,27 +50,14 @@ task typescript {
 }
 
 jar {
-    exclude 'assets/spec/**'
-    exclude 'assets/**/*.ts'
-    exclude 'assets/**/*.less'
-    exclude 'assets/**/styles/*.js'
-
-    // COMMON/LIB excludes
-    // Exclude complex files, that only present after the first build and must be evaluated dynamically
-    def whitelist = [
-        /.*lib\.js$/,
-        /.*\.css$/,
-    ] as List
-
-    if (isProd()) {
-        exclude '**/*.map'
-    } else {
-        whitelist.add( /.*\.map$/ )
-    }
-
-    exclude {
-        FileTreeElement el -> !el.directory && el.relativePath.contains('common/lib') && (!whitelist.any { re -> el.relativePath.toString().matches( re ) })
-    }
+    exclude 'admin/**'
+    exclude 'assets/**'
+    exclude 'com/**'
+    exclude 'i18n/**'
+    exclude 'lib/**'
+    exclude 'services/**'
+    exclude 'application.svg'
+    exclude 'application.xml'
 
     includeEmptyDirs = false
     dependsOn += typescript

@@ -20,12 +20,6 @@ allprojects {
         compile ("com.enonic.xp:portal-api:${xpVersion}") {
             force = true
         }
-        include "com.enonic.xp:lib-admin:${xpVersion}"
-        include "com.enonic.xp:lib-portal:${xpVersion}"
-        include "com.enonic.xp:lib-context:${xpVersion}"
-        include "com.enonic.xp:lib-content:${xpVersion}"
-        include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
-        include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
         testCompile 'junit:junit:4.12'
         testCompile 'org.mockito:mockito-core:2.23.0'
     }
@@ -102,6 +96,10 @@ subprojects {
 
     def webpackTask = tasks.findByPath( ':webpack' )
     if ( webpackTask != null ) webpackTask.dependsOn += unpackDevResourcesRoot
+}
+
+dependencies {
+    include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 }
 
 configurations.all {
