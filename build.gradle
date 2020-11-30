@@ -97,12 +97,7 @@ configurations.all {
 }
 
 dependencies {
-    include "com.enonic.xp:lib-admin:${xpVersion}"
-    include "com.enonic.xp:lib-portal:${xpVersion}"
-    include "com.enonic.xp:lib-context:${xpVersion}"
-    include "com.enonic.xp:lib-content:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
-    include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
 }
 
 // lib-admin-ui needs to be included, but it enables some tasks, though we only need :unpackDevResources
@@ -113,6 +108,7 @@ classes.enabled = false
 unpackWebJars.enabled = false
 build.enabled = false
 jar.enabled = false
+deploy.enabled = false
 
 task lint( type: NpmTask, dependsOn: npmInstall ) {
     args = [ 'run', 'lint' ]

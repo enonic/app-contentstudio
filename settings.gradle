@@ -20,6 +20,9 @@ def configureProject( p )
     assert p.projectDir.isDirectory()
 }
 
+project(":app").name = appProjectName
+project(":lib").name = libProjectName
+
 if ( hasProperty( 'env' ) ) {
     addBuild('../lib-admin-ui')
 }

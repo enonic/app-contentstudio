@@ -10,9 +10,10 @@ dependencies {
     compile "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 }
 
-compileJava {
-    enabled = false
-}
+compileJava.enabled = false
+compileTestJava.enabled = false
+classes.enabled = false
+unpackWebJars.enabled = false
 
 task lint {
     dependsOn tasks.getByPath(':lint')
