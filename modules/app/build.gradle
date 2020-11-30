@@ -18,6 +18,12 @@ dependencies {
     include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
 }
 
+project.afterEvaluate {
+    jar {
+        bnd ('Private-Package': '!dev.*, *;-split-package:=merge-first')
+    }
+}
+
 task lint {
     dependsOn tasks.getByPath(':lint')
 }
