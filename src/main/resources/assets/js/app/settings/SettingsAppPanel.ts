@@ -100,7 +100,7 @@ export class SettingsAppPanel
 
     private handleNewProject(event: NewProjectEvent) {
         const parentProject = event.getParentProject();
-        const tabId: AppBarTabId = AppBarTabId.forNew('project');
+        const tabId: AppBarTabId = AppBarTabId.forNew(event.getProjectType().getName());
         const tabMenuItem: AppBarTabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
 
         if (tabMenuItem != null) {

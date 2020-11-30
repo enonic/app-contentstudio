@@ -123,6 +123,7 @@ import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
 import {UrlAction} from '../UrlAction';
 import {ContentWizardHeader} from './ContentWizardHeader';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -216,6 +217,8 @@ export class ContentWizardPanel
 
     private pageEditorUpdatedDuringSave: boolean;
 
+    private modifyPermissions: boolean = false;
+
     private applicationLoadCount: number;
 
     private debouncedEditorRefresh: (clearInspection: boolean) => void;
@@ -224,9 +227,9 @@ export class ContentWizardPanel
 
     private workflowStateIconsManager: WorkflowStateIconsManager;
 
-    private loginResult: LoginResult;
-
     public static debug: boolean = false;
+
+    private loginResult: LoginResult;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super({
@@ -313,7 +316,7 @@ export class ContentWizardPanel
             console.debug('ContentWizardPanel.doLoadData at ' + new Date().toISOString());
         }
         return new ContentWizardDataLoader().loadData(this.contentParams)
-            .then((loader) => {
+            .then((loader: ContentWizardDataLoader) => {
                 if (ContentWizardPanel.debug) {
                     console.debug('ContentWizardPanel.doLoadData: loaded data at ' + new Date().toISOString(), loader);
                 }
@@ -470,7 +473,7 @@ export class ContentWizardPanel
             this.appendChild(this.getContentWizardToolbarPublishControls().getMobilePublishControls());
 
             if (this.getLivePanel()) {
-                this.getLivePanel().setModifyPermissions(this.canModify);
+                this.getLivePanel().setModifyPermissions(this.modifyPermissions);
             }
 
             if (this.contentType.hasDisplayNameExpression()) {
@@ -651,7 +654,7 @@ export class ContentWizardPanel
 
     giveInitialFocus() {
 
-        if (!this.canModify) {
+        if (!this.modifyPermissions) {
             return;
         }
 
@@ -1553,6 +1556,7 @@ export class ContentWizardPanel
 
     private updateThumbnailWithContent(content: Content) {
         const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
+        thumbnailUploader.toggleClass('has-origin-project', !!content.getOriginProject());
         const id = content.getContentId().toString();
 
         thumbnailUploader
@@ -1699,6 +1703,20 @@ export class ContentWizardPanel
                     this.setSteps(steps);
 
                     return this.layoutWizardStepForms(content).then(() => {
+                        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+                            this.setModifyPermissions(loginResult);
+                            this.toggleStepFormsVisibility(loginResult);
+                            this.updateUrlAction();
+
+                            if (this.isLocalizeInUrl()) {
+                                this.settingsWizardStepForm.updateInitialLanguage();
+                            }
+
+                            if (!this.modifyPermissions) {
+                                NotifyManager.get().showFeedback(i18n('notify.item.readonly'));
+                            }
+                        });
+
                         this.syncPersistedItemWithContentData(content.getContentData());
                         this.xDataWizardStepForms.resetState();
 
@@ -2320,8 +2338,17 @@ export class ContentWizardPanel
         return this.formContext;
     }
 
+    private setModifyPermissions(loginResult: LoginResult) {
+        this.modifyPermissions =
+            this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY);
+        this.getEl().toggleClass('no-modify-permissions', !this.modifyPermissions);
+        if (this.getLivePanel()) {
+            this.getLivePanel().setModifyPermissions(this.modifyPermissions);
+        }
+    }
+
     hasModifyPermissions(): boolean {
-        return this.canModify;
+        return this.modifyPermissions;
     }
 
     /**
@@ -2578,7 +2605,7 @@ export class ContentWizardPanel
     }
 
     private updateUrlAction() {
-        const action: string = (this.canModify && this.getPersistedItem().isDataInherited() &&
+        const action: string = (this.modifyPermissions && this.getPersistedItem().isDataInherited() &&
                                 this.isLocalizeInUrl())
                                ? UrlAction.LOCALIZE
                                : UrlAction.EDIT;
@@ -2631,5 +2658,4 @@ export class ContentWizardPanel
             this.settingsWizardStepForm.updateInitialLanguage();
         }
     }
-
 }

@@ -6,8 +6,8 @@ const appConst = require('../../../libs/app_const');
 
 const xpath = {
     optionSet: "//div[contains(@id,'FormOptionSetOptionView')]",
-    imageRadioButton: "//span[contains(@id,'RadioButton') and descendant::label[text()='image']]",
-    textRadioButton: "//span[contains(@id,'RadioButton') and descendant::label[text()='text']]"
+    imageRadioButton: "//span[contains(@id,'RadioButton') and descendant::label[text()='image']]//label",
+    textRadioButton: "//span[contains(@id,'RadioButton') and descendant::label[text()='text']]//label"
 };
 
 class FreeFormOptionSet1 extends Page {

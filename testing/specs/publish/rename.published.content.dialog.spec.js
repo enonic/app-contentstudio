@@ -118,9 +118,6 @@ describe('rename.published.content.dialog.spec - tests for Rename published cont
             await renamePublishedContentDialog.typeInNewNameInput(NEW_PATH);
             //3. Verify that 'Rename' button gets disabled:
             await renamePublishedContentDialog.waitForRenameButtonDisabled();
-            //4. Verify that validation message is displayed:
-            let validationMessage = await renamePublishedContentDialog.getValidationPathMessage();
-            assert.equal(validationMessage, "Not available", "Expected validation message should appear in the input");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -48,4 +48,7 @@ implements Cloneable {
         return this.to;
     }
 
+    setFrom(date: Date) {
+        return this.from = date;
+    }
 }

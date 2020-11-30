@@ -34,8 +34,11 @@ export class VersionHistoryListItem
     private createVersionViewer(): VersionHistoryListItemViewer {
         const versionViewer: VersionHistoryListItemViewer = new VersionHistoryListItemViewer();
 
-        if (this.version.isRevertable()) {
+        if (this.version.isRevertable() || this.version.isActive()) {
             this.addOnClickHandler(versionViewer);
+        }
+
+        if (this.version.isRevertable()) {
             ActiveContentVersionSetEvent.on((event: ActiveContentVersionSetEvent) => {
                 this.version.setActiveVersionId(event.getVersionId());
             });
@@ -70,37 +73,24 @@ export class VersionHistoryListItem
     }
 
     private getTooltipText(): string {
-        if (!!this.version.getActiveFrom() && !!this.version.getActiveTo()) {
-            return i18n(
-                'tooltip.publishedFromTo',
-                DateHelper.formatDateTime(this.version.getActiveFrom(), false),
-                DateHelper.formatDateTime(this.version.getActiveTo(), false)
-            );
-        }
+        let tooltip = i18n('tooltip.state.published',
+            DateHelper.formatDateTime(this.version.getDateTime(), false),
+            this.version.getUser(),
+        );
 
         if (!!this.version.getActiveFrom()) {
-            return i18n('tooltip.publishedFrom', DateHelper.formatDateTime(this.version.getActiveFrom(), false));
+            tooltip += ' ' + i18n('tooltip.from', DateHelper.formatDateTime(this.version.getActiveFrom(), false));
         }
 
         if (!!this.version.getActiveTo()) {
-            return i18n('tooltip.publishedTo', DateHelper.formatDateTime(this.version.getActiveTo(), false));
+            tooltip += ' ' + i18n('tooltip.to', DateHelper.formatDateTime(this.version.getActiveTo(), false));
         }
 
-        return '';
+        return tooltip;
     }
 
-    private createEditButton(): ActionButton {
-        const editButton: ActionButton = new ActionButton(new Action(i18n('action.edit')));
-
-        if (this.content.isReadOnly()) {
-            editButton.setEnabled(false);
-        } else {
-            editButton.getAction().onExecuted(() => {
-                new EditContentEvent([this.content]).fire();
-            });
-        }
-
-        return editButton;
+    private createActiveVersionButton(): ActionButton {
+        return new ActionButton(new Action(i18n('text.activeVersion')));
     }
 
     private createRevertButton(): ActionButton {
@@ -182,7 +172,7 @@ export class VersionHistoryListItem
             this.toggleClass('expanded');
 
             if (this.hasClass('expanded') && !this.actionButton) {
-                this.actionButton = this.version.isActive() ? this.createEditButton() : this.createRevertButton();
+                this.actionButton = this.version.isActive() ? this.createActiveVersionButton() : this.createRevertButton();
                 this.actionButton.addClass('version-action-button');
                 viewer.appendChild(this.actionButton);
             }
@@ -207,7 +197,7 @@ export class VersionHistoryListItem
             this.createTooltip();
 
             if (!this.version.skipsDate()) {
-                this.appendChild(this.createVersionDateBlock(this.version.getDateTime()));
+                this.appendChild(this.createVersionDateBlock(this.version.getActiveFrom() || this.version.getDateTime()));
             }
 
             this.appendChild(this.createVersionViewer());
