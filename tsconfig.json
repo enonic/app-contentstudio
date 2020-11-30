@@ -22,7 +22,6 @@
     ],
     "include": [
         "src/**/*",
-        "../lib-admin-ui/src/main/resources/assets/admin/common/js/**/*.ts",
         ".xp/dev/lib-admin-ui/**/*.d.ts"
     ]
 }

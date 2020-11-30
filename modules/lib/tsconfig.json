@@ -18,8 +18,7 @@
     },
     "exclude": [
         "build/**/*",
-        "out/**/*",
-        "node_modules/*"
+        "out/**/*"
     ],
     "compileOnSave": false,
     "buildOnSave": false
