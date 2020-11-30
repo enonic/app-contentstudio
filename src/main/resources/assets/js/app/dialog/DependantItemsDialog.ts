@@ -106,29 +106,20 @@ export abstract class DependantItemsDialog
             this.setDependantListVisible(doShow);
         });
 
-        const dependantsChangedListener = () => {
-            const doShow: boolean = this.countDependantItems() > 0;
-            this.dependantsContainer.setVisible(doShow);
+        this.dependantList.onItemsRemoved(() => this.onDependantsChanged());
+        this.dependantList.onItemsAdded(() => this.onDependantsChanged());
 
-            if (doShow) {
-                // update dependants header according to list visibility
-                this.updateDependantsHeader(this.getDependantsHeader(this.dependantList.isVisible()));
-            }
-        };
-        this.dependantList.onItemsRemoved(dependantsChangedListener);
-        this.dependantList.onItemsAdded(dependantsChangedListener);
+        this.getBody().onScrolled(() => this.doPostLoad());
+        this.getBody().onScroll(() =>  this.doPostLoad());
 
-        this.getBody().onScrolled(() => {
+        this.onRendered(() => this.setDependantListVisible(this.showDependantList));
+    }
+
+    protected toggleStickyMode(value: boolean) {
+        super.toggleStickyMode(value);
+        if (value) {
             this.doPostLoad();
-        });
-
-        this.getBody().onScroll(() => {
-            this.doPostLoad();
-        });
-
-        this.onRendered(() => {
-            this.setDependantListVisible(this.showDependantList);
-        });
+        }
     }
 
     doRender(): Q.Promise<boolean> {
@@ -151,6 +142,16 @@ export abstract class DependantItemsDialog
 
             return rendered;
         });
+    }
+
+    protected onDependantsChanged() {
+        const doShow: boolean = this.countDependantItems() > 0;
+        this.dependantsContainer.setVisible(doShow);
+
+        if (doShow) {
+            // update dependants header according to list visibility
+            this.updateDependantsHeader(this.getDependantsHeader(this.dependantList.isVisible()));
+        }
     }
 
     public setDependantListVisible(visible: boolean) {
