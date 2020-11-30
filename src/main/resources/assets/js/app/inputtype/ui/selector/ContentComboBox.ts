@@ -187,7 +187,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
         this.onLoaded(() => {
             if (this.showAfterReload) {
-                this.getComboBox().getInput().setReadOnly(false);
+                this.getComboBox().getInput().setEnabled(true);
                 this.showAfterReload = false;
             }
         });
@@ -248,7 +248,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
             this.getComboBox().getComboBoxDropdownGrid().reload().then(() => {
                 if (this.getComboBox().isDropdownShown()) {
                     this.getComboBox().showDropdown();
-                    this.getComboBox().getInput().setReadOnly(false);
+                    this.getComboBox().getInput().setEnabled(true);
                 }
 
                 this.notifyLoaded(this.getComboBox().getOptions().map(option => option.getDisplayValue()));

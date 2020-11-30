@@ -134,9 +134,9 @@ export class IssueDialogForm
     }
 
     public setReadOnly(readOnly: boolean) {
-        this.title.setReadOnly(readOnly);
-        this.description.setReadOnly(readOnly);
-        this.approversSelector.setReadOnly(readOnly);
+        this.title.setEnabled(!readOnly);
+        this.description.setEnabled(!readOnly);
+        this.approversSelector.setEnabled(!readOnly);
 
         const titleFormItem = <FormItem>this.title.getParentElement();
         titleFormItem.setVisible(!readOnly);

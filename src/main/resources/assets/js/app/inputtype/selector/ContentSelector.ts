@@ -247,6 +247,7 @@ export class ContentSelector
     }
 
     setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
         this.contentComboBox.setEnabled(enable);
     }
 

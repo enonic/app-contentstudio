@@ -53,7 +53,7 @@ export class ProjectItemNameWizardStepForm
     }
 
     disableParentProjectInput() {
-        this.parentProjectDropdown.setReadOnly(true);
+        this.parentProjectDropdown.setEnabled(false);
     }
 
     showProjectsChain(parentName?: string) {

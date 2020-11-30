@@ -284,7 +284,7 @@ export class IssueDetailsDialog
         this.commentsList.onItemsAdded(updateCommentsCount);
         this.commentsList.onItemsRemoved(updateCommentsCount);
         this.commentsList.onEditModeChanged(editMode => {
-            this.commentTextArea.setReadOnly(editMode);
+            this.commentTextArea.setEnabled(!editMode);
             this.getHeader().setReadOnly(editMode);
             this.setActionsEnabled(!editMode);
         });
@@ -640,8 +640,8 @@ export class IssueDetailsDialog
         this.getItemList().setReadOnly(value);
         this.getDependantList().setReadOnly(value);
         this.commentsList.setReadOnly(value);
-        this.itemSelector.setReadOnly(value);
-        this.assigneesCombobox.setReadOnly(value);
+        this.itemSelector.setEnabled(!value);
+        this.assigneesCombobox.setEnabled(!value);
         this.getHeader().setReadOnly(value);
     }
 

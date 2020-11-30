@@ -58,7 +58,7 @@ export class InPlaceTextArea
     }
 
     public setEditMode(flag: boolean, cancel?: boolean) {
-        if (this.isReadOnly()) {
+        if (!this.isEnabled()) {
             return;
         }
         if (cancel) {
