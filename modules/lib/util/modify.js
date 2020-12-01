@@ -4,7 +4,7 @@ const argv = require('minimist')(process.argv.slice(2));
 const packageData = require('../package.json');
 
 const outDir = argv['out'];
-const libPathInDotXp = 'file:../../../.xp/dev/lib-admin-ui';
+const libPathInDotXp = 'file:../lib-admin-ui';
 
 function updateLibPath() {
     if (!outDir) {
