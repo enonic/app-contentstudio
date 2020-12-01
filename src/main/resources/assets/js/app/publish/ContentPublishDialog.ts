@@ -240,7 +240,7 @@ export class ContentPublishDialog
         this.toggleAction(canPublish && scheduleValid);
 
         this.publishSubTitle.setVisible(!this.isAllPendingDelete());
-        this.getButtonRow().setTotalInProgress(this.publishProcessor.getItemsTotalInProgress());
+        this.getButtonRow().setTotalInProgress(this.publishProcessor.getInProgressIdsWithoutInvalid().length);
 
         super.updateControls(itemsToPublish);
     }
