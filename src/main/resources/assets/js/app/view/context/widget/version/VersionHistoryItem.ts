@@ -28,6 +28,8 @@ export class VersionHistoryItem {
 
     private republished: boolean = false;
 
+    private instantPublishing: boolean = false;
+
     static fromPublishInfo(publishInfo: ContentVersionPublishInfo): VersionHistoryItem {
         const item: VersionHistoryItem = new VersionHistoryItem();
 
@@ -36,6 +38,7 @@ export class VersionHistoryItem {
         item.user = publishInfo.getPublisherDisplayName();
 
         if (publishInfo.isPublished()) {
+            item.instantPublishing = (publishInfo.getPublishedFrom() === publishInfo.getTimestamp());
             if (publishInfo.isScheduled()) {
                 item.status = i18n('status.scheduled');
                 item.iconCls = 'icon-clock';
@@ -146,5 +149,9 @@ export class VersionHistoryItem {
 
     skipsDate(): boolean {
         return this.skipDate;
+    }
+
+    isInstantPublishing(): boolean {
+        return this.instantPublishing;
     }
 }
