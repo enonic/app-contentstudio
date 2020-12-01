@@ -1,0 +1,8 @@
+{
+    "extends": "./tsconfig",
+    "compilerOptions": {
+        "sourceMap": true,
+        "sourceRoot": "../../../../src/main/resources/assets/js/",
+        "declarationMap": true
+    }
+}
