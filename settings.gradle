@@ -1,7 +1,7 @@
 rootProject.name = projectName
 
 include 'app'
-include 'lib'
+if ( hasProperty( 'lib' ) ) include 'lib'
 
 configureProjects( rootProject )
 
@@ -21,11 +21,10 @@ def configureProject( p )
 }
 
 project(":app").name = appProjectName
-project(":lib").name = libProjectName
+if ( hasProperty( 'lib' ) ) project(":lib").name = libProjectName
 
-if ( hasProperty( 'env' ) ) {
-    addBuild('../lib-admin-ui')
-}
+
+if ( hasProperty( 'env' ) ) addBuild('../lib-admin-ui')
 
 def addBuild( name )
 {
