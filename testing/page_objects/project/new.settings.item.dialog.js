@@ -77,6 +77,6 @@ class NewSettingsItemDialog extends Page {
         let selector = XPATH.container + lib.itemByDisplayName("Layer");
         return this.waitForElementDisplayed(selector, appConst.shortTimeout);
     }
-};
+}
 module.exports = NewSettingsItemDialog;
 

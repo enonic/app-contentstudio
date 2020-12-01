@@ -113,7 +113,9 @@ module.exports = Object.freeze({
         SHIP: 'cat',
         FOSS: 'foss',
         SENG: 'seng',
-        PES: 'morgopes'
+        PES: 'morgopes',
+        NORD: 'nord',
+        CAPE: 'cape'
     },
     MENU_ITEMS: {
         INSERT: 'Insert',

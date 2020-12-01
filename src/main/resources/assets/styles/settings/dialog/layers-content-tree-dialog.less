@@ -28,14 +28,19 @@
         &.level-5 {
           .level(5);
         }
+
+        &.level-6 {
+          .level(6);
+        }
+
+        &.level-7 {
+          .level(7);
+        }
       }
     }
 
     .level(@level: 0) {
-      .layers-item-view-data-body,
-      .layers-item-view-data-header {
-        margin-left: 15px * @level;
-      }
+      margin-left: 15px * @level;
     }
   }
 

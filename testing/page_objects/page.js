@@ -425,9 +425,7 @@ class Page {
             return this.getAttribute(selector, 'class').then(result => {
                 return result.includes('invalid');
             });
-        }, appConst.mediumTimeout).catch(err => {
-            return false;
-        });
+        }, appConst.mediumTimeout, "Invalid icon should be displayed. ");
     }
 
     waitForAttributeHasValue(selector, attribute, value) {

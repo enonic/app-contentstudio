@@ -3,6 +3,8 @@ import {GetIssuesRequest} from '../resource/GetIssuesRequest';
 import {Issue} from '../Issue';
 import {IssueServerEvent} from '../../event/IssueServerEvent';
 import {IssueServerChangeItem} from '../../event/IssueServerChangeItem';
+import {ProjectContext} from '../../project/ProjectContext';
+import {RepositoryId} from '../../repository/RepositoryId';
 
 export class IssueServerEventsHandler {
 
@@ -43,14 +45,31 @@ export class IssueServerEventsHandler {
             console.debug('IssueServerEventsHandler: received server event', event);
         }
 
-        const issueIds: string[] = event.getNodeChange().getChangeItems().map(
-            (changeItem: IssueServerChangeItem) => changeItem.getId());
+        if (!ProjectContext.get().isInitialized()) {
+            return;
+        }
 
-        if (event.getType() === NodeServerChangeType.CREATE) {
+        const issueIds: string[] = this.getCurrentRepoIssueIds(event);
+
+        if (issueIds.length > 0) {
+            this.handleServerEvent(issueIds, event.getType());
+        }
+    }
+
+    private getCurrentRepoIssueIds(event: IssueServerEvent): string[] {
+        const currentRepo: string = RepositoryId.fromCurrentProject().toString();
+
+        return event.getNodeChange().getChangeItems()
+            .filter((item: IssueServerChangeItem) => item.getRepo() === currentRepo)
+            .map((changeItem: IssueServerChangeItem) => changeItem.getId());
+    }
+
+    private handleServerEvent(issueIds: string[], eventType: NodeServerChangeType) {
+        if (eventType === NodeServerChangeType.CREATE) {
             this.handleIssueCreate(issueIds);
         }
 
-        if (event.getType() === NodeServerChangeType.UPDATE) {
+        if (eventType === NodeServerChangeType.UPDATE) {
             this.handleIssueUpdate(issueIds);
         }
     }
