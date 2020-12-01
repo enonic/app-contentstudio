@@ -197,7 +197,13 @@ export class VersionHistoryListItem
             this.createTooltip();
 
             if (!this.version.skipsDate()) {
-                this.appendChild(this.createVersionDateBlock(this.version.getActiveFrom() || this.version.getDateTime()));
+                let displayDate;
+                if (!!this.version.getActiveFrom() && this.version.getActiveFrom() > this.version.getDateTime()) {
+                    displayDate = this.version.getActiveFrom();
+                } else {
+                    displayDate = this.version.getDateTime();
+                }
+                this.appendChild(this.createVersionDateBlock(displayDate));
             }
 
             this.appendChild(this.createVersionViewer());
