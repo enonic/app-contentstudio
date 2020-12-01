@@ -16,9 +16,18 @@
         "strictNullChecks": false,
         "moduleResolution": "node"
     },
+    "files": [],
+    "include": [
+        "../../src/main/resources/assets/js/types.d.ts",
+        "../../src/main/resources/assets/js/app/**/*",
+        "../../.xp/dev/lib-admin-ui/**/*.d.ts"
+    ],
     "exclude": [
         "build/**/*",
-        "out/**/*"
+        "out/**/*",
+        "../../src/main/resources/assets/js/main.ts",
+        "../../src/main/resources/assets/js/page-editor.ts",
+        "../../src/main/resources/assets/js/page-editor/**/*"
     ],
     "compileOnSave": false,
     "buildOnSave": false

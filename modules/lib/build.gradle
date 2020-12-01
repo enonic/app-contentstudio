@@ -36,12 +36,10 @@ task minifyPkg( type: NpmTask, dependsOn: [npmInstall, typescriptPkg] ) {
     enabled isProd()
 }
 
-task copyPackage( type: Copy ) {
-    from( './' ) {
-        include 'package.json'
-    }
-    into "$buildDir/resources/main/dev/$archivesBaseName"
-    includeEmptyDirs = false
+task copyPackage( type: NodeTask, dependsOn: typescriptPkg ) {
+    script = file( 'util/modify.js' )
+    args = [ "--out=$buildDir/resources/main/dev/$archivesBaseName" ]
+    mustRunAfter typescriptPkg
 }
 
 task typescript {
