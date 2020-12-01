@@ -51,13 +51,18 @@ export class VersionHistoryList
         if (!version.isPublished()) {
             return false;
         }
-        const publishedFrom = DateHelper.formatDateTime(version.getPublishInfo().getPublishedFrom());
         return contentVersions.some((v: ContentVersion, i: number) => {
-            if (i <= index || !v.isPublished()) {
+            if (i <= index) {
                 return false;
             }
-            const vPublishedFrom = DateHelper.formatDateTime(v.getPublishInfo().getPublishedFrom());
-            return publishedFrom === vPublishedFrom;
+            if (v.isUnpublished()) {
+                index = contentVersions.length; // Stop as soon as we found out that content was unpublished
+                return false;
+            }
+            if (!v.isPublished()) {
+                return false;
+            }
+            return !!DateHelper.formatDateTime(v.getPublishInfo().getPublishedFrom());
         });
     }
 
@@ -71,18 +76,19 @@ export class VersionHistoryList
                 return Number(v2.getDisplayDate()) - Number(v1.getDisplayDate());
             })
             .forEach((version: ContentVersion, index) => {
-                const displayDate = version.getDisplayDate();
                 const skipDuplicateVersion: boolean = this.versionDates[Number(version.getModified())] !== version.getId();
 
                 if (version.hasPublishInfo()) {
                     const publishInfo = version.getPublishInfo();
-                    const publishDate: string = DateHelper.formatDate(displayDate);
+                    const displayDate = version.getDisplayDate();
+                    const publishDate = displayDate > publishInfo.getTimestamp() ? displayDate : publishInfo.getTimestamp();
+                    const publishDateAsString: string = DateHelper.formatDate(publishDate);
                     versionHistoryItems.push(
                         VersionHistoryItem.fromPublishInfo(publishInfo)
-                            .setSkipDate(publishDate === lastDate)
+                            .setSkipDate(publishDateAsString === lastDate)
                             .setRepublished(this.isRepublished(contentVersions, version, index))
                     );
-                    lastDate = publishDate;
+                    lastDate = publishDateAsString;
                 }
 
                 if (!skipDuplicateVersion) {
