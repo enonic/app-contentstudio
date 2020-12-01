@@ -34,7 +34,7 @@ export class VersionHistoryListItem
     private createVersionViewer(): VersionHistoryListItemViewer {
         const versionViewer: VersionHistoryListItemViewer = new VersionHistoryListItemViewer();
 
-        if (this.version.isRevertable() || this.version.isActive()) {
+        if (!this.version.isPublishAction() && (this.version.isRevertable() || this.version.isActive())) {
             this.addOnClickHandler(versionViewer);
         }
 
@@ -61,7 +61,7 @@ export class VersionHistoryListItem
     }
 
     private createTooltip() {
-        if (!this.version.isPublishAction()) {
+        if (!this.version.isPublishAction() || this.version.isRepublished() || this.version.isInstantPublishing()) {
             return;
         }
 
