@@ -36,7 +36,7 @@
     "browserslist-config-enonic": "^1.0.5",
     "circular-dependency-plugin": "^5.2.2",
     "copy-webpack-plugin": "^6.1.1",
-    "css-loader": "^5.0.0",
+    "css-loader": "^5.0.1",
     "cssnano": "^4.1.10",
     "enonic-admin-artifacts": "^1.6.1",
     "error-logger-webpack-plugin": "^1.1.0",
