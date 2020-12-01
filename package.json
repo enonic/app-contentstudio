@@ -38,7 +38,7 @@
     "copy-webpack-plugin": "^6.1.1",
     "css-loader": "^5.0.0",
     "cssnano": "^4.1.10",
-    "enonic-admin-artifacts": "^1.6.1",
+    "enonic-admin-artifacts": "^1.7.8",
     "error-logger-webpack-plugin": "^1.1.0",
     "file-loader": "^6.2.0",
     "js-yaml": "^3.14.0",
