@@ -11,6 +11,8 @@ import {ResolvePublishDependenciesResult} from '../resource/ResolvePublishDepend
 import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class PublishProcessor {
 
@@ -146,6 +148,7 @@ export class PublishProcessor {
     private loadPublishDependencies(ids: ContentId[], resetDependantItems?: boolean) {
         this.createResolveDependenciesRequest(ids).sendAndParse().then((result: ResolvePublishDependenciesResult) => {
             this.processResolveDependenciesResult(result);
+            this.handleExclusionResult();
 
             return this.loadDescendants().then((descendants: ContentSummaryAndCompareStatus[]) => {
                 this.processResolveDescendantsResult(descendants, resetDependantItems);
@@ -188,6 +191,40 @@ export class PublishProcessor {
 
         const slicedIds = this.dependantIds.slice(0, 0 + GetDescendantsOfContentsRequest.LOAD_SIZE);
         return ContentSummaryAndCompareStatusFetcher.fetchByIds(slicedIds);
+    }
+
+    private handleExclusionResult() {
+        if (this.isAnyExcludedIsInProgress() || this.isAnyExcludedIsInvalid()) {
+            NotifyManager.get().showFeedback(i18n('dialog.publish.notAllExcluded'));
+        }
+    }
+
+    public isAnyExcludedIsInProgress(): boolean {
+        if (this.excludedIds.length === 0) {
+            return false;
+        }
+
+        return this.excludedIds.some((excludedId: ContentId) => this.getInProgressIdsWithoutInvalid().some(
+            (inProgressId: ContentId) => inProgressId.equals(excludedId)));
+    }
+
+    public isAnyExcludedIsInvalid(): boolean {
+        if (this.excludedIds.length === 0) {
+            return false;
+        }
+
+        return this.excludedIds.some(
+            (excludedId: ContentId) => this.getInvalidIds().some((inProgressId: ContentId) => inProgressId.equals(excludedId)));
+    }
+
+    public getTotalExcludableInProgress(): number {
+        return this.getInProgressIdsWithoutInvalid().filter(
+            (id: ContentId) => !this.excludedIds.some((excludedId: ContentId) => id.equals(excludedId))).length;
+    }
+
+    public getTotalExcludableInvalid(): number {
+        return this.getInvalidIds().filter(
+            (id: ContentId) => !this.excludedIds.some((excludedId: ContentId) => id.equals(excludedId))).length;
     }
 
     public reset() {
@@ -314,7 +351,7 @@ export class PublishProcessor {
     }
 
     public excludeAllInProgress() {
-        const ids: ContentId[] = this.getInProgressIdsWithoutInvalidAndRequired();
+        const ids: ContentId[] = this.getInProgressIdsWithoutInvalid();
 
         if (ids.length > 0) {
             this.excludedIds.push(...ids);
@@ -324,7 +361,7 @@ export class PublishProcessor {
     }
 
     public excludeAllInvalid() {
-        const ids: ContentId[] = this.getInvalidIdsWithoutRequired();
+        const ids: ContentId[] = this.getInvalidIds();
 
         if (ids.length > 0) {
             this.excludedIds.push(...ids);

@@ -84,7 +84,7 @@ export class PublishIssuesStateBar
         this.excludeAllInProgressButton.setLabel(i18n('dialog.publish.exclude', count));
     }
 
-    setContainsInvalidVisible(flag: boolean) {
+    setContainsInvalid(flag: boolean) {
         this.containsInvalidElement.setVisible(flag);
     }
 
