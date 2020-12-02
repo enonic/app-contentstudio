@@ -39,6 +39,7 @@ import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {GridColumnConfig} from 'lib-admin-ui/ui/grid/GridColumn';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {DeletedContentItem} from './DeletedContentItem';
+import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 
 export enum State {
     ENABLED, DISABLED
@@ -632,7 +633,9 @@ export class ContentTreeGrid
             return;
         }
 
-        ContentSummaryAndCompareStatusFetcher.fetchChildrenIds(parentNode.hasData() ? parentNode.getData().getContentId() : null)
+        const parentId: ContentId = parentNode.hasData() ? parentNode.getData().getContentId() : null;
+        const order: ChildOrder = !!parentId ? null : ContentSummaryAndCompareStatusFetcher.createRootChildOrder();
+        ContentSummaryAndCompareStatusFetcher.fetchChildrenIds(parentId, order)
             .then((childrenIds: ContentId[]) => {
                 items.forEach((item: ContentSummaryAndCompareStatus) => {
                     const contentId: ContentId = item.getContentId();
