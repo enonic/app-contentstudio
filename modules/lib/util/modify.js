@@ -14,8 +14,9 @@ function updateLibPath() {
     const packageFile = path.join(outDir, 'package.json');
 
     packageData.dependencies['lib-admin-ui'] = libPathInDotXp;
+    const packageContent = JSON.stringify(packageData, null, '    ') + '\n';
 
-    fs.writeFileSync(packageFile, JSON.stringify(packageData, null, '    '));
+    fs.writeFileSync(packageFile, packageContent);
 }
 
 updateLibPath();
