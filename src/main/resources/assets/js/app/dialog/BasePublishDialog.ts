@@ -97,11 +97,11 @@ export abstract class BasePublishDialog
         this.publishProcessor.onItemsChanged(this.handleLoadFinished.bind(this));
 
         this.publishIssuesStateBar.onExcludeAllInProgressClicked(() => {
-            this.publishProcessor.excludeAllInProgress();
+            this.publishProcessor.excludeItems(this.publishProcessor.getInProgressIdsWithoutInvalid());
         });
 
         this.publishIssuesStateBar.onExcludeAllInvalidClicked(() => {
-            this.publishProcessor.excludeAllInvalid();
+            this.publishProcessor.excludeItems(this.publishProcessor.getInvalidIds());
         });
 
         this.handleIssueGlobalEvents();

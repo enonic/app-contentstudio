@@ -194,37 +194,35 @@ export class PublishProcessor {
     }
 
     private handleExclusionResult() {
-        if (this.isAnyExcludedIsInProgress() || this.isAnyExcludedIsInvalid()) {
+        const inProgressIds = this.getInProgressIdsWithoutInvalid();
+        const invalidIds = this.getInvalidIds();
+        if (this.isAnyExcluded(inProgressIds) || this.isAnyExcluded(invalidIds)) {
             NotifyManager.get().showFeedback(i18n('dialog.publish.notAllExcluded'));
         }
     }
 
-    public isAnyExcludedIsInProgress(): boolean {
-        if (this.excludedIds.length === 0) {
-            return false;
-        }
-
-        return this.excludedIds.some((excludedId: ContentId) => this.getInProgressIdsWithoutInvalid().some(
-            (inProgressId: ContentId) => inProgressId.equals(excludedId)));
+    private itemsIncludeId(sourceIds: ContentId[], targetId: ContentId) {
+        return sourceIds.some((sourceId: ContentId) => sourceId.equals(targetId));
     }
 
-    public isAnyExcludedIsInvalid(): boolean {
+    private isAnyExcluded(ids: ContentId[]): boolean {
         if (this.excludedIds.length === 0) {
             return false;
         }
 
-        return this.excludedIds.some(
-            (excludedId: ContentId) => this.getInvalidIds().some((inProgressId: ContentId) => inProgressId.equals(excludedId)));
+        return this.excludedIds.some((excludedId: ContentId) => this.itemsIncludeId(ids, excludedId));
+    }
+
+    private getTotalExcludable(ids: ContentId[]): number {
+        return ids.filter((id: ContentId) => !this.itemsIncludeId(this.excludedIds, id)).length;
     }
 
     public getTotalExcludableInProgress(): number {
-        return this.getInProgressIdsWithoutInvalid().filter(
-            (id: ContentId) => !this.excludedIds.some((excludedId: ContentId) => id.equals(excludedId))).length;
+        return this.getTotalExcludable(this.getInProgressIdsWithoutInvalid());
     }
 
     public getTotalExcludableInvalid(): number {
-        return this.getInvalidIds().filter(
-            (id: ContentId) => !this.excludedIds.some((excludedId: ContentId) => id.equals(excludedId))).length;
+        return this.getTotalExcludable(this.getInvalidIds());
     }
 
     public reset() {
@@ -300,8 +298,7 @@ export class PublishProcessor {
     }
 
     public getInProgressIdsWithoutInvalidAndRequired(): ContentId[] {
-        return this.inProgressIds
-            .filter((id: ContentId) => !this.invalidIds.some((invalidId: ContentId) => invalidId.equals(id)))
+        return this.getInProgressIdsWithoutInvalid()
             .filter((id: ContentId) => !this.requiredIds.some((requiredId: ContentId) => requiredId.equals(id)));
     }
 
@@ -350,24 +347,14 @@ export class PublishProcessor {
         this.dependantList.removeItems(itemsToRemove);
     }
 
-    public excludeAllInProgress() {
-        const ids: ContentId[] = this.getInProgressIdsWithoutInvalid();
-
-        if (ids.length > 0) {
-            this.excludedIds.push(...ids);
-            this.itemList.removeItemsByIds(ids);
-            this.reloadDependenciesDebounced(true);
+    public excludeItems(ids: ContentId[]) {
+        if (ids.length === 0) {
+            return;
         }
-    }
 
-    public excludeAllInvalid() {
-        const ids: ContentId[] = this.getInvalidIds();
-
-        if (ids.length > 0) {
-            this.excludedIds.push(...ids);
-            this.itemList.removeItemsByIds(ids);
-            this.reloadDependenciesDebounced(true);
-        }
+        this.excludedIds.push(...ids);
+        this.itemList.removeItemsByIds(ids);
+        this.reloadDependenciesDebounced(true);
     }
 
     public getItemsTotalInProgress(): number {
