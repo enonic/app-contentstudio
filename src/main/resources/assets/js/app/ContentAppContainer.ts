@@ -107,7 +107,7 @@ export class ContentAppContainer
     }
 
     generateAppUrl(): string {
-        return `${AppMode.MAIN}#/${ProjectContext.get().getProject()}/${UrlAction.BROWSE}`;
+        return `${AppMode.MAIN}#/${ProjectContext.get().getProject().getName()}/${UrlAction.BROWSE}`;
     }
 
 }

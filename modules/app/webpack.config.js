@@ -1,15 +1,14 @@
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ProvidePlugin = require('webpack/lib/ProvidePlugin');
-const ErrorLoggerPlugin = require('error-logger-webpack-plugin');
 const path = require('path');
 
 const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
-    context: path.join(__dirname, '/src/main/resources/assets'),
+    context: path.join(__dirname, '../../src/main/resources/assets'),
     entry: {
         'js/main': './js/main.ts',
         'lib/vendors': './lib/index.js',
@@ -32,12 +31,12 @@ module.exports = {
         rules: [
             {
                 test: /\.tsx?$/,
-                use: [{loader: 'ts-loader', options: {configFile: 'tsconfig.build.json'}}]
+                use: [{loader: 'ts-loader', options: {configFile: 'tsconfig.json'}}]
             },
             {
                 test: /\.less$/,
                 use: [
-                    {loader: MiniCssExtractPlugin.loader, options: {publicPath: '../', hmr: !isProd}},
+                    {loader: MiniCssExtractPlugin.loader, options: {publicPath: '../'}},
                     {loader: 'css-loader', options: {sourceMap: !isProd, importLoaders: 1}},
                     {loader: 'postcss-loader', options: {sourceMap: !isProd}},
                     {loader: 'less-loader', options: {sourceMap: !isProd}},
@@ -110,7 +109,6 @@ module.exports = {
             exclude: /a\.js|node_modules/,
             failOnError: true
         }),
-        //new ErrorLoggerPlugin({showColumn: false})
     ],
     mode: isProd ? 'production' : 'development',
     devtool: isProd ? false : 'source-map'
