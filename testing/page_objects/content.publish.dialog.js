@@ -4,7 +4,7 @@ const lib = require('../libs/elements');
 const XPATH = {
     container: `//div[contains(@id,'ContentPublishDialog')]`,
     logMessageLink: `//div[contains(@id,'ContentPublishDialogSubTitle')]/a`,
-    publishNowButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Publish Now')]]`,
+    publishNowButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Publish Now')]]`,
     scheduleButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Schedule')]]`,
     cancelButtonTop: `//button[ contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
