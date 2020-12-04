@@ -171,7 +171,6 @@ export class RequestContentPublishDialog
         if (num === 1) {
             this.detailsFormView.giveFocus();
         }
-        this.enableOverflow(num === 1);
     }
 
     private getCurrentStep(): number {

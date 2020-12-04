@@ -74,6 +74,7 @@ export class CompareContentVersionsDialog
         });
 
         this.diffPatcher = new DiffPatcher();
+        this.toggleStickyMode(true);
     }
 
     protected initListeners() {

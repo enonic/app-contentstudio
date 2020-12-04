@@ -59,27 +59,13 @@
     }
   }
 
-  &.link-modal-dialog,
-  &.search-and-replace-modal-dialog {
-    .dialog-content .panel {
-      overflow: visible;
-    }
-
+  &.link-modal-dialog {
     .content-combo-box {
       .loader-combobox {
         width: calc(~'100% - ' 37px);
       }
     }
-
   }
-
-  &.source-code-modal-dialog {
-    textarea {
-      min-height: 350px;
-      max-height: 350px;
-    }
-  }
-
 }
 
 .hasSelectedItemPreview() {
@@ -90,7 +76,7 @@
     .input-wrapper {
       margin-left: 0 !important;
     }
-    .loader-combobox {
+    .uploader-el {
       display: none;
     }
   }

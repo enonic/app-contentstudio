@@ -84,11 +84,6 @@ export class ContentPublishMenuButton
         this.handleActionsUpdated();
     }
 
-    protected configureObservable() {
-        this.autoWidth = true;
-        this.rightAligned = true;
-    }
-
     protected initMenuActions(config: ContentPublishMenuButtonConfig) {
         this.publishAction = new ContentPublishMenuAction(config.publishAction, 'publish');
         this.unpublishAction = new ContentPublishMenuAction(config.unpublishAction, 'unpublish');

@@ -136,16 +136,6 @@ export class CreateIssueDialog
         super.unlockPublishItems();
     }
 
-    public setDependantListVisible(visible: boolean) {
-        this.enableOverflow(!visible);
-        super.setDependantListVisible(visible);
-    }
-
-    protected onDependantsChanged() {
-        super.onDependantsChanged();
-        this.enableOverflow(this.countDependantItems() === 0);
-    }
-
     private disableBackButton() {
         this.backButton.hide();
         const cancelButton = this.getCancelButton();

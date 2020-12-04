@@ -33,8 +33,7 @@ export abstract class IssueDialog
     protected constructor(config: DependantItemsDialogConfig) {
         super(<DependantItemsDialogConfig>{
             title: config.title,
-            class: 'issue-dialog grey-header',
-            allowOverflow: config.allowOverflow
+            class: 'issue-dialog grey-header'
         });
     }
 
