@@ -14,7 +14,7 @@ import {GetIssueStatsRequest} from '../resource/GetIssueStatsRequest';
 import {IssueStatsJson} from '../json/IssueStatsJson';
 import {IssueType} from '../IssueType';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
+import {ProjectContext} from '../../project/ProjectContext';
 
 export class IssueListDialog
     extends ModalDialogWithConfirmation {
@@ -67,7 +67,7 @@ export class IssueListDialog
     protected initListeners() {
         super.initListeners();
         this.handleIssueGlobalEvents();
-        ProjectChangedEvent.on(() => {
+        ProjectContext.get().onProjectChanged(() => {
             this.reloadRequired = true;
         });
     }

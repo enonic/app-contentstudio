@@ -8,7 +8,6 @@ import {ContentEventsListener} from './ContentEventsListener';
 import {AppMode} from './AppMode';
 import {ProjectContext} from './project/ProjectContext';
 import {UrlAction} from './UrlAction';
-import {ProjectChangedEvent} from './project/ProjectChangedEvent';
 import {ProjectDeletedEvent} from './settings/event/ProjectDeletedEvent';
 import {Project} from './settings/data/project/Project';
 import {ProjectListRequest} from './settings/resource/ProjectListRequest';
@@ -37,10 +36,10 @@ export class ContentAppContainer
             this.appBar.enable();
             new ContentEventsListener().start();
             this.initListeners();
-            ProjectChangedEvent.un(projectSetHandler);
+            ProjectContext.get().unProjectChanged(projectSetHandler);
         };
 
-        ProjectChangedEvent.on(projectSetHandler);
+        ProjectContext.get().onProjectChanged(projectSetHandler);
     }
 
     protected createAppBar(application: Application): ContentAppBar {
