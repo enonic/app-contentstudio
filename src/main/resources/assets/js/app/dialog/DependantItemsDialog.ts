@@ -115,8 +115,8 @@ export abstract class DependantItemsDialog
         this.onRendered(() => this.setDependantListVisible(this.showDependantList));
     }
 
-    protected toggleStickyMode(value: boolean) {
-        super.toggleStickyMode(value);
+    protected toggleFullscreen(value: boolean) {
+        super.toggleFullscreen(value);
         if (value) {
             this.doPostLoad();
         }

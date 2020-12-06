@@ -3,16 +3,16 @@
   max-width: 900px !important;
 
   .toolbar-container {
-    padding: 20px 20px 20px 40px;
+    padding: 20px 10px 20px 30px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     flex-wrap: wrap;
-    margin: 20px -20px -10px -30px;
+    margin: 20px -40px -20px -30px;
     position: relative;
-    background: #fff;
-    border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
+    background: @admin-white;
+    border-top: 1px solid @admin-medium-gray-border;
+    border-bottom: 1px solid @admin-medium-gray-border;
 
     .container {
       position: relative;
@@ -82,13 +82,13 @@
       ul.menu {
         position: absolute;
         z-index: 1;
-        background-color: #fff;
+        background-color: @admin-white;
         right: 0;
       }
     }
   }
 
-  .modal-dialog-body {
+  .modal-dialog-wrapper .modal-dialog-body {
     height: 100%;
 
     .dialog-content {
