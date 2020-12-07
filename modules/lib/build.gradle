@@ -53,7 +53,7 @@ jar {
     exclude 'admin/**'
     exclude 'assets/**'
     exclude 'com/**'
-    exclude 'i18n/**'
+    exclude 'i18n/**/common*'
     exclude 'lib/**'
     exclude 'services/**'
     exclude 'application.svg'
