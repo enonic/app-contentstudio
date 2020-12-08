@@ -52,4 +52,5 @@ class SingleSelectionOptionSet extends Page {
         return await this.pause(500);
     }
 }
+
 module.exports = SingleSelectionOptionSet;
