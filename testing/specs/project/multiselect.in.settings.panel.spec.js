@@ -107,8 +107,9 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
     it(`GIVEN Projects folder is expanded AND two projects are checked WHEN 'Selection Toggler' has been clicked THEN two projects should remain in grid`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1. Click on both project's checkboxes:
+            await settingsBrowsePanel.pause(1000);
             let actualResultBefore = await settingsBrowsePanel.getDisplayNames();
+            //1. Click on both project's checkboxes:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             //2. Click on the circle(Selection Toggle):
