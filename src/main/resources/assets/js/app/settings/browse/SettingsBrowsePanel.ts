@@ -7,6 +7,8 @@ import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 import {ProjectContext} from '../../project/ProjectContext';
 import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
+import {DataChangedEvent, DataChangedType} from 'lib-admin-ui/ui/treegrid/DataChangedEvent';
+import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 
 export class SettingsBrowsePanel
     extends BrowsePanel<SettingsViewItem> {
@@ -30,6 +32,27 @@ export class SettingsBrowsePanel
         };
 
         ProjectChangedEvent.on(projectSetHandler);
+    }
+
+    protected initListeners(): void {
+        super.initListeners();
+
+        this.treeGrid.onDataChanged((event: DataChangedEvent<SettingsViewItem>) => {
+            const previewItemId: string = !!this.getBrowseItemPanel().getStatisticsItem()
+                                          ? this.getBrowseItemPanel().getStatisticsItem().getModel().getId()
+                                          : null;
+            if (!previewItemId || event.getType() !== DataChangedType.UPDATED) {
+                return;
+            }
+
+            const updatePreviewItemData: SettingsViewItem = event.getTreeNodes().map(
+                (node: TreeNode<SettingsViewItem>) => node.getData()).find(
+                (item: SettingsViewItem) => item.getId() === previewItemId);
+
+            if (updatePreviewItemData) {
+                this.getBrowseItemPanel().togglePreviewForItem(this.dataToBrowseItem(updatePreviewItemData));
+            }
+        });
     }
 
     protected createTreeGrid(): SettingsItemsTreeGrid {
