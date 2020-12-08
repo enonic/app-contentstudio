@@ -62,6 +62,20 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             assert.isFalse(isInherited, "Copy of inherited site should not be with gray mask");
         });
 
+    //Verifies #2576 'Inherited icon and Reset button should not be displayed in duplicated content'
+    it("GIVEN copy of the inherited site is selected WHEN the site has been opened THEN 'Reset' button should not be displayed in the wizard toolbar",
+        async () => {
+            let projectSelectionDialog = new ProjectSelectionDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Select the layer's context:
+            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            //2. Open the site
+            let contentWizard = await studioUtils.selectAndOpenContentInWizard(SITE_NAME + "-copy");
+            studioUtils.saveScreenshot("inherited_site_copy_wizard");
+            //3. Verify that 'Reset' button is not displayed:
+            await contentWizard.waitForResetButtonNotDisplayed();
+        });
+
     it("GIVEN duplicate of inherited site is selected WHEN 'Sort' dialog has been opened THEN 'Default' sorting order should be selected in the modal dialog",
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
