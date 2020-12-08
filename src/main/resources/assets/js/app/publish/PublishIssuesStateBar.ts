@@ -4,13 +4,19 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {H6El} from 'lib-admin-ui/dom/H6El';
+import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {Action} from 'lib-admin-ui/ui/Action';
 
 export class PublishIssuesStateBar
     extends DivEl {
 
     private containsInvalidElement: Element;
 
+    private excludeAllInvalidButton: ActionButton;
+
     private containsInProgressElement: Element;
+
+    private excludeAllInProgressButton: ActionButton;
 
     private containsNotPublishableElement: Element;
 
@@ -27,18 +33,22 @@ export class PublishIssuesStateBar
 
     private createContainsInvalidElement() {
         this.containsInvalidElement = new H6El('state-line');
+        this.excludeAllInvalidButton = new ActionButton(new Action());
+
         const icon: DivEl = new DivEl('state-icon invalid');
         const span1: SpanEl = new SpanEl('part1').setHtml(i18n('dialog.publish.invalidError.part1'));
-        const span2: SpanEl = new SpanEl('part2').setHtml(i18n('dialog.publish.invalidError.part2'));
-        this.containsInvalidElement.appendChildren(icon, span1, span2);
+        span1.setTitle(i18n('dialog.publish.invalidError.part2'));
+        this.containsInvalidElement.appendChildren(icon, span1, this.excludeAllInvalidButton);
     }
 
     private createContainsInProgressElement() {
         this.containsInProgressElement = new H6El('state-line');
+        this.excludeAllInProgressButton = new ActionButton(new Action());
+
         const icon: DivEl = new DivEl('state-icon in-progress');
         const span1: SpanEl = new SpanEl('part1').setHtml(i18n('dialog.publish.in-progress.part1'));
-        const span2: SpanEl = new SpanEl('part2').setHtml(i18n('dialog.publish.in-progress.part2'));
-        this.containsInProgressElement.appendChildren(icon, span1, span2);
+        span1.setTitle(i18n('dialog.publish.in-progress.part2'));
+        this.containsInProgressElement.appendChildren(icon, span1, this.excludeAllInProgressButton);
     }
 
     private createContainsNotPublishableElement() {
@@ -65,12 +75,22 @@ export class PublishIssuesStateBar
         });
     }
 
-    setContainsInvalidVisible(flag: boolean) {
+    setContainsInProgress(value: boolean) {
+        this.containsInProgressElement.setVisible(value);
+    }
+
+    setTotalInProgress(count: number) {
+        this.excludeAllInProgressButton.setVisible(count > 0);
+        this.excludeAllInProgressButton.setLabel(i18n('dialog.publish.exclude', count));
+    }
+
+    setContainsInvalid(flag: boolean) {
         this.containsInvalidElement.setVisible(flag);
     }
 
-    setContainsInProgressVisible(flag: boolean) {
-        this.containsInProgressElement.setVisible(flag);
+    setTotalInvalid(count: number) {
+        this.excludeAllInvalidButton.setVisible(count > 0);
+        this.excludeAllInvalidButton.setLabel(i18n('dialog.publish.exclude', count));
     }
 
     setContainsNotPublishableVisible(flag: boolean) {
@@ -86,5 +106,13 @@ export class PublishIssuesStateBar
         this.containsInProgressElement.hide();
         this.containsNotPublishableElement.hide();
         this.loadFailedElement.hide();
+    }
+
+    onExcludeAllInProgressClicked(handler: () => void) {
+        this.excludeAllInProgressButton.getAction().onExecuted(handler);
+    }
+
+    onExcludeAllInvalidClicked(handler: () => void) {
+        this.excludeAllInvalidButton.getAction().onExecuted(handler);
     }
 }

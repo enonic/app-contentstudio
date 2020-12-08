@@ -50,6 +50,7 @@ import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 import {UrlAction} from '../UrlAction';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {DeletedContentItem} from './DeletedContentItem';
 
 export class ContentBrowsePanel
     extends BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -346,7 +347,8 @@ export class ContentBrowsePanel
         });
 
         handler.onContentDeleted((data: ContentServerChangeItem[]) => {
-            this.handleContentDeleted(data.map(d => d.getId()));
+            this.handleContentDeleted(
+                data.map((item: ContentServerChangeItem) => new DeletedContentItem(item.getContentId(), item.getContentPath())));
         });
 
         handler.onContentPending((data: ContentSummaryAndCompareStatus[]) => this.handleContentPending(data));
@@ -359,7 +361,8 @@ export class ContentBrowsePanel
 
         handler.onContentMoved((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             // combination of delete and create
-            this.handleContentDeleted(data.map(d => d.getId()));
+            this.handleContentDeleted(data.map(
+                (item: ContentSummaryAndCompareStatus, index: number) => new DeletedContentItem(item.getContentId(), oldPaths[index])));
             this.handleContentCreated(data);
         });
 
@@ -418,17 +421,17 @@ export class ContentBrowsePanel
             .catch(DefaultErrorHandler.handle);
     }
 
-    private handleContentDeleted(ids: string[]) {
+    private handleContentDeleted(items: DeletedContentItem[]) {
         if (ContentBrowsePanel.debug) {
-            console.debug('ContentBrowsePanel: deleted', ids);
+            console.debug('ContentBrowsePanel: deleted', items.map(i => i.id.toString()));
         }
 
-        ids.forEach((id: string) => this.treeGrid.deleteNodeByDataId(id));
-        this.updateContentPanelOnNodesDelete(ids);
+        this.treeGrid.deleteItems(items);
+        this.updateContextPanelOnNodesDelete(items);
         this.refreshFilterWithDelay();
     }
 
-    private updateContentPanelOnNodesDelete(deletedIds: string[]) {
+    private updateContextPanelOnNodesDelete(items: DeletedContentItem[]) {
         const contextPanel: ContextPanel = ActiveContextPanelManager.getActiveContextPanel();
         const itemInDetailPanel: ContentSummaryAndCompareStatus = contextPanel ? contextPanel.getItem() : null;
 
@@ -436,9 +439,9 @@ export class ContentBrowsePanel
             return;
         }
 
-        const itemId: string = itemInDetailPanel.getId();
+        const itemId: ContentId = itemInDetailPanel.getContentId();
 
-        if (deletedIds.indexOf(itemId) > -1) {
+        if (items.some((item: DeletedContentItem) => item.id.equals(itemId))) {
             this.doUpdateContextPanel(null);
         }
     }

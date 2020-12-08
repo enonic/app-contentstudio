@@ -17,7 +17,6 @@ import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryRequest} from './ContentSummaryRequest';
 import {FieldOrderExpr, FieldOrderExprBuilder} from 'lib-admin-ui/content/order/FieldOrderExpr';
-import {Project} from '../settings/data/project/Project';
 
 export class ContentSummaryAndCompareStatusFetcher {
 
@@ -25,7 +24,7 @@ export class ContentSummaryAndCompareStatusFetcher {
         return ContentSummaryAndCompareStatusFetcher.fetchChildren(null, from, size, this.createRootChildOrder());
     }
 
-    private static createRootChildOrder(): ChildOrder {
+    static createRootChildOrder(): ChildOrder {
         const childOrder: ChildOrder = new ChildOrder();
 
         childOrder.addOrderExpressions(ContentSummaryRequest.ROOT_ORDER.map(fieldOrderExpr => {
@@ -129,9 +128,9 @@ export class ContentSummaryAndCompareStatusFetcher {
             });
     }
 
-    static fetchChildrenIds(parentContentId: ContentId): Q.Promise<ContentId[]> {
+    static fetchChildrenIds(parentContentId: ContentId, order?: ChildOrder): Q.Promise<ContentId[]> {
 
-        return new GetContentIdsByParentRequest().setParentId(parentContentId).sendAndParse().then(
+        return new GetContentIdsByParentRequest().setParentId(parentContentId).setOrder(order).sendAndParse().then(
             (response: ContentId[]) => {
 
                 return response;
