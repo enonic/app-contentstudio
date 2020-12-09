@@ -3,7 +3,6 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentBrowsePanel} from './browse/ContentBrowsePanel';
-import {NewContentEvent} from './create/NewContentEvent';
 import {GetIssueRequest} from './issue/resource/GetIssueRequest';
 import {Issue} from './issue/Issue';
 import {IssueDialogsManager} from './issue/IssueDialogsManager';
@@ -12,7 +11,6 @@ import {Router} from './Router';
 import {ContentTreeGridLoadedEvent} from './browse/ContentTreeGridLoadedEvent';
 import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
 import {EditContentEvent} from './event/EditContentEvent';
-import {Content} from './content/Content';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
 import {ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
@@ -25,6 +23,7 @@ import {UrlAction} from './UrlAction';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {AppContext} from './AppContext';
 import {ProjectContext} from './project/ProjectContext';
+import {ProjectChangedEvent} from './project/ProjectChangedEvent';
 
 export class ContentAppPanel
     extends AppPanel<ContentSummaryAndCompareStatus> {
@@ -132,5 +131,17 @@ export class ContentAppPanel
 
                 Router.get().setHash(hash);
             });
+    }
+
+    protected activateCurrentKeyBindings(): void {
+        if (ProjectContext.get().isInitialized()) {
+            super.activateCurrentKeyBindings();
+        } else {
+            const projectSetHandler = () => {
+                super.activateCurrentKeyBindings();
+                ProjectChangedEvent.un(projectSetHandler);
+            };
+            ProjectChangedEvent.on(projectSetHandler);
+        }
     }
 }
