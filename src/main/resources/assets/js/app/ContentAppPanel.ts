@@ -1,4 +1,3 @@
-import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
@@ -25,6 +24,7 @@ import {UrlAction} from './UrlAction';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {AppContext} from './AppContext';
 import {ProjectContext} from './project/ProjectContext';
+import {ProjectChangedEvent} from './project/ProjectChangedEvent';
 
 export class ContentAppPanel
     extends AppPanel<ContentSummaryAndCompareStatus> {
@@ -35,17 +35,6 @@ export class ContentAppPanel
         if (ProjectContext.get().isInitialized() && AppContext.get().isMainMode()) {
             this.route(path);
         }
-    }
-
-    handleBrowse() {
-        super.handleBrowse();
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered) => {
-
-            return rendered;
-        });
     }
 
     private route(path?: Path) {
@@ -148,5 +137,17 @@ export class ContentAppPanel
 
                 Router.get().setHash(hash);
             });
+    }
+
+    protected activateCurrentKeyBindings(): void {
+        if (ProjectContext.get().isInitialized()) {
+            super.activateCurrentKeyBindings();
+        } else {
+            const projectSetHandler = () => {
+                super.activateCurrentKeyBindings();
+                ProjectChangedEvent.un(projectSetHandler);
+            };
+            ProjectChangedEvent.on(projectSetHandler);
+        }
     }
 }
