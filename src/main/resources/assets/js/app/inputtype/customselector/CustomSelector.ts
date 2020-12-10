@@ -128,7 +128,7 @@ export class CustomSelector
 
     private getRequestPath(): string {
         const contentPath = this.content.getPath().toString();
-        const projectId = ProjectContext.get().getProject().getName();
+        const projectId = ProjectContext.get().getProject();
         return StringHelper.format(this.requestPath, projectId, contentPath);
     }
 
