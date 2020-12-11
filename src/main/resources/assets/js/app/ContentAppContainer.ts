@@ -13,14 +13,15 @@ import {ProjectDeletedEvent} from './settings/event/ProjectDeletedEvent';
 import {Project} from './settings/data/project/Project';
 import {ProjectListRequest} from './settings/resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {AppContext} from './AppContext';
 
 export class ContentAppContainer
     extends MainAppContainer {
 
     protected appBar: ContentAppBar;
 
-    constructor(application: Application) {
-        super(application, AppMode.MAIN);
+    constructor() {
+        super();
 
         if (!ProjectContext.get().isInitialized()) {
             this.handleProjectNotSet();
@@ -48,7 +49,7 @@ export class ContentAppContainer
     }
 
     protected createAppPanel(): ContentAppPanel {
-        return new ContentAppPanel(this.application.getPath());
+        return new ContentAppPanel(AppContext.get().getApplication().getPath());
     }
 
     private initListeners() {

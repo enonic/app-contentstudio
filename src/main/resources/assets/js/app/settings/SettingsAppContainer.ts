@@ -7,10 +7,6 @@ import {AppMode} from '../AppMode';
 export class SettingsAppContainer
     extends MainAppContainer {
 
-    constructor(application: Application) {
-        super(application, AppMode.SETTINGS);
-    }
-
     protected createAppBar(application: Application): SettingsAppBar {
         return new SettingsAppBar(application);
     }
