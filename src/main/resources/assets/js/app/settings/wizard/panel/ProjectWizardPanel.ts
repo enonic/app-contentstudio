@@ -27,7 +27,6 @@ import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
-import {SettingsDataItemFormIcon} from './form/element/SettingsDataItemFormIcon';
 import {ProjectDataItemFormIcon} from './form/element/ProjectDataItemFormIcon';
 
 export class ProjectWizardPanel
@@ -42,6 +41,8 @@ export class ProjectWizardPanel
     private editProjectAccessDialog: EditProjectAccessDialog = new EditProjectAccessDialog();
 
     private loginResult: LoginResult;
+
+    private hasChildrenLayers: boolean = false;
 
     protected getIconClass(): string {
         return !!this.getPersistedItem() ? this.getPersistedItem().getIconClass() : this.getType().getIconClass();
@@ -84,6 +85,17 @@ export class ProjectWizardPanel
             return true; // New project - edit is allowed
         }
         return persistedItem.isEditAllowed(loginResult);
+    }
+
+    isDeleteAllowed(loginResult: LoginResult): boolean {
+        return this.getPersistedItem().isDeleteAllowed(loginResult) && !this.hasChildrenLayers;
+    }
+
+    setHasChildrenLayers(value: boolean) {
+        if (value !== this.hasChildrenLayers) {
+            this.hasChildrenLayers = value;
+            this.updateToolbarActions();
+        }
     }
 
     getLoginResult(): Q.Promise<LoginResult> {

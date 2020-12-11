@@ -17,6 +17,7 @@ export class SettingsBrowsePanel
 
     protected initElements(): void {
         super.initElements();
+        this.refreshTreeGridActions();
 
         if (!ProjectContext.get().isInitialized()) {
             this.handleProjectNotSet();
@@ -41,6 +42,7 @@ export class SettingsBrowsePanel
     }
 
     private handleTreeGridDataChanged(event: DataChangedEvent<SettingsViewItem>) {
+        this.refreshTreeGridActions();
         const previewItemId: string = this.getBrowseItemPanel().getStatisticsItem()?.getModel().getId();
 
         if (!previewItemId || event.getType() !== DataChangedType.UPDATED) {
@@ -54,6 +56,23 @@ export class SettingsBrowsePanel
         if (updatePreviewItemData) {
             this.getBrowseItemPanel().togglePreviewForItem(this.dataToBrowseItem(updatePreviewItemData));
         }
+    }
+
+    private refreshTreeGridActions() {
+        this.getBrowseActions()
+            .updateActionsEnabledState(this.dataItemsToBrowseItems(this.getSelectedOrHighlightedItems()));
+    }
+
+    private getSelectedOrHighlightedItems(): SettingsViewItem[] {
+        if (this.treeGrid.hasSelectedItems()) {
+            return this.treeGrid.getSelectedDataList();
+        }
+
+        if (this.treeGrid.hasHighlightedNode()) {
+            return [this.treeGrid.getHighlightedItem()];
+        }
+
+        return [];
     }
 
     protected createTreeGrid(): SettingsItemsTreeGrid {
@@ -96,14 +115,10 @@ export class SettingsBrowsePanel
         return this.treeGrid.getFullTotal() > 1;
     }
 
-    getSelectedItem(): SettingsViewItem {
-        const selectedItems: SettingsViewItem[] = this.treeGrid.getSelectedDataList();
+    hasChildren(id: string): boolean {
+        const item: SettingsViewItem = this.treeGrid.getItemById(id);
 
-        if (selectedItems.length === 1) {
-            return selectedItems[0];
-        }
-
-        return null;
+        return !!item && this.treeGrid.hasChildren(item);
     }
 
 }
