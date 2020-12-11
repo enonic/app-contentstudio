@@ -28,7 +28,7 @@ export class FullscreenDialog
             cursorPosition: config.cursorPosition,
             title: i18n('dialog.fullscreen.title'),
             class: 'fullscreen-modal-dialog',
-            defaultFullscreen: true
+            alwaysFullscreen: true
         });
 
         this.getEditor().focusManager.lock();
