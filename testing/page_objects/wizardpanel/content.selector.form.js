@@ -23,5 +23,11 @@ class CustomSelectorForm extends BaseSelectorForm {
         let selector = "//div[contains(@id,'ContentSelectedOptionView')]//h6[contains(@class,'main-name')]";
         return this.getTextInElements(selector);
     }
-};
+
+    getNameSelectedOptions() {
+        let selector = "//div[contains(@id,'ContentSelectedOptionView')]" + lib.P_SUB_NAME;
+        return this.getTextInElements(selector);
+    }
+}
+
 module.exports = CustomSelectorForm;
