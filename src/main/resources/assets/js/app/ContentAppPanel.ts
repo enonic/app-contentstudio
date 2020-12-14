@@ -23,7 +23,6 @@ import {UrlAction} from './UrlAction';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {AppContext} from './AppContext';
 import {ProjectContext} from './project/ProjectContext';
-import {ProjectChangedEvent} from './project/ProjectChangedEvent';
 
 export class ContentAppPanel
     extends AppPanel<ContentSummaryAndCompareStatus> {
@@ -139,9 +138,9 @@ export class ContentAppPanel
         } else {
             const projectSetHandler = () => {
                 super.activateCurrentKeyBindings();
-                ProjectChangedEvent.un(projectSetHandler);
+                ProjectContext.get().unProjectChanged(projectSetHandler);
             };
-            ProjectChangedEvent.on(projectSetHandler);
+            ProjectContext.get().onProjectChanged(projectSetHandler);
         }
     }
 }
