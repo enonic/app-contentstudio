@@ -33,7 +33,6 @@
 
       .access-control-entry {
         display: flex;
-        flex-wrap: nowrap;
         height: auto;
         padding: 5px 0;
 
@@ -121,6 +120,11 @@
         .access-control-list {
           .access-control-entry {
             padding-right: 0;
+
+            .names-and-icon-view {
+              min-width: auto;
+              max-width: calc(100% - 140px);
+            }
 
             .access-selector {
               margin-right: 0;
