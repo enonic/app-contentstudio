@@ -68,7 +68,7 @@ export class ContentSummaryAndCompareStatusFetcher {
                     const result: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatusFetcher.updateCompareStatus([content],
                         compareResults)[0];
 
-                    return ContentSummaryAndCompareStatusFetcher.updateReadOnly([result]).then(() => {
+                    return ContentSummaryAndCompareStatusFetcher.updateReadOnly([result], projectName).then(() => {
                         return result;
                     });
                 });
@@ -154,14 +154,12 @@ export class ContentSummaryAndCompareStatusFetcher {
         return list;
     }
 
-    static updateReadOnly(contents: ContentSummaryAndCompareStatus[]): Q.Promise<any> {
-        return new IsContentReadOnlyRequest(contents.map(content => content.getContentId())).sendAndParse().then(
-            (readOnlyContentIds: string[]) => {
-
+    static updateReadOnly(contents: ContentSummaryAndCompareStatus[], projectName?: string): Q.Promise<any> {
+        return new IsContentReadOnlyRequest(contents.map(content => content.getContentId()))
+            .setRequestProjectName(projectName)
+            .sendAndParse().then((readOnlyContentIds: string[]) => {
                 readOnlyContentIds.forEach((id: string) => {
-
                     contents.some(content => {
-
                         if (content.getId() === id) {
                             content.setReadOnly(true);
                             return true;

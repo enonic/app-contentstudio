@@ -8,7 +8,6 @@ import {IssueResponse} from '../resource/IssueResponse';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
 import {IssueStatus} from '../IssueStatus';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ProjectContext} from '../../project/ProjectContext';
 
@@ -37,7 +36,7 @@ export class ShowIssuesDialogButton extends ActionButton {
     private initEventsListeners() {
         IssueServerEventsHandler.getInstance().onIssueCreated(this.updateHandler);
         IssueServerEventsHandler.getInstance().onIssueUpdated(this.updateHandler);
-        ProjectChangedEvent.on(this.updateHandler);
+        ProjectContext.get().onProjectChanged(this.updateHandler);
     }
 
     private setIssueCount(count: number) {
@@ -65,11 +64,11 @@ export class ShowIssuesDialogButton extends ActionButton {
             this.doFetchIssuesAndCreateLink();
         } else {
             const projectSetHandler = () => {
-                ProjectChangedEvent.un(projectSetHandler);
+                ProjectContext.get().unProjectChanged(projectSetHandler);
                 this.doFetchIssuesAndCreateLink();
             };
 
-            ProjectChangedEvent.on(projectSetHandler);
+            ProjectContext.get().onProjectChanged(projectSetHandler);
         }
     }
 

@@ -6,7 +6,6 @@ import {SettingsBrowseItemPanel} from './SettingsBrowseItemPanel';
 import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 import {ProjectContext} from '../../project/ProjectContext';
-import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
 import {DataChangedEvent, DataChangedType} from 'lib-admin-ui/ui/treegrid/DataChangedEvent';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 
@@ -29,10 +28,10 @@ export class SettingsBrowsePanel
 
         const projectSetHandler = () => {
             this.treeGrid.enableKeys();
-            ProjectChangedEvent.un(projectSetHandler);
+            ProjectContext.get().unProjectChanged(projectSetHandler);
         };
 
-        ProjectChangedEvent.on(projectSetHandler);
+        ProjectContext.get().onProjectChanged(projectSetHandler);
     }
 
     protected initListeners(): void {
