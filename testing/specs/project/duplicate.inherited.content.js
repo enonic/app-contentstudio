@@ -93,7 +93,8 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             assert.equal(actualOrder, EXPECTED_ORDER, "'Modified date' order should be selected in the modal dialog");
         });
 
-    it("GIVEN the local copy of inherited site is selected WHEN Layers widget has been opened THEN only one item with button 'Edit' should be present in the widget",
+    it.skip(
+        "GIVEN the local copy of inherited site is selected WHEN Layers widget has been opened THEN only one item with button 'Edit' should be present in the widget",
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
             //1. Select the layer's context:

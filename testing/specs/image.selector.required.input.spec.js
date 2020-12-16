@@ -53,22 +53,25 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 await deleteContentDialog.waitForDialogClosed();
             });
 
-        it("GIVEN existing content with Image selector is opened WHEN required image is deleted THEN red icon should be displayed in the wizard tab",
+        it("GIVEN existing content with Image selector is opened WHEN required image is deleted THEN this content remains valid",
             async () => {
                 //1. Open existing content with one required image:
                 let contentWizard = new ContentWizard();
                 await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
-                //2. Verify that the content is not valid, because the selected required image was deleted in the previous step:
-                await contentWizard.waitUntilInvalidIconAppears();
+                await contentWizard.pause(1000);
+                //2. Verify that the content is valid, selected required image was deleted in the previous step:
+                let isNotValid = await contentWizard.isContentInvalid();
+                assert.isFalse(isNotValid, "This content remains valid");
             });
 
-        it("GIVEN searching for item with invalid required image WHEN item appears in browse panel THEN the content should be displayed with red icon",
+        it("GIVEN searching for item with deleted required image WHEN item appears in browse panel THEN the content should be displayed as valid",
             async () => {
                 let contentBrowsePanel = new ContentBrowsePanel();
                 //1. Select existing content with one required image:
                 await studioUtils.findAndSelectItem(CONTENT_NAME);
                 //2. Verify that the content is not valid, because the selected required image was deleted in the previous step:
-                await contentBrowsePanel.waitForRedIconDisplayed(CONTENT_NAME);
+                let isNotValid = await contentBrowsePanel.isRedIconDisplayed(CONTENT_NAME);
+                assert.isFalse(isNotValid, "This content remains valid");
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

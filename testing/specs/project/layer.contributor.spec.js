@@ -92,9 +92,9 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             //3. Verify that 'Open' button gets visible and enabled :
             await contentBrowsePanel.waitForOpenButtonEnabled();
 
-            let browseLayersWidget = await studioUtils.openLayersWidgetInBrowsePanel();
+            //let browseLayersWidget = await studioUtils.openLayersWidgetInBrowsePanel();
             //5. Verify that 'Open' button is enabled in the first widget-item:
-            await browseLayersWidget.waitForOpenButtonEnabled(LAYER_DISPLAY_NAME);
+            //await browseLayersWidget.waitForOpenButtonEnabled(LAYER_DISPLAY_NAME);
         });
 
     it("GIVEN user with 'contributor'-layer role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",
@@ -155,5 +155,4 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
     before(() => {
         return console.log('specification is starting: ' + this.title);
     });
-
 });
