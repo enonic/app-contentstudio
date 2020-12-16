@@ -229,6 +229,8 @@ export class ContentWizardPanel
 
     public static debug: boolean = false;
 
+    private loginResult: LoginResult;
+
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super({
             tabId: params.tabId
@@ -2631,6 +2633,29 @@ export class ContentWizardPanel
 
         if (this.getWizardHeader()) {
             this.getWizardHeader().setOnline(this.persistedContent.isOnline());
+        }
+    }
+
+    protected checkIfEditIsAllowed(): Q.Promise<boolean> {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+            this.loginResult = loginResult;
+
+            return Q(this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY));
+        });
+    }
+
+    protected handleCanModify(canModify: boolean): void {
+        super.handleCanModify(canModify);
+
+        if (this.getLivePanel()) {
+            this.getLivePanel().setModifyPermissions(this.canModify);
+        }
+
+        this.toggleStepFormsVisibility(this.loginResult);
+        this.updateUrlAction();
+
+        if (this.isLocalizeInUrl()) {
+            this.settingsWizardStepForm.updateInitialLanguage();
         }
     }
 }

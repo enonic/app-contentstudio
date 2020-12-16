@@ -40,7 +40,7 @@ export class SettingsTreeGridActions
 
             this.EDIT.setEnabled(this.isEditAllowed(selectedItems, loginResult));
             this.DELETE.setEnabled(this.isDeleteAllowed(selectedItems, loginResult));
-            this.NEW.setEnabled(this.isNewAllowed(selectedItems, loginResult));
+            this.NEW.setEnabled(this.isNewAllowed(loginResult));
         });
     }
 
@@ -57,7 +57,7 @@ export class SettingsTreeGridActions
         return this.grid.hasChildren(item);
     }
 
-    private isNewAllowed(selectedItems: SettingsViewItem[], loginResult: LoginResult): boolean {
+    private isNewAllowed(loginResult: LoginResult): boolean {
         return loginResult.isContentAdmin();
     }
 }

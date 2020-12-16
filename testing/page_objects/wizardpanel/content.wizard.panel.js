@@ -188,9 +188,20 @@ class ContentWizardPanel extends Page {
 
     waitForShowComponentVewTogglerVisible() {
         return this.waitForElementDisplayed(this.showComponentViewToggler, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_open_component_view');
+            this.saveScreenshot('err_show_component_toggler_should_be_visible');
             throw new Error('Component View toggler is not visible in ' + 2 + '  ' + err);
         })
+    }
+
+    async waitForShowComponentVewTogglerNotVisible() {
+        try {
+            let res = await this.getDisplayedElements(this.showComponentViewToggler);
+            let result = await this.isElementDisplayed(this.showComponentViewToggler);
+            await this.waitForElementNotDisplayed(this.showComponentViewToggler, appConst.mediumTimeout);
+        } catch (err) {
+            this.saveScreenshot('err_show_component_toggler_should_not_be_visible');
+            throw new Error('Component View toggler is still visible after the interval sec:' + 3 + '  ' + err);
+        }
     }
 
     // opens Details Panel if it is not loaded
@@ -642,15 +653,17 @@ class ContentWizardPanel extends Page {
         return this.getBrowser().switchToParentFrame();
     }
 
-    waitForControllerOptionFilterInputVisible() {
-        return this.switchToLiveEditFrame().then(() => {
-            return this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.longTimeout);
-        }).catch(err => {
-            console.log(err);
-            return this.switchToParentFrame().then(() => {
-                return false;
-            })
-        })
+    async waitForControllerOptionFilterInputVisible() {
+        try {
+            await this.switchToLiveEditFrame();
+            let result = await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.longTimeout);
+            await this.switchToParentFrame();
+            return result;
+        } catch (err) {
+            await this.switchToMainFrame();
+            throw new Error(err);
+        }
+
     }
 
     waitForControllerOptionFilterInputNotVisible() {

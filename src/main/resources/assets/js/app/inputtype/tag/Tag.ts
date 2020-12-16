@@ -117,6 +117,10 @@ export class Tag
         this.tags.resetBaseValues();
     }
 
+    setEnabled(enable: boolean): void {
+        this.tags.setEnabled(enable);
+    }
+
     resetPropertyValues() {
         this.getPropertyArray().removeAll(true);
         this.tags.resetPropertyValues();

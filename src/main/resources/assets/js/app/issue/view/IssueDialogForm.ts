@@ -127,6 +127,26 @@ export class IssueDialogForm
         }
     }
 
+    public setReadOnly(readOnly: boolean) {
+        this.title.setEnabled(!readOnly);
+        this.description.setEnabled(!readOnly);
+        this.approversSelector.setEnabled(!readOnly);
+
+        const titleFormItem = <FormItem>this.title.getParentElement();
+        titleFormItem.setVisible(!readOnly);
+
+        const descFormItem = <FormItem>this.description.getParentElement();
+        descFormItem.setVisible(!readOnly);
+
+        this.descriptionText.setVisible(readOnly);
+
+        const selectorFormItem = <FormItem>this.approversSelector.getParentElement();
+        selectorFormItem.setLabel(readOnly ? i18n('field.assignees') + ':' : i18n('dialog.issue.inviteUsers'));
+
+        this.contentItemsFormItem.setVisible(!readOnly);
+        this.addItemsButtonItem.setVisible(!readOnly);
+    }
+
     lockContentItemsSelector(lock: boolean) {
         this.contentItemsSelectorLocked = lock;
         if (lock) {

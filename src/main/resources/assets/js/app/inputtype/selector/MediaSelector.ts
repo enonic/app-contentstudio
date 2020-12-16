@@ -181,6 +181,11 @@ export class MediaSelector
 
         return rest;
     }
+
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+        this.uploader.setEnabled(enable);
+    }
 }
 
 InputTypeManager.register(new Class('MediaSelector', MediaSelector));

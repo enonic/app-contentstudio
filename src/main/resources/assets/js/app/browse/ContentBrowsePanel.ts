@@ -29,7 +29,6 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
 import {PreviewContentHandler} from './action/handler/PreviewContentHandler';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
@@ -46,7 +45,6 @@ import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {ContentIds} from '../ContentIds';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 import {UrlAction} from '../UrlAction';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
@@ -89,10 +87,10 @@ export class ContentBrowsePanel
             this.contextSplitPanel.enableToggleButton();
             this.treeGrid.setState(State.ENABLED);
             Router.get().setHash(UrlAction.BROWSE);
-            ProjectChangedEvent.un(projectSetHandler);
+            ProjectContext.get().unProjectChanged(projectSetHandler);
         };
 
-        ProjectChangedEvent.on(projectSetHandler);
+        ProjectContext.get().onProjectChanged(projectSetHandler);
     }
 
     protected initListeners() {
@@ -312,7 +310,7 @@ export class ContentBrowsePanel
             }
         });
 
-        ProjectChangedEvent.on(() => {
+        ProjectContext.get().onProjectChanged(() => {
             this.treeGrid.deselectAll();
             this.filterPanel.reset().then(() => {
                 this.hideFilterPanel();

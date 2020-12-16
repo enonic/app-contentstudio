@@ -83,14 +83,20 @@
           }
         }
 
+        .locale-combobox {
+          &.disabled {
+            .remove {
+              display: none;
+            }
+          }
+        }
+
         .principal-combobox {
 
           width: auto;
           padding-left: 23px;
 
           &.disabled {
-            opacity: 0.5;
-
             .remove {
               display: none;
             }

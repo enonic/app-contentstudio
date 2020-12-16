@@ -39,17 +39,7 @@ export class ProjectWizardActions
     }
 
     private toggleDeleteAction(loginResult: LoginResult) {
-        const isDeleteAllowed: boolean = this.wizardPanel.getPersistedItem().isDeleteAllowed(loginResult);
-
-        if (isDeleteAllowed) {
-            const projectName: string = this.wizardPanel.getPersistedItem().getData().getName();
-
-            new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-                this.delete.setEnabled(projects.every((p: Project) => p.getParent() !== projectName));
-            }).catch(DefaultErrorHandler.handle);
-        } else {
-            this.delete.setEnabled(isDeleteAllowed);
-        }
+        this.delete.setEnabled(this.wizardPanel.isDeleteAllowed(loginResult));
     }
 
 }

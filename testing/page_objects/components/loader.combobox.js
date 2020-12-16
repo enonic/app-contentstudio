@@ -23,7 +23,15 @@ class LoaderComboBox extends Page {
         }, appConst.longTimeout, 'option was not found! ' + optionDisplayName);
         let optionElement = await this.getDisplayedElements(optionSelector);
         return await optionElement[0].click();
+    }
 
+    async selectOptionByName(optionName) {
+        let optionSelector = lib.slickRowByName(XPATH.container, optionName);
+        await this.getBrowser().waitUntil(async () => {
+            return await this.isElementDisplayed(optionSelector);
+        }, appConst.longTimeout, 'option was not found! ' + optionName);
+        let optionElement = await this.getDisplayedElements(optionSelector);
+        return await optionElement[0].click();
     }
 
     async typeTextAndSelectOption(optionDisplayName, xpath) {

@@ -20,6 +20,8 @@ export class ProjectSelectionDialog
 
     private updateOnOpen: boolean = false;
 
+    private selectedProject: Project;
+
     private constructor() {
         super({
             title: i18n('text.selectContext'),
@@ -42,7 +44,7 @@ export class ProjectSelectionDialog
         this.projectsList.getItemViews().forEach((itemView: ProjectListItem) => {
             itemView.onClicked((event: MouseEvent) => {
                 if (!event.ctrlKey && !event.shiftKey) {
-                    ProjectContext.get().setProject(itemView.getProject());
+                    this.selectedProject = itemView.getProject();
                     this.close();
                     event.preventDefault();
                     event.stopPropagation();
@@ -65,17 +67,19 @@ export class ProjectSelectionDialog
     close() {
         super.close();
 
-        if (!ProjectContext.get().isInitialized()) {
-            this.setDefaultProject();
+        const project: Project = this.getProjectToSelect();
+
+        if (project) {
+            ProjectContext.get().setProject(project);
         }
     }
 
-    private setDefaultProject() {
-        const defaultProject: Project = this.projectsList.getItemCount() > 0 ? this.projectsList.getItems()[0] : null;
+    private getProjectToSelect(): Project {
+        return !!this.selectedProject ? this.selectedProject : this.getDefaultProject();
+    }
 
-        if (defaultProject) {
-            ProjectContext.get().setProject(defaultProject);
-        }
+    private getDefaultProject(): Project {
+        return this.projectsList.getItemCount() > 0 ? this.projectsList.getItems()[0] : null;
     }
 
     open() {

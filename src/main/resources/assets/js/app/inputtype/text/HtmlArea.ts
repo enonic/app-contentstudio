@@ -149,6 +149,14 @@ export class HtmlArea
         });
     }
 
+    setEnabledInputOccurrenceElement(occurrence: Element, enable: boolean) {
+        occurrence.getChildren().forEach((child) => {
+            if (ObjectHelper.iFrameSafeInstanceOf(child, TextArea)) {
+                (<TextArea>child).setEnabled(enable);
+            }
+        });
+    }
+
     private initEditor(id: string, property: Property, textAreaWrapper: Element): Q.Promise<HtmlEditor> {
         const assetsUri = CONFIG.assetsUri;
         const allowScripts: boolean = CONFIG.allowScriptsInEditor === 'true';

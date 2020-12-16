@@ -305,6 +305,12 @@ export class Tags
         }
     }
 
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+
+        this.textInput.setEnabled(enable);
+    }
+
     private notifyTagRemoved(event: TagRemovedEvent) {
         this.tagRemovedListeners.forEach((listener: (event: TagRemovedEvent) => void) => {
             listener(event);

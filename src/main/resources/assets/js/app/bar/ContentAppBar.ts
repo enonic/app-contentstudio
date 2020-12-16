@@ -6,7 +6,6 @@ import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {Project} from '../settings/data/project/Project';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {ProjectContext} from '../project/ProjectContext';
-import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 import {ProjectSelectionDialog} from '../settings/dialog/ProjectSelectionDialog';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
@@ -42,7 +41,7 @@ export class ContentAppBar
 
         const handler: () => void = this.handleProjectUpdate.bind(this);
 
-        ProjectChangedEvent.on(handler);
+        ProjectContext.get().onProjectChanged(handler);
         ProjectUpdatedEvent.on(handler);
     }
 

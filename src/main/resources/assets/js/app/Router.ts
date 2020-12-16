@@ -1,6 +1,5 @@
 import * as hasher from 'hasher';
 import {ProjectContext} from './project/ProjectContext';
-import {ProjectChangedEvent} from './project/ProjectChangedEvent';
 import {Path} from 'lib-admin-ui/rest/Path';
 
 export class Router {
@@ -10,7 +9,7 @@ export class Router {
     private prevHash: string;
 
     private constructor() {
-        ProjectChangedEvent.on(this.updateProjectInHash.bind(this));
+        ProjectContext.get().onProjectChanged(this.updateProjectInHash.bind(this));
     }
 
     private updateProjectInHash() {
