@@ -35,14 +35,15 @@
   }
 
   .modal-dialog-header {
-    .title {
-      display: inline-block;
-      width: calc(100% - 37px);
+    .title-wrapper {
+      display: flex;
+
+      .title {
+        flex-grow: 1;
+      }
     }
 
     .new-content-uploader {
-      display: inline-block;
-
       .media-uploader-el {
         position: static;
 

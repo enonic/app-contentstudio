@@ -235,6 +235,11 @@ export class AttachmentUploader
         return this.getPropertyArray().getProperties().length;
     }
 
+    setEnabled(enable: boolean): void {
+        this.uploaderEl.setEnabled(enable);
+
+    }
+
     onFocus(listener: (event: FocusEvent) => void) {
         this.uploaderEl.onFocus(listener);
     }

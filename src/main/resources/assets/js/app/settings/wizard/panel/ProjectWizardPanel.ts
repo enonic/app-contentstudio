@@ -380,7 +380,6 @@ export class ProjectWizardPanel
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.addClass('project-wizard-panel');
-            this.checkIfEditIsAllowed().then((isEditAllowed: boolean) => this.toggleClass('no-modify-permissions', !isEditAllowed));
 
             return rendered;
         });
