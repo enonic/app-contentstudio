@@ -15,6 +15,8 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
 
     private form: Form;
 
+    private formItems:  FormItem[];
+
     private dataChangedListeners: { (): void }[] = [];
 
     constructor() {
@@ -25,6 +27,7 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
 
     setup(item?: ITEM) {
         this.item = item;
+        this.formItems = this.createFormItems();
         this.addFormItems();
         this.initListeners();
     }
@@ -62,7 +65,7 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
 
     abstract getName(type: SettingsType): string;
 
-    protected abstract getFormItems(): FormItem[];
+    protected abstract createFormItems(): FormItem[];
 
     protected abstract initListeners();
 
@@ -72,14 +75,22 @@ export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataVie
         });
     }
 
-    addFormItem(formItem: FormItem) {
+    protected addFormItem(formItem: FormItem) {
         const fieldSet: Fieldset = new Fieldset();
         fieldSet.add(formItem);
         this.form.add(fieldSet);
     }
 
     private addFormItems() {
-        this.getFormItems().forEach((formItem: FormItem) => this.addFormItem(formItem));
+        this.formItems.forEach((formItem: FormItem) => this.addFormItem(formItem));
+    }
+
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+
+        this.formItems.forEach((formItem: FormItem) => {
+            formItem.getInput().setEnabled(enable);
+        });
     }
 
 }

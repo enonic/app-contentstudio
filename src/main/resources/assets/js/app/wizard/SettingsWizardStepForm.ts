@@ -147,4 +147,11 @@ export class SettingsWizardStepForm
         return this.ownerCombo.giveFocus();
     }
 
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+
+        this.localeCombo.setEnabled(enable);
+        this.ownerCombo.setEnabled(enable);
+    }
+
 }

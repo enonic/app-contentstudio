@@ -58,7 +58,7 @@ export class IssueDetailsDialogHeader
     }
 
     setReadOnly(readOnly: boolean) {
-        this.input.setReadOnly(readOnly);
+        this.input.setEnabled(!readOnly);
     }
 
     onTitleChanged(listener: (newTitle: string, oldTitle: string) => void) {

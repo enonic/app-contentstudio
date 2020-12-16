@@ -141,7 +141,7 @@ export class EditPermissionsDialog
             }
 
             this.comboBox.getComboBox().setVisible(!this.inheritPermissions);
-            this.comboBox.setReadOnly(this.inheritPermissions);
+            this.comboBox.setEnabled(!this.inheritPermissions);
 
             comboBoxChangeListener();
         };

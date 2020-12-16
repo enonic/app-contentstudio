@@ -24,6 +24,7 @@ import {SettingsDataViewItem} from '../../view/SettingsDataViewItem';
 import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
 import {SettingsType} from '../../dialog/SettingsType';
 import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
+import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
 
 class SettingsWizardPanelParams<ITEM extends SettingsDataViewItem<Equitable>> implements WizardPanelParams<ITEM> {
     tabId: AppBarTabId;
@@ -40,7 +41,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     protected wizardStepForms: SettingDataItemWizardStepForm<ITEM>[] = [];
 
-    private deleteConfirmationDialog: ConfirmationDialog;
+    protected deleteConfirmationDialog?: ModalDialog;
 
     private newItemSavedListeners: { (item: ITEM): void }[] = [];
 
@@ -331,8 +332,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         const existing: ITEM = this.getPersistedItem();
         const displayName: string = !!existing ? existing.getDisplayName() : '';
 
-        wizardHeader.disableNameInput();
-        wizardHeader.setAutoGenerationEnabled(false);
+        wizardHeader.toggleNameInput(false);
         wizardHeader.setPath('');
         wizardHeader.initNames(displayName, 'not_used', false, true, true);
 
@@ -344,24 +344,25 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         return wizardHeader;
     }
 
-    private initElements() {
-        this.deleteConfirmationDialog = new ConfirmationDialog()
-            .setQuestion(i18n('settings.dialog.delete.question'))
-            .setNoCallback(null)
-            .setYesCallback(this.deletePersistedItem.bind(this));
+    protected initElements() {
+        //
     }
 
-    private deletePersistedItem() {
+    protected deletePersistedItem() {
         this.createDeleteRequest().sendAndParse().then(() => {
             showFeedback(this.getSuccessfulDeleteMessage());
             this.close();
         }).catch(DefaultErrorHandler.handle);
     }
 
-    private listenEvents() {
+    protected listenEvents() {
         this.wizardActions.getDeleteAction().onExecuted(() => {
             if (!this.getPersistedItem()) {
                 return;
+            }
+
+            if (!this.deleteConfirmationDialog) {
+                this.deleteConfirmationDialog = this.initConfirmationDialog();
             }
 
             this.deleteConfirmationDialog.open();
@@ -373,6 +374,13 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
                 DefaultErrorHandler.handle(reason);
             });
         });
+    }
+
+    protected initConfirmationDialog(): ModalDialog {
+        return new ConfirmationDialog()
+            .setQuestion(i18n('settings.dialog.delete.question'))
+            .setNoCallback(null)
+            .setYesCallback(this.deletePersistedItem.bind(this));
     }
 
     private notifyNewItemSaved(item: ITEM) {

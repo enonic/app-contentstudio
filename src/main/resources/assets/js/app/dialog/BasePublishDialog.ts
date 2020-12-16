@@ -119,7 +119,7 @@ export abstract class BasePublishDialog
         this.updateDependantsHeader(header);
         this.updateChildItemsToggler();
 
-        if (this.publishProcessor.containsInvalidDependants() ||
+        if (this.publishProcessor.containsInvalidDependants() || this.publishProcessor.containsItemsInProgress() ||
             this.publishProcessor.isCheckPublishable() && !this.isAllPublishable()) {
             this.setDependantListVisible(true);
         }

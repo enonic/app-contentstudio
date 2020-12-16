@@ -28,6 +28,7 @@ import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
 import {ProjectDataItemFormIcon} from './form/element/ProjectDataItemFormIcon';
+import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -69,6 +70,14 @@ export class ProjectWizardPanel
             .replace(/\./g, '');
 
         return prettified;
+    }
+
+    protected initConfirmationDialog(): ConfirmValueDialog {
+        return new ConfirmValueDialog()
+            .setValueToCheck(this.getPersistedItem().getId())
+            .setSubheaderText(i18n('dialog.project.delete.confirm.subheader'))
+            .setHeaderText(i18n('dialog.confirmDelete'))
+            .setYesCallback(this.deletePersistedItem.bind(this));
     }
 
     protected createWizardActions(): ProjectWizardActions {
@@ -371,7 +380,6 @@ export class ProjectWizardPanel
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.addClass('project-wizard-panel');
-            this.checkIfEditIsAllowed().then((isEditAllowed: boolean) => this.toggleClass('no-modify-permissions', !isEditAllowed));
 
             return rendered;
         });
