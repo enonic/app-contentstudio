@@ -138,8 +138,6 @@ export class IssueDialogForm
         const descFormItem = <FormItem>this.description.getParentElement();
         descFormItem.setVisible(!readOnly);
 
-        this.descriptionText.setVisible(readOnly);
-
         const selectorFormItem = <FormItem>this.approversSelector.getParentElement();
         selectorFormItem.setLabel(readOnly ? i18n('field.assignees') + ':' : i18n('dialog.issue.inviteUsers'));
 
