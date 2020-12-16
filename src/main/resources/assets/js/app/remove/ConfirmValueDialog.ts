@@ -58,8 +58,7 @@ export class ConfirmValueDialog
 
     private handleInputValueChanged() {
         if (this.isInputEmpty()) {
-            this.input.removeClass('invalid valid');
-            this.confirmAction.setEnabled(false);
+            this.reset();
             return;
         }
 
@@ -102,7 +101,14 @@ export class ConfirmValueDialog
 
     close() {
         super.close();
+        this.reset();
         this.remove();
+    }
+
+    reset() {
+        this.input.setValue('', true);
+        this.input.removeClass('invalid valid');
+        this.confirmAction.setEnabled(false);
     }
 
     private initConfirmAction() {
