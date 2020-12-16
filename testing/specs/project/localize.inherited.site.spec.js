@@ -74,7 +74,6 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await sortContentDialog.waitForSaveButtonDisabled();
         });
 
-
     it("GIVEN inherited site has been selected WHEN sorting order has been updated THEN the site remains 'inherited' after updating the sorting order",
         async () => {
             let sortContentDialog = new SortContentDialog();
@@ -118,7 +117,8 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             assert.isFalse(isInherited, "Updated content gets localized");
         });
 
-    it("GIVEN localized site is selected WHEN Layers widget has been opened THEN the second item in the widget should contain button 'Edit'",
+    it.skip(
+        "GIVEN localized site is selected WHEN Layers widget has been opened THEN the second item in the widget should contain button 'Edit'",
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
             //1. Select the layer's context:
@@ -144,12 +144,6 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
-            await studioUtils.switchToContentMode();
-            let detailsPanel = await contentBrowsePanel.openDetailsPanel();
-            await detailsPanel.clickOnWidgetSelectorDropdownHandle();
-            let actualOptions = await detailsPanel.getOptionsName();
-            assert.isTrue(actualOptions.includes("Details"), "Details option should be present in the dropdown");
-            assert.isFalse(actualOptions.includes("Layers"), "Layers option should not be present after deleting the child layer");
         });
 
     beforeEach(async () => {

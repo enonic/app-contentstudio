@@ -210,7 +210,7 @@ class ContentPublishDialog extends Page {
     }
 
     async getNumberItemsToPublish() {
-        let selector = XPATH.container + `//button[contains(@id,'DialogButton')]/span[contains(.,'Publish Now')]`;
+        let selector = XPATH.container + `//button[contains(@id,'ActionButton')]/span[contains(.,'Publish Now')]`;
         let number = await this.getText(selector);
         let startIndex = number.indexOf('(');
         if (startIndex == -1) {
