@@ -20,6 +20,10 @@
     }
   }
 
+  .content-summary-and-compare-status-viewer.data-inherited {
+    opacity: 0.5;
+  }
+
   @toggler-width: 35px;
 
   .include-children-toggler {
@@ -160,10 +164,6 @@
         }
       }
     }
-
-    .dependant-item-viewer:hover * {
-      cursor: pointer;
-    }
   }
 
   .dialog-content {
@@ -220,57 +220,19 @@
             }
           }
 
-          &.invalid {
-            .names-and-icon-view {
-              .@{_COMMON_PREFIX}wrapper {
-                .icon-state-invalid;
-              }
-
-              .state;
-            }
-          }
-
-          &.ready {
-            .names-and-icon-view {
-              .@{_COMMON_PREFIX}wrapper {
-                .icon-state-ready;
-              }
-            }
-
-            .state;
-          }
-
-          &.in-progress {
-            .names-and-icon-view {
-              .@{_COMMON_PREFIX}wrapper {
-                .icon-state-in-progress;
-              }
-            }
-
-            .state;
-          }
-
-          &.has-origin-project {
-            .names-and-icon-view {
-              overflow: visible;
-
-              .@{_COMMON_PREFIX}wrapper {
-                .icon-cloud-download(14px, -4px);
-              }
-            }
-
-            .state;
-          }
-
-          .dependant-item-viewer {
-
+          .content-summary-and-compare-status-viewer {
             height: 24px;
 
-            &.pending-delete .@{_COMMON_PREFIX}names-view {
-              .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
-                text-decoration: line-through;
+            &.has-origin-project {
+              .names-and-icon-view {
+
+                .@{_COMMON_PREFIX}wrapper {
+                  .icon-cloud-download(14px, -4px);
+                }
               }
             }
+
+            .state;
           }
 
           .names-and-icon-view {
