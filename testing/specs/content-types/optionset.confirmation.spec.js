@@ -11,6 +11,7 @@ const contentBuilder = require("../../libs/content.builder");
 const OptionSetForm = require('../../page_objects/wizardpanel/optionset/optionset.form.view');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SingleSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/single.selection.option.set.view');
+const ArticleForm = require('../../page_objects/wizardpanel/article.form.panel');
 
 describe('optionset.confirmation.spec: check for `confirmation` when deleting existing or new item-set `', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -99,6 +100,69 @@ describe('optionset.confirmation.spec: check for `confirmation` when deleting ex
             studioUtils.saveScreenshot('item_set_saved_button_wizard');
             //"Saved" button should appear in the wizard-toolbar
             await contentWizard.waitForSavedButtonVisible();
+        });
+
+    //Verifies: Incorrect behaviour of validation when two required text inputs/ text area/ text line are present in the wizard #2616
+    //https://github.com/enonic/app-contentstudio/issues/2616
+    it("GIVEN wizard for new 'article' is opened WHEN article's title and display name are filled in THEN the content should be invalid",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let articleForm = new ArticleForm();
+            //1. Open new wizard for article-content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'article');
+            let displayName = contentBuilder.generateRandomName('article');
+            //2. Fill in the first required input:
+            await articleForm.typeArticleTitle("test");
+            await contentWizard.typeDisplayName(displayName);
+            await contentWizard.pause(1000);
+            //3. Verify that content is not valid, because the second required input is empty:
+            let result = await contentWizard.isContentInvalid();
+            studioUtils.saveScreenshot('article_wizard_1');
+            assert.isTrue(result, "Article content should be invalid because required body text area is empty");
+        });
+
+    //Verifies: Incorrect behaviour of validation when two required text inputs/ text area/ text line are present in the wizard #2616
+    //https://github.com/enonic/app-contentstudio/issues/2616
+    it("GIVEN wizard for new 'article' is opened WHEN article's title and display name are filled in AND Save button has been pressed THEN the content should be invalid",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let articleForm = new ArticleForm();
+            //1. Open new wizard for article-content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'article');
+            let displayName = contentBuilder.generateRandomName('article');
+            //2. Fill in the first required input:
+            await articleForm.typeArticleTitle("test");
+            await contentWizard.typeDisplayName(displayName);
+            //3. Click on Save button:
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.pause(2000);
+            //4. Verify that content is not valid, because the second required input is empty:
+            let result = await contentWizard.isContentInvalid();
+            studioUtils.saveScreenshot('article_wizard_2');
+            assert.isTrue(result, "Article content should be invalid because required body text area is empty");
+        });
+
+    //Verifies: Incorrect behaviour of validation when two required text inputs/ text area/ text line are present in the wizard #2616
+    //https://github.com/enonic/app-contentstudio/issues/2616
+    it("GIVEN wizard for new 'article' is opened WHEN both required inputs are filled in AND 'Save' button has been pressed THEN the content should be valid",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let articleForm = new ArticleForm();
+            //1. Open new wizard for article-content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'article');
+            let displayName = contentBuilder.generateRandomName('article');
+            //2. Fill in the first required input:
+            await articleForm.typeArticleTitle("test");
+            //2. Fill in the second required input:
+            await articleForm.typeInTextArea("body text");
+            await contentWizard.typeDisplayName(displayName);
+            //3. Click on Save button:
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.pause(2000);
+            //4. Verify that content is not valid, because the second required input is empty:
+            let result = await contentWizard.isContentInvalid();
+            studioUtils.saveScreenshot('article_wizard_3');
+            assert.isFalse(result, "Article content should be valid because required inputs are filled");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
