@@ -206,11 +206,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     //Wait for `Publish Menu` Button gets `Publish...`
-    waitForPublishButtonVisible() {
-        return this.waitForElementDisplayed(this.publishButton, appConst.mediumTimeout).catch(err => {
+    async waitForPublishButtonVisible() {
+        try {
+            return await this.waitForElementDisplayed(this.publishButton, appConst.mediumTimeout);
+        } catch (err) {
             this.saveScreenshot("err_publish_button");
             throw new Error("Publish button is not visible! " + err);
-        })
+        }
     }
 
     waitForStateIconNotDisplayed(displayName) {
