@@ -11,6 +11,7 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {LabelEl} from 'lib-admin-ui/dom/LabelEl';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {Action} from 'lib-admin-ui/ui/Action';
+import {DependantItemsDialogConfig} from '../../dialog/DependantItemsDialog';
 
 export class CreateIssueDialog
     extends IssueDialog {
@@ -26,7 +27,10 @@ export class CreateIssueDialog
     private issueCreatedListeners: { (issue: Issue): void }[] = [];
 
     protected constructor() {
-        super(i18n('dialog.newTask'));
+        super(<DependantItemsDialogConfig>{
+            title: i18n('dialog.newTask'),
+            allowOverflow: true
+        });
     }
 
     static get(): CreateIssueDialog {
@@ -130,14 +134,6 @@ export class CreateIssueDialog
     public unlockPublishItems() {
         this.itemsLabel.hide();
         super.unlockPublishItems();
-    }
-
-    public enableBackButton() {
-        this.backButton.show();
-        const cancelButton = this.getCancelButton();
-        if (cancelButton) {
-            cancelButton.hide();
-        }
     }
 
     private disableBackButton() {

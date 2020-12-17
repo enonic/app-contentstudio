@@ -69,6 +69,7 @@ export class LinkModalDialog
             title: i18n('dialog.link.title'),
             class: 'link-modal-dialog',
             contentId: content.getContentId(),
+            allowOverflow: true,
             confirmation: {
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
@@ -299,7 +300,7 @@ export class LinkModalDialog
 
     private createTargetCheckbox(id: string, isTabSelectedFn: Function): FormItem {
         const checkbox = Checkbox.create().setLabelText(i18n('dialog.link.formitem.openinnewtab')).setInputAlignment(
-            InputAlignment.RIGHT).build();
+            InputAlignment.LEFT).build();
 
         checkbox.setChecked(this.getTarget(isTabSelectedFn.call(this)));
 

@@ -1,18 +1,24 @@
 .site-configurator-dialog {
 
-  &.masked {
-    opacity: 0;
-  }
+  .modal-dialog-header {
+    .title {
+      display: none;
+    }
 
-  .modal-dialog-body {
-    overflow: hidden;
-    padding-right: 0;
-  }
+    .names-and-icon-view {
+      display: flex;
+      justify-items: unset;
 
-  .form-view {
-    max-height: calc(50vh - 40px);
-    overflow-x: hidden;
-    overflow-y: auto;
-    padding-right: 30px !important;
+      .@{_COMMON_PREFIX}names-view {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin: 0;
+
+        p {
+          white-space: pre-wrap;
+        }
+      }
+    }
   }
 }

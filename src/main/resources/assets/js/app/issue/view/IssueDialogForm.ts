@@ -29,8 +29,6 @@ export class IssueDialogForm
 
     private contentItemsSelector: RichComboBox<any>;
 
-    private descriptionText: PEl;
-
     private title: TextInput;
 
     private contentItemsAddedListeners: { (items: ContentTreeSelectorItem[]): void }[] = [];
@@ -69,8 +67,6 @@ export class IssueDialogForm
         this.description = new TextArea('description');
         this.description.addClass('description');
 
-        this.descriptionText = new PEl('description-text');
-
         const principalLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]).skipPrincipals(
             [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
 
@@ -102,8 +98,6 @@ export class IssueDialogForm
         const selectorFormItem = new FormItemBuilder(this.approversSelector).setLabel(i18n('field.assignees')).build();
         selectorFormItem.addClass('issue-approver-selector');
         fieldSet.add(selectorFormItem);
-
-        fieldSet.appendChild(this.descriptionText);
 
         this.contentItemsFormItem = new FormItemBuilder(this.contentItemsSelector).setLabel(i18n('field.items')).build();
         fieldSet.add(this.contentItemsFormItem);
@@ -144,8 +138,6 @@ export class IssueDialogForm
         const descFormItem = <FormItem>this.description.getParentElement();
         descFormItem.setVisible(!readOnly);
 
-        this.descriptionText.setVisible(readOnly);
-
         const selectorFormItem = <FormItem>this.approversSelector.getParentElement();
         selectorFormItem.setLabel(readOnly ? i18n('field.assignees') + ':' : i18n('dialog.issue.inviteUsers'));
 
@@ -171,9 +163,6 @@ export class IssueDialogForm
 
         this.title.setValue(issue.getTitle());
         this.description.setValue(issue.getDescription());
-
-        this.descriptionText.setHtml(issue.getDescription());
-        this.descriptionText.toggleClass('empty', !issue.getDescription());
 
         this.whenRendered(() => this.setApprovers(issue.getApprovers()));
     }
@@ -208,7 +197,6 @@ export class IssueDialogForm
     public reset() {
         this.title.setValue('');
         this.description.setValue('');
-        this.descriptionText.setHtml('');
         this.approversSelector.clearCombobox();
         this.approversSelector.setValue('');
 

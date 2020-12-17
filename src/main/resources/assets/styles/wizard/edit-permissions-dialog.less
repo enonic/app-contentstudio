@@ -8,10 +8,6 @@
     }
   }
 
-  .modal-dialog-header .path {
-    font-size: 16px;
-  }
-
   .modal-dialog-header {
     .sub-title {
       margin-top: 15px;
@@ -36,16 +32,28 @@
       padding: 5px 0;
 
       .access-control-entry {
+        display: flex;
         height: auto;
-        padding: 6px 42px 6px 5px;
+        padding: 5px 0;
 
-        .access-selector ul.upward {
-          padding: 4px 4px 38px;
-          margin-top: -114px;
+        .names-and-icon-view {
+          float: none;
+          margin-right: 10px;
+        }
+
+        .access-selector {
+          float: none;
+          margin: 5px 10px;
+
+          ul.upward {
+            padding: 4px 4px 38px;
+            margin-top: -114px;
+          }
         }
 
         .remove {
-          top: 14px;
+          position: relative;
+          line-height: 30px;
         }
       }
     }
@@ -99,53 +107,33 @@
   section {
     height: 100%;
   }
-}
 
 
-@media screen and (max-height: 360px) {
-  .edit-permissions-dialog {
-
-    .modal-dialog-header {
-      margin-bottom: 5px;
-    }
+  &._0-240,
+  &._240-360,
+  &._360-540 {
 
     .modal-dialog-body {
-      padding-top: 0;
-    }
+      padding-top: 20px !important;
 
-    .inherit-perm-check {
-      margin-bottom: 5px;
-    }
+      .principal-combobox {
+        .access-control-list {
+          .access-control-entry {
+            padding-right: 0;
 
-    .overwrite-child-check {
-      bottom: 25px;
-    }
+            .names-and-icon-view {
+              min-width: auto;
+              max-width: calc(100% - 140px);
+            }
 
-    .form-view {
-      margin-top: 5px;
-    }
-
-    .@{_COMMON_PREFIX}.combobox.followed-by-options {
-      margin-bottom: 5px;
-    }
-  }
-}
-
-@media screen and (max-height: 300px) {
-  body {
-    .@{_COMMON_PREFIX}modal-dialog.edit-permissions-dialog {
-      .modal-dialog-header {
-        padding-top: 10px;
+            .access-selector {
+              margin-right: 0;
+              flex: 100px 0 0;
+            }
+          }
+        }
       }
 
-      .modal-dialog-body {
-        padding-top: 0;
-      }
-
-      .modal-dialog-footer {
-        padding-top: 10px;
-        padding-bottom: 10px;
-      }
     }
   }
 }

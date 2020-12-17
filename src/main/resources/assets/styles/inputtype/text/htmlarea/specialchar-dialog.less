@@ -1,20 +1,26 @@
-.html-area-modal-dialog.special-char-modal-dialog {
-  .chars-block {
-    &__char {
-      text-decoration: none;
-      color: @admin-black;
-      text-decoration: none;
-      color: black;
-      cursor: default;
-      display: inline-block;
-      height: 15px;
-      width: 12px;
-      padding: .2em .3em;
-      text-align: center;
-      border: 2px solid transparent;
+.html-area-modal-dialog {
+  &.special-char-modal-dialog {
+    .form-view {
+      display: none;
+    }
 
-      &:hover {
-        border-color: #888;
+    .chars-block {
+      &__char {
+        text-decoration: none;
+        color: @admin-black;
+        text-decoration: none;
+        color: black;
+        cursor: default;
+        display: inline-block;
+        height: 15px;
+        width: 12px;
+        padding: .2em .3em;
+        text-align: center;
+        border: 2px solid transparent;
+
+        &:hover {
+          border-color: #888;
+        }
       }
     }
   }

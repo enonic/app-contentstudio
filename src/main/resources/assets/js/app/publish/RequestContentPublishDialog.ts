@@ -150,6 +150,7 @@ export class RequestContentPublishDialog
             .setLabel(i18n('dialog.requestPublish.assignees'))
             .setInputType(PrincipalSelector.getName())
             .setOccurrences(new OccurrencesBuilder().setMinimum(0).setMaximum(0).build())
+            .setMaximizeUIInputWidth(true)
             .setInputTypeConfig({
                 principalType: PrincipalType[PrincipalType.USER],
                 skipPrincipals: [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]
