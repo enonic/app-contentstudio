@@ -13,9 +13,10 @@ const XPATH = {
     addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     removeItemIcon: `//div[contains(@class,'icon remove')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
-    changeLogInput:"//input[contains(@id,'AutosizeTextInput')]",
+    changeLogInput: "//input[contains(@id,'AutosizeTextInput')]",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     dependantItemViewer: "//div[contains(@id,'DependantItemViewer')]",
+    markAsReadyDropdownHandle: "//button[contains(@id,'DropdownHandle')]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToPublish:
@@ -60,6 +61,23 @@ class ContentPublishDialog extends Page {
 
     get includeChildrenToogler() {
         return XPATH.container + XPATH.includeChildrenToogler;
+    }
+
+    get markAsReadyDropdownHandle() {
+        return XPATH.container + XPATH.markAsReadyDropdownHandle;
+    }
+
+    async clickOnmarkAsReadyDropdownHandle() {
+        await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.longTimeout);
+        return await this.clickOnElement(this.markAsReadyDropdownHandle);
+    }
+
+    async clickOnMarkAsReadyMenuItem() {
+        let locator = XPATH.container + "//li[contains(@id,'MenuItem') and contains(.,'Mark as ready')]";
+        await this.clickOnmarkAsReadyDropdownHandle();
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.pause(200);
+        return await this.clickOnElement(locator);
     }
 
     waitForDialogOpened() {
@@ -246,5 +264,6 @@ class ContentPublishDialog extends Page {
         let locator = XPATH.container + XPATH.dependantList + XPATH.dependantItemViewer + lib.H6_DISPLAY_NAME;
         return this.getTextInElements(locator);
     }
-};
+}
+
 module.exports = ContentPublishDialog;

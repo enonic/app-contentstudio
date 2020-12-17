@@ -60,7 +60,7 @@ const XPATH = {
     wizardStepNavigatorAndToolbar: "//div[contains(@id,'WizardStepNavigatorAndToolbar')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
-    iconModifyPath: "//span[contains(@class,'icon-pencil')]",
+    buttonModifyPath: "//button[contains(@class,'icon-pencil')]",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -159,8 +159,8 @@ class ContentWizardPanel extends Page {
         return XPATH.wizardStepNavigatorAndToolbar + XPATH.editPermissionsButton;
     }
 
-    get modifyPathIcon() {
-        return XPATH.wizardHeader + XPATH.iconModifyPath;
+    get modifyPathButton() {
+        return XPATH.wizardHeader + XPATH.buttonModifyPath;
     }
 
     waitForInspectionPanelTogglerVisible() {
@@ -973,20 +973,20 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
-    async clickOnModifyPathIcon() {
-        await this.waitForElementDisplayed(this.modifyPathIcon, appConst.mediumTimeout);
-        await this.clickOnElement(this.modifyPathIcon);
+    async clickOnModifyPathButton() {
+        await this.waitForElementDisplayed(this.modifyPathButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.modifyPathButton);
         let renamePublishedContentDialog = new RenamePublishedContentDialog();
         await renamePublishedContentDialog.waitForDialogLoaded();
         return renamePublishedContentDialog;
     }
 
-    waitForModifyPathIconDisplayed() {
-        return this.waitForElementDisplayed(this.modifyPathIcon, appConst.mediumTimeout);
+    waitForModifyPathButtonDisplayed() {
+        return this.waitForElementDisplayed(this.modifyPathButton, appConst.mediumTimeout);
     }
 
-    waitForModifyPathIconNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.modifyPathIcon, appConst.mediumTimeout);
+    waitForModifyPathButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.modifyPathButton, appConst.mediumTimeout);
     }
 
     async openLayersWidget() {
