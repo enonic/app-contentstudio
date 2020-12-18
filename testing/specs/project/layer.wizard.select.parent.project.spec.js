@@ -10,7 +10,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const NewSettingsItemDialog = require('../../page_objects/project/new.settings.item.dialog');
 const LayerWizard = require('../../page_objects/project/layer.wizard.panel');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('layer.wizard.select.parent.project.spec - ui-tests for selecting parent project in layer wizard', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -54,16 +53,9 @@ describe('layer.wizard.select.parent.project.spec - ui-tests for selecting paren
 
     it("Postconditions: the layer should be deleted",
         async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
             await studioUtils.openSettingsPanel();
-            //1.Select the layer:
-            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
-            await settingsBrowsePanel.clickOnDeleteButton();
-            //2. Confirm the deleting:
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
-            await settingsBrowsePanel.waitForNotificationMessage();
+            //1.Select and delete the layer:
+            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

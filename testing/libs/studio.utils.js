@@ -14,7 +14,6 @@ const webDriverHelper = require("./WebDriverHelper");
 const IssueListDialog = require('../page_objects/issue/issue.list.dialog');
 const CreateTaskDialog = require('../page_objects/issue/create.task.dialog');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
-const ConfirmContentDeleteDialog = require('../page_objects/confirm.content.delete.dialog');
 const InsertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
@@ -31,6 +30,7 @@ const NewPrincipalDialog = require('../page_objects/users/new.principal.dialog')
 const PrincipalFilterPanel = require('../page_objects/users/principal.filter.panel');
 const ConfirmationDialog = require('../page_objects/confirmation.dialog');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 
 module.exports = {
     setTextInCKE: function (id, text) {
@@ -425,18 +425,18 @@ module.exports = {
     async doDeleteNowAndConfirm(numberOfContents) {
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
-        let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
+        let confirmValueDialog = new ConfirmValueDialog();
         //1. Open Delete Content dialog:
         await browsePanel.clickOnDeleteButton();
         await deleteContentDialog.waitForDialogOpened();
         //2. Click on Delete Now button
         await deleteContentDialog.clickOnDeleteNowButton();
         //3. wait for Confirm dialog is loaded:
-        await confirmContentDeleteDialog.waitForDialogOpened();
+        await confirmValueDialog.waitForDialogOpened();
         //4. Type required number:
-        await confirmContentDeleteDialog.typeNumberOfContent(numberOfContents);
+        await confirmValueDialog.typeNumberOrName(numberOfContents);
         //Click on Confirm button:
-        await confirmContentDeleteDialog.clickOnConfirmButton();
+        await confirmValueDialog.clickOnConfirmButton();
         return await deleteContentDialog.waitForDialogClosed();
     },
     async typeNameInFilterPanel(name) {
@@ -843,5 +843,18 @@ module.exports = {
             this.saveScreenshot(appConst.generateRandomName("err_timeout"));
             throw new Error("Timeout exception. Element " + selector + " still not visible in: " + ms);
         });
+    },
+    async selectAndDeleteProject(projectName) {
+        let confirmValueDialog = new ConfirmValueDialog();
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        //1.Select the layer:
+        await settingsBrowsePanel.clickOnRowByDisplayName(projectName);
+        await settingsBrowsePanel.clickOnDeleteButton();
+        //2. Confirm the deleting:
+        await confirmValueDialog.waitForDialogOpened();
+        await confirmValueDialog.typeNumberOrName(projectName);
+        await confirmValueDialog.clickOnConfirmButton();
+        await confirmValueDialog.waitForDialogClosed();
+        return await settingsBrowsePanel.waitForNotificationMessage();
     }
 };

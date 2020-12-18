@@ -520,7 +520,7 @@ class ContentWizardPanel extends Page {
         await contentDeleteDialog.waitForDialogOpened();
         await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
         await confirmContentDeleteDialog.waitForDialogOpened();
-        await confirmContentDeleteDialog.typeNumberOfContent(numberItems);
+        await confirmContentDeleteDialog.typeNumberOrName(numberItems);
         await confirmContentDeleteDialog.clickOnConfirmButton();
         return await confirmContentDeleteDialog.waitForDialogClosed();
     }

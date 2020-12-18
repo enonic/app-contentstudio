@@ -156,7 +156,6 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             assert.equal(actualWorkflow, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING);
         });
 
-
     afterEach(async () => {
         let title = await webDriverHelper.browser.getTitle();
         if (title.includes("Content Studio") || title.includes("Users")) {
