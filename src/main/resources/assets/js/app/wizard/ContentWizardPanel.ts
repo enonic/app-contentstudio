@@ -170,8 +170,6 @@ export class ContentWizardPanel
 
     private isMarkedAsReady: boolean;
 
-    private isMarkedAsReadyOnPublish: boolean;
-
     private contentNamedListeners: { (event: ContentNamedEvent): void }[];
 
     private inMobileViewMode: boolean;
@@ -246,7 +244,6 @@ export class ContentWizardPanel
 
         this.isContentFormValid = false;
         this.isMarkedAsReady = false;
-        this.isMarkedAsReadyOnPublish = false;
 
         this.requireValid = false;
         this.skipValidation = false;
@@ -614,7 +611,6 @@ export class ContentWizardPanel
             return persistedItem;
         }).finally(() => {
             this.isMarkedAsReady = false;
-            this.isMarkedAsReadyOnPublish = false;
             this.contentUpdateDisabled = false;
             this.updateButtonsState();
 
@@ -2041,11 +2037,7 @@ export class ContentWizardPanel
         } else if (name.isUnnamed()) {
             message = i18n('notify.item.savedUnnamed');
         } else if (this.isMarkedAsReady) {
-            if (this.isMarkedAsReadyOnPublish) {
-                message = i18n('notify.item.savedAndMarkedAsReady', name);
-            } else {
-                message = i18n('notify.item.markedAsReady', name);
-            }
+            message = i18n('notify.item.markedAsReady', name);
         } else {
             message = i18n('notify.item.saved', name);
         }
@@ -2202,10 +2194,6 @@ export class ContentWizardPanel
 
     setIsMarkedAsReady(value: boolean) {
         this.isMarkedAsReady = value;
-    }
-
-    setIsMarkedAsReadyOnPublish(value: boolean) {
-        this.isMarkedAsReadyOnPublish = value;
     }
 
     showLiveEdit() {
