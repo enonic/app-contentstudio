@@ -46,4 +46,20 @@ export class ProjectHelper {
     public static fetchProject(name: string): Q.Promise<Project> {
         return new ProjectGetRequest(name).sendAndParse().then((project: Project) => project);
     }
+
+    public static sortProjects(item1: Project, item2: Project): number {
+        if (ProjectHelper.isDefault(item1)) {
+            return -1;
+        }
+
+        if (ProjectHelper.isDefault(item2)) {
+            return 1;
+        }
+
+        return item1.getName().localeCompare(item2.getName());
+    }
+
+    public static isAvailable(project: Project): boolean {
+        return !!project && !!project.getDisplayName();
+    }
 }

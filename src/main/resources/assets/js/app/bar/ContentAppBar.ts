@@ -10,6 +10,7 @@ import {ProjectSelectionDialog} from '../settings/dialog/ProjectSelectionDialog'
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
+import {ProjectListWithMissingRequest} from '../settings/resource/ProjectListWithMissingRequest';
 
 export class ContentAppBar
     extends AppBar {
@@ -52,7 +53,7 @@ export class ContentAppBar
 
         const currentProjectName: string = ProjectContext.get().getProject().getName();
 
-        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+        new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
             ProjectSelectionDialog.get().setProjects(projects);
             const project: Project = projects.find((p: Project) => p.getName() === currentProjectName);
             this.selectedProjectViewer.setObject(project);

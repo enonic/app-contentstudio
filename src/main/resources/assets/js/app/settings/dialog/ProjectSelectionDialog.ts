@@ -8,6 +8,8 @@ import {ProjectContext} from '../../project/ProjectContext';
 import {ProjectListRequest} from '../resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import * as Q from 'q';
+import {ProjectListWithMissingRequest} from '../resource/ProjectListWithMissingRequest';
+import {ProjectHelper} from '../data/project/ProjectHelper';
 
 export class ProjectSelectionDialog
     extends ModalDialog {
@@ -44,8 +46,11 @@ export class ProjectSelectionDialog
         this.projectsList.getItemViews().forEach((itemView: ProjectListItem) => {
             itemView.onClicked((event: MouseEvent) => {
                 if (!event.ctrlKey && !event.shiftKey) {
-                    this.selectedProject = itemView.getProject();
-                    this.close();
+                    if (itemView.isSelectable()) {
+                        this.selectedProject = itemView.getProject();
+                        this.close();
+                    }
+
                     event.preventDefault();
                     event.stopPropagation();
                 }
@@ -79,7 +84,7 @@ export class ProjectSelectionDialog
     }
 
     private getDefaultProject(): Project {
-        return this.projectsList.getItemCount() > 0 ? this.projectsList.getItems()[0] : null;
+        return this.projectsList.getItems().filter(ProjectHelper.isAvailable)[0];
     }
 
     open() {
@@ -95,7 +100,7 @@ export class ProjectSelectionDialog
     private loadProjects(): Q.Promise<void> {
         this.mask();
 
-        return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+        return new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
             this.setProjects(projects);
             this.showItems();
         }).catch(DefaultErrorHandler.handle).finally(() => {
