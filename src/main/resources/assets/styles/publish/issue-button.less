@@ -6,10 +6,15 @@
   align-items: center;
 
   .show-issues-dialog-button {
+    width: @toolbar-height+1;
+    height: @toolbar-height+1;
+    margin-right: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     position: relative;
     background-color: transparent;
-    display: flex;
-    justify-content: center;
     z-index: 1;
     color: @admin-white;
     border-right: 1px solid @admin-white;
