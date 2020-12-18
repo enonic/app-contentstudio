@@ -6,7 +6,7 @@ import {ProjectJson} from './json/ProjectJson';
 export class ProjectGetRequest
     extends ProjectResourceRequest<Project> {
 
-    private name: string;
+    private readonly name: string;
 
     constructor(name: string) {
         super();

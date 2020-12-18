@@ -2,6 +2,14 @@
   .names-and-icon-view {
     z-index: 0;
   }
+
+  &.not-available {
+    opacity: 0.5;
+
+    .names-and-icon-view {
+      cursor: default;
+    }
+  }
 }
 
 .viewer-selectable() {
