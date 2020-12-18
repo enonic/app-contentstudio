@@ -7,7 +7,7 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('multiselect.in.settings.panel.spec - tests for selection of several items in setting browse panel', function () {
@@ -152,13 +152,14 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
     it(`WHEN existing project has been deleted THEN this project should be removed in options of Project Selector`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
+            let confirmValueDialog = new ConfirmValueDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Delete the project:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnDeleteButton();
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmValueDialog.waitForDialogOpened();
+            await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME_1);
+            await confirmValueDialog.clickOnConfirmButton();
             await contentBrowsePanel.pause(1000);
             //2 .Click on Content app-mode button and switch to content browse panel:
             await studioUtils.switchToContentMode();
