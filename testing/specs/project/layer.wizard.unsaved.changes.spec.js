@@ -98,15 +98,8 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
 
     it("WHEN existing layer selected and has been deleted THEN expected notification message should appear",
         async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
-            //1.Select the layer:
-            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
-            await settingsBrowsePanel.clickOnDeleteButton();
-            //2. Confirm the deleting:
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
-            await settingsBrowsePanel.waitForNotificationMessage();
+            //1.Select and delete the layer:
+            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

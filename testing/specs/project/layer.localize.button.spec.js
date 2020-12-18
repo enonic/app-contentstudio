@@ -12,7 +12,6 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SettingsForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 
 describe('layer.localize.button.spec - checks Localize button in browse toolbar and Layers widget', function () {
@@ -230,17 +229,9 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
 
     it("Postconditions: the layer should be deleted",
         async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1.Select the layer:
-            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
-            await settingsBrowsePanel.clickOnDeleteButton();
-            //2. Confirm the deleting:
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
-            await settingsBrowsePanel.waitForNotificationMessage();
+            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

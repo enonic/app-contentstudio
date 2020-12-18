@@ -12,7 +12,7 @@ const contentBuilder = require("../libs/content.builder");
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const appConst = require('../libs/app_const');
-const ConfirmContentDeleteDialog = require('../page_objects/confirm.content.delete.dialog');
+const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 
 describe('site.wizard.confirm.delete.spec: opens a site and delete it', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -24,7 +24,7 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             let contentWizard = new ContentWizard();
             let siteFormPanel = new SiteFormPanel();
             let deleteContentDialog = new DeleteContentDialog();
-            let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
+            let confirmValueDialog = new ConfirmValueDialog();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConstant.APP_CONTENT_TYPES]);
             //wizard for new site has been opened and data has been typed:
@@ -37,13 +37,13 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             await contentWizard.clickOnDelete();
             //Click on 'Delete Now' button:
             await deleteContentDialog.clickOnDeleteNowButton();
-            await confirmContentDeleteDialog.waitForDialogOpened();
+            await confirmValueDialog.waitForDialogOpened();
             studioUtils.saveScreenshot("site_wizard_confirm_delete_dialog");
 
             //Cancel button should be enabled
-            await confirmContentDeleteDialog.waitForCancelButtonEnabled();
+            await confirmValueDialog.waitForCancelButtonEnabled();
             //'Confirm' button should be disabled, because the number of content is not filled yet.
-            await confirmContentDeleteDialog.waitForConfirmButtonDisabled();
+            await confirmValueDialog.waitForConfirmButtonDisabled();
         });
 
     it(`GIVEN existing site is opened AND 'Confirm Delete Dialog' has been opened WHEN required number of content has been typed AND 'Confirm' button pressed THEN wizard closes AND the site should be deleted`,
@@ -51,16 +51,16 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
-            let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
+            let confirmValueDialog = new ConfirmValueDialog();
             //1. Open the site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             //2. Open 'Confirm Content Delete' dialog:
             await contentWizard.clickOnDelete();
             await deleteContentDialog.clickOnDeleteNowButton();
-            await confirmContentDeleteDialog.waitForDialogOpened();
+            await confirmValueDialog.waitForDialogOpened();
             //3. Type the required number to delete:
-            await confirmContentDeleteDialog.typeNumberOfContent(2);
-            await confirmContentDeleteDialog.clickOnConfirmButton();
+            await confirmValueDialog.typeNumberOrName(2);
+            await confirmValueDialog.clickOnConfirmButton();
             await studioUtils.doSwitchToContentBrowsePanel();
             studioUtils.saveScreenshot("site_wizard_confirm_delete_dialog");
             //the site should not be present in the grid:

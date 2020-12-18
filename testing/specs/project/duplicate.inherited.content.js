@@ -10,7 +10,6 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
 
 describe('duplicate.inherited.content.spec - tests for duplicating of inherited content', function () {
@@ -111,17 +110,9 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
 
     it("Postconditions: the layer should be deleted",
         async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1.Select the layer:
-            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
-            await settingsBrowsePanel.clickOnDeleteButton();
-            //2. Confirm the deleting:
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
-            await settingsBrowsePanel.waitForNotificationMessage();
+            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

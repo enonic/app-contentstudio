@@ -6,10 +6,9 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const UserBrowsePanel = require("../../page_objects/users/userbrowse.panel");
 const RoleWizard = require("../../page_objects/users/role.wizard");
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+
 
 describe("project.create.roles.in.users.app.spec - ui-tests for checkin project's roles in Users app", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -72,17 +71,12 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
 
     it(`WHEN existing project has been deleted THEN its roles should be deleted`,
         async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
             let userBrowsePanel = new UserBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
             await studioUtils.navigateToContentStudioWithProjects();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //1. click on the project and delete it:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME);
-            await settingsBrowsePanel.clickOnDeleteButton();
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await studioUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
             //2. Go to Users app:
             await studioUtils.showLauncherPanel();
             await studioUtils.navigateToUsersApp();
