@@ -226,6 +226,11 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await settingsBrowsePanel.waitForDeleteButtonEnabled();
         });
 
+    it("Postconditions: the project should be deleted",
+        async () => {
+            await studioUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
+        });
+
     beforeEach(async () => {
         await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();

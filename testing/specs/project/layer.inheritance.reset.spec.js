@@ -132,6 +132,15 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await contentWizard.waitForShowComponentVewTogglerNotVisible();
         });
 
+    it("Postconditions: the project should be deleted",
+        async () => {
+            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.openSettingsPanel();
+            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
+            await studioUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
+        });
+
+
     beforeEach(async () => {
         return await studioUtils.navigateToContentStudioWithProjects();
     });

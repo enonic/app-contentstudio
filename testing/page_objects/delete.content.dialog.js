@@ -138,9 +138,13 @@ class DeleteContentDialog extends Page {
         return await this.isElementDisplayed(this.deleteMenuDropDownHandle);
     }
 
+    waitForDeleteMenuDropDownHandleDisabled() {
+        return this.waitForElementDisabled(this.deleteMenuDropDownHandle, appConst.mediumTimeout);
+    }
+
     async getDisplayNamesToDelete() {
         let selector = XPATH.container + XPATH.itemToDeleteList + lib.H6_DISPLAY_NAME;
         return await this.getTextInElements(selector);
     }
-};
+}
 module.exports = DeleteContentDialog;
