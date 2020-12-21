@@ -25,6 +25,7 @@ import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {Project} from '../../../data/project/Project';
+import {ProjectHelper} from '../../../data/project/ProjectHelper';
 
 export class ProjectReadAccessWizardStepForm
     extends ProjectWizardStepForm {
@@ -291,7 +292,8 @@ export class ProjectReadAccessWizardStepForm
             return;
         }
 
-        this.copyParentAccessModeButton.setEnabled(this.parentProject && !this.parentProject.getReadAccess().equals(this.getReadAccess()));
+        this.copyParentAccessModeButton.setEnabled(
+            ProjectHelper.isAvailable(this.parentProject) && !this.parentProject.getReadAccess().equals(this.getReadAccess()));
     }
 
     private getDefaultFilteredPrincipals(): PrincipalKey[] {

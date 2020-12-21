@@ -19,7 +19,6 @@ import {SettingsDataViewItem} from './view/SettingsDataViewItem';
 import {ProjectViewItem} from './view/ProjectViewItem';
 import {ProjectUpdatedEvent} from './event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from './event/ProjectDeletedEvent';
-import {ProjectHelper} from './data/project/ProjectHelper';
 import {ProjectSelectionDialog} from './dialog/ProjectSelectionDialog';
 import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
 import {SettingsTypes} from './dialog/SettingsTypes';
@@ -92,9 +91,9 @@ export class SettingsAppPanel
             wizard.setHasChildrenLayers(this.browsePanel.hasChildren(projectItem.getId()));
 
             if (projectItem.getData() && projectItem.getData().getParent()) {
-                ProjectHelper.fetchProject(projectItem.getData().getParent())
-                    .then((project: Project) => wizard.setParentProject(project))
-                    .catch(DefaultErrorHandler.handle);
+                const parentProject: Project =
+                    (<ProjectViewItem>this.browsePanel.getItemById(projectItem.getData().getParent())).getData();
+                wizard.setParentProject(parentProject);
             }
 
             return wizard;
