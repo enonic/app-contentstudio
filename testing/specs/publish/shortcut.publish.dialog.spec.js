@@ -11,7 +11,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
-describe('Browse Panel - Keyboard shortcut to publish content`', function () {
+describe('Browse Panel - Keyboard shortcut to publish content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let FOLDER_1;
@@ -23,8 +23,9 @@ describe('Browse Panel - Keyboard shortcut to publish content`', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('folder');
             FOLDER_1 = contentBuilder.buildFolder(displayName);
-            await studioUtils.doAddFolder(FOLDER_1);
-
+            //1. Add new folder with Ready for publishing state:
+            await studioUtils.doAddReadyFolder(FOLDER_1);
+            //2. Select the folder:
             await studioUtils.findAndSelectItem(FOLDER_1.displayName);
             await contentBrowsePanel.hotKeyPublish();
             await contentPublishDialog.waitForDialogOpened();

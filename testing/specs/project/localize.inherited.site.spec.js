@@ -130,7 +130,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await browseLayersWidget.waitForEditButtonEnabled(LAYER_DISPLAY_NAME);
         });
 
-    it("Pestconditions - the layer should be deleted",
+    it("Postconditions - the layer should be deleted",
         async () => {
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();

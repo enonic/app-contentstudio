@@ -77,7 +77,8 @@ class ContentPublishDialog extends Page {
         await this.clickOnmarkAsReadyDropdownHandle();
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(200);
-        return await this.clickOnElement(locator);
+        await this.clickOnElement(locator);
+        return await this.pause(200);
     }
 
     waitForDialogOpened() {
@@ -108,7 +109,7 @@ class ContentPublishDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.addScheduleButton, appConst.shortTimeout);
             await this.clickOnElement(this.addScheduleButton);
-            await this.pause(500);
+            return await this.pause(500);
         } catch (err) {
             this.saveScreenshot('err_publish_dialog_add_schedule_button');
             throw new Error(`Error when clicking 'Add Schedule' icon-button  ` + err);

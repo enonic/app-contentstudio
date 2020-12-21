@@ -137,6 +137,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.hotKeyPublish();
             await contentPublishDialog.waitForDialogOpened();
+                await contentPublishDialog.clickOnMarkAsReadyMenuItem();
             await contentPublishDialog.clickOnPublishNowButton();
             await contentBrowsePanel.pause(500);
             //2. Open version panel and verify status in the top version-item:
