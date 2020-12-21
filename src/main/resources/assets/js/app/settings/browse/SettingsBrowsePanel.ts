@@ -120,4 +120,8 @@ export class SettingsBrowsePanel
         return !!item && this.treeGrid.hasChildren(item);
     }
 
+    getItemById(id: string): SettingsViewItem {
+        return this.treeGrid.getItemById(id);
+    }
+
 }

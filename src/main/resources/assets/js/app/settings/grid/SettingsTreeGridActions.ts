@@ -18,6 +18,7 @@ export class SettingsTreeGridActions
     private readonly EDIT: Action;
     private readonly DELETE: Action;
     private readonly grid: SettingsItemsTreeGrid;
+    private loginResult: LoginResult;
 
     private actions: Action[] = [];
 
@@ -35,12 +36,23 @@ export class SettingsTreeGridActions
     }
 
     updateActionsEnabledState(browseItems: BrowseItem<SettingsViewItem>[], changes?: BrowseItemsChanges<any>): Q.Promise<void> {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+        return this.getAuthInfo().then((loginResult: LoginResult) => {
             const selectedItems: SettingsViewItem[] = browseItems.map((browseItem: BrowseItem<SettingsViewItem>) => browseItem.getModel());
 
             this.EDIT.setEnabled(this.isEditAllowed(selectedItems, loginResult));
             this.DELETE.setEnabled(this.isDeleteAllowed(selectedItems, loginResult));
             this.NEW.setEnabled(this.isNewAllowed(loginResult));
+        });
+    }
+
+    getAuthInfo(): Q.Promise<LoginResult> {
+        if (this.loginResult) {
+            return Q(this.loginResult);
+        }
+
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+            this.loginResult = loginResult;
+            return this.loginResult;
         });
     }
 

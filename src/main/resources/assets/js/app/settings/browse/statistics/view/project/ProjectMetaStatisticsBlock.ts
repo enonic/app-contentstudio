@@ -10,6 +10,7 @@ import {Principal} from 'lib-admin-ui/security/Principal';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Locale} from 'lib-admin-ui/locale/Locale';
 import {GetLocalesRequest} from 'lib-admin-ui/locale/GetLocalesRequest';
+import {ProjectHelper} from '../../../../data/project/ProjectHelper';
 
 export class ProjectMetaStatisticsBlock extends StatisticsBlock {
 
@@ -51,10 +52,15 @@ export class ProjectMetaStatisticsBlock extends StatisticsBlock {
         super.setItem(item);
 
         this.langColumn.setItems(this.getLanguage());
-        this.accessModeColumn.setItems([i18n(`settings.items.wizard.readaccess.${item.getReadAccess().getType()}`)]);
+        this.accessModeColumn.setItems(this.getAccessMode());
         this.canReadColumn.setItems([]);
 
-        this.fetchAndSetCanReadPrincipals();
+        if (!ProjectHelper.isAvailable(item.getData())) {
+            this.hide();
+        } else {
+            this.show();
+            this.fetchAndSetCanReadPrincipals();
+        }
     }
 
     private getLanguage(): string[] {
@@ -73,10 +79,21 @@ export class ProjectMetaStatisticsBlock extends StatisticsBlock {
         }
 
         return [this.item.getLanguage()];
+    }
 
+    private getAccessMode(): string[] {
+        if (!ProjectHelper.isAvailable(this.item.getData())) {
+            return [];
+        }
+
+        return [i18n(`settings.items.wizard.readaccess.${this.item.getReadAccess().getType()}`)];
     }
 
     private fetchAndSetCanReadPrincipals() {
+        if (!ProjectHelper.isAvailable(this.item.getData())) {
+            return;
+        }
+
         const canReadPrincipalsKeys: PrincipalKey[] = this.item.getReadAccess().getPrincipals();
 
         if (canReadPrincipalsKeys.length === 0) {
