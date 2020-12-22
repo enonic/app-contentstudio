@@ -13,12 +13,10 @@
     opacity: 0;
   }
 
-  .dialog-buttons {
+  .dialog-buttons .button-container {
 
     .publish-action, .schedule-action {
-      .dialog-button(@form-button-font, @admin-green, @form-button-font, lighten(@admin-green, 10%));
-      min-width: 113px;
-      text-align: center;
+      .dialog-button(@bg: @admin-green);
     }
 
   }
