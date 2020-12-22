@@ -79,7 +79,7 @@ export class PublishIssuesStateBar
         this.containsInProgressElement.setVisible(value);
     }
 
-    setTotalInProgress(count: number) {
+    setTotalExcludableInProgress(count: number) {
         this.excludeAllInProgressButton.setVisible(count > 0);
         this.excludeAllInProgressButton.setLabel(i18n('dialog.publish.exclude', count));
     }
@@ -88,7 +88,7 @@ export class PublishIssuesStateBar
         this.containsInvalidElement.setVisible(flag);
     }
 
-    setTotalInvalid(count: number) {
+    setTotalExcludableInvalid(count: number) {
         this.excludeAllInvalidButton.setVisible(count > 0);
         this.excludeAllInvalidButton.setLabel(i18n('dialog.publish.exclude', count));
     }
