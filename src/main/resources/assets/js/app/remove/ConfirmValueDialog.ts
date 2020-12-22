@@ -9,6 +9,10 @@ import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
+interface ConfirmValueDialogConfig
+    extends ModalDialogWithConfirmationConfig {
+    inputSize?: string;
+}
 export class ConfirmValueDialog
     extends ModalDialogWithConfirmation {
 
@@ -26,15 +30,19 @@ export class ConfirmValueDialog
 
     private yesCallback: () => void;
 
-    constructor(config: ModalDialogWithConfirmationConfig = {}) {
+    constructor(config: ConfirmValueDialogConfig = {}) {
         super(config);
+    }
+
+    getConfig(): ConfirmValueDialogConfig {
+        return this.config;
     }
 
     protected initElements() {
         super.initElements();
 
         this.initConfirmAction();
-        this.input = TextInput.large('text');
+        this.input = (TextInput[this.getConfig().inputSize?.toLowerCase()] || TextInput.middle)(`text`);
         this.subheader = new H6El('confirm-value-subtitle');
         this.hintEl = new SpanEl('confirm-value-data');
     }
