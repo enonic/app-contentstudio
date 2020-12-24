@@ -10,6 +10,7 @@ import {DeleteSettingsItemAction} from '../browse/action/DeleteSettingsItemActio
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {SettingsViewItem} from '../view/SettingsViewItem';
+import {SyncAction} from '../browse/action/SyncAction';
 
 export class SettingsTreeGridActions
     implements TreeGridActions<SettingsViewItem> {
@@ -17,6 +18,7 @@ export class SettingsTreeGridActions
     private readonly NEW: Action;
     private readonly EDIT: Action;
     private readonly DELETE: Action;
+    private readonly SYNC: SyncAction;
     private readonly grid: SettingsItemsTreeGrid;
     private loginResult: LoginResult;
 
@@ -27,8 +29,9 @@ export class SettingsTreeGridActions
         this.NEW = new NewSettingsItemAction(grid);
         this.EDIT = new EditSettingsItemAction(grid);
         this.DELETE = new DeleteSettingsItemAction(grid);
+        this.SYNC = new SyncAction(grid);
 
-        this.actions.push(this.NEW, this.EDIT, this.DELETE);
+        this.actions.push(this.NEW, this.EDIT, this.DELETE, this.SYNC);
     }
 
     getAllActions(): Action[] {
@@ -42,6 +45,7 @@ export class SettingsTreeGridActions
             this.EDIT.setEnabled(this.isEditAllowed(selectedItems, loginResult));
             this.DELETE.setEnabled(this.isDeleteAllowed(selectedItems, loginResult));
             this.NEW.setEnabled(this.isNewAllowed(loginResult));
+            this.updateSyncAction();
         });
     }
 
@@ -72,4 +76,13 @@ export class SettingsTreeGridActions
     private isNewAllowed(loginResult: LoginResult): boolean {
         return loginResult.isContentAdmin();
     }
+
+    private updateSyncAction() {
+        if (!this.loginResult.isAdmin()) {
+            return;
+        }
+
+        this.SYNC.updateState();
+    }
+
 }
