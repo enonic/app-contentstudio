@@ -16,7 +16,6 @@ export class SettingsBrowsePanel
 
     protected initElements(): void {
         super.initElements();
-        this.refreshTreeGridActions();
 
         if (!ProjectContext.get().isInitialized()) {
             this.handleProjectNotSet();
@@ -38,6 +37,7 @@ export class SettingsBrowsePanel
         super.initListeners();
 
         this.treeGrid.onDataChanged(this.handleTreeGridDataChanged.bind(this));
+        this.treeGrid.onLoaded(this.refreshTreeGridActions.bind(this));
     }
 
     private handleTreeGridDataChanged(event: DataChangedEvent<SettingsViewItem>) {

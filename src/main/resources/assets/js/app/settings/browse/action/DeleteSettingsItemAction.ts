@@ -1,7 +1,6 @@
 import {Action} from 'lib-admin-ui/ui/Action';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {SettingsItemsTreeGrid} from '../../grid/SettingsItemsTreeGrid';
-import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ProjectDeleteRequest} from '../../resource/ProjectDeleteRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
