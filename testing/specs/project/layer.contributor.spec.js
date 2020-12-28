@@ -86,6 +86,8 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            //Verify that Project Selection dialog is loaded, then close it
+            await studioUtils.closeProjectSelectionDialog();
             //2. Select the site:
             await studioUtils.findAndSelectItem(SITE_NAME);
             //3. Verify that 'Open' button gets visible and enabled :

@@ -102,6 +102,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             let contentWizard = new ContentWizard();
             let scheduleForm = new ScheduleForm();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await contentWizard.clickOnMarkAsReadyButton();
             //GIVEN: folder is published
             await contentWizard.openPublishMenuAndPublish();
             //WHEN: the folder has been Marked as deleted:

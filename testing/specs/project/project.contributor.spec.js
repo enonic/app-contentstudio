@@ -102,28 +102,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             assert.isFalse(result, "Page Controller selector should be disabled for user with contributor role")
         });
 
-    it("GIVEN contributor user is logged in WHEN existing project has been opened THEN all inputs should be disabled",
-        async () => {
-            //1. Do Log in with the user and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            await studioUtils.openSettingsPanel();
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            //1.Double click on the project:
-            await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //2. Verify that the project is opened:
-            await projectWizard.waitForLoaded();
-            //3. Verify that all inputs in the project page are disabled for contributor:
-            let isPageDisabled = await projectWizard.isNoModify();
-            assert.isTrue(isPageDisabled, "Wizard page should be disabled for contributor");
-            let result = await projectWizard.isDescriptionInputClickable();
-            assert.isFalse(result, "Description input should not be clickable");
-            result = await projectWizard.isLocaleOptionsFilterInputClickable();
-            assert.isFalse(result, "Locale input should not be clickable");
-            result = await projectWizard.isDisplayNameInputClickable();
-            assert.isFalse(result, "Display Name input should not be clickable");
-        });
-
     it("GIVEN contributor user is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
         async () => {
             //1. Do log in with the user and navigate to 'Settings':
