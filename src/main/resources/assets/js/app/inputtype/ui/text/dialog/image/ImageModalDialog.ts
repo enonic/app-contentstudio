@@ -530,7 +530,7 @@ export class ImageModalDialog
         }
 
         imageEl.removeAttribute('class');
-        imageEl.removeAttribute('style');
+        imageEl.setStyle('width', '100%');
 
         this.updateImageSrc(imageEl.$, this.editorWidth);
 
