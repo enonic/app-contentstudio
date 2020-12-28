@@ -8,6 +8,7 @@ import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
+import {TextInput, TextInputSize} from 'lib-admin-ui/ui/text/TextInput';
 
 export class DeleteSettingsItemAction
     extends Action {
@@ -35,7 +36,7 @@ export class DeleteSettingsItemAction
     }
 
     private initConfirmationDialog() {
-        this.deleteConfirmationDialog = new ConfirmValueDialog();
+        this.deleteConfirmationDialog = new ConfirmValueDialog({inputSize: TextInputSize.LARGE});
         this.deleteConfirmationDialog
             .setHeaderText(i18n('dialog.confirmDelete'))
             .setSubheaderText(i18n('dialog.project.delete.confirm.subheader'))
