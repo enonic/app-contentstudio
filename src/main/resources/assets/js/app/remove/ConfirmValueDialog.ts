@@ -5,10 +5,14 @@ import {PEl} from 'lib-admin-ui/dom/PEl';
 import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
 import {Action} from 'lib-admin-ui/ui/Action';
-import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
+import {TextInput, TextInputSize} from 'lib-admin-ui/ui/text/TextInput';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
+interface ConfirmValueDialogConfig
+    extends ModalDialogWithConfirmationConfig {
+    inputSize?: TextInputSize;
+}
 export class ConfirmValueDialog
     extends ModalDialogWithConfirmation {
 
@@ -26,15 +30,19 @@ export class ConfirmValueDialog
 
     private yesCallback: () => void;
 
-    constructor(config: ModalDialogWithConfirmationConfig = {}) {
+    constructor(config: ConfirmValueDialogConfig = {}) {
         super(config);
+    }
+
+    getConfig(): ConfirmValueDialogConfig {
+        return this.config;
     }
 
     protected initElements() {
         super.initElements();
 
         this.initConfirmAction();
-        this.input = TextInput.large('text');
+        this.input = new TextInput('text', this.getConfig().inputSize || TextInputSize.MIDDLE);
         this.subheader = new H6El('confirm-value-subtitle');
         this.hintEl = new SpanEl('confirm-value-data');
     }
@@ -130,6 +138,7 @@ export class ConfirmValueDialog
     setValueToCheck(value: string): ConfirmValueDialog {
         this.valueToCheck = value;
         this.hintEl.setHtml(value);
+        this.input.setValue('');
         return this;
     }
 

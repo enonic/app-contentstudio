@@ -82,7 +82,9 @@ export class ProjectReadAccessWizardStepForm
     setEnabled(enable: boolean): void {
         super.setEnabled(enable);
 
-        this.principalsCombobox.setEnabled(enable);
+        if (this.principalsCombobox) {
+            this.principalsCombobox.setEnabled(enable);
+        }
     }
 
     private updateCopyParentLanguageButtonState() {
