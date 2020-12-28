@@ -2,6 +2,7 @@ import * as Q from 'q';
 import {TaskResourceRequest} from 'lib-admin-ui/rest/TaskResourceRequest';
 import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {TaskInfo} from 'lib-admin-ui/task/TaskInfo';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
 export class SyncLayersRequest extends TaskResourceRequest<void> {
 
@@ -12,6 +13,7 @@ export class SyncLayersRequest extends TaskResourceRequest<void> {
     constructor() {
         super();
 
+        this.setMethod(HttpMethod.POST);
         this.addRequestPathElements(ProjectResourceRequest.PROJECT_RESOURCE_PATH, 'syncAll');
     }
 
