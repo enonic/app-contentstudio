@@ -274,7 +274,7 @@ export class HtmlEditor {
                 const dataSrc: string = ImageUrlResolver.URL_PREFIX_RENDER + imageId;
 
                 this.replaceWith(`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
-                                 `<img src="${upload.url}" data-src="${dataSrc}">` +
+                                 `<img src="${upload.url}" data-src="${dataSrc}" style="width:100%">` +
                                  '<figcaption> </figcaption>' +
                                  '</figure>');
 
@@ -517,6 +517,7 @@ export class HtmlEditor {
     public static updateFigureInlineStyle(figure: CKEDITOR.dom.element) {
         const hasCustomWidth: boolean = figure.hasClass(StyleHelper.STYLE.WIDTH.CUSTOM);
         const customWidth: string = figure.getStyle('width');
+        const firstFigureChild: CKEDITOR.dom.element = (<CKEDITOR.dom.element>figure.getFirst());
 
         figure.removeAttribute('style');
 
