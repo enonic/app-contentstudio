@@ -37,7 +37,7 @@ export class SyncLayersRequest extends TaskResourceRequest<void> {
     }
 
     setFailedHandler(handler: () => void): SyncLayersRequest {
-        this.finishedHandler = handler;
+        this.failedHandler = handler;
         return this;
     }
 }
