@@ -42,7 +42,7 @@
     "less-loader": "^7.0.2",
     "postcss-loader": "^4.0.4",
     "postcss-normalize": "^9.0.0",
-    "postcss-sort-media-queries": "^1.31.21",
+    "postcss-sort-media-queries": "^2.4.17",
     "style-loader": "^2.0.0",
     "terser-webpack-plugin": "^4.2.3",
     "ts-loader": "^8.0.11",
