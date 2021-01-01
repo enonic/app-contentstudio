@@ -39,7 +39,7 @@
     "file-loader": "^6.2.0",
     "js-yaml": "^3.14.0",
     "less": "^3.12.2",
-    "less-loader": "^7.0.2",
+    "less-loader": "^7.2.1",
     "postcss-loader": "^4.0.4",
     "postcss-normalize": "^9.0.0",
     "postcss-sort-media-queries": "^1.31.21",
