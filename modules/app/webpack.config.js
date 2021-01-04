@@ -70,22 +70,20 @@ module.exports = {
         ],
         splitChunks: {
             chunks: 'all',
-            name(module, chunks, cacheGroupKey) {
-                const allChunksNames = chunks.map((item) => item.name.split('/').reduceRight(name => name)).join('~');
-                return `js/${cacheGroupKey}.${allChunksNames}`;
-            },
             cacheGroups: {
                 default: false,
                 common: {
                     test: /[\\/]resources[\\/]assets[\\/]/,
                     reuseExistingChunk: true,
-                    minChunks: 2
+                    minChunks: 2,
+                    filename: 'js/common.main~editor.js'
                 },
-                vendors: {
+                defaultVendors: {
                     test: /[\\/]node_modules[\\/]/,
                     reuseExistingChunk: true,
                     minChunks: 2,
                     priority: -10,
+                    filename: 'js/vendors.main~editor.js'
                 }
             }
         }
