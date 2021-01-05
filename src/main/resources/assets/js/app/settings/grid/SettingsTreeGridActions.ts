@@ -85,4 +85,8 @@ export class SettingsTreeGridActions
         this.SYNC.updateState();
     }
 
+    getSyncAction(): SyncAction {
+        return this.SYNC;
+    }
+
 }
