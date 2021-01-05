@@ -65,7 +65,7 @@ export class SettingsTreeGridActions
     }
 
     private isDeleteAllowed(selectedItems: SettingsViewItem[], loginResult: LoginResult): boolean {
-        return selectedItems.length > 0 ?
+        return selectedItems.length === 1 ?
                selectedItems.every((item: SettingsViewItem) => !this.itemHasChildren(item) && item.isDeleteAllowed(loginResult)) : false;
     }
 
