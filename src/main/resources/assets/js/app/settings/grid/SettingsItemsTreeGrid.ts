@@ -23,7 +23,7 @@ export class SettingsItemsTreeGrid
 
     private static PROJECTS_FOLDER_ID: string = 'projects';
 
-    private treeGridActions: SettingsTreeGridActions;
+    private readonly treeGridActions: SettingsTreeGridActions;
 
     private projects: Project[];
 
@@ -60,6 +60,7 @@ export class SettingsItemsTreeGrid
         this.treeGridActions = new SettingsTreeGridActions(this);
 
         this.setContextMenu(new TreeGridContextMenu(this.treeGridActions));
+        this.getContextMenu().removeAction(this.treeGridActions.getSyncAction());
 
         this.projects = [];
 
