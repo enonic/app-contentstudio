@@ -259,7 +259,7 @@ export abstract class DependantItemsDialog
     }
 
     protected updateButtonCount(actionString: string, count: number) {
-        this.actionButton.setLabel(count > 1 ? actionString + ' (' + count + ')' : actionString);
+        this.actionButton.getAction().setLabel(count > 1 ? actionString + ' (' + count + ')' : actionString);
     }
 
     protected getContentsToLoad(): ContentSummaryAndCompareStatus[] {
