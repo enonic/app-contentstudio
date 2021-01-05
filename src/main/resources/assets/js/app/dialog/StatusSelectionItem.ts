@@ -3,7 +3,6 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {SelectionItem} from 'lib-admin-ui/app/browse/SelectionItem';
@@ -11,13 +10,14 @@ import {SelectionItem} from 'lib-admin-ui/app/browse/SelectionItem';
 export class StatusSelectionItem
     extends SelectionItem<ContentSummaryAndCompareStatus> {
 
+    protected item: ContentSummaryAndCompareStatus;
     private removeHandlerFn: () => void;
     private isRemovableFn: () => boolean;
     private clickTooltip: Tooltip;
     private removeClickTooltip: string = i18n('tooltip.list.itemRequired');
     private status: DivEl;
 
-    constructor(viewer: Viewer<ContentSummaryAndCompareStatus>, item: BrowseItem<ContentSummaryAndCompareStatus>) {
+    constructor(viewer: Viewer<ContentSummaryAndCompareStatus>, item: ContentSummaryAndCompareStatus) {
         super(viewer, item);
     }
 
@@ -67,7 +67,7 @@ export class StatusSelectionItem
                 e.stopPropagation();
             });
 
-            this.status = this.initStatusDiv(this.item.getModel());
+            this.status = this.initStatusDiv(this.item);
             this.appendChild(this.status);
 
             return rendered;

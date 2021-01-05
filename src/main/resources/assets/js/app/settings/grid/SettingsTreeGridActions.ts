@@ -1,7 +1,5 @@
 import * as Q from 'q';
 import {TreeGridActions} from 'lib-admin-ui/ui/treegrid/actions/TreeGridActions';
-import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
-import {BrowseItemsChanges} from 'lib-admin-ui/app/browse/BrowseItemsChanges';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {SettingsItemsTreeGrid} from './SettingsItemsTreeGrid';
 import {NewSettingsItemAction} from '../browse/action/NewSettingsItemAction';
@@ -38,12 +36,10 @@ export class SettingsTreeGridActions
         return this.actions;
     }
 
-    updateActionsEnabledState(browseItems: BrowseItem<SettingsViewItem>[], changes?: BrowseItemsChanges<any>): Q.Promise<void> {
+    updateActionsEnabledState(items: SettingsViewItem[]): Q.Promise<void> {
         return this.getAuthInfo().then((loginResult: LoginResult) => {
-            const selectedItems: SettingsViewItem[] = browseItems.map((browseItem: BrowseItem<SettingsViewItem>) => browseItem.getModel());
-
-            this.EDIT.setEnabled(this.isEditAllowed(selectedItems, loginResult));
-            this.DELETE.setEnabled(this.isDeleteAllowed(selectedItems, loginResult));
+            this.EDIT.setEnabled(this.isEditAllowed(items, loginResult));
+            this.DELETE.setEnabled(this.isDeleteAllowed(items, loginResult));
             this.NEW.setEnabled(this.isNewAllowed(loginResult));
             this.updateSyncAction();
         });

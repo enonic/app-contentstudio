@@ -10,7 +10,6 @@ import {StatusSelectionItem} from './StatusSelectionItem';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {ContentIds} from '../ContentIds';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
@@ -60,7 +59,7 @@ export class DialogTogglableItemList
 
     private itemChangedHandler() {
         const isTogglable = this.getItemViews().some(item => {
-            return item.getBrowseItem().getModel().getContentSummary().hasChildren();
+            return (<ContentSummaryAndCompareStatus>item.getBrowseItem()).getContentSummary().hasChildren();
         });
         this.toggleClass('contains-toggleable', isTogglable);
 
@@ -94,7 +93,7 @@ export class DialogTogglableItemList
     }
 
     protected createSelectionItem(viewer: ContentSummaryAndCompareStatusViewer,
-                                  browseItem: BrowseItem<ContentSummaryAndCompareStatus>): TogglableStatusSelectionItem {
+                                  browseItem: ContentSummaryAndCompareStatus): TogglableStatusSelectionItem {
 
         const item = new TogglableStatusSelectionItem(viewer, browseItem, this.togglerEnabled);
         item.onItemStateChanged(() => {
@@ -232,20 +231,20 @@ export class TogglableStatusSelectionItem
     private toggler: IncludeChildrenToggler;
 
     constructor(viewer: Viewer<ContentSummaryAndCompareStatus>,
-                item: BrowseItem<ContentSummaryAndCompareStatus>,
+                item: ContentSummaryAndCompareStatus,
                 toggleEnabled: boolean) {
         super(viewer, item);
 
-        if (item.getModel().getContentSummary().hasChildren()) {
+        if (item.getContentSummary().hasChildren()) {
             this.toggler = new IncludeChildrenToggler(toggleEnabled);
             this.addClass('toggleable');
 
             this.toggler.onStateChanged((enabled: boolean) => {
-                this.notifyItemStateChanged(this.getBrowseItem().getModel().getContentId(), enabled);
+                this.notifyItemStateChanged((<ContentSummaryAndCompareStatus>this.getBrowseItem()).getContentId(), enabled);
             });
         }
 
-        this.id = item.getModel().getContentSummary().getContentId();
+        this.id = item.getContentSummary().getContentId();
     }
 
     public doRender(): Q.Promise<boolean> {

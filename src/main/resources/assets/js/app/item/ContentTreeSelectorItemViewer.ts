@@ -2,7 +2,7 @@ import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentTreeSelectorItem} from './ContentTreeSelectorItem';
 import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
+import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 
 export class ContentTreeSelectorItemViewer
     extends NamesAndIconViewer<ContentTreeSelectorItem> {

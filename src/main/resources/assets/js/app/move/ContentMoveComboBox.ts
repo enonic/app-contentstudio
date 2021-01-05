@@ -6,7 +6,7 @@ import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSelectorItem';
 import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
+import {ContentSummaryViewer} from '../content/ContentSummaryViewer';
 
 export class ContentMoveComboBox
     extends ContentComboBox<ContentTreeSelectorItem> {

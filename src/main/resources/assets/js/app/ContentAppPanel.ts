@@ -25,7 +25,7 @@ import {AppContext} from './AppContext';
 import {ProjectContext} from './project/ProjectContext';
 
 export class ContentAppPanel
-    extends AppPanel<ContentSummaryAndCompareStatus> {
+    extends AppPanel {
 
     constructor(path?: Path) {
         super();

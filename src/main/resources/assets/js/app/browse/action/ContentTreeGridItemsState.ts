@@ -1,6 +1,5 @@
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ManagedActionManager} from 'lib-admin-ui/managedaction/ManagedActionManager';
-import {ProjectContext} from '../../project/ProjectContext';
 import {Permission} from '../../access/Permission';
 
 export class ContentTreeGridItemsState {
@@ -49,6 +48,8 @@ export class ContentTreeGridItemsState {
 
     private allReadOnly: boolean = false;
 
+    private anyRenderable: boolean = false;
+
     private managedActionExecuting: boolean = false;
 
     constructor(items: ContentSummaryAndCompareStatus[], allowedPermissions: Permission[]) {
@@ -79,6 +80,7 @@ export class ContentTreeGridItemsState {
         this.anyCanBeRequestedToPublish = false;
         this.anyInProgress = false;
         this.allReadOnly = true;
+        this.anyRenderable = false;
         this.managedActionExecuting = ManagedActionManager.instance().isExecuting();
     }
 
@@ -147,6 +149,9 @@ export class ContentTreeGridItemsState {
                 this.allReadOnly = false;
             }
 
+            if (content.isRenderable()) {
+                this.anyRenderable = true;
+            }
         });
     }
 
@@ -258,7 +263,15 @@ export class ContentTreeGridItemsState {
         return this.allReadOnly;
     }
 
+    hasAnyRenderable(): boolean {
+        return this.anyRenderable;
+    }
+
     isManagedActionExecuting(): boolean {
         return this.managedActionExecuting;
+    }
+
+    total(): number {
+        return this.items.length;
     }
 }

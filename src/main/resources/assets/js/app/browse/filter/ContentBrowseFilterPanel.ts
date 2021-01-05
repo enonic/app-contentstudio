@@ -32,7 +32,6 @@ import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
 import {LogicalOperator} from 'lib-admin-ui/query/expr/LogicalOperator';
 import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {QueryField} from 'lib-admin-ui/query/QueryField';
-import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
 import {BrowseFilterResetEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterResetEvent';
 import {BrowseFilterRefreshEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterRefreshEvent';
 import {BrowseFilterSearchEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterSearchEvent';
@@ -50,6 +49,7 @@ import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationV
 import {ContentIds} from '../../ContentIds';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ProjectContext} from '../../project/ProjectContext';
+import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {

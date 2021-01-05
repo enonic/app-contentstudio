@@ -6,7 +6,7 @@ import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
+import {ContentIconUrlResolver} from '../../../../content/ContentIconUrlResolver';
 
 export class MediaSelectorDisplayValue {
 

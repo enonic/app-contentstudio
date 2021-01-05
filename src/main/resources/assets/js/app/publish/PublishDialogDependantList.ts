@@ -28,7 +28,7 @@ export class PublishDialogDependantList
 
     refresh() {
         this.getItemViews().forEach((view: StatusSelectionItem) => {
-            view.toggleClass('removable', this.isRemovable(view.getBrowseItem().getModel()));
+            view.toggleClass('removable', this.isRemovable(<ContentSummaryAndCompareStatus>view.getBrowseItem()));
         });
     }
 

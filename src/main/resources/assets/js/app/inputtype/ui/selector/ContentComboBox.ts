@@ -31,7 +31,7 @@ import {
     RichSelectedOptionView,
     RichSelectedOptionViewBuilder
 } from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
-import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
+import {ContentSummaryViewer} from '../../../content/ContentSummaryViewer';
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     extends RichComboBox<ContentTreeSelectorItem> {

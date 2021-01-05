@@ -52,8 +52,8 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import { IDentifiable } from 'lib-admin-ui/IDentifiable';
+import {ContentIconUrlResolver} from '../app/content/ContentIconUrlResolver';
 
 export interface ElementDimensions {
     top: number;

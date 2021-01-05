@@ -1,9 +1,9 @@
-import { IDentifiable } from 'lib-admin-ui/IDentifiable';
+import {IDentifiable} from 'lib-admin-ui/IDentifiable';
 import {ItemView} from './ItemView';
 
 export class ItemViewTreeGridWrapper implements IDentifiable {
 
-    private itemView: ItemView;
+    private readonly itemView: ItemView;
 
     constructor(itemView: ItemView) {
         this.itemView = itemView;
@@ -16,4 +16,5 @@ export class ItemViewTreeGridWrapper implements IDentifiable {
     getId(): string {
         return this.itemView.getItemId().toString();
     }
+
 }

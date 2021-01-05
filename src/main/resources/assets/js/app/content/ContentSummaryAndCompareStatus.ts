@@ -10,9 +10,10 @@ import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ContentInheritType} from 'lib-admin-ui/content/ContentInheritType';
 import { IDentifiable } from 'lib-admin-ui/IDentifiable';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
+import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 
-export class ContentSummaryAndCompareStatus
-    implements Equitable, IDentifiable {
+export class ContentSummaryAndCompareStatus implements ViewItem {
 
     private uploadItem: UploadItem<ContentSummary>;
 
@@ -23,6 +24,8 @@ export class ContentSummaryAndCompareStatus
     private publishStatus: PublishStatus;
 
     private readOnly: boolean;
+
+    private renderable: boolean = false;
 
     public static fromContentSummary(contentSummary: ContentSummary) {
         return new ContentSummaryAndCompareStatus().setContentSummary(contentSummary);
@@ -99,6 +102,15 @@ export class ContentSummaryAndCompareStatus
         return this;
     }
 
+    setRenderable(value: boolean): ContentSummaryAndCompareStatus {
+        this.renderable = value;
+        return this;
+    }
+
+    isRenderable(): boolean {
+        return this.renderable;
+    }
+
     getContentId(): ContentId {
         return this.contentSummary ? this.contentSummary.getContentId() : null;
     }
@@ -122,7 +134,11 @@ export class ContentSummaryAndCompareStatus
     }
 
     getIconUrl(): string {
-        return this.contentSummary ? this.contentSummary.getIconUrl() : null;
+        return this.contentSummary ? new ContentIconUrlResolver().setContent(this.contentSummary).resolve() : null;
+    }
+
+    getIconClass(): string {
+        return '';
     }
 
     hasChildren(): boolean {

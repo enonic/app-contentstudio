@@ -31,7 +31,6 @@ import {ContentSummaryAndCompareStatus} from './app/content/ContentSummaryAndCom
 import {ContentUpdatedEvent} from './app/event/ContentUpdatedEvent';
 import {RequestContentPublishPromptEvent} from './app/browse/RequestContentPublishPromptEvent';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {ConnectionDetector} from 'lib-admin-ui/system/ConnectionDetector';
 import {Body} from 'lib-admin-ui/dom/Body';
@@ -51,17 +50,15 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {ContentAppHelper} from './app/wizard/ContentAppHelper';
 import {ProjectContext} from './app/project/ProjectContext';
 import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
-import {ProjectListRequest} from './app/settings/resource/ProjectListRequest';
 import * as Q from 'q';
 import {Project} from './app/settings/data/project/Project';
 import {ProjectSelectionDialog} from './app/settings/dialog/ProjectSelectionDialog';
 import {SettingsServerEventsListener} from './app/settings/event/SettingsServerEventsListener';
 import {UrlAction} from './app/UrlAction';
 import {Path} from 'lib-admin-ui/rest/Path';
-import {ProjectsTreeItem} from './app/settings/data/project/ProjectsTreeItem';
-import {ProjectsTreeRequest} from './app/settings/resource/ProjectsTreeRequest';
 import {ProjectListWithMissingRequest} from './app/settings/resource/ProjectListWithMissingRequest';
 import {ProjectHelper} from './app/settings/data/project/ProjectHelper';
+import {ContentIconUrlResolver} from './app/content/ContentIconUrlResolver';
 // End of Polyfills
 
 declare const CONFIG;

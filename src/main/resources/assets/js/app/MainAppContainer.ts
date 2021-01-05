@@ -10,7 +10,7 @@ export abstract class MainAppContainer
 
     protected appBar: AppBar;
 
-    protected appPanel: AppPanel<any>;
+    protected appPanel: AppPanel;
 
     constructor() {
         super('app-container');
@@ -25,7 +25,7 @@ export abstract class MainAppContainer
 
     protected abstract createAppBar(application: Application): AppBar;
 
-    protected abstract createAppPanel(): AppPanel<any>;
+    protected abstract createAppPanel(): AppPanel;
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {

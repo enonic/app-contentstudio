@@ -5,7 +5,7 @@ import {SettingsStatisticsView} from './view/SettingsStatisticsView';
 import {StatisticsViewFactory} from './StatisticsViewFactory';
 
 export class SettingsItemStatisticsPanel
-    extends ItemStatisticsPanel<SettingsViewItem> {
+    extends ItemStatisticsPanel {
 
     private activeView: SettingsStatisticsView<SettingsViewItem>;
 
@@ -13,11 +13,11 @@ export class SettingsItemStatisticsPanel
         super('settings-item-statistics-panel');
     }
 
-    setItem(item: ViewItem<SettingsViewItem>) {
+    setItem(item: SettingsViewItem) {
         super.setItem(item);
 
-        const view: SettingsStatisticsView<SettingsViewItem> = StatisticsViewFactory.get().getViewForSettingsItem(item.getModel());
-        view.setItem(item.getModel());
+        const view: SettingsStatisticsView<SettingsViewItem> = StatisticsViewFactory.get().getViewForSettingsItem(item);
+        view.setItem(item);
 
         if (!this.activeView) {
             this.appendChild(view);

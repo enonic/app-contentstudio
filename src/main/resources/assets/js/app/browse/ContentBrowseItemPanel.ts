@@ -3,7 +3,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {BrowseItemPanel} from 'lib-admin-ui/app/browse/BrowseItemPanel';
 
 export class ContentBrowseItemPanel
-    extends BrowseItemPanel<ContentSummaryAndCompareStatus> {
+    extends BrowseItemPanel {
 
     constructor() {
         super();
