@@ -5,7 +5,7 @@ const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const ConfirmationMask = require('../../page_objects/confirmation.mask');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const OptionSetForm = require('../../page_objects/wizardpanel/optionset/optionset.form.view');
@@ -25,26 +25,46 @@ describe('optionset.confirmation.spec: check for `confirmation` when deleting ex
             await studioUtils.doAddSite(SITE);
         });
 
+    it(`GIVEN wizard for new 'option set' is opened WHEN menu has been expanded in the single item-set THEN 'Delete' menu item should be disabled, Add below and Add above are enabled`,
+        async () => {
+            let optionSetForm = new OptionSetForm();
+            let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            let confirmationMask = new ConfirmationMask();
+            //1. Open the new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
+            //2. Select 'Option 1':
+            await optionSetForm.selectOptionInSingleSelection("Option 1");
+            //3. Expand the menu in the single item set:
+            await singleSelectionOptionSet.expandItemSetMenu(0);
+            studioUtils.saveScreenshot('single_item_set_menu_expanded');
+            let isDeleteDisabled = await singleSelectionOptionSet.isDeleteSetMenuItemDisabled();
+            assert.isTrue(isDeleteDisabled, "Delete menu item should be disabled");
+            let isAddAboveDisabled = await singleSelectionOptionSet.isAddAboveSetMenuItemDisabled();
+            assert.isFalse(isAddAboveDisabled, "'Add above' menu item should be enabled");
+            let isAddBelowDisabled = await singleSelectionOptionSet.isAddBelowSetMenuItemDisabled();
+            assert.isFalse(isAddAboveDisabled, "'Add below' menu item should be enabled");
+        });
+
     //New set with dirty fields: confirmation should appear
     it(`GIVEN wizard for new 'option set' is opened  AND 'Add My Item-set' has been clicked WHEN text typed in the second item-set AND 'remove' item-set button has been pressed THEN 'Confirmation Dialog' should appear`,
         async () => {
             let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
-            let confirmationDialog = new ConfirmationDialog();
+            let confirmationMask = new ConfirmationMask();
             //1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
-            //2. Click on the radio button and add new item-set:
-            await optionSetForm.clickOnOption1Radio();
+            //2. Select 'Option 1' and click on add new item-set:
+            await optionSetForm.selectOptionInSingleSelection("Option 1");
             await singleSelectionOptionSet.clickOnAddItemSetButton();
-            studioUtils.saveScreenshot('new_item_set_added');
+            studioUtils.saveScreenshot('new_item_set_added_1');
             await singleSelectionOptionSet.typeOptionName("test option");
             //3. Type a text in the second item-set:
             await singleSelectionOptionSet.typeInLabelInput("label1", 1);
             //3. Click on 'remove-icon' and try to close the second item-set:
-            await singleSelectionOptionSet.clickOnRemoveItemSetOccurrenceView(1);
+            await singleSelectionOptionSet.expandMenuClickOnDelete(1);
             studioUtils.saveScreenshot('item_set_confirmation_dialog');
-            //"Confirmation Dialog" should appear, because new item-set with dirty fields:
-            await confirmationDialog.waitForDialogOpened();
+            //"Confirmation mask dialog" should appear, because new item-set has dirty fields:
+            await confirmationMask.waitForDialogOpened();
         });
 
     // //New set with no dirty fields (ie only default values): no confirmation
@@ -52,18 +72,19 @@ describe('optionset.confirmation.spec: check for `confirmation` when deleting ex
         async () => {
             let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
-            let confirmationDialog = new ConfirmationDialog();
+            let confirmationMask = new ConfirmationMask();
             //1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
-            await optionSetForm.clickOnOption1Radio();
-            //2. Click on the radio button and add new item-set:
+            await optionSetForm.selectOptionInSingleSelection("Option 1");
+            //2. Click on add new item-set:
             await singleSelectionOptionSet.clickOnAddItemSetButton();
+            studioUtils.saveScreenshot('new_item_set_added_2');
             await singleSelectionOptionSet.typeOptionName("test option");
             //click on remove-icon(remove the second item-set):
-            await singleSelectionOptionSet.clickOnRemoveItemSetOccurrenceView(1);
+            await singleSelectionOptionSet.expandMenuClickOnDelete(1);
             studioUtils.saveScreenshot('item_set_no_confirmation_dialog');
-            let result = await confirmationDialog.isDialogVisible();
-            assert.isFalse(result, "Confirmation Dialog should not be loaded, because new item-set has no dirty fields");
+            let result = await confirmationMask.isDialogVisible();
+            assert.isFalse(result, "Confirmation mask Dialog should not be loaded, because new item-set has no dirty fields");
         });
 
     // verifies: https://github.com/enonic/app-contentstudio/issues/400
@@ -80,16 +101,17 @@ describe('optionset.confirmation.spec: check for `confirmation` when deleting ex
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1000);
             //3. Click on the radio button and save new changes:
-            await optionSetForm.clickOnOption1Radio();
-
+            await optionSetForm.selectOptionInSingleSelection("Option 1");
+            //4. Fill in the required 'name' input:
             await singleSelectionOptionSet.typeOptionName("test option");
             await contentWizard.waitAndClickOnSave();
             studioUtils.saveScreenshot('item_set_validation1');
-            // "Red icon" should not be displayed, because required inputs are filled!
+            //5. Verify - "Red icon" should not be displayed, because required inputs are filled in!
             await contentWizard.waitUntilInvalidIconDisappears();
         });
 
     // verifies: https://github.com/enonic/app-contentstudio/issues/400
+    //OptionSet wizard - Incorrect behavior of validation
     it(`GIVEN wizard for new 'option set' is opened WHEN name has been typed AND Save button pressed THEN Saved button should appear`,
         async () => {
             let contentWizard = new ContentWizard();
