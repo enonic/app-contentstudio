@@ -15,7 +15,7 @@ export class ShowIssuesDialogButton extends ActionButton {
 
     private countSpan: SpanEl;
 
-    private updateHandler: () => void;
+    private readonly updateHandler: () => void;
 
     constructor() {
         super(new ShowIssuesDialogAction());
@@ -25,6 +25,10 @@ export class ShowIssuesDialogButton extends ActionButton {
         this.updateHandler = AppHelper.debounce(() => {
             this.fetchIssuesAndCreateLink();
         }, 200);
+
+        if (ProjectContext.get().isInitialized()) {
+            this.updateHandler();
+        }
 
         this.initEventsListeners();
     }
