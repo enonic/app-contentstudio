@@ -110,6 +110,12 @@ export class ContentPublishDialog
         });
     }
 
+    protected postInitElements() {
+        super.postInitElements();
+
+        this.setElementToFocusOnShow(this.publishSubTitle.getLinkEl());
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.setSubTitleEl(this.publishSubTitle);
@@ -384,6 +390,10 @@ export class ContentPublishDialogSubTitle
 
         this.input.onShown(() => Body.get().onClicked(clickHandler));
         this.input.onHidden(() => Body.get().unClicked(clickHandler));
+    }
+
+    getLinkEl(): AEl {
+        return this.message;
     }
 
     doRender(): Q.Promise<boolean> {
