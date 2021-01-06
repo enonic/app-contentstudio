@@ -34,7 +34,7 @@
     "browserslist-config-enonic": "^1.0.5",
     "css-loader": "^5.0.0",
     "cssnano": "^4.1.10",
-    "enonic-admin-artifacts": "^1.7.13",
+    "enonic-admin-artifacts": "^1.8.0",
     "error-logger-webpack-plugin": "^1.1.0",
     "file-loader": "^6.2.0",
     "js-yaml": "^3.14.0",
