@@ -11,7 +11,7 @@ const ShortcutForm = require('../../page_objects/wizardpanel/shortcut.form.panel
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const ConfirmationMask = require('../../page_objects/confirmation.mask');
 
 describe('Shortcut parameters specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -57,8 +57,8 @@ describe('Shortcut parameters specification', function () {
             //"Add Parameters" button should be visible"
             await shortcutForm.waitForAddParametersButtonVisible();
 
-            //'Collapse' link gets visible:
-            await shortcutForm.waitForCollapseLinkVisible();
+            //'Collapse bottom' link gets visible:
+            await shortcutForm.waitForCollapseBottomLinkVisible();
             //"Add Parameters" button should be visible
             await shortcutForm.waitForParametersFormVisible();
             //Save this shortcut with the parameter:
@@ -82,12 +82,12 @@ describe('Shortcut parameters specification', function () {
         async () => {
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();
-            let confirmationDialog = new ConfirmationDialog();
+            let confirmationMask = new ConfirmationMask();
             //1. Open existing shortcut(parameter is added)
             await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
-            //2. Remove the parameter and confirm it:
-            await shortcutForm.clickOnRemoveParameterButton();
-            await confirmationDialog.clickOnYesButton();
+            //2. Expand the menu and click on Delete menu item the parameter and confirm it:
+            await shortcutForm.expandParameterMenuAndClickOnDelete(0);
+            await confirmationMask.clickOnConfirmButton("Delete Parameters");
             //3. Save the content:
             await contentWizard.waitAndClickOnSave();
             studioUtils.saveScreenshot("shortcut_parameter_removed");

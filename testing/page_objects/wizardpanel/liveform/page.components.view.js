@@ -103,7 +103,8 @@ class PageComponentView extends Page {
         let contentWizard = new ContentWizard();
         await this.selectMenuItem(items);
         await this.pause(500);
-        await contentWizard.clickOnHideComponentViewToggler();
+        //TODO remove it
+        await contentWizard.clickOnComponentViewToggler();
         return await this.waitForClosed();
     }
 
