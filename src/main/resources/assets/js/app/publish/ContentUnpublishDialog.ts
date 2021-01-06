@@ -138,10 +138,10 @@ export class ContentUnpublishDialog
     }
 
     private filterUnpublishableItems(items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] {
-        return items.filter(item => {
-            let status = item.getCompareStatus();
+        return items.filter((item: ContentSummaryAndCompareStatus) => {
+            const status: CompareStatus = item.getCompareStatus();
             return status === CompareStatus.EQUAL || status === CompareStatus.NEWER || status === CompareStatus.PENDING_DELETE ||
-                   status === CompareStatus.OLDER;
+                   status === CompareStatus.OLDER || status === CompareStatus.MOVED;
         });
     }
 
