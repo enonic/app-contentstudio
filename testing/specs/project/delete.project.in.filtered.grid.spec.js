@@ -34,15 +34,26 @@ describe("delete.project.in.filtered.grid.spec - Delete projects in filtered gri
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME_2), "Display name of the second project should be present in options");
         });
 
-    //Verifies: Selection Controller is not refreshed after selected projects have been removed #1828
-    //https://github.com/enonic/app-contentstudio/issues/1828
-    it(`GIVEN two projects are checked and 'Show Selection' is clicked WHEN these projects have been deleted THEN 'Selection toggler' gets not visible`,
+    //Verifies https://github.com/enonic/app-contentstudio/issues/2708
+    it(`WHEN two projects have been checked THEN 'Delete' button gets disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let confirmValueDialog = new ConfirmValueDialog();
             //1. Click on both project's checkboxes:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
+            //2. Verify that 'Delete' button is disabled in settings toolbar:
+            await settingsBrowsePanel.waitForDeleteButtonDisabled();
+        });
+
+    //Verifies: Selection Controller is not refreshed after selected projects have been removed #1828
+    //https://github.com/enonic/app-contentstudio/issues/1828
+    it(`GIVEN two projects are checked and 'Show Selection' is clicked WHEN these projects have been deleted THEN 'Selection toggler' gets not visible`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let confirmValueDialog = new ConfirmValueDialog();
+            //1. Click on the project's checkbox:
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             //2. Click on 'Show Selection' button:
             await settingsBrowsePanel.clickOnSelectionToggler();
             //3. Click on Delete button:
