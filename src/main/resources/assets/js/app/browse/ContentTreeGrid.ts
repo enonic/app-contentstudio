@@ -211,14 +211,6 @@ export class ContentTreeGrid
         }
     }
 
-    protected isClickOutsideGridViewport(clickedEl: HTMLElement) {
-        if (super.isClickOutsideGridViewport(clickedEl)) {
-            return true;
-        }
-        const element: Element = Element.fromHtmlElement(clickedEl);
-        return element.hasClass('content-item-preview-panel');
-    }
-
     setState(state: State) {
         this.state = state;
 
