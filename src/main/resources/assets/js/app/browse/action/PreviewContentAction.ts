@@ -6,11 +6,12 @@ import {showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {PreviewActionHelper} from '../../action/PreviewActionHelper';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
+import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
 export class PreviewContentAction
     extends ContentTreeGridAction {
 
-    private previewContentHandler: PreviewContentHandler;
+    private readonly previewContentHandler: PreviewContentHandler;
 
     private helper: PreviewActionHelper;
 
@@ -35,5 +36,9 @@ export class PreviewContentAction
 
     getPreviewHandler(): PreviewContentHandler {
         return this.previewContentHandler;
+    }
+
+    isToBeEnabled(state: ContentTreeGridItemsState): boolean {
+        return this.isEnabled();
     }
 }
