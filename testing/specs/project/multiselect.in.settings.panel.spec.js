@@ -65,9 +65,9 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             //'New...' button should be enabled :
             await settingsBrowsePanel.waitForNewButtonEnabled();
             //'Delete' button should be disabled
-            await settingsBrowsePanel.waitForDeleteButtonEnabled();
-            //'Edit' button should be disabled:
-            await settingsBrowsePanel.waitForDeleteButtonEnabled();
+            await settingsBrowsePanel.waitForDeleteButtonDisabled();
+            //'Edit' button should be enabled:
+            await settingsBrowsePanel.waitForEditButtonEnabled();
         });
 
     it(`GIVEN two existing projects are checked WHEN context menu has been opened THEN Edit,New,Delete items should be enabled`,
@@ -84,7 +84,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
             //Verify that Delete menu item is disabled:
-            await settingsBrowsePanel.waitForContextMenuItemEnabled('Delete');
+            await settingsBrowsePanel.waitForContextMenuItemDisabled('Delete');
         });
 
     it(`GIVEN Projects is expanded AND 'Selection Controller' checkbox is checked WHEN context menu has been opened THEN 'New' menu-item should be enabled but Delete,Edit items should be disabled`,
