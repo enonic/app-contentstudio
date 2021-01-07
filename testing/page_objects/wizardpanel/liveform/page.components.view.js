@@ -7,6 +7,7 @@ const appConst = require('../../../libs/app_const');
 const ContentWizard = require('../../wizardpanel/content.wizard.panel');
 const xpath = {
     container: "//div[contains(@id,'PageComponentsView')]",
+    closeButton: "//button[contains(@id,'CloseButton')]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
     pageComponentsTreeGrid: `//div[contains(@id,'PageComponentsTreeGrid')]`,
     contextMenuItemByName: function (name) {
@@ -26,6 +27,16 @@ const xpath = {
 
 //Modal Dialog:
 class PageComponentView extends Page {
+
+    get closeButton() {
+        return xpath.container + xpath.closeButton;
+    }
+
+    async clickOnCloseButton() {
+        await this.clickOnElement(this.closeButton);
+        await this.waitForClosed();
+
+    }
 
     clickOnComponent(displayName) {
         let selector = xpath.container + lib.itemByDisplayName(displayName);
@@ -163,5 +174,6 @@ class PageComponentView extends Page {
         }
         return await items[index].isDisplayed();
     }
-};
+}
+
 module.exports = PageComponentView;
