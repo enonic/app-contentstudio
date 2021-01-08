@@ -2,6 +2,26 @@
 
   > .deck-panel {
     margin-bottom: 52px; // the height of the button-bar
+
+    > .inspection-panel {
+      padding: 10px;
+
+      .form-view {
+        padding: 0;
+
+        &.descriptor-based-dropdown-form + .form-view {
+          margin-top: 10px;
+        }
+
+        &:not(:last-child) {
+          padding-bottom: inherit;
+        }
+
+        .input-view:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
   }
 
   .button-bar {
