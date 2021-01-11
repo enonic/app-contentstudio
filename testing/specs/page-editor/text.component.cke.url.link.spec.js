@@ -42,7 +42,7 @@ describe('Text Component with CKE - insert link and table  specification', funct
             //1. Insert a text-component:
             await pageComponentView.openMenu("main");
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
-            await contentWizard.clickOnHideComponentViewToggler();
+            await pageComponentView.clickOnCloseButton();
             await textComponentCke.switchToLiveEditFrame();
             //2. Click on 'Insert Table' menu-button:
             await textComponentCke.clickOnInsertTableButton();
@@ -61,7 +61,7 @@ describe('Text Component with CKE - insert link and table  specification', funct
             //1. Insert a text component and type the not valid URL:
             await pageComponentView.openMenu("main");
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
-            await contentWizard.clickOnHideComponentViewToggler();
+            await pageComponentView.clickOnCloseButton();
             await textComponentCke.switchToLiveEditFrame();
             await textComponentCke.clickOnInsertLinkButton();
             await insertLinkDialog.typeText("url_link");
@@ -84,7 +84,7 @@ describe('Text Component with CKE - insert link and table  specification', funct
             //1. Insert a text component:
             await pageComponentView.openMenu("main");
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
-            await contentWizard.clickOnHideComponentViewToggler();
+            await pageComponentView.clickOnCloseButton();
             await textComponentCke.switchToLiveEditFrame();
             //2. Open Insert Link dialog and add the link:
             await textComponentCke.clickOnInsertLinkButton();
