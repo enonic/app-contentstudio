@@ -10,7 +10,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ScheduleForm = require('../../page_objects/wizardpanel/schedule.wizard.step.form');
 
-describe('Wizard page - verify schedule form`', function () {
+describe('Wizard page - verify schedule form', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SCHEDULE_STEP_TITLE = 'Schedule';
@@ -25,6 +25,7 @@ describe('Wizard page - verify schedule form`', function () {
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(TEST_FOLDER.displayName);
             await contentWizard.waitAndClickOnSave();
+            await contentWizard.clickOnMarkAsReadyButton();
             //2. Schedule button should not be displayed in the step-navigator:
             let result = await contentWizard.isWizardStepByTitlePresent(SCHEDULE_STEP_TITLE);
             assert.isFalse(result, "Schedule button should no be visible");
