@@ -5,6 +5,10 @@
     display: flex;
     align-items: center;
 
+    input:first-child:disabled {
+      color: @admin-dark-gray;
+    }
+
     input:last-child {
       display: none;
     }
@@ -30,6 +34,10 @@
         &:focus {
           outline: none;
         }
+      }
+
+      &:disabled {
+        opacity: 0.5;
       }
     }
   }

@@ -17,7 +17,6 @@ import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryRequest} from './ContentSummaryRequest';
 import {FieldOrderExpr, FieldOrderExprBuilder} from 'lib-admin-ui/content/order/FieldOrderExpr';
-import {Project} from '../settings/data/project/Project';
 
 export class ContentSummaryAndCompareStatusFetcher {
 
@@ -25,7 +24,7 @@ export class ContentSummaryAndCompareStatusFetcher {
         return ContentSummaryAndCompareStatusFetcher.fetchChildren(null, from, size, this.createRootChildOrder());
     }
 
-    private static createRootChildOrder(): ChildOrder {
+    static createRootChildOrder(): ChildOrder {
         const childOrder: ChildOrder = new ChildOrder();
 
         childOrder.addOrderExpressions(ContentSummaryRequest.ROOT_ORDER.map(fieldOrderExpr => {
@@ -69,7 +68,7 @@ export class ContentSummaryAndCompareStatusFetcher {
                     const result: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatusFetcher.updateCompareStatus([content],
                         compareResults)[0];
 
-                    return ContentSummaryAndCompareStatusFetcher.updateReadOnly([result]).then(() => {
+                    return ContentSummaryAndCompareStatusFetcher.updateReadOnly([result], projectName).then(() => {
                         return result;
                     });
                 });
@@ -129,9 +128,9 @@ export class ContentSummaryAndCompareStatusFetcher {
             });
     }
 
-    static fetchChildrenIds(parentContentId: ContentId): Q.Promise<ContentId[]> {
+    static fetchChildrenIds(parentContentId: ContentId, order?: ChildOrder): Q.Promise<ContentId[]> {
 
-        return new GetContentIdsByParentRequest().setParentId(parentContentId).sendAndParse().then(
+        return new GetContentIdsByParentRequest().setParentId(parentContentId).setOrder(order).sendAndParse().then(
             (response: ContentId[]) => {
 
                 return response;
@@ -155,14 +154,12 @@ export class ContentSummaryAndCompareStatusFetcher {
         return list;
     }
 
-    static updateReadOnly(contents: ContentSummaryAndCompareStatus[]): Q.Promise<any> {
-        return new IsContentReadOnlyRequest(contents.map(content => content.getContentId())).sendAndParse().then(
-            (readOnlyContentIds: string[]) => {
-
+    static updateReadOnly(contents: ContentSummaryAndCompareStatus[], projectName?: string): Q.Promise<any> {
+        return new IsContentReadOnlyRequest(contents.map(content => content.getContentId()))
+            .setRequestProjectName(projectName)
+            .sendAndParse().then((readOnlyContentIds: string[]) => {
                 readOnlyContentIds.forEach((id: string) => {
-
                     contents.some(content => {
-
                         if (content.getId() === id) {
                             content.setReadOnly(true);
                             return true;

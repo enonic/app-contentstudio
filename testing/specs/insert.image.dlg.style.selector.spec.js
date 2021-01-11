@@ -37,7 +37,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             //4. Click on dropdown handle and expand the style-options:
             let actualOptions = await insertImageDialog.getStyleSelectorOptions();
-            studioUtils.saveScreenshot('image_dialog_style_options');
+            studioUtils.saveScreenshot('image_digradlew cleanalog_style_options');
             assert.equal(actualOptions[0], "<None>", "First option should be '<None>' ");
             assert.equal(actualOptions[1], appConstant.IMAGE_STYLE_ORIGINAL, "one available option should be present in options list");
         });

@@ -33,6 +33,24 @@
     }
   }
 
+  .dialog-buttons.dropdown-button-row {
+    .dropdown-dialog-menu {
+      .@{_COMMON_PREFIX}dropdown-handle {
+        display: none;
+        pointer-events: auto;
+        opacity: 1;
+      }
+    }
+
+    &.has-items-in-progress {
+      .dropdown-dialog-menu {
+        .@{_COMMON_PREFIX}dropdown-handle {
+          display: inline-block;
+        }
+      }
+    }
+  }
+
   &._0-240, &._240-360, &._360-540 {
 
     .publish-dialog-sub-title {

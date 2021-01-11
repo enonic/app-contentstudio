@@ -60,7 +60,7 @@ const XPATH = {
     wizardStepNavigatorAndToolbar: "//div[contains(@id,'WizardStepNavigatorAndToolbar')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
-    iconModifyPath: "//span[contains(@class,'icon-pencil')]",
+    buttonModifyPath: "//button[contains(@class,'icon-pencil')]",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -159,8 +159,8 @@ class ContentWizardPanel extends Page {
         return XPATH.wizardStepNavigatorAndToolbar + XPATH.editPermissionsButton;
     }
 
-    get modifyPathIcon() {
-        return XPATH.wizardHeader + XPATH.iconModifyPath;
+    get modifyPathButton() {
+        return XPATH.wizardHeader + XPATH.buttonModifyPath;
     }
 
     waitForInspectionPanelTogglerVisible() {
@@ -188,9 +188,20 @@ class ContentWizardPanel extends Page {
 
     waitForShowComponentVewTogglerVisible() {
         return this.waitForElementDisplayed(this.showComponentViewToggler, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_open_component_view');
+            this.saveScreenshot('err_show_component_toggler_should_be_visible');
             throw new Error('Component View toggler is not visible in ' + 2 + '  ' + err);
         })
+    }
+
+    async waitForShowComponentVewTogglerNotVisible() {
+        try {
+            let res = await this.getDisplayedElements(this.showComponentViewToggler);
+            let result = await this.isElementDisplayed(this.showComponentViewToggler);
+            await this.waitForElementNotDisplayed(this.showComponentViewToggler, appConst.mediumTimeout);
+        } catch (err) {
+            this.saveScreenshot('err_show_component_toggler_should_not_be_visible');
+            throw new Error('Component View toggler is still visible after the interval sec:' + 3 + '  ' + err);
+        }
     }
 
     // opens Details Panel if it is not loaded
@@ -509,7 +520,7 @@ class ContentWizardPanel extends Page {
         await contentDeleteDialog.waitForDialogOpened();
         await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
         await confirmContentDeleteDialog.waitForDialogOpened();
-        await confirmContentDeleteDialog.typeNumberOfContent(numberItems);
+        await confirmContentDeleteDialog.typeNumberOrName(numberItems);
         await confirmContentDeleteDialog.clickOnConfirmButton();
         return await confirmContentDeleteDialog.waitForDialogClosed();
     }
@@ -642,15 +653,17 @@ class ContentWizardPanel extends Page {
         return this.getBrowser().switchToParentFrame();
     }
 
-    waitForControllerOptionFilterInputVisible() {
-        return this.switchToLiveEditFrame().then(() => {
-            return this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.longTimeout);
-        }).catch(err => {
-            console.log(err);
-            return this.switchToParentFrame().then(() => {
-                return false;
-            })
-        })
+    async waitForControllerOptionFilterInputVisible() {
+        try {
+            await this.switchToLiveEditFrame();
+            let result = await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.longTimeout);
+            await this.switchToParentFrame();
+            return result;
+        } catch (err) {
+            await this.switchToMainFrame();
+            throw new Error(err);
+        }
+
     }
 
     waitForControllerOptionFilterInputNotVisible() {
@@ -960,20 +973,20 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
-    async clickOnModifyPathIcon() {
-        await this.waitForElementDisplayed(this.modifyPathIcon, appConst.mediumTimeout);
-        await this.clickOnElement(this.modifyPathIcon);
+    async clickOnModifyPathButton() {
+        await this.waitForElementDisplayed(this.modifyPathButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.modifyPathButton);
         let renamePublishedContentDialog = new RenamePublishedContentDialog();
         await renamePublishedContentDialog.waitForDialogLoaded();
         return renamePublishedContentDialog;
     }
 
-    waitForModifyPathIconDisplayed() {
-        return this.waitForElementDisplayed(this.modifyPathIcon, appConst.mediumTimeout);
+    waitForModifyPathButtonDisplayed() {
+        return this.waitForElementDisplayed(this.modifyPathButton, appConst.mediumTimeout);
     }
 
-    waitForModifyPathIconNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.modifyPathIcon, appConst.mediumTimeout);
+    waitForModifyPathButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.modifyPathButton, appConst.mediumTimeout);
     }
 
     async openLayersWidget() {

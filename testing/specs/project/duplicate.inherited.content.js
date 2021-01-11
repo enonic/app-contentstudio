@@ -10,7 +10,6 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
 
 describe('duplicate.inherited.content.spec - tests for duplicating of inherited content', function () {
@@ -62,6 +61,20 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             assert.isFalse(isInherited, "Copy of inherited site should not be with gray mask");
         });
 
+    //Verifies #2576 'Inherited icon and Reset button should not be displayed in duplicated content'
+    it("GIVEN copy of the inherited site is selected WHEN the site has been opened THEN 'Reset' button should not be displayed in the wizard toolbar",
+        async () => {
+            let projectSelectionDialog = new ProjectSelectionDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Select the layer's context:
+            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            //2. Open the site
+            let contentWizard = await studioUtils.selectAndOpenContentInWizard(SITE_NAME + "-copy");
+            studioUtils.saveScreenshot("inherited_site_copy_wizard");
+            //3. Verify that 'Reset' button is not displayed:
+            await contentWizard.waitForResetButtonNotDisplayed();
+        });
+
     it("GIVEN duplicate of inherited site is selected WHEN 'Sort' dialog has been opened THEN 'Default' sorting order should be selected in the modal dialog",
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
@@ -79,7 +92,8 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             assert.equal(actualOrder, EXPECTED_ORDER, "'Modified date' order should be selected in the modal dialog");
         });
 
-    it("GIVEN the local copy of inherited site is selected WHEN Layers widget has been opened THEN only one item with button 'Edit' should be present in the widget",
+    it.skip(
+        "GIVEN the local copy of inherited site is selected WHEN Layers widget has been opened THEN only one item with button 'Edit' should be present in the widget",
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
             //1. Select the layer's context:
@@ -96,17 +110,9 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
 
     it("Postconditions: the layer should be deleted",
         async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1.Select the layer:
-            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
-            await settingsBrowsePanel.clickOnDeleteButton();
-            //2. Confirm the deleting:
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
-            await settingsBrowsePanel.waitForNotificationMessage();
+            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

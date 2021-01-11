@@ -2,7 +2,15 @@
 
   .project-list-item {
     padding: 10px;
-    cursor: pointer;
+    cursor: default;
+
+    &.selectable {
+      cursor: pointer;
+
+      .project-viewer {
+        .viewer-selectable();
+      }
+    }
 
     &:hover {
       background-color: @admin-almost-white;
@@ -10,10 +18,6 @@
 
     &.selected {
       background-color: @admin-blue;
-    }
-
-    .project-viewer {
-      .viewer-selectable();
     }
   }
 

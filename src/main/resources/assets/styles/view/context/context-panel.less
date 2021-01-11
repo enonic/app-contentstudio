@@ -55,22 +55,20 @@
 
     .non-mobile-details-panel-toggle-button {
       .button(@admin-font-gray2, transparent, @admin-font-gray3, transparent, true);
+
       z-index: @z-index-launcher-panel;
-
       order: 1;
-
-      display: block;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       padding: 0 12px;
       border: 0 transparent;
       background-color: transparent;
-
       position: fixed;
       right: 0;
       top: @app-header-height + 1;
       width: @app-header-height;
       height: @toolbar-height;
-      line-height: @toolbar-height;
-
       border-bottom: 1px solid @admin-bg-light-gray;
 
       @media screen and (max-width: @mobile-panel-width) {

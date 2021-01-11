@@ -8,19 +8,19 @@ import {ContentEventsListener} from './ContentEventsListener';
 import {AppMode} from './AppMode';
 import {ProjectContext} from './project/ProjectContext';
 import {UrlAction} from './UrlAction';
-import {ProjectChangedEvent} from './project/ProjectChangedEvent';
 import {ProjectDeletedEvent} from './settings/event/ProjectDeletedEvent';
 import {Project} from './settings/data/project/Project';
 import {ProjectListRequest} from './settings/resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {AppContext} from './AppContext';
 
 export class ContentAppContainer
     extends MainAppContainer {
 
     protected appBar: ContentAppBar;
 
-    constructor(application: Application) {
-        super(application, AppMode.MAIN);
+    constructor() {
+        super();
 
         if (!ProjectContext.get().isInitialized()) {
             this.handleProjectNotSet();
@@ -37,10 +37,10 @@ export class ContentAppContainer
             this.appBar.enable();
             new ContentEventsListener().start();
             this.initListeners();
-            ProjectChangedEvent.un(projectSetHandler);
+            ProjectContext.get().unProjectChanged(projectSetHandler);
         };
 
-        ProjectChangedEvent.on(projectSetHandler);
+        ProjectContext.get().onProjectChanged(projectSetHandler);
     }
 
     protected createAppBar(application: Application): ContentAppBar {
@@ -48,7 +48,7 @@ export class ContentAppContainer
     }
 
     protected createAppPanel(): ContentAppPanel {
-        return new ContentAppPanel(this.application.getPath());
+        return new ContentAppPanel(AppContext.get().getApplication().getPath());
     }
 
     private initListeners() {
@@ -107,7 +107,7 @@ export class ContentAppContainer
     }
 
     generateAppUrl(): string {
-        return `${AppMode.MAIN}#/${ProjectContext.get().getProject()}/${UrlAction.BROWSE}`;
+        return `${AppMode.MAIN}#/${ProjectContext.get().getProject().getName()}/${UrlAction.BROWSE}`;
     }
 
 }

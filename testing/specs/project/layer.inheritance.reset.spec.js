@@ -113,6 +113,34 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             await settingsStepForm.waitForSelectedLanguageNotDisplayed();
         });
 
+    //Verifies: https://github.com/enonic/app-contentstudio/issues/2604
+    it("GIVEN controller has been selected in the inherited site WHEN 'Reset' button has been pressed THEN the site should be reverted to the inherited state",
+        async () => {
+            let projectSelectionDialog = new ProjectSelectionDialog();
+            //1. Select the layer's context:
+            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            //2. Open the inherited site and select the controller - click on 'Localize' button:
+            let contentWizard = await studioUtils.selectContentAndClickOnLocalize(SITE_NAME);
+            await contentWizard.selectPageDescriptor("main region");
+            //3. Click on Reset button:
+            let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();
+            //4. Click on 'Yes' button in confirmation dialog:
+            await confirmationDialog.clickOnYesButton();
+            //5. Verify that option filter input for controller gets visible:
+            await contentWizard.waitForControllerOptionFilterInputVisible();
+            //6. Verify that Show Components View button gets not visible after the resetting
+            await contentWizard.waitForShowComponentVewTogglerNotVisible();
+        });
+
+    it("Postconditions: the project should be deleted",
+        async () => {
+            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.openSettingsPanel();
+            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
+            await studioUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
+        });
+
+
     beforeEach(async () => {
         return await studioUtils.navigateToContentStudioWithProjects();
     });

@@ -51,22 +51,18 @@ export class AttachmentUploader
     }
 
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
-        if (!this.skipServerEvents) {
-
-            return super.update(propertyArray, unchangedOnly).then(() => {
+        return super.update(propertyArray, unchangedOnly).then(() => {
+            if (!this.skipServerEvents) {
                 this.updateSelectedValues();
                 this.toggleUploadButtonVisibility();
                 this.validate(false);
-            });
-        }
-
-        return Q(null);
+            }
+        });
     }
 
     private updateSelectedValues() {
-        const fileNames = this.getFileNamesFromProperty();
-
-        this.uploaderEl.setValue(fileNames && fileNames.length > 0 ? JSON.stringify(this.getFileNamesFromProperty()) : null);
+        const fileNames: string[] = this.getFileNamesFromProperty();
+        this.uploaderEl.setValue(fileNames && fileNames.length > 0 ? JSON.stringify(fileNames) : null);
     }
 
     private getFileNamesFromProperty(): string[] {
@@ -233,6 +229,11 @@ export class AttachmentUploader
 
     protected getNumberOfValids(): number {
         return this.getPropertyArray().getProperties().length;
+    }
+
+    setEnabled(enable: boolean): void {
+        this.uploaderEl.setEnabled(enable);
+
     }
 
     onFocus(listener: (event: FocusEvent) => void) {

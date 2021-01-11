@@ -29,24 +29,19 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 export class SiteConfigurator
     extends BaseInputTypeManagingAdd {
 
-    private readOnly: boolean;
-
     private comboBox: SiteConfiguratorComboBox;
 
     private siteConfigProvider: ApplicationConfigProvider;
 
     private formContext: ContentFormContext;
 
-    private readOnlyPromise: Q.Promise<void>;
+    private readOnlyPromise: Q.Promise<boolean>;
 
     constructor(config: ContentInputTypeViewContext) {
         super('application-configurator');
         this.formContext = config.formContext;
 
-        this.readOnlyPromise = this.isReadOnly().then((value: boolean) => {
-            this.readOnly = value;
-            return Q(null);
-        }).catch(DefaultErrorHandler.handle);
+        this.readOnlyPromise = this.isReadOnly();
     }
 
     private isReadOnly(): Q.Promise<boolean> {
@@ -82,8 +77,8 @@ export class SiteConfigurator
 
         this.comboBox = this.createComboBox(input, this.siteConfigProvider);
 
-        this.readOnlyPromise.then(() => {
-            this.comboBox.setReadOnly(this.readOnly);
+        this.readOnlyPromise.then((readonly: boolean) => {
+            this.comboBox.setEnabled(!readonly);
         });
 
         this.appendChild(this.comboBox);

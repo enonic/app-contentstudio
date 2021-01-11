@@ -148,6 +148,11 @@ export class ContentTypeFilter
         this.combobox.resetBaseValues();
     }
 
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+        this.combobox.setEnabled(enable);
+    }
+
     protected getNumberOfValids(): number {
         return this.getPropertyArray().getSize();
     }

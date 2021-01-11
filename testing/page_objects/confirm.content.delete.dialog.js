@@ -5,12 +5,12 @@ const Page = require('./page');
 const lib = require('../libs/elements');
 const appConst = require('../libs/app_const');
 const XPATH = {
-    container: `//div[contains(@id,'ConfirmContentDeleteDialog')]`,
+    container: `//div[contains(@id,'ConfirmValueDialog')]`,
     confirmButton: `//button[contains(@id,'DialogButton') and child::span[text()='Confirm']]`,
     cancelButton: `//div[@class='dialog-buttons']//button/span[text()='Cancel']`,
 };
 
-class ConfirmContentDeleteDialog extends Page {
+class ConfirmValueDialog extends Page {
 
     get warningMessage() {
         return XPATH.container +
@@ -29,11 +29,6 @@ class ConfirmContentDeleteDialog extends Page {
         return XPATH.container + lib.TEXT_INPUT;
     }
 
-    async clickOnYesButton() {
-        await this.waitForElementDisplayed(this.yesButton, appConst.mediumTimeout);
-        await this.clickOnElement(this.yesButton);
-        await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout)
-    }
 
     waitForDialogOpened() {
         return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
@@ -84,8 +79,9 @@ class ConfirmContentDeleteDialog extends Page {
         }
     }
 
-    typeNumberOfContent(number) {
+    typeNumberOrName(number) {
         return this.typeTextInInput(this.numberInput, number);
     }
-};
-module.exports = ConfirmContentDeleteDialog;
+}
+
+module.exports = ConfirmValueDialog;

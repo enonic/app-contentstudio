@@ -8,7 +8,7 @@ const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
-const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
+const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
 const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
@@ -191,7 +191,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         let projectSelectionDialog = await this.clickOnProjectViewerButton();
         await projectSelectionDialog.selectContext(projectDisplayName);
         await projectSelectionDialog.waitForDialogClosed();
-        return await this.pause(300);
+        return await this.pause(1000);
     }
 
     hotKeyPublish() {
@@ -206,11 +206,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     //Wait for `Publish Menu` Button gets `Publish...`
-    waitForPublishButtonVisible() {
-        return this.waitForElementDisplayed(this.publishButton, appConst.mediumTimeout).catch(err => {
+    async waitForPublishButtonVisible() {
+        try {
+            return await this.waitForElementDisplayed(this.publishButton, appConst.mediumTimeout);
+        } catch (err) {
             this.saveScreenshot("err_publish_button");
             throw new Error("Publish button is not visible! " + err);
-        })
+        }
     }
 
     waitForStateIconNotDisplayed(displayName) {
@@ -713,15 +715,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async clickOnDeleteAndMarkAsDeletedAndConfirm(numberItems) {
         let contentDeleteDialog = new ContentDeleteDialog();
-        let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
+        let confirmValueDialog = new ConfirmValueDialog();
         await this.clickOnDeleteButton();
         await contentDeleteDialog.waitForDialogOpened();
 
         await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
-        await confirmContentDeleteDialog.waitForDialogOpened();
-        await confirmContentDeleteDialog.typeNumberOfContent(numberItems);
-        await confirmContentDeleteDialog.clickOnConfirmButton();
-        return await confirmContentDeleteDialog.waitForDialogClosed();
+        await confirmValueDialog.waitForDialogOpened();
+        await confirmValueDialog.typeNumberOrName(numberItems);
+        await confirmValueDialog.clickOnConfirmButton();
+        return await confirmValueDialog.waitForDialogClosed();
     }
 
     async openDetailsPanel() {
@@ -760,7 +762,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async isContentInherited(contentName) {
         await this.waitForContentDisplayed(contentName, appConst.mediumTimeout);
-        let locator = lib.slickRowByName(XPATH.treeGrid, contentName)
+        let locator = lib.slickRowByName(XPATH.treeGrid, contentName);
         let attr = await this.getAttribute(locator, 'class');
         return attr.includes('data-inherited');
     }

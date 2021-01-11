@@ -39,11 +39,7 @@ export class ContentVersionViewer
     }
 
     setObject(version: ContentVersion) {
-        let displayDate = version.getDisplayDate();
-        if (version.isPublished() && version.getPublishInfo().getPublishedFrom() < version.getPublishInfo().getTimestamp()) {
-            // Special case when publishFrom date was set in the past
-            displayDate = version.getPublishInfo().getPublishedFrom();
-        }
+        const displayDate = version.getDisplayDate();
         const displayName = version.hasPublishInfo() ?
                              version.getPublishInfo().getPublisherDisplayName() : version.getModifierDisplayName();
         const isAlias = version.isAlias();

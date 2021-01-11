@@ -129,6 +129,18 @@ export class ContentSummaryAndCompareStatus
         return !!this.contentSummary ? this.contentSummary.hasChildren() : false;
     }
 
+    hasOriginProject(): boolean {
+        return !!this.contentSummary && !!this.contentSummary.getOriginProject();
+    }
+
+    getOriginProject(): string {
+        return !!this.contentSummary ? this.contentSummary.getOriginProject() : null;
+    }
+
+    isInherited(): boolean {
+        return !!this.contentSummary ? this.contentSummary.isInherited() : false;
+    }
+
     isFullyInherited(): boolean {
         return (this.getInherit().length * 2) === Object.keys(ContentInheritType).length;
     }

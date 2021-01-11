@@ -17,16 +17,19 @@ import {Input} from 'lib-admin-ui/form/Input';
 import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
 import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from 'lib-admin-ui/Class';
+import {UrlAction} from '../../UrlAction';
 import {CustomSelectorLoader} from './CustomSelectorLoader';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
+import {ProjectContext} from '../../project/ProjectContext';
+import {Branch} from '../../versioning/Branch';
 
 export class CustomSelector
     extends BaseInputTypeManagingAdd {
 
     public static debug: boolean = false;
 
-    private static portalUrl: string = UriHelper.addSitePrefix('/edit/default/draft{0}/_/service/');
+    private static portalUrl: string = UriHelper.addSitePrefix(`/${UrlAction.EDIT}/{0}/${Branch.DRAFT}{1}/_/service/`);
 
     private requestPath: string;
 
@@ -124,7 +127,9 @@ export class CustomSelector
     }
 
     private getRequestPath(): string {
-        return StringHelper.format(this.requestPath, this.content.getPath().toString());
+        const contentPath = this.content.getPath().toString();
+        const projectId = ProjectContext.get().getProject().getName();
+        return StringHelper.format(this.requestPath, projectId, contentPath);
     }
 
     private createLoader(): CustomSelectorLoader {

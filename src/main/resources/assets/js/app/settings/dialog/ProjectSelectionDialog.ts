@@ -8,6 +8,8 @@ import {ProjectContext} from '../../project/ProjectContext';
 import {ProjectListRequest} from '../resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import * as Q from 'q';
+import {ProjectListWithMissingRequest} from '../resource/ProjectListWithMissingRequest';
+import {ProjectHelper} from '../data/project/ProjectHelper';
 
 export class ProjectSelectionDialog
     extends ModalDialog {
@@ -19,6 +21,8 @@ export class ProjectSelectionDialog
     private noItemsInfoBlock: H6El;
 
     private updateOnOpen: boolean = false;
+
+    private selectedProject: Project;
 
     private constructor() {
         super({
@@ -42,8 +46,11 @@ export class ProjectSelectionDialog
         this.projectsList.getItemViews().forEach((itemView: ProjectListItem) => {
             itemView.onClicked((event: MouseEvent) => {
                 if (!event.ctrlKey && !event.shiftKey) {
-                    ProjectContext.get().setProject(itemView.getProject());
-                    this.close();
+                    if (itemView.isSelectable()) {
+                        this.selectedProject = itemView.getProject();
+                        this.close();
+                    }
+
                     event.preventDefault();
                     event.stopPropagation();
                 }
@@ -65,17 +72,19 @@ export class ProjectSelectionDialog
     close() {
         super.close();
 
-        if (!ProjectContext.get().isInitialized()) {
-            this.setDefaultProject();
+        const project: Project = this.getProjectToSelect();
+
+        if (project) {
+            ProjectContext.get().setProject(project);
         }
     }
 
-    private setDefaultProject() {
-        const defaultProject: Project = this.projectsList.getItemCount() > 0 ? this.projectsList.getItems()[0] : null;
+    private getProjectToSelect(): Project {
+        return !!this.selectedProject ? this.selectedProject : this.getDefaultProject();
+    }
 
-        if (defaultProject) {
-            ProjectContext.get().setProject(defaultProject);
-        }
+    private getDefaultProject(): Project {
+        return this.projectsList.getItems().filter(ProjectHelper.isAvailable)[0];
     }
 
     open() {
@@ -91,7 +100,7 @@ export class ProjectSelectionDialog
     private loadProjects(): Q.Promise<void> {
         this.mask();
 
-        return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+        return new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
             this.setProjects(projects);
             this.showItems();
         }).catch(DefaultErrorHandler.handle).finally(() => {

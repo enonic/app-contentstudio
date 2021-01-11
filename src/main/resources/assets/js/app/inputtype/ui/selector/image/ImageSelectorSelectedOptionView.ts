@@ -50,6 +50,11 @@ export class ImageSelectorSelectedOptionView
         }
     }
 
+    setReadonly(readonly: boolean): void {
+        super.setReadonly(readonly);
+        this.check.setEnabled(!readonly);
+    }
+
     private updateIconSrc(content: MediaTreeSelectorItem) {
         const newIconSrc = content.getImageUrl() + '?thumbnail=false&size=' + ImageSelectorSelectedOptionView.IMAGE_SIZE;
 

@@ -1,48 +1,18 @@
-@types-list-max-height: 38vh;
 @file-input-height: 37px;
 @file-input-margin-bottom: 20px;
 
-
-.display-flex(@dir, @justify, @align) {
-  display: -webkit-flex;
-  -webkit-flex-direction: @dir;
-  -webkit-justify-content: @justify;
-  -webkit-align-items: @align;
-
-  display: flex;
-  flex-direction: @dir;
-  justify-content: @justify;
-  align-items: @align;
-}
-
 .new-content-dialog {
-  @media screen and (max-height: 360px) {
-    min-height: 220px;
-  }
 
-  &.mock-modal-dialog { //used to calculate modal dialog height
-    position: fixed;
-    left: -9999px;
+  .modal-dialog-header {
+    .title-wrapper {
+      display: flex;
 
-    .dialog-content {
-      .column {
-        .content-types-list, .most-popular-content-types-list, .recent-content-types-list {
-          transition: none;
-        }
+      .title {
+        flex-grow: 1;
       }
     }
 
-  }
-
-  .modal-dialog-header {
-    .title {
-      display: inline-block;
-      width: calc(100% - 37px);
-    }
-
     .new-content-uploader {
-      display: inline-block;
-
       .media-uploader-el {
         position: static;
 
@@ -52,10 +22,11 @@
       }
 
       @media screen and (max-width: 720px) {
+        z-index: 1;
         position: absolute;
-        bottom: 10px;
-        left: 20px;
-        width: calc(100% - 40px);
+        bottom: -7px;
+        left: 0;
+        width: 100%;
 
         .upload-button {
           width: 100%;
@@ -89,24 +60,12 @@
     }
   }
 
-  &.filter-visible .dialog-content .content-types-content {
-    max-height: calc(@types-list-max-height - @file-input-height - @file-input-margin-bottom);
-  }
-
   .dialog-content {
     position: relative;
     display: flex;
-    max-height: @types-list-max-height;
 
     @media screen and (max-height: 360px) {
       height: 65%;
-    }
-
-    .content-types-content {
-      max-height: @types-list-max-height;
-      overflow-y: auto;
-      overflow-x: hidden;
-      transition: max-height 0.2s;
     }
 
     .recent-content-types-list {
@@ -147,7 +106,7 @@
       }
 
       &:hover {
-        background-color: #ebebeb;
+        background-color: @admin-bg-light-gray;
       }
     }
 
@@ -158,14 +117,13 @@
       .file-input {
         margin-bottom: @file-input-margin-bottom;
 
-        @media screen and (max-height: 360px) {
-          margin-bottom: 5px;
-        }
-
         input {
           height: @file-input-height;
-        }
 
+          &:focus {
+            outline: none;
+          }
+        }
       }
 
       @media screen and (max-width: 720px) {
@@ -197,11 +155,11 @@
   }
 
   .dialog-buttons {
+    text-align: center;
 
     &:before {
       width: 100%;
       line-height: 34px;
-      text-align: center;
       color: @admin-font-gray1;
       content: attr(data-drop);
     }
@@ -234,12 +192,16 @@
 
   @media screen and (max-width: 720px) {
     .modal-dialog-footer {
-      height: 40px;
+      display: none;
     }
 
     .dialog-content {
       section {
         max-width: 100%;
+
+        .file-input {
+          display: block !important;
+        }
 
         .content-types-content {
           max-height: none;

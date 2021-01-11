@@ -8,7 +8,7 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const NewSettingsItemDialog = require('../../page_objects/project/new.settings.item.dialog');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 
 describe('settings.browse.panel.context.menu.spec - ui-tests to verify context menu items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -68,7 +68,7 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
     it(`GIVEN right click on existing project WHEN 'Delete' menu has been clicked AND 'Yes' clicked THEN project should be deleted`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
+            let confirmValueDialog = new ConfirmValueDialog();
             //1. Right click on the existing project:
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.waitForContextMenuDisplayed();
@@ -76,10 +76,11 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
             await settingsBrowsePanel.clickOnMenuItem("Delete");
             studioUtils.saveScreenshot("projects_context_menu_new");
             //3. Verify that the modal dialog is loaded:
-            await confirmationDialog.waitForDialogOpened();
-            //4. Click on 'Yes' button and delete the project:
-            await confirmationDialog.clickOnYesButton();
-            await confirmationDialog.waitForDialogClosed();
+            await confirmValueDialog.waitForDialogOpened();
+            await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME_1);
+            //4. Click on 'Confirm' button and delete the project:
+            await confirmValueDialog.clickOnConfirmButton();
+            await confirmValueDialog.waitForDialogClosed();
             studioUtils.saveScreenshot("projects_context_menu_new_deleted");
             let actualMessage = await settingsBrowsePanel.waitForNotificationMessage();
             assert.equal(actualMessage,

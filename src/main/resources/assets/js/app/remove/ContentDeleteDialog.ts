@@ -5,7 +5,7 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
-import {ConfirmContentDeleteDialog} from './ConfirmContentDeleteDialog';
+import {ConfirmValueDialog} from './ConfirmValueDialog';
 import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {DeleteDialogItemList} from './DeleteDialogItemList';
@@ -31,6 +31,8 @@ export class ContentDeleteDialog
     private messageId: string;
 
     private markDeletedAction: Action;
+
+    private deleteConfirmationDialog?: ConfirmValueDialog;
 
     constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
@@ -208,13 +210,14 @@ export class ContentDeleteDialog
 
             this.close();
 
-            new ConfirmContentDeleteDialog({
-                totalItemsToDelete,
-                deleteRequest,
-                yesCallback,
-                title: i18n('dialog.confirmDelete'),
-                confirmation: {}
-            }).open();
+            if (!this.deleteConfirmationDialog) {
+                this.initDeleteConfirmationDialog();
+            }
+
+            this.deleteConfirmationDialog
+                .setValueToCheck('' + totalItemsToDelete)
+                .setYesCallback(yesCallback)
+                .open();
         } else {
             if (this.yesCallback) {
                 isInstantDelete ? this.yesCallback([]) : this.yesCallback();
@@ -300,6 +303,13 @@ export class ContentDeleteDialog
         } else {
             return false;
         }
+    }
+
+    private initDeleteConfirmationDialog() {
+        this.deleteConfirmationDialog = new ConfirmValueDialog();
+        this.deleteConfirmationDialog
+            .setHeaderText(i18n('dialog.confirmDelete'))
+            .setSubheaderText((i18n('dialog.confirmDelete.subname')));
     }
 
 }

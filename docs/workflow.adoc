@@ -14,6 +14,10 @@ Content Workflow in Content Studio consists of the following stages:
 
 Workflow state of the content is displayed via corresponding icon, except for "Published" state when no icon is used.
 
+In addition to the workflow stages above, if the content at any time is invalid based on required elements or other rules in the content type,
+it is marked with a red icon:
+
+image::invalid-content.png[Invalid content with red icon, 484]
 
 == In Progress
 

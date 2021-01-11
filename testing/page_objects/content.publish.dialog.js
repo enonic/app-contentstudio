@@ -4,7 +4,7 @@ const lib = require('../libs/elements');
 const XPATH = {
     container: `//div[contains(@id,'ContentPublishDialog')]`,
     logMessageLink: `//div[contains(@id,'ContentPublishDialogSubTitle')]/a`,
-    publishNowButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Publish Now')]]`,
+    publishNowButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Publish Now')]]`,
     scheduleButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Schedule')]]`,
     cancelButtonTop: `//button[ contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
@@ -13,9 +13,10 @@ const XPATH = {
     addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     removeItemIcon: `//div[contains(@class,'icon remove')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
-    changeLogInput:"//input[contains(@id,'AutosizeTextInput')]",
+    changeLogInput: "//input[contains(@id,'AutosizeTextInput')]",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     dependantItemViewer: "//div[contains(@id,'DependantItemViewer')]",
+    markAsReadyDropdownHandle: "//button[contains(@id,'DropdownHandle')]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToPublish:
@@ -62,6 +63,24 @@ class ContentPublishDialog extends Page {
         return XPATH.container + XPATH.includeChildrenToogler;
     }
 
+    get markAsReadyDropdownHandle() {
+        return XPATH.container + XPATH.markAsReadyDropdownHandle;
+    }
+
+    async clickOnmarkAsReadyDropdownHandle() {
+        await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.longTimeout);
+        return await this.clickOnElement(this.markAsReadyDropdownHandle);
+    }
+
+    async clickOnMarkAsReadyMenuItem() {
+        let locator = XPATH.container + "//li[contains(@id,'MenuItem') and contains(.,'Mark as ready')]";
+        await this.clickOnmarkAsReadyDropdownHandle();
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.pause(200);
+        await this.clickOnElement(locator);
+        return await this.pause(200);
+    }
+
     waitForDialogOpened() {
         return this.waitForElementDisplayed(this.publishNowButton, appConst.longTimeout);
     }
@@ -90,7 +109,7 @@ class ContentPublishDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.addScheduleButton, appConst.shortTimeout);
             await this.clickOnElement(this.addScheduleButton);
-            await this.pause(500);
+            return await this.pause(500);
         } catch (err) {
             this.saveScreenshot('err_publish_dialog_add_schedule_button');
             throw new Error(`Error when clicking 'Add Schedule' icon-button  ` + err);
@@ -210,7 +229,7 @@ class ContentPublishDialog extends Page {
     }
 
     async getNumberItemsToPublish() {
-        let selector = XPATH.container + `//button[contains(@id,'DialogButton')]/span[contains(.,'Publish Now')]`;
+        let selector = XPATH.container + `//button[contains(@id,'ActionButton')]/span[contains(.,'Publish Now')]`;
         let number = await this.getText(selector);
         let startIndex = number.indexOf('(');
         if (startIndex == -1) {
@@ -246,5 +265,6 @@ class ContentPublishDialog extends Page {
         let locator = XPATH.container + XPATH.dependantList + XPATH.dependantItemViewer + lib.H6_DISPLAY_NAME;
         return this.getTextInElements(locator);
     }
-};
+}
+
 module.exports = ContentPublishDialog;

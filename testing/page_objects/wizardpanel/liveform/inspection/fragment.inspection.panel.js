@@ -38,6 +38,6 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
         let selector = xpath.container + "//form[contains(@id,'FragmentSelectorForm')]" + xpath.selectedOptionView + lib.P_SUB_NAME;
         return await this.getText(selector);
     }
-};
+}
 module.exports = FragmentInspectionPanel;
 

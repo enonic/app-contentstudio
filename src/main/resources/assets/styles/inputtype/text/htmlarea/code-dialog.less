@@ -1,11 +1,25 @@
 .html-area-modal-dialog.source-code-modal-dialog {
+  .form-view {
+    display: none;
+  }
 
   textarea {
+    min-height: 350px;
+    max-height: 350px;
     width: 100%;
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px;
     color: @admin-bg-dark-gray;
     line-height: normal;
+  }
+
+  &._0-240,
+  &._240-360,
+  &._360-540,
+  &._540-720 {
+    textarea {
+      min-height: 100%;
+    }
   }
 
 }

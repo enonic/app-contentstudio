@@ -10,6 +10,7 @@ export class ProjectAccessControlComboBox
 
     constructor(builder: ProjectAccessControlComboBoxBuilder = new ProjectAccessControlComboBoxBuilder()) {
         super(builder);
+        this.addClass('project-access-combobox');
     }
 
     protected loadedItemToDisplayValue(value: Principal): ProjectAccessControlEntry {
@@ -17,7 +18,7 @@ export class ProjectAccessControlComboBox
     }
 }
 
-class ProjectACESelectedOptionsView
+export class ProjectACESelectedOptionsView
     extends PrincipalContainerSelectedOptionsView<ProjectAccessControlEntry> {
 
     protected createSelectedEntryView(option: Option<ProjectAccessControlEntry>): ProjectAccessControlEntryView {

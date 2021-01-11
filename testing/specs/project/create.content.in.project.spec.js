@@ -140,6 +140,14 @@ describe('create.content.in.project.spec - create new content in the selected co
             assert.equal(result.length, 0, "Filtered grid should be empty");
         });
 
+    it("Postconditions: the project should be deleted",
+        async () => {
+            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.openSettingsPanel();
+            //1.Select and delete the layer:
+            await studioUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
+        });
+
     beforeEach(async () => {
         await studioUtils.navigateToContentStudioWithProjects();
     });

@@ -20,7 +20,6 @@ import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {BrEl} from 'lib-admin-ui/dom/BrEl';
 import {UrlHelper} from '../util/UrlHelper';
 import {ProjectContext} from '../project/ProjectContext';
-import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -61,10 +60,10 @@ export class ContentItemPreviewPanel
 
         const projectSetHandler = () => {
             this.noSelectionMessage.getFirstChild().setHtml(i18n('panel.noselection'));
-            ProjectChangedEvent.un(projectSetHandler);
+            ProjectContext.get().unProjectChanged(projectSetHandler);
         };
 
-        ProjectChangedEvent.on(projectSetHandler);
+        ProjectContext.get().onProjectChanged(projectSetHandler);
     }
 
     doRender(): Q.Promise<boolean> {

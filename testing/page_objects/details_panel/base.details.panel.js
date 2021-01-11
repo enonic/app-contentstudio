@@ -8,15 +8,14 @@ const appConst = require('../../libs/app_const');
 class BaseDetailsPanel extends Page {
 
     //drop down menu for switch to Details, Version History, Dependencies
-    clickOnWidgetSelectorDropdownHandle() {
-        return this.waitForElementDisplayed(this.widgetSelectorDropdownHandle, appConst.mediumTimeout).catch(err => {
-            console.log("widget Selector DropdownHandle is not visible in  3 sec:");
-            throw new Error('widgetSelectorDropdownHandle is not visible in  3 sec!  ' + err);
-        }).then(() => {
-            return this.pause(300);
-        }).then(() => {
-            return this.clickOnElement(this.widgetSelectorDropdownHandle);
-        });
+    async clickOnWidgetSelectorDropdownHandle() {
+        try {
+            await this.waitForElementDisplayed(this.widgetSelectorDropdownHandle, appConst.mediumTimeout);
+            await this.pause(200);
+            return await this.clickOnElement(this.widgetSelectorDropdownHandle);
+        } catch (err) {
+            throw new Error('Error when clicking on Widget Selector dropdown handle  ' + err);
+        }
     }
 
     async getOptionsName() {
@@ -54,12 +53,13 @@ class BaseDetailsPanel extends Page {
             await this.waitForElementDisplayed(layersOption, appConst.mediumTimeout);
             let result = await this.getDisplayedElements(layersOption);
             await result[0].click();
+            return await this.pause(500);
         } catch (err) {
-            throw new Error("Error when opening Layers widget")
+            throw new Error("Error when opening Layers widget" + err);
         }
-        return await this.pause(500);
     }
-};
+}
+
 module.exports = BaseDetailsPanel;
 
 

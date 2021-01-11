@@ -1,10 +1,13 @@
 import {AppMode} from './AppMode';
+import {Application} from 'lib-admin-ui/app/Application';
 
 export class AppContext {
 
     private static INSTANCE: AppContext;
 
     private appMode: AppMode = AppMode.MAIN;
+
+    private application: Application;
 
     private constructor() {
         //
@@ -22,8 +25,16 @@ export class AppContext {
         this.appMode = value;
     }
 
+    setApplication(application: Application) {
+        this.application = application;
+    }
+
     getMode(): AppMode {
         return this.appMode;
+    }
+
+    getApplication(): Application {
+        return this.application;
     }
 
     isMainMode(): boolean {

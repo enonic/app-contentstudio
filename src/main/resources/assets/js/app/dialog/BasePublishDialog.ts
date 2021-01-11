@@ -96,6 +96,14 @@ export abstract class BasePublishDialog
         this.publishProcessor.onLoadingFailed(this.handleLoadFailed.bind(this));
         this.publishProcessor.onItemsChanged(this.handleLoadFinished.bind(this));
 
+        this.publishIssuesStateBar.onExcludeAllInProgressClicked(() => {
+            this.publishProcessor.excludeItems(this.publishProcessor.getInProgressIdsWithoutInvalid());
+        });
+
+        this.publishIssuesStateBar.onExcludeAllInvalidClicked(() => {
+            this.publishProcessor.excludeItems(this.publishProcessor.getInvalidIds());
+        });
+
         this.handleIssueGlobalEvents();
     }
 
@@ -111,7 +119,7 @@ export abstract class BasePublishDialog
         this.updateDependantsHeader(header);
         this.updateChildItemsToggler();
 
-        if (this.publishProcessor.containsInvalidDependants() ||
+        if (this.publishProcessor.containsInvalidDependants() || this.publishProcessor.containsItemsInProgress() ||
             this.publishProcessor.isCheckPublishable() && !this.isAllPublishable()) {
             this.setDependantListVisible(true);
         }
@@ -159,8 +167,10 @@ export abstract class BasePublishDialog
             this.publishIssuesStateBar.reset();
         } else {
             this.publishIssuesStateBar.addClass('has-issues');
-            this.publishIssuesStateBar.setContainsInProgressVisible(containsItemsInProgress);
-            this.publishIssuesStateBar.setContainsInvalidVisible(!allValid);
+            this.publishIssuesStateBar.setContainsInProgress(this.publishProcessor.getInProgressIdsWithoutInvalid().length > 0);
+            this.publishIssuesStateBar.setTotalInProgress(this.publishProcessor.getTotalExcludableInProgress());
+            this.publishIssuesStateBar.setTotalInvalid(this.publishProcessor.getTotalExcludableInvalid());
+            this.publishIssuesStateBar.setContainsInvalid(!allValid);
             this.publishIssuesStateBar.setContainsNotPublishableVisible(!allPublishable);
         }
     }

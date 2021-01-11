@@ -3,12 +3,17 @@
  */
 const Page = require('../../page');
 const lib = require('../../../libs/elements');
+const appConst = require('../../../libs/app_const');
 const xpath = {
-    container: "//div[contains(@id,'FormView')]//div[contains(@id,'FormOptionSetView') and descendant::p[text()='Single selection']]",
+    container: "//div[contains(@id,'FormView')]//div[contains(@id,'FormOptionSetView') and descendant::h5[text()='Single selection']]",
     nameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='Name']]" + lib.TEXT_INPUT,
     addItemSetButton: "//button[contains(@id,'Button') and child::span[text()='Add My Item-set']]",
-    removeItemSetOccurrenceButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "/a[@class='remove-button']",
-    labelInput: "//div[contains(@id,'FormItemSetOccurrenceView')]//input[contains(@name,'label')]"
+    itemSetOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//button[contains(@id,'MoreButton')]",
+    labelInput: "//div[contains(@id,'FormItemSetOccurrenceView')]//input[contains(@name,'label')]",
+    itemSetOccurrenceMenuItems: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//li[contains(@id,'MenuItem')]",
+    itemSetOccurrenceDeleteMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Delete']",
+    itemSetOccurrenceAddAboveMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Add above']",
+    itemSetOccurrenceAddBelowMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Add below']"
 };
 
 class SingleSelectionOptionSet extends Page {
@@ -43,13 +48,46 @@ class SingleSelectionOptionSet extends Page {
 
     async clickOnAddItemSetButton() {
         await this.clickOnElement(this.addItemSetButton);
-        return await this.pause(500);
+        return await this.pause(400);
     }
 
-    async clickOnRemoveItemSetOccurrenceView(index) {
-        let elems = await this.findElements(this.removeItemSetOccurrenceButton);
-        await this.getBrowser().elementClick(elems[index].elementId);
-        return await this.pause(500);
+    async expandMenuClickOnDelete(index) {
+        let locator = xpath.itemSetOccurrenceMenuButton;
+        let menuButtons = await this.findElements(locator);
+        await this.getBrowser().elementClick(menuButtons[index].elementId);
+        await this.pause(400);
+        let res = await this.getDisplayedElements(
+            "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//li[contains(@id,'MenuItem') and text()='Delete']");
+        await res[0].waitForEnabled(appConst.shortTimeout, "Option Set - Delete menu item should be enabled!");
+        await res[0].click();
+        return await this.pause(300);
+    }
+
+    async expandItemSetMenu(index) {
+        let locator = xpath.itemSetOccurrenceMenuButton;
+        let menuButtons = await this.findElements(locator);
+        await menuButtons[index].click();
+        return await this.pause(400);
+    }
+
+    async isDeleteSetMenuItemDisabled() {
+        let menuItemElements = await this.getDisplayedElements(xpath.itemSetOccurrenceDeleteMenuItem);
+        let res = await menuItemElements[0].getAttribute("class");
+        //await menuItemElements[0].waitForEnabled(appConst.shortTimeout, true, "Option Set - Delete menu item should be disabled!");
+        return res.includes("disabled");
+    }
+
+    async isAddAboveSetMenuItemDisabled() {
+        let menuItemElements = await this.getDisplayedElements(xpath.itemSetOccurrenceAddAboveMenuItem);
+        let res = await menuItemElements[0].getAttribute("class");
+        return res.includes("disabled");
+    }
+
+    async isAddBelowSetMenuItemDisabled() {
+        let menuItemElements = await this.getDisplayedElements(xpath.itemSetOccurrenceAddBelowMenuItem);
+        let res = await menuItemElements[0].getAttribute("class");
+        return res.includes("disabled");
     }
 }
+
 module.exports = SingleSelectionOptionSet;

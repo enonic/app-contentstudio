@@ -25,6 +25,7 @@ import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {Project} from '../../../data/project/Project';
+import {ProjectHelper} from '../../../data/project/ProjectHelper';
 
 export class ProjectReadAccessWizardStepForm
     extends ProjectWizardStepForm {
@@ -78,6 +79,14 @@ export class ProjectReadAccessWizardStepForm
         });
     }
 
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+
+        if (this.principalsCombobox) {
+            this.principalsCombobox.setEnabled(enable);
+        }
+    }
+
     private updateCopyParentLanguageButtonState() {
         if (!this.copyParentLanguageButton) {
             return;
@@ -107,11 +116,11 @@ export class ProjectReadAccessWizardStepForm
         this.updateFilteredPrincipalsByPermissions(permissions);
 
         if (!readAccess.isCustom()) {
-            this.disablePrincipalCombobox();
+            this.principalsCombobox.setEnabled(false);
             return Q(null);
         }
 
-        this.enablePrincipalCombobox();
+        this.principalsCombobox.setEnabled(true);
 
         return new GetPrincipalsByKeysRequest(readAccess.getPrincipals()).sendAndParse().then((principals: Principal[]) => {
             principals.forEach((principal: Principal) => {
@@ -131,7 +140,7 @@ export class ProjectReadAccessWizardStepForm
         }
 
         this.filterPrincipals(this.getDefaultFilteredPrincipals());
-        this.disablePrincipalCombobox();
+        this.principalsCombobox.setEnabled(false);
     }
 
     getName(): string {
@@ -195,7 +204,7 @@ export class ProjectReadAccessWizardStepForm
         return new ValidationRecording();
     }
 
-    protected getFormItems(): FormItem[] {
+    protected createFormItems(): FormItem[] {
         if (!!this.item && this.item.isDefaultProject()) {
             return [this.createLanguageFormItem()];
         }
@@ -285,7 +294,8 @@ export class ProjectReadAccessWizardStepForm
             return;
         }
 
-        this.copyParentAccessModeButton.setEnabled(this.parentProject && !this.parentProject.getReadAccess().equals(this.getReadAccess()));
+        this.copyParentAccessModeButton.setEnabled(
+            ProjectHelper.isAvailable(this.parentProject) && !this.parentProject.getReadAccess().equals(this.getReadAccess()));
     }
 
     private getDefaultFilteredPrincipals(): PrincipalKey[] {
@@ -295,16 +305,6 @@ export class ProjectReadAccessWizardStepForm
     private filterPrincipals(principals: PrincipalKey[]) {
         const principalsLoader: PrincipalLoader = <PrincipalLoader>this.principalsCombobox.getLoader();
         principalsLoader.skipPrincipals(principals);
-    }
-
-    private disablePrincipalCombobox() {
-        this.principalsCombobox.getComboBox().setEnabled(false);
-        this.principalsCombobox.addClass('disabled');
-    }
-
-    private enablePrincipalCombobox() {
-        this.principalsCombobox.getComboBox().setEnabled(true);
-        this.principalsCombobox.removeClass('disabled');
     }
 
     private createLanguageFormItem(): FormItem {
@@ -405,12 +405,7 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private handleAccessValueChanged(newValue: string) {
-        if (newValue === ProjectReadAccessType.PRIVATE || newValue === ProjectReadAccessType.PUBLIC) {
-            this.disablePrincipalCombobox();
-        } else {
-            this.enablePrincipalCombobox();
-        }
-
+        this.principalsCombobox.setEnabled(newValue === ProjectReadAccessType.CUSTOM);
         this.readAccessRadioGroupFormItem.validate(new ValidationResult(), true);
 
         this.updateCopyParentAccessModeButtonState();

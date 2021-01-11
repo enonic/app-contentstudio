@@ -6,11 +6,11 @@ import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {Project} from '../settings/data/project/Project';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {ProjectContext} from '../project/ProjectContext';
-import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 import {ProjectSelectionDialog} from '../settings/dialog/ProjectSelectionDialog';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
+import {ProjectListWithMissingRequest} from '../settings/resource/ProjectListWithMissingRequest';
 
 export class ContentAppBar
     extends AppBar {
@@ -42,7 +42,7 @@ export class ContentAppBar
 
         const handler: () => void = this.handleProjectUpdate.bind(this);
 
-        ProjectChangedEvent.on(handler);
+        ProjectContext.get().onProjectChanged(handler);
         ProjectUpdatedEvent.on(handler);
     }
 
@@ -53,7 +53,7 @@ export class ContentAppBar
 
         const currentProjectName: string = ProjectContext.get().getProject().getName();
 
-        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+        new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
             ProjectSelectionDialog.get().setProjects(projects);
             const project: Project = projects.find((p: Project) => p.getName() === currentProjectName);
             this.selectedProjectViewer.setObject(project);

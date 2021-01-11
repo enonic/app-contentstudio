@@ -203,7 +203,7 @@ class BaseBrowsePanel extends Page {
         try {
             await this.waitForElementEnabled(this.editButton, appConst.mediumTimeout);
             await this.clickOnElement(this.editButton);
-            return this.pause(500);
+            return await this.pause(500);
         } catch (err) {
             this.saveScreenshot('err_browse_panel_edit_button');
             throw new Error('Browse Panel: Edit button is not enabled! ' + err);

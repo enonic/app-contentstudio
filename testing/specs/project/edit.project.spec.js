@@ -188,20 +188,10 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
 
     it("Layer and its parent project are successively deleted",
         async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
             //1.Select the layer and delete it:
-            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_NAME);
-            await settingsBrowsePanel.clickOnDeleteButton();
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
-            await settingsBrowsePanel.waitForNotificationMessage();
+            await studioUtils.selectAndDeleteProject(LAYER_NAME);
             //2. Select The parent project and delete it:
-            await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT2_DISPLAY_NAME);
-            await settingsBrowsePanel.clickOnDeleteButton();
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
-            await settingsBrowsePanel.waitForNotificationMessage();
+            await studioUtils.selectAndDeleteProject(PROJECT2_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

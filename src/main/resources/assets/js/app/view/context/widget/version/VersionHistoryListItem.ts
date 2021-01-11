@@ -34,8 +34,11 @@ export class VersionHistoryListItem
     private createVersionViewer(): VersionHistoryListItemViewer {
         const versionViewer: VersionHistoryListItemViewer = new VersionHistoryListItemViewer();
 
-        if (this.version.isRevertable()) {
+        if (this.version.isRevertable() || this.version.isActive()) {
             this.addOnClickHandler(versionViewer);
+        }
+
+        if (this.version.isRevertable()) {
             ActiveContentVersionSetEvent.on((event: ActiveContentVersionSetEvent) => {
                 this.version.setActiveVersionId(event.getVersionId());
             });
@@ -86,18 +89,8 @@ export class VersionHistoryListItem
         return tooltip;
     }
 
-    private createEditButton(): ActionButton {
-        const editButton: ActionButton = new ActionButton(new Action(i18n('action.edit')));
-
-        if (this.content.isReadOnly()) {
-            editButton.setEnabled(false);
-        } else {
-            editButton.getAction().onExecuted(() => {
-                new EditContentEvent([this.content]).fire();
-            });
-        }
-
-        return editButton;
+    private createActiveVersionButton(): ActionButton {
+        return new ActionButton(new Action(i18n('text.activeVersion')));
     }
 
     private createRevertButton(): ActionButton {
@@ -179,7 +172,7 @@ export class VersionHistoryListItem
             this.toggleClass('expanded');
 
             if (this.hasClass('expanded') && !this.actionButton) {
-                this.actionButton = this.version.isActive() ? this.createEditButton() : this.createRevertButton();
+                this.actionButton = this.version.isActive() ? this.createActiveVersionButton() : this.createRevertButton();
                 this.actionButton.addClass('version-action-button');
                 viewer.appendChild(this.actionButton);
             }

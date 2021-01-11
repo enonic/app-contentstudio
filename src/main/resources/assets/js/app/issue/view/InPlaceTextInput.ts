@@ -3,7 +3,7 @@ import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {CompositeFormInputEl} from 'lib-admin-ui/dom/CompositeFormInputEl';
 import {H2El} from 'lib-admin-ui/dom/H2El';
-import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
+import {TextInput, TextInputSize} from 'lib-admin-ui/ui/text/TextInput';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class InPlaceTextInput
@@ -16,7 +16,7 @@ export class InPlaceTextInput
     private modeListeners: { (editMode: boolean, newValue: string, oldValue: string) }[] = [];
     private outsideClickListener: (event: MouseEvent) => void;
 
-    constructor(originalValue?: string, size?: string) {
+    constructor(originalValue?: string, size?: TextInputSize) {
         super();
         this.addClass('inplace-text-input');
 
@@ -36,7 +36,7 @@ export class InPlaceTextInput
         return h2;
     }
 
-    private createInput(originalValue: string, size: string) {
+    private createInput(originalValue: string, size: TextInputSize) {
         const input = new TextInput('inplace-input', size, originalValue);
 
         input.onValueChanged(() => {

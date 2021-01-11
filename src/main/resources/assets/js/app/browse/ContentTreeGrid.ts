@@ -38,6 +38,8 @@ import {Expand} from 'lib-admin-ui/rest/Expand';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {GridColumnConfig} from 'lib-admin-ui/ui/grid/GridColumn';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {DeletedContentItem} from './DeletedContentItem';
+import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 
 export enum State {
     ENABLED, DISABLED
@@ -209,14 +211,6 @@ export class ContentTreeGrid
         }
     }
 
-    protected isClickOutsideGridViewport(clickedEl: HTMLElement) {
-        if (super.isClickOutsideGridViewport(clickedEl)) {
-            return true;
-        }
-        const element: Element = Element.fromHtmlElement(clickedEl);
-        return element.hasClass('content-item-preview-panel');
-    }
-
     setState(state: State) {
         this.state = state;
 
@@ -367,22 +361,6 @@ export class ContentTreeGrid
             });
     }
 
-    private fetchChildrenIds(parentNode: TreeNode<ContentSummaryAndCompareStatus>): Q.Promise<ContentId[]> {
-        this.removeEmptyNode(parentNode);
-
-        if (!this.isFiltered() || parentNode !== this.getRoot().getCurrentRoot()) {
-            const parentContentId: ContentId = parentNode.getData() ? parentNode.getData().getContentId() : null;
-            return ContentSummaryAndCompareStatusFetcher.fetchChildrenIds(parentContentId);
-        } else {
-            const size: number = parentNode.getChildren().length + 1;
-            return this.sendContentQueryRequest(0, size).then(this.getContentIDsFromContentQueryResult.bind(this));
-        }
-    }
-
-    private getContentIDsFromContentQueryResult(queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>): ContentId[] {
-        return queryResult.getContents().map((content => content.getContentId()));
-    }
-
     appendUploadNode(item: UploadItem<ContentSummary>) {
         const data: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromUploadItem(item);
         const parent: TreeNode<ContentSummaryAndCompareStatus> = this.getFirstSelectedOrHighlightedNode();
@@ -411,16 +389,6 @@ export class ContentTreeGrid
         uploadItem.onFailed(() => {
             this.deleteNode(uploadNode);
         });
-    }
-
-    reloadNodeData(parentNode: TreeNode<ContentSummaryAndCompareStatus>): Q.Promise<TreeNode<ContentSummaryAndCompareStatus>> {
-        return ContentSummaryAndCompareStatusFetcher.fetch(parentNode.getData().getContentId()).then(
-            (content: ContentSummaryAndCompareStatus) => {
-                parentNode.setData(content);
-                parentNode.setExpandable(content.hasChildren());
-                this.invalidateNodes([parentNode]);
-                return parentNode;
-            });
     }
 
     sortNodeChildren(node: TreeNode<ContentSummaryAndCompareStatus>) {
@@ -653,17 +621,13 @@ export class ContentTreeGrid
         }
 
         if (!parentNode.isExpandable() && parentNode.hasData()) {
-            parentNode.setExpandable(true);
-            const oldData: ContentSummaryAndCompareStatus = parentNode.getData();
-            const newContentSummary: ContentSummary = new ContentSummaryBuilder(oldData.getContentSummary()).setHasChildren(true).build();
-            const newData: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
-                newContentSummary, oldData.getCompareStatus(), oldData.getPublishStatus());
-            parentNode.setData(newData);
-            this.invalidateNodes([parentNode]);
+            this.updateNodeHasChildren(parentNode, true);
             return;
         }
 
-        ContentSummaryAndCompareStatusFetcher.fetchChildrenIds(parentNode.hasData() ? parentNode.getData().getContentId() : null)
+        const parentId: ContentId = parentNode.hasData() ? parentNode.getData().getContentId() : null;
+        const order: ChildOrder = !!parentId ? null : ContentSummaryAndCompareStatusFetcher.createRootChildOrder();
+        ContentSummaryAndCompareStatusFetcher.fetchChildrenIds(parentId, order)
             .then((childrenIds: ContentId[]) => {
                 items.forEach((item: ContentSummaryAndCompareStatus) => {
                     const contentId: ContentId = item.getContentId();
@@ -719,6 +683,16 @@ export class ContentTreeGrid
         });
     }
 
+    private updateNodeHasChildren(node: TreeNode<ContentSummaryAndCompareStatus>, hasChildren: boolean) {
+        node.setExpandable(hasChildren);
+        const oldData: ContentSummaryAndCompareStatus = node.getData();
+        const newContentSummary: ContentSummary = new ContentSummaryBuilder(oldData.getContentSummary()).setHasChildren(
+            hasChildren).build();
+        const newData: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
+            newContentSummary, oldData.getCompareStatus(), oldData.getPublishStatus());
+        this.doUpdateNodeByData(node, newData);
+    }
+
     selectInlinedContentInGrid(contentPath: ContentPath) {
         if (this.hasSelectedOrHighlightedNode() && !this.isGivenPathSelectedInGrid(contentPath)) {
             this.selectNodeByPath(contentPath);
@@ -737,5 +711,30 @@ export class ContentTreeGrid
 
     getDefaultFullTotal(): number {
         return this.getRoot().getDefaultRoot().treeToList(false, false).length;
+    }
+
+    deleteItems(items: DeletedContentItem[]) {
+        const allNodes: TreeNode<ContentSummaryAndCompareStatus>[] = this.getRoot().getAllDefaultRootNodes();
+
+        items.forEach((item: DeletedContentItem) => {
+            if (this.hasNodeWithDataId(item.id.toString())) {
+                this.deleteNodeByDataId(item.id.toString());
+            }
+
+            const parentPath: ContentPath = item.path.getParentPath();
+
+            if (parentPath && !parentPath.isRoot()) {
+                const parentNode: TreeNode<ContentSummaryAndCompareStatus> = this.getParentNodeByPath(parentPath, allNodes);
+
+                if (parentNode && !parentNode.hasChildren()) {
+                    ContentSummaryAndCompareStatusFetcher.fetchChildrenIds(parentNode.getData().getContentId()).then(
+                        (ids: ContentId[]) => {
+                            if (ids.length === 0) {
+                                this.updateNodeHasChildren(parentNode, false);
+                            }
+                        }).catch(DefaultErrorHandler.handle).done();
+                }
+            }
+        });
     }
 }

@@ -3,7 +3,7 @@ import {AppBar} from 'lib-admin-ui/app/bar/AppBar';
 import {AppPanel} from 'lib-admin-ui/app/AppPanel';
 import {Application} from 'lib-admin-ui/app/Application';
 import * as Q from 'q';
-import {AppMode} from './AppMode';
+import {AppContext} from './AppContext';
 
 export abstract class MainAppContainer
     extends DivEl {
@@ -12,20 +12,14 @@ export abstract class MainAppContainer
 
     protected appPanel: AppPanel<any>;
 
-    protected application: Application;
-
-    private mode: AppMode;
-
-    constructor(application: Application, mode: AppMode) {
+    constructor() {
         super('app-container');
 
-        this.application = application;
-        this.mode = mode;
         this.initElements();
     }
 
     private initElements() {
-        this.appBar = this.createAppBar(this.application);
+        this.appBar = this.createAppBar(AppContext.get().getApplication());
         this.appPanel = this.createAppPanel();
     }
 
@@ -41,10 +35,6 @@ export abstract class MainAppContainer
 
             return rendered;
         });
-    }
-
-    getMode(): AppMode {
-        return this.mode;
     }
 
     hide() {

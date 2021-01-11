@@ -61,28 +61,6 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await studioUtils.doLogout();
         });
 
-    it("GIVEN user with Editor role is logged in WHEN existing project has been opened THEN all inputs should be disabled(not clickable)",
-        async () => {
-            //1. Do Log in with the user and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
-            await studioUtils.openSettingsPanel();
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            //2.Double click on the project:
-            await settingsBrowsePanel.doubleClickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //3. Verify that the project is opened:
-            await projectWizard.waitForLoaded();
-            //4. Verify that all inputs in the project page are disabled for contributor:
-            let isPageDisabled = await projectWizard.isNoModify();
-            assert.isTrue(isPageDisabled, "Wizard page should be disabled for contributor");
-            let result = await projectWizard.isDescriptionInputClickable();
-            assert.isFalse(result, "Description input should not be clickable");
-            result = await projectWizard.isLocaleOptionsFilterInputClickable();
-            assert.isFalse(result, "Locale input should not be clickable");
-            result = await projectWizard.isDisplayNameInputClickable();
-            assert.isFalse(result, "Display Name input should not be clickable");
-        });
-
     //Verifies Project selector button should not be clickable if current user has access to only one project #2089
     it("WHEN current user has access to only one project THEN ProjectViewer button should not be clickable",
         async () => {

@@ -1,196 +1,124 @@
 plugins {
-    id 'java'
-    id 'maven-publish'
-    id 'com.enonic.defaults' version '2.0.1'
-    id 'com.enonic.xp.app' version '2.0.0'
-    id "com.github.node-gradle.node" version '2.2.3'
-    id 'org.asciidoctor.convert' version '1.5.7'
-    id 'org.aim42.htmlSanityCheck' version '1.0.0-RC-1'
+    id 'com.enonic.defaults' version '2.0.1' apply false
+    id 'com.enonic.xp.app' version '2.0.0' apply false
+    id 'com.github.node-gradle.node' version '2.2.3' apply false
+    id 'org.asciidoctor.convert' version '1.5.7' apply false
+    id 'org.aim42.htmlSanityCheck' version '1.0.0-RC-1' apply false
 }
 
-app {
-    name = 'com.enonic.app.contentstudio'
-    group = 'com.enonic.app'
-    displayName = 'Content Studio'
-    systemVersion = "${xpVersion}"
-    vendorName = 'Enonic AS'
-    vendorUrl = 'https://enonic.com'
-    devSourcePaths += file("$rootDir/../lib-admin-ui/src/main/resources")
+allprojects {
+    apply plugin: 'com.github.node-gradle.node'
+    apply plugin: 'com.enonic.xp.app'
+    apply from: "$rootDir/gradle/env.gradle"
+    apply from: "$rootDir/gradle/lib-admin.gradle"
+    apply from: "$rootDir/gradle/node.gradle"
+
+    dependencies {
+        compile("com.enonic.xp:core-api:${xpVersion}") {
+            force = true
+        }
+        compile ("com.enonic.xp:portal-api:${xpVersion}") {
+            force = true
+        }
+        testCompile 'junit:junit:4.12'
+        testCompile 'org.mockito:mockito-core:2.23.0'
+    }
+
+    app {
+        systemVersion = "${xpVersion}"
+        vendorName = 'Enonic AS'
+        vendorUrl = 'https://enonic.com'
+    }
+
+    node {
+        download = true
+        version = '14.15.0'
+    }
+
+    repositories {
+        mavenLocal()
+        jcenter()
+        xp.enonicRepo('dev')
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
 }
 
-dependencies {
-    compile("com.enonic.xp:core-api:${xpVersion}") {
-        force = true
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.enonic.defaults'
+    apply plugin: 'com.enonic.xp.app'
+
+    sourceSets {
+        main {
+            java {
+                srcDirs "$rootDir/src/main/java"
+            }
+            resources {
+                srcDirs "$rootDir/src/main/resources"
+            }
+        }
+        test {
+            java {
+                srcDirs "$rootDir/src/test/java"
+            }
+            resources {
+                srcDirs "$rootDir/src/test/resources"
+            }
+        }
     }
-    compile ("com.enonic.xp:portal-api:${xpVersion}") {
-        force = true
+
+    app {
+        devSourcePaths += file( "$rootDir/../lib-admin-ui/src/main/resources" )
     }
-    include "com.enonic.xp:lib-admin:${xpVersion}"
-    include "com.enonic.xp:lib-portal:${xpVersion}"
-    include "com.enonic.xp:lib-context:${xpVersion}"
-    include "com.enonic.xp:lib-content:${xpVersion}"
-    include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
-    include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:2.23.0'
+
+    unpackDevResources.enabled = false
+
+    def unpackDevResourcesRoot = rootProject.tasks.getByPath(':unpackDevResources')
+    def npmInstallRoot = rootProject.tasks.getByPath(':npmInstall')
+    npmInstall.mustRunAfter unpackDevResourcesRoot
+    npmInstall.dependsOn += npmInstallRoot
+    processResources.dependsOn += unpackDevResourcesRoot
+
+    if ( hasLibAdminUi() )
+    {
+        build.dependsOn += libAdminBuildTask
+        clean.dependsOn += libAdminCleanTask
+    }
+
+    def webpackTask = tasks.findByPath( ':webpack' )
+    if ( webpackTask != null ) webpackTask.dependsOn += unpackDevResourcesRoot
 }
 
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-repositories {
-    mavenLocal()
-    jcenter()
-    xp.enonicRepo('dev')
-    maven {
-    	  url 'https://plugins.gradle.org/m2/'
-    }
+dependencies {
+    include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 }
 
-node {
-    download = true
-    version = '14.15.0'
-}
-
-
-task flush( type: Delete, dependsOn: clean ) {
-    description = 'Clean the project from built sources and dependencies'
-    delete '.xp'
-}
-
-task npmInstallForce( type: NpmTask ) {
-    description = 'Update all project node dependencies'
-    args = ['install', '--force']
-}
-
-task cleanNode( type: Delete ) {
-    delete 'node_modules'
-}
-
-npmInstall.mustRunAfter unpackDevResources
+// lib-admin-ui needs to be included, but it enables some tasks, though we only need :unpackDevResources
+processResources.enabled = false
+compileJava.enabled = false
+compileTestJava.enabled = false
+classes.enabled = false
+unpackWebJars.enabled = false
+build.enabled = false
+jar.enabled = false
+deploy.enabled = false
 
 task lint( type: NpmTask, dependsOn: npmInstall ) {
     args = [ 'run', 'lint' ]
-    inputs.files fileTree( dir: 'modules', include: '**/src/main/**.*' )
+    inputs.files fileTree( dir: 'modules', include: 'src/main/**.*' )
     outputs.dir file('gradle')
     outputs.upToDateWhen { false }
 }
 
-task webpack( type: NpmTask, dependsOn: [npmInstall, lint] ) {
-    environment = [ 'NODE_ENV': nodeEnvironment() ]
-    description = 'Build UI resources (ts, css, etc).'
-    args = [ 'run', 'build' ]
-    inputs.dir '.xp/dev'
-    inputs.dir 'src/main'
-    inputs.file 'webpack.config.js'
-    outputs.dir "${buildDir}/resources/main"
-}
-
-compileTestJava {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = sourceCompatibility
-}
-
-jar {
-    exclude 'assets/**/*.ts'
-    exclude 'assets/**/*.less'
-    exclude 'assets/styles/*.js'
-    exclude 'assets/page-editor/styles/*.js'
-    exclude 'assets/page-editor/lib/_include.js'
-    exclude 'assets/page-editor/lib/jquery*.js'
-    exclude 'assets/icons/fonts/*.*'
-    exclude 'assets/lib/ckeditor/**/plugin.raw.js'
-    if (isProd()) {
-        exclude 'assets/**/*.map'
-    }
-
-    outputs.dir "${buildDir}/resources/main"
-
-    dependsOn += webpack
-}
-
-project.afterEvaluate {
-    jar {
-        bnd ('Private-Package': '!dev.*, *;-split-package:=merge-first')
-    }
-}
-
-processResources.dependsOn += unpackDevResources
-
-if ( hasProperty( 'env' ) )
+if ( hasLibAdminUi() )
 {
-    addBuildDependency()
-    applyExcludedTasks()
-}
-
-def applyExcludedTasks() {
-    if ( isLibAdminUiIncluded() )
-    {
-        def libAdminUi = gradle.includedBuild( 'lib-admin-ui' )
-        def excludedTasks = gradle.startParameter.getExcludedTaskNames().findAll( { it == 'lint' || it == 'test' } )
-        libAdminUi.getLoadedSettings().getStartParameter().setExcludedTaskNames( excludedTasks )
-    }
-}
-
-def addBuildDependency() {
-    if ( isLibAdminUiIncluded() )
-    {
-        def buildTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':build' )
-
-        build.dependsOn += buildTask
-        clean.dependsOn += gradle.includedBuild( 'lib-admin-ui' ).task( ':clean' )
-        flush.dependsOn += gradle.includedBuild( 'lib-admin-ui' ).task( ':flush' )
-
-        def webpackTask = tasks.findByPath( ':webpack' )
-        def unpackDevResources = tasks.findByPath( ':unpackDevResources' )
-
-        if ( webpackTask != null ) webpackTask.dependsOn += unpackDevResources
-        unpackDevResources.dependsOn += buildTask
-    }
-}
-
-def isLibAdminUiIncluded() {
-    return new File( '../lib-admin-ui' ).exists()
-}
-
-def nodeEnvironment() {
-    def environments = [ prod : 'production', dev: 'development' ]
-    def nodeEnv = environments[hasProperty( 'env' ) ? env : 'prod']
-    return nodeEnv != null ? nodeEnv : 'production'
-}
-
-def isProd() {
-    return hasProperty( 'env' ) ? (env == 'prod') : true
-}
-
-asciidoctor {
-    sourceDir = file('docs')
-    outputDir = file('build/docs')
-    requires project.file('verbose-mode.rb')
-    attributes 'source-highlighter': 'coderay',
-                idseparator: '-'
-
-    resources {
-        from(sourceDir) {
-            include '**/images/**'
-            include '**/code/**'
-            include '**/*.*'
-        }
-    }
-}
-
-htmlSanityCheck {
-    dependsOn asciidoctor
-    sourceDir = new File( "$buildDir/docs/html5" )
-
-    // files to check - in Set-notation
-    sourceDocuments = [ "index.html"]
-
-    // where to put results of sanityChecks...
-    checkingResultsDir = new File( "$buildDir/report/htmlchecks" )
-    //checkExternalLinks = false
-
-    // fail build on errors?
-    failOnErrors = true
+    flush.dependsOn += libAdminFlushTask
+    unpackDevResources.dependsOn += libAdminBuildTask
 }

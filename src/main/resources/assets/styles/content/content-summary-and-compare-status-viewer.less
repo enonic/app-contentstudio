@@ -23,21 +23,8 @@
     .icon-state-in-progress;
   }
 
-  &.readonly .names-and-icon-view .@{_COMMON_PREFIX}wrapper {
-    .icon;
-
-    &::after {
-      content: "\ea0e";
-      color: @admin-red;
-      background-color: @admin-white;
-      border-radius: 20px;
-      position: absolute;
-      font-size: 16px;
-      line-height: 16px;
-      bottom: -4px;
-      z-index: 1;
-      left: -4px;
-    }
+  &.has-origin-project .names-and-icon-view .@{_COMMON_PREFIX}wrapper {
+    .icon-cloud-download();
   }
 
   &.pending-delete .names-and-icon-view .@{_COMMON_PREFIX}names-view {

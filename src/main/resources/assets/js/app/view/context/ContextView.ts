@@ -36,16 +36,6 @@ import {Widget} from 'lib-admin-ui/content/Widget';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
-import {LayersWidgetItemView} from './widget/layers/LayersWidgetItemView';
-import {ProjectContext} from '../../project/ProjectContext';
-import {Project} from '../../settings/data/project/Project';
-import {ProjectUpdatedEvent} from '../../settings/event/ProjectUpdatedEvent';
-import {ProjectListRequest} from '../../settings/resource/ProjectListRequest';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
-import {ProjectCreatedEvent} from '../../settings/event/ProjectCreatedEvent';
-import {ProjectDeletedEvent} from '../../settings/event/ProjectDeletedEvent';
 
 export class ContextView
     extends DivEl {
@@ -65,8 +55,6 @@ export class ContextView
     private pageEditorWidgetView: WidgetView;
     private propertiesWidgetView: WidgetView;
     private emulatorWidgetView: WidgetView;
-    private layersWidgetView: WidgetView;
-    private layersWidgetItemView: LayersWidgetItemView;
 
     private data: PageEditorData;
 
@@ -165,102 +153,6 @@ export class ContextView
                     }
                 });
         });
-
-        const onCreateUpdate = this.createUpdateHandler.bind(this);
-        const onDelete = this.deleteHandler.bind(this);
-        contentServerEventsHandler.onContentCreated(onCreateUpdate);
-        contentServerEventsHandler.onContentUpdated(onCreateUpdate);
-        contentServerEventsHandler.onContentDeleted(onDelete);
-        contentServerEventsHandler.onContentDeletedInOtherRepos(onDelete);
-        contentServerEventsHandler.onContentPublished(onCreateUpdate);
-
-        ProjectChangedEvent.on(() => {
-            this.setItem(null);
-            this.toggleLayersWidget();
-        });
-
-        ProjectCreatedEvent.on(() => {
-            this.toggleLayersWidget();
-        });
-
-        ProjectDeletedEvent.on(() => {
-            this.toggleLayersWidget();
-        });
-
-        ProjectUpdatedEvent.on(() => {
-           if (this.activeWidget === this.layersWidgetView) {
-               this.layersWidgetItemView.reload();
-           }
-        });
-
-        if (ProjectContext.get().isInitialized()) {
-            this.toggleLayersWidget();
-        }
-    }
-
-    private createUpdateHandler(data: ContentSummaryAndCompareStatus[]) {
-        const itemIds: string[] = data.map((d: ContentSummaryAndCompareStatus) => d.getId());
-        this.createUpdateDeleteHandler(itemIds);
-    }
-
-    private deleteHandler(data: ContentServerChangeItem[]) {
-        const itemIds: string[] = data.map((d: ContentServerChangeItem) => d.getId());
-        this.createUpdateDeleteHandler(itemIds);
-    }
-
-    private createUpdateDeleteHandler(itemsIds: string[]) {
-        if (!!this.item && this.activeWidget === this.layersWidgetView) {
-            const currentItemId: string = this.item.getId();
-
-            if (itemsIds.some((itemId: string) => itemId === currentItemId)) {
-                this.layersWidgetItemView.reload();
-            }
-        }
-    }
-
-    private toggleLayersWidget() {
-        const currentProject: Project = ProjectContext.get().getProject();
-
-        if (currentProject.getParent()) {
-            this.addLayersWidget();
-        } else {
-            new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-                if (projects.some((project: Project) => project.getParent() === currentProject.getName())) {
-                    this.addLayersWidget();
-                } else {
-                    this.removeLayersWidget();
-                }
-            }).catch(DefaultErrorHandler.handle);
-        }
-    }
-
-    private addLayersWidget() {
-        if (!this.layersWidgetView) {
-            this.layersWidgetView = this.createLayersWidgetView();
-        }
-
-        if (!this.hasLayersWidget()) {
-            this.insertWidget(this.layersWidgetView, 3);
-            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
-        }
-    }
-
-    private removeLayersWidget() {
-        if (!this.layersWidgetView) {
-            return;
-        }
-
-        if (this.hasLayersWidget()) {
-            if (this.activeWidget === this.layersWidgetView) {
-                this.setActiveWidget(this.defaultWidgetView);
-            }
-            this.removeWidget(this.layersWidgetView);
-            this.widgetsSelectionRow.updateWidgetsDropdown(this.widgetViews);
-        }
-    }
-
-    private hasLayersWidget(): boolean {
-        return !!this.widgetViews.find((widgetView: WidgetView) => widgetView === this.layersWidgetView);
     }
 
     private initDivForNoSelection() {
@@ -534,19 +426,6 @@ export class ContextView
         }
 
         this.setActiveWidget(this.defaultWidgetView);
-    }
-
-    private createLayersWidgetView() {
-        this.layersWidgetItemView = new LayersWidgetItemView();
-
-        return WidgetView.create()
-            .setName(i18n('field.contextPanel.layers'))
-            .setDescription(i18n('field.contextPanel.layers.description'))
-            .setWidgetClass('layers-widget')
-            .setIconClass('icon-layer')
-            .setType(InternalWidgetType.LAYERS)
-            .setContextView(this)
-            .addWidgetItemView(this.layersWidgetItemView).build();
     }
 
     private isInsideWizard(): boolean {

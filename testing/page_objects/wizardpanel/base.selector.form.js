@@ -9,10 +9,20 @@ const LoaderComboBox = require('../components/loader.combobox');
 
 class BaseSelectorForm extends Page {
 
-    async selectOption(option) {
+    //Selects an option by the display name
+    async selectOption(optionDisplayName) {
         let loaderComboBox = new LoaderComboBox();
-        await this.typeTextInInput(this.optionsFilterInput, option);
-        return await loaderComboBox.selectOption(option);
+        await this.typeTextInInput(this.optionsFilterInput, optionDisplayName);
+        await loaderComboBox.selectOption(optionDisplayName);
+        return await loaderComboBox.pause(300);
+    }
+
+    //Selects an option by the name
+    async selectOptionByName(optionName) {
+        let loaderComboBox = new LoaderComboBox();
+        await this.typeTextInInput(this.optionsFilterInput, optionName);
+        await loaderComboBox.selectOptionByName(optionName);
+        return await loaderComboBox.pause(300);
     }
 
     async swapOptions(sourceName, destinationName) {
@@ -27,5 +37,5 @@ class BaseSelectorForm extends Page {
     isOptionFilterDisplayed() {
         return this.isElementDisplayed(this.optionsFilterInput);
     }
-};
+}
 module.exports = BaseSelectorForm;

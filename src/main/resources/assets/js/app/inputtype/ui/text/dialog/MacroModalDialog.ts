@@ -1,8 +1,6 @@
-import * as $ from 'jquery';
 import * as Q from 'q';
 import {showError} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
@@ -49,6 +47,7 @@ export class MacroModalDialog
             applicationKeys: applicationKeys,
             class: 'macro-modal-dialog macro-selector',
             content: content,
+            allowOverflow: true,
             confirmation: {
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
@@ -73,7 +72,6 @@ export class MacroModalDialog
         super.initListeners();
 
         this.initMacroSelectorListeners();
-        this.setupResizeListener();
         this.submitAction.onExecuted(() => {
             this.displayValidationErrors(true);
             if (this.validate()) {
@@ -90,23 +88,6 @@ export class MacroModalDialog
 
             return rendered;
         });
-    }
-
-    private setupResizeListener() {
-        const onResize = AppHelper.debounce(() => {
-            const formView = this.macroDockedPanel.getConfigForm();
-
-            if (!formView) {
-                return;
-            }
-
-            const dialogHeight = this.getEl().getHeight();
-            if (dialogHeight >= ($('body').height() - 100)) {
-                formView.getEl().setHeightPx(0.5 * dialogHeight);
-            }
-        }, 500, true);
-
-        ResponsiveManager.onAvailableSizeChanged(this, onResize);
     }
 
     private createMacroDockedPanel(): MacroDockedPanel {

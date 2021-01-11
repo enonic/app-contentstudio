@@ -9,7 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 
 describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal dialog', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -58,7 +58,8 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
             await layerWizard.waitForNotificationMessage();
         });
 
-    it("GIVEN existing folder is selected in the layer WHEN 'Show All' button has been clicked THEN Layers Tree dialog should be loaded",
+    it.skip(
+        "GIVEN existing folder is selected in the layer WHEN 'Show All' button has been clicked THEN Layers Tree dialog should be loaded",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.switchToContentMode();
@@ -79,7 +80,8 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
             assert.equal(layers[2], LAYER2_DISPLAY_NAME, "The second layer should be present in the tree layers");
         });
 
-    it("GIVEN inherited content is selected AND Layers Tree dialog is opened WHEN current list item has been clicked THEN 'Localise' button gets visible in the tree list item",
+    it.skip(
+        "GIVEN inherited content is selected AND Layers Tree dialog is opened WHEN current list item has been clicked THEN 'Localise' button gets visible in the tree list item",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.switchToContentMode();
@@ -104,7 +106,6 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER1_DISPLAY_NAME);
             studioUtils.saveScreenshot("layers_tree_toolbar_1");
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
-
             //2. Verify that layer without child can be deleted:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER2_DISPLAY_NAME);
             studioUtils.saveScreenshot("layers_tree_toolbar_2");
@@ -114,18 +115,20 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
     it("WHEN children layers have been sequentially removed THEN parent project can be deleted",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
+            let confirmValueDialog = new ConfirmValueDialog();
             //1.Delete the first layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER2_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnDeleteButton();
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmValueDialog.waitForDialogOpened();
+            await confirmValueDialog.typeNumberOrName(LAYER2_DISPLAY_NAME);
+            await confirmValueDialog.clickOnConfirmButton();
             await settingsBrowsePanel.waitForNotificationMessage();
             //2.Delete the second layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER1_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnDeleteButton();
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmValueDialog.waitForDialogOpened();
+            await confirmValueDialog.typeNumberOrName(LAYER1_DISPLAY_NAME);
+            await confirmValueDialog.clickOnConfirmButton();
             await settingsBrowsePanel.waitForNotificationMessage();
             //3. Verify that Delete button gets enabled after selecting the parent project
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);

@@ -3,6 +3,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectIconUrlResolver} from '../../../project/ProjectIconUrlResolver';
 import {ExtendedViewer} from '../../../view/ExtendedViewer';
 import {Flag} from 'lib-admin-ui/locale/Flag';
+import {ProjectHelper} from '../../data/project/ProjectHelper';
 
 export class ProjectViewer extends ExtendedViewer<Project> {
 
@@ -10,8 +11,18 @@ export class ProjectViewer extends ExtendedViewer<Project> {
         super('project-viewer ' + (!!className ? className : ''));
     }
 
+    doLayout(object: Project) {
+        super.doLayout(object);
+
+        if (!object) {
+            return;
+        }
+
+        this.toggleClass('not-available', !ProjectHelper.isAvailable(object));
+    }
+
     resolveDisplayName(project: Project): string {
-        return project.getDisplayName();
+        return project.getDisplayName() || project.getName();
     }
 
     resolveUnnamedDisplayName(project: Project): string {
@@ -19,7 +30,8 @@ export class ProjectViewer extends ExtendedViewer<Project> {
     }
 
     resolveSubName(project: Project): string {
-        return project.getDescription() || `<${i18n('text.noDescription')}>`;
+        return project.getDisplayName() ? (project.getDescription() || `<${i18n('text.noDescription')}>`) :
+               `<${i18n('settings.project.notAvailable')}>`;
     }
 
     resolveIconClass(project: Project): string {

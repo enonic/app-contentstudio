@@ -8,7 +8,7 @@ const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const SettingsItemStatisticsPanel = require('../../page_objects/project/settings.item.statistics.panel');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 
 describe('settings.item.statistics.panel.spec - verify an info in item statistics panel', function () {
@@ -101,12 +101,14 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
-            let confirmationDialog = new ConfirmationDialog();
+            let confirmValueDialog = new ConfirmValueDialog();
             //1. Select an existing project then delete it:
             await settingsBrowsePanel.clickOnRowByDisplayName(NEW_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnDeleteButton();
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
+            await confirmValueDialog.waitForDialogOpened();
+            //Type the Identifier of the project
+            await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME);
+            await confirmValueDialog.clickOnConfirmButton();
             //2.Description block gets not visible in the statistics panel:
             await settingsItemStatisticsPanel.waitForDescriptionNotDisplayed();
             studioUtils.saveScreenshot("project_item_statistics_description_not_displayed");

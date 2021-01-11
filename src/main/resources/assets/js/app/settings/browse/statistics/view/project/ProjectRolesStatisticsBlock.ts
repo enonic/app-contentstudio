@@ -7,6 +7,7 @@ import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ProjectHelper} from '../../../../data/project/ProjectHelper';
 
 export class ProjectRolesStatisticsBlock extends StatisticsBlock {
 
@@ -41,7 +42,7 @@ export class ProjectRolesStatisticsBlock extends StatisticsBlock {
         this.authorsColumn.setItems([]);
         this.contributorsColumn.setItems([]);
 
-        if (item.isDefaultProject()) {
+        if (item.isDefaultProject() || !ProjectHelper.isAvailable(item.getData())) {
             this.hide();
         } else {
             this.show();

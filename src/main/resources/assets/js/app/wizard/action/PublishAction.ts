@@ -17,20 +17,9 @@ export class PublishAction extends BasePublishAction {
         });
 
         this.wizard = wizard;
-
-        this.onBeforeExecute(() => {
-            if (this.isSaveRequired() || this.wizard.hasUnsavedChanges()) {
-                this.wizard.setIsMarkedAsReady(true);
-                this.wizard.setIsMarkedAsReadyOnPublish(true);
-            }
-        });
     }
 
     protected createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void {
         new ContentPublishPromptEvent({model: summary}).fire();
-    }
-
-    protected isSaveRequired(): boolean {
-        return this.wizard.getContent().getContentSummary().isInProgress();
     }
 }

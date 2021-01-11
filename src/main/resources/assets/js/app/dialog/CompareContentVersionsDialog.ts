@@ -70,7 +70,8 @@ export class CompareContentVersionsDialog
     protected constructor() {
         super(<ModalDialogConfig>{
             class: 'compare-content-versions-dialog grey-header',
-            title: i18n('dialog.compareVersions.comparingVersions')
+            title: i18n('dialog.compareVersions.comparingVersions'),
+            alwaysFullscreen: true
         });
 
         this.diffPatcher = new DiffPatcher();

@@ -41,6 +41,10 @@ export class ImageSelectorSelectedOptionsView
         this.addOptionMovedEventHandler();
     }
 
+    setReadonly(readonly: boolean): void {
+        super.setReadonly(readonly);
+    }
+
     private initAndAppendSelectionToolbar() {
         this.toolbar = new SelectionToolbar();
         this.toolbar.hide();
@@ -145,6 +149,11 @@ export class ImageSelectorSelectedOptionsView
 
         this.appendChild(optionView);
         this.updateStickyToolbar();
+
+        if (this.readonly) {
+            option.setReadOnly(true);
+            optionView.setReadonly(true);
+        }
 
         if (!silent) {
             this.notifyOptionSelected(new SelectedOptionEvent(selectedOption, keyCode));

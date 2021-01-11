@@ -1,8 +1,30 @@
 rootProject.name = projectName
 
-if ( hasProperty( 'env' ) ) {
-    addBuild('../lib-admin-ui')
+include 'app'
+ include 'lib'
+
+configureProjects( rootProject )
+
+def configureProjects( root )
+{
+    root.children.each { p ->
+        configureProject( p )
+        configureProjects( p )
+    }
 }
+
+def configureProject( p )
+{
+    String dirName = p.path.substring( 1 ).replace( ':', '/' )
+    p.projectDir = new File( (File) settingsDir, "modules/${dirName}" )
+    assert p.projectDir.isDirectory()
+}
+
+project(":app").name = appProjectName
+project(":lib").name = libProjectName
+
+
+if ( hasProperty( 'env' ) ) addBuild('../lib-admin-ui')
 
 def addBuild( name )
 {

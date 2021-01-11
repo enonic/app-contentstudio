@@ -100,7 +100,7 @@ export class FindAndReplaceDialog
 
     private createCheckbox(id: string, label: string, checked?: boolean): FormItem {
         const checkbox: Checkbox = Checkbox.create().setLabelText(label).setChecked(checked).setInputAlignment(
-            InputAlignment.RIGHT).build();
+            InputAlignment.LEFT).build();
 
         checkbox.onValueChanged(() => {
             this.findAction.execute();

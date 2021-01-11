@@ -74,6 +74,8 @@ export class ContentSummaryAndCompareStatusViewer
         this.toggleClass('invalid', invalid);
         this.toggleClass('pending-delete', isPendingDelete);
         this.toggleClass('readonly', object.isReadOnly());
+        this.toggleClass('has-origin-project', object.hasOriginProject());
+        this.toggleClass('data-inherited', object.isDataInherited());
 
         if (!invalid && !object.isOnline() && !object.isPendingDelete()) {
             const status: string = contentSummary.getWorkflow().getStateAsString();

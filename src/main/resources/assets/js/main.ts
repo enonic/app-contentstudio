@@ -58,6 +58,10 @@ import {ProjectSelectionDialog} from './app/settings/dialog/ProjectSelectionDial
 import {SettingsServerEventsListener} from './app/settings/event/SettingsServerEventsListener';
 import {UrlAction} from './app/UrlAction';
 import {Path} from 'lib-admin-ui/rest/Path';
+import {ProjectsTreeItem} from './app/settings/data/project/ProjectsTreeItem';
+import {ProjectsTreeRequest} from './app/settings/resource/ProjectsTreeRequest';
+import {ProjectListWithMissingRequest} from './app/settings/resource/ProjectListWithMissingRequest';
+import {ProjectHelper} from './app/settings/data/project/ProjectHelper';
 // End of Polyfills
 
 declare const CONFIG;
@@ -579,17 +583,18 @@ async function startContentBrowser(application: Application) {
 function initProjectContext(application: Application): Q.Promise<void> {
     const projectName: string = application.getPath().getElement(0);
 
-    return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+    return new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
         ProjectSelectionDialog.get().setProjects(projects);
 
-        const currentProject: Project = projects.find((project: Project) => project.getName() === projectName);
+        const currentProject: Project =
+            projects.find((project: Project) => ProjectHelper.isAvailable(project) && project.getName() === projectName);
 
         if (currentProject) {
             ProjectContext.get().setProject(currentProject);
             return Q(null);
         }
 
-        if (projects.length === 1) {
+        if (projects.length === 1 && ProjectHelper.isAvailable(projects[0])) {
             ProjectContext.get().setProject(projects[0]);
             return Q(null);
         }

@@ -8,7 +8,7 @@ const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 
 describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deleting a project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -52,15 +52,16 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            let confirmationDialog = new ConfirmationDialog();
+            let confirmValueDialog = new ConfirmValueDialog();
             //1.Expand the root folder and open the Project:
             await settingsBrowsePanel.openProjectByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Verify that Delete button gets enabled, then click on it
             await projectWizard.clickOnDeleteButton();
             //4. Verify that Confirmation Dialog is loaded:
-            await confirmationDialog.waitForDialogOpened();
-            //5. Click on Yes button:
-            await confirmationDialog.clickOnYesButton();
+            await confirmValueDialog.waitForDialogOpened();
+            //5. Click on Confirm button:
+            await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME);
+            await confirmValueDialog.clickOnConfirmButton();
             //6. Verify the notification message:
             let actualMessage = await settingsBrowsePanel.waitForNotificationMessage();
             studioUtils.saveScreenshot("project_deleted_2");

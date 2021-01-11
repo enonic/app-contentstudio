@@ -6,38 +6,37 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {Application} from 'lib-admin-ui/app/Application';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Body} from 'lib-admin-ui/dom/Body';
-import {SettingsAppContainer} from './settings/SettingsAppContainer';
-import {ContentAppContainer} from './ContentAppContainer';
 import {AppContext} from './AppContext';
 import {AppMode} from './AppMode';
 import {MainAppContainer} from './MainAppContainer';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {AppContainerFactory} from './AppContainerFactory';
 
 export class AppWrapper
     extends DivEl {
 
     private sidebar: Sidebar;
 
-    private appContainers: MainAppContainer[] = [];
+    private appContainers: Map<AppMode, MainAppContainer> = new Map<AppMode, MainAppContainer>();
+
+    private currentAppContainer: MainAppContainer;
 
     private toggleSidebarButton: Button;
-
-    private application: Application;
 
     private touchListener: (event: MouseEvent) => void;
 
     constructor(application: Application, className?: string) {
         super(`main-app-wrapper ${(className || '')}`.trim());
 
-        this.application = application;
-
-        this.initAppMode();
+        this.initAppContext(application);
         this.initElements();
         this.initListeners();
+        this.startInitialAppContainer();
     }
 
-    private initAppMode() {
+    private initAppContext(application: Application) {
         AppContext.get().setMode(this.getAppMode());
+        AppContext.get().setApplication(application);
     }
 
     private getAppMode(): AppMode {
@@ -53,25 +52,8 @@ export class AppWrapper
     }
 
     private initElements() {
-        this.sidebar = new Sidebar(this.application);
+        this.sidebar = new Sidebar();
         this.toggleSidebarButton = new ToggleIcon();
-        this.initAppContainers();
-    }
-
-    private initAppContainers() {
-        const contentAppContainer: MainAppContainer = new ContentAppContainer(this.application);
-        const settingsAppContainer: MainAppContainer = new SettingsAppContainer(this.application);
-
-        this.appContainers.push(contentAppContainer);
-        this.appContainers.push(settingsAppContainer);
-
-        if (AppContext.get().isSettingsMode()) {
-            contentAppContainer.hide();
-            settingsAppContainer.show();
-        } else {
-            settingsAppContainer.hide();
-            contentAppContainer.show();
-        }
     }
 
     private initListeners() {
@@ -79,17 +61,33 @@ export class AppWrapper
         this.handleTouchOutsideSidebar();
 
         this.sidebar.onAppModeSelected((mode: AppMode) => {
-            const containerToHide: MainAppContainer = this.getAppContainerByMode(AppContext.get().getMode());
-            const containerToShow: MainAppContainer = this.getAppContainerByMode(mode);
-            history.pushState(null, null, containerToShow.generateAppUrl());
-            AppContext.get().setMode(mode);
-            containerToHide.hide();
-            containerToShow.show();
+            this.handleAppSelected(mode);
         });
     }
 
-    private getAppContainerByMode(mode: AppMode): MainAppContainer {
-        return this.appContainers.filter((appContainer: MainAppContainer) => appContainer.getMode() === mode)[0];
+    private handleAppSelected(mode: AppMode) {
+        const appToShow: MainAppContainer = this.getOrCreateAppContainerByMode(mode);
+        history.pushState(null, null, appToShow.generateAppUrl());
+        AppContext.get().setMode(mode);
+        this.currentAppContainer.hide();
+        appToShow.show();
+        this.currentAppContainer = appToShow;
+    }
+
+    private getOrCreateAppContainerByMode(mode: AppMode): MainAppContainer {
+        if (this.appContainers.has(mode)) {
+            return this.appContainers.get(mode);
+        }
+
+        return this.createAppContainer(mode);
+    }
+
+    private createAppContainer(mode: AppMode): MainAppContainer {
+        const appContainer: MainAppContainer = AppContainerFactory.get().createApp(mode);
+        this.appContainers.set(mode, appContainer);
+        this.appendChild(appContainer);
+
+        return appContainer;
     }
 
     private collapseSidebarOnMouseEvent(event: MouseEvent) {
@@ -136,9 +134,15 @@ export class AppWrapper
         }
     }
 
+    private startInitialAppContainer() {
+        const appContainer: MainAppContainer = this.createAppContainer(AppContext.get().getMode());
+        appContainer.show();
+        this.currentAppContainer = appContainer;
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.appendChildren(this.toggleSidebarButton, <Element>this.sidebar, ...this.appContainers);
+            this.appendChildren(this.toggleSidebarButton, <Element>this.sidebar);
 
             return rendered;
         });
@@ -268,14 +272,11 @@ class AppModeButton
 class Sidebar
     extends DivEl {
 
-    private application: Application;
-
     private appModeSwitcher: AppModeSwitcher;
 
-    constructor(application: Application) {
+    constructor() {
         super('sidebar');
 
-        this.application = application;
         this.appModeSwitcher = new AppModeSwitcher();
     }
 
@@ -301,7 +302,7 @@ class Sidebar
     private createAppNameBlock(): Element {
         const appNameWrapper: DivEl = new DivEl('app-name-wrapper');
         const appName: SpanEl = new SpanEl('app-name');
-        appName.setHtml(this.application.getName());
+        appName.setHtml(AppContext.get().getApplication().getName());
         appNameWrapper.appendChild(appName);
 
         return appNameWrapper;

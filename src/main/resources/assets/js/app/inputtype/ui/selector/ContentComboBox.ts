@@ -48,7 +48,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
     protected preventReload: boolean;
 
-    protected treeModeToggler: ModeTogglerButton;
+    protected treeModeToggler?: ModeTogglerButton;
 
     protected maxHeight: number = 230;
 
@@ -130,6 +130,14 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         return null;
     }
 
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+
+        if (this.treeModeToggler) {
+            this.treeModeToggler.setEnabled(enable);
+        }
+    }
+
     getContent(contentId: ContentId): ContentSummary {
         let option = this.getOptionByValue(contentId.toString());
         if (option) {
@@ -179,7 +187,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
         this.onLoaded(() => {
             if (this.showAfterReload) {
-                this.getComboBox().getInput().setReadOnly(false);
+                this.getComboBox().getInput().setEnabled(true);
                 this.showAfterReload = false;
             }
         });
@@ -240,7 +248,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
             this.getComboBox().getComboBoxDropdownGrid().reload().then(() => {
                 if (this.getComboBox().isDropdownShown()) {
                     this.getComboBox().showDropdown();
-                    this.getComboBox().getInput().setReadOnly(false);
+                    this.getComboBox().getInput().setEnabled(true);
                 }
 
                 this.notifyLoaded(this.getComboBox().getOptions().map(option => option.getDisplayValue()));

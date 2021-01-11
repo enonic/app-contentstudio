@@ -1,4 +1,3 @@
-import {ProjectChangedEvent} from './ProjectChangedEvent';
 import {Project} from '../settings/data/project/Project';
 
 export class ProjectContext {
@@ -8,6 +7,8 @@ export class ProjectContext {
     private currentProject: Project;
 
     private state: State = State.NOT_INITIALIZED;
+
+    private projectChangedEventListeners: { (project: Project): void }[] = [];
 
     private constructor() {
     //
@@ -28,11 +29,27 @@ export class ProjectContext {
     setProject(project: Project) {
         this.currentProject = project;
         this.state = State.INITIALIZED;
-        new ProjectChangedEvent().fire();
+        this.notifyProjectChanged();
     }
 
     isInitialized(): boolean {
         return this.state === State.INITIALIZED;
+    }
+
+    onProjectChanged(handler: (project: Project) => void) {
+        this.projectChangedEventListeners.push(handler);
+    }
+
+    unProjectChanged(handler: (project: Project) => void) {
+        this.projectChangedEventListeners = this.projectChangedEventListeners.filter((curr) => {
+            return handler !== curr;
+        });
+    }
+
+    private notifyProjectChanged() {
+        this.projectChangedEventListeners.forEach((handler) => {
+            handler(this.currentProject);
+        });
     }
 }
 

@@ -29,7 +29,6 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
 import {PreviewContentHandler} from './action/handler/PreviewContentHandler';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
@@ -46,10 +45,10 @@ import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {ContentIds} from '../ContentIds';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 import {UrlAction} from '../UrlAction';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {DeletedContentItem} from './DeletedContentItem';
 
 export class ContentBrowsePanel
     extends BrowsePanel<ContentSummaryAndCompareStatus> {
@@ -88,10 +87,10 @@ export class ContentBrowsePanel
             this.contextSplitPanel.enableToggleButton();
             this.treeGrid.setState(State.ENABLED);
             Router.get().setHash(UrlAction.BROWSE);
-            ProjectChangedEvent.un(projectSetHandler);
+            ProjectContext.get().unProjectChanged(projectSetHandler);
         };
 
-        ProjectChangedEvent.on(projectSetHandler);
+        ProjectContext.get().onProjectChanged(projectSetHandler);
     }
 
     protected initListeners() {
@@ -207,7 +206,6 @@ export class ContentBrowsePanel
             this.subscribeMobilePanelOnEvents();
             this.subscribeContextPanelsOnEvents();
             this.createContentPublishMenuButton();
-            this.markContentAsReadyOnPublishActions();
 
             return rendered;
         }).catch((error) => {
@@ -311,7 +309,7 @@ export class ContentBrowsePanel
             }
         });
 
-        ProjectChangedEvent.on(() => {
+        ProjectContext.get().onProjectChanged(() => {
             this.treeGrid.deselectAll();
             this.filterPanel.reset().then(() => {
                 this.hideFilterPanel();
@@ -346,7 +344,8 @@ export class ContentBrowsePanel
         });
 
         handler.onContentDeleted((data: ContentServerChangeItem[]) => {
-            this.handleContentDeleted(data.map(d => d.getId()));
+            this.handleContentDeleted(
+                data.map((item: ContentServerChangeItem) => new DeletedContentItem(item.getContentId(), item.getContentPath())));
         });
 
         handler.onContentPending((data: ContentSummaryAndCompareStatus[]) => this.handleContentPending(data));
@@ -359,7 +358,8 @@ export class ContentBrowsePanel
 
         handler.onContentMoved((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             // combination of delete and create
-            this.handleContentDeleted(data.map(d => d.getId()));
+            this.handleContentDeleted(data.map(
+                (item: ContentSummaryAndCompareStatus, index: number) => new DeletedContentItem(item.getContentId(), oldPaths[index])));
             this.handleContentCreated(data);
         });
 
@@ -418,17 +418,17 @@ export class ContentBrowsePanel
             .catch(DefaultErrorHandler.handle);
     }
 
-    private handleContentDeleted(ids: string[]) {
+    private handleContentDeleted(items: DeletedContentItem[]) {
         if (ContentBrowsePanel.debug) {
-            console.debug('ContentBrowsePanel: deleted', ids);
+            console.debug('ContentBrowsePanel: deleted', items.map(i => i.id.toString()));
         }
 
-        ids.forEach((id: string) => this.treeGrid.deleteNodeByDataId(id));
-        this.updateContentPanelOnNodesDelete(ids);
+        this.treeGrid.deleteItems(items);
+        this.updateContextPanelOnNodesDelete(items);
         this.refreshFilterWithDelay();
     }
 
-    private updateContentPanelOnNodesDelete(deletedIds: string[]) {
+    private updateContextPanelOnNodesDelete(items: DeletedContentItem[]) {
         const contextPanel: ContextPanel = ActiveContextPanelManager.getActiveContextPanel();
         const itemInDetailPanel: ContentSummaryAndCompareStatus = contextPanel ? contextPanel.getItem() : null;
 
@@ -436,9 +436,9 @@ export class ContentBrowsePanel
             return;
         }
 
-        const itemId: string = itemInDetailPanel.getId();
+        const itemId: ContentId = itemInDetailPanel.getContentId();
 
-        if (deletedIds.indexOf(itemId) > -1) {
+        if (items.some((item: DeletedContentItem) => item.id.equals(itemId))) {
             this.doUpdateContextPanel(null);
         }
     }
@@ -665,20 +665,4 @@ export class ContentBrowsePanel
         });
     }
 
-    private markContentAsReadyOnPublishActions() {
-        const handler: () => void = this.markSingleContentAsReady.bind(this);
-        this.getBrowseActions().getAction(ActionName.PUBLISH).onBeforeExecute(handler);
-        this.getBrowseActions().getAction(ActionName.PUBLISH_TREE).onBeforeExecute(handler);
-        this.getBrowseActions().getAction(ActionName.REQUEST_PUBLISH).onBeforeExecute(handler);
-    }
-
-    private markSingleContentAsReady() {
-        const contents: ContentSummaryAndCompareStatus[] = this.treeGrid.getSelectedDataList();
-
-        if (contents.length > 1) { // only when single item selected
-            return;
-        }
-
-        this.getBrowseActions().getAction(ActionName.MARK_AS_READY).execute();
-    }
 }

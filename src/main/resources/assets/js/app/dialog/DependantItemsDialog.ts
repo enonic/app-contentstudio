@@ -97,7 +97,6 @@ export abstract class DependantItemsDialog
             if (this.autoUpdateTitle) {
                 this.setTitle(this.config.title + (count > 1 ? 's' : ''));
             }
-            this.notifyResize();
         };
         this.itemList.onItemsRemoved(itemsChangedListener);
         this.itemList.onItemsAdded(itemsChangedListener);
@@ -105,33 +104,22 @@ export abstract class DependantItemsDialog
         this.dependantContainerHeader.onClicked(() => {
             const doShow = !this.dependantList.isVisible();
             this.setDependantListVisible(doShow);
-            this.notifyResize();
         });
 
-        const dependantsChangedListener = () => {
-            const doShow: boolean = this.countDependantItems() > 0;
-            this.dependantsContainer.setVisible(doShow);
+        this.dependantList.onItemsRemoved(() => this.onDependantsChanged());
+        this.dependantList.onItemsAdded(() => this.onDependantsChanged());
 
-            if (doShow) {
-                // update dependants header according to list visibility
-                this.updateDependantsHeader(this.getDependantsHeader(this.dependantList.isVisible()));
-                this.notifyResize();
-            }
-        };
-        this.dependantList.onItemsRemoved(dependantsChangedListener);
-        this.dependantList.onItemsAdded(dependantsChangedListener);
+        this.getBody().onScrolled(() => this.doPostLoad());
+        this.getBody().onScroll(() =>  this.doPostLoad());
 
-        this.getBody().onScrolled(() => {
+        this.onRendered(() => this.setDependantListVisible(this.showDependantList));
+    }
+
+    protected toggleFullscreen(value: boolean) {
+        super.toggleFullscreen(value);
+        if (value) {
             this.doPostLoad();
-        });
-
-        this.getBody().onScroll(() => {
-            this.doPostLoad();
-        });
-
-        this.onRendered(() => {
-            this.setDependantListVisible(this.showDependantList);
-        });
+        }
     }
 
     doRender(): Q.Promise<boolean> {
@@ -154,6 +142,16 @@ export abstract class DependantItemsDialog
 
             return rendered;
         });
+    }
+
+    protected onDependantsChanged() {
+        const doShow: boolean = this.countDependantItems() > 0;
+        this.dependantsContainer.setVisible(doShow);
+
+        if (doShow) {
+            // update dependants header according to list visibility
+            this.updateDependantsHeader(this.getDependantsHeader(this.dependantList.isVisible()));
+        }
     }
 
     public setDependantListVisible(visible: boolean) {
@@ -261,7 +259,7 @@ export abstract class DependantItemsDialog
     }
 
     protected updateButtonCount(actionString: string, count: number) {
-        this.actionButton.setLabel(count > 1 ? actionString + ' (' + count + ')' : actionString);
+        this.actionButton.getAction().setLabel(count > 1 ? actionString + ' (' + count + ')' : actionString);
     }
 
     protected getContentsToLoad(): ContentSummaryAndCompareStatus[] {
@@ -346,7 +344,6 @@ export abstract class DependantItemsDialog
                     this.addDependantItems(newItems);
                     this.loading = false;
                     this.hideLoadMask();
-                    this.notifyResize();
                     if (this.loadingRequested) {
                         this.loadingRequested = false;
                         this.postLoad();

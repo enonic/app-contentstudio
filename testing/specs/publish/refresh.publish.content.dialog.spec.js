@@ -13,7 +13,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const DateRangeInput = require('../../page_objects/components/datetime.range');
 
-describe('refresh.request.publish.dialog.spec - opens request publish modal dialog and checks control elements`', function () {
+describe('refresh.publish.dialog.spec - opens publish content modal dialog and checks control elements`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let FOLDER;
@@ -27,10 +27,9 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
             let contentPublishDialog = new ContentPublishDialog();
             let folderName = contentBuilder.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(folderName);
-            //1. New folder has been added
-            await studioUtils.doAddFolder(FOLDER);
+            //1. New folder has been added:(status of this folder is Ready for publishing)
+            await studioUtils.doAddReadyFolder(FOLDER);
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-
             //2. expand the Publish Menu and select 'Publish...' menu item, Publish Wizard gets visible:
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForPublishNowButtonEnabled();
@@ -42,7 +41,6 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
             await settingsForm.filterOptionsAndSelectLanguage('English (en)');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1000);
-
             //5. close the wizard
             await studioUtils.doCloseWizardAndSwitchToGrid();
             let workflowStatus = await contentPublishDialog.getWorkflowState(FOLDER.displayName);
@@ -59,11 +57,15 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
             let dateRangeInput = new DateRangeInput();
+            //1. Select existing 'work in progress' folder and open Publish Dialog
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
-            //Add schedule form
+            await contentPublishDialog.waitForDialogOpened();
+            //2. For this form to appear, need to make this content marked as ready
+            await contentPublishDialog.clickOnMarkAsReadyMenuItem();
+            //3. Verify that icon-calendar gets visible now. Click on this button:
             await contentPublishDialog.clickOnAddScheduleButton();
-            // Open date time picker popup:
+            //4. Open date time picker popup:
             await dateRangeInput.doOpenOnlineFromPickerPopup();
             studioUtils.saveScreenshot("schedule_picker_popup1");
             //Click on hours-arrow:

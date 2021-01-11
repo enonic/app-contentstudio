@@ -3,14 +3,14 @@ import {OptionDataLoader, OptionDataLoaderData} from 'lib-admin-ui/ui/selector/O
 import {Project} from '../../../../data/project/Project';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import * as Q from 'q';
-import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ProjectListWithMissingRequest} from '../../../../resource/ProjectListWithMissingRequest';
 
 export class ProjectOptionDataLoader
     extends OptionDataLoader<Project> {
 
-    protected createRequest(): ProjectListRequest {
-        return new ProjectListRequest();
+    protected createRequest(): ProjectListWithMissingRequest {
+        return new ProjectListWithMissingRequest();
     }
 
     filterFn(project: Project): boolean {
@@ -20,7 +20,7 @@ export class ProjectOptionDataLoader
             return true;
         }
 
-        return project.getDisplayName().toLowerCase().indexOf(searchString) !== -1;
+        return project.getDisplayName().toLowerCase().indexOf(searchString.toLowerCase()) !== -1;
     }
 
     checkReadonly(options: Project[]): Q.Promise<string[]> {

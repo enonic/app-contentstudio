@@ -34,7 +34,8 @@ describe('browse.panel.mark.as.ready.single.content.spec - select single content
             await contentBrowsePanel.openPublishMenuSelectItem("Publish...");
 
             await contentPublishDialog.waitForDialogOpened();
-            //The folder automatically gets "Ready to publish"
+            //make the folder 'Ready to publishing'
+            await contentPublishDialog.clickOnMarkAsReadyMenuItem();
             await contentPublishDialog.waitForPublishNowButtonEnabled();
             let state = await contentPublishDialog.getWorkflowState(name);
             studioUtils.saveScreenshot("ready_to_publish_automatically1");
@@ -58,11 +59,11 @@ describe('browse.panel.mark.as.ready.single.content.spec - select single content
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
 
             await createRequestPublishDialog.waitForDialogLoaded();
-            //The folder automatically gets "Ready to publish"
+            //The folder remains "Work in Progress" after crating this request
             await createRequestPublishDialog.waitForNextButtonEnabled();
             let state = await createRequestPublishDialog.getWorkflowState(name);
             studioUtils.saveScreenshot("ready_to_publish_automatically2");
-            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+            assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

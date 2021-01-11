@@ -37,11 +37,6 @@ import {WizardActions} from 'lib-admin-ui/app/wizard/WizardActions';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {ResetContentAction} from './ResetContentAction';
-import {ProjectContext} from '../../project/ProjectContext';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentsExistRequest} from '../../resource/ContentsExistRequest';
-import {ContentsExistResult} from '../../resource/ContentsExistResult';
-import {ContentInheritType} from 'lib-admin-ui/content/ContentInheritType';
 
 type ActionNames =
     'SAVE' |
@@ -138,8 +133,6 @@ export class ContentWizardActions
 
     private actionsUnstashedListeners: { (): void; }[] = [];
 
-    private debouncedResetActionStateChecker: Function;
-
     constructor(wizardPanel: ContentWizardPanel) {
         super(
             new ContentSaveAction(wizardPanel),
@@ -207,8 +200,6 @@ export class ContentWizardActions
                 this.notifyActionsUnstashed();
             }
         });
-
-        this.debouncedResetActionStateChecker = AppHelper.debounce(this.updateResetActionState.bind(this), 500);
     }
 
     initUnsavedChangesListeners() {
@@ -463,6 +454,7 @@ export class ContentWizardActions
         const canBeUnpublished: boolean = this.content.isPublished() && this.userCanPublish;
         const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
         const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline() && !this.content.isPendingDelete();
+        const canBeReset: boolean = this.userCanModify && this.content.hasOriginProject() && !this.content.isFullyInherited();
 
         this.enableActions({
             PUBLISH: canBePublished,
@@ -471,11 +463,11 @@ export class ContentWizardActions
             MARK_AS_READY: canBeMarkedAsReady,
             REQUEST_PUBLISH: canBeRequestedPublish,
             OPEN_REQUEST: this.hasPublishRequest,
-            RESET: this.userCanModify
+            RESET: canBeReset
         });
 
-        this.debouncedResetActionStateChecker();
         this.actionsMap.OPEN_REQUEST.setVisible(this.hasPublishRequest);
+        this.actionsMap.RESET.setVisible(this.content.hasOriginProject() && !this.content.isFullyInherited());
     }
 
     private canBePublished(): boolean {
@@ -496,31 +488,6 @@ export class ContentWizardActions
         }
 
         return true;
-    }
-
-    private updateResetActionState() {
-        this.isResetToBeVisible().then((value: boolean) => this.actionsMap.RESET.setVisible(value)).catch(DefaultErrorHandler.handle);
-    }
-
-    private isResetToBeVisible(): Q.Promise<boolean> {
-        const parentProjectName: string = ProjectContext.get().getProject().getParent();
-
-        if (!parentProjectName) {
-            return Q(false);
-        }
-
-        const id: string = this.content.getId();
-
-        return new ContentsExistRequest([id])
-            .setRequestProjectName(parentProjectName)
-            .sendAndParse()
-            .then((result: ContentsExistResult) => {
-                if (!!result.getContentsExistMap()[id]) {
-                    return !this.content.isFullyInherited();
-                }
-
-                return false;
-            });
     }
 
     isOnline(): boolean {

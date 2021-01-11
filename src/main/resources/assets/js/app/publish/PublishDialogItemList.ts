@@ -88,4 +88,14 @@ export class PublishDialogItemList
     public clearExcludeChildrenIds() {
         this.excludeChildrenIds = [];
     }
+
+    removeItemsByIds(contentIds: ContentId[]) {
+        contentIds.forEach((id: ContentId) => {
+           const item: ContentSummaryAndCompareStatus = this.getItem(id.toString());
+
+            if (item) {
+                this.removeItem(item, true);
+            }
+        });
+    }
 }

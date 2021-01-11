@@ -37,7 +37,7 @@ export class ProjectItemNameWizardStepForm
     }
 
     disableProjectNameInput() {
-        this.projectNameInput.getEl().setDisabled(true);
+        this.projectNameInput.whenRendered(() => this.projectNameInput.setEnabled(false));
     }
 
     getDescription(): string {
@@ -53,7 +53,7 @@ export class ProjectItemNameWizardStepForm
     }
 
     disableParentProjectInput() {
-        this.parentProjectDropdown.setReadOnly(true);
+        this.parentProjectDropdown.setEnabled(false);
     }
 
     showProjectsChain(parentName?: string) {
@@ -158,7 +158,7 @@ export class ProjectItemNameWizardStepForm
         this.addFormItem(this.parentProjectFormItem);
     }
 
-    protected getFormItems(): FormItem[] {
+    protected createFormItems(): FormItem[] {
         this.projectNameInput = new TextInput();
         this.projectNameFormItem = <ProjectFormItem>new ProjectFormItemBuilder(this.projectNameInput)
             .setHelpText(i18n('settings.projects.name.helptext'))

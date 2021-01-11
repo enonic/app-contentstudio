@@ -7,7 +7,7 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe("delete.project.in.filtered.grid.spec - Delete projects in filtered grid", function () {
@@ -39,7 +39,7 @@ describe("delete.project.in.filtered.grid.spec - Delete projects in filtered gri
     it(`GIVEN two projects are checked and 'Show Selection' is clicked WHEN these projects have been deleted THEN 'Selection toggler' gets not visible`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
+            let confirmValueDialog = new ConfirmValueDialog();
             //1. Click on both project's checkboxes:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
@@ -48,9 +48,10 @@ describe("delete.project.in.filtered.grid.spec - Delete projects in filtered gri
             //3. Click on Delete button:
             await settingsBrowsePanel.clickOnDeleteButton();
             //4. Verify that Confirmation Dialog is loaded:
-            await confirmationDialog.waitForDialogOpened();
+            await confirmValueDialog.waitForDialogOpened();
+            await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME_1);
             //5. Click on Yes button and delete folders:
-            await confirmationDialog.clickOnYesButton();
+            await confirmValueDialog.clickOnConfirmButton();
             await settingsBrowsePanel.pause(300);
             //6. Verify that Selection Controller is not visible:
             await settingsBrowsePanel.waitForSelectionTogglerNotVisible();

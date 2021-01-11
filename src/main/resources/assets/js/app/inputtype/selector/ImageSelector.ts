@@ -94,7 +94,9 @@ export class ImageSelector
 
     protected createContentComboBoxBuilder(input: Input, propertyArray: PropertyArray): ImageContentComboBoxBuilder {
         return <ImageContentComboBoxBuilder>super.createContentComboBoxBuilder(input, propertyArray)
-            .setSelectedOptionsView(this.createSelectedOptionsView());
+            .setSelectedOptionsView(this.createSelectedOptionsView())
+            .setDisplayMissingSelectedOptions(true)
+            .setRemoveMissingSelectedOptions(false);
     }
 
     protected initEvents(contentComboBox: ImageContentComboBox) {

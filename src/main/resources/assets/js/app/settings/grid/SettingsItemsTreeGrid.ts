@@ -8,21 +8,22 @@ import {SettingsTreeGridActions} from './SettingsTreeGridActions';
 import {SettingsItemRowFormatter} from './SettingsItemRowFormatter';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import * as Q from 'q';
-import {ProjectListRequest} from '../resource/ProjectListRequest';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {EditSettingsItemEvent} from '../event/EditSettingsItemEvent';
 import {Project} from '../data/project/Project';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 import {ProjectViewItem} from '../view/ProjectViewItem';
 import {FolderItemBuilder, FolderViewItem} from '../view/FolderViewItem';
-import {DataChangedEvent, DataChangedType} from 'lib-admin-ui/ui/treegrid/DataChangedEvent';
+import {ProjectListWithMissingRequest} from '../resource/ProjectListWithMissingRequest';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 
 export class SettingsItemsTreeGrid
     extends TreeGrid<SettingsViewItem> {
 
     private static PROJECTS_FOLDER_ID: string = 'projects';
 
-    private treeGridActions: SettingsTreeGridActions;
+    private readonly treeGridActions: SettingsTreeGridActions;
 
     private projects: Project[];
 
@@ -59,6 +60,7 @@ export class SettingsItemsTreeGrid
         this.treeGridActions = new SettingsTreeGridActions(this);
 
         this.setContextMenu(new TreeGridContextMenu(this.treeGridActions));
+        this.getContextMenu().removeAction(this.treeGridActions.getSyncAction());
 
         this.projects = [];
 
@@ -74,7 +76,7 @@ export class SettingsItemsTreeGrid
         if (!parentNode) {
             return this.fetchRootItems();
         } else if (this.isProjectsFolder(parentNode.getData())) {
-            return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+            return new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
                 this.projects = projects;
 
                 return this.getProjectsPyParent(null).map(project => ProjectViewItem.create()
@@ -145,9 +147,12 @@ export class SettingsItemsTreeGrid
 
     protected editItem(node: TreeNode<SettingsViewItem>) {
         const item: SettingsViewItem = node.getData();
-        if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
-            new EditSettingsItemEvent([item]).fire();
-        }
+
+        this.treeGridActions.getAuthInfo().then((loginResult: LoginResult) => {
+            if (item.isEditAllowed(loginResult)) {
+                new EditSettingsItemEvent([item]).fire();
+            }
+        }).catch(DefaultErrorHandler.handle);
     }
 
     private fetchRootItems(): Q.Promise<SettingsViewItem[]> {

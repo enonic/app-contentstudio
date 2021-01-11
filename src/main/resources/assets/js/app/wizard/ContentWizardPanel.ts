@@ -123,6 +123,7 @@ import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
 import {UrlAction} from '../UrlAction';
 import {ContentWizardHeader} from './ContentWizardHeader';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -168,8 +169,6 @@ export class ContentWizardPanel
     private isContentFormValid: boolean;
 
     private isMarkedAsReady: boolean;
-
-    private isMarkedAsReadyOnPublish: boolean;
 
     private contentNamedListeners: { (event: ContentNamedEvent): void }[];
 
@@ -228,6 +227,8 @@ export class ContentWizardPanel
 
     public static debug: boolean = false;
 
+    private loginResult: LoginResult;
+
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super({
             tabId: params.tabId
@@ -243,7 +244,6 @@ export class ContentWizardPanel
 
         this.isContentFormValid = false;
         this.isMarkedAsReady = false;
-        this.isMarkedAsReadyOnPublish = false;
 
         this.requireValid = false;
         this.skipValidation = false;
@@ -313,7 +313,7 @@ export class ContentWizardPanel
             console.debug('ContentWizardPanel.doLoadData at ' + new Date().toISOString());
         }
         return new ContentWizardDataLoader().loadData(this.contentParams)
-            .then((loader) => {
+            .then((loader: ContentWizardDataLoader) => {
                 if (ContentWizardPanel.debug) {
                     console.debug('ContentWizardPanel.doLoadData: loaded data at ' + new Date().toISOString(), loader);
                 }
@@ -611,7 +611,6 @@ export class ContentWizardPanel
             return persistedItem;
         }).finally(() => {
             this.isMarkedAsReady = false;
-            this.isMarkedAsReadyOnPublish = false;
             this.contentUpdateDisabled = false;
             this.updateButtonsState();
 
@@ -1553,6 +1552,7 @@ export class ContentWizardPanel
 
     private updateThumbnailWithContent(content: Content) {
         const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
+        thumbnailUploader.toggleClass('has-origin-project', !!content.getOriginProject());
         const id = content.getContentId().toString();
 
         thumbnailUploader
@@ -1706,6 +1706,10 @@ export class ContentWizardPanel
 
                             if (this.isLocalizeInUrl()) {
                                 this.settingsWizardStepForm.updateInitialLanguage();
+                            }
+
+                            if (!this.modifyPermissions) {
+                                NotifyManager.get().showFeedback(i18n('notify.item.readonly'));
                             }
                         });
 
@@ -2033,11 +2037,7 @@ export class ContentWizardPanel
         } else if (name.isUnnamed()) {
             message = i18n('notify.item.savedUnnamed');
         } else if (this.isMarkedAsReady) {
-            if (this.isMarkedAsReadyOnPublish) {
-                message = i18n('notify.item.savedAndMarkedAsReady', name);
-            } else {
-                message = i18n('notify.item.markedAsReady', name);
-            }
+            message = i18n('notify.item.markedAsReady', name);
         } else {
             message = i18n('notify.item.saved', name);
         }
@@ -2194,10 +2194,6 @@ export class ContentWizardPanel
 
     setIsMarkedAsReady(value: boolean) {
         this.isMarkedAsReady = value;
-    }
-
-    setIsMarkedAsReadyOnPublish(value: boolean) {
-        this.isMarkedAsReadyOnPublish = value;
     }
 
     showLiveEdit() {
@@ -2625,6 +2621,29 @@ export class ContentWizardPanel
 
         if (this.getWizardHeader()) {
             this.getWizardHeader().setOnline(this.persistedContent.isOnline());
+        }
+    }
+
+    protected checkIfEditIsAllowed(): Q.Promise<boolean> {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+            this.loginResult = loginResult;
+
+            return Q(this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY));
+        });
+    }
+
+    protected handleCanModify(canModify: boolean): void {
+        super.handleCanModify(canModify);
+
+        if (this.getLivePanel()) {
+            this.getLivePanel().setModifyPermissions(this.canModify);
+        }
+
+        this.toggleStepFormsVisibility(this.loginResult);
+        this.updateUrlAction();
+
+        if (this.isLocalizeInUrl()) {
+            this.settingsWizardStepForm.updateInitialLanguage();
         }
     }
 }

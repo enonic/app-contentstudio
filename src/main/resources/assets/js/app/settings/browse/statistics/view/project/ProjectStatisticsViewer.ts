@@ -10,6 +10,8 @@ import * as Q from 'q';
 import {ProjectCreatedEvent} from '../../../../event/ProjectCreatedEvent';
 import {ProjectUpdatedEvent} from '../../../../event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from '../../../../event/ProjectDeletedEvent';
+import {ProjectListWithMissingRequest} from '../../../../resource/ProjectListWithMissingRequest';
+import {ProjectHelper} from '../../../../data/project/ProjectHelper';
 
 export class ProjectStatisticsViewer extends NamesAndIconViewer<ProjectViewItem> {
 
@@ -37,7 +39,7 @@ export class ProjectStatisticsViewer extends NamesAndIconViewer<ProjectViewItem>
     }
 
     resolveDisplayName(project: ProjectViewItem): string {
-        return project.getDisplayName();
+        return ProjectHelper.isAvailable(project.getData()) ? project.getDisplayName() : project.getId();
     }
 
     resolveUnnamedDisplayName(project: ProjectViewItem): string {
@@ -87,7 +89,7 @@ export class ProjectStatisticsViewer extends NamesAndIconViewer<ProjectViewItem>
             return Q(null);
         }
 
-        return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+        return new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
             this.allProjects = projects;
             this.projectsUpdateRequired = false;
             return Q(null);

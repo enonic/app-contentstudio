@@ -9,7 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const LayerWizard = require('../../page_objects/project/layer.wizard.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 
 describe('layer.in.public.project.spec - ui-tests for layer in existing project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -159,9 +159,11 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             //2. Switch to Settings and delete the layer:
             await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnDeleteButton();
-            let confirmationDialog = new ConfirmationDialog();
-            await confirmationDialog.clickOnYesButton();
-            await confirmationDialog.waitForDialogClosed();
+            let confirmValueDialog = new ConfirmValueDialog();
+            await confirmValueDialog.waitForDialogOpened();
+            await confirmValueDialog.typeNumberOrName(LAYER_DISPLAY_NAME);
+            await confirmValueDialog.clickOnConfirmButton();
+            await confirmValueDialog.waitForDialogClosed();
             let message = await settingsBrowsePanel.waitForNotificationMessage();
 
             //3. Switch to content mode and verify that parent project's context is loaded:
@@ -176,7 +178,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
     it("GIVEN new layer is created WHEN the layer has been deleted in the wizard THEN layer should not be present in the grid",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
+            let confirmValueDialog = new ConfirmValueDialog();
             //1.Select 'public' project and open wizard for new layer:
             let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(PROJECT_DISPLAY_NAME);
             //2. Save new layer:
@@ -187,9 +189,10 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await layerWizard.pause(500);
             //3. Click on 'Delete' button and confirm the deleting:
             await layerWizard.clickOnDeleteButton();
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
-            await confirmationDialog.waitForDialogClosed();
+            await confirmValueDialog.waitForDialogOpened();
+            await confirmValueDialog.typeNumberOrName(LAYER_DISPLAY_NAME);
+            await confirmValueDialog.clickOnConfirmButton();
+            await confirmValueDialog.waitForDialogClosed();
             await settingsBrowsePanel.waitForGridLoaded(appConstant.shortTimeout);
             //4. Verify that the layer is deleted in Browse Panel:
             await settingsBrowsePanel.waitForProjectNotDisplayed(LAYER_DISPLAY_NAME);
@@ -221,6 +224,11 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //2. Verify that 'Delete' button is enabled after deleting the layer
             await settingsBrowsePanel.waitForDeleteButtonEnabled();
+        });
+
+    it("Postconditions: the project should be deleted",
+        async () => {
+            await studioUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
         });
 
     beforeEach(async () => {

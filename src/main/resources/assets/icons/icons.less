@@ -12,7 +12,7 @@
 }
 
 .icon-spinner {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e007";
@@ -20,7 +20,7 @@
 }
 
 .icon-image {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e90d";
@@ -28,7 +28,7 @@
 }
 
 .icon-calendar {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e953";
@@ -36,7 +36,7 @@
 }
 
 .icon-pie {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e1f7";
@@ -48,7 +48,7 @@
 }
 
 .icon-signup {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e296";
@@ -56,7 +56,7 @@
 }
 
 .icon-list {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e299";
@@ -64,7 +64,7 @@
 }
 
 .icon-attachment {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e9cd";
@@ -72,7 +72,7 @@
 }
 
 .icon-close {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e36b";
@@ -80,7 +80,7 @@
 }
 
 .icon-plus {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e36c";
@@ -88,7 +88,7 @@
 }
 
 .icon-keyboard_arrow_left {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e900";
@@ -105,7 +105,7 @@
 }
 
 .icon-arrow-left2 {
-  .icon;
+  .icon();
 
   &::before {
     content: "\ea40";
@@ -113,7 +113,7 @@
 }
 
 .icon-font-size {
-  .icon;
+  .icon();
 
   &::before {
     content: "\ea62";
@@ -121,7 +121,7 @@
 }
 
 .icon-insert-template {
-  .icon;
+  .icon();
 
   &::before {
     content: "\ea73";
@@ -138,7 +138,7 @@
 }
 
 .icon-more_vert {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e5d4";
@@ -150,7 +150,7 @@
 }
 
 .icon-wrench {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e992";
@@ -158,7 +158,7 @@
 }
 
 .icon-pencil {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e906";
@@ -166,7 +166,7 @@
 }
 
 .icon-disk {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e134";
@@ -174,7 +174,7 @@
 }
 
 .icon-tree.mode-toggler-button {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e92f";
@@ -192,7 +192,7 @@
 }
 
 .icon-history {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e94d";
@@ -200,7 +200,7 @@
 }
 
 .icon-link {
-  .icon;
+  .icon();
 
   &::before {
     content: "\e9cb";
@@ -208,7 +208,7 @@
 }
 
 .icon-big-plus {
-  .icon;
+  .icon();
 
   &::before {
     content: "\ea0a";
@@ -216,7 +216,7 @@
 }
 
 .icon-state-invalid {
-  .icon;
+  .icon();
 
   &:before {
     color: #CB0300;
@@ -227,7 +227,7 @@
 }
 
 .icon-state-in-progress {
-  .icon;
+  .icon();
 
   &:before {
     color: #CBAD00;
@@ -238,7 +238,7 @@
 }
 
 .icon-state-ready {
-  .icon;
+  .icon();
 
   &:before {
     content: "\e907";
@@ -249,7 +249,7 @@
 }
 
 .icon-version-modified {
-  .icon;
+  .icon();
 
   &:before {
     content: "\e908";
@@ -257,7 +257,7 @@
 }
 
 .icon-version-published {
-  .icon;
+  .icon();
 
   &:before {
     content: "\e909";
@@ -265,7 +265,7 @@
 }
 
 .icon-version-unpublished {
-  .icon;
+  .icon();
 
   &:before {
     content: "\e2c1";
@@ -273,7 +273,7 @@
 }
 
 .icon-publish-request {
-  .icon;
+  .icon();
 
   &:before {
     content: "\e9a0";
@@ -281,7 +281,7 @@
 }
 
 .icon-issue {
-  .icon;
+  .icon();
 
   &:before {
     content: "\e9a1";
@@ -300,7 +300,7 @@
 }
 
 .icon-compare {
-  .icon;
+  .icon();
 
   &:before {
     content: "\e915";
@@ -308,7 +308,7 @@
 }
 
 .icon-tree-2 {
-  .icon;
+  .icon();
 
   &:before {
     content: "\e978";
@@ -316,7 +316,7 @@
 }
 
 .icon-blocked {
-  .icon;
+  .icon();
 
   &:before {
     content: "\ea0e";
@@ -327,9 +327,24 @@
 }
 
 .icon-layer {
-  .icon;
+  .icon();
 
   &:before {
     content: "\e932";
+  }
+}
+
+.icon-cloud-download(@size: 18px, @bottom: -6px, @left:-4px) {
+  &::after {
+    background-image: url("../icons/cloud-download.svg");
+    background-repeat: no-repeat;
+    background-size: @size;
+    display: block;
+    width: @size;
+    height: @size;
+    content: " ";
+    position: absolute;
+    bottom: @bottom;
+    left: @left;
   }
 }

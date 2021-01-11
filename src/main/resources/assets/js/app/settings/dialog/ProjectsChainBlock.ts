@@ -3,6 +3,7 @@ import {Project} from '../data/project/Project';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {H6El} from 'lib-admin-ui/dom/H6El';
+import {ProjectHelper} from '../data/project/ProjectHelper';
 
 export class ProjectsChainBlock extends H6El {
 
@@ -50,7 +51,8 @@ export class ProjectsChainBlock extends H6El {
     private generateChainEntryText(project: Project, index: number): string {
         const delimiter: string = index > 0 ? `${ProjectsChainBlock.separator} ` : '';
         const language: string = !!project.getLanguage() ? ` (${project.getLanguage()})` : '';
-        return `${delimiter}${project.getDisplayName()}${language}`;
+        const name: string = ProjectHelper.isAvailable(project) ? project.getDisplayName() : project.getName();
+        return `${delimiter}${name}${language}`;
     }
 
     private createEmptyChainEntry(): SpanEl {

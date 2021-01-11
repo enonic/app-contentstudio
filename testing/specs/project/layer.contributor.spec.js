@@ -11,7 +11,6 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('layer.contributor.spec - ui-tests for user with layer-contributor role ', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -87,14 +86,16 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            //Verify that Project Selection dialog is loaded, then close it
+            await studioUtils.closeProjectSelectionDialog();
             //2. Select the site:
             await studioUtils.findAndSelectItem(SITE_NAME);
             //3. Verify that 'Open' button gets visible and enabled :
             await contentBrowsePanel.waitForOpenButtonEnabled();
 
-            let browseLayersWidget = await studioUtils.openLayersWidgetInBrowsePanel();
+            //let browseLayersWidget = await studioUtils.openLayersWidgetInBrowsePanel();
             //5. Verify that 'Open' button is enabled in the first widget-item:
-            await browseLayersWidget.waitForOpenButtonEnabled(LAYER_DISPLAY_NAME);
+            //await browseLayersWidget.waitForOpenButtonEnabled(LAYER_DISPLAY_NAME);
         });
 
     it("GIVEN user with 'contributor'-layer role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",
@@ -115,11 +116,10 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
     it("WHEN user contributor navigated to 'Settings Panel' THEN parent project and its layer should be visible",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1.Verify that the layer is not visible in the grid:
+            //1.Verify that the layer is visible in the grid:
             await settingsBrowsePanel.waitForItemDisplayed(LAYER_DISPLAY_NAME);
             //2. Verify that parent project is displayed:
             await settingsBrowsePanel.waitForItemDisplayed(PROJECT_DISPLAY_NAME);
@@ -132,18 +132,11 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
 
     it("Postconditions: the layer should be deleted",
         async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
             await studioUtils.navigateToContentStudioWithProjects("su", "password");
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1.Select the layer:
-            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
-            await settingsBrowsePanel.clickOnDeleteButton();
-            //2. Confirm the deleting:
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
-            await settingsBrowsePanel.waitForNotificationMessage();
+            //1.Select and delete the layer:
+            await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME)
         });
 
     afterEach(async () => {
@@ -155,5 +148,4 @@ describe('layer.contributor.spec - ui-tests for user with layer-contributor role
     before(() => {
         return console.log('specification is starting: ' + this.title);
     });
-
 });

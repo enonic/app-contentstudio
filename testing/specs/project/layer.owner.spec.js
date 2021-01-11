@@ -88,6 +88,10 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            //Verify that Project Selection dialog is loaded, then close it
+            await studioUtils.closeProjectSelectionDialog();
+            //Verify that Project Selection dialog is loaded, then close it
+            await studioUtils.closeProjectSelectionDialog();
             //2. Select the site:
             await studioUtils.findAndSelectItem(SITE_NAME);
             //3. Verify that 'Localize' button appears in the browse toolbar:
@@ -104,6 +108,8 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            //Verify that Project Selection dialog is loaded, then close it
+            await studioUtils.closeProjectSelectionDialog();
             //2. Select the site:
             await studioUtils.findAndSelectItem(SITE_NAME);
             //3. Verify that 'Mark as Ready' is default action in Publish Menu
@@ -114,6 +120,8 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         async () => {
             //1. Do Log in with the user:
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            //Verify that Project Selection dialog is loaded, then close it
+            await studioUtils.closeProjectSelectionDialog();
             //2. load existing site from the current layer:
             let url = "http://localhost:8080/admin/site/preview" + `/${LAYER_DISPLAY_NAME}/draft/${SITE_NAME}`;
             await webDriverHelper.browser.url(url);
@@ -147,6 +155,8 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            //Verify that Project Selection dialog is loaded, then close it
+            await studioUtils.closeProjectSelectionDialog();
             //2. Select the site:
             await studioUtils.findAndSelectItem(SITE_NAME);
             //3. Verify that 'Localize' button appears in the browse toolbar:
@@ -155,7 +165,6 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             let actualWorkflow = await contentBrowsePanel.getWorkflowState(SITE_NAME);
             assert.equal(actualWorkflow, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING);
         });
-
 
     afterEach(async () => {
         let title = await webDriverHelper.browser.getTitle();

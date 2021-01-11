@@ -18,9 +18,9 @@ import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathRe
 import {NotificationMessage} from 'lib-admin-ui/notify/NotificationMessage';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {UrlHelper} from '../../../util/UrlHelper';
 import eventInfo = CKEDITOR.eventInfo;
 import widget = CKEDITOR.plugins.widget;
-import {UrlHelper} from '../../../util/UrlHelper';
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];
@@ -110,7 +110,7 @@ export class HtmlEditor {
                 return el;
             }
 
-            return originalDowncastFunction.call(this, el);
+            return originalDowncastFunction.call(e.data, el);
         };
 
         e.data.upcast = newUpcastFunction;
@@ -274,7 +274,7 @@ export class HtmlEditor {
                 const dataSrc: string = ImageUrlResolver.URL_PREFIX_RENDER + imageId;
 
                 this.replaceWith(`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
-                                 `<img src="${upload.url}" data-src="${dataSrc}">` +
+                                 `<img src="${upload.url}" data-src="${dataSrc}" style="width:100%">` +
                                  '<figcaption> </figcaption>' +
                                  '</figure>');
 
@@ -517,6 +517,7 @@ export class HtmlEditor {
     public static updateFigureInlineStyle(figure: CKEDITOR.dom.element) {
         const hasCustomWidth: boolean = figure.hasClass(StyleHelper.STYLE.WIDTH.CUSTOM);
         const customWidth: string = figure.getStyle('width');
+        const firstFigureChild: CKEDITOR.dom.element = (<CKEDITOR.dom.element>figure.getFirst());
 
         figure.removeAttribute('style');
 
@@ -680,7 +681,7 @@ export class HtmlEditor {
 
         const commandDef: CKEDITOR.commandDefinition = {
             exec: function () {
-                editor.applyStyle(new CKEDITOR.style({element: this.name}, null)); // name is command name
+                editor.applyStyle(new CKEDITOR.style({element: this['name']}, null)); // name is command name
                 return true;
             }
         };

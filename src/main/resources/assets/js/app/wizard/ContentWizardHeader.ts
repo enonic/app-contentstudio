@@ -16,6 +16,7 @@ import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
+import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {
@@ -43,7 +44,8 @@ export class ContentWizardHeader
         nameErrorBlock.setHtml(i18n('path.not.available'));
         this.appendChild(nameErrorBlock);
 
-        const lockElem: SpanEl = new SpanEl('lock-name icon-pencil');
+        const lockElem: ButtonEl = new ButtonEl();
+        lockElem.addClass('lock-name icon-pencil');
         lockElem.setTitle(i18n('path.lock'));
         this.appendChild(lockElem);
 
@@ -121,6 +123,7 @@ export class ContentWizardHeader
 
     setOnline(value: boolean) {
         this.toggleClass('locked', value);
+        this.toggleNameInput(!value);
     }
 
     isValid(): boolean {
@@ -129,5 +132,13 @@ export class ContentWizardHeader
 
     isValidForSaving(): boolean {
         return !!this.getName() && this.isNameUnique;
+    }
+
+    toggleNameInput(enable: boolean): void {
+        if (enable && this.hasClass('locked')) {
+            return;
+        }
+
+        super.toggleNameInput(enable);
     }
 }
