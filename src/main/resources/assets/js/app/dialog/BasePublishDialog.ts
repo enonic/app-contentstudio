@@ -18,6 +18,10 @@ import {Principal} from 'lib-admin-ui/security/Principal';
 import {PropertySet} from 'lib-admin-ui/data/PropertySet';
 import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {DropdownButtonRow} from 'lib-admin-ui/ui/dialog/DropdownButtonRow';
+import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {Action} from 'lib-admin-ui/ui/Action';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
@@ -29,6 +33,8 @@ export abstract class BasePublishDialog
     protected publishIssuesStateBar: PublishIssuesStateBar;
 
     protected publishScheduleForm: PublishScheduleForm;
+
+    protected markAllAsReadyAction: Action;
 
     protected scheduleFormPropertySet: PropertySet;
 
@@ -86,6 +92,10 @@ export abstract class BasePublishDialog
         this.addClickIgnoredElement(CreateIssueDialog.get());
 
         this.lockControls();
+    }
+
+    getButtonRow(): PublishDialogButtonRow {
+        return <PublishDialogButtonRow>super.getButtonRow();
     }
 
     protected initListeners() {
@@ -179,8 +189,10 @@ export abstract class BasePublishDialog
         this.getButtonRow().focusDefaultAction();
         this.updateTabbable();
 
-        const canPublish = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
+        const canPublish: boolean = this.publishProcessor.areAllConditionsSatisfied(itemsToPublish);
         this.scheduleFormToggle.getEl().setDisabled(this.publishProcessor.isAllPendingDelete() || !canPublish);
+
+        this.getButtonRow().setTotalInProgress(this.publishProcessor.getInProgressIdsWithoutInvalid().length);
     }
 
     protected isScheduleFormValid(): boolean {
@@ -196,7 +208,7 @@ export abstract class BasePublishDialog
     }
 
     protected initActions() {
-        // used in descendants
+        this.markAllAsReadyAction = new Action(i18n('action.markAsReady')).onExecuted(this.markAllAsReady.bind(this));
     }
 
     protected toggleAction(enable: boolean) {
@@ -300,5 +312,20 @@ export abstract class BasePublishDialog
         super.close();
         this.publishProcessor.reset();
         CreateIssueDialog.get().reset();
+    }
+
+    private markAllAsReady() {
+        const ids: ContentId[] = this.publishProcessor.getContentIsProgressIds();
+
+        new MarkAsReadyRequest(ids).sendAndParse().catch(DefaultErrorHandler.handle);
+    }
+}
+
+export class PublishDialogButtonRow
+    extends DropdownButtonRow {
+
+    setTotalInProgress(totalInProgress: number) {
+        this.toggleClass('has-items-in-progress', totalInProgress > 0);
+        this.getMenuActions()[0].setLabel(i18n('action.markAsReadyTotal', totalInProgress));
     }
 }

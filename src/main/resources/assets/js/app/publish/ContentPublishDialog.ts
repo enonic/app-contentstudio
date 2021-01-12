@@ -11,17 +11,14 @@ import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {PublishContentRequest} from '../resource/PublishContentRequest';
-import {BasePublishDialog} from '../dialog/BasePublishDialog';
+import {BasePublishDialog, PublishDialogButtonRow} from '../dialog/BasePublishDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {AutosizeTextInput} from 'lib-admin-ui/ui/text/AutosizeTextInput';
-import {DropdownButtonRow} from 'lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
-import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -36,8 +33,6 @@ export class ContentPublishDialog
 
     private publishAction: Action;
 
-    private markAllAsReadyAction: Action;
-
     private publishSubTitle: ContentPublishDialogSubTitle;
 
     private scheduleAction: Action;
@@ -49,7 +44,7 @@ export class ContentPublishDialog
             title: i18n('dialog.publish'),
             class: 'publish-dialog grey-header',
             dependantsDescription: i18n('dialog.publish.dependants'),
-            buttonRow: new ContentPublishDialogButtonRow(),
+            buttonRow: new PublishDialogButtonRow(),
             processingLabel: `${i18n('field.progress.publishing')}...`,
             processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
         });
@@ -80,8 +75,6 @@ export class ContentPublishDialog
         this.scheduleAction = new Action('action.schedule')
             .setIconClass('schedule-action')
             .onExecuted((action: Action) => this.doPublish(true));
-
-        this.markAllAsReadyAction = new Action(i18n('action.markAsReady')).onExecuted(this.markAllAsReady.bind(this));
     }
 
     protected initElements() {
@@ -129,10 +122,6 @@ export class ContentPublishDialog
 
             return rendered;
         });
-    }
-
-    getButtonRow(): ContentPublishDialogButtonRow {
-        return <ContentPublishDialogButtonRow>super.getButtonRow();
     }
 
     open() {
@@ -246,7 +235,6 @@ export class ContentPublishDialog
         this.toggleAction(canPublish && scheduleValid);
 
         this.publishSubTitle.setVisible(!this.isAllPendingDelete());
-        this.getButtonRow().setTotalInProgress(this.publishProcessor.getInProgressIdsWithoutInvalid().length);
 
         super.updateControls(itemsToPublish);
     }
@@ -278,12 +266,6 @@ export class ContentPublishDialog
 
     resetSubTitleMessage() {
         this.publishSubTitle.resetValue();
-    }
-
-    private markAllAsReady() {
-        const ids: ContentId[] = this.publishProcessor.getContentIsProgressIds();
-
-        new MarkAsReadyRequest(ids).sendAndParse().catch(DefaultErrorHandler.handle);
     }
 }
 
@@ -401,14 +383,5 @@ export class ContentPublishDialogSubTitle
             this.appendChildren<Element>(this.message, this.input);
             return rendered;
         });
-    }
-}
-
-export class ContentPublishDialogButtonRow
-    extends DropdownButtonRow {
-
-    setTotalInProgress(totalInProgress: number) {
-        this.toggleClass('has-items-in-progress', totalInProgress > 0);
-        this.getMenuActions()[0].setLabel(i18n('action.markAsReadyTotal', totalInProgress));
     }
 }
