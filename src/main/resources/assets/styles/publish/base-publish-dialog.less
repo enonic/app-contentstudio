@@ -39,8 +39,18 @@
 
   .dialog-buttons.dropdown-button-row {
     .dropdown-dialog-menu {
-      .action-button {
-        margin-left: 0;
+      .@{_COMMON_PREFIX}dropdown-handle {
+        display: none;
+        pointer-events: auto;
+        opacity: 1;
+      }
+    }
+
+    &.has-items-in-progress {
+      .dropdown-dialog-menu {
+        .@{_COMMON_PREFIX}dropdown-handle {
+          display: inline-block;
+        }
       }
     }
   }
