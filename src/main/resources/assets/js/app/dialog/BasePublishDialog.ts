@@ -22,6 +22,7 @@ import {DropdownButtonRow} from 'lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Action} from 'lib-admin-ui/ui/Action';
+import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
@@ -317,7 +318,9 @@ export abstract class BasePublishDialog
     private markAllAsReady() {
         const ids: ContentId[] = this.publishProcessor.getContentIsProgressIds();
 
-        new MarkAsReadyRequest(ids).sendAndParse().catch(DefaultErrorHandler.handle);
+        new MarkAsReadyRequest(ids).sendAndParse()
+            .then(() => showFeedback(i18n('notify.item.markedAsReady.multiple', ids.length)))
+            .catch(DefaultErrorHandler.handle);
     }
 }
 
