@@ -82,7 +82,6 @@ module.exports = {
         return webDriverHelper.browser.execute(script);
     },
     scrollViewPort(viewportElement, step) {
-
         return webDriverHelper.browser.execute("arguments[0].scrollTop=arguments[1]", viewportElement, step);
     },
     async insertUrlLinkInCke(text, url) {

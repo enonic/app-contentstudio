@@ -49,6 +49,7 @@ class Page {
         await element.scrollIntoView();
         return await element.click();
     }
+
     async clickOnElement(selector) {
         let element = await this.findElement(selector);
         //await element.waitForDisplayed(1500);
@@ -457,6 +458,14 @@ class Page {
 
     refresh() {
         return this.getBrowser().refresh();
+    }
+
+    async scrollPanel(scrollTop) {
+        let element = await this.findElement("//div[contains(@id,'Panel') and contains(@class,'panel-strip-scrollable')]");
+        let id = await element.getAttribute("id");
+        let script = "document.getElementById(arguments[0]).scrollTop=arguments[1]";
+        await this.getBrowser().execute(script, id, scrollTop);
+        return await this.pause(300);
     }
 }
 
