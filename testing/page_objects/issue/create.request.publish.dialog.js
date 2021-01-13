@@ -4,7 +4,7 @@ const lib = require('./../../libs/elements');
 
 const xpath = {
     container: `//div[contains(@id,'RequestContentPublishDialog')]`,
-    nextButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Next')]]`,
+    nextButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Next')]]`,
     previousButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Previous')]]`,
     createRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Create request')]]`,
     changesInput: `//div[contains(@id,'InputView') and descendant::div[text()='Describe the changes']]`,
