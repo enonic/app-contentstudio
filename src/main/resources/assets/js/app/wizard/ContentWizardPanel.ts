@@ -1717,10 +1717,11 @@ export class ContentWizardPanel
                         this.xDataWizardStepForms.resetState();
 
                         this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
+                        this.contentWizardStepForm.validate();
+
                         if (this.isNew()) {
                             this.contentWizardStepForm.getFormView().highlightInputsOnValidityChange(true);
                         } else {
-                            this.contentWizardStepForm.validate();
                             this.displayValidationErrors(!this.isValid());
                         }
 
