@@ -448,6 +448,17 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
+    async clickOnOpenButton() {
+        try {
+            await this.waitForOpenButtonEnabled();
+            await this.clickOnElement(this.openButton);
+            return await this.pause(500);
+        } catch (err) {
+            this.saveScreenshot('err_browse_panel_open_button');
+            throw new Error('Browse Panel: Edit button is not enabled! ' + err);
+        }
+    }
+
     waitForMoveButtonDisabled() {
         return this.waitForElementDisabled(this.moveButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_move_disabled_button');

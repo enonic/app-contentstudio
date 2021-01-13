@@ -55,9 +55,9 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             //#1556 Single occurrence of item-set should be expanded by default
             await freeFormNestedSet.selectInputType("text");
             await contentWizard.waitAndClickOnSave();
-            await contentWizard.pause(1500);
+            await contentWizard.pause(1000);
             //3. change the selected option to 'image':
-            await freeFormNestedSet.selectInputType("image");
+            await freeFormNestedSet.expandOptionsAndSelectInputType("image");
             //"Save" button gets enabled, because the option was updated:
             await contentWizard.waitForSaveButtonEnabled();
             //4. Verify that the content gets valid now:
