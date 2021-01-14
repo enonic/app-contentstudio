@@ -49,6 +49,7 @@ class Page {
         await element.scrollIntoView();
         return await element.click();
     }
+
     async clickOnElement(selector) {
         let element = await this.findElement(selector);
         //await element.waitForDisplayed(1500);
@@ -79,14 +80,18 @@ class Page {
     }
 
     async typeTextInInput(selector, text) {
-        let inputElement = await this.findElement(selector);
-        await inputElement.setValue(text);
-        let value = await inputElement.getValue();
-        //workaround for issue in WebdriverIO
-        if (value == "") {
+        try {
+            let inputElement = await this.findElement(selector);
             await inputElement.setValue(text);
+            let value = await inputElement.getValue();
+            //workaround for issue in WebdriverIO
+            if (value == "") {
+                await inputElement.setValue(text);
+            }
+            return await inputElement.pause(300);
+        } catch (err) {
+            throw new Error("Error when set value in input " + err);
         }
-        return await inputElement.pause(300);
     }
 
     async addTextInInput(selector, text) {
@@ -119,10 +124,14 @@ class Page {
     }
 
     async clearInputText(selector) {
-        let inputElement = await this.findElement(selector);
-        await inputElement.waitForDisplayed(1000);
-        await inputElement.clearValue();
-        return await inputElement.pause(300);
+        try {
+            let inputElement = await this.findElement(selector);
+            await inputElement.waitForDisplayed(1000);
+            await inputElement.clearValue();
+            return await inputElement.pause(3000);
+        } catch (err) {
+            throw new Error("Error when clear value in input" + err);
+        }
     }
 
     saveScreenshot(name) {
@@ -457,6 +466,14 @@ class Page {
 
     refresh() {
         return this.getBrowser().refresh();
+    }
+
+    async scrollPanel(scrollTop) {
+        let element = await this.findElement("//div[contains(@id,'Panel') and contains(@class,'panel-strip-scrollable')]");
+        let id = await element.getAttribute("id");
+        let script = "document.getElementById(arguments[0]).scrollTop=arguments[1]";
+        await this.getBrowser().execute(script, id, scrollTop);
+        return await this.pause(300);
     }
 }
 
