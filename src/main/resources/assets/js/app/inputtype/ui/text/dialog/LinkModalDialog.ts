@@ -363,8 +363,7 @@ export class LinkModalDialog
     }
 
     private createSelector( getValueFn: Function,
-                            loaderBuilder: ContentSummaryOptionDataLoaderBuilder,
-                            allowedContentPath: string = ''
+                            loaderBuilder: ContentSummaryOptionDataLoaderBuilder
                             ): ContentComboBox<ContentTreeSelectorItem> {
         const selector = ContentComboBox.create()
             .setTreegridDropdownEnabled(true)
