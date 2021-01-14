@@ -20,7 +20,7 @@ allprojects {
         compile ("com.enonic.xp:portal-api:${xpVersion}") {
             force = true
         }
-        testCompile 'junit:junit:4.12'
+        testCompile 'junit:junit:4.13.1'
         testCompile 'org.mockito:mockito-core:2.23.0'
     }
 
