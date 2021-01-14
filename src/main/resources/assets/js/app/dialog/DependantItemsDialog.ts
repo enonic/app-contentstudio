@@ -266,13 +266,13 @@ export abstract class DependantItemsDialog
         return this.getItemList().getItems();
     }
 
-    protected loadDescendantIds(filterStatuses?: CompareStatus[]) {
+    protected loadDescendantIds() {
         const contents = this.getContentsToLoad();
 
         const itemsIds = this.getItemList().getItems().map(content => content.getContentId());
 
         return new GetDescendantsOfContentsRequest().setContentPaths(
-            contents.map(content => content.getContentSummary().getPath())).setFilterStatuses(filterStatuses).sendAndParse()
+            contents.map(content => content.getContentSummary().getPath())).sendAndParse()
             .then((result: ContentId[]) => {
                 this.dependantIds = result;
 
