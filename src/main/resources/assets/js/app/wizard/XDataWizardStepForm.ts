@@ -70,7 +70,7 @@ export class XDataWizardStepForm
 
         if (this.enabled) {
             return super.doLayout(form, data).then(() => {
-                this.validate(false);
+                this.validate(false, true);
             });
         } else {
             this.formView = new FormView(this.formContext, form, data.getRoot());
