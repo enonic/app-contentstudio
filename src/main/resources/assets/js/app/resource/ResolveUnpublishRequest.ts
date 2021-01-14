@@ -4,7 +4,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentIdBaseItemJson} from './json/ResolvePublishContentResultJson';
 
-export class ResolveUnpublishIds
+export class ResolveUnpublishRequest
     extends ContentResourceRequest<ContentId[]> {
 
     private ids: ContentId[];
