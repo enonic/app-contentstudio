@@ -404,7 +404,7 @@ export class ContentBrowsePanel
 
         const contentsToUpdateIds: ContentId[] = [];
         contentIds.map((contentId: ContentId) => {
-            if (this.treeGrid.hasNodeWithDataId(contentId.toString())) {
+            if (this.treeGrid.hasItemWithDataId(contentId.toString())) {
                 contentsToUpdateIds.push(contentId);
             }
         });
@@ -458,7 +458,7 @@ export class ContentBrowsePanel
         this.doHandleContentUpdate(data);
 
         if (this.treeGrid.hasSelectedOrHighlightedNode() &&
-            data.some((publishedItem: ContentSummaryAndCompareStatus) => !this.treeGrid.hasNodeWithDataId(publishedItem.getId()))) {
+            data.some((publishedItem: ContentSummaryAndCompareStatus) => !this.treeGrid.hasItemWithDataId(publishedItem.getId()))) {
             this.refreshTreeGridActions();
         }
     }

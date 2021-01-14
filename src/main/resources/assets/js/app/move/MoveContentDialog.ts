@@ -190,7 +190,7 @@ export class MoveContentDialog
     }
 
     private getParentSite(content: ContentSummary): Q.Promise<ContentSummary> {
-        if (!this.treeGrid.hasNodeWithDataId(content.getId())) {
+        if (!this.treeGrid.hasItemWithDataIdInDefault(content.getId())) {
             return new GetNearestSiteRequest(content.getContentId()).sendAndParse();
         }
 
