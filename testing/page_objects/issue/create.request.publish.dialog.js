@@ -62,6 +62,10 @@ class CreateRequestPublishDialog extends Page {
         return xpath.container + xpath.warningMessagePart1;
     }
 
+    get markAsReadyDropdownHandle() {
+        return xpath.container + "//div[contains(@class,'modal-dialog-footer')]" + lib.DROP_DOWN_HANDLE;
+    }
+
     async clickOnCancelButtonTop() {
         await this.clickOnElement(this.cancelButtonTop);
         return await this.waitForDialogClosed();
@@ -230,6 +234,21 @@ class CreateRequestPublishDialog extends Page {
         await this.clickOnElement(this.createRequestButton);
         return this.pause(700);
     }
-};
+
+    async clickOnMarkAsReadyMenuItem() {
+        let locator = xpath.container + "//li[contains(@id,'MenuItem') and contains(.,'Mark as ready')]";
+        await this.clickOnmarkAsReadyDropdownHandle();
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.pause(200);
+        await this.clickOnElement(locator);
+        return await this.pause(200);
+    }
+
+    async clickOnmarkAsReadyDropdownHandle() {
+        await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.mediumTimeout);
+        return await this.clickOnElement(this.markAsReadyDropdownHandle);
+    }
+}
+
 module.exports = CreateRequestPublishDialog;
 
