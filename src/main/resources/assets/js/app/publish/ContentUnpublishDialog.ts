@@ -12,7 +12,7 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {BEl} from 'lib-admin-ui/dom/BEl';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ConfirmValueDialog} from '../remove/ConfirmValueDialog';
-import {ResolveUnpublishIds} from '../resource/ResolveUnpublishIds';
+import {ResolveUnpublishRequest} from '../resource/ResolveUnpublishRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ContentUnpublishDialog
@@ -143,7 +143,7 @@ export class ContentUnpublishDialog
     protected loadDescendantIds(): Q.Promise<void> {
         const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
 
-        return new ResolveUnpublishIds(ids).sendAndParse().then((unpublishIds: ContentId[]) => {
+        return new ResolveUnpublishRequest(ids).sendAndParse().then((unpublishIds: ContentId[]) => {
             this.dependantIds = unpublishIds.filter((unpubId: ContentId) => !ids.some((id: ContentId) => id.equals(unpubId)));
         });
     }
