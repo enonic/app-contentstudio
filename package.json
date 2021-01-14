@@ -30,7 +30,7 @@
     "@types/jqueryui": "^1.12.14",
     "@types/q": "^1.5.4",
     "autoprefixer": "^10.2.1",
-    "browserslist": "^4.16.0",
+    "browserslist": "^4.16.1",
     "browserslist-config-enonic": "^1.0.5",
     "css-loader": "^5.0.0",
     "cssnano": "^4.1.10",
