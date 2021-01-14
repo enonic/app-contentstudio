@@ -12,6 +12,8 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {BEl} from 'lib-admin-ui/dom/BEl';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ConfirmValueDialog} from '../remove/ConfirmValueDialog';
+import {ResolveUnpublishIds} from '../resource/ResolveUnpublishIds';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ContentUnpublishDialog
     extends DependantItemsWithProgressDialog {
@@ -122,19 +124,28 @@ export class ContentUnpublishDialog
         this.getDependantList().clearItems();
         this.lockControls();
 
-        return this.loadDescendantIds([CompareStatus.EQUAL, CompareStatus.NEWER, CompareStatus.PENDING_DELETE]).then(() => {
+        return this.loadDescendantIds().then(() => {
             return this.loadDescendants(0, 20).then((items: ContentSummaryAndCompareStatus[]) => {
                 this.setDependantItems(items);
 
                 // do not set requested contents as they are never going to change
 
                 this.unlockControls();
-            }).finally(() => {
-                this.hideLoadMask();
-                return Q(null);
-            });
+            }).catch(DefaultErrorHandler.handle)
+                .finally(() => {
+                    this.hideLoadMask();
+                    return Q(null);
+                });
         });
 
+    }
+
+    protected loadDescendantIds(): Q.Promise<void> {
+        const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
+
+        return new ResolveUnpublishIds(ids).sendAndParse().then((unpublishIds: ContentId[]) => {
+            this.dependantIds = unpublishIds.filter((unpubId: ContentId) => !ids.some((id: ContentId) => id.equals(unpubId)));
+        });
     }
 
     private filterUnpublishableItems(items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] {
