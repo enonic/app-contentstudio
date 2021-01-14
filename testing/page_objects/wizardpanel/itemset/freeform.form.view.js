@@ -55,6 +55,7 @@ class FreeFormView extends Page {
         await this.scrollPanel(600);
         await this.waitForElementDisplayed(this.inputTypeDropDownHandle, appConst.mediumTimeout);
         await this.clickOnElement(this.inputTypeDropDownHandle);
+        await this.pause(400);
         await this.typeTextInInput(this.inputTypeOptionFilterInput, "");
         let optionLocator = xpath.inputTypeSetView + lib.itemByDisplayName(option);
         await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
