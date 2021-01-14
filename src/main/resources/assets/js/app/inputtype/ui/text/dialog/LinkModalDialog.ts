@@ -363,9 +363,11 @@ export class LinkModalDialog
     }
 
     private createSelector( getValueFn: Function,
-                            loaderBuilder: ContentSummaryOptionDataLoaderBuilder
+                            loaderBuilder: ContentSummaryOptionDataLoaderBuilder,
+                            allowedContentPath: string = ''
                             ): ContentComboBox<ContentTreeSelectorItem> {
         const selector = ContentComboBox.create()
+            .setTreegridDropdownEnabled(true)
             .setShowStatus(true)
             .setMaximumOccurrences(1)
             .setLoader(loaderBuilder.setLoadStatus(true).build())
@@ -379,7 +381,7 @@ export class LinkModalDialog
     private createMediaSelectorBuilder(): ContentSummaryOptionDataLoaderBuilder {
         return ContentSummaryOptionDataLoader
             .create()
-            .setAllowedContentPaths([this.parentSitePath || ''])
+            .setAllowedContentPaths(['*'])
             .setContentTypeNames(ContentTypeName.getMediaTypes().map(name => name.toString()));
     }
 
