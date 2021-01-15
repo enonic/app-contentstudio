@@ -10,13 +10,14 @@ const XPATH = {
     includeChildrenToogler: `//div[contains(@id,'IncludeChildrenToggler')]`,
     showDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Show dependent items')]`,
     hideDependentItemsLink: `//div[@class='dependants']/h6[contains(.,'Hide dependent items')]`,
-    addScheduleButton: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
+    addScheduleIcon: `//button[contains(@id,'ButtonEl') and contains(@class,'icon-calendar')]`,
     removeItemIcon: `//div[contains(@class,'icon remove')]`,
     publishItemList: "//ul[contains(@id,'PublishDialogItemList')]",
     changeLogInput: "//input[contains(@id,'AutosizeTextInput')]",
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     dependantItemViewer: "//div[contains(@id,'DependantItemViewer')]",
     markAsReadyDropdownHandle: "//button[contains(@id,'DropdownHandle')]",
+    excludeInvalidItems: "//div[contains(@class,'state-icon invalid')]//button[child::span[contains(.,'Exclude all')]]",
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToPublish:
@@ -51,8 +52,8 @@ class ContentPublishDialog extends Page {
         return XPATH.container + XPATH.publishNowButton;
     }
 
-    get addScheduleButton() {
-        return XPATH.container + XPATH.addScheduleButton;
+    get addScheduleIcon() {
+        return XPATH.container + XPATH.addScheduleIcon;
     }
 
     get scheduleButton() {
@@ -67,14 +68,27 @@ class ContentPublishDialog extends Page {
         return XPATH.container + XPATH.markAsReadyDropdownHandle;
     }
 
-    async clickOnmarkAsReadyDropdownHandle() {
+    get excludeInvalidItemsButton() {
+        return XPATH.container + XPATH.excludeInvalidItems;
+    }
+
+    waitForExcludeInvalidItemsButtonDisplayed() {
+        return this.waitForElementDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
+    }
+
+    async clickOnExcludeInvalidItemsButton() {
+        await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.longTimeout);
+        return await this.clickOnElement(this.markAsReadyDropdownHandle);
+    }
+
+    async clickOnMarkAsReadyDropdownHandle() {
         await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.longTimeout);
         return await this.clickOnElement(this.markAsReadyDropdownHandle);
     }
 
     async clickOnMarkAsReadyMenuItem() {
         let locator = XPATH.container + "//li[contains(@id,'MenuItem') and contains(.,'Mark as ready')]";
-        await this.clickOnmarkAsReadyDropdownHandle();
+        await this.clickOnMarkAsReadyDropdownHandle();
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(200);
         await this.clickOnElement(locator);
@@ -105,10 +119,11 @@ class ContentPublishDialog extends Page {
         return this.isElementDisplayed(this.includeChildrenToogler);
     }
 
-    async clickOnAddScheduleButton() {
+    //Click on icon-calendar:
+    async clickOnAddScheduleIcon() {
         try {
-            await this.waitForElementDisplayed(this.addScheduleButton, appConst.shortTimeout);
-            await this.clickOnElement(this.addScheduleButton);
+            await this.waitForElementDisplayed(this.addScheduleIcon, appConst.shortTimeout);
+            await this.clickOnElement(this.addScheduleIcon);
             return await this.pause(500);
         } catch (err) {
             this.saveScreenshot('err_publish_dialog_add_schedule_button');
@@ -116,11 +131,23 @@ class ContentPublishDialog extends Page {
         }
     }
 
-    clickOnScheduleButton() {
-        return this.clickOnElement(this.addScheduleButton).catch(err => {
-            this.saveScreenshot('err_publish_dialog_add_schedule_button');
+    //Verifies that schedule button is enabled then clicks on it:
+    async clickOnScheduleButton() {
+        try {
+            await this.waitForScheduleButtonEnabled();
+            return await this.clickOnElement(this.scheduleButton);
+        } catch (err) {
+            this.saveScreenshot('err_publish_dialog_schedule_button');
             throw new Error('Error when clicking Publish  ' + err);
-        })
+        }
+    }
+
+    waitForScheduleButtonEnabled() {
+        return this.waitForElementEnabled(this.scheduleButton, appConst.mediumTimeout);
+    }
+
+    waitForScheduleButtonDisabled() {
+        return this.waitForElementDisabled(this.scheduleButton, appConst.mediumTimeout);
     }
 
     async clickOnShowDependentItems() {
@@ -188,14 +215,14 @@ class ContentPublishDialog extends Page {
         return await this.getTextInInput(this.changeLogInput);
     }
 
-    isAddScheduleButtonDisplayed() {
-        return this.waitForElementDisplayed(this.addScheduleButton, appConst.shortTimeout).catch(err => {
+    isAddScheduleIconDisplayed() {
+        return this.waitForElementDisplayed(this.addScheduleIcon, appConst.shortTimeout).catch(err => {
             throw new Error("`Add Schedule` button is not displayed " + err);
         })
     }
 
-    waitForAddScheduleButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.addScheduleButton, appConst.shortTimeout).catch(err => {
+    waitForAddScheduleIconNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.addScheduleIcon, appConst.shortTimeout).catch(err => {
             throw new Error("`Add Schedule` button should not be displayed " + err);
         })
     }
