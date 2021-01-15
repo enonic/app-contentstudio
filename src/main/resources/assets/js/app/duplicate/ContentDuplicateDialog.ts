@@ -245,7 +245,7 @@ export class ContentDuplicateDialog
     }
 
     private countItemsToDuplicateAndUpdateButtonCounter() {
-        this.actionButton.setLabel(i18n('action.duplicate'));
+        this.actionButton.getAction().setLabel(i18n('action.duplicate'));
 
         this.totalItemsToDuplicate = this.countTotal();
         this.updateButtonCount(i18n('action.duplicate'), this.totalItemsToDuplicate);

@@ -4,7 +4,7 @@ const lib = require('./../../libs/elements');
 
 const xpath = {
     container: `//div[contains(@id,'RequestContentPublishDialog')]`,
-    nextButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Next')]]`,
+    nextButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Next')]]`,
     previousButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Previous')]]`,
     createRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Create request')]]`,
     changesInput: `//div[contains(@id,'InputView') and descendant::div[text()='Describe the changes']]`,
@@ -60,6 +60,10 @@ class CreateRequestPublishDialog extends Page {
 
     get warningMessagePart1() {
         return xpath.container + xpath.warningMessagePart1;
+    }
+
+    get markAsReadyDropdownHandle() {
+        return xpath.container + "//div[contains(@class,'modal-dialog-footer')]" + lib.DROP_DOWN_HANDLE;
     }
 
     async clickOnCancelButtonTop() {
@@ -230,6 +234,20 @@ class CreateRequestPublishDialog extends Page {
         await this.clickOnElement(this.createRequestButton);
         return this.pause(700);
     }
-};
-module.exports = CreateRequestPublishDialog;
 
+    async clickOnMarkAsReadyMenuItem() {
+        let locator = xpath.container + "//li[contains(@id,'MenuItem') and contains(.,'Mark as ready')]";
+        await this.clickOnmarkAsReadyDropdownHandle();
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.pause(200);
+        await this.clickOnElement(locator);
+        return await this.pause(200);
+    }
+
+    async clickOnmarkAsReadyDropdownHandle() {
+        await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.mediumTimeout);
+        return await this.clickOnElement(this.markAsReadyDropdownHandle);
+    }
+}
+
+module.exports = CreateRequestPublishDialog;
