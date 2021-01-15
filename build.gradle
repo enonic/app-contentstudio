@@ -14,12 +14,8 @@ allprojects {
     apply from: "$rootDir/gradle/node.gradle"
 
     dependencies {
-        compile("com.enonic.xp:core-api:${xpVersion}") {
-            force = true
-        }
-        compile ("com.enonic.xp:portal-api:${xpVersion}") {
-            force = true
-        }
+        compile("com.enonic.xp:core-api:${xpVersion}")
+        compile ("com.enonic.xp:portal-api:${xpVersion}")
         testCompile 'junit:junit:4.13.1'
         testCompile 'org.mockito:mockito-core:3.6.28'
     }
