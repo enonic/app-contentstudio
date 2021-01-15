@@ -159,7 +159,7 @@ class BaseDetailsDialog extends Page {
 
     async clickOnAssigneesTabBarItem() {
         await this.clickOnElement(this.assigneesTabBarItem);
-        return await this.pause(400);
+        return await this.pause(800);
     }
 
     getCurrentStatusInStatusSelector() {

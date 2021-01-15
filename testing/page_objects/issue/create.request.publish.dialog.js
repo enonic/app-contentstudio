@@ -237,14 +237,14 @@ class CreateRequestPublishDialog extends Page {
 
     async clickOnMarkAsReadyMenuItem() {
         let locator = xpath.container + "//li[contains(@id,'MenuItem') and contains(.,'Mark as ready')]";
-        await this.clickOnmarkAsReadyDropdownHandle();
+        await this.clickOnMarkAsReadyDropdownHandle();
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(200);
         await this.clickOnElement(locator);
         return await this.pause(200);
     }
 
-    async clickOnmarkAsReadyDropdownHandle() {
+    async clickOnMarkAsReadyDropdownHandle() {
         await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.mediumTimeout);
         return await this.clickOnElement(this.markAsReadyDropdownHandle);
     }

@@ -274,7 +274,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.clickOnDeleteButton();
         await contentDeleteDialog.waitForDialogOpened();
         await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
-        return await contentDeleteDialog.waitForDialogClosed();
+        await contentDeleteDialog.waitForDialogClosed();
+        await this.pause(1000);
     }
 
     //When single content is selected, confirmation is no needed

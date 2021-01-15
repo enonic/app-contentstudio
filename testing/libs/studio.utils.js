@@ -31,6 +31,7 @@ const PrincipalFilterPanel = require('../page_objects/users/principal.filter.pan
 const ConfirmationDialog = require('../page_objects/confirmation.dialog');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
+const DateTimeRange = require('../page_objects/components/datetime.range');
 
 module.exports = {
     setTextInCKE: function (id, text) {
@@ -855,5 +856,16 @@ module.exports = {
         await confirmValueDialog.clickOnConfirmButton();
         await confirmValueDialog.waitForDialogClosed();
         return await settingsBrowsePanel.waitForNotificationMessage();
+    },
+    async scheduleContent(contentName, date) {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        let dateTimeRange = new DateTimeRange();
+        //await this.findAndSelectItem(contentName);
+        await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+        let contentPublishDialog = new ContentPublishDialog();
+        await contentPublishDialog.clickOnAddScheduleIcon();
+        await dateTimeRange.typeOnlineFrom(date, "//div[contains(@id,'ContentPublishDialog')]");
+        await contentPublishDialog.clickOnScheduleButton();
+        return await contentPublishDialog.waitForDialogClosed();
     }
 };
