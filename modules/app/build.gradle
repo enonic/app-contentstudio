@@ -62,7 +62,7 @@ jar {
 }
 
 asciidoctor {
-    sourceDir = file('../docs')
+    sourceDir = file('../../docs')
     outputDir = file('build/docs')
     requires project.file('verbose-mode.rb')
     attributes 'source-highlighter': 'coderay',
