@@ -218,11 +218,11 @@ export class PublishProcessor {
     }
 
     public getTotalExcludableInProgress(): number {
-        return this.getTotalExcludable(this.getInProgressIdsWithoutInvalid());
+        return this.getTotalExcludable(this.getDependantInProgressIdsWithoutInvalid());
     }
 
     public getTotalExcludableInvalid(): number {
-        return this.getTotalExcludable(this.getInvalidIds());
+        return this.getTotalExcludable(this.getDependantInvalidIds());
     }
 
     public reset() {
@@ -261,8 +261,9 @@ export class PublishProcessor {
         return this.invalidIds;
     }
 
-    public getInvalidIdsWithoutRequired(): ContentId[] {
-        return this.invalidIds.filter((id: ContentId) => !this.requiredIds.some((requiredId: ContentId) => requiredId.equals(id)));
+    public getDependantInvalidIds(): ContentId[] {
+        return this.invalidIds
+            .filter((id: ContentId) => !this.getContentToPublishIds().some((itemId: ContentId) => itemId.equals(id)));
     }
 
     public setCheckPublishable(flag: boolean) {
@@ -288,18 +289,14 @@ export class PublishProcessor {
         return this.inProgressIds.length > 0;
     }
 
-    public getInProgressIds(): ContentId[] {
-        return this.inProgressIds;
-    }
-
     public getInProgressIdsWithoutInvalid(): ContentId[] {
         return this.inProgressIds
             .filter((id: ContentId) => !this.invalidIds.some((invalidId: ContentId) => invalidId.equals(id)));
     }
 
-    public getInProgressIdsWithoutInvalidAndRequired(): ContentId[] {
+    public getDependantInProgressIdsWithoutInvalid(): ContentId[] {
         return this.getInProgressIdsWithoutInvalid()
-            .filter((id: ContentId) => !this.requiredIds.some((requiredId: ContentId) => requiredId.equals(id)));
+            .filter((id: ContentId) => !this.getContentToPublishIds().some((itemId: ContentId) => itemId.equals(id)));
     }
 
     public getDependantIds(): ContentId[] {
