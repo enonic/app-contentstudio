@@ -202,10 +202,10 @@ function initToolTip() {
     };
 
     const removeTooltipOnClick = (e: JQuery.MouseEventBase) => {
-        setTimeout(() => removeTooltip(e, true), 100);
+        setTimeout(() => removeTooltip(e), 100);
     };
 
-    const removeTooltip = (e: any, click: boolean = false) => {
+    const removeTooltip = (e: any) => {
         const tooltip = $('#' + ID);
         if (!tooltip.length) {
             return;
@@ -213,9 +213,12 @@ function initToolTip() {
         const target = e.currentTarget || e.target;
         $(target).off('click', removeTooltipOnClick);
 
-        const newTitle = click ? $(target).attr('title') : null;
-        if ($(target).data(DATA) && !newTitle) {
-            $(target).attr('title', $(target).data(DATA));
+        const oldTitle = $(target).data(DATA);
+        const newTitle = $(target).attr('title');
+        if (newTitle) {
+            $(target).attr('title', newTitle);
+        } else if (oldTitle) {
+            $(target).attr('title', oldTitle);
         }
 
         $(target).removeClass(CLS_ON);
