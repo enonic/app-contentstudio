@@ -169,6 +169,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             let settingsStepForm = new SettingsStepForm();
             //1. Do log in with the user-contributor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await contentBrowsePanel.pause(1000);
             //2. Double click on existing folder(ready to publish):
             await contentBrowsePanel.doubleClickOnRowByDisplayName(FOLDER_READY_TO_PUBLISH.displayName);
             await studioUtils.doSwitchToNewWizard();
