@@ -33,7 +33,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             let status = await contentPublishDialog.getContentStatus(FOLDER1_NAME);
             //3. New status should be displayed in the modal dialog:
             assert.equal(status, "New", "'New' status should be displayed in the dialog");
-            let isPresent = await contentPublishDialog.isAddScheduleButtonDisplayed();
+            let isPresent = await contentPublishDialog.isAddScheduleIconDisplayed();
             assert.isTrue(isPresent, "Add schedule button should be displayed");
             //This item should not be removable:
             let isRemovable = await contentPublishDialog.isPublishItemRemovable(FOLDER1_NAME);
@@ -50,7 +50,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             studioUtils.saveScreenshot("grid_publish_dialog_single_folder");
             let status = await contentPublishDialog.getContentStatus(FOLDER1_NAME);
             assert.equal(status, "New", "'New' status should be displayed in the dialog");
-            let isPresent = await contentPublishDialog.isAddScheduleButtonDisplayed();
+            let isPresent = await contentPublishDialog.isAddScheduleIconDisplayed();
             assert.isTrue(isPresent, "Add schedule button should be displayed");
             let isRemovable = await contentPublishDialog.isPublishItemRemovable(FOLDER1_NAME);
             assert.isFalse(isRemovable, "One publish item should be displayed and it should not be removable");
@@ -72,7 +72,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             let status = await contentPublishDialog.getContentStatus(appConst.TEST_FOLDER_WITH_IMAGES);
             assert.equal(status, "New", "'New' status should be displayed in the dialog");
 
-            let isPresent = await contentPublishDialog.isAddScheduleButtonDisplayed();
+            let isPresent = await contentPublishDialog.isAddScheduleIconDisplayed();
             assert.isTrue(isPresent, "Add schedule button should be displayed");
 
             let isRemovable = await contentPublishDialog.isPublishItemRemovable(appConst.TEST_FOLDER_WITH_IMAGES);
