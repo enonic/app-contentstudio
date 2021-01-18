@@ -274,7 +274,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.clickOnDeleteButton();
         await contentDeleteDialog.waitForDialogOpened();
         await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
-        return await contentDeleteDialog.waitForDialogClosed();
+        await contentDeleteDialog.waitForDialogClosed();
+        return await this.pause(1000);
     }
 
     //When single content is selected, confirmation is no needed
@@ -445,6 +446,17 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         } catch (err) {
             this.saveScreenshot('err_open_button_is_not_enabled');
             throw Error('Open button should be disabled, timeout: ' + 3000 + 'ms')
+        }
+    }
+
+    async clickOnOpenButton() {
+        try {
+            await this.waitForOpenButtonEnabled();
+            await this.clickOnElement(this.openButton);
+            return await this.pause(500);
+        } catch (err) {
+            this.saveScreenshot('err_browse_panel_open_button');
+            throw new Error('Browse Panel: Edit button is not enabled! ' + err);
         }
     }
 

@@ -45,11 +45,11 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             await studioUtils.doCloseWizardAndSwitchToGrid();
             let workflowStatus = await contentPublishDialog.getWorkflowState(FOLDER.displayName);
             assert.equal(workflowStatus, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
-                "`Work in Progress` status should be in the modal dialog");
+                "'Work in Progress' status should be in the modal dialog");
             //exception will be thrown when this button is enabled after 2000ms
             await contentPublishDialog.waitForPublishNowButtonDisabled();
             //'Add Schedule' button  should not be displayed, because the content is `Work in progress`
-            await contentPublishDialog.waitForAddScheduleButtonNotDisplayed();
+            await contentPublishDialog.waitForAddScheduleIconNotDisplayed();
         });
 
     it(`GIVEN Publishing wizard has been opened AND schedule form has been added WHEN click on hours-arrow THEN picker popup should not be closed`,
@@ -64,7 +64,7 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             //2. For this form to appear, need to make this content marked as ready
             await contentPublishDialog.clickOnMarkAsReadyMenuItem();
             //3. Verify that icon-calendar gets visible now. Click on this button:
-            await contentPublishDialog.clickOnAddScheduleButton();
+            await contentPublishDialog.clickOnAddScheduleIcon();
             //4. Open date time picker popup:
             await dateRangeInput.doOpenOnlineFromPickerPopup();
             studioUtils.saveScreenshot("schedule_picker_popup1");
@@ -73,6 +73,23 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             studioUtils.saveScreenshot("schedule_picker_popup2");
             await dateRangeInput.pause(1000);
             await dateRangeInput.waitForOnlineFromPickerDisplayed();
+        });
+
+    //Verifies https://github.com/enonic/app-contentstudio/issues/2780
+    //Publishing Scheduled status remains after scheduled content has been marked as deleted
+    it(`GIVEN existing folder has been scheduled WHEN the folder has been marked as deleted THEN 'Marked for deletion' status should be in browse panel`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let dateRangeInput = new DateRangeInput();
+            //1. Select existing 'Ready to publish' folder and open 'Publish Dialog'
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            //2. Schedule this content:
+            await studioUtils.scheduleContent(FOLDER.displayName, "2031-01-01 00:00");
+            //3. Click on 'Mark as Deleted' menu item in Delete Content dialog:
+            await contentBrowsePanel.doSelectedContentMarkAsDeleted();
+            //4. Verify that status gets 'Marked for deletion':
+            let actualStatus = await contentBrowsePanel.getContentStatus(FOLDER.displayName);
+            assert.equal(actualStatus, appConst.CONTENT_STATUS.MARKED_FOR_DELETION, "Marked for deletion status should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
