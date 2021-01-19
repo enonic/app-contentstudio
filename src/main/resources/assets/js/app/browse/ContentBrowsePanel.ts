@@ -364,7 +364,7 @@ export class ContentBrowsePanel
 
         const contentsToUpdateIds: ContentId[] = [];
         contentIds.map((contentId: ContentId) => {
-            if (this.treeGrid.hasNodeWithDataId(contentId.toString())) {
+            if (this.treeGrid.hasItemWithDataId(contentId.toString())) {
                 contentsToUpdateIds.push(contentId);
             }
         });
