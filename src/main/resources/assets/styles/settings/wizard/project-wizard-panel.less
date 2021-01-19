@@ -51,20 +51,21 @@
             display: block;
             max-width: none;
 
-            &.readonly {
+            &.readonly,
+            &.disabled {
               .selected-option,
               .option-filter-input {
                 display: none !important;
               }
+            }
 
-              .projects-chain {
-                .title {
-                  display: none;
-                }
+            .projects-chain {
+              .title {
+                display: none;
+              }
 
-                .items .item:first-child {
-                  margin-left: 0;
-                }
+              .items .item:first-child {
+                margin-left: 0;
               }
             }
           }

@@ -58,7 +58,7 @@ describe("image.component.default.caption.spec: Type a caption in image-wizard a
                 //3. Click on the 'Insert image' menu item:
                 await pageComponentView.selectMenuItem(["Insert", "Image"]);
                 //4. Close the 'Page Component View' dialog:
-                await contentWizard.clickOnHideComponentViewToggler();
+                await pageComponentView.clickOnCloseButton();
                 //5. Select the image in the Page Editor:
                 await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
                 await contentWizard.switchToMainFrame();

@@ -211,14 +211,6 @@ export class ContentTreeGrid
         }
     }
 
-    protected isClickOutsideGridViewport(clickedEl: HTMLElement) {
-        if (super.isClickOutsideGridViewport(clickedEl)) {
-            return true;
-        }
-        const element: Element = Element.fromHtmlElement(clickedEl);
-        return element.hasClass('content-item-preview-panel');
-    }
-
     setState(state: State) {
         this.state = state;
 
@@ -725,7 +717,7 @@ export class ContentTreeGrid
         const allNodes: TreeNode<ContentSummaryAndCompareStatus>[] = this.getRoot().getAllDefaultRootNodes();
 
         items.forEach((item: DeletedContentItem) => {
-            if (this.hasNodeWithDataId(item.id.toString())) {
+            if (this.hasItemWithDataId(item.id.toString())) {
                 this.deleteNodeByDataId(item.id.toString());
             }
 

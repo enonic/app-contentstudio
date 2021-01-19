@@ -257,20 +257,20 @@ export abstract class DependantItemsDialog
     }
 
     protected updateButtonCount(actionString: string, count: number) {
-        this.actionButton.setLabel(count > 1 ? actionString + ' (' + count + ')' : actionString);
+        this.actionButton.getAction().setLabel(count > 1 ? actionString + ' (' + count + ')' : actionString);
     }
 
     protected getContentsToLoad(): ContentSummaryAndCompareStatus[] {
         return this.getItemList().getItems();
     }
 
-    protected loadDescendantIds(filterStatuses?: CompareStatus[]) {
+    protected loadDescendantIds() {
         const contents = this.getContentsToLoad();
 
         const itemsIds = this.getItemList().getItems().map(content => content.getContentId());
 
         return new GetDescendantsOfContentsRequest().setContentPaths(
-            contents.map(content => content.getContentSummary().getPath())).setFilterStatuses(filterStatuses).sendAndParse()
+            contents.map(content => content.getContentSummary().getPath())).sendAndParse()
             .then((result: ContentId[]) => {
                 this.dependantIds = result;
 

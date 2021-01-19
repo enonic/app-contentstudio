@@ -106,7 +106,8 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             await settingsBrowsePanel.clickOnRowByDisplayName(NEW_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnDeleteButton();
             await confirmValueDialog.waitForDialogOpened();
-            await confirmValueDialog.typeNumberOrName(NEW_DISPLAY_NAME);
+            //Type the Identifier of the project
+            await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME);
             await confirmValueDialog.clickOnConfirmButton();
             //2.Description block gets not visible in the statistics panel:
             await settingsItemStatisticsPanel.waitForDescriptionNotDisplayed();

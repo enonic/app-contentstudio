@@ -114,5 +114,6 @@ class DateTimeRange extends Page {
         await elems[0].click();
         return await this.pause(300);
     }
-};
+}
+
 module.exports = DateTimeRange;

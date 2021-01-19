@@ -1668,10 +1668,6 @@ export class ImageEditor
         return this.rectFromSVG(this.normalizeRect(this.getCropPositionPx()));
     }
 
-    isCropAutoPositioned(): boolean {
-        return this.cropData.auto;
-    }
-
     private getCropPositionPx(): SVGRect {
         return {
             x: this.cropData.x,

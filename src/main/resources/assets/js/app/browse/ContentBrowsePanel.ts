@@ -52,6 +52,7 @@ export class ContentBrowsePanel
     protected filterPanel: ContentBrowseFilterPanel;
     private contextSplitPanel: ContextSplitPanel;
     private debouncedPreviewRefresh: () => void;
+    private debouncedFilterRefresh: () => void;
 
     constructor() {
         super();
@@ -61,6 +62,7 @@ export class ContentBrowsePanel
         super.initElements();
 
         this.debouncedPreviewRefresh = AppHelper.debounce(this.forcePreviewRerender.bind(this), 500);
+        this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
 
         if (!ProjectContext.get().isInitialized()) {
             this.handleProjectNotSet();
@@ -330,7 +332,7 @@ export class ContentBrowsePanel
         }
 
         this.treeGrid.addContentNodes(data);
-        this.refreshFilterWithDelay.bind(this);
+        this.refreshFilterWithDelay();
     }
 
     private handleContentRenamed(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) {
@@ -425,9 +427,7 @@ export class ContentBrowsePanel
 
     private refreshFilterWithDelay() {
         this.setRefreshOfFilterRequired();
-        window.setTimeout(() => {
-            this.refreshFilter();
-        }, 1000);
+        this.debouncedFilterRefresh();
     }
 
     private doHandleContentUpdate(data: ContentSummaryAndCompareStatus[]) {

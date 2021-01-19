@@ -41,7 +41,7 @@ describe("revert.site.with.component.spec: Insert image component then revert th
                 //3. Click on the 'Insert image' menu item:
                 await pageComponentView.selectMenuItem(["Insert", "Image"]);
                 //4. Close the 'Page Component View' dialog:
-                await contentWizard.clickOnHideComponentViewToggler();
+                await pageComponentView.clickOnCloseButton();
                 //5. Select the image in the Page Editor:
                 await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
                 //6. The image should appear in Live Frame:

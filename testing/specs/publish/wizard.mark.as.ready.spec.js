@@ -43,7 +43,7 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
 
     // verifies https://github.com/enonic/app-contentstudio/issues/792
     //workflow state icons are not updated after the content has been marked as ready
-    it(`GIVEN new folder-wizard, name has been typed WHEN 'Request Publishing' dialog has been opened THEN 'workflow-state' should be updated(automatically) to Ready For Publishing`,
+    it(`GIVEN new folder-wizard, name has been typed WHEN 'Mark as ready' button has been pressed THEN 'workflow-state' should be updated to Ready For Publishing`,
         async () => {
             let contentWizard = new ContentWizard();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
@@ -52,12 +52,11 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             //1. Open new folder wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(displayName);
-            //2. Click on menu item and open 'Request Publishing' dialog:
-            await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+            //2. Click on 'Mark as ready' button:
+            await contentWizard.clickOnMarkAsReadyButton();
+            await contentWizard.pause(1500);
 
-            //Close 'Request Publishing' dialog:
-            await createRequestPublishDialog.clickOnCancelButtonTop();
-            //3. Workflow should be automatically updated (ready for publishing now)
+            //3. Workflow should be updated (ready for publishing now)
             let toolbarState = await contentWizard.getToolbarWorkflowState();
             studioUtils.saveScreenshot("wizard_workflow_state_2");
             assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
@@ -79,6 +78,7 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             //1. Open new folder wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(displayName);
+            await contentWizard.clickOnMarkAsReadyButton(displayName);
             //2. Open Request Publishing dialog and create new request:
             await contentWizard.openPublishMenuAndCreateRequestPublish("my changes");
             // 3. 'Issue Details' Dialog should be automatically loaded , do close it:

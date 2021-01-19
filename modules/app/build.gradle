@@ -62,7 +62,7 @@ jar {
 }
 
 asciidoctor {
-    sourceDir = file('../docs')
+    sourceDir = file('../../docs')
     outputDir = file('build/docs')
     requires project.file('verbose-mode.rb')
     attributes 'source-highlighter': 'coderay',
@@ -81,8 +81,9 @@ htmlSanityCheck {
     dependsOn asciidoctor
     sourceDir = new File( "$buildDir/docs/html5" )
 
-    // files to check - in Set-notation
-    sourceDocuments = [ "index.html"]
+    sourceDocuments = fileTree(sourceDir) {
+        include "index.html"
+    }
 
     // where to put results of sanityChecks...
     checkingResultsDir = new File( "$buildDir/report/htmlchecks" )
