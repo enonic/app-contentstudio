@@ -128,6 +128,7 @@ export class HtmlEditor {
                 table.removeAttribute('cellspacing');
                 table.removeAttribute('border');
                 table.removeAttribute('style');
+                table.removeAttribute('align');
             });
         }, 200);
 
