@@ -14,8 +14,6 @@ import {SortContentAction} from './SortContentAction';
 import {PublishContentAction} from './PublishContentAction';
 import {PublishTreeContentAction} from './PublishTreeContentAction';
 import {UnpublishContentAction} from './UnpublishContentAction';
-import {ContentBrowseItem} from '../ContentBrowseItem';
-import {PreviewContentHandler} from './handler/PreviewContentHandler';
 import {UndoPendingDeleteContentAction} from './UndoPendingDeleteContentAction';
 import {CreateIssueAction} from './CreateIssueAction';
 import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
@@ -28,7 +26,6 @@ import {HasUnpublishedChildren, HasUnpublishedChildrenResult} from '../../resour
 import {RequestPublishContentAction} from './RequestPublishContentAction';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {TreeGridActions} from 'lib-admin-ui/ui/treegrid/actions/TreeGridActions';
-import {BrowseItemsChanges} from 'lib-admin-ui/app/browse/BrowseItemsChanges';
 import {ManagedActionManager} from 'lib-admin-ui/managedaction/ManagedActionManager';
 import {ManagedActionState} from 'lib-admin-ui/managedaction/ManagedActionState';
 import {ManagedActionExecutor} from 'lib-admin-ui/managedaction/ManagedActionExecutor';
@@ -48,7 +45,7 @@ export enum State {
 
 export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAndCompareStatus> {
 
-    private grid: ContentTreeGrid;
+    private readonly grid: ContentTreeGrid;
 
     private actionsMap: Map<ActionName, ContentTreeGridAction> = new Map<ActionName, ContentTreeGridAction>();
 
@@ -87,8 +84,6 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
             this.actionsMap.get(ActionName.PREVIEW).setEnabled(value);
         };
 
-        this.getPreviewHandler().onPreviewStateChanged(previewStateChangedHandler);
-
         const managedActionsHandler = (state: ManagedActionState, executor: ManagedActionExecutor) => {
             if (state === ManagedActionState.PREPARING) {
                 this.notifyBeforeActionsStashed();
@@ -102,7 +97,6 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         ManagedActionManager.instance().onManagedActionStateChanged(managedActionsHandler);
 
         this.grid.onRemoved(() => {
-            this.getPreviewHandler().unPreviewStateChanged(previewStateChangedHandler);
             ManagedActionManager.instance().unManagedActionStateChanged(managedActionsHandler);
         });
     }
@@ -139,10 +133,6 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         this.actionsUnStashedListeners.forEach((listener) => {
             listener();
         });
-    }
-
-    getPreviewHandler(): PreviewContentHandler {
-        return (<PreviewContentAction>this.getAction(ActionName.PREVIEW)).getPreviewHandler();
     }
 
     getAllCommonActions(): Action[] {
@@ -192,21 +182,15 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     // tslint:disable-next-line:max-line-length
-    updateActionsEnabledState(browseItems: ContentBrowseItem[],
-                              changes?: BrowseItemsChanges<ContentSummaryAndCompareStatus>): Q.Promise<void> {
+    updateActionsEnabledState(items: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
         if (this.state === State.DISABLED) {
-            return Q<void>(null);
-        }
-
-        if (changes && changes.getAdded().length === 0 && changes.getRemoved().length === 0) {
             return Q<void>(null);
         }
 
         this.getAction(ActionName.TOGGLE_SEARCH_PANEL).setVisible(false);
 
-        let parallelPromises: Q.Promise<any>[] = [
-            this.getPreviewHandler().updateState(browseItems, changes),
-            this.doUpdateActionsEnabledState(browseItems)
+        const parallelPromises: Q.Promise<any>[] = [
+            this.doUpdateActionsEnabledState(items)
         ];
 
         return Q.all(parallelPromises).catch(DefaultErrorHandler.handle);
@@ -226,9 +210,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         defaultActions.forEach(action => action.setVisible(true));
     }
 
-    private doUpdateActionsEnabledState(contentBrowseItems: ContentBrowseItem[]): Q.Promise<any> {
-        const items: ContentSummaryAndCompareStatus[] = contentBrowseItems.map((item: ContentBrowseItem) => item.getModel());
-
+    private doUpdateActionsEnabledState(items: ContentSummaryAndCompareStatus[]): Q.Promise<any> {
         return this.getAllowedPermissions(items).then((permissions: Permission[]) => {
             const state: ContentTreeGridItemsState = new ContentTreeGridItemsState(items, permissions);
             this.toggleActions(state);

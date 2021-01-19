@@ -96,7 +96,6 @@ import {RoleKeys} from 'lib-admin-ui/security/RoleKeys';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import {WizardPanel} from 'lib-admin-ui/app/wizard/WizardPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {WizardHeader} from 'lib-admin-ui/app/wizard/WizardHeader';
@@ -124,6 +123,7 @@ import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialog
 import {UrlAction} from '../UrlAction';
 import {ContentWizardHeader} from './ContentWizardHeader';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {

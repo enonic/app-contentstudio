@@ -2,12 +2,12 @@ import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
 import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
-import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentResponse} from '../../resource/ContentResponse';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 
 export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus> {
 

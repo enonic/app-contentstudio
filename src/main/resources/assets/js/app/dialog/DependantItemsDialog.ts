@@ -12,12 +12,10 @@ import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryA
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {PEl} from 'lib-admin-ui/dom/PEl';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 
 export interface DependantItemsDialogConfig
@@ -391,13 +389,7 @@ export class DialogItemList
 
         itemViewer.setObject(item);
 
-        let browseItem = <BrowseItem<ContentSummaryAndCompareStatus>>new BrowseItem<ContentSummaryAndCompareStatus>(item)
-            .setId(item.getId())
-            .setDisplayName(item.getDisplayName())
-            .setPath(item.getPath().toString())
-            .setIconUrl(new ContentIconUrlResolver().setContent(item.getContentSummary()).resolve());
-
-        let statusItem = this.createSelectionItem(itemViewer, browseItem);
+        const statusItem = this.createSelectionItem(itemViewer, item);
 
         statusItem.setIsRemovableFn(() => this.getItemCount() > 1);
         statusItem.setRemoveHandlerFn(() => this.removeItem(item));
@@ -416,7 +408,7 @@ export class DialogItemList
     }
 
     protected createSelectionItem(viewer: ContentSummaryAndCompareStatusViewer,
-                                  browseItem: BrowseItem<ContentSummaryAndCompareStatus>): StatusSelectionItem {
+                                  browseItem: ContentSummaryAndCompareStatus): StatusSelectionItem {
         return new StatusSelectionItem(viewer, browseItem);
     }
 
@@ -462,7 +454,7 @@ export class DialogDependantList
 
     createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): Element {
 
-        let dependantViewer = new DependantItemViewer();
+        const dependantViewer = new DependantItemViewer();
 
         dependantViewer.setObject(item);
 
@@ -473,13 +465,7 @@ export class DialogDependantList
             }
         });
 
-        let browseItem = <BrowseItem<ContentSummaryAndCompareStatus>>new BrowseItem<ContentSummaryAndCompareStatus>(item)
-            .setId(item.getId())
-            .setDisplayName(item.getDisplayName())
-            .setPath(item.getPath().toString())
-            .setIconUrl(new ContentIconUrlResolver().setContent(item.getContentSummary()).resolve());
-
-        return new StatusSelectionItem(dependantViewer, browseItem);
+        return new StatusSelectionItem(dependantViewer, item);
     }
 
     getItemId(item: ContentSummaryAndCompareStatus): string {

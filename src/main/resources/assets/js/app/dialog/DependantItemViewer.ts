@@ -1,7 +1,7 @@
 import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
+import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 
 export class DependantItemViewer
     extends ContentSummaryAndCompareStatusViewer {

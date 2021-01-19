@@ -3,8 +3,8 @@ import {FragmentContentSummaryLoader} from './FragmentContentSummaryLoader';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {RichDropdown} from 'lib-admin-ui/ui/selector/dropdown/RichDropdown';
-import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentSummaryViewer} from '../../../../../content/ContentSummaryViewer';
 
 export class FragmentDropdown
     extends RichDropdown<ContentSummary> {

@@ -84,7 +84,9 @@ export class ContentDuplicateDialog
     }
 
     protected getContentsToLoad(): ContentSummaryAndCompareStatus[] {
-        return this.getItemList().getItemViews().filter(view => view.includesChildren()).map(view => view.getBrowseItem().getModel());
+        return <ContentSummaryAndCompareStatus[]>this.getItemList().getItemViews()
+            .filter(view => view.includesChildren())
+            .map(view => view.getBrowseItem());
     }
 
     protected manageDescendants() {

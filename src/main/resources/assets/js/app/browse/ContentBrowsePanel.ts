@@ -11,7 +11,6 @@ import {ContentBrowseItemPanel} from './ContentBrowseItemPanel';
 import {ContentItemStatisticsPanel} from '../view/ContentItemStatisticsPanel';
 import {Router} from '../Router';
 import {ActiveContextPanelManager} from '../view/context/ActiveContextPanelManager';
-import {ContentBrowseItem} from './ContentBrowseItem';
 import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
 import {NewMediaUploadEvent} from '../create/NewMediaUploadEvent';
@@ -28,18 +27,13 @@ import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
-import {PreviewContentHandler} from './action/handler/PreviewContentHandler';
-import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {DataChangedEvent, DataChangedType} from 'lib-admin-ui/ui/treegrid/DataChangedEvent';
 import {TreeGridItemClickedEvent} from 'lib-admin-ui/ui/treegrid/TreeGridItemClickedEvent';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import {RepositoryEvent} from 'lib-admin-ui/content/event/RepositoryEvent';
 import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
-import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {BrowsePanel} from 'lib-admin-ui/app/browse/BrowsePanel';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {ContentIds} from '../ContentIds';
@@ -51,7 +45,7 @@ import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {DeletedContentItem} from './DeletedContentItem';
 
 export class ContentBrowsePanel
-    extends BrowsePanel<ContentSummaryAndCompareStatus> {
+    extends BrowsePanel {
 
     protected treeGrid: ContentTreeGrid;
     protected browseToolbar: ContentBrowseToolbar;
@@ -107,11 +101,6 @@ export class ContentBrowsePanel
         this.handleGlobalEvents();
     }
 
-    protected checkIfItemIsRenderable(browseItem: ContentBrowseItem): Q.Promise<any> {
-        const previewHandler: PreviewContentHandler = this.getBrowseActions().getPreviewHandler();
-        return previewHandler.checkIfItemIsRenderable(browseItem);
-    }
-
     protected getBrowseActions(): ContentTreeGridActions {
         return <ContentTreeGridActions>super.getBrowseActions();
     }
@@ -125,30 +114,7 @@ export class ContentBrowsePanel
     }
 
     protected createTreeGrid(): ContentTreeGrid {
-        const treeGrid: ContentTreeGrid = new ContentTreeGrid();
-
-        treeGrid.onDataChanged((event: DataChangedEvent<ContentSummaryAndCompareStatus>) => {
-            if (event.getType() === DataChangedType.UPDATED) {
-                this.handleTreeGridUpdatedEvent(event);
-            }
-        });
-
-        return treeGrid;
-    }
-
-    private handleTreeGridUpdatedEvent(event: DataChangedEvent<ContentSummaryAndCompareStatus>) {
-        this.updateBrowseItems(event.getTreeNodes().map(node => node.getData()));
-        this.refreshTreeGridActions();
-    }
-
-    private updateBrowseItems(items: ContentSummaryAndCompareStatus[]) {
-        const browseItems: ContentBrowseItem[] = <ContentBrowseItem[]>this.dataItemsToBrowseItems(items);
-        this.getBrowseItemPanel().updateItems(browseItems);
-    }
-
-    private refreshTreeGridActions() {
-        this.getBrowseActions()
-            .updateActionsEnabledState(<ContentBrowseItem[]>this.dataItemsToBrowseItems(this.treeGrid.getSelectedOrHighlightedItems()));
+        return new ContentTreeGrid();
     }
 
     protected createBrowseItemPanel(): ContentBrowseItemPanel {
@@ -263,14 +229,6 @@ export class ContentBrowsePanel
                 this.contextSplitPanel.showMobilePanel();
             }
         });
-    }
-
-    dataToBrowseItem(data: ContentSummaryAndCompareStatus): ContentBrowseItem | null {
-        return (!data || !data.getContentSummary()) ? null : <ContentBrowseItem>new ContentBrowseItem(data)
-            .setId(data.getId())
-            .setDisplayName(data.getContentSummary().getDisplayName())
-            .setPath(data.getContentSummary().getPath().toString())
-            .setIconUrl(new ContentIconUrlResolver().setContent(data.getContentSummary()).resolve());
     }
 
     private handleGlobalEvents() {
@@ -458,11 +416,6 @@ export class ContentBrowsePanel
         }
 
         this.doHandleContentUpdate(data);
-
-        if (this.treeGrid.hasSelectedOrHighlightedNode() &&
-            data.some((publishedItem: ContentSummaryAndCompareStatus) => !this.treeGrid.hasItemWithDataId(publishedItem.getId()))) {
-            this.refreshTreeGridActions();
-        }
     }
 
     private handleContentUnpublished(data: ContentSummaryAndCompareStatus[]) {
@@ -497,13 +450,14 @@ export class ContentBrowsePanel
     }
 
     private updatePreviewIfNeeded(updatedContents: ContentSummaryAndCompareStatus[]) {
-        const previewItem: ViewItem<ContentSummaryAndCompareStatus> = this.getBrowseItemPanel().getStatisticsItem();
+        const previewItem: ContentSummaryAndCompareStatus = <ContentSummaryAndCompareStatus>this.getBrowseItemPanel().getStatisticsItem();
+
 
         if (!previewItem) {
             return;
         }
 
-        const previewItemPath: ContentPath = previewItem.getModel().getPath();
+        const previewItemPath: ContentPath = previewItem.getPath();
         const isStatisticsItemUpdated: boolean = this.updateStatisticsItemIfNeeded(updatedContents, previewItemPath);
 
         if (isStatisticsItemUpdated) {
@@ -539,9 +493,9 @@ export class ContentBrowsePanel
         });
     }
 
-    private isAnyContentIdWithinPreviewItem(previewItem: ViewItem<ContentSummaryAndCompareStatus>,
+    private isAnyContentIdWithinPreviewItem(previewItem: ContentSummaryAndCompareStatus,
                                             updatedContents: ContentSummaryAndCompareStatus[]): Q.Promise<boolean> {
-        return new GetContentByIdRequest(previewItem.getModel().getContentId()).sendAndParse().then((previewItemContent: Content) => {
+        return new GetContentByIdRequest(previewItem.getContentId()).sendAndParse().then((previewItemContent: Content) => {
             const promises: Q.Promise<void>[] = [];
             let result: boolean = false;
 
@@ -561,29 +515,22 @@ export class ContentBrowsePanel
         });
     }
 
-    private isAnyContentReferencedByPreviewItem(previewItem: ViewItem<ContentSummaryAndCompareStatus>,
+    private isAnyContentReferencedByPreviewItem(previewItem: ContentSummaryAndCompareStatus,
                                                 updatedContents: ContentSummaryAndCompareStatus[]): Q.Promise<boolean> {
         return Q.all(updatedContents.map(updatedContent =>
-            ContentHelper.isReferencedBy(updatedContent.getContentSummary(), previewItem.getModel().getContentId()))
+            ContentHelper.isReferencedBy(updatedContent.getContentSummary(), previewItem.getContentId()))
         ).then((results: boolean[]) => results.some(result => result));
     }
 
     private updateStatisticsItem(content: ContentSummaryAndCompareStatus) {
         new IsRenderableRequest(content.getContentId()).sendAndParse().then((renderable: boolean) => {
-            this.getBrowseItemPanel().setStatisticsItem(this.toBrowseItem(content, renderable));
+            content.setRenderable(renderable);
+            this.getBrowseItemPanel().setStatisticsItem(content);
         });
     }
 
-    private toBrowseItem(content: ContentSummaryAndCompareStatus, renderable: boolean): BrowseItem<ContentSummaryAndCompareStatus> {
-        return <BrowseItem<ContentSummaryAndCompareStatus>>new BrowseItem<ContentSummaryAndCompareStatus>(content)
-            .setId(content.getId())
-            .setDisplayName(content.getDisplayName()).setPath(content.getPath().toString())
-            .setIconUrl(new ContentIconUrlResolver().setContent(content.getContentSummary()).resolve())
-            .setRenderable(renderable);
-    }
-
     private forcePreviewRerender() {
-        const previewItem: ViewItem<ContentSummaryAndCompareStatus> = this.getBrowseItemPanel().getStatisticsItem();
+        const previewItem: ContentSummaryAndCompareStatus = <ContentSummaryAndCompareStatus>this.getBrowseItemPanel().getStatisticsItem();
 
         if (BrowserHelper.isMobile()) {
             this.contextSplitPanel.setMobilePreviewItem(previewItem, true);

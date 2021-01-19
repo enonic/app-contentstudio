@@ -4,9 +4,9 @@ import {SettingsItemStatisticsPanel} from './statistics/SettingsItemStatisticsPa
 import {SettingsViewItem} from '../view/SettingsViewItem';
 
 export class SettingsBrowseItemPanel
-    extends BrowseItemPanel<SettingsViewItem> {
+    extends BrowseItemPanel {
 
-    createItemStatisticsPanel(): ItemStatisticsPanel<SettingsViewItem> {
+    createItemStatisticsPanel(): ItemStatisticsPanel {
         return new SettingsItemStatisticsPanel();
     }
 

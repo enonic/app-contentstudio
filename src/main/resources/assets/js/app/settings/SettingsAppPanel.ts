@@ -25,7 +25,7 @@ import {SettingsTypes} from './dialog/SettingsTypes';
 import {ProjectGetRequest} from './resource/ProjectGetRequest';
 
 export class SettingsAppPanel
-    extends NavigatedAppPanel<SettingsViewItem> {
+    extends NavigatedAppPanel {
 
     protected browsePanel: SettingsBrowsePanel;
 

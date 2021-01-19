@@ -4,9 +4,9 @@ import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
 import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import {ExtendedViewer} from '../view/ExtendedViewer';
 import {ProjectContext} from '../project/ProjectContext';
+import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 
 export class ContentSummaryAndCompareStatusViewer
     extends ExtendedViewer<ContentSummaryAndCompareStatus> {

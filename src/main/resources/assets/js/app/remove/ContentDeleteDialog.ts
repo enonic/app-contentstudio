@@ -116,7 +116,7 @@ export class ContentDeleteDialog
                 this.addClickIgnoredElement(NotifyManager.get().getNotification(this.messageId));
 
                 this.getItemList().getItemViews().forEach((itemView) => {
-                    const contentId = itemView.getBrowseItem().getModel().getContentId().toString();
+                    const contentId = (<ContentSummaryAndCompareStatus>itemView.getBrowseItem()).getContentId().toString();
 
                     if (dependencyCount.hasOwnProperty(contentId)) {
                         (<DeleteItemViewer>itemView.getViewer()).setInboundDependencyCount(dependencyCount[contentId]);

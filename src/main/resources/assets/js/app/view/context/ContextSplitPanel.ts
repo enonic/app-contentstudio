@@ -4,7 +4,6 @@ import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder, SplitPanelUnit} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {DockedContextPanel} from './DockedContextPanel';
 import {NonMobileContextPanelsManager} from './NonMobileContextPanelsManager';
@@ -16,7 +15,6 @@ import {MobileContextPanel} from './MobileContextPanel';
 import {ContextPanel} from './ContextPanel';
 import {IsRenderableRequest} from '../../resource/IsRenderableRequest';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ContentHelper} from '../../util/ContentHelper';
 import {PageEditorData} from '../../wizard/page/LiveFormPanel';
 
 export class ContextSplitPanel
@@ -141,8 +139,7 @@ export class ContextSplitPanel
         if (this.isInsideWizard()) {
             return this.mobileContextPanel.getItem();
         } else {
-            const item = this.mobileContentItemStatisticsPanel.getItem();
-            return item && item.getModel() || null;
+            return <ContentSummaryAndCompareStatus>this.mobileContentItemStatisticsPanel.getItem();
         }
     }
 
@@ -211,7 +208,7 @@ export class ContextSplitPanel
         this.mobilePanelSlideListeners.forEach(curr => curr(out));
     }
 
-    setMobilePreviewItem(previewItem: ViewItem<ContentSummaryAndCompareStatus>, force?: boolean) {
+    setMobilePreviewItem(previewItem: ContentSummaryAndCompareStatus, force?: boolean) {
         if (!this.isInsideWizard()) {
             this.mobileContentItemStatisticsPanel.getPreviewPanel().setItem(previewItem, force);
         }
@@ -227,8 +224,7 @@ export class ContextSplitPanel
             const prevItem = this.getMobilePanelItem();
             const changed = !prevItem || prevItem.getId() !== content.getId();
 
-            const item = ContentHelper.createView(content);
-            this.mobileContentItemStatisticsPanel.setItem(item);
+            this.mobileContentItemStatisticsPanel.setItem(content);
 
             if (changed) {
                 const previewPanel = this.mobileContentItemStatisticsPanel.getPreviewPanel();
@@ -237,8 +233,8 @@ export class ContextSplitPanel
 
                 setTimeout(() => {
                     new IsRenderableRequest(content.getContentId()).sendAndParse().then((renderable: boolean) => {
-                        item.setRenderable(renderable);
-                        this.setMobilePreviewItem(item);
+                        content.setRenderable(renderable);
+                        this.setMobilePreviewItem(content);
                     });
                 }, 300);
             }
