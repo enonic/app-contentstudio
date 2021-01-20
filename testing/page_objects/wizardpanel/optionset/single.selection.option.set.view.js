@@ -88,6 +88,12 @@ class SingleSelectionOptionSet extends Page {
         let res = await menuItemElements[0].getAttribute("class");
         return res.includes("disabled");
     }
+
+    async isResteMenuItemDisabled() {
+        let menuItemElements = await this.getDisplayedElements(xpath.itemSetOccurrenceAddBelowMenuItem);
+        let res = await menuItemElements[0].getAttribute("class");
+        return res.includes("disabled");
+    }
 }
 
 module.exports = SingleSelectionOptionSet;
