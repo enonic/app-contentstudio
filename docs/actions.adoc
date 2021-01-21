@@ -50,7 +50,8 @@ NOTE: When uploading files, the underlying content type is automatically detecte
 
 == Edit
 
-The `Edit` action will open the *Wizard* of the selected contents for edit in the new tab. If multiple items are selected, then the action will open a tab for each one.
+The `Edit` action will open the *Content Wizard* for editing selected content items in a new tab.
+If multiple items are selected, then the action will open a browser tab for each one.
 
 There are four ways to open content for edit in the Content Studio:
 
@@ -78,7 +79,8 @@ If selected content is offline (status "New" or "Unpublished"), it will be delet
 image::dialog-delete-new.png[]
 
 If you are about to delete a site or more than one item, the "Delete Now" button will show the total number of items to be deleted, including children.
-After pressing the button you will be asked to confirm your action.
+
+NOTE: Before the content is deleted, you will be asked to confirm your action by entering the total number of items to delete.
 
 image::dialog-delete-confirm.png[]
 
@@ -89,7 +91,7 @@ If you try to delete content that is currently online (status "Published" or "Mo
 
 image::dialog-delete-published.png[Delete published content, 700]
 
-when "Mark as Deleted" is clicked, all offline content will be instantly deleted, but online content will change the status to "Deleted".
+When "Mark as Deleted" is clicked, all offline content will be instantly deleted, but online content will change the status to "Marked for deletion".
 To remove such items completely, they must be <<publish,published>>.
 
 To restore items marked as deleted to their previous status, select them and click the `Undo delete` button in the toolbar.
@@ -180,91 +182,127 @@ The `Publish` action will launch the *Publishing Wizard* dialog for the selected
 
 There are three ways to open the *Publishing Wizard* dialog in the Content Studio:
 
-* The first method is with the shortcut — `⌘ + alt + p` (`ctrl + alt + p` for Windows);
-* By clicking the `Publish` button in the toolbar;
-* By clicking `Publish` in the context menu, which is accessible by right-clicking an item.
+* Via keyboard shortcut — `⌘ + alt + p` (`ctrl + alt + p` for Windows)
+* By using the `Publish` button in the toolbar
+* By right-clicking an item in the Content grid and selecting `Publish` from the context menu
 
 image::dialog-publish-button.png[]
 
-There are also several options in the publish menu. *Publish* will simply opens the dialog, just like the main button. <<publish-tree,*Publish Tree*>> will open the same dialog, but with active tree icons. <<unpublish,*Unpublish*>> will open the *Unpublish item* dialog. <<create-issue,*Create Issue*>> will open the *New Issue* dialog.
+The Publish button in the toolbar has a dropdown menu with various actions for currently selected item(s).
 
-NOTE: If the "Publish" action is not available, the main button may change the action and title to `Publish Tree…` or `Create Issue…`.
+ * <<workflow#ready_for_publishing,*Mark as ready*>> (only for content in progress) will mark selected item(s) as ready
+ * *Publish* will open the Publishing dialog for the selected item(s)
+ * <<publish-tree,*Publish Tree*>> will open the same dialog but will include all the selected items' children and dependencies
+ * <<unpublish,*Unpublish*>> (available only for published item(s)) will open the *Unpublish* dialog
+ * <<workflow#publish_request,*Request Publishing*>>  (available only for unpublished item(s))
+ * <<create-issue,*Create Task*>> will open the *New Task* dialog.
+
+NOTE: Default action of the toolbar button is always the first available action from the dropdown menu.
 
 === Draft and master branches
 
-All content created with the Content Studio exists in the *draft* branch with the status `offline`. Content in the *draft* branch can be edited, changed, and previewed until it is ready to go `online`. Every time a content is saved with changes, a new version is created. 
+Content created in the Content Studio will originally be created in the *draft* branch with status `New` and workflow state `In progress`.
+This content in the *draft* branch can be edited and previewed until it is ready to be `Published`.
+Every time a content is saved with changes, a new version is created.
 
-When a content is published, the active version is copied from the *draft* branch to the *master* branch. Only content in the *master* branch can be accessed by others outside of the Content Studio, subject to the contents security settings.
+When a content is published, the active version is copied from the *draft* branch to the *master* branch.
+Only content in the *master* branch can be accessed by users outside of the Content Studio, subject to the contents security settings.
 
 === Content status
 
-Published content will have the status `online` while content that has not yet been published will be `offline`. When changes to a published content are saved, the new version becomes the active version but the version that is `online` is not changed. The status of the new active version will be *modified* and this content will need to be published again before the changes will be visible outside of the Content Studio.
+Published content will have the status `Published` while content that has not yet been published will show either as `New`
+(if it has never been published) or `Unpublished` (if it was published and then unpublished).
+When changes to a published content are saved, the new version becomes the active version in the `draft` branch,
+but the active version in the `master` branch remains unchanged. The status of the new active version will be *modified* and this content
+will have to be published again for the changes to go online. In other words, each publishing operations overwrites the active version in the
+`master` branch with the active version from the `draft` branch.
 
-When a published content is deleted, the *Delete item(s)* dialog offers a checkbox to "Instantly delete published items". If this box is not checked then the content’s status will be `Deleted` and it will still be visible outside of the Content Studio. Content that is `Deleted` must be published, unpublished, or "instantly deleted" before it is actually removed from the master branch.
+A published content can either be instantly deleted or marked as deleted in the <<delete,*Delete*>> dialog.
+Upon instant deletion the content will be instantly removed from both the `draft` and the `master` branches, making it inaccessible online.
+However, items marked as deleted will be shown with status `Marked for deletion` in the Content Studio but will remain visible online.
+Such items must either be published in order to delete them from both branches, or you can use "*Undo delete*" action to remove the "Marked for deletion" mark.
 
 === Publishing wizard
 
-Content is published through the *Publishing Wizard* dialog. When a content is selected for publishing, its parents and all the related content will be published with it. For example, in the image below, a *Post* content named "March madness" was selected for publishing. This post has two related *Category* contents and a related *Author* content. Therefore, the categories and author will be published with the March "Madness post" and the parent folders of the categories and author will also be published. All items that will be published with the selected content are listed in the publishing wizard.
+Content is published through the *Publishing Wizard* dialog. When a content is selected for publishing, its parents and all the related content
+will be published along with it. For example, in the image below, a content named "_March madness_" was selected for publishing.
+This post has two related *Category* content items (_/parent_ and _/parent/first-child-category_) and one related *Author* item (_/authors/michael-lazell_).
+Therefore, these two categories and the author are automatically included in the list of items to be published, and all the ascendants of the dependent items will also be included.
 
-image::dialog-publish.png[]
+image::publishing-wizard-1.png[]
 
-The green `Publish` button has a menu option for <<scheduled-publishing,Schedule…>> and <<create-issue,Create Issue…>> options.
+The Calendar icon next to the "Publish Now" button enables <<scheduled-publishing,Scheduled Publishing>> of the selected content.
+
+TIP: Total number of items that will be published is displayed on the *Publish Now* button.
+
+TIP: If current user is missing publishing permissions for selected item(s), the "*Publish All*" button will be replaced with "*Request Publishing*"
+(read more about publish requests <<workflow#publish_request,here>>).
 
 === Publish Tree
 
-If the selected content has children then these items can be included by clicking the tree icon to the left of the content. As you can see from the picture below, clicking the icon will add all descendants of the content to the publishing list.
+If the selected content has children then these items can be automatically included by clicking the tree icon to the left of the content.
+As you can see from the picture below, clicking the icon has added add all descendants of the originally selected content to the publishing
+list and the number on the "Publish Now" button has increased from 9 to 15.
 
-image::dialog-publish-with-children.png[]
+image::publishing-wizard-2.png[]
 
-The total number of items that will be published is displayed on the `Publish` button.
+TIP: You can use "x" icon on the right-hand side to exclude items from publishing. Sometimes this icon is disabled, this means that the item
+cannot be excluded, either because it's a dependency required for publishing of the originally selected item(s), or it has its children in
+the list (and child items cannot be published without publishing all of their ascendants). In the latter case, start excluding children first,
+then parents will be allowed to be excluded as well.
+
+=== Validation
+
+Content Studio has a built-in validation which ensures that invalid items or items that are still "work in progress" cannot be published.
+
+image::publishing-wizard-exclude.png[]
+
+If the list of items to be published contains invalid items or items that are in "In progress" workflow state, they will be shown on
+top of the list and validation notification will be shown on top of the dialog. The "Publish Now" button will then be disabled.
+If the problematic items don't have to be published, you can use "*Exclude all*" links to remove these items from the list.
+
+In the case of "_Work in progress_" items, the Publishing Wizard will give you an option to mark all such items as "_Ready for Publishing_".
+
+image::publishing-wizard-mark-as-ready.png[]
+
+Once all the problematic items are either removed or moved from "In progress" to "Ready", the "*Publish Now*" button will automatically become enabled.
 
 === Scheduled publishing
 
-Clicking on the menu item `Schedule…` in the *Publish Wizard* dialog will open a new dialog, called *Scheduled Publishing*. There you can schedule the period of time, that the content will be online or even defer the publishing.
+The Calendar icon in the *Publishing Wizard* dialog will open a section on top of the dialog where you can schedule the period of time
+when the content should be online. "Publish Now" button will then change its label to "Schedule".
 
-image::dialog-schedule.png[]
+image::publishing-wizard-schedule.png[]
 
 NOTE: Only offline items will be scheduled. All other changes will be published immediately.
 
-=== Publishing from the wizard
+=== Publishing from the Content Wizard
 
-When the `Publish` button is clicked from inside the Content Wizard, only the current item will be selected in the dialog.
-
+When the `Publish` button is clicked from inside the Content Wizard, only the currently opened item will be selected in the dialog.
 
 == Unpublish
+
+Currently published content can be taken offline with the "Unpublish" feature.
+All the content’s descendants will be listed and unpublished along with the selected content.
+The total number of content items that will be taken offline will appear on the red `Unpublish` button at the bottom of the dialog.
 
 There are two ways to open this dialog in the Content Studio:
 
 * By clicking the `Unpublish` option button in the toolbar (it will replace the `Publish` button for the published content, otherwise it can be found in the publish menu dropdown, next to the `Publish` button);
-* By clicking `Unpublish` in the context menu, which is accessible by right-clicking an item, where it will replace `Publish` option for the published content.
+* By selecting `Unpublish` from the context menu, which is accessible by right-clicking an item, where it will replace `Publish` option for the published content.
 
-Previously published content can be taken `offline` with the "Unpublish" feature. All of the content’s children will be listed and unpublished along with the selected content. The total number of content items that will be taken `offline` will appear in parenthesis in the red `Unpublish` button at the bottom of the dialog.
-
-Content that has the status `Deleted` will be taken `offline`, changing the status to `Unpublished`.
+Unpublishing a published content that is marked for deletion will first take it offline and then delete it.
 
 image::dialog-unpublish.png[]
 
+NOTE: Just like with deletion, you will be asked to confirm the Unpublish action by entering the total number of items to be unpublished.
 
 == Create Issue
 
-NOTE: In-depth reference on the issues can be accessed in the separate <<issues#new-issue,chapter>>.
+NOTE: In-depth reference on the issues can be found in the separate <<issues,chapter>>.
 
-There are three ways to open this dialog in the Content Studio:
+== Request Publishing
 
-* By clicking the `Create Issue…` option button in the toolbar (it will replace the `Publish` button for the fully published content, otherwise it can be found in the publish menu dropdown, next to the `Publish` button);
+This action will replace "Publish" for a user that doesn't have sufficient publishing permissions for a content item.
 
-* By clicking the `Create Issue…` button in the *Publish Wizard* dialog;
-
-* By clicking `My Issues` button above the toolbar and then clicking the `New Issue…` button in the opened dialog.
-
-image::dialog-publish-button.png[]
-
-=== Creating issue
-
-To create a new issue, only the *Title* must be specified. All other fields are optional.
-
-You can assign multiple users to work on an issue, using the *Assignees* selector, but you can't assign yourself.
-
-If you click `Create Issue…` button in the *Publishing Wizard* dialog, like in the <<publishing-wizard,example>>, when publishing "March Madness" post, all content from the previous dialog will be automatically added to the items list. You can also add or remove from that list the descendants of specific content by clicking on the tree icon next to that content.
-
-image::dialog-issue.png[]
+NOTE: In-depth reference on the publish requests can be found <<workflow#publish_request,here>>.
