@@ -41,8 +41,8 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
                 assert.equal(result, "Templates", "Expected selected option should be displayed in the  tab");
             });
 
-        //Verify issue Less strict Regexp for HtmlArea links #1458
-        // link to another section on the same page
+        //Verify issue Less strict Regexp for HtmlArea links
+        // https://github.com/enonic/app-contentstudio/issues/1458
         it(`GIVEN 'Insert Link' dialog is opened WHEN link to another section has been typed in the URL-input AND 'Insert' button pressed THEN modal dialog should be closed and the link is inserted`,
             async () => {
                 let htmlAreaForm = new HtmlAreaForm();
