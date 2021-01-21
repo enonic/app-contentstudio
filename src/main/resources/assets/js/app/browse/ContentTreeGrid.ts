@@ -166,7 +166,7 @@ export class ContentTreeGrid
     }
 
     private handleGridDoubleClick(event: any, data: any) {
-        if (this.isActive()) {
+        if (this.isActive() && this.isEditAllowed(event, data)) {
             const node: TreeNode<ContentSummaryAndCompareStatus> = this.getGrid().getDataView().getItem(data.row);
             if (!node.getData().isPendingDelete()) {
                 /*
@@ -177,6 +177,18 @@ export class ContentTreeGrid
                 this.editItem(node);
             }
         }
+    }
+
+    private isEditAllowed(event: any, data: any): boolean {
+        if (data && data.cell === 0) {
+            return false;
+        }
+
+        if (event && event.target && event.target.classList && event.target.classList.contains('toggle')) {
+            return false;
+        }
+
+        return true;
     }
 
     private handleBrowseFilterSearchEvent(event: BrowseFilterSearchEvent<any>) {
