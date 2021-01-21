@@ -10,13 +10,12 @@ import {DependantItemViewer} from './DependantItemViewer';
 import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {CompareStatus} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {PEl} from 'lib-admin-ui/dom/PEl';
-import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
+import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 
 export interface DependantItemsDialogConfig
     extends ModalDialogWithConfirmationConfig {
@@ -265,21 +264,17 @@ export abstract class DependantItemsDialog
     }
 
     protected loadDescendantIds() {
-        const contents = this.getContentsToLoad();
+        const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
 
-        const itemsIds = this.getItemList().getItems().map(content => content.getContentId());
+        return this.createResolveDescendantsRequest().sendAndParse().then((resolvedIds: ContentId[]) => {
+            this.dependantIds = resolvedIds.filter((resolveId: ContentId) => !ids.some((id: ContentId) => id.equals(resolveId)));
+        });
+    }
 
-        return new GetDescendantsOfContentsRequest().setContentPaths(
-            contents.map(content => content.getContentSummary().getPath())).sendAndParse()
-            .then((result: ContentId[]) => {
-                this.dependantIds = result;
+    protected createResolveDescendantsRequest(): ContentResourceRequest<ContentId[]> {
+        const contents: ContentSummaryAndCompareStatus[] = this.getContentsToLoad();
 
-                if (this.dependantIds) {
-                    this.dependantIds = this.dependantIds.filter(dependantId =>
-                        !ArrayHelper.contains(itemsIds, dependantId)
-                    );
-                }
-            });
+        return new GetDescendantsOfContentsRequest().setContentPaths(contents.map(content => content.getContentSummary().getPath()));
     }
 
     protected loadDescendants(from: number,

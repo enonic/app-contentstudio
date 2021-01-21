@@ -18,6 +18,8 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
 import {DropdownButtonRow} from 'lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ResolveDeleteRequest} from '../resource/ResolveDeleteRequest';
 
 export class ContentDeleteDialog
     extends DependantItemsWithProgressDialog {
@@ -145,6 +147,11 @@ export class ContentDeleteDialog
         }).catch((reason: any) => {
             DefaultErrorHandler.handle(reason);
         });
+    }
+
+    protected createResolveDescendantsRequest(): ResolveDeleteRequest {
+        const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
+        return new ResolveDeleteRequest(ids);
     }
 
     manageContentToDelete(contents: ContentSummaryAndCompareStatus[]): ContentDeleteDialog {

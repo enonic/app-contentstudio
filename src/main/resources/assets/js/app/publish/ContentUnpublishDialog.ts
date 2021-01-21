@@ -140,12 +140,9 @@ export class ContentUnpublishDialog
 
     }
 
-    protected loadDescendantIds(): Q.Promise<void> {
+    protected createResolveDescendantsRequest(): ResolveUnpublishRequest {
         const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
-
-        return new ResolveUnpublishRequest(ids).sendAndParse().then((unpublishIds: ContentId[]) => {
-            this.dependantIds = unpublishIds.filter((unpubId: ContentId) => !ids.some((id: ContentId) => id.equals(unpubId)));
-        });
+        return new ResolveUnpublishRequest(ids);
     }
 
     private filterUnpublishableItems(items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] {
