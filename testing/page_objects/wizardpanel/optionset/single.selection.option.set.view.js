@@ -9,6 +9,7 @@ const xpath = {
     nameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='Name']]" + lib.TEXT_INPUT,
     addItemSetButton: "//button[contains(@id,'Button') and child::span[text()='Add My Item-set']]",
     itemSetOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//button[contains(@id,'MoreButton')]",
+    optionSetMenuButton: "//div[contains(@class,'single-selection-header selected')]" + "//button[contains(@id,'MoreButton')]",
     labelInput: "//div[contains(@id,'FormItemSetOccurrenceView')]//input[contains(@name,'label')]",
     itemSetOccurrenceMenuItems: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//li[contains(@id,'MenuItem')]",
     itemSetOccurrenceDeleteMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Delete']",
@@ -63,6 +64,18 @@ class SingleSelectionOptionSet extends Page {
         return await this.pause(300);
     }
 
+    async expandOptionSetMenuAndClickOnMenuItem(index, menuItem) {
+        let menuLocator = xpath.optionSetMenuButton;
+        let menuButtons = await this.findElements(menuLocator);
+        await menuButtons[index].click();
+        await this.pause(400);
+        let res = await this.getDisplayedElements(
+            "//div[contains(@id,'FormOptionSetOccurrenceView')]" + `//li[contains(@id,'MenuItem') and text()='${menuItem}']`);
+        //await res[0].waitForEnabled(appConst.shortTimeout, "Option Set - Delete menu item should be enabled!");
+        await res[0].click();
+        return await this.pause(300);
+    }
+
     async expandItemSetMenu(index) {
         let locator = xpath.itemSetOccurrenceMenuButton;
         let menuButtons = await this.findElements(locator);
@@ -73,7 +86,6 @@ class SingleSelectionOptionSet extends Page {
     async isDeleteSetMenuItemDisabled() {
         let menuItemElements = await this.getDisplayedElements(xpath.itemSetOccurrenceDeleteMenuItem);
         let res = await menuItemElements[0].getAttribute("class");
-        //await menuItemElements[0].waitForEnabled(appConst.shortTimeout, true, "Option Set - Delete menu item should be disabled!");
         return res.includes("disabled");
     }
 
@@ -84,6 +96,12 @@ class SingleSelectionOptionSet extends Page {
     }
 
     async isAddBelowSetMenuItemDisabled() {
+        let menuItemElements = await this.getDisplayedElements(xpath.itemSetOccurrenceAddBelowMenuItem);
+        let res = await menuItemElements[0].getAttribute("class");
+        return res.includes("disabled");
+    }
+
+    async isResetMenuItemDisabled() {
         let menuItemElements = await this.getDisplayedElements(xpath.itemSetOccurrenceAddBelowMenuItem);
         let res = await menuItemElements[0].getAttribute("class");
         return res.includes("disabled");

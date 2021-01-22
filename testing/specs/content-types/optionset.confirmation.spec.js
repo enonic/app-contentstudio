@@ -12,8 +12,9 @@ const OptionSetForm = require('../../page_objects/wizardpanel/optionset/optionse
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SingleSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/single.selection.option.set.view');
 const ArticleForm = require('../../page_objects/wizardpanel/article.form.panel');
+const NotificationDialog = require('../../page_objects/notification.dialog');
 
-describe('optionset.confirmation.spec: check for `confirmation` when deleting existing or new item-set `', function () {
+describe("optionset.confirmation.spec: checks for 'confirmation' dialog when deleting an existing or new item-set", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
@@ -23,6 +24,26 @@ describe('optionset.confirmation.spec: check for `confirmation` when deleting ex
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
+        });
+
+    it(`GIVEN option set with dirty fields WHEN 'Reset' menu item has been clicked THEN 'Notification Dialog' should be loaded`,
+        async () => {
+            let optionSetForm = new OptionSetForm();
+            let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            let notificationDialog = new NotificationDialog();
+            //1. Open the new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
+            //2. Select 'Option 1' and fill in the option name input :
+            await optionSetForm.selectOptionInSingleSelection("Option 1");
+            await singleSelectionOptionSet.typeOptionName("test option");
+            await singleSelectionOptionSet.expandOptionSetMenuAndClickOnMenuItem(0, "Reset");
+            studioUtils.saveScreenshot('item_set_confirmation_dialog');
+            //3. NotificationDialog dialog loads, because new item-set has dirty fields:
+            await notificationDialog.waitForDialogLoaded();
+            //6. Click on Ok button:
+            await notificationDialog.clickOnOkButton();
+            //6. Verify that notificationDialog closes:
+            await notificationDialog.waitForDialogClosed();
         });
 
     it(`GIVEN wizard for new 'option set' is opened WHEN menu has been expanded in the single item-set THEN 'Delete' menu item should be disabled, Add below and Add above are enabled`,
@@ -43,6 +64,8 @@ describe('optionset.confirmation.spec: check for `confirmation` when deleting ex
             assert.isFalse(isAddAboveDisabled, "'Add above' menu item should be enabled");
             let isAddBelowDisabled = await singleSelectionOptionSet.isAddBelowSetMenuItemDisabled();
             assert.isFalse(isAddAboveDisabled, "'Add below' menu item should be enabled");
+            let isResetDisabled = await singleSelectionOptionSet.isResetMenuItemDisabled();
+            assert.isFalse(isResetDisabled, "'Reset' menu item should be enabled");
         });
 
     //New set with dirty fields: confirmation should appear
@@ -67,7 +90,7 @@ describe('optionset.confirmation.spec: check for `confirmation` when deleting ex
             await confirmationMask.waitForDialogOpened();
         });
 
-    // //New set with no dirty fields (ie only default values): no confirmation
+    //New set with no dirty fields (ie only default values): no confirmation
     it(`GIVEN wizard for new 'option set' is opened  AND 'Add My Item-set' has been clicked WHEN text typed in the second item-set AND 'remove' item-set button has been pressed THEN 'Confirmation Dialog' should appear`,
         async () => {
             let optionSetForm = new OptionSetForm();
@@ -85,6 +108,32 @@ describe('optionset.confirmation.spec: check for `confirmation` when deleting ex
             studioUtils.saveScreenshot('item_set_no_confirmation_dialog');
             let result = await confirmationMask.isDialogVisible();
             assert.isFalse(result, "Confirmation mask Dialog should not be loaded, because new item-set has no dirty fields");
+        });
+
+    // verifies: Option Set wizard - Esc won't close the delete confirmation mask #2707
+    //https://github.com/enonic/app-contentstudio/issues/2707
+    it(`GIVEN Confirmation mask Dialog is opened WHEN 'Esc' key has been pressed THEN 'Confirmation mask Dialog' closes`,
+        async () => {
+            let optionSetForm = new OptionSetForm();
+            let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            let confirmationMask = new ConfirmationMask();
+            //1. Open the new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
+            //2. Select 'Option 1' and click on add new item-set:
+            await optionSetForm.selectOptionInSingleSelection("Option 1");
+            await singleSelectionOptionSet.clickOnAddItemSetButton();
+            await singleSelectionOptionSet.typeOptionName("test option");
+            //3. Type a text in the second item-set:
+            await singleSelectionOptionSet.typeInLabelInput("label1", 1);
+            //4. Click on 'Delete' menu item and try to delete the second item-set:
+            await singleSelectionOptionSet.expandMenuClickOnDelete(1);
+            studioUtils.saveScreenshot('item_set_confirmation_dialog');
+            //"Confirmation mask dialog" loads appear, because new item-set has dirty fields:
+            await confirmationMask.waitForDialogOpened();
+            //5. Press on 'Esc' key:
+            await confirmationMask.pressEscKey();
+            //6. Verify that Confirmation mask closes:
+            await confirmationMask.waitForDialogClosed();
         });
 
     // verifies: https://github.com/enonic/app-contentstudio/issues/400
