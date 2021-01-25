@@ -377,11 +377,15 @@ export class PageComponentsView
 
             const selectedItem: ItemViewTreeGridWrapper = currentSelection[0];
 
-            if (selectedItem && !selectedItem.getItemView().isSelected()) {
-                this.selectItem(selectedItem.getItemView());
-            }
+            if (selectedItem) {
+                if (!selectedItem.getItemView().isSelected()) {
+                    this.selectItem(selectedItem.getItemView());
+                }
 
-            this.hideContextMenu();
+                if (!this.contextMenu.belongsToItemView(selectedItem.getItemView())) {
+                    this.hideContextMenu();
+                }
+            }
         });
 
         this.tree.getGrid().subscribeOnContextMenu((event) => {
@@ -700,6 +704,7 @@ export class PageComponentsView
         } else {
             this.contextMenu.setActions(contextMenuActions);
         }
+        this.contextMenu.setItemView(itemView || pageView);
 
         if (this.beforeActionHandler) {
             this.contextMenu.getMenu().unBeforeAction(this.beforeActionHandler);

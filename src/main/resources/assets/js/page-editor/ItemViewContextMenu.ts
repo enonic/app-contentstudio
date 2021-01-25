@@ -3,6 +3,7 @@ import {ItemViewContextMenuTitle} from './ItemViewContextMenuTitle';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {TreeContextMenu} from 'lib-admin-ui/ui/menu/TreeContextMenu';
+import {ItemView} from './ItemView';
 
 export enum ItemViewContextMenuOrientation {
     UP,
@@ -16,6 +17,8 @@ interface Coordinates {
 
 export class ItemViewContextMenu
     extends DivEl {
+
+    private itemView: ItemView;
 
     private title: ItemViewContextMenuTitle;
 
@@ -136,6 +139,18 @@ export class ItemViewContextMenu
 
     getMenu(): TreeContextMenu {
         return this.menu;
+    }
+
+    setItemView(itemView: ItemView) {
+        this.itemView = itemView;
+    }
+
+    belongsToItemView(itemView: ItemView): boolean {
+        if (!this.itemView) {
+            return false;
+        }
+
+        return this.itemView === itemView;
     }
 
     private setOrientation(orientation: ItemViewContextMenuOrientation) {
