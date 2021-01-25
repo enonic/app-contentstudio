@@ -1,0 +1,31 @@
+= Content Localisation
+:toc: right
+:imagesdir: layers/images
+
+NOTE: Content Localisation has been introduced in Content Studio 3.2 and require XP 7.6.0 or higher
+
+Localisation in Content Studio is done by utilising advanced concept of Content Layers. A layer is a special
+type of content project that always has a parent project where it inherits its content from. This inherited content can then be localised
+to the language of the layer, restructured, renamed or differently sorted.
+
+You can have as many layers as you need: project "A" in the root can have a child layer "B" which has a child
+layer "C" and so on. Content changes will be propagated top-down from the project/layer the content was originally changed in, through
+all the layers down to the bottommost descendant. In our example, any content created in "A" will be automatically created in the child "B"
+and the grand-child "C", while content created in "B" will be auto-created only in "C".
+
+The moment an inherited content is modified (localised), it will be "unlinked" from its parent and will no longer be synchronised.
+If you modify a content in the layer "C", it will stop inheriting content changes from the layer "B". However, the same content in "B" still
+inherits content changes from its parent project "A", until it's localised in "B" as well.
+
+There are 4 different types of inheritance that are supported independently: content data, sorting, parent and name.
+This means, for example, that if a child layer has inherited an entire website from its parent, you can change sorting order of content items
+inside this site in "B" which will stop inheritance only of _sorting_ from the project A, however inheritance of _content data_ will still continue.
+Another example, is that you can move a content item from one parent content to another in the layer B, but this content will still be
+inheriting data changes from the project A.
+
+Content Layers are using the <<projects,Content Projects'>> engine under the hood, which means that each layer has its own content repository,
+language, read permissions and roles.
+
+Just like projects, layers can be created and managed in the Settings section.
+
+== Settings
