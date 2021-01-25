@@ -52,6 +52,9 @@ import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
 import {GLOBAL, GlobalLibAdmin, Store} from 'lib-admin-ui/store/Store';
 import {IEObjectHolder} from './IEObjectHolder';
+import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
+import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 
 declare var CONFIG;
 
@@ -435,7 +438,7 @@ export class LiveEditPageProxy {
     }
 
     public loadComponent(componentView: ComponentView<Component>, componentUrl: string): Q.Promise<string> {
-        let deferred = Q.defer<string>();
+        const deferred = Q.defer<string>();
         assertNotNull(componentView, 'componentView cannot be null');
         assertNotNull(componentUrl, 'componentUrl cannot be null');
 
@@ -443,23 +446,24 @@ export class LiveEditPageProxy {
             url: componentUrl,
             type: 'GET',
             success: (htmlAsString: string) => {
-                let newElement = Element.fromString(htmlAsString);
-                let itemViewIdProducer = componentView.getItemViewIdProducer();
-                let itemViewFactory = componentView.getItemViewFactory();
+                const newElement: Element = Element.fromString(htmlAsString);
+                const itemViewIdProducer: ItemViewIdProducer = componentView.getItemViewIdProducer();
+                const itemViewFactory: ItemViewFactory = componentView.getItemViewFactory();
 
-                let createViewConfig = new CreateItemViewConfig<RegionView, Component>()
+                const createViewConfig: CreateItemViewConfig<RegionView, Component> = new CreateItemViewConfig<RegionView, Component>()
                     .setItemViewIdProducer(itemViewIdProducer)
                     .setItemViewFactory(itemViewFactory)
                     .setParentView(componentView.getParentItemView())
                     .setData(componentView.getComponent())
                     .setElement(newElement);
 
-                let newComponentView = <ComponentView<Component>>itemViewFactory.createView(componentView.getType(),
+                const newComponentView: ComponentView<Component> = <ComponentView<Component>>itemViewFactory.createView(
+                    componentView.getType(),
                     createViewConfig);
 
                 componentView.replaceWith(newComponentView);
 
-                let event = new ComponentLoadedEvent(newComponentView, componentView);
+                const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView, componentView);
                 event.fire(this.liveEditWindow);
 
                 newComponentView.select();
@@ -468,7 +472,7 @@ export class LiveEditPageProxy {
                 deferred.resolve('');
             },
             error: (jqXHR: JQueryXHR, textStatus: string, errorThrow: string) => {
-                let responseHtml = $.parseHTML(jqXHR.responseText);
+                const responseHtml = $.parseHTML(jqXHR.responseText);
                 let errorMessage = '';
                 responseHtml.forEach((el: HTMLElement, i) => {
                     if (el.tagName && el.tagName.toLowerCase() === 'title') {
