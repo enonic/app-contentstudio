@@ -35,28 +35,28 @@ Just like projects, layers can be created and managed in the Settings section.
 
 To create a new layer, click *New* button in the Settings section and select "_Layer_" from the modal dialog.
 
-image::layer-create-1.png[Create Layer, 309]
+image::layer-create-1.png[Create Layer, 832]
 
 If you have selected a project (or another layer) in the grid before clicking *New*, you will only have one option (_Layer_) in the dialog.
 The dialog will also display that the new layer will be created under the project/layer you've selected.
 
-image::layer-create-2.png[Create Layer 2, 305]
+image::layer-create-2.png[Create Layer 2, 832]
 
 Upon selection, you will be redirected to the New Layer wizard which is very similar to the <<projects#project_wizard,New Project wizard>>,
 although there's a few key differences.
 
 The New Layer wizard will have a dropdown called "_Parent project_" for selecting a project/layer where the new layer will be inheriting its content from.
 
-image::layer-parent-1.png[Parent Project, 287]
+image::layer-parent-1.png[Parent Project, 725]
 
 If you have already selected a project/layer in the Settings grid before clicking the *New* button,
 the selected project/layer will be preset in the "_Parent project_" dropdown.
 
-image::layer-parent-2.png[Parent Project 2, 129]
+image::layer-parent-2.png[Parent Project 2, 725]
 
 NOTE: You will not be able to select or change the parent project/layer once the new layer is created.
 
-TIP: In the Layer wizard you can copy settings like Language, Access Mode and Roles from the parent project/layer by using the "Copy from parent" button.
+TIP: In the Layer wizard you can copy settings like Language, Access Mode and Roles from the parent project/layer by using the *Copy from parent* button.
 If the parent doesn't have those properties set, or they are the same as in this layer, the button will be disabled.
 
 image::layer-wizard-1.png[Copy from parent, 767]
@@ -105,14 +105,14 @@ image::layer-localisation-3.png[Content localisation, 457]
 
 You can reset changes made for an inherited item and restore inheritance from the parent level by clicking *Reset* button in the Content Wizard.
 
-image::layer-content-reset.png[Reset localisation, 217]
+image::layer-content-reset.png[Reset localisation, 617]
 
 IMPORTANT: All changes made to the content item in the current layer will be lost.
 
 
 == Layers Widget
 
-NOTE: The Layers widget is bundled with <<index#content_studio,Content Studio+>> application available only for users with Enonic license.
+NOTE: The Layers widget is bundled with <<#content_studio,Content Studio+>> application available only for users with Enonic license.
 
 The Layers widget enables user to see status of a specific content item in all existing layers in the system.
 
@@ -134,7 +134,7 @@ TIP: You can localise content in the current layer directly from the widget.
 of boxes displayed in the widget, since the widget only displays the branch of the current layer. To see status of the content item in the entire tree of layers
 click the button to open the modal dialog.
 
-image::layer-modal-dialog.png[Layers Widget, 240]
+image::layer-modal-dialog.png[Layers Widget, 375]
 
 Just like with the Layers widget, you can expand layer boxes in this dialog to either localise or edit the content in the current layer,
 or open it in other layers (given your user has sufficient permissions to access the layer).
