@@ -180,11 +180,11 @@ export class ContentTreeGrid
     }
 
     private isEditAllowed(event: any, data: any): boolean {
-        if (data && data.cell === 0) {
+        if (data?.cell === 0) {
             return false;
         }
 
-        if (event && event.target && event.target.classList && event.target.classList.contains('toggle')) {
+        if (event?.target?.classList?.contains('toggle')) {
             return false;
         }
 
