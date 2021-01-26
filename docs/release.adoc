@@ -4,13 +4,71 @@
 
 TIP: Release Notes for Content Studio 2.x can be found https://developer.enonic.com/docs/content-studio/2.x/release[here]
 
+== Content Studio 3.2
+
+NOTE: Content Studio 3.2 requires XP 7.6.0 or higher.
+
+=== Content Layers
+
+Content Layers are expanding the Content Projects feature introduced in version 3.0 and enable multi-language content management. Content
+changes will be propagated top-down from a project/layer to its descendants, thus eliminating the need to manually duplicate content that
+needs to be localised in multiple languages. At the same time, content in each layer is stored in its own repository making it super-easy
+to export, import and backup data.
+
+image::cs32-layer-navigation.png[Layers widget, 778]
+
+Read more about Content Layers in the <<layers,dedicated section>>.
+
+=== Content Studio+
+
+*Content Studio+* is a new application expanding standard features of the Content Studio. Its first release introduces the "Layers" widget
+that gives overview of content state in the entire layers tree.
+
+image::cs32-layers-widget.png[Layers widget, 234]
+
+=== Publishing Wizard improvements
+
+Before Content Studio 3.2 the content with "IN PROGRESS" workflow state would have to be marked as "READY" outside the Publishing Wizard
+before it could be published. Having multiple such items in the Publishing Wizard would be a time-consuming obstacle. Version 3.2 introduces
+a convenient way to mark all the "IN PROGRESS" items as "READY" with one click of the button.
+
+image::cs32-mark-as-ready.png[Mark as ready, 500]
+
+Audit checks in the Publishing Wizard preventing invalid and "IN PROGRESS" content from being published have gotten *Exclude all* links
+enabling exclusion of all the items in question with one click.
+
+image::cs32-publish-exclude.png[Exclude from publishing, 500]
+
+=== Item- and option-set improvements
+
+https://developer.enonic.com/docs/xp/7.6/cms/sets#item_set[Item sets] have gotten a context menu allowing adding a new occurrence directly above or below the selected one.
+"Delete" action has also been moved inside the context menu:
+
+image::cs32-itemset.png[Item set, 345]
+
+Design and behavior of https://developer.enonic.com/docs/xp/7.6/cms/sets#option_set[option sets] have been completely revamped.
+A single-select option set has been converted from a radio group to a dropdown:
+
+image::cs32-optionset-1.png[Option set, 345]
+
+A selected option looks like a header that can be clicked to collapse the occurrence. Selected option can be reset via the context menu that
+otherwise contains the same actions as the item set's:
+
+image::cs32-optionset-2.png[Option set reset, 345]
+
+Similar to item sets, option sets now offer behaviour for dynamic generation of the occurrence label based on field values inside the occurrence.
+Occurrence label of a single-select option set will change to the first non-empty field value inside the form (with deep traversal inside nested elements).
+For a multi-select option-set the label will reflect labels of all selected options:
+
+image::cs32-optionset-3.png[Option set label, 345]
+
 == Content Studio 3.1
 
-NOTE: Content Studio 3.1 requires XP 7.5.0 or later.
+NOTE: Content Studio 3.1 requires XP 7.5.0 or higher.
 
 === Improved Version History
 
-<<widgets#version_history,Version History widget>> has gotten a brand new look and now shows a lot of additional information: when content has been created,
+<<widgets#version_history,Version History widget>> has gotten a brand-new look and now shows a lot of additional information: when content has been created,
 when scheduled publishing will go online, when a publishing will expire, when content was unpublished etc.
 Versions have been neatly grouped by date to make it easier to see content changes happened within the same day.
 
@@ -36,7 +94,7 @@ image::cs31-rename-dialog.png[Rename dialog, 768]
 
 === New look and behaviour of item- and option-sets
 
-The look of item- and option-sets have been completely revamped to make them look lighter and more readable, especially for the nested sets.
+The look of item- and option-sets has been refreshed to make them look lighter and more readable, especially for the nested sets.
 
 image::cs31-item-set-expanded.png[Expanded item-sets, 695]
 
@@ -47,7 +105,7 @@ image::cs31-option-set.png[Option sets, 683]
 
 == Content Studio 3
 
-NOTE: Content Studio 3 requires XP 7.3.0 or later.
+NOTE: Content Studio 3 requires XP 7.3.0 or higher.
 
 === Language support
 
