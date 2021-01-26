@@ -118,6 +118,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     saveChanges(): Q.Promise<ITEM> {
+        this.formMask.show();
         return super.saveChanges().then((item: ITEM) => {
             if (this.isClosePending) {
                 this.close(true);
@@ -127,6 +128,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         }).finally(() => {
             this.isClosePending = false;
             this.getFormIcon().setDisabled(false);
+            this.formMask.hide();
         });
     }
 
