@@ -108,3 +108,33 @@ You can reset changes made for an inherited item and restore inheritance from th
 image::layer-content-reset.png[Reset localisation, 217]
 
 IMPORTANT: All changes made to the content item in the current layer will be lost.
+
+
+== Layers Widget
+
+NOTE: The Layers widget is bundled with <<index#content_studio,Content Studio+>> application available only for users with Enonic license.
+
+The Layers widget enables user to see status of a specific content item in all existing layers in the system.
+
+Box of the current layer is highlighted with blue border, and you can see how many layers there are above (_Ascendants_)
+and below (_Descendants_) the current one. Each box has an action button (*Localise* or *Edit* for the current layer and *Open* for other layers)
+which can be displayed if you expand the box with a left-click.
+
+image::layer-widget-1.png[Layers Widget, 240]
+
+image::layer-widget-3.png[Layers Widget, 240]
+
+Boxes of layers above where the content item is not localised are hidden by default and can be displayed by clicking on the Ascendants link.
+
+image::layer-widget-2.png[Layers Widget, 240]
+
+TIP: You can localise content in the current layer directly from the widget.
+
+*Show all* button at the bottom of the widget displays the total number of layers where this item exists. This number can be different from tbe number
+of boxes displayed in the widget, since the widget only displays the branch of the current layer. To see status of the content item in the entire tree of layers
+click the button to open the modal dialog.
+
+image::layer-modal-dialog.png[Layers Widget, 240]
+
+Just like with the Layers widget, you can expand layer boxes in this dialog to either localise or edit the content in the current layer,
+or open it in other layers (given your user has sufficient permissions to access the layer).
