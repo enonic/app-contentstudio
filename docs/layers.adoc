@@ -112,7 +112,7 @@ IMPORTANT: All changes made to the content item in the current layer will be los
 
 == Layers Widget
 
-NOTE: The Layers widget is bundled with <<#content_studio,Content Studio+>> application available only for users with Enonic license.
+NOTE: The Layers widget is bundled with <</index#content_studio,Content Studio+>> application available only for users with Enonic license.
 
 The Layers widget enables user to see status of a specific content item in all existing layers in the system.
 
@@ -124,7 +124,7 @@ image::layer-widget-1.png[Layers Widget, 240]
 
 image::layer-widget-3.png[Layers Widget, 240]
 
-Boxes of layers above where the content item is not localised are hidden by default and can be displayed by clicking on the Ascendants link.
+Boxes of parent layers where the content item is not localised are hidden by default and can be displayed by clicking on the Ascendants link.
 
 image::layer-widget-2.png[Layers Widget, 240]
 

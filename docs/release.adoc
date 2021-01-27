@@ -10,14 +10,14 @@ NOTE: Content Studio 3.2 requires XP 7.6.0 or higher.
 
 === Content Layers
 
-Content Layers are expanding the Content Projects feature introduced in version 3.0 and enable multi-language content management. Content
+Content Layers are expanding the Content Projects feature introduced in Content Studio v3.0 and enable multi-language content management. Content
 changes will be propagated top-down from a project/layer to its descendants, thus eliminating the need to manually duplicate content that
 needs to be localised in multiple languages. At the same time, content in each layer is stored in its own repository making it super-easy
 to export, import and backup data.
 
 image::cs32-layer-navigation.png[Layers widget, 778]
 
-Read more about Content Layers in the <<layers,dedicated section>>.
+Read more about Content Layers in the <<layers#,dedicated section>>.
 
 === Content Studio+
 
