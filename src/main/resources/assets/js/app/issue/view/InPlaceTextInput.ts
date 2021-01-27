@@ -3,19 +3,20 @@ import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {CompositeFormInputEl} from 'lib-admin-ui/dom/CompositeFormInputEl';
 import {H2El} from 'lib-admin-ui/dom/H2El';
-import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
+import {TextInput, TextInputSize} from 'lib-admin-ui/ui/text/TextInput';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 export class InPlaceTextInput
     extends CompositeFormInputEl {
 
-    private input: TextInput;
-    private h2: H2El;
+    private readonly input: TextInput;
+    private readonly h2: H2El;
     private persistedValue: string;
 
     private modeListeners: { (editMode: boolean, newValue: string, oldValue: string) }[] = [];
     private outsideClickListener: (event: MouseEvent) => void;
 
-    constructor(originalValue?: string, size?: string) {
+    constructor(originalValue?: string, size?: TextInputSize) {
         super();
         this.addClass('inplace-text-input');
 
@@ -28,16 +29,17 @@ export class InPlaceTextInput
 
     private createHeader(originalValue: string): H2El {
         const h2 = new H2El('inplace-text');
-        h2.setHtml(this.formatTextToDisplay(originalValue), false);
-        h2.getEl().setTitle(i18n('action.clickToEdit'));
+        h2.removeChildren();
+        h2.appendChild(this.formatTextToDisplay(originalValue));
+        h2.setTitle(i18n('action.clickToEdit'));
         h2.onClicked(() => this.setEditMode(true));
         return h2;
     }
 
-    private createInput(originalValue: string, size: string) {
+    private createInput(originalValue: string, size: TextInputSize) {
         const input = new TextInput('inplace-input', size, originalValue);
 
-        input.onValueChanged(event => {
+        input.onValueChanged(() => {
             const isValid = this.isInputValid();
             input.toggleClass('invalid', !isValid);
             this.toggleClass('invalid', !isValid);
@@ -80,7 +82,8 @@ export class InPlaceTextInput
             this.persistedValue = newValue;
             this.input.giveFocus();
         } else {
-            this.h2.setHtml(this.formatTextToDisplay(newValue), false);
+            this.h2.removeChildren();
+            this.h2.appendChild(this.formatTextToDisplay(newValue));
         }
         this.bindOutsideClickListener(enableEdit);
         this.notifyEditModeChanged(enableEdit, newValue, this.persistedValue);
@@ -106,12 +109,13 @@ export class InPlaceTextInput
 
     setValue(value: string, silent?: boolean, userInput?: boolean): InPlaceTextInput {
         super.setValue(value, silent, userInput);
-        this.h2.setHtml(this.formatTextToDisplay(value), false);
+        this.h2.removeChildren();
+        this.h2.appendChild(this.formatTextToDisplay(value));
         return this;
     }
 
-    public formatTextToDisplay(inputValue: string): string {
-        return inputValue;
+    protected formatTextToDisplay(inputValue: string): SpanEl {
+        return SpanEl.fromText(inputValue);
     }
 
     public isEditMode(): boolean {

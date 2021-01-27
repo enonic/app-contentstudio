@@ -1,25 +1,23 @@
 .project-selection-dialog {
 
   .project-list-item {
-    padding: 10px 0px;
+    padding: 10px;
+    cursor: default;
+
+    &.selectable {
+      cursor: pointer;
+
+      .project-viewer {
+        .viewer-selectable();
+      }
+    }
+
     &:hover {
       background-color: @admin-almost-white;
     }
 
-    .project-list-item-viewer {
-      cursor: pointer;
-
-      .names-and-icon-view {
-        cursor: pointer;
-
-        .@{_COMMON_PREFIX}main-name {
-          cursor: pointer;
-        }
-
-        .@{_COMMON_PREFIX}sub-name {
-          cursor: pointer;
-        }
-      }
+    &.selected {
+      background-color: @admin-blue;
     }
   }
 

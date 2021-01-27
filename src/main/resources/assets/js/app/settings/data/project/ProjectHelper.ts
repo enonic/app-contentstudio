@@ -9,13 +9,13 @@ import {ProjectPermissions} from './ProjectPermissions';
 export class ProjectHelper {
 
     public static isUserProjectOwnerOrEditor(loginResult: LoginResult): Q.Promise<boolean> {
-        return new ProjectGetRequest(ProjectContext.get().getProject()).sendAndParse().then((project: Project) => {
+        return new ProjectGetRequest(ProjectContext.get().getProject().getName()).sendAndParse().then((project: Project) => {
             return Q(ProjectHelper.isProjectOwnerOrEditor(loginResult, project));
         });
     }
 
     public static isUserProjectOwner(loginResult: LoginResult): Q.Promise<boolean> {
-        return new ProjectGetRequest(ProjectContext.get().getProject()).sendAndParse().then((project: Project) => {
+        return new ProjectGetRequest(ProjectContext.get().getProject().getName()).sendAndParse().then((project: Project) => {
             return Q(ProjectHelper.isProjectOwner(loginResult, project));
         });
     }
@@ -43,4 +43,23 @@ export class ProjectHelper {
         return project.getName() === Project.DEFAULT_PROJECT_NAME;
     }
 
+    public static fetchProject(name: string): Q.Promise<Project> {
+        return new ProjectGetRequest(name).sendAndParse().then((project: Project) => project);
+    }
+
+    public static sortProjects(item1: Project, item2: Project): number {
+        if (ProjectHelper.isDefault(item1)) {
+            return -1;
+        }
+
+        if (ProjectHelper.isDefault(item2)) {
+            return 1;
+        }
+
+        return item1.getName().localeCompare(item2.getName());
+    }
+
+    public static isAvailable(project: Project): boolean {
+        return !!project && !!project.getDisplayName();
+    }
 }

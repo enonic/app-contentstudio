@@ -50,7 +50,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             //2. click on 'Include children items'
             await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_FOLDER_WITH_IMAGES);
             studioUtils.saveScreenshot("request_publish_include_children");
-            //3. 'Show dependent items' link should appear
+            //3. 'Show dependent items' link should appear, becase all children are Ready for publishing
             await createRequestPublishDialog.waitForShowDependentItemsLinkDisplayed();
         });
 

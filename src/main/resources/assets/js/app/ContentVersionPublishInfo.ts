@@ -1,5 +1,6 @@
 import {ContentVersionPublishInfoJson} from './resource/json/ContentVersionPublishInfoJson';
 import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {ContentPublishInfo} from './ContentPublishInfo';
 
 export class ContentVersionPublishInfo
 implements Cloneable {
@@ -11,6 +12,8 @@ implements Cloneable {
     private publisher: string;
 
     private timestamp: Date;
+
+    private contentPublishInfo: ContentPublishInfo;
 
     private constructor(source?: ContentVersionPublishInfo) {
         if (source) {
@@ -36,6 +39,7 @@ implements Cloneable {
         contentVersionPublishInfo.publisher = contentVersionPublishInfoJson.publisher;
         contentVersionPublishInfo.publisherDisplayName = contentVersionPublishInfoJson.publisherDisplayName;
         contentVersionPublishInfo.timestamp = new Date(contentVersionPublishInfoJson.timestamp);
+        contentVersionPublishInfo.contentPublishInfo = ContentPublishInfo.fromJson(contentVersionPublishInfoJson.contentPublishInfo);
 
         return contentVersionPublishInfo;
     }
@@ -54,5 +58,47 @@ implements Cloneable {
 
     getTimestamp(): Date {
         return this.timestamp;
+    }
+
+    getFirstPublished(): Date {
+        return this.contentPublishInfo?.getFirst();
+    }
+
+    getPublishedFrom(): Date {
+        return this.contentPublishInfo?.getFrom();
+    }
+
+    getPublishedTo(): Date {
+        return this.contentPublishInfo?.getTo();
+    }
+
+    setPublishedFrom(date: Date) {
+        return this.contentPublishInfo.setFrom(date);
+    }
+
+    isPublished(): boolean {
+        if (!this.contentPublishInfo) {
+            return false;
+        }
+        return !!this.getPublishedFrom() || !!this.getPublishedTo();
+    }
+
+    isUnpublished(): boolean {
+        if (!this.contentPublishInfo) {
+            return false;
+        }
+
+        return !this.getPublishedFrom() && !this.getPublishedTo();
+    }
+
+    isScheduled(): boolean {
+        if (!this.isPublished()) {
+            return false;
+        }
+        return this.getPublishedFrom() > this.getTimestamp() && this.getPublishedFrom() > new Date(Date.now());
+    }
+
+    isEmpty(): boolean {
+        return !this.contentPublishInfo;
     }
 }

@@ -11,13 +11,14 @@ import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {PublishContentRequest} from '../resource/PublishContentRequest';
-import {BasePublishDialog} from '../dialog/BasePublishDialog';
+import {BasePublishDialog, PublishDialogButtonRow} from '../dialog/BasePublishDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {AutosizeTextInput} from 'lib-admin-ui/ui/text/AutosizeTextInput';
+import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -43,6 +44,7 @@ export class ContentPublishDialog
             title: i18n('dialog.publish'),
             class: 'publish-dialog grey-header',
             dependantsDescription: i18n('dialog.publish.dependants'),
+            buttonRow: new PublishDialogButtonRow(),
             processingLabel: `${i18n('field.progress.publishing')}...`,
             processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
         });
@@ -81,7 +83,6 @@ export class ContentPublishDialog
         this.publishSubTitle = new ContentPublishDialogSubTitle();
 
         this.addAction(this.scheduleAction);
-        this.actionButton = this.addAction(this.publishAction, true);
 
         this.publishScheduleForm.layout(false);
 
@@ -89,6 +90,9 @@ export class ContentPublishDialog
             this.publishAction.setVisible(!visible);
             this.scheduleAction.setVisible(visible);
         });
+
+        const menuButton: MenuButton = this.getButtonRow().makeActionMenu(this.publishAction, [this.markAllAsReadyAction]);
+        this.actionButton = menuButton.getActionButton();
     }
 
     protected initListeners() {
@@ -97,6 +101,12 @@ export class ContentPublishDialog
         this.publishProcessor.onLoadingFailed(() => {
             this.setSubTitleMessage('');
         });
+    }
+
+    protected postInitElements() {
+        super.postInitElements();
+
+        this.setElementToFocusOnShow(this.publishSubTitle.getLinkEl());
     }
 
     doRender(): Q.Promise<boolean> {
@@ -362,6 +372,10 @@ export class ContentPublishDialogSubTitle
 
         this.input.onShown(() => Body.get().onClicked(clickHandler));
         this.input.onHidden(() => Body.get().unClicked(clickHandler));
+    }
+
+    getLinkEl(): AEl {
+        return this.message;
     }
 
     doRender(): Q.Promise<boolean> {

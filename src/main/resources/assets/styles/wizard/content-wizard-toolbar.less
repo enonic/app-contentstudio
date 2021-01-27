@@ -19,7 +19,7 @@
     z-index: 1;
 
     span, &.publish-action-button > span {
-      line-height: @app-header-height;
+      line-height: @app-header-height - 1;
     }
   }
 
@@ -33,24 +33,17 @@
     margin-right: 0;
   }
 
-  .cycle-button.icon-medium:before {
+  .cycle-button:before {
     font-size: 26px;
-    line-height: @app-header-height + 1;
   }
 
   .toggle-button.icon-medium:before {
     font-size: 24px;
-    line-height: @app-header-height - 1;
   }
 
-  .toggle-button, .cycle-button {
-    width: @app-header-height - 4;
-    float: right;
-
-    &:before {
-      position: relative;
-      top: 0;
-    }
+  .toggle-button,
+  .cycle-button {
+    padding: 0 7px;
   }
 
   .content-status-wrapper {
@@ -62,6 +55,7 @@
   .toolbar-publish-controls {
     height: 100%;
     order: 2;
+    margin-right: 5px;
 
     .content-publish-menu {
       .action-button {
@@ -72,10 +66,10 @@
 
   .toggle-button {
     &.icon-clipboard {
+      &:not(.disabled) {
+        display: flex !important;
+      }
       order: 3;
-      height: @app-header-height-inner;
-      width: @app-header-height-inner;
-      padding: 0 0 0 10px;
     }
     &.icon-cog {
       order: 4;
@@ -85,13 +79,12 @@
   .cycle-button {
     order: 5;
     z-index: 1999;
-    padding: 0 0 0 7px;
   }
 
   &:not(.live) .toggle-button {
     &.icon-clipboard,
     &.icon-cog:not(.details-toggle) {
-      display: none !important;
+      display: none;
     }
   }
 
@@ -132,10 +125,12 @@
   .project-info {
     overflow: auto;
     padding-left: 10px;
-    padding-right: 20px;
+    padding-right: 25px;
+    margin-right: 10px;
     border-right: 1px solid @admin-font-gray;
 
     .@{_COMMON_PREFIX}wrapper {
+      display: flex;
       height: @app-header-height-inner;
       width: @app-header-height-inner;
       line-height: @app-header-height-inner;
@@ -164,6 +159,12 @@
     content: "";
     background-image: url("../../icons/publish-request-open.svg");
     background-size: contain;
+  }
+
+  .project-viewer {
+    .@{_COMMON_PREFIX}sub-name {
+      display: none;
+    }
   }
 
 }
@@ -200,6 +201,7 @@
 
     .toolbar-state-icon {
       margin-left: auto;
+      padding-right: 0;
 
       &.invalid, &.ready, &.in-progress {
 
@@ -211,6 +213,7 @@
 
     .project-info {
       padding: 0;
+      margin-right: 0;
 
       .@{_COMMON_PREFIX}names-view {
         display: none;

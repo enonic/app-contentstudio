@@ -11,24 +11,34 @@ const ContextWindow = require('./liveform/liveform.context.window');
 const DetailsPanel = require('./details/wizard.details.panel');
 const ConfirmationDialog = require("../../page_objects/confirmation.dialog");
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
-const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const VersionsWidget = require('./details/wizard.versions.widget');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const BrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
 const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
+const RenamePublishedContentDialog = require('./rename.content.dialog');
+const WizardLayersWidget = require('./details/wizard.layers.widget');
+
 
 const XPATH = {
     container: `//div[contains(@id,'ContentWizardPanel')]`,
+    wizardHeader: "//div[contains(@id,'ContentWizardHeader')]",
     pageEditorTogglerButton: "//button[contains(@id, 'CycleButton') ]",
-    displayNameInput: `//input[contains(@name,'displayName')]`,
+    displayNameInput: "//input[@name='displayName']",
+    pathInput: "//input[@name='name']",
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
     toolbarStateIcon: `//div[contains(@class,'toolbar-state-icon')]`,
+    publishMenuButton: "//div[contains(@id,'ContentWizardPublishMenuButton')]",
     toolbarPublish: "//div[contains(@id,'ContentWizardToolbarPublishControls')]",
     saveButton: `//button[contains(@id,'ActionButton') and child::span[text()='Save']]`,
     savedButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saved']]`,
     savingButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saving...']]`,
     deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete...']]`,
+    duplicateButton: `//button[contains(@id,'ActionButton') and child::span[text()='Duplicate...']]`,
+    previewButton: `//button[contains(@id,'ActionButton') and child::span[text()='Preview']]`,
+    resetButton: "//button[contains(@id,'ActionButton') and child::span[text()='Reset']]",
     publishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Publish...']]",
+    createTaskButton: "//button[contains(@id,'ActionButton') and child::span[text()='Create Task...']]",
     markAsReadyButton: "//button[contains(@id,'ActionButton') and child::span[text()='Mark as ready']]",
     openRequestButton: "//button[contains(@id,'ActionButton') and child::span[text()='Open Request...']]",
     unpublishButton: "//button[contains(@id,'ActionButton') and child::span[text()='Unpublish...']]",
@@ -40,15 +50,17 @@ const XPATH = {
     thumbnailUploader: "//div[contains(@id,'ThumbnailUploaderEl')]",
     liveEditFrame: "//iframe[contains(@class,'live-edit-frame shown')]",
     pageDescriptorViewer: `//div[contains(@id,'PageDescriptorViewer')]`,
-    accessTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Access']`,
+    editPermissionsButton: "//div[contains(@class,'edit-permissions-button')]",
     scheduleTabBarItem: `//li[contains(@id,'ContentTabBarItem') and @title='Schedule']`,
     scheduleForm: "//div[contains(@id,'ScheduleWizardStepForm')]",
     detailsPanelToggleButton: `//button[contains(@id,'NonMobileContextPanelToggleButton')]`,
     itemViewContextMenu: `//div[contains(@id,'ItemViewContextMenu')]`,
     xDataToggler: `//div[contains(@id,'WizardStepsPanel')]//div[@class='x-data-toggler']`,
     stepNavigatorToolbar: `//ul[contains(@id,'WizardStepNavigator')]`,
+    wizardStepNavigatorAndToolbar: "//div[contains(@id,'WizardStepNavigatorAndToolbar')]",
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
+    buttonModifyPath: "//button[contains(@class,'icon-pencil')]",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -66,6 +78,10 @@ class ContentWizardPanel extends Page {
         return XPATH.container + XPATH.displayNameInput;
     }
 
+    get pathInput() {
+        return XPATH.container + XPATH.pathInput;
+    }
+
     get pageEditorTogglerButton() {
         return XPATH.toolbar + XPATH.pageEditorTogglerButton;
     }
@@ -76,6 +92,10 @@ class ContentWizardPanel extends Page {
 
     get saveButton() {
         return XPATH.container + XPATH.saveButton;
+    }
+
+    get resetButton() {
+        return XPATH.container + XPATH.resetButton;
     }
 
     get savedButton() {
@@ -106,6 +126,14 @@ class ContentWizardPanel extends Page {
         return XPATH.container + XPATH.toolbar + XPATH.deleteButton;
     }
 
+    get duplicateButton() {
+        return XPATH.container + XPATH.toolbar + XPATH.duplicateButton;
+    }
+
+    get previewButton() {
+        return XPATH.container + XPATH.toolbar + XPATH.previewButton;
+    }
+
     get controllerOptionFilterInput() {
         return "//div[contains(@id,'PagePlaceholder')]" + lib.DROPDOWN_OPTION_FILTER_INPUT;
     }
@@ -127,10 +155,18 @@ class ContentWizardPanel extends Page {
         return XPATH.container + XPATH.toolbar + XPATH.componentViewToggler;
     }
 
+    get editPermissionsButton() {
+        return XPATH.wizardStepNavigatorAndToolbar + XPATH.editPermissionsButton;
+    }
+
+    get modifyPathButton() {
+        return XPATH.wizardHeader + XPATH.buttonModifyPath;
+    }
+
     waitForInspectionPanelTogglerVisible() {
-        return this.waitForElementDisplayed(this.showInspectionPanelToggler, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.showInspectionPanelToggler, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_open_inspection_panel');
-            throw new Error('Inspection Panel is not opened in ' + appConst.TIMEOUT_3 + '  ' + err);
+            throw new Error('Inspection Panel is not opened in ' + appConst.mediumTimeout + '  ' + err);
         })
     }
 
@@ -140,21 +176,32 @@ class ContentWizardPanel extends Page {
     }
 
     waitForScheduleFormVisible() {
-        return this.waitForElementDisplayed(XPATH.scheduleForm, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(XPATH.scheduleForm, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('schedule_form_should_not_be_visible');
             return false;
         })
     }
 
     waitForScheduleFormNotVisible() {
-        return this.waitForElementNotDisplayed(XPATH.scheduleForm, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(XPATH.scheduleForm, appConst.mediumTimeout);
     }
 
     waitForShowComponentVewTogglerVisible() {
-        return this.waitForElementDisplayed(this.showComponentViewToggler, appConst.TIMEOUT_2).catch(err => {
-            this.saveScreenshot('err_open_component_view');
+        return this.waitForElementDisplayed(this.showComponentViewToggler, appConst.mediumTimeout).catch(err => {
+            this.saveScreenshot('err_show_component_toggler_should_be_visible');
             throw new Error('Component View toggler is not visible in ' + 2 + '  ' + err);
         })
+    }
+
+    async waitForShowComponentVewTogglerNotVisible() {
+        try {
+            let res = await this.getDisplayedElements(this.showComponentViewToggler);
+            let result = await this.isElementDisplayed(this.showComponentViewToggler);
+            await this.waitForElementNotDisplayed(this.showComponentViewToggler, appConst.mediumTimeout);
+        } catch (err) {
+            this.saveScreenshot('err_show_component_toggler_should_not_be_visible');
+            throw new Error('Component View toggler is still visible after the interval sec:' + 3 + '  ' + err);
+        }
     }
 
     // opens Details Panel if it is not loaded
@@ -197,7 +244,7 @@ class ContentWizardPanel extends Page {
 
     waitForWizardStepPresent(stepName) {
         let stepXpath = XPATH.wizardStepByName(stepName);
-        return this.waitForElementDisplayed(stepXpath, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(stepXpath, appConst.shortTimeout).catch(err => {
             console.log("Wizard step is not visible: " + err);
             return false;
         })
@@ -205,7 +252,7 @@ class ContentWizardPanel extends Page {
 
     isWizardStepByTitlePresent(title) {
         let stepXpath = XPATH.wizardStepByTitle(title);
-        return this.waitForElementDisplayed(stepXpath, appConst.TIMEOUT_1).catch(err => {
+        return this.waitForElementDisplayed(stepXpath, appConst.shortTimeout).catch(err => {
             console.log("Wizard step is not visible: " + title);
             return false;
         })
@@ -219,7 +266,7 @@ class ContentWizardPanel extends Page {
 
     waitForWizardStepByTitleNotVisible(title) {
         let stepXpath = XPATH.wizardStepByTitle(title);
-        return this.waitForElementNotDisplayed(stepXpath, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementNotDisplayed(stepXpath, appConst.shortTimeout).catch(err => {
             console.log("Wizard step is not visible: " + title);
             return false;
         })
@@ -237,9 +284,9 @@ class ContentWizardPanel extends Page {
         return await this.pause(400);
     }
 
-//Gets titles of all x-data forms
+    //Gets titles of all x-data forms
     getXdataTitles() {
-        let selector = "//div[contains(@id,'PanelStripHeader') and child::div[@class='x-data-toggler']]/span"
+        let selector = "//div[contains(@id,'PanelStripHeader') and child::div[@class='x-data-toggler']]/span";
         return this.getTextInElements(selector).catch(err => {
             throw new Error("Error when getting title from x-data " + err);
         })
@@ -279,7 +326,7 @@ class ContentWizardPanel extends Page {
         return this.getBrowser().switchWindow("Content Studio - Enonic XP Admin").then(() => {
             console.log("switched to content browse panel...");
         }).then(() => {
-            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_5);
+            return browsePanel.waitForGridLoaded(appConst.longTimeout);
         }).catch(err => {
             throw new Error("Error when switching to Content Studio App " + err);
         })
@@ -287,13 +334,13 @@ class ContentWizardPanel extends Page {
 
     clickOnShowInspectionPanelToggler() {
         return this.clickOnElement(this.showInspectionPanelToggler).catch(err => {
-            return this.saveScreenshot('err_click_on_show_inspection_button');
+            this.saveScreenshot('err_click_on_show_inspection_button');
             throw new Error("Error when clicking on Inspection Panel Toggler " + err);
         })
     }
 
     clickOnShowComponentViewToggler() {
-        return this.waitForElementDisplayed(this.showComponentViewToggler, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(this.showComponentViewToggler, appConst.shortTimeout).then(() => {
             return this.clickOnElement(this.showComponentViewToggler);
         }).catch(err => {
             this.saveScreenshot('err_click_on_show_component_view');
@@ -304,7 +351,7 @@ class ContentWizardPanel extends Page {
     }
 
     clickOnComponentViewToggler() {
-        return this.waitForElementDisplayed(this.componentViewToggler, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(this.componentViewToggler, appConst.shortTimeout).then(() => {
             return this.clickOnElement(this.componentViewToggler);
         }).catch(err => {
             this.saveScreenshot('err_click_on_show_component_view');
@@ -316,7 +363,7 @@ class ContentWizardPanel extends Page {
 
     async waitForHideComponentViewTogglerDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.hideComponentViewToggler, appConst.TIMEOUT_4);
+            return await this.waitForElementDisplayed(this.hideComponentViewToggler, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot('err_hide_component_view_not_displayed');
             throw new Error("'Hide Component View!' button should appear: " + err);
@@ -334,17 +381,28 @@ class ContentWizardPanel extends Page {
         return await this.pause(300);
     }
 
-    async clickOnAccessTabBarItem() {
-        await this.clickOnElement(XPATH.accessTabBarItem)
-        return await this.pause(700);
+    waitForEditPermissionsButtonVisible() {
+        return this.waitForElementDisplayed(this.editPermissionsButton, appConst.mediumTimeout);
+    }
+
+    async clickOnEditPermissionsButton() {
+        try {
+            await this.waitForEditPermissionsButtonVisible();
+            await this.clickOnElement(this.editPermissionsButton);
+            return await this.pause(200);
+        } catch (err) {
+            this.saveScreenshot(appConst.generateRandomName("err_edit_perm_button"));
+            throw new Error(err);
+        }
+
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(this.deleteButton, appConst.TIMEOUT_10).catch(err => {
+        return this.waitForElementDisplayed(this.deleteButton, appConst.longTimeout).catch(err => {
             this.saveScreenshot(contentBuilder.generateRandomName('err_open_wizard'));
             throw new Error("Content wizard was not loaded! " + err);
         }).then(() => {
-            return this.waitForSpinnerNotVisible(appConst.TIMEOUT_3);
+            return this.waitForSpinnerNotVisible(appConst.mediumTimeout);
         });
     }
 
@@ -352,27 +410,27 @@ class ContentWizardPanel extends Page {
     async waitForSaveButtonEnabled() {
         try {
             await this.waitForSaveButtonVisible();
-            return await this.waitForElementEnabled(this.saveButton, appConst.TIMEOUT_3);
+            return await this.waitForElementEnabled(this.saveButton, appConst.mediumTimeout);
         } catch (err) {
             throw new Error("Save button should be enabled in the wizard: " + err);
         }
     }
 
     waitForSaveButtonDisabled() {
-        return this.waitForElementDisabled(this.saveButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisabled(this.saveButton, appConst.mediumTimeout).catch(err => {
             throw new Error("Content Wizard -Save button should be disabled! " + err);
         })
     }
 
     waitForSaveButtonVisible() {
-        return this.waitForElementDisplayed(this.saveButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.saveButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_save_button');
             throw new Error('Save button is not visible ' + err);
         });
     }
 
     waitForSavedButtonVisible() {
-        return this.waitForElementDisplayed(this.savedButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.savedButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_saved_button_not_visible');
             throw new Error("Saved button is not visible in 3 seconds" + err);
         });
@@ -400,8 +458,16 @@ class ContentWizardPanel extends Page {
         return this.typeTextInInput(this.displayNameInput, displayName);
     }
 
+    typeInPathInput(path) {
+        return this.typeTextInInput(this.pathInput, path);
+    }
+
     getDisplayName() {
         return this.getTextInInput(this.displayNameInput);
+    }
+
+    getPath() {
+        return this.getTextInInput(this.pathInput);
     }
 
     clearDisplayNameInput() {
@@ -409,14 +475,19 @@ class ContentWizardPanel extends Page {
     }
 
     async waitAndClickOnSave() {
-        await this.waitForSaveButtonEnabled();
-        await this.clickOnElement(this.saveButton);
-        await this.waitForSavingButtonNotVisible();
-        return await this.pause(1200);
+        try {
+            await this.waitForSaveButtonEnabled();
+            await this.clickOnElement(this.saveButton);
+            await this.waitForSavingButtonNotVisible();
+            return await this.pause(1200);
+        } catch (err) {
+            this.saveScreenshot(appConst.generateRandomName("err_save"));
+            throw new Error(err);
+        }
     }
 
     waitForSavingButtonNotVisible() {
-        return this.waitForElementNotDisplayed(this.savingButton, appConst.TIMEOUT_7);
+        return this.waitForElementNotDisplayed(this.savingButton, appConst.longTimeout);
     }
 
     clickOnDelete() {
@@ -449,21 +520,21 @@ class ContentWizardPanel extends Page {
         await contentDeleteDialog.waitForDialogOpened();
         await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
         await confirmContentDeleteDialog.waitForDialogOpened();
-        await confirmContentDeleteDialog.typeNumberOfContent(numberItems);
+        await confirmContentDeleteDialog.typeNumberOrName(numberItems);
         await confirmContentDeleteDialog.clickOnConfirmButton();
         return await confirmContentDeleteDialog.waitForDialogClosed();
     }
 
     //clicks on 'Publish...' button
-    clickOnPublishButton() {
-        return this.waitForElementDisplayed(this.publishButton, appConst.TIMEOUT_3).then(() => {
-            return this.waitForElementEnabled(this.publishButton, appConst.TIMEOUT_3);
-        }).then(() => {
-            return this.clickOnElement(this.publishButton)
-        }).catch(err => {
+    async clickOnPublishButton() {
+        try {
+            await this.waitForElementDisplayed(this.publishButton, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.publishButton, appConst.mediumTimeout);
+            return await this.clickOnElement(this.publishButton);
+        } catch (err) {
             this.saveScreenshot('err_when_click_on_publish_button');
             throw new Error('Error when Publish button has been clicked ' + err);
-        });
+        }
     }
 
     //Click on Publish... button on toolbar, then clicks on Publish Now button on the modal dialog
@@ -503,7 +574,7 @@ class ContentWizardPanel extends Page {
         let selector = this.thumbnailUploader;
         return this.waitUntilInvalid(selector).catch(err => {
             this.saveScreenshot('err_wizard_validation_icon1');
-            throw new Error('Validation Error: invalid-icon did not appear in content-wizard after 2 seconds' + err);
+            throw new Error('Validation Error: invalid-icon did not appear in content-wizard after 2 seconds ' + err);
         });
     }
 
@@ -532,12 +603,12 @@ class ContentWizardPanel extends Page {
 
     doOpenItemViewContextMenu() {
         let selector = `//div[contains(@id,'Panel') and contains(@class,'frame-container')]`;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).then(() => {
             return this.clickOnElement(selector);
         }).then(() => {
             return this.switchToLiveEditFrame();
         }).then(() => {
-            return this.waitForElementDisplayed(XPATH.itemViewContextMenu, appConst.TIMEOUT_2);
+            return this.waitForElementDisplayed(XPATH.itemViewContextMenu, appConst.mediumTimeout);
         }).catch(err => {
             this.saveScreenshot("err_customize_menu_item");
             throw  new Error(`'Customize Page' menu item is not displayed` + err);
@@ -554,15 +625,19 @@ class ContentWizardPanel extends Page {
     async doFilterControllersAndClickOnOption(pageControllerDisplayName) {
         try {
             let optionSelector = lib.slickRowByDisplayName(`//div[contains(@id,'PageDescriptorDropdown')]`, pageControllerDisplayName);
-            await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.TIMEOUT_5);
+            await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.longTimeout);
             await this.typeTextInInput(this.controllerOptionFilterInput, pageControllerDisplayName);
-            await this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_3);
+            await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
             await this.clickOnElement(optionSelector);
             return this.pause(700);
         } catch (err) {
             this.saveScreenshot('err_select_controller_in_wizard');
             throw new Error('Controller selector - Error when selecting the option ' + pageControllerDisplayName + ' ' + err);
         }
+    }
+
+    isPageControllerFilterInputClickable() {
+        return this.isClickable(this.controllerOptionFilterInput);
     }
 
     //Select a page descriptor and wait for Context Window is loaded
@@ -578,20 +653,22 @@ class ContentWizardPanel extends Page {
         return this.getBrowser().switchToParentFrame();
     }
 
-    waitForControllerOptionFilterInputVisible() {
-        return this.switchToLiveEditFrame().then(() => {
-            return this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.TIMEOUT_5);
-        }).catch(err => {
-            console.log(err);
-            return this.switchToParentFrame().then(() => {
-                return false;
-            })
-        })
+    async waitForControllerOptionFilterInputVisible() {
+        try {
+            await this.switchToLiveEditFrame();
+            let result = await this.waitForElementDisplayed(this.controllerOptionFilterInput, appConst.longTimeout);
+            await this.switchToParentFrame();
+            return result;
+        } catch (err) {
+            await this.switchToMainFrame();
+            throw new Error(err);
+        }
+
     }
 
     waitForControllerOptionFilterInputNotVisible() {
         return this.switchToLiveEditFrame().then(() => {
-            return this.waitForElementNotDisplayed(this.controllerOptionFilterInput, appConst.TIMEOUT_5);
+            return this.waitForElementNotDisplayed(this.controllerOptionFilterInput, appConst.longTimeout);
         }).catch(err => {
             console.log(err);
             return this.getBrowser().switchToParentFrame().then(() => {
@@ -602,7 +679,7 @@ class ContentWizardPanel extends Page {
 
     async typeData(content) {
         let contentStepForm = new ContentStepForm();
-        await this.waitForElementDisplayed(this.displayNameInput, appConst.TIMEOUT_2)
+        await this.waitForElementDisplayed(this.displayNameInput, appConst.shortTimeout);
         await this.typeDisplayName(content.displayName);
         if (content.data != null) {
             await contentStepForm.type(content.data, content.contentType);
@@ -614,7 +691,7 @@ class ContentWizardPanel extends Page {
     }
 
     clickOnPublishMenuDropdownHandle() {
-        return this.waitForElementDisplayed(this.publishDropDownHandle, appConst.TIMEOUT_3).then(() => {
+        return this.waitForElementDisplayed(this.publishDropDownHandle, appConst.mediumTimeout).then(() => {
             return this.clickOnElement(this.publishDropDownHandle);
         }).catch(err => {
             if (err.type === "WaitUntilTimeoutError") {
@@ -628,7 +705,7 @@ class ContentWizardPanel extends Page {
 
     clickOnUnpublishMenuItem() {
         return this.clickOnPublishMenuDropdownHandle().then(() => {
-            return this.waitForElementDisplayed(this.unpublishMenuItem, appConst.TIMEOUT_3);
+            return this.waitForElementDisplayed(this.unpublishMenuItem, appConst.mediumTimeout);
         }).then(() => {
             return this.clickOnElement(this.unpublishMenuItem);
         }).catch(err => {
@@ -673,24 +750,24 @@ class ContentWizardPanel extends Page {
     }
 
     waitForShowPublishMenuButtonVisible() {
-        return this.waitForElementDisplayed(this.publishDropDownHandle, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.publishDropDownHandle, appConst.mediumTimeout).catch(err => {
             throw new Error("Wizard - drop down handle in Publish menu is not visible!" + err);
         })
     }
 
     waitForMarkAsReadyButtonVisible() {
         let selector = XPATH.container + XPATH.markAsReadyButton;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
     waitForOpenRequestButtonVisible() {
         let selector = XPATH.container + XPATH.openRequestButton;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
     waitForPublishButtonVisible() {
         let selector = XPATH.container + XPATH.publishButton;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
     async getContentStatus() {
@@ -701,10 +778,10 @@ class ContentWizardPanel extends Page {
     waitForContentStatus(expectedStatus) {
         let selector = XPATH.container +
                        `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status') and text()='${expectedStatus}']`;
-        let message = "Element still not displayed! timeout is " + appConst.TIMEOUT_3 + "  " + selector;
+        let message = "Element still not displayed! timeout is " + appConst.mediumTimeout + "  " + selector;
         return this.getBrowser().waitUntil(() => {
             return this.isElementDisplayed(selector);
-        }, appConst.TIMEOUT_3, message);
+        }, appConst.mediumTimeout, message);
 
     }
 
@@ -732,7 +809,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(this.publishDropDownHandle);
             await this.pause(500);
             let selector = XPATH.publishMenuItemByName(menuItem);
-            await this.waitForElementEnabled(selector, appConst.TIMEOUT_2);
+            await this.waitForElementEnabled(selector, appConst.shortTimeout);
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
@@ -775,7 +852,7 @@ class ContentWizardPanel extends Page {
         let selector = XPATH.container + XPATH.markAsReadyButton;
         await this.waitForMarkAsReadyButtonVisible();
         await this.clickOnElement(selector);
-        return await this.pause(500);
+        return await this.pause(700);
     }
 
     async clickOnUnpublishButton() {
@@ -787,17 +864,28 @@ class ContentWizardPanel extends Page {
 
     waitForUnpublishButtonDisplayed() {
         let selector = XPATH.container + XPATH.unpublishButton;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(selector, appConst.shortTimeout);
     }
 
     waitForPublishButtonDisplayed() {
         let selector = XPATH.container + XPATH.publishButton;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(selector, appConst.shortTimeout);
+    }
+
+    //Wait for 'Create Task' button gets default action in the Publish menu:
+    async waitForCreateTaskButtonDisplayed() {
+        try {
+            let selector = XPATH.container + XPATH.publishMenuButton + XPATH.createTaskButton;
+            return await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+        } catch (err) {
+            this.saveScreenshot("err_publish_menu_default_action");
+            throw new Error("'Create Task...' button should be default action in 'Publish Menu' in Wizard page.  " + err);
+        }
     }
 
     async getToolbarWorkflowState() {
         let selector = XPATH.toolbar + XPATH.toolbarStateIcon;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_4);
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         let result = await this.getAttribute(selector, 'class');
         if (result.includes('in-progress')) {
             return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
@@ -823,7 +911,7 @@ class ContentWizardPanel extends Page {
 
     async getIconWorkflowState() {
         let selector = XPATH.thumbnailUploader;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         let result = await this.getAttribute(selector, 'class');
         if (result.includes('in-progress')) {
             return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
@@ -836,7 +924,7 @@ class ContentWizardPanel extends Page {
 
     async clickOnPageEditorToggler() {
         try {
-            await this.waitForElementDisplayed(this.pageEditorTogglerButton, appConst.TIMEOUT_3);
+            await this.waitForElementDisplayed(this.pageEditorTogglerButton, appConst.mediumTimeout);
             await this.clickOnElement(this.pageEditorTogglerButton);
             return await this.pause(1000);
         } catch (err) {
@@ -846,10 +934,91 @@ class ContentWizardPanel extends Page {
 
     async getProjectDisplayName() {
         let selector = XPATH.toolbar + "//div[contains(@class,'project-info')]" + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         return await this.getText(selector);
     }
-};
+
+    isDisplayNameInputClickable() {
+        return this.isClickable(this.displayNameInput);
+    }
+
+    async waitForDuplicateButtonDisabled() {
+        try {
+            await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.duplicateButton, appConst.mediumTimeout);
+        } catch (err) {
+            this.saveScreenshot('err_duplicate_button_disabled');
+            throw Error('Duplicate button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
+        }
+    }
+
+    async waitForDeleteButtonDisabled() {
+        await this.waitForElementDisplayed(this.deleteButton, appConst.mediumTimeout);
+        return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
+    }
+
+    async clickOnPreviewButton() {
+        try {
+            await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.previewButton);
+            return await this.pause(2000);
+        } catch (err) {
+            this.saveScreenshot('err_wizard_preview');
+            throw new Error('Error when clicking on Preview button ' + err);
+        }
+    }
+
+    waitForValidationPathMessageDisplayed() {
+        let locator = XPATH.wizardHeader + "//span[@class='path-error']";
+        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    async clickOnModifyPathButton() {
+        await this.waitForElementDisplayed(this.modifyPathButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.modifyPathButton);
+        let renamePublishedContentDialog = new RenamePublishedContentDialog();
+        await renamePublishedContentDialog.waitForDialogLoaded();
+        return renamePublishedContentDialog;
+    }
+
+    waitForModifyPathButtonDisplayed() {
+        return this.waitForElementDisplayed(this.modifyPathButton, appConst.mediumTimeout);
+    }
+
+    waitForModifyPathButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.modifyPathButton, appConst.mediumTimeout);
+    }
+
+    async openLayersWidget() {
+        let detailsPanel = new DetailsPanel();
+        let wizardLayersWidget = new WizardLayersWidget();
+        await this.openDetailsPanel();
+        await detailsPanel.openLayers();
+        await wizardLayersWidget.waitForWidgetLoaded();
+        return wizardLayersWidget;
+    }
+
+    waitForResetButtonDisplayed() {
+        return this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
+    }
+
+    waitForResetButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.resetButton, appConst.longTimeout);
+    }
+
+    async clickOnResetButton() {
+        await this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
+        return await this.clickOnElement(this.resetButton);
+    }
+
+    async clickOnResetAndWaitForConfirmationDialog() {
+        await this.waitForElementDisplayed(this.resetButton, appConst.longTimeout);
+        await this.clickOnElement(this.resetButton);
+        let dialog = new ConfirmationDialog();
+        await dialog.waitForDialogOpened();
+        return dialog;
+    }
+}
 
 module.exports = ContentWizardPanel;
 

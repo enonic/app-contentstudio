@@ -50,7 +50,7 @@ export class FragmentOptionDataLoader
 
     setParentSitePath(parentSitePath: string): FragmentOptionDataLoader {
         this.request.setParentSitePath(parentSitePath);
-        this.request.setQueryExpr();
+        this.request.setSearchString();
         return this;
     }
 

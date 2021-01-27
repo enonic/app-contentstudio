@@ -1,4 +1,67 @@
 .content-wizard-panel {
+  .wizard-header {
+    .path-error {
+      color: @admin-level-3;
+      display: none;
+    }
+
+    input:last-of-type {
+      display: inline-block;
+      margin-right: 10px;
+    }
+
+    &.path-exists {
+      .path-error {
+        display: inline-block;
+      }
+
+      input:last-of-type {
+        border: 1px solid @admin-input-red;
+        box-shadow: 0 0 3px 1px darken(@admin-input-red, 10%);
+      }
+    }
+
+    .lock-name {
+      display: none;
+    }
+
+    .name-static {
+      display: none;
+    }
+
+    &.locked {
+      .lock-name {
+        display: inline;
+        cursor: pointer;
+        position: relative;
+        top: -7px;
+        background: none;
+        border: none;
+      }
+
+      input:last-of-type {
+        display: none;
+      }
+
+      .name-static {
+        display: inline-block;
+        font-size: 16px;
+        height: 28px;
+        line-height: 28px;
+        margin-right: 15px;
+        max-width: 80%;
+        .ellipsis();
+      }
+    }
+  }
+
+  .form-panel & {
+    ._0-240, ._240-360, ._360-540 {
+      .wizard-header {
+        max-width: 100%;
+      }
+    }
+  }
 
   &:not(.rendered) {
     .content-wizard-toolbar {
@@ -133,12 +196,14 @@
         }
 
         .wizard-step-navigator-and-toolbar {
-          margin-top: 40px;
+          padding-top: 50px;
           padding-left: 40px;
           box-sizing: border-box;
           overflow: initial;
+
           .fold-button {
             margin-left: -40px;
+
             .fold-label {
               position: absolute;
               width: 120px;
@@ -173,16 +238,20 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            margin: -40px 0 0 -40px;
             background: @admin-bg-light-gray;
           }
         }
 
         .wizard-step-navigator {
           width: 100%;
+          margin-top: 35px;
           box-sizing: border-box;
           transform: rotate(90deg);
           transform-origin: 0 0;
+
+          .tab-bar-item {
+            line-height: 18px;
+          }
         }
 
         .minimize-edit {
@@ -212,13 +281,7 @@
     z-index: @z-index-mask - 1;
     cursor: pointer;
     color: @admin-font-gray2;
-    /*
-        &:before {
-          display: inline-block;
-          transform: rotate(180deg);
-          transition: 0.3s;
-        }
-    */
+
     &:hover {
       color: @admin-bg-dark-gray;
     }
@@ -226,6 +289,8 @@
 
   .context-panel {
     overflow: visible;
+    height: calc(100vh - @app-header-height);
+
     &.floating-context-panel {
       top: @app-header-height + 1;
       z-index: @z-index-tab-menu - 1;
@@ -239,7 +304,6 @@
       padding-left: 10px;
 
       &::before {
-        font-size: 24px;
         line-height: @app-header-height - 1;
       }
     }
@@ -369,7 +433,6 @@
 
     .form-panel {
       padding-bottom: 30px;
-      opacity: 0.8;
     }
   }
 

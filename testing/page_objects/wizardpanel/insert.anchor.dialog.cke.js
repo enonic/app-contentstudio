@@ -47,20 +47,20 @@ class InsertAnchorModalDialog extends Page {
             this.saveScreenshot('err_click_on_insert_anchor_icon');
             throw new Error('Insert Anchor Dialog, error when click on the Insert button  ' + err);
         }).then(() => {
-            return this.waitForDialogClosed(appConst.TIMEOUT_3);
+            return this.waitForDialogClosed(appConst.mediumTimeout);
         }).catch(err => {
-            throw new Error('Insert Anchor Dialog, is not closed in   ' + appConst.TIMEOUT_3 + "   " + err);
+            throw new Error('Insert Anchor Dialog, is not closed in   ' + appConst.mediumTimeout + "   " + err);
         })
     }
 
     waitForValidationMessage() {
-        return this.waitForElementDisplayed(XPATH.container + lib.VALIDATION_RECORDING_VIEWER, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(XPATH.container + lib.VALIDATION_RECORDING_VIEWER, appConst.shortTimeout).catch(err => {
             return false;
         });
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.insertButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_open_insert_anchor_dialog');
             throw new Error('Insert Anchor Dialog should be opened!' + err);
         });
@@ -71,7 +71,7 @@ class InsertAnchorModalDialog extends Page {
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
     }
 };
 module.exports = InsertAnchorModalDialog;

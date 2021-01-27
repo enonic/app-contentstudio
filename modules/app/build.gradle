@@ -1,0 +1,94 @@
+apply plugin: 'org.asciidoctor.convert'
+apply plugin: 'org.aim42.htmlSanityCheck'
+
+archivesBaseName='contentstudio'
+
+app {
+    name = 'com.enonic.app.contentstudio'
+    group = 'com.enonic.app'
+    displayName = 'Content Studio'
+}
+
+dependencies {
+    include "com.enonic.xp:lib-admin:${xpVersion}"
+    include "com.enonic.xp:lib-portal:${xpVersion}"
+    include "com.enonic.xp:lib-context:${xpVersion}"
+    include "com.enonic.xp:lib-content:${xpVersion}"
+    include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
+    include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
+}
+
+project.afterEvaluate {
+    jar {
+        bnd ('Private-Package': '!dev.*, *;-split-package:=merge-first')
+    }
+}
+
+task lint {
+    dependsOn tasks.getByPath(':lint')
+}
+
+task webpack( type: NpmTask, dependsOn: [npmInstall, lint] ) {
+    environment = [ 'NODE_ENV': nodeEnvironment() ]
+    description = 'Build UI resources (ts, css, etc).'
+    args = [ 'run', 'build' ]
+    inputs.dir "$rootDir/.xp/dev"
+    inputs.dir "$rootDir/src/main"
+    inputs.file 'webpack.config.js'
+    outputs.dir "$buildDir/resources/main"
+}
+
+compileTestJava {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = sourceCompatibility
+}
+
+jar {
+    exclude 'assets/**/*.ts'
+    exclude 'assets/**/*.less'
+    exclude 'assets/styles/*.js'
+    exclude 'assets/page-editor/styles/*.js'
+    exclude 'assets/page-editor/lib/_include.js'
+    exclude 'assets/page-editor/lib/jquery*.js'
+    exclude 'assets/icons/fonts/*.*'
+    exclude 'assets/lib/ckeditor/**/plugin.raw.js'
+    if (isProd()) {
+        exclude 'assets/**/*.map'
+    }
+
+    outputs.dir "${buildDir}/resources/main"
+
+    dependsOn += webpack
+}
+
+asciidoctor {
+    sourceDir = file('../../docs')
+    outputDir = file('build/docs')
+    requires project.file('verbose-mode.rb')
+    attributes 'source-highlighter': 'coderay',
+               idseparator: '-'
+
+    resources {
+        from(sourceDir) {
+            include '**/images/**'
+            include '**/code/**'
+            include '**/*.*'
+        }
+    }
+}
+
+htmlSanityCheck {
+    dependsOn asciidoctor
+    sourceDir = new File( "$buildDir/docs/html5" )
+
+    sourceDocuments = fileTree(sourceDir) {
+        include "index.html"
+    }
+
+    // where to put results of sanityChecks...
+    checkingResultsDir = new File( "$buildDir/report/htmlchecks" )
+    //checkExternalLinks = false
+
+    // fail build on errors?
+    failOnErrors = true
+}

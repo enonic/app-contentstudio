@@ -24,10 +24,6 @@ export class MostPopularItemsBlock
         return this.mostPopularItemsList;
     }
 
-    setTitle(newTitle: string) {
-        this.title.setHtml(newTitle);
-    }
-
     showIfNotEmpty() {
         if (this.mostPopularItemsList.getItems().length > 0) {
             this.show();

@@ -1,11 +1,73 @@
 .project-wizard-panel {
+  .header-and-navigator-container {
+
+    .@{_COMMON_PREFIX}form-icon {
+      &.not-empty {
+        .flag-icon {
+          display: none;
+        }
+      }
+
+      &:not(.has-lang) {
+        .flag-icon {
+          display: none;
+        }
+      }
+
+      &.has-lang {
+        &::before {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &.no-modify-permissions {
+
+    .panel-strip-scrollable {
+      opacity: 0.8;
+
+      .header-and-navigator-container, .wizard-step-form {
+        pointer-events: none;
+      }
+    }
+  }
 
   .wizard-step-form {
+    .form-view .input-view {
+      .copy-parent-button {
+        margin-top: 10px;
+      }
+    }
+
     &.project-item-wizard-step-form {
       .input-view {
         .form-input {
           &:disabled {
             border: none;
+          }
+
+          &.parent-selector {
+            display: block;
+            max-width: none;
+
+            &.readonly,
+            &.disabled {
+              .selected-option,
+              .option-filter-input {
+                display: none !important;
+              }
+            }
+
+            .projects-chain {
+              .title {
+                display: none;
+              }
+
+              .items .item:first-child {
+                margin-left: 0;
+              }
+            }
           }
         }
       }
@@ -22,14 +84,20 @@
           }
         }
 
+        .locale-combobox {
+          &.disabled {
+            .remove {
+              display: none;
+            }
+          }
+        }
+
         .principal-combobox {
 
           width: auto;
           padding-left: 23px;
 
           &.disabled {
-            opacity: 0.5;
-
             .remove {
               display: none;
             }

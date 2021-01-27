@@ -11,6 +11,15 @@
 
     width: 240px;
 
+    &.transparent .@{_COMMON_PREFIX}dropdown-handle:after {
+      border-top-width: 7px;
+      border-left-width: 5px;
+      border-right-width: 5px;
+      top: 55%;
+      left: 45%;
+      margin-left: -4px;
+    }
+
     .icon {
       &.icon-issue,
       &.icon-publish-request {
@@ -26,11 +35,10 @@
       z-index: 1;
       position: absolute;
       right: -1px;
-      top: 31px;
+      top: @toolbar-height - 1;
       width: 240px;
       padding-left: 8px;
-      box-shadow: -7px 8px 7px -5px rgba(0,0,0,0.3), 5px 3px 5px -3px rgba(0,0,0,0.3);
-      background-color: @admin-bg-almost-white;
+      box-shadow: -7px 8px 7px -5px rgba(0, 0, 0, 0.3), 5px 3px 5px -3px rgba(0, 0, 0, 0.3);
 
       .menu-item {
         padding-right: 40px;
@@ -60,10 +68,10 @@
       z-index: 2;
       margin-left: 0;
       margin-right: 40px;
-      border-left: 1px solid @admin-bg-light-gray;
       padding-top: 0;
       padding-right: 2px;
       padding-left: 13px;
+      border-left: 1px solid @admin-white;
       min-width: auto;
       width: 200px;
       .ellipsis();
@@ -74,16 +82,88 @@
     }
 
     .@{_COMMON_PREFIX}dropdown-handle {
-      right: 2px;
+      right: 0;
       left: auto;
       z-index: 2;
+
+      &.down + .action-button {
+        border-left: 1px solid @admin-bg-light-gray;
+
+        + .menu {
+          border-left: 1px solid @admin-bg-light-gray;
+        }
+      }
 
       &[disabled] {
         display: none;
 
         + .action-button {
           margin-right: 20px;
+          text-align: right;
         }
+      }
+    }
+  }
+}
+
+._0-240,
+._240-360,
+._360-540 {
+  .content-item-preview-toolbar {
+
+    padding: 0 10px;
+
+    .content-status-wrapper, .menu-button {
+      .ellipsis();
+    }
+
+    .content-status-wrapper {
+      width: auto;
+      padding: 0;
+    }
+
+    &.has-issues {
+      padding-right: 0;
+
+      .content-status-wrapper {
+        max-width: calc(100% - 200px);
+        padding-right: 10px;
+      }
+    }
+
+    .menu-button {
+      width: 200px;
+      padding-left: 10px;
+      overflow: visible;
+
+      .menu {
+        width: 215px;
+      }
+
+      .action-button {
+        padding-left: 0;
+        max-width: calc(100% - 40px);
+        border: none !important;
+      }
+
+      .@{_COMMON_PREFIX}dropdown-handle {
+
+        &.down + .action-button {
+          border: none;
+        }
+
+        &[disabled] {
+
+          + .action-button {
+            margin-right: 0;
+            border: none;
+          }
+        }
+      }
+
+      .xp-admin-common-dropdown-handle[disabled] + .action-button {
+        margin-right: 0;
+        border: none;
       }
     }
   }

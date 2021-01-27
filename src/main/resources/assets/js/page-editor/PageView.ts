@@ -51,8 +51,8 @@ import {RegionPath} from '../app/page/region/RegionPath';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
-import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {ContentSummaryViewer} from '../app/content/ContentSummaryViewer';
 
 export class PageViewBuilder {
 

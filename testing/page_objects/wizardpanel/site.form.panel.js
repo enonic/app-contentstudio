@@ -25,10 +25,11 @@ class SiteForm extends Page {
         return lib.FORM_VIEW + XPATH.descriptionInput;
     }
 
-    type(siteData) {
-        return this.typeDescription(siteData.description).then(() => {
-            return this.addApplications(siteData.applications);
-        });
+    async type(siteData) {
+        await this.typeDescription(siteData.description);
+        if (siteData.applications) {
+            await this.addApplications(siteData.applications);
+        }
     }
 
     typeDescription(description) {
@@ -45,22 +46,22 @@ class SiteForm extends Page {
         return result;
     }
 
-    filterOptionsAndSelectApplication(displayName) {
-        let loaderComboBox = new LoaderComboBox();
-        return this.typeTextInInput(this.applicationsOptionsFilterInput, displayName).then(() => {
-            return loaderComboBox.selectOption(displayName);
-        }).catch(err => {
+    async filterOptionsAndSelectApplication(displayName) {
+        try {
+            let loaderComboBox = new LoaderComboBox();
+            return await loaderComboBox.typeTextAndSelectOption(displayName, "//div[contains(@id,'SiteConfiguratorComboBox')]");
+        } catch (err) {
             this.saveScreenshot(appConst.generateRandomName('err_option'));
             throw new Error('application selector :' + err);
-        });
+        }
     }
 
     getAppDisplayNames() {
         let selector = XPATH.applicationsSelectedOptions + lib.H6_DISPLAY_NAME;
-        return this.getTextInElements();
+        return this.getTextInElements(selector);
     }
 
-    removeApplication(displayName) {
+    removeApplication() {
         let selector = XPATH.selectedAppByDisplayName() + lib.REMOVE_ICON;
         return this.clickOnElement(selector);
     }
@@ -92,7 +93,8 @@ class SiteForm extends Page {
             })
         }, 2000);
     }
-};
+}
+;
 module.exports = SiteForm;
 
 

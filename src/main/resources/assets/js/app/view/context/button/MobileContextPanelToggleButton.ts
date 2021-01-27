@@ -9,7 +9,7 @@ export class MobileContextPanelToggleButton
     public static EXPANDED_CLASS: string = 'expanded';
 
     constructor(detailsPanel: MobileContextPanel, slideInCallback?: () => void) {
-        super('icon-cog mobile-details-panel-toggle-button');
+        super('icon-list mobile-details-panel-toggle-button');
 
         this.detailsPanel = detailsPanel;
 

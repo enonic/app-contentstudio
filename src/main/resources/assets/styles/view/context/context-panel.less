@@ -3,7 +3,7 @@
 
 .context-panel {
   // common details panel styles
-  height: 100%;
+  height: calc(100vh - @app-header-height - @toolbar-height);
   position: absolute;
   float: right;
   z-index: 2;
@@ -26,8 +26,11 @@
   }
 
   .context-panel-view {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
     &.no-selection.internal:not(.emulator) {
-      height: 100%;
       .context-container {
         display: none;
       }
@@ -40,7 +43,8 @@
       .watermark-text();
       display: none;
       height: 60px;
-      margin-top: (-@toolbar-height/2 - 53px);
+      padding: 0 20px;
+      box-sizing: border-box;
     }
 
     .content-summary-viewer {
@@ -51,22 +55,21 @@
 
     .non-mobile-details-panel-toggle-button {
       .button(@admin-font-gray2, transparent, @admin-font-gray3, transparent, true);
-      z-index: 2;
 
+      z-index: @z-index-launcher-panel;
       order: 1;
-
-      display: block;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       padding: 0 12px;
       border: 0 transparent;
       background-color: transparent;
-
       position: fixed;
       right: 0;
-      top: @app-header-height;
+      top: @app-header-height + 1;
+      width: @app-header-height;
       height: @toolbar-height;
-      line-height: @toolbar-height;
-
-      border-bottom: 1px solid #eeeeee;
+      border-bottom: 1px solid @admin-bg-light-gray;
 
       @media screen and (max-width: @mobile-panel-width) {
         display: none !important;
@@ -82,7 +85,6 @@
 
       &:before {
         font-size: 18px;
-        //padding-left: 5px;
       }
 
       animation-duration: 0.5s;
@@ -96,16 +98,14 @@
         &:hover::before {
           color: @admin-button-blue2;
         }
-
       }
-
     }
-
   }
 
   .context-container {
     position: relative;
     overflow-y: auto;
+    flex-grow: 1;
   }
 
   .splitter {
@@ -152,13 +152,9 @@
 
       .@{_COMMON_PREFIX}dropdown-handle {
         box-sizing: border-box;
-        width: @widget-filter-height;
+        width: @app-header-height;
         height: @widget-filter-height;
         right: 0;
-
-        &:after {
-          margin: -5px 0 0 -5px;
-        }
       }
 
       .selected-option {

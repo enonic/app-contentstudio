@@ -36,9 +36,11 @@ import {ActionsStateManager} from 'lib-admin-ui/ui/ActionsStateManager';
 import {WizardActions} from 'lib-admin-ui/app/wizard/WizardActions';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {ResetContentAction} from './ResetContentAction';
 
 type ActionNames =
     'SAVE' |
+    'RESET' |
     'DELETE' |
     'DUPLICATE' |
     'PREVIEW' |
@@ -58,6 +60,7 @@ type ActionNames =
 
 type ActionsMap = {
     SAVE?: Action,
+    RESET?: Action,
     DELETE?: Action,
     DUPLICATE?: Action,
     PREVIEW?: Action,
@@ -78,6 +81,7 @@ type ActionsMap = {
 
 type ActionsState = {
     SAVE?: boolean,
+    RESET?: boolean,
     DELETE?: boolean,
     DUPLICATE?: boolean,
     PREVIEW?: boolean,
@@ -132,6 +136,7 @@ export class ContentWizardActions
     constructor(wizardPanel: ContentWizardPanel) {
         super(
             new ContentSaveAction(wizardPanel),
+            new ResetContentAction(wizardPanel),
             new DeleteContentAction(wizardPanel),
             new DuplicateContentAction(wizardPanel),
             new PreviewAction(wizardPanel),
@@ -157,22 +162,23 @@ export class ContentWizardActions
 
         this.actionsMap = {
             SAVE: actions[0],
-            DELETE: actions[1],
-            DUPLICATE: actions[2],
-            PREVIEW: actions[3],
-            PUBLISH: actions[4],
-            PUBLISH_TREE: actions[5],
-            CREATE_ISSUE: actions[6],
-            UNPUBLISH: actions[7],
-            MARK_AS_READY: actions[8],
-            REQUEST_PUBLISH: actions[9],
-            OPEN_REQUEST: actions[10],
-            CLOSE: actions[11],
-            SHOW_LIVE_EDIT: actions[12],
-            SHOW_FORM: actions[13],
-            SHOW_SPLIT_EDIT: actions[14],
-            SAVE_AND_CLOSE: actions[15],
-            UNDO_PENDING_DELETE: actions[16],
+            RESET: actions[1],
+            DELETE: actions[2],
+            DUPLICATE: actions[3],
+            PREVIEW: actions[4],
+            PUBLISH: actions[5],
+            PUBLISH_TREE: actions[6],
+            CREATE_ISSUE: actions[7],
+            UNPUBLISH: actions[8],
+            MARK_AS_READY: actions[9],
+            REQUEST_PUBLISH: actions[10],
+            OPEN_REQUEST: actions[11],
+            CLOSE: actions[12],
+            SHOW_LIVE_EDIT: actions[13],
+            SHOW_FORM: actions[14],
+            SHOW_SPLIT_EDIT: actions[15],
+            SAVE_AND_CLOSE: actions[16],
+            UNDO_PENDING_DELETE: actions[17],
         };
 
         const stashableActionsMap: ActionsMap = {
@@ -202,23 +208,46 @@ export class ContentWizardActions
             this.wizardPanel.unLiveModelChanged(this.checkSaveActionStateHandler);
         }
 
+        let checkSaveStateOnWizardRendered: boolean = false;
+
         this.checkSaveActionStateHandler = AppHelper.debounce(() => {
-            let isEnabled: boolean = this.wizardPanel.hasUnsavedChanges();
+            if (this.wizardPanel.isRendered()) {
+                this.doCheckSaveActionStateHandler();
+            } else {
+                if (!checkSaveStateOnWizardRendered) {
+                    this.wizardPanel.whenRendered(() => {
+                        this.doCheckSaveActionStateHandler();
+                        checkSaveStateOnWizardRendered = false;
+                    });
 
-            if (this.persistedContent) {
-                isEnabled = isEnabled &&
-                            this.persistedContent.isEditable() &&
-                            !this.isPendingDelete() &&
-                            this.userCanModify;
+                    checkSaveStateOnWizardRendered = true;
+                }
+
             }
-            this.enableActions({ SAVE: isEnabled });
-
-            this.getSaveAction().setLabel(i18n(isEnabled || !this.getSaveAction().isSavedStateEnabled() ? 'action.save' : 'action.saved'));
-
         }, 100, false);
 
         this.wizardPanel.onDataChanged(this.checkSaveActionStateHandler);
         this.wizardPanel.onLiveModelChanged(this.checkSaveActionStateHandler);
+    }
+
+    private isUnnamedContent() {
+        return !this.wizardPanel.getWizardHeader().getName() && (!this.persistedContent || this.persistedContent.getName().isUnnamed());
+    }
+
+    private doCheckSaveActionStateHandler() {
+        let isEnabled: boolean = this.wizardPanel.hasUnsavedChanges() &&
+                                 (this.isUnnamedContent() || this.wizardPanel.isHeaderValidForSaving());
+
+        if (this.persistedContent) {
+            isEnabled = isEnabled &&
+                        this.persistedContent.isEditable() &&
+                        !this.isPendingDelete() &&
+                        this.userCanModify;
+        }
+        this.enableActions({ SAVE: isEnabled });
+
+        this.getSaveAction().setLabel(i18n(this.wizardPanel.hasUnsavedChanges() || isEnabled || !this.getSaveAction().isSavedStateEnabled()
+                                           ? 'action.save' : 'action.saved'));
     }
 
     refreshSaveActionState() {
@@ -248,6 +277,7 @@ export class ContentWizardActions
         if (isPendingDelete) {
             this.enableActions({
                 SAVE: false,
+                RESET: false,
                 DELETE: false,
                 DUPLICATE: false
             });
@@ -271,6 +301,7 @@ export class ContentWizardActions
         this.persistedContent = null;
         this.stateManager.enableActions({});
         this.enableActions({SAVE: this.wizardPanel.hasUnsavedChanges(), DELETE: true});
+        this.actionsMap.RESET.setVisible(false);
         (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(true);
     }
 
@@ -280,6 +311,8 @@ export class ContentWizardActions
         this.enableActions({
             DELETE: existing.isDeletable()
         });
+
+        this.actionsMap.RESET.setVisible(false);
 
         return this.enableActionsForExistingByPermissions(existing).then(() => {
             this.enableActions({
@@ -321,19 +354,19 @@ export class ContentWizardActions
     private enableActionsForExistingByPermissions(existing: Content): Q.Promise<any> {
         return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
 
-            const hasModifyPermission = PermissionHelper.hasPermission(Permission.MODIFY, loginResult, existing.getPermissions());
+            this.userCanModify = PermissionHelper.hasPermission(Permission.MODIFY, loginResult, existing.getPermissions());
             const hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE, loginResult, existing.getPermissions());
-            const hasPublishPermission = PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, existing.getPermissions());
+            this.userCanPublish = PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, existing.getPermissions());
 
-            (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(hasModifyPermission);
+            (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(this.userCanModify);
 
-            if (!hasModifyPermission) {
-                this.enableActions({SAVE: false, SAVE_AND_CLOSE: false, MARK_AS_READY: false});
+            if (!this.userCanModify) {
+                this.enableActions({SAVE: false, SAVE_AND_CLOSE: false, MARK_AS_READY: false, RESET: false});
             }
             if (!hasDeletePermission) {
                 this.enableActions({DELETE: false});
             }
-            if (!hasPublishPermission) {
+            if (!this.userCanPublish) {
                 this.enableActions({
                     PUBLISH: false,
                     CREATE_ISSUE: true,
@@ -421,6 +454,7 @@ export class ContentWizardActions
         const canBeUnpublished: boolean = this.content.isPublished() && this.userCanPublish;
         const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
         const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline() && !this.content.isPendingDelete();
+        const canBeReset: boolean = this.userCanModify && this.content.hasOriginProject() && !this.content.isFullyInherited();
 
         this.enableActions({
             PUBLISH: canBePublished,
@@ -428,10 +462,12 @@ export class ContentWizardActions
             UNPUBLISH: canBeUnpublished,
             MARK_AS_READY: canBeMarkedAsReady,
             REQUEST_PUBLISH: canBeRequestedPublish,
-            OPEN_REQUEST: this.hasPublishRequest
+            OPEN_REQUEST: this.hasPublishRequest,
+            RESET: canBeReset
         });
 
         this.actionsMap.OPEN_REQUEST.setVisible(this.hasPublishRequest);
+        this.actionsMap.RESET.setVisible(this.content.hasOriginProject() && !this.content.isFullyInherited());
     }
 
     private canBePublished(): boolean {
@@ -480,6 +516,10 @@ export class ContentWizardActions
 
     getDeleteAction(): Action {
         return this.actionsMap.DELETE;
+    }
+
+    getResetAction(): Action {
+        return this.actionsMap.RESET;
     }
 
     getSaveAction(): ContentSaveAction {

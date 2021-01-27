@@ -4,7 +4,7 @@ const lib = require('./../../libs/elements');
 
 const xpath = {
     container: `//div[contains(@id,'RequestContentPublishDialog')]`,
-    nextButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Next')]]`,
+    nextButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Next')]]`,
     previousButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Previous')]]`,
     createRequestButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Create request')]]`,
     changesInput: `//div[contains(@id,'InputView') and descendant::div[text()='Describe the changes']]`,
@@ -62,6 +62,10 @@ class CreateRequestPublishDialog extends Page {
         return xpath.container + xpath.warningMessagePart1;
     }
 
+    get markAsReadyDropdownHandle() {
+        return xpath.container + "//div[contains(@class,'modal-dialog-footer')]" + lib.DROP_DOWN_HANDLE;
+    }
+
     async clickOnCancelButtonTop() {
         await this.clickOnElement(this.cancelButtonTop);
         return await this.waitForDialogClosed();
@@ -69,7 +73,7 @@ class CreateRequestPublishDialog extends Page {
 
     async isItemRemovable(displayName) {
         let selector = xpath.itemToRequest(displayName);
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         let attr = await this.getAttribute(selector, "class");
         return attr.includes("removable");
     }
@@ -77,34 +81,36 @@ class CreateRequestPublishDialog extends Page {
     async clickOnItemToPublishAndSwitchToWizard(displayName) {
         let selector = xpath.publishItemList + xpath.itemToRequest(displayName);
         await this.clickOnElement(selector);
+        await this.pause(900);
         return await this.getBrowser().switchWindow(displayName);
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
     }
 
     waitForNextButtonDisplayed() {
-        return this.waitForElementDisplayed(this.nextButton, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(this.nextButton, appConst.mediumTimeout);
     }
 
     waitForNextButtonEnabled() {
-        return this.waitForElementEnabled(this.nextButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementEnabled(this.nextButton, appConst.mediumTimeout).catch(err => {
             throw new Error("Request Publishing dialog:  'Next' button should be enabled :" + err);
         })
     }
 
     async waitForInvalidIconDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.invalidIcon, appConst.TIMEOUT_3);
+            await this.waitForElementDisplayed(this.invalidIcon, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot("err_request_publish_dialog_invalid_icon");
             throw new Error("Request Publishing dialog:  'invalid' icon should be visible :" + err);
         }
     }
+
     async waitForInvalidIconNotDisplayed() {
         try {
-            await this.waitForElementNotDisplayed(this.invalidIcon, appConst.TIMEOUT_3);
+            await this.waitForElementNotDisplayed(this.invalidIcon, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot("err_request_publish_dialog_invalid_icon");
             throw new Error("Request Publishing dialog:  'invalid' icon should be not visible :" + err);
@@ -112,34 +118,30 @@ class CreateRequestPublishDialog extends Page {
     }
 
     waitForPreviousButtonDisplayed() {
-        return this.waitUntilDisplayed(this.previousButton, appConst.TIMEOUT_3);
+        return this.waitUntilDisplayed(this.previousButton, appConst.mediumTimeout);
     }
 
     waitForCreateRequestButtonDisplayed() {
-        return this.waitUntilDisplayed(this.createRequestButton, appConst.TIMEOUT_3);
-    }
-
-    waitForCreateRequestButtonEnabled() {
-        return this.waitUntilDisplayed(this.createRequestButton, appConst.TIMEOUT_3);
+        return this.waitUntilDisplayed(this.createRequestButton, appConst.mediumTimeout);
     }
 
     waitForDialogClosed() {
-        let message = "Request publish Dialog is not closed! timeout is " + 3000;
+        let message = "Request publish Dialog is not closed! timeout is " + appConst.mediumTimeout;
         return this.getBrowser().waitUntil(() => {
             return this.isElementNotDisplayed(xpath.container);
-        }, appConst.TIMEOUT_3, message).then(() => {
+        }, appConst.mediumTimeout, message).then(() => {
             return this.pause(400);
         })
     }
 
     waitForCreateRequestButtonDisabled() {
-        return this.waitForElementDisabled(this.createRequestButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisabled(this.createRequestButton, appConst.mediumTimeout).catch(err => {
             throw new Error("Request Publishing dialog - Create Request button should be disabled " + err);
         })
     }
 
     waitForCreateRequestButtonEnabled() {
-        return this.waitForElementEnabled(this.createRequestButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementEnabled(this.createRequestButton, appConst.mediumTimeout).catch(err => {
             throw new Error("Request Publishing dialog - Create Request button should be enabled !" + err);
         })
     }
@@ -171,8 +173,8 @@ class CreateRequestPublishDialog extends Page {
 
     async getAssigneesOptions() {
         let selector = xpath.container + xpath.assigneesComboBox + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
-        let result = await this.getTextInDisplayedElements(selector);
-        return result;
+        return await this.getTextInDisplayedElements(selector);
+
     }
 
     async clickOnPreviousButton() {
@@ -187,7 +189,7 @@ class CreateRequestPublishDialog extends Page {
     async clickOnIncludeChildItems(displayName) {
         try {
             let includeIcon = xpath.itemToRequest(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
-            await this.waitForElementDisplayed(includeIcon, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(includeIcon, appConst.mediumTimeout);
             await this.clickOnElement(includeIcon);
             return await this.pause(1000);
         } catch (err) {
@@ -197,15 +199,14 @@ class CreateRequestPublishDialog extends Page {
     }
 
     waitForShowDependentItemsLinkDisplayed() {
-        let selector = xpath.container + lib.SHOW_DEPENDENT_ITEM_LINK;
-        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.mediumTimeout).catch(err => {
             throw new Error("Request Publishing Dialog - Show dependent Link " + err);
         })
     }
 
     async getWorkflowState(displayName) {
         let selector = xpath.contentSummaryByDisplayName(displayName);
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         let result = await this.getAttribute(selector, 'class');
         if (result.includes('in-progress')) {
             return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
@@ -231,8 +232,23 @@ class CreateRequestPublishDialog extends Page {
     async clickOnCreateRequestButton() {
         await this.waitForCreateRequestButtonEnabled();
         await this.clickOnElement(this.createRequestButton);
-        return this.pause(400);
+        return this.pause(700);
     }
-};
+
+    async clickOnMarkAsReadyMenuItem() {
+        let locator = xpath.container + "//li[contains(@id,'MenuItem') and contains(.,'Mark as ready')]";
+        await this.clickOnMarkAsReadyDropdownHandle();
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.pause(200);
+        await this.clickOnElement(locator);
+        return await this.pause(200);
+    }
+
+    async clickOnMarkAsReadyDropdownHandle() {
+        await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.mediumTimeout);
+        return await this.clickOnElement(this.markAsReadyDropdownHandle);
+    }
+}
+
 module.exports = CreateRequestPublishDialog;
 

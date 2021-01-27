@@ -64,10 +64,10 @@ export class ImageEditor
     private focusClipPath: Element;
     private cropClipPath: Element;
 
-    private focusData: FocusData = {x: 0, y: 0, r: 0.25, auto: null};
+    private focusData: FocusData = {x: 0, y: 0, r: 0.25, auto: true};
     private revertFocusData: FocusData;
 
-    private cropData: CropData = {x: 0, y: 0, w: 0, h: 0, auto: null};
+    private cropData: CropData = {x: 0, y: 0, w: 0, h: 0, auto: true};
     private revertCropData: CropData;
 
     private zoomData: ZoomData = {x: 0, y: 0, w: 0, h: 0};
@@ -130,8 +130,8 @@ export class ImageEditor
 
     public static debug: boolean = false;
 
-    constructor(src?: string) {
-        super('image-editor');
+    constructor() {
+        super('image-editor autofocused');
 
         this.frame = new DivEl('image-frame');
         this.canvas = new DivEl('image-canvas');
@@ -261,13 +261,6 @@ export class ImageEditor
             ResponsiveManager.unAvailableSizeChanged(this);
             this.unImageError(imageErrorHandler);
         });
-
-        if (src) {
-            this.setSrc(src);
-        }
-
-        this.setFocusAutoPositioned(true);
-        this.setCropAutoPositioned(true);
     }
 
     isElementInsideButtonsContainer(el: HTMLElement): boolean {
@@ -1399,7 +1392,7 @@ export class ImageEditor
         let autoChanged = this.focusData.auto !== auto;
         this.focusData.auto = auto;
 
-        this.toggleClass('focused', !auto);
+        this.toggleClass('autofocused', auto);
 
         if (autoChanged) {
             this.notifyFocusAutoPositionedChanged(auto);
@@ -1673,10 +1666,6 @@ export class ImageEditor
 
     getCropPosition(): Rect {
         return this.rectFromSVG(this.normalizeRect(this.getCropPositionPx()));
-    }
-
-    isCropAutoPositioned(): boolean {
-        return this.cropData.auto;
     }
 
     private getCropPositionPx(): SVGRect {

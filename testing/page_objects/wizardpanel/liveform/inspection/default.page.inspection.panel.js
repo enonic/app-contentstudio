@@ -18,7 +18,7 @@ class DefaultPageInspectionPanel extends PageInspectionPanel {
     }
 
     typeTitle(text) {
-        return this.waitForElementDisplayed(this.titleTextInput, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(this.titleTextInput, appConst.shortTimeout).then(() => {
             return this.typeTextInInput(this.titleTextInput, text);
         }).catch(err => {
             this.saveScreenshot('err_type_text_in_title_input');

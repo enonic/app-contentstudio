@@ -8,10 +8,19 @@ const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const NewSettingsItemDialog = require('../../page_objects/project/new.settings.item.dialog');
+const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 
 describe('settings.browse.panel.context.menu.spec - ui-tests to verify context menu items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
+
+    let PROJECT_DISPLAY_NAME_1 = studioUtils.generateRandomName("project");
+
+    it(`Preconditions: 2 projects should be added`,
+        async () => {
+            //1. Save new project:
+            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME_1, "description");
+        });
 
     it(`WHEN right click on 'Projects' folder THEN 'New...' should be enabled , 'Delete' and 'Edit' are disabled`,
         async () => {
@@ -21,7 +30,7 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
             //Verify that 'New...' button should be enabled:
             await settingsBrowsePanel.waitForContextMenuDisplayed();
             studioUtils.saveScreenshot("projects_context_menu");
-            let result = await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
+            await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             //Verify that Edit,Delete menu items should be disabled:
             await settingsBrowsePanel.waitForContextMenuItemDisabled('Edit');
             await settingsBrowsePanel.waitForContextMenuItemDisabled('Delete');
@@ -30,16 +39,13 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
     it(`WHEN right click on 'Default' folder THEN 'New...' should be enabled , 'Delete' and 'Edit' are disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let newSettingsItemDialog = new NewSettingsItemDialog();
-            //1. Expand 'Projects' folder:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConst.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2. Do right click on 'Default' folder and Open Context menu:
+            //1. Do right click on 'Default' folder and Open Context menu:
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName("Default");
             //Verify that 'New...' button should be enabled:
             await settingsBrowsePanel.waitForContextMenuDisplayed();
             studioUtils.saveScreenshot("default_context_menu");
-            //Verify that New.. is enabled:
-            let result = await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
+            //2. Verify that New.. is enabled:
+            await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
             //Verify that Delete menu item is disabled:
             await settingsBrowsePanel.waitForContextMenuItemDisabled('Delete');
@@ -59,8 +65,30 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
             await newSettingsItemDialog.waitForDialogLoaded();
         });
 
+    it(`GIVEN right click on existing project WHEN 'Delete' menu has been clicked AND 'Yes' clicked THEN project should be deleted`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let confirmValueDialog = new ConfirmValueDialog();
+            //1. Right click on the existing project:
+            await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.waitForContextMenuDisplayed();
+            //2. Click on 'Delete' menu item:
+            await settingsBrowsePanel.clickOnMenuItem("Delete");
+            studioUtils.saveScreenshot("projects_context_menu_new");
+            //3. Verify that the modal dialog is loaded:
+            await confirmValueDialog.waitForDialogOpened();
+            await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME_1);
+            //4. Click on 'Confirm' button and delete the project:
+            await confirmValueDialog.clickOnConfirmButton();
+            await confirmValueDialog.waitForDialogClosed();
+            studioUtils.saveScreenshot("projects_context_menu_new_deleted");
+            let actualMessage = await settingsBrowsePanel.waitForNotificationMessage();
+            assert.equal(actualMessage,
+                appConst.projectDeletedMessage(PROJECT_DISPLAY_NAME_1, "Expected notification message should appear"));
+        });
+
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });

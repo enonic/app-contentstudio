@@ -15,6 +15,18 @@
       display: flex;
       flex-wrap: wrap;
 
+      .cke_combo {
+        margin-bottom: 0;
+
+        + .cke_toolgroup {
+          float: none;
+
+          a.cke_button {
+            margin-bottom: 5px;
+          }
+        }
+      }
+
       .cke_toolgroup {
         margin-bottom: 4px;
 
@@ -33,14 +45,10 @@
 
   .cke_bottom {
     padding: 1px 8px 2px;
-  }
 
-  .cke_combo {
-    margin-bottom: 0;
-  }
-
-  .cke_button__fullscreen, .cke_button__sourcedialog {
-    float: right;
+    .cke_button__fullscreen, .cke_button__sourcedialog {
+      float: right;
+    }
   }
 
   .cke_path {
@@ -117,6 +125,7 @@
 }
 
 .wizard-step-form .html-area {
+
   .cke_top {
     top: @toolbar-height;
 
@@ -124,6 +133,15 @@
     .cke_button__italic,
     .cke_button__underline {
       display: none;
+    }
+  }
+
+  .customized-toolbar {
+
+    .cke_button__bold,
+    .cke_button__italic,
+    .cke_button__underline {
+      display: inline-block;
     }
   }
 }

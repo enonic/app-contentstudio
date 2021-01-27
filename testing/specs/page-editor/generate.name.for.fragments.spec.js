@@ -54,7 +54,7 @@ describe('Generate name for fragments  specification', function () {
             await pageComponentView.openMenu("Text");
             await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.pause(700);
-            studioUtils.doSwitchToNewWizard();
+            await studioUtils.doSwitchToNewWizard();
             //5. Verify the generated display name:
             let fragmentContent = await contentWizard.getDisplayName();
             assert.equal(fragmentContent, "Text", "Expected display name should be generated in Fragment-Wizard");
@@ -66,7 +66,6 @@ describe('Generate name for fragments  specification', function () {
             let contentWizard = new ContentWizard();
             let imageInspectPanel = new ImageInspectPanel();
             let pageComponentView = new PageComponentView();
-            let insertImageDialog = new InsertImageDialog();
             //1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.clickOnShowComponentViewToggler();
@@ -80,7 +79,7 @@ describe('Generate name for fragments  specification', function () {
             await pageComponentView.openMenu(TEST_IMAGE_NAME);
             await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.pause(700);
-            studioUtils.doSwitchToNewWizard();
+            await studioUtils.doSwitchToNewWizard();
             //5. Verify the generated display name:
             let fragmentContent = await contentWizard.getDisplayName();
             assert.equal(fragmentContent, TEST_IMAGE_NAME, "Expected display name should be generated in Fragment-Wizard");
@@ -90,7 +89,6 @@ describe('Generate name for fragments  specification', function () {
     it(`GIVEN an layout component is inserted WHEN the empty layout has been saved as fragment THEN expected fragment-name should be generated`,
         async () => {
             let contentWizard = new ContentWizard();
-            let layoutInspectPanel = new LayoutInspectPanel();
             let pageComponentView = new PageComponentView();
             //1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
@@ -102,7 +100,7 @@ describe('Generate name for fragments  specification', function () {
             await pageComponentView.openMenu("Layout");
             await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizard.pause(700);
-            studioUtils.doSwitchToNewWizard();
+            await studioUtils.doSwitchToNewWizard();
             //4. Verify the generated display name(should be 'Layout'):
             let fragmentContent = await contentWizard.getDisplayName();
             assert.equal(fragmentContent, "Layout", "Expected display name should be generated in Fragment-Wizard");

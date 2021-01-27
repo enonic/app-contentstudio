@@ -15,7 +15,6 @@ import {LayoutItemType} from '../../../../../../page-editor/layout/LayoutItemTyp
 import {FragmentDropdown} from './FragmentDropdown';
 import {GetContentSummaryByIdRequest} from '../../../../../resource/GetContentSummaryByIdRequest';
 import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
-import {ContentUpdatedEvent} from '../../../../../event/ContentUpdatedEvent';
 import {EditContentEvent} from '../../../../../event/EditContentEvent';
 import {Content} from '../../../../../content/Content';
 import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
@@ -24,6 +23,8 @@ import {ComponentPropertyChangedEvent} from '../../../../../page/region/Componen
 import {LayoutComponentType} from '../../../../../page/region/LayoutComponentType';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {Button} from 'lib-admin-ui/ui/button/Button';
+import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 
 export class FragmentInspectionPanel
     extends ComponentInspectionPanel<FragmentComponent> {
@@ -39,8 +40,6 @@ export class FragmentInspectionPanel
     private handleSelectorEvents: boolean = true;
 
     private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
-
-    private contentUpdatedListener: (event: any) => void;
 
     constructor() {
         super(<ComponentInspectionPanelConfig>{
@@ -99,17 +98,66 @@ export class FragmentInspectionPanel
     }
 
     private handleContentUpdatedEvent() {
-        this.contentUpdatedListener = (event: ContentUpdatedEvent) => {
-            // update currently selected option if this is the one updated
-            if (this.component && event.getContentId().equals(this.component.getFragment())) {
-                this.fragmentSelector.getSelectedOption().displayValue = event.getContentSummary();
+        const contentUpdatedListener = (items: ContentSummaryAndCompareStatus[]) => {
+            if (!this.component || !this.component.hasFragment()) {
+                return;
+            }
+
+            items.some((item: ContentSummaryAndCompareStatus) => {
+                if (item.getContentId().equals(this.component.getFragment())) {
+                    this.updateSelectedItem(item.getContentSummary());
+                    return true;
+                }
+
+                return false;
+            });
+        };
+
+        const contentRenamedListener = (items: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
+            if (this.isSelectedFragmentRenamed(items, oldPaths)) {
+                this.reloadSelectedFragment();
             }
         };
-        ContentUpdatedEvent.on(this.contentUpdatedListener);
+
+        ContentServerEventsHandler.getInstance().onContentUpdated(contentUpdatedListener);
+        ContentServerEventsHandler.getInstance().onContentRenamed(contentRenamedListener);
 
         this.onRemoved((event) => {
-            ContentUpdatedEvent.un(this.contentUpdatedListener);
+            ContentServerEventsHandler.getInstance().unContentUpdated(contentUpdatedListener);
+            ContentServerEventsHandler.getInstance().unContentRenamed(contentRenamedListener);
         });
+    }
+
+    private updateSelectedItem(item: ContentSummary) {
+        this.component.setFragment(item.getContentId(), item.getDisplayName());
+        this.fragmentSelector.deselectOptions();
+        this.fragmentSelector.removeAllOptions();
+        this.setSelectorValue(item);
+    }
+
+    private isSelectedFragmentRenamed(renamedItems: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]): boolean {
+        if (!this.component || !this.component.getFragment() || !this.fragmentSelector.getSelectedOption()) {
+            return false;
+        }
+
+        const selectedFragment: ContentSummary = this.fragmentSelector.getSelectedOption().getDisplayValue();
+
+        if (!selectedFragment) {
+            return false;
+        }
+
+        const selectedFragmentPath: ContentPath = selectedFragment.getPath();
+
+        return renamedItems.some((item: ContentSummaryAndCompareStatus) => item.getContentId().equals(selectedFragment.getContentId()))
+               || oldPaths.some((oldPath: ContentPath) => selectedFragmentPath.isDescendantOf(oldPath));
+    }
+
+    private reloadSelectedFragment() {
+        if (this.component && this.component.getFragment()) {
+            new GetContentSummaryByIdRequest(this.component.getFragment()).sendAndParse().then((receivedFragment: ContentSummary) => {
+                this.updateSelectedItem(receivedFragment);
+            }).catch(DefaultErrorHandler.handle);
+        }
     }
 
     setFragmentComponentView(fragmentView: FragmentComponentView) {
@@ -176,7 +224,7 @@ export class FragmentInspectionPanel
         this.fragmentSelector.onOptionSelected((selectedOption: OptionSelectedEvent<ContentSummary>) => {
             if (this.handleSelectorEvents) {
                 let option: Option<ContentSummary> = selectedOption.getOption();
-                let fragmentContent = option.displayValue;
+                let fragmentContent = option.getDisplayValue();
 
                 if (this.isInsideLayout()) {
                     new GetContentByIdRequest(fragmentContent.getContentId()).sendAndParse().done((content: Content) => {
@@ -215,7 +263,7 @@ export class FragmentInspectionPanel
     }
 
     getName(): string {
-        return i18n('live.view.insert.fragment');
+        return i18n('widget.components.insert.fragment');
     }
 
 }

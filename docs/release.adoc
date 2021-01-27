@@ -2,272 +2,145 @@
 :toc: right
 :imagesdir: release/images
 
-== 2.2.0
+TIP: Release Notes for Content Studio 2.x can be found https://developer.enonic.com/docs/content-studio/2.x/release[here]
 
-=== Configurable headings in HTML Area input type
+== Content Studio 3.1
 
-By default all types of heading tags (`<h1>`... `<h6>`) are allowed in HTML area inputs. From version 2.2.0 allowed headings can be
-configured via HTMLArea input type config.
+NOTE: Content Studio 3.1 requires XP 7.5.0 or later.
 
-Customized headings
-[source,XML]
+=== Improved Version History
+
+<<widgets#version_history,Version History widget>> has gotten a brand new look and now shows a lot of additional information: when content has been created,
+when scheduled publishing will go online, when a publishing will expire, when content was unpublished etc.
+Versions have been neatly grouped by date to make it easier to see content changes happened within the same day.
+
+image::cs31-version-history.png[Version history, 234]
+
+=== Control of name uniqueness
+
+When user enters or modifies content name, Content Studio will instantly perform a check for whether another content with this name
+already exists and warn the user if it does, disabling saving of the content until user has provided a unique name.
+
+image::cs31-name-unavailable.png[Name unavailable, 649]
+
+=== Locking name of a published content
+
+To prevent a user from accidentally changing name of a published content, Content Studio now locks the field once the content has been published.
+
+image::cs31-name-locked.png[Name locked, 649]
+
+User has to click the "pencil" icon which will open a dedicated dialog for renaming the content. The new name will be verified for uniqueness
+before the content can be renamed.
+
+image::cs31-rename-dialog.png[Rename dialog, 768]
+
+=== New look and behaviour of item- and option-sets
+
+The look of item- and option-sets have been completely revamped to make them look lighter and more readable, especially for the nested sets.
+
+image::cs31-item-set-expanded.png[Expanded item-sets, 695]
+
+Behaviour has been slightly changed as well - all item- and option-sets are now by default collapsed in the Content Wizard form.
+
+image::cs31-item-set-collapsed.png[Collapsed item-sets, 695]
+image::cs31-option-set.png[Option sets, 683]
+
+== Content Studio 3
+
+NOTE: Content Studio 3 requires XP 7.3.0 or later.
+
+=== Language support
+
+We are continuing to expand multi-language support in Content Studio. Version 3.0 welcomes addition of Italian and Belarussian,
+increasing the number of supported languages to *10*: Belarussian, English, French, Italian, Norwegian, Polish, Portuguese,
+Russian, Spanish and Swedish.
+
+=== Content Projects
+
+*Content Projects* allow separating content into several independent repositories (for example thematically, by country etc.).
+Each project can have its own default language and roles, and be set up as Public, Private or with custom read permissions.
+Initially there is just one default project, but you can create and manage new projects in the new Settings section
+(accessible via new top-level menu on the left-hand side).
+
+If current user has permissions for several projects, he/she will be asked to select one of them when opening Content Studio.
+User always works in the context of a project. <<issues#,Issues>> have also become context-dependent, which means that issues are accessible
+only inside the project they were created in.
+
+Read more about Content Projects in the <<projects#,dedicated section>>.
+
+XP 7.3.0 offers https://developer.enonic.com/docs/xp/stable/api/lib-project[new API] for managing Content Projects.
+
+
+=== Version Comparison
+
+With the new Version Comparison dialog it's now possible to compare two versions of the same content side by side.
+The dialog can be accessed from the <<widgets#version_history,Version History widget>>. You can revert to any
+version of the content directly from the same dialog.
+
+=== Light skin
+
+As the first step to support of custom skins, *Content Studio 3.0* introduces _light_ skin for the
+header and other visual elements.
+
+image::cs30-light-skin.png[Light skin, 950]
+
+
+=== UI improvements
+
+Several minor but important visual improvements have been implemented in *Content Studio 3*:
+
+* Access step is removed from the Content Wizard form.
+Content permissions can be managed via modal dialog that opens on with the `lock` icon in the toolbar.
+* New style of highlighting invalid controls upon form validation:
+
+image::cs30-field-validation.png[Invalid fields, 677]
+
+* Fieldset is highlighted with a shallow border on the left side:
+
+image::cs30-field-set.png[Field-set, 674]
+
+* Modal dialogs take up the entire screen height in mobile resolution:
+
+image::cs30-modal-dialog.png[Modal dialog, 389]
+
+
+
+== Upgrade notes for Content Studio 3.x
+
+=== Widgets
+
+Deprecation of HtmlImports in the 3.0 release might affect <<widgets#,widgets>> that worked correctly inside a previous version of
+Content Studio. Should you notice that some widget installed from Enonic Market stopped working, we recommend checking if there's a
+new version of this application on the Market.
+
+If you have developed your own widget that no longer works, check if rendering is dependent on readiness of `HTMLImports` object
+in the global scope. If it does, a fix is suggested below:
+
+.Main client-side JS asset in Content Studio 2.x
+[source,js]
 ----
-<content-type>
-  <display-name>Html Area</display-name>
-  <form>
-    <input name="htmlarea_text" type="HtmlArea">
-      <label>HTML Area with limited allowed headings</label>
-      <occurrences minimum="0" maximum="0"/>
-      <config>
-        <allowHeadings>h2 h4 h6</allowHeadings>
-      </config>
-    </input>
-  </form>
-</content-type>
-----
-
-image::html-area-custom-headings.png[]
-
-=== Improvements in HTML Editor
-
-* *Paste mode*
-
-New toggle button image:html-area-paste-mode-button.png[,24,24] in the HTML Editor toolbar allows toggling between "formatted text" (default setting) and "plain text"
-modes when pasting text into the editor.
-
-* *Fullscreen mode*
-
-Improved look and feel of the Fullscreen mode makes editing a pleasant experience, especially on small screen devices.
-
-image::html-area-fullscreen.png[Fullscreen mode, 1145]
-
-* *Changes in the "Table Properties" modal dialog*
-
-** New "_Caption_" property in the "*Table Properties*" modal dialog allows adding caption for a table.
-** _Border_, _Cell spacing_ and _Cell padding_ properties have been removed. These properties should be set via stylesheets.
-
-* *Misc changes*
-
-** Cursor position is kept when switching to the "_Fullscreen_" mode
-
-** Cursor position is set to clicked position after user clicks inside HTML Area input to start editing
-
-** Toolbar buttons for *B* (Bold), *I* (Italic) and *U* (underline) are removed inside HTML Area input type to give room for the
-new paste mode button. <<keyboard-shortcuts#rich_text_editor,Keyboard shortcuts>> should be used to apply this styling. They are still present in Fullscreen mode and inside Text component editor.
-
-=== Improved content deletion
-
-*"Delete content"* dialog has been improved to give better user experience when deleting published content. **Delete** button is turned into menu button
-with *"Delete Now"* as default action which will instantly delete published content. To mark selected content as deleted instead of instant deletion,
-expand the dropdown and select *"Mark as deleted"* from the menu. Offline content will always be deleted instantly, as before.
-
-image::content-delete-dialog.png[Delete content dialog, 716]
-
-== 2.1.0
-
-=== Content Workflow
-
-*Content Workflow* is a process that helps web editor to get content through its entire lifecycle, from the moment of creation all the way
-to publishing. Checks on different workflow stages ensure that content doesn't get published while it's invalid or before it's finished,
-and that it can be verified and published by a different user with sufficient permissions.
-
-Read more about Content Workflow <<workflow#,here>>.
-
-=== Publish Requests
-
-*Publish Request* is a stage of the Content Workflow when web editor has finished work on the content and requests its publishing from a different
-user(s) with sufficient Publishing permissions. Each request describes the changes to be published, which items will be published, and
-optional publishing schedule.
-
-Read more about Publish Requests <<workflow#publish_request,here>>.
-
-=== Customizable placeholder for the Display Name field
-
-When a new content item is created, default placeholder text for the Display Name field is "_<Display Name>_".
-From version 2.1.0 this text can be customised with new `display-name-label` field in the content type schema:
-
-Customize display name field placeholder
-[source,XML]
-----
-<content-type>
-  <display-name>My Content Type</display-name>
-  <display-name-label i18n="displayName.placeholder">Some cool text here</display-name-label>
-</content-type>
-----
-
-image::display-name-placeholder.png[]
-
-=== Publish Message
-
-From version 2.1 publishers can specify optional message in the Publishing Wizard to describe the changes they are about to publish.
-
-image::publish-message-1.png[]
-
-image::publish-message-2.png[]
-
-If specified, publish message will be shown in the Version History widget, which has also been completely revamped in Content Studio 2.1.
-
-image::version-history.png[Version History, 280]
-
-== 2.0.0
-
-Until the release of Enonic XP 7 the Content Studio app used to be a part of the XP distribution package.
-*Content Studio 2.0* is the first version released on Enonic Market separately from XP.
-It is compatible with XP 7.0 and will not work with earlier versions. This release includes some important features, as well as
-a number of major improvements and bugfixes.
-
-
-=== Context panel
-
-In previous versions *Context panel* (previously "Detail panel") was available only in the Browse Content view. Starting from version 2.0,
-the panel is available in the Content Edit view as well. User can now access widgets without having to switch to or open the Browse view.
-The panel can be opened and closed by clicking the cog icon in the top right corner of the view.
-
-image::context-panel.png[]
-
-Compared to the Context panel available in the Browse Content view, in this view the panel adds the widget for managing selected content, such
-as adding new components to the page or configuring existing page components.
-
-You can find more information about the Context Panel and widgets in the <<widgets#,dedicated section>>.
-
-
-=== Icons in the Content Wizard form navigator
-
-Schedule, Settings and Access steps of the Content Wizard form are now represented with icons in the navigator toolbar, to separate
-them from the custom steps of the form.
-Clicking the icon would scroll the form down to selected step.
-
-image::wizard-form-navigator.png[]
-
-Unlocked lock icon for the Access step means that this content is accessible by everyone (user Everyone has at least "Can Read" permissions).
-Locked lock icon means that read access is limited.
-
-image::wizard-form-navigator-locked.png[]
-
-
-=== Attachment preview
-
-Content Studio 2.0 enables automatic preview of the media content (video, audio, PDF, DOCX etc.) directly in the preview panel.
-
-image::content-video-preview.png[]
-
-
-=== Improved table features in the Rich text editor
-
-Table features in the Rich text editor have been greatly improved and now enable changing column width, cell spacing/padding and border width
-via "Table Properties" modal dialog (right-click the table and select "Table properties" from the context menu).
-
-image::html-area-table1.png[]
-
-image::html-area-table2.png[]
-
-The same context menu can be used to add and delete rows and columns, merge several cells into one etc.
-
-image::html-area-table3.png[]
-
-
-=== Relative image width in the Rich text editor
-
-Image dialog of the Rich text editor now allows user to adjust relative width of the image.
-Check off "Custom width" checkbox in the modal dialog and adjust the width using the drag control.
-
-image::image-dialog-custom-width.png[]
-
-=== Image styles
-
-Content Studio 2.0 introduces a new feature in the rich text editor called "Image styles".
-Image styles consist of both client side styling (css), and image service rendering specifications.
-
-The rich text editor was previously limited to pre-defined and hard-coded styles, such as `cinema (21:9)` or `square(1:1)`.
-Now, application developers may define custom styles that control both server side rendering aspect ratio, and specify classes to annotate the specific image.
-
-Read more about defining custom image styles in the <<editor/rich-text-editor#custom_image_styles,dedicated section>>.
-
-=== New "inline" mode for content preview inside Content Studio
-
-XP 7.0 introduced a new value for portal rendering mode (`mode` field in the HTTP request object).
-In addition to _edit_ (when content is being edited in the Page Editor), _preview_ (preview of a draft version)
-and _live_ (preview of a master version), when content is rendered in the preview panel of the Content Studio the `request.mode` will
-have a value of *_inline_*.
-
-
-=== Limiting Tag input to specific path
-
-Previously, Tag input always allowed tags from all available content in the repo.
-Now tags are by default limited to current site.
-You can use `allowPath` config to adjust this limit and allow content outside of the current site.
-
-Allow tags from other sites
-[source,XML]
-----
-<input name="MyTag" type="Tag">
-  <label>Tags for this content</label>
-  <occurrences minimum="0" maximum="0"/>
-  <config>
-    <allowPath>*</allowPath>
-  </config>
-</input>
+window['HTMLImports'].whenReady(function() {
+    ...rendering here...
+});
 ----
 
-=== Descriptions for content types, page and page component descriptors
-
-XML schemas of content types, pages and page component descriptors now support optional `description` field which, if filled,
-will be shown in the Content Studio UI.
-
-==== Content type description
-
-If set, content type description will be shown under display name inside the "New Content" modal dialog.
-
-Description in content type schema
-[source,XML]
-----
-<content-type>
-  <display-name>Author</display-name>
-  <description>Create authors to be selected on blog posts</description>
-  <form/>
-</content-type>
+.The same in Content Studio 3.x
+[source,js]
 ----
 
-image::content-type-description.png[]
+(() => {
+    ...rendering here...
+})();
 
-
-==== Page description
-
-If set in the page descriptor schema, page description will be shown under page root in the Page Components tree
-and also the page descriptor dropdown inside the Inspect component widget.
-
-Description in page descriptor schema
-[source,XML]
-----
-<page>
-    <display-name>Page</display-name>
-    <description>Front page of the Superhero site</description>
-    <form/>
-    <regions>
-        <region name="main"/>
-    </regions>
-</page>
 ----
 
-image::page-description.png[]
+=== Content Wizard links
 
+If you used shortcuts to open Content Wizard for a specific content item via direct link, this will stop working.
+After introduction of Content Projects, internal links in Content Studio include project context.
 
-==== Part or Layout description
+*Content Studio 2.x:*
+\https://<host>/admin/tool/com.enonic.app.contentstudio/main#/edit/<contentId>
 
-If set in the component schema, description will be shown under component's display name in the Page Components tree
-and components descriptor dropdowns. Description is supported for layouts and parts.
-
-Description in component descriptor schema
-[source,XML]
-----
-<part>
-  <display-name>Featured</display-name>
-  <description>Feature a post in large format</description>
-  <form/>
-</part>
-----
-
-image::part-description1.png[]
-
-image::part-description2.png[]
-
+*Content Studio 3.x:*
+\https://<host>/admin/tool/com.enonic.app.contentstudio/main#/<projectId>/edit/<contentId>

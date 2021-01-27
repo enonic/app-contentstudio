@@ -26,7 +26,7 @@ import {AfterContentSavedEvent} from '../../event/AfterContentSavedEvent';
 export class AttachmentUploader
     extends BaseInputTypeManagingAdd {
 
-    private uploadButton: DivEl;
+    private uploadButton: Button;
 
     private uploaderWrapper: DivEl;
 
@@ -35,6 +35,8 @@ export class AttachmentUploader
     private config: ContentInputTypeViewContext;
 
     private skipServerEvents: boolean;
+
+    private startListenServerEventsHandler: () => void;
 
     constructor(config: ContentInputTypeViewContext) {
         super('file-uploader');
@@ -51,22 +53,16 @@ export class AttachmentUploader
     }
 
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
-        if (!this.skipServerEvents) {
-
-            return super.update(propertyArray, unchangedOnly).then(() => {
-                this.updateSelectedValues();
-                this.toggleUploadButtonVisibility();
-                this.validate(false);
-            });
-        }
-
-        return Q(null);
+        return super.update(propertyArray, unchangedOnly).then(() => {
+            if (!this.skipServerEvents) {
+                this.doRefresh();
+            }
+        });
     }
 
     private updateSelectedValues() {
-        const fileNames = this.getFileNamesFromProperty();
-
-        this.uploaderEl.setValue(fileNames && fileNames.length > 0 ? JSON.stringify(this.getFileNamesFromProperty()) : null);
+        const fileNames: string[] = this.getFileNamesFromProperty();
+        this.uploaderEl.setValue(fileNames && fileNames.length > 0 ? JSON.stringify(fileNames) : null);
     }
 
     private getFileNamesFromProperty(): string[] {
@@ -107,13 +103,11 @@ export class AttachmentUploader
         return super.layout(input, propertyArray).then(() => {
             this.initElements();
             this.initElementListeners();
-            this.updateSelectedValues();
-            this.toggleUploadButtonVisibility();
 
             this.appendChild(this.uploaderWrapper);
 
+            this.doRefresh();
             this.setLayoutInProgress(false);
-            this.validate(false);
 
             return Q<void>(null);
         });
@@ -176,9 +170,11 @@ export class AttachmentUploader
     }
 
     private initElementListeners() {
+        this.startListenServerEventsHandler = this.startListenServerEvents.bind(this);
+
         this.uploaderEl.onUploadStarted(() => {
             this.uploaderWrapper.removeClass('empty');
-            this.uploadButton.getEl().setDisabled(true);
+            this.uploadButton.setEnabled(false);
             this.stopListenServerEvents();
         });
 
@@ -191,16 +187,16 @@ export class AttachmentUploader
 
         this.uploaderEl.onUploadCompleted(() => {
             this.validate(false);
-            this.uploadButton.getEl().setDisabled(false);
+            this.uploadButton.setEnabled(true);
 
-            AfterContentSavedEvent.on(this.startListenServerEvents.bind(this));
+            AfterContentSavedEvent.on(this.startListenServerEventsHandler);
             new ContentRequiresSaveEvent(this.config.content.getContentId()).fire();
         });
 
         this.uploaderEl.onUploadFailed((event: UploadFailedEvent<Attachment>) => {
             this.uploaderEl.setProgressVisible(false);
             this.uploaderWrapper.addClass('empty');
-            this.uploadButton.getEl().setDisabled(false);
+            this.uploadButton.setEnabled(true);
             showError(i18n('notify.upload.failure', event.getUploadItem().getFileName()));
         });
     }
@@ -210,8 +206,9 @@ export class AttachmentUploader
     }
 
     private startListenServerEvents() {
-        AfterContentSavedEvent.un(this.startListenServerEvents.bind(this));
+        AfterContentSavedEvent.un(this.startListenServerEventsHandler);
         this.skipServerEvents = false;
+        this.doRefresh();
     }
 
     private addFileNameToProperty(fileName: string) {
@@ -224,6 +221,12 @@ export class AttachmentUploader
         }
     }
 
+    private doRefresh() {
+        this.updateSelectedValues();
+        this.toggleUploadButtonVisibility();
+        this.validate(false);
+    }
+
     public giveFocus(): boolean {
         if (this.uploaderEl) {
             return this.uploaderEl.giveFocus();
@@ -233,6 +236,11 @@ export class AttachmentUploader
 
     protected getNumberOfValids(): number {
         return this.getPropertyArray().getProperties().length;
+    }
+
+    setEnabled(enable: boolean): void {
+        this.uploaderEl.setEnabled(enable);
+
     }
 
     onFocus(listener: (event: FocusEvent) => void) {

@@ -42,7 +42,6 @@ import {UriHelper} from '../../rendering/UriHelper';
 import {RenderingMode} from '../../rendering/RenderingMode';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {Component} from '../../page/region/Component';
-import {ComponentFactory} from '../../page/region/ComponentFactory';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {Regions} from '../../page/region/Regions';
 import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
@@ -52,6 +51,10 @@ import {DragMask} from 'lib-admin-ui/ui/mask/DragMask';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
 import {GLOBAL, GlobalLibAdmin, Store} from 'lib-admin-ui/store/Store';
+import {IEObjectHolder} from './IEObjectHolder';
+import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
+import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 
 declare var CONFIG;
 
@@ -131,9 +134,7 @@ export class LiveEditPageProxy {
 
     private static debug: boolean = false;
 
-    private regionsCopyForIE: any;
-
-    private controllerCopyForIE: any;
+    private ieObjectHolder: IEObjectHolder;
 
     private modifyPermissions: boolean = false;
 
@@ -215,7 +216,6 @@ export class LiveEditPageProxy {
         let outer = document.createElement('div');
         outer.style.visibility = 'hidden';
         outer.style.width = '100px';
-        outer.style.msOverflowStyle = 'scrollbar'; // needed for WinJS apps
 
         document.body.appendChild(outer);
 
@@ -433,12 +433,12 @@ export class LiveEditPageProxy {
     private handlePlaceholderIFrameLoadedEvent(iframe: IFrameEl) {
         let window = iframe.getHTMLElement()['contentWindow'];
 
-        $(window.document.body).find('.page-placeholder-info-line1').text(i18n('live.view.page.nocontrollers'));
-        $(window.document.body).find('.page-placeholder-info-line2').text(i18n('live.view.page.addapplications'));
+        $(window.document.body).find('.page-placeholder-info-line1').text(i18n('text.nocontrollers'));
+        $(window.document.body).find('.page-placeholder-info-line2').text(i18n('text.addapplications'));
     }
 
     public loadComponent(componentView: ComponentView<Component>, componentUrl: string): Q.Promise<string> {
-        let deferred = Q.defer<string>();
+        const deferred = Q.defer<string>();
         assertNotNull(componentView, 'componentView cannot be null');
         assertNotNull(componentUrl, 'componentUrl cannot be null');
 
@@ -446,23 +446,24 @@ export class LiveEditPageProxy {
             url: componentUrl,
             type: 'GET',
             success: (htmlAsString: string) => {
-                let newElement = Element.fromString(htmlAsString);
-                let itemViewIdProducer = componentView.getItemViewIdProducer();
-                let itemViewFactory = componentView.getItemViewFactory();
+                const newElement: Element = Element.fromString(htmlAsString);
+                const itemViewIdProducer: ItemViewIdProducer = componentView.getItemViewIdProducer();
+                const itemViewFactory: ItemViewFactory = componentView.getItemViewFactory();
 
-                let createViewConfig = new CreateItemViewConfig<RegionView, Component>()
+                const createViewConfig: CreateItemViewConfig<RegionView, Component> = new CreateItemViewConfig<RegionView, Component>()
                     .setItemViewIdProducer(itemViewIdProducer)
                     .setItemViewFactory(itemViewFactory)
                     .setParentView(componentView.getParentItemView())
                     .setData(componentView.getComponent())
                     .setElement(newElement);
 
-                let newComponentView = <ComponentView<Component>>itemViewFactory.createView(componentView.getType(),
+                const newComponentView: ComponentView<Component> = <ComponentView<Component>>itemViewFactory.createView(
+                    componentView.getType(),
                     createViewConfig);
 
                 componentView.replaceWith(newComponentView);
 
-                let event = new ComponentLoadedEvent(newComponentView, componentView);
+                const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView, componentView);
                 event.fire(this.liveEditWindow);
 
                 newComponentView.select();
@@ -471,7 +472,7 @@ export class LiveEditPageProxy {
                 deferred.resolve('');
             },
             error: (jqXHR: JQueryXHR, textStatus: string, errorThrow: string) => {
-                let responseHtml = $.parseHTML(jqXHR.responseText);
+                const responseHtml = $.parseHTML(jqXHR.responseText);
                 let errorMessage = '';
                 responseHtml.forEach((el: HTMLElement, i) => {
                     if (el.tagName && el.tagName.toLowerCase() === 'title') {
@@ -962,46 +963,29 @@ export class LiveEditPageProxy {
     }
 
     private copyObjectsBeforeFrameReloadForIE() {
-        this.copyControllerForIE();
-        this.copyRegionsForIE();
-    }
-
-    private copyControllerForIE() {
-        const controller = this.liveEditModel.getPageModel().getController();
-        if (controller) {
-            this.controllerCopyForIE = JSON.parse(JSON.stringify(controller));
-            this.controllerCopyForIE.key = controller.getKey().toString();
-            this.controllerCopyForIE.config = JSON.parse(JSON.stringify(controller.getConfig().toJson()));
-        } else {
-            this.controllerCopyForIE = null;
-        }
-    }
-
-    private copyRegionsForIE() {
+        const controller: PageDescriptor = this.liveEditModel.getPageModel().getController();
         const regions: Regions = this.liveEditModel.getPageModel().getRegions();
-        if (regions) {
-            this.regionsCopyForIE = JSON.parse(JSON.stringify(regions.toJson()));
-        } else {
-            this.regionsCopyForIE = null;
-        }
+
+        this.ieObjectHolder = new IEObjectHolder();
+        this.ieObjectHolder.setController(controller);
+        this.ieObjectHolder.setRegions(regions);
     }
 
     private resetObjectsAfterFrameReloadForIE() {
         this.resetControllerForIE();
         this.resetRegionsForIE();
+        this.ieObjectHolder.reset();
     }
 
     private resetControllerForIE() {
-        if (this.controllerCopyForIE) {
-            const controller: PageDescriptor = PageDescriptor.fromJson(this.controllerCopyForIE);
-            this.liveEditModel.getPageModel().setControllerDescriptor(controller);
+        if (this.ieObjectHolder.hasController()) {
+            this.liveEditModel.getPageModel().setControllerDescriptor(this.ieObjectHolder.getPageDescriptorCopy());
         }
     }
 
     private resetRegionsForIE() {
-        if (this.regionsCopyForIE) {
-            const regions: Regions = ComponentFactory.createRegionsFromJson(this.regionsCopyForIE);
-            this.liveEditModel.getPageModel().setRegions(regions);
+        if (this.ieObjectHolder.hasRegionsCopy()) {
+            this.liveEditModel.getPageModel().setRegions(this.ieObjectHolder.getRegionsCopy());
         }
     }
 

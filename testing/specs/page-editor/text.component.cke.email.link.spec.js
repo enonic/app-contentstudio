@@ -62,7 +62,7 @@ describe('Text Component with CKE - insert email link  specification', function 
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPreviewButton();
             await contentBrowsePanel.pause(1000);
-            await studioUtils.switchToContentTabWindow(SITE.displayName)
+            await studioUtils.switchToContentTabWindow(SITE.displayName);
             //2. Verify that the link is present:
             let isDisplayed = await studioUtils.isElementDisplayed(`a=test`);
             studioUtils.saveScreenshot('email_link_present');

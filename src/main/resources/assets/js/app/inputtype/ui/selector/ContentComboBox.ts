@@ -14,7 +14,7 @@ import {OptionDataHelper} from 'lib-admin-ui/ui/selector/OptionDataHelper';
 import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {ComboBox, ComboBoxConfig} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
 import {ModeTogglerButton} from './ModeTogglerButton';
-import {ContentSummaryOptionDataLoader} from './ContentSummaryOptionDataLoader';
+import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from './ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
 import {ContentRowFormatter} from '../../../browse/ContentRowFormatter';
 import {ContentTreeSelectorItemViewer} from '../../../item/ContentTreeSelectorItemViewer';
@@ -27,8 +27,11 @@ import {GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {H6El} from 'lib-admin-ui/dom/H6El';
-import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
-import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
+import {
+    RichSelectedOptionView,
+    RichSelectedOptionViewBuilder
+} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
+import {ContentSummaryViewer} from '../../../content/ContentSummaryViewer';
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     extends RichComboBox<ContentTreeSelectorItem> {
@@ -45,26 +48,11 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
     protected preventReload: boolean;
 
-    protected treeModeToggler: ModeTogglerButton;
+    protected treeModeToggler?: ModeTogglerButton;
+
+    protected maxHeight: number = 230;
 
     constructor(builder: ContentComboBoxBuilder<ITEM_TYPE>) {
-
-        const loader = builder.loader || ContentSummaryOptionDataLoader.create().setLoadStatus(
-            builder.showStatus).build();
-
-        builder.setLoader(<ContentSummaryOptionDataLoader<ITEM_TYPE>>loader).setMaxHeight(230);
-
-        if (builder.showStatus) {
-            const columns = [new GridColumnBuilder().setId('status').setName('Status').setField(
-                'displayValue').setFormatter(
-                ContentRowFormatter.statusSelectorFormatter).setCssClass('status').setBoundaryWidth(75, 75).build()];
-
-            builder.setCreateColumns(columns);
-        }
-
-        builder.setRequestMissingOptions((missingOptionIds: string[]) => {
-            return new ContentsExistRequest(missingOptionIds).sendAndParse().then(result => result.getContentsExistMap());
-        });
 
         super(builder);
 
@@ -83,6 +71,53 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         this.optionsFactory = new OptionsFactory<ITEM_TYPE>(this.getLoader(), builder.optionDataHelper);
     }
 
+    protected createComboboxConfig(builder: ContentComboBoxBuilder<ITEM_TYPE>): ComboBoxConfig<ContentTreeSelectorItem> {
+        this.prepareBuilder(builder);
+        const config = super.createComboboxConfig(builder);
+        config.treegridDropdownAllowed = builder.treegridDropdownEnabled || builder.treeModeTogglerAllowed;
+
+        return config;
+    }
+
+    private prepareBuilder(builder: ContentComboBoxBuilder<ITEM_TYPE>) {
+
+        if (!builder.loader) {
+            builder.setLoader(<ContentSummaryOptionDataLoader<ITEM_TYPE>>this.createLoader(builder));
+        }
+
+        builder.setMaxHeight(this.maxHeight);
+
+        if (builder.showStatus) {
+            const columns = [
+                new GridColumnBuilder()
+                    .setId('status')
+                    .setName('Status')
+                    .setField('displayValue')
+                    .setFormatter(ContentRowFormatter.statusSelectorFormatter)
+                    .setCssClass('status')
+                    .setBoundaryWidth(75, 75)
+                    .build()
+            ];
+
+            builder.setCreateColumns(columns);
+        }
+
+        if (builder.isRequestMissingOptions) {
+            builder.setRequestMissingOptions((missingOptionIds: string[]) => {
+                return new ContentsExistRequest(missingOptionIds).sendAndParse().then(result => result.getContentsExistMap());
+            });
+        }
+    }
+
+    protected createLoader(builder: ContentComboBoxBuilder<ITEM_TYPE>): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
+        return this.createLoaderBuilder(builder).build();
+    }
+
+    protected createLoaderBuilder(builder: ContentComboBoxBuilder<ITEM_TYPE>): ContentSummaryOptionDataLoaderBuilder {
+        return ContentSummaryOptionDataLoader.create()
+            .setLoadStatus(builder.showStatus);
+    }
+
     getLoader(): ContentSummaryOptionDataLoader<ITEM_TYPE> {
         return <ContentSummaryOptionDataLoader<ITEM_TYPE>> super.getLoader();
     }
@@ -90,15 +125,23 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     getSelectedContent(): ContentSummary {
         let option = this.getOptionByValue(this.getValue());
         if (option) {
-            return (<ITEM_TYPE>option.displayValue).getContent();
+            return (<ITEM_TYPE>option.getDisplayValue()).getContent();
         }
         return null;
+    }
+
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+
+        if (this.treeModeToggler) {
+            this.treeModeToggler.setEnabled(enable);
+        }
     }
 
     getContent(contentId: ContentId): ContentSummary {
         let option = this.getOptionByValue(contentId.toString());
         if (option) {
-            return (<ITEM_TYPE>option.displayValue).getContent();
+            return (<ITEM_TYPE>option.getDisplayValue()).getContent();
         }
         return null;
     }
@@ -144,7 +187,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
         this.onLoaded(() => {
             if (this.showAfterReload) {
-                this.getComboBox().getInput().setReadOnly(false);
+                this.getComboBox().getInput().setEnabled(true);
                 this.showAfterReload = false;
             }
         });
@@ -182,19 +225,11 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     }
 
     protected createOption(data: Object, readOnly?: boolean): Option<ITEM_TYPE> {
+        const item: ITEM_TYPE = ObjectHelper.iFrameSafeInstanceOf(data, ContentTreeSelectorItem) ?
+            <ITEM_TYPE>data :
+            <ITEM_TYPE>new ContentTreeSelectorItem(<ContentSummary>data);
 
-        let option;
-
-        if (ObjectHelper.iFrameSafeInstanceOf(data, ContentTreeSelectorItem)) {
-            option = this.optionsFactory.createOption(<ITEM_TYPE>data, readOnly);
-        } else {
-            option = {
-                value: (<ContentSummary>data).getId(),
-                displayValue: new ContentTreeSelectorItem(<ContentSummary>data)
-            };
-        }
-
-        return option;
+        return this.optionsFactory.createOption(item, readOnly);
     }
 
     protected reload(inputValue: string): Q.Promise<any> {
@@ -213,9 +248,10 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
             this.getComboBox().getComboBoxDropdownGrid().reload().then(() => {
                 if (this.getComboBox().isDropdownShown()) {
                     this.getComboBox().showDropdown();
-                    this.getComboBox().getInput().setReadOnly(false);
+                    this.getComboBox().getInput().setEnabled(true);
                 }
-                this.notifyLoaded(this.getComboBox().getOptions().map(option => option.displayValue));
+
+                this.notifyLoaded(this.getComboBox().getOptions().map(option => option.getDisplayValue()));
 
                 deferred.resolve(null);
             }).catch((reason: any) => {
@@ -224,13 +260,6 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         }
 
         return deferred.promise;
-    }
-
-    protected createComboboxConfig(builder: ContentComboBoxBuilder<ITEM_TYPE>): ComboBoxConfig<ContentTreeSelectorItem> {
-        const config = super.createComboboxConfig(builder);
-        config.treegridDropdownAllowed = builder.treegridDropdownEnabled || builder.treeModeTogglerAllowed;
-
-        return config;
     }
 
     private ifFlatLoadingMode(inputValue: string): boolean {
@@ -246,7 +275,7 @@ export class ContentSelectedOptionsView
     extends BaseSelectedOptionsView<ContentTreeSelectorItem> {
 
     createSelectedOption(option: Option<ContentTreeSelectorItem>): SelectedOption<ContentTreeSelectorItem> {
-        let optionView = !!option.displayValue ? new ContentSelectedOptionView(option) : new MissingContentSelectedOptionView(option);
+        let optionView = !!option.getDisplayValue() ? new ContentSelectedOptionView(option) : new MissingContentSelectedOptionView(option);
         return new SelectedOption<ContentTreeSelectorItem>(optionView, this.count());
     }
 }
@@ -258,7 +287,7 @@ export class MissingContentSelectedOptionView
 
     constructor(option: Option<ContentTreeSelectorItem>) {
         super(option);
-        this.id = option.value;
+        this.id = option.getValue();
         this.setEditable(false);
     }
 
@@ -336,6 +365,8 @@ export class ContentComboBoxBuilder<ITEM_TYPE extends ContentTreeSelectorItem>
     treegridDropdownEnabled: boolean = false;
 
     treeModeTogglerAllowed: boolean = true;
+
+    isRequestMissingOptions: boolean = true;
 
     setTreegridDropdownEnabled(value: boolean): ContentComboBoxBuilder<ITEM_TYPE> {
         this.treegridDropdownEnabled = value;

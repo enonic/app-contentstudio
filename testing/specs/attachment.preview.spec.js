@@ -11,7 +11,7 @@ const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem
 describe('attachment.preview.spec - Select a *.txt file and check expected text in Preview Panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
-    let TEST_FOLDER;
+
     it(`WHEN existing *.txt file is selected WHEN expected text should be loaded in Preview Panel`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();

@@ -42,7 +42,6 @@ export class ProjectReadAccess
     toJson(): ProjectReadAccessJson {
         return {
             type: this.type,
-            principals: this.principals.map((key: PrincipalKey) => key.toString())
         };
     }
 

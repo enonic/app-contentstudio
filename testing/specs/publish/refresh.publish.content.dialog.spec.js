@@ -13,7 +13,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const DateRangeInput = require('../../page_objects/components/datetime.range');
 
-describe('refresh.request.publish.dialog.spec - opens request publish modal dialog and checks control elements`', function () {
+describe('refresh.publish.dialog.spec - opens publish content modal dialog and checks control elements`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let FOLDER;
@@ -27,10 +27,9 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
             let contentPublishDialog = new ContentPublishDialog();
             let folderName = contentBuilder.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(folderName);
-            //1. New folder has been added
-            await studioUtils.doAddFolder(FOLDER);
+            //1. New folder has been added:(status of this folder is Ready for publishing)
+            await studioUtils.doAddReadyFolder(FOLDER);
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-
             //2. expand the Publish Menu and select 'Publish...' menu item, Publish Wizard gets visible:
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForPublishNowButtonEnabled();
@@ -42,16 +41,15 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
             await settingsForm.filterOptionsAndSelectLanguage('English (en)');
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1000);
-
             //5. close the wizard
             await studioUtils.doCloseWizardAndSwitchToGrid();
             let workflowStatus = await contentPublishDialog.getWorkflowState(FOLDER.displayName);
             assert.equal(workflowStatus, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
-                "`Work in Progress` status should be in the modal dialog");
+                "'Work in Progress' status should be in the modal dialog");
             //exception will be thrown when this button is enabled after 2000ms
             await contentPublishDialog.waitForPublishNowButtonDisabled();
             //'Add Schedule' button  should not be displayed, because the content is `Work in progress`
-            await contentPublishDialog.waitForAddScheduleButtonNotDisplayed();
+            await contentPublishDialog.waitForAddScheduleIconNotDisplayed();
         });
 
     it(`GIVEN Publishing wizard has been opened AND schedule form has been added WHEN click on hours-arrow THEN picker popup should not be closed`,
@@ -59,11 +57,15 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
             let dateRangeInput = new DateRangeInput();
+            //1. Select existing 'work in progress' folder and open Publish Dialog
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
-            //Add schedule form
-            await contentPublishDialog.clickOnAddScheduleButton();
-            // Open date time picker popup:
+            await contentPublishDialog.waitForDialogOpened();
+            //2. For this form to appear, need to make this content marked as ready
+            await contentPublishDialog.clickOnMarkAsReadyMenuItem();
+            //3. Verify that icon-calendar gets visible now. Click on this button:
+            await contentPublishDialog.clickOnAddScheduleIcon();
+            //4. Open date time picker popup:
             await dateRangeInput.doOpenOnlineFromPickerPopup();
             studioUtils.saveScreenshot("schedule_picker_popup1");
             //Click on hours-arrow:
@@ -71,6 +73,23 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
             studioUtils.saveScreenshot("schedule_picker_popup2");
             await dateRangeInput.pause(1000);
             await dateRangeInput.waitForOnlineFromPickerDisplayed();
+        });
+
+    //Verifies https://github.com/enonic/app-contentstudio/issues/2780
+    //Publishing Scheduled status remains after scheduled content has been marked as deleted
+    it(`GIVEN existing folder has been scheduled WHEN the folder has been marked as deleted THEN 'Marked for deletion' status should be in browse panel`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let dateRangeInput = new DateRangeInput();
+            //1. Select existing 'Ready to publish' folder and open 'Publish Dialog'
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            //2. Schedule this content:
+            await studioUtils.scheduleContent(FOLDER.displayName, "2031-01-01 00:00");
+            //3. Click on 'Mark as Deleted' menu item in Delete Content dialog:
+            await contentBrowsePanel.doSelectedContentMarkAsDeleted();
+            //4. Verify that status gets 'Marked for deletion':
+            let actualStatus = await contentBrowsePanel.getContentStatus(FOLDER.displayName);
+            assert.equal(actualStatus, appConst.CONTENT_STATUS.MARKED_FOR_DELETION, "Marked for deletion status should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

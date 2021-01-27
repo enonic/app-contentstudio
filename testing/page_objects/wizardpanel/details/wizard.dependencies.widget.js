@@ -30,15 +30,15 @@ class WizardDependenciesWidget extends BaseDependenciesWidget {
 
      //waits for Dependencies Widget is loaded, returns false after the timeout exceeded
     isWidgetLoaded() {
-        return this.waitForElementDisplayed(this.dependenciesWidget, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.dependenciesWidget, appConst.shortTimeout).catch(err => {
             return false
         });
     }
 
     //waits for Version Widget is loaded, Exception will be thrown after the timeout exceeded
     waitForWidgetLoaded() {
-        return this.waitForElementDisplayed(this.dependenciesWidget, appConst.TIMEOUT_2).catch(err => {
-            throw new Error('Wizard: Dependencies Widget was not loaded in ' + appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.dependenciesWidget, appConst.shortTimeout).catch(err => {
+            throw new Error('Wizard: Dependencies Widget was not loaded in ' + appConst.shortTimeout);
         });
     }
 };

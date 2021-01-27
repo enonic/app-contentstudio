@@ -30,7 +30,7 @@ export class LayoutDescriptorComboBox
     getDescriptor(descriptorKey: DescriptorKey): LayoutDescriptor {
         let option = this.getOptionByValue(descriptorKey.toString());
         if (option) {
-            return option.displayValue;
+            return option.getDisplayValue();
         }
         return null;
     }
@@ -41,10 +41,10 @@ export class LayoutDescriptorComboBox
         if (descriptor) {
             let optionToSelect: Option<LayoutDescriptor> = this.getOptionByValue(descriptor.getKey().toString());
             if (!optionToSelect) {
-                optionToSelect = {
-                    value: descriptor.getKey().toString(),
-                    displayValue: descriptor
-                };
+                optionToSelect = Option.create<LayoutDescriptor>()
+                    .setValue(descriptor.getKey().toString())
+                    .setDisplayValue(descriptor)
+                    .build();
                 this.addOption(optionToSelect);
             }
             this.selectOption(optionToSelect);
@@ -68,7 +68,7 @@ export class LayoutDescriptorSelectedOptionView
     constructor(option: Option<LayoutDescriptor>) {
         super(option);
 
-        this.descriptor = option.displayValue;
+        this.descriptor = option.getDisplayValue();
         this.addClass('layout-descriptor-selected-option-view');
     }
 

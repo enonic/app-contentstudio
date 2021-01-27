@@ -7,7 +7,6 @@ import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './Compon
 import {ImageSelectorForm} from './ImageSelectorForm';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
 import {ImageComponentView} from '../../../../../../page-editor/image/ImageComponentView';
-import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {GetContentSummaryByIdRequest} from '../../../../../resource/GetContentSummaryByIdRequest';
 import {ImageContentComboBox} from '../../../../../inputtype/ui/selector/image/ImageContentComboBox';
 import {ContentSelectedOptionsView} from '../../../../../inputtype/ui/selector/ContentComboBox';
@@ -18,6 +17,9 @@ import {Content} from '../../../../../content/Content';
 import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
 import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {FormView} from 'lib-admin-ui/form/FormView';
+import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
+import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
+import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 
 export class ImageInspectionPanel
     extends ComponentInspectionPanel<ImageComponent> {
@@ -56,12 +58,8 @@ export class ImageInspectionPanel
         };
 
         this.initSelectorListeners();
+        this.initListeners();
         this.appendChild(this.imageSelectorForm);
-    }
-
-    setModel(liveEditModel: LiveEditModel) {
-        super.setModel(liveEditModel);
-        this.imageSelector.load();
     }
 
     setImageComponentView(imageView: ImageComponentView) {
@@ -144,7 +142,7 @@ export class ImageInspectionPanel
         this.imageSelector.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
             if (this.handleSelectorEvents) {
                 const option: Option<MediaTreeSelectorItem> = event.getSelectedOption().getOption();
-                const imageContentSummary: ContentSummary = (<MediaTreeSelectorItem>option.displayValue).getContentSummary();
+                const imageContentSummary: ContentSummary = (<MediaTreeSelectorItem>option.getDisplayValue()).getContentSummary();
 
                 new GetContentByIdRequest(imageContentSummary.getContentId()).sendAndParse().then((imageContent: Content) => {
                     this.component.setImage(imageContent);
@@ -158,6 +156,40 @@ export class ImageInspectionPanel
                 this.component.reset();
             }
         });
+    }
+
+    private initListeners() {
+        ContentServerEventsHandler.getInstance().onContentUpdated(this.handleUpdateEvent.bind(this));
+        ContentServerEventsHandler.getInstance().onContentRenamed(this.handleRenameEvent.bind(this));
+    }
+
+    private handleRenameEvent(renamedItems: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) {
+        if (this.isSelectedImageRenamed(renamedItems, oldPaths)) {
+            this.reloadSelectedImage();
+        }
+    }
+
+    private isSelectedImageRenamed(renamedItems: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]): boolean {
+        if (!this.component || !this.component.hasImage()) {
+            return false;
+        }
+
+        const selectedImage: ContentSummary = this.imageSelector.getSelectedContent();
+
+        if (!selectedImage) {
+            return false;
+        }
+
+        const selectedImagePath: ContentPath = selectedImage.getPath();
+
+        return renamedItems.some((item: ContentSummaryAndCompareStatus) => item.getContentId().equals(selectedImage.getContentId()))
+               || oldPaths.some((oldPath: ContentPath) => selectedImagePath.isDescendantOf(oldPath));
+    }
+
+    private handleUpdateEvent(updatedItems: ContentSummaryAndCompareStatus[]) {
+        if (updatedItems.some((item: ContentSummaryAndCompareStatus) => this.hasSelectedImage(item.getContentId()))) {
+            this.reloadSelectedImage();
+        }
     }
 
     private setImage(image: ContentSummary) {
@@ -180,13 +212,28 @@ export class ImageInspectionPanel
         }
     }
 
+    private reloadSelectedImage() {
+        if (this.component && this.component.hasImage()) {
+            new GetContentByIdRequest(this.component.getImage()).sendAndParse().then((receivedImage: Content) => {
+                this.component.setImage(receivedImage);
+                this.imageSelector.clearCombobox();
+                this.imageSelector.removeAllOptions();
+                this.setImage(receivedImage);
+            }).catch(DefaultErrorHandler.handle);
+        }
+    }
+
+    private hasSelectedImage(contentId: ContentId): boolean {
+        return !!this.component && this.component.hasImage() && this.component.getImage().equals(contentId);
+    }
+
     cleanUp() {
         this.unregisterComponentListeners();
         this.component = null;
     }
 
     getName(): string {
-        return i18n('live.view.insert.image');
+        return i18n('widget.components.insert.image');
     }
 
 }

@@ -48,11 +48,6 @@ class PrincipalFilterPanel extends Page {
         return this.clickOnElement(selector);
     }
 
-    clickOnUserAggregation() {
-        let userSelector = xpath.container + xpath.aggregationGroupView + xpath.userAggregationCheckbox + '/label';
-        return this.clickOnElement(userSelector);
-    }
-
     async clickOnRoleAggregation() {
         let selector = xpath.container + xpath.aggregationGroupView + xpath.roleAggregationCheckbox + '/label';
         await this.clickOnElement(selector);
@@ -66,11 +61,11 @@ class PrincipalFilterPanel extends Page {
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(xpath.userAggregationCheckbox, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(xpath.userAggregationCheckbox, appConst.mediumTimeout);
     }
 
     waitForClosed() {
-        return this.waitUntilElementNotVisible(xpath.userAggregationCheckbox, appConst.TIMEOUT_2).catch(err => {
+        return this.waitUntilElementNotVisible(xpath.userAggregationCheckbox, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_filter_panel_not_closed');
             throw new Error('Filter Panel was not closed');
         })
@@ -83,14 +78,14 @@ class PrincipalFilterPanel extends Page {
     }
 
     waitForClearLinkVisible() {
-        return this.waitForElementDisplayed(this.clearFilterLink, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.clearFilterLink, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_clear_link_filter_panel');
             throw new Error('Clear link should be visible: ' + err);
         })
     }
 
     waitForClearLinkNotVisible() {
-        return this.waitUntilElementNotVisible(this.clearFilterLink, appConst.TIMEOUT_2);
+        return this.waitUntilElementNotVisible(this.clearFilterLink, appConst.shortTimeout);
     }
 
     clickOnClearLink() {

@@ -13,16 +13,19 @@ import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOpt
 import {UploadFailedEvent} from 'lib-admin-ui/ui/uploader/UploadFailedEvent';
 import {UploadProgressEvent} from 'lib-admin-ui/ui/uploader/UploadProgressEvent';
 import {MediaSelector} from './MediaSelector';
-import {ImageContentComboBox} from '../ui/selector/image/ImageContentComboBox';
+import {ImageContentComboBox, ImageContentComboBoxBuilder} from '../ui/selector/image/ImageContentComboBox';
 import {ImageSelectorSelectedOptionsView} from '../ui/selector/image/ImageSelectorSelectedOptionsView';
 import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
 import {ImageSelectorSelectedOptionView} from '../ui/selector/image/ImageSelectorSelectedOptionView';
-import {ImageOptionDataLoader} from '../ui/selector/image/ImageOptionDataLoader';
 import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {Content} from '../../content/Content';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
+import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
+import {ImageOptionDataLoader} from '../ui/selector/image/ImageOptionDataLoader';
+import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
+import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 
 export class ImageSelector
     extends MediaSelector {
@@ -59,13 +62,21 @@ export class ImageSelector
 
         selectedOptionsView.onEditSelectedOptions((options: SelectedOption<MediaTreeSelectorItem>[]) => {
             options.forEach((option: SelectedOption<MediaTreeSelectorItem>) => {
-                this.notifyEditContentRequested(option.getOption().displayValue.getContentSummary());
+                this.notifyEditContentRequested(option.getOption().getDisplayValue().getContentSummary());
             });
         });
 
         selectedOptionsView.onRemoveSelectedOptions((options: SelectedOption<MediaTreeSelectorItem>[]) => {
             options.forEach((option: SelectedOption<MediaTreeSelectorItem>) => {
-                this.contentComboBox.deselect(option.getOption().displayValue);
+                const item: MediaTreeSelectorItem = option.getOption().getDisplayValue();
+
+                if (item.isEmptyContent()) {
+                    selectedOptionsView.removeOption(option.getOption());
+                    this.handleDeselected(option.getIndex());
+                } else {
+                    this.contentComboBox.deselect(item);
+                }
+
             });
             this.validate(false);
         });
@@ -73,34 +84,25 @@ export class ImageSelector
         return selectedOptionsView;
     }
 
-    protected createContentComboBox(input: Input, _propertyArray: PropertyArray): ImageContentComboBox {
+    protected createOptionDataLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
+        return ImageOptionDataLoader.build(this.createOptionDataLoaderBuilder());
+    }
 
-        let value = this.getPropertyArray().getProperties().map((property) => {
-            return property.getString();
-        }).join(';');
+    protected doCreateContentComboBoxBuilder(): ImageContentComboBoxBuilder {
+        return ImageContentComboBox.create();
+    }
 
-        this.isPendingPreload = !StringHelper.isBlank(value);
-
-        const optionDataLoader = ImageOptionDataLoader
-            .create()
-            .setContent(this.config.content)
-            .setInputName(input.getName())
-            .setAllowedContentPaths(this.allowedContentPaths)
-            .setContentTypeNames(this.allowedContentTypes)
-            .setRelationshipType(this.relationshipType)
-            .build();
-
-        const contentComboBox: ImageContentComboBox
-            = ImageContentComboBox.create()
-            .setMaximumOccurrences(input.getOccurrences().getMaximum())
-            .setLoader(optionDataLoader)
+    protected createContentComboBoxBuilder(input: Input, propertyArray: PropertyArray): ImageContentComboBoxBuilder {
+        return <ImageContentComboBoxBuilder>super.createContentComboBoxBuilder(input, propertyArray)
             .setSelectedOptionsView(this.createSelectedOptionsView())
-            .setValue(value)
-            .setTreegridDropdownEnabled(this.treeMode)
-            .setTreeModeTogglerAllowed(!this.hideToggleIcon)
-            .build();
+            .setDisplayMissingSelectedOptions(true)
+            .setRemoveMissingSelectedOptions(false);
+    }
 
-        let comboBox: ComboBox<MediaTreeSelectorItem> = contentComboBox.getComboBox();
+    protected initEvents(contentComboBox: ImageContentComboBox) {
+
+        const comboBox: ComboBox<MediaTreeSelectorItem> = contentComboBox.getComboBox();
+        const loader = <ImageOptionDataLoader>contentComboBox.getLoader();
 
         const onPreloadedData = (data: MediaTreeSelectorItem[]) => {
             data.forEach((item: MediaTreeSelectorItem) => {
@@ -110,15 +112,15 @@ export class ImageSelector
             if (data.length > 0) {
                 this.validate(false);
             }
-            optionDataLoader.unPreloadedData(onPreloadedData);
+            loader.unPreloadedData(onPreloadedData);
         };
 
-        optionDataLoader.onPreloadedData(onPreloadedData);
+        loader.onPreloadedData(onPreloadedData);
 
         comboBox.onOptionDeselected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
             // property not found.
             const option = event.getSelectedOption();
-            if (option.getOption().displayValue.getContentSummary()) {
+            if (option.getOption().getDisplayValue().getContentSummary()) {
                 this.handleDeselected(option.getIndex());
             }
             this.validate(false);
@@ -128,7 +130,7 @@ export class ImageSelector
             this.fireFocusSwitchEvent(event);
 
             if (!this.isLayoutInProgress()) {
-                let contentId = event.getSelectedOption().getOption().displayValue.getContentId();
+                let contentId = event.getSelectedOption().getOption().getDisplayValue().getContentId();
                 if (!contentId) {
                     return;
                 }
@@ -142,6 +144,13 @@ export class ImageSelector
             this.handleMoved(moved, fromIndex);
             this.validate(false);
         });
+    }
+
+    protected createContentComboBox(input: Input, propertyArray: PropertyArray): ImageContentComboBox {
+
+        const contentComboBox: ImageContentComboBox = <ImageContentComboBox>super.createContentComboBox(input, propertyArray);
+
+        this.isPendingPreload = !StringHelper.isBlank(this.getValueFromPropertyArray(propertyArray));
 
         return contentComboBox;
     }
@@ -157,12 +166,19 @@ export class ImageSelector
     }
 
     protected createUploader(): Q.Promise<ImageUploaderEl> {
-        const uploader: ImageUploaderEl = new ImageUploaderEl(this.createUploaderConfig());
+        const config = this.createUploaderConfig();
 
-        this.doInitUploader(uploader);
-
-        return Q(uploader);
-
+        if (this.allowedContentTypes.length > 0) {
+            return new GetMimeTypesByContentTypeNamesRequest(
+                this.allowedContentTypes.map(name => new ContentTypeName(name)))
+                .sendAndParse()
+                .then((mimeTypes: string[]) => {
+                    config.allowMimeTypes = mimeTypes;
+                    return this.doInitUploader(new ImageUploaderEl(config));
+                });
+        } else {
+            return Q(this.doInitUploader(new ImageUploaderEl(config)));
+        }
     }
 
     protected doInitUploader(uploader: ImageUploaderEl): ImageUploaderEl {

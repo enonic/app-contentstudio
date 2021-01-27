@@ -26,6 +26,7 @@ class SortContentDialog extends Page {
 
     async clickOnSaveButton() {
         try {
+            await this.waitForSaveButtonEnabled();
             await this.clickOnElement(this.saveButton);
             await this.waitForDialogClosed();
             return await this.pause(1200);
@@ -36,11 +37,19 @@ class SortContentDialog extends Page {
     }
 
     waitForDialogVisible() {
-        return this.waitForElementDisplayed(XPATH.saveButton, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(XPATH.saveButton, appConst.shortTimeout);
+    }
+
+    waitForSaveButtonDisabled() {
+        return this.waitForElementDisabled(XPATH.saveButton, appConst.shortTimeout);
+    }
+
+    waitForSaveButtonEnabled() {
+        return this.waitForElementEnabled(XPATH.saveButton, appConst.shortTimeout);
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_close_sort_content_dialog');
             throw new Error('Sort content dialog must be closed' + err);
         })
@@ -70,14 +79,15 @@ class SortContentDialog extends Page {
         return await this.pause(300);
     }
 
-    getMenuItems() {
-        let selector = xpath.container + "//li[contains(@id,'SortContentTabMenuItem')]//a";
-        return this.getText(selector);
+    async getMenuItems() {
+        let locator = XPATH.container + "//li[contains(@id,'SortContentTabMenuItem')]//a";
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+        return await this.getTextInElements(locator);
     }
 
     async getSelectedOrder() {
         let selector = XPATH.container + XPATH.menuButton + "//a";
-        //await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        //await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         return await this.getAttribute(selector, "title");
     }
 };

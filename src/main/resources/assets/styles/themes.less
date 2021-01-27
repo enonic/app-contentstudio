@@ -12,7 +12,7 @@
   @HEADER_FONT_COLOR_HOVER: @admin-black;
   @HEADER_ICON_COLOR: @admin-font-gray3;
   @HEADER_ICON_COLOR_HOVER: @admin-black;
-  @ACTION_TOOLBAR_BG_COLOR: #f7f7f8;
+  @ACTION_TOOLBAR_BG_COLOR: @admin-bg-toolbar;
   @TOOLBAR_BG_COLOR: @admin-white;
 }
 
@@ -23,6 +23,12 @@
 
     &.theme-@{theme-name} {
       .sidebar-toggler {
+        background-color: transparent;
+
+        &:hover {
+          background-color: transparent;
+        }
+
         span {
           background-color: @HEADER_FONT_COLOR;
 
@@ -42,7 +48,6 @@
 
       .appbar {
         background-color: @HEADER_BG_COLOR;
-        border-bottom: 1px solid @admin-bg-light-gray;
 
         &.appbar-settings {
           border-bottom: none;
@@ -50,18 +55,56 @@
           z-index: 1;
         }
 
-        .appbar-tab-menu ul.bar .appbar-tab-menu-item {
-          background-color: @HEADER_BG_COLOR;
-          border: 1px solid #ccc;
-          border-bottom: none;
+        .project-viewer {
+          .names-and-icon-view {
+            &::before,
+            .font-icon-default::before {
+              color: @HEADER_ICON_COLOR;
+            }
 
-          &.active {
-            height: 26px;
-            background-color: @ACTION_TOOLBAR_BG_COLOR;
+            .display-name {
+              color: @HEADER_FONT_COLOR;
+            }
           }
 
-          .label {
-            color: @HEADER_FONT_COLOR;
+          &:hover {
+            .names-and-icon-view {
+              &::before,
+              .font-icon-default::before {
+                color: @HEADER_ICON_COLOR_HOVER;
+              }
+
+              .display-name {
+                color: @HEADER_FONT_COLOR_HOVER;
+              }
+            }
+          }
+        }
+
+        .appbar-tab-menu {
+          ul.bar .appbar-tab-menu-item {
+            background-color: @HEADER_BG_COLOR;
+            border: 1px solid @admin-medium-gray-border;
+            border-bottom: none;
+
+            &.active {
+              height: 26px;
+              background-color: @ACTION_TOOLBAR_BG_COLOR;
+            }
+
+            .label {
+              color: @HEADER_FONT_COLOR;
+            }
+          }
+
+          .tab-menu-button {
+            background-color: @admin-white;
+            border: 1px solid @admin-medium-gray-border;
+            border-bottom: none;
+          }
+
+          ul.menu, ul.menu .appbar-tab-menu-item {
+            background-color: @admin-white;
           }
         }
 
@@ -82,10 +125,12 @@
 
         .show-issues-button-wrapper .show-issues-dialog-button {
 
-          border-right: 1px solid @admin-font-gray2;
-
           span {
             color: @HEADER_FONT_COLOR;
+
+            &.issue-count {
+              color: @admin-white;
+            }
           }
 
           &::before {
@@ -103,95 +148,10 @@
           }
         }
 
-        .project-selector {
-
-          .selected-project-view {
-
-            &:hover {
-              .@{_COMMON_PREFIX}dropdown-handle {
-                &::after {
-                  border-top-color: @HEADER_FONT_COLOR_HOVER;
-                }
-              }
-            }
-
-            &:not(:hover) {
-              .names-and-icon-view {
-
-                .@{_COMMON_PREFIX}names-view {
-                  .@{_COMMON_PREFIX}main-name {
-                    color: @HEADER_FONT_COLOR;
-                  }
-                }
-
-                .icon-tree-2 {
-                  color: @HEADER_ICON_COLOR;
-                }
-              }
-
-              .@{_COMMON_PREFIX}dropdown-handle {
-
-                &::after {
-                  border-top-color: @HEADER_FONT_COLOR;
-                }
-              }
-            }
-          }
-
-          .project-list-item-viewer {
-
-            .names-and-icon-view {
-              .@{_COMMON_PREFIX}names-view {
-                .@{_COMMON_PREFIX}main-name {
-                  color: @HEADER_FONT_COLOR_HOVER;
-                }
-                .@{_COMMON_PREFIX}sub-name {
-                  color: @HEADER_FONT_COLOR;
-                }
-              }
-
-              .icon-tree-2 {
-                color: @HEADER_FONT_COLOR_HOVER;
-              }
-            }
-          }
-
-          .project-list-items {
-            background-color: @HEADER_BG_COLOR;
-
-            .project-list-item {
-
-              &.selected {
-                .names-and-icon-view {
-
-                  .@{_COMMON_PREFIX}names-view {
-                    .@{_COMMON_PREFIX}main-name,
-                    .@{_COMMON_PREFIX}sub-name {
-                      color: @admin-white;
-                    }
-                  }
-
-                  .icon-tree-2 {
-                    color: @admin-white;
-                  }
-                }
-              }
-
-              &:not(.selected):hover {
-                background-color: @HEADER_BG_COLOR_HOVER;
-
-                .names-and-icon-view {
-
-                  .@{_COMMON_PREFIX}names-view {
-                    .@{_COMMON_PREFIX}sub-name {
-                      color: @HEADER_FONT_COLOR_HOVER;
-                    }
-                  }
-                }
-              }
-            }
-          }
+        & + .panel {
+          border-top: 1px solid @admin-bg-light-gray;
         }
+
       }
 
       .split-panel {
@@ -207,14 +167,6 @@
       .settings-browse-toolbar {
         border-top: 1px solid #eee;
       }
-
-      .settings-item-wizard-panel {
-
-        .toolbar {
-          border-top: 1px solid #ccc;
-        }
-      }
-
     }
   }
 
@@ -224,17 +176,12 @@
       background-color: @ACTION_TOOLBAR_BG_COLOR;
 
       > .@{_COMMON_PREFIX}button:not(:disabled) {
-        &::before, span {
+        span, &:hover span {
           color: @HEADER_FONT_COLOR;
-        }
-
-        &:hover {
-          &::before, span {
-            color: @HEADER_FONT_COLOR_HOVER;
-          }
         }
       }
     }
+
     .context-panel .context-panel-view {
       .non-mobile-details-panel-toggle-button {
         background-color: @ACTION_TOOLBAR_BG_COLOR;
@@ -246,57 +193,73 @@
     }
   }
 
-  .content-wizard-panel {
-    &.theme-@{theme-name} {
-      .content-wizard-toolbar {
+  .wizard-panel {
 
-        .project-info {
-          .icon-tree-2 {
-            color: @HEADER_ICON_COLOR;
-          }
+    &.settings-item-wizard-panel {
 
-          &:hover {
+      .toolbar {
+        border-top: 1px solid #ccc;
+      }
+    }
+
+    &.content-wizard-panel {
+      &.theme-@{theme-name} {
+        .content-wizard-toolbar {
+
+          .project-info {
             .icon-tree-2 {
-              color: @HEADER_ICON_COLOR_HOVER;
+              color: @HEADER_ICON_COLOR;
+            }
+
+            &:hover {
+              .icon-tree-2 {
+                color: @HEADER_ICON_COLOR_HOVER;
+              }
             }
           }
         }
-      }
-      .wizard-step-navigator-and-toolbar {
-        .edit-permissions-button, .tab-bar-item {
 
-          color: @HEADER_FONT_COLOR;
+        .wizard-step-navigator-and-toolbar {
 
-          &::before {
-            color: @HEADER_ICON_COLOR;
-          }
-
-          &:hover {
-            color: @HEADER_FONT_COLOR_HOVER;
-
-            &::before {
-              color: @HEADER_ICON_COLOR_HOVER;
-            }
-          }
-        }
-      }
-      .context-panel .context-panel-view {
-        .non-mobile-details-panel-toggle-button {
           background-color: @ACTION_TOOLBAR_BG_COLOR;
 
-          &::before {
-            color: @HEADER_FONT_COLOR;
+          &.scroll-stick {
+            border-top: 1px solid @admin-medium-gray-border;
           }
 
-          &:hover:not(:disabled) {
-            background-color: @ACTION_TOOLBAR_BG_COLOR;
+          .wizard-step-navigator .tab-bar-item.active:before {
+            border-left-color: @ACTION_TOOLBAR_BG_COLOR;
+          }
+
+          .edit-permissions-button, .tab-bar-item {
+
+            color: @HEADER_FONT_COLOR;
+
             &::before {
+              color: @HEADER_ICON_COLOR;
+            }
+
+            &:hover {
               color: @HEADER_FONT_COLOR_HOVER;
+
+              &::before {
+                color: @HEADER_ICON_COLOR_HOVER;
+              }
             }
           }
+        }
+
+        .minimized {
+          .wizard-step-navigator {
+            background-color: @ACTION_TOOLBAR_BG_COLOR;
+          }
+        }
+
+        .application-configurator .selected-options .selected-option:not(.placeholder):not(.invalid),
+        .panel-strip .panel-strip-panel-header.disabled {
+          background-color: @ACTION_TOOLBAR_BG_COLOR;
         }
       }
     }
   }
-
 }

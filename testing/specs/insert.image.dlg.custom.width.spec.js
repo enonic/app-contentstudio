@@ -19,7 +19,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
 
     let SITE;
     let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
-    let IMAGE_DISPLAY_NAME = "Pop_03";
+    let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.POP_03;
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -95,7 +95,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             await htmlAreaForm.doubleClickOnHtmlArea();
             await insertImageDialog.waitForDialogVisible();
             //2. Get and verify the range value:
-            let rangeValue =await insertImageDialog.waitForImageRangeValue();
+            let rangeValue = await insertImageDialog.waitForImageRangeValue();
             studioUtils.saveScreenshot('image_dialog_custom_width_clicked_saved');
             assert.equal(rangeValue, '100%', "Expected range should be in the dialog");
             //3. 'Custom Width' checkbox should be checked:
@@ -120,7 +120,7 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             await insertImageDialog.waitForImageRangeNotVisible();
             //5. Verify that `Custom Width` checkbox is unchecked
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
-            assert.isFalse(isChecked,"Custom Width should be unchecked");
+            assert.isFalse(isChecked, "Custom Width should be unchecked");
             // just save the changes and create new version
             await insertImageDialog.clickOnUpdateButton();
             await contentWizard.waitAndClickOnSave();
@@ -148,10 +148,10 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             //4. Verify that image-range is visible again(default value)
             let rangeValue = await insertImageDialog.waitForImageRangeValue();
             studioUtils.saveScreenshot('image_dialog_custom_width_rollback');
-            assert.equal(rangeValue, '100%',"Range should be reverted");
+            assert.equal(rangeValue, '100%', "Range should be reverted");
             //Verify that`Custom Width` checkbox gets checked:
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
-            assert.isTrue(isChecked,"Custom Width should be checked");
+            assert.isTrue(isChecked, "Custom Width should be checked");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

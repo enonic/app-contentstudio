@@ -37,13 +37,13 @@ class ContentDuplicateDialog extends Page {
     }
 
     isShowDependentItemsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.shortTimeout).catch(err => {
             return false;
         })
     }
 
     waitForHideDependentItemLinkDisplayed() {
-        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.TIMEOUT_2).catch((err) => {
+        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.shortTimeout).catch((err) => {
             this.saveScreenshot('err_load_hide_dependent_link');
             throw new Error('Hide Dependent link must be loaded ' + err);
         })
@@ -63,25 +63,25 @@ class ContentDuplicateDialog extends Page {
     }
 
     async clickOnDuplicateButton() {
-        await this.waitForElementEnabled(this.duplicateButton, appConst.TIMEOUT_3);
+        await this.waitForElementEnabled(this.duplicateButton, appConst.mediumTimeout);
         await this.clickOnElement(this.duplicateButton);
         return await this.pause(500);
     }
 
     async clickOnShowDependentItemLink() {
-        await this.waitForElementEnabled(this.showDependentItemsLink);
+        await this.waitForElementEnabled(this.showDependentItemsLink, appConst.shortTimeout);
         await this.clickOnElement(this.showDependentItemsLink);
         return await this.pause(500);
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
             throw new Error("Content Duplicate dialog is not loaded " + err);
         })
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
             throw new Error("Content Duplicate dialog must be closed  " + err);
         })
     }
@@ -109,7 +109,7 @@ class ContentDuplicateDialog extends Page {
             await this.getBrowser().waitUntil(async () => {
                 let text = await this.getText(this.duplicateButton);
                 return text.includes('(');
-            }, appConst.TIMEOUT_3);
+            }, appConst.mediumTimeout);
             let result = await this.getText(this.duplicateButton);
             let startIndex = result.indexOf('(');
             let endIndex = result.indexOf(')');

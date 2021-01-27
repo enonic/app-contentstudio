@@ -2,7 +2,6 @@ import {DialogTogglableItemList, TogglableStatusSelectionItem} from '../dialog/D
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
@@ -47,7 +46,7 @@ export class PublishDialogItemList
     }
 
     protected createSelectionItem(viewer: ContentSummaryAndCompareStatusViewer,
-                                  browseItem: BrowseItem<ContentSummaryAndCompareStatus>): TogglableStatusSelectionItem {
+                                  browseItem: ContentSummaryAndCompareStatus): TogglableStatusSelectionItem {
 
         const item: TogglableStatusSelectionItem = super.createSelectionItem(viewer, browseItem);
         item.setRemoveButtonClickTooltip(i18n('dialog.publish.itemRequired'));
@@ -62,8 +61,8 @@ export class PublishDialogItemList
             }
         });
 
-        if (!ArrayHelper.contains(this.excludeChildrenIds, browseItem.getModel().getContentId())) {
-            this.excludeChildrenIds.push(browseItem.getModel().getContentId());
+        if (!ArrayHelper.contains(this.excludeChildrenIds, browseItem.getContentId())) {
+            this.excludeChildrenIds.push(browseItem.getContentId());
         }
 
         return item;
@@ -87,5 +86,15 @@ export class PublishDialogItemList
 
     public clearExcludeChildrenIds() {
         this.excludeChildrenIds = [];
+    }
+
+    removeItemsByIds(contentIds: ContentId[]) {
+        contentIds.forEach((id: ContentId) => {
+           const item: ContentSummaryAndCompareStatus = this.getItem(id.toString());
+
+            if (item) {
+                this.removeItem(item, true);
+            }
+        });
     }
 }

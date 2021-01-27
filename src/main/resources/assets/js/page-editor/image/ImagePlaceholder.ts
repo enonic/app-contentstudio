@@ -39,14 +39,8 @@ export class ImagePlaceholder
     }
 
     private initImageCombobox(imageView: ImageComponentView) {
-        let loader = ImageOptionDataLoader.create()
-            .setContent(imageView.getLiveEditModel().getContent())
-            .setContentTypeNames([ContentTypeName.IMAGE.toString(), ContentTypeName.MEDIA_VECTOR.toString()])
-            .build();
-
         this.comboBox = ImageContentComboBox.create()
             .setMaximumOccurrences(1)
-            .setLoader(loader)
             .setContent(imageView.getLiveEditModel().getContent())
             .setTreegridDropdownEnabled(false)
             .setMinWidth(270)
@@ -56,7 +50,7 @@ export class ImagePlaceholder
         this.comboBox.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
             const component: ImageComponent = this.imageComponentView.getComponent();
             const imageContentSummary: ContentSummary =
-                (<MediaTreeSelectorItem>event.getSelectedOption().getOption().displayValue).getContentSummary();
+                (<MediaTreeSelectorItem>event.getSelectedOption().getOption().getDisplayValue()).getContentSummary();
 
             new GetContentByIdRequest(imageContentSummary.getContentId()).sendAndParse().then((imageContent: Content) => {
                 component.setImage(imageContent);

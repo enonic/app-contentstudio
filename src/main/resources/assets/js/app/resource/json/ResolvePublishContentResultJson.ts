@@ -9,4 +9,6 @@ export interface ResolvePublishContentResultJson {
     containsInvalid: boolean;
     allPublishable: boolean;
     allPendingDelete: boolean;
+    invalidContents: ContentIdBaseItemJson[];
+    notReadyContents: ContentIdBaseItemJson[];
 }

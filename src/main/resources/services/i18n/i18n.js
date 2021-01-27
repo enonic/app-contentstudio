@@ -1,21 +1,30 @@
-var i18n = require('/lib/xp/i18n');
-var admin = require('/lib/xp/admin');
+const i18n = require('/lib/xp/i18n');
+const admin = require('/lib/xp/admin');
 
-exports.get = function () {
-
+const processRequest = function (req) {
+    const customBundles = req.params && req.params.bundles ? req.params.bundles.split(',') : [];
     return {
         status: 200,
         contentType: 'application/json',
-        body: getPhrases()
+        body: getPhrases(customBundles)
     }
 };
 
-var getPhrases = function() {
-    var locales = admin.getLocales();
-    var bundle = i18n.getPhrases(locales, ['i18n/common']);
-    var phrases = i18n.getPhrases(locales, ['i18n/phrases']);
+exports.get = processRequest;
+exports.post = processRequest;
 
-    for (var key in phrases) { bundle[key] = phrases[key] }
+const getPhrases = function(customBundles) {
+    const locales = admin.getLocales();
+    const phrases = {};
+    let bundles = ['i18n/common', 'i18n/phrases', 'i18n/dialogs'];
+    if (customBundles.length) {
+        bundles = bundles.concat(customBundles);
+    }
 
-    return bundle;
+    for (const bundleIndex in bundles) {
+        const bundlePhrases = i18n.getPhrases(locales, [bundles[bundleIndex]]);
+        for (const key in bundlePhrases) { phrases[key] = bundlePhrases[key] }
+    }
+
+    return phrases;
 };

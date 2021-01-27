@@ -8,6 +8,7 @@ import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOpt
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {RichComboBox} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorComboBox, CustomSelectorSelectedOptionsView} from './CustomSelectorComboBox';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
@@ -16,16 +17,23 @@ import {Input} from 'lib-admin-ui/form/Input';
 import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
 import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from 'lib-admin-ui/Class';
+import {UrlAction} from '../../UrlAction';
 import {CustomSelectorLoader} from './CustomSelectorLoader';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
+import {ProjectContext} from '../../project/ProjectContext';
+import {Branch} from '../../versioning/Branch';
 
 export class CustomSelector
     extends BaseInputTypeManagingAdd {
 
     public static debug: boolean = false;
 
-    private static portalUrl: string = UriHelper.addSitePrefix('/edit/default/draft{0}/_/service/{1}');
+    private static portalUrl: string = UriHelper.addSitePrefix(`/${UrlAction.EDIT}/{0}/${Branch.DRAFT}{1}/_/service/`);
 
     private requestPath: string;
+
+    private content: ContentSummary;
 
     private comboBox: RichComboBox<CustomSelectorItem>;
 
@@ -37,6 +45,23 @@ export class CustomSelector
         }
 
         this.readConfig(context);
+        this.subscribeToContentUpdates();
+    }
+
+    private subscribeToContentUpdates() {
+        const handler = (data: ContentSummaryAndCompareStatus[]) => this.handleContentUpdated(data);
+
+        ContentServerEventsHandler.getInstance().onContentUpdated(handler);
+        ContentServerEventsHandler.getInstance().onContentRenamed(handler);
+    }
+
+    private handleContentUpdated(data: ContentSummaryAndCompareStatus[]) {
+
+        const modifiedData = data.find((content: ContentSummaryAndCompareStatus) => content.getId() === this.content.getId());
+
+        if (modifiedData) {
+            this.content = modifiedData.getContentSummary();
+        }
     }
 
     private readConfig(context: ContentInputTypeViewContext): void {
@@ -47,16 +72,16 @@ export class CustomSelector
             serviceUrl = serviceCfg[0] ? serviceCfg[0]['value'] : undefined;
         }
         const serviceParams = cfg['param'] || [];
-        const contentPath = context.contentPath.toString();
 
         const params = serviceParams.reduce((prev, curr) => {
             prev[curr['@value']] = curr['value'];
             return prev;
         }, {});
 
+        this.content = context.content;
+
         if (serviceUrl) {
-            this.requestPath =
-                StringHelper.format(CustomSelector.portalUrl, contentPath, UriHelper.appendUrlParams(serviceUrl, params));
+            this.requestPath = CustomSelector.portalUrl + UriHelper.appendUrlParams(serviceUrl, params);
         }
     }
 
@@ -101,24 +126,35 @@ export class CustomSelector
         this.comboBox.resetBaseValues();
     }
 
+    private getRequestPath(): string {
+        const contentPath = this.content.getPath().toString();
+        const projectId = ProjectContext.get().getProject().getName();
+        return StringHelper.format(this.requestPath, projectId, contentPath);
+    }
+
+    private createLoader(): CustomSelectorLoader {
+        const loader: CustomSelectorLoader = new CustomSelectorLoader();
+        loader.onLoadingData(() => {
+            loader.setRequestPath(this.getRequestPath());
+        });
+
+        return loader;
+    }
+
     createComboBox(input: Input, propertyArray: PropertyArray): RichComboBox<CustomSelectorItem> {
 
         const comboBox: CustomSelectorComboBox = <CustomSelectorComboBox>CustomSelectorComboBox.create()
             .setComboBoxName(input.getName())
             .setMaximumOccurrences(input.getOccurrences().getMaximum())
             .setValue(this.getValueFromPropertyArray(propertyArray))
-            .setLoader(new CustomSelectorLoader(this.requestPath))
+            .setLoader(this.createLoader())
             .build();
-        /*
-         comboBox.onOptionFilterInputValueChanged((event: OptionFilterInputValueChangedEvent<string>) => {
-         comboBox.setFilterArgs({searchString: event.getNewValue()});
-         });
-         */
+
         comboBox.onOptionSelected((event: SelectedOptionEvent<CustomSelectorItem>) => {
             this.ignorePropertyChange = true;
 
             const option = event.getSelectedOption();
-            let value = new Value(String(option.getOption().value), ValueTypes.STRING);
+            let value = new Value(String(option.getOption().getValue()), ValueTypes.STRING);
             if (option.getIndex() >= 0) {
                 this.getPropertyArray().set(option.getIndex(), value);
             } else {

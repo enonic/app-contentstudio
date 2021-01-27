@@ -5,7 +5,7 @@ const chai = require('chai');
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
-const Page = require('../page_objects/page')
+const Page = require('../page_objects/page');
 
 describe('Call the `Application controller` specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -17,7 +17,7 @@ describe('Call the `Application controller` specification', function () {
             await webDriverHelper.browser.url("http://127.0.0.1:8080/webapp/com.enonic.app.appControllerTest");
             studioUtils.saveScreenshot("app_controller_test1");
             //Expected header should be loaded:
-            await page.waitForElementDisplayed("//h1[text()='My controller test page']", appConstant.TIMEOUT_3);
+            await page.waitForElementDisplayed("//h1[text()='My controller test page']", appConstant.mediumTimeout);
         });
 
    //verifies bug: `Application controller not called for URL ending in /`
@@ -26,7 +26,7 @@ describe('Call the `Application controller` specification', function () {
             let page = new Page();
             await webDriverHelper.browser.url("http://127.0.0.1:8080/webapp/com.enonic.app.appControllerTest/");
             studioUtils.saveScreenshot("app_controller_test2");
-            await page.waitForElementDisplayed("//h1[text()='My controller test page']", appConstant.TIMEOUT_3);
+            await page.waitForElementDisplayed("//h1[text()='My controller test page']", appConstant.mediumTimeout);
         });
 
     before(() => {

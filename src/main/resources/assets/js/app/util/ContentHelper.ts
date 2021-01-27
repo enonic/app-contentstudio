@@ -6,12 +6,10 @@ import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
 import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
 import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
-import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../resource/ContentQueryResult';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {Content} from '../content/Content';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentQuery} from '../content/ContentQuery';
 import {QueryField} from 'lib-admin-ui/query/QueryField';
 
@@ -57,12 +55,5 @@ export class ContentHelper {
         }
 
         return Q(false);
-    }
-
-    static createView(model: ContentSummaryAndCompareStatus): ViewItem<ContentSummaryAndCompareStatus> {
-        return new ViewItem<ContentSummaryAndCompareStatus>(model)
-            .setIconUrl(model.getIconUrl())
-            .setDisplayName(model.getDisplayName())
-            .setPath(model.getPath().toString());
     }
 }

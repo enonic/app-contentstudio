@@ -31,14 +31,14 @@ class InsertSpecialCharacterDialog extends Page {
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.cancelButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_open_insert_anchor_dialog');
             throw new Error('Insert Special Character Dialog should be opened!' + err);
         });
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
     }
 };
 module.exports = InsertSpecialCharacterDialog;

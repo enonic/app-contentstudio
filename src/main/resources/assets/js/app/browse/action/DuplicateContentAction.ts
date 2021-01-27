@@ -1,22 +1,29 @@
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentDuplicatePromptEvent} from '../ContentDuplicatePromptEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Action} from 'lib-admin-ui/ui/Action';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentTreeGridAction} from './ContentTreeGridAction';
+import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
-export class DuplicateContentAction extends Action {
+export class DuplicateContentAction
+    extends ContentTreeGridAction {
 
     constructor(grid: ContentTreeGrid) {
-        super(i18n('action.duplicateMore'));
+        super(grid, i18n('action.duplicateMore'));
         this.setEnabled(false);
-        this.onExecuted(() => {
-            let contents: ContentSummaryAndCompareStatus[]
-                = grid.getSelectedDataList();
-            new ContentDuplicatePromptEvent(contents)
-                .setYesCallback(() => {
-                    const deselected = grid.getSelectedDataList().map(content => content.getId());
-                    grid.deselectNodes(deselected);
-                }).fire();
-        });
+    }
+
+    protected handleExecuted() {
+        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList();
+
+        new ContentDuplicatePromptEvent(contents)
+            .setYesCallback(() => {
+                const deselected = this.grid.getSelectedDataList().map(content => content.getId());
+                this.grid.deselectNodes(deselected);
+            }).fire();
+    }
+
+    isToBeEnabled(state: ContentTreeGridItemsState): boolean {
+        return !state.isEmpty() && !state.isManagedActionExecuting() && state.canCreate();
     }
 }

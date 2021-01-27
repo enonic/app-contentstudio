@@ -1,16 +1,17 @@
 .show-issues-button-wrapper {
 
   width: 100%;
-  margin-right: 32px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
 
   .show-issues-dialog-button {
-    position: relative;
-    background-color: transparent;
     display: flex;
     justify-content: center;
+    align-items: center;
+    height: @toolbar-height+1;
+    position: relative;
+    background-color: transparent;
     z-index: 1;
     color: @admin-white;
     border-right: 1px solid @admin-white;
@@ -19,9 +20,7 @@
       margin-left: 10px;
       font-size: 14px;
       line-height: 25px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
+      .ellipsis();
     }
 
     &:before {

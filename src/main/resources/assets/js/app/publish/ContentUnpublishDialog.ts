@@ -11,9 +11,14 @@ import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {BEl} from 'lib-admin-ui/dom/BEl';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {ConfirmValueDialog} from '../remove/ConfirmValueDialog';
+import {ResolveUnpublishRequest} from '../resource/ResolveUnpublishRequest';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ContentUnpublishDialog
     extends DependantItemsWithProgressDialog {
+
+    private unPublishConfirmationDialog?: ConfirmValueDialog;
 
     constructor() {
         super(<DependantItemsWithProgressDialogConfig> {
@@ -35,7 +40,7 @@ export class ContentUnpublishDialog
     protected initElements() {
         super.initElements();
 
-        this.actionButton = this.addAction(new ContentUnpublishDialogAction(), true, true);
+        this.actionButton = this.addAction(new Action(i18n('action.unpublish')).setIconClass('unpublish-action'), true, true);
     }
 
     protected postInitElements() {
@@ -45,7 +50,7 @@ export class ContentUnpublishDialog
     protected initListeners() {
         super.initListeners();
 
-        this.actionButton.getAction().onExecuted(this.doUnpublish.bind(this));
+        this.actionButton.getAction().onExecuted(this.handleUnPublishAction.bind(this));
 
         this.getItemList().onItemsRemoved(() => {
             if (!this.isIgnoreItemsChanged()) {
@@ -56,6 +61,33 @@ export class ContentUnpublishDialog
         this.onProgressComplete(() => {
             this.useDefaultSubTitle();
         });
+    }
+
+    private handleUnPublishAction() {
+        if (this.isSiteOrMultipleItemsToUnPublish()) {
+            this.showUnPublishConfirmationDialog();
+        } else {
+            this.doUnPublish();
+        }
+    }
+
+    private isSiteOrMultipleItemsToUnPublish(): boolean {
+        return this.countTotal() > 1 || this.getItemList().getItems()[0]?.getType().isSite();
+    }
+
+    private showUnPublishConfirmationDialog() {
+        if (!this.unPublishConfirmationDialog) {
+            this.initUnPublishConfirmationDialog();
+        }
+
+        this.unPublishConfirmationDialog.setValueToCheck('' + this.countTotal()).open();
+    }
+
+    private initUnPublishConfirmationDialog() {
+        this.unPublishConfirmationDialog = new ConfirmValueDialog();
+        this.unPublishConfirmationDialog.setHeaderText(i18n('dialog.unpublish.confirm.title'));
+        this.unPublishConfirmationDialog.setSubheaderText(i18n('dialog.unpublish.confirm.subtitle'));
+        this.unPublishConfirmationDialog.setYesCallback(this.doUnPublish.bind(this));
     }
 
     private useDefaultSubTitle() {
@@ -92,26 +124,32 @@ export class ContentUnpublishDialog
         this.getDependantList().clearItems();
         this.lockControls();
 
-        return this.loadDescendantIds([CompareStatus.EQUAL, CompareStatus.NEWER, CompareStatus.PENDING_DELETE]).then(() => {
+        return this.loadDescendantIds().then(() => {
             return this.loadDescendants(0, 20).then((items: ContentSummaryAndCompareStatus[]) => {
                 this.setDependantItems(items);
 
                 // do not set requested contents as they are never going to change
 
                 this.unlockControls();
-            }).finally(() => {
-                this.hideLoadMask();
-                return Q(null);
-            });
+            }).catch(DefaultErrorHandler.handle)
+                .finally(() => {
+                    this.hideLoadMask();
+                    return Q(null);
+                });
         });
 
     }
 
+    protected createResolveDescendantsRequest(): ResolveUnpublishRequest {
+        const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
+        return new ResolveUnpublishRequest(ids);
+    }
+
     private filterUnpublishableItems(items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] {
-        return items.filter(item => {
-            let status = item.getCompareStatus();
+        return items.filter((item: ContentSummaryAndCompareStatus) => {
+            const status: CompareStatus = item.getCompareStatus();
             return status === CompareStatus.EQUAL || status === CompareStatus.NEWER || status === CompareStatus.PENDING_DELETE ||
-                   status === CompareStatus.OLDER;
+                   status === CompareStatus.OLDER || status === CompareStatus.MOVED;
         });
     }
 
@@ -140,13 +178,10 @@ export class ContentUnpublishDialog
         });
     }
 
-    private doUnpublish() {
-
+    private doUnPublish() {
         this.lockControls();
-
         this.setSubTitle(i18n('dialog.unpublish.beingUnpublished', this.countTotal()));
-
-        let selectedIds = this.getContentToUnpublishIds();
+        const selectedIds: ContentId[] = this.getContentToUnpublishIds();
 
         new UnpublishContentRequest()
             .setIncludeChildren(true)
@@ -161,13 +196,5 @@ export class ContentUnpublishDialog
                 showError(reason.message);
             }
         });
-    }
-}
-
-export class ContentUnpublishDialogAction
-    extends Action {
-    constructor() {
-        super(i18n('action.unpublish'));
-        this.setIconClass('unpublish-action');
     }
 }

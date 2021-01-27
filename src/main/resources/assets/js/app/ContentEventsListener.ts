@@ -1,6 +1,6 @@
 import {NewContentEvent} from './create/NewContentEvent';
 import {ViewContentEvent} from './browse/ViewContentEvent';
-import {SortContentEvent} from './browse/SortContentEvent';
+import {SortContentEvent} from './browse/sort/SortContentEvent';
 import {MoveContentEvent} from './move/MoveContentEvent';
 import {ContentEventsProcessor} from './ContentEventsProcessor';
 import {EditContentEvent} from './event/EditContentEvent';

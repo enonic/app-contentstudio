@@ -54,12 +54,9 @@ export class ImageUploaderEl
         this.getResultContainer().getEl().setAttribute('data-drop', i18n('drop.file.short'));
 
         this.initialWidth = 0;
-        this.onShown(() => {
-
-            if (this.getEl().getWidth() === 0) {
-                this.initialWidth = Math.max(this.getParentElement().getEl().getWidth(), this.initialWidth);
-                this.getEl().setMaxWidthPx(this.initialWidth);
-            }
+        this.whenRendered(() => {
+            this.initialWidth = Math.max(this.getParentElement().getEl().getWidth(), this.initialWidth);
+            this.getEl().setMaxWidthPx(this.initialWidth);
         });
 
         this.onUploadStarted(() => {
@@ -193,22 +190,21 @@ export class ImageUploaderEl
             this.notifyFocusPositionChanged(focus);
         };
 
+        imageEditor.onCropPositionChanged(cropPositionHandler);
+        imageEditor.onFocusPositionChanged(focusPositionHandler);
+        imageEditor.onOrientationChanged(orientationHandler);
+        imageEditor.onShaderVisibilityChanged(shaderVisibilityChangedHandler);
+        imageEditor.onEditModeChanged(editModeChangedHandler);
+        imageEditor.onFocusAutoPositionedChanged(focusAutoPositionedChangedHandler);
+        imageEditor.onCropAutoPositionedChanged(cropAutoPositionedChangedHandler);
+        imageEditor.getUploadButton().onClicked(uploadButtonClickedHandler);
+        imageEditor.getLastButtonInContainer().onBlur(getLastButtonInContainerBlurHandler);
+
         const editorImage = imageEditor.getImage();
         editorImage.onLoaded(() => {
             if (!editorImage.isPlaceholder()) {
                 this.togglePlaceholder(false);
             }
-            imageEditor.onCropPositionChanged(cropPositionHandler);
-            imageEditor.onFocusPositionChanged(focusPositionHandler);
-            imageEditor.onOrientationChanged(orientationHandler);
-            imageEditor.onShaderVisibilityChanged(shaderVisibilityChangedHandler);
-            imageEditor.onEditModeChanged(editModeChangedHandler);
-            imageEditor.onFocusAutoPositionedChanged(focusAutoPositionedChangedHandler);
-            imageEditor.onCropAutoPositionedChanged(cropAutoPositionedChangedHandler);
-            imageEditor.getUploadButton().onClicked(uploadButtonClickedHandler);
-            imageEditor.getLastButtonInContainer().onBlur(getLastButtonInContainerBlurHandler);
-
-            cropAutoPositionedChangedHandler(imageEditor.isCropAutoPositioned());
         });
 
         imageEditor.onImageError(imageErrorHandler);
@@ -256,11 +252,6 @@ export class ImageUploaderEl
     }
 
     createResultItem(value: string): DivEl {
-
-        if (!this.initialWidth) {
-            this.initialWidth = this.getParentElement().getEl().getWidth();
-        }
-
         let imageEditor = this.createImageEditor(value);
 
         this.imageEditors.push(imageEditor);

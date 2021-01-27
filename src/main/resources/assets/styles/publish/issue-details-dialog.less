@@ -6,14 +6,12 @@
   }
 
   .dialog-content {
-    min-height: 200px;
     position: relative; // to be able to position empty text message absolutely
 
     .deck-panel {
-      overflow: visible;
 
       & > .panel {
-        overflow: visible;
+        min-height: 200px;
 
         .content-combo-box,
         .principal-combobox {
@@ -46,17 +44,24 @@
 
     .inplace-text-input {
 
-      .inplace-input {
-        width: calc(100% - 55px);
-      }
-
       .inplace-text {
         line-height: 38px;
 
-        .title-id {
-          color: @admin-font-gray1;
-          margin-left: 10px;
+        > span {
+          display: flex;
+
+          .title {
+            max-width: calc(100% - 80px);
+            .ellipsis();
+          }
+
+          .title-id {
+            color: @admin-font-gray1;
+            margin-left: 10px;
+          }
+
         }
+
       }
     }
 
@@ -178,19 +183,14 @@
     }
   }
 
-  &:not(.closed) {
-    &:not(.is-processing) {
-      .modal-dialog-footer {
-        .button-container {
-          .close-issue {
-            display: block !important;
-          }
-        }
+  &.closed {
+    .dialog-content .deck-panel > .panel {
+      .content-combo-box,
+      .principal-combobox {
+        margin-top: 0;
       }
     }
-  }
 
-  &.closed {
     .modal-dialog-footer {
       .button-container {
         .reopen-issue {
@@ -231,10 +231,7 @@
   }
 
   .button-container {
-    display: flex;
-    justify-content: flex-start;
     flex-direction: row-reverse;
-    width: 100%;
 
     .dialog-button,
     .menu-button {
@@ -244,13 +241,10 @@
     .dialog-button {
 
       &.close-issue {
-        order: 1;
-        margin-right: auto;
-        margin-left: 0;
-        background-color: @admin-button-gray3;
+        background-color: @form-button-bg;
 
         &:hover:not(:disabled) {
-          background-color: @admin-button-gray3;
+          background-color: @form-button-bg-hover;
         }
       }
 
@@ -260,11 +254,6 @@
         &:hover:not(:disabled) {
           background-color: @admin-green;
         }
-      }
-
-      .cancel-button-bottom {
-        float: left;
-        margin: 0;
       }
     }
 
@@ -332,8 +321,11 @@
 
   &.tab-comments {
     &:not(.closed):not(.is-processing) {
+
       .dialog-content {
-        min-height: 124px; // subtract textarea height to keep overall dialog height
+        .deck-panel > .panel {
+          min-height: 128px;  // subtract textarea height to keep overall dialog height
+        }
       }
 
       .modal-dialog-footer {
@@ -349,6 +341,10 @@
         .button-container {
           .comment-issue {
             display: block !important;
+
+            &:not([disabled]) ~ .close-issue {
+              display: block !important;
+            }
           }
         }
       }
@@ -365,41 +361,42 @@
     }
   }
 
-  &.tab-items:not(.closed):not(.no-action):not(.is-processing) {
-
-    &.with-schedule-form {
+  &.tab-items:not(.closed) {
+    &.no-action {
       .modal-dialog-footer {
-        .button-container {
-          .publish-issue {
-            display: none !important;
-          }
-
-          .schedule-issue {
-            display: block !important;
-          }
+        .no-action-message {
+          display: inline-block;
         }
       }
     }
 
-    &:not(.with-schedule-form) {
-      .modal-dialog-footer {
-        .button-container {
-          .publish-issue {
-            display: block !important;
-          }
+    &:not(.no-action):not(.is-processing) {
+      &.with-schedule-form {
+        .modal-dialog-footer {
+          .button-container {
+            .publish-issue {
+              display: none !important;
+            }
 
-          .schedule-issue {
-            display: none !important;
+            .schedule-issue {
+              display: block !important;
+            }
           }
         }
       }
-    }
-  }
 
-  &.tab-items.no-action {
-    .modal-dialog-footer {
-      .no-action-message {
-        display: inline-block;
+      &:not(.with-schedule-form) {
+        .modal-dialog-footer {
+          .button-container {
+            .publish-issue {
+              display: block !important;
+            }
+
+            .schedule-issue {
+              display: none !important;
+            }
+          }
+        }
       }
     }
   }

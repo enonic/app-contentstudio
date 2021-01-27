@@ -15,10 +15,10 @@ import {ValueType} from 'lib-admin-ui/data/ValueType';
 import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
 import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {ContentComboBox, ContentSelectedOptionsView} from '../ui/selector/ContentComboBox';
+import {ContentComboBox, ContentSelectedOptionsView, ContentComboBoxBuilder} from '../ui/selector/ContentComboBox';
 import {ContentInputTypeManagingAdd} from '../ui/selector/ContentInputTypeManagingAdd';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
+import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {GetContentSummaryByIds} from '../../resource/GetContentSummaryByIds';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
@@ -96,13 +96,6 @@ export class ContentSelector
         return null;
     }
 
-    protected createOptionDataLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
-        return ContentSummaryOptionDataLoader.create().setAllowedContentPaths(
-            this.allowedContentPaths).setContentTypeNames(this.allowedContentTypes).setRelationshipType(
-            this.relationshipType).setContent(this.config.content).setLoadStatus(this.showStatus).build();
-
-    }
-
     layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
         if (!ValueTypes.REFERENCE.equals(propertyArray.getType())) {
             propertyArray.convertValues(ValueTypes.REFERENCE, ValueTypeConverter.convertTo);
@@ -149,20 +142,43 @@ export class ContentSelector
         });
     }
 
-    protected createContentComboBox(input: Input, propertyArray: PropertyArray): ContentComboBox<ContentTreeSelectorItem> {
+    protected createOptionDataLoaderBuilder(): ContentSummaryOptionDataLoaderBuilder {
+        return ContentSummaryOptionDataLoader.create()
+            .setAllowedContentPaths(this.allowedContentPaths)
+            .setContentTypeNames(this.allowedContentTypes)
+            .setRelationshipType(this.relationshipType)
+            .setContent(this.config.content)
+            .setLoadStatus(this.showStatus);
+    }
+
+    protected doCreateContentComboBoxBuilder(): ContentComboBoxBuilder<ContentTreeSelectorItem> {
+        return ContentComboBox.create();
+    }
+
+    protected createOptionDataLoader(): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
+        return this.createOptionDataLoaderBuilder().build();
+    }
+
+    protected createContentComboBoxBuilder(input: Input, propertyArray: PropertyArray): ContentComboBoxBuilder<ContentTreeSelectorItem> {
         const optionDataLoader = this.createOptionDataLoader();
         const comboboxValue = this.getValueFromPropertyArray(propertyArray);
 
-        const contentComboBox = ContentComboBox.create()
-            .setComboBoxName(input.getName())
-            .setMaximumOccurrences(input.getOccurrences().getMaximum())
-            .setLoader(optionDataLoader)
-            .setValue(comboboxValue)
-            .setRemoveMissingSelectedOptions(true)
-            .setTreegridDropdownEnabled(this.treeMode)
-            .setTreeModeTogglerAllowed(!this.hideToggleIcon)
-            .setShowStatus(this.showStatus)
-            .build();
+        return this.doCreateContentComboBoxBuilder()
+                .setComboBoxName(input.getName())
+                .setLoader(optionDataLoader)
+                .setMaximumOccurrences(input.getOccurrences().getMaximum())
+                .setRemoveMissingSelectedOptions(true)
+                .setShowStatus(this.showStatus)
+                .setTreegridDropdownEnabled(this.treeMode)
+                .setTreeModeTogglerAllowed(!this.hideToggleIcon)
+                .setValue(comboboxValue);
+    }
+
+    protected doCreateContentComboBox(input: Input, propertyArray: PropertyArray): ContentComboBox<ContentTreeSelectorItem> {
+        return this.createContentComboBoxBuilder(input, propertyArray).build();
+    }
+
+    protected initEvents(contentComboBox: ContentComboBox<ContentTreeSelectorItem>) {
 
         contentComboBox.getComboBox().onContentMissing((ids: string[]) => {
             ids.forEach(id => this.removePropertyWithId(id));
@@ -172,7 +188,7 @@ export class ContentSelector
         contentComboBox.onOptionSelected((event: SelectedOptionEvent<ContentTreeSelectorItem>) => {
             this.fireFocusSwitchEvent(event);
 
-            const contentId: ContentId = event.getSelectedOption().getOption().displayValue.getContentId();
+            const contentId: ContentId = event.getSelectedOption().getOption().getDisplayValue().getContentId();
 
             if (contentId) {
                 this.setContentIdProperty(contentId);
@@ -193,6 +209,12 @@ export class ContentSelector
         });
 
         contentComboBox.onOptionMoved(this.handleMoved.bind(this));
+    }
+
+    protected createContentComboBox(input: Input, propertyArray: PropertyArray): ContentComboBox<ContentTreeSelectorItem> {
+        const contentComboBox = this.doCreateContentComboBox(input, propertyArray);
+
+        this.initEvents(contentComboBox);
 
         return contentComboBox;
     }
@@ -222,6 +244,11 @@ export class ContentSelector
 
     reset() {
         this.contentComboBox.resetBaseValues();
+    }
+
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+        this.contentComboBox.setEnabled(enable);
     }
 
     resetPropertyValues() {
@@ -307,7 +334,7 @@ export class ContentSelector
     }
 
     protected updateSelectedOptionIsEditable(selectedOption: SelectedOption<ContentTreeSelectorItem>) {
-        let selectedContentId = selectedOption.getOption().displayValue.getContentId();
+        let selectedContentId = selectedOption.getOption().getDisplayValue().getContentId();
         let refersToItself = selectedContentId.toString() === this.config.content.getId();
         selectedOption.getOptionView().toggleClass('non-editable', refersToItself);
     }

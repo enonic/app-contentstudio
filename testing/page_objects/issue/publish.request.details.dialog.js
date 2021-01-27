@@ -63,7 +63,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     }
 
     waitForAddScheduleButtonDisplayed() {
-        return this.waitForElementDisplayed(this.addScheduleButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.addScheduleButton, appConst.shortTimeout).catch(err => {
             throw new Error("`Request Publish dialog` Requests Tab - Add schedule button is not present " + err);
         })
     }
@@ -98,19 +98,15 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     }
 
     waitForPublishNowButtonEnabled() {
-        return this.waitForElementEnabled(this.publishNowButton, appConst.TIMEOUT_3);
+        return this.waitForElementEnabled(this.publishNowButton, appConst.mediumTimeout);
     }
 
     waitForPublishNowButtonDisabled() {
-        return this.waitForElementDisabled(this.publishNowButton, appConst.TIMEOUT_4);
-    }
-
-    waitForCloseRequestButtonDisplayed() {
-        return this.waitForElementDisplayed(this.closeRequestButton, appConst.TIMEOUT_2);
+        return this.waitForElementDisabled(this.publishNowButton, appConst.mediumTimeout);
     }
 
     waitContentOptionsFilterInputDisplayed() {
-        return this.waitForElementDisplayed(this.contentOptionsFilterInput, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.contentOptionsFilterInput, appConst.mediumTimeout).catch(err => {
             throw new Error('Error when checking the `Options filter input` in Issue Details ' + err)
         })
     }
@@ -141,7 +137,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     //Show dependent items
     async clickOnShowDependentItems(text) {
         try {
-            await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.showDependentItemsLink, appConst.mediumTimeout);
             await this.clickOnElement(this.showDependentItemsLink);
             return await this.pause(400);
         } catch (err) {
@@ -150,7 +146,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     }
 
     isShowDependentItemsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.mediumTimeout).catch(err => {
             console.log(err);
             return false;
         })
@@ -159,7 +155,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     //Hide dependent items
     async clickOnHideDependentItems() {
         try {
-            await this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.mediumTimeout);
             await this.clickOnElement(this.hideDependentItemsLink);
             return await this.pause(300);
         } catch (err) {
@@ -168,7 +164,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     }
 
     isHideDependentItemsLinkDisplayed() {
-        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.shortTimeout).catch(err => {
             this.saveScreenshot("err_hide_dependent_items_should_be_displayed");
             throw new Error("Publish request -Hide Dependent Items link should be displayed! " + err)
         })
@@ -176,7 +172,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
     clickOnIncludeChildItems(displayName) {
         let includeIcon = xpath.selectionItemByDisplayName(displayName) + xpath.includeChildrenToggler;
-        return this.waitForElementDisplayed(includeIcon, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(includeIcon, appConst.shortTimeout).then(() => {
             return this.clickOnElement(includeIcon)
         }).then(() => {
             return this.pause(2000);
@@ -187,7 +183,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
     excludeItem(displayName) {
         let removeIcon = xpath.dependantSelectionItemByDisplayName(displayName) + "//div[contains(@class,'icon remove')]";
-        return this.waitForElementDisplayed(removeIcon, appConst.TIMEOUT_2).then(() => {
+        return this.waitForElementDisplayed(removeIcon, appConst.shortTimeout).then(() => {
             return this.clickOnElement(removeIcon)
         }).then(() => {
             return this.pause(1000);
@@ -206,7 +202,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
     }
 
     waitForTabLoaded() {
-        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
             throw new Error("Issue Details Dialog , Requests Tab is not loaded! " + err);
         });
     }
@@ -223,7 +219,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
     async clickOnCloseRequestButton() {
         try {
-            await this.waitForElementDisplayed(this.closeRequestButton, appConst.TIMEOUT_1);
+            await this.waitForElementDisplayed(this.closeRequestButton, appConst.shortTimeout);
             await this.clickOnElement(this.closeRequestButton);
             return this.pause(1000);
         } catch (err) {
@@ -234,7 +230,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
     async clickOnReopenRequestButton() {
         try {
-            await this.waitForElementDisplayed(this.reopenRequestButton, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.reopenRequestButton, appConst.shortTimeout);
             await this.clickOnElement(this.reopenRequestButton);
             return this.pause(1000);
         } catch (err) {
@@ -256,7 +252,7 @@ class PublishRequestDetailsDialog extends BaseDetailsDialog {
 
     async waitForClosed() {
         try {
-            return await this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+            return await this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
         } catch (err) {
             throw new Error("Request Details dialog should be closed: " + err);
         }

@@ -75,7 +75,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             //2. Click on the dropdown handle and select 'Tasks' option:
             await issueListDialog.selectTypeFilterOption(csConst.ISSUE_LIST_TYPE_FILTER.TASKS);
             //3. Selected option should be "Tasks":
-            studioUtils.saveScreenshot("issue_list_tasks_filtered")
+            studioUtils.saveScreenshot("issue_list_tasks_filtered");
             let result = await issueListDialog.getTypeFilterSelectedOption();
             assert.isTrue(result.includes(csConst.ISSUE_LIST_TYPE_FILTER.TASKS), "Tasks' option should be selected in 'Type Filter'");
         });
@@ -108,7 +108,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
             //3. Close the task:
-            await taskDetailsDialog.clickOnCloseTaskButton();
+            await taskDetailsDialog.clickOnIssueStatusSelectorAndCloseIssue();
             await taskDetailsDialog.clickOnBackButton();
             await issueListDialog.pause(4000);
             let closedNumber = await issueListDialog.getNumberInClosedButton();

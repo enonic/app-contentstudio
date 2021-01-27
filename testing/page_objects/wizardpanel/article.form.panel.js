@@ -3,6 +3,7 @@
  */
 const Page = require('../page');
 const lib = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
 
 const XPATH = {
     bodyTextArea: `//textarea[contains(@name,'body')]`,
@@ -24,7 +25,20 @@ class ArticleForm extends Page {
             return this.typeTextInInput(this.bodyTextArea, articleData.body);
         });
     }
-};
+
+    async typeArticleTitle(title) {
+        await this.waitForElementDisplayed(this.titleInput, appConst.mediumTimeout);
+        await this.typeTextInInput(this.titleInput, title);
+        return await this.pause(500);
+    }
+
+    async typeInTextArea(text) {
+        await this.waitForElementDisplayed(this.bodyTextArea, appConst.mediumTimeout);
+        await this.typeTextInInput(this.bodyTextArea, text);
+        return await this.pause(500);
+    }
+}
+
 module.exports = ArticleForm;
 
 

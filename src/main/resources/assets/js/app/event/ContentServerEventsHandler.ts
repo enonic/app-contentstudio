@@ -13,6 +13,10 @@ import {Branch} from '../versioning/Branch';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentServerChangeItem} from './ContentServerChangeItem';
 import {ContentServerChange} from './ContentServerChange';
+import {ProjectContext} from '../project/ProjectContext';
+import {RepositoryId} from '../repository/RepositoryId';
+import {ContentServerEvent} from './ContentServerEvent';
+import {NodeServerChangeItem} from 'lib-admin-ui/event/NodeServerChangeItem';
 
 /**
  * Class that listens to server events and fires UI events
@@ -27,7 +31,9 @@ export class ContentServerEventsHandler {
 
     private contentUpdatedListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
 
-    private contentDeletedListeners: { (paths: ContentServerChangeItem[], pending?: boolean): void }[] = [];
+    private contentDeletedListeners: { (paths: ContentServerChangeItem[]): void }[] = [];
+
+    private contentDeletedInOtherReposListeners: { (paths: ContentServerChangeItem[]): void }[] = [];
 
     private contentMovedListeners: { (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]): void }[] = [];
 
@@ -259,20 +265,37 @@ export class ContentServerEventsHandler {
         });
     }
 
-    onContentDeleted(listener: (paths: ContentServerChangeItem[], pending?: boolean) => void) {
+    onContentDeleted(listener: (paths: ContentServerChangeItem[]) => void) {
         this.contentDeletedListeners.push(listener);
     }
 
-    unContentDeleted(listener: (paths: ContentServerChangeItem[], pending?: boolean) => void) {
+    unContentDeleted(listener: (paths: ContentServerChangeItem[]) => void) {
         this.contentDeletedListeners =
-            this.contentDeletedListeners.filter((currentListener: (paths: ContentServerChangeItem[], pending?: boolean) => void) => {
+            this.contentDeletedListeners.filter((currentListener: (paths: ContentServerChangeItem[]) => void) => {
                 return currentListener !== listener;
             });
     }
 
-    private notifyContentDeleted(paths: ContentServerChangeItem[], pending?: boolean) {
-        this.contentDeletedListeners.forEach((listener: (paths: ContentServerChangeItem[], pending?: boolean) => void) => {
-            listener(paths, pending);
+    private notifyContentDeleted(paths: ContentServerChangeItem[]) {
+        this.contentDeletedListeners.forEach((listener: (paths: ContentServerChangeItem[]) => void) => {
+            listener(paths);
+        });
+    }
+
+    onContentDeletedInOtherRepos(listener: (paths: ContentServerChangeItem[]) => void) {
+        this.contentDeletedInOtherReposListeners.push(listener);
+    }
+
+    unContentDeletedInOtherRepos(listener: (paths: ContentServerChangeItem[]) => void) {
+        this.contentDeletedInOtherReposListeners =
+            this.contentDeletedInOtherReposListeners.filter((currentListener: (paths: ContentServerChangeItem[]) => void) => {
+                return currentListener !== listener;
+            });
+    }
+
+    private notifyContentDeletedInOtherRepos(paths: ContentServerChangeItem[]) {
+        this.contentDeletedInOtherReposListeners.forEach((listener: (paths: ContentServerChangeItem[]) => void) => {
+            listener(paths);
         });
     }
 
@@ -402,39 +425,68 @@ export class ContentServerEventsHandler {
             console.debug('ContentServerEventsHandler: received server event', event);
         }
 
-        const changes: ContentServerChange[] = event.getEvents().map((change) => change.getNodeChange());
+        if (!ProjectContext.get().isInitialized()) {
+            return;
+        }
 
-        if (event.getType() === NodeServerChangeType.DELETE && this.hasDraftBranchChanges(changes)) {
+        const currentRepo: string = RepositoryId.fromCurrentProject().toString();
+        const currentRepoChanges: ContentServerChange[] = [];
+        const otherReposChanges: ContentServerChange[] = [];
+
+        event.getEvents().map((ev: ContentServerEvent) => ev.getNodeChange()).forEach((change: ContentServerChange) => {
+            if (change.getChangeItems().some((changeItem: NodeServerChangeItem) => changeItem.getRepo() === currentRepo )) {
+                currentRepoChanges.push(change);
+            } else {
+                otherReposChanges.push(change);
+            }
+        });
+
+        if (currentRepoChanges.length > 0) {
+            this.handleCurrentRepoChanges(currentRepoChanges, event.getType());
+        }
+
+        if (otherReposChanges.length > 0) {
+            this.handleOtherReposChanges(otherReposChanges, event.getType());
+        }
+    }
+
+    private handleCurrentRepoChanges(currentRepoChanges:  ContentServerChange[], type: NodeServerChangeType) {
+        if (type === NodeServerChangeType.DELETE && this.hasDraftBranchChanges(currentRepoChanges)) {
             // content has already been deleted so no need to fetch summaries
-            const changeItems: ContentServerChangeItem[] = changes.reduce((total, change: ContentServerChange) => {
+            const changeItems: ContentServerChangeItem[] = currentRepoChanges.reduce((total, change: ContentServerChange) => {
                 return total.concat(change.getChangeItems());
             }, []);
 
             const deletedItems: ContentServerChangeItem[] = changeItems.filter(d => d.getBranch() === Branch.DRAFT);
+            if (deletedItems.length) {
+                this.handleContentDeleted(deletedItems);
+            }
+
             const unpublishedItems: ContentServerChangeItem[] = changeItems.filter(
                 d => deletedItems.every(deleted => !ObjectHelper.equals(deleted.getContentId(),
                     d.getContentId())));
 
-            this.handleContentDeleted(deletedItems);
-            ContentSummaryAndCompareStatusFetcher.fetchByPaths(unpublishedItems.map(item => item.getContentPath()))
-                .then((summaries) => {
-                    this.handleContentUnpublished(summaries);
-                });
+            if (unpublishedItems.length) {
+                ContentSummaryAndCompareStatusFetcher.fetchByPaths(unpublishedItems.map(item => item.getContentPath()))
+                    .then((summaries) => {
+                        this.handleContentUnpublished(summaries);
+                    });
+            }
 
-        } else if (event.getType() === NodeServerChangeType.MOVE) {
-            ContentSummaryAndCompareStatusFetcher.fetchByPaths(this.extractNewContentPaths(changes))
+        } else if (type === NodeServerChangeType.MOVE) {
+            ContentSummaryAndCompareStatusFetcher.fetchByPaths(this.extractNewContentPaths(currentRepoChanges))
                 .then((summaries) => {
-                    this.handleContentMoved(summaries, this.extractContentPaths(changes));
+                    this.handleContentMoved(summaries, this.extractContentPaths(currentRepoChanges));
                 });
-        } else if (event.getType() === NodeServerChangeType.UPDATE_PERMISSIONS) {
-            this.handleContentPermissionsUpdated(this.extractContentIds(changes));
+        } else if (type === NodeServerChangeType.UPDATE_PERMISSIONS) {
+            this.handleContentPermissionsUpdated(this.extractContentIds(currentRepoChanges));
         } else {
-            ContentSummaryAndCompareStatusFetcher.fetchByIds(this.extractContentIds(changes))
+            ContentSummaryAndCompareStatusFetcher.fetchByIds(this.extractContentIds(currentRepoChanges))
                 .then((summaries) => {
                     if (ContentServerEventsHandler.debug) {
                         console.debug('ContentServerEventsHandler: fetched summaries', summaries);
                     }
-                    switch (event.getType()) {
+                    switch (type) {
                     case NodeServerChangeType.CREATE:
                         this.handleContentCreated(summaries);
                         break;
@@ -443,7 +495,7 @@ export class ContentServerEventsHandler {
                         break;
                     case NodeServerChangeType.RENAME:
                         // also supply old paths in case of rename
-                        this.handleContentRenamed(summaries, this.extractContentPaths(changes));
+                        this.handleContentRenamed(summaries, this.extractContentPaths(currentRepoChanges));
                         break;
                     case NodeServerChangeType.DELETE:
                         // delete from draft has been handled without fetching summaries,
@@ -482,6 +534,17 @@ export class ContentServerEventsHandler {
         this.contentPermissionsUpdatedListeners.forEach((listener: (contentIds: ContentIds) => void) => {
             listener(contentIds);
         });
+    }
+
+    private handleOtherReposChanges(otherReposChanges: ContentServerChange[], type: NodeServerChangeType) {
+        if (type === NodeServerChangeType.DELETE) {
+            // content has already been deleted so no need to fetch summaries
+            const changeItems: ContentServerChangeItem[] = otherReposChanges.reduce((total, change: ContentServerChange) => {
+                return total.concat(change.getChangeItems());
+            }, []);
+
+            this.notifyContentDeletedInOtherRepos(changeItems);
+        }
     }
 
 }

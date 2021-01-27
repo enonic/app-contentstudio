@@ -37,7 +37,7 @@ export class XDataWizardStepForm
     }
 
     setExpandState(value: boolean) {
-        this.setEnabled(value);
+        this.setEnabledState(value);
     }
 
     isExpandable(): boolean {
@@ -70,7 +70,7 @@ export class XDataWizardStepForm
 
         if (this.enabled) {
             return super.doLayout(form, data).then(() => {
-                this.validate(false);
+                this.validate(false, true);
             });
         } else {
             this.formView = new FormView(this.formContext, form, data.getRoot());
@@ -85,7 +85,7 @@ export class XDataWizardStepForm
 
     resetState(data?: PropertyTree): Q.Promise<void> {
         this.data = data || this.data;
-        return this.setEnabled(!this.isOptional() || this.data.getRoot().getPropertyArrays().length > 0, true).then(() => {
+        return this.setEnabledState(!this.isOptional() || this.data.getRoot().getPropertyArrays().length > 0, true).then(() => {
             this.resetHeaderState();
         });
     }
@@ -102,7 +102,7 @@ export class XDataWizardStepForm
         }
     }
 
-    private setEnabled(value: boolean, silent: boolean = false): Q.Promise<void> {
+    private setEnabledState(value: boolean, silent: boolean = false): Q.Promise<void> {
         let changed: boolean = value !== this.enabled;
         this.enabled = value;
 

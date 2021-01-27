@@ -22,13 +22,13 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
         let optionSelector = lib.slickRowByDisplayName(xpath.fragmentDropdown, displayName);
         await this.waitForElementDisplayed(this.fragmentDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, appConst.TIMEOUT_5);
         await this.typeTextInInput(this.fragmentDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, displayName);
-        await this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_3);
+        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
         await this.clickOnElement(optionSelector);
         return await this.pause(3000);
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_load_inspect_panel');
             throw new Error('Live Edit, Fragment Inspection Panel is not loaded' + err);
         });
@@ -38,6 +38,6 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
         let selector = xpath.container + "//form[contains(@id,'FragmentSelectorForm')]" + xpath.selectedOptionView + lib.P_SUB_NAME;
         return await this.getText(selector);
     }
-};
+}
 module.exports = FragmentInspectionPanel;
 

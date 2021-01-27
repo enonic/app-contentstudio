@@ -76,7 +76,7 @@ class IssueDetailsDialogCommentsTab extends Page {
 
     async clickOnEditCommentMenuItem(text) {
         let selector = XPATH.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         //clicks on menu and opens menu items
         await this.clickOnElement(selector);
         await this.pause(700);
@@ -88,7 +88,7 @@ class IssueDetailsDialogCommentsTab extends Page {
 
     async clickOnDeleteCommentMenuItem(text) {
         let selector = XPATH.issueCommentsListItemByText(text) + `//h6/i[contains(@class,'icon-menu')]`;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         await this.clickOnElement(selector);
         await this.pause(500);
         let deleteMenuItem = `//li[contains(@id,'MenuItem') and text()='Delete']`;
@@ -97,28 +97,22 @@ class IssueDetailsDialogCommentsTab extends Page {
         await this.pause(500);
     }
 
-    waitForCommentButtonEnabled() {
-        return this.waitForElementEnabled(this.commentButton).catch(err => {
-            throw  new Error('Issue Details Dialog  ' + err);
-        })
-    }
-
     waitForCommentAndCloseRequestButtonDisplayed() {
-        return this.waitForElementDisplayed(this.commentAndCloseRequestButton).catch(err => {
+        return this.waitForElementDisplayed(this.commentAndCloseRequestButton, appConst.shortTimeout).catch(err => {
             throw new Error('Comments Tab   ' + err);
         })
     }
 
     waitForCommentAndCloseTaskButtonDisplayed() {
-        return this.waitForElementDisplayed(this.commentAndCloseTaskButton).catch(err => {
+        return this.waitForElementDisplayed(this.commentAndCloseTaskButton, appConst.shortTimeout).catch(err => {
             throw  new Error('Comments Tab   ' + err);
         })
     }
 
     waitForCommentButtonDisabled() {
-        return this.waitForElementDisabled(this.commentButton).catch(err => {
+        return this.waitForElementDisabled(this.commentButton, appConst.shortTimeout).catch(err => {
             throw  new Error('Issue Details Dialog  ' + err);
         })
     }
-};
+}
 module.exports = IssueDetailsDialogCommentsTab;

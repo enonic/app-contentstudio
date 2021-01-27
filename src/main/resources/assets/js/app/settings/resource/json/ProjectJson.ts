@@ -9,6 +9,8 @@ export interface ProjectJson {
 
     description: string;
 
+    parent: string;
+
     icon: AttachmentJson;
 
     permissions: ProjectPermissionsJson;

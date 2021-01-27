@@ -24,7 +24,7 @@ import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './../ModalD
 import {ImageStyleSelector} from './ImageStyleSelector';
 import {MediaTreeSelectorItem} from '../../../selector/media/MediaTreeSelectorItem';
 import {ImageUploaderEl} from '../../../selector/image/ImageUploaderEl';
-import {ImageContentComboBox} from '../../../selector/image/ImageContentComboBox';
+import {ImageContentComboBox, ImageContentComboBoxBuilder} from '../../../selector/image/ImageContentComboBox';
 import {ContentSelectedOptionsView} from '../../../selector/ContentComboBox';
 import {MediaUploaderElOperation} from '../../../upload/MediaUploaderEl';
 import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
@@ -62,7 +62,6 @@ export class ImageModalDialog
     private error: DivEl;
     private figure: FigureEl;
     private imageToolbar: ImageDialogToolbar;
-    private imagePreviewScrollHandler: ImagePreviewScrollHandler;
     private imageLoadMask: LoadMask;
     private dropzoneContainer: DropzoneContainer;
     private imageSelectorFormItem: FormItem;
@@ -205,17 +204,22 @@ export class ImageModalDialog
         this.imageCaptionField.addClass('caption').hide();
         this.imageAltTextField.addClass('alttext').hide();
 
+        this.appendChildToFooter(this.imageCaptionField);
+        this.appendChildToFooter(this.imageAltTextField);
+
         return [
-            this.imageSelectorFormItem,
-            this.imageCaptionField,
-            this.imageAltTextField
+            this.imageSelectorFormItem
         ];
     }
 
     private createImageSelector(id: string): FormItem {
 
-        const imageSelector = ImageContentComboBox.create().setMaximumOccurrences(1).setContent(
-            this.content).setSelectedOptionsView(new ContentSelectedOptionsView()).build();
+        const imageSelector = (<ImageContentComboBoxBuilder>ImageContentComboBox.create()
+            .setShowStatus(true)
+            .setMaximumOccurrences(1))
+            .setContent(this.content)
+            .setSelectedOptionsView(new ContentSelectedOptionsView())
+            .build();
 
         const formItemBuilder = new ModalDialogFormItemBuilder(id, i18n('dialog.image.formitem.image')).setValidator(
             Validators.required).setInputEl(imageSelector);
@@ -230,7 +234,7 @@ export class ImageModalDialog
         formItem.addClass('image-selector');
 
         imageSelectorComboBox.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
-            const imageSelectorItem: MediaTreeSelectorItem = event.getSelectedOption().getOption().displayValue;
+            const imageSelectorItem: MediaTreeSelectorItem = event.getSelectedOption().getOption().getDisplayValue();
             if (!imageSelectorItem.getContentId()) {
                 return;
             }
@@ -254,7 +258,6 @@ export class ImageModalDialog
             this.imageCaptionField.hide();
             this.imageAltTextField.hide();
             this.imageUploaderEl.show();
-            this.imagePreviewScrollHandler.toggleScrollButtons();
             this.figure.getEl().removeAttribute('style');
             ResponsiveManager.fireResizeEvent();
         });
@@ -264,26 +267,12 @@ export class ImageModalDialog
 
     private addUploaderAndPreviewControls() {
         const imageSelectorContainer = this.imageSelectorFormItem.getInput().getParentElement();
-
         imageSelectorContainer.appendChild(this.imageUploaderEl);
         this.initDragAndDropUploaderEvents();
 
-        this.scrollNavigationWrapperDiv = new DivEl('preview-panel-scroll-navigation-wrapper');
-        const scrollBarWrapperDiv = new DivEl('preview-panel-scrollbar-wrapper');
-
-        scrollBarWrapperDiv.appendChild(this.imagePreviewContainer);
-        this.scrollNavigationWrapperDiv.appendChild(scrollBarWrapperDiv);
-
-        this.scrollNavigationWrapperDiv.insertAfterEl(imageSelectorContainer);
-
-        this.imagePreviewScrollHandler = new ImagePreviewScrollHandler(this.imagePreviewContainer);
-
         this.imagePreviewContainer.appendChild(<Element>this.imageLoadMask);
 
-        ResponsiveManager.onAvailableSizeChanged(this, () => {
-            this.imagePreviewScrollHandler.toggleScrollButtons();
-            this.imagePreviewScrollHandler.setMarginRight();
-        });
+        this.imagePreviewContainer.insertAfterEl(imageSelectorContainer);
     }
 
     private createPreviewFrame() {
@@ -320,8 +309,6 @@ export class ImageModalDialog
         this.applyStylingToPreview(styles);
         this.updateImageSrc(this.figure.getImage().getHTMLElement(), this.imagePreviewContainer.getEl().getWidth());
         this.figure.getImage().refresh();
-
-        this.imagePreviewScrollHandler.resetScrollPosition();
     }
 
     private adjustPreviewFrameHeight() {
@@ -352,7 +339,7 @@ export class ImageModalDialog
             this.imageToolbar.onStylesChanged((styles: string) => this.updatePreview(styles));
             this.imageToolbar.onPreviewSizeChanged(() => setTimeout(() => this.adjustPreviewFrameHeight(), 100));
 
-            $(this.imageToolbar.getHTMLElement()).insertBefore(this.scrollNavigationWrapperDiv.getHTMLElement());
+            $(this.imageToolbar.getHTMLElement()).insertBefore(this.imagePreviewContainer.getHTMLElement());
 
             image.unLoaded(onImageFirstLoad);
         };
@@ -441,15 +428,12 @@ export class ImageModalDialog
     }
 
     private createImagePreviewContainer() {
-        const imagePreviewContainer = new DivEl('content-item-preview-panel');
+        this.imagePreviewContainer = new DivEl('content-item-preview-panel');
 
         this.progress = new ProgressBar();
-        imagePreviewContainer.appendChild(this.progress);
-
         this.error = new DivEl('error');
-        imagePreviewContainer.appendChild(this.error);
 
-        this.imagePreviewContainer = imagePreviewContainer;
+        this.imagePreviewContainer.appendChildren(this.progress, this.error);
     }
 
     private createImageUploader(): ImageUploaderEl {
@@ -546,7 +530,7 @@ export class ImageModalDialog
         }
 
         imageEl.removeAttribute('class');
-        imageEl.removeAttribute('style');
+        imageEl.setStyle('width', '100%');
 
         this.updateImageSrc(imageEl.$, this.editorWidth);
 
@@ -711,7 +695,7 @@ export class ImageDialogToolbar
         checkbox.setLabel(i18n('dialog.image.customwidth'));
 
         if (StyleHelper.isOriginalImage(this.getProcessingStyleCls())) {
-            checkbox.setDisabled(true, 'disabled');
+            checkbox.setEnabled(false);
         }
 
         checkbox.onChange(() => {
@@ -799,11 +783,11 @@ export class ImageDialogToolbar
         this.initSelectedStyle(imageStyleSelector);
         imageStyleSelector.onOptionSelected(() => {
             if (StyleHelper.isOriginalImage(this.getProcessingStyleCls())) {
-                this.customWidthCheckbox.setChecked(false).setDisabled(true, 'disabled');
+                this.customWidthCheckbox.setChecked(false).setEnabled(false);
                 this.rangeInputContainer.hide();
                 this.previewEl.getEl().removeAttribute('style');
             } else {
-                this.customWidthCheckbox.setDisabled(false, 'disabled');
+                this.customWidthCheckbox.setEnabled(true);
             }
 
             this.notifyStylesChanged();
@@ -854,7 +838,7 @@ export class ImageDialogToolbar
 
     private getProcessingStyleCls(): string {
         if (this.isProcessingStyleSelected()) {
-            return this.imageStyleSelector.getSelectedOption().displayValue.getName();
+            return this.imageStyleSelector.getSelectedOption().getDisplayValue().getName();
         }
 
         return '';
@@ -871,12 +855,12 @@ export class ImageDialogToolbar
     private isProcessingStyleSelected(): boolean {
         return (!!this.imageStyleSelector &&
                 !!this.imageStyleSelector.getSelectedOption() &&
-                !this.imageStyleSelector.getSelectedOption().displayValue.isEmpty());
+                !this.imageStyleSelector.getSelectedOption().getDisplayValue().isEmpty());
     }
 
     getProcessingStyle(): Style {
         if (this.isProcessingStyleSelected()) {
-            return this.imageStyleSelector.getSelectedOption().displayValue.getStyle();
+            return this.imageStyleSelector.getSelectedOption().getDisplayValue().getStyle();
         }
 
         return;
@@ -926,156 +910,6 @@ export class ImageDialogToolbar
 
     private notifyPreviewSizeChanged() {
         this.previewSizeChangeListeners.forEach(listener => listener());
-    }
-}
-
-export class ImagePreviewScrollHandler {
-
-    private imagePreviewContainer: DivEl;
-
-    private scrollDownButton: Element;
-    private scrollUpButton: Element;
-    private scrollBarWidth: number;
-    private scrollBarRemoveTimeoutId: number;
-    private scrolling: boolean;
-
-    constructor(imagePreviewContainer: DivEl) {
-        this.imagePreviewContainer = imagePreviewContainer;
-
-        this.initializeImageScrollNavigation();
-
-        this.imagePreviewContainer.onScroll(() => {
-            this.toggleScrollButtons();
-            this.showScrollBar();
-            this.removeScrollBarOnTimeout();
-        });
-    }
-
-    private initializeImageScrollNavigation() {
-        this.scrollDownButton = this.createScrollButton('down');
-        this.scrollUpButton = this.createScrollButton('up');
-        this.initScrollbarWidth();
-    }
-
-    private isScrolledToTop(): boolean {
-        const element = this.imagePreviewContainer.getHTMLElement();
-        return element.scrollTop === 0;
-    }
-
-    private isScrolledToBottom(): boolean {
-        const element = this.imagePreviewContainer.getHTMLElement();
-        return (element.scrollHeight - element.scrollTop) === element.clientHeight;
-    }
-
-    private createScrollButton(direction: string): Element {
-        const scrollAreaDiv = new DivEl(direction === 'up' ? 'scroll-up-div' : 'scroll-down-div');
-        const arrow = new DivEl('arrow');
-        const scrollTop = (direction === 'up' ? '-=50' : '+=50');
-
-        scrollAreaDiv.appendChild(arrow);
-
-        arrow.onClicked((event) => {
-            event.preventDefault();
-            this.scrolling = false;
-            $(this.imagePreviewContainer.getHTMLElement()).animate({scrollTop: scrollTop}, 400);
-        });
-
-        arrow.onMouseOver(() => {
-            this.scrolling = true;
-            this.scrollImagePreview(direction);
-        });
-
-        arrow.onMouseOut(() => {
-            this.scrolling = false;
-        });
-
-        direction === 'up'
-        ? $(scrollAreaDiv.getHTMLElement()).insertBefore(this.imagePreviewContainer.getHTMLElement().parentElement)
-        : $(scrollAreaDiv.getHTMLElement()).insertAfter(this.imagePreviewContainer.getHTMLElement().parentElement);
-
-        scrollAreaDiv.hide();
-
-        return scrollAreaDiv;
-    }
-
-    private initScrollbarWidth() {
-        const outer = document.createElement('div');
-        outer.style.visibility = 'hidden';
-        outer.style.width = '100px';
-        outer.style.msOverflowStyle = 'scrollbar'; // needed for WinJS apps
-
-        document.body.appendChild(outer);
-
-        const widthNoScroll = outer.offsetWidth;
-        // force scrollbars
-        outer.style.overflow = 'scroll';
-
-        // add innerdiv
-        const inner = document.createElement('div');
-        inner.style.width = '100%';
-        outer.appendChild(inner);
-
-        const widthWithScroll = inner.offsetWidth;
-
-        // remove divs
-        outer.parentNode.removeChild(outer);
-
-        this.scrollBarWidth = widthNoScroll - widthWithScroll;
-    }
-
-    private scrollImagePreview(direction: string, scrollBy: number = 2) {
-        const scrollByPx = (direction === 'up' ? '-=' : '+=') + Math.round(scrollBy) + 'px';
-        const delta = 0.05;
-        $(this.imagePreviewContainer.getHTMLElement()).animate({scrollTop: scrollByPx}, 1, () => {
-            if (this.scrolling) {
-                // If we want to keep scrolling, call the scrollContent function again:
-                this.scrollImagePreview(direction, scrollBy + delta);   // Increase scroll height by delta on each iteration
-                                                                        // to emulate scrolling speed up effect
-            }
-        });
-    }
-
-    setMarginRight() {
-        this.imagePreviewContainer.getEl().setMarginRight('');
-        if (this.scrollDownButton.isVisible() || this.scrollUpButton.isVisible()) {
-            this.imagePreviewContainer.getEl().setMarginRight('-' + this.scrollBarWidth + 'px');
-        }
-    }
-
-    toggleScrollButtons() {
-        if (this.isScrolledToBottom()) {
-            this.scrollDownButton.hide();
-        } else {
-            this.scrollDownButton.show();
-        }
-
-        if (this.isScrolledToTop()) {
-            this.scrollUpButton.hide();
-        } else {
-            this.scrollUpButton.show();
-        }
-    }
-
-    resetScrollPosition() {
-        this.imagePreviewContainer.getEl().setScrollTop(0);
-    }
-
-    private showScrollBar() {
-        this.imagePreviewContainer.getHTMLElement().parentElement.style.marginRight = '-' + this.scrollBarWidth + 'px';
-        this.imagePreviewContainer.getEl().setMarginRight('');
-        this.imagePreviewContainer.getHTMLElement().style.overflowY = 'auto';
-    }
-
-    private removeScrollBarOnTimeout() {
-        if (!!this.scrollBarRemoveTimeoutId) {
-            window.clearTimeout(this.scrollBarRemoveTimeoutId);
-        }
-
-        this.scrollBarRemoveTimeoutId = window.setTimeout(() => {
-            this.imagePreviewContainer.getHTMLElement().parentElement.style.marginRight = '';
-            this.imagePreviewContainer.getEl().setMarginRight('-' + this.scrollBarWidth + 'px');
-            this.imagePreviewContainer.getHTMLElement().style.overflowY = 'auto';
-        }, 500);
     }
 }
 

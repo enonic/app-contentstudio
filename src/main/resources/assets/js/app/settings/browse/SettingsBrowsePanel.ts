@@ -3,14 +3,11 @@ import {SettingsItemsTreeGrid} from '../grid/SettingsItemsTreeGrid';
 import {SettingsBrowseToolbar} from './SettingsBrowseToolbar';
 import {SettingsTreeGridActions} from '../grid/SettingsTreeGridActions';
 import {SettingsBrowseItemPanel} from './SettingsBrowseItemPanel';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
-import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 import {ProjectContext} from '../../project/ProjectContext';
-import {ProjectChangedEvent} from '../../project/ProjectChangedEvent';
 
 export class SettingsBrowsePanel
-    extends BrowsePanel<SettingsViewItem> {
+    extends BrowsePanel {
 
     protected treeGrid: SettingsItemsTreeGrid;
 
@@ -27,10 +24,16 @@ export class SettingsBrowsePanel
 
         const projectSetHandler = () => {
             this.treeGrid.enableKeys();
-            ProjectChangedEvent.un(projectSetHandler);
+            ProjectContext.get().unProjectChanged(projectSetHandler);
         };
 
-        ProjectChangedEvent.on(projectSetHandler);
+        ProjectContext.get().onProjectChanged(projectSetHandler);
+    }
+
+    protected initListeners(): void {
+        super.initListeners();
+
+        this.treeGrid.onLoaded(this.updateBrowseActions.bind(this));
     }
 
     protected createTreeGrid(): SettingsItemsTreeGrid {
@@ -45,28 +48,6 @@ export class SettingsBrowsePanel
         return new SettingsBrowseItemPanel();
     }
 
-    treeNodeToBrowseItem(node: TreeNode<SettingsViewItem>): BrowseItem<SettingsViewItem> | null {
-        const data: SettingsViewItem = node ? node.getData() : null;
-        return !data ? null : <BrowseItem<SettingsViewItem>>new BrowseItem<SettingsViewItem>(data)
-            .setId(data.getId())
-            .setDisplayName(data.getDisplayName())
-            .setIconClass(`icon-large ${data.getIconClass()}`)
-            .setIconUrl(data.getIconUrl());
-    }
-
-    treeNodesToBrowseItems(nodes: TreeNode<SettingsViewItem>[]): BrowseItem<SettingsViewItem>[] {
-        let browseItems: BrowseItem<SettingsViewItem>[] = [];
-
-        // do not proceed duplicated content. still, it can be selected
-        nodes.forEach((node: TreeNode<SettingsViewItem>) => {
-            const item = this.treeNodeToBrowseItem(node);
-            if (item) {
-                browseItems.push(item);
-            }
-        });
-        return browseItems;
-    }
-
     hasItemWithId(id: string) {
         return this.treeGrid.hasItemWithId(id);
     }
@@ -76,11 +57,25 @@ export class SettingsBrowsePanel
     }
 
     updateSettingsItem(item: SettingsViewItem) {
-        this.treeGrid.updateSettingsItemNode(item);
+        this.treeGrid.updateNodeByData(item);
     }
 
     deleteSettingsItem(id: string) {
-        this.treeGrid.deleteSettingsItemNode(id);
+        this.treeGrid.deleteSettingsItem(id);
+    }
+
+    hasItemsLoaded(): boolean {
+        return this.treeGrid.getFullTotal() > 1;
+    }
+
+    hasChildren(id: string): boolean {
+        const item: SettingsViewItem = this.treeGrid.getItemById(id);
+
+        return !!item && this.treeGrid.hasChildren(item);
+    }
+
+    getItemById(id: string): SettingsViewItem {
+        return this.treeGrid.getItemById(id);
     }
 
 }

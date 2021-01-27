@@ -32,6 +32,6 @@ export class LayoutInspectionPanel
     }
 
     getName(): string {
-        return i18n('live.view.insert.layout');
+        return i18n('widget.components.insert.layout');
     }
 }

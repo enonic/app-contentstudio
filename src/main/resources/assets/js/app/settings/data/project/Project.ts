@@ -16,6 +16,8 @@ export class Project
 
     private description: string;
 
+    private parent: string;
+
     private icon: Attachment;
 
     private permissions: ProjectPermissions;
@@ -28,6 +30,7 @@ export class Project
         this.name = builder.name;
         this.displayName = builder.displayName;
         this.description = builder.description;
+        this.parent = builder.parent;
         this.icon = builder.icon;
         this.permissions = builder.permissions;
         this.readAccess = builder.readAccess;
@@ -70,6 +73,10 @@ export class Project
         return this.language;
     }
 
+    getParent(): string {
+        return this.parent;
+    }
+
     equals(o: Equitable): boolean {
         if (!ObjectHelper.iFrameSafeInstanceOf(o, Project)) {
             return false;
@@ -96,6 +103,8 @@ export class ProjectBuilder {
 
     description: string;
 
+    parent: string;
+
     icon: Attachment;
 
     permissions: ProjectPermissions;
@@ -109,6 +118,7 @@ export class ProjectBuilder {
             this.name = source.getName();
             this.displayName = source.getDisplayName();
             this.description = source.getDescription();
+            this.parent = source.getParent();
             this.icon = source.getIcon();
             this.permissions = source.getPermissions();
             this.readAccess = source.getReadAccess();
@@ -128,6 +138,11 @@ export class ProjectBuilder {
 
     setDescription(value: string): ProjectBuilder {
         this.description = value;
+        return this;
+    }
+
+    setParent(value: string): ProjectBuilder {
+        this.parent = value;
         return this;
     }
 
@@ -155,6 +170,7 @@ export class ProjectBuilder {
         this.name = json.name;
         this.displayName = json.displayName;
         this.description = json.description;
+        this.parent = json.parent;
         this.icon = json.icon ? new AttachmentBuilder().fromJson(json.icon).build() : null;
         this.permissions = ProjectPermissions.fromJson(json.permissions);
         this.readAccess = ProjectReadAccess.fromJson(json.readAccess);

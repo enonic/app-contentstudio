@@ -18,6 +18,7 @@ import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathRe
 import {NotificationMessage} from 'lib-admin-ui/notify/NotificationMessage';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {UrlHelper} from '../../../util/UrlHelper';
 import eventInfo = CKEDITOR.eventInfo;
 import widget = CKEDITOR.plugins.widget;
 
@@ -109,7 +110,7 @@ export class HtmlEditor {
                 return el;
             }
 
-            return originalDowncastFunction.call(this, el);
+            return originalDowncastFunction.call(e.data, el);
         };
 
         e.data.upcast = newUpcastFunction;
@@ -127,6 +128,7 @@ export class HtmlEditor {
                 table.removeAttribute('cellspacing');
                 table.removeAttribute('border');
                 table.removeAttribute('style');
+                table.removeAttribute('align');
             });
         }, 200);
 
@@ -215,7 +217,7 @@ export class HtmlEditor {
 
     private handleTooltipForClickableElements() {
         let tooltipElem: CKEDITOR.dom.element = null;
-        const tooltipText = i18n('editor.dblclicktoedit');
+        const tooltipText: string = i18n('editor.dblclicktoedit');
 
         const mouseOverHandler = AppHelper.debounce((ev: eventInfo) => {
             const targetEl: CKEDITOR.dom.element = ev.data.getTarget();
@@ -230,9 +232,31 @@ export class HtmlEditor {
         }, 200);
 
         this.editor.on('instanceReady', () => {
-            tooltipElem = this.editorParams.isInline() ? this.editor.container : this.editor.document.getBody().getParent();
-            this.editor.editable().on('mouseover', mouseOverHandler);
+            try {
+                tooltipElem = this.getTooltipContainer();
+            } catch (e) {
+                console.log('Failed to init tooltip handler');
+            }
+
+            if (!!tooltipElem) {
+                this.editor.editable().on('mouseover', mouseOverHandler);
+            }
+
         });
+
+        this.editor.once('autoGrow', (event: CKEDITOR.eventInfo) => {
+            event.cancel();
+        });
+    }
+
+    private getTooltipContainer(): CKEDITOR.dom.element {
+        if (this.editorParams.isInline()) {
+            return this.editor.container;
+        }
+
+        const body: CKEDITOR.dom.element = this.editor.document.getBody();
+
+        return !!body ? body.getParent() : null;
     }
 
     private handleFileUpload() {
@@ -251,7 +275,7 @@ export class HtmlEditor {
                 const dataSrc: string = ImageUrlResolver.URL_PREFIX_RENDER + imageId;
 
                 this.replaceWith(`<figure class="captioned ${StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS}">` +
-                                 `<img src="${upload.url}" data-src="${dataSrc}">` +
+                                 `<img src="${upload.url}" data-src="${dataSrc}" style="width:100%">` +
                                  '<figcaption> </figcaption>' +
                                  '</figure>');
 
@@ -265,6 +289,7 @@ export class HtmlEditor {
             const fileLoader = evt.data.fileLoader;
 
             this.fileExists(fileLoader.fileName).then((exists: boolean) => {
+
                 if (exists) {
                     NotifyManager.get().showWarning(i18n('notify.fileExists', fileLoader.fileName));
                     (<any>evt.editor.document.findOne('.cke_widget_uploadimage')).remove(); // removing upload preview image
@@ -493,6 +518,7 @@ export class HtmlEditor {
     public static updateFigureInlineStyle(figure: CKEDITOR.dom.element) {
         const hasCustomWidth: boolean = figure.hasClass(StyleHelper.STYLE.WIDTH.CUSTOM);
         const customWidth: string = figure.getStyle('width');
+        const firstFigureChild: CKEDITOR.dom.element = (<CKEDITOR.dom.element>figure.getFirst());
 
         figure.removeAttribute('style');
 
@@ -656,7 +682,7 @@ export class HtmlEditor {
 
         const commandDef: CKEDITOR.commandDefinition = {
             exec: function () {
-                editor.applyStyle(new CKEDITOR.style({element: this.name}, null)); // name is command name
+                editor.applyStyle(new CKEDITOR.style({element: this['name']}, null)); // name is command name
                 return true;
             }
         };
@@ -806,8 +832,8 @@ export class HtmlEditor {
         return CKEDITOR.instances[id].getData();
     }
 
-    public static setData(id: string, data: string) {
-        CKEDITOR.instances[id].setData(data);
+    public static setData(id: string, data: string, callback?: () => void) {
+        CKEDITOR.instances[id].setData(data, !!callback ? {callback: callback} : null);
     }
 
     public static focus(id: string) {
@@ -894,14 +920,12 @@ class HtmlEditorConfigBuilder {
     private enabledTools: string[] = [];
 
     private tools: any[] = [
-        ['Format', 'Bold', 'Italic', 'Underline'],
+        ['Styles', 'Bold', 'Italic', 'Underline'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
         ['SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
         ['Table'], ['PasteModeSwitcher']
     ];
-
-    private readonly defaultHeadings: string = 'h1;h2;h3;h4;h5;h6';
 
     private constructor(htmlEditorParams: HtmlEditorParams) {
         this.editorParams = htmlEditorParams;
@@ -910,12 +934,14 @@ class HtmlEditorConfigBuilder {
         this.adjustToolsList();
     }
 
-    private getFormatTags(): string {
-        let allowedHeadings: string = this.editorParams.getAllowedHeadings();
+    private getAllowedHeadings(): string[] {
+        const allowedHeadings: string = this.editorParams.getAllowedHeadings();
+
         if (allowedHeadings) {
-            allowedHeadings = allowedHeadings.trim().replace(/  +/g, ' ').replace(/ /g, ';');
+            return allowedHeadings.trim().replace(/  +/g, ' ').replace(/ /g, ';').split(';');
         }
-        return `p;${(allowedHeadings || this.defaultHeadings)};div;pre`;
+
+        return ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
     }
 
     private processCustomToolConfig() {
@@ -963,7 +989,7 @@ class HtmlEditorConfigBuilder {
     }
 
     private createConfig(): Q.Promise<CKEDITOR.config> {
-
+        this.initCustomStyleSet();
         const contentsCss = [this.editorParams.getAssetsUri() + '/styles/html-editor.css'];
 
         const config: CKEDITOR.config = {
@@ -979,22 +1005,17 @@ class HtmlEditorConfigBuilder {
             removeButtons: this.disabledTools,
             extraPlugins: 'macro,image2,tableresize,pasteFromGoogleDoc,pasteModeSwitcher',
             extraAllowedContent: this.getExtraAllowedContent(),
-            format_tags: this.getFormatTags(),
+            stylesSet: `custom-${this.editorParams.getEditorContainerId()}`,
             image2_disableResizer: true,
             image2_captionedClass: 'captioned',
             image2_alignClasses: [StyleHelper.STYLE.ALIGNMENT.LEFT.CLASS, StyleHelper.STYLE.ALIGNMENT.CENTER.CLASS,
                 StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS,
                 StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS],
             disallowedContent: 'img[width,height]',
-            uploadUrl: UriHelper.getRestUri('content/createMedia'),
+            uploadUrl: UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/content/createMedia`),
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
             disableNativeSpellChecker: false
         };
-
-        if (!this.isToolDisabled('Code')) {
-            config.format_tags = config.format_tags + ';code';
-            config['format_code'] = {element: 'code'};
-        }
 
         config['qtRows'] = 10; // Count of rows
         config['qtColumns'] = 10; // Count of columns
@@ -1013,6 +1034,31 @@ class HtmlEditorConfigBuilder {
         });
 
         return deferred.promise;
+    }
+
+    private initCustomStyleSet() {
+        const customStyleSetID: string = `custom-${this.editorParams.getEditorContainerId()}`;
+
+        if (CKEDITOR.stylesSet.get(customStyleSetID)) {
+            return;
+        }
+
+        const customStyleSet: any[] = [];
+
+        customStyleSet.push({name: i18n('text.htmlEditor.styles.p'), element: 'p'});
+
+        this.getAllowedHeadings().forEach((heading: string) => {
+            customStyleSet.push({name: i18n('text.htmlEditor.styles.heading', heading.charAt(1)), element: heading});
+        });
+
+        customStyleSet.push({name: i18n('text.htmlEditor.styles.div'), element: 'div'});
+        customStyleSet.push({name: i18n('text.htmlEditor.styles.pre'), element: 'pre'});
+
+        if (!this.isToolDisabled('Code')) {
+            customStyleSet.push({name: i18n('text.htmlEditor.styles.code'), element: 'code'});
+        }
+
+        CKEDITOR.stylesSet.add(customStyleSetID, <any>customStyleSet);
     }
 
     private getPluginsToRemove(): string {

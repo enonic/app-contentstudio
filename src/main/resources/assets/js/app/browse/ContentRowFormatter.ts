@@ -8,6 +8,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ProgressBar} from 'lib-admin-ui/ui/ProgressBar';
+import {MediaTreeSelectorItem} from '../inputtype/ui/selector/media/MediaTreeSelectorItem';
 
 export class ContentRowFormatter {
 
@@ -33,7 +34,7 @@ export class ContentRowFormatter {
         let wrapper = new SpanEl();
 
         if (!StringHelper.isBlank(value)) {
-            wrapper.getEl().setTitle(value);
+            wrapper.setTitle(value);
         }
 
         if (node.getData().getContentSummary()) {
@@ -64,11 +65,11 @@ export class ContentRowFormatter {
 
     public static statusSelectorFormatter({}: any, {}: any, value: ContentTreeSelectorItem, {}: any, {}: any) {
 
-        if (ObjectHelper.iFrameSafeInstanceOf(value, ContentAndStatusTreeSelectorItem)) {
+        if (ObjectHelper.iFrameSafeInstanceOf(value, ContentAndStatusTreeSelectorItem) ||
+            ObjectHelper.iFrameSafeInstanceOf(value, MediaTreeSelectorItem)) {
 
             const item = <ContentAndStatusTreeSelectorItem>value;
-
-            if (item.getCompareStatus() != null || item.getPublishStatus() != null) {
+            if (item.isSelectable() && (item.getCompareStatus() != null || item.getPublishStatus() != null)) {
                 return ContentRowFormatter.doStatusFormat(
                     ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(value.getContent(),
                         item.getCompareStatus(),

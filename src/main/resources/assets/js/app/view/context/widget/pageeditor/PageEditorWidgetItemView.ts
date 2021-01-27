@@ -22,7 +22,7 @@ export class PageEditorWidgetItemView
 
     private initNoPreviewMessageContainer() {
         const noPreviewContainer = new PEl('no-controller-message');
-        noPreviewContainer.setHtml(i18n('live.view.page.nocontrollers'));
+        noPreviewContainer.setHtml(i18n('text.nocontrollers'));
         this.appendChild(noPreviewContainer);
     }
 

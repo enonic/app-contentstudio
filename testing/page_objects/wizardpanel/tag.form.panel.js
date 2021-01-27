@@ -33,7 +33,7 @@ class TagForm extends Page {
     }
 
     waitForTagSuggestions() {
-        return this.waitForElementDisplayed(xpath.suggestions, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(xpath.suggestions, appConst.shortTimeout).catch(err => {
             return false;
         })
     }

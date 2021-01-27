@@ -10,7 +10,6 @@ const contentBuilder = require("../libs/content.builder");
 const UserAccessWidget = require('../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 const EditPermissionsDialog = require('../page_objects/edit.permissions.dialog');
 const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
-const AccessStepForm = require('../page_objects/wizardpanel/access.wizard.step.form');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 
 describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions and add 'Create' operation", function () {
@@ -44,7 +43,7 @@ describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions 
             studioUtils.saveScreenshot("edit_perm_dlg_custom_permissions");
             await editPermissionsDialog.clickOnPermissionToggle(appConstant.roleName.CONTENT_MANAGER_APP,
                 appConstant.permissionOperation.CREATE);
-            //5. Click on Apply button and close the modal dialog:
+            //5. Click on 'Apply' button and close the modal dialog:
             await editPermissionsDialog.clickOnApplyButton();
             //6. Verify the notification message:
             let expectedMessage = appConstant.permissionsAppliedNotificationMessage(FOLDER.displayName);
@@ -52,40 +51,22 @@ describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions 
             assert.equal(actualMessage, expectedMessage, "'Permissions for 'name' are applied.' - Is expected message");
         });
 
-    it(`GIVEN existing folder with 'Custom' permissions is selected WHEN wizard has been opened THEN expected operations should be present in the permissions`,
-        async () => {
-            let accessStepForm = new AccessStepForm();
-            let contentWizardPanel = new ContentWizardPanel();
-            //1. Open existing folder:
-            await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await contentWizardPanel.clickOnAccessTabBarItem();
-            //2. Click on 'Content Manager App' entry- operations get visible:
-            await accessStepForm.clickOnEntryRow(appConstant.roleDisplayName.CONTENT_MANAGER_APP);
-            studioUtils.saveScreenshot("wizard_permissions_operations");
-            //3. Get operations in 'Content Manager App' entry:
-            let actualOperations = await accessStepForm.getPermissionOperations(appConstant.roleDisplayName.CONTENT_MANAGER_APP);
-            assert.equal(actualOperations.length, 2, 'Two operations should be displayed');
-            assert.equal(actualOperations[0], appConstant.permissionOperation.READ, "'Read' should be displayed");
-            assert.equal(actualOperations[1], appConstant.permissionOperation.CREATE, "'Create' is second operation");
-        });
-
-    it(`GIVEN existing folder with 'Custom' permissions is selected WHEN wizard has been opened THEN both operations should be allowed by default`,
+    it(`GIVEN existing folder with 'Custom' permissions is opened WHEN Edit Permissions dialog has been opened THEN expected operations should be allowed`,
         async () => {
             let contentWizardPanel = new ContentWizardPanel();
-            let accessStepForm = new AccessStepForm();
+            let editPermissionsDialog = new EditPermissionsDialog();
             //1. Open existing folder:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
-            await contentWizardPanel.clickOnAccessTabBarItem();
-            //2. Click on 'Content Manager App' entry- operations get visible:
-            await accessStepForm.clickOnEntryRow(appConstant.roleDisplayName.CONTENT_MANAGER_APP);
-            //3. Verify that operations are 'allowed' by default:
-            let isAllowed = await accessStepForm.isOperationAllowed(appConstant.roleDisplayName.CONTENT_MANAGER_APP, 'Read');
+            //2. Click on Edit Permissions button:
+            await contentWizardPanel.clickOnEditPermissionsButton();
+            //3. Verify that operations are 'allowed':
+            let isAllowed = await editPermissionsDialog.isOperationAllowed(appConstant.roleName.CONTENT_MANAGER_APP, 'Read');
             assert.isTrue(isAllowed, '`Read` operation should be allowed(green)');
-            isAllowed = await accessStepForm.isOperationAllowed(appConstant.roleDisplayName.CONTENT_MANAGER_APP, 'Create');
-            assert.isTrue(isAllowed, '`Create` operation should be allowed(green)');
+            isAllowed = await editPermissionsDialog.isOperationAllowed(appConstant.roleName.CONTENT_MANAGER_APP, 'Create');
+            assert.isTrue(isAllowed, "'Create' operation should be allowed(green)");
         });
 
-    it(`GIVEN existing folder and 'Edit Permissions' dialog is opened WHEN 'Create' toggle has been clicked THEN 'Create' operation is getting denied(red)`,
+    it(`GIVEN existing folder is selected AND Edit Permissions dialog is opened WHEN 'Create' toggle has been clicked THEN 'Create' operation gets denied(red)`,
         async () => {
             let editPermissionsDialog = new EditPermissionsDialog();
             let userAccessWidget = new UserAccessWidget();
@@ -100,6 +81,22 @@ describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions 
             //3. Verify that this operation is denied now:
             await editPermissionsDialog.isOperationDenied(appConstant.roleName.CONTENT_MANAGER_APP, 'Create');
             await editPermissionsDialog.isOperationAllowed(appConstant.roleName.CONTENT_MANAGER_APP, 'Read');
+        });
+
+    it(`WHEN folder with updated permissions is selected AND Edit Permissions dialog is opened THEN ACL-entries should be consistently sorted by name`,
+        async () => {
+            let editPermissionsDialog = new EditPermissionsDialog();
+            let userAccessWidget = new UserAccessWidget();
+            //1. Select the folder and open Details Panel
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            await studioUtils.openBrowseDetailsPanel();
+            //2. Open Edit Permissions dialog:
+            await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
+            let entries = await editPermissionsDialog.getNameOfAccessControlEntries();
+            //3. Verify the order of ACE:
+            assert.equal(entries[0], '/roles/cms.admin', " ACL-entries should be consistently sorted by name");
+            assert.equal(entries[1], '/roles/cms.cm.app', " ACL-entries should be consistently sorted by name");
+            assert.equal(entries[2], '/roles/system.admin', " ACL-entries should be consistently sorted by name");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

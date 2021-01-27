@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ToggleSearchPanelAction} from './ToggleSearchPanelAction';
 import {ShowNewContentDialogAction} from './ShowNewContentDialogAction';
@@ -15,65 +14,30 @@ import {SortContentAction} from './SortContentAction';
 import {PublishContentAction} from './PublishContentAction';
 import {PublishTreeContentAction} from './PublishTreeContentAction';
 import {UnpublishContentAction} from './UnpublishContentAction';
-import {ContentBrowseItem} from '../ContentBrowseItem';
-import {PreviewContentHandler} from './handler/PreviewContentHandler';
 import {UndoPendingDeleteContentAction} from './UndoPendingDeleteContentAction';
 import {CreateIssueAction} from './CreateIssueAction';
 import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
 import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
-import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
-import {Content} from '../../content/Content';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentType} from '../../inputtype/schema/ContentType';
 import {Permission} from '../../access/Permission';
 import {HasUnpublishedChildrenRequest} from '../../resource/HasUnpublishedChildrenRequest';
 import {HasUnpublishedChildren, HasUnpublishedChildrenResult} from '../../resource/HasUnpublishedChildrenResult';
-import {MarkAsReadyContentAction} from './MarkAsReadyContentAction';
 import {RequestPublishContentAction} from './RequestPublishContentAction';
 import {Action} from 'lib-admin-ui/ui/Action';
-import {ActionsStateManager} from 'lib-admin-ui/ui/ActionsStateManager';
 import {TreeGridActions} from 'lib-admin-ui/ui/treegrid/actions/TreeGridActions';
-import {BrowseItemsChanges} from 'lib-admin-ui/app/browse/BrowseItemsChanges';
 import {ManagedActionManager} from 'lib-admin-ui/managedaction/ManagedActionManager';
 import {ManagedActionState} from 'lib-admin-ui/managedaction/ManagedActionState';
 import {ManagedActionExecutor} from 'lib-admin-ui/managedaction/ManagedActionExecutor';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
+import {ContentTreeGridAction} from './ContentTreeGridAction';
+import {MarkAsReadyContentAction} from './MarkAsReadyContentAction';
 
-type ActionsMap = {
-    SHOW_NEW_DIALOG?: Action,
-    PREVIEW?: Action,
-    EDIT?: Action,
-    DELETE?: Action,
-    DUPLICATE?: Action,
-    MOVE?: Action,
-    SORT?: Action,
-    PUBLISH?: Action,
-    PUBLISH_TREE?: Action,
-    UNPUBLISH?: Action,
-    MARK_AS_READY?: Action,
-    REQUEST_PUBLISH?: Action,
-    CREATE_ISSUE?: Action,
-    TOGGLE_SEARCH_PANEL?: Action,
-    UNDO_PENDING_DELETE?: Action,
-};
-
-type ActionsState = {
-    SHOW_NEW_DIALOG?: boolean,
-    PREVIEW?: boolean,
-    EDIT?: boolean,
-    DELETE?: boolean,
-    DUPLICATE?: boolean,
-    MOVE?: boolean,
-    SORT?: boolean,
-    PUBLISH?: boolean,
-    PUBLISH_TREE?: boolean,
-    UNPUBLISH?: boolean,
-    MARK_AS_READY?: boolean,
-    REQUEST_PUBLISH?: boolean,
-    CREATE_ISSUE?: boolean,
-    TOGGLE_SEARCH_PANEL?: boolean,
-    UNDO_PENDING_DELETE?: boolean
-};
+export enum ActionName {
+    SHOW_NEW_DIALOG, PREVIEW, EDIT, DELETE, DUPLICATE, MOVE, SORT, PUBLISH, PUBLISH_TREE, UNPUBLISH, MARK_AS_READY, REQUEST_PUBLISH,
+    CREATE_ISSUE, TOGGLE_SEARCH_PANEL, UNDO_PENDING_DELETE
+}
 
 export enum State {
     ENABLED, DISABLED
@@ -81,81 +45,58 @@ export enum State {
 
 export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAndCompareStatus> {
 
-    private grid: ContentTreeGrid;
+    private readonly grid: ContentTreeGrid;
 
-    private actionsMap: ActionsMap;
-
-    private stateManager: ActionsStateManager;
+    private actionsMap: Map<ActionName, ContentTreeGridAction> = new Map<ActionName, ContentTreeGridAction>();
 
     private beforeActionsStashedListeners: { (): void; }[] = [];
 
-    private actionsUnstashedListeners: { (): void; }[] = [];
+    private actionsUnStashedListeners: { (): void; }[] = [];
 
     private state: State = State.ENABLED;
 
     constructor(grid: ContentTreeGrid) {
         this.grid = grid;
-
-        this.actionsMap = {
-            SHOW_NEW_DIALOG: new ShowNewContentDialogAction(grid),
-            PREVIEW: new PreviewContentAction(grid),
-            EDIT: new EditContentAction(grid),
-            DELETE: new DeleteContentAction(grid),
-            DUPLICATE: new DuplicateContentAction(grid),
-            MOVE: new MoveContentAction(grid),
-            SORT: new SortContentAction(grid),
-            PUBLISH: new PublishContentAction(grid),
-            PUBLISH_TREE: new PublishTreeContentAction(grid),
-            UNPUBLISH: new UnpublishContentAction(grid),
-            MARK_AS_READY: new MarkAsReadyContentAction(grid),
-            REQUEST_PUBLISH: new RequestPublishContentAction(grid),
-            CREATE_ISSUE: new CreateIssueAction(grid),
-            TOGGLE_SEARCH_PANEL: new ToggleSearchPanelAction(),
-            UNDO_PENDING_DELETE: new UndoPendingDeleteContentAction(grid)
-        };
-
-        this.stateManager = new ActionsStateManager(this.actionsMap);
-
+        this.initActions();
         this.initListeners();
     }
 
-    initListeners() {
-        const stashableActionsMap: ActionsMap = {
-            PREVIEW: this.actionsMap.PREVIEW,
-            EDIT: this.actionsMap.EDIT,
-            DELETE: this.actionsMap.DELETE,
-            DUPLICATE: this.actionsMap.DUPLICATE,
-            MOVE: this.actionsMap.MOVE,
-            SORT: this.actionsMap.SORT,
-            PUBLISH: this.actionsMap.PUBLISH,
-            PUBLISH_TREE: this.actionsMap.PUBLISH_TREE,
-            UNPUBLISH: this.actionsMap.UNPUBLISH,
-            MARK_AS_READY: this.actionsMap.MARK_AS_READY,
-            REQUEST_PUBLISH: this.actionsMap.REQUEST_PUBLISH,
-            CREATE_ISSUE: this.actionsMap.CREATE_ISSUE,
-            UNDO_PENDING_DELETE: this.actionsMap.UNDO_PENDING_DELETE
-        };
+    private initActions() {
+        this.actionsMap.set(ActionName.SHOW_NEW_DIALOG, new ShowNewContentDialogAction(this.grid));
+        this.actionsMap.set(ActionName.PREVIEW, new PreviewContentAction(this.grid));
+        this.actionsMap.set(ActionName.EDIT, new EditContentAction(this.grid));
+        this.actionsMap.set(ActionName.DELETE, new DeleteContentAction(this.grid));
+        this.actionsMap.set(ActionName.DUPLICATE, new DuplicateContentAction(this.grid));
+        this.actionsMap.set(ActionName.MOVE, new MoveContentAction(this.grid));
+        this.actionsMap.set(ActionName.SORT, new SortContentAction(this.grid));
+        this.actionsMap.set(ActionName.PUBLISH, new PublishContentAction(this.grid));
+        this.actionsMap.set(ActionName.PUBLISH_TREE, new PublishTreeContentAction(this.grid));
+        this.actionsMap.set(ActionName.UNPUBLISH, new UnpublishContentAction(this.grid));
+        this.actionsMap.set(ActionName.MARK_AS_READY, new MarkAsReadyContentAction(this.grid));
+        this.actionsMap.set(ActionName.REQUEST_PUBLISH, new RequestPublishContentAction(this.grid));
+        this.actionsMap.set(ActionName.CREATE_ISSUE, new CreateIssueAction(this.grid));
+        this.actionsMap.set(ActionName.TOGGLE_SEARCH_PANEL, new ToggleSearchPanelAction(this.grid));
+        this.actionsMap.set(ActionName.UNDO_PENDING_DELETE, new UndoPendingDeleteContentAction(this.grid));
+    }
 
+    private initListeners() {
         const previewStateChangedHandler = value => {
-            this.enableActions({PREVIEW: value});
+            this.actionsMap.get(ActionName.PREVIEW).setEnabled(value);
         };
-
-        this.getPreviewHandler().onPreviewStateChanged(previewStateChangedHandler);
 
         const managedActionsHandler = (state: ManagedActionState, executor: ManagedActionExecutor) => {
             if (state === ManagedActionState.PREPARING) {
                 this.notifyBeforeActionsStashed();
-                this.stateManager.stashActions(stashableActionsMap, false);
+                this.actionsMap.forEach((action: ContentTreeGridAction) => action.stash());
             } else if (state === ManagedActionState.ENDED) {
-                this.stateManager.unstashActions(stashableActionsMap);
-                this.notifyActionsUnstashed();
+                this.actionsMap.forEach((action: ContentTreeGridAction) => action.unStash());
+                this.notifyActionsUnStashed();
             }
         };
 
         ManagedActionManager.instance().onManagedActionStateChanged(managedActionsHandler);
 
         this.grid.onRemoved(() => {
-            this.getPreviewHandler().unPreviewStateChanged(previewStateChangedHandler);
             ManagedActionManager.instance().unManagedActionStateChanged(managedActionsHandler);
         });
     }
@@ -171,20 +112,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     private disableAllActions() {
-        this.enableActions({
-            SHOW_NEW_DIALOG: false,
-            EDIT: false,
-            DELETE: false,
-            DUPLICATE: false,
-            MOVE: false,
-            SORT: false,
-            PUBLISH_TREE: false,
-            PUBLISH: false,
-            UNPUBLISH: false,
-            MARK_AS_READY: false,
-            REQUEST_PUBLISH: false,
-            CREATE_ISSUE: false,
-        });
+        this.actionsMap.forEach((action: ContentTreeGridAction) => action.setEnabled(false));
     }
 
     onBeforeActionsStashed(listener: () => void) {
@@ -197,46 +125,38 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         });
     }
 
-    onActionsUnstashed(listener: () => void) {
-        this.actionsUnstashedListeners.push(listener);
+    onActionsUnStashed(listener: () => void) {
+        this.actionsUnStashedListeners.push(listener);
     }
 
-    private notifyActionsUnstashed() {
-        this.actionsUnstashedListeners.forEach((listener) => {
+    private notifyActionsUnStashed() {
+        this.actionsUnStashedListeners.forEach((listener) => {
             listener();
         });
     }
 
-    private enableActions(state: ActionsState) {
-        this.stateManager.enableActions(state);
-    }
-
-    getPreviewHandler(): PreviewContentHandler {
-        return (<PreviewContentAction>this.actionsMap.PREVIEW).getPreviewHandler();
-    }
-
     getAllCommonActions(): Action[] {
         return [
-            this.actionsMap.SHOW_NEW_DIALOG,
-            this.actionsMap.EDIT,
-            this.actionsMap.DELETE,
-            this.actionsMap.DUPLICATE,
-            this.actionsMap.MOVE,
-            this.actionsMap.SORT,
-            this.actionsMap.PREVIEW
+            this.getAction(ActionName.SHOW_NEW_DIALOG),
+            this.getAction(ActionName.EDIT),
+            this.getAction(ActionName.DELETE),
+            this.getAction(ActionName.DUPLICATE),
+            this.getAction(ActionName.MOVE),
+            this.getAction(ActionName.SORT),
+            this.getAction(ActionName.PREVIEW)
         ];
     }
 
     getPublishActions(): Action[] {
         return [
-            this.actionsMap.PUBLISH,
-            this.actionsMap.UNPUBLISH
+            this.getAction(ActionName.PUBLISH),
+            this.getAction(ActionName.UNPUBLISH)
         ];
     }
 
     getPendingDeleteActions(): Action[] {
         return [
-            this.actionsMap.UNDO_PENDING_DELETE
+            this.getAction(ActionName.UNDO_PENDING_DELETE)
         ];
     }
 
@@ -250,7 +170,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     getAllActionsNoPendingDelete(): Action[] {
         return [
             ...this.getAllCommonActions(),
-            this.actionsMap.UNPUBLISH
+            this.getAction(ActionName.UNPUBLISH)
         ];
     }
 
@@ -262,316 +182,134 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     // tslint:disable-next-line:max-line-length
-    updateActionsEnabledState(browseItems: ContentBrowseItem[],
-                              changes?: BrowseItemsChanges<ContentSummaryAndCompareStatus>): Q.Promise<void> {
+    updateActionsEnabledState(items: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
         if (this.state === State.DISABLED) {
             return Q<void>(null);
         }
 
-        if (changes && changes.getAdded().length === 0 && changes.getRemoved().length === 0) {
-            return Q<void>(null);
-        }
+        this.getAction(ActionName.TOGGLE_SEARCH_PANEL).setVisible(false);
 
-        this.actionsMap.TOGGLE_SEARCH_PANEL.setVisible(false);
-
-        let parallelPromises: Q.Promise<any>[] = [
-            this.getPreviewHandler().updateState(browseItems, changes),
-            this.doUpdateActionsEnabledState(browseItems)
+        const parallelPromises: Q.Promise<any>[] = [
+            this.doUpdateActionsEnabledState(items)
         ];
 
         return Q.all(parallelPromises).catch(DefaultErrorHandler.handle);
     }
 
-    private resetDefaultActionsNoItemsSelected() {
-        this.enableActions({
-            SHOW_NEW_DIALOG: true,
-            EDIT: false,
-            DELETE: false,
-            DUPLICATE: false,
-            MOVE: false,
-            SORT: false,
-            PUBLISH_TREE: false,
-            PUBLISH: false,
-            UNPUBLISH: false,
-            MARK_AS_READY: false,
-            REQUEST_PUBLISH: false,
-            CREATE_ISSUE: true,
-        });
-
-        this.actionsMap.UNPUBLISH.setVisible(false);
-        this.actionsMap.UNDO_PENDING_DELETE.setVisible(false);
-
-        this.showDefaultActions();
-    }
-
     private showDefaultActions() {
         const defaultActions = [
-            this.actionsMap.SHOW_NEW_DIALOG,
-            this.actionsMap.EDIT,
-            this.actionsMap.DELETE,
-            this.actionsMap.DUPLICATE,
-            this.actionsMap.MOVE,
-            this.actionsMap.SORT,
-            this.actionsMap.PREVIEW,
-            this.actionsMap.PUBLISH
+            this.getAction(ActionName.SHOW_NEW_DIALOG),
+            this.getAction(ActionName.EDIT),
+            this.getAction(ActionName.DELETE),
+            this.getAction(ActionName.DUPLICATE),
+            this.getAction(ActionName.MOVE),
+            this.getAction(ActionName.SORT),
+            this.getAction(ActionName.PREVIEW),
+            this.getAction(ActionName.PUBLISH)
         ];
         defaultActions.forEach(action => action.setVisible(true));
     }
 
-    private resetDefaultActionsMultipleItemsSelected(contentBrowseItems: ContentBrowseItem[]) {
-        const contentSummaries: ContentSummary[] = contentBrowseItems.map((elem: ContentBrowseItem) => {
-            return elem.getModel().getContentSummary();
+    private doUpdateActionsEnabledState(items: ContentSummaryAndCompareStatus[]): Q.Promise<any> {
+        return this.getAllowedPermissions(items).then((permissions: Permission[]) => {
+            const state: ContentTreeGridItemsState = new ContentTreeGridItemsState(items, permissions);
+            this.toggleActions(state);
+
+            if (items.length === 0) {
+                this.toggleVisibilityNoItemsSelected();
+                return Q(null);
+            }
+
+            this.toggleVisibility(state);
+            return this.updateDefaultActionsMultipleItemsSelected(items);
         });
+    }
 
-        const noManagedActionExecuting: boolean = !ManagedActionManager.instance().isExecuting();
+    private getAllowedPermissions(items: ContentSummaryAndCompareStatus[]): Q.Promise<Permission[]> {
+        const request: GetPermittedActionsRequest = new GetPermittedActionsRequest();
 
-        let treePublishEnabled: boolean = true;
-        let unpublishEnabled: boolean = true;
-
-        const deleteEnabled: boolean = this.anyDeletable(contentSummaries) && noManagedActionExecuting;
-        const duplicateEnabled: boolean = contentSummaries.length >= 1 && noManagedActionExecuting;
-        const moveEnabled: boolean = !this.isAllItemsSelected(contentBrowseItems.length) && noManagedActionExecuting;
-        const markAsReadyEnabled: boolean = this.isMarkAsReadyHasToBeEnabled(contentBrowseItems);
-        const requestPublishEnabled: boolean = this.isRequestPublishHasToBeEnabled(contentBrowseItems);
-
-        let allAreOnline: boolean = contentBrowseItems.length > 0;
-        let allArePendingDelete: boolean = contentBrowseItems.length > 0;
-        let anyIsPendingDelete: boolean = false;
-        let someArePublished: boolean = false;
-        let allAreReadonly: boolean = contentBrowseItems.length > 0;
-        const isMultipleOrValid: boolean = contentSummaries.length > 1 || (contentSummaries.length === 1 && contentSummaries[0].isValid());
-
-        contentBrowseItems.forEach((browseItem) => {
-            const content: ContentSummaryAndCompareStatus = browseItem.getModel();
-
-            if (allAreOnline && !content.isOnline()) {
-                allAreOnline = false;
-            }
-            if (allArePendingDelete && !content.isPendingDelete()) {
-                allArePendingDelete = false;
-            }
-            if (content.isPendingDelete()) {
-                anyIsPendingDelete = true;
-            }
-            if (!someArePublished && content.isPublished()) {
-                someArePublished = true;
-            }
-            if (allAreReadonly && !content.isReadOnly()) {
-                allAreReadonly = false;
-            }
-        });
-
-        const publishEnabled: boolean = !allAreOnline && noManagedActionExecuting && isMultipleOrValid;
-        if (this.isEveryLeaf(contentSummaries)) {
-            treePublishEnabled = false;
-            unpublishEnabled = someArePublished;
-        } else if (this.isOneNonLeaf(contentSummaries)) {
-            unpublishEnabled = someArePublished;
-        } else if (this.isNonLeafInMany(contentSummaries)) {
-            unpublishEnabled = someArePublished;
+        if (items.length === 0) {
+            request.addPermissionsToBeChecked(Permission.CREATE);
+        } else {
+            const contentIds: ContentId[] = items.map((item: ContentSummaryAndCompareStatus) => item.getContentId());
+            request.addContentIds(...contentIds);
+            request.addPermissionsToBeChecked(Permission.CREATE, Permission.DELETE, Permission.PUBLISH, Permission.MODIFY);
         }
 
-        treePublishEnabled = treePublishEnabled && noManagedActionExecuting;
-        unpublishEnabled = unpublishEnabled && noManagedActionExecuting;
+        return request.sendAndParse();
+    }
 
-        this.enableActions({
-            SHOW_NEW_DIALOG: contentSummaries.length < 2,
-            EDIT: !allAreReadonly && this.anyEditable(contentSummaries),
-            DELETE: deleteEnabled,
-            DUPLICATE: duplicateEnabled,
-            MOVE: moveEnabled,
-            SORT: contentSummaries.length === 1 && contentSummaries[0].hasChildren(),
-            PUBLISH: publishEnabled,
-            PUBLISH_TREE: treePublishEnabled,
-            UNPUBLISH: unpublishEnabled,
-            MARK_AS_READY: markAsReadyEnabled,
-            REQUEST_PUBLISH: requestPublishEnabled,
-            CREATE_ISSUE: true
-        });
+    private toggleActions(state: ContentTreeGridItemsState) {
+        this.actionsMap.forEach((action: ContentTreeGridAction) => action.setEnabledByState(state));
+    }
 
-        if (anyIsPendingDelete) {
-            const invisibleActions: Action[] = allArePendingDelete ? this.getAllActionsNoPendingDelete() : this.getAllActions();
+    private toggleVisibility(state: ContentTreeGridItemsState) {
+        if (state.hasAnyPendingDelete()) {
+            const invisibleActions: Action[] = state.hasAllPendingDelete()
+                                               ? this.getAllActionsNoPendingDelete()
+                                               : this.getAllActions();
             invisibleActions.forEach(action => action.setVisible(false));
-
-            this.actionsMap.PUBLISH.setVisible(allArePendingDelete || publishEnabled);
-
-            this.enableActions({
-                PUBLISH_TREE: false,
-                UNPUBLISH: allArePendingDelete || publishEnabled,
-                PUBLISH: allArePendingDelete || publishEnabled
-            });
-
         } else {
             this.getAllCommonActions().forEach(action => action.setVisible(true));
-
-            this.actionsMap.UNPUBLISH.setVisible(unpublishEnabled);
-            this.actionsMap.PUBLISH.setVisible(publishEnabled);
+            this.getAction(ActionName.UNPUBLISH).setVisible(this.getAction(ActionName.UNPUBLISH).isEnabled());
         }
 
-        this.getPendingDeleteActions().forEach((action) => action.setVisible(allArePendingDelete));
+        this.getAction(ActionName.PUBLISH).setVisible(
+            state.hasAllPendingDelete() || this.getAction(ActionName.PUBLISH).isEnabled());
+        this.getPendingDeleteActions().forEach((action) => action.setVisible(state.hasAllPendingDelete()));
+        (<EditContentAction>this.getAction(ActionName.EDIT)).updateLabel(state);
     }
 
-    private isEveryLeaf(contentSummaries: ContentSummary[]): boolean {
-        return contentSummaries.every((obj: ContentSummary) => !obj.hasChildren());
+    private toggleVisibilityNoItemsSelected() {
+        this.getAction(ActionName.UNPUBLISH).setVisible(false);
+        this.getAction(ActionName.UNDO_PENDING_DELETE).setVisible(false);
+        (<EditContentAction>this.getAction(ActionName.EDIT)).resetLabel();
+        this.showDefaultActions();
     }
 
-    private isOneNonLeaf(contentSummaries: ContentSummary[]): boolean {
-        return contentSummaries.length === 1 && contentSummaries[0].hasChildren();
-    }
-
-    private isNonLeafInMany(contentSummaries: ContentSummary[]): boolean {
-        return contentSummaries.length > 1 && contentSummaries.some((obj: ContentSummary) => obj.hasChildren());
-    }
-
-    private doUpdateActionsEnabledState(contentBrowseItems: ContentBrowseItem[]): Q.Promise<any> {
-        switch (contentBrowseItems.length) {
-        case 0:
-            return this.updateActionsByPermissionsNoItemsSelected();
-        case 1:
-            return this.updateActionsByPermissionsSingleItemSelected(contentBrowseItems);
-        default:
-            return this.updateActionsByPermissionsMultipleItemsSelected(contentBrowseItems);
-        }
-    }
-
-    private updateActionsByPermissionsNoItemsSelected(): Q.Promise<any> {
-        return new GetPermittedActionsRequest().addPermissionsToBeChecked(Permission.CREATE).sendAndParse().then(
-            (allowedPermissions: Permission[]) => {
-                this.resetDefaultActionsNoItemsSelected();
-                this.enableActions({SHOW_NEW_DIALOG: this.canCreate(allowedPermissions)});
-            });
-    }
-
-    private updateActionsByPermissionsSingleItemSelected(contentBrowseItems: ContentBrowseItem[]): Q.Promise<any> {
-        const selectedItem: ContentSummaryAndCompareStatus = contentBrowseItems[0].getModel();
-
-        return this.checkIsChildrenAllowedByContentType(selectedItem).then((contentTypeAllowsChildren: boolean) => {
-            return this.updateActionsByPermissionsMultipleItemsSelected(contentBrowseItems, contentTypeAllowsChildren).then(() => {
-                return this.updateCanDuplicateActionSingleItemSelected(selectedItem.getContentSummary());
-            });
-        });
-    }
-
-    private handleContentTypeNotFound(selectedItem: ContentSummaryAndCompareStatus): Q.Promise<any> {
+    private handleContentTypeNotFound(selectedItem: ContentSummaryAndCompareStatus) {
         NotifyManager.get().showWarning(
             i18n('notify.contentType.notFound', selectedItem.getContentSummary().getType().getLocalName()));
 
-        return this.getCreateDeletePublishAllowed([selectedItem.getContentId()]).then((allowedPermissions: Permission[]) => {
-            this.resetDefaultActionsNoItemsSelected();
-            this.enableActions({SHOW_NEW_DIALOG: false});
-            this.updateDefaultActionsNoItemsSelected(selectedItem, allowedPermissions);
-        });
+        this.disableAllActions();
+        this.getAction(ActionName.CREATE_ISSUE).setEnabled(true);
+
+        this.getAction(ActionName.UNPUBLISH).setVisible(false);
+        this.getAction(ActionName.UNDO_PENDING_DELETE).setVisible(false);
+        (<EditContentAction>this.getAction(ActionName.EDIT)).resetLabel();
+        this.showDefaultActions();
     }
 
-    private getCreateDeletePublishAllowed(contentIds: ContentId[]): Q.Promise<Permission[]> {
-        return new GetPermittedActionsRequest().addContentIds(...contentIds).addPermissionsToBeChecked(
-            Permission.CREATE, Permission.DELETE, Permission.PUBLISH, Permission.MODIFY).sendAndParse();
-    }
+    private updateDefaultActionsMultipleItemsSelected(items: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
+        const promises: Q.Promise<void>[] = [];
 
-    private canCreate(allowedPermissions: Permission[]): boolean {
-        return allowedPermissions.indexOf(Permission.CREATE) > -1;
-    }
+        if (items.length === 1 &&
+            (this.getAction(ActionName.SHOW_NEW_DIALOG).isEnabled() || this.getAction(ActionName.SORT).isEnabled())) {
+            promises.push(this.checkIsChildrenAllowedByContentType(items[0]).then((childrenAllowed: boolean) => {
+                if (!childrenAllowed) {
+                    this.getAction(ActionName.SHOW_NEW_DIALOG).setEnabled(false);
+                    this.getAction(ActionName.SORT).setEnabled(false);
+                }
 
-    private canDelete(allowedPermissions: Permission[]): boolean {
-        return allowedPermissions.indexOf(Permission.DELETE) > -1 && !ManagedActionManager.instance().isExecuting();
-    }
-
-    private canPublish(allowedPermissions: Permission[]): boolean {
-        return allowedPermissions.indexOf(Permission.PUBLISH) > -1 && !ManagedActionManager.instance().isExecuting();
-    }
-
-    private canModify(allowedPermissions: Permission[]): boolean {
-        return allowedPermissions.indexOf(Permission.MODIFY) > -1 && !ManagedActionManager.instance().isExecuting();
-    }
-
-    private updateDefaultActionsNoItemsSelected(selectedItem: ContentSummaryAndCompareStatus, allowedPermissions: Permission[]) {
-        const canDelete: boolean = this.canDelete(allowedPermissions);
-
-        if (canDelete) {
-            this.enableActions({DELETE: true});
+                return Q(null);
+            }));
         }
 
-        if (this.canCreate(allowedPermissions) && canDelete) {
-            this.enableActions({MOVE: true});
+        if (this.getAction(ActionName.PUBLISH_TREE).isEnabled()) {
+            promises.push(this.updatePublishTreeAction(items));
         }
 
-        if (this.canPublish(allowedPermissions)) {
-            if (selectedItem.isPublished()) {
-                this.enableActions({UNPUBLISH: true});
-            } else {
-                this.enableActions({PUBLISH: true});
-            }
-        }
+        return Q.all(promises).thenResolve(null);
     }
 
-    private updateActionsByPermissionsMultipleItemsSelected(contentBrowseItems: ContentBrowseItem[],
-                                                            contentTypesAllowChildren: boolean = true): Q.Promise<any> {
-        const contentIds: ContentId[] = contentBrowseItems.map(contentBrowseItem => contentBrowseItem.getModel().getContentId());
+    private updatePublishTreeAction(items: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
+        return new HasUnpublishedChildrenRequest(items.map((item: ContentSummaryAndCompareStatus) => item.getContentId()))
+            .sendAndParse().then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
+                const hasUnpublishedChildren: boolean =
+                    hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
 
-        return this.getCreateDeletePublishAllowed(contentIds).then((allowedPermissions: Permission[]) => {
-            this.resetDefaultActionsMultipleItemsSelected(contentBrowseItems);
-            return this.updateDefaultActionsMultipleItemsSelected(contentIds, allowedPermissions, contentTypesAllowChildren).then(() => {
-                this.updateMarkAsReady(contentBrowseItems, allowedPermissions);
-            });
-        });
-    }
-
-    private updateDefaultActionsMultipleItemsSelected(contentIds: ContentId[], allowedPermissions: Permission[],
-                                                      contentTypesAllowChildren: boolean = true): Q.Promise<void> {
-        if (!contentTypesAllowChildren || !this.canCreate(allowedPermissions)) {
-            this.enableActions({
-                SHOW_NEW_DIALOG: false,
-                SORT: false
-            });
-        }
-
-        if (!this.canDelete(allowedPermissions)) {
-            this.enableActions({
-                DELETE: false,
-                MOVE: false
-            });
-        }
-
-        if (!this.canPublish(allowedPermissions)) {
-            this.enableActions({
-                PUBLISH: false,
-                PUBLISH_TREE: false,
-                UNPUBLISH: false
-            });
-        } else {
-            return this.updatePublishTreeAction(contentIds);
-        }
-
-        return Q(null);
-    }
-
-    private updatePublishTreeAction(contentIds: ContentId[]): Q.Promise<void> {
-        const hasUnpublishedChildrenPromise: Q.Promise<HasUnpublishedChildrenResult> =
-            new HasUnpublishedChildrenRequest(contentIds).sendAndParse();
-
-        return hasUnpublishedChildrenPromise.then((hasUnpublishedChildrenResult: HasUnpublishedChildrenResult) => {
-            const hasUnpublishedChildren: boolean =
-                hasUnpublishedChildrenResult.getResult().some((item: HasUnpublishedChildren) => item.getHasChildren());
-
-            this.enableActions({
-                PUBLISH_TREE: hasUnpublishedChildren
-            });
-        }).catch(reason => DefaultErrorHandler.handle(reason));
-    }
-
-    private updateMarkAsReady(contentBrowseItems: ContentBrowseItem[], allowedPermissions: Permission[]) {
-        if (!this.canModify(allowedPermissions)) {
-            this.enableActions({
-                MARK_AS_READY: false
-            });
-
-            if (contentBrowseItems.some((item: ContentBrowseItem) => item.getModel().getContentSummary().isInProgress())) {
-                this.enableActions({
-                    PUBLISH: false,
-                    PUBLISH_TREE: false
-                });
-            }
-        }
+                this.getAction(ActionName.PUBLISH_TREE).setEnabled(hasUnpublishedChildren);
+            }).catch(reason => DefaultErrorHandler.handle(reason));
     }
 
     private checkIsChildrenAllowedByContentType(selectedItem: ContentSummaryAndCompareStatus): Q.Promise<Boolean> {
@@ -584,111 +322,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         return deferred.promise;
     }
 
-    private anyEditable(contentSummaries: ContentSummary[]): boolean {
-        return contentSummaries.some((content) => {
-            return !!content && content.isEditable();
-        });
-    }
-
-    private anyDeletable(contentSummaries: ContentSummary[]): boolean {
-        return contentSummaries.some((content) => {
-            return !!content && content.isDeletable();
-        });
-    }
-
-    private isMarkAsReadyHasToBeEnabled(contentBrowseItems: ContentBrowseItem[]): boolean {
-        const items: ContentSummaryAndCompareStatus[] = contentBrowseItems.map(item => item.getModel());
-
-        const allValid: boolean = items.every(item => item.getContentSummary().isValid());
-        if (!allValid) {
-            return false;
-        }
-
-        return items.some((item: ContentSummaryAndCompareStatus) => item.canBeMarkedAsReady());
-    }
-
-    private isRequestPublishHasToBeEnabled(contentBrowseItems: ContentBrowseItem[]): boolean {
-        const items: ContentSummaryAndCompareStatus[] = contentBrowseItems.map(item => item.getModel());
-
-        const allValid: boolean = items.every(item => item.getContentSummary().isValid());
-
-        if (!allValid) {
-            return false;
-        }
-
-        return items.some(item => (!item.isOnline() && !item.isPendingDelete()));
-    }
-
-    private updateCanDuplicateActionSingleItemSelected(selectedItem: ContentSummary): Q.Promise<void> {
-        // Need to check if parent allows content creation
-        return new GetContentByPathRequest(selectedItem.getPath().getParentPath()).sendAndParse().then((content: Content) =>
-            new GetPermittedActionsRequest()
-                .addContentIds(content.getContentId())
-                .addPermissionsToBeChecked(Permission.CREATE)
-                .sendAndParse().then((allowedPermissions: Permission[]) => {
-                const canDuplicate = allowedPermissions.indexOf(Permission.CREATE) > -1 &&
-                                     !ManagedActionManager.instance().isExecuting();
-                this.enableActions({DUPLICATE: canDuplicate});
-            }));
-    }
-
-    private isAllItemsSelected(items: number): boolean {
-        return items === this.grid.getRoot().getDefaultRoot().treeToList(false, false).length;
-    }
-
-    getDeleteAction(): Action {
-        return this.actionsMap.DELETE;
-    }
-
-    getDuplicateAction(): Action {
-        return this.actionsMap.DUPLICATE;
-    }
-
-    getPublishAction(): Action {
-        return this.actionsMap.PUBLISH;
-    }
-
-    getPublishTreeAction(): Action {
-        return this.actionsMap.PUBLISH_TREE;
-    }
-
-    getCreateIssueAction(): Action {
-        return this.actionsMap.CREATE_ISSUE;
-    }
-
-    getUnpublishAction(): Action {
-        return this.actionsMap.UNPUBLISH;
-    }
-
-    getMoveAction(): Action {
-        return this.actionsMap.MOVE;
-    }
-
-    getSortAction(): Action {
-        return this.actionsMap.SORT;
-    }
-
-    getEditAction(): Action {
-        return this.actionsMap.EDIT;
-    }
-
-    getShowNewDialogAction(): Action {
-        return this.actionsMap.SHOW_NEW_DIALOG;
-    }
-
-    getMarkAsReadyAction(): Action {
-        return this.actionsMap.MARK_AS_READY;
-    }
-
-    getRequestPublishAction(): Action {
-        return this.actionsMap.REQUEST_PUBLISH;
-    }
-
-    getToggleSearchPanelAction(): Action {
-        return this.actionsMap.TOGGLE_SEARCH_PANEL;
-    }
-
-    getUndoPendingDeleteAction(): Action {
-        return this.actionsMap.UNDO_PENDING_DELETE;
+    getAction(name: ActionName): Action {
+        return this.actionsMap.get(name);
     }
 }

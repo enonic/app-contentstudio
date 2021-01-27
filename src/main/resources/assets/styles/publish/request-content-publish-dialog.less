@@ -12,18 +12,23 @@
     }
 
     .sub-title {
-      margin: 10px 43px;
+      margin: 10px 0 0 43px;
     }
   }
 
-  .button-container {
-    width: 100%;
-    text-align: right;
+  .dialog-buttons {
+    .button-container {
+      flex-direction: row-reverse;
+      justify-content: space-between;
 
-    .dialog-button.prev {
-      float: left;
-      margin: 0;
-      background-color: @form-button-bg;
+      .dialog-button.prev {
+        margin: 0;
+        background-color: @form-button-bg;
+      }
+
+      .dropdown-dialog-menu button {
+        .dialog-button(@bg: @admin-button-blue2);
+      }
     }
   }
 }

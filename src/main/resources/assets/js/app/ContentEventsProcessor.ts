@@ -2,7 +2,7 @@ import {showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentWizardPanelParams} from './wizard/ContentWizardPanelParams';
 import {NewContentEvent} from './create/NewContentEvent';
-import {SortContentEvent} from './browse/SortContentEvent';
+import {SortContentEvent} from './browse/sort/SortContentEvent';
 import {OpenSortDialogEvent} from './browse/OpenSortDialogEvent';
 import {MoveContentEvent} from './move/MoveContentEvent';
 import {OpenMoveDialogEvent} from './move/OpenMoveDialogEvent';
@@ -65,11 +65,15 @@ export class ContentEventsProcessor {
 
             const contentSummary: ContentSummary = content.getContentSummary();
             const contentTypeName: ContentTypeName = contentSummary.getType();
-            const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(contentSummary.getId());
+            const tabId: ContentAppBarTabId = ContentAppBarTabId.forEdit(`${event.getProject().getName()}/${contentSummary.getId()}`);
+            const isLocalize: boolean = !content.isReadOnly() && content.isDataInherited() && event.getProject().getName() ===
+                                        ProjectContext.get().getProject().getName();
 
             const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
                 .setTabId(tabId)
                 .setContentTypeName(contentTypeName)
+                .setProject(event.getProject())
+                .setLocalize(isLocalize)
                 .setContentId(contentSummary.getContentId());
 
             const win: Window = ContentEventsProcessor.openWizardTab(wizardParams);
@@ -95,28 +99,29 @@ export class ContentEventsProcessor {
 
     static handleMove(event: MoveContentEvent) {
         const contents: ContentSummaryAndCompareStatus[] = event.getModels();
-        new OpenMoveDialogEvent(contents.map(content => content.getContentSummary()), event.getRootNode()).fire();
+        new OpenMoveDialogEvent(contents.map(content => content.getContentSummary()), event.getTreeGrid()).fire();
     }
 
     static handleShowDependencies(event: ShowDependenciesEvent) {
         const mode: string = event.isInbound() ? UrlAction.INBOUND : UrlAction.OUTBOUND;
         const id: string = event.getId().toString();
         const type: string = event.getContentType() ? event.getContentType().toString() : null;
-        const project: string = ProjectContext.get().getProject();
+        const project: string = ProjectContext.get().getProject().getName();
         const url = `${AppMode.MAIN}#/${project}/${mode}/${id}` + (!!type ? `/${type}` : '');
 
         ContentEventsProcessor.openTab(url);
     }
 
     private static generateURL(params: ContentWizardPanelParams): string {
-        const project: string = ProjectContext.get().getProject();
+        const project: string = params.project.getName();
 
         if (params.tabId && params.tabId.isBrowseMode()) {
             return `${project}/${UrlAction.BROWSE}/${params.tabId.getId()}`;
         }
 
         if (!!params.contentId) {
-            return `${project}/${UrlAction.EDIT}/${params.contentId.toString()}`;
+            const action: string = params.localize ? UrlAction.LOCALIZE : UrlAction.EDIT;
+            return `${project}/${action}/${params.contentId.toString()}`;
         }
 
         if (params.parentContentId) {

@@ -8,6 +8,7 @@ import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 import {OptionDataLoaderData} from 'lib-admin-ui/ui/selector/OptionDataLoader';
+import {ContentAndStatusTreeSelectorItem} from '../../../../item/ContentAndStatusTreeSelectorItem';
 
 export class ImageOptionDataLoader
     extends ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {
@@ -29,16 +30,29 @@ export class ImageOptionDataLoader
     }
 
     protected sendPreLoadRequest(ids: string): Q.Promise<MediaTreeSelectorItem[]> {
-        let contentIds = ids.split(';').map((id) => {
+        const contentIds: ContentId[] = ids.split(';').map((id) => {
             return new ContentId(id);
         });
 
-        return ImageContentLoader.queueContentLoadRequest(contentIds)
-            .then(((contents: ContentSummary[]) => {
-                const data = contents.map(content => new MediaTreeSelectorItem(content, false));
-                this.notifyPreloadedData(data);
-                return data;
-            }));
+        return ImageContentLoader.queueContentLoadRequest(contentIds).then(((contents: ContentSummary[]) => {
+            const missingItems: string[] = contentIds.map((contentId: ContentId) => contentId.toString()).filter((id: string) => {
+                return !contents.some((content: ContentSummary) => content && content.getId() === id);
+            });
+
+            const items: MediaTreeSelectorItem[] = contents.map(content => {
+                const item: MediaTreeSelectorItem = new MediaTreeSelectorItem(content, false);
+
+                if (!content) {
+                    item.setMissingItemId(missingItems.pop());
+                }
+
+                return item;
+            });
+
+            this.notifyPreloadedData(items);
+
+            return items;
+        }));
     }
 
     onPreloadedData(listener: (data: MediaTreeSelectorItem[]) => void) {
@@ -70,51 +84,19 @@ export class ImageOptionDataLoader
     }
 
     private wrapItems(items: ContentTreeSelectorItem[] = []): MediaTreeSelectorItem[] {
-        return items.map(item =>
-            new MediaTreeSelectorItem(item.getContent(), item.isSelectable(), item.isExpandable())
-        );
+        return items.map(item => this.wrapItem(item));
     }
 
     private wrapItem(item: ContentTreeSelectorItem): MediaTreeSelectorItem {
-        return item ? new MediaTreeSelectorItem(item.getContent(), item.isSelectable(), item.isExpandable()) : null;
+        if (!item) {
+            return null;
+        }
+        return this.loadStatus ?
+               MediaTreeSelectorItem.createMediaTreeSelectorItemWithStatus(<ContentAndStatusTreeSelectorItem>item) :
+               new MediaTreeSelectorItem(item.getContent(), item.isSelectable(), item.isExpandable());
     }
 
-    static create(): ImageOptionDataLoaderBuilder {
-        return new ImageOptionDataLoaderBuilder();
-    }
-}
-
-export class ImageOptionDataLoaderBuilder
-    extends ContentSummaryOptionDataLoaderBuilder {
-
-    inputName: string;
-
-    public setInputName(value: string): ImageOptionDataLoaderBuilder {
-        this.inputName = value;
-        return this;
-    }
-
-    setContentTypeNames(value: string[]): ImageOptionDataLoaderBuilder {
-        super.setContentTypeNames(value);
-        return this;
-    }
-
-    public setAllowedContentPaths(value: string[]): ImageOptionDataLoaderBuilder {
-        super.setAllowedContentPaths(value);
-        return this;
-    }
-
-    public setRelationshipType(value: string): ImageOptionDataLoaderBuilder {
-        super.setRelationshipType(value);
-        return this;
-    }
-
-    public setContent(value: ContentSummary): ImageOptionDataLoaderBuilder {
-        super.setContent(value);
-        return this;
-    }
-
-    build(): ImageOptionDataLoader {
-        return new ImageOptionDataLoader(this);
+    static build(builder: ContentSummaryOptionDataLoaderBuilder): ImageOptionDataLoader {
+        return new ImageOptionDataLoader(builder);
     }
 }

@@ -26,10 +26,10 @@ export class ImageSelectorViewer
     }
 
     resolveHint(object: MediaTreeSelectorItem): string {
-        return object.getPath().toString();
+        return object.getPath() ? object.getPath().toString() : '';
     }
 
     protected getHintTargetEl(): ElementHelper {
-        return this.getNamesAndIconView().getIconImageEl().getEl();
+        return this.getEl();
     }
 }

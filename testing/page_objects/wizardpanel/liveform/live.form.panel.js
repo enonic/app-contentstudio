@@ -19,7 +19,7 @@ const xpath = {
 class LiveFormPanel extends Page {
 
     waitForOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout);
     }
 
     // selects an image by displayName(in an image-component)
@@ -68,7 +68,7 @@ class LiveFormPanel extends Page {
     async getTextInPart() {
         try {
             let selector = "//div[contains(@id,'PartComponentView')]/p";
-            await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             return await this.getText(selector);
         } catch (err) {
             throw new Error("Error when getting text in the part component! " + err);
@@ -78,7 +78,7 @@ class LiveFormPanel extends Page {
     async waitForImageDisplayed(imageName) {
         try {
             let selector = xpath.imageComponentByDisplayName(imageName);
-            return await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+            return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot("err_live_frame_image_component1");
             throw new Error("Image component is not visible in Live Editor! " + err);
@@ -88,7 +88,7 @@ class LiveFormPanel extends Page {
     async waitForImageNotDisplayed(imageName) {
         try {
             let selector = xpath.imageComponentByDisplayName(imageName);
-            return await this.waitForElementNotDisplayed(selector, appConst.TIMEOUT_3);
+            return await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot("err_live_frame_image_component2");
             throw new Error("Image component should not visible in Live Editor! " + err);
@@ -112,7 +112,7 @@ class LiveFormPanel extends Page {
     async waitForItemViewContextMenu() {
         try {
             let selector = xpath.itemViewContextMenu;
-            return await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+            return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot("err_live_frame_item_view_context_menu");
             throw new Error("Image component should not visible in Live Editor! " + err);

@@ -9,7 +9,7 @@ export class SettingsTypeListBox
     private itemClickedListeners: { (item: SettingsType): void }[] = [];
 
     createItemView(item: SettingsType): NamesAndIconViewer<SettingsType> {
-        const itemView: SettingsTypeViewer = new SettingsTypeViewer();
+        const itemView: SettingsTypeViewer = new SettingsTypeViewer(item.getName().toLowerCase());
 
         itemView.onClicked(() => {
             this.notifyItemClicked(item);

@@ -74,7 +74,7 @@ export class PageDescriptorDropdown
     }
 
     protected handleOptionSelected(event: OptionSelectedEvent<PageDescriptor>) {
-        let pageDescriptor = event.getOption().displayValue;
+        let pageDescriptor = event.getOption().getDisplayValue();
         let setController = new SetController(this).setDescriptor(pageDescriptor);
         this.liveEditModel.getPageModel().setController(setController);
     }

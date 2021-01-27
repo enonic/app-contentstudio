@@ -15,7 +15,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
     webDriverHelper.setupBrowser();
 
     let SITE;
-    let IMAGE_DISPLAY_NAME = "Pop_03";
+    let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.POP_03;
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -37,7 +37,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
             //4. Click on dropdown handle and expand the style-options:
             let actualOptions = await insertImageDialog.getStyleSelectorOptions();
-            studioUtils.saveScreenshot('image_dialog_style_options');
+            studioUtils.saveScreenshot('image_digradlew cleanalog_style_options');
             assert.equal(actualOptions[0], "<None>", "First option should be '<None>' ");
             assert.equal(actualOptions[1], appConstant.IMAGE_STYLE_ORIGINAL, "one available option should be present in options list");
         });
@@ -59,6 +59,7 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
             await insertImageDialog.waitForCustomWidthCheckBoxDisabled();
             //6. 'Custom Width' checkbox should be unchecked:
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
+            assert.isFalse(isChecked, "'Custom Width' checkbox should be unchecked");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

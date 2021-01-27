@@ -10,10 +10,17 @@ export class ShowLiveEditAction
         super('Live');
 
         this.setEnabled(false);
-        this.setTitle(i18n('action.showEditor'));
         this.onExecuted(() => {
             wizard.showLiveEdit();
             new ShowLiveEditEvent().fire();
         });
+    }
+
+    setEnabled(value: boolean): Action {
+        super.setEnabled(value);
+
+        this.setTitle(value ? i18n('tooltip.showEditor') : '');
+
+        return this;
     }
 }

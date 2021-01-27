@@ -28,7 +28,7 @@ class TextAreaForm extends Page {
     }
 
     waitForValidationRecording() {
-        return this.waitForElementDisplayed(this.validationRecord, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.validationRecord, appConst.shortTimeout);
     }
 
     isValidationRecordingVisible() {

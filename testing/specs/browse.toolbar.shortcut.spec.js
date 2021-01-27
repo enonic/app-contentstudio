@@ -38,7 +38,7 @@ describe('Browse toolbar shortcut spec`', function () {
 
     it("WHEN 'Alt+n' have been pressed THEN 'New content' dialog should be loaded", async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
-        let newContentDialog = new NewContentDialog()
+        let newContentDialog = new NewContentDialog();
         await studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
         //'Alt'+ 'n' have been pressed:
         await contentBrowsePanel.hotKeyNew();

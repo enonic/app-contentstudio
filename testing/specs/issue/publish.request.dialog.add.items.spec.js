@@ -19,7 +19,7 @@ describe('publish.request.dialog.add.items.spec - request publish dialog - add i
 
         // verifies https://github.com/enonic/app-contentstudio/issues/723  Publish Request dialog - Publish button should be disabled when 'work in progress' content has been added
         // https://github.com/enonic/app-contentstudio/issues/816 - Request tab is not loaded after creating new request
-        it(`GIVEN new publish request is created AND Issue Details Dialog is opened  WHEN one 'Work in progress' has been added  THEN 'Publish Now' button gets disabled on the modal dialog`,
+        it(`GIVEN new publish request is created AND Issue Details Dialog is opened  WHEN one 'Work in progress' has been added  THEN 'Publish Now' button gets disabled in the modal dialog`,
             async () => {
                 let contentWizard = new ContentWizard();
                 let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
@@ -33,6 +33,7 @@ describe('publish.request.dialog.add.items.spec - request publish dialog - add i
                 //2. Open wizard for the second folder, type a name and Request Publish dialog :
                 await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
                 await contentWizard.typeDisplayName(displayName2);
+                await contentWizard.clickOnMarkAsReadyButton();
                 //3. Open publish menu in the wizard and create new publish request:
                 await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
                 studioUtils.saveScreenshot("pub_req_step1");

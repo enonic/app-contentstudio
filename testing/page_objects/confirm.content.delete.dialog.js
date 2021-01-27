@@ -5,12 +5,12 @@ const Page = require('./page');
 const lib = require('../libs/elements');
 const appConst = require('../libs/app_const');
 const XPATH = {
-    container: `//div[contains(@id,'ConfirmContentDeleteDialog')]`,
+    container: `//div[contains(@id,'ConfirmValueDialog')]`,
     confirmButton: `//button[contains(@id,'DialogButton') and child::span[text()='Confirm']]`,
     cancelButton: `//div[@class='dialog-buttons']//button/span[text()='Cancel']`,
 };
 
-class ConfirmContentDeleteDialog extends Page {
+class ConfirmValueDialog extends Page {
 
     get warningMessage() {
         return XPATH.container +
@@ -29,32 +29,27 @@ class ConfirmContentDeleteDialog extends Page {
         return XPATH.container + lib.TEXT_INPUT;
     }
 
-    async clickOnYesButton() {
-        await this.waitForElementDisplayed(this.yesButton, appConst.TIMEOUT_2);
-        await this.clickOnElement(this.yesButton);
-        await this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2)
-    }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
             throw new Error("Confirmation Content Deleting Dialog is not loaded " + err);
         })
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
             throw new Error("Confirmation Content Deleting Dialog must be closed " + err);
         })
     }
 
     waitForConfirmButtonDisabled() {
-        return this.waitForElementDisabled(this.confirmButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisabled(this.confirmButton, appConst.mediumTimeout).catch(err => {
             throw new Error("Confirm button is not disabled in " + err);
         })
     }
 
     waitForCancelButtonEnabled() {
-        return this.waitForElementEnabled(this.cancelButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementEnabled(this.cancelButton, appConst.mediumTimeout).catch(err => {
             throw new Error("Confirm Delete Dialog - Cancel button is not enabled in " + err);
         })
     }
@@ -73,10 +68,10 @@ class ConfirmContentDeleteDialog extends Page {
 
     async clickOnConfirmButton() {
         try {
-            await this.waitForElementEnabled(this.confirmButton, appConst.TIMEOUT_2);
+            await this.waitForElementEnabled(this.confirmButton, appConst.mediumTimeout);
             await this.clickOnElement(this.confirmButton);
             //modal dialog closes:
-            await this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3);
+            await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
             return await this.pause(1000);
         } catch (err) {
             this.saveScreenshot('err_confirmation_dialog');
@@ -84,8 +79,9 @@ class ConfirmContentDeleteDialog extends Page {
         }
     }
 
-    typeNumberOfContent(number) {
+    typeNumberOrName(number) {
         return this.typeTextInInput(this.numberInput, number);
     }
-};
-module.exports = ConfirmContentDeleteDialog;
+}
+
+module.exports = ConfirmValueDialog;

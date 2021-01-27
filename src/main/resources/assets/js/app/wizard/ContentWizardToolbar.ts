@@ -11,10 +11,10 @@ import {Application} from 'lib-admin-ui/app/Application';
 import {ProjectContext} from '../project/ProjectContext';
 import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
-import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {Project} from '../settings/data/project/Project';
-import {ProjectIconUrlResolver} from '../project/ProjectIconUrlResolver';
+import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
+import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
+import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 
 export interface ContentWizardToolbarConfig {
     application: Application;
@@ -34,6 +34,8 @@ export class ContentWizardToolbar
     private mobileItemStatisticsButton: TogglerButton;
 
     private stateIcon: DivEl;
+
+    private projectViewer: ProjectViewer;
 
     private config: ContentWizardToolbarConfig;
 
@@ -69,7 +71,7 @@ export class ContentWizardToolbar
         });
 
         this.componentsViewToggler.onActiveChanged((isActive: boolean) => {
-            this.componentsViewToggler.setTitle(isActive ? i18n('field.hideComponent') : i18n('field.showComponent'));
+            this.componentsViewToggler.setTitle(isActive ? i18n('field.hideComponent') : i18n('field.showComponent'), false);
         });
 
         this.contentWizardToolbarPublishControls.getPublishButton().onInitialized(() => {
@@ -83,6 +85,18 @@ export class ContentWizardToolbar
         this.contentWizardToolbarPublishControls.getPublishButton().onPublishRequestActionChanged((added: boolean) => {
             this.toggleClass('publish-request', added);
         });
+
+        ProjectUpdatedEvent.on((event: ProjectUpdatedEvent) => {
+            if (event.getProjectName() === ProjectContext.get().getProject().getName()) {
+                new ProjectGetRequest(event.getProjectName()).sendAndParse().then((project: Project) => {
+                    this.projectViewer.setObject(project);
+                }).catch(DefaultErrorHandler.handle);
+            }
+        });
+
+        this.whenRendered(() => {
+            this.projectViewer.getNamesAndIconView().getFirstChild().onClicked(() => this.handleHomeIconClicked());
+        });
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
@@ -95,7 +109,7 @@ export class ContentWizardToolbar
             this.addProjectButton(projects);
         }).catch((reason: any) => {
             this.addProjectButton([Project.create()
-                .setName(ProjectContext.get().getProject())
+                .setName(ProjectContext.get().getProject().getName())
                 .build()
             ]);
             DefaultErrorHandler.handle(reason);
@@ -103,27 +117,16 @@ export class ContentWizardToolbar
     }
 
     private addProjectButton(projects: Project[]) {
-        const currentProjectName: string = ProjectContext.get().getProject();
+        const currentProjectName: string = ProjectContext.get().getProject().getName();
         const project: Project = projects.filter((p: Project) => p.getName() === currentProjectName)[0];
 
-        const projectBlock: NamesAndIconView = new NamesAndIconViewBuilder()
-            .setSize(NamesAndIconViewSize.small)
-            .build()
-            .setMainName(project.getDisplayName())
-            .setIconClass('icon-tree-2');
+        this.projectViewer = new ProjectViewer();
+        this.projectViewer.setObject(project);
 
-        if (project.getIcon()) {
-            projectBlock.setIconUrl(new ProjectIconUrlResolver()
-                .setProjectName(project.getName())
-                .setTimestamp(new Date().getTime())
-                .resolve());
-        }
+        this.projectViewer.addClass('project-info');
+        this.projectViewer.toggleClass('single-repo', projects.length < 2);
 
-        projectBlock.addClass('project-info');
-        projectBlock.toggleClass('single-repo', projects.length < 2);
-        projectBlock.getFirstChild().onClicked(() => this.handleHomeIconClicked());
-
-        this.prependChild(projectBlock);
+        this.prependChild(this.projectViewer);
     }
 
     private handleHomeIconClicked() {
@@ -133,7 +136,7 @@ export class ContentWizardToolbar
             // add tab id for browsers that can focus tabs by id
             tabId = application.getId();
         }
-        window.open(`#/${ProjectContext.get().getProject()}/browse`, tabId);
+        window.open(`#/${ProjectContext.get().getProject().getName()}/browse`, tabId);
     }
 
     private addActionButtons() {
@@ -141,6 +144,7 @@ export class ContentWizardToolbar
 
         super.addActions([
             actions.getSaveAction(),
+            actions.getResetAction(),
             actions.getDeleteAction(),
             actions.getDuplicateAction(),
             actions.getPreviewAction(),

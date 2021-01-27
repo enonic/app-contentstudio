@@ -39,7 +39,6 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
                 await publishRequestDetailsDialog.waitForTabLoaded();
                 //3. Expected buttons should be present:
                 await publishRequestDetailsDialog.waitForPublishNowButtonEnabled();
-                await publishRequestDetailsDialog.waitForCloseRequestButtonDisplayed();
                 let result = await publishRequestDetailsDialog.getItemDisplayNames();
                 //4. Expected content should be present in items-to-publish:
                 assert.equal(result[0], TEST_FOLDER1.displayName, "Expected item to publish should be present in the dialog");
@@ -95,8 +94,9 @@ describe('publish.request.create.close.spec - request publish dialog - open and 
                 let expectedMsg1 = appConst.THIS_PUBLISH_REQUEST_OPEN;
                 await browsePanel.waitForExpectedNotificationMessage(expectedMsg1);
                 studioUtils.saveScreenshot("request_reopened");
-                //3. 'Close Request' button should appear in the modal dialog:
-                await publishRequestDetailsDialog.waitForCloseRequestButtonDisplayed();
+                //3. 'Open' label should appear in the status selector:
+                let actualStatus = await publishRequestDetailsDialog.getCurrentStatusInStatusSelector();
+                assert.equal(actualStatus, "Open", "'Open' status should be displayed in status selector button");
                 let result = await publishRequestDetailsDialog.isNoActionLabelPresent();
                 //4. `No items to publish' should be displayed:
                 assert.isTrue(result, `No items to publish' should be displayed, because all items are published`);

@@ -31,8 +31,4 @@ export class RecentItemsBlock
     getItemsList(): RecentItemsList {
         return this.recentItemsList;
     }
-
-    setTitle(newTitle: string) {
-        this.title.setHtml(newTitle);
-    }
 }

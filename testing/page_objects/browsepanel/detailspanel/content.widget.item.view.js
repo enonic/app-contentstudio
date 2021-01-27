@@ -13,9 +13,10 @@ const xpath = {
 
 class ContentWidgetItemView extends Page {
 
-    getContentName() {
+    async getContentName() {
         let selector = xpath.container + xpath.contentSummary + lib.H6_DISPLAY_NAME;
-        return this.getText(selector);
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        return await this.getText(selector);
     }
 
     async getContentWorkflowState() {
@@ -34,7 +35,7 @@ class ContentWidgetItemView extends Page {
 
     async waitForNotDisplayed() {
         try {
-            return await this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+            return await this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
         } catch (err) {
             this.saveScreenshot("err_widget_item_is_visible");
             throw new Error("Widget Item should not be displayed " + err);

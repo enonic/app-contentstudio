@@ -44,6 +44,12 @@ class Page {
         return this.browser.pause(ms);
     }
 
+    async scrollAndClickOnElement(selector) {
+        let element = await this.findElement(selector);
+        await element.scrollIntoView();
+        return await element.click();
+    }
+
     async clickOnElement(selector) {
         let element = await this.findElement(selector);
         //await element.waitForDisplayed(1500);
@@ -74,14 +80,18 @@ class Page {
     }
 
     async typeTextInInput(selector, text) {
-        let inputElement = await this.findElement(selector);
-        await inputElement.setValue(text);
-        let value = await inputElement.getValue();
-        //workaround for issue in WebdriverIO
-        if (value == "") {
+        try {
+            let inputElement = await this.findElement(selector);
             await inputElement.setValue(text);
+            let value = await inputElement.getValue();
+            //workaround for issue in WebdriverIO
+            if (value == "") {
+                await inputElement.setValue(text);
+            }
+            return await inputElement.pause(300);
+        } catch (err) {
+            throw new Error("Error when set value in input " + err);
         }
-        return await inputElement.pause(300);
     }
 
     async addTextInInput(selector, text) {
@@ -103,16 +113,25 @@ class Page {
         return await element.waitForExist(ms);
     }
 
+    async isClickable(selector) {
+        let element = await this.findElement(selector);
+        return await element.isClickable();
+    }
+
     async getTextInInput(selector) {
         let inputElement = await this.findElement(selector);
         return await inputElement.getValue(selector);
     }
 
     async clearInputText(selector) {
-        let inputElement = await this.findElement(selector);
-        await inputElement.waitForDisplayed(1000);
-        await inputElement.clearValue();
-        return await inputElement.pause(300);
+        try {
+            let inputElement = await this.findElement(selector);
+            await inputElement.waitForDisplayed(1000);
+            await inputElement.clearValue();
+            return await inputElement.pause(3000);
+        } catch (err) {
+            throw new Error("Error when clear value in input" + err);
+        }
     }
 
     saveScreenshot(name) {
@@ -200,13 +219,15 @@ class Page {
     }
 
     async waitForElementDisplayed(selector, ms) {
+        let elements = await this.findElements(selector);
         let element = await this.findElement(selector);
         return await element.waitForDisplayed(ms);
+        //return await element.waitForDisplayed({timeout: ms});
     }
 
     waitForSpinnerNotVisible(ms) {
         let timeout;
-        timeout = ms === undefined ? appConst.TIMEOUT_7 : ms;
+        timeout = ms === undefined ? appConst.longTimeout : ms;
         let message = "Spinner still displayed! timeout is " + timeout;
         return this.browser.waitUntil(() => {
             return this.isElementNotDisplayed(`//div[@class='spinner']`);
@@ -214,7 +235,7 @@ class Page {
     }
 
     waitUntilElementNotVisible(selector, timeout) {
-        let message = "Element still displayed! timeout is " + appConst.TIMEOUT_7 + "  " + selector;
+        let message = "Element still displayed! timeout is " + appConst.longTimeout + "  " + selector;
         return this.browser.waitUntil(() => {
             return this.isElementNotDisplayed(selector);
         }, timeout, message);
@@ -242,7 +263,7 @@ class Page {
             let notificationXpath = `//div[@class='notification-content']`;
             await this.getBrowser().waitUntil(async () => {
                 return await this.isElementDisplayed(notificationXpath);
-            }, appConst.TIMEOUT_7);
+            }, appConst.TIMEOUT_10);
             await this.pause(400);
             return await this.getText(notificationXpath);
         } catch (err) {
@@ -251,17 +272,20 @@ class Page {
     }
 
     //returns array of messages
-    waitForNotificationMessages() {
-        return this.waitForElementDisplayed(`//div[@class='notification-content']`, appConst.TIMEOUT_3).catch(err => {
+    async waitForNotificationMessages() {
+        try {
+            await this.waitForElementDisplayed("//div[@class='notification-content']", appConst.mediumTimeout);
+        } catch (err) {
+            this.saveScreenshot('err_notification_messages');
             throw new Error('Error when wait for notification message: ' + err);
-        }).then(() => {
-            return this.getTextInDisplayedElements(`//div[@class='notification-content']`);
-        })
+        }
+        await this.pause(300);
+        return await this.getTextInDisplayedElements(`//div[@class='notification-content']`);
     }
 
     waitForExpectedNotificationMessage(expectedMessage) {
         let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-content') and contains(.,'${expectedMessage}')]`;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_notification_mess');
             throw new Error('expected notification message was not shown! ' + err);
         })
@@ -269,14 +293,14 @@ class Page {
 
     waitForErrorNotificationMessage() {
         let selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']//div[contains(@class,'notification-content')]`;
-        return this.waitForElementDisplayed(selector, appConst.TIMEOUT_3).then(() => {
+        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).then(() => {
             return this.getText(selector);
         })
     }
 
     async waitForNotificationWarning() {
         let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-content')]`;
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         await this.pause(500);
         return await this.getText(selector);
     }
@@ -374,7 +398,7 @@ class Page {
 
     async switchToFrame(selector) {
         try {
-            await this.waitUntilDisplayed(selector, appConst.TIMEOUT_2);
+            await this.waitUntilDisplayed(selector, appConst.shortTimeout);
             let el = await this.findElement(selector);
             //return await this.browser.switchToFrame(el.elementId); // Fail! Firefox and Chrome
             return await this.getBrowser().switchToFrame(el);
@@ -395,7 +419,6 @@ class Page {
     async doDoubleClick(selector) {
         try {
             let el = await this.findElement(selector);
-            await el.moveTo();
             return await el.doubleClick();
         } catch (err) {
             throw Error('Error when doubleClick on the element' + err);
@@ -411,9 +434,7 @@ class Page {
             return this.getAttribute(selector, 'class').then(result => {
                 return result.includes('invalid');
             });
-        }, 3000).catch(err => {
-            return false;
-        });
+        }, appConst.mediumTimeout, "Invalid icon should be displayed. ");
     }
 
     waitForAttributeHasValue(selector, attribute, value) {
@@ -421,7 +442,7 @@ class Page {
             return this.getAttribute(selector, attribute).then(result => {
                 return result.includes(value);
             });
-        }, appConst.TIMEOUT_2, "Attribute " + attribute + "  contains the value:" + value);
+        }, appConst.shortTimeout, "Attribute " + attribute + "  does not contain the value:" + value);
     }
 
     waitForAttributeNotIncludesValue(selector, attribute, value) {
@@ -429,7 +450,7 @@ class Page {
             return this.getAttribute(selector, attribute).then(result => {
                 return !result.includes(value);
             });
-        }, appConst.TIMEOUT_2, "Attribute " + attribute + "  contains the value: " + value);
+        }, appConst.shortTimeout, "Attribute " + attribute + "  contains the value: " + value);
     }
 
     //is checkbox selected...
@@ -441,6 +462,18 @@ class Page {
     async isDisplayedElementSelected(selector) {
         let elems = await this.getDisplayedElements(selector);
         return await elems[0].isSelected();
+    }
+
+    refresh() {
+        return this.getBrowser().refresh();
+    }
+
+    async scrollPanel(scrollTop) {
+        let element = await this.findElement("//div[contains(@id,'Panel') and contains(@class,'panel-strip-scrollable')]");
+        let id = await element.getAttribute("id");
+        let script = "document.getElementById(arguments[0]).scrollTop=arguments[1]";
+        await this.getBrowser().execute(script, id, scrollTop);
+        return await this.pause(300);
     }
 }
 

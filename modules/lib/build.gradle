@@ -1,0 +1,64 @@
+archivesBaseName = 'lib-contentstudio'
+
+app {
+    name = 'com.enonic.lib.contentstudio'
+    group = 'com.enonic.lib'
+    displayName = 'Content Studio Library'
+}
+
+dependencies {
+    compile "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
+}
+
+compileJava.enabled = false
+compileTestJava.enabled = false
+classes.enabled = false
+unpackWebJars.enabled = false
+deploy.enabled = false
+
+task lint {
+    dependsOn tasks.getByPath(':lint')
+}
+
+task typescriptPkg( type: NpmTask, dependsOn: [npmInstall, lint] ) {
+    def buildEnv = getEnvironmentShort()
+    environment = [ 'NODE_ENV': nodeEnvironment() ]
+    args = [ 'run', "build:$buildEnv" ]
+    inputs.dir "$rootDir/src/main/resources/assets"
+    outputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
+}
+
+task minifyPkg( type: NpmTask, dependsOn: [npmInstall, typescriptPkg] ) {
+    description = 'Minify transpiled code.'
+    args = [ 'run', "build:minify" ]
+    inputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
+    outputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
+    mustRunAfter typescriptPkg
+    enabled isProd()
+}
+
+task copyPackage( type: NodeTask, dependsOn: typescriptPkg ) {
+    script = file( 'util/modify.js' )
+    args = [ "--out=$buildDir/resources/main/dev/$archivesBaseName" ]
+    mustRunAfter typescriptPkg
+}
+
+task typescript {
+    dependsOn 'typescriptPkg'
+    dependsOn 'minifyPkg'
+    dependsOn 'copyPackage'
+}
+
+jar {
+    exclude 'admin/**'
+    exclude 'assets/**'
+    exclude 'com/**'
+    exclude 'i18n/**/common*'
+    exclude 'lib/**'
+    exclude 'services/**'
+    exclude 'application.svg'
+    exclude 'application.xml'
+
+    includeEmptyDirs = false
+    dependsOn += typescript
+}

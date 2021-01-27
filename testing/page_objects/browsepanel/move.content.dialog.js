@@ -12,7 +12,7 @@ const XPATH = {
     path: `//div[contains(@class,'modal-dialog-header')]/h6`,
     moveButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Move')]]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Cancel')]]`,
-    contentMoveComboBox:"//div[contains(@id,'ContentMoveComboBox')]"
+    contentMoveComboBox: "//div[contains(@id,'ContentMoveComboBox')]"
 };
 
 class MoveContentDialog extends Page {
@@ -41,14 +41,14 @@ class MoveContentDialog extends Page {
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(this.moveButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.moveButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_move_content_dialog_load');
             throw new Error('Move Content dialog was not loaded! ' + err);
         });
     }
 
     waitForClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(error => {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(error => {
             this.saveScreenshot('err_move_content_dialog_close');
             throw new Error('Move Content Dialog was not closed');
         });
@@ -58,12 +58,12 @@ class MoveContentDialog extends Page {
         return this.getText(this.header);
     }
 
-    async clickOnMoveButton(contentTypeName) {
-        await this.clickOnElement(this.moveButton)
-        await this.pause(700);
+    async clickOnMoveButton() {
+        await this.clickOnElement(this.moveButton);
+        return await this.pause(700);
     }
 
-    async typeTextAndClickOnOption(displayName){
+    async typeTextAndClickOnOption(displayName) {
         try {
             let loaderComboBox = new LoaderComboBox();
             return await loaderComboBox.typeTextAndSelectOption(displayName, XPATH.container);

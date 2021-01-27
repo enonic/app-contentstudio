@@ -7,7 +7,6 @@ import {Element} from 'lib-admin-ui/dom/Element';
 import {showError, showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {i18nInit} from 'lib-admin-ui/util/MessagesInitializer';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {Router} from './app/Router';
 import {ContentDeletePromptEvent} from './app/browse/ContentDeletePromptEvent';
@@ -32,7 +31,6 @@ import {ContentSummaryAndCompareStatus} from './app/content/ContentSummaryAndCom
 import {ContentUpdatedEvent} from './app/event/ContentUpdatedEvent';
 import {RequestContentPublishPromptEvent} from './app/browse/RequestContentPublishPromptEvent';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {ConnectionDetector} from 'lib-admin-ui/system/ConnectionDetector';
 import {Body} from 'lib-admin-ui/dom/Body';
@@ -52,11 +50,15 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {ContentAppHelper} from './app/wizard/ContentAppHelper';
 import {ProjectContext} from './app/project/ProjectContext';
 import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
-import {ProjectListRequest} from './app/settings/resource/ProjectListRequest';
 import * as Q from 'q';
 import {Project} from './app/settings/data/project/Project';
 import {ProjectSelectionDialog} from './app/settings/dialog/ProjectSelectionDialog';
 import {SettingsServerEventsListener} from './app/settings/event/SettingsServerEventsListener';
+import {UrlAction} from './app/UrlAction';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {ProjectListWithMissingRequest} from './app/settings/resource/ProjectListWithMissingRequest';
+import {ProjectHelper} from './app/settings/data/project/ProjectHelper';
+import {ContentIconUrlResolver} from './app/content/ContentIconUrlResolver';
 // End of Polyfills
 
 declare const CONFIG;
@@ -73,14 +75,24 @@ function getApplication(): Application {
     const application = new Application(
         'content-studio',
         i18n('app.name'),
-        i18n('app.abbr'),
-        CONFIG.appIconUrl,
-        `${i18n('app.name')} v${CONFIG.appVersion}`
+        i18n('app.abbr')
     );
-    application.setPath(Router.getPath());
+    application.setPath(processApplicationPath());
     application.setWindow(window);
 
     return application;
+}
+
+function processApplicationPath(): Path {
+    const path: Path = Router.getPath();
+
+    if (path.getElement(0) !== UrlAction.ISSUE) {
+        return path;
+    }
+
+    Router.get().setHash(path.toString());
+
+    return Router.getPath();
 }
 
 function startLostConnectionDetector(): ConnectionDetector {
@@ -108,17 +120,27 @@ function startLostConnectionDetector(): ConnectionDetector {
 function initApplicationEventListener() {
 
     let messageId;
+    let appStatusCheckInterval;
 
     ApplicationEvent.on((event: ApplicationEvent) => {
-        if (ApplicationEventType.STOPPED === event.getEventType() || ApplicationEventType.UNINSTALLED ===
-            event.getEventType()) {
-            if (CONFIG.appId === event.getApplicationKey().toString()) {
-                NotifyManager.get().hide(messageId);
-                messageId = showError(i18n('notify.no_connection'), false);
+        if (ApplicationEventType.STOPPED === event.getEventType() ||
+            ApplicationEventType.UNINSTALLED === event.getEventType()) {
+            if (appStatusCheckInterval) {
+                return;
             }
+            appStatusCheckInterval = setInterval(() => {
+                if (!messageId && CONFIG.appId === event.getApplicationKey().toString()) {
+                    NotifyManager.get().hide(messageId);
+                    messageId = showError(i18n('notify.application.notAvailable'), false);
+                }
+            }, 1000);
         }
         if (ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED) {
-            NotifyManager.get().hide(messageId);
+            if (messageId) {
+                NotifyManager.get().hide(messageId);
+                messageId = null;
+            }
+            clearInterval(appStatusCheckInterval);
         }
     });
 }
@@ -126,7 +148,7 @@ function initApplicationEventListener() {
 function initToolTip() {
     const ID = StyleHelper.getCls('tooltip', StyleHelper.COMMON_PREFIX);
     const CLS_ON = 'tooltip_ON';
-    const FOLLOW = true;
+    const FOLLOW = false;
     const DATA = '_tooltip';
     const OFFSET_X = 0;
     const OFFSET_Y = 20;
@@ -135,51 +157,78 @@ function initToolTip() {
     let pageY = 0;
     let isVisibleCheckInterval;
 
-    const showAt = function (e: any) {
-        const top = pageY + OFFSET_Y;
-        let left = pageX + OFFSET_X;
+    const showAt = function (e: JQuery.MouseEventBase, forceTarget?: HTMLElement) {
+        let top = e.clientY + OFFSET_Y;
+        let left = e.clientX + OFFSET_X;
+        const tooltipHeight = 30;
 
-        const tooltipText = StringHelper.escapeHtml($(e.currentTarget || e.target).data(DATA));
+        const target = forceTarget || e.currentTarget || e.target;
+        const tooltipText = $(target).data(DATA);
         if (!tooltipText) { //if no text then probably hovering over children of original element that has title attr
             return;
         }
 
         const tooltipWidth = tooltipText.length * 7.5;
         const windowWidth = $(window).width();
+        const windowHeight = $(window).height();
         if (left + tooltipWidth >= windowWidth) {
             left = windowWidth - tooltipWidth;
         }
+        if (top + tooltipHeight >= windowHeight) {
+            top = windowHeight - tooltipHeight;
+        }
         $(`#${ID}`).remove();
         $(`<div id='${ID}' />`).text(tooltipText).css({
-            position: 'absolute', top, left
+            position: 'absolute', top, left, whiteSpace: 'nowrap'
         }).appendTo('body').show();
     };
 
-    const addTooltip = (e: JQueryEventObject) => {
-        $(e.target).data(DATA, $(e.target).attr('title'));
-        $(e.target).removeAttr('title').addClass(CLS_ON);
-        if (e.pageX) {
-            pageX = e.pageX;
+    const addTooltip = (e: JQuery.MouseEventBase, forceTarget?: HTMLElement) => {
+        const target = forceTarget || e.currentTarget || e.target;
+        $(target).data(DATA, $(target).attr('title'));
+        $(target).removeAttr('title').addClass(CLS_ON);
+        if (e.clientX) {
+            pageX = e.clientX;
         }
-        if (e.pageY) {
-            pageY = e.pageY;
+        if (e.clientY) {
+            pageY = e.clientY;
         }
-        showAt(e);
-        onRemovedOrHidden(<HTMLElement>e.target);
+        showAt(e, target);
+        onRemovedOrHidden(<HTMLElement>target);
+        $(target).on('click', removeTooltipOnClick);
     };
 
-    const removeTooltip = (e: { target: HTMLElement }) => {
-        if ($(e.target).data(DATA)) {
-            $(e.target).attr('title', $(e.target).data(DATA));
+    const removeTooltipOnClick = (e: JQuery.MouseEventBase) => {
+        setTimeout(() => removeTooltip(e), 100);
+    };
+
+    const removeTooltip = (e: any) => {
+        const tooltip = $('#' + ID);
+        if (!tooltip.length) {
+            return;
         }
-        $(e.target).removeClass(CLS_ON);
-        $('#' + ID).remove();
+        const target = e.currentTarget || e.target;
+        $(target).off('click', removeTooltipOnClick);
+
+        const oldTitle = $(target).data(DATA);
+        const newTitle = $(target).attr('title');
+        if (newTitle) {
+            $(target).attr('title', newTitle);
+        } else if (oldTitle) {
+            $(target).attr('title', oldTitle);
+        }
+
+        $(target).removeClass(CLS_ON);
+        tooltip.remove();
         unRemovedOrHidden();
         clearInterval(isVisibleCheckInterval);
+        if (newTitle) {
+            addTooltip(e, target);
+        }
     };
 
     $(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', addTooltip);
-    $(document).on('mouseleave click', `.${CLS_ON}`, removeTooltip);
+    $(document).on('mouseleave', `.${CLS_ON}`, removeTooltip);
     if (FOLLOW) {
         $(document).on('mousemove', `.${CLS_ON}`, showAt);
     }
@@ -275,20 +324,23 @@ function preLoadApplication() {
 
         if (!body.isRendered() && !body.isRendering()) {
             dataPreloaded = true;
+            const projectName: string = application.getPath().getElement(0);
             // body is not rendered if the tab is in background
             if (wizardParams.contentId) {
-                new GetContentByIdRequest(wizardParams.contentId).sendAndParse().then((content: Content) => {
-                    refreshTab(content);
+                new GetContentByIdRequest(wizardParams.contentId).setRequestProjectName(projectName).sendAndParse().then(
+                    (content: Content) => {
+                        refreshTab(content);
 
-                    if (shouldUpdateFavicon(content.getType())) {
-                        refreshTabOnContentUpdate(content);
-                    }
+                        if (shouldUpdateFavicon(content.getType())) {
+                            refreshTabOnContentUpdate(content);
+                        }
 
-                });
+                    });
             } else {
-                new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then((contentType) => {
-                    updateTabTitle(ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
-                });
+                new GetContentTypeByNameRequest(wizardParams.contentTypeName).setRequestProjectName(projectName).sendAndParse().then(
+                    (contentType) => {
+                        updateTabTitle(ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
+                    });
             }
         }
     }
@@ -319,6 +371,7 @@ function startServerEventListeners(application: Application) {
 
 async function startApplication() {
     const application: Application = getApplication();
+    const connectionDetector = startLostConnectionDetector();
 
     startServerEventListeners(application);
 
@@ -330,9 +383,9 @@ async function startApplication() {
         })
         .finally(() => {
             if (ContentAppHelper.isContentWizard(application)) {
-                startContentWizard(ContentAppHelper.createWizardParamsFromApp(application));
+                startContentWizard(ContentAppHelper.createWizardParamsFromApp(application), connectionDetector);
             } else {
-                startContentApplication(application);
+                startContentBrowser(application);
             }
         });
 
@@ -410,9 +463,7 @@ const refreshTabOnContentUpdate = (content: Content) => {
     });
 };
 
-async function startContentWizard(wizardParams: ContentWizardPanelParams) {
-    const connectionDetector = startLostConnectionDetector();
-
+async function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: ConnectionDetector) {
     const ContentWizardPanel = (await import('./app/wizard/ContentWizardPanel')).ContentWizardPanel;
 
     let wizard = new ContentWizardPanel(wizardParams, getTheme());
@@ -473,7 +524,7 @@ function getTheme(): string {
     return CONFIG.theme ? (`theme-${CONFIG.theme}` || '') : '';
 }
 
-async function startContentApplication(application: Application) {
+async function startContentBrowser(application: Application) {
 
     await import ('./app/ContentAppPanel');
     const AppWrapper = (await import ('./app/AppWrapper')).AppWrapper;
@@ -516,7 +567,7 @@ async function startContentApplication(application: Application) {
     });
 
     const IssueListDialog = (await import('./app/issue/view/IssueListDialog')).IssueListDialog;
-    const SortContentDialog = (await import('./app/browse/SortContentDialog')).SortContentDialog;
+    const SortContentDialog = (await import('./app/browse/sort/dialog/SortContentDialog')).SortContentDialog;
     const MoveContentDialog = (await import('./app/move/MoveContentDialog')).MoveContentDialog;
 
     // tslint:disable-next-line:no-unused-expression
@@ -532,19 +583,23 @@ async function startContentApplication(application: Application) {
 function initProjectContext(application: Application): Q.Promise<void> {
     const projectName: string = application.getPath().getElement(0);
 
-    return new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
-        const isProjectExisting: boolean = projects.some((project: Project) => project.getName() === projectName);
-        if (isProjectExisting) {
-            ProjectContext.get().setProject(projectName);
+    return new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
+        ProjectSelectionDialog.get().setProjects(projects);
+
+        const currentProject: Project =
+            projects.find((project: Project) => ProjectHelper.isAvailable(project) && project.getName() === projectName);
+
+        if (currentProject) {
+            ProjectContext.get().setProject(currentProject);
             return Q(null);
         }
 
-        if (projects.length === 1) {
-            ProjectContext.get().setProject(projects[0].getName());
+        if (projects.length === 1 && ProjectHelper.isAvailable(projects[0])) {
+            ProjectContext.get().setProject(projects[0]);
             return Q(null);
         }
 
-        new ProjectSelectionDialog(projects).open();
+        ProjectSelectionDialog.get().open();
 
         return Q(null);
     });

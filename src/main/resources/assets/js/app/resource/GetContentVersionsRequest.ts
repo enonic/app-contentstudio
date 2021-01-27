@@ -33,7 +33,7 @@ export class GetContentVersionsRequest
         return {
             contentId: this.contentId.toString(),
             from: this.from,
-            size: this.size
+            size: this.size || -1
         };
     }
 

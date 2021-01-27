@@ -15,7 +15,7 @@ describe("image.wizard.rotate.revert.spec: Open an image, click on Rotate then r
         this.timeout(appConstant.SUITE_TIMEOUT);
         webDriverHelper.setupBrowser();
 
-        let IMAGE_DISPLAY_NAME = 'cape';
+            let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.CAPE;
 
         // verifies https://github.com/enonic/app-contentstudio/issues/1365 Save button gets enabled after reverting changes (rotated or flipped)
         it(`GIVEN existing image is rotated WHEN previous version has been reverted THEN 'Reset filters' gets not visible and Saved button should be disabled`,

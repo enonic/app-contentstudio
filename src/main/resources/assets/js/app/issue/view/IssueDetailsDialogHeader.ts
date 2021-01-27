@@ -1,6 +1,7 @@
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {InPlaceTextInput} from './InPlaceTextInput';
+import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 
 class IssueDetailsInPlaceTextInput
     extends InPlaceTextInput {
@@ -11,8 +12,10 @@ class IssueDetailsInPlaceTextInput
         super(title);
     }
 
-    public formatTextToDisplay(inputValue: string): string {
-        return `${inputValue}<span class="title-id">#${this.titleId}</span>`;
+    public formatTextToDisplay(inputValue: string): SpanEl {
+        const container = new SpanEl();
+        container.appendChildren(SpanEl.fromText(inputValue).addClass('title'), SpanEl.fromText(`#${this.titleId}`).addClass('title-id'));
+        return container;
     }
 
     setTitleId(id: number): IssueDetailsInPlaceTextInput {
@@ -25,7 +28,7 @@ export class IssueDetailsDialogHeader
     extends DivEl
     implements ModalDialogHeader {
 
-    private input: IssueDetailsInPlaceTextInput;
+    private readonly input: IssueDetailsInPlaceTextInput;
     private titleChangedListeners: { (newTitle: string, oldTitle: string): void }[] = [];
 
     constructor(title: string) {
@@ -39,13 +42,13 @@ export class IssueDetailsDialogHeader
         this.appendChild(this.input);
     }
 
-    setTitle(value: string, escapeHtml: boolean = true): IssueDetailsDialogHeader {
+    setHeading(value: string, escapeHtml: boolean = true): IssueDetailsDialogHeader {
         this.input.setValue(value);
         this.input.resetBaseValues();   // reset original value and dirty as if it was newly created
         return this;
     }
 
-    getTitle(): string {
+    getHeading(): string {
         return this.input.getValue();
     }
 
@@ -55,7 +58,7 @@ export class IssueDetailsDialogHeader
     }
 
     setReadOnly(readOnly: boolean) {
-        this.input.setReadOnly(readOnly);
+        this.input.setEnabled(!readOnly);
     }
 
     onTitleChanged(listener: (newTitle: string, oldTitle: string) => void) {

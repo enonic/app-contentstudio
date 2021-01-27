@@ -24,8 +24,8 @@ class BrowseDetailsPanel extends BaseDetailsPanel {
     }
 
     waitForDetailsPanelLoaded() {
-        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_2).catch(err => {
-            throw new Error('Details Panel was not loaded in ' + appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
+            throw new Error('Details Panel was not loaded in ' + err);
         });
     }
 
@@ -35,7 +35,7 @@ class BrowseDetailsPanel extends BaseDetailsPanel {
             return this.getAttribute(selector, 'class').then(result => {
                 return result.includes('no-selection');
             })
-        }, 2000).catch(err => {
+        }, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_details_panel_not_cleared');
             throw new Error("Details Panel should be cleared" + err);
         });

@@ -1,0 +1,48 @@
+.confirm-value-dialog {
+  .confirm-value-subtitle {
+    margin-top: 20px;
+  }
+
+  .dialog-buttons .@{_COMMON_PREFIX}button.confirm-value-action {
+    .dialog-button(@bg: @input-red-text);
+  }
+
+  .text {
+    .input-glow();
+    .input-font();
+    .input-border();
+
+    box-sizing: border-box;
+    display: inline;
+    height: 37px;
+    padding: 5px 10px 4px 10px;
+    font-size: 22px;
+    margin-left: 10px;
+    text-align: center;
+
+    &.@{_CLS_PREFIX}middle {
+      width: 80px;
+    }
+
+    &.invalid {
+      border: 1px solid @admin-input-red;
+    }
+
+    &.valid {
+      border: 1px solid @admin-green;
+    }
+  }
+
+  .confirm-value-block {
+    font-size: 14px;
+
+    .confirm-value-text {
+      display: inline;
+    }
+
+    .confirm-value-data {
+      font-size: 22px;
+      padding: 0 10px;
+    }
+  }
+}

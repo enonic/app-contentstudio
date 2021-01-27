@@ -52,7 +52,8 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
+import { IDentifiable } from 'lib-admin-ui/IDentifiable';
+import {ContentIconUrlResolver} from '../app/content/ContentIconUrlResolver';
 
 export interface ElementDimensions {
     top: number;
@@ -142,7 +143,7 @@ export class ItemViewBuilder {
 }
 
 export class ItemView
-    extends Element {
+    extends Element implements IDentifiable {
 
     protected liveEditModel: LiveEditModel;
 
@@ -1035,7 +1036,7 @@ export class ItemView
     }
 
     protected createInsertAction(): Action {
-        return new Action(i18n('live.view.insert')).setChildActions(this.getInsertActions(this.liveEditModel)).setVisible(false);
+        return new Action(i18n('widget.components.insert')).setChildActions(this.getInsertActions(this.liveEditModel)).setVisible(false);
     }
 
     protected createSelectParentAction(): Action {
@@ -1059,7 +1060,7 @@ export class ItemView
     }
 
     private createInsertSubAction(label: string, componentItemType: ItemType): Action {
-        let action = new Action(i18n('live.view.insert.' + label)).onExecuted(() => {
+        let action = new Action(i18n('widget.components.insert.' + label)).onExecuted(() => {
             let componentView = this.createView(componentItemType);
             this.addComponentView(componentView, this.getNewItemIndex(), true);
         });

@@ -26,13 +26,13 @@ class ACESelectedOptionsView
     }
 
     protected createSelectedEntryView(option: Option<AccessControlEntry>): AccessControlEntryView {
-        const ace: AccessControlEntry = option.displayValue;
+        const ace: AccessControlEntry = option.getDisplayValue();
         if (ace.getAllowedPermissions().length === 0 && ace.getDeniedPermissions().length === 0) {
             // allow read by default
             ace.allow(Permission.READ);
         }
 
-        return new AccessControlEntryView(ace, option.readOnly);
+        return new AccessControlEntryView(ace, option.isReadOnly());
     }
 
 }

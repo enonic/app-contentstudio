@@ -6,6 +6,7 @@ import {TabMenuItem} from 'lib-admin-ui/ui/tab/TabMenuItem';
 import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 import {NavigatorEvent} from 'lib-admin-ui/ui/NavigatorEvent';
+import {DropdownHandle} from 'lib-admin-ui/ui/button/DropdownHandle';
 
 export class IssueStatusSelector
     extends TabMenu {
@@ -13,6 +14,8 @@ export class IssueStatusSelector
     private value: IssueStatus;
 
     private valueChangedListeners: { (event: ValueChangedEvent): void }[] = [];
+
+    private dropdownHandle: DropdownHandle;
 
     constructor() {
         super('issue-status-selector');
@@ -24,6 +27,7 @@ export class IssueStatusSelector
     protected initElements() {
         this.initNavigationItems();
         this.initIcon();
+        this.initDropdownHandle();
     }
 
     private initNavigationItems() {
@@ -46,6 +50,16 @@ export class IssueStatusSelector
             }
         });
         this.prependChild(icon);
+    }
+
+    private initDropdownHandle() {
+        this.dropdownHandle = new DropdownHandle();
+        this.appendChild(this.dropdownHandle);
+    }
+
+    protected hideMenu() {
+        super.hideMenu();
+        this.dropdownHandle.up();
     }
 
     protected initListeners() {
@@ -101,6 +115,8 @@ export class IssueStatusSelector
         }
 
         super.showMenu();
+
+        this.dropdownHandle.down();
     }
 
     protected setButtonLabel(value: string): IssueStatusSelector {

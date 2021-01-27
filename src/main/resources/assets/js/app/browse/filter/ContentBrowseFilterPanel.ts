@@ -32,7 +32,6 @@ import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
 import {LogicalOperator} from 'lib-admin-ui/query/expr/LogicalOperator';
 import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {QueryField} from 'lib-admin-ui/query/QueryField';
-import {ContentSummaryViewer} from 'lib-admin-ui/content/ContentSummaryViewer';
 import {BrowseFilterResetEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterResetEvent';
 import {BrowseFilterRefreshEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterRefreshEvent';
 import {BrowseFilterSearchEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterSearchEvent';
@@ -49,6 +48,8 @@ import {Expand} from 'lib-admin-ui/rest/Expand';
 import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationView';
 import {ContentIds} from '../../ContentIds';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
+import {ProjectContext} from '../../project/ProjectContext';
+import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
@@ -65,8 +66,20 @@ export class ContentBrowseFilterPanel
 
         super();
 
-        this.initAggregationGroupView([this.contentTypeAggregation, this.lastModifiedAggregation]);
+        if (ProjectContext.get().isInitialized()) {
+            this.initElementsAndListeners();
+        } else {
+            const projectSetHandler = () => {
+                ProjectContext.get().unProjectChanged(projectSetHandler);
+                this.initElementsAndListeners();
+            };
 
+            ProjectContext.get().onProjectChanged(projectSetHandler);
+        }
+    }
+
+    private initElementsAndListeners() {
+        this.initAggregationGroupView([this.contentTypeAggregation, this.lastModifiedAggregation]);
         this.handleEvents();
     }
 

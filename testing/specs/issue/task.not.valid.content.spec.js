@@ -16,6 +16,7 @@ describe('task.not.valid.content.spec: create a task with not valid content', fu
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TASK_TITLE = appConstant.generateRandomName('task');
+    const TEST_CONTENT_NAME = "circles";
 
     it(`GIVEN existing folder with one not valid child is selected WHEN 'Create Task' menu item has been selected and issue created THEN '10' number should be in 'Items' on IssueDetailsDialog`,
         async () => {
@@ -72,8 +73,34 @@ describe('task.not.valid.content.spec: create a task with not valid content', fu
             await issueDetailsDialog.clickOnItemsTabBarItem();
             //4. Exclude the not valid content:
             await taskDetailsDialogItemsTab.excludeDependantItem('shortcut-imported');
+            await taskDetailsDialogItemsTab.waitForNotificationMessage();
             //5.'Publish...' button gets enabled, because invalid child is excluded'
             await taskDetailsDialogItemsTab.waitForPublishButtonEnabled();
+        });
+
+    //Verifies: Items that were removed in Issue Details items appear again in Publish Wizard dialog #783
+    it(`GIVEN dependant item has been excluded WHEN 'Publish...' button has been clicked and Publish Wizard is loaded THEN excluded item should not be present in the wizard`,
+        async () => {
+            let issueListDialog = new IssueListDialog();
+            let issueDetailsDialog = new TaskDetailsDialog();
+            let taskDetailsDialogItemsTab = new TaskDetailsDialogItemsTab();
+            //1. Open Issues Details dialog dialog:
+            await studioUtils.openIssuesListDialog();
+            await issueListDialog.clickOnIssue(TASK_TITLE);
+            await issueDetailsDialog.waitForDialogOpened();
+            //2. Go to 'Items' tab(IssueDetails dialog):
+            await issueDetailsDialog.clickOnItemsTabBarItem();
+            //3. Exclude a dependant item:
+            await taskDetailsDialogItemsTab.clickOnShowDependentItems();
+            await taskDetailsDialogItemsTab.excludeDependantItem(TEST_CONTENT_NAME);
+            //5. Click on Publish button, 'Publish Wizard' should be loaded:
+            let contentPublishDialog = await taskDetailsDialogItemsTab.clickOnPublishAndOpenPublishWizard();
+            await contentPublishDialog.clickOnShowDependentItems();
+            //6. Verify that removed dependant item is not present in the list in Content Publish dialog:
+            let result = await contentPublishDialog.getDisplayNameInDependentItems();
+            //returns a truthy value for at least one element in the array contains the name. Otherwise, false.
+            let isPresent = result.some(el => el.includes(TEST_CONTENT_NAME));
+            assert.isFalse(isPresent, "removed content should not be present in Publishing Wizard");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

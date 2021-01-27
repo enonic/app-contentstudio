@@ -8,18 +8,19 @@ const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
-const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
+const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
 const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
+const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
-    toolbar: `//div[contains(@id,'ContentBrowseToolbar')]`,
-    treeGridToolbar: `//div[contains(@id,'ContentTreeGridToolbar')]`,
-    treeGrid: `//div[contains(@id,'ContentTreeGrid')]`,
-    appBar: `//div[contains(@id,'AppBar')]`,
-    projectSelector: "//div[contains(@id,'ProjectSelector')]",
-    selectedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
+    toolbar: "//div[contains(@id,'ContentBrowseToolbar')]",
+    treeGridToolbar: "//div[contains(@id,'ContentTreeGridToolbar')]",
+    treeGrid: "//div[contains(@id,'ContentTreeGrid')]",
+    appBar: "//div[contains(@id,'AppBar')]",
+    projectViewerButton: "//div[contains(@id,'ProjectViewer')]",
+    highlightedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
     checkedRows: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-cell-checkboxsel selected')]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
@@ -49,15 +50,13 @@ const XPATH = {
         return `${lib.itemByName(
             name)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`
     },
-    checkboxByDisplayName: displayName => `${lib.itemByDisplayName(
-        displayName)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]/label`,
 
     expanderIconByName: function (name) {
         return lib.itemByName(name) +
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
     },
     defaultActionByName: name => `//button[contains(@id, 'ActionButton') and child::span[contains(.,'${name}')]]`,
-}
+};
 
 class ContentBrowsePanel extends BaseBrowsePanel {
 
@@ -79,6 +78,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get sortButton() {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Sort...')]]`;
+    }
+
+    get localizeButton() {
+        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Localize')]]`;
+    }
+
+    get openButton() {
+        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Open')]]`;
     }
 
     get searchButton() {
@@ -162,17 +169,29 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.container + XPATH.treeGrid;
     }
 
-    get projectSelectorDropDownHandle() {
-        return XPATH.projectSelector + "//button[contains(@id,'DropdownHandle')]"
+    get projectViewerButton() {
+        return "//div[contains(@id,'ContentAppBar')]" + XPATH.projectViewerButton;
     }
 
-    waitForProjectSelectorDropDownHandleDisplayed() {
-        return this.waitForElementDisplayed(this.projectSelectorDropDownHandle, appConst.TIMEOUT_2);
+    async clickOnProjectViewerButton() {
+        let projectSelectionDialog = new ProjectSelectionDialog();
+        await this.waitForElementDisplayed(this.projectViewerButton, appConst.shortTimeout);
+        await this.clickOnElement(this.projectViewerButton);
+        await projectSelectionDialog.waitForDialogLoaded();
+        return projectSelectionDialog;
     }
 
-    async clickOnProjectSelectorDropDownHandle() {
-        await this.waitForProjectSelectorDropDownHandleDisplayed();
-        return await this.clickOnElement(this.projectSelectorDropDownHandle);
+    async isProjectViewerClickable() {
+        await this.waitForElementDisplayed(this.projectViewerButton, appConst.shortTimeout);
+        return await this.isClickable(this.projectViewerButton);
+    }
+
+    //Opens menu and select the project
+    async selectContext(projectDisplayName) {
+        let projectSelectionDialog = await this.clickOnProjectViewerButton();
+        await projectSelectionDialog.selectContext(projectDisplayName);
+        await projectSelectionDialog.waitForDialogClosed();
+        return await this.pause(1000);
     }
 
     hotKeyPublish() {
@@ -187,11 +206,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     //Wait for `Publish Menu` Button gets `Publish...`
-    waitForPublishButtonVisible() {
-        return this.waitForElementDisplayed(this.publishButton, appConst.TIMEOUT_3).catch(err => {
+    async waitForPublishButtonVisible() {
+        try {
+            return await this.waitForElementDisplayed(this.publishButton, appConst.mediumTimeout);
+        } catch (err) {
             this.saveScreenshot("err_publish_button");
             throw new Error("Publish button is not visible! " + err);
-        })
+        }
     }
 
     waitForStateIconNotDisplayed(displayName) {
@@ -200,14 +221,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return this.getAttribute(xpath, 'class').then(result => {
                 return (!result.includes('in-progress') && !result.includes('ready'));
             });
-        }, 3000).catch(err => {
+        }, appConst.mediumTimeout).catch(err => {
             throw new Error("Workflow icon still visible in content: " + displayName + " " + err);
         });
     }
 
     //Wait for `Publish Menu` Button gets 'Mark as ready'
     waitForMarkAsReadyButtonVisible() {
-        return this.waitForElementDisplayed(this.markAsReadyButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.markAsReadyButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot("err_publish_button_mark_as_ready");
             throw new Error("Mark as Ready button is not visible! " + err);
         })
@@ -215,14 +236,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     //Wait for `Publish Menu` Button gets 'Unpublish'
     waitForUnPublishButtonVisible() {
-        return this.waitForElementDisplayed(this.unpublishButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.unpublishButton, appConst.shortTimeout).catch(err => {
             throw new Error('Unpublish button is not displayed after 2 seconds ' + err);
         })
     }
 
     //Wait for `Publish Menu` Button gets 'Publish Tree...'
     waitForPublishTreeButtonVisible() {
-        return this.waitForElementDisplayed(this.publishTreeButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(this.publishTreeButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot("err_browse_publish_tree_button");
             throw new Error("'Publish Tree' button should be present on the browse-toolbar " + err);
         })
@@ -234,7 +255,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async clickOnUndoDeleteButton() {
-        await this.waitForElementDisplayed(this.undoDeleteButton);
+        await this.waitForElementDisplayed(this.undoDeleteButton, appConst.shortTimeout);
         return await this.clickOnElement(this.undoDeleteButton);
     }
 
@@ -253,7 +274,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.clickOnDeleteButton();
         await contentDeleteDialog.waitForDialogOpened();
         await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
-        return await contentDeleteDialog.waitForDialogClosed();
+        await contentDeleteDialog.waitForDialogClosed();
+        return await this.pause(1000);
     }
 
     //When single content is selected, confirmation is no needed
@@ -276,7 +298,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async clickOnSortButton() {
-        await this.waitForElementEnabled(this.sortButton);
+        await this.waitForElementEnabled(this.sortButton, appConst.mediumTimeout);
         await this.pause(200);
         await this.clickOnElement(this.sortButton);
         return await this.pause(400);
@@ -308,7 +330,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async clickOnShowIssuesListButton() {
         try {
-            await this.waitForElementDisplayed(this.showIssuesListButton);
+            await this.waitForElementDisplayed(this.showIssuesListButton, appConst.shortTimeout);
             return await this.clickOnElement(this.showIssuesListButton);
         } catch (err) {
             throw new Error('error when click on the button ' + err);
@@ -322,44 +344,38 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     // clicks on 'Duplicate button' and waits until modal dialog appears
     async clickOnDuplicateButtonAndWait() {
         try {
-            await this.waitForElementEnabled(this.duplicateButton, appConst.TIMEOUT_3);
+            await this.waitForElementEnabled(this.duplicateButton, appConst.mediumTimeout);
             await this.clickOnElement(this.duplicateButton);
             //Wait for modal dialog loaded:
             let contentDuplicateDialog = new ContentDuplicateDialog();
-            return await contentDuplicateDialog.waitForDialogOpened();
+            await contentDuplicateDialog.waitForDialogOpened();
+            return contentDuplicateDialog;
         } catch (err) {
             throw new Error('error when clicking on the Duplicate button ' + err);
         }
     }
 
-    async waitForContentDisplayed(contentName) {
+    async waitForContentDisplayed(contentName, ms) {
         try {
-            return await this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), appConst.TIMEOUT_3);
+            let timeout = ms ? ms : appConst.mediumTimeout;
+            console.log("waitForContentDisplayed, timeout is:" + timeout);
+            return await this.waitForElementDisplayed(XPATH.treeGrid + lib.itemByName(contentName), timeout);
         } catch (err) {
             console.log("item is not displayed:" + contentName);
-            this.saveScreenshot('err_find_' + contentName)
+            this.saveScreenshot('err_find_' + contentName);
             throw new Error('content is not displayed ! ' + contentName + "  " + err);
         }
     }
 
     waitForContentNotDisplayed(contentName) {
-        return this.waitForElementNotDisplayed(XPATH.treeGrid + lib.itemByName(contentName), appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementNotDisplayed(XPATH.treeGrid + lib.itemByName(contentName), appConst.mediumTimeout).catch(err => {
             throw new Error("Content is still displayed :" + err);
         });
     }
 
-    clickOnDeleteButton() {
-        return this.waitForElementEnabled(this.deleteButton, 2000).then(() => {
-            return this.clickOnElement(this.deleteButton);
-        }).catch(err => {
-            this.saveScreenshot('err_browsepanel_delete');
-            throw new Error('Delete button is not enabled! ' + err);
-        })
-    }
-
     async clickOnPreviewButton() {
         try {
-            await this.waitForElementEnabled(this.previewButton, 2000);
+            await this.waitForElementEnabled(this.previewButton, appConst.shortTimeout);
             await this.clickOnElement(this.previewButton);
             return await this.pause(2000);
         } catch (err) {
@@ -373,67 +389,104 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     waitForPreviewButtonDisabled() {
-        return this.waitForElementDisabled(this.previewButton, 3000).catch(err => {
+        return this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_preview_disabled_button');
-            throw Error('Preview button should be disabled, timeout: ' + 3000 + 'ms')
+            throw Error('Preview button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
         })
     }
 
     waitForDetailsPanelToggleButtonDisplayed() {
-        return this.waitForElementDisplayed(this.detailsPanelToggleButton, 3000).catch(err => {
+        return this.waitForElementDisplayed(this.detailsPanelToggleButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_details_panel_displayed');
-            throw Error('Details Panel toggle button should be displayed, timeout: ' + 3000 + 'ms')
+            throw Error('Details Panel toggle button should be displayed, timeout: ' + appConst.mediumTimeout + 'ms')
         })
     }
 
     waitForSortButtonDisabled() {
-        return this.waitForElementDisabled(this.sortButton, 3000).catch(err => {
+        return this.waitForElementDisabled(this.sortButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_sort_disabled_button');
-            throw Error('Sort button should be disabled, timeout: ' + 3000 + 'ms')
+            throw Error('Sort button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
         })
     }
 
-    waitForDuplicateButtonDisabled() {
-        return this.waitForElementDisabled(this.duplicateButton, 3000).catch(err => {
+    async waitForDuplicateButtonDisabled() {
+        try {
+            await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.duplicateButton, appConst.mediumTimeout);
+        } catch (err) {
             this.saveScreenshot('err_duplicate_disabled_button');
             throw Error('Duplicate button should be disabled, timeout: ' + 3000 + 'ms')
-        })
+        }
+    }
+
+    async waitForLocalizeButtonEnabled() {
+        try {
+            await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
+        } catch (err) {
+            this.saveScreenshot('err_localize_enabled_button');
+            throw Error('Localize button should be enabled, timeout: ' + 3000 + 'ms')
+        }
+    }
+
+    async waitForLocalizeButtonDisabled() {
+        try {
+            await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.localizeButton, appConst.mediumTimeout);
+        } catch (err) {
+            this.saveScreenshot('err_localize_disabled_button');
+            throw Error('Localize button should be disabled, timeout: ' + 3000 + 'ms')
+        }
+    }
+
+    async waitForOpenButtonEnabled() {
+        try {
+            await this.waitForElementDisplayed(this.openButton, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(this.openButton, appConst.mediumTimeout);
+        } catch (err) {
+            this.saveScreenshot('err_open_button_is_not_enabled');
+            throw Error('Open button should be disabled, timeout: ' + 3000 + 'ms')
+        }
+    }
+
+    async clickOnOpenButton() {
+        try {
+            await this.waitForOpenButtonEnabled();
+            await this.clickOnElement(this.openButton);
+            return await this.pause(500);
+        } catch (err) {
+            this.saveScreenshot('err_browse_panel_open_button');
+            throw new Error('Browse Panel: Edit button is not enabled! ' + err);
+        }
     }
 
     waitForMoveButtonDisabled() {
-        return this.waitForElementDisabled(this.moveButton, 3000).catch(err => {
+        return this.waitForElementDisabled(this.moveButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_move_disabled_button');
-            throw Error('Move button should be disabled, timeout: ' + 3000 + 'ms')
+            throw Error('Move button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
         })
     }
 
     waitForSortButtonEnabled() {
-        return this.waitForElementEnabled(this.sortButton, 3000).catch(err => {
+        return this.waitForElementEnabled(this.sortButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_sort_enabled_button');
-            throw Error('Sort button should be enabled, timeout: ' + 3000 + 'ms')
+            throw Error('Sort button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
         })
     }
 
     waitForMoveButtonEnabled() {
-        return this.waitForElementEnabled(this.moveButton, 3000).catch(err => {
+        return this.waitForElementEnabled(this.moveButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_move_enabled_button');
-            throw Error('Move button should be enabled, timeout: ' + 3000 + 'ms')
-        })
-    }
-
-    waitForMoveButtonDisabled() {
-        return this.waitForElementDisabled(this.moveButton, 3000).catch(err => {
-            this.saveScreenshot('err_move_disabled_button');
-            throw Error('Move button should be disabled, timeout: ' + 3000 + 'ms')
+            throw Error('Move button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
         })
     }
 
     clickOnRowByDisplayName(displayName) {
         let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(displayName);
-        return this.waitForElementDisplayed(nameXpath, 3000).then(() => {
+        return this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout).then(() => {
             return this.clickOnElement(nameXpath);
         }).then(() => {
-            return this.pause(300);
+            return this.pause(600);
         }).catch(err => {
             this.saveScreenshot('err_find_' + displayName);
             throw Error('Row with the displayName ' + displayName + ' was not found' + err)
@@ -442,7 +495,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     waitForRowByNameVisible(name) {
         let nameXpath = XPATH.treeGrid + lib.itemByName(name);
-        return this.waitForElementDisplayed(nameXpath, 3000).catch(err => {
+        return this.waitForElementDisplayed(nameXpath, appConst.longTimeout).catch(err => {
+            this.saveScreenshot('err_find_' + name);
+            throw Error('Row with the name ' + name + ' is not visible after ' + 3000 + 'ms')
+        })
+    }
+
+    waitForRowByDisplayNameVisible(name) {
+        let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(name);
+        return this.waitForElementDisplayed(nameXpath, appConst.longTimeout).catch(err => {
             this.saveScreenshot('err_find_' + name);
             throw Error('Row with the name ' + name + ' is not visible after ' + 3000 + 'ms')
         })
@@ -456,43 +517,31 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         })
     }
 
-    clickCheckboxAndSelectRowByDisplayName(displayName) {
-        const displayNameXpath = XPATH.checkboxByDisplayName(displayName);
-        return this.waitForElementDisplayed(displayNameXpath, 2000).then(() => {
-            return this.clickOnElement(displayNameXpath);
-        }).then(() => {
-            return this.pause(400);
-        }).catch(err => {
-            this.saveScreenshot('err_find_item');
-            throw Error(`Row with the displayName ${displayName} was not found.` + err);
-        })
-    }
-
-    clickOnCheckboxAndSelectRowByName(name) {
-        let nameXpath = XPATH.checkboxByName(name);
-        return this.waitForElementDisplayed(nameXpath, 2000).then(() => {
-            return this.clickOnElement(nameXpath);
-        }).then(() => {
-            return this.pause(300);
-        }).catch(err => {
+    async clickOnCheckboxAndSelectRowByName(name) {
+        try {
+            let nameXpath = XPATH.checkboxByName(name);
+            await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
+            await this.clickOnElement(nameXpath);
+            return await this.pause(300);
+        } catch (err) {
             this.saveScreenshot('err_find_item');
             throw Error('Row with the name ' + name + ' was not found ' + err)
-        })
+        }
     }
 
     getNumberOfSelectedRows() {
-        return this.findElements(XPATH.selectedRow).then(result => {
+        return this.findElements(XPATH.highlightedRow).then(result => {
             return result.length;
         }).catch(err => {
-            throw new Error(`Error when getting selected rows ` + err);
+            throw new Error(`Error when getting highlighted rows ` + err);
         });
     }
 
-    getNameOfSelectedRow() {
-        return this.findElements(XPATH.selectedRow).then(result => {
-            return this.getText(XPATH.selectedRow + lib.H6_DISPLAY_NAME);
+    getNameInHighlightedRow() {
+        return this.waitForElementDisplayed(XPATH.highlightedRow, appConst.shortTimeout).then(() => {
+            return this.getText(XPATH.highlightedRow + lib.H6_DISPLAY_NAME);
         }).catch(err => {
-            throw new Error(`Error when getting selected rows ` + err);
+            throw new Error(`Error when getting name in the highlighted row ` + err);
         });
     }
 
@@ -516,13 +565,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return this.findElements(XPATH.checkedRows).then(result => {
             return result.length;
         }).catch(err => {
-            throw new Error(`Error when getting selected rows ` + err);
+            throw new Error(`Error when getting checked rows ` + err);
         });
     }
 
     isExpanderIconPresent(name) {
         let expanderIcon = XPATH.treeGrid + XPATH.expanderIconByName(name);
-        return this.waitForElementDisplayed(expanderIcon).catch(err => {
+        return this.waitForElementDisplayed(expanderIcon, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('expander_not_exists ' + name);
             return false;
         })
@@ -548,11 +597,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     waitForShowPublishMenuDropDownVisible() {
-        return this.waitForElementDisplayed(this.showPublishMenuButton, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(this.showPublishMenuButton, appConst.mediumTimeout);
     }
 
     waitForCreateTaskButtonDisplayed() {
-        return this.waitForElementDisplayed(this.createTaskButton, appConst.TIMEOUT_5).catch(err => {
+        return this.waitForElementDisplayed(this.createTaskButton, appConst.longTimeout).catch(err => {
             this.saveScreenshot("err_create_issue_button");
             throw new Error("Create Task button is not visible on the toolbar! " + err);
         });
@@ -573,15 +622,19 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return this.getAttribute(selector, 'class').then(result => {
                 return result.includes('invalid');
             });
-        }, 3000).catch(err => {
-            return false;
-        });
+        }, appConst.mediumTimeout, "Red icon should be displayed, because the content is invalid ");
     }
 
     async waitForPublishMenuItemDisabled(menuItem) {
-        let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
-        return await this.waitForAttributeHasValue(selector, "class", "disabled");
+        try {
+            let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
+            return await this.waitForAttributeHasValue(selector, "class", "disabled");
+        } catch (err) {
+            this.saveScreenshot("err_publish_menuItem");
+            throw new Error(menuItem + " should be disabled! " + err);
+        }
     }
+
 
     async waitForPublishMenuItemEnabled(menuItem) {
         let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
@@ -590,7 +643,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async openPublishMenu() {
         await this.clickOnElement(this.showPublishMenuButton);
-        await this.pause(300);
+        return await this.pause(300);
     }
 
     async openPublishMenuSelectItem(menuItem) {
@@ -600,7 +653,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
             await this.waitForPublishMenuItemEnabled(menuItem);
             await this.clickOnElement(selector);
-            return this.pause(300);
+            return await this.pause(300);
         } catch (err) {
             this.saveScreenshot("err_click_issue_menuItem");
             throw new Error('error when try to click on publish menu item, ' + err);
@@ -629,10 +682,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await confirmationDialog.clickOnYesButton();
     }
 
-    //find workflow state by the display name
+//find workflow state by the display name
     async getWorkflowState(displayName) {
         let xpath = XPATH.contentSummaryByDisplayName(displayName);
-        await this.waitForElementDisplayed(xpath, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
             return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
@@ -646,10 +699,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    //find workflow state by the name
+//find workflow state by the name
     async getWorkflowStateByName(name) {
         let xpath = XPATH.contentSummaryByName(name);
-        await this.waitForElementDisplayed(xpath, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
             return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
@@ -666,7 +719,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async waitForDefaultAction(actionName) {
         try {
             let selector = XPATH.contentPublishMenuButton + XPATH.defaultActionByName(actionName);
-            return await this.waitForElementDisplayed(selector, appConst.TIMEOUT_3);
+            return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
             throw Error(`Publish Menu -  '${actionName}'  this default action should be visible!: ` + err);
         }
@@ -674,15 +727,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async clickOnDeleteAndMarkAsDeletedAndConfirm(numberItems) {
         let contentDeleteDialog = new ContentDeleteDialog();
-        let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
+        let confirmValueDialog = new ConfirmValueDialog();
         await this.clickOnDeleteButton();
         await contentDeleteDialog.waitForDialogOpened();
 
         await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
-        await confirmContentDeleteDialog.waitForDialogOpened();
-        await confirmContentDeleteDialog.typeNumberOfContent(numberItems);
-        await confirmContentDeleteDialog.clickOnConfirmButton();
-        return await confirmContentDeleteDialog.waitForDialogClosed();
+        await confirmValueDialog.waitForDialogOpened();
+        await confirmValueDialog.typeNumberOrName(numberItems);
+        await confirmValueDialog.clickOnConfirmButton();
+        return await confirmValueDialog.waitForDialogClosed();
     }
 
     async openDetailsPanel() {
@@ -693,20 +746,51 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
         await browseDetailsPanel.waitForDetailsPanelLoaded();
         await browseDetailsPanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
-        return await this.pause(500);
+        await this.pause(500);
+        return browseDetailsPanel;
     }
 
-
     getSelectedProjectDisplayName() {
-        let selector = XPATH.projectSelector + lib.H6_DISPLAY_NAME;
+        let selector = this.projectViewerButton + lib.H6_DISPLAY_NAME + "//span[@class='display-name']";
         return this.getText(selector);
     }
 
-    async selectContext(projectDisplayName) {
-        await this.clickOnProjectSelectorDropDownHandle();
-        let selector = XPATH.projectSelector + XPATH.projectItemByDisplayName(projectDisplayName);
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
-        return this.clickOnElement(selector);
+    async getContextLanguage() {
+        let locator = XPATH.projectViewerButton + lib.H6_DISPLAY_NAME + "//span[@class='display-name-postfix']";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
-};
+
+
+    async waitForDeleteButtonDisabled() {
+        await this.waitForElementDisplayed(this.deleteButton, appConst.mediumTimeout);
+        return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
+    }
+
+    //Wait for 'Show Issues' button has 'Assigned to Me' label
+    hasAssignedIssues() {
+        return this.waitForAttributeHasValue(this.showIssuesListButton, "class", "has-assigned-issues");
+    }
+
+    async isContentInherited(contentName) {
+        await this.waitForContentDisplayed(contentName, appConst.mediumTimeout);
+        let locator = lib.slickRowByName(XPATH.treeGrid, contentName);
+        let attr = await this.getAttribute(locator, 'class');
+        return attr.includes('data-inherited');
+    }
+
+    async isContentByDisplayNameInherited(contentName) {
+        await this.waitForContentDisplayed(contentName, appConst.mediumTimeout);
+        let locator = lib.slickRowByDisplayName(XPATH.treeGrid, contentName);
+        let attr = await this.getAttribute(locator, 'class');
+        return attr.includes('data-inherited');
+    }
+
+    async clickOnLocalizeButton() {
+        await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.localizeButton);
+        return await this.pause(1000);
+    }
+}
+
 module.exports = ContentBrowsePanel;

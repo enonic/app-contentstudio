@@ -79,7 +79,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await pageComponentView.selectMenuItem(["Edit"]);
             await studioUtils.doSwitchToNextTab();
             //parent site is 'Work in progress', so this fragment must have the same state
-            let state = await contentWizard.getToolbarWorkflowState()
+            let state = await contentWizard.getToolbarWorkflowState();
             assert.equal(state, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS, "Work in progress state should be in fragment-wizard ");
         });
 

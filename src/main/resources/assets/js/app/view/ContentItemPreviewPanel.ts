@@ -12,7 +12,6 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ImageUrlResolver} from '../util/ImageUrlResolver';
 import {MediaAllowsPreviewRequest} from '../resource/MediaAllowsPreviewRequest';
 import {EmulatedEvent} from '../event/EmulatedEvent';
-import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ItemPreviewPanel} from 'lib-admin-ui/app/view/ItemPreviewPanel';
@@ -20,7 +19,6 @@ import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {BrEl} from 'lib-admin-ui/dom/BrEl';
 import {UrlHelper} from '../util/UrlHelper';
 import {ProjectContext} from '../project/ProjectContext';
-import {ProjectChangedEvent} from '../project/ProjectChangedEvent';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -36,12 +34,12 @@ export class ContentItemPreviewPanel
     extends ItemPreviewPanel<ContentSummaryAndCompareStatus> {
 
     private image: ImgEl;
-    private item: ViewItem<ContentSummaryAndCompareStatus>;
+    private item: ContentSummaryAndCompareStatus;
     private skipNextSetItemCall: boolean = false;
     private previewType: PREVIEW_TYPE;
     private previewMessage: DivEl;
     private noSelectionMessage: DivEl;
-    private debouncedSetItem: (item: ViewItem<ContentSummaryAndCompareStatus>) => void;
+    private debouncedSetItem: (item: ContentSummaryAndCompareStatus) => void;
 
     constructor() {
         super('content-item-preview-panel');
@@ -61,10 +59,10 @@ export class ContentItemPreviewPanel
 
         const projectSetHandler = () => {
             this.noSelectionMessage.getFirstChild().setHtml(i18n('panel.noselection'));
-            ProjectChangedEvent.un(projectSetHandler);
+            ProjectContext.get().unProjectChanged(projectSetHandler);
         };
 
-        ProjectChangedEvent.on(projectSetHandler);
+        ProjectContext.get().onProjectChanged(projectSetHandler);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -90,33 +88,27 @@ export class ContentItemPreviewPanel
         this.previewMessage.appendChild(previewText);
     }
 
-    public setItem(item: ViewItem<ContentSummaryAndCompareStatus>, force: boolean = false) {
+    public setItem(item: ContentSummaryAndCompareStatus, force: boolean = false) {
         this.debouncedSetItem(item);
     }
 
-    private doSetItem(item: ViewItem<ContentSummaryAndCompareStatus>, force: boolean) {
+    private doSetItem(item: ContentSummaryAndCompareStatus, force: boolean) {
         if (item && !this.skipNextSetItemCall && (!item.equals(this.item) || force)) {
             if (typeof item.isRenderable() === 'undefined') {
                 return;
             }
 
-            const contentSummary = item.getModel().getContentSummary();
+            const contentSummary = item.getContentSummary();
 
             if (this.isMediaForPreview(contentSummary)) {
-
                 this.setMediaPreviewMode(item);
-
             } else if (contentSummary.getType().isImage() || contentSummary.getType().isVectorMedia()) {
-
                 this.setImagePreviewMode(item);
-
             } else {
-
                 this.setPagePreviewMode(item);
-
             }
         }
-        this.toolbar.setItem(item.getModel());
+        this.toolbar.setItem(item);
         this.item = item;
     }
 
@@ -231,11 +223,11 @@ export class ContentItemPreviewPanel
         }
     }
 
-    private addImageSizeToUrl(item: ViewItem<ContentSummaryAndCompareStatus>) {
+    private addImageSizeToUrl(item: ContentSummaryAndCompareStatus) {
         const imgWidth = this.getEl().getWidth();
         const imgHeight = this.getEl().getHeight() - this.toolbar.getEl().getHeight();
         const imgSize = Math.max(imgWidth, imgHeight);
-        const content = item.getModel().getContentSummary();
+        const content = item.getContentSummary();
 
         const imgUrlResolver = new ImageUrlResolver()
             .setContentId(content.getContentId())
@@ -245,7 +237,7 @@ export class ContentItemPreviewPanel
         this.image.setSrc(imgUrlResolver.resolveForPreview());
     }
 
-    public getItem(): ViewItem<ContentSummaryAndCompareStatus> {
+    public getItem(): ContentSummaryAndCompareStatus {
         return this.item;
     }
 
@@ -282,7 +274,7 @@ export class ContentItemPreviewPanel
                 break;
             }
             case PREVIEW_TYPE.FAILED: {
-                this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.description')]);
+                this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.failed.description')]);
                 break;
             }
             case PREVIEW_TYPE.BLANK: {
@@ -326,8 +318,8 @@ export class ContentItemPreviewPanel
         this.frame.setSrc('about:blank');
     }
 
-    private setMediaPreviewMode(item: ViewItem<ContentSummaryAndCompareStatus>) {
-        const contentSummary = item.getModel().getContentSummary();
+    private setMediaPreviewMode(item: ContentSummaryAndCompareStatus) {
+        const contentSummary = item.getContentSummary();
 
         new MediaAllowsPreviewRequest(contentSummary.getContentId()).sendAndParse().then((allows: boolean) => {
             if (allows) {
@@ -342,8 +334,8 @@ export class ContentItemPreviewPanel
         });
     }
 
-    private setImagePreviewMode(item: ViewItem<ContentSummaryAndCompareStatus>) {
-        const contentSummary = item.getModel().getContentSummary();
+    private setImagePreviewMode(item: ContentSummaryAndCompareStatus) {
+        const contentSummary: ContentSummary = item.getContentSummary();
 
         if (this.isVisible()) {
             if (contentSummary.getType().isVectorMedia()) {
@@ -367,11 +359,11 @@ export class ContentItemPreviewPanel
         }
     }
 
-    private setPagePreviewMode(item: ViewItem<ContentSummaryAndCompareStatus>) {
+    private setPagePreviewMode(item: ContentSummaryAndCompareStatus) {
         this.showMask();
         if (item.isRenderable()) {
             this.setPreviewType(PREVIEW_TYPE.PAGE);
-            const src = RenderingUriHelper.getPortalUri(item.getPath(), RenderingMode.INLINE);
+            const src: string = RenderingUriHelper.getPortalUri(!!item.getPath() ? item.getPath().toString() : '', RenderingMode.INLINE);
             // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
             $.ajax({
                 type: 'HEAD',

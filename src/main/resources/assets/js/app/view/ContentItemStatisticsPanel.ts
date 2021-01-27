@@ -1,12 +1,11 @@
 import {ContentItemPreviewPanel} from './ContentItemPreviewPanel';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ItemStatisticsPanel} from 'lib-admin-ui/app/view/ItemStatisticsPanel';
-import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 
 export class ContentItemStatisticsPanel
-    extends ItemStatisticsPanel<ContentSummaryAndCompareStatus> {
+    extends ItemStatisticsPanel {
 
-    private previewPanel: ContentItemPreviewPanel;
+    private readonly previewPanel: ContentItemPreviewPanel;
 
     constructor() {
         super('content-item-statistics-panel');
@@ -16,7 +15,7 @@ export class ContentItemStatisticsPanel
         this.appendChild(this.previewPanel);
     }
 
-    setItem(item: ViewItem<ContentSummaryAndCompareStatus>) {
+    setItem(item: ContentSummaryAndCompareStatus) {
         if (this.getItem() !== item) {
             super.setItem(item);
             this.previewPanel.setItem(item);

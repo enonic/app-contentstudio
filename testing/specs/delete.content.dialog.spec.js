@@ -46,8 +46,8 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             let isCancelTopButtonDisplayed = await deleteContentDialog.isCancelTopButtonDisplayed();
             assert.isTrue(isCancelTopButtonDisplayed, 'Cancel top button should be displayed');
 
-            let isDeleteMenuDisplayed = await deleteContentDialog.isDeleteMenuDropDownHandleDisplayed();
-            assert.isFalse(isDeleteMenuDisplayed, 'Delete Menu should not be displayed, because the folder is New');
+            //'Delete Menu should be disabled, because the folder has New status
+            await deleteContentDialog.waitForDeleteMenuDropDownHandleDisabled();
 
             let itemsToDelete = await deleteContentDialog.getDisplayNamesToDelete();
             assert.equal(itemsToDelete[0], FOLDER1.displayName, "Expected item to delete should be present");
@@ -112,8 +112,8 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             await deleteContentDialog.waitForDialogOpened();
 
             let itemsToDelete = await deleteContentDialog.getDisplayNamesToDelete();
-            assert.equal(itemsToDelete[1], FOLDER1.displayName, "Expected item to delete should be present");
-            assert.equal(itemsToDelete[0], FOLDER2.displayName, "Expected item to delete should be present");
+            assert.equal(itemsToDelete[0], FOLDER1.displayName, "Expected item to delete should be present");
+            assert.equal(itemsToDelete[1], FOLDER2.displayName, "Expected item to delete should be present");
 
             let isDropdownHandleDisplayed = await deleteContentDialog.isDeleteMenuDropDownHandleDisplayed();
             assert.isTrue(isDropdownHandleDisplayed, "Delete menu should be present in the dialog, because there is one Published folder");

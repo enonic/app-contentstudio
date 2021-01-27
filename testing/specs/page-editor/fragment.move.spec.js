@@ -41,7 +41,7 @@ describe('Move Fragment specification', function () {
             await contentWizard.clickOnShowComponentViewToggler();
             await pageComponentView.openMenu("main");
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
-            await textComponent.typeTextInCkeEditor('text_component_1')
+            await textComponent.typeTextInCkeEditor('text_component_1');
             await contentWizard.switchToMainFrame();
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1500);

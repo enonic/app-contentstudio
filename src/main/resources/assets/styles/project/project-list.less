@@ -1,0 +1,72 @@
+.project-list-items {
+  .project-list-item {
+    &.level-1 {
+      .level(1);
+    }
+
+    &.level-2 {
+      .level(2);
+    }
+
+    &.level-3 {
+      .level(3);
+    }
+
+    &.level-4 {
+      .level(4);
+    }
+
+    &.level-5 {
+      .level(5);
+    }
+
+    &.level-6 {
+      .level(6);
+    }
+
+    &.level-7 {
+      .level(7);
+    }
+
+    &.level-8 {
+      .level(8);
+    }
+
+    &.level-9 {
+      .level(9);
+    }
+
+    display: block;
+    text-decoration: none;
+
+    .names-and-icon-view {
+      .@{_COMMON_PREFIX}names-view {
+        .@{_COMMON_PREFIX}main-name {
+          color: @admin-black;
+        }
+      }
+    }
+
+    &.selected {
+      .names-and-icon-view {
+
+        .@{_COMMON_PREFIX}names-view {
+          .@{_COMMON_PREFIX}main-name,
+          .@{_COMMON_PREFIX}sub-name {
+            color: @admin-white;
+          }
+        }
+
+        .icon-tree-2 {
+          color: @admin-white;
+        }
+      }
+    }
+  }
+
+  .level(@level: 0) {
+    .project-viewer {
+      margin-left: 15px * @level;
+    }
+  }
+}

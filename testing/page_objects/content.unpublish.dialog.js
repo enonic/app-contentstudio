@@ -16,11 +16,11 @@ class ContentUnpublishDialog extends Page {
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(this.unpublishButton, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.unpublishButton, appConst.shortTimeout);
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3);
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
     }
 
     clickOnUnpublishButton() {

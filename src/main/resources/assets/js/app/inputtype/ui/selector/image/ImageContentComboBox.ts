@@ -5,24 +5,21 @@ import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {OptionDataHelper} from 'lib-admin-ui/ui/selector/OptionDataHelper';
-import {ComboBox, ComboBoxConfig} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
+import {ComboBox} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
 import {ContentComboBox, ContentComboBoxBuilder} from '../ContentComboBox';
 import {ImageOptionDataLoader} from './ImageOptionDataLoader';
 import {ImageContentComboboxKeyEventsHandler} from './ImageContentComboboxKeyEventsHandler';
 import {ImageSelectorSelectedOptionsView} from './ImageSelectorSelectedOptionsView';
 import {ImageSelectorViewer} from './ImageSelectorViewer';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
-import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
+import {ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
 
 export class ImageContentComboBox
     extends ContentComboBox<MediaTreeSelectorItem> {
 
+    protected maxHeight: number = 250;
+
     constructor(builder: ImageContentComboBoxBuilder) {
-        let loader = builder.loader || ImageOptionDataLoader.create().setContent(builder.content).setContentTypeNames(
-            [ContentTypeName.IMAGE.toString(), ContentTypeName.MEDIA_VECTOR.toString()]).build();
-
-        builder.setLoader(loader).setMaxHeight(250);
-
         super(builder);
 
         this.addClass('image-content-combo-box');
@@ -30,10 +27,20 @@ export class ImageContentComboBox
         this.setKeyEventsHandler(new ImageContentComboboxKeyEventsHandler(this));
     }
 
+    protected createLoader(builder: ImageContentComboBoxBuilder): ImageOptionDataLoader {
+        return ImageOptionDataLoader.build(this.createLoaderBuilder(builder));
+    }
+
+    protected createLoaderBuilder(builder: ImageContentComboBoxBuilder): ContentSummaryOptionDataLoaderBuilder {
+        return super.createLoaderBuilder(builder)
+            .setContent(builder.content)
+            .setContentTypeNames([ContentTypeName.IMAGE.toString(), ContentTypeName.MEDIA_VECTOR.toString()]);
+    }
+
     getContent(contentId: ContentId): ContentSummary {
         let option = this.getOptionByValue(contentId.toString());
         if (option) {
-            return (<MediaTreeSelectorItem>option.displayValue).getContentSummary();
+            return (<MediaTreeSelectorItem>option.getDisplayValue()).getContentSummary();
         }
         return null;
     }
@@ -44,6 +51,7 @@ export class ImageContentComboBox
 
     protected toggleGridOptions(treeMode: boolean) {
         const grid = this.getComboBox().getComboBoxDropdownGrid().getGrid();
+        grid.toggleClass('tree-mode', treeMode);
 
         grid.getOptions().setRowHeight(treeMode ? 50 : 198)
             .setEnableGalleryMode(!treeMode)
@@ -53,26 +61,25 @@ export class ImageContentComboBox
     }
 
     protected createOption(data: Object, readOnly?: boolean): Option<MediaTreeSelectorItem> {
+        const item: MediaTreeSelectorItem = this.dataToMediaTreeSelectorItem(data);
 
-        let option;
-
-        if (ObjectHelper.iFrameSafeInstanceOf(data, MediaTreeSelectorItem)) {
-            option = this.optionsFactory.createOption(<MediaTreeSelectorItem>data, readOnly);
-        } else if (ObjectHelper.iFrameSafeInstanceOf(data, ContentSummary)) {
-            option = {
-                value: (<ContentSummary>data).getId(),
-                displayValue: new MediaTreeSelectorItem(<ContentSummary>data)
-            };
+        if (item) {
+            return this.optionsFactory.createOption(item, readOnly);
         }
 
-        return option;
+        return null;
     }
 
-    protected createComboboxConfig(builder: ContentComboBoxBuilder<MediaTreeSelectorItem>): ComboBoxConfig<ContentTreeSelectorItem> {
-        const config = super.createComboboxConfig(builder);
-        config.treegridDropdownAllowed = true; // to make use DropdownTreeGrid for displaying options
+    private dataToMediaTreeSelectorItem(data: Object): MediaTreeSelectorItem {
+        if (ObjectHelper.iFrameSafeInstanceOf(data, MediaTreeSelectorItem)) {
+            return <MediaTreeSelectorItem>data;
+        }
 
-        return config;
+        if (ObjectHelper.iFrameSafeInstanceOf(data, ContentSummary)) {
+            return new MediaTreeSelectorItem(<ContentSummary>data);
+        }
+
+        return null;
     }
 
     getLoader(): ImageOptionDataLoader {
@@ -101,6 +108,8 @@ export class ImageContentComboBoxBuilder
     loader: ImageOptionDataLoader;
 
     content: ContentSummary;
+
+    isRequestMissingOptions: boolean = false;
 
     setContent(value: ContentSummary): ImageContentComboBoxBuilder {
         this.content = value;

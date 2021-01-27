@@ -48,11 +48,9 @@ export class ImageContentComboboxKeyEventsHandler
             if (this.isFirstRow(activeRow)) {
                 this.lastSelectedCol = activeRow;
                 this.grid.resetActiveSelection();
-                this.input.setReadOnly(false);
                 this.input.giveFocus();
             } else {
                 this.adjustRow(activeRow, -1);
-                this.input.setReadOnly(true);
             }
             return true;
         }
@@ -92,7 +90,6 @@ export class ImageContentComboboxKeyEventsHandler
         } else {
             this.grid.navigateToRow(this.lastSelectedCol);
         }
-        this.input.setReadOnly(true);
         return true;
     }
 

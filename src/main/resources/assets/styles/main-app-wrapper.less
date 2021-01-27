@@ -8,13 +8,13 @@
     z-index: 3;
     padding-top: 44px;
     background-color: @sidebar-bg-color;
-    width: @sidebar-width;
+    width: @app-header-height;
     position: absolute;
     top: 0;
     left: 0;
     bottom: 0;
     color: @admin-white;
-    left: -@sidebar-width;
+    left: -@app-header-height;
     transition: left 0.5s ease;
 
     .app-name-wrapper {
@@ -25,9 +25,8 @@
         display: inline-block;
         font-size: 16px;
         text-transform: uppercase;
-        line-height: 44px;
+        line-height: @app-header-height;
         writing-mode: vertical-lr;
-        padding-left: 6px;
         letter-spacing: 1px;
         cursor: default;
       }
@@ -39,9 +38,9 @@
       }
 
       button {
-        font-size: 22px;
+        font-size: 20px;
         width: 100%;
-        padding: 15px 0 15px 3px;
+        padding: 12px 0;
         display: flex;
         justify-content: center;
 
@@ -65,7 +64,14 @@
           display: none;
         }
       }
+    }
 
+    .app-version {
+      position: absolute;
+      text-align: center;
+      bottom: 5px;
+      width: 100%;
+      .ellipsis();
     }
   }
 
@@ -78,8 +84,9 @@
     transition: left 0.5s ease;
 
     .appbar {
-      padding-left: 50px;
-      transition: padding-left 0.5s ease;
+      left: @app-header-height;
+      transition: left 0.5s ease, width 0.5s ease;
+      width: calc(100% - 2*@app-header-height); // deduct widths of the 2 menu buttons on the sides
 
       .home-button {
         .app-icon {
@@ -87,12 +94,39 @@
         }
       }
 
-      &.appbar-content {
-        display: flex;
-        justify-content: space-between;
+      &.appbar-settings {
+        padding: 0;
 
         .home-button {
-          display: none;
+
+          @media screen and (min-width: 720px) {
+            margin-left: 14px;
+          }
+
+          &:before {
+            display: none;
+            line-height: @app-header-height;
+            font-size: 16px;
+            margin: 0 15px 0 5px;
+            color: @admin-font-gray2;
+
+            &:hover {
+              color: @admin-font-gray3;
+            }
+          }
+        }
+
+        &.tabs-present {
+          @media screen and (max-width: 720px) {
+            .home-button:before {
+              display: block;
+            }
+          }
+
+          + .panel {
+            border-top: none;
+            z-index: 0;
+          }
         }
       }
     }
@@ -105,10 +139,13 @@
     }
 
     .app-container {
-      left: @sidebar-width;
+      left: @app-header-height;
 
-      .appbar {
-        padding-left: 0;
+      @media screen and (min-width: 720px) {
+        .appbar {
+          left: 0;
+          width: calc(100% - @app-header-height);
+        }
       }
     }
   }
@@ -118,13 +155,15 @@
     font-size: @admin-font-size;
     position: fixed;
     border: none;
-    left: 11px;
-    top: 4px;
-    background-color: transparent;
+    top: 0;
+    left: 0;
+    padding: 0;
+    height: @app-header-height;
+    width: @app-header-height;
+    text-align: center;
+    background-color: @admin-bg-dark-gray;
     cursor: pointer;
     z-index: 4;
-    line-height: 17px;
-    padding: 6px 5px 3px;
     outline-width: 2px;
     outline-offset: -2px;
     -moz-outline-radius: 3px;
@@ -164,7 +203,7 @@
     }
 
     &:hover {
-      background: none;
+      background-color: @admin-bg-dark-gray;
       .lines {
         &:before {
           top: 8px;
@@ -176,10 +215,10 @@
     }
 
     &.toggled {
+      background-color: transparent;
       -webkit-transform: scale3d(.8, .8, .8);
       transform: scale3d(.8, .8, .8);
-      padding: 4px 4px 8px 17px;
-      left: 6px;
+      padding: 4px 4px 8px 16px;
 
       .lines {
         background: transparent !important;
@@ -215,7 +254,6 @@
 
         .app-name {
           writing-mode: lr;
-          padding-left: 0;
           font-size: 18px;
           letter-spacing: 0;
         }
@@ -247,10 +285,6 @@
 
       .app-container {
         left: 0;
-
-        .appbar {
-          padding-left: 50px;
-        }
       }
     }
   }

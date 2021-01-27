@@ -13,7 +13,7 @@ export class ContentAppHelper {
         const path: Path = app.getPath();
         const action: string = path.getElement(1);
 
-        return action === UrlAction.NEW || action === UrlAction.EDIT;
+        return action === UrlAction.NEW || action === UrlAction.EDIT || action === UrlAction.LOCALIZE;
     }
 
     static createWizardParamsFromApp(app: Application): ContentWizardPanelParams {

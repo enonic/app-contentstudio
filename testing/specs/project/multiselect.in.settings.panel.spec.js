@@ -7,7 +7,8 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
-
+const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('multiselect.in.settings.panel.spec - tests for selection of several items in setting browse panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -18,11 +19,19 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
     let DESCRIPTION = "Test description";
 
 
-    it(`Preconditions: 2 projects should be added`,
+    it(`WHEN two projects have been saved THEN 2 options should appear in the project selector`,
         async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
             //1. Save 2 projects:
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME_1, DESCRIPTION);
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME_2, DESCRIPTION);
+            //2 .Click on Content app-mode button
+            await studioUtils.switchToContentMode();
+            //3. Expand the project selector and verify that 2 new items appeared:
+            let projectSelectionDialog = await contentBrowsePanel.clickOnProjectViewerButton();
+            let result = await projectSelectionDialog.getProjectsDisplayName();
+            assert.isTrue(result.includes(PROJECT_DISPLAY_NAME_1), "Display name of the first project should be present in options");
+            assert.isTrue(result.includes(PROJECT_DISPLAY_NAME_2), "Display name of the second project should be present in options");
         });
 
     //Verifies: Settings Panel - Error after trying to close several opened wizards #1632
@@ -31,7 +40,6 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             //2. Click on 'Edit' button:
@@ -48,27 +56,24 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             assert.equal(result, 0, "There should not be a single item in the Tab Bar");
         });
 
-
     it(`WHEN two existing projects are checked THEN Edit,New,Delete buttons should be enabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             //'New...' button should be enabled :
             await settingsBrowsePanel.waitForNewButtonEnabled();
-            //'Delete' button should be disabled
-            await settingsBrowsePanel.waitForDeleteButtonEnabled();
-            //'Edit' button should be disabled:
-            await settingsBrowsePanel.waitForDeleteButtonEnabled();
+            //'Delete' button should be disabled:
+            await settingsBrowsePanel.waitForDeleteButtonDisabled();
+            //'Edit' button should be enabled:
+            await settingsBrowsePanel.waitForEditButtonEnabled();
         });
 
     it(`GIVEN two existing projects are checked WHEN context menu has been opened THEN Edit,New,Delete items should be enabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Click on both just created project's checkboxes:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             //2. Open context menu:
@@ -76,24 +81,23 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             await settingsBrowsePanel.waitForContextMenuDisplayed();
             studioUtils.saveScreenshot("multiselect_context_menu_1");
             //Verify that New.. item is enabled:
-            let result = await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
+            await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             await settingsBrowsePanel.waitForContextMenuItemEnabled('Edit');
             //Verify that Delete menu item is disabled:
-            await settingsBrowsePanel.waitForContextMenuItemEnabled('Delete');
+            await settingsBrowsePanel.waitForContextMenuItemDisabled('Delete');
         });
 
     it(`GIVEN Projects is expanded AND 'Selection Controller' checkbox is checked WHEN context menu has been opened THEN 'New' menu-item should be enabled but Delete,Edit items should be disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1. Expand Projects folder then click Selection Controller checkbox and select all project:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            await settingsBrowsePanel.clickOnSelectionControllerCheckbox(PROJECT_DISPLAY_NAME_1);
+            //1. Click on 'Selection Controller' checkbox and select all project:
+            await settingsBrowsePanel.clickOnSelectionControllerCheckbox();
             //2. Open context menu:
             await settingsBrowsePanel.rightClickOnProjectItemByDisplayName(PROJECT_DISPLAY_NAME_2);
             await settingsBrowsePanel.waitForContextMenuDisplayed();
             studioUtils.saveScreenshot("multiselect_context_menu_2");
             //Verify that New.. item is enabled:
-            let result = await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
+            await settingsBrowsePanel.waitForContextMenuItemEnabled('New...');
             //Verify that Edit menu item is disabled:
             await settingsBrowsePanel.waitForContextMenuItemDisabled('Edit');
             //Verify that Delete menu item is disabled:
@@ -103,9 +107,9 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
     it(`GIVEN Projects folder is expanded AND two projects are checked WHEN 'Selection Toggler' has been clicked THEN two projects should remain in grid`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
+            await settingsBrowsePanel.pause(1000);
             let actualResultBefore = await settingsBrowsePanel.getDisplayNames();
+            //1. Click on both project's checkboxes:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             //2. Click on the circle(Selection Toggle):
@@ -126,8 +130,6 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Click on both project's checkboxes:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            let actualResultBefore = await settingsBrowsePanel.getDisplayNames();
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);
             //2. Click on the circle(Selection Toggle):
@@ -146,8 +148,29 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
             assert.equal(result, 0, "There should not be a single item in the Tab Bar");
         });
 
+    //Verifies: https://github.com/enonic/app-contentstudio/issues/1466  Name of deleted project remains in Project Selector
+    it(`WHEN existing project has been deleted THEN this project should be removed in options of Project Selector`,
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let confirmValueDialog = new ConfirmValueDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Delete the project:
+            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
+            await settingsBrowsePanel.clickOnDeleteButton();
+            await confirmValueDialog.waitForDialogOpened();
+            await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME_1);
+            await confirmValueDialog.clickOnConfirmButton();
+            await contentBrowsePanel.pause(1000);
+            //2 .Click on Content app-mode button and switch to content browse panel:
+            await studioUtils.switchToContentMode();
+            //3. Verify that deleted project is not present in projectSelectionDialog:
+            let projectSelectionDialog = await contentBrowsePanel.clickOnProjectViewerButton();
+            let result = await projectSelectionDialog.getProjectsDisplayName();
+            assert.isFalse(result.includes(PROJECT_DISPLAY_NAME_1));
+        });
+
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });

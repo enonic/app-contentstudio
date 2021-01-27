@@ -20,6 +20,7 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ManagedActionExecutor} from 'lib-admin-ui/managedaction/ManagedActionExecutor';
 import {ModalDialogWithConfirmation} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {H6El} from 'lib-admin-ui/dom/H6El';
+import {ContentTreeGrid} from '../browse/ContentTreeGrid';
 
 export class MoveContentDialog
     extends ModalDialogWithConfirmation
@@ -31,7 +32,7 @@ export class MoveContentDialog
 
     private contentPathSubHeader: H6El;
 
-    private rootNode: TreeNode<ContentSummaryAndCompareStatus>;
+    private treeGrid: ContentTreeGrid;
 
     private descriptionHeader: H6El;
 
@@ -44,7 +45,8 @@ export class MoveContentDialog
     constructor() {
         super({
             class: 'move-content-dialog',
-            confirmation: {}
+            confirmation: {},
+            title: i18n('dialog.move')
         });
     }
 
@@ -52,7 +54,7 @@ export class MoveContentDialog
         super.initElements();
 
         this.contentPathSubHeader = new H6El().addClass('content-path');
-        this.descriptionHeader = new H6El().addClass('desc-message');
+        this.descriptionHeader = new H6El().addClass('desc-message').setHtml(i18n('dialog.move.subname'));
         this.initMoveConfirmationDialog();
         this.initProgressManager();
         this.destinationSearchInput = new ContentMoveComboBox();
@@ -102,19 +104,12 @@ export class MoveContentDialog
         });
     }
 
-    private updateHeaderAndDescription() {
-        this.setTitle(i18n('dialog.move'));
-        this.descriptionHeader.setHtml(i18n('dialog.move.subname'));
-    }
-
     private listenOpenMoveDialogEvent() {
         OpenMoveDialogEvent.on((event) => {
 
             this.movedContentSummaries = event.getContentSummaries();
             this.destinationSearchInput.clearCombobox();
-            this.rootNode = event.getRootNode();
-
-            this.updateHeaderAndDescription();
+            this.treeGrid = event.getTreeGrid();
 
             const contents = event.getContentSummaries();
 
@@ -195,17 +190,16 @@ export class MoveContentDialog
     }
 
     private getParentSite(content: ContentSummary): Q.Promise<ContentSummary> {
-        const node = this.rootNode.findNode(content.getId());
-        if (!node) {
+        if (!this.treeGrid.hasItemWithDataIdInDefault(content.getId())) {
             return new GetNearestSiteRequest(content.getContentId()).sendAndParse();
         }
 
-        let nodeParent = node.getParent();
-        while (nodeParent) {
-            if (nodeParent.getData() && nodeParent.getData().getContentSummary().isSite()) {
-                return Q(nodeParent.getData().getContentSummary());
+        let parentData: ContentSummaryAndCompareStatus = this.treeGrid.getParentDataById(content.getId());
+        while (parentData) {
+            if (parentData.getContentSummary().isSite()) {
+                return Q(parentData.getContentSummary());
             }
-            nodeParent = nodeParent.getParent();
+            parentData = this.treeGrid.getParentDataById(parentData.getId());
         }
 
         return Q(null);
@@ -213,12 +207,13 @@ export class MoveContentDialog
 
     private doMove() {
         const parentContent: ContentTreeSelectorItem = this.getParentContentItem();
-        let parentRoot = parentContent ? parentContent.getPath() : ContentPath.ROOT;
-        let contentIds = ContentIds.create().fromContentIds(this.movedContentSummaries.map(summary => summary.getContentId())).build();
+        const parentPath: ContentPath = parentContent ? parentContent.getPath() : ContentPath.ROOT;
+        const contentIds: ContentIds =
+            ContentIds.create().fromContentIds(this.movedContentSummaries.map(summary => summary.getContentId())).build();
 
         this.lockControls();
 
-        new MoveContentRequest(contentIds, parentRoot)
+        new MoveContentRequest(contentIds, parentPath)
             .sendAndParse()
             .then((taskId: TaskId) => {
                 this.pollTask(taskId);

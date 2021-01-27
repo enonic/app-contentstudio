@@ -69,6 +69,7 @@ export class LinkModalDialog
             title: i18n('dialog.link.title'),
             class: 'link-modal-dialog',
             contentId: content.getContentId(),
+            allowOverflow: true,
             confirmation: {
                 yesCallback: () => this.getSubmitAction().execute(),
                 noCallback: () => this.close(),
@@ -269,7 +270,10 @@ export class LinkModalDialog
         const dropDown = new Dropdown<string>('anchor', <DropdownConfig<string>>{});
 
         anchorList.forEach((anchor: string) => {
-            dropDown.addOption(<Option<string>>{value: LinkModalDialog.anchorPrefix + anchor, displayValue: anchor});
+            dropDown.addOption(Option.create<string>()
+                .setValue(LinkModalDialog.anchorPrefix + anchor)
+                .setDisplayValue(anchor)
+                .build());
         });
 
         if (this.getAnchor()) {
@@ -296,7 +300,7 @@ export class LinkModalDialog
 
     private createTargetCheckbox(id: string, isTabSelectedFn: Function): FormItem {
         const checkbox = Checkbox.create().setLabelText(i18n('dialog.link.formitem.openinnewtab')).setInputAlignment(
-            InputAlignment.RIGHT).build();
+            InputAlignment.LEFT).build();
 
         checkbox.setChecked(this.getTarget(isTabSelectedFn.call(this)));
 
@@ -361,7 +365,12 @@ export class LinkModalDialog
     private createSelector( getValueFn: Function,
                             loaderBuilder: ContentSummaryOptionDataLoaderBuilder
                             ): ContentComboBox<ContentTreeSelectorItem> {
-        const selector = ContentComboBox.create().setLoader(loaderBuilder.build()).setMaximumOccurrences(1).build();
+        const selector = ContentComboBox.create()
+            .setTreegridDropdownEnabled(true)
+            .setShowStatus(true)
+            .setMaximumOccurrences(1)
+            .setLoader(loaderBuilder.setLoadStatus(true).build())
+            .build();
 
         selector.setValue(getValueFn.call(this));
 
@@ -371,7 +380,7 @@ export class LinkModalDialog
     private createMediaSelectorBuilder(): ContentSummaryOptionDataLoaderBuilder {
         return ContentSummaryOptionDataLoader
             .create()
-            .setAllowedContentPaths([this.parentSitePath || ''])
+            .setAllowedContentPaths(['*'])
             .setContentTypeNames(ContentTypeName.getMediaTypes().map(name => name.toString()));
     }
 
@@ -423,10 +432,10 @@ export class LinkModalDialog
                 const value = new MediaTreeSelectorItem(null).setDisplayValue(
                     MediaSelectorDisplayValue.fromUploadItem(uploadItem));
 
-                const option = <Option<MediaTreeSelectorItem>>{
-                    value: value.getId(),
-                    displayValue: value
-                };
+                const option = Option.create<MediaTreeSelectorItem>()
+                        .setValue(value.getId())
+                        .setDisplayValue(value)
+                        .build();
                 contentSelector.selectOption(option);
             });
         });
@@ -437,8 +446,8 @@ export class LinkModalDialog
 
             let selectedOption = contentSelector.getSelectedOptionView().getById(item.getId());
             let option = selectedOption.getOption();
-            option.displayValue = new MediaTreeSelectorItem(createdContent);
-            option.value = createdContent.getContentId().toString();
+            option.setDisplayValue(new MediaTreeSelectorItem(createdContent));
+            option.setValue(createdContent.getContentId().toString());
 
             selectedOption.getOptionView().setOption(option);
         });

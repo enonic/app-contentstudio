@@ -86,7 +86,7 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });

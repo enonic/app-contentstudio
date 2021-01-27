@@ -68,7 +68,7 @@ describe('custom.selector.0_2.spec:  tests for content with custom selector (0:2
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
             //Open the content and swap options:
             await customSelectorForm.swapOptions(OPTION_2, OPTION_1);
-            let options = await customSelectorForm.getSelectedOptions()
+            let options = await customSelectorForm.getSelectedOptions();
             studioUtils.saveScreenshot("custom_selector_swapped_options");
             assert.equal(options[0], OPTION_2, "Order of selected Options should be changed");
             assert.equal(options[1], OPTION_1, "Order of selected Options should be changed");

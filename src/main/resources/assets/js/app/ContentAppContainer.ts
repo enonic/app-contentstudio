@@ -8,23 +8,24 @@ import {ContentEventsListener} from './ContentEventsListener';
 import {AppMode} from './AppMode';
 import {ProjectContext} from './project/ProjectContext';
 import {UrlAction} from './UrlAction';
-import {ProjectChangedEvent} from './project/ProjectChangedEvent';
-import {ProjectUpdatedEvent} from './settings/event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from './settings/event/ProjectDeletedEvent';
+import {Project} from './settings/data/project/Project';
+import {ProjectListRequest} from './settings/resource/ProjectListRequest';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {AppContext} from './AppContext';
 
 export class ContentAppContainer
     extends MainAppContainer {
 
     protected appBar: ContentAppBar;
 
-    constructor(application: Application) {
-        super(application, AppMode.MAIN);
+    constructor() {
+        super();
 
         if (!ProjectContext.get().isInitialized()) {
             this.handleProjectNotSet();
         } else {
             new ContentEventsListener().start();
-            this.appBar.updateSelectorValues();
             this.initListeners();
         }
     }
@@ -34,13 +35,12 @@ export class ContentAppContainer
 
         const projectSetHandler = () => {
             this.appBar.enable();
-            this.appBar.updateSelectorValues();
             new ContentEventsListener().start();
             this.initListeners();
-            ProjectChangedEvent.un(projectSetHandler);
+            ProjectContext.get().unProjectChanged(projectSetHandler);
         };
 
-        ProjectChangedEvent.on(projectSetHandler);
+        ProjectContext.get().onProjectChanged(projectSetHandler);
     }
 
     protected createAppBar(application: Application): ContentAppBar {
@@ -48,7 +48,7 @@ export class ContentAppContainer
     }
 
     protected createAppPanel(): ContentAppPanel {
-        return new ContentAppPanel(this.application.getPath());
+        return new ContentAppPanel(AppContext.get().getApplication().getPath());
     }
 
     private initListeners() {
@@ -57,23 +57,38 @@ export class ContentAppContainer
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
             this.handleProjectDeletedEvent(event.getProjectName());
         });
-
-        ProjectUpdatedEvent.on(() => {
-            this.handleProjectUpdatedEvent();
-        });
-    }
-
-    private handleProjectUpdatedEvent() {
-        (<ContentAppBar>this.appBar).updateSelectorValues();
     }
 
     private handleProjectDeletedEvent(projectName: string) {
-        const currentProject: string = ProjectContext.get().getProject();
-        const isCurrentProjectDeleted: boolean = projectName === currentProject;
+        const currentProject: Project = ProjectContext.get().getProject();
+        const isCurrentProjectDeleted: boolean = projectName === currentProject.getName();
 
         if (isCurrentProjectDeleted) {
-            ProjectContext.get().setProject(ProjectContext.DEFAULT_PROJECT);
+            this.handleCurrentProjectDeleted();
         }
+    }
+
+    private handleCurrentProjectDeleted() {
+        const currentProject: Project = ProjectContext.get().getProject();
+
+        new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
+            if (projects.length > 0) {
+                const parentProject: Project = projects.find((project: Project) => project.getName() === currentProject.getParent());
+                if (parentProject) {
+                    ProjectContext.get().setProject(parentProject);
+                } else {
+                    const defaultProject: Project = projects.find((project: Project) => project.getName() === Project.DEFAULT_PROJECT_NAME);
+                    const projectToSet: Project = !!defaultProject ? defaultProject : projects[0];
+                    ProjectContext.get().setProject(projectToSet);
+                }
+            } else {
+                this.handleNoProjectsAvailable();
+            }
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    private handleNoProjectsAvailable() {
+    //
     }
 
     private initSearchPanelListener(panel: ContentAppPanel) {
@@ -92,7 +107,7 @@ export class ContentAppContainer
     }
 
     generateAppUrl(): string {
-        return `${AppMode.MAIN}#/${ProjectContext.get().getProject()}/${UrlAction.BROWSE}`;
+        return `${AppMode.MAIN}#/${ProjectContext.get().getProject().getName()}/${UrlAction.BROWSE}`;
     }
 
 }

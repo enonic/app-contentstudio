@@ -47,7 +47,7 @@ export class FragmentPlaceholder
         this.comboBox.onOptionSelected((event: SelectedOptionEvent<ContentTreeSelectorItem>) => {
 
             let component: FragmentComponent = this.fragmentComponentView.getComponent();
-            let fragmentContent = event.getSelectedOption().getOption().displayValue;
+            let fragmentContent = event.getSelectedOption().getOption().getDisplayValue();
 
             if (this.isInsideLayout()) {
                 new GetContentByIdRequest(fragmentContent.getContentId()).sendAndParse().done((content: Content) => {

@@ -13,7 +13,6 @@ import {ContentSelector} from './ContentSelector';
 import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {MediaUploaderEl, MediaUploaderElConfig, MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
-import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
 import {Content} from '../../content/Content';
@@ -65,17 +64,6 @@ export class MediaSelector
         return '';
     }
 
-    protected createOptionDataLoader() {
-        return ContentSummaryOptionDataLoader.create()
-            .setAllowedContentPaths(this.allowedContentPaths)
-            .setContentTypeNames(this.allowedContentTypes)
-            .setRelationshipType(this.relationshipType)
-            .setContent(this.config.content)
-            .setLoadStatus(this.showStatus)
-            .build();
-
-    }
-
     protected createUploader(): Q.Promise<MediaUploaderEl> {
         const config: MediaUploaderElConfig = this.createUploaderConfig();
 
@@ -112,10 +100,11 @@ export class MediaSelector
         uploader.onFileUploaded((event: UploadedEvent<Content>) => {
             const createdContent = event.getUploadItem().getModel();
 
-            const option = <Option<MediaTreeSelectorItem>>{
-                value: createdContent.getContentId().toString(),
-                displayValue: new MediaTreeSelectorItem(createdContent)
-            };
+            const option = Option.create<MediaTreeSelectorItem>()
+                    .setValue(createdContent.getContentId().toString())
+                    .setDisplayValue(new MediaTreeSelectorItem(createdContent))
+                    .build();
+
             this.contentComboBox.selectOption(option);
             const selectedOption = this.getSelectedOptionsView().getById(createdContent.getContentId().toString());
 
@@ -190,6 +179,11 @@ export class MediaSelector
         }
 
         return rest;
+    }
+
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+        this.uploader.setEnabled(enable);
     }
 }
 

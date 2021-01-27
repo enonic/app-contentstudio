@@ -20,15 +20,15 @@ class LayoutInspectionPanel extends Page {
 
     async typeNameAndSelectLayout(displayName) {
         let optionSelector = lib.slickRowByDisplayName(xpath.layoutDropdown, displayName);
-        await this.waitForElementDisplayed(this.layoutDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, appConst.TIMEOUT_5);
+        await this.waitForElementDisplayed(this.layoutDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, appConst.longTimeout);
         await this.typeTextInInput(this.layoutDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, displayName);
-        await this.waitForElementDisplayed(optionSelector, appConst.TIMEOUT_3);
+        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
         await this.clickOnElement(optionSelector);
         return await this.pause(1000);
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_load_inspect_panel');
             throw new Error('Live Edit, Layout Inspection Panel is not loaded' + err);
         });

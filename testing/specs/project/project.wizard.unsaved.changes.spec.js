@@ -49,7 +49,6 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             //4. Click on No button:
             await confirmationDialog.clickOnNoButton();
             await settingsBrowsePanel.pause(500);
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //5. Verify that new project is not created:
             await settingsBrowsePanel.waitForProjectNotDisplayed(projectDisplayName);
         });
@@ -73,14 +72,12 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
             await confirmationDialog.clickOnYesButton();
             await projectWizard.waitForWizardClosed();
             await settingsBrowsePanel.pause(200);
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             //5. Verify that new project is not created:
             await settingsBrowsePanel.waitForItemByDisplayNameDisplayed(projectDisplayName);
         });
 
     it(`GIVEN new project wizard - description has been typed WHEN 'close' icon has been clicked THEN Confirmation Dialog should appear`,
         async () => {
-            let projectDisplayName = studioUtils.generateRandomName("project");
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             let confirmationDialog = new ConfirmationDialog();
@@ -99,10 +96,8 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
 
     it(`GIVEN no changes in new project wizard WHEN 'close' icon has been clicked THEN Confirmation Dialog should not appear`,
         async () => {
-            let projectDisplayName = studioUtils.generateRandomName("project");
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            let confirmationDialog = new ConfirmationDialog();
             //1.'New...' button has been clicked and Project item has been clicked:
             await settingsBrowsePanel.openProjectWizard();
             //2. Click on close-icon
@@ -113,7 +108,7 @@ describe('project.wizard.unsaved.changes.spec - checks unsaved changes in projec
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });

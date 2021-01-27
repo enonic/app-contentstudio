@@ -36,7 +36,7 @@ class SiteConfiguratorDialog extends Page {
     async typeNumPosts(number) {
         let selector = XPATH.container + "//input[contains(@name,'numPosts')]";
         try {
-            await this.waitForElementDisplayed(selector);
+            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             return await this.typeTextInInput(selector, number);
         } catch (err) {
             this.saveScreenshot('site_conf_err_num_posts');
@@ -47,11 +47,11 @@ class SiteConfiguratorDialog extends Page {
     showToolbarAndClickOnInsertImageButton() {
         let areaSelector = `//div[contains(@id,'cke_TextArea')]`;
         let insertImageButton = `//a[contains(@class,'cke_button') and contains(@title,'Image')]`;
-        return this.waitForElementDisplayed(areaSelector, appConst.TIMEOUT_3).then(() => {
+        return this.waitForElementDisplayed(areaSelector, appConst.mediumTimeout).then(() => {
             return this.clickOnElement(areaSelector);
         }).then(() => {
-            return this.waitForElementDisplayed(insertImageButton, appConst.TIMEOUT_3);
-        }).then(result => {
+            return this.waitForElementDisplayed(insertImageButton, appConst.mediumTimeout);
+        }).then(() => {
             return this.clickOnElement(insertImageButton);
         })
     }
@@ -70,11 +70,11 @@ class SiteConfiguratorDialog extends Page {
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(this.applyButton, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
     }
-};
+}
 module.exports = SiteConfiguratorDialog;

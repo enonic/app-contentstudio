@@ -3,6 +3,7 @@ import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {GetContentSummaryByIds} from '../../../../resource/GetContentSummaryByIds';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 type RequestToken = {
     contentId: ContentId;
@@ -46,23 +47,18 @@ export class ImageContentLoader {
     }
 
     private static doLoadContent() {
-        const contentIds = ImageContentLoader.requestTokens.map(requestToken => requestToken.contentId);
-        const requestTokens = ImageContentLoader.requestTokens;
-        const tokenIds = requestTokens.map(token => token.contentId.toString());
+        const contentIds: ContentId[] = ImageContentLoader.requestTokens.map(requestToken => requestToken.contentId);
+        const requestTokens: RequestToken[] = ImageContentLoader.requestTokens;
 
         ImageContentLoader.requestTokens = [];
 
         new GetContentSummaryByIds(contentIds).sendAndParse().then((contents: ContentSummary[]) => {
+            requestTokens.forEach((requestToken: RequestToken) => {
+                const loadedContent: ContentSummary = contents
+                    .find((item: ContentSummary) => item.getContentId().equals(requestToken.contentId));
 
-            contents.map((content: ContentSummary) => {
-                const tokenIndex = tokenIds.indexOf(content.getContentId().toString());
-                const requestToken = requestTokens.splice(tokenIndex, 1)[0];
-                tokenIds.splice(tokenIndex, 1);
-
-                if (requestToken) {
-                    requestToken.promises.map(promise => promise.resolve(content));
-                }
+                requestToken.promises.forEach(promise => promise.resolve(loadedContent));
             });
-        });
+        }).catch(DefaultErrorHandler.handle);
     }
 }

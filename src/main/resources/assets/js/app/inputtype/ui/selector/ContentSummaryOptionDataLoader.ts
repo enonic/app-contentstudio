@@ -19,15 +19,15 @@ import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAnd
 export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem>
     extends OptionDataLoader<DATA> {
 
-    protected treeRequest: ContentTreeSelectorQueryRequest<DATA>;
+    private treeRequest: ContentTreeSelectorQueryRequest<DATA>;
 
-    protected flatRequest: ContentSelectorQueryRequest<ContentSummaryJson, ContentSummary>;
+    private flatRequest: ContentSelectorQueryRequest<ContentSummaryJson, ContentSummary>;
 
-    protected isTreeLoadMode: boolean;
+    private isTreeLoadMode: boolean;
 
     private treeFilterValue: string;
 
-    private loadStatus: boolean;
+    protected readonly loadStatus: boolean;
 
     private loadModeChangedListeners: { (isTreeMode: boolean): void }[] = [];
 
@@ -37,7 +37,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         if (builder) {
             this.loadStatus = builder.loadStatus;
 
-            this.initRequest(builder);
+            this.initRequests(builder);
         }
     }
 
@@ -49,22 +49,21 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         return this.treeRequest;
     }
 
-    private initRequest(builder: ContentSummaryOptionDataLoaderBuilder) {
-        this.treeRequest.setContentTypeNames(builder.contentTypeNames);
-        this.treeRequest.setAllowedContentPaths(builder.allowedContentPaths);
-        this.treeRequest.setRelationshipType(builder.relationshipType);
-        this.treeRequest.setContent(builder.content);
+    private initRequests(builder: ContentSummaryOptionDataLoaderBuilder) {
+        this.initRequest(builder, this.treeRequest);
+        this.initRequest(builder, this.flatRequest);
+    }
 
-        this.flatRequest.setContentTypeNames(builder.contentTypeNames);
-        this.flatRequest.setAllowedContentPaths(builder.allowedContentPaths);
-        this.flatRequest.setRelationshipType(builder.relationshipType);
-        this.flatRequest.setContent(builder.content);
+    private initRequest(builder: ContentSummaryOptionDataLoaderBuilder,
+                        request: ContentTreeSelectorQueryRequest<DATA> | ContentSelectorQueryRequest<ContentSummaryJson, ContentSummary>) {
+        request.setContentTypeNames(builder.contentTypeNames);
+        request.setAllowedContentPaths(builder.allowedContentPaths);
+        request.setRelationshipType(builder.relationshipType);
+        request.setContent(builder.content);
     }
 
     protected sendPreLoadRequest(ids: string): Q.Promise<DATA[]> {
-        let contentIds = ids.split(';').map((id) => {
-            return new ContentId(id);
-        });
+        const contentIds = ids.split(';').map((id) => new ContentId(id));
         return new GetContentSummaryByIds(contentIds).sendAndParse().then(((contents: ContentSummary[]) => {
             return <DATA[]>contents.map(content => new ContentTreeSelectorItem(content));
         }));
@@ -81,8 +80,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
     private sendAndParseFlatRequest(silent: boolean = false, postLoad?: boolean): Q.Promise<DATA[]> {
         return this.flatRequest.sendAndParse().then((contents) => {
-            const result = contents.map(
-                content => new ContentTreeSelectorItem(content));
+            const result = contents.map(content => new ContentTreeSelectorItem(content));
 
             if (!silent) {
                 this.isTreeLoadMode = false;
@@ -94,10 +92,10 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
                     this.notifyLoadedData(resultWithStatuses, postLoad);
                     return resultWithStatuses;
                 });
-            } else {
-                this.notifyLoadedData(<DATA[]>result, postLoad);
-                return Q(<DATA[]>result);
             }
+
+            this.notifyLoadedData(<DATA[]>result, postLoad);
+            return Q(<DATA[]>result);
         });
     }
 
@@ -114,22 +112,22 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
     }
 
     load(postLoad: boolean = false): Q.Promise<DATA[]> {
-        if (this.isTreeLoadMode) {
 
-            this.treeRequest.setParentContent(null);
-            this.notifyLoadingData(postLoad);
-            return this.loadItems().then(data => {
-
-                this.notifyLoadedData(data, postLoad);
-                return data;
-            });
-        } else {
+        if (!this.isTreeLoadMode) {
             return this.sendAndParseFlatRequest(true, postLoad);
         }
+
+        this.treeRequest.setParentContent(null);
+        this.notifyLoadingData(postLoad);
+        return this.loadItems().then(data => {
+
+            this.notifyLoadedData(data, postLoad);
+            return data;
+        });
     }
 
     fetch(node: TreeNode<Option<DATA>>): Q.Promise<DATA> {
-        this.treeRequest.setParentContent(node.getDataId() ? node.getData().displayValue.getContent() : null);
+        this.treeRequest.setParentContent(node.getDataId() ? node.getData().getDisplayValue().getContent() : null);
         return this.loadItems().then(items => items[0]);
     }
 
@@ -147,9 +145,9 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
         this.treeRequest.setFrom(from);
         this.treeRequest.setSize(size);
 
-        this.treeRequest.setParentContent(parentNode.getDataId() ? parentNode.getData().displayValue.getContent() : null);
+        this.treeRequest.setParentContent(parentNode.getDataId() ? parentNode.getData().getDisplayValue().getContent() : null);
 
-        this.treeRequest.setQueryExpr(this.treeFilterValue);
+        this.treeRequest.setSearchString(this.treeFilterValue);
 
         return this.loadItems().then((result: DATA[]) => {
             this.notifyLoadedData([], postLoad, true);

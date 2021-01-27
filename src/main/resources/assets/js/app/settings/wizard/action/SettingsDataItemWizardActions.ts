@@ -3,7 +3,7 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {CloseAction} from 'lib-admin-ui/app/wizard/CloseAction';
 import {DeleteSettingsItemWizardAction} from './DeleteSettingsItemWizardAction';
 import {SaveSettingsItemWizardAction} from './SaveSettingsItemWizardAction';
-import {SettingsDataItemWizardPanel} from '../SettingsDataItemWizardPanel';
+import {SettingsDataItemWizardPanel} from '../panel/SettingsDataItemWizardPanel';
 import {SettingsDataViewItem} from '../../view/SettingsDataViewItem';
 
 export abstract class SettingsDataItemWizardActions<ITEM extends SettingsDataViewItem<any>>

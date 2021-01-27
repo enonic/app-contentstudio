@@ -1,16 +1,19 @@
 import {EventJson} from 'lib-admin-ui/event/EventJson';
 import {ServerEventsListener} from 'lib-admin-ui/event/ServerEventsListener';
-import {NodeEventJson, NodeEventNodeJson} from 'lib-admin-ui/event/NodeServerEvent';
+import {NodeEventJson, NodeEventNodeJson, NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
 import {SettingsServerEvent} from './SettingsServerEvent';
-import {NodeServerChange, NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {RepositoryId} from '../../repository/RepositoryId';
 import {SettingsEventAggregator} from './SettingsEventAggregator';
+import {PrincipalServerEvent} from '../../event/PrincipalServerEvent';
+import {ContentServerEvent} from '../../event/ContentServerEvent';
+import {NodeServerChangeItem} from 'lib-admin-ui/event/NodeServerChangeItem';
 
 export class SettingsServerEventsListener
     extends ServerEventsListener {
 
-    private static PROJECT_ROLE_PATH_PREFIX: string = '/identity/roles/cms.project.';
+    private static PROJECT_ROLE_PATH_PREFIX: string = '/roles/cms.project.';
 
     private eventsAggregator: SettingsEventAggregator = new SettingsEventAggregator();
 
@@ -24,72 +27,98 @@ export class SettingsServerEventsListener
         const nodeEventJson: NodeEventJson = <NodeEventJson>eventJson;
 
         if (SettingsServerEvent.is(nodeEventJson)) {
-            const event: SettingsServerEvent = SettingsServerEvent.fromJson(<NodeEventJson>eventJson);
+            const event: SettingsServerEvent = SettingsServerEvent.fromJson(nodeEventJson);
             this.handleProjectServerEvent(event);
 
             return;
         }
 
-        this.handleProjectLanguageAndPermissionsUpdate(nodeEventJson);
+        if (PrincipalServerEvent.is(nodeEventJson)) {
+            const event: PrincipalServerEvent = PrincipalServerEvent.fromJson(nodeEventJson);
+            this.handleProjectPermissionsUpdate(event);
+
+            return;
+        }
+
+        if (this.isRootContentEvent(nodeEventJson)) {
+            const event: ContentServerEvent = ContentServerEvent.fromJson(nodeEventJson);
+            this.handleRootContentUpdate(event);
+
+            return;
+        }
     }
 
     private handleProjectServerEvent(event: SettingsServerEvent) {
         if (event.isCreateEvent()) {
-            event.getItemsIds().forEach((projName: string) => {
-                this.eventsAggregator.appendCreateEvent(projName);
+            event.getItemsIds().forEach((projectName: string) => {
+                this.eventsAggregator.appendCreateEvent(projectName);
             });
         } else if (event.isUpdateEvent()) {
-            event.getItemsIds().forEach((projName: string) => {
-                this.eventsAggregator.appendUpdateEvent(projName);
+            event.getItemsIds().forEach((projectName: string) => {
+                this.eventsAggregator.appendUpdateEvent(projectName);
             });
         } else if (event.isDeleteEvent()) {
-            event.getItemsIds().forEach((projName: string) => {
-                this.eventsAggregator.appendDeleteEvent(projName);
+            event.getItemsIds().forEach((projectName: string) => {
+                this.eventsAggregator.appendDeleteEvent(projectName);
             });
         }
     }
 
-    private handleProjectLanguageAndPermissionsUpdate(nodeEventJson: NodeEventJson) {
-        const type: NodeServerChangeType = NodeServerChange.getNodeServerChangeType(nodeEventJson.type);
+    private isRootContentEvent(nodeEventJson: NodeEventJson) {
+        return nodeEventJson.data.nodes.some((node: NodeEventNodeJson) => node.path === ContentServerChangeItem.pathPrefix);
+    }
 
-        if (type !== NodeServerChangeType.UPDATE && type !== NodeServerChangeType.UPDATE_PERMISSIONS) {
+    private handleRootContentUpdate(event: ContentServerEvent) {
+        if (NodeServerChangeType.UPDATE_PERMISSIONS !== event.getNodeChange().getChangeType() && NodeServerChangeType.UPDATE !==
+            event.getNodeChange().getChangeType()) {
             return;
         }
 
-        this.getUpdatedRootContents(nodeEventJson)
-            .map(this.extractProjectNameFromRootNodeEventJson)
-            .forEach(this.appendUpdateEvent.bind(this));
-
-        this.getUpdatedProjectRoles(nodeEventJson)
-            .map(this.extractProjectNameFromProjectRoleNodeEventJson)
+        this.getUpdatedRootContents(event)
+            .map(this.extractProjectNameFromRootNodeEventItem)
             .forEach(this.appendUpdateEvent.bind(this));
     }
 
-    private getUpdatedRootContents(nodeEventJson: NodeEventJson): NodeEventNodeJson[] {
-        return nodeEventJson.data.nodes.filter(this.isRootNodeEventJson);
+    private handleProjectPermissionsUpdate(event: PrincipalServerEvent) {
+
+        if (NodeServerChangeType.UPDATE !== event.getNodeChange().getChangeType()) {
+            return;
+        }
+
+        this.getUpdatedProjectRoles(event)
+            .map(this.extractProjectNameFromProjectRoleNodeEventItem)
+            .forEach(this.appendUpdateEvent.bind(this));
     }
 
-    private isRootNodeEventJson(nodeEventNodeJson: NodeEventNodeJson): boolean {
-        return nodeEventNodeJson.path === ContentServerChangeItem.pathPrefix;
+    private getUpdatedRootContents(nodeEvent: NodeServerEvent): NodeServerChangeItem[] {
+        return nodeEvent.getNodeChange().getChangeItems().filter(this.isRootNodeEventItem);
     }
 
-    private extractProjectNameFromRootNodeEventJson(nodeEventNodeJson: NodeEventNodeJson): string {
-        return nodeEventNodeJson.repo.replace(RepositoryId.CONTENT_REPO_PREFIX, '');
+    private isRootNodeEventItem(nodeEventItem: NodeServerChangeItem): boolean {
+        return nodeEventItem.getPath() === '';
     }
 
-    private appendUpdateEvent(projName: string) {
-        this.eventsAggregator.appendUpdateEvent(projName);
+    private extractProjectNameFromRootNodeEventItem(nodeEventNodeJson: NodeServerChangeItem): string {
+        return nodeEventNodeJson.getRepo().replace(RepositoryId.CONTENT_REPO_PREFIX, '');
     }
 
-    private getUpdatedProjectRoles(nodeEventJson: NodeEventJson): NodeEventNodeJson[] {
-        return nodeEventJson.data.nodes.filter(this.isProjectRoleEventJson);
+    private appendUpdateEvent(projectName: string) {
+        this.eventsAggregator.appendUpdateEvent(projectName);
     }
 
-    private isProjectRoleEventJson(nodeEventNodeJson: NodeEventNodeJson): boolean {
-        return nodeEventNodeJson.path.indexOf(SettingsServerEventsListener.PROJECT_ROLE_PATH_PREFIX) === 0;
+    private getUpdatedProjectRoles(nodeEvent: NodeServerEvent): NodeServerChangeItem[] {
+        return nodeEvent.getNodeChange().getChangeItems().filter(this.isProjectRoleEventItem);
     }
 
-    private extractProjectNameFromProjectRoleNodeEventJson(nodeEventNodeJson: NodeEventNodeJson): string {
-        return nodeEventNodeJson.path.replace(SettingsServerEventsListener.PROJECT_ROLE_PATH_PREFIX, '').split('.')[0];
+    private getRemovedProjectRoles(nodeEvent: NodeServerEvent): NodeServerChangeItem[] {
+        return nodeEvent.getNodeChange().getChangeItems().filter(this.isProjectRoleEventItem);
+    }
+
+    private isProjectRoleEventItem(nodeEventItem: NodeServerChangeItem): boolean {
+        return nodeEventItem.getPath().indexOf(SettingsServerEventsListener.PROJECT_ROLE_PATH_PREFIX) === 0;
+    }
+
+    private extractProjectNameFromProjectRoleNodeEventItem(nodeEventItem: NodeServerChangeItem): string {
+        return nodeEventItem.getPath().replace(SettingsServerEventsListener.PROJECT_ROLE_PATH_PREFIX, '').split('.')[0];
     }
 }

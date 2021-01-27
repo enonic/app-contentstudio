@@ -21,7 +21,7 @@ export class InPlaceTextArea
         super();
         this.addClass('inplace-text-area');
         this.text = new PEl('inplace-text');
-        this.text.setHtml(this.formatTextToDisplay(originalValue), false);
+        this.text.setHtml(this.formatTextToDisplay(originalValue));
         this.text.onDblClicked(() => this.setEditMode(true));
         this.area = new TextArea('inplace-area', originalValue);
         this.area.onKeyDown((event: KeyboardEvent) => {
@@ -58,7 +58,7 @@ export class InPlaceTextArea
     }
 
     public setEditMode(flag: boolean, cancel?: boolean) {
-        if (this.isReadOnly()) {
+        if (!this.isEnabled()) {
             return;
         }
         if (cancel) {
@@ -71,7 +71,7 @@ export class InPlaceTextArea
             this.okButton.setEnabled(false);
             this.area.giveFocus();
         } else {
-            this.text.setHtml(this.formatTextToDisplay(newValue), false);
+            this.text.setHtml(this.formatTextToDisplay(newValue));
         }
         this.bindOutsideClickListener(flag);
         this.notifyEditModeChanged(flag, newValue, this.persistedValue);
@@ -95,7 +95,7 @@ export class InPlaceTextArea
 
     setValue(value: string, silent?: boolean, userInput?: boolean): InPlaceTextArea {
         super.setValue(value, silent, userInput);
-        this.text.setHtml(this.formatTextToDisplay(value), false);
+        this.text.setHtml(this.formatTextToDisplay(value));
         return this;
     }
 

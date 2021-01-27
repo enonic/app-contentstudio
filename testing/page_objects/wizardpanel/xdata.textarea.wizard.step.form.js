@@ -23,15 +23,15 @@ class XDataTextArea extends Page {
     }
 
     waitForValidationRecording() {
-        return this.waitForElementDisplayed(this.validationRecord, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.validationRecord, appConst.shortTimeout);
     }
 
     waitForTextAreaVisible() {
-        return this.waitForElementDisplayed(this.textAreaInput, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.textAreaInput, appConst.shortTimeout);
     }
 
     waitForTextAreaNotVisible() {
-        return this.waitForElementNotDisplayed(this.textAreaInput, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(this.textAreaInput, appConst.shortTimeout);
     }
 
     isValidationRecordingVisible() {
@@ -45,5 +45,5 @@ class XDataTextArea extends Page {
             throw new Error('getting Validation text: ' + err);
         })
     }
-};
+}
 module.exports = XDataTextArea;

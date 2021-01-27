@@ -10,15 +10,12 @@ import {DependantItemViewer} from './DependantItemViewer';
 import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {CompareStatus} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import {BrowseItem} from 'lib-admin-ui/app/browse/BrowseItem';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {PEl} from 'lib-admin-ui/dom/PEl';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
-import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
+import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 
 export interface DependantItemsDialogConfig
     extends ModalDialogWithConfirmationConfig {
@@ -97,7 +94,6 @@ export abstract class DependantItemsDialog
             if (this.autoUpdateTitle) {
                 this.setTitle(this.config.title + (count > 1 ? 's' : ''));
             }
-            this.notifyResize();
         };
         this.itemList.onItemsRemoved(itemsChangedListener);
         this.itemList.onItemsAdded(itemsChangedListener);
@@ -105,33 +101,22 @@ export abstract class DependantItemsDialog
         this.dependantContainerHeader.onClicked(() => {
             const doShow = !this.dependantList.isVisible();
             this.setDependantListVisible(doShow);
-            this.notifyResize();
         });
 
-        const dependantsChangedListener = () => {
-            const doShow: boolean = this.countDependantItems() > 0;
-            this.dependantsContainer.setVisible(doShow);
+        this.dependantList.onItemsRemoved(() => this.onDependantsChanged());
+        this.dependantList.onItemsAdded(() => this.onDependantsChanged());
 
-            if (doShow) {
-                // update dependants header according to list visibility
-                this.updateDependantsHeader(this.getDependantsHeader(this.dependantList.isVisible()));
-                this.notifyResize();
-            }
-        };
-        this.dependantList.onItemsRemoved(dependantsChangedListener);
-        this.dependantList.onItemsAdded(dependantsChangedListener);
+        this.getBody().onScrolled(() => this.doPostLoad());
+        this.getBody().onScroll(() =>  this.doPostLoad());
 
-        this.getBody().onScrolled(() => {
+        this.onRendered(() => this.setDependantListVisible(this.showDependantList));
+    }
+
+    protected toggleFullscreen(value: boolean) {
+        super.toggleFullscreen(value);
+        if (value) {
             this.doPostLoad();
-        });
-
-        this.getBody().onScroll(() => {
-            this.doPostLoad();
-        });
-
-        this.onRendered(() => {
-            this.setDependantListVisible(this.showDependantList);
-        });
+        }
     }
 
     doRender(): Q.Promise<boolean> {
@@ -154,6 +139,16 @@ export abstract class DependantItemsDialog
 
             return rendered;
         });
+    }
+
+    protected onDependantsChanged() {
+        const doShow: boolean = this.countDependantItems() > 0;
+        this.dependantsContainer.setVisible(doShow);
+
+        if (doShow) {
+            // update dependants header according to list visibility
+            this.updateDependantsHeader(this.getDependantsHeader(this.dependantList.isVisible()));
+        }
     }
 
     public setDependantListVisible(visible: boolean) {
@@ -261,29 +256,25 @@ export abstract class DependantItemsDialog
     }
 
     protected updateButtonCount(actionString: string, count: number) {
-        this.actionButton.setLabel(count > 1 ? actionString + ' (' + count + ')' : actionString);
+        this.actionButton.getAction().setLabel(count > 1 ? actionString + ' (' + count + ')' : actionString);
     }
 
     protected getContentsToLoad(): ContentSummaryAndCompareStatus[] {
         return this.getItemList().getItems();
     }
 
-    protected loadDescendantIds(filterStatuses?: CompareStatus[]) {
-        const contents = this.getContentsToLoad();
+    protected loadDescendantIds() {
+        const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
 
-        const itemsIds = this.getItemList().getItems().map(content => content.getContentId());
+        return this.createResolveDescendantsRequest().sendAndParse().then((resolvedIds: ContentId[]) => {
+            this.dependantIds = resolvedIds.filter((resolveId: ContentId) => !ids.some((id: ContentId) => id.equals(resolveId)));
+        });
+    }
 
-        return new GetDescendantsOfContentsRequest().setContentPaths(
-            contents.map(content => content.getContentSummary().getPath())).setFilterStatuses(filterStatuses).sendAndParse()
-            .then((result: ContentId[]) => {
-                this.dependantIds = result;
+    protected createResolveDescendantsRequest(): ContentResourceRequest<ContentId[]> {
+        const contents: ContentSummaryAndCompareStatus[] = this.getContentsToLoad();
 
-                if (this.dependantIds) {
-                    this.dependantIds = this.dependantIds.filter(dependantId =>
-                        !ArrayHelper.contains(itemsIds, dependantId)
-                    );
-                }
-            });
+        return new GetDescendantsOfContentsRequest().setContentPaths(contents.map(content => content.getContentSummary().getPath()));
     }
 
     protected loadDescendants(from: number,
@@ -346,7 +337,6 @@ export abstract class DependantItemsDialog
                     this.addDependantItems(newItems);
                     this.loading = false;
                     this.hideLoadMask();
-                    this.notifyResize();
                     if (this.loadingRequested) {
                         this.loadingRequested = false;
                         this.postLoad();
@@ -394,13 +384,7 @@ export class DialogItemList
 
         itemViewer.setObject(item);
 
-        let browseItem = <BrowseItem<ContentSummaryAndCompareStatus>>new BrowseItem<ContentSummaryAndCompareStatus>(item)
-            .setId(item.getId())
-            .setDisplayName(item.getDisplayName())
-            .setPath(item.getPath().toString())
-            .setIconUrl(new ContentIconUrlResolver().setContent(item.getContentSummary()).resolve());
-
-        let statusItem = this.createSelectionItem(itemViewer, browseItem);
+        const statusItem = this.createSelectionItem(itemViewer, item);
 
         statusItem.setIsRemovableFn(() => this.getItemCount() > 1);
         statusItem.setRemoveHandlerFn(() => this.removeItem(item));
@@ -419,7 +403,7 @@ export class DialogItemList
     }
 
     protected createSelectionItem(viewer: ContentSummaryAndCompareStatusViewer,
-                                  browseItem: BrowseItem<ContentSummaryAndCompareStatus>): StatusSelectionItem {
+                                  browseItem: ContentSummaryAndCompareStatus): StatusSelectionItem {
         return new StatusSelectionItem(viewer, browseItem);
     }
 
@@ -465,7 +449,7 @@ export class DialogDependantList
 
     createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): Element {
 
-        let dependantViewer = new DependantItemViewer();
+        const dependantViewer = new DependantItemViewer();
 
         dependantViewer.setObject(item);
 
@@ -476,13 +460,7 @@ export class DialogDependantList
             }
         });
 
-        let browseItem = <BrowseItem<ContentSummaryAndCompareStatus>>new BrowseItem<ContentSummaryAndCompareStatus>(item)
-            .setId(item.getId())
-            .setDisplayName(item.getDisplayName())
-            .setPath(item.getPath().toString())
-            .setIconUrl(new ContentIconUrlResolver().setContent(item.getContentSummary()).resolve());
-
-        return new StatusSelectionItem(dependantViewer, browseItem);
+        return new StatusSelectionItem(dependantViewer, item);
     }
 
     getItemId(item: ContentSummaryAndCompareStatus): string {

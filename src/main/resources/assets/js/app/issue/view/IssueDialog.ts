@@ -30,9 +30,9 @@ export abstract class IssueDialog
 
     private newItems: ContentSummary[] = [];
 
-    protected constructor(title: string) {
+    protected constructor(config: DependantItemsDialogConfig) {
         super(<DependantItemsDialogConfig>{
-            title: title,
+            title: config.title,
             class: 'issue-dialog grey-header'
         });
     }

@@ -1,3 +1,4 @@
+import {ContentPublishInfoJson} from './ContentPublishInfoJson';
 export interface ContentVersionPublishInfoJson {
 
     message: string;
@@ -7,4 +8,6 @@ export interface ContentVersionPublishInfoJson {
     publisher: string;
 
     timestamp: string;
+
+    contentPublishInfo: ContentPublishInfoJson;
 }

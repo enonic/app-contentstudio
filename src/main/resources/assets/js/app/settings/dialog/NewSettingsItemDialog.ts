@@ -5,17 +5,38 @@ import {NewProjectEvent} from '../event/NewProjectEvent';
 import {SettingsTypeListBox} from './SettingsTypeListBox';
 import {SettingsType} from './SettingsType';
 import {SettingsTypes} from './SettingsTypes';
+import {Project} from '../data/project/Project';
+import {ProjectsChainBlock} from './ProjectsChainBlock';
 
 export class NewSettingsItemDialog
     extends ModalDialog {
 
     private itemsList: SettingsTypeListBox;
 
+    private projectsChainBlock: ProjectsChainBlock;
+
+    private projects: Project[];
+
     constructor() {
         super(<ModalDialogConfig>{
             title: i18n('settings.dialog.new'),
             class: 'new-settings-item-dialog'
         });
+    }
+
+    setProjectsChain(projects: Project[]) {
+        this.projects = projects;
+        this.toggleClass('project-selected', projects.length > 0);
+        if (!projects) {
+            return;
+        }
+        if (this.projectsChainBlock) {
+            this.projectsChainBlock.reset();
+        } else {
+            this.projectsChainBlock = new ProjectsChainBlock();
+            this.appendChildToHeader(this.projectsChainBlock);
+        }
+        this.projectsChainBlock.setProjectsChain(projects);
     }
 
     protected initElements() {
@@ -29,16 +50,14 @@ export class NewSettingsItemDialog
 
         this.itemsList.onItemClicked((item: SettingsType) => {
             this.close();
-            if (SettingsTypes.PROJECT.equals(item)) {
-                new NewProjectEvent().fire();
-            }
+            new NewProjectEvent(item, this.projects ? this.projects[this.projects.length - 1] : undefined).fire();
         });
     }
 
     protected postInitElements() {
         super.postInitElements();
 
-        this.itemsList.addItem(SettingsTypes.PROJECT);
+        this.itemsList.addItems(SettingsTypes.getInstantiable());
     }
 
     doRender(): Q.Promise<boolean> {
@@ -58,6 +77,9 @@ export class NewSettingsItemDialog
     close() {
         super.close();
         this.remove();
+        if (this.projectsChainBlock) {
+            this.projectsChainBlock.reset();
+        }
     }
 }
 

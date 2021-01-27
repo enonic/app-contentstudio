@@ -94,12 +94,12 @@ export class Content
         if (principalKeys.some(key => RoleKeys.isAdmin(key))) {
             return true;
         }
-
-        for (let i = 0; i < this.permissions.getEntries().length; i++) {
-            let entry = this.permissions.getEntries()[i];
+        const permissionEntries = this.permissions.getEntries();
+        for (let i = 0; i < permissionEntries.length; i++) {
+            const entry = permissionEntries[i];
 
             if (entry.isAllowed(permission)) {
-                let principalInEntry = principalKeys.some((principalKey: PrincipalKey) => {
+                const principalInEntry = principalKeys.some((principalKey: PrincipalKey) => {
                     if (principalKey.equals(entry.getPrincipalKey())) {
                         return true;
                     }

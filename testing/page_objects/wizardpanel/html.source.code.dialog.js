@@ -37,14 +37,14 @@ class HtmlSourceCodeDialog extends Page {
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.cancelButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_open_source_code_dialog');
             throw new Error('Source Code Dialog must be opened!' + err);
         });
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(`${xpath.container}`, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(`${xpath.container}`, appConst.shortTimeout);
     }
 
     getText() {

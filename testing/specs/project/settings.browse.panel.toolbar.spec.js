@@ -40,9 +40,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
     it(`GIVEN setting browse panel is opened WHEN 'Default' item has been selected THEN 'New...' and 'Edit' buttons should be enabled AND 'Delete' should be disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            //1. Expand 'Projects' folder:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2. Select 'Default' folder:
+            //1. Select 'Default' folder:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConstant.PROJECTS.DEFAULT_PROJECT_NAME);
             studioUtils.saveScreenshot("settings_toolbar_2");
             //'New...' button should be enabled :
@@ -54,7 +52,7 @@ describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of butto
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });

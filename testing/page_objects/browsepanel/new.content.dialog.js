@@ -41,14 +41,14 @@ class NewContentDialog extends Page {
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(XPATH.typesList, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(XPATH.typesList, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_load_new_content_dialog');
             throw new Error('New Content dialog was not loaded! ' + err);
         });
     }
 
     waitForClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3).catch(error => {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(error => {
             this.saveScreenshot('err_new_content_dialog_close');
             throw new Error('New Content Dialog was not closed');
         });
@@ -67,17 +67,22 @@ class NewContentDialog extends Page {
 
     async clickOnContentType(contentTypeName) {
         let typeSelector = XPATH.contentTypeByName(contentTypeName);
-        await this.waitForElementDisplayed(typeSelector, appConst.TIMEOUT_3);
+        await this.waitForElementDisplayed(typeSelector, appConst.mediumTimeout);
         let elems = await this.getDisplayedElements(typeSelector);
         await elems[0].click();
         return await this.pause(500);
     }
 
     waitForUploaderButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.uploaderButton, appConst.TIMEOUT_2).catch(error => {
+        return this.waitForElementDisplayed(XPATH.uploaderButton, appConst.shortTimeout).catch(error => {
             this.saveScreenshot('uploader_button_not_visible');
             return false;
         });
+    }
+
+    async getItems() {
+        let locator = XPATH.typesList + lib.H6_DISPLAY_NAME;
+        return this.getTextInElements(locator);
     }
 };
 module.exports = NewContentDialog;

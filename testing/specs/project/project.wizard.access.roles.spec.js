@@ -22,7 +22,7 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
             //1. Navigate to Settings Panel:
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1. Save new projects:
+            //2. Save new project:
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, null, PRINCIPALS);
         });
 
@@ -30,13 +30,11 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.Expand Projects-folder then Open existing project:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2.Click on the project and press 'Edit' button:
+            //1.Click on the project and press 'Edit' button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            //3. Verify that expected role is displayed in Roles step: SU should be with Contributor role by default
+            //2. Verify that expected role is displayed in Roles step: SU should be with Contributor role by default
             let actualRole = await projectWizard.getSelectedRoleInProjectAccessControlEntry("su");
             assert.equal(actualRole, appConstant.PROJECT_ROLES.CONTRIBUTOR, "Contributor role should be set by default");
         });
@@ -45,14 +43,12 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.Expand Projects-folder then Open existing project:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2.Click on the project and press 'Edit' button:
+            //1.Click on the project and press 'Edit' button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
             let result = await projectWizard.getAvailableProjectAccessRoles("su");
-            //3. Verify that expected roles are displayed in the menu:
+            //2. Verify that expected roles are displayed in the menu:
             assert.equal(result[0], appConstant.PROJECT_ROLES.CONTRIBUTOR, "'Contributor' role should be in the options");
             assert.equal(result[1], appConstant.PROJECT_ROLES.AUTHOR, "'Author' role should be in the options");
             assert.equal(result[2], appConstant.PROJECT_ROLES.EDITOR, "'Editor' role should be in the options");
@@ -64,17 +60,15 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.Expand Projects-folder then Open existing project:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2.Click on the project and press 'Edit' button:
+            //1.Click on the project and press 'Edit' button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
             await projectWizard.expandProjectAccessMenuAndSelectRole("su", appConstant.PROJECT_ROLES.EDITOR);
-            //3. Verify that expected role is displayed in Roles step: SU should be Contributor by default
+            //2. Verify that expected role is displayed in Roles step: SU should be Contributor by default
             let actualRole = await projectWizard.getSelectedRoleInProjectAccessControlEntry("su",);
             assert.equal(actualRole, appConstant.PROJECT_ROLES.EDITOR, "'Editor' role should be in the selected options");
-            //4. Verify that Save button gets enabled:
+            //3. Verify that Save button gets enabled:
             await projectWizard.waitForSaveButtonEnabled();
             await projectWizard.waitAndClickOnSave();
         });
@@ -83,22 +77,20 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.Expand Projects-folder then Open existing project:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2.Click on the project and press 'Edit' button:
+            //1.Click on the project and press 'Edit' button:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
 
-            //3. Verify that expected role is displayed in Roles step: SU should be Editor
+            //2. Verify that expected role is displayed in Roles step: SU should be Editor in that project
             let actualRole = await projectWizard.getSelectedRoleInProjectAccessControlEntry("su",);
             assert.equal(actualRole, appConstant.PROJECT_ROLES.EDITOR, "'Editor' role should be in the selected options");
-            //4. Verify that 'Save' button is disabled:
+            //3. Verify that 'Save' button is disabled:
             await projectWizard.waitForSaveButtonDisabled();
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });

@@ -5,7 +5,7 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
-import {ConfirmContentDeleteDialog} from './ConfirmContentDeleteDialog';
+import {ConfirmValueDialog} from './ConfirmValueDialog';
 import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {DeleteDialogItemList} from './DeleteDialogItemList';
@@ -18,6 +18,8 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
 import {DropdownButtonRow} from 'lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ResolveDeleteRequest} from '../resource/ResolveDeleteRequest';
 
 export class ContentDeleteDialog
     extends DependantItemsWithProgressDialog {
@@ -31,6 +33,8 @@ export class ContentDeleteDialog
     private messageId: string;
 
     private markDeletedAction: Action;
+
+    private deleteConfirmationDialog?: ConfirmValueDialog;
 
     constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
@@ -114,7 +118,7 @@ export class ContentDeleteDialog
                 this.addClickIgnoredElement(NotifyManager.get().getNotification(this.messageId));
 
                 this.getItemList().getItemViews().forEach((itemView) => {
-                    const contentId = itemView.getBrowseItem().getModel().getContentId().toString();
+                    const contentId = (<ContentSummaryAndCompareStatus>itemView.getBrowseItem()).getContentId().toString();
 
                     if (dependencyCount.hasOwnProperty(contentId)) {
                         (<DeleteItemViewer>itemView.getViewer()).setInboundDependencyCount(dependencyCount[contentId]);
@@ -143,6 +147,11 @@ export class ContentDeleteDialog
         }).catch((reason: any) => {
             DefaultErrorHandler.handle(reason);
         });
+    }
+
+    protected createResolveDescendantsRequest(): ResolveDeleteRequest {
+        const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
+        return new ResolveDeleteRequest(ids);
     }
 
     manageContentToDelete(contents: ContentSummaryAndCompareStatus[]): ContentDeleteDialog {
@@ -208,13 +217,14 @@ export class ContentDeleteDialog
 
             this.close();
 
-            new ConfirmContentDeleteDialog({
-                totalItemsToDelete,
-                deleteRequest,
-                yesCallback,
-                title: i18n('dialog.confirmDelete'),
-                confirmation: {}
-            }).open();
+            if (!this.deleteConfirmationDialog) {
+                this.initDeleteConfirmationDialog();
+            }
+
+            this.deleteConfirmationDialog
+                .setValueToCheck('' + totalItemsToDelete)
+                .setYesCallback(yesCallback)
+                .open();
         } else {
             if (this.yesCallback) {
                 isInstantDelete ? this.yesCallback([]) : this.yesCallback();
@@ -300,6 +310,13 @@ export class ContentDeleteDialog
         } else {
             return false;
         }
+    }
+
+    private initDeleteConfirmationDialog() {
+        this.deleteConfirmationDialog = new ConfirmValueDialog();
+        this.deleteConfirmationDialog
+            .setHeaderText(i18n('dialog.confirmDelete'))
+            .setSubheaderText((i18n('dialog.confirmDelete.subname')));
     }
 
 }

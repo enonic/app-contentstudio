@@ -8,7 +8,7 @@ const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 
 describe('project.save.delete.grid.panel.spec - ui-tests for saving/deleting a project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -21,16 +21,15 @@ describe('project.save.delete.grid.panel.spec - ui-tests for saving/deleting a p
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            //1.Expand Projects-folder then Open new project wizard:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
             await settingsBrowsePanel.openProjectWizard();
-            //2. Type a display name then click on Save button:
+            //1. Type a display name then click on Save button:
             await projectWizard.typeDisplayName(PROJECT_DISPLAY_NAME);
             await projectWizard.clickOnAccessModeRadio("Private");
             await projectWizard.waitAndClickOnSave();
-            //3. Click on 'Home' button and go to the grid:
-            let actualMessage = await settingsBrowsePanel.clickOnHomeButton();
-            //Verify the issue #1627:
+            await projectWizard.waitForNotificationMessage();
+            //2. Click on 'Home' button and go to the grid:
+            await settingsBrowsePanel.clickOnHomeButton();
+            //3. Verify the issue #1627:
             studioUtils.saveScreenshot("home_button_project_saved_4");
             await settingsBrowsePanel.waitForItemByDisplayNameDisplayed(PROJECT_DISPLAY_NAME);
         });
@@ -38,28 +37,26 @@ describe('project.save.delete.grid.panel.spec - ui-tests for saving/deleting a p
     it(`GIVEN existing project is selected WHEN the project has been deleted THEN expected notification should appear`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let projectWizard = new ProjectWizard();
-            let confirmationDialog = new ConfirmationDialog();
-            //1.Expand the root folder:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2. click on the project:
+            let confirmValueDialog = new ConfirmValueDialog();
+            //1. click on the project:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME);
-            //3. Verify that Delete button gets enabled, then click on it
+            //2. Verify that Delete button gets enabled, then click on it
             await settingsBrowsePanel.clickOnDeleteButton();
-            //4. Verify that Confirmation Dialog is loaded:
-            await confirmationDialog.waitForDialogOpened();
-            //5. Click on Yes button:
-            await confirmationDialog.clickOnYesButton();
-            //6. Verify the notification message:
-            let actualMessage = await projectWizard.waitForNotificationMessage();
+            //3. Verify that Confirmation Dialog is loaded:
+            await confirmValueDialog.waitForDialogOpened();
+            await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME);
+            //4. Click on Confirm button:
+            await confirmValueDialog.clickOnConfirmButton();
+            //5. Verify the notification message:
+            let actualMessage = await settingsBrowsePanel.waitForNotificationMessage();
             studioUtils.saveScreenshot("project_deleted_1");
             assert.equal(actualMessage, appConstant.projectDeletedMessage(PROJECT_DISPLAY_NAME));
-            //7. Verify that the project is not present in Browse Panel:
+            //6. Verify that the project is not present in Browse Panel:
             await settingsBrowsePanel.waitForProjectNotDisplayed(PROJECT_DISPLAY_NAME);
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
         await studioUtils.closeProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });

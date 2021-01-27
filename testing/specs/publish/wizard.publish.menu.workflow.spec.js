@@ -10,9 +10,8 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ScheduleForm = require('../../page_objects/wizardpanel/schedule.wizard.step.form');
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
-const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
 
-describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard`', function () {
+describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
@@ -101,9 +100,9 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
     it(`GIVEN folder was modified and 'unpublished' then it has been published again WHEN 'Delete' button has been pressed and deleting confirmed THEN 'Deleted' status gets visible in the wizard`,
         async () => {
             let contentWizard = new ContentWizard();
-            let deleteContentDialog = new DeleteContentDialog();
             let scheduleForm = new ScheduleForm();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await contentWizard.clickOnMarkAsReadyButton();
             //GIVEN: folder is published
             await contentWizard.openPublishMenuAndPublish();
             //WHEN: the folder has been Marked as deleted:
@@ -113,7 +112,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             //Workflow state should not be displayed for the Deleted content
             await contentWizard.waitForStateIconNotDisplayed();
             //AND: Status should be 'Deleted'
-            await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.DELETED);
+            await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.MARKED_FOR_DELETION);
             //AND: 'Publish...' button should be present on the toolbar:
             await contentWizard.waitForPublishButtonVisible();
         });

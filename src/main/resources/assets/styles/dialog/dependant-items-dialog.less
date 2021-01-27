@@ -1,12 +1,5 @@
 .dependant-dialog {
 
-  .modal-dialog-header {
-
-    .back-button {
-      line-height: 38px;
-    }
-  }
-
   &.closed {
     .icon.icon-calendar {
       display: none;
@@ -18,6 +11,10 @@
       display: flex;
       align-items: center;
     }
+  }
+
+  .content-summary-and-compare-status-viewer.data-inherited {
+    opacity: 0.5;
   }
 
   @toggler-width: 35px;
@@ -40,7 +37,7 @@
   }
 
   .sub-title:not(:empty) {
-    margin-top: 20px;
+    margin-top: 15px;
   }
 
   .browse-selection-item {
@@ -129,7 +126,8 @@
       }
 
       .status {
-        white-space: nowrap;
+        text-align: center;
+        line-height: 16px;
       }
 
       &:not(.toggleable) {
@@ -158,10 +156,6 @@
           display: flex;
         }
       }
-    }
-
-    .dependant-item-viewer:hover * {
-      cursor: pointer;
     }
   }
 
@@ -219,45 +213,19 @@
             }
           }
 
-          &.invalid {
-            .names-and-icon-view {
-              .@{_COMMON_PREFIX}wrapper {
-                .icon-state-invalid;
-              }
-
-              .state;
-            }
-          }
-
-          &.ready {
-            .names-and-icon-view {
-              .@{_COMMON_PREFIX}wrapper {
-                .icon-state-ready;
-              }
-            }
-
-            .state;
-          }
-
-          &.in-progress {
-            .names-and-icon-view {
-              .@{_COMMON_PREFIX}wrapper {
-                .icon-state-in-progress;
-              }
-            }
-
-            .state;
-          }
-
-          .dependant-item-viewer {
-
+          .content-summary-and-compare-status-viewer {
             height: 24px;
 
-            &.pending-delete .@{_COMMON_PREFIX}names-view {
-              .@{_COMMON_PREFIX}main-name, .@{_COMMON_PREFIX}sub-name {
-                text-decoration: line-through;
+            &.has-origin-project {
+              .names-and-icon-view {
+
+                .@{_COMMON_PREFIX}wrapper {
+                  .icon-cloud-download(14px, -4px);
+                }
               }
             }
+
+            .state;
           }
 
           .names-and-icon-view {

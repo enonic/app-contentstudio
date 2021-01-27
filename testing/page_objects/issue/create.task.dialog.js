@@ -4,6 +4,8 @@
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
 const lib = require('../../libs/elements');
+const LoaderComboBox = require('../components/loader.combobox');
+
 const XPATH = {
     container: `//div[contains(@id,'CreateIssueDialog')]`,
     dialogTitle: "//div[contains(@id,'DefaultModalDialogHeader') and child::h2[@class='title']]",
@@ -14,7 +16,7 @@ const XPATH = {
     itemsComboBox: `//div[contains(@id,'LoaderComboBox') and @name='contentSelector']`,
     assigneesComboBox: `//div[contains(@id,'LoaderComboBox') and @name='principalSelector']`,
     selectionItemByDisplayName:
-        text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::h6[contains(@class,'main-name') and text()='${text}']]`,
+        text => `//div[contains(@id,'TogglableStatusSelectionItem') and descendant::span[contains(@class,'display-name') and text()='${text}']]`,
 };
 
 class CreateTaskDialog extends Page {
@@ -61,7 +63,7 @@ class CreateTaskDialog extends Page {
 
     async clickOnCreateTaskButton() {
         try {
-            await this.waitForElementEnabled(this.createTaskButton, appConst.TIMEOUT_2);
+            await this.waitForElementEnabled(this.createTaskButton, appConst.shortTimeout);
             await this.clickOnElement(this.createTaskButton);
             await this.pause(400);
         } catch (err) {
@@ -79,17 +81,17 @@ class CreateTaskDialog extends Page {
 
     clickOnCancelBottomButton() {
         return this.clickOnElement(this.cancelBottomButton).then(() => {
-            return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_3);
+            return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
         }).catch(err => {
             this.saveScreenshot('err_close_task_dialog');
-            throw new Error('Create Task dialog must be closed!')
+            throw new Error('Create Task dialog must be closed! ' + err);
         })
     }
 
     async clickOnIncludeChildrenToggler(displayName) {
         try {
             let selector = XPATH.container + XPATH.selectionItemByDisplayName(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
-            await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             return await this.clickOnElement(selector);
         } catch (err) {
             this.saveScreenshot('err_click_on_include_children');
@@ -113,11 +115,11 @@ class CreateTaskDialog extends Page {
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.TIMEOUT_3);
+        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
     }
 
     isWarningMessageDisplayed() {
@@ -155,5 +157,15 @@ class CreateTaskDialog extends Page {
     isAssigneesOptionFilterDisplayed() {
         return this.isElementDisplayed(this.assigneesOptionFilterInput);
     }
-};
+
+    async selectUserInAssignees(userName) {
+        try {
+            let loaderComboBox = new LoaderComboBox();
+            return await loaderComboBox.typeTextAndSelectOption(userName, XPATH.container);
+        } catch (err) {
+            throw new Error("Create task Dialog  " + err);
+        }
+    }
+
+}
 module.exports = CreateTaskDialog;

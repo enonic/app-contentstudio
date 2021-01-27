@@ -5,6 +5,10 @@
     display: flex;
     align-items: center;
 
+    input:first-child:disabled {
+      color: @admin-dark-gray;
+    }
+
     input:last-child {
       display: none;
     }
@@ -17,7 +21,12 @@
         &:before {
           display: none;
         }
+
+        .flag-icon {
+          display: none;
+        }
       }
+
       &.disabled {
         border: none;
         box-shadow: none;
@@ -26,6 +35,10 @@
           outline: none;
         }
       }
+
+      &:disabled {
+        opacity: 0.5;
+      }
     }
   }
 
@@ -33,15 +46,6 @@
     .form-view {
 
       .input-view {
-
-        .form-item-header {
-          display: flex;
-          justify-content: space-between;
-
-          .help-text:not(:first-child) {
-            padding-left: 15px;
-          }
-        }
 
         label {
           float: none;
@@ -60,13 +64,6 @@
           margin-left: 0;
         }
 
-        &.invalid {
-
-          .help-text {
-            padding-left: @form-label-width;
-          }
-
-        }
       }
     }
   }

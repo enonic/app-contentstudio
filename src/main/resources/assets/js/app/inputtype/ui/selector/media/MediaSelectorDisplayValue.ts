@@ -6,7 +6,7 @@ import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
+import {ContentIconUrlResolver} from '../../../../content/ContentIconUrlResolver';
 
 export class MediaSelectorDisplayValue {
 
@@ -15,6 +15,8 @@ export class MediaSelectorDisplayValue {
     private content: ContentSummary;
 
     private empty: boolean;
+
+    private missingItemId: string;
 
     static fromUploadItem(item: UploadItem<ContentSummary>): MediaSelectorDisplayValue {
         return new MediaSelectorDisplayValue().setUploadItem(item);
@@ -47,6 +49,11 @@ export class MediaSelectorDisplayValue {
         return this;
     }
 
+    setMissingItemId(value: string): MediaSelectorDisplayValue {
+        this.missingItemId = value;
+        return this;
+    }
+
     getUploadItem(): UploadItem<ContentSummary> {
         return this.uploadItem;
     }
@@ -56,11 +63,15 @@ export class MediaSelectorDisplayValue {
     }
 
     getId(): string {
-        return this.content ? this.content.getId() : this.uploadItem.getId();
+        return this.content ? this.content.getId() : this.uploadItem ? this.uploadItem.getId() : this.missingItemId;
     }
 
     getContentId(): ContentId {
         return this.content ? this.content.getContentId() : null;
+    }
+
+    getMissingItemId(): string {
+        return this.missingItemId;
     }
 
     getContentPath(): ContentPath {

@@ -32,7 +32,7 @@ class NewSettingsItemDialog extends Page {
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.cancelButton, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_open_insert_anchor_dialog');
             throw new Error('New Settings dialog Dialog should be opened!' + err);
         });
@@ -40,7 +40,7 @@ class NewSettingsItemDialog extends Page {
 
     async waitForDialogClosed() {
         try {
-            return await this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_2);
+            return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
         } catch (err) {
             throw new Error("Dialog should be closed " + err);
         }
@@ -52,21 +52,31 @@ class NewSettingsItemDialog extends Page {
 
     async waitForCancelButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.cancelButton, appConst.TIMEOUT_2);
+            return await this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout);
         } catch (err) {
             throw new Error("New Setting Item dialog - Cancel button is not displayed :" + err);
         }
     }
 
     waitForCancelButtonTopDisplayed() {
-        return this.waitForElementDisplayed(this.cancelButtonTop, appConst.TIMEOUT_2);
+        return this.waitForElementDisplayed(this.cancelButtonTop, appConst.shortTimeout);
     }
 
-    async clickOnProjectItem() {
-        let selector = XPATH.container + lib.itemByDisplayName("Project");
-        await this.waitForElementDisplayed(selector, appConst.TIMEOUT_2);
+    async clickOnProjectItem(dialogItem) {
+        let selector = XPATH.container + lib.itemByDisplayName(dialogItem);
+        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         return await this.clickOnElement(selector);
     }
-};
+
+    waitForProjectDialogItem() {
+        let selector = XPATH.container + lib.itemByDisplayName("Project");
+        return this.waitForElementDisplayed(selector, appConst.shortTimeout);
+    }
+
+    waitForLayerDialogItem() {
+        let selector = XPATH.container + lib.itemByDisplayName("Layer");
+        return this.waitForElementDisplayed(selector, appConst.shortTimeout);
+    }
+}
 module.exports = NewSettingsItemDialog;
 

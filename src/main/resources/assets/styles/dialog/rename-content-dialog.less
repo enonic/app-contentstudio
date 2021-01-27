@@ -1,0 +1,50 @@
+.rename-content-dialog {
+  .modal-dialog-header {
+    .content-path {
+      color: @admin-font-gray2;
+      .ellipsis();
+    }
+  }
+
+  .dialog-content {
+    .input-label {
+      margin-bottom: 5px;
+
+      &::after {
+        position: absolute;
+        content: '\00a0*';
+        color: @input-red-text;
+      }
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: center;
+      border: 1px solid @admin-medium-gray-border;
+      padding: 5px;
+
+      input {
+        flex-grow: 1;
+        box-sizing: border-box;
+        font-size: 18px;
+        border: none;
+        outline: none;
+      }
+
+      .status-block {
+        margin-left: 10px;
+        margin-right: 10px;
+        color: @input-red-text;
+
+        &.available {
+          color: @admin-green;
+        }
+      }
+
+      &:focus {
+        box-shadow: 0 0 5px @admin-input-blue;
+        border: 1px solid @admin-input-blue;
+      }
+    }
+  }
+}

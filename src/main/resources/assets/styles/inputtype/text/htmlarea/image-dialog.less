@@ -15,10 +15,6 @@
 
 .html-area-modal-dialog.image-modal-dialog {
 
-  .modal-dialog-body {
-    max-height: 70vh;
-  }
-
   .hasSelectedItemPreview();
 
   .image-selector {
@@ -86,6 +82,8 @@
   }
 
   .form-view {
+    padding: 0;
+
     .input-view {
       .@{_COMMON_PREFIX}combobox, .content-combo-box {
         .options-container {
@@ -95,16 +93,8 @@
       }
 
       &.caption {
-        margin: 15px 0 15px 0;
+        margin: 15px 0;
       }
-
-      .edit {
-        display: block;
-      }
-    }
-
-    fieldset.modal-dialog-fieldset {
-      margin: 0;
     }
 
     @-moz-document url-prefix() { // FF Issue with fieldset width, fix for XP-4975
@@ -116,8 +106,10 @@
 
   .toolbar {
     &.image-toolbar {
+      flex-direction: column;
       border-bottom: none;
       height: auto;
+      margin-bottom: 10px;
 
       .image-toolbar-top-line {
 
@@ -307,7 +299,6 @@
       }
 
       .options-container {
-        height: 210px !important;
 
         .slick-cell {
           padding-bottom: 4px;
@@ -367,52 +358,6 @@
       &:not([data-src*="keepSize=true"]) {
         width: 40%;
       }
-    }
-  }
-
-  max-height: 100%;
-
-  .scroll-up-div, .scroll-down-div {
-    position: absolute;
-    height: 50px;
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.5);
-    text-align: center;
-
-    .arrow {
-      width: 50px;
-      height: 50px;
-      margin: auto;
-      opacity: 0.7;
-      background-size: contain;
-      filter: invert(0.7);
-
-      &:hover {
-        opacity: 1;
-      }
-    }
-  }
-
-  .scroll-up-div {
-    top: 0;
-    .arrow {
-      background-image: url('../../../../icons/arrow_up.png');
-    }
-  }
-
-  .scroll-down-div {
-    bottom: 0;
-    .arrow {
-      background-image: url('../../../../icons/arrow_down.png');
-    }
-  }
-
-  .preview-panel-scroll-navigation-wrapper {
-    position: relative;
-    margin-top: 10px;
-
-    .preview-panel-scrollbar-wrapper {
-      overflow: hidden;
     }
   }
 

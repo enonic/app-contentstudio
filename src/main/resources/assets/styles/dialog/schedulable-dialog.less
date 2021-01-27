@@ -13,19 +13,11 @@
     opacity: 0;
   }
 
-  .dialog-buttons {
-
-    .@{_COMMON_PREFIX}button {
-      margin-left: 11px;
-      height: 36px;
+  .dialog-buttons .button-container {
+    .schedule-action,
+    .dropdown-dialog-menu button {
+      .dialog-button(@bg: @admin-green);
     }
-
-    .publish-action, .schedule-action {
-      .dialog-button(@form-button-font, @admin-green, @form-button-font, lighten(@admin-green, 10%));
-      min-width: 113px;
-      text-align: center;
-    }
-
   }
 
   &.no-action {

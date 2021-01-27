@@ -16,7 +16,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
     webDriverHelper.setupBrowser();
 
     let SITE;
-    let IMAGE_DISPLAY_NAME = "Pop_03";
+    let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.POP_03;
     let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
 
     it(`Preconditions: new site should be added`,

@@ -14,11 +14,11 @@ const webDriverHelper = require("./WebDriverHelper");
 const IssueListDialog = require('../page_objects/issue/issue.list.dialog');
 const CreateTaskDialog = require('../page_objects/issue/create.task.dialog');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
-const ConfirmContentDeleteDialog = require('../page_objects/confirm.content.delete.dialog');
 const InsertLinkDialog = require('../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
 const BrowseDependenciesWidget = require('../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
+const BrowseLayersWidget = require('../page_objects/browsepanel/detailspanel/browse.layers.widget');
 const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 const CreateRequestPublishDialog = require('../page_objects/issue/create.request.publish.dialog');
 const ProjectSelectionDialog = require('../page_objects/project/project.selection.dialog');
@@ -29,6 +29,9 @@ const UserWizard = require('../page_objects/users/user.wizard');
 const NewPrincipalDialog = require('../page_objects/users/new.principal.dialog');
 const PrincipalFilterPanel = require('../page_objects/users/principal.filter.panel');
 const ConfirmationDialog = require('../page_objects/confirmation.dialog');
+const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
+const DateTimeRange = require('../page_objects/components/datetime.range');
 
 module.exports = {
     setTextInCKE: function (id, text) {
@@ -78,6 +81,9 @@ module.exports = {
     getTextInCKE: function (id) {
         let script = `return CKEDITOR.instances['${id}'].getData()`;
         return webDriverHelper.browser.execute(script);
+    },
+    scrollViewPort(viewportElement, step) {
+        return webDriverHelper.browser.execute("arguments[0].scrollTop=arguments[1]", viewportElement, step);
     },
     async insertUrlLinkInCke(text, url) {
         let insertLinkDialog = new InsertLinkDialog();
@@ -173,7 +179,7 @@ module.exports = {
         let browsePanel = new BrowsePanel();
         let newContentDialog = new NewContentDialog();
         let contentWizardPanel = new ContentWizardPanel();
-        await browsePanel.waitForNewButtonEnabled(appConst.TIMEOUT_3);
+        await browsePanel.waitForNewButtonEnabled(appConst.mediumTimeout);
         await browsePanel.clickOnNewButton();
         await newContentDialog.waitForOpened();
         await newContentDialog.clickOnContentType(contentType);
@@ -187,7 +193,18 @@ module.exports = {
         await this.findAndSelectItem(contentName);
         await browsePanel.clickOnEditButton();
         await this.doSwitchToNewWizard();
-        return await contentWizardPanel.waitForOpened();
+        await contentWizardPanel.waitForOpened();
+        return contentWizardPanel;
+    },
+
+    async selectContentAndClickOnLocalize(contentName) {
+        let contentWizardPanel = new ContentWizardPanel();
+        let browsePanel = new BrowsePanel();
+        await this.findAndSelectItem(contentName);
+        await browsePanel.clickOnLocalizeButton();
+        await this.doSwitchToNewWizard();
+        await contentWizardPanel.waitForOpened();
+        return contentWizardPanel;
     },
 
     async doAddShortcut(shortcut) {
@@ -203,7 +220,7 @@ module.exports = {
         await this.openContentWizard(appConst.contentTypes.FOLDER);
         await contentWizardPanel.typeData(folder);
         await contentWizardPanel.clickOnMarkAsReadyButton();
-        await this.doCloseWizardAndSwitchToGrid()
+        await this.doCloseWizardAndSwitchToGrid();
         return await webDriverHelper.browser.pause(1000);
     },
     async doAddFolder(folder) {
@@ -214,7 +231,7 @@ module.exports = {
         //2. Save the folder:
         await contentWizardPanel.waitAndClickOnSave();
         //3.Close the wizard:
-        await this.doCloseWizardAndSwitchToGrid()
+        await this.doCloseWizardAndSwitchToGrid();
         return await webDriverHelper.browser.pause(1000);
     },
     doCloseWizardAndSwitchToGrid: function () {
@@ -373,12 +390,10 @@ module.exports = {
         return await deleteContentDialog.waitForDialogClosed();
     },
     async selectContentAndOpenWizard(name) {
-        let browsePanel = new BrowsePanel();
-        let contentWizardPanel = new ContentWizardPanel();
         await this.findAndSelectItem(name);
-        return await this.doClickOnEditAndOpenContent(name);
+        return await this.doClickOnEditAndOpenContent();
     },
-    async doClickOnEditAndOpenContent(name) {
+    async doClickOnEditAndOpenContent() {
         let browsePanel = new BrowsePanel();
         let contentWizardPanel = new ContentWizardPanel();
         await browsePanel.waitForEditButtonEnabled();
@@ -410,18 +425,18 @@ module.exports = {
     async doDeleteNowAndConfirm(numberOfContents) {
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
-        let confirmContentDeleteDialog = new ConfirmContentDeleteDialog();
+        let confirmValueDialog = new ConfirmValueDialog();
         //1. Open Delete Content dialog:
         await browsePanel.clickOnDeleteButton();
         await deleteContentDialog.waitForDialogOpened();
         //2. Click on Delete Now button
         await deleteContentDialog.clickOnDeleteNowButton();
         //3. wait for Confirm dialog is loaded:
-        await confirmContentDeleteDialog.waitForDialogOpened();
+        await confirmValueDialog.waitForDialogOpened();
         //4. Type required number:
-        await confirmContentDeleteDialog.typeNumberOfContent(numberOfContents);
+        await confirmValueDialog.typeNumberOrName(numberOfContents);
         //Click on Confirm button:
-        await confirmContentDeleteDialog.clickOnConfirmButton();
+        await confirmValueDialog.clickOnConfirmButton();
         return await deleteContentDialog.waitForDialogClosed();
     },
     async typeNameInFilterPanel(name) {
@@ -437,28 +452,61 @@ module.exports = {
             await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
             return await browsePanel.pause(300);
         } catch (err) {
-            this.saveScreenshot(appConst.generateRandomName('err_spinner'))
+            this.saveScreenshot(appConst.generateRandomName('err_spinner'));
             throw new Error("Filter Panel-  error : " + err);
         }
     },
 
-    navigateToContentStudioApp: function (userName, password) {
+    async openFilterPanel() {
+        try {
+            let browsePanel = new BrowsePanel();
+            let filterPanel = new FilterPanel();
+            await browsePanel.clickOnSearchButton();
+            return await filterPanel.waitForOpened();
+        } catch (err) {
+            throw new Error("Error when opening Filter Panel! " + err);
+        }
+    },
+
+    async doLogout() {
         let launcherPanel = new LauncherPanel();
-        return launcherPanel.waitForPanelDisplayed(2000).then(result => {
-            if (result) {
-                console.log("Launcher Panel is opened, click on the `Content Studio` link...");
-                return launcherPanel.clickOnContentStudioLink();
-            } else {
-                console.log("Login Page is opened, type a password and name...");
-                return this.doLoginAndClickOnContentStudio(userName, password);
-            }
-        }).then(() => {
-            return this.doSwitchToContentBrowsePanel();
-        }).catch(err => {
+        let loginPage = new LoginPage();
+        let isDisplayed = await launcherPanel.isPanelOpened();
+        if (isDisplayed) {
+            await launcherPanel.clickOnLogoutLink();
+        }
+        return await loginPage.waitForPageLoaded(appConst.mediumTimeout);
+    },
+    async navigateToContentStudioApp(userName, password) {
+        try {
+            await this.clickOnContentStudioLink(userName, password);
+            return await this.doSwitchToContentBrowsePanel();
+        } catch (err) {
             console.log('tried to navigate to Content Studio app, but: ' + err);
             this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
             throw new Error('error when navigate to Content Studio app ' + err);
-        });
+        }
+    },
+    async clickOnContentStudioLink(userName, password) {
+        let launcherPanel = new LauncherPanel();
+        let result = await launcherPanel.waitForPanelDisplayed(2000);
+        console.log("Launcher Panel is opened, click on the `Content Studio` link...");
+        if (result) {
+            await launcherPanel.clickOnContentStudioLink(userName, password);
+        } else {
+            console.log("Login Page is opened, type a password and name...");
+            return await this.doLoginAndClickOnContentStudio(userName, password);
+        }
+    },
+    async navigateToContentStudioWithProjects(userName, password) {
+        try {
+            await this.clickOnContentStudioLink(userName, password);
+            await webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin");
+            return await webDriverHelper.browser.pause(300);
+        } catch (err) {
+            this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
+            throw new Error('error when navigate to Content Studio app ' + err);
+        }
     },
     //Clicks on Cancel button and switches to Default project
     async closeProjectSelectionDialog() {
@@ -474,19 +522,19 @@ module.exports = {
         let loginPage = new LoginPage();
         await loginPage.doLogin(userName, password);
         let launcherPanel = new LauncherPanel();
-        await launcherPanel.clickOnContentStudioLink();
-        return await loginPage.pause(700);
+        return await launcherPanel.clickOnContentStudioLink();
+
     },
-    doSwitchToContentBrowsePanel: function () {
-        console.log('testUtils:switching to Content Browse panel...');
-        let browsePanel = new BrowsePanel();
-        return webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin").then(() => {
+    async doSwitchToContentBrowsePanel() {
+        try {
+            console.log('testUtils:switching to Content Browse panel...');
+            let browsePanel = new BrowsePanel();
+            await webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin");
             console.log("switched to content browse panel...");
-        }).then(() => {
-            return browsePanel.waitForGridLoaded(appConst.TIMEOUT_10);
-        }).catch(err => {
+            return await browsePanel.waitForGridLoaded(appConst.longTimeout);
+        } catch (err) {
             throw new Error("Error when switching to Content Studio App " + err);
-        })
+        }
     },
     doSwitchToHome: function () {
         console.log('testUtils:switching to Home page...');
@@ -494,7 +542,7 @@ module.exports = {
             console.log("switched to Home...");
         }).then(() => {
             let homePage = new HomePage();
-            return homePage.waitForLoaded(appConst.TIMEOUT_3);
+            return homePage.waitForLoaded(appConst.mediumTimeout);
         });
     },
     async doCloseWindowTabAndSwitchToBrowsePanel() {
@@ -578,7 +626,7 @@ module.exports = {
             return console.log('screenshot was not saved ' + screenshotsDir + 'utils  ' + err);
         })
     },
-    openDependencyWidgetInBrowsePanel: function () {
+    openDependencyWidgetInBrowsePanel() {
         let browsePanel = new BrowsePanel();
         let browseDependenciesWidget = new BrowseDependenciesWidget();
         return browsePanel.openDetailsPanel().then(() => {
@@ -586,6 +634,15 @@ module.exports = {
         }).then(() => {
             return browseDependenciesWidget.waitForWidgetLoaded();
         })
+    },
+    async openLayersWidgetInBrowsePanel() {
+        let browsePanel = new BrowsePanel();
+        let browseDetailsPanel = new BrowseDetailsPanel();
+        let browseLayersWidget = new BrowseLayersWidget();
+        await browsePanel.openDetailsPanel();
+        await browseDetailsPanel.openLayers();
+        await browseLayersWidget.waitForWidgetLoaded();
+        return browseLayersWidget;
     },
     isStringEmpty(str) {
         return (!str || 0 === str.length);
@@ -602,23 +659,33 @@ module.exports = {
             "};" +
             "xhr.send();");
     },
-    async openAppModeSwitcher() {
-        await this.clickOnElement(lib.APP_MODE_SWITCHER_TOGGLER);
-        return await webDriverHelper.browser.pause(200);
+    async openContentStudioMenu() {
+        let result = await this.isContentStudioMenuOpened();
+        if (!result) {
+            await this.waitForElementDisplayed(lib.APP_MODE_SWITCHER_TOGGLER);
+            await this.clickOnElement(lib.APP_MODE_SWITCHER_TOGGLER);
+            return await webDriverHelper.browser.pause(200);
+        }
+    },
+    async isContentStudioMenuOpened() {
+        let element = await webDriverHelper.browser.$("//div[contains(@id,'AppWrapper')]");
+        let atrValue = await element.getAttribute("class");
+        return atrValue.includes("sidebar-expanded");
     },
     async openSettingsPanel() {
-        await this.openAppModeSwitcher();
+        await this.openContentStudioMenu();
         await this.clickOnElement(lib.SETTINGS_BUTTON);
         return await webDriverHelper.browser.pause(300);
     },
     async switchToContentMode() {
         await this.clickOnElement(lib.MODE_CONTENT_BUTTON);
-        return await webDriverHelper.browser.pause(200);
+        await webDriverHelper.browser.pause(200);
+        return new ContentBrowsePanel();
     },
     generateRandomName: function (part) {
         return part + Math.round(Math.random() * 1000000);
     },
-    async saveTestProject(name, description, language, principalsToAccess) {
+    async saveTestProject(name, description, language, principalsToAccess, accessMode) {
         let projectWizard = new ProjectWizard();
         let settingsBrowsePanel = new SettingsBrowsePanel();
         await settingsBrowsePanel.openProjectWizard();
@@ -630,11 +697,15 @@ module.exports = {
         if (principalsToAccess) {
             await projectWizard.addPrincipalsInRolesForm(principalsToAccess);
         }
-        await projectWizard.clickOnAccessModeRadio("Private");
+        if (accessMode) {
+            await projectWizard.clickOnAccessModeRadio(accessMode);
+        } else {
+            await projectWizard.clickOnAccessModeRadio("Private");
+        }
         await projectWizard.pause(400);
         await projectWizard.waitAndClickOnSave();
         await projectWizard.waitForNotificationMessage();
-        await projectWizard.pause(2500);
+        await projectWizard.pause(700);
         await settingsBrowsePanel.clickOnCloseIcon(name);
         await projectWizard.waitForWizardClosed();
         return await settingsBrowsePanel.pause(500);
@@ -670,7 +741,7 @@ module.exports = {
             console.log("switched to Users app...");
             return browsePanel.waitForSpinnerNotVisible();
         }).then(() => {
-            return browsePanel.waitForUsersGridLoaded(appConst.TIMEOUT_3);
+            return browsePanel.waitForUsersGridLoaded(appConst.mediumTimeout);
         }).catch(err => {
             throw new Error("Error when switching to Users App " + err);
         })
@@ -716,6 +787,7 @@ module.exports = {
         let wizardPanel = new UserWizard();
         let browsePanel = new UserBrowsePanel();
         await wizardPanel.waitAndClickOnSave();
+        await wizardPanel.waitForNotificationMessage();
         await wizardPanel.pause(700);
         //Click on Close icon and close the wizard:
         return await browsePanel.doClickOnCloseTabAndWaitGrid(displayName);
@@ -771,5 +843,28 @@ module.exports = {
             this.saveScreenshot(appConst.generateRandomName("err_timeout"));
             throw new Error("Timeout exception. Element " + selector + " still not visible in: " + ms);
         });
+    },
+    async selectAndDeleteProject(projectName) {
+        let confirmValueDialog = new ConfirmValueDialog();
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        //1.Select the layer:
+        await settingsBrowsePanel.clickOnRowByDisplayName(projectName);
+        await settingsBrowsePanel.clickOnDeleteButton();
+        //2. Confirm the deleting:
+        await confirmValueDialog.waitForDialogOpened();
+        await confirmValueDialog.typeNumberOrName(projectName);
+        await confirmValueDialog.clickOnConfirmButton();
+        await confirmValueDialog.waitForDialogClosed();
+        return await settingsBrowsePanel.waitForNotificationMessage();
+    },
+    async scheduleContent(contentName, date) {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        let dateTimeRange = new DateTimeRange();
+        await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+        let contentPublishDialog = new ContentPublishDialog();
+        await contentPublishDialog.clickOnAddScheduleIcon();
+        await dateTimeRange.typeOnlineFrom(date, "//div[contains(@id,'ContentPublishDialog')]");
+        await contentPublishDialog.clickOnScheduleButton();
+        return await contentPublishDialog.waitForDialogClosed();
     }
 };

@@ -1,9 +1,9 @@
 Enonic XP - Content Studio App
 ===
 
-[![Travis Build Status][travis-image]][travis-url]
+[![Actions Status](https://github.com/enonic/app-contentstudio/workflows/Gradle%20Build/badge.svg)](https://github.com/enonic/app-contentstudio/actions)
 [![License][license-image]][license-url]
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3372bea65e16411181979c842ca475fa)](https://www.codacy.com/app/enonic/app-contentstudio?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=enonic/app-contentstudio&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/4fa8601d04634ceea2a38235734cd5c2)](https://www.codacy.com/manual/enonic/app-contentstudio?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=enonic/app-contentstudio&amp;utm_campaign=Badge_Grade)
 
 Create sites and manage content in [Enonic XP](https://github.com/enonic/xp).
 
@@ -19,17 +19,17 @@ Just copy the built JAR files to the `$XP_HOME/deploy` folder, or use the `deplo
 
 #### Default
 
-Run the following command to build all applications with default options:
+Run the following command to build the application with default options:
 
 ```
 ./gradlew build
 ```
 
-With default build, applications will use the remote `lib-admin-ui` dependency and the environment variable won't be set.
+With default build, the application will use the remote `lib-admin-ui` dependency and production environment.
 
 #### Environment
 
-To use the specific environment, you must set its value explicitly with `env` parameter (only `prod` or `dev`):
+To use the development environment (unminifed sources, source maps etc.), you must set its value explicitly with `env` parameter (only `prod` or `dev` supported):
 
 ```
 ./gradlew build -Penv=dev
@@ -40,6 +40,17 @@ The environment parameter will also be passed to `lib-admin-ui`.
 
 Both environments are almost identical, except that building in the development environment will result in creating the DTS files, sourcemaps and other things, critical for the debugging.
 The build itself may also be a bit slower sometimes. 
+
+#### Content Studio library
+
+It's possible to build `lib-contentstudio` containing `d.ts` files for Typescript classes of the Content Studio application. This library can then be used
+to inherit from the Content Studio's Typescript classes in another application.
+
+To build the library and deploy it to your local Maven repository:
+
+```
+./gradlew :lib-contentstudio:pTML -Plib
+```
 
 #### Quick
 

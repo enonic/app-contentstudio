@@ -14,16 +14,17 @@ export class MostPopularItemsList extends NewContentDialogList {
     }
 
     createItems(contentTypes: ContentTypeSummaries, aggregations: AggregateContentTypesResult): number {
-
-        let mostPopularItems: MostPopularItem[] = [];
-        let allowedContentTypeAggregations: ContentTypeAggregation[] =
+        const mostPopularItems: MostPopularItem[] = [];
+        const allowedContentTypeAggregations: ContentTypeAggregation[] =
             aggregations.getAggregations().filter((aggregation: ContentTypeAggregation) => {
                 return this.isAllowedContentType(aggregation.getContentType());
             });
 
         for (let i = 0; i < allowedContentTypeAggregations.length && i < MostPopularItemsList.DEFAULT_MAX_ITEMS; i++) {
-            let contentType: ContentTypeSummary = contentTypes.getByName(allowedContentTypeAggregations[i].getContentType());
-            mostPopularItems.push(new MostPopularItem(contentType, allowedContentTypeAggregations[i].getCount()));
+            const contentType: ContentTypeSummary = contentTypes.getByName(allowedContentTypeAggregations[i].getContentType());
+            if (contentType) {
+                mostPopularItems.push(new MostPopularItem(contentType, allowedContentTypeAggregations[i].getCount()));
+            }
         }
 
         this.setItems(mostPopularItems);

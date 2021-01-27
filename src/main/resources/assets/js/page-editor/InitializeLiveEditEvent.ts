@@ -2,6 +2,7 @@ import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {LiveEditModel} from './LiveEditModel';
 import {ProjectContext} from '../app/project/ProjectContext';
+import {Project} from '../app/settings/data/project/Project';
 
 export class InitializeLiveEditEvent
     extends Event {
@@ -10,7 +11,7 @@ export class InitializeLiveEditEvent
 
     private modifyPermissions: boolean;
 
-    private project: string;
+    private project: Project;
 
     constructor(liveEditModel: LiveEditModel, modifyPermissions: boolean = false) {
         super();
@@ -27,7 +28,7 @@ export class InitializeLiveEditEvent
         return this.modifyPermissions;
     }
 
-    getProject(): string {
+    getProject(): Project {
         return this.project;
     }
 

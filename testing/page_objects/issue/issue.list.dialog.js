@@ -53,9 +53,9 @@ class IssuesListDialog extends Page {
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot("err_load_tasks_list_dlg");
-            throw new Error("Issues list dialog is not loaded in " + appConst.TIMEOUT_3)
+            throw new Error("Issues list dialog is not loaded in " + appConst.mediumTimeout)
         })
     }
 
@@ -64,7 +64,7 @@ class IssuesListDialog extends Page {
     }
 
     async waitForDialogClosed() {
-        await this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+        await this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
         return await this.pause(200);
     }
 
@@ -98,7 +98,7 @@ class IssuesListDialog extends Page {
 
     async waitForClosedButtonDisabled() {
         try {
-            await this.waitForElementDisabled(this.closedButton, appConst.TIMEOUT_2);
+            await this.waitForElementDisabled(this.closedButton, appConst.shortTimeout);
         } catch (err) {
             this.saveScreenshot("err_closed_button_should_be_disabled");
             throw new Error("Issues List Dialog-  Closed button should be disabled " + err);
@@ -107,7 +107,7 @@ class IssuesListDialog extends Page {
 
     async waitForOpenButtonDisabled() {
         try {
-            await this.waitForElementDisabled(this.openButton, appConst.TIMEOUT_2);
+            await this.waitForElementDisabled(this.openButton, appConst.shortTimeout);
         } catch (err) {
             this.saveScreenshot("err_open_button_should_be_disabled");
             throw new Error("Issues List Dialog-  'Open' button should be disabled " + err);
@@ -116,7 +116,7 @@ class IssuesListDialog extends Page {
 
     async waitForOpenButtonDisplayed() {
         try {
-            await this.waitForElementDisplayed(this.openButton, appConst.TIMEOUT_2);
+            await this.waitForElementDisplayed(this.openButton, appConst.shortTimeout);
         } catch (err) {
             this.saveScreenshot("err_open_button_should_be_displayed");
             throw new Error("Issues List Dialog-  'Open' button should be displayed " + err);
@@ -126,8 +126,8 @@ class IssuesListDialog extends Page {
     async clickOnClosedButton() {
         try {
             let el = await this.getDisplayedElements(this.closedButton);
-            await el[0].waitForEnabled(appConst.TIMEOUT_2);
-            //await this.waitForElementEnabled(this.showClosedIssuesButton,appConst.TIMEOUT_2);
+            await el[0].waitForEnabled(appConst.shortTimeout);
+            //await this.waitForElementEnabled(this.showClosedIssuesButton,appConst.shortTimeout);
             await this.clickOnElement(this.closedButton);
             return await this.pause(700);
         } catch (err) {
@@ -139,8 +139,8 @@ class IssuesListDialog extends Page {
     async clickOnOpenButton() {
         try {
             let el = await this.getDisplayedElements(this.openButton);
-            await el[0].waitForEnabled(appConst.TIMEOUT_2);
-            //await this.waitForElementEnabled(this.showClosedIssuesButton,appConst.TIMEOUT_2);
+            await el[0].waitForEnabled(appConst.shortTimeout);
+            //await this.waitForElementEnabled(this.showClosedIssuesButton,appConst.shortTimeout);
             await this.clickOnElement(this.openButton);
             return await this.pause(400);
         } catch (err) {
@@ -153,7 +153,7 @@ class IssuesListDialog extends Page {
     async selectTypeFilterOption(option) {
         await this.clickOnElement(this.typeFilterDropDownHandle);
         let optionXpath = xpath.typeFilterOption(option);
-        await this.waitForElementDisplayed(optionXpath, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(optionXpath, appConst.shortTimeout);
         await this.clickOnElement(optionXpath);
         return this.pause(300);
     }
@@ -161,17 +161,17 @@ class IssuesListDialog extends Page {
     async isTypeFilterOptionDisabled(option) {
         await this.clickOnElement(this.typeFilterDropDownHandle);
         let optionXpath = xpath.typeFilterOption(option);
-        return await this.waitForElementDisabled(optionXpath, appConst.TIMEOUT_2);
+        return await this.waitForElementDisabled(optionXpath, appConst.shortTimeout);
     }
 
     async clickOnTypeFilterDropDownHandle() {
-        await this.waitForElementDisplayed(this.typeFilterDropDownHandle, appConst.TIMEOUT_2);
+        await this.waitForElementDisplayed(this.typeFilterDropDownHandle, appConst.shortTimeout);
         await this.clickOnElement(this.typeFilterDropDownHandle);
         return await this.pause(200);
     }
 
     getTypeFilterSelectedOption() {
-        let selector = xpath.container + xpath.typeFilter + "//button/span"
+        let selector = xpath.container + xpath.typeFilter + "//button/span";
         return this.getText(selector);
     }
 
@@ -190,7 +190,7 @@ class IssuesListDialog extends Page {
             await this.getBrowser().waitUntil(async () => {
                 let text = await this.getAttribute(optionXpath, "class");
                 return text.includes('disabled');
-            }, appConst.TIMEOUT_2);
+            }, appConst.shortTimeout);
         } catch (err) {
             this.saveScreenshot("err_type_filter1");
             throw new Error("Type Filter - menu item:" + option + " should be disabled! " + err);
@@ -205,7 +205,7 @@ class IssuesListDialog extends Page {
 
     isIssuePresent(issueName) {
         let issueXpath = xpath.issueByName(issueName);
-        return this.waitForElementDisplayed(issueXpath).catch(err => {
+        return this.waitForElementDisplayed(issueXpath, appConst.shortTimeout).catch(err => {
             this.saveScreenshot("issue_not_present_" + issueName);
             return false;
         })
@@ -233,13 +233,15 @@ class IssuesListDialog extends Page {
             throw new Error('error when clicked on issue' + err)
         })
     }
-    async waitForIssueNotPresent(issueName){
+
+    async waitForIssueNotPresent(issueName) {
         let issueXpath = xpath.issueByName(issueName);
-        return await this.waitForElementNotDisplayed(issueXpath, appConst.TIMEOUT_2);
+        return await this.waitForElementNotDisplayed(issueXpath, appConst.shortTimeout);
     }
-    async waitForIssuePresent(issueName){
+
+    async waitForIssuePresent(issueName) {
         let issueXpath = xpath.issueByName(issueName);
-        return await this.waitForElementDisplayed(issueXpath, appConst.TIMEOUT_2);
+        return await this.waitForElementDisplayed(issueXpath, appConst.shortTimeout);
     }
 
     async isOpenButtonActive() {
@@ -290,7 +292,7 @@ class IssuesListDialog extends Page {
 
     async getNumberInSelectedOption() {
         try {
-            let selector = xpath.container + xpath.typeFilter + "//button/span"
+            let selector = xpath.container + xpath.typeFilter + "//button/span";
             let textInSelectedOption = await this.getText(selector);
             let startIndex = textInSelectedOption.indexOf('(');
             if (startIndex == -1) {

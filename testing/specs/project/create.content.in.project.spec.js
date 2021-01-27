@@ -11,9 +11,10 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
-const WizardAccessStepForm = require('../../page_objects/wizardpanel/access.wizard.step.form');
 const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
 const ContentWidgetView = require('../../page_objects/browsepanel/detailspanel/content.widget.item.view');
+const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
+const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 
 describe('create.content.in.project.spec - create new content in the selected context and verify a language in wizards', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -23,12 +24,12 @@ describe('create.content.in.project.spec - create new content in the selected co
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let TEST_DESCRIPTION = "test description";
 
-    it(`Preconditions: new projects(with Norsk (no) language) should be added`,
+    it(`Preconditions: new project(with Norsk (no) language) and 'Private' access mode should be added`,
         async () => {
             //1. Navigate to Settings Panel:
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1. Save new projects:
+            //1. Save new project (mode access is Private):
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConstant.LANGUAGES.NORSK_NO);
         });
 
@@ -67,13 +68,13 @@ describe('create.content.in.project.spec - create new content in the selected co
             assert.equal(actualLanguage, appConstant.LANGUAGES.NORSK_NO, "Expected language should be selected in the wizard step form");
             //4. Verify that expected project display name is present in the wizard-toolbar:
             let actualProjectName = await contentWizardPanel.getProjectDisplayName();
-            assert.equal(actualProjectName, PROJECT_DISPLAY_NAME, "Actual and expected display name should be equal");
+            assert.equal(actualProjectName, PROJECT_DISPLAY_NAME + "(no)", "Actual and expected display name should be equal");
         });
 
     it(`WHEN new folder wizard has been saved THEN expected project-ACL entries should be present in Access form`,
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
-            let wizardAccessStepForm = new WizardAccessStepForm();
+            let editPermissionsDialog = new EditPermissionsDialog();
             let contentWizardPanel = new ContentWizardPanel();
             await projectSelectionDialog.waitForDialogLoaded();
             //1. Select the project in 'Select Context' dialog
@@ -83,13 +84,33 @@ describe('create.content.in.project.spec - create new content in the selected co
             await contentWizardPanel.typeDisplayName(TEST_FOLDER_NAME);
             await contentWizardPanel.waitAndClickOnSave();
             await contentWizardPanel.pause(1000);
-            let result = await wizardAccessStepForm.getAclEntriesDisplayName();
+            //3. Open Edit Permissions Dialog:
+            await contentWizardPanel.clickOnEditPermissionsButton();
+            await editPermissionsDialog.waitForDialogLoaded();
+            //3. Open Edit Permissions Dialog
+            let result = await editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + " - Owner"), "Expected Acl should be present");
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + " - Editor"), "Expected Acl should be present");
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + " - Author"), "Expected Acl should be present");
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + " - Viewer"), "Expected Acl should be present");
             assert.isTrue(result.includes(PROJECT_DISPLAY_NAME + " - Contributor"), "Expected Acl should be present");
             assert.equal(result.length, 7, "Total number of ACL entries should be 7");
+        });
+
+    it("GIVEN project with 'Private' access mode is selected AND existing folder is selected WHEN Details Panel has been opened THEN 'Restricted access to item' should be in Access Widget",
+        async () => {
+            let projectSelectionDialog = new ProjectSelectionDialog();
+            let userAccessWidget = new UserAccessWidget();
+            await projectSelectionDialog.waitForDialogLoaded();
+            //1. Select the project in 'Select Context' dialog:
+            await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
+            //2. Select the folder and open details panel
+            await studioUtils.findAndSelectItem(TEST_FOLDER_NAME);
+            await studioUtils.openBrowseDetailsPanel();
+            let actualHeader = await userAccessWidget.getHeader();
+            assert.equal(actualHeader, appConstant.ACCESS_WIDGET_HEADER.RESTRICTED_ACCESS,
+                "'Restricted access to item' - header should be displayed");
+
         });
 
     //verifies Details Panel should be reset after switching to another project #1570
@@ -119,8 +140,16 @@ describe('create.content.in.project.spec - create new content in the selected co
             assert.equal(result.length, 0, "Filtered grid should be empty");
         });
 
+    it("Postconditions: the project should be deleted",
+        async () => {
+            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.openSettingsPanel();
+            //1.Select and delete the layer:
+            await studioUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
+        });
+
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
+        await studioUtils.navigateToContentStudioWithProjects();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

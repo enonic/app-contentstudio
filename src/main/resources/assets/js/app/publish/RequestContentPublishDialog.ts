@@ -6,7 +6,7 @@ import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {Issue} from '../issue/Issue';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
-import {BasePublishDialog} from '../dialog/BasePublishDialog';
+import {BasePublishDialog, PublishDialogButtonRow} from '../dialog/BasePublishDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CreateIssueRequest} from '../issue/resource/CreateIssueRequest';
 import {PublishRequest} from '../issue/PublishRequest';
@@ -25,6 +25,7 @@ import {Form, FormBuilder} from 'lib-admin-ui/form/Form';
 import {InputBuilder} from 'lib-admin-ui/form/Input';
 import {OccurrencesBuilder} from 'lib-admin-ui/form/Occurrences';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -58,6 +59,7 @@ export class RequestContentPublishDialog
             title: i18n('dialog.requestPublish'),
             dialogSubName: i18n('dialog.requestPublish.subname1'),
             class: 'request-publish-dialog grey-header',
+            buttonRow: new PublishDialogButtonRow(),
             dependantsDescription: i18n('dialog.publish.dependants'),
             processingLabel: `${i18n('field.progress.publishing')}...`,
             processHandler: () => new ContentPublishPromptEvent({model: []}).fire()
@@ -106,6 +108,8 @@ export class RequestContentPublishDialog
 
             this.updateControls();
         });
+
+        this.getButtonRow().makeActionMenu(this.nextAction, [this.markAllAsReadyAction]);
     }
 
     protected initListeners() {
@@ -130,7 +134,7 @@ export class RequestContentPublishDialog
             this.appendChildToContentPanel(this.requestDetailsStep);
 
             this.addAction(this.prevAction).addClass('force-enabled prev');
-            this.addAction(this.nextAction).addClass('force-enabled next');
+            this.getButtonRow().getActionMenu().getActionButton().addClass('force-enabled next');
 
             return rendered;
         });
@@ -150,6 +154,7 @@ export class RequestContentPublishDialog
             .setLabel(i18n('dialog.requestPublish.assignees'))
             .setInputType(PrincipalSelector.getName())
             .setOccurrences(new OccurrencesBuilder().setMinimum(0).setMaximum(0).build())
+            .setMaximizeUIInputWidth(true)
             .setInputTypeConfig({
                 principalType: PrincipalType[PrincipalType.USER],
                 skipPrincipals: [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]
@@ -164,7 +169,7 @@ export class RequestContentPublishDialog
         this.publishItemsStep.setVisible(num === 0);
         this.requestDetailsStep.setVisible(num === 1);
         this.prevAction.setVisible(num === 1);
-        this.nextAction.setVisible(num === 0);
+        this.getButtonRow().getActionMenu().setVisible(num === 0);
         this.setSubTitle(i18n(`dialog.requestPublish.subname${this.getCurrentStep() + 1}`));
         this.updateControls();
         if (num === 1) {
@@ -178,7 +183,7 @@ export class RequestContentPublishDialog
 
     open() {
         this.publishScheduleForm.setFormVisible(false, true);   // form will be reset on hide as well
-
+        this.publishProcessor.reloadPublishDependencies(true);
         this.requestDetailsPropertySet.reset();
         this.detailsFormView.update(this.requestDetailsPropertySet, false);
         this.goToStep(0);

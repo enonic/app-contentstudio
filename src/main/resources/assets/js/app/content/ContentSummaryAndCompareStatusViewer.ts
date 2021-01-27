@@ -3,12 +3,13 @@ import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
+import {ExtendedViewer} from '../view/ExtendedViewer';
+import {ProjectContext} from '../project/ProjectContext';
+import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 
 export class ContentSummaryAndCompareStatusViewer
-    extends NamesAndIconViewer<ContentSummaryAndCompareStatus> {
+    extends ExtendedViewer<ContentSummaryAndCompareStatus> {
 
     constructor() {
         super('content-summary-and-compare-status-viewer');
@@ -72,6 +73,9 @@ export class ContentSummaryAndCompareStatusViewer
         const isPendingDelete: boolean = contentSummary.getContentState().isPendingDelete();
         this.toggleClass('invalid', invalid);
         this.toggleClass('pending-delete', isPendingDelete);
+        this.toggleClass('readonly', object.isReadOnly());
+        this.toggleClass('has-origin-project', object.hasOriginProject());
+        this.toggleClass('data-inherited', object.isDataInherited());
 
         if (!invalid && !object.isOnline() && !object.isPendingDelete()) {
             const status: string = contentSummary.getWorkflow().getStateAsString();
@@ -86,6 +90,26 @@ export class ContentSummaryAndCompareStatusViewer
 
     private resolveSubNameForUploadItem(object: ContentSummaryAndCompareStatus): string {
         return object.getUploadItem().getName();
+    }
+
+    protected resolveSecondaryName(object: ContentSummaryAndCompareStatus): string {
+        const projectLang: string = ProjectContext.get().getProject().getLanguage();
+
+        if (!projectLang) {
+            return '';
+        }
+
+        const itemLang: string = object.getContentSummary()?.getLanguage();
+
+        if (!itemLang) {
+            return '(?)';
+        }
+
+        if (projectLang !== itemLang) {
+            return `(${itemLang})`;
+        }
+
+        return '';
     }
 
     resolveSubTitle(object: ContentSummaryAndCompareStatus): string {

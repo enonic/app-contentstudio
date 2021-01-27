@@ -60,11 +60,7 @@ export abstract class BasePublishAction
 
     protected abstract createPromptEvent(summary: ContentSummaryAndCompareStatus[]): void;
 
-    protected isSaveRequired(): boolean {
-        return false;
-    }
-
     mustSaveBeforeExecution(): boolean {
-        return this.config.wizard.hasUnsavedChanges() || this.isSaveRequired();
+        return this.config.wizard.hasUnsavedChanges();
     }
 }

@@ -1,6 +1,5 @@
 .widget-view {
-
-  overflow: hidden;
+  height: auto;
   transition: all 0.1s ease-in-out;
 
   &:not(.active) {
@@ -15,6 +14,7 @@
 
     .widget-item-view {
       box-shadow: none;
+      height: 100%;
 
       .widget-container {
         width: calc(~'100% - 12px');

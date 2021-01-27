@@ -43,7 +43,7 @@ export class SiteConfiguratorSelectedOptionView
 
         this.siteConfigFormDisplayedListeners = [];
 
-        this.application = option.displayValue;
+        this.application = option.getDisplayValue();
         this.siteConfig = siteConfig;
         this.formContext = formContext;
 
@@ -64,7 +64,7 @@ export class SiteConfiguratorSelectedOptionView
             this.toggleClass('invalid', !event.isValid());
         };
 
-        this.toggleClass('empty', this.getOption().empty === true);
+        this.toggleClass('empty', this.getOption().isEmpty() === true);
         this.toggleClass('stopped', this.application.getState() === Application.STATE_STOPPED);
 
         this.appendActionButtons(header);

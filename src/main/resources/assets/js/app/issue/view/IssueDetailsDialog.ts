@@ -234,7 +234,7 @@ export class IssueDetailsDialog
         this.commentTextArea.onValueChanged(event => {
             const saveAllowed = event.getNewValue().trim().length > 0;
             this.commentAction.setEnabled(saveAllowed);
-            this.updateCloseButtonLabel(saveAllowed);
+            this.closeAction.setVisible(saveAllowed);
         });
 
         this.commentTextArea.onKeyDown(event => {
@@ -284,7 +284,7 @@ export class IssueDetailsDialog
         this.commentsList.onItemsAdded(updateCommentsCount);
         this.commentsList.onItemsRemoved(updateCommentsCount);
         this.commentsList.onEditModeChanged(editMode => {
-            this.commentTextArea.setReadOnly(editMode);
+            this.commentTextArea.setEnabled(!editMode);
             this.getHeader().setReadOnly(editMode);
             this.setActionsEnabled(!editMode);
         });
@@ -311,7 +311,7 @@ export class IssueDetailsDialog
         this.itemSelector.onOptionSelected(option => {
             this.saveOnLoaded = true;
             this.isUpdatePending = true;
-            const ids = [option.getSelectedOption().getOption().displayValue.getContentId()];
+            const ids = [option.getSelectedOption().getOption().getDisplayValue().getContentId()];
             ContentSummaryAndCompareStatusFetcher.fetchByIds(ids).then(result => {
                 this.addListItems(result);
             });
@@ -320,7 +320,7 @@ export class IssueDetailsDialog
         this.itemSelector.onOptionDeselected(option => {
             this.saveOnLoaded = true;
             this.isUpdatePending = true;
-            const id = option.getSelectedOption().getOption().displayValue.getContentId();
+            const id = option.getSelectedOption().getOption().getDisplayValue().getContentId();
             const items = [this.getItemList().getItem(id.toString())];
             this.removeListItems(items);
             this.getItemList().refreshList();
@@ -333,22 +333,22 @@ export class IssueDetailsDialog
             this.toggleClass('tab-comments', isComments);
             this.toggleClass('tab-items', !isAssignees && !isComments);
             const hasComment = isComments && !StringHelper.isEmpty(this.commentTextArea.getValue());
-            this.updateCloseButtonLabel(hasComment);
+            this.closeAction.setVisible(hasComment);
         });
 
         this.closeAction.onExecuted(action => {
             const comment = this.commentTextArea.getValue();
             const hasComment = !StringHelper.isEmpty(comment);
-            if (hasComment) {
-                action.setEnabled(false);
-                this.saveComment(comment, this.commentAction, true).then(() => {
-                    this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
-                }).catch(DefaultErrorHandler.handle).finally(() => {
-                    action.setEnabled(true);
-                });
-            } else {
-                this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
+            if (!hasComment) {
+                return;
             }
+
+            action.setEnabled(false);
+            this.saveComment(comment, this.commentAction, true).then(() => {
+                this.detailsSubTitle.setStatus(IssueStatus.CLOSED);
+            }).catch(DefaultErrorHandler.handle).finally(() => {
+                action.setEnabled(true);
+            });
         });
 
         this.reopenAction.onExecuted(() => {
@@ -381,11 +381,6 @@ export class IssueDetailsDialog
         this.initElementListeners();
 
         this.handleIssueGlobalEvents();
-    }
-
-    private updateCloseButtonLabel(canComment: boolean) {
-        const label = this.getCloseButtonLabel(canComment);
-        this.closeAction.setLabel(label);
     }
 
     private updateTabLabel(tabIndex: number, label: string, count: number) {
@@ -445,13 +440,8 @@ export class IssueDetailsDialog
         return this.isPublishRequest() ? i18n('field.publishRequest') : i18n('field.items');
     }
 
-    private getCloseButtonLabel(canComment?: boolean): string {
-        const isPublishRequest = this.isPublishRequest();
-        if (isPublishRequest) {
-            return canComment ? i18n('action.commentAndCloseRequest') : i18n('action.closeRequest');
-        } else {
-            return canComment ? i18n('action.commentAndCloseTask') : i18n('action.closeTask');
-        }
+    private getCloseButtonLabel(): string {
+        return this.isPublishRequest() ? i18n('action.commentAndCloseRequest') : i18n('action.commentAndCloseTask');
     }
 
     private getReopenButtonLabel(): string {
@@ -650,8 +640,8 @@ export class IssueDetailsDialog
         this.getItemList().setReadOnly(value);
         this.getDependantList().setReadOnly(value);
         this.commentsList.setReadOnly(value);
-        this.itemSelector.setReadOnly(value);
-        this.assigneesCombobox.setReadOnly(value);
+        this.itemSelector.setEnabled(!value);
+        this.assigneesCombobox.setEnabled(!value);
         this.getHeader().setReadOnly(value);
     }
 
@@ -665,74 +655,70 @@ export class IssueDetailsDialog
 
     setIssue(issue: Issue): IssueDetailsDialog {
 
-        const shouldUpdateDialog = (this.isRendered() || this.isRendering()) && issue;
+        const forceUpdateDialog = (this.isRendered() || this.isRendering()) && !!issue;
         const isPublishRequest = this.isPublishRequest(issue);
-        this.publishProcessor.setCheckPublishable(!isPublishRequest);
         this.toggleClass('publish-request', isPublishRequest);
-
-        if (shouldUpdateDialog) {
-            this.getItemList().setCanBeEmpty(!isPublishRequest);
-
-            this.publishProcessor.setExcludedIds(issue.getPublishRequest().getExcludeIds());
-
-            const ids = issue.getPublishRequest().getItemsIds();
-            if (ids.length > 0) {
-                this.itemSelector.setValue(ids.map(id => id.toString()).join(';'));
-                ContentSummaryAndCompareStatusFetcher.fetchByIds(ids).then(items => {
-                    this.setListItems(items);
-                });
-            } else {
-                this.itemSelector.getComboBox().clearSelection(true, false);
-                this.getItemList().clearItems();
-            }
-
-            this.getHeader().setTitleId(issue.getIndex()).setTitle(issue.getTitle());
-
-            this.detailsSubTitle.setIssue(issue, true);
-            this.toggleControlsAccordingToStatus(issue.getIssueStatus());
-
-            this.commentsList.setParentIssue(issue);
-
-            const newAssignees = issue.getApprovers().join(ComboBox.VALUE_SEPARATOR);
-            // force reload value in case some users have been deleted
-            this.assigneesCombobox.setValue(newAssignees, false, true);
-
-            this.commentTextArea.setValue('', true);
-            this.setReadOnly(issue && issue.getIssueStatus() === IssueStatus.CLOSED);
-
-            let publishScheduleSet;
-            if (issue.getPublishFrom() || issue.getPublishTo()) {
-                publishScheduleSet = new PropertySet(this.scheduleFormPropertySet.getTree());
-                if (issue.getPublishFrom()) {
-                    publishScheduleSet.setLocalDateTime('from', 0, LocalDateTime.fromDate(issue.getPublishFrom()));
-                }
-                if (issue.getPublishTo()) {
-                    publishScheduleSet.setLocalDateTime('to', 0, LocalDateTime.fromDate(issue.getPublishTo()));
-                }
-                this.publishScheduleForm.setFormVisible(true, true);
-            } else {
-                this.publishScheduleForm.setFormVisible(false, true);
-            }
-
-            this.scheduleFormPropertySet.setPropertySet('publish', 0, publishScheduleSet);
-            this.publishScheduleForm.update(this.scheduleFormPropertySet);
-        }
 
         this.issue = issue;
 
-        if (shouldUpdateDialog) {
-            this.updateLabels();
+        if (!forceUpdateDialog) {
+            return this;
         }
+
+        this.getItemList().setCanBeEmpty(!isPublishRequest);
+
+        this.publishProcessor.setExcludedIds(issue.getPublishRequest().getExcludeIds());
+
+        const ids = issue.getPublishRequest().getItemsIds();
+        if (ids.length > 0) {
+            this.itemSelector.setValue(ids.map(id => id.toString()).join(';'));
+            ContentSummaryAndCompareStatusFetcher.fetchByIds(ids).then(items => {
+                this.setListItems(items);
+            });
+        } else {
+            this.itemSelector.getComboBox().clearSelection(true, false);
+            this.getItemList().clearItems();
+        }
+
+        this.getHeader().setTitleId(issue.getIndex()).setHeading(issue.getTitle());
+
+        this.detailsSubTitle.setIssue(issue, true);
+        this.toggleControlsAccordingToStatus(issue.getIssueStatus());
+
+        this.commentsList.setParentIssue(issue);
+
+        const newAssignees = issue.getApprovers().join(ComboBox.VALUE_SEPARATOR);
+        // force reload value in case some users have been deleted
+        this.assigneesCombobox.setValue(newAssignees, false, true);
+
+        this.commentTextArea.setValue('', true);
+        this.setReadOnly(issue && issue.getIssueStatus() === IssueStatus.CLOSED);
+
+        let publishScheduleSet;
+        if (issue.getPublishFrom() || issue.getPublishTo()) {
+            publishScheduleSet = new PropertySet(this.scheduleFormPropertySet.getTree());
+            if (issue.getPublishFrom()) {
+                publishScheduleSet.setLocalDateTime('from', 0, LocalDateTime.fromDate(issue.getPublishFrom()));
+            }
+            if (issue.getPublishTo()) {
+                publishScheduleSet.setLocalDateTime('to', 0, LocalDateTime.fromDate(issue.getPublishTo()));
+            }
+            this.publishScheduleForm.setFormVisible(true, true);
+        } else {
+            this.publishScheduleForm.setFormVisible(false, true);
+        }
+
+        this.scheduleFormPropertySet.setPropertySet('publish', 0, publishScheduleSet);
+        this.publishScheduleForm.update(this.scheduleFormPropertySet);
+
+        this.updateLabels();
 
         return this;
     }
 
     private updateLabels() {
-        const isComments = this.tabPanel.getPanelShown() === this.commentsPanel;
-        const hasComment = isComments && !StringHelper.isEmpty(this.commentTextArea.getValue());
-
         this.updateItemsCount();
-        this.closeAction.setLabel(this.getCloseButtonLabel(hasComment));
+        this.closeAction.setLabel(this.getCloseButtonLabel());
         this.reopenAction.setLabel(this.getReopenButtonLabel());
     }
 
@@ -774,7 +760,7 @@ export class IssueDetailsDialog
     }
 
     protected initActions() {
-        this.closeAction = new Action(this.getCloseButtonLabel());
+        this.closeAction = new Action(this.getCloseButtonLabel()).setVisible(false);
         this.reopenAction = new Action(this.getReopenButtonLabel());
         this.publishAction = new ContentPublishDialogAction(() => this.publish(), this.getPublishButtonLabel());
         this.scheduleAction = new Action('action.schedule').onExecuted(() => this.publish());
@@ -947,7 +933,7 @@ export class IssueDetailsDialog
         const statusChanged: boolean = status !== this.issue.getIssueStatus();
 
         const updateIssueRequest = new UpdateIssueRequest(this.issue.getId())
-            .setTitle(this.header.getTitle().trim())
+            .setTitle(this.header.getHeading().trim())
             .setStatus(status)
             .setAutoSave(!statusChanged)
             .setApprovers(this.assigneesCombobox.getSelectedDisplayValues().map(o => o.getKey()))
@@ -1059,7 +1045,7 @@ export class IssueDetailsDialog
 
     resetCommentsTabButtons() {
         this.commentAction.setEnabled(false);
-        this.updateCloseButtonLabel(false);
+        this.closeAction.setVisible(false);
     }
 
     private toggleControlsAccordingToStatus(status: IssueStatus) {

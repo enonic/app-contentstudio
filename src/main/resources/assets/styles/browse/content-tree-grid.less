@@ -11,8 +11,20 @@
       }
     }
 
-    &.readonly {
-      opacity: 0.5;
+    .toggle {
+      z-index: 1;
+    }
+
+    &.data-inherited {
+      .names-and-icon-view {
+        opacity: 0.5;
+      }
+    }
+
+    &.sort-inherited {
+      .order .sort-dialog-trigger {
+        opacity: 0.5;
+      }
     }
 
     &:not(.selected) {

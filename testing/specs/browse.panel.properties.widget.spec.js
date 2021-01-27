@@ -57,6 +57,7 @@ describe('Browse panel, properties widget, language spec`', function () {
             let widgetItemView = new WidgetItemView();
             //1. Click on row with the folder:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            studioUtils.saveScreenshot("details_panel_folder_selected");
             let actualDisplayName = await widgetItemView.getContentName();
             assert.equal(actualDisplayName, TEST_FOLDER.displayName, "Expected displayName should be in the widget");
             //2. Open browse details panel:

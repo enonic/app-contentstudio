@@ -30,8 +30,6 @@ import {ComponentView} from '../../page-editor/ComponentView';
 import {ClickPosition} from '../../page-editor/ClickPosition';
 import {PageViewController} from '../../page-editor/PageViewController';
 import {Content} from '../content/Content';
-import {Component} from '../page/region/Component';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {DataChangedEvent, DataChangedType} from 'lib-admin-ui/ui/treegrid/DataChangedEvent';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
@@ -41,7 +39,7 @@ import {H2El} from 'lib-admin-ui/dom/H2El';
 import {DragHelper} from 'lib-admin-ui/ui/DragHelper';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
 
 export class PageComponentsView
     extends DivEl {
@@ -223,92 +221,71 @@ export class PageComponentsView
     private initLiveEditEvents() {
         this.liveEditPage.onItemViewSelected((event: ItemViewSelectedEvent) => {
             if (!event.isNewlyCreated() && !this.pageView.isLocked()) {
-                this.selectedItemId = this.tree.getDataId(event.getItemView());
+                this.selectedItemId = event.getItemView().getItemId().toString();
                 this.selectItemById();
             }
         });
 
         this.liveEditPage.onItemViewDeselected((event: ItemViewDeselectedEvent) => {
-            this.tree.deselectNodes([this.tree.getDataId(event.getItemView())]);
+            this.tree.deselectNodes([event.getItemView().getItemId().toString()]);
             this.selectedItemId = null;
         });
 
         this.liveEditPage.onComponentAdded((event: ComponentAddedEvent) => {
-            this.addComponent(event).then((added: boolean) => {
-                if (added) {
-                    this.handleComponentAdded(event);
-                }
-            }).catch(DefaultErrorHandler.handle);
+            this.addComponent(event).then(() => {
+                this.handleComponentAdded(event);
+            });
         });
 
         this.liveEditPage.onComponentRemoved((event: ComponentRemovedEvent) => {
-            this.tree.deleteNode(event.getComponentView());
-            // update parent node in case it was the only child
-            this.tree.updateNode(event.getParentRegionView()).then(() => {
-                this.tree.refresh();
-            });
+            this.tree.deleteNodeByDataId(event.getComponentView().getItemId().toString());
             this.highlightInvalidItems();
         });
 
         this.liveEditPage.onComponentLoaded((event: ComponentLoadedEvent) => {
-            this.refreshComponentViewNode(event.getNewComponentView(), event.getOldComponentView()).then(() => {
-                if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), FragmentComponentView)) {
-                    this.bindTreeFragmentNodeUpdateOnComponentLoaded(<FragmentComponentView>event.getNewComponentView());
-                    this.bindFragmentLoadErrorHandler(<FragmentComponentView>event.getNewComponentView());
-                    return;
-                }
-                if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), LayoutComponentView)) {
-                    const componentDataId = this.tree.getDataId(event.getNewComponentView());
-                    const componentNode = this.tree.getRoot().getCurrentRoot().findNode(componentDataId);
+            this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView());
+            this.tree.scrollToItem(event.getNewComponentView().getItemId().toString());
 
-                    this.tree.expandNode(componentNode);
-                    return;
-                }
-            });
+            if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), FragmentComponentView)) {
+                this.bindTreeFragmentNodeUpdateOnComponentLoaded(<FragmentComponentView>event.getNewComponentView());
+                this.bindFragmentLoadErrorHandler(<FragmentComponentView>event.getNewComponentView());
+                return;
+            }
+
+            if (ObjectHelper.iFrameSafeInstanceOf(event.getNewComponentView(), LayoutComponentView)) {
+                const componentDataId = event.getNewComponentView().getItemId().toString();
+                this.tree.expandNodeByDataId(componentDataId);
+                return;
+            }
+
         });
 
         this.liveEditPage.onComponentReset((event: ComponentResetEvent) => {
-            const oldDataId = this.tree.getDataId(event.getOldComponentView());
+            const oldDataId: string = event.getOldComponentView().getItemId().toString();
 
-            this.refreshComponentViewNode(event.getNewComponentView(), event.getOldComponentView());
+            this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView());
 
             this.removeFromInvalidItems(oldDataId);
         });
     }
 
     private addComponent(event: ComponentAddedEvent): Q.Promise<boolean> {
-        const parentNode: TreeNode<ItemView> =
-            this.tree.getRoot().getCurrentRoot().findNode(this.tree.getDataId(event.getParentRegionView()));
-        if (!parentNode) {
-            return Q(false);
-        }
-        // deselect all otherwise node is going to be added as child to selection (that is weird btw)
-        this.tree.deselectAll();
-        const index: number = event.getParentRegionView().getComponentViews().indexOf(event.getComponentView());
-        if (index < 0) {
-            return Q(false);
-        }
-
-        return this.tree.insertNode(event.getComponentView(), false, index, parentNode).then(() => {
-            return this.tree.expandNode(parentNode).then(() => { // expand parent node to show added one
-                return true;
-            });
-        });
+        this.tree.addComponentToParent(event.getComponentView(), event.getParentRegionView());
+        return this.tree.expandNodeByDataId(event.getParentRegionView().getItemId().toString());
     }
 
     private handleComponentAdded(event: ComponentAddedEvent) {
         if (event.getComponentView().isSelected()) {
-            this.tree.selectNode(this.tree.getDataId(event.getComponentView()));
+            this.tree.selectNode(event.getComponentView().getItemId().toString());
         }
 
-        if (this.tree.hasChildren(event.getComponentView())) {
-            const componentDataId = this.tree.getDataId(event.getComponentView());
-            const componentNode = this.tree.getRoot().getCurrentRoot().findNode(componentDataId);
+        if (this.tree.hasChildren(new ItemViewTreeGridWrapper(event.getComponentView()))) {
+            const componentDataId = event.getComponentView().getItemId().toString();
 
             if (event.isDragged()) {
-                this.tree.collapseNode(componentNode, true);
+                this.tree.collapseNodeByDataId(componentDataId);
             } else {
-                this.tree.expandNode(componentNode, true);
+                this.tree.expandNodeByDataId(componentDataId);
             }
         }
 
@@ -318,26 +295,6 @@ export class PageComponentsView
 
         this.constrainToParent();
         this.highlightInvalidItems();
-    }
-
-    private refreshComponentViewNode(componentView: ComponentView<Component>,
-                                     oldComponentView: ComponentView<Component>): Q.Promise<void> {
-        const oldDataId = this.tree.getDataId(oldComponentView);
-        const oldNode = this.tree.getRoot().getCurrentRoot().findNode(oldDataId);
-
-        if (this.tree.hasChildren(oldComponentView)) {
-            oldNode.removeChildren();
-            this.tree.refreshNode(oldNode);
-        }
-
-        return this.tree.updateNode(componentView, oldDataId).then(() => {
-            this.tree.invalidate();
-            const dataId = this.tree.getDataId(componentView);
-            if (componentView.isSelected()) {
-                this.tree.selectNode(dataId);
-                this.scrollToItem(dataId);
-            }
-        });
     }
 
     private createTree(content: Content, pageView: PageView) {
@@ -369,7 +326,7 @@ export class PageComponentsView
                 return;
             }
 
-            let clickedItemView: ItemView = this.tree.getGrid().getDataView().getItem(data.row).getData();
+            let clickedItemView: ItemView = this.tree.getGrid().getDataView().getItem(data.row).getData().getItemView();
             let isTextComponent = ObjectHelper.iFrameSafeInstanceOf(clickedItemView, TextComponentView);
 
             if (isTextComponent) {
@@ -411,20 +368,24 @@ export class PageComponentsView
         });
 
         this.tree.onSelectionChanged(() => {
-            const fullSelection: TreeNode<ItemView>[] = this.tree.getFullSelection();
-            const currentSelection: TreeNode<ItemView>[] = this.tree.getCurrentSelection();
+            const fullSelection: number = this.tree.getTotalSelected();
+            const currentSelection: ItemViewTreeGridWrapper[] = this.tree.getCurrentSelection();
 
-            if (fullSelection.length > 0 && this.isModal()) {
+            if (fullSelection > 0 && this.isModal()) {
                 this.hide();
             }
 
-            const treeNode: TreeNode<ItemView> = currentSelection[0];
+            const selectedItem: ItemViewTreeGridWrapper = currentSelection[0];
 
-            if (treeNode && !treeNode.getData().isSelected()) {
-                this.selectItem(treeNode);
+            if (selectedItem) {
+                if (!selectedItem.getItemView().isSelected()) {
+                    this.selectItem(selectedItem.getItemView());
+                }
+
+                if (!this.contextMenu.belongsToItemView(selectedItem.getItemView())) {
+                    this.hideContextMenu();
+                }
             }
-
-            this.hideContextMenu();
         });
 
         this.tree.getGrid().subscribeOnContextMenu((event) => {
@@ -446,7 +407,7 @@ export class PageComponentsView
             this.subscribeOnFragmentLoadError();
         });
 
-        this.tree.onDataChanged((event: DataChangedEvent<ItemView>) => {
+        this.tree.onDataChanged((event: DataChangedEvent<ItemViewTreeGridWrapper>) => {
             if (event.getType() !== DataChangedType.UPDATED) {
                 this.constrainToParent();
             }
@@ -483,7 +444,7 @@ export class PageComponentsView
 
     private bindTextComponentViewsUpdateOnTextModify() {
         this.tree.getGrid().getDataView().getItems().map((dataItem) => {
-            return dataItem.getData();
+            return dataItem.getData().getItemView();
         }).filter((itemView: ItemView) => {
             return ObjectHelper.iFrameSafeInstanceOf(itemView, TextComponentView);
         }).filter((textComponentView: TextComponentView) => {
@@ -495,7 +456,7 @@ export class PageComponentsView
 
     private subscribeOnFragmentLoadError() {
         this.tree.getGrid().getDataView().getItems().map((dataItem) => {
-            return dataItem.getData();
+            return dataItem.getData().getItemView();
         }).filter((itemView: ItemView) => {
             return ObjectHelper.iFrameSafeInstanceOf(itemView, FragmentComponentView);
         }).forEach((fragmentComponentView: FragmentComponentView) => {
@@ -505,7 +466,7 @@ export class PageComponentsView
 
     private bindTreeTextNodeUpdateOnTextComponentModify(textComponentView: TextComponentView) {
         let handler = AppHelper.debounce((event) => {
-            this.tree.updateNode(textComponentView);
+            this.tree.updateNodeByData(new ItemViewTreeGridWrapper(textComponentView));
         }, 500, false);
 
         textComponentView.onKeyUp(handler);
@@ -514,26 +475,24 @@ export class PageComponentsView
 
     private bindTreeFragmentNodeUpdateOnComponentLoaded(fragmentComponentView: FragmentComponentView) {
         fragmentComponentView.onFragmentContentLoaded((e) => {
-            this.tree.updateNode(e.getFragmentComponentView());
+            this.tree.updateNodeByData(new ItemViewTreeGridWrapper(e.getFragmentComponentView()));
         });
     }
 
     private bindFragmentLoadErrorHandler(fragmentComponentView: FragmentComponentView) {
         fragmentComponentView.onFragmentLoadError((e) => {
             this.addToInvalidItems(e.getFragmentComponentView().getItemId().toString());
-
         });
     }
 
     private initKeyBoardBindings() {
         const removeHandler = () => {
-            const selectedNode = this.tree.getSelectedNodes()[0];
-            const itemView = selectedNode ? selectedNode.getData() : null;
+            const itemViewWrapper: ItemViewTreeGridWrapper = this.tree.getFirstSelectedItem();
 
-            if (itemView) {
-                if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-                    itemView.deselect();
-                    itemView.remove();
+            if (itemViewWrapper) {
+                if (ObjectHelper.iFrameSafeInstanceOf(itemViewWrapper, ComponentView)) {
+                    itemViewWrapper.getItemView().deselect();
+                    itemViewWrapper.getItemView().remove();
                 }
             }
             return true;
@@ -549,9 +508,9 @@ export class PageComponentsView
         this.lockedViewClickHandler = this.lockedViewClickHandler.bind(this);
     }
 
-    private selectItem(treeNode: TreeNode<ItemView>) {
-        treeNode.getData().selectWithoutMenu();
-        this.scrollToItem(treeNode.getDataId());
+    private selectItem(item: ItemView) {
+        item.selectWithoutMenu();
+        this.tree.scrollToItem(item.getItemId().toString());
     }
 
     private selectItemById() {
@@ -692,15 +651,6 @@ export class PageComponentsView
         return this;
     }
 
-    private scrollToItem(dataId: string) {
-        const node = this.tree.getRoot().getCurrentRoot().findNode(dataId);
-
-        if (node) {
-            node.getData().scrollComponentIntoView();
-            this.tree.scrollToRow(this.tree.getGrid().getDataView().getRowById(node.getId()));
-        }
-    }
-
     private pageLockedHandler(lock: boolean) {
         this.toggleClass('locked', lock);
         if (this.tree) {
@@ -709,14 +659,14 @@ export class PageComponentsView
     }
 
     private lockedViewClickHandler(event: MouseEvent) {
-        event.stopPropagation();
-        event.preventDefault();
-
         const isUnlocked = !(this.pageView.isLocked() && this.modifyPermissions);
 
         if (isUnlocked) {
             return;
         }
+
+        event.stopPropagation();
+        event.preventDefault();
 
         if (this.contextMenu && this.contextMenu.isVisible()) {
             this.hideContextMenu();
@@ -735,7 +685,7 @@ export class PageComponentsView
         let pageView: PageView;
 
         if (node) {
-            itemView = node.getData();
+            itemView = node.getData().getItemView();
             pageView = <PageView>itemView.getPageView();
         } else {
             pageView = this.pageView;
@@ -754,6 +704,7 @@ export class PageComponentsView
         } else {
             this.contextMenu.setActions(contextMenuActions);
         }
+        this.contextMenu.setItemView(itemView || pageView);
 
         if (this.beforeActionHandler) {
             this.contextMenu.getMenu().unBeforeAction(this.beforeActionHandler);
@@ -761,7 +712,7 @@ export class PageComponentsView
             this.beforeActionHandler = (action: Action) => {
 
                 PageViewController.get().setContextMenuDisabled(true);
-                if (action.hasParentAction() && action.getParentAction().getLabel() === i18n('live.view.insert')) {
+                if (action.hasParentAction() && action.getParentAction().getLabel() === i18n('widget.components.insert')) {
                     this.notifyBeforeInsertAction();
                 }
             };
@@ -775,7 +726,7 @@ export class PageComponentsView
                 this.hidePageComponentsIfInMobileView(action);
 
                 if (isViewVisible && action.hasParentAction() && action.getParentAction().getLabel() === i18n('live.view.selectparent')) {
-                    this.tree.getSelectedNodes()[0].getData().hideContextMenu();
+                    this.tree.getFirstSelectedItem().getItemView().hideContextMenu();
                 }
 
                 setTimeout(() => {
@@ -832,19 +783,17 @@ export class PageComponentsView
         if (selected) {
             Highlighter.get().hide();
         } else {
-            let elementHelper = new ElementHelper(rowElement);
-            let dimensions = elementHelper.getDimensions();
-            let nodes = this.tree.getRoot().getCurrentRoot().treeToList();
-            let hoveredNode = nodes[new ElementHelper(rowElement).getSiblingIndex()];
+            const elementHelper = new ElementHelper(rowElement);
+            const dimensions = elementHelper.getDimensions();
+            const data: ItemViewTreeGridWrapper = this.tree.getDataByRow(new ElementHelper(rowElement).getSiblingIndex());
 
-            if (hoveredNode) {
-                let data = hoveredNode.getData();
-                if (/*data.getType().isComponentType() && */!BrowserHelper.isMobile()) {
+            if (data) {
+                if (!BrowserHelper.isMobile()) {
                     Highlighter.get().highlightElement(dimensions,
-                        data.getType().getConfig().getHighlighterStyle());
+                        data.getItemView().getType().getConfig().getHighlighterStyle());
                 }
                 if (BrowserHelper.isIOS()) {
-                    this.selectItem(hoveredNode);
+                    this.selectItem(data.getItemView());
                 }
             }
         }

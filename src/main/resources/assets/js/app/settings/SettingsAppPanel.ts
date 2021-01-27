@@ -4,14 +4,13 @@ import {SettingsAppBar} from './SettingsAppBar';
 import {NewProjectEvent} from './event/NewProjectEvent';
 import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
 import {AppBarTabMenuItem, AppBarTabMenuItemBuilder} from 'lib-admin-ui/app/bar/AppBarTabMenuItem';
-import {ProjectWizardPanel} from './wizard/ProjectWizardPanel';
+import {ProjectWizardPanel} from './wizard/panel/ProjectWizardPanel';
 import {ContentUnnamed} from 'lib-admin-ui//content/ContentUnnamed';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {TabMenuItem} from 'lib-admin-ui/ui/tab/TabMenuItem';
 import {EditSettingsItemEvent} from './event/EditSettingsItemEvent';
-import {SettingsDataItemWizardPanel} from './wizard/SettingsDataItemWizardPanel';
+import {SettingsDataItemWizardPanel} from './wizard/panel/SettingsDataItemWizardPanel';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ProjectGetRequest} from './resource/ProjectGetRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {Project} from './data/project/Project';
@@ -20,11 +19,17 @@ import {SettingsDataViewItem} from './view/SettingsDataViewItem';
 import {ProjectViewItem} from './view/ProjectViewItem';
 import {ProjectUpdatedEvent} from './event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from './event/ProjectDeletedEvent';
+import {ProjectSelectionDialog} from './dialog/ProjectSelectionDialog';
+import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
+import {SettingsTypes} from './dialog/SettingsTypes';
+import {ProjectGetRequest} from './resource/ProjectGetRequest';
 
 export class SettingsAppPanel
-    extends NavigatedAppPanel<SettingsViewItem> {
+    extends NavigatedAppPanel {
 
     protected browsePanel: SettingsBrowsePanel;
+
+    private deletedIds: string[] = [];
 
     constructor(appBar: SettingsAppBar) {
         super(appBar);
@@ -37,12 +42,17 @@ export class SettingsAppPanel
     protected handleGlobalEvents() {
         super.handleGlobalEvents();
 
-        NewProjectEvent.on(() => {
-            this.handleNewProject();
+        NewProjectEvent.on((event: NewProjectEvent) => {
+            this.handleNewProject(event);
         });
 
         EditSettingsItemEvent.on((event: EditSettingsItemEvent) => {
             this.handleItemEdit(event.getItems());
+        });
+
+        ProjectCreatedEvent.on((event: ProjectCreatedEvent) => {
+            ProjectSelectionDialog.get().setUpdateOnOpen(true);
+            this.deletedIds = this.deletedIds.filter((deletedId: string) => deletedId !== event.getProjectName());
         });
 
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
@@ -50,6 +60,7 @@ export class SettingsAppPanel
                 return;
             }
 
+            ProjectSelectionDialog.get().setUpdateOnOpen(true);
             this.handleItemDeleted(event.getProjectName());
         });
 
@@ -68,23 +79,50 @@ export class SettingsAppPanel
         this.getAppBarTabMenu().deselectNavigationItem();
     }
 
-    getWizardPanelFor(item: SettingsViewItem, tabId: AppBarTabId): SettingsDataItemWizardPanel<SettingsDataViewItem<any>> {
+    private getWizardPanelForEdit(item: SettingsViewItem, tabId: AppBarTabId): SettingsDataItemWizardPanel<SettingsDataViewItem<any>> {
         if (ObjectHelper.iFrameSafeInstanceOf(item, ProjectViewItem)) {
-            return new ProjectWizardPanel({tabId, persistedItem: <ProjectViewItem>item});
+            const projectItem: ProjectViewItem = <ProjectViewItem>item;
+            const wizard: ProjectWizardPanel = new ProjectWizardPanel({
+                tabId,
+                persistedItem: projectItem,
+                type: projectItem.getType()
+            });
+
+            wizard.setHasChildrenLayers(this.browsePanel.hasChildren(projectItem.getId()));
+
+            if (projectItem.getData() && projectItem.getData().getParent()) {
+                const parentProject: Project =
+                    (<ProjectViewItem>this.browsePanel.getItemById(projectItem.getData().getParent())).getData();
+                wizard.setParentProject(parentProject);
+            }
+
+            return wizard;
         }
 
         return null;
     }
 
-    private handleNewProject() {
-        const tabId: AppBarTabId = AppBarTabId.forNew('project');
+    private handleNewProject(event: NewProjectEvent) {
+        const parentProject = event.getParentProject();
+        const tabId: AppBarTabId = AppBarTabId.forNew(event.getProjectType().getName());
         const tabMenuItem: AppBarTabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
 
         if (tabMenuItem != null) {
             this.selectPanel(tabMenuItem);
         } else {
-            const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed(i18n('settings.items.type.project'));
-            const wizard: ProjectWizardPanel = new ProjectWizardPanel({tabId});
+            const isLayer = event.getProjectType().equals(SettingsTypes.LAYER);
+            const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed(
+                isLayer ? i18n('settings.items.type.layer') : i18n('settings.items.type.project')
+            );
+            const wizard: ProjectWizardPanel = new ProjectWizardPanel({
+                tabId,
+                type: event.getProjectType()
+            });
+
+            if (isLayer) {
+                wizard.setParentProject(parentProject);
+            }
+
             const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
                 .setLabel(unnamedTabMenuText)
                 .setTabId(wizard.getTabId())
@@ -105,59 +143,98 @@ export class SettingsAppPanel
     }
 
     private handleItemEdit(items: SettingsViewItem[]) {
-        items.forEach((item: SettingsViewItem) => {
-            const tabId: AppBarTabId = AppBarTabId.forEdit(item.getId());
-            const tabMenuItem: TabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
+        items.forEach((item: SettingsViewItem) => this.doHandleItemEdit(item));
+    }
 
-            if (tabMenuItem != null) {
-                this.selectPanel(tabMenuItem);
-            } else {
-                const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed();
-                const wizard: SettingsDataItemWizardPanel<SettingsDataViewItem<any>> = this.getWizardPanelFor(item, tabId);
-                const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
-                    .setLabel(item.getDisplayName())
-                    .setTabId(wizard.getTabId())
-                    .setCloseAction(wizard.getCloseAction())
-                    .build();
+    private doHandleItemEdit(item: SettingsViewItem) {
+        const tabId: AppBarTabId = AppBarTabId.forEdit(item.getId());
+        const tabMenuItem: TabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
 
-                this.addWizardPanel(newTabMenuItem, wizard);
+        if (tabMenuItem != null) {
+            this.selectPanel(tabMenuItem);
+        } else {
+            const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed();
+            const wizard: SettingsDataItemWizardPanel<SettingsDataViewItem<any>> = this.getWizardPanelForEdit(item, tabId);
+            const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
+                .setLabel(item.getDisplayName())
+                .setTabId(wizard.getTabId())
+                .setCloseAction(wizard.getCloseAction())
+                .build();
 
-                wizard.onWizardHeaderNameUpdated((name: string) => {
-                    newTabMenuItem.setLabel(!!name ? name : unnamedTabMenuText);
-                });
+            this.addWizardPanel(newTabMenuItem, wizard);
+
+            wizard.onWizardHeaderNameUpdated((name: string) => {
+                newTabMenuItem.setLabel(!!name ? name : unnamedTabMenuText);
+            });
+        }
+    }
+
+    private handleItemUpdated(projectName: string) {
+        if (!this.browsePanel.hasItemsLoaded() || this.deletedIds.indexOf(projectName) > -1) {
+            return;
+        }
+
+        new ProjectGetRequest(projectName).sendAndParse().then((updatedProject: Project) => {
+            this.handleProjectUpdated(updatedProject);
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    private handleProjectUpdated(project: Project) {
+        if (!this.isItemPresentInBrowsePanel(project.getName())) {
+            this.addNewProject(project);
+        } else {
+            this.updateExistingProject(project);
+        }
+    }
+
+    private addNewProject(project: Project) {
+        const item: ProjectViewItem = ProjectViewItem.create()
+            .setData(project)
+            .build();
+
+        this.browsePanel.addSettingsItem(item);
+        this.getProjectWizards().forEach((wizardPanel: ProjectWizardPanel) => {
+            if (wizardPanel.isItemPersisted() && wizardPanel.getPersistedItem().getId() === project.getParent()) {
+                wizardPanel.setHasChildrenLayers(true);
             }
         });
     }
 
-    private handleItemUpdated(itemId: string) {
-        new ProjectGetRequest(itemId).sendAndParse()
-            .then((project: Project) => {
-                const isItemPresentInBrowsePanel: boolean = this.browsePanel.hasItemWithId(itemId);
+    private updateExistingProject(project: Project) {
+        const item: ProjectViewItem = ProjectViewItem.create()
+            .setData(project)
+            .build();
+        this.browsePanel.updateSettingsItem(item);
+        this.updateProjectWizards(item);
+    }
 
-                if (!isItemPresentInBrowsePanel) {
-                    this.browsePanel.addSettingsItem(ProjectViewItem.create().setData(project).build());
-                    return;
-                }
+    private updateProjectWizards(projectItem: ProjectViewItem) {
+        this.getProjectWizards().forEach((projectWizardPanel: ProjectWizardPanel) => {
+            this.updateProjectWizard(projectWizardPanel, projectItem);
+        });
+    }
 
-                const item: ProjectViewItem = ProjectViewItem.create()
-                    .setData(project)
-                    .build();
+    private updateProjectWizard(projectWizardPanel: ProjectWizardPanel, projectItem: ProjectViewItem) {
+        if (projectWizardPanel.hasPersistedItemWithId(projectItem.getId())) {
+            this.updateTabLabel(AppBarTabId.forEdit(projectItem.getName()), projectItem.getDisplayName());
+            projectWizardPanel.updatePersistedSettingsDataItem(projectItem);
+        }
 
-                this.browsePanel.updateSettingsItem(item);
+        if (projectWizardPanel.getParentProject() === projectItem.getName()) {
+            projectWizardPanel.setParentProject(projectItem.getData());
+        }
+    }
 
-                const wizardPanelToUpdate: SettingsDataItemWizardPanel<any> = <SettingsDataItemWizardPanel<any>>this.getPanels()
-                    .filter(this.isSettingsItemWizardPanel)
-                    .find((panel: SettingsDataItemWizardPanel<any>) => panel.hasPersistedItemWithId(itemId));
-
-                if (wizardPanelToUpdate) {
-                    this.updateTabLabel(AppBarTabId.forEdit(itemId), item.getDisplayName());
-                    wizardPanelToUpdate.updatePersistedSettingsDataItem(item);
-                }
-            }).catch(DefaultErrorHandler.handle);
+    private getProjectWizards(): ProjectWizardPanel[] {
+        return <ProjectWizardPanel[]>this.getPanels().filter(this.isProjectWizardPanel);
     }
 
     private isSettingsItemWizardPanel(panel: Panel): boolean {
         return ObjectHelper.iFrameSafeInstanceOf(panel, SettingsDataItemWizardPanel);
+    }
+
+    private isProjectWizardPanel(panel: Panel): boolean {
+        return ObjectHelper.iFrameSafeInstanceOf(panel, ProjectWizardPanel);
     }
 
     private updateTabLabel(tabId: AppBarTabId, label: string) {
@@ -170,16 +247,20 @@ export class SettingsAppPanel
     }
 
     private handleItemDeleted(itemId: string) {
+        this.deletedIds.push(itemId);
         this.browsePanel.deleteSettingsItem(itemId);
 
-        this.getPanels()
-            .filter(this.isSettingsItemWizardPanel)
-            .filter((panel: SettingsDataItemWizardPanel<SettingsDataViewItem<any>>) => {
-                return panel.hasPersistedItemWithId(itemId);
-            })
-            .forEach((panel: SettingsDataItemWizardPanel<SettingsDataViewItem<any>>) => {
-                return panel.close();
-            });
+        this.getProjectWizards().filter((p: ProjectWizardPanel) => p.isItemPersisted()).forEach((panel: ProjectWizardPanel) => {
+            if (panel.hasPersistedItemWithId(itemId)) {
+                panel.close();
+            } else if (!this.browsePanel.hasChildren(panel.getPersistedItem().getId())) {
+                panel.setHasChildrenLayers(false);
+            }
+        });
+    }
+
+    private isItemPresentInBrowsePanel(id: string) {
+        return this.browsePanel.hasItemWithId(id);
     }
 
 }

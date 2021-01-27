@@ -11,7 +11,7 @@ export class GetDescendantsOfContentsRequest
 
     private contentPaths: ContentPath[] = [];
 
-    private filterStatuses: CompareStatus[] = [];
+    private filterStatuses?: CompareStatus[] = [];
 
     public static LOAD_SIZE: number = 20;
 
@@ -30,7 +30,7 @@ export class GetDescendantsOfContentsRequest
     }
 
     setFilterStatuses(filterStatuses: CompareStatus[]): GetDescendantsOfContentsRequest {
-        this.filterStatuses = filterStatuses;
+        this.filterStatuses = filterStatuses || [];
         return this;
     }
 
@@ -40,13 +40,18 @@ export class GetDescendantsOfContentsRequest
     }
 
     getParams(): Object {
-        let fn = (contentPath: ContentPath) => {
-            return contentPath.toString();
-        };
         return {
-            contentPaths: this.contentPaths.map(fn),
-            filterStatuses: this.filterStatuses
+            contentPaths: this.convertPaths(),
+            filterStatuses: this.convertStatuses()
         };
+    }
+
+    private convertPaths(): string[] {
+        return this.contentPaths.map((path: ContentPath) => path.toString());
+    }
+
+    private convertStatuses(): string[] {
+        return this.filterStatuses.map((status: CompareStatus) => CompareStatus[status]);
     }
 
     protected parseResponse(response: JsonResponse<ContentIdBaseItemJson[]>): ContentId[] {

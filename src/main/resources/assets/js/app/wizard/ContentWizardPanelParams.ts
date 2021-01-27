@@ -2,6 +2,8 @@ import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {Application} from 'lib-admin-ui/app/Application';
 import {ContentAppBarTabId} from '../ContentAppBarTabId';
+import {Project} from '../settings/data/project/Project';
+import {ProjectContext} from '../project/ProjectContext';
 
 export class ContentWizardPanelParams {
 
@@ -16,6 +18,14 @@ export class ContentWizardPanelParams {
     parentContentId: ContentId;
 
     contentId: ContentId;
+
+    project: Project;
+
+    localize: boolean = false;
+
+    constructor() {
+        this.project = ProjectContext.get().getProject();
+    }
 
     setApplication(app: Application): ContentWizardPanelParams {
         this.application = app;
@@ -44,6 +54,16 @@ export class ContentWizardPanelParams {
 
     setCreateSite(value: boolean): ContentWizardPanelParams {
         this.createSite = value;
+        return this;
+    }
+
+    setProject(value: Project): ContentWizardPanelParams {
+        this.project = value;
+        return this;
+    }
+
+    setLocalize(value: boolean): ContentWizardPanelParams {
+        this.localize = value;
         return this;
     }
 

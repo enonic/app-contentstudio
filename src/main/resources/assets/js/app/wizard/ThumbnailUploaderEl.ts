@@ -2,10 +2,10 @@ import {Element} from 'lib-admin-ui/dom/Element';
 import {Content, ContentBuilder} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
-import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {UrlHelper} from '../util/UrlHelper';
+import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 
 export class ThumbnailUploaderEl
     extends UploaderEl<Content> {

@@ -62,7 +62,7 @@ export class PageInspectionPanel
     }
 
     getName(): string {
-        return i18n('live.view.insert.page');
+        return i18n('widget.components.insert.page');
     }
 
     doRender(): Q.Promise<boolean> {

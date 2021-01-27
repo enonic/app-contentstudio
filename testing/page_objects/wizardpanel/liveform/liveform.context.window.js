@@ -35,7 +35,7 @@ class LiveContextWindow extends Page {
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_open_context_window');
             throw new Error('Live Edit, Context window is not opened' + err);
         });

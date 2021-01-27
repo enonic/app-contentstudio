@@ -98,7 +98,7 @@ export class ContentTypeFilter
             return;
         }
         this.ignorePropertyChange = true;
-        let value = new Value(selectedOption.getOption().displayValue.getContentTypeName().toString(), ValueTypes.STRING);
+        let value = new Value(selectedOption.getOption().getDisplayValue().getContentTypeName().toString(), ValueTypes.STRING);
         if (this.combobox.countSelected() === 1) { // overwrite initial value
             this.getPropertyArray().set(0, value);
         } else {
@@ -146,6 +146,11 @@ export class ContentTypeFilter
 
     reset() {
         this.combobox.resetBaseValues();
+    }
+
+    setEnabled(enable: boolean): void {
+        super.setEnabled(enable);
+        this.combobox.setEnabled(enable);
     }
 
     protected getNumberOfValids(): number {

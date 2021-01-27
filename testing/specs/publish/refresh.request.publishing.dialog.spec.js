@@ -18,7 +18,6 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
     let FOLDER2;
 
     //verifies https://github.com/enonic/app-contentstudio/issues/760
-    let SITE;
     it(`GIVEN new folder ('Work in progress') is selected AND Publish dialog has been opened WHEN this folder has been clicked in the dialog and 'Marked as ready' has been done in the wizard THEN Publish Wizard should be updated`,
         async () => {
             let contentWizard = new ContentWizard();

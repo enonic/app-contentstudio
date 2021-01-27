@@ -1,16 +1,16 @@
 import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {SettingsDataItemWizardActions} from './SettingsDataItemWizardActions';
-import {ProjectWizardPanel} from '../ProjectWizardPanel';
+import {ProjectWizardPanel} from '../panel/ProjectWizardPanel';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {ProjectListRequest} from '../../resource/ProjectListRequest';
+import {Project} from '../../data/project/Project';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class ProjectWizardActions
     extends SettingsDataItemWizardActions<ProjectViewItem> {
 
-    private wizardPanel: ProjectWizardPanel;
-
-    private loginResult: LoginResult;
+    private readonly wizardPanel: ProjectWizardPanel;
 
     constructor(wizardPanel: ProjectWizardPanel) {
         super(wizardPanel);
@@ -28,22 +28,18 @@ export class ProjectWizardActions
     }
 
     private updateActionsEnabledState() {
-        if (this.loginResult) {
-            this.doActionsEnabledState();
-        } else {
-            new IsAuthenticatedRequest().sendAndParse().then(loginResult => {
-                this.loginResult = loginResult;
-                this.doActionsEnabledState();
-            });
-        }
-
+        this.wizardPanel.getLoginResult().then((loginResult: LoginResult) => {
+            this.save.setEnabled(this.isEditAllowed(loginResult));
+            this.toggleDeleteAction(loginResult);
+        });
     }
 
-    private doActionsEnabledState() {
-        const persistedItem: ProjectViewItem = this.wizardPanel.getPersistedItem();
-
-        this.save.setEnabled(
-            this.wizardPanel.isValid() && this.wizardPanel.hasUnsavedChanges() && persistedItem.isEditAllowed(this.loginResult));
-        this.delete.setEnabled(persistedItem.isDeleteAllowed(this.loginResult));
+    private isEditAllowed(loginResult: LoginResult): boolean {
+        return this.wizardPanel.isValid() && this.wizardPanel.hasUnsavedChanges() && this.wizardPanel.isEditAllowed(loginResult);
     }
+
+    private toggleDeleteAction(loginResult: LoginResult) {
+        this.delete.setEnabled(this.wizardPanel.isDeleteAllowed(loginResult));
+    }
+
 }

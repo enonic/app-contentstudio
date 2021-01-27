@@ -6,9 +6,9 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const UserBrowsePanel = require("../../page_objects/users/userbrowse.panel");
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
+const RoleWizard = require("../../page_objects/users/role.wizard");
+
 
 describe("project.create.roles.in.users.app.spec - ui-tests for checkin project's roles in Users app", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -20,9 +20,13 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
         async () => {
             let userBrowsePanel = new UserBrowsePanel();
             //1. Save new project:
+            await studioUtils.navigateToContentStudioWithProjects();
+            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.openSettingsPanel();
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, "test description");
+
+            //2. Go to Users app:
             await studioUtils.showLauncherPanel();
-            //2. Go to Users app
             await studioUtils.navigateToUsersApp();
             //3. Type the project's name in the filter-input
             await studioUtils.typeNameInUsersFilterPanel(PROJECT_DISPLAY_NAME);
@@ -36,19 +40,44 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
             await userBrowsePanel.waitForRowByDisplayNameVisible(PROJECT_DISPLAY_NAME + " - Viewer");
         });
 
+    it("GIVEN a project's role has been selected THEN 'Delete' button should be disabled",
+        async () => {
+            let userBrowsePanel = new UserBrowsePanel();
+            //1. Go to Users app
+            await studioUtils.navigateToUsersApp();
+            //3. Type the project's name in the filter-input:
+            await studioUtils.typeNameInUsersFilterPanel(PROJECT_DISPLAY_NAME);
+            //4. select a project's role:
+            await userBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME + " - Owner");
+            //5. Verify that 'Delete' button is disabled:
+            await userBrowsePanel.waitForDeleteButtonDisabled();
+        });
+
+    it("GIVEN a project's role has been opened THEN 'Delete' button should be disabled in the wizard-toolbar",
+        async () => {
+            let userBrowsePanel = new UserBrowsePanel();
+            let roleWizard = new RoleWizard();
+            //1. Go to Users app
+            await studioUtils.navigateToUsersApp();
+            //3. Type the project's name in the filter-input:
+            await studioUtils.typeNameInUsersFilterPanel(PROJECT_DISPLAY_NAME);
+            //4. select a project's role:
+            await userBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME + " - Owner");
+            await userBrowsePanel.clickOnEditButton();
+            await roleWizard.waitForLoaded();
+            //5. Verify that 'Delete' button is disabled:
+            await roleWizard.waitForDeleteButtonDisabled();
+        });
+
     it(`WHEN existing project has been deleted THEN its roles should be deleted`,
         async () => {
-            let settingsBrowsePanel = new SettingsBrowsePanel();
             let userBrowsePanel = new UserBrowsePanel();
-            let confirmationDialog = new ConfirmationDialog();
-            //1.Expand the root folder:
-            await settingsBrowsePanel.clickOnExpanderIcon(appConstant.PROJECTS.ROOT_FOLDER_DESCRIPTION);
-            //2. click on the project and delete it:
-            await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME);
-            await settingsBrowsePanel.clickOnDeleteButton();
-            await confirmationDialog.waitForDialogOpened();
-            await confirmationDialog.clickOnYesButton();
-            //3. Go to Users app:
+            await studioUtils.navigateToContentStudioWithProjects();
+            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.openSettingsPanel();
+            //1. click on the project and delete it:
+            await studioUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);
+            //2. Go to Users app:
             await studioUtils.showLauncherPanel();
             await studioUtils.navigateToUsersApp();
             //3. Type the project's name in the filter-input:
@@ -58,12 +87,6 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
             assert.equal(items.length, 0, "All project's roles should be deleted");
         });
 
-
-    beforeEach(async () => {
-        await studioUtils.navigateToContentStudioApp();
-        await studioUtils.closeProjectSelectionDialog();
-        return await studioUtils.openSettingsPanel();
-    });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {
         return console.log('specification is starting: ' + this.title);

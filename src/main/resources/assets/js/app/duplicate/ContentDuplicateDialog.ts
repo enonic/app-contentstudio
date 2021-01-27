@@ -84,7 +84,9 @@ export class ContentDuplicateDialog
     }
 
     protected getContentsToLoad(): ContentSummaryAndCompareStatus[] {
-        return this.getItemList().getItemViews().filter(view => view.includesChildren()).map(view => view.getBrowseItem().getModel());
+        return <ContentSummaryAndCompareStatus[]>this.getItemList().getItemViews()
+            .filter(view => view.includesChildren())
+            .map(view => view.getBrowseItem());
     }
 
     protected manageDescendants() {
@@ -245,7 +247,7 @@ export class ContentDuplicateDialog
     }
 
     private countItemsToDuplicateAndUpdateButtonCounter() {
-        this.actionButton.setLabel(i18n('action.duplicate'));
+        this.actionButton.getAction().setLabel(i18n('action.duplicate'));
 
         this.totalItemsToDuplicate = this.countTotal();
         this.updateButtonCount(i18n('action.duplicate'), this.totalItemsToDuplicate);

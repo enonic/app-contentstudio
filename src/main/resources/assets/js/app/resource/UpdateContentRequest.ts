@@ -119,14 +119,32 @@ export class UpdateContentRequest
         return this;
     }
 
+    static create(content: Content): UpdateContentRequest {
+        return new UpdateContentRequest(content.getId())
+            .setContentName(content.getName())
+            .setDisplayName(content.getDisplayName())
+            .setData(content.getContentData())
+            .setExtraData(content.getAllExtraData())
+            .setOwner(content.getOwner())
+            .setLanguage(content.getLanguage())
+            .setPublishFrom(content.getPublishFromTime())
+            .setPublishTo(content.getPublishToTime())
+            .setPermissions(content.getPermissions())
+            .setInheritPermissions(content.isInheritPermissionsEnabled())
+            .setOverwritePermissions(content.isOverwritePermissionsEnabled())
+            .setWorkflow(content.getWorkflow());
+    }
+
     getParams(): Object {
+        const contentName: string = this.name.isUnnamed() ? this.name.getValue() : this.name.toString();
+
         return {
             contentId: this.id,
             requireValid: this.requireValid,
-            contentName: this.name.isUnnamed() ? this.name.getValue() : this.name.toString(),
+            contentName: !!contentName ? contentName.trim() : '',
             data: this.data.toJson(),
             meta: (this.meta || []).map((extraData: ExtraData) => extraData.toJson()),
-            displayName: this.displayName,
+            displayName: !!this.displayName ? this.displayName.trim() : '',
             language: this.language,
             owner: this.owner ? this.owner.toString() : undefined,
             publishFrom: this.publishFrom,

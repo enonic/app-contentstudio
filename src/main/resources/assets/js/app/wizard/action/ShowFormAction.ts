@@ -10,10 +10,17 @@ export class ShowFormAction
         super('Form');
 
         this.setEnabled(true);
-        this.setTitle(i18n('action.hideEditor'));
         this.onExecuted(() => {
             wizard.showForm();
             new ShowContentFormEvent().fire();
         });
+    }
+
+    setEnabled(value: boolean): Action {
+        super.setEnabled(value);
+
+        this.setTitle(value ? i18n('tooltip.hideEditor') : '');
+
+        return this;
     }
 }

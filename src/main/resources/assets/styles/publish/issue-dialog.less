@@ -1,14 +1,7 @@
 .issue-dialog {
-  @toggler-width: 35px;
 
   textarea {
     max-height: 100px;
-  }
-
-  &.create-issue-dialog {
-    .modal-dialog-header {
-      padding: 30px;
-    }
   }
 
   .modal-dialog-header {
@@ -21,32 +14,6 @@
     }
   }
 
-  .sub-title {
-    margin-bottom: -10px;
-
-    &:empty {
-      display: none;
-    }
-  }
-
-  &:not(.issue-details-dialog) {
-    .dialog-content {
-
-      label {
-        line-height: 30px;
-      }
-
-      .issue-dialog-form {
-        margin: 0 0;
-        padding: 0 !important;
-
-        label {
-          line-height: normal;
-        }
-      }
-    }
-  }
-
   .dialog-content {
 
     .content-combo-box {
@@ -55,13 +22,7 @@
       }
     }
 
-    .dependants {
-      margin-top: 5px;
-    }
-
     .publish-dialog-item-list {
-
-      padding: 0;
 
       .browse-selection-item {
         padding: 6px 3px;
@@ -91,15 +52,6 @@
           }
         }
       }
-    }
-  }
-
-  .button-container {
-
-    box-sizing: border-box;
-
-    .back-action {
-      float: left;
     }
   }
 }

@@ -10,6 +10,7 @@ import {SelectionToolbar} from './SelectionToolbar';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {MediaSelectorDisplayValue} from '../media/MediaSelectorDisplayValue';
 import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ImageSelectorSelectedOptionsView
     extends BaseSelectedOptionsView<MediaTreeSelectorItem> {
@@ -38,6 +39,10 @@ export class ImageSelectorSelectedOptionsView
         this.initAndAppendSelectionToolbar();
 
         this.addOptionMovedEventHandler();
+    }
+
+    setReadonly(readonly: boolean): void {
+        super.setReadonly(readonly);
     }
 
     private initAndAppendSelectionToolbar() {
@@ -86,7 +91,7 @@ export class ImageSelectorSelectedOptionsView
         const selectedOption = this.getByOption(optionToRemove);
 
         this.selection = this.selection.filter((option: SelectedOption<MediaTreeSelectorItem>) => {
-            return option.getOption().value !== selectedOption.getOption().value;
+            return option.getOption().getValue() !== selectedOption.getOption().getValue();
         });
 
         this.updateSelectionToolbarLayout();
@@ -117,8 +122,8 @@ export class ImageSelectorSelectedOptionsView
             return true;
         }
 
-        const displayValue = selectedOption.getOption().displayValue;
-        if (displayValue.getContentSummary() == null && option.displayValue.getContentSummary() != null) {
+        const displayValue = selectedOption.getOption().getDisplayValue();
+        if (displayValue.getContentSummary() == null && option.getDisplayValue().getContentSummary() != null) {
             this.updateUploadedOption(option);
             return true;
         }
@@ -145,6 +150,11 @@ export class ImageSelectorSelectedOptionsView
         this.appendChild(optionView);
         this.updateStickyToolbar();
 
+        if (this.readonly) {
+            option.setReadOnly(true);
+            optionView.setReadonly(true);
+        }
+
         if (!silent) {
             this.notifyOptionSelected(new SelectedOptionEvent(selectedOption, keyCode));
         }
@@ -152,22 +162,26 @@ export class ImageSelectorSelectedOptionsView
 
     updateUploadedOption(option: Option<MediaTreeSelectorItem>) {
         let selectedOption = this.getByOption(option);
-        let content = option.displayValue.getContentSummary();
+        let content = option.getDisplayValue().getContentSummary();
 
-        let newOption = <Option<MediaTreeSelectorItem>>{
-            value: content.getId(),
-            displayValue: new MediaTreeSelectorItem(content)
-        };
+        let newOption = Option.create<MediaTreeSelectorItem>()
+                .setValue(content.getId())
+                .setDisplayValue(new MediaTreeSelectorItem(content))
+                .build();
 
         selectedOption.getOptionView().setOption(newOption);
     }
 
     makeEmptyOption(id: string): Option<MediaTreeSelectorItem> {
-        return <Option<MediaTreeSelectorItem>>{
-            value: id,
-            displayValue: new MediaTreeSelectorItem(null).setDisplayValue(MediaSelectorDisplayValue.makeEmpty()),
-            empty: true
-        };
+        const item: MediaTreeSelectorItem = new MediaTreeSelectorItem(null)
+            .setDisplayValue(MediaSelectorDisplayValue.makeEmpty())
+            .setMissingItemId(id);
+
+        return Option.create<MediaTreeSelectorItem>()
+                .setValue(id)
+                .setDisplayValue(item)
+                .setEmpty(true)
+                .build();
     }
 
     private uncheckOthers(option: SelectedOption<MediaTreeSelectorItem>) {
@@ -213,7 +227,7 @@ export class ImageSelectorSelectedOptionsView
     private getNumberOfEditableOptions(): number {
         let count = 0;
         this.selection.forEach(selectedOption => {
-            if (!selectedOption.getOption().displayValue.isEmptyContent()) {
+            if (!selectedOption.getOption().getDisplayValue().isEmptyContent()) {
                 count++;
             }
         });
@@ -251,8 +265,9 @@ export class ImageSelectorSelectedOptionsView
 
         optionView.getIcon().onLoaded(() => this.handleOptionViewImageLoaded(optionView));
 
-        if (option.getOption().displayValue.isEmptyContent()) {
-            optionView.showError('No access to image.');
+        if (option.getOption().getDisplayValue().isEmptyContent()) {
+            const missingItemId: string = option.getOption().getDisplayValue().getMissingItemId();
+            optionView.showError(!!missingItemId ? i18n('text.image.id.notavailable', missingItemId) : i18n('text.image.notavailable'));
         }
     }
 

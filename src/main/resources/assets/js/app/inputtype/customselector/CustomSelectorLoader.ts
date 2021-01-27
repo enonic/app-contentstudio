@@ -3,18 +3,37 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {PostLoader} from 'lib-admin-ui/util/loader/PostLoader';
 import {CustomSelectorRequest} from './CustomSelectorRequest';
 import {CustomSelectorItem} from './CustomSelectorItem';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 
 export class CustomSelectorLoader
     extends PostLoader<CustomSelectorItem> {
 
     protected request: CustomSelectorRequest;
 
-    constructor(requestPath: string) {
+    private readonly debouncedRequest: (promise: Q.Deferred<CustomSelectorItem[]>) => void;
+
+    constructor(requestPath?: string) {
         super();
 
         if (requestPath) {
-            this.getRequest().setRequestPath(requestPath);
+            this.setRequestPath(requestPath);
         }
+
+        this.debouncedRequest = AppHelper.debounce((promise: Q.Deferred<CustomSelectorItem[]>) => {
+            const superPromise = super.sendRequest();
+            superPromise.then((results: CustomSelectorItem[]) => {
+                if (superPromise.isFulfilled()) {
+                    promise.resolve(results);
+                }
+                if (superPromise.isRejected()) {
+                    promise.reject(results);
+                }
+            });
+        }, 200);
+    }
+
+    setRequestPath(requestPath: string) {
+        this.getRequest().setRequestPath(requestPath);
     }
 
     protected createRequest(): CustomSelectorRequest {
@@ -25,10 +44,9 @@ export class CustomSelectorLoader
         return this.request;
     }
 
-    search(searchString: string): Q.Promise<CustomSelectorItem[]> {
-
-        this.getRequest().setQuery(searchString);
-        return this.load();
+    isLoaded(): boolean {
+        // CustomSelector is never "loaded" - it has to fetch data every time.
+        return false;
     }
 
     setSearchString(value: string) {
@@ -40,7 +58,11 @@ export class CustomSelectorLoader
         if (!this.request.hasRequestPath()) {
             return Q.reject(i18n('field.customSelector.noService'));
         }
-        return super.sendRequest();
+        const deferred: Q.Deferred<CustomSelectorItem[]> = Q.defer<CustomSelectorItem[]>();
+
+        this.debouncedRequest(deferred);
+
+        return deferred.promise;
     }
 
     protected sendPreLoadRequest(ids: string): Q.Promise<CustomSelectorItem[]> {
@@ -62,6 +84,6 @@ export class CustomSelectorLoader
     }
 
     filterFn(item: CustomSelectorItem): boolean {
-        return item.displayName.indexOf(this.getSearchString().toLowerCase()) !== -1;
+        return item.displayName.toLowerCase().indexOf(this.getSearchString().toLowerCase()) !== -1;
     }
 }

@@ -3,19 +3,25 @@ import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 export class SettingsType {
 
-    private name: string;
+    private readonly name: string;
 
-    private displayName: string;
+    private readonly displayName: string;
 
-    private description: string;
+    private readonly displayNamePlaceholder: string;
 
-    private iconClass: string;
+    private readonly description: string;
+
+    private readonly iconClass: string;
+
+    private readonly instantiable: boolean;
 
     constructor(builder: SettingsTypeBuilder) {
         this.name = builder.name;
         this.displayName = builder.displayName;
         this.description = builder.description;
         this.iconClass = builder.iconClass;
+        this.instantiable = builder.instantiable;
+        this.displayNamePlaceholder = builder.displayNamePlaceholder;
     }
 
     static create(): SettingsTypeBuilder {
@@ -36,6 +42,14 @@ export class SettingsType {
 
     getDescription(): string {
         return this.description;
+    }
+
+    getInstantiable(): boolean {
+        return this.instantiable;
+    }
+
+    getDisplayNamePlaceholder(): string {
+        return this.displayNamePlaceholder;
     }
 
     equals(o: Equitable): boolean {
@@ -61,6 +75,10 @@ export class SettingsTypeBuilder {
 
     iconClass: string;
 
+    instantiable: boolean = true;
+
+    displayNamePlaceholder: string;
+
     setName(value: string): SettingsTypeBuilder {
         this.name = value;
         return this;
@@ -78,6 +96,16 @@ export class SettingsTypeBuilder {
 
     setIconClass(value: string): SettingsTypeBuilder {
         this.iconClass = value;
+        return this;
+    }
+
+    setInstantiable(value: boolean): SettingsTypeBuilder {
+        this.instantiable = value;
+        return this;
+    }
+
+    setDisplayNamePlaceholder(value: string): SettingsTypeBuilder {
+        this.displayNamePlaceholder = value;
         return this;
     }
 

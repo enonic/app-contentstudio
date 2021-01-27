@@ -28,7 +28,8 @@ export class ContentStatusToolbar
         if (item && !item.equals(this.getItem())) {
             const content = ContentSummaryAndCompareStatus
                 .fromContentAndCompareStatus(item.getContentSummary(), item.getCompareStatus())
-                .setPublishStatus(item.getPublishStatus());
+                .setPublishStatus(item.getPublishStatus())
+                .setRenderable(item.isRenderable());
             const isValid = content.getContentSummary() && content.getContentSummary().isValid();
             super.setItem(content);
             this.toggleValid(isValid);
@@ -47,9 +48,6 @@ export class ContentStatusToolbar
 
     private updateStatus(content: ContentSummaryAndCompareStatus) {
         this.status.setClass('status');
-        if (this.isOnline(content)) {
-            this.status.addClass('online');
-        }
         if (content) {
             this.status.addClass(content.getStatusClass());
             this.status.setHtml(content.getStatusText());

@@ -47,11 +47,11 @@ class ScheduleForm extends Page {
     }
 
     waitForDisplayed() {
-        return this.waitUntilDisplayed(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitUntilDisplayed(XPATH.container, appConst.shortTimeout);
     }
 
     waitForNotDisplayed() {
-        return this.waitUntilElementNotVisible(XPATH.container, appConst.TIMEOUT_2);
+        return this.waitUntilElementNotVisible(XPATH.container, appConst.shortTimeout);
     }
 };
 module.exports = ScheduleForm;

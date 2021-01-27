@@ -5,13 +5,14 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
+import {RepositoryId} from '../repository/RepositoryId';
 
 declare var CONFIG;
 
 export class GetContentVersionRequest
     extends ContentResourceRequest<Content> {
 
-    private id: ContentId;
+    readonly id: ContentId;
 
     private versionId: string;
 
@@ -28,7 +29,8 @@ export class GetContentVersionRequest
     getParams(): Object {
         return {
             contentId: this.id.toString(),
-            versionId: this.versionId
+            versionId: this.versionId,
+            repositoryId: RepositoryId.fromCurrentProject().toString()
         };
     }
 

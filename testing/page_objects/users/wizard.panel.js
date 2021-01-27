@@ -25,7 +25,7 @@ class WizardPanel extends Page {
     }
 
     waitForSaveButtonEnabled() {
-        return this.waitForElementEnabled(this.saveButton, appConst.TIMEOUT_3).catch(err => {
+        return this.waitForElementEnabled(this.saveButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot("err_save_button");
             throw new Error("Save button is not enabled: " + err);
         })
@@ -36,11 +36,11 @@ class WizardPanel extends Page {
     }
 
     waitForSaveButtonDisabled() {
-        return this.waitForElementDisabled(this.saveButton, appConst.TIMEOUT_3);
+        return this.waitForElementDisabled(this.saveButton, appConst.mediumTimeout);
     }
 
     waitForDeleteButtonDisabled() {
-        return this.waitForElementDisabled(this.deleteButton, appConst.TIMEOUT_3);
+        return this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
     }
 
     typeDisplayName(displayName) {

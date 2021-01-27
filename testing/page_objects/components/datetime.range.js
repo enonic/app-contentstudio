@@ -37,7 +37,7 @@ class DateTimeRange extends Page {
         if (xpath === undefined) {
             xpath = '';
         }
-        await this.waitForElementDisplayed(xpath + this.onlineFromDateTimeInput, appConst.TIMEOUT_3);
+        await this.waitForElementDisplayed(xpath + this.onlineFromDateTimeInput, appConst.mediumTimeout);
         await this.pause(300);
         return await this.getTextInInput(xpath + this.onlineFromDateTimeInput);
     }
@@ -85,12 +85,12 @@ class DateTimeRange extends Page {
         if (xpath === undefined) {
             xpath = '';
         }
-        return this.waitUntilDisplayed(xpath + XPATH.container, appConst.TIMEOUT_2);
+        return this.waitUntilDisplayed(xpath + XPATH.container, appConst.shortTimeout);
     }
 
     async waitForOnlineFromPickerDisplayed() {
         try {
-            return await this.waitUntilDisplayed(XPATH.onlineFromPickerPopup, appConst.TIMEOUT_2);
+            return await this.waitUntilDisplayed(XPATH.onlineFromPickerPopup, appConst.shortTimeout);
         } catch (err) {
             throw new Error("Online from picker popup should be opened!" + err);
         }
@@ -100,7 +100,7 @@ class DateTimeRange extends Page {
         if (xpath === undefined) {
             xpath = '';
         }
-        return this.waitUntilElementNotVisible(xpath + XPATH.container, appConst.TIMEOUT_2);
+        return this.waitUntilElementNotVisible(xpath + XPATH.container, appConst.shortTimeout);
     }
 
     async doOpenOnlineFromPickerPopup() {
@@ -114,5 +114,6 @@ class DateTimeRange extends Page {
         await elems[0].click();
         return await this.pause(300);
     }
-};
+}
+
 module.exports = DateTimeRange;

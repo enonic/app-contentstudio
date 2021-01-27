@@ -39,15 +39,22 @@ module.exports = Object.freeze({
     projectCreatedMessage: name => `Project \"${name}\" is created.`,
     projectNameAlreadyExistsMessage: name => `Project with name [${name}] already exists`,
     projectDeletedMessage: name => `Project \"${name}\" is deleted.`,
+    NO_CHANGES_TO_REVERT_MESSAGE: "No changes to revert.",
     THIS_PUBLISH_REQUEST_OPEN: 'The publish request is Open.',
     REQUEST_CREATED_MESSAGE: 'New publish request created successfully.',
     TASK_CLOSED_MESSAGE: 'The task is Closed.',
+    TASK_CREATED_MESSAGE: "New task created successfully.",
     PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request is Closed.',
     TASK_OPENED_MESSAGE: 'The task is Open.',
-    TWO_ITEMS_PUBLISHED: `2 items are published.`,
+    TWO_ITEMS_PUBLISHED: "2 items are published.",
+    ITEM_IS_UNDELETED_MESSAGE: "Item is undeleted",
+    CONTENT_RENAMED: "Content has been renamed",
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
+    TEST_FOLDER_WITH_IMAGES_NAME: "all-content-types-images",
+    TEST_FOLDER_WITH_IMAGES_2: "Images for simple page",
+    TEST_FOLDER_WITH_IMAGES_NAME_2: "imagearchive",
     TEST_FOLDER_2_DISPLAY_NAME: `folder for selenium tests`,
-    TEST_FOLDER_2_NAME: `selenium-tests-folder`,
+    TEST_FOLDER_2_NAME: "selenium-tests-folder",
     TEST_FOLDER_NAME: 'all-content-types-images',
     APP_CONTENT_TYPES: 'All Content Types App',
     SIMPLE_SITE_APP: 'Simple Site App',
@@ -55,16 +62,26 @@ module.exports = Object.freeze({
     APP_WITH_METADATA_MIXIN: 'Third Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
     YOUR_COMMENT_ADDED: 'Your comment is added to the task.',
+    LOCALIZED_MESSAGE_1: "Language was copied from current project.",
+    LOCALIZED_MESSAGE_2: "Inherited content was localized",
     CONTENT_REVERTED_MESSAGE: 'The content was reverted to the version from',
     PROJECT_UNSAVED_CHANGES_MESSAGE: "There are unsaved changes, do you want to save them before closing?",
+    ACCESS_WIDGET_HEADER: {
+        RESTRICTED_ACCESS: "Restricted access to item",
+        EVERYONE_CAN_READ: "Everyone can read this item"
+    },
+    PROJECT_ACCESS_MODE: {
+        PRIVATE: "Private",
+        PUBLIC: "Public",
+        CUSTOM: "Custom"
+    },
     //waitForTimeout
     TIMEOUT_10: 10000,
-    TIMEOUT_3: 3000,
+    mediumTimeout: 3000,
     TIMEOUT_4: 4000,
     TIMEOUT_5: 5000,
-    TIMEOUT_7: 7000,
-    TIMEOUT_10: 10000,
-    TIMEOUT_2: 2000,
+    longTimeout: 7000,
+    shortTimeout: 2000,
     TIMEOUT_1: 1000,
     SUITE_TIMEOUT: 180000,
     DELETE_INBOUND_MESSAGE: 'The content you are about to delete has inbound references. Please verify them before deletion.',
@@ -72,7 +89,8 @@ module.exports = Object.freeze({
     IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
     WIDGET_TITLE: {
         VERSION_HISTORY: 'Version history',
-        DEPENDENCIES: 'Dependencies'
+        DEPENDENCIES: 'Dependencies',
+        LAYERS: 'Layers'
     },
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',
@@ -81,6 +99,10 @@ module.exports = Object.freeze({
     },
     TEMPLATE_SUPPORT: {
         SITE: 'Site',
+    },
+    SORTING_ORDER: {
+        MODIFIED_DATE: 'Modified date',
+        CREATED_DATE: 'Created date',
     },
     TEST_IMAGES: {
         HAND: 'hand',
@@ -93,7 +115,9 @@ module.exports = Object.freeze({
         SHIP: 'cat',
         FOSS: 'foss',
         SENG: 'seng',
-        PES: 'morgopes'
+        PES: 'morgopes',
+        NORD: 'nord',
+        CAPE: 'cape'
     },
     MENU_ITEMS: {
         INSERT: 'Insert',
@@ -111,7 +135,8 @@ module.exports = Object.freeze({
         CONTRIBUTOR: "Contributor",
         AUTHOR: "Author",
         EDITOR: "Editor",
-        OWNER: "Owner"
+        OWNER: "Owner",
+        VIEWER: "Viewer"
     },
     SHOW_ISSUES_BUTTON_LABEL: {
         NO_OPEN_ISSUES: 'No open issues',
@@ -178,7 +203,9 @@ module.exports = Object.freeze({
         PUBLISHED: 'Published',
         UNPUBLISHED: 'Unpublished',
         MODIFIED: 'Modified',
-        DELETED: 'Deleted',
+        MARKED_FOR_DELETION: 'Marked for deletion',
+        MOVED: 'Moved',
+        PUBLISHING_SCHEDULED: 'Publishing Scheduled',
     },
     PUBLISH_MENU: {
         REQUEST_PUBLISH: "Request Publishing...",
@@ -199,5 +226,15 @@ module.exports = Object.freeze({
         CREATED_BY_ME: 'Created by Me',
         PUBLISH_REQUESTS: 'Publish requests',
         TASKS: 'Tasks'
-    }
+    },
+    SYSTEM_ROLES: {
+        CM_ADMIN: 'Content Manager Administrator',
+        ADMIN_CONSOLE: 'Administration Console Login',
+        CM_APP: 'Content Manager App',
+        ADMINISTRATOR: 'Administrator',
+        USERS_APP: 'Users App',
+        AUTHENTICATED: 'Authenticated',
+        USERS_ADMINISTRATOR: 'Users Administrator',
+        EVERYONE: 'Everyone'
+    },
 });

@@ -19,7 +19,7 @@ import {IEl} from 'lib-admin-ui/dom/IEl';
 import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 
 export class MobileContentItemStatisticsPanel
-    extends ItemStatisticsPanel<ContentSummaryAndCompareStatus> {
+    extends ItemStatisticsPanel {
 
     private itemHeader: DivEl = new DivEl('mobile-content-item-statistics-header');
     private headerLabel: H6El = new H6El('mobile-header-title');
@@ -38,9 +38,7 @@ export class MobileContentItemStatisticsPanel
 
         this.setDoOffset(false);
 
-        this.createFoldButton(actions);
-
-        this.initHeader();
+        this.initHeader(actions);
 
         this.initPreviewPanel();
 
@@ -61,12 +59,12 @@ export class MobileContentItemStatisticsPanel
             if (!this.getItem()) {
                 return;
             }
-            const thisContentId: string = this.getItem().getModel().getId();
+            const thisContentId: string = this.getItem().getId();
 
             const contentSummary: ContentSummaryAndCompareStatus = contents.find(content => thisContentId === content.getId());
 
             if (contentSummary) {
-                this.setItem(ContentHelper.createView(contentSummary));
+                this.setItem(contentSummary);
             }
         };
 
@@ -84,12 +82,8 @@ export class MobileContentItemStatisticsPanel
         });
     }
 
-    private createFoldButton(actions: Action[]) {
-        this.foldButton = new MobilePreviewFoldButton(actions, this.itemHeader);
-    }
-
-    private initHeader() {
-
+    private initHeader(actions: Action[]) {
+        const titleDiv = new DivEl();
         const icon = new IEl('icon-more_vert');
         const backButton = new DivEl('mobile-context-panel-back-button');
         backButton.onClicked((event) => {
@@ -97,7 +91,9 @@ export class MobileContentItemStatisticsPanel
             this.slideAllOut();
             event.stopPropagation();
         });
-        this.itemHeader.appendChildren(this.headerLabel, icon, this.foldButton, backButton);
+        titleDiv.appendChildren(this.headerLabel, icon);
+        this.foldButton = new MobilePreviewFoldButton(actions, titleDiv);
+        this.itemHeader.appendChildren(titleDiv, this.foldButton, backButton);
 
         this.appendChild(this.itemHeader);
     }
@@ -123,20 +119,20 @@ export class MobileContentItemStatisticsPanel
         this.appendChild(this.previewPanel);
     }
 
-    setItem(item: ViewItem<ContentSummaryAndCompareStatus>) {
+    setItem(item: ContentSummaryAndCompareStatus) {
         if (!this.getItem() || !this.getItem().equals(item)) {
             super.setItem(item);
-            this.toggleClass('invalid', !item.getModel().getContentSummary().isValid());
+            this.toggleClass('invalid', !item.getContentSummary().isValid());
             this.foldButton.collapse();
-            this.contextPanel.setItem(!!item ? item.getModel() : null);
+            this.contextPanel.setItem(item);
             if (item) {
                 this.setName(this.makeDisplayName(item));
             }
         }
     }
 
-    private makeDisplayName(item: ViewItem<ContentSummaryAndCompareStatus>): string {
-        let localName = item.getModel().getType().getLocalName() || '';
+    private makeDisplayName(item: ContentSummaryAndCompareStatus): string {
+        let localName = item.getType().getLocalName() || '';
         return StringHelper.isEmpty(item.getDisplayName())
                ? ContentUnnamed.prettifyUnnamed(localName)
                : item.getDisplayName();

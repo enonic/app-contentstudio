@@ -5,14 +5,6 @@
       "document": "navigator"
     },
     {
-      "title": "Issues",
-      "document": "issues"
-    },
-    {
-      "title": "Content Workflow",
-      "document": "workflow"
-    },
-    {
       "title": "Content Editor",
       "document": "editor",
       "menuItems": [
@@ -39,12 +31,24 @@
       ]
     },
     {
+      "title": "Projects",
+      "document": "projects"
+    },
+    {
+      "title": "Workflow",
+      "document": "workflow"
+    },
+    {
       "title": "Content Types",
       "document": "content-types"
     },
     {
       "title": "Actions",
       "document": "actions"
+    },
+    {
+      "title": "Issues",
+      "document": "issues"
     },
     {
       "title": "Widgets",

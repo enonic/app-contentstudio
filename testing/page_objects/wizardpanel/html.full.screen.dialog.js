@@ -18,7 +18,7 @@ class HtmlFullScreenDialog extends Page {
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(xpath.container, appConst.TIMEOUT_2).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_open_full_screen_dialog');
             throw new Error('Full Screen Dialog must be opened!' + err);
         });
@@ -26,13 +26,13 @@ class HtmlFullScreenDialog extends Page {
 
     async waitForDialogClosed() {
         try {
-            return await this.waitForElementNotDisplayed(xpath.container, appConst.TIMEOUT_2);
+            return await this.waitForElementNotDisplayed(xpath.container, appConst.shortTimeout);
         } catch (err) {
             throw new Error("Full Screen dialog should be closed!: " + err);
         }
     }
 
-    typeTextInHtmlArea(strings) {
+    typeTextInHtmlArea(text) {
         let htmlArea = new HtmlArea();
         return htmlArea.typeTextInHtmlArea(xpath.container, text);
     }
@@ -41,6 +41,6 @@ class HtmlFullScreenDialog extends Page {
         let htmlArea = new HtmlArea();
         return htmlArea.getTextFromHtmlArea(xpath.container);
     }
-};
+}
 module.exports = HtmlFullScreenDialog;
 

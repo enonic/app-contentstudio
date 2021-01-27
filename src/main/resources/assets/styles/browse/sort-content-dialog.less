@@ -137,14 +137,19 @@
       flex-direction: column;
 
       .sort-content-grid {
-        flex: 1;
+        flex: 1 0 auto;
+
+        &.inherited {
+          opacity: 0.5;
+          pointer-events: none;
+        }
       }
     }
   }
 
 
   .sort-tab-menu {
-    width: 220px;
+    max-width: 300px;
     float: right;
     margin: 0;
 
@@ -155,7 +160,7 @@
 
       .label {
         display: block;
-        margin: 0 30px;
+        margin: 0 35px;
         overflow: hidden;
         white-space: pre;
         line-height: 20px;
@@ -164,74 +169,130 @@
         &::before {
           display: inline-block;
           float: right;
-          margin-right: 9px;
+          margin: 0 10px;
           font-size: 16px;
         }
       }
     }
-    .tab-menu-item {
-      display: flex;
-      height: 32px;
-      padding: 2px 3px 2px 5px;
-      line-height: 32px;
 
-      .label {
-        display: block;
-        flex: 1 0;
-        overflow: hidden;
-        white-space: pre;
-        .ellipsis();
-      }
+    .menu {
 
-      .sorting-order {
-        width: 32px;
+      .tab-menu-item {
+        display: flex;
+        align-items: center;
         height: 32px;
-        padding: 0;
-        background-color: transparent;
+        padding: 2px 3px 2px 5px;
+        line-height: 32px;
 
-        &::before {
-          display: block;
-          width: 100%;
-          height: 100%;
-          font-size: 16px;
-          line-height: 32px;
-          text-align: center;
-          color: @admin-button-blue2;
-        }
-        &:hover,
-        &:focus {
-          background-color: @admin-bg-light-gray;
-          outline: none;
-        }
-        &:not(:last-of-type) {
-          margin-right: 2px;
-        }
-        span {
-          display: none;
-        }
-      }
-      &.single {
         .label {
-          color: @admin-button-blue2;
+          display: block;
+          flex: 1 0;
+          overflow: hidden;
+          white-space: pre;
+          .ellipsis();
+        }
 
+        .sorting-order {
+          width: 32px;
+          height: 32px;
+          padding: 0;
+          background-color: transparent;
+
+          &::before {
+            display: block;
+            width: 100%;
+            height: 100%;
+            font-size: 16px;
+            line-height: 32px;
+            text-align: center;
+            color: @admin-button-blue2;
+          }
+
+          &:hover,
           &:focus {
             background-color: @admin-bg-light-gray;
+            outline: none;
+          }
+
+          &:not(:last-of-type) {
+            margin-right: 2px;
+          }
+
+          span {
+            display: none;
           }
         }
-        &:focus-within {
-          background-color: @admin-bg-light-gray;
+
+        &.inherited {
+          padding-right: 35px;
+
+          .label {
+            &:before {
+              position: absolute;
+              right: 15px;
+              font-size: 16px;
+            }
+          }
+
+          &.active {
+            outline: 1px solid @admin-button-blue2;
+          }
+
+          &:hover {
+            cursor: pointer;
+          }
         }
-      }
-      &:not(.single) {
-        background-color: transparent;
-        cursor: default;
-      }
-      &.active {
-        .sorting-order.selected::before {
-          outline: 1px solid @admin-button-blue2;
+
+        &.single {
+          flex-grow: 1;
+
+          .label {
+            &:focus {
+              background-color: @admin-bg-light-gray;
+            }
+          }
+
+          &:focus-within {
+            background-color: @admin-bg-light-gray;
+          }
+
+          &.manual {
+            .label {
+              color: @admin-button-blue2;
+            }
+          }
+        }
+
+        &:not(.single) {
+          background-color: transparent;
+          cursor: default;
+
+          &:nth-child(odd) {
+            flex-grow: 1;
+          }
+
+          &:nth-child(even) {
+            .label {
+              display: none;
+            }
+          }
+        }
+
+        &.active {
+          .sorting-order::before {
+            outline: 1px solid @admin-button-blue2;
+          }
         }
       }
     }
+
+    &.expanded {
+      .menu {
+        display: flex !important;
+        flex-wrap: wrap;
+      }
+    }
+
     .@{_COMMON_PREFIX}dropdown-handle {
       z-index: 3;
     }

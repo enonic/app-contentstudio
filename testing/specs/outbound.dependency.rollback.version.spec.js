@@ -10,7 +10,7 @@ const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../libs/content.builder");
 const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
-const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget')
+const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const ImageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
 const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
 
