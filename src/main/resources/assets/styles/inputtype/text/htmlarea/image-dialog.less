@@ -42,7 +42,6 @@
         width: auto;
       }
       &.upload {
-        margin-left: @form-label-width;
         margin-top: 10px;
 
         > .error {
@@ -69,6 +68,10 @@
       .image-uploader-el {
         max-width: 37px !important;
         position: static;
+
+        &.uploading {
+          display: none;
+        }
 
         .upload-button {
           right: auto;
