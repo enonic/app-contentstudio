@@ -112,7 +112,7 @@ IMPORTANT: All changes made to the content item in the current layer will be los
 
 == Layers Widget
 
-NOTE: The Layers widget is bundled with <<./index#content_studio,Content Studio+>> application available only for users with Enonic license.
+NOTE: The Layers widget is bundled with <</#content_studio,Content Studio+>> application available only for users with Enonic license.
 
 The Layers widget enables user to see status of a specific content item in all existing layers in the system.
 
@@ -138,3 +138,5 @@ image::layer-modal-dialog.png[Layers Widget, 375]
 
 Just like with the Layers widget, you can expand layer boxes in this dialog to either localise or edit the content in the current layer,
 or open it in other layers (given your user has sufficient permissions to access the layer).
+
+TIP: Read about the high-level concept of Content Layers https://developer.enonic.com/docs/xp/stable/cms/layers[here].

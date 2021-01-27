@@ -41,12 +41,12 @@ image::cs32-publish-exclude.png[Exclude from publishing, 500]
 
 === Item- and option-set improvements
 
-https://developer.enonic.com/docs/xp/7.6/cms/sets#item_set[Item sets] have gotten a context menu allowing adding a new occurrence directly above or below the selected one.
+https://developer.enonic.com/docs/xp/stable/cms/sets#item_set[Item sets] have gotten a context menu allowing adding a new occurrence directly above or below the selected one.
 "Delete" action has also been moved inside the context menu:
 
 image::cs32-itemset.png[Item set, 345]
 
-Design and behavior of https://developer.enonic.com/docs/xp/7.6/cms/sets#option_set[option sets] have been completely revamped.
+Design and behavior of https://developer.enonic.com/docs/xp/stable/cms/sets#option_set[option sets] have been completely revamped.
 A single-select option set has been converted from a radio group to a dropdown:
 
 image::cs32-optionset-1.png[Option set, 345]
