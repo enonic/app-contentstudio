@@ -112,7 +112,7 @@ IMPORTANT: All changes made to the content item in the current layer will be los
 
 == Layers Widget
 
-NOTE: The Layers widget is bundled with <</index#content_studio,Content Studio+>> application available only for users with Enonic license.
+NOTE: The Layers widget is bundled with <<./index#content_studio,Content Studio+>> application available only for users with Enonic license.
 
 The Layers widget enables user to see status of a specific content item in all existing layers in the system.
 
