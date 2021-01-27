@@ -38,7 +38,7 @@
     "error-logger-webpack-plugin": "^1.1.0",
     "file-loader": "^6.2.0",
     "js-yaml": "^4.0.0",
-    "less": "^3.12.2",
+    "less": "^4.1.0",
     "less-loader": "^7.2.1",
     "postcss-loader": "^4.0.4",
     "postcss-normalize": "^9.0.0",
