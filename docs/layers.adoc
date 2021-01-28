@@ -5,8 +5,8 @@
 NOTE: Content Localisation has been introduced in Content Studio 3.2 and require XP 7.6.0 or higher
 
 Localisation in Content Studio is done by utilising advanced concept of Content Layers. A layer is a special
-type of content project that always has a parent project where it inherits its content from. This inherited content can then be localised
-to the language of the layer, restructured, renamed or differently sorted.
+type of content project that always has a parent project (or another layer) where it inherits its content from. This inherited content can then be localised
+to the language of the layer, restructured, renamed or differently sorted. Content in a layer can be created, modified and published as usual.
 
 You can have as many layers as you need: project *A* in the root can have a child layer *B* which has a child
 layer *C* (and so on). Content changes will be propagated top-down from the project/layer the content was originally changed in, through
