@@ -136,7 +136,7 @@ class EditPermissionsDialog extends Page {
 
     async clickOnInheritPermissionsCheckBox() {
         try {
-            await this.waitForElementDisplayed(this.inheritPermissionsCheckbox);
+            await this.waitForElementDisplayed(this.inheritPermissionsCheckbox, appConst.mediumTimeout);
             await this.clickOnElement(this.inheritPermissionsCheckbox + '/label');
             return await this.pause(300);
         } catch (err) {

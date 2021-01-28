@@ -75,23 +75,16 @@
         display: none;
       }
 
-      .form-element-spacing(@form-field-spacing);
-
       &.page-controller-form,
       &.descriptor-based-dropdown-form,
       &.page-template-form,
       &.page-template-and-controller-form,
       &.image-combobox-form,
       &.fragment-dropdown-form {
-        margin-top: 0;
 
         label {
           display: block;
           text-align: left;
-        }
-
-        &:first-child {
-          margin-bottom: 0;
         }
       }
 
@@ -121,7 +114,6 @@
     }
 
     & > .names-and-icon-view {
-      padding: 10px;
       .@{_COMMON_PREFIX}main-name {
         font-size: 18px;
         line-height: 20px;

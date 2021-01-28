@@ -1,0 +1,142 @@
+= Content Localisation
+:toc: right
+:imagesdir: layers/images
+
+NOTE: Content Localisation has been introduced in Content Studio 3.2 and require XP 7.6.0 or higher
+
+Localisation in Content Studio is done by utilising advanced concept of Content Layers. A layer is a special
+type of content project that always has a parent project where it inherits its content from. This inherited content can then be localised
+to the language of the layer, restructured, renamed or differently sorted.
+
+You can have as many layers as you need: project *A* in the root can have a child layer *B* which has a child
+layer *C* (and so on). Content changes will be propagated top-down from the project/layer the content was originally changed in, through
+all the layers down to the bottommost descendant. Synchronisation job will stop propagating changes for a content once it finds a layer
+where this content has been localised.
+
+With our example above, any content created in *A* will be automatically created in the child *B* and the grand-child *C*. If the content
+is then modified in *B* it will stop being synchronised with *A*, but the new modifications will still be synchronised from *B* down to *C*.
+
+The moment an inherited content is modified (localised), it will be "unlinked" from its parent and will no longer be synchronised.
+If you modify a content in the layer *C*, it will stop inheriting content changes from the layer *B*. However, the same content in *B* still
+inherits content changes from its parent project *A*, until it's localised in *B* as well.
+
+There are 4 different types of inheritance that are supported independently: content data, sorting, parent and name.
+This means, for example, that if a child layer *B* has inherited an entire website from its parent *A*, you can change sorting order of content items
+inside this site in *B* which will stop inheritance only of _sorting_ from *A*, however inheritance of _content data_ will still continue.
+Another example, is that you can move a content item from one parent content to another in the layer *B*, but this content will still be
+inheriting data changes from *A*.
+
+Content Layers are using the <<projects,Content Projects>>' engine under the hood, which means that each layer has its own content repository,
+language, read permissions and roles.
+
+Just like projects, layers can be created and managed in the Settings section.
+
+== Settings
+
+To create a new layer, click *New* button in the Settings section and select "_Layer_" from the modal dialog.
+
+image::layer-create-1.png[Create Layer, 832]
+
+If you have selected a project (or another layer) in the grid before clicking *New*, you will only have one option (_Layer_) in the dialog.
+The dialog will also display that the new layer will be created under the project/layer you've selected.
+
+image::layer-create-2.png[Create Layer 2, 832]
+
+Upon selection, you will be redirected to the New Layer wizard which is very similar to the <<projects#project_wizard,New Project wizard>>,
+although there's a few key differences.
+
+The New Layer wizard will have a dropdown called "_Parent project_" for selecting a project/layer where the new layer will be inheriting its content from.
+
+image::layer-parent-1.png[Parent Project, 725]
+
+If you have already selected a project/layer in the Settings grid before clicking the *New* button,
+the selected project/layer will be preset in the "_Parent project_" dropdown.
+
+image::layer-parent-2.png[Parent Project 2, 725]
+
+NOTE: You will not be able to select or change the parent project/layer once the new layer is created.
+
+TIP: In the Layer wizard you can copy settings like Language, Access Mode and Roles from the parent project/layer by using the *Copy from parent* button.
+If the parent doesn't have those properties set, or they are the same as in this layer, the button will be disabled.
+
+image::layer-wizard-1.png[Copy from parent, 767]
+
+Icon of the layer will be automatically set to a flag of the layer's language. It can be changed by clicking the icon thumbnail and
+selecting an icon file from your local file system.
+
+image::layer-wizard-2.png[Layer icon, 690]
+
+Once the new layer is created, the synchronisation job will kick in and inherit content from the parent project/layer.
+
+
+== Localising inherited content
+
+To navigate between the layers use the same context switch in the header that was implemented for switching between project contexts in XP 7.3.
+
+image::layer-navigation-1.png[Context switch, 420]
+
+In the Content grid localised content will be greyed out, providing visual difference from a local content manually created directly in this layer.
+
+image::layer-navigation-2.png[Layer navigation, 457]
+
+To localise (translate) an inherited content item, select it in the content tree and click *Localise* button in the Content grid toolbar
+
+image::layer-localisation-1.png[Content localisation, 457]
+
+NOTE: *Edit* button is replaced with *Localise* for inherited content.
+
+TIP: Language shown in brackets after content's display name means shows that language of this content is different from language of the current layer.
+
+The *Localise* button will open the Content Wizard for the selected content item and set language of the current layer for the item. You
+can now translate the content to language of the layer or make any other changes. When you save the changes, the content item will no longer
+be considered inherited and changes made for this item in the parent project/layer will no longer be synchronised down to this layer.
+
+In the example below, "_Search_" page from the parent project with English language was localised in the Norwegian layer and translated to "_Søk_".
+
+image::layer-localisation-2.png[Content localisation, 457]
+
+TIP: The purpose of the blue "cloud" icon over the content item icon is to distinguish localised inherited content from local content created
+directly in this layer (like "_Local page_" in the example above).
+
+As mentioned above, it's possible to rearrange inherited content without localising it. The same goes for sorting. In the example below
+the "_Search_" page was moved under "_Posts_" folder but is still inheriting content changes from the parent project.
+
+image::layer-localisation-3.png[Content localisation, 457]
+
+You can reset changes made for an inherited item and restore inheritance from the parent level by clicking *Reset* button in the Content Wizard.
+
+image::layer-content-reset.png[Reset localisation, 617]
+
+IMPORTANT: All changes made to the content item in the current layer will be lost.
+
+
+== Layers Widget
+
+NOTE: The Layers widget is bundled with <<../index#content_studio,Content Studio+>> application available only for users with Enonic license.
+
+The Layers widget enables user to see status of a specific content item in all existing layers in the system.
+
+Box of the current layer is highlighted with blue border, and you can see how many layers there are above (_Ascendants_)
+and below (_Descendants_) the current one. Each box has an action button (*Localise* or *Edit* for the current layer and *Open* for other layers)
+which can be displayed if you expand the box with a left-click.
+
+image::layer-widget-1.png[Layers Widget, 240]
+
+image::layer-widget-3.png[Layers Widget, 240]
+
+Boxes of parent layers where the content item is not localised are hidden by default and can be displayed by clicking on the Ascendants link.
+
+image::layer-widget-2.png[Layers Widget, 240]
+
+TIP: You can localise content in the current layer directly from the widget.
+
+*Show all* button at the bottom of the widget displays the total number of layers where this item exists. This number can be different from tbe number
+of boxes displayed in the widget, since the widget only displays the branch of the current layer. To see status of the content item in the entire tree of layers
+click the button to open the modal dialog.
+
+image::layer-modal-dialog.png[Layers Widget, 375]
+
+Just like with the Layers widget, you can expand layer boxes in this dialog to either localise or edit the content in the current layer,
+or open it in other layers (given your user has sufficient permissions to access the layer).
+
+TIP: Read about the high-level concept of Content Layers https://developer.enonic.com/docs/xp/stable/cms/layers[here].

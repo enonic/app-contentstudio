@@ -25,6 +25,7 @@ module.exports = Object.freeze({
     DROPDOWN_OPTION_FILTER_INPUT: "//input[contains(@id,'DropdownOptionFilterInput')]",
     VALIDATION_RECORDING_VIEWER: "//div[contains(@id,'ValidationRecordingViewer')]//li",
     CONTENT_SUMMARY_AND_STATUS_VIEWER: "//div[contains(@id,'ContentSummaryAndCompareStatusViewer')]",
+    OPTION_SET_MENU_BUTTON: "//button[contains(@id,'MoreButton')]",
     tabBarItemByName: function (name) {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
     },

@@ -46,8 +46,8 @@ class UserAccessWidgetItemView extends Page {
         try {
             let editPermissionsDialog = new EditPermissionsDialog();
             await this.clickOnEditPermissionsLink();
-            await this.pause(200);
-            return await editPermissionsDialog.waitForDialogLoaded();
+            await editPermissionsDialog.waitForDialogLoaded();
+            return await this.pause(500);
         } catch (err) {
             this.saveScreenshot("edit_perm_dlg_not_loaded");
             throw new Error("Edit permissions dialog was not loaded!  " + err);

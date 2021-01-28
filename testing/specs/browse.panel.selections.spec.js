@@ -35,6 +35,7 @@ describe('Browse panel selections spec', function () {
     it("WHEN one row with content has been checked THEN the row gets checked AND 'Selection Toggler' gets visible",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            await contentBrowsePanel.pause(1500);
             //1. Click on the checkbox and select the row:
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
             let number1 = await contentBrowsePanel.getNumberOfSelectedRows();

@@ -11,8 +11,10 @@ const xpath = {
     parameterNameInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Name']]//input`,
     parameterValueInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Value']]//input`,
     addParametersButton: `//button/span[text()='Add Parameters']`,
-    collapseButton: `//a[contains(@class,'collapse-button') and text()='Collapse']`,
-    expandButton: `//a[contains(@class,'collapse-button') and text()='Expand']`,
+    collapseButtonTop: "//div[contains(@class,'top-button-row')]//a[contains(@class,'collapse-button') and (text()='Collapse' or text()='Collapse all')]",
+    collapseButtonBottom: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  (text()='Collapse' or text()='Collapse all')]",
+    expandButton: "//a[contains(@class,'collapse-button') and text()='Expand']",
+    parameterOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//button[contains(@id,'MoreButton')]",
 };
 
 class ShortcutForm extends Page {
@@ -70,8 +72,15 @@ class ShortcutForm extends Page {
         })
     }
 
-    waitForCollapseLinkVisible() {
-        return this.waitForElementDisplayed(xpath.stepForm + xpath.collapseButton, appConst.shortTimeout).catch(err => {
+    waitForCollapseBottomLinkVisible() {
+        return this.waitForElementDisplayed(xpath.stepForm + xpath.collapseButtonBottom, appConst.shortTimeout).catch(err => {
+            this.saveScreenshot("err_shortcut_collapse_link");
+            throw new Error("shortcut - collapse link is not visible " + err);
+        })
+    }
+
+    waitForCollapseTopLinkVisible() {
+        return this.waitForElementDisplayed(xpath.stepForm + xpath.collapseButtonTop, appConst.shortTimeout).catch(err => {
             this.saveScreenshot("err_shortcut_collapse_link");
             throw new Error("shortcut - collapse link is not visible " + err);
         })
@@ -84,8 +93,14 @@ class ShortcutForm extends Page {
         })
     }
 
-    clickOnCollapseLink() {
-        return this.clickOnElement(xpath.stepForm + xpath.collapseButton).catch(err => {
+    clickOnCollapseBottomLink() {
+        return this.clickOnElement(xpath.stepForm + xpath.collapseButtonBottom).catch(err => {
+            throw  new Error("Error when click on `collapse` link! " + err);
+        })
+    }
+
+    clickOnCollapseTopLink() {
+        return this.clickOnElement(xpath.stepForm + xpath.collapseButtonTop).catch(err => {
             throw  new Error("Error when click on `collapse` link! " + err);
         })
     }
@@ -94,6 +109,18 @@ class ShortcutForm extends Page {
         return this.clickOnElement(xpath.stepForm + xpath.parametersFormOccurrence + lib.REMOVE_BUTTON).catch(err => {
             throw  new Error("Error when click on `Remove` button! " + err);
         })
+    }
+
+    async expandParameterMenuAndClickOnDelete(index) {
+        let locator = xpath.parameterOccurrenceMenuButton;
+        let menuButtons = await this.findElements(locator);
+        await menuButtons[index].click();
+        await this.pause(400);
+        let res = await this.getDisplayedElements(
+            "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//li[contains(@id,'MenuItem') and text()='Delete']");
+        await res[0].waitForEnabled(appConst.shortTimeout, "Shortcut Parameters - Delete menu item should be enabled!");
+        await res[0].click();
+        return await this.pause(300);
     }
 
     clickOnExpandLink() {
@@ -120,5 +147,6 @@ class ShortcutForm extends Page {
             return loaderComboBox.selectOption(displayName);
         });
     }
-};
+}
+
 module.exports = ShortcutForm;
