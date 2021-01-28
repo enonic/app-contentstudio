@@ -6,10 +6,6 @@
       "checkout": "a24d80d3eeef3439ff9f4f192bc3a567da2493f1"
     },
     {
-      "label": "3.2",
-      "checkout": "8fbe878e3e46bcaa3896633fd7639f7b37ad2b7b"
-    },
-    {
       "label": "stable",
       "checkout": "master",
       "latest": true
