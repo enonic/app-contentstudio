@@ -117,7 +117,8 @@ module.exports = Object.freeze({
         SENG: 'seng',
         PES: 'morgopes',
         NORD: 'nord',
-        CAPE: 'cape'
+        CAPE: 'cape',
+        BRO: 'bro'
     },
     MENU_ITEMS: {
         INSERT: 'Insert',
@@ -205,7 +206,7 @@ module.exports = Object.freeze({
         MODIFIED: 'Modified',
         MARKED_FOR_DELETION: 'Marked for deletion',
         MOVED: 'Moved',
-        PUBLISHING_SCHEDULED: 'Publishing Scheduled',
+        PUBLISHING_SCHEDULED: 'Publishing Scheduled'
     },
     PUBLISH_MENU: {
         REQUEST_PUBLISH: "Request Publishing...",

@@ -14,7 +14,8 @@ const xpath = {
     itemSetOccurrenceMenuItems: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//li[contains(@id,'MenuItem')]",
     itemSetOccurrenceDeleteMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Delete']",
     itemSetOccurrenceAddAboveMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Add above']",
-    itemSetOccurrenceAddBelowMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Add below']"
+    itemSetOccurrenceAddBelowMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Add below']",
+    optionSetOccurrenceLabel: "//div[contains(@id,'FormOccurrenceDraggableLabel')]",
 };
 
 class SingleSelectionOptionSet extends Page {
@@ -105,6 +106,27 @@ class SingleSelectionOptionSet extends Page {
         let menuItemElements = await this.getDisplayedElements(xpath.itemSetOccurrenceAddBelowMenuItem);
         let res = await menuItemElements[0].getAttribute("class");
         return res.includes("disabled");
+    }
+
+    async getSingleSelectionLabel() {
+        let locator = xpath.container + xpath.optionSetOccurrenceLabel;
+        let elems = this.findElements(locator);
+        let result = await this.getText(locator);
+        let tittle = result.split("\n");
+        return tittle[0].trim();
+    }
+
+    async getItemSetLabel() {
+
+        let locator = xpath.container + xpath.optionSetOccurrenceLabel;
+        let elems = this.findElements(locator);
+        let result = await this.getText(locator);
+        let tittle = result.split("\n");
+        return tittle[0].trim();
+    }
+
+    collapseForm() {
+        return this.clickOnElement(xpath.container + xpath.optionSetOccurrenceLabel);
     }
 }
 
