@@ -89,6 +89,7 @@
   }
 
   .toolbar-state-icon {
+    align-items: center;
     display: none;
     height: 100%;
     width: 20px;
@@ -96,13 +97,11 @@
     padding: 0 10px;
 
     &:before {
-      position: absolute;
-      top: @app-header-height / 4;
       font-size: 20px;
     }
 
     &.invalid, &.ready, &.in-progress {
-      display: block;
+      display: flex;
 
       + .toggle-button {
         margin-left: auto;
