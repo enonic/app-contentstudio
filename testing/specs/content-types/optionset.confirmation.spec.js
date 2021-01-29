@@ -26,6 +26,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
                 await studioUtils.doAddSite(SITE);
         });
 
+        //Verifies: No confirmation given on deletion of a non-empty option-set occurrence #1655
         it(`GIVEN option set with dirty fields WHEN 'Reset' menu item has been clicked THEN 'Notification Dialog' should be loaded`,
             async () => {
                     let optionSetForm = new OptionSetForm();
@@ -40,9 +41,9 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
                     studioUtils.saveScreenshot('item_set_confirmation_dialog');
                     //3. NotificationDialog dialog loads, because new item-set has dirty fields:
                     await notificationDialog.waitForDialogLoaded();
-                    //6. Click on Ok button:
+                    //4. Click on Ok button:
                     await notificationDialog.clickOnOkButton();
-                    //6. Verify that notificationDialog closes:
+                    //5. Verify that notificationDialog closes:
                     await notificationDialog.waitForDialogClosed();
             });
 

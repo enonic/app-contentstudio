@@ -109,7 +109,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
         async () => {
             let contentPublishDialog = new ContentPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
+            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_WITH_IMAGES_NAME_2);
             //Click on 'Publish...' button (open Publish Wizard)
             await contentBrowsePanel.clickOnPublishButton();
             //'Include children' has been clicked
@@ -119,7 +119,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             //Hide dependant items gets visible.
             await contentPublishDialog.waitForHideDependentItemsDisplayed();
             //child item should be removable.
-            let isRemovable = await contentPublishDialog.isPublishItemRemovable(appConst.TEST_IMAGES.BOOK);
+            let isRemovable = await contentPublishDialog.isPublishItemRemovable(appConst.TEST_IMAGES.BRO);
             assert.isTrue(isRemovable, "Child item should be removable");
         });
 

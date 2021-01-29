@@ -44,11 +44,11 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. folder with children is selected:
-            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
+            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_WITH_IMAGES_NAME_2);
             //expand the Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             //2. click on 'Include children items'
-            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_FOLDER_WITH_IMAGES);
+            await createRequestPublishDialog.clickOnIncludeChildItems(appConst.TEST_FOLDER_WITH_IMAGES_2);
             studioUtils.saveScreenshot("request_publish_include_children");
             //3. 'Show dependent items' link should appear, because all children are Ready for publishing
             await createRequestPublishDialog.waitForShowDependentItemsLinkDisplayed();

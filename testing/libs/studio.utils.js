@@ -502,7 +502,7 @@ module.exports = {
         try {
             await this.clickOnContentStudioLink(userName, password);
             await webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin");
-            return await webDriverHelper.browser.pause(300);
+            return await webDriverHelper.browser.pause(700);
         } catch (err) {
             this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
             throw new Error('error when navigate to Content Studio app ' + err);
