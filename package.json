@@ -40,7 +40,7 @@
     "js-yaml": "^4.0.0",
     "less": "^4.1.1",
     "less-loader": "^7.3.0",
-    "postcss-loader": "^4.0.4",
+    "postcss-loader": "^4.2.0",
     "postcss-normalize": "^9.0.0",
     "postcss-sort-media-queries": "^3.2.3",
     "style-loader": "^2.0.0",
