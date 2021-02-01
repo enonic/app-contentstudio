@@ -10,7 +10,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
-describe('content.publish.dialog.change.log.spec - open publish modal dialog and type a text in the change log input`', function () {
+describe('content.publish.dialog.change.log.spec - open publish modal dialog and type a text in the change log input', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let FOLDER1_NAME;

@@ -47,6 +47,7 @@ module.exports = Object.freeze({
     PUBLISH_REQUEST_CLOSED_MESSAGE: 'The publish request is Closed.',
     TASK_OPENED_MESSAGE: 'The task is Open.',
     TWO_ITEMS_PUBLISHED: "2 items are published.",
+    TWO_ITEMS_UNPUBLISHED: "2 items are unpublished",
     ITEM_IS_UNDELETED_MESSAGE: "Item is undeleted",
     CONTENT_RENAMED: "Content has been renamed",
     TEST_FOLDER_WITH_IMAGES: `All Content types images`,
@@ -118,7 +119,8 @@ module.exports = Object.freeze({
         PES: 'morgopes',
         NORD: 'nord',
         CAPE: 'cape',
-        BRO: 'bro'
+        BRO: 'bro',
+        MAN2: 'man2'
     },
     MENU_ITEMS: {
         INSERT: 'Insert',

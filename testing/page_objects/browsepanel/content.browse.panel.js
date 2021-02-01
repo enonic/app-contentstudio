@@ -6,12 +6,13 @@ const CreateTaskDialog = require('../issue/create.task.dialog');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
-const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
+const CreateRequestPublishDialog = require('../issue/create.request.publish.dialog');
 const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
-const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
-const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
-const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
+const ConfirmValueDialog = require('../confirm.content.delete.dialog');
+const BrowseDetailsPanel = require('../browsepanel/detailspanel/browse.details.panel');
+const BaseBrowsePanel = require('../base.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
+const ContentUnpublishDialog = require('../content.unpublish.dialog');
 
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
@@ -247,6 +248,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             this.saveScreenshot("err_browse_publish_tree_button");
             throw new Error("'Publish Tree' button should be present on the browse-toolbar " + err);
         })
+    }
+
+    //Click on Unpublish default action and wait for modal dialog is loaded:
+    async clickOnUnpublishButton() {
+        await this.waitForUnPublishButtonVisible();
+        await this.clickOnElement(this.unpublishButton);
+        let unpublishDialog = new ContentUnpublishDialog();
+        await unpublishDialog.waitForDialogOpened();
+        return unpublishDialog;
     }
 
     async clickOnPublishTreeButton() {

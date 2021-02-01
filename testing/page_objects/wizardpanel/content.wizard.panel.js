@@ -18,6 +18,7 @@ const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
 const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.delete.dialog');
 const RenamePublishedContentDialog = require('./rename.content.dialog');
 const WizardLayersWidget = require('./details/wizard.layers.widget');
+const ContentUnpublishDialog = require('../content.unpublish.dialog');
 
 
 const XPATH = {
@@ -859,12 +860,14 @@ class ContentWizardPanel extends Page {
         let selector = XPATH.container + XPATH.unpublishButton;
         await this.waitForUnpublishButtonDisplayed();
         await this.clickOnElement(selector);
-        return await this.pause(600);
+        let unpublishDialog = new ContentUnpublishDialog();
+        await unpublishDialog.waitForDialogOpened();
+        return unpublishDialog;
     }
 
     waitForUnpublishButtonDisplayed() {
         let selector = XPATH.container + XPATH.unpublishButton;
-        return this.waitForElementDisplayed(selector, appConst.shortTimeout);
+        return this.waitForElementDisplayed(selector, appConst.longTimeout);
     }
 
     waitForPublishButtonDisplayed() {

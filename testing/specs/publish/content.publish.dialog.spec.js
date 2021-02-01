@@ -11,7 +11,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
-describe('content.publish.dialog.spec - opens publish modal dialog and checks control elements`', function () {
+describe('content.publish.dialog.spec - opens publish modal dialog and checks control elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let FOLDER1_NAME;
