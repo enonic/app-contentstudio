@@ -7,6 +7,7 @@ jobs:
     auto-approve:
         name: Auto approve
         runs-on: ubuntu-latest
+        needs: build
         steps:
             - uses: hmarr/auto-approve-action@v2.0.0
               if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
@@ -22,6 +23,5 @@ jobs:
           env:
             GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
             MERGE_LABELS: "dependencies,javascript"
-            MERGE_RETRIES: "10"
-            MERGE_RETRY_SLEEP: "60000"
+            MERGE_RETRY_SLEEP: "10000"
             MERGE_METHOD: "rebase"
