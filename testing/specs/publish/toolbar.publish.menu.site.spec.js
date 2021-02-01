@@ -9,7 +9,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 
-describe('toolbar.publish.menu.site.spec - publishes a site and checks publish menu items`', function () {
+describe('toolbar.publish.menu.site.spec - publishes a site and checks publish menu items', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 

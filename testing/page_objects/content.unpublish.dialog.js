@@ -5,6 +5,7 @@ const XPATH = {
     unpublishButton: "//button[contains(@id,'DialogButton') and descendant::span[contains(.,'Unpublish')]]",
     cancelButtonBottom: "//button[contains(@class,'cancel-button-bottom')]",
 };
+
 class ContentUnpublishDialog extends Page {
 
     get cancelButtonBottom() {
@@ -23,9 +24,10 @@ class ContentUnpublishDialog extends Page {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout);
     }
 
-    clickOnUnpublishButton() {
-        return this.clickOnElement(this.unpublishButton);
+    async clickOnUnpublishButton() {
+        await this.waitForElementEnabled(this.unpublishButton, appConst.mediumTimeout);
+        return await this.clickOnElement(this.unpublishButton);
     }
-};
+}
 module.exports = ContentUnpublishDialog;
 
