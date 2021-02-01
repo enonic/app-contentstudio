@@ -13,14 +13,12 @@ jobs:
               with:
                   github-token: "${{ secrets.GITHUB_TOKEN }}"
     auto-merge:
-        name: Auto merge after successful checks
-        needs: auto-approve
-        runs-on: ubuntu-latest
-        steps:
-            - name: Auto merge
-                # Custom action for auto merging already available on marketplace
-              uses: pascalgn/automerge-action@135f0bdb927d9807b5446f7ca9ecc2c51de03c4a
-                # Perform the auto merge action only when the PR is raised by dependabot
-              if: github.actor == 'dependabot[bot]' || github.actor == 'dependabot-preview[bot]'
-              with:
-                github-token: "${{ secrets.GITHUB_TOKEN }}"
+      name: Auto merge
+      runs-on: ubuntu-latest
+      needs: auto-approve
+      steps:
+        - uses: actions/checkout@v2
+        - uses: ahmadnassri/action-dependabot-auto-merge@v2
+          with:
+            target: minor
+            github-token: "${{ secrets.GITHUB_TOKEN }}"
