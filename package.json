@@ -29,7 +29,7 @@
     "@types/jquery": "^3.5.4",
     "@types/jqueryui": "^1.12.14",
     "@types/q": "^1.5.4",
-    "autoprefixer": "^10.2.1",
+    "autoprefixer": "^10.2.4",
     "browserslist": "^4.16.3",
     "browserslist-config-enonic": "^1.0.5",
     "css-loader": "^5.0.0",
