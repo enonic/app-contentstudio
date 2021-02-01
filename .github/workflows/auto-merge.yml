@@ -21,4 +21,7 @@ jobs:
           uses: "pascalgn/automerge-action@v0.13.0"
           env:
             GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-            MERGE_LABELS: ""
+            MERGE_LABELS: "dependencies,javascript"
+            MERGE_RETRIES: "10"
+            MERGE_RETRY_SLEEP: "60000"
+            MERGE_METHOD: "rebase"
