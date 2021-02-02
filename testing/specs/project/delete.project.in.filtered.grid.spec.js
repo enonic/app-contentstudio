@@ -38,7 +38,6 @@ describe("delete.project.in.filtered.grid.spec - Delete projects in filtered gri
     it(`WHEN two projects have been checked THEN 'Delete' button gets disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
-            let confirmValueDialog = new ConfirmValueDialog();
             //1. Click on both project's checkboxes:
             await settingsBrowsePanel.clickCheckboxAndSelectRowByDisplayName(PROJECT_DISPLAY_NAME_1);
             await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME_2);

@@ -28,7 +28,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConstant.LANGUAGES.NORSK_NO, null, "Public");
         });
 
-    it("GIVEN select 'public' project and open wizard for new layer WHEN 'Private' radio has been clicked and name input filled in THEN 'Copy Access mode' button gets enabled",
+    it("GIVEN existing project is selected AND wizard for new layer is opened WHEN 'Private' radio has been clicked and name input filled in THEN 'Copy Access mode' button gets enabled",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1.Select 'public' project and open wizard for new layer:
@@ -58,14 +58,33 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             //4. Save the layer:
             await layerWizard.waitAndClickOnSave();
             await layerWizard.waitForNotificationMessage();
-            await layerWizard.pause(500);
+            await layerWizard.waitForSpinnerNotVisible();
             //5. Switch to Content Mode:
             let contentBrowsePanel = await studioUtils.switchToContentMode();
             //6. Open modal dialog and select the layer's context:
             await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
+            await contentBrowsePanel.pause(1000);
             //7. Verify that expected language is copied from the parent project:
             let actualLanguage = await contentBrowsePanel.getContextLanguage();
             assert.equal(actualLanguage, "(no)", "Expected language should be displayed in the App Bar")
+        });
+
+    //Verifies https://github.com/enonic/app-contentstudio/issues/2839
+    //Settings grid - duplicate items appear after clicking on Show Selection button #2839
+    it("GIVEN existing project and its layer are selected WHEN Show Selection has been clicked THEN two items should be filtered in the grid",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let layerWizard = new LayerWizard();
+            //1.Select the project and its child layer:
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(LAYER_DISPLAY_NAME);
+            await settingsBrowsePanel.clickOnCheckboxAndSelectRowByName(PROJECT_DISPLAY_NAME);
+            //2. Click on Show Selection:
+            await settingsBrowsePanel.clickOnSelectionToggler();
+            //3. Verify that only 2 items are displayed in the grid:
+            let items = await settingsBrowsePanel.getDisplayNames();
+            assert.isTrue(items.includes(PROJECT_DISPLAY_NAME), "Project should be present in the grid");
+            assert.isTrue(items.includes(LAYER_DISPLAY_NAME), "Layer should be present in the grid");
+            assert.equal(items.length, 2, "only 2 items should be present in the grid");
         });
 
     it("GIVEN existing layer is opened WHEN the language has been updated THEN expected language should be displayed in the layer's context",
