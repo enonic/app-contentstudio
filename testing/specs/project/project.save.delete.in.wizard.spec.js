@@ -48,12 +48,29 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
             assert.equal(actualMessage, appConstant.projectNameAlreadyExistsMessage(PROJECT_DISPLAY_NAME))
         });
 
+    it("GIVEN a project is selected and 'Delete' button pressed AND Confirm Value dialog is opened WHEN incorrect identifier has been typed THEN 'Confirm' button should be disabled",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            let projectWizard = new ProjectWizard();
+            let confirmValueDialog = new ConfirmValueDialog();
+            //1.Open the project:
+            await settingsBrowsePanel.openProjectByDisplayName(PROJECT_DISPLAY_NAME);
+            //2. Click on 'Delete' button
+            await projectWizard.clickOnDeleteButton();
+            //3. Verify that 'Confirmation Dialog' is loaded:
+            await confirmValueDialog.waitForDialogOpened();
+            //4. Incorrect identifier has been typed:
+            await confirmValueDialog.typeNumberOrName("test project");
+            //5. Verify that 'Confirm' button is disabled
+            await confirmValueDialog.waitForConfirmButtonDisabled();
+        });
+
     it(`GIVEN existing project is selected WHEN the project has been deleted THEN expected notification should appear`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             let confirmValueDialog = new ConfirmValueDialog();
-            //1.Expand the root folder and open the Project:
+            //1.Open the Project:
             await settingsBrowsePanel.openProjectByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Verify that Delete button gets enabled, then click on it
             await projectWizard.clickOnDeleteButton();
@@ -69,7 +86,7 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
         });
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/1946
-    it(`WHEN 'Default' folder is opened THEN 'Save' and 'Delete' buttons should be disabled`,
+    it(`WHEN 'Default' project is opened THEN 'Save' and 'Delete' buttons should be disabled`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
