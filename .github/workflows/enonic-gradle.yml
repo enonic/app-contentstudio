@@ -9,6 +9,7 @@ jobs:
 
         needs: release_notes
 
+        if: always()
         steps:
             -   uses: actions/checkout@v2.3.4
 
@@ -92,6 +93,7 @@ jobs:
 
     release_notes:
         runs-on: ubuntu-latest
+        if: "(github.ref == 'refs/heads/master')"
         steps:
             -   uses: actions/checkout@v2.3.4
                 with:
