@@ -32,6 +32,17 @@ describe('project.save.delete.grid.panel.spec - ui-tests for saving/deleting a p
             //3. Verify the issue #1627:
             studioUtils.saveScreenshot("home_button_project_saved_4");
             await settingsBrowsePanel.waitForItemByDisplayNameDisplayed(PROJECT_DISPLAY_NAME);
+            //4. Verify that 'Sync' button gets visible and enabled:
+            await settingsBrowsePanel.waitForSyncButtonEnabled();
+        });
+
+    it("WHEN 'Sync' button has been pressed THEN expected notification messages appear",
+        async () => {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            await settingsBrowsePanel.clickOnSyncButton();
+            let messages = await settingsBrowsePanel.waitForNotificationMessages();
+            assert.equal(messages[0], appConstant.PROJECT_SYNC.STARTED, "Expected message should be displayed");
+            assert.equal(messages[1], appConstant.PROJECT_SYNC.FINISHED, "Expected message should be displayed")
         });
 
     it(`GIVEN existing project is selected WHEN the project has been deleted THEN expected notification should appear`,

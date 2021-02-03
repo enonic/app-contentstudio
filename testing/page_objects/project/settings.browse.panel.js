@@ -68,6 +68,10 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Edit']]`;
     }
 
+    get syncButton() {
+        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Sync']]`;
+    }
+
     get treeGrid() {
         return XPATH.container + XPATH.itemsTreeGrid;
     }
@@ -313,6 +317,18 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     async getTextInShowIssuesButton() {
         await this.waitForElementDisplayed(XPATH.showIssuesButton, appConst.mediumTimeout);
         return await this.getText(XPATH.showIssuesButton);
+    }
+
+    waitForSyncButtonEnabled() {
+        return this.waitForElementEnabled(this.syncButton, appConst.mediumTimeout).catch(err => {
+            this.saveScreenshot('err_sync_disabled_button');
+            throw Error('Sync button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
+        })
+    }
+
+    async clickOnSyncButton() {
+        await this.waitForSyncButtonEnabled();
+        return await this.clickOnElement(this.syncButton);
     }
 }
 

@@ -71,6 +71,11 @@ module.exports = Object.freeze({
         RESTRICTED_ACCESS: "Restricted access to item",
         EVERYONE_CAN_READ: "Everyone can read this item"
     },
+    PROJECT_SYNC: {
+        STARTED: "Content synchronisation job has started",
+        FINISHED: "Content synchronisation job has finished"
+    },
+
     PROJECT_ACCESS_MODE: {
         PRIVATE: "Private",
         PUBLIC: "Public",
