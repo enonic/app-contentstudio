@@ -10,7 +10,8 @@ const XPATH = {
     containerRight: `//div[contains(@class,'container right')]`,
     containerBottom: `//div[@class='container bottom']`,
     revertMenuButton: "//button[contains(@id,'Button') and descendant::li[contains(@id,'MenuItem') and text()='Revert']]",
-    revertMenuItem: "//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and text()='Revert']"
+    revertMenuItem: "//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and text()='Revert']",
+    showEntireContent: "//div[contains(@id,'Checkbox') and child::label[text()='Show entire content']]"
 };
 
 class CompareContentVersionsDialog extends Page {
@@ -33,6 +34,10 @@ class CompareContentVersionsDialog extends Page {
 
     get currentVersionDropdownHandle() {
         return XPATH.container + XPATH.containerRight + lib.DROP_DOWN_HANDLE;
+    }
+
+    get showEntireContent() {
+        return XPATH.container + XPATH.showEntireContent + "//label";
     }
 
     async clickOnLeftRevertMenuButton() {
@@ -86,5 +91,16 @@ class CompareContentVersionsDialog extends Page {
         await this.clickOnElement(this.cancelButtonTop);
         return await this.waitForDialogClosed();
     }
+
+    async clickOnShowEntireContentCheckbox() {
+        return this.clickOnElement(this.showEntireContent);
+    }
+
+    async getTypeProperty() {
+        let locator = XPATH.container + "//li[@data-key='type']//pre";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
 }
+
 module.exports = CompareContentVersionsDialog;
