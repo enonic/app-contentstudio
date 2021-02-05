@@ -148,7 +148,8 @@ export class ContentBrowseFilterPanel
 
     public setDependencyItem(item: ContentSummary, inbound: boolean, type?: string) {
         this.dependenciesSection.setInbound(inbound).setType(type);
-        this.setConstraintItems(this.dependenciesSection, [ContentSummaryAndCompareStatus.fromContentSummary(item)]);
+        this.setConstraintItems(this.dependenciesSection, [item.getId()]);
+        this.dependenciesSection.setDependencyItem(item);
         this.selectContentTypeBucket(type);
     }
 
@@ -174,10 +175,10 @@ export class ContentBrowseFilterPanel
         return this.searchDataAndHandleResponse(this.createContentQuery());
     }
 
-    setSelectedItems(items: ContentSummaryAndCompareStatus[]) {
+    setSelectedItems(itemsIds: string[]) {
         this.dependenciesSection.reset();
 
-        super.setSelectedItems(items);
+        super.setSelectedItems(itemsIds);
     }
 
     protected isFilteredOrConstrained() {
@@ -392,15 +393,15 @@ export class ContentBrowseFilterPanel
     }
 
     private makeSelectedItemsSearchExpr(): Expression {
-        let selectedItems = this.getSelectionItems();
+        let selectedItemsIds = this.getSelectionItems();
         let query: QueryExpr;
 
-        selectedItems.forEach((content: ContentSummaryAndCompareStatus) => {
+        selectedItemsIds.forEach((id: string) => {
             if (!!query) {
                 query = new QueryExpr(new LogicalExpr(query, LogicalOperator.OR,
-                    CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(content.getId()))));
+                    CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(id))));
             } else {
-                query = new QueryExpr(CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(content.getId())));
+                query = new QueryExpr(CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(id)));
             }
         });
 
@@ -543,7 +544,8 @@ export class ContentBrowseFilterPanel
 }
 
 export class DependenciesSection
-    extends ConstraintSection<ContentSummaryAndCompareStatus> {
+    extends ConstraintSection {
+
     private viewer: ContentSummaryViewer = new ContentSummaryViewer();
 
     private inbound: boolean = true;
@@ -558,11 +560,7 @@ export class DependenciesSection
     }
 
     public getDependencyId(): ContentId {
-        return this.getDependencyItem().getContentId();
-    }
-
-    public getDependencyItem(): ContentSummaryAndCompareStatus {
-        return this.getItems()[0];
+        return new ContentId(this.getItemsIds()[0]);
     }
 
     public getType(): string {
@@ -588,14 +586,7 @@ export class DependenciesSection
         return this;
     }
 
-    public setItems(items: ContentSummaryAndCompareStatus[]) {
-
-        super.setItems(items);
-
-        let dependencyItem = this.getDependencyItem();
-
-        if (!!dependencyItem) {
-            this.viewer.setObject(dependencyItem.getContentSummary());
-        }
+    setDependencyItem(item: ContentSummary) {
+        this.viewer.setObject(item);
     }
 }
