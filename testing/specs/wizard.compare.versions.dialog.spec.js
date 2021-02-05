@@ -35,6 +35,30 @@ describe('wizard.compare.versions.dialog - open the dialog and verify elements',
             await contentWizard.waitAndClickOnSave();
         });
 
+    it("GIVEN Comparing Versions Dialog is opened WHEN 'Show entire content' has been clicked THEN 'type', 'owner', 'publish' properties get visible",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let compareContentVersionsDialog = new CompareContentVersionsDialog();
+            let wizardVersionsWidget = new WizardVersionsWidget();
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            //1. Open existing folder:
+            await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentWizard.openDetailsPanel();
+            //2. Open Version History panel:
+            await wizardDetailsPanel.openVersionHistory();
+            await wizardVersionsWidget.waitForVersionsLoaded();
+            //3. Click on 'compare' icon in the previous version:
+            await wizardVersionsWidget.clickOnCompareWithCurrentVersionButton(1);
+            //4. Verify that modal dialog is loaded:
+            await compareContentVersionsDialog.waitForDialogOpened();
+            let type = await compareContentVersionsDialog.getTypeProperty();
+            assert.equal(type, '', "Type property should not be displayed");
+            //5. Click on 'Show entire content' checkbox
+            await compareContentVersionsDialog.clickOnShowEntireContentCheckbox();
+            type = await compareContentVersionsDialog.getTypeProperty();
+            assert.equal(type, `"base:folder"`, "Expected type property gets visible");
+        });
+
     it(`GIVEN existing folder is opened WHEN compare icon in the previous version has been clicked THEN Comparing Versions Dialog should be loaded`,
         async () => {
             let contentWizard = new ContentWizard();
