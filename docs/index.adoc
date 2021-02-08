@@ -28,6 +28,7 @@ Google Chrome, Apple Safari, Mozilla Firefox and Microsoft Edge.
 == Content Studio+
 
 An extended version of Content Studio called "*Content Studio+*" contains additional features that expand standard functionality of the app.
+This application can be installed directly from the https://market.enonic.com/vendors/enonic/content-studio-plus[Enonic Market].
 
 NOTE: *Content Studio+* requires XP 7.6.0 (or higher) and is available only for subscription customers with a valid license from Enonic
 
