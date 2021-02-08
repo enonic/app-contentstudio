@@ -17,7 +17,9 @@ const XPATH = {
     dependantList: "//ul[contains(@id,'PublishDialogDependantList')]",
     dependantItemViewer: "//div[contains(@id,'DependantItemViewer')]",
     markAsReadyDropdownHandle: "//button[contains(@id,'DropdownHandle')]",
-    excludeInvalidItems: "//div[contains(@class,'state-icon invalid')]//button[child::span[contains(.,'Exclude all')]]",
+    excludeInvalidItems: "//h6[child::div[contains(@class,'state-icon invalid')]]//button[child::span[contains(.,'Exclude all')]]",
+    excludeWorkInProgressItems: "//h6[child::div[contains(@class,'state-icon in-progress')]]//button[child::span[contains(.,'Exclude all')]]",
+
     contentSummaryByDisplayName:
         displayName => `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     itemToPublish:
@@ -72,13 +74,30 @@ class ContentPublishDialog extends Page {
         return XPATH.container + XPATH.excludeInvalidItems;
     }
 
+    get excludeWorkInProgressItemsButton() {
+        return XPATH.container + XPATH.excludeWorkInProgressItems;
+    }
+
     waitForExcludeInvalidItemsButtonDisplayed() {
         return this.waitForElementDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
     }
 
+    waitForExcludeInvalidItemsButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
+    }
+
+    waitForExcludeWorkInProgressItemsButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.excludeWorkInProgressItemsButton, appConst.mediumTimeout);
+    }
+
     async clickOnExcludeInvalidItemsButton() {
-        await this.waitForElementDisplayed(this.markAsReadyDropdownHandle, appConst.longTimeout);
-        return await this.clickOnElement(this.markAsReadyDropdownHandle);
+        await this.waitForElementDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
+        return await this.clickOnElement(this.excludeInvalidItemsButton);
+    }
+
+    async clickOnExcludeWorkInProgressItemsButton() {
+        await this.waitForElementDisplayed(this.excludeWorkInProgressItemsButton, appConst.mediumTimeout);
+        return await this.clickOnElement(this.excludeWorkInProgressItemsButton);
     }
 
     async clickOnMarkAsReadyDropdownHandle() {
