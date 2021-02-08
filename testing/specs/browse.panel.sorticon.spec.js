@@ -20,6 +20,7 @@ describe('browse.panel.sorticon.spec, do sort a folder and check a sort-icon in 
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let sortContentDialog = new SortContentDialog();
+            await contentBrowsePanel.pause(1000);
             //1. Select the folder with children an open sort-dialog:
             await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.clickOnSortButton();

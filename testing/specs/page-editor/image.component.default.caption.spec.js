@@ -18,10 +18,10 @@ describe("image.component.default.caption.spec: Type a caption in image-wizard a
         this.timeout(appConstant.SUITE_TIMEOUT);
         webDriverHelper.setupBrowser();
 
-        let IMAGE_DISPLAY_NAME = 'bro';
+            let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.MAN2;
         let SITE;
         let CONTROLLER_NAME = 'main region';
-        let EXPECTED_CAPTION = "bro caption";
+            let EXPECTED_CAPTION = "man caption";
 
         it(`Preconditions: new site should be created`,
             async () => {
