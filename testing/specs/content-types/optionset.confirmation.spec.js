@@ -21,31 +21,31 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
 
     it(`Preconditions: new site should be created`,
         async () => {
-                let displayName = contentBuilder.generateRandomName('site');
-                SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
-                await studioUtils.doAddSite(SITE);
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            await studioUtils.doAddSite(SITE);
         });
 
-        //Verifies: No confirmation given on deletion of a non-empty option-set occurrence #1655
-        it(`GIVEN option set with dirty fields WHEN 'Reset' menu item has been clicked THEN 'Notification Dialog' should be loaded`,
-            async () => {
-                    let optionSetForm = new OptionSetForm();
-                    let singleSelectionOptionSet = new SingleSelectionOptionSet();
-                    let notificationDialog = new NotificationDialog();
-                    //1. Open the new wizard:
-                    await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
-                    //2. Select 'Option 1' and fill in the option name input :
-                    await optionSetForm.selectOptionInSingleSelection("Option 1");
-                    await singleSelectionOptionSet.typeOptionName("test option");
-                    await singleSelectionOptionSet.expandOptionSetMenuAndClickOnMenuItem(0, "Reset");
-                    studioUtils.saveScreenshot('item_set_confirmation_dialog');
-                    //3. NotificationDialog dialog loads, because new item-set has dirty fields:
-                    await notificationDialog.waitForDialogLoaded();
-                    //4. Click on Ok button:
-                    await notificationDialog.clickOnOkButton();
-                    //5. Verify that notificationDialog closes:
-                    await notificationDialog.waitForDialogClosed();
-            });
+    //Verifies: No confirmation given on deletion of a non-empty option-set occurrence #1655
+    it(`GIVEN option set with dirty fields WHEN 'Reset' menu item has been clicked THEN 'Notification Dialog' should be loaded`,
+        async () => {
+            let optionSetForm = new OptionSetForm();
+            let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            let notificationDialog = new NotificationDialog();
+            //1. Open the new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
+            //2. Select 'Option 1' and fill in the option name input :
+            await optionSetForm.selectOptionInSingleSelection("Option 1");
+            await singleSelectionOptionSet.typeOptionName("test option");
+            await singleSelectionOptionSet.expandOptionSetMenuAndClickOnMenuItem(0, "Reset");
+            studioUtils.saveScreenshot('item_set_confirmation_dialog');
+            //3. NotificationDialog dialog loads, because new item-set has dirty fields:
+            await notificationDialog.waitForDialogLoaded();
+            //4. Click on Ok button:
+            await notificationDialog.clickOnOkButton();
+            //5. Verify that notificationDialog closes:
+            await notificationDialog.waitForDialogClosed();
+        });
 
     it(`GIVEN wizard for new 'option set' is opened WHEN menu has been expanded in the single item-set THEN 'Delete' menu item should be disabled, Add below and Add above are enabled`,
         async () => {
@@ -65,8 +65,8 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             assert.isFalse(isAddAboveDisabled, "'Add above' menu item should be enabled");
             let isAddBelowDisabled = await singleSelectionOptionSet.isAddBelowSetMenuItemDisabled();
             assert.isFalse(isAddAboveDisabled, "'Add below' menu item should be enabled");
-                let isResetDisabled = await singleSelectionOptionSet.isResetMenuItemDisabled();
-                assert.isFalse(isResetDisabled, "'Reset' menu item should be enabled");
+            let isResetDisabled = await singleSelectionOptionSet.isResetMenuItemDisabled();
+            assert.isFalse(isResetDisabled, "'Reset' menu item should be enabled");
         });
 
     //New set with dirty fields: confirmation should appear
@@ -91,7 +91,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await confirmationMask.waitForDialogOpened();
         });
 
-        //New set with no dirty fields (ie only default values): no confirmation
+    //New set with no dirty fields (ie only default values): no confirmation
     it(`GIVEN wizard for new 'option set' is opened  AND 'Add My Item-set' has been clicked WHEN text typed in the second item-set AND 'remove' item-set button has been pressed THEN 'Confirmation Dialog' should appear`,
         async () => {
             let optionSetForm = new OptionSetForm();
@@ -111,30 +111,30 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             assert.isFalse(result, "Confirmation mask Dialog should not be loaded, because new item-set has no dirty fields");
         });
 
-        it(`GIVEN Confirmation mask Dialog is opened WHEN 'Esc' key has been pressed THEN 'Confirmation mask Dialog' closes`,
-            async () => {
-                    let optionSetForm = new OptionSetForm();
-                    let singleSelectionOptionSet = new SingleSelectionOptionSet();
-                    let confirmationMask = new ConfirmationMask();
-                    //1. Open the new wizard:
-                    await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
-                    //2. Select 'Option 1' and click on add new item-set:
-                    await optionSetForm.selectOptionInSingleSelection("Option 1");
-                    await singleSelectionOptionSet.clickOnAddItemSetButton();
-                    await singleSelectionOptionSet.typeOptionName("test option");
-                    //3. Type a text in the second item-set:
-                    await singleSelectionOptionSet.typeInLabelInput("label1", 1);
-                    //4. Click on 'Delete' menu item and try to delete the second item-set:
-                    await singleSelectionOptionSet.expandMenuClickOnDelete(1);
-                    studioUtils.saveScreenshot('item_set_confirmation_dialog');
-                    //"Confirmation mask dialog" loads appear, because new item-set has dirty fields:
-                    await confirmationMask.waitForDialogOpened();
+    it(`GIVEN Confirmation mask Dialog is opened WHEN 'Esc' key has been pressed THEN 'Confirmation mask Dialog' closes`,
+        async () => {
+            let optionSetForm = new OptionSetForm();
+            let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            let confirmationMask = new ConfirmationMask();
+            //1. Open the new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
+            //2. Select 'Option 1' and click on add new item-set:
+            await optionSetForm.selectOptionInSingleSelection("Option 1");
+            await singleSelectionOptionSet.clickOnAddItemSetButton();
+            await singleSelectionOptionSet.typeOptionName("test option");
+            //3. Type a text in the second item-set:
+            await singleSelectionOptionSet.typeInLabelInput("label1", 1);
+            //4. Click on 'Delete' menu item and try to delete the second item-set:
+            await singleSelectionOptionSet.expandMenuClickOnDelete(1);
+            studioUtils.saveScreenshot('item_set_confirmation_dialog');
+            //"Confirmation mask dialog" loads appear, because new item-set has dirty fields:
+            await confirmationMask.waitForDialogOpened();
 
-                    //5. Press on 'Esc' key:
-                    await confirmationMask.pressEscKey();
-                    //6. Verify that Confirmation mask closes:
-                    await confirmationMask.waitForDialogClosed();
-            });
+            //5. Press on 'Esc' key:
+            await confirmationMask.pressEscKey();
+            //6. Verify that Confirmation mask closes:
+            await confirmationMask.waitForDialogClosed();
+        });
 
     // verifies: https://github.com/enonic/app-contentstudio/issues/400
     it(`GIVEN wizard for new 'option set' is opened  AND 'Single Selection' form has been clicked WHEN all required inputs have been filled THEN red icon gets not visible(content is valid)`,

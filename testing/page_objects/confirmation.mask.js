@@ -7,13 +7,11 @@ const lib = require('../libs/elements');
 const XPATH = {
     container: `//div[contains(@id,'ConfirmationMask')]`,
     cancelButton: "//button[contains(@id,'ActionButton') and descendant::span[text()='Cancel']]",
-    confirmButton: `//button[contains(@id,'ActionButton') and descendant::span[text()='Delete My Item-set']]`,
     confirmButtonByText:
         text => `//button[contains(@id,'ActionButton') and descendant::span[text()='${text}']]`
 };
 
 class ConfirmationMask extends Page {
-
 
 
     get cancelButton() {
