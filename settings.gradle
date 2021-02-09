@@ -1,7 +1,8 @@
 rootProject.name = projectName
 
 include 'app'
- include 'lib'
+include 'lib'
+include 'rest'
 
 configureProjects( rootProject )
 
@@ -22,7 +23,7 @@ def configureProject( p )
 
 project(":app").name = appProjectName
 project(":lib").name = libProjectName
-
+project(":rest").name = 'rest'
 
 if ( hasProperty( 'env' ) ) addBuild('../lib-admin-ui')
 

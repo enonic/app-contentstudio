@@ -1,0 +1,11 @@
+archivesBaseName = 'lib-contentstudio-rest'
+
+app {
+    name = 'com.enonic.lib.contentstudio.rest'
+    group = 'com.enonic.lib'
+    displayName = 'Content Studio REST Library'
+}
+
+dependencies {
+
+}

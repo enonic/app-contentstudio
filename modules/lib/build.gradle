@@ -1,25 +1,67 @@
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'com.enonic.defaults'
+apply plugin: 'com.enonic.xp.app'
+apply plugin: 'com.github.node-gradle.node'
+
 archivesBaseName = 'lib-contentstudio'
 
 app {
     name = 'com.enonic.lib.contentstudio'
     group = 'com.enonic.lib'
     displayName = 'Content Studio Library'
+    devSourcePaths += file( "$rootDir/../lib-admin-ui/src/main/resources" )
 }
 
 dependencies {
+    compile "org.apache.commons:commons-text:${commonsTextVersion}"
     compile "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
+    project(":rest")
 }
 
-compileJava.enabled = false
-compileTestJava.enabled = false
-classes.enabled = false
-unpackWebJars.enabled = false
-deploy.enabled = false
-
-task lint {
-    dependsOn tasks.getByPath(':lint')
+node {
+    download = true
+    version = '14.15.0'
 }
 
+unpackDevResources.enabled = false
+
+def unpackDevResourcesRoot = rootProject.tasks.getByPath(':unpackDevResources')
+npmInstall.mustRunAfter unpackDevResourcesRoot
+processResources.dependsOn += unpackDevResourcesRoot
+
+if ( hasLibAdminUi() )
+{
+    build.dependsOn += libAdminBuildTask
+    clean.dependsOn += libAdminCleanTask
+}
+
+task npmInstallForce( type: NpmTask ) {
+    description = 'Update all project node dependencies'
+    args = ['install', '--force']
+}
+
+task cleanNode( type: Delete ) {
+    delete 'node_modules'
+}
+
+task lint( type: NpmTask, dependsOn: npmInstall ) {
+    args = [ 'run', 'lint' ]
+    inputs.files fileTree( dir: 'modules', include: 'src/main/**.*' )
+    outputs.dir file('gradle')
+    outputs.upToDateWhen { false }
+}
+
+task webpack( type: NpmTask, dependsOn: [npmInstall, lint, unpackDevResourcesRoot] ) {
+    environment = [ 'NODE_ENV': nodeEnvironment() ]
+    description = 'Build UI resources (ts, css, etc).'
+    args = [ 'run', 'build' ]
+    inputs.dir "$rootDir/.xp/dev"
+    inputs.dir "$rootDir/src/main"
+    inputs.file 'webpack.config.js'
+    outputs.dir "$buildDir/resources/main"
+}
+/*
 task typescriptPkg( type: NpmTask, dependsOn: [npmInstall, lint] ) {
     def buildEnv = getEnvironmentShort()
     environment = [ 'NODE_ENV': nodeEnvironment() ]
@@ -48,7 +90,7 @@ task typescript {
     dependsOn 'minifyPkg'
     dependsOn 'copyPackage'
 }
-
+*/
 jar {
     exclude 'admin/**'
     exclude 'assets/**'
@@ -60,5 +102,5 @@ jar {
     exclude 'application.xml'
 
     includeEmptyDirs = false
-    dependsOn += typescript
+    dependsOn += webpack
 }

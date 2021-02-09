@@ -2,16 +2,14 @@ plugins {
     id 'com.enonic.defaults' version '2.0.1' apply false
     id 'com.enonic.xp.app' version '2.0.0' apply false
     id 'com.github.node-gradle.node' version '3.0.0' apply false
-    id 'org.asciidoctor.convert' version '2.4.0' apply false
-    id 'org.aim42.htmlSanityCheck' version '1.1.3' apply false
+    id 'org.asciidoctor.convert' version '2.4.0'
+    id 'org.aim42.htmlSanityCheck' version '1.1.3'
 }
 
 allprojects {
-    apply plugin: 'com.github.node-gradle.node'
     apply plugin: 'com.enonic.xp.app'
     apply from: "$rootDir/gradle/env.gradle"
     apply from: "$rootDir/gradle/lib-admin.gradle"
-    apply from: "$rootDir/gradle/node.gradle"
 
     dependencies {
         compile("com.enonic.xp:core-api:${xpVersion}")
@@ -26,11 +24,6 @@ allprojects {
         vendorUrl = 'https://enonic.com'
     }
 
-    node {
-        download = true
-        version = '14.15.0'
-    }
-
     repositories {
         mavenLocal()
         jcenter()
@@ -41,80 +34,39 @@ allprojects {
     }
 }
 
-subprojects {
-    apply plugin: 'java'
-    apply plugin: 'maven-publish'
-    apply plugin: 'com.enonic.defaults'
-    apply plugin: 'com.enonic.xp.app'
-
-    sourceSets {
-        main {
-            java {
-                srcDirs "$rootDir/src/main/java"
-            }
-            resources {
-                srcDirs "$rootDir/src/main/resources"
-            }
-        }
-        test {
-            java {
-                srcDirs "$rootDir/src/test/java"
-            }
-            resources {
-                srcDirs "$rootDir/src/test/resources"
-            }
-        }
-    }
-
-    app {
-        devSourcePaths += file( "$rootDir/../lib-admin-ui/src/main/resources" )
-    }
-
-    unpackDevResources.enabled = false
-
-    def unpackDevResourcesRoot = rootProject.tasks.getByPath(':unpackDevResources')
-    def npmInstallRoot = rootProject.tasks.getByPath(':npmInstall')
-    npmInstall.mustRunAfter unpackDevResourcesRoot
-    npmInstall.dependsOn += npmInstallRoot
-    processResources.dependsOn += unpackDevResourcesRoot
-
-    if ( hasLibAdminUi() )
-    {
-        build.dependsOn += libAdminBuildTask
-        clean.dependsOn += libAdminCleanTask
-    }
-
-    def webpackTask = tasks.findByPath( ':webpack' )
-    if ( webpackTask != null ) webpackTask.dependsOn += unpackDevResourcesRoot
-}
-
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-dependencies {
-    include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
+
+asciidoctor {
+    sourceDir = file('docs')
+    outputDir = file('build/docs')
+    requires project.file('verbose-mode.rb')
+    attributes 'source-highlighter': 'coderay',
+               idseparator: '-'
+
+    resources {
+        from(sourceDir) {
+            include '**/images/**'
+            include '**/code/**'
+            include '**/*.*'
+        }
+    }
 }
 
-// lib-admin-ui needs to be included, but it enables some tasks, though we only need :unpackDevResources
-processResources.enabled = false
-compileJava.enabled = false
-compileTestJava.enabled = false
-classes.enabled = false
-unpackWebJars.enabled = false
-build.enabled = false
-jar.enabled = false
-deploy.enabled = false
+htmlSanityCheck {
+    dependsOn asciidoctor
+    sourceDir = new File( "$buildDir/docs/html5" )
 
-task lint( type: NpmTask, dependsOn: npmInstall ) {
-    args = [ 'run', 'lint' ]
-    inputs.files fileTree( dir: 'modules', include: 'src/main/**.*' )
-    outputs.dir file('gradle')
-    outputs.upToDateWhen { false }
-}
+    sourceDocuments = fileTree(sourceDir) {
+        include "index.html"
+    }
 
-if ( hasLibAdminUi() )
-{
-    flush.dependsOn += libAdminFlushTask
-    unpackDevResources.dependsOn += libAdminBuildTask
+    // where to put results of sanityChecks...
+    checkingResultsDir = new File( "$buildDir/report/htmlchecks" )
+    //checkExternalLinks = false
+
+    // fail build on errors?
+    failOnErrors = true
 }
