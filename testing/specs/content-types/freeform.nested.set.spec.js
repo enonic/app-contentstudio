@@ -32,7 +32,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             await contentWizard.typeDisplayName(contentDisplayName);
             //save just the name:
             await contentWizard.waitAndClickOnSave();
-            //Select Input in the selctor and load new form:
+            //Select Input in the selector and load new form:
             await freeFormNestedSet.expandOptionsAndSelectElementType("Input");
             // save the content again
             await contentWizard.waitAndClickOnSave();
@@ -57,9 +57,11 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             await contentWizard.waitAndClickOnSave();
             await contentWizard.pause(1000);
             //3. change the selected option to 'image':
-            await freeFormNestedSet.expandOptionsAndSelectInputType("image");
+            await freeFormNestedSet.resetInputTypeOption();
+            await freeFormNestedSet.selectInputType("image");
             //"Save" button gets enabled, because the option was updated:
             await contentWizard.waitForSaveButtonEnabled();
+            await contentWizard.waitAndClickOnSave();
             //4. Verify that the content gets valid now:
             let result = await contentWizard.isContentInvalid();
             assert.isFalse(result, "Red icon should not be displayed, because required input is filled");

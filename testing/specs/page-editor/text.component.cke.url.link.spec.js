@@ -16,7 +16,7 @@ const TextComponentCke = require('../../page_objects/components/text.component')
 const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 
-describe('Text Component with CKE - insert link and table  specification', function () {
+describe('Text Component with CKE - insert link and table specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 

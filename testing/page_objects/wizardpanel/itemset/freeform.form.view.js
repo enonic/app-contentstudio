@@ -8,10 +8,10 @@ const lib = require('../../../libs/elements');
 const xpath = {
     itemSet: "//div[contains(@id,'FormItemSetView')]",
     elementTypeSetView: "//div[contains(@id,'FormOptionSetView') and descendant::h5[text()='element type']]",
-    inputTypeSetView: "//div[contains(@id,'FormOptionSetOptionView') and descendant::h5[text()='input type']]",
     elementTypeDropdown: "//div[contains(@id,'FormOptionSetView') and descendant::h5[text()='element type']]//div[contains(@id,'Dropdown')]",
-    inputTypeDropdown: "//div[contains(@id,'FormOptionSetView') and descendant::h5[text()='input type']]//div[contains(@id,'Dropdown')]",
-    addInputButton: "//button[contains(@id,'Button') and child::span[text()='Add Input']]"
+    inputTypeSetView: "//div[contains(@id,'FormOptionSetOptionView') and descendant::h5[text()='input type']]",
+    inputTypeDropdown: "//div[contains(@id,'FormOptionSetOptionView') and descendant::h5[text()='input type']]//div[contains(@id,'Dropdown')]",
+    addInputButton: "//button[contains(@id,'Button') and child::span[text()='Add Input']]",
 };
 
 class FreeFormView extends Page {
@@ -37,10 +37,13 @@ class FreeFormView extends Page {
         return xpath.itemSet + xpath.addInputButton;
     }
 
+    get inputTypeMenuButton() {
+        return xpath.itemSet + xpath.inputTypeSetView + lib.OPTION_SET_MENU_BUTTON;
+    }
+
+    //Types the required text in the option filter input and select an option:
     async selectInputType(inputType) {
-        await this.waitForElementDisplayed(xpath.itemSet + xpath.inputTypeDropdown, appConst.mediumTimeout);
         await this.scrollPanel(800);
-        await this.clickOnElement(this.inputTypeDropDownHandle);
         await this.pause(300);
         await this.typeTextInInput(this.inputTypeOptionFilterInput, inputType);
 
@@ -51,16 +54,22 @@ class FreeFormView extends Page {
         return await this.pause(200);
     }
 
-    async expandOptionsAndSelectInputType(option) {
+    async expandInputTypeMenu() {
         await this.scrollPanel(600);
-        await this.waitForElementDisplayed(this.inputTypeDropDownHandle, appConst.mediumTimeout);
-        await this.clickOnElement(this.inputTypeDropDownHandle);
-        await this.pause(1000);
-        await this.typeTextInInput(this.inputTypeOptionFilterInput, "");
-        let optionLocator = xpath.inputTypeSetView + lib.itemByDisplayName(option);
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        await this.clickOnElement(optionLocator);
-        return await this.pause(200);
+        await this.clickOnElement(this.inputTypeMenuButton);
+        return await this.pause(400);
+    }
+
+    async resetInputTypeOption() {
+        await this.expandInputTypeMenu(600);
+        return await this.selectMenuItem("Reset");
+    }
+
+    async selectMenuItem(menuItem) {
+        let res = await this.getDisplayedElements(`//li[contains(@id,'MenuItem') and text()='${menuItem}']`);
+        await res[0].waitForEnabled(appConst.shortTimeout, `free form -  menu item '${menuItem}'] should be enabled! `);
+        await res[0].click();
+        return await this.pause(400);
     }
 
     //Expands options and clicks on the option

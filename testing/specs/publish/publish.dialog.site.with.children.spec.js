@@ -35,7 +35,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
             //1. Select an existing folder with not valid child and open Publish wizard:
-            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(SITE.displayName);
+            await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             //2. Click on Include children button
@@ -52,8 +52,8 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            //1. Select an existing folder with not valid child and open Publish wizard:
-            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(SITE.displayName);
+            //1. Select an existing site with not valid child and open Publish wizard:
+            await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             //2. Click on Include children button
@@ -77,8 +77,8 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            //1. Select an existing folder with not valid child and open Publish wizard:
-            await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(SITE.displayName);
+            //1. Select an existing site with not valid child and open Publish wizard:
+            await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnPublishButton();
             await contentPublishDialog.waitForDialogOpened();
             //2. Click on Include children button
