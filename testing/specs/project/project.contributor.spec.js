@@ -23,7 +23,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let USER;
-    let PASSWORD = "1q2w3e";
+    let PASSWORD = appConstant.PASSWORD.MEDIUM;
     let FOLDER_WORK_IN_PROGRESS;
     let FOLDER_READY_TO_PUBLISH;
     let FOLDER_NAME_1 = studioUtils.generateRandomName("folder");

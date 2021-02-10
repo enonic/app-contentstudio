@@ -30,7 +30,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
     const FOLDER_NAME_2 = studioUtils.generateRandomName("folder");
     let USER;
     let FOLDER_ISSUE;
-    const PASSWORD = "1q2w3e";
+    const PASSWORD = appConstant.PASSWORD.MEDIUM;
     const TASK_TITLE = "task for owner";
 
 

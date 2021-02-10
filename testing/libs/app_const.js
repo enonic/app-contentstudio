@@ -75,6 +75,11 @@ module.exports = Object.freeze({
         STARTED: "Content synchronisation job has started",
         FINISHED: "Content synchronisation job has finished"
     },
+    PASSWORD: {
+        MEDIUM: "password123",
+        STRONG: "password123=",
+        WEAK: "password"
+    },
 
     PROJECT_ACCESS_MODE: {
         PRIVATE: "Private",

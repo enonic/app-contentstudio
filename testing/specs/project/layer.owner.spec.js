@@ -23,7 +23,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
     const SITE_NAME = contentBuilder.generateRandomName('site');
     let SITE;
     let USER;
-    const PASSWORD = "1q2w3e";
+    const PASSWORD = appConstant.PASSWORD.MEDIUM;
 
     it(`Precondition 1: new system user should be created`,
         async () => {
