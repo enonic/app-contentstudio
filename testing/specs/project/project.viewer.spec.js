@@ -21,7 +21,7 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
     let TEST_FOLDER;
     let FOLDER_NAME = studioUtils.generateRandomName("folder");
     let USER;
-    let PASSWORD = "1q2w3e";
+    let PASSWORD = appConstant.PASSWORD.MEDIUM;
 
     it(`Preconditions: new system user should be created`,
         async () => {

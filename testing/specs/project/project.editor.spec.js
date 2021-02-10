@@ -21,7 +21,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let USER;
-    let PASSWORD = "1q2w3e";
+    let PASSWORD = appConstant.PASSWORD.MEDIUM;
 
     it(`Preconditions: new system user should be created`,
         async () => {
