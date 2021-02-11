@@ -169,7 +169,7 @@ export class ProjectBuilder {
     fromJson(json: ProjectJson): ProjectBuilder {
         this.name = json.name;
         this.displayName = json.displayName;
-        this.description = json.description;
+        this.description = json.description || '';
         this.parent = json.parent;
         this.icon = json.icon ? new AttachmentBuilder().fromJson(json.icon).build() : null;
         this.permissions = ProjectPermissions.fromJson(json.permissions);
