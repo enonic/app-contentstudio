@@ -80,38 +80,11 @@ This button will open the editor in the full screen mode for more convenient use
 
 == Custom Image Styles
 
-By default, Content Studio comes with one built-in image style called “_Original (no image processing)_”. By applying this style to the image, you'll make sure
+By default, XP comes with one built-in image style called “_Original (no image processing)_”. By applying this style to the image, you'll make sure
 that the image won't undergo any processing on the server and will be rendered “as is”.
 
+Custom Image Styles can be defined in your application as https://developer.enonic.com/docs/xp/stable/cms/styles[described] in the CMS section of XP docs.
+
+Custom styles from all the applications added to the site (plus the "_Original_" style) will be combined into one list inside the dropdown of the Image modal dialog.
+
 image::rich-text-editor-image-style.png[]
-
-You can define your own styles in your application which will be automatically shown inside the dropdown with image styles inside the Image modal dialog as described below.
-
-=== Styles definition and Server-side processing
-
-Define a file called `styles.xml` in the `site` folder of your app. The example below represents a couple of styles applying
-different server processing, like `aspect-ratio` and `filter`. As of now, only `aspect-ratio` and `filter` are supported.
-
-./site/styles.xml
-[source,xml]
-----
-include::code/styles.xml[]
-----
-
-As you can see, the root `styles` element in `styles.xml` has an optional attribute called `css`. By using it you can define client-side CSS styles
-and (optionally) combine them with server-side processing styles.
-
-=== Client-side processing
-
-Define a file called `styles.css` inside `resources/assets` folder. It has to match the path in the `css` attribute of `styles` element
-in `styles.xml`. So, in case of `css="styles/styles.css"` the file has to be located at `resources/assets/styles/styles.css`.
-
-./site/styles.css
-[source,css]
-----
-include::code/styles.css[]
-----
-
-TIP: All custom styles (no matter if they define server-side processing or client-side processing or combine both) must be defined in `styles.xml`.
-If you want to use client-side processing, define a CSS file and add reference to it from `styles.xml` via `css` attribute (as described above).
-Make sure that CSS class matches `image.name` from `styles.xml` (like `editor-style-image-sepia` in `styles.xml` and `.editor-style-image-sepia` in `styles.css` from the example above).
