@@ -53,6 +53,8 @@ export class ContentBrowsePanel
     private contextSplitPanel: ContextSplitPanel;
     private debouncedPreviewRefresh: () => void;
     private debouncedFilterRefresh: () => void;
+    private debouncedBrowseActionsRefreshOnDemand: () => void;
+    private browseActionsUpdateRequired: boolean = false;
 
     constructor() {
         super();
@@ -63,6 +65,11 @@ export class ContentBrowsePanel
 
         this.debouncedPreviewRefresh = AppHelper.debounce(this.forcePreviewRerender.bind(this), 500);
         this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
+        this.debouncedBrowseActionsRefreshOnDemand = AppHelper.debounce(() => {
+            if (this.browseActionsUpdateRequired) {
+                this.updateBrowseActions();
+            }
+        }, 300);
 
         if (!ProjectContext.get().isInitialized()) {
             this.handleProjectNotSet();
@@ -331,6 +338,7 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: created', data);
         }
 
+        this.handleCRUD();
         this.treeGrid.addContentNodes(data);
         this.refreshFilterWithDelay();
     }
@@ -340,6 +348,7 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: renamed', data, oldPaths);
         }
 
+        this.handleCRUD();
         this.treeGrid.renameContentNodes(data);
         this.refreshFilterWithDelay();
     }
@@ -383,6 +392,7 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: deleted', items.map(i => i.id.toString()));
         }
 
+        this.handleCRUD();
         this.treeGrid.deleteItems(items);
         this.updateContextPanelOnNodesDelete(items);
         this.refreshFilterWithDelay();
@@ -431,6 +441,7 @@ export class ContentBrowsePanel
     }
 
     private doHandleContentUpdate(data: ContentSummaryAndCompareStatus[]) {
+        this.handleCRUD();
         this.updateContextPanel(data);
         this.treeGrid.updateNodesByData(data);
     }
@@ -610,6 +621,18 @@ export class ContentBrowsePanel
         browseActions.onActionsUnStashed(() => {
             contentPublishMenuButton.setRefreshDisabled(false);
         });
+    }
+
+    private handleCRUD() {
+        if (this.treeGrid.hasSelectedOrHighlightedNode()) {
+            this.browseActionsUpdateRequired = true;
+            this.debouncedBrowseActionsRefreshOnDemand();
+        }
+    }
+
+    protected updateBrowseActions(): Q.Promise<void> {
+        this.browseActionsUpdateRequired = false;
+        return super.updateBrowseActions();
     }
 
 }
