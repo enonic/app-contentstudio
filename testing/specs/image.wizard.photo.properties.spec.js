@@ -18,7 +18,7 @@ describe("image.wizard.photo.properties.spec: Open an image and update photo pro
         this.timeout(appConstant.SUITE_TIMEOUT);
         webDriverHelper.setupBrowser();
 
-            let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.NORD;
+        let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.NORD;
 
         // verifies https://github.com/enonic/app-contentstudio/issues/388  and https://github.com/enonic/app-contentstudio/issues/618
         //Image Wizard - some field values are not updated after version rollback
