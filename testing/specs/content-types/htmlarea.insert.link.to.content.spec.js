@@ -42,8 +42,9 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
             });
 
             //Verify issue Less strict Regexp for HtmlArea links
-            // https://github.com/enonic/app-contentstudio/issues/1458
-        it(`GIVEN 'Insert Link' dialog is opened WHEN link to another section has been typed in the URL-input AND 'Insert' button pressed THEN modal dialog should be closed and the link is inserted`,
+            //Improvement: https://github.com/enonic/app-contentstudio/issues/1458
+            it.skip(
+                `GIVEN 'Insert Link' dialog is opened WHEN link to another section has been typed AND 'Insert' button pressed THEN the link should be inserted`,
             async () => {
                 let htmlAreaForm = new HtmlAreaForm();
                 await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
