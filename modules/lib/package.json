@@ -7,7 +7,8 @@
   },
   "scripts": {
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "fix": "tslint -p tsconfig.json -c tslint.json --fix"
+    "fix": "tslint -p tsconfig.json -c tslint.json --fix",
+    "build": "webpack --color"
   },
   "dependencies": {
     "hasher": "^1.2.0",
@@ -15,7 +16,7 @@
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.12.1",
     "jsondiffpatch": "^0.4.1",
-    "lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
+    "lib-admin-ui": "file:../../.xp/dev/lib-admin-ui",
     "lodash": "^4.17.20",
     "mutation-observer": "^1.0.3",
     "promise-polyfill": "8.2.0",

@@ -57,7 +57,7 @@ task webpack( type: NpmTask, dependsOn: [npmInstall, lint, unpackDevResourcesRoo
     description = 'Build UI resources (ts, css, etc).'
     args = [ 'run', 'build' ]
     inputs.dir "$rootDir/.xp/dev"
-    inputs.dir "$rootDir/src/main"
+    inputs.dir "$rootDir/modules/lib/src/main"
     inputs.file 'webpack.config.js'
     outputs.dir "$buildDir/resources/main"
 }
