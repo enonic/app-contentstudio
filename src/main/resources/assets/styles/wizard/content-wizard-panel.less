@@ -1,5 +1,7 @@
 .content-wizard-panel {
   .wizard-header {
+    padding-left: 70px;
+
     .path-error {
       color: @admin-level-3;
       display: none;
@@ -55,10 +57,39 @@
     }
   }
 
-  .form-panel & {
-    ._0-240, ._240-360, ._360-540 {
+  .form-panel {
+    .thumbnail-uploader-el {
+      float: left;
+    }
+
+    &._0-240,
+    &._240-360,
+    &._360-540 {
       .wizard-header {
-        max-width: 100%;
+        max-width: calc(100% - 105px);
+        margin: 15px 0;
+        padding-left: 65px;
+      }
+
+      .thumbnail-uploader-el {
+        width: 32px;
+        height: 32px;
+        margin: 5px 10px 5px 15px;
+
+        .dropzone-container .dropzone {
+          min-height: auto;
+        }
+
+        &.has-origin-project .result-container {
+          .icon-cloud-download(18px, -6px, -6px);
+        }
+
+        .result-container {
+          &::before {
+            font-size: 14px;
+            top: 2px;
+          }
+        }
       }
     }
   }
