@@ -15,4 +15,7 @@ export class ContentBrowseItemPanel
         return new ContentItemStatisticsPanel();
     }
 
+    setStatisticsItem(item: ContentSummaryAndCompareStatus): void {
+        super.setStatisticsItem(!!item ? item.clone() : item);
+    }
 }

@@ -1,6 +1,7 @@
 import {ContentItemPreviewPanel} from './ContentItemPreviewPanel';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ItemStatisticsPanel} from 'lib-admin-ui/app/view/ItemStatisticsPanel';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 export class ContentItemStatisticsPanel
     extends ItemStatisticsPanel {
@@ -16,7 +17,7 @@ export class ContentItemStatisticsPanel
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
-        if (this.getItem() !== item) {
+        if (!ObjectHelper.equals(this.getItem(), item)) {
             super.setItem(item);
             this.previewPanel.setItem(item);
         }

@@ -1,5 +1,5 @@
+import * as Q from 'q';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageTemplateResourceRequest} from './PageTemplateResourceRequest';
 
 export class IsRenderableRequest
@@ -7,10 +7,16 @@ export class IsRenderableRequest
 
     private contentId: ContentId;
 
+    private static cache: Map<string, boolean> = new Map<string, boolean>();
+
     constructor(contentId: ContentId) {
         super();
         this.contentId = contentId;
         this.addRequestPathElements('isRenderable');
+    }
+
+    static clearCache() {
+        this.cache.clear();
     }
 
     setContentId(value: ContentId): IsRenderableRequest {
@@ -24,7 +30,16 @@ export class IsRenderableRequest
         };
     }
 
-    protected parseResponse(response: JsonResponse<boolean>): boolean {
-        return response.getResult();
+    sendAndParse(): Q.Promise<boolean> {
+        const id: string = this.contentId.toString();
+
+        if (IsRenderableRequest.cache.has(id)) {
+            return Q(IsRenderableRequest.cache.get(id));
+        }
+
+        return super.sendAndParse().then((isRenderable: boolean) => {
+            IsRenderableRequest.cache.set(id, isRenderable);
+            return isRenderable;
+        });
     }
 }
