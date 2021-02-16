@@ -1217,6 +1217,8 @@ export class ContentWizardPanel
         };
 
         const contentRenamedHandler = (contents: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
+            this.getWizardHeader()?.refreshNameUniqueness();
+
             contents.forEach((renamedContent: ContentSummaryAndCompareStatus, index: number) => {
                 if (this.isCurrentContentId(renamedContent.getContentId())) {
                     const isWizardAlreadyUpdated = renamedContent.getContentSummary().getPath().equals(this.getPersistedItem().getPath());
@@ -2668,5 +2670,6 @@ export class ContentWizardPanel
 
     private handleCUD() {
         IsRenderableRequest.clearCache();
+        this.getWizardHeader()?.refreshNameUniqueness();
     }
 }
