@@ -16,12 +16,14 @@ describe('project.wizard.custom.read.access.spec - ui-tests for updating Read Ac
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let USER;
+    let PASSWORD = appConstant.PASSWORD.MEDIUM;
+
     it(`Preconditions: new system user should be created`,
         async () => {
             let userName = builder.generateRandomName("user");
             await studioUtils.showLauncherPanel();
             await studioUtils.navigateToUsersApp();
-            USER = builder.buildUser(userName, "1q2w3e", builder.generateEmail(userName), null);
+            USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), null);
             await studioUtils.addSystemUser(USER);
         });
 

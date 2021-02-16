@@ -1,4 +1,8 @@
 .thumbnail-uploader-el {
+  width: 64px;
+  height: 64px;
+  margin: 5px 20px;
+
   .dropzone-container {
     position: absolute;
     width: 100%;
@@ -77,33 +81,6 @@
       background-color: @admin-white;
       right: -8px;
       top: 5px;
-    }
-  }
-}
-
-.form-panel & {
-  ._0-240,
-  ._240-360,
-  ._360-540 {
-    .thumbnail-uploader-el {
-      width: 32px;
-      height: 32px;
-      margin: 5px 20px;
-
-      .dropzone-container .dropzone {
-        min-height: auto;
-      }
-
-      &.has-origin-project .result-container {
-        .icon-cloud-download(18px, -6px, -6px);
-      }
-
-      .result-container {
-        &::before {
-          font-size: 14px;
-          top: 2px;
-        }
-      }
     }
   }
 }

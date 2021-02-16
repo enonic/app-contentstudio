@@ -382,7 +382,7 @@ export class PageComponentsView
                     this.selectItem(selectedItem.getItemView());
                 }
 
-                if (!this.contextMenu.belongsToItemView(selectedItem.getItemView())) {
+                if (!!this.contextMenu && !this.contextMenu.belongsToItemView(selectedItem.getItemView())) {
                     this.hideContextMenu();
                 }
             }

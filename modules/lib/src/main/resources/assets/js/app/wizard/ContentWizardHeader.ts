@@ -29,6 +29,10 @@ export class ContentWizardHeader
 
     private staticNameBlock: SpanEl;
 
+    private asyncNameChecksRunning: number = 0;
+
+    private debouncedNameUniqueChecker: () => void;
+
     constructor(builder: WizardHeaderWithDisplayNameAndNameBuilder) {
         super(builder);
 
@@ -67,37 +71,41 @@ export class ContentWizardHeader
 
             this.renameDialog.setInitialPath(this.persistedContent.getPath()).open();
         });
-    }
 
-    private initListeners() {
-        let asyncNameChecksRunning: number = 0;
-
-        const debouncedNameUniqueChecker: () => void = AppHelper.debounce(() => {
+        this.debouncedNameUniqueChecker = AppHelper.debounce(() => {
             if (this.isNameChanged()) {
-                asyncNameChecksRunning++;
+                this.asyncNameChecksRunning++;
 
                 new ContentExistsByPathRequest(this.getNewPath().toString()).sendAndParse().then((exists: boolean) => {
-                    if (asyncNameChecksRunning === 1 && exists === this.isNameUnique) {
+                    if (this.asyncNameChecksRunning === 1 && exists === this.isNameUnique) {
                         this.updateIsNameUnique(!exists || !this.isNameChanged());
                     }
 
-                }).catch(DefaultErrorHandler.handle).finally(() => asyncNameChecksRunning--);
+                }).catch(DefaultErrorHandler.handle).finally(() => this.asyncNameChecksRunning--);
             } else if (!this.isNameUnique) {
                 this.updateIsNameUnique(true);
             }
         }, 900);
+    }
 
+    private initListeners() {
         this.onPropertyChanged((event: PropertyChangedEvent) => {
             if (event.getPropertyName() === `<${i18n('field.path')}>`) {
                 if (this.getName() === '') {
                     this.updateIsNameUnique(true);
                 } else {
-                    debouncedNameUniqueChecker();
+                    this.debouncedNameUniqueChecker();
                 }
 
                 this.staticNameBlock.setHtml(this.getName());
             }
         });
+    }
+
+    refreshNameUniqueness() {
+        if (this.isNameChanged()) {
+            this.debouncedNameUniqueChecker();
+        }
     }
 
     private updateIsNameUnique(isUnique: boolean) {

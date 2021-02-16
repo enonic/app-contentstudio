@@ -8,7 +8,6 @@ import {ContentBrowseToolbar} from './ContentBrowseToolbar';
 import {ContentTreeGrid, State} from './ContentTreeGrid';
 import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
 import {ContentBrowseItemPanel} from './ContentBrowseItemPanel';
-import {ContentItemStatisticsPanel} from '../view/ContentItemStatisticsPanel';
 import {Router} from '../Router';
 import {ActiveContextPanelManager} from '../view/context/ActiveContextPanelManager';
 import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
@@ -18,12 +17,8 @@ import {ContentPreviewPathChangedEvent} from '../view/ContentPreviewPathChangedE
 import {ContextSplitPanel} from '../view/context/ContextSplitPanel';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
-import {IsRenderableRequest} from '../resource/IsRenderableRequest';
-import {ContentHelper} from '../util/ContentHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
-import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
@@ -35,7 +30,6 @@ import {RepositoryEvent} from 'lib-admin-ui/content/event/RepositoryEvent';
 import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {BrowsePanel} from 'lib-admin-ui/app/browse/BrowsePanel';
-import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {ContentIds} from '../ContentIds';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
@@ -43,6 +37,7 @@ import {UrlAction} from '../UrlAction';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {DeletedContentItem} from './DeletedContentItem';
+import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 
 export class ContentBrowsePanel
     extends BrowsePanel {
@@ -51,8 +46,9 @@ export class ContentBrowsePanel
     protected browseToolbar: ContentBrowseToolbar;
     protected filterPanel: ContentBrowseFilterPanel;
     private contextSplitPanel: ContextSplitPanel;
-    private debouncedPreviewRefresh: () => void;
     private debouncedFilterRefresh: () => void;
+    private debouncedBrowseActionsAndPreviewRefreshOnDemand: () => void;
+    private browseActionsAndPreviewUpdateRequired: boolean = false;
 
     constructor() {
         super();
@@ -61,8 +57,12 @@ export class ContentBrowsePanel
     protected initElements() {
         super.initElements();
 
-        this.debouncedPreviewRefresh = AppHelper.debounce(this.forcePreviewRerender.bind(this), 500);
         this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
+        this.debouncedBrowseActionsAndPreviewRefreshOnDemand = AppHelper.debounce(() => {
+            if (this.browseActionsAndPreviewUpdateRequired) {
+                this.updateActionsAndPreview();
+            }
+        }, 300);
 
         if (!ProjectContext.get().isInitialized()) {
             this.handleProjectNotSet();
@@ -154,11 +154,11 @@ export class ContentBrowsePanel
     }
 
     protected updateFilterPanelOnSelectionChange() {
-        this.filterPanel.setSelectedItems(this.treeGrid.getSelectedDataList());
+        this.filterPanel.setSelectedItems(this.treeGrid.getSelectedItems());
     }
 
     protected enableSelectionMode() {
-        this.filterPanel.setSelectedItems(this.treeGrid.getSelectedDataList());
+        this.filterPanel.setSelectedItems(this.treeGrid.getSelectedItems());
     }
 
     protected disableSelectionMode() {
@@ -331,6 +331,7 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: created', data);
         }
 
+        this.handleCUD();
         this.treeGrid.addContentNodes(data);
         this.refreshFilterWithDelay();
     }
@@ -340,6 +341,7 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: renamed', data, oldPaths);
         }
 
+        this.handleCUD();
         this.treeGrid.renameContentNodes(data);
         this.refreshFilterWithDelay();
     }
@@ -354,7 +356,6 @@ export class ContentBrowsePanel
         }
 
         this.doHandleContentUpdate(data);
-        this.updatePreviewIfNeeded(data);
     }
 
     private handleContentPermissionsUpdated(contentIds: ContentIds) {
@@ -383,6 +384,7 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: deleted', items.map(i => i.id.toString()));
         }
 
+        this.handleCUD();
         this.treeGrid.deleteItems(items);
         this.updateContextPanelOnNodesDelete(items);
         this.refreshFilterWithDelay();
@@ -431,6 +433,7 @@ export class ContentBrowsePanel
     }
 
     private doHandleContentUpdate(data: ContentSummaryAndCompareStatus[]) {
+        this.handleCUD();
         this.updateContextPanel(data);
         this.treeGrid.updateNodesByData(data);
     }
@@ -447,96 +450,6 @@ export class ContentBrowsePanel
         event.getUploadItems().forEach((item: UploadItem<ContentSummary>) => {
             this.treeGrid.appendUploadNode(item);
         });
-    }
-
-    private updatePreviewIfNeeded(updatedContents: ContentSummaryAndCompareStatus[]) {
-        const previewItem: ContentSummaryAndCompareStatus = <ContentSummaryAndCompareStatus>this.getBrowseItemPanel().getStatisticsItem();
-
-
-        if (!previewItem) {
-            return;
-        }
-
-        const previewItemPath: ContentPath = previewItem.getPath();
-        const isStatisticsItemUpdated: boolean = this.updateStatisticsItemIfNeeded(updatedContents, previewItemPath);
-
-        if (isStatisticsItemUpdated) {
-            this.debouncedPreviewRefresh();
-            return;
-        }
-
-        if (updatedContents.some((content: ContentSummaryAndCompareStatus) => content.getContentSummary().isPageTemplate())) {
-            this.debouncedPreviewRefresh();
-            return;
-        }
-
-        this.isAnyContentIdWithinPreviewItem(previewItem, updatedContents).then((value: boolean) => {
-            if (value) {
-                this.debouncedPreviewRefresh();
-            } else {
-                this.isAnyContentReferencedByPreviewItem(previewItem, updatedContents).then((isReferenced: boolean) => {
-                    if (isReferenced) {
-                        this.debouncedPreviewRefresh();
-                    }
-                });
-            }
-        });
-    }
-
-    private updateStatisticsItemIfNeeded(contents: ContentSummaryAndCompareStatus[], previewItemPath: ContentPath): boolean {
-        return contents.some((content: ContentSummaryAndCompareStatus) => {
-            if (content.getPath().equals(previewItemPath)) {
-                this.updateStatisticsItem(content);
-
-                return true;
-            }
-        });
-    }
-
-    private isAnyContentIdWithinPreviewItem(previewItem: ContentSummaryAndCompareStatus,
-                                            updatedContents: ContentSummaryAndCompareStatus[]): Q.Promise<boolean> {
-        return new GetContentByIdRequest(previewItem.getContentId()).sendAndParse().then((previewItemContent: Content) => {
-            const promises: Q.Promise<void>[] = [];
-            let result: boolean = false;
-
-            updatedContents.forEach((content: ContentSummaryAndCompareStatus) => {
-                promises.push(
-                    ContentHelper.containsChildContentId(previewItemContent, content.getContentId()).then((containsId: boolean) => {
-                        if (containsId) {
-                            result = true;
-                        }
-                    }));
-            });
-
-            return Q.all(promises).then(() => {
-                return result;
-            });
-
-        });
-    }
-
-    private isAnyContentReferencedByPreviewItem(previewItem: ContentSummaryAndCompareStatus,
-                                                updatedContents: ContentSummaryAndCompareStatus[]): Q.Promise<boolean> {
-        return Q.all(updatedContents.map(updatedContent =>
-            ContentHelper.isReferencedBy(updatedContent.getContentSummary(), previewItem.getContentId()))
-        ).then((results: boolean[]) => results.some(result => result));
-    }
-
-    private updateStatisticsItem(content: ContentSummaryAndCompareStatus) {
-        new IsRenderableRequest(content.getContentId()).sendAndParse().then((renderable: boolean) => {
-            content.setRenderable(renderable);
-            this.getBrowseItemPanel().setStatisticsItem(content);
-        });
-    }
-
-    private forcePreviewRerender() {
-        const previewItem: ContentSummaryAndCompareStatus = <ContentSummaryAndCompareStatus>this.getBrowseItemPanel().getStatisticsItem();
-
-        if (BrowserHelper.isMobile()) {
-            this.contextSplitPanel.setMobilePreviewItem(previewItem, true);
-        } else {
-            (<ContentItemStatisticsPanel>this.getBrowseItemPanel().getItemStatisticsPanel()).getPreviewPanel().setItem(previewItem, true);
-        }
     }
 
     private updateContextPanel(data: ContentSummaryAndCompareStatus[]) {
@@ -610,6 +523,23 @@ export class ContentBrowsePanel
         browseActions.onActionsUnStashed(() => {
             contentPublishMenuButton.setRefreshDisabled(false);
         });
+    }
+
+    private handleCUD() {
+        IsRenderableRequest.clearCache();
+
+        if (this.treeGrid.hasSelectedOrHighlightedNode()) {
+            this.browseActionsAndPreviewUpdateRequired = true;
+            this.debouncedBrowseActionsAndPreviewRefreshOnDemand();
+        }
+    }
+
+    protected updateActionsAndPreview(): void {
+        this.browseActionsAndPreviewUpdateRequired = false;
+
+        ContentSummaryAndCompareStatusFetcher.updateRenderableContents(this.treeGrid.getSelectedDataList()).then(() => {
+            super.updateActionsAndPreview();
+        }).catch(DefaultErrorHandler.handle);
     }
 
 }

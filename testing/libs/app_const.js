@@ -50,11 +50,11 @@ module.exports = Object.freeze({
     TWO_ITEMS_UNPUBLISHED: "2 items are unpublished",
     ITEM_IS_UNDELETED_MESSAGE: "Item is undeleted",
     CONTENT_RENAMED: "Content has been renamed",
-    TEST_FOLDER_WITH_IMAGES: `All Content types images`,
+    TEST_FOLDER_WITH_IMAGES: "All Content types images",
     TEST_FOLDER_WITH_IMAGES_NAME: "all-content-types-images",
     TEST_FOLDER_WITH_IMAGES_2: "Images for simple page",
     TEST_FOLDER_WITH_IMAGES_NAME_2: "imagearchive",
-    TEST_FOLDER_2_DISPLAY_NAME: `folder for selenium tests`,
+    TEST_FOLDER_2_DISPLAY_NAME: "folder for selenium tests",
     TEST_FOLDER_2_NAME: "selenium-tests-folder",
     TEST_FOLDER_NAME: 'all-content-types-images',
     APP_CONTENT_TYPES: 'All Content Types App',
@@ -74,6 +74,11 @@ module.exports = Object.freeze({
     PROJECT_SYNC: {
         STARTED: "Content synchronisation job has started",
         FINISHED: "Content synchronisation job has finished"
+    },
+    PASSWORD: {
+        MEDIUM: "password123",
+        STRONG: "password123=",
+        WEAK: "password"
     },
 
     PROJECT_ACCESS_MODE: {

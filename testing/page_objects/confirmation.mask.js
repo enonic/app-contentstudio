@@ -8,14 +8,13 @@ const XPATH = {
     container: `//div[contains(@id,'ConfirmationMask')]`,
     cancelButton: "//button[contains(@id,'ActionButton') and descendant::span[text()='Cancel']]",
     confirmButton: `//button[contains(@id,'ActionButton') and descendant::span[text()='Delete My Item-set']]`,
+    confirmButtonByText:
+        text => `//button[contains(@id,'ActionButton') and descendant::span[text()='${text}']]`
 };
 
 class ConfirmationMask extends Page {
 
 
-    get confirmButton() {
-        return XPATH.container + XPATH.confirmButton;
-    }
 
     get cancelButton() {
         return XPATH.container + XPATH.cancelButton;
@@ -27,9 +26,10 @@ class ConfirmationMask extends Page {
         return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout)
     }
 
-    async clickOnConfirmButton() {
-        await this.waitForElementDisplayed(this.confirmButton, appConst.shortTimeout);
-        await this.clickOnElement(this.confirmButton);
+    async clickOnConfirmButton(text) {
+        let locatorConfirm = XPATH.confirmButtonByText(text);
+        await this.waitForElementDisplayed(locatorConfirm, appConst.shortTimeout);
+        await this.clickOnElement(locatorConfirm);
         return await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout)
     }
 

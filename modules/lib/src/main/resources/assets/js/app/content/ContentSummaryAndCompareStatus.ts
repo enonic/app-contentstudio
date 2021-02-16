@@ -3,17 +3,17 @@ import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/Conten
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {CompareStatus, CompareStatusChecker, CompareStatusFormatter} from './CompareStatus';
-import {PublishStatus, PublishStatusChecker, PublishStatusFormatter} from '../publish/PublishStatus';
+import {PublishStatus, PublishStatusChecker} from '../publish/PublishStatus';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ContentInheritType} from 'lib-admin-ui/content/ContentInheritType';
-import { IDentifiable } from 'lib-admin-ui/IDentifiable';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {ContentIconUrlResolver} from './ContentIconUrlResolver';
+import {Cloneable} from 'lib-admin-ui/Cloneable';
 
-export class ContentSummaryAndCompareStatus implements ViewItem {
+export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
 
     private uploadItem: UploadItem<ContentSummary>;
 
@@ -255,6 +255,10 @@ export class ContentSummaryAndCompareStatus implements ViewItem {
             return false;
         }
 
+        if (this.renderable !== other.isRenderable()) {
+            return false;
+        }
+
         return true;
     }
 
@@ -312,6 +316,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem {
             this.publishStatus
         );
         clone.setReadOnly(this.readOnly);
+        clone.setRenderable(this.renderable);
         return clone;
     }
 }

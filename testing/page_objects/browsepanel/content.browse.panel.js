@@ -389,7 +389,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(this.previewButton);
             return await this.pause(2000);
         } catch (err) {
-            this.saveScreenshot('err_browsepanel_preview');
+            this.saveScreenshot(appConst.generateRandomName("err_browsepanel_preview"));
             throw new Error('Error when clicking on Preview button ' + err);
         }
     }

@@ -25,7 +25,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const FOLDER_NAME = studioUtils.generateRandomName("folder");
     let USER;
-    const PASSWORD = "1q2w3e";
+    const PASSWORD = appConstant.PASSWORD.MEDIUM;
     const CONTROLLER_NAME = 'main region';
     const SITE_NAME = contentBuilder.generateRandomName('site');
     let SITE;

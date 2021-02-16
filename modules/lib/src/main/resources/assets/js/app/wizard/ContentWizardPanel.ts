@@ -573,6 +573,7 @@ export class ContentWizardPanel
     }
 
     saveChanges(): Q.Promise<Content> {
+        this.handleCUD();
         let liveFormPanel = this.getLivePanel();
         if (liveFormPanel) {
             liveFormPanel.skipNextReloadConfirmation(true);
@@ -581,6 +582,7 @@ export class ContentWizardPanel
         this.contentUpdateDisabled = true;
         this.isFirstUpdateAndRenameEventSkiped = false;
         new BeforeContentSavedEvent().fire();
+
         return super.saveChanges().then((content: Content) => {
             const persistedItem = content.clone();
             if (liveFormPanel) {
@@ -1048,6 +1050,8 @@ export class ContentWizardPanel
                 return;
             }
 
+            this.handleCUD();
+
             event.getDeletedItems().filter((deletedItem) => {
                 return !!deletedItem && this.getPersistedItem().getPath().equals(deletedItem.getContentPath());
             }).some((deletedItem) => {
@@ -1165,7 +1169,9 @@ export class ContentWizardPanel
         };
 
         const movedHandler = (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
-            let wasMoved = oldPaths.some((oldPath: ContentPath) => {
+            this.handleCUD();
+
+            const wasMoved: boolean = oldPaths.some((oldPath: ContentPath) => {
                 return this.persistedItemPathIsDescendantOrEqual(oldPath);
             });
 
@@ -1175,6 +1181,8 @@ export class ContentWizardPanel
         };
 
         const contentUpdatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
+            this.handleCUD();
+
             if (this.contentUpdateDisabled && !this.isFirstUpdateAndRenameEventSkiped) {
                 data.some(content => {
                     const isCurrentContent = this.isCurrentContentId(content.getContentId());
@@ -1209,6 +1217,8 @@ export class ContentWizardPanel
         };
 
         const contentRenamedHandler = (contents: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
+            this.getWizardHeader()?.refreshNameUniqueness();
+
             contents.forEach((renamedContent: ContentSummaryAndCompareStatus, index: number) => {
                 if (this.isCurrentContentId(renamedContent.getContentId())) {
                     const isWizardAlreadyUpdated = renamedContent.getContentSummary().getPath().equals(this.getPersistedItem().getPath());
@@ -1226,11 +1236,20 @@ export class ContentWizardPanel
             });
         };
 
-        const versionChangeHandler = this.updateButtonsState.bind(this);
+        const versionChangeHandler = () => {
+            this.handleCUD();
+
+            this.updateButtonsState();
+        };
+
+        const createdHandler = () => {
+            this.handleCUD();
+        };
 
         ActiveContentVersionSetEvent.on(versionChangeHandler);
         ContentDeletedEvent.on(deleteHandler);
 
+        serverEvents.onContentCreated(createdHandler);
         serverEvents.onContentMoved(movedHandler);
         serverEvents.onContentSorted(sortedHandler);
         serverEvents.onContentUpdated(contentUpdatedHandler);
@@ -1243,6 +1262,7 @@ export class ContentWizardPanel
             ActiveContentVersionSetEvent.un(versionChangeHandler);
             ContentDeletedEvent.un(deleteHandler);
 
+            serverEvents.unContentCreated(createdHandler);
             serverEvents.unContentMoved(movedHandler);
             serverEvents.unContentSorted(sortedHandler);
             serverEvents.unContentUpdated(contentUpdatedHandler);
@@ -2646,5 +2666,10 @@ export class ContentWizardPanel
         if (this.isLocalizeInUrl()) {
             this.settingsWizardStepForm.updateInitialLanguage();
         }
+    }
+
+    private handleCUD() {
+        IsRenderableRequest.clearCache();
+        this.getWizardHeader()?.refreshNameUniqueness();
     }
 }

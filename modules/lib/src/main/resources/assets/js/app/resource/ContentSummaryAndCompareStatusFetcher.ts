@@ -50,7 +50,6 @@ export class ContentSummaryAndCompareStatusFetcher {
 
                         const promises: Q.Promise<any>[] = [];
                         promises.push(ContentSummaryAndCompareStatusFetcher.updateReadOnly(contents));
-                        promises.push(ContentSummaryAndCompareStatusFetcher.updateRenderableContents(contents));
 
                         return Q.all([promises]).then(() => {
                             return new ContentResponse<ContentSummaryAndCompareStatus>(
@@ -71,7 +70,6 @@ export class ContentSummaryAndCompareStatusFetcher {
 
                     const promises: Q.Promise<any>[] = [];
                     promises.push(ContentSummaryAndCompareStatusFetcher.updateReadOnly([result], projectName));
-                    promises.push(ContentSummaryAndCompareStatusFetcher.updateRenderableContent(result, projectName));
 
                     return Q.all(promises).then(() => {
                         return result;
@@ -117,7 +115,6 @@ export class ContentSummaryAndCompareStatusFetcher {
 
                         const promises: Q.Promise<any>[] = [];
                         promises.push(ContentSummaryAndCompareStatusFetcher.updateReadOnly(contents));
-                        promises.push(ContentSummaryAndCompareStatusFetcher.updateRenderableContents(contents));
 
                         return Q.all(promises).then(() => {
                             return contents;
