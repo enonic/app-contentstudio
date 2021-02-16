@@ -70,7 +70,7 @@ export class ConfirmValueDialog
             return;
         }
 
-        if (this.isCorrectNumberEntered()) {
+        if (this.isCorrectValueEntered()) {
             this.input.removeClass('invalid').addClass('valid');
             this.confirmAction.setEnabled(true);
             setTimeout(() => {
@@ -131,8 +131,8 @@ export class ConfirmValueDialog
         return this.input.getValue() === '';
     }
 
-    private isCorrectNumberEntered(): boolean {
-        return this.input.getValue() === this.valueToCheck;
+    private isCorrectValueEntered(): boolean {
+        return this.input.getValue().trim() === this.valueToCheck.trim();
     }
 
     setValueToCheck(value: string): ConfirmValueDialog {
