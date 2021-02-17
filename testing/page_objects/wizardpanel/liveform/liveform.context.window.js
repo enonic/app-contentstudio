@@ -40,6 +40,6 @@ class LiveContextWindow extends Page {
             throw new Error('Live Edit, Context window is not opened' + err);
         });
     }
-};
+}
 module.exports = LiveContextWindow;
 

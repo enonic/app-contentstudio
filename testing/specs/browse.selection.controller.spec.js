@@ -14,7 +14,28 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-    let SITE;
+    //Verifies https://github.com/enonic/lib-admin-ui/issues/1790
+    //Selection checkboxes are not working in the Show Selection mode
+    it("GIVEN two items have been checked AND switched to Show Selection mode WHEN one item has been unchecked THEN one item remains visible in the filtered grid",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Select 2 folders:
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConstant.TEST_FOLDER_NAME);
+            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConstant.TEST_FOLDER_2_NAME);
+            //3. Click on Selection Toggle (circle, Show Selection):
+            await contentBrowsePanel.clickOnSelectionToggler();
+            await contentBrowsePanel.pause(500);
+            //4. Verify that 2 items are displayed in the filtered grid:
+            let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
+            assert.equal(displayNames.length, 2, "2 items should be present in the filtered grid");
+            let result = await contentBrowsePanel.isSelectionControllerSelected();
+            assert.isTrue(result, "Selection Controller checkBox should be selected");
+            //5. Verify that checkboxes are clickable: Unselect one item in the filtered grid:
+            await contentBrowsePanel.clickOnCheckbox(appConstant.TEST_FOLDER_2_NAME);
+            //6. Verify that only one item remains visible in the filtered grid now:
+            displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
+            assert.equal(displayNames.length, 1, "Only one item should be present in the filtered grid");
+        });
 
     //Verifies: https://github.com/enonic/lib-admin-ui/issues/1266 Incorrect behavior of 'Show selection' when a single content is highlighted
     //          https://github.com/enonic/lib-admin-ui/issues/1201 Selection filter doesn't work when an item is highlighted in the Content Grid #1201
