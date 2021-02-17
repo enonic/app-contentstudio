@@ -24,17 +24,14 @@ node {
     version = '14.15.0'
 }
 
-unpackDevResources.enabled = false
-
-def unpackDevResourcesRoot = rootProject.tasks.getByPath(':unpackDevResources')
-npmInstall.mustRunAfter unpackDevResourcesRoot
-processResources.dependsOn += unpackDevResourcesRoot
-
 if ( hasLibAdminUi() )
 {
     build.dependsOn += libAdminBuildTask
     clean.dependsOn += libAdminCleanTask
 }
+
+npmInstall.mustRunAfter unpackDevResources
+processResources.dependsOn += unpackDevResources
 
 task npmInstallForce( type: NpmTask ) {
     description = 'Update all project node dependencies'
@@ -52,22 +49,13 @@ task lint( type: NpmTask, dependsOn: npmInstall ) {
     outputs.upToDateWhen { false }
 }
 
-task webpack( type: NpmTask, dependsOn: [npmInstall, lint, unpackDevResourcesRoot] ) {
-    environment = [ 'NODE_ENV': nodeEnvironment() ]
-    description = 'Build UI resources (ts, css, etc).'
-    args = [ 'run', 'build' ]
-    inputs.dir "$rootDir/.xp/dev"
-    inputs.dir "$rootDir/modules/lib/src/main"
-    inputs.file 'webpack.config.js'
-    outputs.dir "$buildDir/resources/main"
-}
-/*
 task typescriptPkg( type: NpmTask, dependsOn: [npmInstall, lint] ) {
     def buildEnv = getEnvironmentShort()
     environment = [ 'NODE_ENV': nodeEnvironment() ]
     args = [ 'run', "build:$buildEnv" ]
-    inputs.dir "$rootDir/src/main/resources/assets"
+    inputs.dir "$projectDir/src/main/resources/assets/"
     outputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
+    outputs.upToDateWhen { false }
 }
 
 task minifyPkg( type: NpmTask, dependsOn: [npmInstall, typescriptPkg] ) {
@@ -90,7 +78,7 @@ task typescript {
     dependsOn 'minifyPkg'
     dependsOn 'copyPackage'
 }
-*/
+
 jar {
     exclude 'admin/**'
     exclude 'assets/**'
@@ -102,5 +90,5 @@ jar {
     exclude 'application.xml'
 
     includeEmptyDirs = false
-    dependsOn += webpack
+    dependsOn += typescript
 }

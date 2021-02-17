@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es5",
+        "target": "es2015",
         "outDir": "build/resources/main/dev/lib-contentstudio/",
         "declaration": true,
         "declarationDir": "build/resources/main/dev/lib-contentstudio/",
@@ -14,35 +14,32 @@
         "noImplicitReturns": false,
         "noImplicitThis": true,
         "strictNullChecks": false,
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+        "types": [
+            "ckeditor",
+            "core-js",
+            "hasher",
+            "jquery",
+            "jqueryui",
+            "q"
+        ],
+        "lib": [
+            "es2015",
+            "es2015.promise",
+            "dom"
+        ]
     },
-    "types": [
-        "ckeditor",
-        "core-js",
-        "hasher",
-        "jquery",
-        "jqueryui",
-        "q"
-    ],
-    "lib": [
-        "es2015",
-        "es2015.promise",
-        "dom"
-    ],
-    "files": [
-        "src/main/resources/assets/js/main.ts"
-    ],
     "include": [
-        "src/main/resources/assets/js/types.d.ts",
-        "src/main/resources/assets/js/app/**/*",
-        ".xp/dev/lib-admin-ui/**/*.d.ts"
+        "./src/main/resources/assets/js/types.d.ts",
+        "./src/main/resources/assets/js/app/**/*",
+        "./.xp/dev/lib-admin-ui/**/*.d.ts"
     ],
     "exclude": [
         "build/**/*",
         "out/**/*",
-        "src/main/resources/assets/js/main.ts",
-        "src/main/resources/assets/js/page-editor.ts",
-        "src/main/resources/assets/js/page-editor/**/*"
+        "./src/main/resources/assets/js/main.ts",
+        "./src/main/resources/assets/js/page-editor.ts",
+        "./src/main/resources/assets/js/page-editor/**/*"
     ],
     "compileOnSave": false,
     "buildOnSave": false
