@@ -84,7 +84,7 @@ describe('Browse panel, properties widget, language spec`', function () {
             await studioUtils.openBrowseDetailsPanel();
             //3. uncheck the row :
             studioUtils.saveScreenshot("details_panel_cleared_2");
-            await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(TEST_FOLDER.displayName);
+            await contentBrowsePanel.clickOnCheckbox(TEST_FOLDER.displayName);
             //4. Verify that Details Panel is cleared:
             await widgetItemView.waitForNotDisplayed();
         });
