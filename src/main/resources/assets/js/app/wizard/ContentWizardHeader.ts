@@ -1,6 +1,6 @@
 import {
     WizardHeaderWithDisplayNameAndName,
-    WizardHeaderWithDisplayNameAndNameBuilder
+    WizardHeaderWithDisplayNameAndNameOptions
 } from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
@@ -27,34 +27,35 @@ export class ContentWizardHeader
 
     private renameDialog: RenameContentDialog;
 
-    private staticNameBlock: SpanEl;
-
     private asyncNameChecksRunning: number = 0;
 
     private debouncedNameUniqueChecker: () => void;
 
-    constructor(builder: WizardHeaderWithDisplayNameAndNameBuilder) {
-        super(builder);
+    private lockElem: ButtonEl = new ButtonEl();
 
-        this.initElements();
-        this.initListeners();
+    constructor(options?: WizardHeaderWithDisplayNameAndNameOptions) {
+        super(options);
     }
 
-    private initElements() {
-        this.staticNameBlock = new SpanEl('name-static');
-        this.appendChild(this.staticNameBlock);
+    protected initElements() {
+        super.initElements();
+        this.lockElem = new ButtonEl();
+    }
 
-        const nameErrorBlock: SpanEl = new SpanEl('path-error');
-        nameErrorBlock.setHtml(i18n('path.not.available'));
-        this.appendChild(nameErrorBlock);
+    protected initListeners() {
+        super.initListeners();
 
-        const lockElem: ButtonEl = new ButtonEl();
-        lockElem.addClass('lock-name icon-pencil');
-        lockElem.setTitle(i18n('path.lock'));
-        this.appendChild(lockElem);
+        this.onPropertyChanged((event: PropertyChangedEvent) => {
+            if (event.getPropertyName() === `<${i18n('field.path')}>`) {
+                if (this.getName() === '') {
+                    this.updateIsNameUnique(true);
+                } else {
+                    this.debouncedNameUniqueChecker();
+                }
+            }
+        });
 
-
-        lockElem.onClicked(() => {
+        this.lockElem.onClicked(() => {
             if (!this.renameDialog) {
                 this.renameDialog = new RenameContentDialog();
 
@@ -86,20 +87,6 @@ export class ContentWizardHeader
                 this.updateIsNameUnique(true);
             }
         }, 900);
-    }
-
-    private initListeners() {
-        this.onPropertyChanged((event: PropertyChangedEvent) => {
-            if (event.getPropertyName() === `<${i18n('field.path')}>`) {
-                if (this.getName() === '') {
-                    this.updateIsNameUnique(true);
-                } else {
-                    this.debouncedNameUniqueChecker();
-                }
-
-                this.staticNameBlock.setHtml(this.getName());
-            }
-        });
     }
 
     refreshNameUniqueness() {
@@ -148,5 +135,19 @@ export class ContentWizardHeader
         }
 
         super.toggleNameInput(enable);
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            const nameErrorBlock: SpanEl = new SpanEl('path-error');
+            nameErrorBlock.setHtml(i18n('path.not.available'));
+            this.bottomRow.appendChild(nameErrorBlock);
+
+            this.lockElem.addClass('lock-name icon-pencil');
+            this.lockElem.setTitle(i18n('path.lock'));
+            this.bottomRow.appendChild(this.lockElem);
+
+            return rendered;
+        });
     }
 }
