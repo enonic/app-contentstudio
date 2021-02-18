@@ -31,7 +31,7 @@ export class ContentWizardHeader
 
     private debouncedNameUniqueChecker: () => void;
 
-    private lockElem: ButtonEl = new ButtonEl();
+    private lockElem: ButtonEl;
 
     constructor(options?: WizardHeaderWithDisplayNameAndNameOptions) {
         super(options);
@@ -56,6 +56,8 @@ export class ContentWizardHeader
         });
 
         this.lockElem.onClicked(() => {
+            console.log('clickz');
+
             if (!this.renameDialog) {
                 this.renameDialog = new RenameContentDialog();
 
