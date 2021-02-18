@@ -1,9 +1,6 @@
 .settings-item-wizard-panel {
 
   .wizard-header {
-    height: 64px;
-    display: flex;
-    align-items: center;
 
     input:first-child:disabled {
       color: @admin-dark-gray;
@@ -15,6 +12,10 @@
   }
 
   .header-and-navigator-container {
+
+    .wizard-header {
+      margin-top: 35px;
+    }
 
     .@{_COMMON_PREFIX}form-icon {
       &.not-empty {
@@ -68,21 +69,23 @@
     }
   }
 
+
   ._0-240 &,
   ._240-360 &,
-  ._360-540 &,
-  ._540-720 & {
+  ._360-540 & {
 
     .header-and-navigator-container {
 
       .wizard-header {
-        margin-left: 46px;
-      }
-
-      .@{_COMMON_PREFIX}form-icon {
-        margin: 5px;
+        margin-top: 20px;
       }
     }
+  }
+
+  ._0-240 &,
+  ._240-360 &,
+  ._360-540 &,
+  ._540-720 & {
 
     .wizard-step-form {
 
