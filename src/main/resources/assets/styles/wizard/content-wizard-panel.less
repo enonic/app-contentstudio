@@ -1,4 +1,20 @@
 .content-wizard-panel {
+
+  &--live {
+    .split-panel .minimize-edit {
+      display: block;
+    }
+
+    .wizard-step-navigator-and-toolbar.pre-scroll-stick {
+      &.has-help-text-button {
+        .help-text-button {
+          padding-right: 38px;
+        }
+      }
+
+    }
+  }
+
   .wizard-header {
     padding-left: 70px;
 
@@ -51,24 +67,15 @@
   }
 
   .form-panel {
-    .thumbnail-uploader-el {
-      float: left;
-    }
 
     &._0-240,
     &._240-360,
     &._360-540 {
       .wizard-header {
         max-width: calc(100% - 105px);
-        margin: 15px 0;
-        padding-left: 65px;
       }
 
       .thumbnail-uploader-el {
-        width: 32px;
-        height: 32px;
-        margin: 5px 10px 5px 15px;
-
         .dropzone-container .dropzone {
           min-height: auto;
         }
