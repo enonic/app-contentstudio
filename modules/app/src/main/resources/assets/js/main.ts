@@ -1,35 +1,37 @@
 import * as $ from 'jquery';
+import * as Q from 'q';
 // Polyfills added for compatibility with IE11
 import 'promise-polyfill/src/polyfill';
 import 'whatwg-fetch';
 import 'mutation-observer';
+// End of Polyfills
 import {Element} from 'lib-admin-ui/dom/Element';
 import {showError, showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {i18nInit} from 'lib-admin-ui/util/MessagesInitializer';
 import {StyleHelper} from 'lib-admin-ui/StyleHelper';
-import {Router} from './app/Router';
-import {ContentDeletePromptEvent} from './app/browse/ContentDeletePromptEvent';
-import {ContentPublishPromptEvent} from './app/browse/ContentPublishPromptEvent';
-import {ContentUnpublishPromptEvent} from './app/browse/ContentUnpublishPromptEvent';
-import {ShowNewContentDialogEvent} from './app/browse/ShowNewContentDialogEvent';
-import {ContentWizardPanelParams} from './app/wizard/ContentWizardPanelParams';
-import {ContentEventsProcessor} from './app/ContentEventsProcessor';
-import {IssueServerEventsHandler} from './app/issue/event/IssueServerEventsHandler';
-import {CreateIssuePromptEvent} from './app/browse/CreateIssuePromptEvent';
-import {IssueDialogsManager} from './app/issue/IssueDialogsManager';
-import {ShowIssuesDialogEvent} from './app/browse/ShowIssuesDialogEvent';
-import {ContentDuplicatePromptEvent} from './app/browse/ContentDuplicatePromptEvent';
-import {GetContentTypeByNameRequest} from './app/resource/GetContentTypeByNameRequest';
-import {ShowDependenciesEvent} from './app/browse/ShowDependenciesEvent';
-import {GetContentByIdRequest} from './app/resource/GetContentByIdRequest';
-import {GetContentByPathRequest} from './app/resource/GetContentByPathRequest';
-import {ContentServerEventsHandler} from './app/event/ContentServerEventsHandler';
-import {EditContentEvent} from './app/event/EditContentEvent';
-import {Content} from './app/content/Content';
-import {ContentSummaryAndCompareStatus} from './app/content/ContentSummaryAndCompareStatus';
-import {ContentUpdatedEvent} from './app/event/ContentUpdatedEvent';
-import {RequestContentPublishPromptEvent} from './app/browse/RequestContentPublishPromptEvent';
+import {Router} from 'lib-contentstudio/app/Router';
+import {ContentDeletePromptEvent} from 'lib-contentstudio/app/browse/ContentDeletePromptEvent';
+import {ContentPublishPromptEvent} from 'lib-contentstudio/app/browse/ContentPublishPromptEvent';
+import {ContentUnpublishPromptEvent} from 'lib-contentstudio/app/browse/ContentUnpublishPromptEvent';
+import {ShowNewContentDialogEvent} from 'lib-contentstudio/app/browse/ShowNewContentDialogEvent';
+import {ContentWizardPanelParams} from 'lib-contentstudio/app/wizard/ContentWizardPanelParams';
+import {ContentEventsProcessor} from 'lib-contentstudio/app/ContentEventsProcessor';
+import {IssueServerEventsHandler} from 'lib-contentstudio/app/issue/event/IssueServerEventsHandler';
+import {CreateIssuePromptEvent} from 'lib-contentstudio/app/browse/CreateIssuePromptEvent';
+import {IssueDialogsManager} from 'lib-contentstudio/app/issue/IssueDialogsManager';
+import {ShowIssuesDialogEvent} from 'lib-contentstudio/app/browse/ShowIssuesDialogEvent';
+import {ContentDuplicatePromptEvent} from 'lib-contentstudio/app/browse/ContentDuplicatePromptEvent';
+import {GetContentTypeByNameRequest} from 'lib-contentstudio/app/resource/GetContentTypeByNameRequest';
+import {ShowDependenciesEvent} from 'lib-contentstudio/app/browse/ShowDependenciesEvent';
+import {GetContentByIdRequest} from 'lib-contentstudio/app/resource/GetContentByIdRequest';
+import {GetContentByPathRequest} from 'lib-contentstudio/app/resource/GetContentByPathRequest';
+import {ContentServerEventsHandler} from 'lib-contentstudio/app/event/ContentServerEventsHandler';
+import {EditContentEvent} from 'lib-contentstudio/app/event/EditContentEvent';
+import {Content} from 'lib-contentstudio/app/content/Content';
+import {ContentSummaryAndCompareStatus} from 'lib-contentstudio/app/content/ContentSummaryAndCompareStatus';
+import {ContentUpdatedEvent} from 'lib-contentstudio/app/event/ContentUpdatedEvent';
+import {RequestContentPublishPromptEvent} from 'lib-contentstudio/app/browse/RequestContentPublishPromptEvent';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {ConnectionDetector} from 'lib-admin-ui/system/ConnectionDetector';
@@ -47,27 +49,23 @@ import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
-import {ContentAppHelper} from './app/wizard/ContentAppHelper';
-import {ProjectContext} from './app/project/ProjectContext';
-import {AggregatedServerEventsListener} from './app/event/AggregatedServerEventsListener';
-import * as Q from 'q';
-import {Project} from './app/settings/data/project/Project';
-import {ProjectSelectionDialog} from './app/settings/dialog/ProjectSelectionDialog';
-import {SettingsServerEventsListener} from './app/settings/event/SettingsServerEventsListener';
-import {UrlAction} from './app/UrlAction';
+import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
+import {ProjectContext} from 'lib-contentstudio/app/project/ProjectContext';
+import {AggregatedServerEventsListener} from 'lib-contentstudio/app/event/AggregatedServerEventsListener';
+import {Project} from 'lib-contentstudio/app/settings/data/project/Project';
+import {ProjectSelectionDialog} from 'lib-contentstudio/app/settings/dialog/ProjectSelectionDialog';
+import {SettingsServerEventsListener} from 'lib-contentstudio/app/settings/event/SettingsServerEventsListener';
+import {UrlAction} from 'lib-contentstudio/app/UrlAction';
 import {Path} from 'lib-admin-ui/rest/Path';
-import {ProjectListWithMissingRequest} from './app/settings/resource/ProjectListWithMissingRequest';
-import {ProjectHelper} from './app/settings/data/project/ProjectHelper';
-import {ContentIconUrlResolver} from './app/content/ContentIconUrlResolver';
-// End of Polyfills
-
-declare const CONFIG;
+import {ProjectListWithMissingRequest} from 'lib-contentstudio/app/settings/resource/ProjectListWithMissingRequest';
+import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/ProjectHelper';
+import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconUrlResolver';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
 declare var require: { context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void };
 const importAll = r => r.keys().forEach(r);
-importAll(require.context('./app/inputtype', true, /^(?!\.[\/\\]ui).*/));
+importAll(require.context('lib-contentstudio/app/inputtype', true, /^(?!\.[\/\\]ui).*/));
 
 const body = Body.get();
 
@@ -393,7 +391,7 @@ async function startApplication() {
 
     AppHelper.preventDragRedirect();
 
-    const ContentDuplicateDialog = (await import('./app/duplicate/ContentDuplicateDialog')).ContentDuplicateDialog;
+    const ContentDuplicateDialog = (await import('lib-contentstudio/app/duplicate/ContentDuplicateDialog')).ContentDuplicateDialog;
 
     const contentDuplicateDialog = new ContentDuplicateDialog();
     ContentDuplicatePromptEvent.on((event) => {
@@ -405,7 +403,7 @@ async function startApplication() {
             .open();
     });
 
-    const ContentDeleteDialog = (await import('./app/remove/ContentDeleteDialog')).ContentDeleteDialog;
+    const ContentDeleteDialog = (await import('lib-contentstudio/app/remove/ContentDeleteDialog')).ContentDeleteDialog;
     const contentDeleteDialog = new ContentDeleteDialog();
     ContentDeletePromptEvent.on((event) => {
         contentDeleteDialog
@@ -415,7 +413,7 @@ async function startApplication() {
             .open();
     });
 
-    const ContentPublishDialog = (await import('./app/publish/ContentPublishDialog')).ContentPublishDialog;
+    const ContentPublishDialog = (await import('lib-contentstudio/app/publish/ContentPublishDialog')).ContentPublishDialog;
     const contentPublishDialog = ContentPublishDialog.get();
     ContentPublishPromptEvent.on((event) => {
         contentPublishDialog
@@ -426,7 +424,7 @@ async function startApplication() {
             .open();
     });
 
-    const ContentUnpublishDialog = (await import('./app/publish/ContentUnpublishDialog')).ContentUnpublishDialog;
+    const ContentUnpublishDialog = (await import('lib-contentstudio/app/publish/ContentUnpublishDialog')).ContentUnpublishDialog;
     const contentUnpublishDialog = new ContentUnpublishDialog();
     ContentUnpublishPromptEvent.on((event) => {
         contentUnpublishDialog
@@ -444,7 +442,7 @@ async function startApplication() {
 
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
-    const EditPermissionsDialog = (await import('./app/wizard/EditPermissionsDialog')).EditPermissionsDialog;
+    const EditPermissionsDialog = (await import('lib-contentstudio/app/wizard/EditPermissionsDialog')).EditPermissionsDialog;
     // tslint:disable-next-line:no-unused-expression
     new EditPermissionsDialog();
 
@@ -464,7 +462,7 @@ const refreshTabOnContentUpdate = (content: Content) => {
 };
 
 async function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: ConnectionDetector) {
-    const ContentWizardPanel = (await import('./app/wizard/ContentWizardPanel')).ContentWizardPanel;
+    const ContentWizardPanel = (await import('lib-contentstudio/app/wizard/ContentWizardPanel')).ContentWizardPanel;
 
     let wizard = new ContentWizardPanel(wizardParams, getTheme());
 
@@ -526,18 +524,18 @@ function getTheme(): string {
 
 async function startContentBrowser(application: Application) {
 
-    await import ('./app/ContentAppPanel');
-    const AppWrapper = (await import ('./app/AppWrapper')).AppWrapper;
+    await import ('lib-contentstudio/app/ContentAppPanel');
+    const AppWrapper = (await import ('lib-contentstudio/app/AppWrapper')).AppWrapper;
     const commonWrapper = new AppWrapper(application, getTheme());
     body.appendChild(commonWrapper);
 
-    const NewContentDialog = (await import ('./app/create/NewContentDialog')).NewContentDialog;
+    const NewContentDialog = (await import ('lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;
 
     const newContentDialog = new NewContentDialog();
     ShowNewContentDialogEvent.on((event) => {
 
         let parentContent: ContentSummary = event.getParentContent()
-            ? event.getParentContent().getContentSummary() : null;
+                                            ? event.getParentContent().getContentSummary() : null;
 
         if (parentContent != null) {
             new GetContentByIdRequest(parentContent.getContentId()).sendAndParse().then(
@@ -566,9 +564,9 @@ async function startContentBrowser(application: Application) {
         }
     });
 
-    const IssueListDialog = (await import('./app/issue/view/IssueListDialog')).IssueListDialog;
-    const SortContentDialog = (await import('./app/browse/sort/dialog/SortContentDialog')).SortContentDialog;
-    const MoveContentDialog = (await import('./app/move/MoveContentDialog')).MoveContentDialog;
+    const IssueListDialog = (await import('lib-contentstudio/app/issue/view/IssueListDialog')).IssueListDialog;
+    const SortContentDialog = (await import('lib-contentstudio/app/browse/sort/dialog/SortContentDialog')).SortContentDialog;
+    const MoveContentDialog = (await import('lib-contentstudio/app/move/MoveContentDialog')).MoveContentDialog;
 
     // tslint:disable-next-line:no-unused-expression
     IssueListDialog.get();

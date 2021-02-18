@@ -9,6 +9,7 @@ plugins {
 allprojects {
     apply plugin: 'com.enonic.xp.app'
     apply from: "$rootDir/gradle/env.gradle"
+    apply from: "$rootDir/gradle/node.gradle"
     apply from: "$rootDir/gradle/lib-admin.gradle"
 
     dependencies {

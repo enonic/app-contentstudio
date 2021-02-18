@@ -1,20 +1,22 @@
 package com.enonic.xp.app.contentstudio;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.text.StringSubstitutor;
+import org.osgi.service.component.annotations.Component;
+
+import com.google.common.collect.Maps;
+
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.portal.postprocess.HtmlTag;
 import com.enonic.xp.portal.postprocess.PostProcessInjection;
 import com.enonic.xp.util.Exceptions;
-import com.google.common.collect.Maps;
-import org.apache.commons.text.StringSubstitutor;
-import org.osgi.service.component.annotations.Component;
-
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 @Component(immediate = true, service = PostProcessInjection.class)
 public final class LiveEditInjection

@@ -3,7 +3,7 @@ var mustache = require('/lib/mustache');
 var portal = require('/lib/xp/portal');
 var contextLib = require('/lib/xp/context');
 
-function handleGet(req) {
+function handleGet() {
     var view = resolve('./../main/main.html');
 
     var context = contextLib.get();

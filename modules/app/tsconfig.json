@@ -1,0 +1,32 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es2015",
+        "types": [
+            "ckeditor",
+            "core-js",
+            "jquery",
+            "jqueryui",
+            "q"
+        ],
+        "lib": [
+            "es2015",
+            "es2015.promise",
+            "dom"
+        ]
+    },
+    "files": [
+        "./src/main/resources/assets/js/main.ts"
+    ],
+    "include": [
+        "src/**/*",
+        ".xp/dev/lib-admin-ui/**/*.d.ts",
+        ".xp/dev/lib-contentstudio/**/*.d.ts"
+    ],
+    "exclude": [
+        "build/**/*",
+        "out/**/*"
+    ],
+    "compileOnSave": false,
+    "buildOnSave": false
+}

@@ -2,7 +2,6 @@ apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'com.enonic.defaults'
 apply plugin: 'com.enonic.xp.app'
-apply plugin: 'com.github.node-gradle.node'
 
 archivesBaseName = 'lib-contentstudio'
 
@@ -14,14 +13,13 @@ app {
 }
 
 dependencies {
-    compile "org.apache.commons:commons-text:${commonsTextVersion}"
     compile "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
-    project(":rest")
+//    project(":rest")
 }
 
 node {
     download = true
-    version = '14.15.0'
+    version = '15.8.0'
 }
 
 if ( hasLibAdminUi() )
@@ -32,15 +30,6 @@ if ( hasLibAdminUi() )
 
 npmInstall.mustRunAfter unpackDevResources
 processResources.dependsOn += unpackDevResources
-
-task npmInstallForce( type: NpmTask ) {
-    description = 'Update all project node dependencies'
-    args = ['install', '--force']
-}
-
-task cleanNode( type: Delete ) {
-    delete 'node_modules'
-}
 
 task lint( type: NpmTask, dependsOn: npmInstall ) {
     args = [ 'run', 'lint' ]
@@ -55,7 +44,7 @@ task typescriptPkg( type: NpmTask, dependsOn: [npmInstall, lint] ) {
     args = [ 'run', "build:$buildEnv" ]
     inputs.dir "$projectDir/src/main/resources/assets/"
     outputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
-    outputs.upToDateWhen { false }
+//    outputs.upToDateWhen { false }
 }
 
 task minifyPkg( type: NpmTask, dependsOn: [npmInstall, typescriptPkg] ) {
