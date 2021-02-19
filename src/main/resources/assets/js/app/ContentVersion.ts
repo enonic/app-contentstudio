@@ -52,7 +52,7 @@ export class ContentVersion implements Cloneable {
     }
 
     static equalDates(date1: Date, date2: Date): boolean {
-        return Math.abs(Number(date1) - Number(date2)) < 100; // Allow 100 ms difference
+        return Math.abs(Number(date1) - Number(date2)) < 500; // Allow 500 ms difference
     }
 
     getModifier(): string {
