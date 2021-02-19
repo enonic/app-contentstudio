@@ -4,7 +4,6 @@ import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {VersionHistoryListItemViewer} from './VersionHistoryListItemViewer';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {EditContentEvent} from '../../../../event/EditContentEvent';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
@@ -197,7 +196,7 @@ export class VersionHistoryListItem
             this.createTooltip();
 
             if (!this.version.skipsDate()) {
-                this.appendChild(this.createVersionDateBlock(this.version.getActiveFrom() || this.version.getDateTime()));
+                this.appendChild(this.createVersionDateBlock(this.version.getDateTime()));
             }
 
             this.appendChild(this.createVersionViewer());
