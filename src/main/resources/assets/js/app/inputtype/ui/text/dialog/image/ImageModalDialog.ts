@@ -215,7 +215,6 @@ export class ImageModalDialog
     private createImageSelector(id: string): FormItem {
 
         const imageSelector = (<ImageContentComboBoxBuilder>ImageContentComboBox.create()
-            .setShowStatus(true)
             .setMaximumOccurrences(1))
             .setContent(this.content)
             .setSelectedOptionsView(new ContentSelectedOptionsView())

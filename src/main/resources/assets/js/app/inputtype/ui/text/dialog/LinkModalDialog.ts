@@ -367,9 +367,8 @@ export class LinkModalDialog
                             ): ContentComboBox<ContentTreeSelectorItem> {
         const selector = ContentComboBox.create()
             .setTreegridDropdownEnabled(true)
-            .setShowStatus(true)
             .setMaximumOccurrences(1)
-            .setLoader(loaderBuilder.setLoadStatus(true).build())
+            .setLoader(loaderBuilder.build())
             .build();
 
         selector.setValue(getValueFn.call(this));

@@ -91,9 +91,8 @@ export class ImageOptionDataLoader
         if (!item) {
             return null;
         }
-        return this.loadStatus ?
-               MediaTreeSelectorItem.createMediaTreeSelectorItemWithStatus(<ContentAndStatusTreeSelectorItem>item) :
-               new MediaTreeSelectorItem(item.getContent(), item.isSelectable(), item.isExpandable());
+
+        return MediaTreeSelectorItem.createMediaTreeSelectorItemWithStatus(<ContentAndStatusTreeSelectorItem>item);
     }
 
     static build(builder: ContentSummaryOptionDataLoaderBuilder): ImageOptionDataLoader {
