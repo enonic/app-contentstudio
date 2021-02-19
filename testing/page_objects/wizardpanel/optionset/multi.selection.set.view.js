@@ -38,6 +38,11 @@ class MultiSelectionOptionSet extends Page {
         return tittle[0].trim();
     }
 
+    async getMultiSelectionSubHeader() {
+        let locator = xpath.container + xpath.optionSetOccurrenceLabel + "//p[@class='note']";
+        return await this.getText(locator);
+    }
+
     async isCheckboxSelected(option) {
         let locator = xpath.optionCheckboxLocator(option);
         return await this.isSelected(locator);
