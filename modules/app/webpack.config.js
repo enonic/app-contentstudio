@@ -3,12 +3,13 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ProvidePlugin = require('webpack/lib/ProvidePlugin');
+
 const path = require('path');
 
 const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
-    context: path.join(__dirname, 'src/main/resources/assets'),
+    context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
         'js/main': './js/main.ts',
         'lib/vendors': './lib/index.js',
@@ -52,13 +53,11 @@ module.exports = {
             }
         ]
     },
-    performance: {
-        hints: false
-    },
     optimization: {
         minimizer: [
             new TerserPlugin({
                 sourceMap: !isProd,
+                extractComments: false,
                 terserOptions: {
                     compress: {
                         drop_console: false
@@ -72,12 +71,6 @@ module.exports = {
             chunks: 'all',
             cacheGroups: {
                 default: false,
-                common: {
-                    test: /[\\/]resources[\\/]assets[\\/]/,
-                    reuseExistingChunk: true,
-                    minChunks: 2,
-                    filename: 'js/common.main~editor.js'
-                },
                 defaultVendors: {
                     test: /[\\/]node_modules[\\/]/,
                     reuseExistingChunk: true,
@@ -109,5 +102,6 @@ module.exports = {
         }),
     ],
     mode: isProd ? 'production' : 'development',
-    devtool: isProd ? false : 'source-map'
+    devtool: isProd ? false : 'source-map',
+    performance: {hints: false}
 };

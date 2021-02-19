@@ -44,10 +44,6 @@ project.afterEvaluate {
     }
 }
 
-//def libContentStudio = gradle.includedBuild( 'lib-contentstudio' )
-//def excludedTasks = gradle.startParameter.getExcludedTaskNames().findAll( { it == 'lint' || it == 'test' } )
-//libContentStudio.getLoadedSettings().getStartParameter().setExcludedTaskNames( excludedTasks )
-
 task lint( type: NpmTask, dependsOn: npmInstall ) {
     args = [ 'run', 'lint' ]
     inputs.files fileTree( dir: 'modules', include: 'src/main/**.*' )

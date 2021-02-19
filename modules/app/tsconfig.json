@@ -1,10 +1,10 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es2015",
+        "target": "es5",
+        "sourceMap": true,
         "types": [
             "ckeditor",
-            "core-js",
             "jquery",
             "jqueryui",
             "q"
@@ -15,18 +15,11 @@
             "dom"
         ]
     },
-    "files": [
-        "./src/main/resources/assets/js/main.ts"
-    ],
+
     "include": [
-        "src/**/*",
-        ".xp/dev/lib-admin-ui/**/*.d.ts",
-        ".xp/dev/lib-contentstudio/**/*.d.ts"
-    ],
-    "exclude": [
-        "build/**/*",
-        "out/**/*"
-    ],
-    "compileOnSave": false,
-    "buildOnSave": false
+        "./src/**/*",
+        "../../../lib-admin-ui/src/main/resources/assets/admin/common/js/**/*.ts",
+        ".xp/dev/lib-admin-ui/**/*.ts",
+        ".xp/dev/lib-contentstudio/**/*.ts"
+    ]
 }

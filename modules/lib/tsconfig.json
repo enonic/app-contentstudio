@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "target": "es2015",
+        "target": "es5",
         "outDir": "build/resources/main/dev/lib-contentstudio/",
         "declaration": true,
         "declarationDir": "build/resources/main/dev/lib-contentstudio/",
@@ -31,15 +31,12 @@
     },
     "include": [
         "./src/main/resources/assets/js/types.d.ts",
-        "./src/main/resources/assets/js/app/**/*",
+        "./src/main/resources/assets/js/**/*",
         "./.xp/dev/lib-admin-ui/**/*.d.ts"
     ],
     "exclude": [
         "build/**/*",
-        "out/**/*",
-        "./src/main/resources/assets/js/main.ts",
-        "./src/main/resources/assets/js/page-editor.ts",
-        "./src/main/resources/assets/js/page-editor/**/*"
+        "out/**/*"
     ],
     "compileOnSave": false,
     "buildOnSave": false

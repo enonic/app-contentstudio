@@ -65,7 +65,7 @@ import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconU
 // on-demand, when parsing XML schemas and has not real usage in app
 declare var require: { context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void };
 const importAll = r => r.keys().forEach(r);
-importAll(require.context('lib-contentstudio/app/inputtype', true, /^(?!\.[\/\\]ui).*/));
+importAll(require.context('lib-contentstudio/app/inputtype', true, /^(?!\.[\/\\](ui)).*(\.js)$/));
 
 const body = Body.get();
 
