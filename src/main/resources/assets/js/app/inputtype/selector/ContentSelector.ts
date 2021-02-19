@@ -37,8 +37,6 @@ export class ContentSelector
 
     protected hideToggleIcon: boolean;
 
-    protected showStatus: boolean;
-
     protected static contentIdBatch: ContentId[] = [];
 
     protected static loadSummariesResult: Q.Deferred<ContentSummary[]>;
@@ -55,9 +53,6 @@ export class ContentSelector
 
         const isTreeModeConfig = inputConfig['treeMode'] ? inputConfig['treeMode'][0] : {};
         this.treeMode = !StringHelper.isBlank(isTreeModeConfig['value']) ? isTreeModeConfig['value'].toLowerCase() === 'true' : false;
-
-        const showStatusConfig = inputConfig['showStatus'] ? inputConfig['showStatus'][0] : {};
-        this.showStatus = !StringHelper.isBlank(showStatusConfig['value']) ? showStatusConfig['value'].toLowerCase() === 'true' : false;
 
         const hideToggleIconConfig = inputConfig['hideToggleIcon'] ? inputConfig['hideToggleIcon'][0] : {};
         this.hideToggleIcon =
@@ -147,8 +142,7 @@ export class ContentSelector
             .setAllowedContentPaths(this.allowedContentPaths)
             .setContentTypeNames(this.allowedContentTypes)
             .setRelationshipType(this.relationshipType)
-            .setContent(this.config.content)
-            .setLoadStatus(this.showStatus);
+            .setContent(this.config.content);
     }
 
     protected doCreateContentComboBoxBuilder(): ContentComboBoxBuilder<ContentTreeSelectorItem> {
@@ -168,7 +162,6 @@ export class ContentSelector
                 .setLoader(optionDataLoader)
                 .setMaximumOccurrences(input.getOccurrences().getMaximum())
                 .setRemoveMissingSelectedOptions(true)
-                .setShowStatus(this.showStatus)
                 .setTreegridDropdownEnabled(this.treeMode)
                 .setTreeModeTogglerAllowed(!this.hideToggleIcon)
                 .setValue(comboboxValue);

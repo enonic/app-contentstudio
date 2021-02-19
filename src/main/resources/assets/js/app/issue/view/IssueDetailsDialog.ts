@@ -181,7 +181,6 @@ export class IssueDetailsDialog
         this.header.addClass('with-back-button');
         this.initTabs();
         this.itemSelector = ContentComboBox.create()
-            .setShowStatus(true)
             .setHideComboBoxWhenMaxReached(false)
             .build();
         this.tabBar = new TabBar();
