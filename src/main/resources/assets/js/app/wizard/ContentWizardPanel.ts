@@ -124,6 +124,7 @@ import {UrlAction} from '../UrlAction';
 import {ContentWizardHeader} from './ContentWizardHeader';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
+import {FormItem} from 'lib-admin-ui/form/FormItem';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -2163,28 +2164,62 @@ export class ContentWizardPanel
         const formOptionSets: FormOptionSet[] = this.getOptionSetsInForm(this.getContentType().getForm());
 
         formOptionSets.forEach((formOptionSet: FormOptionSet) => {
-            const property: Property = data.getProperty(formOptionSet.getPath().toString());
-            if (!!property) {
-                const optionSetProperty: PropertySet = property.getPropertySet();
+            const parentPropertySet = formOptionSet.getPath().elementCount() > 1 ?
+                                      data.getPropertySet(formOptionSet.getPath().getParentPath()) :
+                                      data;
+
+            const occurrencesArray = parentPropertySet.getPropertyArray(formOptionSet.getName());
+            if (!occurrencesArray) {
+                return;
+            }
+
+            occurrencesArray.forEach((occurrenceProperty) => {
+                const optionSetProperty: PropertySet = occurrenceProperty.getPropertySet();
                 const selectionArray: PropertyArray = optionSetProperty.getPropertyArray('_selected');
-                if (!selectionArray) {
+                if (!selectionArray || selectionArray.isEmpty()) {
+                    optionSetProperty.removeAllProperties();
                     return;
                 }
-                formOptionSet.getOptions().forEach((option: FormOptionSetOption) => {
-                    let isSelected: boolean = false;
-                    selectionArray.forEach((selectedOptionName: Property) => {
-                        if (selectedOptionName.getString() === option.getName()) {
-                            isSelected = true;
-                        }
+                optionSetProperty.getPropertyArrays().forEach(optionArray => {
+                    if (optionArray.getName() === '_selected') {
+                        return;
+                    }
+
+                    const formOption: FormOptionSetOption = formOptionSet.getOptions()
+                        .find(option => option.getName() === optionArray.getName());
+                    const hasChildForm = formOption && formOption.getFormItems().length > 0;
+
+                    const isSelected = selectionArray.some((selectedOptionName: Property) => {
+                        return selectedOptionName.getString() === optionArray.getName();
                     });
-                    if (!isSelected) {
-                        optionSetProperty.removeProperty(option.getName(), 0);
+                    if ((!isSelected || !hasChildForm) && !optionArray.isEmpty()) {
+                        optionSetProperty.removeProperty(optionArray.getName(), 0);
+                    } else {
+                        this.recursiveCleanMissingProperties(optionArray.getSet(0), formOption.getFormItems());
                     }
                 });
-            }
+            });
         });
 
         return data;
+    }
+
+    private recursiveCleanMissingProperties(set: PropertySet, items: FormItem[]) {
+        if (!set || !items) {
+            return;
+        }
+        set.forEach((prop) => {
+            const formItem: FormItem = items.find(item => item.getName() === prop.getName());
+            if (!formItem) {
+                set.removeProperty(prop.getName(), 0);
+            } else if (formItem instanceof FieldSet ||
+                       formItem instanceof FormItemSet ||
+                       formItem instanceof FormOptionSet ||
+                       formItem instanceof FormOptionSetOption) {
+
+                this.recursiveCleanMissingProperties(set.getPropertySet(prop.getName()), formItem.getFormItems());
+            }
+        });
     }
 
     private assembleViewedPage(): Page {
