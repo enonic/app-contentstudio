@@ -123,7 +123,7 @@ import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialog
 import {UrlAction} from '../UrlAction';
 import {ContentWizardHeader} from './ContentWizardHeader';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
-import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
+import {ContentIconUrlResolver} from 'lib-admin-ui/content/util/ContentIconUrlResolver';
 import {FormItem} from 'lib-admin-ui/form/FormItem';
 
 export class ContentWizardPanel
