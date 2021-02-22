@@ -2148,56 +2148,84 @@ export class ContentWizardPanel
                                       data.getPropertySet(formOptionSet.getPath().getParentPath()) :
                                       data;
 
-            const occurrencesArray = parentPropertySet.getPropertyArray(formOptionSet.getName());
-            if (!occurrencesArray) {
+            const optionSetOccurrences = parentPropertySet.getPropertyArray(formOptionSet.getName());
+            if (!optionSetOccurrences) {
                 return;
             }
 
-            occurrencesArray.forEach((occurrenceProperty) => {
-                const optionSetProperty: PropertySet = occurrenceProperty.getPropertySet();
-                const selectionArray: PropertyArray = optionSetProperty.getPropertyArray('_selected');
-                if (!selectionArray || selectionArray.isEmpty()) {
-                    optionSetProperty.removeAllProperties();
-                    return;
-                }
-                optionSetProperty.getPropertyArrays().forEach(optionArray => {
-                    if (optionArray.getName() === '_selected') {
-                        return;
-                    }
-
-                    const formOption: FormOptionSetOption = formOptionSet.getOptions()
-                        .find(option => option.getName() === optionArray.getName());
-                    const hasChildForm = formOption && formOption.getFormItems().length > 0;
-
-                    const isSelected = selectionArray.some((selectedOptionName: Property) => {
-                        return selectedOptionName.getString() === optionArray.getName();
-                    });
-                    if ((!isSelected || !hasChildForm) && !optionArray.isEmpty()) {
-                        optionSetProperty.removeProperty(optionArray.getName(), 0);
-                    } else {
-                        this.recursiveCleanMissingProperties(optionArray.getSet(0), formOption.getFormItems());
-                    }
-                });
+            optionSetOccurrences.forEach((optionSetOccurrence: Property) => {
+                this.cleanOptionSetOccurrence(formOptionSet, optionSetOccurrence);
             });
         });
 
         return data;
     }
 
-    private recursiveCleanMissingProperties(set: PropertySet, items: FormItem[]) {
-        if (!set || !items) {
+    private cleanOptionSetOccurrence(formOptionSet: FormOptionSet, optionSetOccurrence: Property) {
+        const optionSetPropertySet: PropertySet = optionSetOccurrence.getPropertySet();
+        const selectionArray: PropertyArray = optionSetPropertySet.getPropertyArray('_selected');
+        if (!selectionArray || selectionArray.isEmpty()) {
+            optionSetPropertySet.removeAllProperties();
             return;
         }
-        set.forEach((prop) => {
-            const formItem: FormItem = items.find(item => item.getName() === prop.getName());
+
+        this.cleanOptionSetProperties(formOptionSet, optionSetPropertySet);
+    }
+
+    private getOptionFormItems(formOptionSet: FormOptionSet, optionName: string): FormItem[] {
+
+        const formOption: FormOptionSetOption = formOptionSet.getOptions()
+            .find(option => option.getName() === optionName);
+
+        if (!formOption) {
+            return [];
+        }
+
+        return formOption.getFormItems();
+    }
+
+    private cleanOptionSetProperties(formOptionSet: FormOptionSet, optionSetPropertySet: PropertySet) {
+        optionSetPropertySet.getPropertyArrays().forEach((optionPropertySet: PropertyArray) => {
+            const optionArrayName = optionPropertySet.getName();
+            if (optionArrayName === '_selected') {
+                return;
+            }
+
+            const formItems = this.getOptionFormItems(formOptionSet, optionArrayName);
+            const isEmptyOrNonSelectedOption = !formItems.length || !this.isOptionSelected(optionSetPropertySet, optionArrayName);
+            if (isEmptyOrNonSelectedOption && !optionPropertySet.isEmpty()) {
+                optionSetPropertySet.removeProperty(optionArrayName, 0);
+            } else {
+                this.recursiveCleanMissingProperties(optionPropertySet.getSet(0), formItems);
+            }
+        });
+    }
+
+    private isOptionSelected(optionSetProperty: PropertySet, optionName: string): boolean {
+        const selectionArray: PropertyArray = optionSetProperty.getPropertyArray('_selected');
+        if (!selectionArray || selectionArray.isEmpty()) {
+            return false;
+        }
+
+        return selectionArray.some((selectedOptionName: Property) => {
+            return selectedOptionName.getString() === optionName;
+        });
+    }
+
+    private recursiveCleanMissingProperties(optionProperties: PropertySet, items: FormItem[]) {
+        if (!optionProperties || !items) {
+            return;
+        }
+        optionProperties.forEach((property: Property) => {
+            const formItem: FormItem = items.find(item => item.getName() === property.getName());
             if (!formItem) {
-                set.removeProperty(prop.getName(), 0);
+                optionProperties.removeProperty(property.getName(), 0);
             } else if (formItem instanceof FieldSet ||
                        formItem instanceof FormItemSet ||
                        formItem instanceof FormOptionSet ||
                        formItem instanceof FormOptionSetOption) {
 
-                this.recursiveCleanMissingProperties(set.getPropertySet(prop.getName()), formItem.getFormItems());
+                this.recursiveCleanMissingProperties(optionProperties.getPropertySet(property.getName()), formItem.getFormItems());
             }
         });
     }
