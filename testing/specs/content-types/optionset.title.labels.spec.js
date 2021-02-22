@@ -11,19 +11,19 @@ const OptionSetForm = require('../../page_objects/wizardpanel/optionset/optionse
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SingleSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/single.selection.option.set.view');
 const MultiSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/multi.selection.set.view');
-
+const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 
 describe("optionset.title.labels.spec: checks option set's title and labels", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
-    let SINGLE_SELECTION_TITLE1 = "single test";
-    let SINGLE_SELECTION_TITLE2 = "single test 2";
+    let SINGLE_SELECTION_NOTE1 = "single test";
+    let SINGLE_SELECTION_NOTE2 = "single test 2";
     let MULTI_SELECTION_TITLE1 = "Option 2";
     let MULTI_SELECTION_TITLE2 = "Option 1, Option 2";
     let OPTION_SET_NAME = contentBuilder.generateRandomName('optionset');
 
-    it(`Preconditions: new site should be created`,
+    it("Preconditions: new site should be created",
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
@@ -32,8 +32,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
 
     //Verifies:https://github.com/enonic/lib-admin-ui/issues/1738
     //Title of a single-select option-set occurrence is not updated dynamically
-    it(
-        `GIVEN option set with wizard is opened WHEN text in name input is updated THEN title of the single select should be updated dynamically`,
+    it(`GIVEN option set with wizard is opened WHEN text in name input is updated THEN title of the single select should be updated dynamically`,
         async () => {
             let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
@@ -42,17 +41,17 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             //2. Select 'Option 1' :
             await optionSetForm.selectOptionInSingleSelection("Option 1");
             //3. Verify that the title is equal to text in 'Name' input
-            await singleSelectionOptionSet.typeOptionName(SINGLE_SELECTION_TITLE1);
+            await singleSelectionOptionSet.typeOptionName(SINGLE_SELECTION_NOTE1);
             let title = await singleSelectionOptionSet.getSingleSelectionLabel();
+            let subheader = await singleSelectionOptionSet.getSingleSelectionSubheader();
             studioUtils.saveScreenshot('item_set_confirmation_dialog');
-            assert.equal(title, SINGLE_SELECTION_TITLE1, "Expected title should be displayed in the option set occurrence view");
+            assert.equal(subheader, SINGLE_SELECTION_NOTE1, "Expected title should be displayed in the option set occurrence view");
             //4. Update the text in input:
-            await singleSelectionOptionSet.typeOptionName(SINGLE_SELECTION_TITLE2);
-            //5. Verify that title of the single select is updated dynamically:
-            title = await singleSelectionOptionSet.getSingleSelectionLabel();
-            assert.equal(title, SINGLE_SELECTION_TITLE2, "Expected title should be displayed in the optio nset occurrence view");
+            await singleSelectionOptionSet.typeOptionName(SINGLE_SELECTION_NOTE2);
+            //5. Verify that subheader is updated dynamically:
+            subheader = await singleSelectionOptionSet.getSingleSelectionSubheader();
+            assert.equal(subheader, SINGLE_SELECTION_NOTE2, "Expected subheader should be displayed");
         });
-
 
     it(`GIVEN option set with wizard is opened WHEN options in multi select have been updated THEN title of 'multi select' should be updated dynamically`,
         async () => {
@@ -77,13 +76,11 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             assert.equal(title, MULTI_SELECTION_TITLE2, "Expected title should be displayed in 'multi selection'");
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isFalse(isInvalid, "Option Set content should be valid because required input are filled");
-
         });
 
     it(`WHEN existing option set is opened THEN expected options should be selected in multi selection`,
         async () => {
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
-            let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             //1. Open existing Option Set content:
             await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME);
@@ -101,7 +98,6 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
         async () => {
             let contentWizard = new ContentWizard();
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
-            let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             //1. Open existing Option Set content:
             await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME);
@@ -110,6 +106,29 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             await multiSelectionOptionSet.clickOnOption("Option 3");
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isTrue(isInvalid, "Option Set content should be not valid because required image is not selected");
+        });
+
+    //Verifies - https://github.com/enonic/lib-admin-ui/issues/1811
+    //Option Set - subheader is not correctly displayed
+    it(`GIVEN existing option set is opened WHEN 'Option 3' checkbox has been clicked THEN this content gets not valid`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let htmlAreaForm = new HtmlAreaForm();
+            let multiSelectionOptionSet = new MultiSelectionOptionSet();
+            let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            //1. Open existing Option Set content:
+            await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME);
+            await singleSelectionOptionSet.collapseForm();
+            //TODO workaround (unselect Option 1 and Option 2)- subheader gets visible when single Option 3 is selected
+            await multiSelectionOptionSet.clickOnOption("Option 2");
+            await multiSelectionOptionSet.clickOnOption("Option 1");
+            //2. Click on Option 3 checkbox:
+            await multiSelectionOptionSet.clickOnOption("Option 3");
+            //3. Type the test text in HtmlAre
+            await htmlAreaForm.typeTextInHtmlArea("Hello World!");
+            //4. Verify that the subheader is dynamically updated:
+            let subheader = await multiSelectionOptionSet.getMultiSelectionSubHeader();
+            assert.equal(subheader, "Hello World!", "Expected subheader should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
