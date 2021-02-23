@@ -14,7 +14,6 @@ app {
 
 dependencies {
     compile "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
-    implementation project(":rest")
 }
 
 compileJava.enabled = false

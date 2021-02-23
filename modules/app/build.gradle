@@ -22,6 +22,7 @@ dependencies {
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
     include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
     include rootProject.project( ':lib-contentstudio' )
+    include project(":rest")
 }
 
 node {
