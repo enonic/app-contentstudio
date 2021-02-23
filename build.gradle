@@ -70,3 +70,12 @@ htmlSanityCheck {
     // fail build on errors?
     failOnErrors = true
 }
+
+processResources.enabled = false
+compileJava.enabled = false
+compileTestJava.enabled = false
+classes.enabled = false
+unpackWebJars.enabled = false
+build.enabled = false
+jar.enabled = false
+deploy.enabled = false
