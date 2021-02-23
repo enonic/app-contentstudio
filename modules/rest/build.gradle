@@ -9,3 +9,5 @@ app {
 dependencies {
 
 }
+
+deploy.enabled = false

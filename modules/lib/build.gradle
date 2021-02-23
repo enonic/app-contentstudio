@@ -17,6 +17,12 @@ dependencies {
 //    project(":rest")
 }
 
+compileJava.enabled = false
+compileTestJava.enabled = false
+classes.enabled = false
+unpackWebJars.enabled = false
+deploy.enabled = false
+
 node {
     download = true
     version = '15.8.0'
