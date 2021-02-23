@@ -94,19 +94,24 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     }
 
     private handleAvailableSizeChanged() {
-        const columns: GridColumn<any>[] = this.getColumnsWithoutCheckbox();
-        const width: number = this.getEl().getWidth();
-
-        if (ResponsiveRanges._360_540.isFitOrSmaller(width)) {
-            if (this.isStatusColumnShown()) {
-                const newColumns: GridColumn<any>[] = columns.filter((column: GridColumn<any>) => column.id !== 'status') ;
-                this.getDataGrid().setColumns(newColumns, true);
-            }
+        if (ResponsiveRanges._360_540.isFitOrSmaller(this.getEl().getWidth())) {
+            this.removeStatusColumnIfShown();
         } else {
-            if (!this.isStatusColumnShown()) {
-                const newColumns: GridColumn<any>[] = [...columns, this.statusColumn];
-                this.getDataGrid().setColumns(newColumns, true);
-            }
+            this.addStatusColumnIfHidden();
+        }
+    }
+
+    private removeStatusColumnIfShown() {
+        if (this.isStatusColumnShown()) {
+            const newColumns: GridColumn<any>[] = this.getColumnsWithoutCheckbox().filter((column: GridColumn<any>) => column.id !== 'status') ;
+            this.getDataGrid().setColumns(newColumns, true);
+        }
+    }
+
+    private addStatusColumnIfHidden() {
+        if (!this.isStatusColumnShown()) {
+            const newColumns: GridColumn<any>[] = [...this.getColumnsWithoutCheckbox(), this.statusColumn];
+            this.getDataGrid().setColumns(newColumns, true);
         }
     }
 
