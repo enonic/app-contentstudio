@@ -2168,7 +2168,7 @@ export class ContentWizardPanel
                                       data.getPropertySet(formOptionSet.getPath().getParentPath()) :
                                       data;
 
-            const optionSetOccurrences = parentPropertySet.getPropertyArray(formOptionSet.getName());
+            const optionSetOccurrences = parentPropertySet ? parentPropertySet.getPropertyArray(formOptionSet.getName()) : undefined;
             if (!optionSetOccurrences) {
                 return;
             }
