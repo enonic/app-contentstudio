@@ -1,4 +1,4 @@
-package com.enonic.xp.admin.impl.rest.resource;
+package com.enonic.xp.app.contentstudio.rest.resource;
 
 import com.enonic.xp.jaxrs.impl.JaxRsResourceTestSupport;
 

@@ -1,4 +1,4 @@
-package com.enonic.xp.admin.impl.rest.resource;
+package com.enonic.xp.app.contentstudio.rest.resource;
 
 public interface ResourceConstants
 {

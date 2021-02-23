@@ -1,4 +1,4 @@
-package com.enonic.xp.admin.impl.rest.resource.status;
+package com.enonic.xp.app.contentstudio.rest.resource.status;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import com.enonic.xp.admin.impl.rest.resource.ResourceConstants;
+import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.context.Context;
 import com.enonic.xp.context.ContextAccessor;
@@ -26,7 +26,7 @@ import com.enonic.xp.security.auth.AuthenticationInfo;
 import com.enonic.xp.server.ServerInfo;
 
 @Path(ResourceConstants.REST_ROOT + "status")
-@Component(immediate = true, property = "group=admin")
+@Component(immediate = true, property = "group=cms")
 public final class StatusResource
     implements JaxRsComponent
 {

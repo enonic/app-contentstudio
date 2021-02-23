@@ -1,4 +1,4 @@
-package com.enonic.xp.admin.impl.rest.resource.status;
+package com.enonic.xp.app.contentstudio.rest.resource.status;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;

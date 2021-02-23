@@ -1,4 +1,4 @@
-package com.enonic.xp.admin.impl.rest.resource.status;
+package com.enonic.xp.app.contentstudio.rest.resource.status;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +7,7 @@ import java.util.Properties;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.enonic.xp.admin.impl.rest.resource.AdminResourceTestSupport;
+import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
 import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.index.IndexService;
 import com.enonic.xp.index.IndexType;
