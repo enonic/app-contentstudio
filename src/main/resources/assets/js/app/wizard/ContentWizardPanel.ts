@@ -2433,10 +2433,7 @@ export class ContentWizardPanel
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             const xDataName: XDataName = new XDataName(form.getXDataNameAsString());
             const extraData: ExtraData = content.getExtraDataByName(xDataName);
-
-            //fill empty fields by empty values in persisted xdata
             const viewedData = form.getData().copy();
-            viewedData.getRoot().reset();
 
             form.getData().unChanged(this.dataChangedHandler);
 
