@@ -26,7 +26,7 @@ inside this site in *B* which will stop inheritance only of _sorting_ from *A*, 
 Another example, is that you can move a content item from one parent content to another in the layer *B*, but this content will still be
 inheriting data changes from *A*.
 
-Content Layers are using the <<projects,Content Projects>>' engine under the hood, which means that each layer has its own content repository,
+Content Layers are using the <<projects#,Content Projects>>' engine under the hood, which means that each layer has its own content repository,
 language, read permissions and roles.
 
 Just like projects, layers can be created and managed in the Settings section.

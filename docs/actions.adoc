@@ -92,7 +92,7 @@ If you try to delete content that is currently online (status "Published" or "Mo
 image::dialog-delete-published.png[Delete published content, 700]
 
 When "Mark as Deleted" is clicked, all offline content will be instantly deleted, but online content will change the status to "Marked for deletion".
-To remove such items completely, they must be <<publish,published>>.
+To remove such items completely, they must be <<#_publish,published>>.
 
 To restore items marked as deleted to their previous status, select them and click the `Undo delete` button in the toolbar.
 
@@ -192,10 +192,10 @@ The Publish button in the toolbar has a dropdown menu with various actions for c
 
  * <<workflow#ready_for_publishing,*Mark as ready*>> (only for content in progress) will mark selected item(s) as ready
  * *Publish* will open the Publishing dialog for the selected item(s)
- * <<publish-tree,*Publish Tree*>> will open the same dialog but will include all the selected items' children and dependencies
- * <<unpublish,*Unpublish*>> (available only for published item(s)) will open the *Unpublish* dialog
+ * <<#_publish-tree,*Publish Tree*>> will open the same dialog but will include all the selected items' children and dependencies
+ * <<#_unpublish,*Unpublish*>> (available only for published item(s)) will open the *Unpublish* dialog
  * <<workflow#publish_request,*Request Publishing*>>  (available only for unpublished item(s))
- * <<create-issue,*Create Task*>> will open the *New Task* dialog.
+ * <<#_create-issue,*Create Task*>> will open the *New Task* dialog.
 
 NOTE: Default action of the toolbar button is always the first available action from the dropdown menu.
 
@@ -217,7 +217,7 @@ but the active version in the `master` branch remains unchanged. The status of t
 will have to be published again for the changes to go online. In other words, each publishing operations overwrites the active version in the
 `master` branch with the active version from the `draft` branch.
 
-A published content can either be instantly deleted or marked as deleted in the <<delete,*Delete*>> dialog.
+A published content can either be instantly deleted or marked as deleted in the <<#_delete,*Delete*>> dialog.
 Upon instant deletion the content will be instantly removed from both the `draft` and the `master` branches, making it inaccessible online.
 However, items marked as deleted will be shown with status `Marked for deletion` in the Content Studio but will remain visible online.
 Such items must either be published in order to delete them from both branches, or you can use "*Undo delete*" action to remove the "Marked for deletion" mark.
@@ -231,7 +231,7 @@ Therefore, these two categories and the author are automatically included in the
 
 image::publishing-wizard-1.png[]
 
-The Calendar icon next to the "Publish Now" button enables <<scheduled-publishing,Scheduled Publishing>> of the selected content.
+The Calendar icon next to the "Publish Now" button enables <<#_scheduled-publishing,Scheduled Publishing>> of the selected content.
 
 TIP: Total number of items that will be published is displayed on the *Publish Now* button.
 
@@ -299,7 +299,7 @@ NOTE: Just like with deletion, you will be asked to confirm the Unpublish action
 
 == Create Issue
 
-NOTE: In-depth reference on the issues can be found in the separate <<issues,chapter>>.
+NOTE: In-depth reference on the issues can be found in the separate <<issues#,chapter>>.
 
 == Request Publishing
 
