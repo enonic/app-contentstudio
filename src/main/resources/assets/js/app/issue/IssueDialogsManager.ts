@@ -151,7 +151,6 @@ export class IssueDialogsManager {
                     this.requestPublishDialog.close();
                 }
             }
-            IssueDialogsManager.get().openDetailsDialog(issue);
         });
     }
 
