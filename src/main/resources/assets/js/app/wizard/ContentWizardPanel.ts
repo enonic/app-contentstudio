@@ -1135,13 +1135,14 @@ export class ContentWizardPanel
                 this.setPersistedItem(content.clone());
                 this.updateEditPermissionsButtonIcon(content);
                 new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                    const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
-                    const userCanModify: boolean = this.isContentModifiableByUser(loginResult);
+                    this.loginResult = loginResult;
+                    const userCanPublish: boolean = this.isContentPublishableByUser();
+                    const userCanModify: boolean = this.isContentModifiableByUser();
                     this.wizardActions
                         .setUserCanPublish(userCanPublish)
                         .setUserCanModify(userCanModify)
                         .refreshState();
-                    this.toggleStepFormsVisibility(loginResult);
+                    this.toggleStepFormsVisibility();
                 }).catch(DefaultErrorHandler.handle);
             });
         };
@@ -1542,8 +1543,8 @@ export class ContentWizardPanel
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
             this.workflowStateIconsManager.updateIcons();
             new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
-                const userCanModify: boolean = this.isContentModifiableByUser(loginResult);
+                const userCanPublish: boolean = this.isContentPublishableByUser();
+                const userCanModify: boolean = this.isContentModifiableByUser();
                 this.wizardActions
                     .setUserCanPublish(userCanPublish)
                     .setUserCanModify(userCanModify)
@@ -1552,12 +1553,12 @@ export class ContentWizardPanel
         });
     }
 
-    private isContentPublishableByUser(loginResult: LoginResult): boolean {
-        return PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, this.getPersistedItem().getPermissions());
+    private isContentPublishableByUser(): boolean {
+        return PermissionHelper.hasPermission(Permission.PUBLISH, this.loginResult, this.getPersistedItem().getPermissions());
     }
 
-    private isContentModifiableByUser(loginResult: LoginResult): boolean {
-        return PermissionHelper.hasPermission(Permission.MODIFY, loginResult, this.getPersistedItem().getPermissions());
+    private isContentModifiableByUser(): boolean {
+        return PermissionHelper.hasPermission(Permission.MODIFY, this.loginResult, this.getPersistedItem().getPermissions());
     }
 
     saveChangesWithoutValidation(reloadPageEditor?: boolean): Q.Promise<Content> {
@@ -1721,8 +1722,8 @@ export class ContentWizardPanel
 
                     return this.layoutWizardStepForms(content).then(() => {
                         new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                            this.setModifyPermissions(loginResult);
-                            this.toggleStepFormsVisibility(loginResult);
+                            this.setModifyPermissions();
+                            this.toggleStepFormsVisibility();
                             this.updateUrlAction();
 
                             if (this.isLocalizeInUrl()) {
@@ -1823,41 +1824,48 @@ export class ContentWizardPanel
         return Q.all(formViewLayoutPromises).thenResolve(null);
     }
 
-    private toggleElementsVisibility(visible: boolean) {
+    private toggleSettingsElementsVisibility(visible: boolean) {
         this.settingsWizardStepForm.setVisible(visible);
         this.settingsWizardStepForm.getPreviousElement().setVisible(visible);
         this.settingsWizardStep.getTabBarItem().setVisible(visible);
-        this.editPermissionsToolbarButton.setVisible(visible);
     }
 
-    private toggleStepFormsVisibility(loginResult: LoginResult) {
-        const hasAdminPermissions: boolean = this.hasAdminPermissions(loginResult);
+    private toggleStepFormsVisibility() {
+        const hasAdminPermissions: boolean = this.hasAdminPermissions();
 
         if (hasAdminPermissions) {
-            this.toggleElementsVisibility(true);
+            this.toggleSettingsElementsVisibility(true);
+            this.editPermissionsToolbarButton.setVisible(true);
         } else {
-            ProjectHelper.isUserProjectOwner(loginResult).then((isOwner: boolean) => this.toggleElementsVisibility(isOwner));
+            ProjectHelper.isUserProjectOwner(this.loginResult).then((isOwner: boolean) => {
+                const isContentExpert: boolean = this.loginResult.isContentExpert();
+
+                this.toggleSettingsElementsVisibility(isContentExpert && isOwner);
+                this.editPermissionsToolbarButton.setVisible(isOwner);
+            });
         }
     }
 
-    private hasAdminPermissions(loginResult: LoginResult): boolean {
-        if (loginResult.getPrincipals().some(principalKey => RoleKeys.isAdmin(principalKey))) {
+    private hasAdminPermissions(): boolean {
+        if (this.loginResult.getPrincipals().some(principalKey => RoleKeys.isAdmin(principalKey))) {
             return true;
         }
 
-        if (loginResult.isContentAdmin() || loginResult.isContentExpert()) {
+        if (this.loginResult.isContentAdmin()) {
             return true;
         }
 
-        return this.hasFullAccess(loginResult);
+        return this.hasFullAccess();
     }
 
-    private hasFullAccess(loginResult: LoginResult): boolean {
+    private hasFullAccess(): boolean {
         const principalKeysWithFullAccess: PrincipalKey[] = this.getPersistedItem().getPermissions().getEntries().filter(
             (ace: AccessControlEntry) => AccessControlEntryView.getAccessValueFromEntry(ace) === Access.FULL).map(
             (ace: AccessControlEntry) => ace.getPrincipalKey());
 
-        return principalKeysWithFullAccess.some((principalFullAccess: PrincipalKey) => loginResult.getPrincipals().some(
+        const principals: PrincipalKey[] = this.loginResult.getPrincipals();
+
+        return principalKeysWithFullAccess.some((principalFullAccess: PrincipalKey) => principals.some(
             (principal: PrincipalKey) => principalFullAccess.equals(principal)));
     }
 
@@ -2410,9 +2418,8 @@ export class ContentWizardPanel
         return this.formContext;
     }
 
-    private setModifyPermissions(loginResult: LoginResult) {
-        this.modifyPermissions =
-            this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY);
+    private setModifyPermissions() {
+        this.modifyPermissions = this.getPersistedItem().isAnyPrincipalAllowed(this.loginResult.getPrincipals(), Permission.MODIFY);
         this.getEl().toggleClass('no-modify-permissions', !this.modifyPermissions);
         if (this.getLivePanel()) {
             this.getLivePanel().setModifyPermissions(this.modifyPermissions);
@@ -2723,7 +2730,7 @@ export class ContentWizardPanel
             this.getLivePanel().setModifyPermissions(this.canModify);
         }
 
-        this.toggleStepFormsVisibility(this.loginResult);
+        this.toggleStepFormsVisibility();
         this.updateUrlAction();
 
         if (this.isLocalizeInUrl()) {
