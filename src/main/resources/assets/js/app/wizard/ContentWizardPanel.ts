@@ -76,7 +76,6 @@ import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {TogglerButton} from 'lib-admin-ui/ui/button/TogglerButton';
-import {WizardHeaderWithDisplayNameAndNameBuilder} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {Application} from 'lib-admin-ui/application/Application';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ApplicationEvent} from 'lib-admin-ui/application/ApplicationEvent';
@@ -124,6 +123,7 @@ import {UrlAction} from '../UrlAction';
 import {ContentWizardHeader} from './ContentWizardHeader';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
+import { WizardHeaderWithDisplayNameAndNameOptions } from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {FormItem} from 'lib-admin-ui/form/FormItem';
 
 export class ContentWizardPanel
@@ -366,9 +366,12 @@ export class ContentWizardPanel
     }
 
     protected createWizardHeader(): WizardHeader {
-        const header: ContentWizardHeader = new ContentWizardHeader(new WizardHeaderWithDisplayNameAndNameBuilder()
-            .setDisplayNameGenerator(this.displayNameResolver)
-            .setDisplayNameLabel(this.contentType ? this.contentType.getDisplayNameLabel() : null));
+        const headerOptions: WizardHeaderWithDisplayNameAndNameOptions = {
+            displayNameGenerator: this.displayNameResolver,
+            displayNameLabel: this.contentType ? this.contentType.getDisplayNameLabel() : null
+        };
+
+        const header: ContentWizardHeader = new ContentWizardHeader(headerOptions);
 
         header.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
         header.setPath(this.getWizardHeaderPath());
