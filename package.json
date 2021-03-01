@@ -32,7 +32,7 @@
     "autoprefixer": "^10.2.4",
     "browserslist": "^4.16.3",
     "browserslist-config-enonic": "^1.0.6",
-    "css-loader": "^5.0.0",
+    "css-loader": "^5.1.1",
     "cssnano": "^4.1.10",
     "enonic-admin-artifacts": "^1.8.1",
     "error-logger-webpack-plugin": "^1.1.0",
