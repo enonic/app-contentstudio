@@ -31,7 +31,7 @@
     "@types/q": "^1.5.4",
     "autoprefixer": "^10.2.4",
     "browserslist": "^4.16.3",
-    "browserslist-config-enonic": "^1.0.5",
+    "browserslist-config-enonic": "^1.0.6",
     "css-loader": "^5.0.0",
     "cssnano": "^4.1.10",
     "enonic-admin-artifacts": "^1.8.0",
