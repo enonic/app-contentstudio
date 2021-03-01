@@ -4,6 +4,16 @@
 
 TIP: Release Notes for Content Studio 2.x can be found https://developer.enonic.com/docs/content-studio/2.x/release[here]
 
+== Content Studio 3.3
+
+=== Length counter in TextLine and TextArea
+
+Input types https://developer.enonic.com/docs/xp/stable/cms/input-types#textline[TextLine]
+and https://developer.enonic.com/docs/xp/stable/cms/input-types#textarea[TextArea] now support a new config option `showCounter`
+to turn on text length counter.
+
+image::cs33-text-counter.png[Length counter in TextLine, 778]
+
 == Content Studio 3.2
 
 NOTE: Content Studio 3.2 requires XP 7.6.0 or higher.
