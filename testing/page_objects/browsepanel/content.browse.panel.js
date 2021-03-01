@@ -640,7 +640,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return this.getAttribute(selector, 'class').then(result => {
                 return result.includes('invalid');
             });
-        }, appConst.mediumTimeout, "Red icon should be displayed, because the content is invalid ");
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Class should contain 'invalid' "});
     }
 
     async waitForPublishMenuItemDisabled(menuItem) {
