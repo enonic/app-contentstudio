@@ -43,14 +43,18 @@ describe('publish.request.dialog.add.items.spec - request publish dialog - add i
                 studioUtils.saveScreenshot("pub_req_step3");
                 await createRequestPublishDialog.clickOnCreateRequestButton();
                 studioUtils.saveScreenshot("pub_req_step4");
+                //4. Verify that Issue Details dialog closes after creating a publishing request:
+                await publishRequestDetailsDialog.waitForClosed();
 
+                //5. Reopen Issue Details dialog and verify control elements:
+                await contentWizard.clickOnOpenRequestButton();
                 //(app-contentstudio/issues/816) Wait for the requests-tab is loaded then do add a work-in-progress-folder:
                 await publishRequestDetailsDialog.waitForTabLoaded();
                 await publishRequestDetailsDialog.pause(500);
-                //4. Add 'Work in Progress' folder:
+                //6. Add 'Work in Progress' folder:
                 await publishRequestDetailsDialog.doAddItem(TEST_FOLDER1.displayName);
                 studioUtils.saveScreenshot("request_publish_button_disabled");
-                //5. Publish Now button gets disabled:(one of the items is 'Work in Progress')
+                //7. 'Publish Now' button gets disabled:(one of the items is 'Work in Progress')
                 await publishRequestDetailsDialog.waitForPublishNowButtonDisabled();
             });
 

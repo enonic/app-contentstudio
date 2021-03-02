@@ -81,10 +81,8 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             await contentWizard.clickOnMarkAsReadyButton(displayName);
             //2. Open Request Publishing dialog and create new request:
             await contentWizard.openPublishMenuAndCreateRequestPublish("my changes");
-            // 3. 'Issue Details' Dialog should be automatically loaded , do close it:
-            await taskDetailsDialog.waitForDialogOpened();
-            await taskDetailsDialog.clickOnCancelTopButton();
-            //4. 'Open Request' - this action gets default in the wizard's toolbar.
+
+            //3. Verify taht 'Open Request' -  action gets default in the wizard's toolbar.
             await contentWizard.waitForOpenRequestButtonVisible();
             let toolbarState = await contentWizard.getToolbarWorkflowState();
             studioUtils.saveScreenshot("wizard_workflow_state_3");

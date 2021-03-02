@@ -56,7 +56,7 @@ describe('textarea.content.config.spec:  verifies max-length value for TextArea'
             await textAreaForm.pause(1000);
             let text = await textAreaForm.getValidationRecord();
             studioUtils.saveScreenshot('textarea_max_length_3');
-            assert.equal(text, 'Text cannot be more than 41 characters long', 'expected validation recording should appear');
+            assert.equal(text, appConstant.VALIDATION_MESSAGE.TEXT_IS_TOO_LONG, 'expected validation recording should appear');
         });
 
     it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 41 chars has been typed THEN validation record should not be visible`,
