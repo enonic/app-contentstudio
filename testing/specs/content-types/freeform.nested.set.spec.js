@@ -16,15 +16,14 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
     let SITE;
     let contentDisplayName;
 
-    it.skip(`Preconditions: new site should be created`,
+    it("Preconditions: new site should be created",
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
-    it.skip(
-        "GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN element type and input type have been selected THEN 'Save' button gets enabled in the wizard-toolbar",
+    it("GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN element type and input type have been selected THEN 'Save' button gets enabled in the wizard-toolbar",
         async () => {
             let contentWizard = new ContentWizard();
             let freeFormNestedSet = new FreeFormNestedSet();
@@ -46,8 +45,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
 
     //Verifies https://github.com/enonic/lib-admin-ui/issues/1679
     //No content validation after changing option in a single-select option-set
-    it.skip(
-        "GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN Image and Text options have been selected sequentially THEN Save button gets enabled in the wizard-toolbar",
+    it("GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN Image and Text options have been selected sequentially THEN Save button gets enabled in the wizard-toolbar",
         async () => {
             let contentWizard = new ContentWizard();
             let freeFormNestedSet = new FreeFormNestedSet();
