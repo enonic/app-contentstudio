@@ -81,6 +81,11 @@
       &.page-template-and-controller-form,
       &.image-combobox-form,
       &.fragment-dropdown-form {
+        &:not(.image-combobox-form) {
+          background-color: @admin-context-bg-grey-opal;
+          margin: -10px -10px 0;
+          padding: 10px;
+        }
 
         label {
           display: block;
@@ -170,14 +175,6 @@
         .input-glow();
       }
     }
-  }
-
-  .page-controller-form,
-  .descriptor-based-dropdown-form,
-  .page-template-form,
-  .page-template-and-controller-form,
-  .fragment-dropdown-form {
-    background-color: @admin-context-bg-grey-opal;
   }
 
   .field-set-view {
