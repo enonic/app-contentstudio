@@ -760,6 +760,17 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
 
+    async clickOnOpenRequestButton() {
+        try {
+            await this.waitForOpenRequestButtonVisible();
+            return await this.clickOnElement(XPATH.container + XPATH.openRequestButton);
+        } catch (err) {
+            this.saveScreenshot('err_when_click_on_open_req_button');
+            throw new Error('Error when Open Request button has been clicked ' + err);
+        }
+    }
+
+
     waitForPublishButtonVisible() {
         let selector = XPATH.container + XPATH.publishButton;
         return this.waitForElementDisplayed(selector, appConst.mediumTimeout);

@@ -41,7 +41,7 @@ class NewContentDialog extends Page {
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(XPATH.typesList, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(XPATH.typesList, appConst.longTimeout).catch(err => {
             this.saveScreenshot('err_load_new_content_dialog');
             throw new Error('New Content dialog was not loaded! ' + err);
         });

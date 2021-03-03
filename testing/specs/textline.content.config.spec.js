@@ -55,7 +55,7 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
             await textLine.pause(1000);
             let text = await textLine.getValidationRecord();
             studioUtils.saveScreenshot('textline_max_length_3');
-            assert.equal(text, 'Text cannot be more than 11 characters long', 'expected validation recording should appear');
+            assert.equal(text, appConstant.VALIDATION_MESSAGE.TEXT_IS_TOO_LONG, 'expected validation recording should appear');
         });
 
     it(`GIVEN wizard for 'TextLine(max-length is 11)' is opened WHEN 11 chars has been typed THEN validation record should not be visible`,
