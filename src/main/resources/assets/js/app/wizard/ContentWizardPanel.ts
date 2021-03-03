@@ -582,6 +582,7 @@ export class ContentWizardPanel
         this.contentUpdateDisabled = true;
         this.isFirstUpdateAndRenameEventSkiped = false;
         new BeforeContentSavedEvent().fire();
+
         return super.saveChanges().then((content: Content) => {
             const persistedItem = content.clone();
             if (liveFormPanel) {
@@ -2220,12 +2221,12 @@ export class ContentWizardPanel
             const formItem: FormItem = items.find(item => item.getName() === property.getName());
             if (!formItem) {
                 optionProperties.removeProperty(property.getName(), 0);
+            } else if (formItem instanceof FormOptionSet) {
+                this.cleanOptionSetOccurrence(formItem, property);
             } else if (formItem instanceof FieldSet ||
                        formItem instanceof FormItemSet ||
-                       formItem instanceof FormOptionSet ||
                        formItem instanceof FormOptionSetOption) {
-
-                this.recursiveCleanMissingProperties(optionProperties.getPropertySet(property.getName()), formItem.getFormItems());
+                this.recursiveCleanMissingProperties(property.getPropertySet(), formItem.getFormItems());
             }
         });
     }
