@@ -529,14 +529,22 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async clickOnCheckboxAndSelectRowByName(name) {
         try {
-            let nameXpath = XPATH.checkboxByName(name);
-            await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
-            await this.clickOnElement(nameXpath);
-            return await this.pause(300);
+            await this.clickOnCheckbox(name);
+            let isSelected = await this.isRowCheckboxSelected(name);
+            if (!isSelected) {
+                throw new Error("Checkbox was not selected. " + name);
+            }
         } catch (err) {
-            this.saveScreenshot('err_find_item');
-            throw Error('Row with the name ' + name + ' was not found ' + err)
+            this.saveScreenshot('err_select_item');
+            throw Error('Row with the name ' + name + ' was not selected ' + err)
         }
+    }
+
+    async clickOnCheckbox(name) {
+        let checkBox = XPATH.checkboxByName(name);
+        await this.waitForElementDisplayed(checkBox, appConst.mediumTimeout);
+        await this.clickOnElement(checkBox);
+        return await this.pause(400);
     }
 
     getNumberOfSelectedRows() {
@@ -632,7 +640,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return this.getAttribute(selector, 'class').then(result => {
                 return result.includes('invalid');
             });
-        }, appConst.mediumTimeout, "Red icon should be displayed, because the content is invalid ");
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Class should contain 'invalid' "});
     }
 
     async waitForPublishMenuItemDisabled(menuItem) {

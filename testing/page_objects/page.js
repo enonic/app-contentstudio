@@ -52,7 +52,6 @@ class Page {
 
     async clickOnElement(selector) {
         let element = await this.findElement(selector);
-        //await element.waitForDisplayed(1500);
         return await element.click();
     }
 
@@ -110,7 +109,7 @@ class Page {
     // element that exists in the DOM, otherwise throws an error.
     async waitForExist(selector, ms) {
         let element = await this.findElement(selector);
-        return await element.waitForExist(ms);
+        return await element.waitForExist({timeout: ms});
     }
 
     async isClickable(selector) {
@@ -161,7 +160,7 @@ class Page {
         if (el.length === 0) {
             throw new Error("Element was not found:" + selector);
         }
-        return await el[0].waitForEnabled(ms);
+        return await el[0].waitForEnabled({timeout: ms});
     }
 
     async waitForDisplayedElementEnabled(selector, ms) {
@@ -172,7 +171,7 @@ class Page {
         if (el.length === 0) {
             throw new Error("Element was not found:" + selector);
         }
-        return await el[0].waitForEnabled(ms);
+        return await el[0].waitForEnabled({timeout: ms});
     }
 
     async waitForElementDisabled(selector, ms) {
@@ -183,7 +182,7 @@ class Page {
         if (element.length === 0) {
             throw new Error("Element was not found:" + selector);
         }
-        return await element[0].waitForEnabled(ms, true);
+        return await element[0].waitForEnabled({timeout: ms, reverse: true});
     }
 
     async waitForDisplayedElementDisabled(selector, ms) {
@@ -195,7 +194,7 @@ class Page {
             throw new Error("Element was not found:" + selector);
         }
 
-        return await element[0].waitForEnabled(ms, true);
+        return await element[0].waitForEnabled({timeout: ms, reverse: true});
     }
 
     waitForElementNotDisplayed(selector, ms) {
@@ -203,9 +202,7 @@ class Page {
             return this.getDisplayedElements(selector).then(result => {
                 return result.length == 0;
             })
-        }, ms).catch(err => {
-            throw new Error("Timeout exception. Element " + selector + " still visible in: " + ms);
-        });
+        }, {timeout: ms, timeoutMsg: "Timeout exception. Element " + selector + " still visible, timeout is " + ms});
     }
 
     waitUntilDisplayed(selector, ms) {
@@ -213,16 +210,13 @@ class Page {
             return this.getDisplayedElements(selector).then(result => {
                 return result.length > 0;
             })
-        }, ms).catch(err => {
-            throw new Error("Timeout exception. Element " + selector + " still not visible in: " + ms);
-        });
+        }, {timeout: ms, timeoutMsg: "Timeout exception. Element " + selector + " still not visible in: " + ms});
     }
 
     async waitForElementDisplayed(selector, ms) {
         let elements = await this.findElements(selector);
         let element = await this.findElement(selector);
-        return await element.waitForDisplayed(ms);
-        //return await element.waitForDisplayed({timeout: ms});
+        return await element.waitForDisplayed({timeout: ms});
     }
 
     waitForSpinnerNotVisible(ms) {
@@ -230,15 +224,15 @@ class Page {
         timeout = ms === undefined ? appConst.longTimeout : ms;
         let message = "Spinner still displayed! timeout is " + timeout;
         return this.browser.waitUntil(() => {
-            return this.isElementNotDisplayed(`//div[@class='spinner']`);
-        }, timeout, message);
+            return this.isElementNotDisplayed("//div[@class='spinner']");
+        }, {timeout: ms, timeoutMsg: message});
     }
 
-    waitUntilElementNotVisible(selector, timeout) {
+    waitUntilElementNotVisible(selector, ms) {
         let message = "Element still displayed! timeout is " + appConst.longTimeout + "  " + selector;
         return this.browser.waitUntil(() => {
             return this.isElementNotDisplayed(selector);
-        }, timeout, message);
+        }, {timeout: ms, timeoutMsg: message});
     }
 
     isElementNotDisplayed(selector) {
@@ -260,14 +254,14 @@ class Page {
 
     async waitForNotificationMessage() {
         try {
-            let notificationXpath = `//div[@class='notification-content']`;
+            let notificationXpath = "//div[@class='notification-content']";
             await this.getBrowser().waitUntil(async () => {
                 return await this.isElementDisplayed(notificationXpath);
-            }, appConst.TIMEOUT_10);
+            }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Error when wait for notification message'});
             await this.pause(400);
             return await this.getText(notificationXpath);
         } catch (err) {
-            throw new Error('Error when wait for notification message: ' + err);
+            throw new Error('Error when wait for the notification message: ' + err);
         }
     }
 
@@ -388,12 +382,9 @@ class Page {
         })
     }
 
-    pressEscKey() {
-        return this.keys('Escape').then(() => {
-            return this.pause(500);
-        }).catch(err => {
-            throw new Error('Error when clicking on Esc key ' + err);
-        });
+    async pressEscKey() {
+        await this.keys('Escape');
+        return await this.pause(500);
     }
 
     async switchToFrame(selector) {
@@ -434,7 +425,7 @@ class Page {
             return this.getAttribute(selector, 'class').then(result => {
                 return result.includes('invalid');
             });
-        }, appConst.mediumTimeout, "Invalid icon should be displayed. ");
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Class should contain 'invalid' "});
     }
 
     waitForAttributeHasValue(selector, attribute, value) {
@@ -442,7 +433,7 @@ class Page {
             return this.getAttribute(selector, attribute).then(result => {
                 return result.includes(value);
             });
-        }, appConst.shortTimeout, "Attribute " + attribute + "  does not contain the value:" + value);
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Attribute " + attribute + "  does not contain the value:" + value});
     }
 
     waitForAttributeNotIncludesValue(selector, attribute, value) {
@@ -450,7 +441,7 @@ class Page {
             return this.getAttribute(selector, attribute).then(result => {
                 return !result.includes(value);
             });
-        }, appConst.shortTimeout, "Attribute " + attribute + "  contains the value: " + value);
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Attribute " + attribute + "  contains the value: " + value});
     }
 
     //is checkbox selected...

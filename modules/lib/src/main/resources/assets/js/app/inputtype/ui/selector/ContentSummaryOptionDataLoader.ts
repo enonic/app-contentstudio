@@ -27,16 +27,12 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
     private treeFilterValue: string;
 
-    protected readonly loadStatus: boolean;
-
     private loadModeChangedListeners: { (isTreeMode: boolean): void }[] = [];
 
     constructor(builder?: ContentSummaryOptionDataLoaderBuilder) {
         super();
 
         if (builder) {
-            this.loadStatus = builder.loadStatus;
-
             this.initRequests(builder);
         }
     }
@@ -87,15 +83,10 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
                 this.notifyLoadModeChanged(false);
             }
 
-            if (this.loadStatus) {
-                return this.loadStatuses(<DATA[]>result).then(resultWithStatuses => {
-                    this.notifyLoadedData(resultWithStatuses, postLoad);
-                    return resultWithStatuses;
-                });
-            }
-
-            this.notifyLoadedData(<DATA[]>result, postLoad);
-            return Q(<DATA[]>result);
+            return this.loadStatuses(<DATA[]>result).then(resultWithStatuses => {
+                this.notifyLoadedData(resultWithStatuses, postLoad);
+                return resultWithStatuses;
+            });
         });
     }
 
@@ -168,17 +159,7 @@ export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem
 
     private loadItems(): Q.Promise<DATA[]> {
         return this.request.sendAndParse().then(items => {
-            if (this.loadStatus) {
-                return this.loadStatuses(items);
-            }
-
-            const deferred = Q.defer<DATA[]>();
-
-            deferred.resolve(items.map((item: DATA) => {
-                return <any>new ContentTreeSelectorItem(item.getContent(), item.isSelectable(), item.isExpandable());
-            }));
-
-            return deferred.promise;
+            return this.loadStatuses(items);
         });
     }
 
@@ -237,8 +218,6 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     relationshipType: string;
 
-    loadStatus: boolean;
-
     public setContentTypeNames(contentTypeNames: string[]): ContentSummaryOptionDataLoaderBuilder {
         this.contentTypeNames = contentTypeNames;
         return this;
@@ -256,11 +235,6 @@ export class ContentSummaryOptionDataLoaderBuilder {
 
     public setContent(content: ContentSummary): ContentSummaryOptionDataLoaderBuilder {
         this.content = content;
-        return this;
-    }
-
-    public setLoadStatus(value: boolean): ContentSummaryOptionDataLoaderBuilder {
-        this.loadStatus = value;
         return this;
     }
 

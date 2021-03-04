@@ -20,6 +20,8 @@ const ProjectSelectionDialog = require('../../page_objects/project/project.selec
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
 const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
 const IssueDetailsDialogAssigneesTab = require('../../page_objects/issue/issue.details.dialog.assignees.tab');
+const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+
 
 describe('project.owner.spec - ui-tests for user with Owner role', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -217,6 +219,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             let publishRequestDetailsDialog = new PublishRequestDetailsDialog();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Select the folder and open new Request wizard:
@@ -224,17 +227,21 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await contentBrowsePanel.openPublishMenuSelectItem(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
             await createRequestPublishDialog.clickOnNextButton();
-            await createRequestPublishDialog.typeInChangesInput("owner's request");
+            await createRequestPublishDialog.typeInChangesInput("owner request");
             //3. Click on 'Create Request' button:
             await createRequestPublishDialog.clickOnCreateRequestButton();
-            //4. Verify that 'Request Details' dialog is loaded:
+            //4. Verify that Create Request dialog closes:
+            await publishRequestDetailsDialog.waitForClosed();
+            //5. Click on issue-button and open the request:
+            await contentItemPreviewPanel.clickOnIssueButtonByName("owner request");
+            //6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
-            //5. Verify that 'Publish Now' button is enabled:
+            //7. Verify that 'Publish Now' button is enabled:
             studioUtils.saveScreenshot("project_owner_8");
             await publishRequestDetailsDialog.waitForPublishNowButtonEnabled();
-            //6. Click on Publish Now button:
+            //8. Click on Publish Now button:
             await publishRequestDetailsDialog.clickOnPublishNowButton();
-            //7. Verify that modal dialog is closed:
+            //9. Verify that modal dialog is closed:
             await publishRequestDetailsDialog.waitForClosed();
             let actualStatus = await contentBrowsePanel.getContentStatus(FOLDER_NAME);
             assert.equal(actualStatus, "Published", "the folder should be 'Published'");

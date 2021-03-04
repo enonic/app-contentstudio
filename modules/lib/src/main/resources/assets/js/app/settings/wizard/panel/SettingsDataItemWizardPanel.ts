@@ -6,7 +6,7 @@ import {WizardStep} from 'lib-admin-ui/app/wizard/WizardStep';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {
     WizardHeaderWithDisplayNameAndName,
-    WizardHeaderWithDisplayNameAndNameBuilder
+    WizardHeaderWithDisplayNameAndNameOptions
 } from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {FormIcon} from 'lib-admin-ui/app/wizard/FormIcon';
@@ -328,9 +328,8 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
-        const wizardHeader: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndNameBuilder()
-            .setDisplayNameLabel(this.type.getDisplayNamePlaceholder()).build();
-
+        const wizardHeader: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndName(
+            {displayNameLabel: this.type.getDisplayNamePlaceholder()});
         const existing: ITEM = this.getPersistedItem();
         const displayName: string = !!existing ? existing.getDisplayName() : '';
 

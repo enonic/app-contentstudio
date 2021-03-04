@@ -16,7 +16,7 @@ allprojects {
         compile("com.enonic.xp:core-api:${xpVersion}")
         compile ("com.enonic.xp:portal-api:${xpVersion}")
         testCompile 'junit:junit:4.13.2'
-        testCompile 'org.mockito:mockito-core:3.7.7'
+        testCompile 'org.mockito:mockito-core:3.8.0'
     }
 
     app {

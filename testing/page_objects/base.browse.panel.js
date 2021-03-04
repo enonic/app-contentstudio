@@ -293,6 +293,13 @@ class BaseBrowsePanel extends Page {
             throw new Error('Delete button is not enabled! ' + err);
         }
     }
+
+    async isRowCheckboxSelected(itemName) {
+        let checkboxDiv = this.treeGrid + `${lib.itemByName(
+            itemName)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]`;
+        let classAttr = await this.getAttribute(checkboxDiv, "class");
+        return classAttr.includes("selected");
+    }
 }
 
 module.exports = BaseBrowsePanel;

@@ -23,15 +23,16 @@ import {EditContentEvent} from '../../../event/EditContentEvent';
 import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
+import {GridColumn, GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {H6El} from 'lib-admin-ui/dom/H6El';
-import {
-    RichSelectedOptionView,
-    RichSelectedOptionViewBuilder
-} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
+import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
 import {ContentSummaryViewer} from '../../../content/ContentSummaryViewer';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {Grid} from 'lib-admin-ui/ui/grid/Grid';
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     extends RichComboBox<ContentTreeSelectorItem> {
@@ -52,12 +53,18 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
     protected maxHeight: number = 230;
 
-    constructor(builder: ContentComboBoxBuilder<ITEM_TYPE>) {
+    private statusColumn: GridColumn<any>;
 
+    constructor(builder: ContentComboBoxBuilder<ITEM_TYPE>) {
         super(builder);
 
         this.addClass('content-combo-box');
 
+        this.initElements(builder);
+        this.initListeners();
+    }
+
+    protected initElements(builder: ContentComboBoxBuilder<ITEM_TYPE>) {
         this.treegridDropdownEnabled = builder.treegridDropdownEnabled;
         this.initialTreeEnabledState = this.treegridDropdownEnabled;
 
@@ -67,8 +74,57 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         }
 
         this.showAfterReload = false;
-
         this.optionsFactory = new OptionsFactory<ITEM_TYPE>(this.getLoader(), builder.optionDataHelper);
+    }
+
+    private createStatusColumn() {
+        this.statusColumn = new GridColumnBuilder()
+            .setId('status')
+            .setName('Status')
+            .setField('displayValue')
+            .setFormatter(ContentRowFormatter.statusSelectorFormatter)
+            .setCssClass('status')
+            .setBoundaryWidth(75, 75)
+            .build();
+    }
+
+    protected initListeners() {
+        const debouncedHandler = AppHelper.debounce(this.handleAvailableSizeChanged.bind(this), 300);
+        ResponsiveManager.onAvailableSizeChanged(this, debouncedHandler);
+    }
+
+    private handleAvailableSizeChanged() {
+        if (ResponsiveRanges._360_540.isFitOrSmaller(this.getEl().getWidth())) {
+            this.removeStatusColumnIfShown();
+        } else {
+            this.addStatusColumnIfHidden();
+        }
+    }
+
+    private removeStatusColumnIfShown() {
+        if (this.isStatusColumnShown()) {
+            const newColumns: GridColumn<any>[] = this.getColumnsWithoutCheckbox().filter((column: GridColumn<any>) => column.id !== 'status') ;
+            this.getDataGrid().setColumns(newColumns, true);
+        }
+    }
+
+    private addStatusColumnIfHidden() {
+        if (!this.isStatusColumnShown()) {
+            const newColumns: GridColumn<any>[] = [...this.getColumnsWithoutCheckbox(), this.statusColumn];
+            this.getDataGrid().setColumns(newColumns, true);
+        }
+    }
+
+    private getDataGrid(): Grid<any> {
+        return this.getComboBox().getComboBoxDropdownGrid().getGrid();
+    }
+
+    private getColumnsWithoutCheckbox(): GridColumn<any>[] {
+        return this.getDataGrid().getColumns().filter((column: GridColumn<any>) => column.id !== '_checkbox_selector');
+    }
+
+    private isStatusColumnShown(): boolean {
+        return this.getColumnsWithoutCheckbox().some((column: GridColumn<any>) => column.id === 'status');
     }
 
     protected createComboboxConfig(builder: ContentComboBoxBuilder<ITEM_TYPE>): ComboBoxConfig<ContentTreeSelectorItem> {
@@ -80,27 +136,14 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     }
 
     private prepareBuilder(builder: ContentComboBoxBuilder<ITEM_TYPE>) {
+        this.createStatusColumn();
 
         if (!builder.loader) {
             builder.setLoader(<ContentSummaryOptionDataLoader<ITEM_TYPE>>this.createLoader(builder));
         }
 
         builder.setMaxHeight(this.maxHeight);
-
-        if (builder.showStatus) {
-            const columns = [
-                new GridColumnBuilder()
-                    .setId('status')
-                    .setName('Status')
-                    .setField('displayValue')
-                    .setFormatter(ContentRowFormatter.statusSelectorFormatter)
-                    .setCssClass('status')
-                    .setBoundaryWidth(75, 75)
-                    .build()
-            ];
-
-            builder.setCreateColumns(columns);
-        }
+        builder.setCreateColumns([this.statusColumn]);
 
         if (builder.isRequestMissingOptions) {
             builder.setRequestMissingOptions((missingOptionIds: string[]) => {
@@ -114,8 +157,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     }
 
     protected createLoaderBuilder(builder: ContentComboBoxBuilder<ITEM_TYPE>): ContentSummaryOptionDataLoaderBuilder {
-        return ContentSummaryOptionDataLoader.create()
-            .setLoadStatus(builder.showStatus);
+        return ContentSummaryOptionDataLoader.create();
     }
 
     getLoader(): ContentSummaryOptionDataLoader<ITEM_TYPE> {
@@ -360,8 +402,6 @@ export class ContentComboBoxBuilder<ITEM_TYPE extends ContentTreeSelectorItem>
 
     removeMissingSelectedOptions: boolean;
 
-    showStatus: boolean = false;
-
     treegridDropdownEnabled: boolean = false;
 
     treeModeTogglerAllowed: boolean = true;
@@ -375,11 +415,6 @@ export class ContentComboBoxBuilder<ITEM_TYPE extends ContentTreeSelectorItem>
 
     setTreeModeTogglerAllowed(value: boolean): ContentComboBoxBuilder<ITEM_TYPE> {
         this.treeModeTogglerAllowed = value;
-        return this;
-    }
-
-    setShowStatus(value: boolean): ContentComboBoxBuilder<ITEM_TYPE> {
-        this.showStatus = value;
         return this;
     }
 

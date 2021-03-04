@@ -36,7 +36,7 @@ describe('save.folder.failed.attempt.spec: Save a folder with a name that is alr
             //4. 'Save' button should be disabled:
             await wizard.waitForSaveButtonDisabled();
             //5. Verify the validation message 'Not available' is displayed in displayName input:
-            await wizard.waitForValidationPathMessageDisplayed()
+            await wizard.waitForValidationPathMessageDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

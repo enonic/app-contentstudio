@@ -72,7 +72,7 @@ export class IssueDialogForm
 
         this.approversSelector = <PrincipalComboBox>PrincipalComboBox.create().setLoader(principalLoader).setMaximumOccurrences(0).build();
 
-        this.contentItemsSelector = ContentComboBox.create().setShowStatus(true).build();
+        this.contentItemsSelector = ContentComboBox.create().build();
 
         this.contentItemsSelector.onOptionSelected((option) => {
             this.notifyContentItemsAdded(
