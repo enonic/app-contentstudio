@@ -101,6 +101,17 @@ class ContentItemPreviewPanel extends Page {
         }
     }
 
+    async clickOnIssueButtonByName(issueName) {
+        try {
+            let locator = xpath.toolbar + xpath.issueMenuButtonByName(issueName);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
+            return await this.pause(400);
+        } catch (err) {
+            throw new Error('issue menu button was not found!  ' + err);
+        }
+    }
+
     async getContentStatus() {
         let result = await this.getDisplayedElements(this.contentStatus);
         return await result[0].getText(this.contentStatus);
