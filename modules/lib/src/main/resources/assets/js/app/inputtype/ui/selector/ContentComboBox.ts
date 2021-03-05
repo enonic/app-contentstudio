@@ -209,8 +209,6 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     protected toggleGridOptions(_treeMode: boolean) {
         // May be overridden in deriving class if the grid should
         // have different settings in different modes
-
-        return false;
     }
 
     private initTreeModeToggler() {
