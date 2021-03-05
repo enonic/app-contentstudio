@@ -1,9 +1,9 @@
 import {Widget} from 'lib-admin-ui/content/Widget';
 import {WidgetDescriptorJson} from 'lib-admin-ui/content/json/WidgetDescriptorJson';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {CmsResourceRequest} from './CmsResourceRequest';
 
 export abstract class WidgetDescriptorResourceRequest<PARSED_TYPE>
-    extends ResourceRequest<PARSED_TYPE> {
+    extends CmsResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();
