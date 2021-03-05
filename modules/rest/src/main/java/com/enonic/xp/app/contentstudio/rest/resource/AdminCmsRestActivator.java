@@ -30,6 +30,6 @@ public final class AdminCmsRestActivator
     @Reference
     public void setService( final JaxRsServiceFactory factory )
     {
-        this.service = factory.newService( "cms", "/admin/cms/rest", DispatchConstants.XP_CONNECTOR );
+        this.service = factory.newService( "v2", "/admin/v2/rest", DispatchConstants.XP_CONNECTOR );
     }
 }
