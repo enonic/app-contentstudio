@@ -64,7 +64,7 @@ Page components are defined in the application code and contain the basic HTML s
 
 === Creating page templates
 
-A page template can only be created in its site’s <<templates-folder,Template folder>>. Create a new template content here and choose which content types will use it for rendering with the dropdown selector labeled *Supports*. A dropdown selector on the right side of the page is used for choosing the page component. Once a page component is selected, the page preview will be visible in the page editor. Use the *inspect panel* or the *component view* to add components to the region(s) in the page.
+A page template can only be created in its site’s <<#_templates-folder,Template folder>>. Create a new template content here and choose which content types will use it for rendering with the dropdown selector labeled *Supports*. A dropdown selector on the right side of the page is used for choosing the page component. Once a page component is selected, the page preview will be visible in the page editor. Use the *inspect panel* or the *component view* to add components to the region(s) in the page.
 
 image::browse-templates-list.png[]
 

@@ -2,7 +2,7 @@
 :toc: right
 :imagesdir: navigator/images
 
-The navigator is the default page of the *Content Studio*. It consists of a menu bar on top and two or three panels below it. On the left is the *Content tree grid* where all the sites and content can be found. To the right of the tree grid is the <<preview-panel,Preview panel>> which displays a preview of the selected content. On the far right is the <<widgets#,Widgets>> panel that may be toggled on and off with the **cog** icon in the top right corner, next to the `Publish` button on the Toolbar.
+The navigator is the default page of the *Content Studio*. It consists of a menu bar on top and two or three panels below it. On the left is the *Content tree grid* where all the sites and content can be found. To the right of the tree grid is the <<#_preview-panel,Preview panel>> which displays a preview of the selected content. On the far right is the <<widgets#,Widgets>> panel that may be toggled on and off with the **cog** icon in the top right corner, next to the `Publish` button on the Toolbar.
 
 image::navigator.png[]
 
