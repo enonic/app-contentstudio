@@ -25,9 +25,9 @@ only Publish Requests or only task. By default, if you have any active issues as
 
 image::issues-list-filter.png[Filter in the Issues list, 716]
 
-To create a new task, click the <<updating-issue,`New Task…`>> button.
+To create a new task, click the <<#_create-a-task,`New Task…`>> button.
 
-Clicking on an issue from the list will open the <<updating-issue,issue details dialog>>.
+Clicking on an issue from the list will open the <<#_update-an-issue,issue details dialog>>.
 
 == Tasks
 
@@ -52,7 +52,7 @@ You can read about creating a new Publishing Request in a dedicated <<workflow#p
 
 === Update an issue
 
-To modify an issue, click on it in the <<issues_list,*Issue list*>> dialog. It will open the dialog with three tabs.
+To modify an issue, click on it in the <<#_issues-list,*Issue list*>> dialog. It will open the dialog with three tabs.
 
 Click the title to edit it, then click anywhere outside of the text field to save the changes.
 

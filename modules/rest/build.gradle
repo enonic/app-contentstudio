@@ -1,0 +1,25 @@
+apply plugin: 'java'
+
+archivesBaseName = 'lib-contentstudio-rest'
+
+app {
+    name = 'com.enonic.lib.contentstudio.rest'
+    group = 'com.enonic.lib'
+    displayName = 'Content Studio REST Library'
+}
+
+dependencies {
+    compileOnly "com.enonic.xp:core-api:${xpVersion}"
+    compileOnly "com.enonic.xp:jaxrs-api:${xpVersion}"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.1'
+    testImplementation "com.enonic.xp:testing:${xpVersion}"
+    testImplementation( testFixtures( "com.enonic.xp:jaxrs-impl:${xpVersion}" ) )
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty 'java.awt.headless', 'true'
+    jvmArgs '-noverify', '-XX:TieredStopAtLevel=1'
+}
+
+deploy.enabled = false
