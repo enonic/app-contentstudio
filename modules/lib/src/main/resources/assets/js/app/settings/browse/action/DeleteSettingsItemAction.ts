@@ -8,7 +8,7 @@ import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
-import {TextInput, TextInputSize} from 'lib-admin-ui/ui/text/TextInput';
+import {TextInputSize} from 'lib-admin-ui/ui/text/TextInput';
 
 export class DeleteSettingsItemAction
     extends Action {
