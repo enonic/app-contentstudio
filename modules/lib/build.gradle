@@ -14,6 +14,7 @@ app {
 
 dependencies {
     compile "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
+    compile "org.apache.commons:commons-text:${commonsTextVersion}"
 }
 
 compileJava.enabled = false
