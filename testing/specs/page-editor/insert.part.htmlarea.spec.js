@@ -140,7 +140,8 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
         });
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/1523 Case 2
-    it(`GIVEN existing content with fragment(created from a part) is opened WHEN fragment has been detached THEN part with custom icon should appear in the Page Component View`,
+    it.skip(
+        `GIVEN existing content with fragment(created from a part) is opened WHEN fragment has been detached THEN part with custom icon should appear in the Page Component View`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();

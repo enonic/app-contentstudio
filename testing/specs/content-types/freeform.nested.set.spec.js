@@ -16,7 +16,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
     let SITE;
     let contentDisplayName;
 
-    it(`Preconditions: new site should be created`,
+    it("Preconditions: new site should be created",
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);

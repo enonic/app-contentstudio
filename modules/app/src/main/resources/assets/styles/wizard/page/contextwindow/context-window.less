@@ -1,0 +1,206 @@
+.context-window {
+  width: 100%;
+  right: 0;
+  background-color: transparent;
+  color: @admin-font-gray3;
+  overflow: visible; // for the ghost-dragger to be visible when dragging outside context window
+  z-index: initial;
+
+  &.no-inspection {
+    .tab-bar {
+      cursor: initial;
+      .inspect-tab {
+        pointer-events: none;
+        color: @form-button-font-disabled;
+      }
+    }
+  }
+
+  input.search {
+    margin: 15px;
+    padding: 5px 3px;
+    width: calc(100% - 20px);
+    border: none;
+    background-color: @admin-font-gray3;
+    color: @admin-font-gray1;
+  }
+
+  & > .tab-bar {
+    background-color: transparent;
+    cursor: move;
+  }
+
+  & > .deck-panel {
+    top: 44px;
+  }
+
+  .slick-viewport {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .context-grid();
+
+  .grid-row {
+    [data-context-window-draggable="true"] {
+      cursor: move;
+    }
+  }
+
+  .inspection-panel {
+    font-size: 12px;
+    width: 100% !important;
+    overflow-y: auto;
+    scrollbar-width: thin; // FF
+
+    &::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: @admin-almost-white;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: @admin-shadow-gray;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: @admin-dark-gray;
+    }
+
+    .form-view {
+
+      &:empty {
+        display: none;
+      }
+
+      &.page-controller-form,
+      &.descriptor-based-dropdown-form,
+      &.page-template-form,
+      &.page-template-and-controller-form,
+      &.image-combobox-form,
+      &.fragment-dropdown-form {
+        &:not(.image-combobox-form) {
+          background-color: @admin-context-bg-grey-opal;
+          margin: -10px -10px 0;
+          padding: 10px;
+        }
+
+        label {
+          display: block;
+          text-align: left;
+        }
+      }
+
+      &.page-template-and-controller-form,
+      &.fragment-dropdown-form {
+        text-align: center; // to center the button
+
+        fieldset + button {
+          margin-top: @form-field-spacing;
+        }
+      }
+
+      &.page-template-and-controller-form {
+        .@{_COMMON_PREFIX}dropdown {
+          max-width: initial;
+        }
+      }
+
+      form {
+        margin: 0;
+      }
+
+      fieldset {
+        display: table-cell; //fix for FF - width of a fieldset is never less than the intrinsic width of its content
+        text-align: left;
+      }
+    }
+
+    & > .names-and-icon-view {
+      .@{_COMMON_PREFIX}main-name {
+        font-size: 18px;
+        line-height: 20px;
+        height: 24px;
+        color: @admin-font-gray3;
+      }
+
+      .@{_COMMON_PREFIX}wrapper {
+        line-height: 40px;
+        .font-icon-default {
+          font-size: 36px;
+        }
+      }
+    }
+
+    .descriptor-header, .component-name-header {
+      margin-bottom: 10px;
+      color: @admin-font-gray3;
+    }
+
+    input.component-name {
+      width: 100%;
+    }
+
+    h3 {
+      font-size: 26px;
+      margin-top: 5px;
+      text-transform: capitalize;
+      font-weight: normal;
+      color: @admin-font-gray3;
+    }
+
+    .rich-combobox {
+
+      .selected-option {
+        border: 1px transparent solid;
+        padding: 0;
+        position: relative;
+
+        .option-value {
+          margin-left: 0;
+        }
+
+        .names-and-icon-view {
+
+          .@{_COMMON_PREFIX}names-view {
+            .ellipsis();
+          }
+        }
+
+      }
+
+      .option-filter-input {
+        .input-glow();
+      }
+    }
+  }
+
+  .field-set-view {
+    margin-left: 0;
+    margin-right: 0;
+
+    .field-set-label {
+      margin-left: 0;
+    }
+
+    .input-view {
+      .input-label {
+        max-width: 100%;
+        margin-right: 0;
+      }
+
+      .input-type-view,
+      .bottom-button-row,
+      .validation-viewer {
+        margin-left: 0;
+      }
+    }
+  }
+
+}
+
+.drag-mask {
+  background-color: transparent;
+}
