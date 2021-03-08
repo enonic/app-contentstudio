@@ -14,7 +14,6 @@ app {
 }
 
 dependencies {
-    compile "org.apache.commons:commons-text:${commonsTextVersion}"
     include "com.enonic.xp:lib-admin:${xpVersion}"
     include "com.enonic.xp:lib-portal:${xpVersion}"
     include "com.enonic.xp:lib-context:${xpVersion}"

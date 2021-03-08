@@ -15,6 +15,7 @@ allprojects {
     dependencies {
         compile("com.enonic.xp:core-api:${xpVersion}")
         compile ("com.enonic.xp:portal-api:${xpVersion}")
+        compile "org.apache.commons:commons-text:${commonsTextVersion}"
         testCompile 'junit:junit:4.13.2'
         testCompile 'org.mockito:mockito-core:3.8.0'
     }
