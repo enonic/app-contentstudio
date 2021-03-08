@@ -1,9 +1,15 @@
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'com.enonic.defaults'
+apply plugin: 'com.enonic.xp.app'
+
 archivesBaseName = 'lib-contentstudio'
 
 app {
     name = 'com.enonic.lib.contentstudio'
     group = 'com.enonic.lib'
     displayName = 'Content Studio Library'
+    devSourcePaths += file( "$rootDir/../lib-admin-ui/src/main/resources" )
 }
 
 dependencies {
@@ -16,16 +22,34 @@ classes.enabled = false
 unpackWebJars.enabled = false
 deploy.enabled = false
 
-task lint {
-    dependsOn tasks.getByPath(':lint')
+node {
+    download = true
+    version = '15.8.0'
+}
+
+if ( hasLibAdminUi() )
+{
+    build.dependsOn += libAdminBuildTask
+    clean.dependsOn += libAdminCleanTask
+}
+
+npmInstall.mustRunAfter unpackDevResources
+processResources.dependsOn += unpackDevResources
+
+task lint( type: NpmTask, dependsOn: npmInstall ) {
+    args = [ 'run', 'lint' ]
+    inputs.files fileTree( dir: 'modules', include: 'src/main/**.*' )
+    outputs.dir file('gradle')
+    outputs.upToDateWhen { false }
 }
 
 task typescriptPkg( type: NpmTask, dependsOn: [npmInstall, lint] ) {
     def buildEnv = getEnvironmentShort()
     environment = [ 'NODE_ENV': nodeEnvironment() ]
     args = [ 'run', "build:$buildEnv" ]
-    inputs.dir "$rootDir/src/main/resources/assets"
+    inputs.dir "$projectDir/src/main/resources/assets/"
     outputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
+//    outputs.upToDateWhen { false }
 }
 
 task minifyPkg( type: NpmTask, dependsOn: [npmInstall, typescriptPkg] ) {

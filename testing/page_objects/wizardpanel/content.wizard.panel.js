@@ -585,10 +585,7 @@ class ContentWizardPanel extends Page {
             return this.getAttribute(selector, 'class').then(result => {
                 return !result.includes('invalid');
             })
-        }, 2000).catch(err => {
-            this.saveScreenshot('err_wizard_validation_icon2');
-            throw new Error("Validation Error: Red icon is still displayed in the wizard after 2 seconds" + err);
-        });
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Validation Error: Red icon is still displayed in the wizard after 3 seconds"});
     }
 
     typeSettings(settings) {
@@ -630,7 +627,7 @@ class ContentWizardPanel extends Page {
             await this.typeTextInInput(this.controllerOptionFilterInput, pageControllerDisplayName);
             await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
             await this.clickOnElement(optionSelector);
-            return this.pause(700);
+            return await this.pause(500);
         } catch (err) {
             this.saveScreenshot('err_select_controller_in_wizard');
             throw new Error('Controller selector - Error when selecting the option ' + pageControllerDisplayName + ' ' + err);
@@ -695,9 +692,6 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(this.publishDropDownHandle, appConst.mediumTimeout).then(() => {
             return this.clickOnElement(this.publishDropDownHandle);
         }).catch(err => {
-            if (err.type === "WaitUntilTimeoutError") {
-                throw new Error("Publish dropdown handle is not visible!" + err);
-            }
             throw new Error("Error when clicking on Publish dropdown handle " + err);
         }).then(() => {
             return this.pause(300);
@@ -765,6 +759,17 @@ class ContentWizardPanel extends Page {
         let selector = XPATH.container + XPATH.openRequestButton;
         return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
     }
+
+    async clickOnOpenRequestButton() {
+        try {
+            await this.waitForOpenRequestButtonVisible();
+            return await this.clickOnElement(XPATH.container + XPATH.openRequestButton);
+        } catch (err) {
+            this.saveScreenshot('err_when_click_on_open_req_button');
+            throw new Error('Error when Open Request button has been clicked ' + err);
+        }
+    }
+
 
     waitForPublishButtonVisible() {
         let selector = XPATH.container + XPATH.publishButton;
@@ -1024,5 +1029,3 @@ class ContentWizardPanel extends Page {
 }
 
 module.exports = ContentWizardPanel;
-
-

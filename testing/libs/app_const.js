@@ -81,6 +81,10 @@ module.exports = Object.freeze({
         WEAK: "password"
     },
 
+    VALIDATION_MESSAGE: {
+        TEXT_IS_TOO_LONG: "Text is too long"
+    },
+
     PROJECT_ACCESS_MODE: {
         PRIVATE: "Private",
         PUBLIC: "Public",

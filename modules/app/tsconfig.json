@@ -1,7 +1,25 @@
 {
-    "extends": "../../tsconfig",
-    "exclude": [
-        "build/**/*",
-        "out/**/*"
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es5",
+        "sourceMap": true,
+        "types": [
+            "ckeditor",
+            "jquery",
+            "jqueryui",
+            "q"
+        ],
+        "lib": [
+            "es2015",
+            "es2015.promise",
+            "dom"
+        ]
+    },
+
+    "include": [
+        "./src/**/*",
+        "../../../lib-admin-ui/src/main/resources/assets/admin/common/js/**/*.ts",
+        ".xp/dev/lib-admin-ui/**/*.ts",
+        ".xp/dev/lib-contentstudio/**/*.ts"
     ]
 }

@@ -119,12 +119,9 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             //1. Open existing Option Set content:
             await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME);
             await singleSelectionOptionSet.collapseForm();
-            //TODO workaround (unselect Option 1 and Option 2)- subheader gets visible when single Option 3 is selected
-            await multiSelectionOptionSet.clickOnOption("Option 2");
-            await multiSelectionOptionSet.clickOnOption("Option 1");
-            //2. Click on Option 3 checkbox:
+            //2. Click on 'Option 3' checkbox:
             await multiSelectionOptionSet.clickOnOption("Option 3");
-            //3. Type the test text in HtmlAre
+            //3. Type the test text in HtmlArea
             await htmlAreaForm.typeTextInHtmlArea("Hello World!");
             //4. Verify that the subheader is dynamically updated:
             let subheader = await multiSelectionOptionSet.getMultiSelectionSubHeader();
