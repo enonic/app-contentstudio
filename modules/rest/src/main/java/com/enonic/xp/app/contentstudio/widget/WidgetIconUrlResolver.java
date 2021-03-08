@@ -1,5 +1,6 @@
 package com.enonic.xp.app.contentstudio.widget;
 
+import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.IconUrlResolver;
 import com.enonic.xp.admin.widget.WidgetDescriptor;
 import com.enonic.xp.icon.Icon;
@@ -7,7 +8,7 @@ import com.enonic.xp.icon.Icon;
 public class WidgetIconUrlResolver
     extends IconUrlResolver
 {
-    private static final String REST_SCHEMA_ICON_URL = "/admin/rest/widget/icon/";
+    private static final String REST_SCHEMA_ICON_URL = ResourceConstants.REST_ROOT + "/widget/icon/";
 
     public WidgetIconUrlResolver()
     {
