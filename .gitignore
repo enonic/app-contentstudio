@@ -17,4 +17,5 @@ generated-java
 classes/
 out/
 .xp/
+.tsbuildinfo
 testing/allure-results
