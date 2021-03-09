@@ -10,10 +10,10 @@ const xpath = {
     parametersFormOccurrence: `//div[contains(@id,'FormItemSetOccurrenceView')]`,
     parameterNameInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Name']]//input`,
     parameterValueInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Value']]//input`,
-    addParametersButton: `//button/span[text()='Add Parameters']`,
+    addParametersButton: "//button[@title='Add Parameters']",
     collapseButtonTop: "//div[contains(@class,'top-button-row')]//a[contains(@class,'collapse-button') and (text()='Collapse' or text()='Collapse all')]",
     collapseButtonBottom: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  (text()='Collapse' or text()='Collapse all')]",
-    expandButton: "//a[contains(@class,'collapse-button') and text()='Expand']",
+    expandButton: "//div[@class='bottom-button-row']//a[contains(@class,'collapse-button') and text()='Expand']",
     parameterOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//button[contains(@id,'MoreButton')]",
 };
 
@@ -50,7 +50,6 @@ class ShortcutForm extends Page {
     }
 
     getParameterName() {
-
         return this.getTextInInput(xpath.parameterNameInput).catch(err => {
             this.saveScreenshot("err_shortcut_get_parameter_name");
             throw new Error("shortcut - getting the parameter's name " + err);
@@ -58,18 +57,14 @@ class ShortcutForm extends Page {
     }
 
     getParameterValue() {
-
         return this.getTextInInput(xpath.parameterValueInput).catch(err => {
             this.saveScreenshot("err_shortcut_get_parameter_value");
             throw new Error("shortcut - getting the parameter's value " + err);
         });
     }
 
-
     waitForAddParametersButtonVisible() {
-        return this.waitForElementDisplayed(this.addParametersButton, appConst.shortTimeout).catch(err => {
-            return false;
-        })
+        return this.waitForElementDisplayed(this.addParametersButton, appConst.mediumTimeout);
     }
 
     waitForCollapseBottomLinkVisible() {
@@ -86,11 +81,13 @@ class ShortcutForm extends Page {
         })
     }
 
-    waitForExpandLinkVisible() {
-        return this.waitForElementDisplayed(xpath.stepForm + xpath.expandButton, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot("err_shortcut_collapse_link");
+    async waitForExpandLinkVisible() {
+        try {
+            return await this.waitForElementDisplayed(xpath.stepForm + xpath.expandButton, appConst.shortTimeout);
+        } catch (err) {
+            this.saveScreenshot("err_shortcut_expand_link");
             throw new Error("shortcut - Expand link is not visible " + err);
-        })
+        }
     }
 
     clickOnCollapseBottomLink() {
@@ -129,23 +126,19 @@ class ShortcutForm extends Page {
         })
     }
 
-    clickOnAddParametersButton() {
-        return this.waitForElementDisplayed(xpath.addParametersButton, appConst.shortTimeout).catch(err => {
-            throw new Error("Add parameters Button is not visible in 2 sec: " + err);
-        }).then(() => {
-            return this.clickOnElement(xpath.addParametersButton)
-        })
+    async clickOnAddParametersButton() {
+        await this.waitForAddParametersButtonVisible();
+        return await this.clickOnElement(this.addParametersButton);
     }
 
     type(shortcutData) {
         return this.filterOptionsAndSelectTarget(shortcutData.targetDisplayName);
     }
 
-    filterOptionsAndSelectTarget(displayName) {
+    async filterOptionsAndSelectTarget(displayName) {
         let loaderComboBox = new LoaderComboBox();
-        return this.typeTextInInput(this.targetOptionsFilterInput, displayName).then(() => {
-            return loaderComboBox.selectOption(displayName);
-        });
+        await this.typeTextInInput(this.targetOptionsFilterInput, displayName);
+        return await loaderComboBox.selectOption(displayName);
     }
 }
 

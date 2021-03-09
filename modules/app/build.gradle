@@ -9,20 +9,26 @@ app {
     name = 'com.enonic.app.contentstudio'
     group = 'com.enonic.app'
     displayName = 'Content Studio'
+    systemVersion = "${xpVersion}"
+    vendorName = 'Enonic AS'
+    vendorUrl = 'https://enonic.com'
     devSourcePaths += file( "$rootDir/../lib-admin-ui/src/main/resources" )
     devSourcePaths += file( "../lib/src/main/resources" )
 }
 
 dependencies {
-    compile "org.apache.commons:commons-text:${commonsTextVersion}"
+    implementation "com.enonic.xp:core-api:${xpVersion}"
+    implementation "com.enonic.xp:portal-api:${xpVersion}"
+
+    include "org.apache.commons:commons-text:${commonsTextVersion}"
     include "com.enonic.xp:lib-admin:${xpVersion}"
     include "com.enonic.xp:lib-portal:${xpVersion}"
     include "com.enonic.xp:lib-context:${xpVersion}"
     include "com.enonic.xp:lib-content:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
     include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
-    include rootProject.project( ':lib-contentstudio' )
-    include project(":rest")
+    include project( ':lib-contentstudio' )
+    include project( ':rest' )
 }
 
 node {

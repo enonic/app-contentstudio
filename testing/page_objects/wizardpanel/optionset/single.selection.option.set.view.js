@@ -7,7 +7,7 @@ const appConst = require('../../../libs/app_const');
 const xpath = {
     container: "//div[contains(@id,'FormView')]//div[contains(@id,'FormOptionSetView') and descendant::h5[text()='Single selection']]",
     nameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='Name']]" + lib.TEXT_INPUT,
-    addItemSetButton: "//button[contains(@id,'Button') and child::span[text()='Add My Item-set']]",
+    addItemSetButton: "//button[contains(@id,'Button') and @title='Add My Item-set']",
     itemSetOccurrenceMenuButton: "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//button[contains(@id,'MoreButton')]",
     optionSetMenuButton: "//div[contains(@class,'single-selection-header selected')]" + "//button[contains(@id,'MoreButton')]",
     labelInput: "//div[contains(@id,'FormItemSetOccurrenceView')]//input[contains(@name,'label')]",

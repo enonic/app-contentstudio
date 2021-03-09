@@ -78,6 +78,22 @@ describe('Shortcut parameters specification', function () {
             assert.equal(result, PARAM_VALUE, "Expected value of the parameter should be present");
         });
 
+    it("GIVEN existing shortcut with parameters is opened WHEN 'Collapse' link has been clicked THEN 'Expand' link gets visible",
+        async () => {
+            let shortcutForm = new ShortcutForm();
+            //1. Open existing shortcut content:
+            await studioUtils.selectContentAndOpenWizard(SHORTCUT_NAME);
+            //2. Click on 'Collapse' link and collapse parameters form:
+            await shortcutForm.clickOnCollapseBottomLink();
+            //3. Verify that 'Expand' link gets visible now:
+            await shortcutForm.waitForExpandLinkVisible();
+            //4. Click on 'Add' button:
+            await shortcutForm.clickOnAddParametersButton();
+            //5. Verify that 'Collapse all' link gets visible:
+            await shortcutForm.waitForCollapseTopLinkVisible();
+        });
+
+
     it(`GIVEN existing shortcut with parameters is opened WHEN the parameter has been removed THEN 'Add Parameters' button should appear`,
         async () => {
             let shortcutForm = new ShortcutForm();
