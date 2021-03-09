@@ -1,27 +1,23 @@
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-apply plugin: 'com.enonic.defaults'
-apply plugin: 'com.enonic.xp.app'
-
 archivesBaseName = 'lib-contentstudio'
 
-app {
-    name = 'com.enonic.lib.contentstudio'
-    group = 'com.enonic.lib'
-    displayName = 'Content Studio Library'
-    devSourcePaths += file( "$rootDir/../lib-admin-ui/src/main/resources" )
+configurations {
+    devResources
 }
 
 dependencies {
-    compile "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
-    compile "org.apache.commons:commons-text:${commonsTextVersion}"
+    devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
+}
+
+task copyDevResources(type: Copy) {
+    from( { zipTree( configurations.devResources.singleFile ) } ) {
+        include 'dev/**'
+    }
+    into '.xp'
 }
 
 compileJava.enabled = false
 compileTestJava.enabled = false
 classes.enabled = false
-unpackWebJars.enabled = false
-deploy.enabled = false
 
 node {
     download = true
@@ -34,8 +30,8 @@ if ( hasLibAdminUi() )
     clean.dependsOn += libAdminCleanTask
 }
 
-npmInstall.mustRunAfter unpackDevResources
-processResources.dependsOn += unpackDevResources
+npmInstall.mustRunAfter copyDevResources
+processResources.dependsOn += copyDevResources
 
 task lint( type: NpmTask, dependsOn: npmInstall ) {
     args = [ 'run', 'lint' ]
