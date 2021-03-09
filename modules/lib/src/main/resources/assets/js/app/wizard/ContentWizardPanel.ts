@@ -1843,7 +1843,7 @@ export class ContentWizardPanel
             ProjectHelper.isUserProjectOwner(this.loginResult).then((isOwner: boolean) => {
                 const isContentExpert: boolean = this.loginResult.isContentExpert();
 
-                this.toggleSettingsElementsVisibility(isContentExpert && isOwner);
+                this.toggleSettingsElementsVisibility(isContentExpert || isOwner);
                 this.editPermissionsToolbarButton.setVisible(isOwner);
             });
         }
