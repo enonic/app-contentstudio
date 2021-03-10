@@ -9,7 +9,9 @@ const LoaderComboBox = require('../../../components/loader.combobox');
 const xpath = {
     container: `//div[contains(@id,'ImageInspectionPanel')]`,
     imageContentComboBox: `//div[contains(@id,'ImageContentComboBox')]`,
+    modeTogglerButton: "//button[contains(@id,'ModeTogglerButton')]",
     applyButton: ``,
+    comboBoxOptionFilterInput: "//input[contains(@id,'ComboBoxOptionFilterInput')]",
 };
 
 //Context Window, Inspect tab for Image Component
@@ -23,10 +25,44 @@ class ImageInspectionPanel extends Page {
         return xpath.container + xpath.imageContentComboBox;
     }
 
+    get comboBoxOptionFilterInput() {
+        return xpath.container + xpath.comboBoxOptionFilterInput;
+    }
+
+    get modeTogglerButton() {
+        return xpath.container + xpath.modeTogglerButton;
+    }
+
+    async typeTextInOptionsFilter(text) {
+        return await this.typeTextInInput(this.comboBoxOptionFilterInput, text);
+    }
+
     async typeNameAndSelectImage(displayName) {
         let loaderComboBox = new LoaderComboBox();
         await loaderComboBox.typeTextAndSelectOption(displayName, xpath.container);
         return await this.pause(500);
+    }
+
+    async clickOnModeTogglerButton() {
+        try {
+            await this.clickOnElement(this.modeTogglerButton);
+            return await this.pause(1000);
+        } catch (err) {
+            this.saveScreenshot('err_inspect_panel_mode_toggler');
+            throw  new Error('mode toggler not found ' + err);
+        }
+    }
+
+    async expandFolderInOptions(folderName) {
+        let locator = xpath.container + lib.expanderIconByName(folderName);
+        this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        return await this.pause(300);
+    }
+
+    async getTreeModeOptionDisplayNames() {
+        let options = xpath.container + lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
+        return await this.getTextInElements(options);
     }
 
     waitForOpened() {
@@ -71,13 +107,14 @@ class ImageInspectionPanel extends Page {
     }
 
     isImageComboBoxDisplayed() {
-        return this.isElementDisplayed(xpath.container + xpath.imageContentComboBox+ "//input[contains(@id,'ComboBoxOptionFilterInput')]");
+        return this.isElementDisplayed(xpath.container + xpath.imageContentComboBox + "//input[contains(@id,'ComboBoxOptionFilterInput')]");
     }
 
     isErrorMessageDisplayed() {
         return this.isElementDisplayed(xpath.container + "//div[contains(@class,'error-container')]");
     }
 
-};
+}
+
 module.exports = ImageInspectionPanel;
 
