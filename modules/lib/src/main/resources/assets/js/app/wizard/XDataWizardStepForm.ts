@@ -5,13 +5,14 @@ import {XData} from '../content/XData';
 import {Form} from 'lib-admin-ui/form/Form';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {FormContext} from 'lib-admin-ui/form/FormContext';
 
 export class XDataWizardStepForm
     extends ContentWizardStepForm {
 
     private xData: XData;
 
-    private enabled: boolean;
+    private enabled: boolean = false;
 
     private stashedData: PropertyTree;
 
@@ -63,15 +64,14 @@ export class XDataWizardStepForm
         return this.enabled ? this.doLayout(this.form, this.data) : Q(null);
     }
 
-    protected doLayout(form: Form, data: PropertyTree): Q.Promise<void> {
-        if (this.enabled === undefined) {
-            this.resetState(data);
-        }
+    layout(formContext: FormContext, data: PropertyTree, form: Form): Q.Promise<void> {
+        this.enabled = !this.isOptional() || data.getRoot().getPropertyArrays().length > 0;
+        return super.layout(formContext, data, form);
+    }
 
+    protected doLayout(form: Form, data: PropertyTree): Q.Promise<void> {
         if (this.enabled) {
-            return super.doLayout(form, data).then(() => {
-                this.validate(false, true);
-            });
+            return super.doLayout(form, data);
         } else {
             this.formView = new FormView(this.formContext, form, data.getRoot());
         }
