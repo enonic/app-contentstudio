@@ -134,7 +134,8 @@ module.exports = Object.freeze({
         NORD: 'nord',
         CAPE: 'cape',
         BRO: 'bro',
-        MAN2: 'man2'
+        MAN2: 'man2',
+        SEVEROMOR: 'severomor'
     },
     MENU_ITEMS: {
         INSERT: 'Insert',

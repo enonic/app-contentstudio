@@ -30,9 +30,35 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
                 await studioUtils.doAddSite(SITE);
             });
 
+        //Verifies https://github.com/enonic/app-contentstudio/issues/2954
+        // Images are not displayed in the Image Component's descriptor selector #2954
+        it(`GIVEN image-component has been inserted WHEN image combobox has been switched to tree mode in Inspect Panel THEN expected images should be present in comboboox options`,
+            async () => {
+                let pageComponentView = new PageComponentView();
+                let contentWizard = new ContentWizard();
+                let imageInspectPanel = new ImageInspectPanel();
+                let siteFormPanel = new SiteFormPanel();
+                //1. Open the site:
+                await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+                await contentWizard.clickOnShowComponentViewToggler();
+                //2. Insert image-component:
+                await pageComponentView.openMenu("main");
+                await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
+                //3. type the folder name in options filter input in Inspect Panel:
+                await imageInspectPanel.typeTextInOptionsFilter(appConstant.TEST_FOLDER_WITH_IMAGES_NAME);
+                //4. Switch the image selector to Tree Mode:
+                await imageInspectPanel.clickOnModeTogglerButton();
+                //5. Expand the filtered folder
+                await imageInspectPanel.expandFolderInOptions(appConstant.TEST_FOLDER_WITH_IMAGES_NAME);
+                //6. Get name of images in options:
+                let displayNames = await imageInspectPanel.getTreeModeOptionDisplayNames();
+                //7. Verify that expected image is present in options:
+                assert.isTrue(displayNames.includes(appConstant.TEST_IMAGES.SEVEROMOR), "Expected image should be present in options");
+            });
+
         //verifies: Inspect Panel is not correctly rendered after inserting an image. #1176
         //verifies: Error appears in Inspect Panel after applying changes in Site Configurator. #1198       ( https://github.com/enonic/app-contentstudio/issues/1198)
-        it(`GIVEN site is opened AND an image-component has been inserted WHEN image has been selected in Inspect Panel AND site config has been updated THEN Inspect Panel should be correctly rendered`,
+        it(`GIVEN image-component has been inserted WHEN image has been selected in Inspect Panel AND site config has been updated THEN Inspect Panel should be correctly rendered`,
             async () => {
                 let pageComponentView = new PageComponentView();
                 let contentWizard = new ContentWizard();
@@ -48,7 +74,7 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
                 //3. Select the image in Inspect Panel:
                 await imageInspectPanel.typeNameAndSelectImage(IMAGE_DISPLAY_NAME);
                 let message = await contentWizard.waitForNotificationMessage();
-                    let expectedMessage = appConstant.itemSavedNotificationMessage(SITE.displayName);
+                let expectedMessage = appConstant.itemSavedNotificationMessage(SITE.displayName);
                 assert.equal(message, expectedMessage, "expected notification message should appear");
                 //4. Open Site Configurator dialog, type a number , then click on Apply button:
                 await siteFormPanel.openSiteConfiguratorDialog(appConstant.APP_CONTENT_TYPES);
