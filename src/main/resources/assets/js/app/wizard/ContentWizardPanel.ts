@@ -1720,6 +1720,7 @@ export class ContentWizardPanel
 
                         this.contentWizardStepForm.getFormView().addClass('panel-may-display-validation-errors');
                         this.contentWizardStepForm.validate();
+                        this.xDataWizardStepForms.validate();
 
                         if (this.isNew()) {
                             this.contentWizardStepForm.getFormView().highlightInputsOnValidityChange(true);
@@ -2026,6 +2027,7 @@ export class ContentWizardPanel
             return content;
         }).then((content: Content) => {
             this.contentWizardStepForm.validate();
+            this.xDataWizardStepForms.validate(false, true);
             this.displayValidationErrors(!this.isValid());
 
             return content;
