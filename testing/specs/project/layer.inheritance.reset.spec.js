@@ -104,13 +104,40 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             //4. Click on 'Yes' button in confirmation dialog:
             await confirmationDialog.clickOnYesButton();
             let language = await settingsStepForm.getSelectedLanguage();
-            studioUtils.saveScreenshot("reset_not_confirmed");
+            studioUtils.saveScreenshot("reset_confirmed");
             //5. Verify that content is reverted to initial inherited state:
-            assert.equal(language, appConstant.LANGUAGES.EN, "layer's data should not be reset");
+            assert.equal(language, appConstant.LANGUAGES.EN, "layer's language should be reset");
             //6. Verify that 'Reset' button is not displayed in the wizard toolbar:
             await contentWizard.waitForResetButtonNotDisplayed();
             //7. Verify that language is not selected in the settings form:
             await settingsStepForm.waitForSelectedLanguageNotDisplayed();
+        });
+
+    //Verifies https://github.com/enonic/xp/issues/8547
+    //"Reset inheritance" action won't reset workflow state #8547
+    it("GIVEN not localized site has been marked as ready WHEN 'Reset' button has been clicked THEN the site's workflow state should be reverted to Work in progress",
+        async () => {
+            let projectSelectionDialog = new ProjectSelectionDialog();
+            let settingsStepForm = new SettingsStepForm();
+            let contentWizard = new ContentWizard();
+            //1. Select the layer's context:
+            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            //2. Open the inherited site(not localized):
+            await studioUtils.selectContentAndClickOnLocalize(SITE_NAME);
+            //3. Press 'Mark as Ready' button:
+            await contentWizard.clickOnMarkAsReadyButton();
+            //4. Click on 'Reset' button:
+            let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();
+            //5. Click on 'Yes' button in confirmation dialog:
+            await confirmationDialog.clickOnYesButton();
+            await contentWizard.pause(1500);
+            studioUtils.saveScreenshot("reset_confirmed_w_status");
+            let actualStatus = await contentWizard.getIconWorkflowState();
+            //6. Verify that workflow status is 'work in progress' ( initial inherited state):
+            assert.equal(actualStatus, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS,
+                "'Work in progress' status should be after the resetting");
+            //7. Verify that 'Reset' button is not displayed in the wizard toolbar:
+            await contentWizard.waitForResetButtonNotDisplayed();
         });
 
     //Verifies: https://github.com/enonic/app-contentstudio/issues/2604

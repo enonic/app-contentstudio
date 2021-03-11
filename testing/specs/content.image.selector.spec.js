@@ -94,8 +94,8 @@ describe('content.image.selector: Image content specification', function () {
             //3. Verify that expected options are present in the expanded list:
             let optionsName = await imageSelectorForm.getFlatModeOptionImageNames();
             studioUtils.saveScreenshot('img_sel_filtered');
-            assert.equal(optionsName.length, 1, 'one option should be present in options, because text files should be filtered');
-            assert.isTrue(optionsName[0].includes('.svg'), 'pdf and text- files should be filtered in drop down list');
+            assert.equal(optionsName.length, 2, 'one option should be present in options, because text files should be filtered');
+            assert.isTrue(optionsName[1].includes('.svg'), 'pdf and text- files should be filtered in drop down list');
         });
 
     it(`GIVEN new content(image-selector 2:4) is saved WHEN one image was selected THEN that content should be not valid(in grid)`,
