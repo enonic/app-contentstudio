@@ -72,8 +72,8 @@ export class SiteConfigurator
 
         this.siteConfigProvider = new ApplicationConfigProvider(propertyArray);
         // ignore changes made to property by siteConfigProvider
-        this.siteConfigProvider.onBeforePropertyChanged(() => this.ignorePropertyChange = true);
-        this.siteConfigProvider.onAfterPropertyChanged(() => this.ignorePropertyChange = false);
+        this.siteConfigProvider.onBeforePropertyChanged(() => this.ignorePropertyChange(true));
+        this.siteConfigProvider.onAfterPropertyChanged(() => this.ignorePropertyChange(false));
 
         this.comboBox = this.createComboBox(input, this.siteConfigProvider);
 
@@ -95,8 +95,8 @@ export class SiteConfigurator
             const optionsMissing = !!propertyArray && propertyArray.getSize() > 0 && this.comboBox.getOptions().length === 0;
             return optionsMissing ? this.comboBox.getLoader().preLoad() : null;
         }).then(() => {
-            const ignorePropertyChange = this.ignorePropertyChange;
-            this.ignorePropertyChange = true;
+            const ignorePropertyChange = this.isPropertyChangeIgnored();
+            this.ignorePropertyChange(true);
 
             this.siteConfigProvider.setPropertyArray(propertyArray);
 
@@ -111,7 +111,7 @@ export class SiteConfigurator
             });
 
             return Q.all(updatePromises).then(() => {
-                this.ignorePropertyChange = ignorePropertyChange;
+                this.ignorePropertyChange(ignorePropertyChange);
                 if (!unchangedOnly || !this.comboBox.isDirty()) {
                     this.comboBox.setValue(this.getValueFromPropertyArray(propertyArray));
                 } else if (this.comboBox.isDirty()) {
@@ -185,7 +185,7 @@ export class SiteConfigurator
         const comboBox = new SiteConfiguratorComboBox(maximum, siteConfigProvider, this.formContext, value);
 
         const forcedValidate = () => {
-            this.ignorePropertyChange = false;
+            this.ignorePropertyChange(false);
             this.validate(false);
         };
         const saveAndForceValidate = (selectedOption: SelectedOption<Application>) => {
@@ -195,7 +195,7 @@ export class SiteConfigurator
         };
 
         comboBox.onOptionDeselected((event: SelectedOptionEvent<Application>) => {
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
 
             this.getPropertyArray().remove(event.getSelectedOption().getIndex());
 
@@ -205,7 +205,7 @@ export class SiteConfigurator
         comboBox.onOptionSelected((event: SelectedOptionEvent<Application>) => {
             this.fireFocusSwitchEvent(event);
 
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
 
             const selectedOption = event.getSelectedOption();
             const view: SiteConfiguratorSelectedOptionView = <SiteConfiguratorSelectedOptionView>selectedOption.getOptionView();
@@ -222,7 +222,7 @@ export class SiteConfigurator
         });
 
         comboBox.onOptionMoved((selectedOption: SelectedOption<Application>, fromIndex: number) => {
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
 
             this.getPropertyArray().move(fromIndex, selectedOption.getIndex());
             forcedValidate();
