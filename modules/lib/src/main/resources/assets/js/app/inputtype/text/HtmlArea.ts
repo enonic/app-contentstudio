@@ -88,8 +88,8 @@ export class HtmlArea
         return ValueTypes.STRING;
     }
 
-    newInitialValue(): Value {
-        return super.newInitialValue() || ValueTypes.STRING.newValue('');
+    protected newValueTypeInitialValue(): Value {
+        return new Value('', this.getValueType());
     }
 
     createInputOccurrenceElement(index: number, property: Property): Element {
@@ -120,9 +120,7 @@ export class HtmlArea
         });
 
         textAreaEl.onValueChanged((event: ValueChangedEvent) => {
-            const processedValue: string = HTMLAreaHelper.convertPreviewSrcToRenderSrc(event.getNewValue());
-            const valueObj: Value = ValueTypes.STRING.newValue(processedValue);
-            this.notifyOccurrenceValueChanged(textAreaWrapper, valueObj);
+            this.handleOccurrenceInputValueChanged(textAreaWrapper, event);
         });
 
         textAreaWrapper.appendChild(textAreaEl);
@@ -130,6 +128,11 @@ export class HtmlArea
         this.setFocusOnEditorAfterCreate(textAreaWrapper, editorId);
 
         return textAreaWrapper;
+    }
+
+    protected getValue(textAreaWrapper: DivEl, event: ValueChangedEvent): Value {
+        const processedValue: string = HTMLAreaHelper.convertPreviewSrcToRenderSrc(event.getNewValue());
+        return ValueTypes.STRING.newValue(processedValue);
     }
 
     protected updateFormInputElValue(occurrence: FormInputEl, property: Property) {
@@ -440,12 +443,6 @@ export class HtmlArea
 
     valueBreaksRequiredContract(value: Value): boolean {
         return value.isNull() || !value.getType().equals(ValueTypes.STRING) || StringHelper.isBlank(value.getString());
-    }
-
-    hasInputElementValidUserInput(_inputElement: Element) {
-
-        // TODO
-        return true;
     }
 
     handleDnDStart(ui: JQueryUI.SortableUIParams): void {
