@@ -76,7 +76,9 @@ export class ContentWizardStepForm
     }
 
     public validate(silent: boolean = false, forceNotify: boolean = false): ValidationRecording {
-        return this.formView.validate(silent, forceNotify);
+        const validationRecord: ValidationRecording = this.formView.validate(silent, forceNotify);
+        this.previousValidation = validationRecord;
+        return validationRecord;
     }
 
     public resetValidation() {
