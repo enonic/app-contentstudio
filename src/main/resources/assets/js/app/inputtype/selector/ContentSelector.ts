@@ -232,7 +232,13 @@ export class ContentSelector
     }
 
     update(propertyArray: PropertyArray, unchangedOnly: boolean): Q.Promise<void> {
+        if (ContentSelector.debug) {
+            console.log('update(' + propertyArray.toJson() + ')');
+        }
         return super.update(propertyArray, unchangedOnly).then(() => {
+            /*let value = this.getValueFromPropertyArray(propertyArray);
+            this.contentComboBox.setValue(value);*/
+
             if (!unchangedOnly || !this.contentComboBox.isDirty() && this.contentComboBox.isRendered()) {
                 let value = this.getValueFromPropertyArray(propertyArray);
                 this.contentComboBox.setValue(value);
@@ -251,16 +257,34 @@ export class ContentSelector
         this.contentComboBox.setEnabled(enable);
     }
 
+    private isResetRequired(): boolean {
+        const values = this.contentComboBox.getSelectedDisplayValues();
+        if (this.getPropertyArray().getSize() !== values.length) {
+            return true;
+        }
+
+        return !values.every((value: ContentTreeSelectorItem, index: number) => {
+            const property = this.getPropertyArray().get(index);
+            return property?.getString() === value.getId();
+        });
+    }
+
     resetPropertyValues() {
+        if (ContentSelector.debug) {
+            console.log('resetPropertyValues()');
+        }
+        if (!this.isResetRequired()) {
+            return;
+        }
         const values = this.contentComboBox.getSelectedDisplayValues();
 
-        this.ignorePropertyChange = true;
+        this.ignorePropertyChange(true);
 
         this.getPropertyArray().removeAll(true);
         values.forEach(value => this.contentComboBox.deselect(value, true));
         values.forEach(value => this.contentComboBox.select(value));
 
-        this.ignorePropertyChange = false;
+        this.ignorePropertyChange(false);
     }
 
     private static doFetchSummaries() {
@@ -297,13 +321,13 @@ export class ContentSelector
         let value = new Value(reference, ValueTypes.REFERENCE);
 
         if (!this.getPropertyArray().containsValue(value)) {
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
             if (this.contentComboBox.countSelected() === 1) { // overwrite initial value
                 this.getPropertyArray().set(0, value);
             } else {
                 this.getPropertyArray().add(value);
             }
-            this.ignorePropertyChange = false;
+            this.ignorePropertyChange(false);
         }
     }
 
@@ -313,16 +337,15 @@ export class ContentSelector
     }
 
     protected handleMoved(moved: SelectedOption<ContentTreeSelectorItem>, fromIndex: number) {
-
-        this.ignorePropertyChange = true;
+        this.ignorePropertyChange(true);
         this.getPropertyArray().move(fromIndex, moved.getIndex());
-        this.ignorePropertyChange = false;
+        this.ignorePropertyChange(false);
     }
 
     protected handleDeselected(index: number) {
-        this.ignorePropertyChange = true;
+        this.ignorePropertyChange(true);
         this.getPropertyArray().remove(index);
-        this.ignorePropertyChange = false;
+        this.ignorePropertyChange(false);
     }
 
     protected updateSelectedOptionStyle() {
