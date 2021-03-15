@@ -97,7 +97,7 @@ export class ContentTypeFilter
         if (this.isLayoutInProgress()) {
             return;
         }
-        this.ignorePropertyChange = true;
+        this.ignorePropertyChange(true);
         let value = new Value(selectedOption.getOption().getDisplayValue().getContentTypeName().toString(), ValueTypes.STRING);
         if (this.combobox.countSelected() === 1) { // overwrite initial value
             this.getPropertyArray().set(0, value);
@@ -106,14 +106,14 @@ export class ContentTypeFilter
         }
 
         this.validate(false);
-        this.ignorePropertyChange = false;
+        this.ignorePropertyChange(false);
     }
 
     private onContentTypeDeselected(option: SelectedOption<ContentTypeSummary>): void {
-        this.ignorePropertyChange = true;
+        this.ignorePropertyChange(true);
         this.getPropertyArray().remove(option.getIndex());
         this.validate(false);
-        this.ignorePropertyChange = false;
+        this.ignorePropertyChange(false);
     }
 
     layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
