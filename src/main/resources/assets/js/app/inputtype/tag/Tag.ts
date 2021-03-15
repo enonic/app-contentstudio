@@ -77,7 +77,7 @@ export class Tag
         this.appendChild(this.tags);
 
         this.tags.onTagAdded((event: TagAddedEvent) => {
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
             let value = new Value(event.getValue(), ValueTypes.STRING);
             if (this.tags.countTags() === 1) {
                 this.getPropertyArray().set(0, value);
@@ -85,14 +85,14 @@ export class Tag
                 this.getPropertyArray().add(value);
             }
             this.validate(false);
-            this.ignorePropertyChange = false;
+            this.ignorePropertyChange(false);
         });
 
         this.tags.onTagRemoved((event: TagRemovedEvent) => {
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
             this.getPropertyArray().remove(event.getIndex());
             this.validate(false);
-            this.ignorePropertyChange = false;
+            this.ignorePropertyChange(false);
         });
 
         this.setLayoutInProgress(false);

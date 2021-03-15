@@ -260,7 +260,6 @@ export class ContentWizardPanel
 
         this.workflowStateIconsManager = new WorkflowStateIconsManager(this);
 
-        this.initListeners();
         this.listenToContentEvents();
         this.handleSiteConfigApply();
         this.handleBrokenImageInTheWizard();
@@ -462,6 +461,7 @@ export class ContentWizardPanel
     }
 
     doRenderOnDataLoaded(rendered: boolean): Q.Promise<boolean> {
+        this.initListeners();
 
         return super.doRenderOnDataLoaded(rendered).then(() => {
             if (ContentWizardPanel.debug) {
@@ -846,11 +846,13 @@ export class ContentWizardPanel
             }
         });
 
-        this.dataChangedHandler = () => {
-            setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
-
+        this.dataChangedHandler = AppHelper.debounce(() => {
+            if (!this.isRendered()) {
+                return;
+            }
+            this.updatePublishStatusOnDataChange();
             this.notifyDataChanged();
-        };
+        }, 100);
 
         this.applicationAddedListener = (event: ApplicationAddedEvent) => {
             this.addXDataStepForms(event.getApplicationKey());
@@ -1624,7 +1626,7 @@ export class ContentWizardPanel
         const persistedContent: Content = this.getPersistedItem();
         const persistedContentData: PropertyTree = persistedContent.getContentData();
 
-        const treeCopy: PropertyTree = this.cleanFormOptionSetsRedundantData(propertyTree.copy());
+        const treeCopy: PropertyTree = propertyTree.copy();
 
         persistedContentData.getRoot().syncEmptyArrays(treeCopy.getRoot());
 
@@ -2064,9 +2066,7 @@ export class ContentWizardPanel
             return true;
         }
 
-        const viewedContent: Content = this.assembleViewedContent(new ContentBuilder(persistedContent), true).build();
-
-        return !viewedContent.equals(persistedContent);
+        return this.hasContentChanged();
     }
 
     private enableDisplayNameScriptExecution(formView: FormView) {
@@ -2298,6 +2298,30 @@ export class ContentWizardPanel
 
     private isLiveView(): boolean {
         return this.getSplitPanel() && this.getSplitPanel().hasClass('toggle-live');
+    }
+
+
+    hasContentChanged(): boolean {
+        const contentBuilder: ContentBuilder = this.getPersistedItem().newBuilderWithoutProperties();
+
+        if (this.contentWizardStepForm) {
+            contentBuilder.setData(this.contentWizardStepForm.getData());
+        }
+
+        const extraData: ExtraData[] = [];
+
+        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
+            extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData()));
+        });
+
+        contentBuilder.setExtraData(extraData);
+
+        this.settingsWizardStepForm.apply(contentBuilder);
+        this.scheduleWizardStepForm.apply(contentBuilder);
+
+        contentBuilder.setPage(this.assembleViewedPage());
+
+        return !contentBuilder.build().equals(this.getPersistedItem());
     }
 
     assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false): ContentBuilder {
