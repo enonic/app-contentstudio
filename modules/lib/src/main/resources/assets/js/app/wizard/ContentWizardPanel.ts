@@ -2330,25 +2330,9 @@ export class ContentWizardPanel
 
     hasContentChanged(): boolean {
         const contentBuilder: ContentBuilder = this.getPersistedItem().newBuilderWithoutProperties();
+        const viewedContent = this.assembleViewedContent(contentBuilder).build();
 
-        if (this.contentWizardStepForm) {
-            contentBuilder.setData(this.contentWizardStepForm.getData());
-        }
-
-        const extraData: ExtraData[] = [];
-
-        this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
-            extraData.push(new ExtraData(new XDataName(form.getXDataNameAsString()), form.getData()));
-        });
-
-        contentBuilder.setExtraData(extraData);
-
-        this.settingsWizardStepForm.apply(contentBuilder);
-        this.scheduleWizardStepForm.apply(contentBuilder);
-
-        contentBuilder.setPage(this.assembleViewedPage());
-
-        return !contentBuilder.build().equals(this.getPersistedItem());
+        return !viewedContent.equals(this.getPersistedItem());
     }
 
     assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false): ContentBuilder {
