@@ -23,6 +23,7 @@ import {ComponentType} from './region/ComponentType';
 import {TextComponentType} from './region/TextComponentType';
 import {PartComponentType} from './region/PartComponentType';
 import {ComponentJson} from './region/ComponentJson';
+import {ConfigBasedComponent} from './region/ConfigBasedComponent';
 
 export class Page
     implements Equitable, Cloneable {
@@ -202,6 +203,29 @@ export class Page
                 return false;
             });
         });
+    }
+
+    public getTotalPropertyUsed(regions: Region[], name: string, value: string): number {
+        let totalUsed: number = 0;
+
+        regions.forEach((region: Region) => {
+            region.getComponents().forEach((component: Component) => {
+                if (ObjectHelper.iFrameSafeInstanceOf(component, ConfigBasedComponent)) {
+                    const config: PropertyTree = (<ConfigBasedComponent>component).getConfig();
+
+                    if (config.getProperty(name)?.getString() === value) {
+                        totalUsed++;
+                    }
+                }
+
+                if (ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
+                    return totalUsed +
+                           this.getTotalPropertyUsed((<LayoutComponent>component).getRegions().getRegions(), name, value);
+                }
+            });
+        });
+
+        return totalUsed;
     }
 
     findComponentByPath(componentPath: ComponentPath, regions?: Region[]): Component {
