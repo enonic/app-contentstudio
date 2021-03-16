@@ -590,7 +590,9 @@ export class ContentWizardPanel
         return super.saveChanges().then((content: Content) => {
             const persistedItem = content.clone();
             if (liveFormPanel) {
+                this.initFormContext(persistedItem);
                 this.liveEditModel.setContent(persistedItem);
+
                 if (this.pageEditorUpdatedDuringSave) {
                     if (this.reloadPageEditorOnSave) {
                         this.updateLiveForm(persistedItem);
@@ -1355,6 +1357,7 @@ export class ContentWizardPanel
 
         if (!isEqualToForm || imageHasChanged) { //if image has changed then content contains new extraData to be set
             this.setPersistedItem(content.clone());
+            this.initFormContext(content);
             this.updateWizard(content, true);
 
             if (this.isEditorEnabled()) {
@@ -1508,8 +1511,6 @@ export class ContentWizardPanel
     }
 
     private updateLiveForm(content: Content): Q.Promise<any> {
-        let formContext = this.getFormContext(content);
-
         let liveFormPanel = this.getLivePanel();
         if (liveFormPanel) {
 
@@ -1519,7 +1520,7 @@ export class ContentWizardPanel
             this.siteModel = this.siteModel ? this.updateSiteModel(site) : this.createSiteModel(site);
             this.initSiteModelListeners();
 
-            return this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
+            return this.initLiveEditModel(content, this.siteModel, this.formContext).then((liveEditModel) => {
                 this.liveEditModel = liveEditModel;
 
                 const showPanel = this.renderableChanged && this.renderable;
@@ -1712,10 +1713,10 @@ export class ContentWizardPanel
 
         this.toggleClass('rendered', false);
 
-        const formContext: ContentFormContext = this.getFormContext(content);
+        this.initFormContext(content);
 
         return this.updateButtonsState().then(() => {
-            return this.initLiveEditor(formContext, content).then(() => {
+            return this.initLiveEditor(this.formContext, content).then(() => {
 
                 this.fetchMissingOrStoppedAppKeys().then(this.handleMissingApp.bind(this));
 
@@ -1807,7 +1808,7 @@ export class ContentWizardPanel
 
         const formViewLayoutPromises: Q.Promise<void>[] = [];
         formViewLayoutPromises.push(
-            this.contentWizardStepForm.layout(this.getFormContext(content), contentData, this.contentType.getForm()));
+            this.contentWizardStepForm.layout(this.formContext, contentData, this.contentType.getForm()));
         // Must pass FormView from contentWizardStepForm displayNameResolver,
         // since a new is created for each call to renderExisting
         this.displayNameResolver.setFormView(this.contentWizardStepForm.getFormView());
@@ -1948,7 +1949,7 @@ export class ContentWizardPanel
 
         const xDataForm: Form = new FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
 
-        return xDataStepForm.layout(this.getFormContext(content), data, xDataForm).then(() => {
+        return xDataStepForm.layout(this.formContext, data, xDataForm).then(() => {
             this.syncPersistedItemWithXData(xDataStepForm.getXDataName(), data);
             return Q(null);
         });
@@ -2153,7 +2154,7 @@ export class ContentWizardPanel
 
         const xDataForm: Form = new FormBuilder().addFormItems(xDataStepForm.getXData().getFormItems()).build();
 
-        return xDataStepForm.layout(this.getFormContext(this.getPersistedItem()), data, xDataForm);
+        return xDataStepForm.layout(this.formContext, data, xDataForm);
     }
 
     private removeXDataStepForms(applicationKey: ApplicationKey): Q.Promise<void> {
@@ -2409,18 +2410,15 @@ export class ContentWizardPanel
         });
     }
 
-    private getFormContext(content: Content): ContentFormContext {
-        if (!this.formContext) {
-            this.formContext = <ContentFormContext>ContentFormContext.create()
-                .setSite(this.site)
-                .setParentContent(this.parentContent)
-                .setPersistedContent(content)
-                .setContentTypeName(this.contentType ? this.contentType.getContentTypeName() : undefined)
-                .setFormState(this.formState)
-                .setShowEmptyFormItemSetOccurrences(this.isItemPersisted())
-                .build();
-        }
-        return this.formContext;
+    private initFormContext(content: Content) {
+        this.formContext = <ContentFormContext>ContentFormContext.create()
+            .setSite(this.site)
+            .setParentContent(this.parentContent)
+            .setPersistedContent(content)
+            .setContentTypeName(this.contentType ? this.contentType.getContentTypeName() : undefined)
+            .setFormState(this.formState)
+            .setShowEmptyFormItemSetOccurrences(this.isItemPersisted())
+            .build();
     }
 
     private setModifyPermissions() {

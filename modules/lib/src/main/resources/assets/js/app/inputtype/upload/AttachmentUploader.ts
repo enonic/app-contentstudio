@@ -22,6 +22,7 @@ import {ValueType} from 'lib-admin-ui/data/ValueType';
 import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {AfterContentSavedEvent} from '../../event/AfterContentSavedEvent';
+import {Page} from '../../page/Page';
 
 export class AttachmentUploader
     extends BaseInputTypeManagingAdd {
@@ -139,9 +140,30 @@ export class AttachmentUploader
         const values: string[] = this.getFileNamesFromProperty();
         const index: number = values.indexOf(itemName);
         this.getPropertyArray().remove(index);
-
         this.toggleUploadButtonVisibility();
 
+        if (!this.isAttachmentUsed(itemName)) {
+            this.deleteAttachment(itemName);
+        } else {
+            new ContentRequiresSaveEvent(this.config.content.getContentId()).fire();
+        }
+    }
+
+    private isAttachmentUsed(itemName: string): boolean {
+        const attachmentInputName: string = this.getInput().getName();
+
+        if (this.config.content.isPage()) {
+            const content: Content = <Content>this.config.content;
+            const page: Page = content.getPage();
+            const totalUsingAttachment: number = page.hasRegions() ? page.getTotalPropertyUsed(page.getRegions().getRegions(),
+                this.getInput().getName(), itemName) : 0;
+            return totalUsingAttachment > 1;
+        }
+
+        return false;
+    }
+
+    private deleteAttachment(itemName: string) {
         new DeleteAttachmentRequest()
             .setContentId(this.config.content.getContentId())
             .addAttachmentName(itemName)
