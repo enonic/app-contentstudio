@@ -470,10 +470,6 @@ export class ContentWizardPanel
 
             this.appendChild(this.getContentWizardToolbarPublishControls().getMobilePublishControls());
 
-            if (this.getLivePanel()) {
-                this.getLivePanel().setModifyPermissions(this.modifyPermissions);
-            }
-
             if (this.contentType.hasDisplayNameExpression()) {
                 this.displayNameResolver.setExpression(this.contentType.getDisplayNameExpression());
             }
@@ -1703,20 +1699,9 @@ export class ContentWizardPanel
                     this.setSteps(steps);
 
                     return this.layoutWizardStepForms(content).then(() => {
-                        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                            this.setModifyPermissions(loginResult);
-                            this.toggleStepFormsVisibility(loginResult);
-                            this.updateUrlAction();
-
-                            if (this.isLocalizeInUrl()) {
-                                this.settingsWizardStepForm.updateInitialLanguage();
-                            }
-
-                            if (!this.modifyPermissions) {
-                                NotifyManager.get().showFeedback(i18n('notify.item.readonly'));
-                            }
-                        });
-
+                        if (this.isLocalizeInUrl()) {
+                            this.onRendered(() => this.settingsWizardStepForm.updateInitialLanguage());
+                        }
                         this.syncPersistedItemWithContentData(content.getContentData());
                         this.xDataWizardStepForms.resetState();
 
@@ -2401,12 +2386,19 @@ export class ContentWizardPanel
         return this.formContext;
     }
 
-    private setModifyPermissions(loginResult: LoginResult) {
+    private setModifyPermissions() {
+        if (!this.loginResult) {
+            return;
+        }
         this.modifyPermissions =
-            this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY);
+            this.getPersistedItem().isAnyPrincipalAllowed(this.loginResult.getPrincipals(), Permission.MODIFY);
         this.getEl().toggleClass('no-modify-permissions', !this.modifyPermissions);
         if (this.getLivePanel()) {
             this.getLivePanel().setModifyPermissions(this.modifyPermissions);
+        }
+
+        if (!this.modifyPermissions) {
+            NotifyManager.get().showFeedback(i18n('notify.item.readonly'));
         }
     }
 
@@ -2710,15 +2702,8 @@ export class ContentWizardPanel
     protected handleCanModify(canModify: boolean): void {
         super.handleCanModify(canModify);
 
-        if (this.getLivePanel()) {
-            this.getLivePanel().setModifyPermissions(this.canModify);
-        }
-
+        this.setModifyPermissions();
         this.toggleStepFormsVisibility(this.loginResult);
         this.updateUrlAction();
-
-        if (this.isLocalizeInUrl()) {
-            this.settingsWizardStepForm.updateInitialLanguage();
-        }
     }
 }
