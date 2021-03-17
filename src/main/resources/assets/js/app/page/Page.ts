@@ -205,8 +205,9 @@ export class Page
         });
     }
 
-    public getTotalPropertyUsed(regions: Region[], name: string, value: string): number {
-        let totalUsed: number = 0;
+    public getPropertyValueUsageCount(component: Page | LayoutComponent, name: string, value: string, startFrom: number = 0): number {
+        let counter: number = startFrom;
+        const regions: Region[] = component.getRegions().getRegions()
 
         regions.forEach((region: Region) => {
             region.getComponents().forEach((component: Component) => {
@@ -214,18 +215,17 @@ export class Page
                     const config: PropertyTree = (<ConfigBasedComponent>component).getConfig();
 
                     if (config.getProperty(name)?.getString() === value) {
-                        totalUsed++;
+                        counter++;
                     }
                 }
 
                 if (ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
-                    return totalUsed +
-                           this.getTotalPropertyUsed((<LayoutComponent>component).getRegions().getRegions(), name, value);
+                    return this.getPropertyValueUsageCount(<LayoutComponent>component, name, value, counter);
                 }
             });
         });
 
-        return totalUsed;
+        return counter;
     }
 
     findComponentByPath(componentPath: ComponentPath, regions?: Region[]): Component {
