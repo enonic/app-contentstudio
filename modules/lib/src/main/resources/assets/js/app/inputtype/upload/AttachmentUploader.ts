@@ -136,31 +136,51 @@ export class AttachmentUploader
         };
     }
 
-    private removeItemCallback(itemName: string) {
+    private removeItemCallback(attachmentName: string) {
         const values: string[] = this.getFileNamesFromProperty();
-        const index: number = values.indexOf(itemName);
+        const index: number = values.indexOf(attachmentName);
         this.getPropertyArray().remove(index);
         this.toggleUploadButtonVisibility();
 
-        if (!this.isAttachmentUsed(itemName)) {
-            this.deleteAttachment(itemName);
+        if (!this.isAttachmentInUse(attachmentName)) {
+            this.deleteAttachment(attachmentName);
         } else {
             new ContentRequiresSaveEvent(this.config.content.getContentId()).fire();
         }
     }
 
-    private isAttachmentUsed(itemName: string): boolean {
-        const attachmentInputName: string = this.getInput().getName();
 
-        if (this.config.content.isPage()) {
-            const content: Content = <Content>this.config.content;
-            const page: Page = content.getPage();
-            const totalUsingAttachment: number = page.hasRegions() ? page.getTotalPropertyUsed(page.getRegions().getRegions(),
-                this.getInput().getName(), itemName) : 0;
-            return totalUsingAttachment > 1;
+    private isAttachmentInUse(attachmentName: string): boolean {
+        if (this.isAttachmentReferencedFromContent()) {
+            return true;
+        }
+
+        if  (this.isAttachmentReferencedFromPage(attachmentName)) {
+            return true;
         }
 
         return false;
+    }
+
+    private isAttachmentReferencedFromContent() {
+        return false;
+    }
+
+    private isAttachmentReferencedFromPage(attachmentName: string): boolean {
+        if (!this.config.content.isPage()) {
+            return false;
+        }
+
+        const content: Content = <Content>this.config.content;
+        const page: Page = content.getPage();
+
+        if (!page.hasRegions()) {
+            return false;
+        }
+
+        const attachmentInputName: string = this.getInput().getName();
+
+        return page.getPropertyValueUsageCount(page, attachmentInputName, attachmentName) > 1;
     }
 
     private deleteAttachment(itemName: string) {
