@@ -1137,16 +1137,7 @@ export class ContentWizardPanel
             this.fetchPersistedContent().then((content) => {
                 this.setPersistedItem(content.clone());
                 this.updateEditPermissionsButtonIcon(content);
-                new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                    this.loginResult = loginResult;
-                    const userCanPublish: boolean = this.isContentPublishableByUser();
-                    const userCanModify: boolean = this.isContentModifiableByUser();
-                    this.wizardActions
-                        .setUserCanPublish(userCanPublish)
-                        .setUserCanModify(userCanModify)
-                        .refreshState();
-                    this.toggleStepFormsVisibility();
-                }).catch(DefaultErrorHandler.handle);
+                this.setAllowedActionsBasedOnPermissions();
             });
         };
 
@@ -1283,6 +1274,19 @@ export class ContentWizardPanel
                 this.close();
             }
         });
+    }
+
+    private setAllowedActionsBasedOnPermissions() {
+        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+            this.loginResult = loginResult;
+            const userCanPublish: boolean = this.isContentPublishableByUser();
+            const userCanModify: boolean = this.isContentModifiableByUser();
+            this.wizardActions
+                .setUserCanPublish(userCanPublish)
+                .setUserCanModify(userCanModify)
+                .refreshState();
+            this.toggleStepFormsVisibility();
+        }).catch(DefaultErrorHandler.handle);
     }
 
     private setUpdatedContent(updatedContent: ContentSummaryAndCompareStatus) {
@@ -1545,14 +1549,7 @@ export class ContentWizardPanel
             this.wizardActions.setContent(summaryAndStatus).refreshState();
             this.getWizardHeader().toggleNameGeneration(this.currentContent.getCompareStatus() === CompareStatus.NEW);
             this.workflowStateIconsManager.updateIcons();
-            new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                const userCanPublish: boolean = this.isContentPublishableByUser();
-                const userCanModify: boolean = this.isContentModifiableByUser();
-                this.wizardActions
-                    .setUserCanPublish(userCanPublish)
-                    .setUserCanModify(userCanModify)
-                    .refreshState();
-            });
+            this.setAllowedActionsBasedOnPermissions();
         });
     }
 
