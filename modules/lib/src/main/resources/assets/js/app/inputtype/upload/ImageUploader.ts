@@ -223,6 +223,13 @@ export class ImageUploader
             container.setDoubleByPath('cropPosition.right', crop.x2);
             container.setDoubleByPath('cropPosition.bottom', crop.y2);
             container.setDoubleByPath('cropPosition.zoom', zoom.x2 - zoom.x);
+        } else {
+            if (!zoom) {
+                container.removeProperty('zoomPosition', 0);
+            }
+            if (!crop) {
+                container.removeProperty('cropPosition', 0);
+            }
         }
     }
 

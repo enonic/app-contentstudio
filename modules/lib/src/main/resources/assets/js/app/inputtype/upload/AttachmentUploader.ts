@@ -215,9 +215,9 @@ export class AttachmentUploader
         const value: Value = new Value(fileName, ValueTypes.STRING);
 
         if (!this.getPropertyArray().containsValue(value)) {
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
             this.getPropertyArray().add(value);
-            this.ignorePropertyChange = false;
+            this.ignorePropertyChange(false);
         }
     }
 

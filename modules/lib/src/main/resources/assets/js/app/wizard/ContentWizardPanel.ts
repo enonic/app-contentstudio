@@ -260,7 +260,6 @@ export class ContentWizardPanel
 
         this.workflowStateIconsManager = new WorkflowStateIconsManager(this);
 
-        this.initListeners();
         this.listenToContentEvents();
         this.handleSiteConfigApply();
         this.handleBrokenImageInTheWizard();
@@ -465,6 +464,7 @@ export class ContentWizardPanel
     }
 
     doRenderOnDataLoaded(rendered: boolean): Q.Promise<boolean> {
+        this.initListeners();
 
         return super.doRenderOnDataLoaded(rendered).then(() => {
             if (ContentWizardPanel.debug) {
@@ -472,10 +472,6 @@ export class ContentWizardPanel
             }
 
             this.appendChild(this.getContentWizardToolbarPublishControls().getMobilePublishControls());
-
-            if (this.getLivePanel()) {
-                this.getLivePanel().setModifyPermissions(this.modifyPermissions);
-            }
 
             if (this.contentType.hasDisplayNameExpression()) {
                 this.displayNameResolver.setExpression(this.contentType.getDisplayNameExpression());
@@ -850,11 +846,13 @@ export class ContentWizardPanel
             }
         });
 
-        this.dataChangedHandler = () => {
-            setTimeout(this.updatePublishStatusOnDataChange.bind(this), 100);
-
+        this.dataChangedHandler = AppHelper.debounce(() => {
+            if (!this.isRendered()) {
+                return;
+            }
+            this.updatePublishStatusOnDataChange();
             this.notifyDataChanged();
-        };
+        }, 100);
 
         this.applicationAddedListener = (event: ApplicationAddedEvent) => {
             this.addXDataStepForms(event.getApplicationKey());
@@ -1644,7 +1642,7 @@ export class ContentWizardPanel
         const persistedContent: Content = this.getPersistedItem();
         const persistedContentData: PropertyTree = persistedContent.getContentData();
 
-        const treeCopy: PropertyTree = this.cleanFormOptionSetsRedundantData(propertyTree.copy());
+        const treeCopy: PropertyTree = propertyTree.copy();
 
         persistedContentData.getRoot().syncEmptyArrays(treeCopy.getRoot());
 
@@ -1721,20 +1719,9 @@ export class ContentWizardPanel
                     this.setSteps(steps);
 
                     return this.layoutWizardStepForms(content).then(() => {
-                        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                            this.setModifyPermissions();
-                            this.toggleStepFormsVisibility();
-                            this.updateUrlAction();
-
-                            if (this.isLocalizeInUrl()) {
-                                this.settingsWizardStepForm.updateInitialLanguage();
-                            }
-
-                            if (!this.modifyPermissions) {
-                                NotifyManager.get().showFeedback(i18n('notify.item.readonly'));
-                            }
-                        });
-
+                        if (this.isLocalizeInUrl()) {
+                            this.onRendered(() => this.settingsWizardStepForm.updateInitialLanguage());
+                        }
                         this.syncPersistedItemWithContentData(content.getContentData());
                         this.xDataWizardStepForms.resetState();
 
@@ -2091,9 +2078,7 @@ export class ContentWizardPanel
             return true;
         }
 
-        const viewedContent: Content = this.assembleViewedContent(new ContentBuilder(persistedContent), true).build();
-
-        return !viewedContent.equals(persistedContent);
+        return this.hasContentChanged();
     }
 
     private enableDisplayNameScriptExecution(formView: FormView) {
@@ -2327,6 +2312,14 @@ export class ContentWizardPanel
         return this.getSplitPanel() && this.getSplitPanel().hasClass('toggle-live');
     }
 
+
+    hasContentChanged(): boolean {
+        const contentBuilder: ContentBuilder = this.getPersistedItem().newBuilderWithoutProperties();
+        const viewedContent = this.assembleViewedContent(contentBuilder).build();
+
+        return !viewedContent.equals(this.getPersistedItem());
+    }
+
     assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false): ContentBuilder {
 
         viewedContentBuilder.setName(this.resolveContentNameForUpdateRequest());
@@ -2421,10 +2414,18 @@ export class ContentWizardPanel
     }
 
     private setModifyPermissions() {
-        this.modifyPermissions = this.getPersistedItem().isAnyPrincipalAllowed(this.loginResult.getPrincipals(), Permission.MODIFY);
+        if (!this.loginResult) {
+            return;
+        }
+        this.modifyPermissions =
+            this.getPersistedItem().isAnyPrincipalAllowed(this.loginResult.getPrincipals(), Permission.MODIFY);
         this.getEl().toggleClass('no-modify-permissions', !this.modifyPermissions);
         if (this.getLivePanel()) {
             this.getLivePanel().setModifyPermissions(this.modifyPermissions);
+        }
+
+        if (!this.modifyPermissions) {
+            NotifyManager.get().showFeedback(i18n('notify.item.readonly'));
         }
     }
 
@@ -2725,16 +2726,9 @@ export class ContentWizardPanel
     protected handleCanModify(canModify: boolean): void {
         super.handleCanModify(canModify);
 
-        if (this.getLivePanel()) {
-            this.getLivePanel().setModifyPermissions(this.canModify);
-        }
-
+        this.setModifyPermissions();
         this.toggleStepFormsVisibility();
         this.updateUrlAction();
-
-        if (this.isLocalizeInUrl()) {
-            this.settingsWizardStepForm.updateInitialLanguage();
-        }
     }
 
     private handleCUD() {
