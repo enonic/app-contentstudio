@@ -205,9 +205,9 @@ export class Page
         });
     }
 
-    public getPropertyValueUsageCount(component: Page | LayoutComponent, name: string, value: string, startFrom: number = 0): number {
+    public getPropertyValueUsageCount(container: Page | LayoutComponent, name: string, value: string, startFrom: number = 0): number {
         let counter: number = startFrom;
-        const regions: Region[] = component.getRegions().getRegions()
+        const regions: Region[] = container.getRegions().getRegions();
 
         regions.forEach((region: Region) => {
             region.getComponents().forEach((component: Component) => {
