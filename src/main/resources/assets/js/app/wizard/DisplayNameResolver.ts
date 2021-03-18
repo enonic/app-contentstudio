@@ -43,7 +43,7 @@ export class DisplayNameResolver
         return this.safeEval();
     }
 
-    private sanitizeFieldValue(value: string) {
+    private sanitiseValue(value: string) {
         let result = value;
         result = result.replace(/(<([^>]+)>)/ig,'');    // Strip HTML tags
         result = result.replace(/(\r\n|\n|\r)/gm,'');   // Strip linebreaks
@@ -79,20 +79,27 @@ export class DisplayNameResolver
     private getNamesOfAllowedFields(): string[] {
         return this.getFormInputs()
             .filter(input => !this.isExcludedInputType(input.getInputType()))
-            .map(formItem => formItem.getName());
+            .map(formItem => this.sanitiseName(formItem.getPath().toString().substr(1)));
+    }
+
+    private sanitiseName(name: string): string {
+        return name
+                .split('.')
+                .map((namePart: string) => _.camelCase(namePart))
+                .join('_');
     }
 
     private getFormValues(): string {
         const allowedFields = this.getNamesOfAllowedFields();
 
         const fieldDefinitions: string = allowedFields.map((fieldName: string) => {
-            return `var ${_.camelCase(fieldName)} = ''; `;
+            return `var ${fieldName} = ''; `;
         }).join('');
 
         const fieldAssignments: string =
             this.formView.getData().getValuesAsString()
-                .filter(formValue => formValue.value.length > 0 && allowedFields.indexOf(formValue.name) > -1)
-                .map(formValue => `${_.camelCase(formValue.name)} = '${this.sanitizeFieldValue(formValue.value)}'; `)
+                .filter(formValue => formValue.value.length > 0 && allowedFields.indexOf(this.sanitiseName(formValue.path)) > -1)
+                .map(formValue => `${this.sanitiseName(formValue.path)} = '${this.sanitiseValue(formValue.value)}'; `)
                 .join('');
 
         return fieldDefinitions + fieldAssignments;
@@ -101,7 +108,7 @@ export class DisplayNameResolver
     private parseExpression(): string {
         let parsedExpression = this.expression;
         this.expression.match(/[^{}]+(?=\})/g).forEach(
-            (variable: string) => parsedExpression = parsedExpression.replace(variable, _.camelCase(variable))
+            (variable: string) => parsedExpression = parsedExpression.replace(variable, this.sanitiseName(variable))
         );
 
         return parsedExpression;
