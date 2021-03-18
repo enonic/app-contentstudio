@@ -220,7 +220,7 @@ export class Page
                 }
 
                 if (ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
-                    return this.getPropertyValueUsageCount(<LayoutComponent>component, name, value, counter);
+                    counter = this.getPropertyValueUsageCount(<LayoutComponent>component, name, value, counter);
                 }
             });
         });
