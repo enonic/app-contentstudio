@@ -108,6 +108,12 @@ export class ProjectWizardPanel
         }
     }
 
+    giveInitialFocus(): void {
+       this.whenRendered(() => {
+           super.giveInitialFocus();
+       });
+    }
+
     getLoginResult(): Q.Promise<LoginResult> {
         if (this.loginResult) {
             return Q.resolve(this.loginResult);
