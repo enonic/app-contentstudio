@@ -434,7 +434,7 @@ export class LiveFormPanel
             const noPreviewMessageEl = new PEl('no-preview-message').appendChildren<any>(
                 SpanEl.fromText(i18n('field.preview.failed')),
                 new BrEl(),
-                SpanEl.fromText(i18n('field.preview.failed.description'))
+                SpanEl.fromText(i18n('field.preview.missing.description'))
             );
 
             // append mask here in order for the context window to be above
