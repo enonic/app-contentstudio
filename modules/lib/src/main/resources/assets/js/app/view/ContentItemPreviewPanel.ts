@@ -27,7 +27,8 @@ enum PREVIEW_TYPE {
     MEDIA,
     EMPTY,
     FAILED,
-    BLANK
+    BLANK,
+    MISSING
 }
 
 export class ContentItemPreviewPanel
@@ -277,6 +278,10 @@ export class ContentItemPreviewPanel
                 this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.failed.description')]);
                 break;
             }
+            case PREVIEW_TYPE.MISSING: {
+                this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
+                break;
+            }
             case PREVIEW_TYPE.BLANK: {
                 this.getEl().addClass('no-preview');
                 break;
@@ -286,7 +291,7 @@ export class ContentItemPreviewPanel
 
         this.previewType = previewType;
 
-        if (PREVIEW_TYPE.FAILED === previewType || PREVIEW_TYPE.EMPTY === previewType) {
+        if (PREVIEW_TYPE.FAILED === previewType || PREVIEW_TYPE.EMPTY === previewType || PREVIEW_TYPE.MISSING) {
             this.hideMask();
         }
     }
@@ -371,7 +376,9 @@ export class ContentItemPreviewPanel
                 url: src
             }).done(() => {
                 this.frame.setSrc(src);
-            }).fail(() => this.setPreviewType(PREVIEW_TYPE.FAILED));
+            }).fail((reason: any) =>  {
+                this.setPreviewType(reason.status === 404 ? PREVIEW_TYPE.MISSING : PREVIEW_TYPE.FAILED);
+            });
         } else {
             this.setPreviewType(PREVIEW_TYPE.EMPTY);
         }
