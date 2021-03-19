@@ -151,7 +151,7 @@ export class CustomSelector
             .build();
 
         comboBox.onOptionSelected((event: SelectedOptionEvent<CustomSelectorItem>) => {
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
 
             const option = event.getSelectedOption();
             let value = new Value(String(option.getOption().getValue()), ValueTypes.STRING);
@@ -162,19 +162,19 @@ export class CustomSelector
             }
             this.refreshSortable();
 
-            this.ignorePropertyChange = false;
-            this.validate(false);
+            this.ignorePropertyChange(false);
 
+            this.validate(false);
             this.fireFocusSwitchEvent(event);
         });
 
         comboBox.onOptionDeselected((event: SelectedOptionEvent<CustomSelectorItem>) => {
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
 
             this.getPropertyArray().remove(event.getSelectedOption().getIndex());
 
             this.refreshSortable();
-            this.ignorePropertyChange = false;
+            this.ignorePropertyChange(false);
             this.validate(false);
         });
 
