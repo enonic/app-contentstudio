@@ -80,8 +80,6 @@ export class ImageContentComboBox
     }
 
     private getGalleryModeColumnsNumber(): number {
-        const options: GridOptions<any> = this.getComboBox().getComboBoxDropdownGrid().getGrid().getOptions();
-
         if (this.item.isInRangeOrSmaller(ResponsiveRanges._240_360)) {
             return 1;
         }
@@ -100,11 +98,12 @@ export class ImageContentComboBox
         grid.getOptions().setRowHeight(treeMode ? 50 : 198)
             .setEnableGalleryMode(!treeMode)
             .setGalleryModeColumns(columns);
+
+        grid.invalidate();
     }
 
     protected createOption(data: Object, readOnly?: boolean): Option<MediaTreeSelectorItem> {
         const item: MediaTreeSelectorItem = this.dataToMediaTreeSelectorItem(data);
-
         if (item) {
             return this.optionsFactory.createOption(item, readOnly);
         }
