@@ -36,9 +36,9 @@ describe('task.not.valid.content.spec: create a task with not valid content', fu
             studioUtils.saveScreenshot("issue_details_should_be_loaded");
             await taskDetailsDialog.waitForDialogOpened();
             await taskDetailsDialog.pause(1000);
-            //4. 10 items should be in the task-details dialog:
+            //4. 12 items should be in the task-details dialog:
             let result = await taskDetailsDialog.getNumberOfItems();
-            assert.equal(result, '10', 'Ten items should be displayed in the `Items`link');
+            assert.equal(result, '12', '12 items should be displayed in the `Items`link');
         });
 
     it(`GIVEN task with not valid item is clicked WHEN Items-tab has been clicked THEN 'Publish & Close Issue' button should be disabled, because invalid child is present`,

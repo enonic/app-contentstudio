@@ -5,7 +5,7 @@ Enonic XP - Content Studio App
 [![License][license-image]][license-url]
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/4fa8601d04634ceea2a38235734cd5c2)](https://www.codacy.com/manual/enonic/app-contentstudio?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=enonic/app-contentstudio&amp;utm_campaign=Badge_Grade)
 
-Create sites and manage content in [Enonic XP](https://github.com/enonic/xp).
+Create sites and manage content in [Enonic XP](https://github.com/enonic/xp). The documentation can be found [here](https://developer.enonic.com/docs/content-studio/stable). 
 
 ## Usage
 

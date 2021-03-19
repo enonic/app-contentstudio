@@ -22,6 +22,7 @@ import {ValueType} from 'lib-admin-ui/data/ValueType';
 import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {AfterContentSavedEvent} from '../../event/AfterContentSavedEvent';
+import {Page} from '../../page/Page';
 
 export class AttachmentUploader
     extends BaseInputTypeManagingAdd {
@@ -135,13 +136,54 @@ export class AttachmentUploader
         };
     }
 
-    private removeItemCallback(itemName: string) {
+    private removeItemCallback(attachmentName: string) {
         const values: string[] = this.getFileNamesFromProperty();
-        const index: number = values.indexOf(itemName);
+        const index: number = values.indexOf(attachmentName);
         this.getPropertyArray().remove(index);
-
         this.toggleUploadButtonVisibility();
 
+        if (!this.isAttachmentInUse(attachmentName)) {
+            this.deleteAttachment(attachmentName);
+        } else {
+            new ContentRequiresSaveEvent(this.config.content.getContentId()).fire();
+        }
+    }
+
+
+    private isAttachmentInUse(attachmentName: string): boolean {
+        if (this.isAttachmentReferencedFromContent()) {
+            return true;
+        }
+
+        if  (this.isAttachmentReferencedFromPage(attachmentName)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private isAttachmentReferencedFromContent() {
+        return false;
+    }
+
+    private isAttachmentReferencedFromPage(attachmentName: string): boolean {
+        if (!this.config.content.isPage()) {
+            return false;
+        }
+
+        const content: Content = <Content>this.config.content;
+        const page: Page = content.getPage();
+
+        if (!page.hasRegions()) {
+            return false;
+        }
+
+        const attachmentInputName: string = this.getInput().getName();
+
+        return page.getPropertyValueUsageCount(page, attachmentInputName, attachmentName) > 1;
+    }
+
+    private deleteAttachment(itemName: string) {
         new DeleteAttachmentRequest()
             .setContentId(this.config.content.getContentId())
             .addAttachmentName(itemName)
@@ -215,9 +257,9 @@ export class AttachmentUploader
         const value: Value = new Value(fileName, ValueTypes.STRING);
 
         if (!this.getPropertyArray().containsValue(value)) {
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
             this.getPropertyArray().add(value);
-            this.ignorePropertyChange = false;
+            this.ignorePropertyChange(false);
         }
     }
 
