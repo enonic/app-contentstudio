@@ -88,22 +88,22 @@ class ImageInspectionPanel extends Page {
         });
     }
 
-    clickOnRemoveIcon() {
-        let selector = xpath.container + lib.CONTENT_SELECTED_OPTION_VIEW + lib.REMOVE_ICON;
-        return this.waitForElementDisplayed(selector).then(() => {
-            return this.clickOnElement(selector);
-        }).catch(err => {
+    async clickOnRemoveIcon() {
+        try {
+            let selector = xpath.container + lib.CONTENT_SELECTED_OPTION_VIEW + lib.REMOVE_ICON;
+            await this.waitForElementDisplayed(selector);
+            await this.clickOnElement(selector);
+            return await this.pause(200);
+        } catch (err) {
             this.saveScreenshot('err_clicking_remove_inspection_panel');
             throw new Error('Image Inspect Panel, error when remove-icon has been clicked: ' + err)
-        }).then(() => {
-            return this.pause(500);
-        })
+        }
     }
 
     async clickOnApplyButton() {
         let selector = "//div[contains(@id,'ContextWindow')]" + lib.ACTION_BUTTON + "/span[text()='Apply']";
         await this.clickOnElement(selector);
-        return this.pause(2000);
+        return await this.pause(1000);
     }
 
     isImageComboBoxDisplayed() {

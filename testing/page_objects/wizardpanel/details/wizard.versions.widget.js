@@ -8,7 +8,6 @@ const xpath = {
     versionsList: "//ul[contains(@id,'VersionHistoryList')]",
     versionItem: "//li[contains(@class,'version-list-item') and child::div[not(contains(@class,'publish-action'))]]",
     publishActionItems: "//li[contains(@class,'version-list-item')and child::div[contains(@class,'publish-action')]]",
-
 };
 
 class WizardVersionsWidget extends BaseVersionsWidget {

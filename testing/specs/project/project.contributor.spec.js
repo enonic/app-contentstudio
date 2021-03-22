@@ -17,6 +17,9 @@ const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
+const ContentBrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
+const BrowseVersionsWidget = require('../../page_objects/browsepanel/detailspanel/browse.versions.widget');
+const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('project.contributor.spec - ui-tests for user with Contributor role', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -118,6 +121,47 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
         });
 
+    //Verifies Compare Versions dialog - Revert button should be disabled for users with no modify permissions #1934
+    //https://github.com/enonic/app-contentstudio/issues/1934
+    it("GIVEN user -'Contributor' is logged in WHEN existing folder has been selected  AND versions panel opened THEN 'Revert' button should be disabled",
+        async () => {
+            let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
+            let browseVersionsWidget = new BrowseVersionsWidget();
+            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            //2. Select existing folder:
+            await studioUtils.findAndSelectItem(FOLDER_WORK_IN_PROGRESS.displayName);
+            //3. open Versions Panel
+            await contentBrowseDetailsPanel.openVersionHistory();
+            //4. Click on the first item in versions widget:
+            await browseVersionsWidget.clickAndExpandVersionByName("Created");
+            studioUtils.saveScreenshot("revert_button_should_be_disabled1");
+            //5. Verify that Revert button in browse versions panel is disabled:
+            await browseVersionsWidget.waitForRevertButtonDisabled();
+        });
+
+    //Verifies Compare Versions dialog - Revert button should be disabled for users with no modify permissions #1934
+    //https://github.com/enonic/app-contentstudio/issues/1934
+    it("GIVEN user -'Contributor' is logged in WHEN existing folder has been selected  AND versions panel opened THEN 'Revert' button should be disabled",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentWizard = new ContentWizardPanel();
+            let wizardVersionsWidget = new WizardVersionsWidget();
+            //1. Do log in with the user-contributor and navigate to Content Browse Panel:
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            //2. Open existing folder:
+            await contentBrowsePanel.doubleClickOnRowByDisplayName(FOLDER_READY_TO_PUBLISH.displayName);
+            await studioUtils.doSwitchToNewWizard();
+            //3. open Versions Panel
+            await contentWizard.openVersionsHistoryPanel();
+            studioUtils.saveScreenshot("revert_button_should_be_disabled2");
+            //4. Click on the first item in versions widget:
+            await wizardVersionsWidget.clickAndExpandVersionByName("Created");
+            //5. Verify that 'Revert' button in wizard versions panel is disabled:
+            //TODO uncomment it when issue#1934 will be fixed.
+            //await wizardVersionsWidget.waitForRevertButtonDisabled();
+        });
+
     it("GIVEN user with 'Contributor' role is logged in WHEN existing folder(Ready to publish) has been selected THEN 'Publish' menu item should be disabled for users with 'Contributor' role",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -158,10 +202,11 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             //5. Verify that 'Create Task' and 'Request Publishing' menu items are enabled for Contributor role:
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
             //6. Verify that 'Request Publish' menu item is disabled
-            //TODO this assert temporarily skipped
+            // This assert temporarily skipped TODO uncomment it when issue#1984 will be fixed.
             //await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
             //7. Verify that 'Publish' menu item is disabled:
-            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
+            let menuItems = await contentBrowsePanel.getPublishMenuItems();
+            assert.isFalse(menuItems.includes(appConstant.PUBLISH_MENU.PUBLISH), "Publish menu item should not be present");
         });
 
     it("GIVEN user with 'Contributor' role is logged in WHEN double click on an existing folder THEN the folder should be opened in the new browser tab AND all inputs should be disabled",

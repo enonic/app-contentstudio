@@ -294,11 +294,14 @@ class BaseBrowsePanel extends Page {
         }
     }
 
-    async isRowCheckboxSelected(itemName) {
+    async waitForRowCheckboxSelected(itemName) {
         let checkboxDiv = this.treeGrid + `${lib.itemByName(
             itemName)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]`;
-        let classAttr = await this.getAttribute(checkboxDiv, "class");
-        return classAttr.includes("selected");
+
+        await this.getBrowser().waitUntil(async () => {
+            let classAttr = await this.getAttribute(checkboxDiv, 'class');
+            return classAttr.includes("selected");
+        }, appConst.mediumTimeout, "row and Checkbox is not selected");
     }
 }
 

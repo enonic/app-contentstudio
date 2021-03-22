@@ -91,11 +91,10 @@ module.exports = Object.freeze({
         CUSTOM: "Custom"
     },
     //waitForTimeout
-    TIMEOUT_10: 10000,
     mediumTimeout: 3000,
     TIMEOUT_4: 4000,
     TIMEOUT_5: 5000,
-    longTimeout: 7000,
+    longTimeout: 10000,
     shortTimeout: 2000,
     TIMEOUT_1: 1000,
     SUITE_TIMEOUT: 180000,

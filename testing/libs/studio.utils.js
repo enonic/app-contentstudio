@@ -673,9 +673,18 @@ module.exports = {
         return atrValue.includes("sidebar-expanded");
     },
     async openSettingsPanel() {
-        await this.openContentStudioMenu();
-        await this.clickOnElement(lib.SETTINGS_BUTTON);
-        return await webDriverHelper.browser.pause(300);
+        try {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            await this.openContentStudioMenu();
+            await this.waitForElementDisplayed(lib.SETTINGS_BUTTON, appConst.mediumTimeout);
+            await this.clickOnElement(lib.SETTINGS_BUTTON);
+            await webDriverHelper.browser.pause(300);
+            await settingsBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
+            return settingsBrowsePanel;
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_open_settings"));
+            throw new Error(err);
+        }
     },
     async switchToContentMode() {
         await this.clickOnElement(lib.MODE_CONTENT_BUTTON);

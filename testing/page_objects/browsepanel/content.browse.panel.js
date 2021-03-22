@@ -530,10 +530,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async clickOnCheckboxAndSelectRowByName(name) {
         try {
             await this.clickOnCheckbox(name);
-            let isSelected = await this.isRowCheckboxSelected(name);
-            if (!isSelected) {
-                throw new Error("Checkbox was not selected. " + name);
-            }
+            await this.waitForRowCheckboxSelected(name);
         } catch (err) {
             this.saveScreenshot('err_select_item');
             throw Error('Row with the name ' + name + ' was not selected ' + err)
@@ -544,7 +541,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         let checkBox = XPATH.checkboxByName(name);
         await this.waitForElementDisplayed(checkBox, appConst.mediumTimeout);
         await this.clickOnElement(checkBox);
-        return await this.pause(400);
+        return await this.pause(300);
     }
 
     getNumberOfSelectedRows() {
@@ -653,7 +650,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-
     async waitForPublishMenuItemEnabled(menuItem) {
         let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
         return await this.waitForAttributeNotIncludesValue(selector, "class", "disabled");
@@ -676,6 +672,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             this.saveScreenshot("err_click_issue_menuItem");
             throw new Error('error when try to click on publish menu item, ' + err);
         }
+    }
+
+    async getPublishMenuItems() {
+        //await this.openPublishMenu();
+        let locator = "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem')]";
+        return await this.getTextInDisplayedElements(locator);
+
     }
 
     async openPublishMenuAndClickOnCreateTask() {

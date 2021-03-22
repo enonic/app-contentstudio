@@ -119,7 +119,7 @@ class ContentPublishDialog extends Page {
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_10).catch(err => {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout).catch(err => {
             this.saveScreenshot('err_close_publish_dialog');
             throw new Error('Publish dialog must be closed ' + err);
         })
