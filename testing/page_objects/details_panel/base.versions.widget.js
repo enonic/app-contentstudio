@@ -8,6 +8,7 @@ const lib = require('../../libs/elements');
 const xpath = {
     versionsList: "//ul[contains(@id,'VersionHistoryList')]",
     versionItemExpanded: "//li[contains(@class,'version-list-item expanded')]",
+    versionItemByDisplayName: displayName => `${lib.itemByDisplayName(displayName)}`,
 };
 
 class BaseVersionsWidget extends Page {
@@ -18,7 +19,7 @@ class BaseVersionsWidget extends Page {
 
     //click on a version and expand the content-version-item
     clickAndExpandVersion(index) {
-        return this.waitForElementDisplayed(this.versionItems, 2000).then(() => {
+        return this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout).then(() => {
             return this.findElements(this.versionItems);
         }).then(items => {
             return this.getBrowser().elementClick(items[index].elementId);
@@ -27,6 +28,14 @@ class BaseVersionsWidget extends Page {
         }).then(() => {
             return this.pause(400);
         })
+    }
+
+    async clickAndExpandVersionByName(versionDislayName) {
+        await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
+        let locator = this.versionItemByDisplayName(versionDislayName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        return await this.pause(500);
     }
 
     //waits for Version Widget is loaded, Exception will be thrown after the timeout exceeded
@@ -51,7 +60,19 @@ class BaseVersionsWidget extends Page {
             await this.clickOnElement(selector);
             return await this.pause(2000);
         } catch (err) {
-            throw new Error("Version Widget - error when clicking on 'Restore' button " + err);
+            throw new Error("Version Widget - error when clicking on 'Revert' button " + err);
+        }
+    }
+
+    async waitForRevertButtonDisabled() {
+        try {
+
+            let selector = xpath.versionItemExpanded + "//button[child::span[text()='Revert']]";
+            let res = await this.getDisplayedElements(selector);
+            await res[0].waitForEnabled({timeout: 2000, reverse: true});
+            await this.pause(appConst.mediumTimeout);
+        } catch (err) {
+            throw new Error("Version Widget -  'Revert' button is not disabled " + err);
         }
     }
 
@@ -88,6 +109,11 @@ class BaseVersionsWidget extends Page {
             throw new Error("Version Widget - error when clicking on CompareWithCurrentVersionButton " + err);
         }
     }
+
+    versionItemByDisplayName(displayName) {
+        return this.versionsWidget + xpath.versionsList + xpath.versionItemByDisplayName(displayName);
+    }
+
 }
 
 module.exports = BaseVersionsWidget;

@@ -75,6 +75,6 @@ module.exports = Object.freeze({
     COMPARE_WITH_CURRENT_VERSION: `//button[contains(@id,'ActionButton') and @title='Compare with current version']`,
     LIVE_EDIT_FRAME: "//iframe[contains(@class,'live-edit-frame shown')]",
     APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
-    SETTINGS_BUTTON: "//button[contains(@id,AppModeButton) and @title='Settings']",
+    SETTINGS_BUTTON: "//button[contains(@id,AppModeButton) and child::span[text()='Settings']]",
     MODE_CONTENT_BUTTON: "//button[contains(@id,AppModeButton) and @title='Content']"
 });

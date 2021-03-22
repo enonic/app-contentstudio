@@ -47,7 +47,7 @@ describe("image.component.inspect.panel.spec: Inserts a image component and chec
                 await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
                 await contentWizard.switchToMainFrame();
                 await imageInspectPanel.typeCaption("test image");
-                //3. Click on Apply button:
+                    //3. Click on 'Apply' button:
                 await imageInspectPanel.clickOnApplyButton();
                 await contentWizard.switchToMainFrame();
                 //4. Verify - the site should be automatically saved, because Apply button was pressed
