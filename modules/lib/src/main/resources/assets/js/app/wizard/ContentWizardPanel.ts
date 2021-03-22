@@ -657,20 +657,9 @@ export class ContentWizardPanel
     }
 
     giveInitialFocus() {
-
-        if (!this.modifyPermissions) {
-            return;
+        if (this.modifyPermissions) {
+            super.giveInitialFocus();
         }
-
-        if (this.contentType.hasDisplayNameExpression()) {
-            if (!this.contentWizardStepForm.giveFocus()) {
-                this.getWizardHeader().giveFocus();
-            }
-        } else {
-            this.getWizardHeader().giveFocus();
-        }
-
-        this.startRememberFocus();
     }
 
     doLayout(persistedContent: Content): Q.Promise<void> {
