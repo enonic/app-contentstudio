@@ -29,9 +29,11 @@ export class SiteModel {
 
     private applicationGlobalEventsListener: (event: ApplicationEvent) => void;
 
-    private applicationUnavailableListeners: { (applicationEvent: ApplicationEvent): void }[] = [];
+    private applicationStoppedListeners: { (applicationEvent: ApplicationEvent): void }[] = [];
 
     private applicationStartedListeners: { (applicationEvent: ApplicationEvent): void }[] = [];
+
+    private applicationUninstalledListeners: { (applicationEvent: ApplicationEvent): void }[] = [];
 
     private siteModelUpdatedListeners: { (): void }[] = [];
 
@@ -66,10 +68,16 @@ export class SiteModel {
         };
 
         this.applicationGlobalEventsListener = (event: ApplicationEvent) => {
-            if (ApplicationEventType.STOPPED === event.getEventType()) {
-                this.notifyApplicationUnavailable(event);
-            } else if (ApplicationEventType.STARTED === event.getEventType()) {
-                this.notifyApplicationStarted(event);
+            switch (event.getEventType()) {
+                case ApplicationEventType.STOPPED:
+                    this.notifyApplicationStopped(event);
+                    break;
+                case ApplicationEventType.STARTED:
+                    this.notifyApplicationStarted(event);
+                    break;
+                case ApplicationEventType.UNINSTALLED:
+                    this.notifyApplicationUninstalled(event);
+                    break;
             }
         };
     }
@@ -120,9 +128,7 @@ export class SiteModel {
 
     unPropertyChanged(listener: (event: PropertyChangedEvent) => void) {
         this.propertyChangedListeners =
-            this.propertyChangedListeners.filter((curr: (event: PropertyChangedEvent) => void) => {
-                return listener !== curr;
-            });
+            this.propertyChangedListeners.filter((curr: (event: PropertyChangedEvent) => void) => listener !== curr);
     }
 
     onApplicationAdded(listener: (event: ApplicationAddedEvent) => void) {
@@ -131,9 +137,7 @@ export class SiteModel {
 
     unApplicationAdded(listener: (event: ApplicationAddedEvent) => void) {
         this.applicationAddedListeners =
-            this.applicationAddedListeners.filter((curr: (event: ApplicationAddedEvent) => void) => {
-                return listener !== curr;
-            });
+            this.applicationAddedListeners.filter((curr: (event: ApplicationAddedEvent) => void) => listener !== curr);
     }
 
     private notifyApplicationAdded(siteConfig: ApplicationConfig) {
@@ -149,9 +153,7 @@ export class SiteModel {
 
     unApplicationRemoved(listener: (event: ApplicationRemovedEvent) => void) {
         this.applicationRemovedListeners =
-            this.applicationRemovedListeners.filter((curr: (event: ApplicationRemovedEvent) => void) => {
-                return listener !== curr;
-            });
+            this.applicationRemovedListeners.filter((curr: (event: ApplicationRemovedEvent) => void) => listener !== curr);
     }
 
     private notifyApplicationRemoved(applicationKey: ApplicationKey) {
@@ -162,18 +164,16 @@ export class SiteModel {
     }
 
     onApplicationUnavailable(listener: (applicationEvent: ApplicationEvent) => void) {
-        this.applicationUnavailableListeners.push(listener);
+        this.applicationStoppedListeners.push(listener);
     }
 
     unApplicationUnavailable(listener: (applicationEvent: ApplicationEvent) => void) {
-        this.applicationUnavailableListeners =
-            this.applicationUnavailableListeners.filter((curr: (applicationEvent: ApplicationEvent) => void) => {
-                return listener !== curr;
-            });
+        this.applicationStoppedListeners =
+            this.applicationStoppedListeners.filter((curr: (applicationEvent: ApplicationEvent) => void) => listener !== curr);
     }
 
-    private notifyApplicationUnavailable(applicationEvent: ApplicationEvent) {
-        this.applicationUnavailableListeners.forEach((listener: (applicationEvent: ApplicationEvent) => void) => {
+    private notifyApplicationStopped(applicationEvent: ApplicationEvent) {
+        this.applicationStoppedListeners.forEach((listener: (applicationEvent: ApplicationEvent) => void) => {
             listener(applicationEvent);
         });
     }
@@ -184,13 +184,26 @@ export class SiteModel {
 
     unApplicationStarted(listener: (applicationEvent: ApplicationEvent) => void) {
         this.applicationStartedListeners =
-            this.applicationStartedListeners.filter((curr: (applicationEvent: ApplicationEvent) => void) => {
-                return listener !== curr;
-            });
+            this.applicationStartedListeners.filter((curr: (applicationEvent: ApplicationEvent) => void) => listener !== curr);
+    }
+
+    onApplicationUninstalled(listener: (applicationEvent: ApplicationEvent) => void) {
+        this.applicationUninstalledListeners.push(listener);
+    }
+
+    unApplicationUninstalled(listener: (applicationEvent: ApplicationEvent) => void) {
+        this.applicationUninstalledListeners =
+            this.applicationUninstalledListeners.filter((curr: (applicationEvent: ApplicationEvent) => void) => listener !== curr);
     }
 
     private notifyApplicationStarted(applicationEvent: ApplicationEvent) {
         this.applicationStartedListeners.forEach((listener: (applicationEvent: ApplicationEvent) => void) => {
+            listener(applicationEvent);
+        });
+    }
+
+    private notifyApplicationUninstalled(applicationEvent: ApplicationEvent) {
+        this.applicationUninstalledListeners.forEach((listener: (applicationEvent: ApplicationEvent) => void) => {
             listener(applicationEvent);
         });
     }

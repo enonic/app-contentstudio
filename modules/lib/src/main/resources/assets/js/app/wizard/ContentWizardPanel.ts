@@ -189,7 +189,9 @@ export class ContentWizardPanel
 
     private applicationRemovedListener: (event: ApplicationRemovedEvent) => void;
 
-    private applicationUnavailableListener: (event: ApplicationEvent) => void;
+    private applicationUninstalledListener: (event: ApplicationEvent) => void;
+
+    private applicationStoppedListener: (event: ApplicationEvent) => void;
 
     private applicationStartedListener: (event: ApplicationEvent) => void;
 
@@ -229,6 +231,8 @@ export class ContentWizardPanel
     public static debug: boolean = false;
 
     private loginResult: LoginResult;
+
+    private formContext: ContentFormContext;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super({
@@ -772,12 +776,17 @@ export class ContentWizardPanel
         return deferred.promise;
     }
 
-    private handleMissingApp() {
+    private handleAppChange() {
         const appsIsMissing = this.missingOrStoppedAppKeys.length > 0;
         const livePanel = this.getLivePanel();
 
         if (livePanel) {
-            livePanel.toggleClass('no-preview', appsIsMissing);
+            if (!appsIsMissing) {
+                this.debouncedEditorRefresh(false);
+                livePanel.clearErrorMissingApps();
+            } else {
+                livePanel.setErrorMissingApps();
+            }
         }
 
         this.getCycleViewModeButton().setEnabled(!appsIsMissing);
@@ -818,7 +827,9 @@ export class ContentWizardPanel
         return this.getPersistedItem().getPath().isDescendantOf(path) || this.getPersistedItem().getPath().equals(path);
     }
 
-    private formContext: ContentFormContext;
+    private isAppUsedByContent(applicationKey: ApplicationKey): boolean {
+       return this.siteModel.getApplicationKeys().some((appKey: ApplicationKey) => applicationKey.equals(appKey));
+    }
 
     private initListeners() {
 
@@ -858,61 +869,66 @@ export class ContentWizardPanel
 
         this.applicationAddedListener = (event: ApplicationAddedEvent) => {
             this.addXDataStepForms(event.getApplicationKey());
+            this.handleAppChange();
         };
 
         this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {
             this.removeXDataStepForms(event.getApplicationKey());
+            this.handleAppChange();
         };
 
-        this.applicationUnavailableListener = (event: ApplicationEvent) => {
-            let isAppFromSiteModelUnavailable: boolean = this.siteModel.getApplicationKeys().some((applicationKey: ApplicationKey) => {
-                return event.getApplicationKey().equals(applicationKey);
-            });
-
-            if (isAppFromSiteModelUnavailable) {
-                this.missingOrStoppedAppKeys.push(event.getApplicationKey());
-
-                let message = i18n('notify.app.missing', event.getApplicationKey().toString());
-
-                if (this.isVisible()) {
-                    showWarning(message);
-                } else {
-                    let shownHandler = () => {
-                        new GetApplicationRequest(event.getApplicationKey()).sendAndParse()
-                            .then(
-                                (application: Application) => {
-                                    if (application.getState() === 'stopped') {
-                                        showWarning(message);
-                                    }
-                                })
-                            .catch((reason: any) => { //app was uninstalled
-                                showWarning(message);
-                            });
-
-                        this.unShown(shownHandler);
-                    };
-
-                    this.onShown(shownHandler);
-                }
+        this.applicationUninstalledListener = (event: ApplicationEvent) => {
+            if (!this.isAppUsedByContent(event.getApplicationKey())) {
+                return;
             }
+            this.missingOrStoppedAppKeys.push(event.getApplicationKey());
+            this.handleAppChange();
+        };
+
+        this.applicationStoppedListener = (event: ApplicationEvent) => {
+            if (!this.isAppUsedByContent(event.getApplicationKey())) {
+                return;
+            }
+            this.missingOrStoppedAppKeys.push(event.getApplicationKey());
+
+            let message = i18n('notify.app.missing', event.getApplicationKey().toString());
+
+            if (this.isVisible()) {
+                showWarning(message);
+            } else {
+                let shownHandler = () => {
+                    new GetApplicationRequest(event.getApplicationKey()).sendAndParse()
+                        .then(
+                            (application: Application) => {
+                                if (application.getState() === 'stopped') {
+                                    showWarning(message);
+                                }
+                            })
+                        .catch((reason: any) => { //app was uninstalled
+                            showWarning(message);
+                        });
+
+                    this.unShown(shownHandler);
+                };
+
+                this.onShown(shownHandler);
+            }
+            this.handleAppChange();
         };
 
         this.applicationStartedListener = (event: ApplicationEvent) => {
-            let isAppFromSiteModelStarted: boolean = this.siteModel.getApplicationKeys().some((applicationKey: ApplicationKey) => {
+            if (!this.isAppUsedByContent(event.getApplicationKey())) {
+                return;
+            }
+            let indexToRemove = -1;
+            this.missingOrStoppedAppKeys.some((applicationKey: ApplicationKey, index) => {
+                indexToRemove = index;
                 return event.getApplicationKey().equals(applicationKey);
             });
-
-            if (isAppFromSiteModelStarted) {
-                let indexToRemove = -1;
-                this.missingOrStoppedAppKeys.some((applicationKey: ApplicationKey, index) => {
-                    indexToRemove = index;
-                    return event.getApplicationKey().equals(applicationKey);
-                });
-                if (indexToRemove > -1) {
-                    this.missingOrStoppedAppKeys.splice(indexToRemove, 1);
-                }
-                this.handleMissingApp();
+            if (indexToRemove > -1) {
+                this.missingOrStoppedAppKeys.splice(indexToRemove, 1);
             }
+            this.handleAppChange();
         };
 
         MaskContentWizardPanelEvent.on(event => {
@@ -920,7 +936,6 @@ export class ContentWizardPanel
                 this.wizardActions.suspendActions(event.isMask());
             }
         });
-
 
         InspectEvent.on((event: InspectEvent) => {
             const minimizeWizard = event.isShowPanel() &&
@@ -1686,8 +1701,9 @@ export class ContentWizardPanel
         if (this.siteModel) {
             this.siteModel.onApplicationAdded(this.applicationAddedListener);
             this.siteModel.onApplicationRemoved(this.applicationRemovedListener);
-            this.siteModel.onApplicationUnavailable(this.applicationUnavailableListener);
+            this.siteModel.onApplicationUnavailable(this.applicationStoppedListener);
             this.siteModel.onApplicationStarted(this.applicationStartedListener);
+            this.siteModel.onApplicationUninstalled(this.applicationUninstalledListener);
         }
     }
 
@@ -1695,8 +1711,9 @@ export class ContentWizardPanel
         if (this.siteModel) {
             this.siteModel.unApplicationAdded(this.applicationAddedListener);
             this.siteModel.unApplicationRemoved(this.applicationRemovedListener);
-            this.siteModel.unApplicationUnavailable(this.applicationUnavailableListener);
+            this.siteModel.unApplicationUnavailable(this.applicationStoppedListener);
             this.siteModel.unApplicationStarted(this.applicationStartedListener);
+            this.siteModel.unApplicationUninstalled(this.applicationUninstalledListener);
         }
     }
 
@@ -1713,7 +1730,7 @@ export class ContentWizardPanel
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(this.formContext, content).then(() => {
 
-                this.fetchMissingOrStoppedAppKeys().then(this.handleMissingApp.bind(this));
+                this.fetchMissingOrStoppedAppKeys().then(this.handleAppChange.bind(this));
 
                 return this.createWizardStepForms().then(() => {
                     const steps: ContentWizardStep[] = this.createSteps();
@@ -2147,7 +2164,7 @@ export class ContentWizardPanel
         return new GetApplicationXDataRequest(this.persistedContent.getType(), applicationKey).sendAndParse().then(
             (xDatasToRemove: XData[]) => {
                 this.formMask.show();
-                this.handleMissingApp();
+                this.handleAppChange();
                 this.removeXDataSteps(xDatasToRemove);
             }).finally(() => {
             if (--this.applicationLoadCount === 0) {
