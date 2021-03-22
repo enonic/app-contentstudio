@@ -312,12 +312,8 @@ export class ContentItemPreviewPanel
         this.getEl().addClass('no-preview');
         this.previewMessage.removeChildren();
 
-        messages.forEach((message: string, index: number) => {
+        messages.forEach((message: string) => {
             this.previewMessage.appendChild(SpanEl.fromText(message));
-            const isLastMessage = index === messages.length - 1;
-            if (!isLastMessage) {
-                this.previewMessage.appendChild<any>(new BrEl());
-            }
         });
 
         this.frame.setSrc('about:blank');
