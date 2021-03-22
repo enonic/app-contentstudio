@@ -103,6 +103,11 @@ export interface PageEditorData {
     liveFormPanel?: LiveFormPanel;
 }
 
+enum ErrorType {
+    APP_MISSING = 0,
+    RENDER_ERROR = 1
+}
+
 export class LiveFormPanel
     extends Panel {
 
@@ -142,6 +147,10 @@ export class LiveFormPanel
     private contentWizardPanel: ContentWizardPanel;
 
     private liveEditPageProxy: LiveEditPageProxy;
+
+    private previewMessageEl: PEl;
+
+    private errorMessages: {type: ErrorType, message: string}[] = [];
 
     private contentEventListener: (event: any) => void;
 
@@ -431,14 +440,10 @@ export class LiveFormPanel
             this.frameContainer.appendChildren<Element>(this.liveEditPageProxy.getIFrame(),
                 this.liveEditPageProxy.getPlaceholderIFrame(), this.liveEditPageProxy.getDragMask());
 
-            const noPreviewMessageEl = new PEl('no-preview-message').appendChildren<any>(
-                SpanEl.fromText(i18n('field.preview.failed')),
-                new BrEl(),
-                SpanEl.fromText(i18n('field.preview.missing.description'))
-            );
+            this.previewMessageEl = new PEl('no-preview-message');
 
             // append mask here in order for the context window to be above
-            this.appendChildren<Element>(this.frameContainer, noPreviewMessageEl);
+            this.appendChildren<Element>(this.frameContainer, this.previewMessageEl);
 
             this.liveEditListen();
 
@@ -454,6 +459,61 @@ export class LiveFormPanel
             });
 
             return liveEditDeferred.promise;
+        });
+    }
+
+    private togglePreviewPanel(visible: boolean) {
+        this.toggleClass('no-preview', visible);
+    }
+
+    private hasErrorMessage(type: ErrorType): boolean {
+        return this.errorMessages.some((errorMessage) => errorMessage.type === type);
+    }
+
+    private addErrorMessage(type: ErrorType, message: string): boolean {
+        if (this.hasErrorMessage(type)) {
+            return;
+        }
+        this.errorMessages.push({type, message});
+        this.togglePreviewErrors();
+    }
+
+    private setErrorRenderingFailed() {
+        this.addErrorMessage(ErrorType.RENDER_ERROR, 'field.preview.failed.description');
+    }
+
+    setErrorMissingApps() {
+        this.addErrorMessage(ErrorType.APP_MISSING, 'field.preview.missing.description');
+    }
+
+    clearErrorMissingApps() {
+        if (!this.errorMessages.length) {
+            return;
+        }
+        this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage.type !== ErrorType.APP_MISSING);
+        this.togglePreviewErrors();
+    }
+
+    private clearPreviewErrors() {
+        this.errorMessages = [];
+        this.togglePreviewErrors();
+    }
+
+    private togglePreviewErrors() {
+        this.whenRendered(() => {
+            if (!this.errorMessages.length) {
+                this.togglePreviewPanel(false);
+                return;
+            }
+            const message = this.errorMessages.sort(
+                (e1, e2) => e1.type - e2.type)[0].message;
+            this.previewMessageEl.removeChildren();
+            this.previewMessageEl.appendChildren<any>(
+                SpanEl.fromText(i18n('field.preview.failed')),
+                new BrEl(),
+                SpanEl.fromText(i18n(message))
+            );
+            this.togglePreviewPanel(true);
         });
     }
 
@@ -558,6 +618,7 @@ export class LiveFormPanel
                 this.insertablesPanel.getComponentsView().removeClass('loading');
             });
 
+            this.clearPreviewErrors();
             this.liveEditPageProxy.load();
 
             if (clearInspection) {
@@ -655,6 +716,8 @@ export class LiveFormPanel
                 restoreSelection();
 
                 this.notifyPageViewReady(this.pageView);
+            } else {
+                this.setErrorRenderingFailed();
             }
         });
 

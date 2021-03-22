@@ -38,15 +38,19 @@ export class ApplicationBasedCache<T extends Descriptor> {
         this.applicationCaches = new ApplicationCaches<SimpleApplicationCache<T>>();
 
         ApplicationEvent.on((event: ApplicationEvent) => {
-            const key = event.getApplicationKey().toString();
+            const key = event.getApplicationKey();
             const className = ClassHelper.getClassName(this);
 
+            if (!key) {
+                return;
+            }
+
             if (ApplicationEventType.STARTED === event.getEventType()) {
-                console.log(`${className} received ApplicationEvent STARTED, calling - loadByApplication. ${key}`);
-                loadByApplication([event.getApplicationKey()]);
+                console.log(`${className} received ApplicationEvent STARTED, calling - loadByApplication. ${key.toString()}`);
+                loadByApplication([key]);
             } else if (ApplicationEventType.STOPPED === event.getEventType()) {
-                console.log(`${className} received ApplicationEvent STOPPED - calling deleteByApplicationKey. ${key}`);
-                this.deleteByApplicationKey(event.getApplicationKey());
+                console.log(`${className} received ApplicationEvent STOPPED - calling deleteByApplicationKey. ${key.toString()}`);
+                this.deleteByApplicationKey(key);
             }
         });
     }

@@ -64,7 +64,7 @@ export class SiteConfiguratorSelectedOptionView
             this.toggleClass('invalid', !event.isValid());
         };
 
-        this.toggleClass('empty', this.getOption().isEmpty() === true);
+        this.toggleClass('uninstalled', this.getOption().isEmpty() === true);
         this.toggleClass('stopped', this.application.getState() === Application.STATE_STOPPED);
 
         this.appendActionButtons(header);

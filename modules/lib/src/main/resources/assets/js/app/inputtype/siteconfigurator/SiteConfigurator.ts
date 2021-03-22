@@ -24,7 +24,6 @@ import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticated
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
 import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class SiteConfigurator
     extends BaseInputTypeManagingAdd {
@@ -239,35 +238,20 @@ export class SiteConfigurator
             this.validate(false);
         });
 
-        let handleAppEvent = (view: SiteConfiguratorSelectedOptionView, hasUninstalledClass: boolean, hasStoppedClass) => {
-            if (view) {
-                view.toggleClass('stopped', hasStoppedClass);
-                view.toggleClass('uninstalled', hasUninstalledClass);
+        const handleAppEvent = (event: ApplicationEvent) => {
+            if (!event.isNeedToUpdateApplication()) {
+                return;
             }
+            const selectedOptionView: SiteConfiguratorSelectedOptionView = this.getMatchedOption(comboBox, event);
+            if (!selectedOptionView) {
+                return;
+            }
+            selectedOptionView.toggleClass('stopped', ApplicationEventType.STOPPED === event.getEventType());
+            selectedOptionView.toggleClass('uninstalled', ApplicationEventType.UNINSTALLED === event.getEventType());
+            selectedOptionView.update();
         };
 
-        ApplicationEvent.on((event: ApplicationEvent) => {
-            if (ApplicationEventType.STOPPED === event.getEventType()) {
-                handleAppEvent(this.getMatchedOption(comboBox, event), false, true);
-            } else if (ApplicationEventType.STARTED === event.getEventType()) {
-                const view: SiteConfiguratorSelectedOptionView = this.getMatchedOption(comboBox, event);
-                handleAppEvent(view, false, false);
-                if (view) {
-                    view.update();
-
-                    if (view.getOption().isEmpty()) {
-                        view.removeClass('empty');
-                    }
-                }
-            } else if (ApplicationEventType.UNINSTALLED === event.getEventType()) {
-                handleAppEvent(this.getMatchedOption(comboBox, event), true, false);
-            } else if (ApplicationEventType.INSTALLED === event.getEventType()) {
-                const view: SiteConfiguratorSelectedOptionView = this.getMatchedOption(comboBox, event);
-                if (view) {
-                    view.update();
-                }
-            }
-        });
+        ApplicationEvent.on((event: ApplicationEvent) => handleAppEvent(event));
 
         return comboBox;
     }
