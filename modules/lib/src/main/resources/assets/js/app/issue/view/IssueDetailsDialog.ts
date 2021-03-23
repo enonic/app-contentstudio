@@ -672,7 +672,7 @@ export class IssueDetailsDialog
         if (ids.length > 0) {
             this.itemSelector.setValue(ids.map(id => id.toString()).join(';'));
             ContentSummaryAndCompareStatusFetcher.fetchByIds(ids).then(items => {
-                this.setListItems(items);
+                this.setListItems(items, true);
             });
         } else {
             this.itemSelector.getComboBox().clearSelection(true, false);
