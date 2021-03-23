@@ -88,10 +88,6 @@ export class HtmlArea
         return ValueTypes.STRING;
     }
 
-    protected newValueTypeInitialValue(): Value {
-        return new Value('', this.getValueType());
-    }
-
     createInputOccurrenceElement(index: number, property: Property): Element {
         if (!ValueTypes.STRING.equals(property.getType())) {
             property.convertValueType(ValueTypes.STRING, ValueTypeConverter.convertTo);
@@ -105,7 +101,7 @@ export class HtmlArea
         const clazz = editorId.replace(/\./g, '_');
         textAreaEl.addClass(clazz);
 
-        const textAreaWrapper = new DivEl();
+        const textAreaWrapper = new TextAreaWrapper();
 
         if (this.inputConfig['include']) {
             textAreaWrapper.addClass('customized-toolbar');
@@ -132,7 +128,7 @@ export class HtmlArea
 
     protected getValue(textAreaWrapper: DivEl, event: ValueChangedEvent): Value {
         const processedValue: string = HTMLAreaHelper.convertPreviewSrcToRenderSrc(event.getNewValue());
-        return ValueTypes.STRING.newValue(processedValue);
+        return this.getValueType().newValue(processedValue);
     }
 
     protected updateFormInputElValue(occurrence: FormInputEl, property: Property) {
@@ -527,6 +523,10 @@ export interface HtmlAreaOccurrenceInfo {
     textAreaEl: TextArea;
     property: Property;
     hasStickyToolbar: boolean;
+}
+
+class TextAreaWrapper extends DivEl {
+
 }
 
 InputTypeManager.register(new Class('HtmlArea', HtmlArea));
