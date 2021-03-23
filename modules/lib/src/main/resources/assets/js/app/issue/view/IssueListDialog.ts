@@ -112,6 +112,14 @@ export class IssueListDialog
         }
     }
 
+    unmask(): void {
+        super.unmask();
+
+        if (this.reloadRequired) {
+            this.reload();
+        }
+    }
+
     private reload(updatedIssues?: Issue[]) {
         this.showLoadMask();
         this.issuesPanel.reload()
@@ -137,17 +145,16 @@ export class IssueListDialog
             this.reload(issues);
         }, 3000);
 
-        IssueServerEventsHandler.getInstance().onIssueCreated((issues: Issue[]) => {
-            if (this.isOpen()) {
+        const createUpdateHandler = (issues: Issue[]) => {
+            if (this.isActive()) {
                 debouncedReload(issues);
+            } else if (this.isOpen()) {
+                this.reloadRequired = true;
             }
-        });
+        };
 
-        IssueServerEventsHandler.getInstance().onIssueUpdated((issues: Issue[]) => {
-            if (this.isOpen()) {
-                debouncedReload(issues);
-            }
-        });
+        IssueServerEventsHandler.getInstance().onIssueCreated(createUpdateHandler);
+        IssueServerEventsHandler.getInstance().onIssueUpdated(createUpdateHandler);
     }
 
     private isNotificationToBeShown(issues?: Issue[]): boolean {
