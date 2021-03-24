@@ -80,9 +80,11 @@ export class ContentSummaryAndCompareStatusFetcher {
     }
 
     static fetchByContent(content: Content): Q.Promise<ContentSummaryAndCompareStatus> {
-
         return CompareContentRequest.fromContentSummaries([content]).sendAndParse().then((compareResults: CompareContentResults) => {
-            return ContentSummaryAndCompareStatusFetcher.updateCompareStatus([content], compareResults)[0];
+            const result: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatusFetcher.updateCompareStatus([content],
+                compareResults)[0];
+
+            return ContentSummaryAndCompareStatusFetcher.updateReadOnly([result]).then(() => result);
         });
     }
 
