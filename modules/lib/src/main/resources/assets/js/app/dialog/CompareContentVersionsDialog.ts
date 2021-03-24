@@ -67,6 +67,8 @@ export class CompareContentVersionsDialog
 
     private activeVersionId: string;
 
+    private readOnly: boolean;
+
     protected constructor() {
         super(<ModalDialogConfig>{
             class: 'compare-content-versions-dialog grey-header',
@@ -283,6 +285,11 @@ export class CompareContentVersionsDialog
     setContent(content: ContentSummary): CompareContentVersionsDialog {
         this.contentId = content ? content.getContentId() : null;
         (<CompareContentVersionsDialogHeader>this.header).setSubTitle(content ? content.getPath().toString() : null);
+        return this;
+    }
+
+    setReadOnly(value: boolean): CompareContentVersionsDialog {
+        this.readOnly = value;
         return this;
     }
 
@@ -643,11 +650,16 @@ export class CompareContentVersionsDialog
     }
 
     private updateButtonsState() {
-        const isLeftVersionActive = this.leftDropdown.getSelectedOption().getDisplayValue().isActive();
-        const isRightVersionActive = this.rightDropdown.getSelectedOption().getDisplayValue().isActive();
+        this.revertLeftButton.setEnabled(!this.readOnly && !this.isLeftVersionActive());
+        this.revertRightButton.setEnabled(!this.readOnly && !this.isRightVersionActive());
+    }
 
-        this.revertLeftButton.setEnabled(!isLeftVersionActive);
-        this.revertRightButton.setEnabled(!isRightVersionActive);
+    private isLeftVersionActive(): boolean {
+        return this.leftDropdown.getSelectedOption().getDisplayValue().isActive();
+    }
+
+    private isRightVersionActive(): boolean {
+        return this.rightDropdown.getSelectedOption().getDisplayValue().isActive();
     }
 
     private processContent(contentJson: any): Object {
