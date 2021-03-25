@@ -42,5 +42,15 @@ class DoubleForm extends Page {
             throw new Error('getting Validation text: ' + err);
         })
     }
-};
+
+    async isInvalidValue(index) {
+        let inputs = await this.getDisplayedElements(this.doubleInput);
+        if (inputs.length === 0) {
+            throw new Error("Double Form - Double inputs were not found!");
+        }
+        let attr = await inputs[index].getAttribute("class");
+        return attr.includes("invalid");
+    }
+}
+
 module.exports = DoubleForm;
