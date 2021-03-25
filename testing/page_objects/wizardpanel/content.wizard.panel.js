@@ -571,7 +571,7 @@ class ContentWizardPanel extends Page {
         });
     }
 
-    waitUntilInvalidIconAppears(displayName) {
+    waitUntilInvalidIconAppears() {
         let selector = this.thumbnailUploader;
         return this.waitUntilInvalid(selector).catch(err => {
             this.saveScreenshot('err_wizard_validation_icon1');
@@ -579,7 +579,7 @@ class ContentWizardPanel extends Page {
         });
     }
 
-    waitUntilInvalidIconDisappears(displayName) {
+    waitUntilInvalidIconDisappears() {
         let selector = this.thumbnailUploader;
         return this.getBrowser().waitUntil(() => {
             return this.getAttribute(selector, 'class').then(result => {

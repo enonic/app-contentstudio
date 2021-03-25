@@ -158,8 +158,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             //4. Click on the first item in versions widget:
             await wizardVersionsWidget.clickAndExpandVersionByName("Created");
             //5. Verify that 'Revert' button in wizard versions panel is disabled:
-            //TODO uncomment it when issue#1934 will be fixed.
-            //await wizardVersionsWidget.waitForRevertButtonDisabled();
+            await wizardVersionsWidget.waitForRevertButtonDisabled();
         });
 
     it("GIVEN user with 'Contributor' role is logged in WHEN existing folder(Ready to publish) has been selected THEN 'Publish' menu item should be disabled for users with 'Contributor' role",

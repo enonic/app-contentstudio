@@ -1,8 +1,5 @@
 /**
  * Created on 26.11.2018.
- * verifies
- * https://github.com/enonic/xp/issues/6768
- * https://github.com/enonic/xp/issues/6795
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -39,7 +36,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             //1. open new wizard with html-area
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await contentWizard.typeDisplayName(CONTENT_NAME);
-            await htmlAreaForm.pause(1000);
+            await htmlAreaForm.pause(1500);
             //2. Insert an image and save:
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
             await insertImageDialog.filterAndSelectImage(IMAGE_DISPLAY_NAME);
