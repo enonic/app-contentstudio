@@ -585,6 +585,7 @@ export class ContentWizardPanel
         this.setRequireValid(false);
         this.contentUpdateDisabled = true;
         this.isFirstUpdateAndRenameEventSkiped = false;
+        this.contentWizardStepForm?.getFormView().clean();
         new BeforeContentSavedEvent().fire();
 
         return super.saveChanges().then((content: Content) => {
@@ -2000,23 +2001,6 @@ export class ContentWizardPanel
         return deferred.promise;
     }
 
-    private getOptionSetsInForm(formItemContainer: FormItemContainer): FormOptionSet[] {
-        let result: FormOptionSet[] = [];
-
-        formItemContainer.getFormItems().forEach((item) => {
-            if (ObjectHelper.iFrameSafeInstanceOf(item, FormItemSet) ||
-                ObjectHelper.iFrameSafeInstanceOf(item, FieldSet) ||
-                ObjectHelper.iFrameSafeInstanceOf(item, FormOptionSetOption)) {
-                result = result.concat(this.getOptionSetsInForm(<any>item));
-            } else if (ObjectHelper.iFrameSafeInstanceOf(item, FormOptionSet)) {
-                result.push(<FormOptionSet>item);
-                result = result.concat(this.getOptionSetsInForm(<any>item));
-            }
-        });
-
-        return result;
-    }
-
     updatePersistedItem(): Q.Promise<Content> {
         const persistedContent: Content = this.getPersistedItem();
         const viewedContent: Content = this.assembleViewedContent(persistedContent.newBuilder(), true).build();
@@ -2162,96 +2146,6 @@ export class ContentWizardPanel
         });
     }
 
-    private cleanFormOptionSetsRedundantData(data: PropertyTree): PropertyTree {
-        const formOptionSets: FormOptionSet[] = this.getOptionSetsInForm(this.getContentType().getForm());
-
-        formOptionSets.forEach((formOptionSet: FormOptionSet) => {
-            const parentPropertySet = formOptionSet.getPath().elementCount() > 1 ?
-                                      data.getPropertySet(formOptionSet.getPath().getParentPath()) :
-                                      data;
-
-            const optionSetOccurrences = parentPropertySet?.getPropertyArray(formOptionSet.getName());
-            if (!optionSetOccurrences) {
-                return;
-            }
-
-            optionSetOccurrences.forEach((optionSetOccurrence: Property) => {
-                this.cleanOptionSetOccurrence(formOptionSet, optionSetOccurrence);
-            });
-        });
-
-        return data;
-    }
-
-    private cleanOptionSetOccurrence(formOptionSet: FormOptionSet, optionSetOccurrence: Property) {
-        const optionSetPropertySet: PropertySet = optionSetOccurrence.getPropertySet();
-        const selectionArray: PropertyArray = optionSetPropertySet.getPropertyArray('_selected');
-        if (!selectionArray || selectionArray.isEmpty()) {
-            optionSetPropertySet.removeAllProperties();
-            return;
-        }
-
-        this.cleanOptionSetProperties(formOptionSet, optionSetPropertySet);
-    }
-
-    private getOptionFormItems(formOptionSet: FormOptionSet, optionName: string): FormItem[] {
-
-        const formOption: FormOptionSetOption = formOptionSet.getOptions()
-            .find(option => option.getName() === optionName);
-
-        if (!formOption) {
-            return [];
-        }
-
-        return formOption.getFormItems();
-    }
-
-    private cleanOptionSetProperties(formOptionSet: FormOptionSet, optionSetPropertySet: PropertySet) {
-        optionSetPropertySet.getPropertyArrays().forEach((optionPropertySet: PropertyArray) => {
-            const optionArrayName = optionPropertySet.getName();
-            if (optionArrayName === '_selected') {
-                return;
-            }
-
-            const formItems = this.getOptionFormItems(formOptionSet, optionArrayName);
-            const isEmptyOrNonSelectedOption = !formItems.length || !this.isOptionSelected(optionSetPropertySet, optionArrayName);
-            if (isEmptyOrNonSelectedOption && !optionPropertySet.isEmpty()) {
-                optionSetPropertySet.removeProperty(optionArrayName, 0);
-            } else {
-                this.recursiveCleanMissingProperties(optionPropertySet.getSet(0), formItems);
-            }
-        });
-    }
-
-    private isOptionSelected(optionSetProperty: PropertySet, optionName: string): boolean {
-        const selectionArray: PropertyArray = optionSetProperty.getPropertyArray('_selected');
-        if (!selectionArray || selectionArray.isEmpty()) {
-            return false;
-        }
-
-        return selectionArray.some((selectedOptionName: Property) => {
-            return selectedOptionName.getString() === optionName;
-        });
-    }
-
-    private recursiveCleanMissingProperties(optionProperties: PropertySet, items: FormItem[]) {
-        if (!optionProperties || !items) {
-            return;
-        }
-        optionProperties.forEach((property: Property) => {
-            const formItem: FormItem = items.find(item => item.getName() === property.getName());
-            if (!formItem) {
-                optionProperties.removeProperty(property.getName(), 0);
-            } else if (formItem instanceof FormOptionSet) {
-                this.cleanOptionSetOccurrence(formItem, property);
-            } else if (formItem instanceof FieldSet ||
-                       formItem instanceof FormItemSet ||
-                       formItem instanceof FormOptionSetOption) {
-                this.recursiveCleanMissingProperties(property.getPropertySet(), formItem.getFormItems());
-            }
-        });
-    }
-
     private assembleViewedPage(): Page {
         let liveFormPanel = this.getLivePanel();
         return liveFormPanel ? liveFormPanel.getPage() : null;
@@ -2336,7 +2230,7 @@ export class ContentWizardPanel
                 viewedContentBuilder.setData(this.contentWizardStepForm.getData());
             } else {
                 const data: PropertyTree = new PropertyTree(this.contentWizardStepForm.getData().getRoot()); // copy
-                viewedContentBuilder.setData(this.cleanFormOptionSetsRedundantData(data));
+                viewedContentBuilder.setData(data);
             }
         }
 
