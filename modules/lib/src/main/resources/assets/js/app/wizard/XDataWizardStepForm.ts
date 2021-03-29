@@ -103,10 +103,10 @@ export class XDataWizardStepForm
     }
 
     private setEnabledState(value: boolean, silent: boolean = false): Q.Promise<void> {
-        let changed: boolean = value !== this.enabled;
+        const changed: boolean = value !== this.enabled;
         this.enabled = value;
 
-        this.enabled ? this.show() : this.hide();
+        this.setVisible(this.enabled);
 
         if (!changed) {
             return Q(null);
@@ -118,7 +118,11 @@ export class XDataWizardStepForm
                 if (this.stashedData) {
                     this.data.getRoot().addPropertiesFromSet(this.stashedData.getRoot());
                 }
-                promise = this.doLayout(this.form, this.data);
+
+                promise = this.doLayout(this.form, this.data).then(() => {
+                   this.validate(true);
+                   return Q(null);
+                });
             }
         } else {
             if (this.data) {
