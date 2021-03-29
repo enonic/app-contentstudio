@@ -7,6 +7,7 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
 import * as Q from 'q';
 import {UrlHelper} from '../../../util/UrlHelper';
+import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 
 export interface AttachmentUploaderElConfig
     extends UploaderElConfig {
@@ -19,14 +20,17 @@ export interface AttachmentUploaderElConfig
 export class AttachmentUploaderEl
     extends UploaderEl<Attachment> {
 
-    private contentId: string;
+    private readonly contentId: string;
 
-    private removeCallback: (value: string) => void;
+    private readonly removeCallback: (value: string) => void;
+
+    private attachedItems: AttachmentItem[];
 
     constructor(config: AttachmentUploaderElConfig) {
         if (config.url == null) {
             config.url = 'content/createAttachment';
         }
+
         if (config.selfIsDropzone == null) {
             config.selfIsDropzone = true;
         }
@@ -38,6 +42,7 @@ export class AttachmentUploaderEl
         }
 
         this.contentId = config.contentId;
+        this.attachedItems = [];
     }
 
     protected beforeSubmit() {
@@ -47,6 +52,11 @@ export class AttachmentUploaderEl
     protected doSetValue(value: string): AttachmentUploaderEl {
         super.doSetValue(value);
         this.refreshVisibility();
+
+        if (StringHelper.isEmpty(value)) {
+            this.attachedItems.forEach((item: AttachmentItem) => item.remove());
+            this.attachedItems = [];
+        }
 
         return this;
     }
@@ -94,7 +104,12 @@ export class AttachmentUploaderEl
 
     createResultItem(value: string): AttachmentItem {
         const attachmentItem: AttachmentItem = new AttachmentItem(this.contentId, value);
+        this.attachedItems.push(attachmentItem);
+
         attachmentItem.onRemoveClicked(this.removeCallback);
+        attachmentItem.onRemoveClicked(() =>  {
+            this.attachedItems = this.attachedItems.filter((item: AttachmentItem) => item !== attachmentItem);
+        });
 
         return attachmentItem;
     }
