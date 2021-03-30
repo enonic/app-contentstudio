@@ -23,39 +23,39 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
         let SITE;
         let CONTROLLER_NAME = 'main region';
 
-            it("Preconditions: new site should be created",
+        it("Preconditions: new site should be created",
             async () => {
                 let displayName = contentBuilder.generateRandomName('site');
                 SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
                 await studioUtils.doAddSite(SITE);
             });
 
-            //Verifies https://github.com/enonic/lib-admin-ui/issues/1846
-            //Filtering selector by parent display name doesn't work if the name contains spaces #1846
-            it("GIVEN image-component has been inserted WHEN folder's display name with spaces has been typed in 'Inspect Panel' THEN required images should be present in selector's options",
-                async () => {
-                        let pageComponentView = new PageComponentView();
-                        let contentWizard = new ContentWizard();
-                        let imageInspectPanel = new ImageInspectPanel();
-                        let siteFormPanel = new SiteFormPanel();
-                        //1. Open the site:
-                        await studioUtils.selectContentAndOpenWizard(SITE.displayName);
-                        await contentWizard.clickOnShowComponentViewToggler();
-                        //2. Insert image-component:
-                        await pageComponentView.openMenu("main");
-                        await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
-                        //3. type the folder's display name with spaces in options filter input in Inspect Panel:
-                        await imageInspectPanel.typeTextInOptionsFilter(appConstant.TEST_FOLDER_WITH_IMAGES);
-                        //4. Switch the image selector to Tree Mode:
-                        await imageInspectPanel.clickOnModeTogglerButton();
-                        //5. Expand the filtered folder
-                        await imageInspectPanel.expandFolderInOptions(appConstant.TEST_FOLDER_WITH_IMAGES_NAME);
-                        studioUtils.saveScreenshot("image_selector_display_name_spaces");
-                        //6. Get name of images in options:
-                        let displayNames = await imageInspectPanel.getTreeModeOptionDisplayNames();
-                        //7. Verify that expected image is present in options:
-                        assert.isTrue(displayNames.includes(appConstant.TEST_IMAGES.KOTEY), "Expected image should be present in options");
-                });
+        //Verifies https://github.com/enonic/lib-admin-ui/issues/1846
+        //Filtering selector by parent display name doesn't work if the name contains spaces #1846
+        it("GIVEN image-component has been inserted WHEN folder's display name with spaces has been typed in 'Inspect Panel' THEN matching images should be present in selector's options",
+            async () => {
+                let pageComponentView = new PageComponentView();
+                let contentWizard = new ContentWizard();
+                let imageInspectPanel = new ImageInspectPanel();
+                let siteFormPanel = new SiteFormPanel();
+                //1. Open the site:
+                await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+                await contentWizard.clickOnShowComponentViewToggler();
+                //2. Insert image-component:
+                await pageComponentView.openMenu("main");
+                await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
+                //3. type the folder's display name with spaces in options filter input in Inspect Panel:
+                await imageInspectPanel.typeTextInOptionsFilter(appConstant.TEST_FOLDER_WITH_IMAGES);
+                //4. Switch the image selector to Tree Mode:
+                await imageInspectPanel.clickOnModeTogglerButton();
+                //5. Expand the filtered folder
+                await imageInspectPanel.expandFolderInOptions(appConstant.TEST_FOLDER_WITH_IMAGES_NAME);
+                studioUtils.saveScreenshot("image_selector_display_name_spaces");
+                //6. Get name of images in options:
+                let displayNames = await imageInspectPanel.getTreeModeOptionDisplayNames();
+                //7. Verify that expected image is present in options:
+                assert.isTrue(displayNames.includes(appConstant.TEST_IMAGES.KOTEY), "Expected image should be present in options");
+            });
 
         //Verifies https://github.com/enonic/app-contentstudio/issues/2954
         // Images are not displayed in the Image Component's descriptor selector #2954
@@ -72,13 +72,13 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
                 await pageComponentView.openMenu("main");
                 await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
                 //3. type the folder name in options filter input in Inspect Panel:
-                    await imageInspectPanel.typeTextInOptionsFilter(appConstant.TEST_FOLDER_2_NAME);
+                await imageInspectPanel.typeTextInOptionsFilter(appConstant.TEST_FOLDER_2_NAME);
                 //4. Switch the image selector to Tree Mode:
                 await imageInspectPanel.clickOnModeTogglerButton();
-                    //5. Expand two folders in selector's options
-                    await imageInspectPanel.expandFolderInOptions(appConstant.TEST_FOLDER_2_NAME);
-                    await imageInspectPanel.expandFolderInOptions("nested-imported-folder");
-                    studioUtils.saveScreenshot("image_selector_tree_mode");
+                //5. Expand two folders in selector's options
+                await imageInspectPanel.expandFolderInOptions(appConstant.TEST_FOLDER_2_NAME);
+                await imageInspectPanel.expandFolderInOptions("nested-imported-folder");
+                studioUtils.saveScreenshot("image_selector_tree_mode");
                 //6. Get name of images in options:
                 let displayNames = await imageInspectPanel.getTreeModeOptionDisplayNames();
                 //7. Verify that expected image is present in options:
