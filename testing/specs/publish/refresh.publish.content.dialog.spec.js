@@ -13,7 +13,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const DateRangeInput = require('../../page_objects/components/datetime.range');
 
-describe('refresh.publish.dialog.spec - opens publish content modal dialog and checks control elements`', function () {
+describe('refresh.publish.dialog.spec - opens publish content modal dialog and checks control elements', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let FOLDER;
