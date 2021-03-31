@@ -585,7 +585,6 @@ export class ContentWizardPanel
         this.setRequireValid(false);
         this.contentUpdateDisabled = true;
         this.isFirstUpdateAndRenameEventSkiped = false;
-        this.contentWizardStepForm?.getFormView().clean();
         new BeforeContentSavedEvent().fire();
 
         return super.saveChanges().then((content: Content) => {
@@ -2222,9 +2221,9 @@ export class ContentWizardPanel
     }
 
     assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false): ContentBuilder {
-
         viewedContentBuilder.setName(this.resolveContentNameForUpdateRequest());
         viewedContentBuilder.setDisplayName(this.getWizardHeader().getDisplayName());
+
         if (this.contentWizardStepForm) {
             if (!cleanFormRedundantData) {
                 viewedContentBuilder.setData(this.contentWizardStepForm.getData());
