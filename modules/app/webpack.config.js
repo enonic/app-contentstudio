@@ -92,7 +92,7 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                {from: 'icons/fonts/icomoon.*', to: 'page-editor/fonts/[name].[ext]'}
+                {from: 'icons/fonts/icomoon.*', to: 'page-editor/fonts/[name][ext]'}
             ]
         }),
         new CircularDependencyPlugin({
