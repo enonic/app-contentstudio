@@ -8,6 +8,7 @@ const appConst = require('../../libs/app_const');
 const XPATH = {
     doubleInput: `//div[contains(@id,'Double')]`,
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
+    addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
 };
 
 class DoubleForm extends Page {
@@ -20,8 +21,13 @@ class DoubleForm extends Page {
         return lib.FORM_VIEW + XPATH.validationRecording;
     }
 
-    type(doubleData) {
-        return this.typeDouble(doubleData.doubleValue);
+    get addButton() {
+        return lib.FORM_VIEW + XPATH.addButton;
+    }
+
+    async clickOnAddButton(longData) {
+        await this.waitForElementDisplayed(this.addButton);
+        return await this.clickOnElement(this.addButton);
     }
 
     typeDouble(value) {
