@@ -27,7 +27,6 @@ class DateTimeForm extends Page {
 
     async getDateTimes() {
         let values = [];
-        // let ids = await this.getIdInputs();
         let dateTimeElements = await this.getDisplayedElements(this.dateTimeInput);
         await Promise.all(dateTimeElements.map(async (el) => {
             const value = await el.getValue();

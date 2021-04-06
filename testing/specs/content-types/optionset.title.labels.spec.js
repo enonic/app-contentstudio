@@ -12,6 +12,8 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const SingleSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/single.selection.option.set.view');
 const MultiSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/multi.selection.set.view');
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const LongForm = require('../../page_objects/wizardpanel/long.form.panel');
+const NotificationDialog = require('../../page_objects/notification.dialog');
 
 describe("optionset.title.labels.spec: checks option set's title and labels", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -21,6 +23,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
     let SINGLE_SELECTION_NOTE2 = "single test 2";
     let MULTI_SELECTION_TITLE1 = "Option 2";
     let MULTI_SELECTION_TITLE2 = "Option 1, Option 2";
+    let OPTION_SET_NAME1 = contentBuilder.generateRandomName('optionset');
     let OPTION_SET_NAME = contentBuilder.generateRandomName('optionset');
 
     it("Preconditions: new site should be created",
@@ -30,9 +33,54 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             await studioUtils.doAddSite(SITE);
         });
 
+    //Verifies https://github.com/enonic/lib-admin-ui/issues/1878
+    //Option Set - Incorrect radio button behavior in multi selection
+    //app-contentstudio/issues/3024
+    it("GIVEN wizard for new option set is opened WHEN options in multi select have been updated THEN title of 'multi select' should be updated dynamically",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let multiSelectionOptionSet = new MultiSelectionOptionSet();
+            let optionSetForm = new OptionSetForm();
+            let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            //1. Open the new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
+            await contentWizard.typeDisplayName(OPTION_SET_NAME1);
+            //2. Verify tah 'Option 2' is selected bu default:
+            let isSelected = await multiSelectionOptionSet.isCheckboxSelected("Option 2");
+            assert.isTrue(isSelected, "Option 2 should be selected by default");
+            //3. Unselect the default 'option 2:
+            await multiSelectionOptionSet.clickOnOption("Option 2");
+            //4. Verify that 'Option 2' is not selected
+            isSelected = await multiSelectionOptionSet.isCheckboxSelected("Option 2");
+            assert.isFalse(isSelected, "'Option 2' should not be selected after unselecting the radio");
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.pause(1000);
+            //5. Verify that 'Option 2' remains unselected after the saving:
+            isSelected = await multiSelectionOptionSet.isCheckboxSelected("Option 2");
+            assert.isFalse(isSelected, "'Option 2' should not be selected after the saving");
+        });
+
+    it("GIVEN radio buttons were unselected WHEN the content is opened THEN all radio buttons should be unselected",
+        async () => {
+            let multiSelectionOptionSet = new MultiSelectionOptionSet();
+            //1. Open an existing option set content:
+            let contentWizard = await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME1);
+            //2. Verify that all radio buttons are unselected:
+            let isSelected = await multiSelectionOptionSet.isCheckboxSelected("Option 1");
+            assert.isFalse(isSelected, "'Option 1' should not be selected");
+            isSelected = await multiSelectionOptionSet.isCheckboxSelected("Option 2");
+            assert.isFalse(isSelected, "'Option 2' should not be selected");
+            isSelected = await multiSelectionOptionSet.isCheckboxSelected("Option 3");
+            assert.isFalse(isSelected, "'Option 3' should not be selected");
+            isSelected = await multiSelectionOptionSet.isCheckboxSelected("Option 4");
+            assert.isFalse(isSelected, "'Option 4' should not be selected");
+            let message = await multiSelectionOptionSet.getValidationMessage();
+            assert.equal(message, 'At least one option must be selected', "expected validation message should be displayed");
+        });
+
     //Verifies:https://github.com/enonic/lib-admin-ui/issues/1738
     //Title of a single-select option-set occurrence is not updated dynamically
-    it(`GIVEN option set with wizard is opened WHEN text in name input is updated THEN title of the single select should be updated dynamically`,
+    it(`GIVEN wizard for new option set is opened WHEN text in name input is updated THEN title of the single select should be updated dynamically`,
         async () => {
             let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
@@ -53,7 +101,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             assert.equal(subheader, SINGLE_SELECTION_NOTE2, "Expected subheader should be displayed");
         });
 
-    it(`GIVEN option set with wizard is opened WHEN options in multi select have been updated THEN title of 'multi select' should be updated dynamically`,
+    it(`GIVEN wizard for new option set is opened WHEN options in multi select have been updated THEN title of 'multi select' should be updated dynamically`,
         async () => {
             let contentWizard = new ContentWizard();
             let multiSelectionOptionSet = new MultiSelectionOptionSet();

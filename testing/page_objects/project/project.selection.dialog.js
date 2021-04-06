@@ -35,8 +35,12 @@ class ProjectSelectionDialog extends Page {
         });
     }
 
-    isDialogLoaded() {
-        return this.isElementDisplayed(XPATH.container);
+    async isDialogLoaded() {
+        try {
+            await this.waitForElementDisplayed(XPATH.container, appConst.shortTimeout);
+        } catch (err) {
+            return false;
+        }
     }
 
     async waitForDialogClosed() {
@@ -77,6 +81,6 @@ class ProjectSelectionDialog extends Page {
         let locator = XPATH.container + XPATH.projectList + lib.itemByDisplayName(projectDisplayName) + lib.P_SUB_NAME;
         return this.getText(locator);
     }
-};
+}
 module.exports = ProjectSelectionDialog;
 
