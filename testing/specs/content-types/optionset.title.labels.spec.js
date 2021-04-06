@@ -78,6 +78,33 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             assert.equal(message, 'At least one option must be selected', "expected validation message should be displayed");
         });
 
+    //Verifies https://github.com/enonic/app-contentstudio/issues/3027
+    it("GIVEN 'Option 1' radio is selected and values are set in 2 inputs WHEN 'Option 1' has been unselected and saved THEN inputs in 'Option 1' should be cleared",
+        async () => {
+            let multiSelectionOptionSet = new MultiSelectionOptionSet();
+            let longForm = new LongForm();
+            let notificationDialog = new NotificationDialog();
+            //1. Open an existing option set content:
+            let contentWizard = await studioUtils.selectAndOpenContentInWizard(OPTION_SET_NAME1);
+            //2. Verify that all radio buttons are unselected:
+            await multiSelectionOptionSet.clickOnOption("Option 1");
+            await multiSelectionOptionSet.clickOnAddLong();
+            let values1 = await longForm.getLongValues();
+            assert.equal(values1[0], "");
+            await longForm.typeLong(0, 1);
+            await longForm.typeLong(1, 2);
+            await multiSelectionOptionSet.clickOnOption("Option 1");
+            await notificationDialog.waitForDialogLoaded();
+            //4. Click on Ok button:
+            await notificationDialog.clickOnOkButton();
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+            await contentWizard.pause(1500);
+            await multiSelectionOptionSet.clickOnOption("Option 1");
+            let values = await longForm.getLongValues();
+            assert.equal(values[0], "", "Long input should be cleared");
+        });
+
     //Verifies:https://github.com/enonic/lib-admin-ui/issues/1738
     //Title of a single-select option-set occurrence is not updated dynamically
     it(`GIVEN wizard for new option set is opened WHEN text in name input is updated THEN title of the single select should be updated dynamically`,
