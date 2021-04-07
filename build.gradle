@@ -10,7 +10,6 @@ plugins {
 subprojects {
     apply plugin: 'java'
     apply plugin: 'com.enonic.defaults'
-    apply plugin: 'maven-publish'
     apply plugin: 'com.enonic.xp.base'
     apply from: "$rootDir/gradle/env.gradle"
     apply from: "$rootDir/gradle/node.gradle"
@@ -22,7 +21,8 @@ subprojects {
     }
 
     repositories {
-        jcenter()
+        mavenLocal()
+        mavenCentral()
         xp.enonicRepo('dev')
     }
 }
