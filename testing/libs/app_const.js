@@ -178,6 +178,7 @@ module.exports = Object.freeze({
         ARTICLE: `article`,
         CUSTOM_RELATIONSHIP: 'custom-relationship2_4',
         DOUBLE_MIN_MAX: 'double_max',
+        DOUBLE_DEFAULT_2_4: 'double2_4_def',
         LONG_MIN_MAX: 'long_max',
         TEXTAREA_MAX_LENGTH: 'textarea_conf',
         TEXTLINE_MAX_LENGTH: 'textline_conf',

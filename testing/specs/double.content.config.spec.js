@@ -22,6 +22,27 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             await studioUtils.doAddSite(SITE);
         });
 
+    //Verifies https://github.com/enonic/lib-admin-ui/issues/1887
+    //Incorrect behaviour of validation of inputs with default values #1887
+    it(`GIVEN wizard for 'Double(default value is 3)' is opened WHEN 'Add' button has been pressed AND the top input has been removed THEN validation message should not be displayed`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let doubleForm = new DoubleForm();
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.DOUBLE_DEFAULT_2_4);
+            await contentWizard.typeDisplayName(appConstant.generateRandomName("double"));
+            //1. Click on 'Add' button and add one more input:
+            await doubleForm.clickOnAddButton();
+            await doubleForm.pause(1000);
+            //2. Remove the top input:
+            await doubleForm.clickOnRemoveIcon(0);
+            //3. Verify that the content is valid:
+            let isVisible = await doubleForm.isValidationRecordingVisible();
+            studioUtils.saveScreenshot('double_default_value_1');
+            assert.isFalse(isVisible, 'Validation recording should not be displayed');
+            let result = await contentWizard.isContentInvalid();
+            assert.isFalse(result, "Double 2:4 content should be valid");
+        });
+
     it(`GIVEN wizard for 'Double(min 0,max 3.14159)' is opened WHEN number from the allowed range has been typed THEN validation message should not be present`,
         async () => {
             let doubleForm = new DoubleForm();
