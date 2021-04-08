@@ -35,8 +35,11 @@ class DoubleForm extends Page {
         return await this.clickOnElement(this.addButton);
     }
 
-    typeDouble(value) {
-        return this.typeTextInInput(this.doubleInput, value);
+    async typeDouble(value, index) {
+        index = typeof index !== 'undefined' ? index : 0;
+        let doubleElements = await this.getDisplayedElements(this.doubleInput);
+        await doubleElements[index].setValue(value);
+        return await this.pause(300);
     }
 
     waitForValidationRecording() {

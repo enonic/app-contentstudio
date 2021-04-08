@@ -28,10 +28,6 @@ class LongForm extends Page {
         return await this.clickOnElement(this.addButton);
     }
 
-    typeLong(value) {
-        return this.typeTextInInput(this.longInput, value);
-    }
-
     waitForValidationRecording(ms) {
         return this.waitForElementDisplayed(this.validationRecord, ms);
     }
@@ -58,7 +54,8 @@ class LongForm extends Page {
         return values;
     }
 
-    async typeLong(index, value) {
+    async typeLong(value, index) {
+        index = typeof index !== 'undefined' ? index : 0;
         let longElements = await this.getDisplayedElements(this.longInput);
         await longElements[index].setValue(value);
         return await this.pause(300);
