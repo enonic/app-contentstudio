@@ -91,8 +91,8 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             await multiSelectionOptionSet.clickOnAddLong();
             let values1 = await longForm.getLongValues();
             assert.equal(values1[0], "");
-            await longForm.typeLong(0, 1);
-            await longForm.typeLong(1, 2);
+            await longForm.typeLong(1, 0);
+            await longForm.typeLong(2, 1);
             await multiSelectionOptionSet.clickOnOption("Option 1");
             await notificationDialog.waitForDialogLoaded();
             //4. Click on Ok button:
