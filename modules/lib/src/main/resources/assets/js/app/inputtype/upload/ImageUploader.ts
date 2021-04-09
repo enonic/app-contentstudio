@@ -28,8 +28,6 @@ export class ImageUploader
 
     private imageUploader: ImageUploaderEl;
 
-    private previousValidationRecording: InputValidationRecording;
-
     private isCropAutoPositioned: boolean;
 
     private isFocusAutoPositioned: boolean;
@@ -385,23 +383,19 @@ export class ImageUploader
         this.imageUploader.setOrientation(orientation, originalOrientation);
     }
 
-    validate(silent: boolean = true): InputValidationRecording {
-        let recording = new InputValidationRecording();
-        let propertyValue = this.getProperty().getValue();
+    validate(silent: boolean = true) {
+        const propertyValue = this.getProperty().getValue();
+        const totalValid: number = (this.imageUploader.isFocalPointEditMode() || this.imageUploader.isCropEditMode() ||
+                                    propertyValue.isNull()) ? 0 : 1;
+        const recording = new InputValidationRecording(this.input.getOccurrences(), totalValid);
 
-        if (this.imageUploader.isFocalPointEditMode() || this.imageUploader.isCropEditMode()) {
-            recording.setBreaksMinimumOccurrences(true);
-        }
-        if (propertyValue.isNull() && this.input.getOccurrences().getMinimum() > 0) {
-            recording.setBreaksMinimumOccurrences(true);
-        }
         if (!silent) {
             if (recording.validityChanged(this.previousValidationRecording)) {
-                this.notifyValidityChanged(new InputValidityChangedEvent(recording, this.input.getName()));
+                this.notifyValidityChanged(new InputValidityChangedEvent(recording));
             }
         }
+
         this.previousValidationRecording = recording;
-        return recording;
     }
 
     onFocus(listener: (event: FocusEvent) => void) {
