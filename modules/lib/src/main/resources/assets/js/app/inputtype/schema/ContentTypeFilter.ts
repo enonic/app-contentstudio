@@ -13,7 +13,7 @@ import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {PageTemplateContentTypeLoader} from './PageTemplateContentTypeLoader';
 import {ContentTypeComboBox} from './ContentTypeComboBox';
 import {ContentTypeSummaryLoader} from './ContentTypeSummaryLoader';
-import {ContentTypeSummaryByDisplayNameComparator} from './ContentTypeSummaryByDisplayNameComparator';
+import {ContentTypeComparator} from './ContentTypeComparator';
 import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
 import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from 'lib-admin-ui/Class';
@@ -60,7 +60,7 @@ export class ContentTypeFilter
             loader = new ContentTypeSummaryLoader(contentId);
         }
 
-        loader.setComparator(new ContentTypeSummaryByDisplayNameComparator());
+        loader.setComparator(new ContentTypeComparator());
 
         return loader;
     }

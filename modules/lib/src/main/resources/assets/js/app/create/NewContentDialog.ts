@@ -37,6 +37,7 @@ import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
+import {GetContentTypeDescriptorsRequest} from '../resource/GetContentTypeDescriptorsRequest';
 
 export class NewContentDialog
     extends ModalDialog {
@@ -214,7 +215,6 @@ export class NewContentDialog
 
     setParentContent(parent: Content) {
         this.parentContent = parent;
-        this.allContentTypes.setParentContent(parent);
 
         const params: { [key: string]: any } = {
             parent: parent ? parent.getPath().toString() : ContentPath.ROOT.toString()
@@ -276,10 +276,9 @@ export class NewContentDialog
         this.showLoadMask();
 
         Q.all(this.sendRequestsToFetchContentData())
-            .spread((contentTypes: ContentTypeSummaries, aggregations: AggregateContentTypesResult,
-                     parentSite: Site) => {
+            .spread((contentTypes: ContentTypeSummaries, aggregations: AggregateContentTypesResult) => {
 
-                this.allContentTypes.createItems(contentTypes, parentSite);
+                this.allContentTypes.createItems(contentTypes);
 
                 const popularItemsCount = this.mostPopularContentTypes.getItemsList().createItems(contentTypes, aggregations);
                 this.mostPopularContentTypes.setVisible(popularItemsCount > 0);
@@ -303,18 +302,16 @@ export class NewContentDialog
 
     private sendRequestsToFetchContentData(): Q.Promise<any>[] {
         const requests: Q.Promise<any>[] = [];
-        requests.push(new GetAllContentTypesRequest().sendAndParse().then((contentTypes: ContentTypeSummary[]) => {
-            return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-                return this.filterContentTypes(ContentTypeSummaries.from(contentTypes), loginResult);
-            });
-        }));
+        requests.push(new GetContentTypeDescriptorsRequest(this.parentContent?.getContentId())
+            .sendAndParse()
+            .then((contentTypes: ContentTypeSummary[]) =>
+                new IsAuthenticatedRequest()
+                    .sendAndParse()
+                    .then((loginResult: LoginResult) => this.filterContentTypes(ContentTypeSummaries.from(contentTypes), loginResult))
+            )
+        );
 
-        if (this.parentContent) {
-            requests.push(new AggregateContentTypesByPathRequest(this.parentContent.getPath()).sendAndParse());
-            requests.push(new GetNearestSiteRequest(this.parentContent.getContentId()).sendAndParse());
-        } else {
-            requests.push(new AggregateContentTypesByPathRequest(ContentPath.ROOT).sendAndParse());
-        }
+        requests.push(new AggregateContentTypesByPathRequest(this.parentContent?.getPath() || ContentPath.ROOT).sendAndParse());
 
         return requests;
     }
@@ -322,27 +319,14 @@ export class NewContentDialog
     private filterContentTypes(contentTypes: ContentTypeSummaries, loginResult: LoginResult): Q.Promise<ContentTypeSummaries> {
         const isContentAdmin: boolean = loginResult.isContentAdmin();
 
-        if (isContentAdmin) {
-            return Q(this.doFilterContentTypes(contentTypes));
-        }
-
-        return ProjectHelper.isUserProjectOwner(loginResult).then((isOwner: boolean) => {
-            return Q(this.doFilterContentTypes(contentTypes, isOwner));
+        return (isContentAdmin ? Q(true) : ProjectHelper.isUserProjectOwner(loginResult)).then((hasAdminRights: boolean) => {
+            return Q(hasAdminRights ? contentTypes : this.getContentTypesWithoutSite(contentTypes));
         });
     }
 
-    private doFilterContentTypes(contentTypes: ContentTypeSummaries, isSiteAllowed: boolean = true): ContentTypeSummaries {
-        return contentTypes.filter((contentType: ContentTypeSummary) => this.isContentTypeAllowed(contentType, isSiteAllowed));
+    private getContentTypesWithoutSite(contentTypes: ContentTypeSummaries): ContentTypeSummaries {
+        return contentTypes.filter((contentType: ContentTypeSummary) => !contentType.isSite());
     }
-
-    private isContentTypeAllowed(contentType: ContentTypeSummary, isSiteAllowed: boolean = true): boolean {
-        if (contentType.isUnstructured()) {
-            return false;
-        }
-
-        return isSiteAllowed || !contentType.isSite();
-    }
-
 
     private updateDialogTitlePath() {
         if (this.parentContent) {

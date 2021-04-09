@@ -4,12 +4,12 @@ import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary
 
 export class NewContentDialogListItem {
 
-    private contentType: ContentTypeSummary;
-
-    private name: string;
-    private displayName: string;
-    private iconUrl: string;
-    private description: string;
+    private readonly contentType: ContentTypeSummary;
+    private readonly name: string;
+    private readonly displayName: string;
+    private readonly iconUrl: string;
+    private readonly description: string;
+    private readonly searchIndex: string;
 
     static fromContentType(contentType: ContentTypeSummary): NewContentDialogListItem {
         return new NewContentDialogListItem(contentType);
@@ -22,6 +22,7 @@ export class NewContentDialogListItem {
         this.displayName = contentType.getDisplayName();
         this.iconUrl = contentType.getIconUrl();
         this.description = contentType.getDescription() ? contentType.getDescription() : `<${i18n('text.noDescription')}>`;
+        this.searchIndex = `${this.name.toLowerCase()}:${this.displayName.toLowerCase()}`;
     }
 
     getContentType(): ContentTypeSummary {
@@ -46,5 +47,9 @@ export class NewContentDialogListItem {
 
     getDescription(): string {
         return this.description;
+    }
+
+    getSearchIndex(): string {
+        return this.searchIndex;
     }
 }
