@@ -216,14 +216,10 @@ export class ImageSelector
         });
     }
 
-    validate(silent: boolean = true,
-             rec: InputValidationRecording = null): InputValidationRecording {
-
+    validate(silent: boolean = true) {
         if (!this.isPendingPreload) {
-            return super.validate(silent, rec);
+            super.validate(silent);
         }
-
-        return new InputValidationRecording();
     }
 
     onEditContentRequest(listener: (content: ContentSummary) => void) {

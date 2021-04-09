@@ -64,29 +64,28 @@ export class SiteConfigurator
     }
 
     layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
+        return super.layout(input, propertyArray).then(() => {
+            let deferred = Q.defer<void>();
 
-        super.layout(input, propertyArray);
+            this.siteConfigProvider = new ApplicationConfigProvider(propertyArray);
+            // ignore changes made to property by siteConfigProvider
+            this.siteConfigProvider.onBeforePropertyChanged(() => this.ignorePropertyChange(true));
+            this.siteConfigProvider.onAfterPropertyChanged(() => this.ignorePropertyChange(false));
 
-        let deferred = Q.defer<void>();
+            this.comboBox = this.createComboBox(input, this.siteConfigProvider);
 
-        this.siteConfigProvider = new ApplicationConfigProvider(propertyArray);
-        // ignore changes made to property by siteConfigProvider
-        this.siteConfigProvider.onBeforePropertyChanged(() => this.ignorePropertyChange(true));
-        this.siteConfigProvider.onAfterPropertyChanged(() => this.ignorePropertyChange(false));
+            this.readOnlyPromise.then((readonly: boolean) => {
+                this.comboBox.setEnabled(!readonly);
+            });
 
-        this.comboBox = this.createComboBox(input, this.siteConfigProvider);
+            this.appendChild(this.comboBox);
 
-        this.readOnlyPromise.then((readonly: boolean) => {
-            this.comboBox.setEnabled(!readonly);
+            this.comboBox.render().then(() => {
+                this.setLayoutInProgress(false);
+                deferred.resolve(null);
+            });
+            return deferred.promise;
         });
-
-        this.appendChild(this.comboBox);
-
-        this.comboBox.render().then(() => {
-            this.setLayoutInProgress(false);
-            deferred.resolve(null);
-        });
-        return deferred.promise;
     }
 
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
@@ -267,9 +266,9 @@ export class SiteConfigurator
         return result;
     }
 
-    displayValidationErrors(value: boolean) {
+    displayValidationErrors() {
         this.comboBox.getSelectedOptionViews().forEach((view: SiteConfiguratorSelectedOptionView) => {
-            view.getFormView().displayValidationErrors(value);
+            view.getFormView().displayValidationErrors(!this.hasValidUserInput());
         });
     }
 
@@ -277,21 +276,12 @@ export class SiteConfigurator
         return this.comboBox.countSelected();
     }
 
-    validate(silent: boolean = true): InputValidationRecording {
-        let recording = new InputValidationRecording();
-
+    validate(silent: boolean = true) {
         this.comboBox.getSelectedOptionViews().forEach((view: SiteConfiguratorSelectedOptionView) => {
-
-            let validationRecording = view.getFormView().validate(true);
-            if (!validationRecording.isMinimumOccurrencesValid()) {
-                recording.setBreaksMinimumOccurrences(true);
-            }
-            if (!validationRecording.isMaximumOccurrencesValid()) {
-                recording.setBreaksMaximumOccurrences(true);
-            }
+             view.getFormView().validate(true);
         });
 
-        return super.validate(silent, recording);
+        super.validate(silent);
     }
 
     giveFocus(): boolean {
@@ -299,6 +289,10 @@ export class SiteConfigurator
             return false;
         }
         return this.comboBox.giveFocus();
+    }
+
+    protected mayRenderValidationError(): boolean {
+        return false;
     }
 
 }

@@ -8,6 +8,7 @@ import {ContentInputTypeViewContext} from '../../ContentInputTypeViewContext';
 import {ContentServerEventsHandler} from '../../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {ContentServerChangeItem} from '../../../event/ContentServerChangeItem';
+import {ValueType} from 'lib-admin-ui/data/ValueType';
 
 export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     extends BaseInputTypeManagingAdd {
@@ -66,6 +67,10 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
 
     protected getDefaultAllowPath(): string {
         return '';
+    }
+
+    getValueType(): ValueType {
+        return null;
     }
 
     private handleContentUpdatedEvent() {
