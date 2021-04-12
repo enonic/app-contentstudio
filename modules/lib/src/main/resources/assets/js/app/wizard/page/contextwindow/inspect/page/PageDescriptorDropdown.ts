@@ -29,7 +29,7 @@ export class PageDescriptorDropdown
     }
 
     load() {
-        (<PageDescriptorLoader>this.loader).setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
+        (this.loader as PageDescriptorLoader).setContentId(this.liveEditModel.getContent().getContentId());
 
         super.load();
     }
@@ -47,11 +47,9 @@ export class PageDescriptorDropdown
         this.onOptionSelected(this.handleOptionSelected.bind(this));
 
         // debounce it in case multiple apps were added at once using checkboxes
-        let onApplicationAddedHandler = AppHelper.debounce(() => {
-            this.load();
-        }, 100);
+        const onApplicationAddedHandler = AppHelper.debounce(() => this.load(), 100);
 
-        let onApplicationRemovedHandler = AppHelper.debounce((event: ApplicationRemovedEvent) => {
+        const onApplicationRemovedHandler = AppHelper.debounce((event: ApplicationRemovedEvent) => {
 
             let currentController = this.liveEditModel.getPageModel().getController();
             let removedApp = event.getApplicationKey();
