@@ -231,7 +231,7 @@ export class PageTemplateAndControllerSelector
         const deferred = Q.defer<Option<PageControllerOption>[]>();
 
         const loader = new PageDescriptorLoader();
-        loader.setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
+        loader.setContentId(this.liveEditModel.getContent().getContentId());
 
         loader.onLoadedData((event: LoadedDataEvent<PageDescriptor>) => {
             const options: Option<PageControllerOption>[] = event.getData().map(
