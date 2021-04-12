@@ -54,8 +54,21 @@ class ImageSelectorForm extends Page {
         return await this.pause(1500);
     }
 
-    getTreeModeOptionDisplayNames() {
+    //Expands a folder in Tree Mode:
+    async expandFolderInOptions(folderName) {
+        let locator = lib.expanderIconByName(folderName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        return await this.pause(300);
+    }
+
+    async getTreeModeOptionDisplayNames() {
         let options = lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
+        return await this.getTextInElements(options);
+    }
+
+    getTreeModeOptionStatus() {
+        let options = lib.SLICK_VIEW_PORT + "//div[contains(@class,'r1')]";
         return this.getTextInElements(options);
     }
 
