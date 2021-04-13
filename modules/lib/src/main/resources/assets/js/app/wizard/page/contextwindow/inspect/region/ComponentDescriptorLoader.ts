@@ -1,13 +1,13 @@
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
 import {DescriptorByDisplayNameComparator} from '../DescriptorByDisplayNameComparator';
-import {GetComponentDescriptorsByApplicationsRequest} from './GetComponentDescriptorsByApplicationsRequest';
 import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {SchemaFilterResourceRequest} from '../../../../../resource/SchemaFilterResourceRequest';
 
 export abstract class ComponentDescriptorLoader<DESCRIPTOR extends Descriptor>
     extends BaseLoader<DESCRIPTOR> {
 
-    protected request: GetComponentDescriptorsByApplicationsRequest<DESCRIPTOR>;
+    protected request: SchemaFilterResourceRequest<DESCRIPTOR[]>;
 
     constructor() {
         super();
@@ -15,12 +15,12 @@ export abstract class ComponentDescriptorLoader<DESCRIPTOR extends Descriptor>
         this.setComparator(new DescriptorByDisplayNameComparator());
     }
 
-    filterFn(descriptor: Descriptor) {
-        return descriptor.getDisplayName().toString().toLowerCase().indexOf(this.getSearchString().toLowerCase()) !== -1;
+    setContentId(contentId: ContentId) {
+        this.request.setContentId(contentId);
     }
 
-    setApplicationKeys(applicationKeys: ApplicationKey[]) {
-        this.request.setApplicationKeys(applicationKeys);
+    filterFn(descriptor: Descriptor) {
+        return descriptor.getDisplayName().toString().toLowerCase().indexOf(this.getSearchString().toLowerCase()) !== -1;
     }
 
 }

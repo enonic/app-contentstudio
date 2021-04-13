@@ -16,6 +16,8 @@ import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {LayoutDescriptorLoader} from '../../app/wizard/page/contextwindow/inspect/region/LayoutDescriptorLoader';
 
 export class PartDescriptorComboBox
     extends RichComboBox<PartDescriptor> {
@@ -24,8 +26,8 @@ export class PartDescriptorComboBox
         super(new PartDescriptorComboBoxBuilder());
     }
 
-    setApplicationKeys(applicationKeys: ApplicationKey[]) {
-        (<PartDescriptorLoader>this.getLoader()).setApplicationKeys(applicationKeys);
+    setContentId(contentId: ContentId) {
+        (<LayoutDescriptorLoader>this.getLoader()).setContentId(contentId);
     }
 
     getDescriptor(descriptorKey: DescriptorKey): PartDescriptor {

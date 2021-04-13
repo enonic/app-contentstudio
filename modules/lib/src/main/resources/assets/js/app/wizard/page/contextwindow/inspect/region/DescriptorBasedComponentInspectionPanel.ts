@@ -109,7 +109,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private reloadDescriptors() {
         if (this.selector) {
-            this.selector.setApplicationKeys(this.liveEditModel.getSiteModel().getApplicationKeys());
+            this.selector.setContentId(this.liveEditModel.getContent().getContentId());
             this.selector.load();
         }
     }
