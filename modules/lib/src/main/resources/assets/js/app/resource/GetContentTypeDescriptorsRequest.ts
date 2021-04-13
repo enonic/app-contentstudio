@@ -1,25 +1,19 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeSummaryListJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryListJson';
 import {ContentTypeSummaryJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryJson';
-import {DescriptorResourceRequest} from './DescriptorResourceRequest';
+import {SchemaFilterResourceRequest} from './SchemaFilterResourceRequest';
 
 export class GetContentTypeDescriptorsRequest
-    extends DescriptorResourceRequest<ContentTypeSummary[]> {
+    extends SchemaFilterResourceRequest<ContentTypeSummary[]> {
 
-    private readonly contentId: ContentId;
-
-    constructor(content: ContentId) {
+    constructor() {
         super();
-        this.contentId = content;
         this.addRequestPathElements('contentTypes');
     }
 
-    getParams(): Object {
-        return {
-            contentId: this.contentId?.toString()
-        };
+    fromJsonToContentTypeSummary(json: ContentTypeSummaryJson): ContentTypeSummary {
+        return ContentTypeSummary.fromJson(json);
     }
 
     protected parseResponse(response: JsonResponse<ContentTypeSummaryListJson>): ContentTypeSummary[] {
