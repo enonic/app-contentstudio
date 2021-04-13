@@ -17,7 +17,8 @@ export abstract class SchemaFilterResourceRequest<PARSED_TYPE>
         };
     }
 
-    setContentId(contentId: ContentId) {
+    setContentId(contentId: ContentId): SchemaFilterResourceRequest<PARSED_TYPE> {
         this.contentId = contentId;
+        return this;
     }
 }

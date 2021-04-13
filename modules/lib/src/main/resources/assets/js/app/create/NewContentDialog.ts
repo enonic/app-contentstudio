@@ -15,10 +15,7 @@ import {FilterableItemsList} from './FilterableItemsList';
 import {AggregateContentTypesResult} from '../resource/AggregateContentTypesResult';
 import {AggregateContentTypesByPathRequest} from '../resource/AggregateContentTypesByPathRequest';
 import {FileInput} from './FileInput';
-import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
 import {Content} from '../content/Content';
-import {Site} from '../content/Site';
-import {GetAllContentTypesRequest} from '../resource/GetAllContentTypesRequest';
 import {NewContentUploader} from './NewContentUploader';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
@@ -302,7 +299,8 @@ export class NewContentDialog
 
     private sendRequestsToFetchContentData(): Q.Promise<any>[] {
         const requests: Q.Promise<any>[] = [];
-        requests.push(new GetContentTypeDescriptorsRequest(this.parentContent?.getContentId())
+        requests.push(new GetContentTypeDescriptorsRequest()
+            .setContentId(this.parentContent?.getContentId())
             .sendAndParse()
             .then((contentTypes: ContentTypeSummary[]) =>
                 new IsAuthenticatedRequest()
