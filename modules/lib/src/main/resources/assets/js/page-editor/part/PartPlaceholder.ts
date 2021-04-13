@@ -1,13 +1,13 @@
 import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {PartComponentView} from './PartComponentView';
-import {SiteModel} from '../../app/site/SiteModel';
 import {PartDescriptorComboBox} from './PartDescriptorComboBox';
 import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
 import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
 import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {H2El} from 'lib-admin-ui/dom/H2El';
 import {H3El} from 'lib-admin-ui/dom/H3El';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 
 export class PartPlaceholder
     extends ItemViewPlaceholder {
@@ -25,7 +25,7 @@ export class PartPlaceholder
         this.partComponentView = partView;
 
         this.comboBox = new PartDescriptorComboBox();
-        this.comboBox.setApplicationKeys(partView.getLiveEditModel().getSiteModel().getApplicationKeys());
+        this.comboBox.setContentId(partView.getLiveEditModel().getContent().getContentId());
 
         this.appendChild(this.comboBox);
 
@@ -39,7 +39,7 @@ export class PartPlaceholder
 
         let siteModel = partView.getLiveEditModel().getSiteModel();
 
-        let listener = () => this.reloadDescriptors(siteModel);
+        let listener = () => this.reloadDescriptors(partView.getLiveEditModel().getContent().getContentId());
 
         siteModel.onApplicationAdded(listener);
         siteModel.onApplicationRemoved(listener);
@@ -58,8 +58,8 @@ export class PartPlaceholder
         }
     }
 
-    private reloadDescriptors(siteModel: SiteModel) {
-        this.comboBox.setApplicationKeys(siteModel.getApplicationKeys());
+    private reloadDescriptors(contentId: ContentId) {
+        this.comboBox.setContentId(contentId);
         this.comboBox.getLoader().load();
     }
 

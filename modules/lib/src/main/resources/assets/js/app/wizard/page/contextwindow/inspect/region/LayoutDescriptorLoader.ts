@@ -1,11 +1,11 @@
 import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
-import {GetLayoutDescriptorsByApplicationsRequest} from './GetLayoutDescriptorsByApplicationsRequest';
+import {GetLayoutDescriptorsRequest} from './GetLayoutDescriptorsRequest';
 import {ComponentDescriptorLoader} from './ComponentDescriptorLoader';
 
 export class LayoutDescriptorLoader
     extends ComponentDescriptorLoader<LayoutDescriptor> {
 
-    protected createRequest(): GetLayoutDescriptorsByApplicationsRequest {
-        return new GetLayoutDescriptorsByApplicationsRequest();
+    protected createRequest(): GetLayoutDescriptorsRequest {
+        return new GetLayoutDescriptorsRequest();
     }
 }

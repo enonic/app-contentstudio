@@ -8,13 +8,13 @@ import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSele
 import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {LayoutDescriptorLoader} from '../../app/wizard/page/contextwindow/inspect/region/LayoutDescriptorLoader';
 import {DescriptorViewer} from '../../app/wizard/page/contextwindow/inspect/DescriptorViewer';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 
 export class LayoutDescriptorComboBox
     extends RichComboBox<LayoutDescriptor> {
@@ -23,8 +23,8 @@ export class LayoutDescriptorComboBox
         super(new LayoutDescriptorComboBoxBuilder());
     }
 
-    setApplicationKeys(applicationKeys: ApplicationKey[]) {
-        (<LayoutDescriptorLoader>this.getLoader()).setApplicationKeys(applicationKeys);
+    setContentId(contentId: ContentId) {
+        (<LayoutDescriptorLoader>this.getLoader()).setContentId(contentId);
     }
 
     getDescriptor(descriptorKey: DescriptorKey): LayoutDescriptor {

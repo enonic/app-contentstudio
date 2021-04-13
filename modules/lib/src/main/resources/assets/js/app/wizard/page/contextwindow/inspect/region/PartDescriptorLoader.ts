@@ -1,12 +1,12 @@
 import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
-import {GetPartDescriptorsByApplicationsRequest} from './GetPartDescriptorsByApplicationsRequest';
+import {GetPartDescriptorsRequest} from './GetPartDescriptorsRequest';
 import {ComponentDescriptorLoader} from './ComponentDescriptorLoader';
 
 export class PartDescriptorLoader
     extends ComponentDescriptorLoader<PartDescriptor> {
 
-    protected createRequest(): GetPartDescriptorsByApplicationsRequest {
-        return new GetPartDescriptorsByApplicationsRequest();
+    protected createRequest(): GetPartDescriptorsRequest {
+        return new GetPartDescriptorsRequest();
     }
 
 }
