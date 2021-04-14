@@ -36,6 +36,7 @@ const XPATH = {
     decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
     formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
     addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
+    removeAreaButton: "//div[contains(@id,'HtmlArea')]//button[@class='remove-button']",
     maximizeButton: `//a[contains(@class,'cke_button') and contains(@class,'maximize')]`,
     typeText: function (id, text) {
         return `CKEDITOR.instances['${id}'].setData('${text}')`;
@@ -72,7 +73,8 @@ class HtmlAreaForm extends Page {
 
     async clickOnAddButton() {
         await this.waitForAddButtonDisplayed();
-        return this.clickOnElement(this.addButton);
+        await this.clickOnElement(this.addButton);
+        return await this.pause(300);
     }
 
     async type(data) {
@@ -96,7 +98,7 @@ class HtmlAreaForm extends Page {
     async insertTextInHtmlArea(index, text) {
         let ids = await this.getIdOfHtmlAreas();
         await this.execute(XPATH.typeText(ids[index], text));
-        return this.pause(300);
+        return await this.pause(300);
     }
 
     async getIdOfHtmlAreas() {
@@ -116,15 +118,12 @@ class HtmlAreaForm extends Page {
         }
     }
 
-    clearHtmlArea(index) {
-        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout).then(() => {
-            return this.getIdOfHtmlAreas();
-        }).then(ids => {
-            const arr = [].concat(ids);
-            return this.execute(XPATH.typeText(arr[index], ''));
-        }).then(() => {
-            return this.pause(300);
-        });
+    async clearHtmlArea(index) {
+        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
+        let ids = await this.getIdOfHtmlAreas();
+        const arr = [].concat(ids);
+        await this.execute(XPATH.typeText(arr[index], ''));
+        return await this.pause(300);
     }
 
     getTextFromHtmlArea() {
@@ -159,7 +158,7 @@ class HtmlAreaForm extends Page {
         await this.clickOnElement(XPATH.ckeTextArea);
         await this.waitForElementDisplayed(XPATH.insertImageButton, appConst.mediumTimeout);
         await this.clickOnElement(XPATH.insertImageButton);
-        return this.pause(300);
+        return await this.pause(300);
     }
 
     //double clicks on the html-area
@@ -197,7 +196,7 @@ class HtmlAreaForm extends Page {
         await this.clickOnElement(XPATH.ckeTextArea)
         await this.waitForElementDisplayed(XPATH.insertAnchorButton, appConst.mediumTimeout);
         await this.clickOnElement(XPATH.insertAnchorButton);
-        return this.pause(300);
+        return await this.pause(300);
     }
 
     async showToolbarAndClickOnTableButton() {
@@ -379,6 +378,11 @@ class HtmlAreaForm extends Page {
             this.saveScreenshot('err_textarea_validation_record');
             throw new Error('getting Validation text: ' + err);
         }
+    }
+
+    async removeTextArea(index) {
+        let elems = await this.findElements(XPATH.removeAreaButton);
+        await elems[index].click();
     }
 }
 

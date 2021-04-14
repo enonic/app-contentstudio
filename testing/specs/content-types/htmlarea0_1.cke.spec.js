@@ -38,9 +38,13 @@ describe('htmlarea1_0.cke.spec: tests for html area with CKE', function () {
             await contentWizard.waitAndClickOnSave();
             let ids = await htmlAreaForm.getIdOfHtmlAreas();
             assert.equal(ids.length, 1, "Single html area should be displayed by default");
+            //Verify that toolbar is not visible:
             let isToolbarVisible = await htmlAreaForm.isEditorToolbarVisible(0);
             assert.isFalse(isToolbarVisible, 'Html Area toolbar should be hidden by default');
+            //Verify that Add button is not present:
             await htmlAreaForm.waitForAddButtonNotDisplayed();
+            //Verify that Mark as ready button is displayed in the wizard toolbar:
+            await contentWizard.waitForMarkAsReadyButtonVisible();
         });
 
     it(`GIVEN wizard for new 'htmlArea 0:1' is opened WHEN content has been saved THEN red icon should not be present, because the input is not required`,
