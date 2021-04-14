@@ -3,7 +3,6 @@ import {
     DescriptorBasedComponentInspectionPanelConfig
 } from './DescriptorBasedComponentInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
-import {GetPartDescriptorByKeyRequest} from './GetPartDescriptorByKeyRequest';
 import {PartDescriptorDropdown} from './PartDescriptorDropdown';
 import {PartComponent} from '../../../../../page/region/PartComponent';
 import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
