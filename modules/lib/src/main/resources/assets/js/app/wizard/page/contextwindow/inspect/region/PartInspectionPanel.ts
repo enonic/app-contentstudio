@@ -9,6 +9,7 @@ import {PartComponent} from '../../../../../page/region/PartComponent';
 import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
 import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {GetPartDescriptorRequest} from './GetPartDescriptorRequest';
 
 export class PartInspectionPanel
     extends DescriptorBasedComponentInspectionPanel<PartComponent, PartDescriptor> {
@@ -27,8 +28,8 @@ export class PartInspectionPanel
         return i18n('field.part');
     }
 
-    protected createGetDescriptorRequest(key: DescriptorKey): GetPartDescriptorByKeyRequest {
-        return new GetPartDescriptorByKeyRequest(key);
+    protected createGetDescriptorRequest(key: DescriptorKey): GetPartDescriptorRequest {
+        return new GetPartDescriptorRequest(key.toString());
     }
 
     getName(): string {

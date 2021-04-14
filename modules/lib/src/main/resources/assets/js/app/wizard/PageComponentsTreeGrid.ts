@@ -15,23 +15,21 @@ import {LayoutItemType} from '../../page-editor/layout/LayoutItemType';
 import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {PartItemType} from '../../page-editor/part/PartItemType';
 import {ComponentView} from '../../page-editor/ComponentView';
 import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
-import {GetPartDescriptorsByApplicationsRequest} from './page/contextwindow/inspect/region/GetPartDescriptorsByApplicationsRequest';
-import {GetLayoutDescriptorsByApplicationsRequest} from './page/contextwindow/inspect/region/GetLayoutDescriptorsByApplicationsRequest';
 import {GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
 import {GridOptionsBuilder} from 'lib-admin-ui/ui/grid/GridOptions';
 import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
 import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
 import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 import {Component} from '../page/region/Component';
 import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
+import {GetLayoutDescriptorRequest} from './page/contextwindow/inspect/region/GetLayoutDescriptorRequest';
+import {GetPartDescriptorRequest} from './page/contextwindow/inspect/region/GetPartDescriptorRequest';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemViewTreeGridWrapper> {
@@ -187,16 +185,15 @@ export class PageComponentsTreeGrid
         });
     }
 
-    fetchDescriptions(itemViews: ItemView[]): Q.Promise<ItemView[]> {
+    private fetchDescriptions(itemViews: ItemView[]): Q.Promise<ItemView[]> {
+        const layoutDescriptors: string[] = [];
+        const partDescriptors: string[] = [];
 
-        const partKeys: ApplicationKey[] = [];
-        const layoutKeys: ApplicationKey[] = [];
         const componentMap: { [descKey: string]: DescriptorBasedComponent[] } = {};
+        const requests = [];
 
-        itemViews.forEach((itemView) => {
-            const isPartItemType: boolean = PartItemType.get().equals(itemView.getType());
-            const isLayoutItemType: boolean = LayoutItemType.get().equals(itemView.getType());
-            if (!isLayoutItemType && !isPartItemType) {
+        itemViews.forEach((itemView: ItemView) => {
+            if (!itemView.isPart() && !itemView.isLayout()) {
                 return;
             }
 
@@ -205,43 +202,34 @@ export class PageComponentsTreeGrid
                 return;
             }
 
-            const descKey = component.getDescriptorKey();
-            if (componentMap[descKey.toString()]) {
-                componentMap[descKey.toString()].push(component);
+            const descriptorKey = component.getDescriptorKey().toString();
+            if (componentMap[descriptorKey]) {
+                componentMap[descriptorKey].push(component);
             } else {
-                componentMap[descKey.toString()] = [component];
+                componentMap[descriptorKey] = [component];
             }
 
-            const appKey = descKey.getApplicationKey();
-            if (isLayoutItemType) {
-                layoutKeys.push(appKey);
-            } else {
-                partKeys.push(appKey);
+            if (itemView.isLayout() && layoutDescriptors.indexOf(descriptorKey) === -1) {
+                layoutDescriptors.push(descriptorKey);
+            } else if (itemView.isPart() && partDescriptors.indexOf(descriptorKey) === -1) {
+                partDescriptors.push(descriptorKey);
             }
         });
 
-        const requests = [];
-        if (partKeys.length > 0) {
-            requests.push(new GetPartDescriptorsByApplicationsRequest(partKeys).sendAndParse());
-        }
-        if (layoutKeys.length > 0) {
-            requests.push(new GetLayoutDescriptorsByApplicationsRequest(layoutKeys).sendAndParse());
-        }
-        return Q.all(requests).then((descriptorsArray) => {
-            descriptorsArray.forEach((descriptors: Descriptor[]) => {
-                descriptors.forEach(desc => {
-                    const components = componentMap[desc.getKey().toString()];
-                    if (components) {
-                        components.forEach(component => {
-                            component.setDescription(desc.getDescription());
-                            component.setIcon(desc.getIcon());
-                        });
-                    }
-                });
-            });
-        }).then(() => {
-            return itemViews;
-        });
+        layoutDescriptors.forEach((descriptor: string) => requests.push(new GetLayoutDescriptorRequest(descriptor).sendAndParse()));
+        partDescriptors.forEach((descriptor: string) => requests.push(new GetPartDescriptorRequest(descriptor).sendAndParse()));
+
+        return Q.all(requests).then((descriptors: Descriptor[]) =>
+            descriptors.forEach((descriptor: Descriptor) => {
+                const components = componentMap[descriptor.getKey().toString()];
+                if (components) {
+                    components.forEach(component => {
+                        component.setDescription(descriptor.getDescription());
+                        component.setIcon(descriptor.getIcon());
+                    });
+                }
+            })
+        ).then(() => itemViews);
     }
 
     private getDataChildren(data: ItemView): ItemView[] {
