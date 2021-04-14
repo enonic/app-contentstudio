@@ -1027,6 +1027,14 @@ export class ItemView
         return this.getParentItemView();
     }
 
+    isLayout(): boolean {
+        return LayoutItemType.get().equals(this.getType());
+    }
+
+    isPart(): boolean {
+        return PartItemType.get().equals(this.getType());
+    }
+
     getPageView(): PageView {
         let itemView: ItemView = this;
         while (!PageItemType.get().equals(itemView.getType())) {
@@ -1085,7 +1093,7 @@ export class ItemView
     }
 
     isContainer(): boolean {
-        return this.isDraggableView() || this.getType().equals(LayoutItemType.get());
+        return this.isDraggableView() || this.isLayout();
     }
 
     private isViewInsideSelectedContainer() {

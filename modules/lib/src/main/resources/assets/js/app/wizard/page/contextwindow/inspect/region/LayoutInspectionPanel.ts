@@ -3,12 +3,12 @@ import {
     DescriptorBasedComponentInspectionPanelConfig
 } from './DescriptorBasedComponentInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
-import {GetLayoutDescriptorByKeyRequest} from './GetLayoutDescriptorByKeyRequest';
 import {LayoutDescriptorDropdown} from './LayoutDescriptorDropdown';
 import {LayoutComponent} from '../../../../../page/region/LayoutComponent';
 import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
 import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {GetLayoutDescriptorRequest} from './GetLayoutDescriptorRequest';
 
 export class LayoutInspectionPanel
     extends DescriptorBasedComponentInspectionPanel<LayoutComponent, LayoutDescriptor> {
@@ -27,8 +27,8 @@ export class LayoutInspectionPanel
         return i18n('field.layout');
     }
 
-    protected createGetDescriptorRequest(key: DescriptorKey): GetLayoutDescriptorByKeyRequest {
-        return new GetLayoutDescriptorByKeyRequest(key);
+    protected createGetDescriptorRequest(key: DescriptorKey): GetLayoutDescriptorRequest {
+        return new GetLayoutDescriptorRequest(key.toString());
     }
 
     getName(): string {
