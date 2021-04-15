@@ -403,7 +403,7 @@ class ContentWizardPanel extends Page {
             this.saveScreenshot(contentBuilder.generateRandomName('err_open_wizard'));
             throw new Error("Content wizard was not loaded! " + err);
         }).then(() => {
-            return this.waitForSpinnerNotVisible(appConst.mediumTimeout);
+            return this.waitForSpinnerNotVisible(appConst.longTimeout);
         });
     }
 

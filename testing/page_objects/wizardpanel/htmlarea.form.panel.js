@@ -8,7 +8,8 @@ const InsertLinkDialog = require('./insert.link.modal.dialog.cke');
 
 const XPATH = {
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
-    ckeTextArea: `//div[contains(@id,'cke_TextArea')]`,
+    ckeTextArea: "//div[contains(@id,'cke_TextArea')]",
+    ckeToolbox: "//span[contains(@class,'cke_toolbox')]",
     insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
     insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,
     insertLinkButton: `//a[contains(@class,'cke_button__link')]`,
@@ -34,7 +35,8 @@ const XPATH = {
     increaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Increase Indent')]`,
     decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
     formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
-
+    addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
+    removeAreaButton: "//div[contains(@id,'HtmlArea')]//button[@class='remove-button']",
     maximizeButton: `//a[contains(@class,'cke_button') and contains(@class,'maximize')]`,
     typeText: function (id, text) {
         return `CKEDITOR.instances['${id}'].setData('${text}')`;
@@ -57,6 +59,24 @@ class HtmlAreaForm extends Page {
         return lib.FORM_VIEW + XPATH.validationRecording;
     }
 
+    get addButton() {
+        return lib.FORM_VIEW + XPATH.addButton;
+    }
+
+    waitForAddButtonDisplayed() {
+        return this.waitForElementDisplayed(this.addButton, appConst.mediumTimeout);
+    }
+
+    waitForAddButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.addButton, appConst.mediumTimeout);
+    }
+
+    async clickOnAddButton() {
+        await this.waitForAddButtonDisplayed();
+        await this.clickOnElement(this.addButton);
+        return await this.pause(300);
+    }
+
     async type(data) {
         await this.typeTextInHtmlArea(data.texts);
         return await this.pause(300);
@@ -75,6 +95,12 @@ class HtmlAreaForm extends Page {
         });
     }
 
+    async insertTextInHtmlArea(index, text) {
+        let ids = await this.getIdOfHtmlAreas();
+        await this.execute(XPATH.typeText(ids[index], text));
+        return await this.pause(300);
+    }
+
     async getIdOfHtmlAreas() {
         let selector = lib.FORM_VIEW + lib.TEXT_AREA;
         let elems = await this.findElements(selector);
@@ -85,15 +111,19 @@ class HtmlAreaForm extends Page {
         return Promise.all(ids);
     }
 
-    clearHtmlArea(index) {
-        return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout).then(() => {
-            return this.getIdOfHtmlAreas();
-        }).then(ids => {
-            const arr = [].concat(ids);
-            return this.execute(XPATH.typeText(arr[index], ''));
-        }).then(() => {
-            return this.pause(300);
-        });
+    async isEditorToolbarVisible(index) {
+        let elements = await this.findElements(XPATH.ckeToolbox);
+        if (elements.length > 0) {
+            return await elements[index].isDisplayed();
+        }
+    }
+
+    async clearHtmlArea(index) {
+        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
+        let ids = await this.getIdOfHtmlAreas();
+        const arr = [].concat(ids);
+        await this.execute(XPATH.typeText(arr[index], ''));
+        return await this.pause(300);
     }
 
     getTextFromHtmlArea() {
@@ -114,12 +144,13 @@ class HtmlAreaForm extends Page {
         })
     }
 
-    showToolbar() {
-        return this.clickOnElement(XPATH.ckeTextArea).then(() => {
-            return this.waitUntilDisplayed(`//span[contains(@class,'cke_toolbox')]`, appConst.mediumTimeout).catch(err => {
-                throw new Error('CKE toolbar is not shown in ' + appConst.mediumTimeout + ' ' + err);
-            })
-        });
+    async showToolbar() {
+        try {
+            await this.clickOnElement(XPATH.ckeTextArea);
+            return await this.waitUntilDisplayed(XPATH.ckeToolbox, appConst.mediumTimeout)
+        } catch (err) {
+            throw new Error('CKE toolbar is not shown in ' + appConst.mediumTimeout + ' ' + err);
+        }
     }
 
     async showToolbarAndClickOnInsertImageButton() {
@@ -127,7 +158,7 @@ class HtmlAreaForm extends Page {
         await this.clickOnElement(XPATH.ckeTextArea);
         await this.waitForElementDisplayed(XPATH.insertImageButton, appConst.mediumTimeout);
         await this.clickOnElement(XPATH.insertImageButton);
-        return this.pause(300);
+        return await this.pause(300);
     }
 
     //double clicks on the html-area
@@ -165,7 +196,7 @@ class HtmlAreaForm extends Page {
         await this.clickOnElement(XPATH.ckeTextArea)
         await this.waitForElementDisplayed(XPATH.insertAnchorButton, appConst.mediumTimeout);
         await this.clickOnElement(XPATH.insertAnchorButton);
-        return this.pause(300);
+        return await this.pause(300);
     }
 
     async showToolbarAndClickOnTableButton() {
@@ -348,5 +379,11 @@ class HtmlAreaForm extends Page {
             throw new Error('getting Validation text: ' + err);
         }
     }
-};
+
+    async removeTextArea(index) {
+        let elems = await this.findElements(XPATH.removeAreaButton);
+        await elems[index].click();
+    }
+}
+
 module.exports = HtmlAreaForm;
