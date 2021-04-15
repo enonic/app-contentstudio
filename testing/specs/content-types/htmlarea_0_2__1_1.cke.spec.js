@@ -27,6 +27,27 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             await studioUtils.doAddSite(SITE);
         });
 
+    it("GIVEN new wizard for htmlArea(0:0) is opened WHEN button 'Add' clicked 3 times THEN button 'Add' remains visible",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let htmlAreaForm = new HtmlAreaForm();
+            //1. Open new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_0');
+            await contentWizard.pause(1000);
+            await contentWizard.typeDisplayName(contentBuilder.generateRandomName('area'));
+            //2. Click on Add button 3 times:
+            await htmlAreaForm.clickOnAddButton();
+            await htmlAreaForm.clickOnAddButton();
+            await htmlAreaForm.clickOnAddButton();
+            //3 . Verify that 'Add' button is visible:
+            await htmlAreaForm.waitForAddButtonDisplayed();
+            //4. Verify that 4 areas are present in the form:
+            let ids = await htmlAreaForm.getIdOfHtmlAreas();
+            assert.equal(ids.length, 4, "Four html-area should be displayed now");
+            let result = await contentWizard.isContentInvalid();
+            assert.isFalse(result, "The content should be valid, because these html areas are not required inputs");
+        });
+
     it(`GIVEN wizard for 'htmlArea 1:1' is opened WHEN display name has been typed THEN the content remains not valid`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -70,7 +91,7 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             //3. Insert a text in html-area
             await htmlAreaForm.insertTextInHtmlArea(0, "test");
             let result = await contentWizard.isContentInvalid();
-            assert.isFalse(result, "The content should be valid, because the rquired html area is filled");
+            assert.isFalse(result, "The content should be valid, because the required html area is filled");
             //4. Verify that 'Mark as ready' button is displayed in the wizard toolbar:
             await contentWizard.waitForMarkAsReadyButtonVisible();
         });
