@@ -1,22 +1,13 @@
 import {LayoutDescriptorJson} from 'lib-admin-ui/content/page/region/LayoutDescriptorJson';
 import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
-import {LayoutDescriptorResourceRequest} from '../../../../../resource/LayoutDescriptorResourceRequest';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 
 export class GetLayoutDescriptorRequest
-    extends LayoutDescriptorResourceRequest<LayoutDescriptor> {
-
-    private readonly key: string;
+    extends GetComponentDescriptorRequest<LayoutDescriptor> {
 
     constructor(key: string) {
-        super();
-        this.key = key;
-    }
-
-    getParams(): Object {
-        return {
-            key: this.key
-        };
+        super(key, 'layout');
     }
 
     protected parseResponse(response: JsonResponse<LayoutDescriptorJson>): LayoutDescriptor {
