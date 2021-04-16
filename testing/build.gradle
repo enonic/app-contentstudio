@@ -59,6 +59,7 @@ ext {
     xpServer = new ServerInstance()
     contentStudioFile = "$deployDir${File.separator}contentstudio-${appVersion}.jar"
     contentStudioAppUrl = "https://repo.enonic.com/dev/com/enonic/app/contentstudio/${appVersion}/contentstudio-${appVersion}.jar"
+    archiveClassifier = "test"
 }
 
 task ensureScreenshotsDirectory {
