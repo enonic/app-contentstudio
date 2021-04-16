@@ -123,14 +123,14 @@ task zipScreenshots( type: Zip ) {
     from screenshotsDir
     include '*'
     include '*/*'
-    classifier '$archiveClassifier$-screenshots'
+    classifier "${archiveClassifier}-screenshots"
 }
 
 task zipReport( type: Zip ) {
     from mochaResultsDir
     include '*'
     include '*/*'
-    classifier '$archiveClassifier$-mochaReport'
+    classifier "${archiveClassifier}-mochaReport"
 }
 
 publishing {
