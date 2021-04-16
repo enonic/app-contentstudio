@@ -3,12 +3,12 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultModels} from './DefaultModels';
 import {GetDefaultPageTemplateRequest} from './GetDefaultPageTemplateRequest';
-import {GetPageDescriptorByKeyRequest} from '../../resource/GetPageDescriptorByKeyRequest';
 import {PageTemplate} from '../../content/PageTemplate';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
+import {GetComponentDescriptorRequest} from '../../resource/GetComponentDescriptorRequest';
 
 export interface DefaultModelsFactoryConfig {
 
@@ -29,7 +29,7 @@ export class DefaultModelsFactory {
                 let defaultPageTemplateDescriptorPromise = null;
                 if (defaultPageTemplate && defaultPageTemplate.isPage()) {
                     defaultPageTemplateDescriptorPromise =
-                        new GetPageDescriptorByKeyRequest(defaultPageTemplate.getController()).sendAndParse();
+                        new GetComponentDescriptorRequest(defaultPageTemplate.getController().toString()).sendAndParse();
                 } else if (defaultPageTemplate && !defaultPageTemplate.isPage()) {
                     defaultPageTemplate = null;
                 }

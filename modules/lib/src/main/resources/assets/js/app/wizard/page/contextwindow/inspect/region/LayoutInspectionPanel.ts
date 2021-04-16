@@ -3,34 +3,33 @@ import {
     DescriptorBasedComponentInspectionPanelConfig
 } from './DescriptorBasedComponentInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
-import {LayoutDescriptorDropdown} from './LayoutDescriptorDropdown';
 import {LayoutComponent} from '../../../../../page/region/LayoutComponent';
-import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
-import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {GetLayoutDescriptorRequest} from './GetLayoutDescriptorRequest';
+import {LayoutComponentType} from '../../../../../page/region/LayoutComponentType';
+import {Descriptor} from '../../../../../page/Descriptor';
 
 export class LayoutInspectionPanel
-    extends DescriptorBasedComponentInspectionPanel<LayoutComponent, LayoutDescriptor> {
+    extends DescriptorBasedComponentInspectionPanel<LayoutComponent, Descriptor> {
 
     constructor() {
         super(<DescriptorBasedComponentInspectionPanelConfig>{
-            iconClass: ItemViewIconClassResolver.resolveByType('layout', 'icon-xlarge')
+            iconClass: ItemViewIconClassResolver.resolveByType(LayoutComponentType.get().getShortName(), 'icon-xlarge'),
+            componentType: LayoutComponentType.get()
         });
     }
-
+/*
     protected createSelector(): LayoutDescriptorDropdown {
         return new LayoutDescriptorDropdown();
     }
-
+*/
     protected getFormName(): string {
         return i18n('field.layout');
     }
-
-    protected createGetDescriptorRequest(key: DescriptorKey): GetLayoutDescriptorRequest {
-        return new GetLayoutDescriptorRequest(key.toString());
+/*
+    protected createGetDescriptorRequest(key: DescriptorKey): GetComponentDescriptorRequest {
+        return new GetComponentDescriptorRequest(key.toString(), LayoutComponentType.NAME);
     }
-
+*/
     getName(): string {
         return i18n('widget.components.insert.layout');
     }

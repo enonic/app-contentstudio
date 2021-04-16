@@ -5,8 +5,10 @@ export class FragmentComponentType
 
     private static INSTANCE: FragmentComponentType = new FragmentComponentType();
 
+    static NAME: string = 'fragment';
+
     constructor() {
-        super('fragment');
+        super(FragmentComponentType.NAME);
     }
 
     public static get(): FragmentComponentType {

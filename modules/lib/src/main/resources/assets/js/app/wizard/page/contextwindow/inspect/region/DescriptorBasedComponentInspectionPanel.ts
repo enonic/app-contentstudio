@@ -1,25 +1,28 @@
 import * as Q from 'q';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {DescriptorBasedComponent} from '../../../../../page/region/DescriptorBasedComponent';
 import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
 import {DescriptorBasedDropdownForm} from './DescriptorBasedDropdownForm';
-import {ComponentDescriptorDropdown} from './ComponentDescriptorDropdown';
+import {ComponentDescriptorsDropdown} from './ComponentDescriptorsDropdown';
 import {SiteModel} from '../../../../../site/SiteModel';
 import {FormView} from 'lib-admin-ui/form/FormView';
-import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
-import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
+import {Descriptor} from '../../../../../page/Descriptor';
+import {DescriptorKey} from '../../../../../page/DescriptorKey';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {Form} from 'lib-admin-ui/form/Form';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {ApplicationEvent} from 'lib-admin-ui/application/ApplicationEvent';
+import {ComponentType} from '../../../../../page/region/ComponentType';
+import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
+import {DescriptorViewer} from '../DescriptorViewer';
 
 export interface DescriptorBasedComponentInspectionPanelConfig
     extends ComponentInspectionPanelConfig {
 
+    componentType: ComponentType;
 }
 
 export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends DescriptorBasedComponent, DESCRIPTOR extends Descriptor>
@@ -29,7 +32,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private form: DescriptorBasedDropdownForm;
 
-    private selector: ComponentDescriptorDropdown<DESCRIPTOR>;
+    private selector: ComponentDescriptorsDropdown;
 
     private componentPropertyChangedEventHandler: (event: ComponentPropertyChangedEvent) => void;
 
@@ -37,9 +40,12 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private debouncedDescriptorsReload: () => void;
 
+    private readonly componentType: ComponentType;
+
     constructor(config: DescriptorBasedComponentInspectionPanelConfig) {
         super(config);
 
+        this.componentType = config.componentType;
         this.initElements();
         this.initListeners();
     }
@@ -137,9 +143,19 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         }
     }
 
-    protected abstract createGetDescriptorRequest(key: DescriptorKey): ResourceRequest<DESCRIPTOR>;
+    //protected abstract createGetDescriptorRequest(key: DescriptorKey): GetComponentDescriptorRequest;
 
-    protected abstract createSelector(): ComponentDescriptorDropdown<DESCRIPTOR>;
+    //protected abstract createSelector(): ComponentDescriptorsDropdown;
+    protected createGetDescriptorRequest(key: DescriptorKey): GetComponentDescriptorRequest {
+        return new GetComponentDescriptorRequest(key.toString(), this.componentType);
+    }
+    protected createSelector(): ComponentDescriptorsDropdown {
+        return new ComponentDescriptorsDropdown({
+            optionDisplayValueViewer: new DescriptorViewer(),
+            dataIdProperty: 'value',
+            noOptionsText: 'No components available'
+        }).setComponentType(this.componentType);
+    }
 
     protected abstract getFormName(): string;
 

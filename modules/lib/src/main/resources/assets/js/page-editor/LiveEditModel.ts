@@ -3,7 +3,6 @@ import {showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {PageModel, SetController, SetTemplate} from './PageModel';
 import {SiteModel} from '../app/site/SiteModel';
-import {GetPageDescriptorByKeyRequest} from '../app/resource/GetPageDescriptorByKeyRequest';
 import {GetPageTemplateByKeyRequest} from '../app/resource/GetPageTemplateByKeyRequest';
 import {ContentFormContext} from '../app/ContentFormContext';
 import {Content} from '../app/content/Content';
@@ -13,9 +12,10 @@ import {Page} from '../app/page/Page';
 import {Regions} from '../app/page/region/Regions';
 import {PageTemplateKey} from '../app/page/PageTemplateKey';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
+import {GetComponentDescriptorRequest} from '../app/resource/GetComponentDescriptorRequest';
+import {Descriptor} from '../app/page/Descriptor';
+import {DescriptorKey} from '../app/page/DescriptorKey';
 
 export class LiveEditModel {
 
@@ -36,7 +36,7 @@ export class LiveEditModel {
         this.formContext = builder.formContext;
     }
 
-    init(defaultTemplate: PageTemplate, defaultTemplateDescriptor: PageDescriptor): Q.Promise<PageModel> {
+    init(defaultTemplate: PageTemplate, defaultTemplateDescriptor: Descriptor): Q.Promise<PageModel> {
 
         return LiveEditModelInitializer.initPageModel(this, this.content, defaultTemplate, defaultTemplateDescriptor)
             .then((pageModel: PageModel) => {
@@ -159,7 +159,7 @@ export class LiveEditModelInitializer {
     }
 
     static initPageModel(liveEditModel: LiveEditModel, content: Content, defaultPageTemplate: PageTemplate,
-                         defaultTemplateDescriptor: PageDescriptor): Q.Promise<PageModel> {
+                         defaultTemplateDescriptor: Descriptor): Q.Promise<PageModel> {
 
         const promises: Q.Promise<any>[] = [];
 
@@ -214,8 +214,8 @@ export class LiveEditModelInitializer {
                                                     pageModel: PageModel,
                                                     promises: Q.Promise<any>[]): void {
         const pageDescriptorKey: DescriptorKey = pageTemplate.getController();
-        const pageDescriptorPromise: Q.Promise<PageDescriptor> = this.loadPageDescriptor(pageDescriptorKey);
-        pageDescriptorPromise.then((pageDescriptor: PageDescriptor) => {
+        const pageDescriptorPromise: Q.Promise<Descriptor> = this.loadPageDescriptor(pageDescriptorKey);
+        pageDescriptorPromise.then((pageDescriptor: Descriptor) => {
 
             const config: PropertyTree = pageTemplate.hasConfig() ? pageTemplate.getPage().getConfig().copy() : new PropertyTree();
 
@@ -249,8 +249,8 @@ export class LiveEditModelInitializer {
         pageTemplatePromise.then((pageTemplate: PageTemplate) => {
 
             const pageDescriptorKey: DescriptorKey = pageTemplate.getController();
-            const pageDescriptorPromise: Q.Promise<PageDescriptor> = LiveEditModelInitializer.loadPageDescriptor(pageDescriptorKey);
-            pageDescriptorPromise.then((pageDescriptor: PageDescriptor) => {
+            const pageDescriptorPromise: Q.Promise<Descriptor> = LiveEditModelInitializer.loadPageDescriptor(pageDescriptorKey);
+            pageDescriptorPromise.then((pageDescriptor: Descriptor) => {
 
                 const config: PropertyTree = content.getPage().hasNonEmptyConfig()
                                              ? content.getPage().getConfig().copy()
@@ -273,8 +273,8 @@ export class LiveEditModelInitializer {
         const pageDescriptorKey: DescriptorKey = page.getController();
 
         if (pageDescriptorKey) {
-            const pageDescriptorPromise: Q.Promise<PageDescriptor> = this.loadPageDescriptor(pageDescriptorKey);
-            pageDescriptorPromise.then((pageDescriptor: PageDescriptor) => {
+            const pageDescriptorPromise: Q.Promise<Descriptor> = this.loadPageDescriptor(pageDescriptorKey);
+            pageDescriptorPromise.then((pageDescriptor: Descriptor) => {
                 this.initPageController(page, pageModel, pageDescriptor);
             });
             promises.push(pageDescriptorPromise);
@@ -292,7 +292,7 @@ export class LiveEditModelInitializer {
         pageModel.initController(setController);
     }
 
-    private static initPageController(page: Page, pageModel: PageModel, pageDescriptor: PageDescriptor): void {
+    private static initPageController(page: Page, pageModel: PageModel, pageDescriptor: Descriptor): void {
 
         const config: PropertyTree = page.hasConfig() ? page.getConfig().copy() : new PropertyTree();
 
@@ -345,9 +345,9 @@ export class LiveEditModelInitializer {
         return deferred.promise;
     }
 
-    private static loadPageDescriptor(key: DescriptorKey): Q.Promise<PageDescriptor> {
-        let deferred: Q.Deferred<PageDescriptor> = Q.defer<PageDescriptor>();
-        new GetPageDescriptorByKeyRequest(key).sendAndParse().then((pageDescriptor: PageDescriptor) => {
+    private static loadPageDescriptor(key: DescriptorKey): Q.Promise<Descriptor> {
+        let deferred: Q.Deferred<Descriptor> = Q.defer<Descriptor>();
+        new GetComponentDescriptorRequest(key.toString()).sendAndParse().then((pageDescriptor: Descriptor) => {
             deferred.resolve(pageDescriptor);
         }).catch(() => {
             deferred.reject(new Exception(i18n('live.view.page.error.descriptornotfound', key), ExceptionType.WARNING));

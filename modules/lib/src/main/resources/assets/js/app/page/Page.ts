@@ -3,7 +3,6 @@ import {Cloneable} from 'lib-admin-ui/Cloneable';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {PropertyTreeHelper} from 'lib-admin-ui/util/PropertyTreeHelper';
 import {PageTemplateKey} from './PageTemplateKey';
 import {Regions} from './region/Regions';
@@ -24,6 +23,7 @@ import {TextComponentType} from './region/TextComponentType';
 import {PartComponentType} from './region/PartComponentType';
 import {ComponentJson} from './region/ComponentJson';
 import {ConfigBasedComponent} from './region/ConfigBasedComponent';
+import {DescriptorKey} from './DescriptorKey';
 
 export class Page
     implements Equitable, Cloneable {

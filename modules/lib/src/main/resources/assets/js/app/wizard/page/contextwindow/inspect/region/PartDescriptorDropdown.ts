@@ -1,10 +1,11 @@
 import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
 import {PartDescriptorLoader} from './PartDescriptorLoader';
 import {DescriptorViewer} from '../DescriptorViewer';
-import {ComponentDescriptorDropdown} from './ComponentDescriptorDropdown';
-
+import {ComponentDescriptorsDropdown} from './ComponentDescriptorsDropdown';
+import {ComponentDescriptorsLoader} from './ComponentDescriptorsLoader';
+/*
 export class PartDescriptorDropdown
-    extends ComponentDescriptorDropdown<PartDescriptor> {
+    extends ComponentDescriptorsDropdown {
 
     constructor() {
 
@@ -15,7 +16,8 @@ export class PartDescriptorDropdown
         });
     }
 
-    protected createLoader(): PartDescriptorLoader {
+    protected createLoader(): ComponentDescriptorsLoader {
         return new PartDescriptorLoader();
     }
 }
+*/

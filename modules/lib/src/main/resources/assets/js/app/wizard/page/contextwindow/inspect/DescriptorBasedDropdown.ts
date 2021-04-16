@@ -1,17 +1,17 @@
 import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {RichDropdown} from 'lib-admin-ui/ui/selector/dropdown/RichDropdown';
-import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
+import {Descriptor} from '../../../../page/Descriptor';
+import {DescriptorKey} from '../../../../page/DescriptorKey';
 
-export class DescriptorBasedDropdown<DESCRIPTOR extends Descriptor>
-    extends RichDropdown<DESCRIPTOR> {
+export class DescriptorBasedDropdown
+    extends RichDropdown<Descriptor> {
 
-    protected createOption(descriptor: DESCRIPTOR): Option<DESCRIPTOR> {
+    protected createOption(descriptor: Descriptor): Option<Descriptor> {
         let indices: string[] = [];
         indices.push(descriptor.getDisplayName());
         indices.push(descriptor.getName().toString());
 
-        return Option.create<DESCRIPTOR>()
+        return Option.create<Descriptor>()
                 .setValue(descriptor.getKey().toString())
                 .setDisplayValue(descriptor)
                 .setIndices(indices)
@@ -33,7 +33,7 @@ export class DescriptorBasedDropdown<DESCRIPTOR extends Descriptor>
         }
     }
 
-    getDescriptor(descriptorKey: DescriptorKey): DESCRIPTOR {
+    getDescriptor(descriptorKey: DescriptorKey): Descriptor {
         if (descriptorKey) {
             let option = this.getOptionByValue(descriptorKey.toString());
             if (option) {

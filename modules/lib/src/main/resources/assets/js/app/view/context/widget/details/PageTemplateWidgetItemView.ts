@@ -11,7 +11,6 @@ import {PEl} from 'lib-admin-ui/dom/PEl';
 import {WidgetItemView} from '../../WidgetItemView';
 import {DefaultModels} from '../../../../wizard/page/DefaultModels';
 import {DefaultModelsFactory, DefaultModelsFactoryConfig} from '../../../../wizard/page/DefaultModelsFactory';
-import {GetPageDescriptorByKeyRequest} from '../../../../resource/GetPageDescriptorByKeyRequest';
 import {GetPageTemplateByKeyRequest} from '../../../../resource/GetPageTemplateByKeyRequest';
 import {ContentQueryRequest} from '../../../../resource/ContentQueryRequest';
 import {GetNearestSiteRequest} from '../../../../resource/GetNearestSiteRequest';
@@ -37,6 +36,8 @@ import {ContentIds} from '../../../../ContentIds';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../../resource/ContentSummaryAndCompareStatusFetcher';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentServerChangeItem} from '../../../../event/ContentServerChangeItem';
+import {GetComponentDescriptorRequest} from '../../../../resource/GetComponentDescriptorRequest';
+import {Descriptor} from '../../../../page/Descriptor';
 
 export class PageTemplateWidgetItemView
     extends WidgetItemView {
@@ -156,8 +157,8 @@ export class PageTemplateWidgetItemView
 
             pageTemplateViewer.setPageMode(PageMode.FORCED_CONTROLLER);
 
-            return new GetPageDescriptorByKeyRequest(content.getPage().getController()).sendAndParse()
-                .then((pageDescriptor: PageDescriptor) => {
+            return new GetComponentDescriptorRequest(content.getPage().getController().toString()).sendAndParse()
+                .then((pageDescriptor: Descriptor) => {
                     pageTemplateViewer.setPageController(pageDescriptor);
                     pageTemplateViewer.setContent(this.content);
 
@@ -214,7 +215,7 @@ export class PageTemplateWidgetItemView
 class PageTemplateViewer {
     private pageMode: PageMode;
     private pageTemplate: PageTemplate;
-    private pageController: PageDescriptor;
+    private pageController: Descriptor;
     private content: ContentSummary;
 
     constructor() {
@@ -237,7 +238,7 @@ class PageTemplateViewer {
         return this.pageTemplate;
     }
 
-    setPageController(pageController: PageDescriptor) {
+    setPageController(pageController: Descriptor) {
         this.pageController = pageController;
     }
 

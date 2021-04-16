@@ -2,7 +2,7 @@ import {Region} from './Region';
 import {Regions} from './Regions';
 import {LayoutComponent} from './LayoutComponent';
 import {Component} from './Component';
-import {RegionDescriptor} from 'lib-admin-ui/content/page/region/RegionDescriptor';
+import {RegionDescriptor} from '../RegionDescriptor';
 
 export class LayoutRegionsMerger {
 

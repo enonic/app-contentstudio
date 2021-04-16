@@ -5,8 +5,10 @@ export class LayoutComponentType
 
     private static INSTANCE: LayoutComponentType = new LayoutComponentType();
 
+    static NAME: string = 'layout';
+
     constructor() {
-        super('layout');
+        super(LayoutComponentType.NAME);
     }
 
     public static get(): LayoutComponentType {

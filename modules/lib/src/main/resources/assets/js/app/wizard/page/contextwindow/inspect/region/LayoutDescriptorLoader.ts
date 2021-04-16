@@ -1,7 +1,7 @@
 import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
 import {GetLayoutDescriptorsRequest} from './GetLayoutDescriptorsRequest';
-import {ComponentDescriptorLoader} from './ComponentDescriptorLoader';
-
+import {ComponentDescriptorLoader} from './ComponentDescriptorsLoader';
+/*
 export class LayoutDescriptorLoader
     extends ComponentDescriptorLoader<LayoutDescriptor> {
 
@@ -9,3 +9,4 @@ export class LayoutDescriptorLoader
         return new GetLayoutDescriptorsRequest();
     }
 }
+*/

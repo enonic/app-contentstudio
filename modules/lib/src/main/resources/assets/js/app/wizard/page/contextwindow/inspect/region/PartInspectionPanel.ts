@@ -1,34 +1,24 @@
 import {
-    DescriptorBasedComponentInspectionPanel,
-    DescriptorBasedComponentInspectionPanelConfig
+    DescriptorBasedComponentInspectionPanel, DescriptorBasedComponentInspectionPanelConfig
 } from './DescriptorBasedComponentInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
-import {PartDescriptorDropdown} from './PartDescriptorDropdown';
 import {PartComponent} from '../../../../../page/region/PartComponent';
-import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
-import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {GetPartDescriptorRequest} from './GetPartDescriptorRequest';
+import {PartComponentType} from '../../../../../page/region/PartComponentType';
+import {Descriptor} from '../../../../../page/Descriptor';
 
 export class PartInspectionPanel
-    extends DescriptorBasedComponentInspectionPanel<PartComponent, PartDescriptor> {
+    extends DescriptorBasedComponentInspectionPanel<PartComponent, Descriptor> {
 
     constructor() {
         super(<DescriptorBasedComponentInspectionPanelConfig>{
-            iconClass: ItemViewIconClassResolver.resolveByType('part', 'icon-xlarge')
+            iconClass: ItemViewIconClassResolver.resolveByType(PartComponentType.get().getShortName(), 'icon-xlarge'),
+            componentType: PartComponentType.get()
         });
-    }
-
-    protected createSelector(): PartDescriptorDropdown {
-        return new PartDescriptorDropdown();
     }
 
     protected getFormName(): string {
         return i18n('field.part');
-    }
-
-    protected createGetDescriptorRequest(key: DescriptorKey): GetPartDescriptorRequest {
-        return new GetPartDescriptorRequest(key.toString());
     }
 
     getName(): string {

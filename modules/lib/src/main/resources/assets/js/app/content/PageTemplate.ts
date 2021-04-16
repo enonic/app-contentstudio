@@ -3,18 +3,18 @@ import {Equitable} from 'lib-admin-ui/Equitable';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {Property} from 'lib-admin-ui/data/Property';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {Content, ContentBuilder} from './Content';
 import {ContentJson} from './ContentJson';
 import {PageMode} from '../page/PageMode';
 import {PageTemplateKey} from '../page/PageTemplateKey';
 import {Regions} from '../page/region/Regions';
+import {DescriptorKey} from '../page/DescriptorKey';
 
 export class PageTemplate
     extends Content
     implements Equitable {
 
-    private canRender: ContentTypeName[];
+    private readonly canRender: ContentTypeName[];
 
     constructor(builder: PageTemplateBuilder) {
 

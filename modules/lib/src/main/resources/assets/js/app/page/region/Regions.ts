@@ -9,7 +9,7 @@ import {RegionRemovedEvent} from './RegionRemovedEvent';
 import {RegionJson} from './RegionJson';
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {RegionPath} from './RegionPath';
-import {RegionDescriptor} from 'lib-admin-ui/content/page/region/RegionDescriptor';
+import {RegionDescriptor} from '../RegionDescriptor';
 
 export class Regions
     implements Equitable {

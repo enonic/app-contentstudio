@@ -1,8 +1,8 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
 import {PageDescriptorsJson} from 'lib-admin-ui/content/page/PageDescriptorsJson';
-import {SchemaFilterResourceRequest} from '../../../../../resource/SchemaFilterResourceRequest';
-
+import {SchemaFilterResourceRequest} from '../../../../../resource/GetComponentDescriptorsRequest';
+/*
 export class GetLayoutDescriptorsRequest
     extends SchemaFilterResourceRequest<LayoutDescriptor[]> {
 
@@ -15,3 +15,4 @@ export class GetLayoutDescriptorsRequest
         return response.getResult().descriptors.map((descJson) => LayoutDescriptor.fromJson(descJson));
     }
 }
+*/

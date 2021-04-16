@@ -1,18 +1,18 @@
 import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {PartComponentView} from './PartComponentView';
-import {PartDescriptorComboBox} from './PartDescriptorComboBox';
-import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
-import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
 import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {H2El} from 'lib-admin-ui/dom/H2El';
 import {H3El} from 'lib-admin-ui/dom/H3El';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ComponentDescriptorsComboBox} from '../ComponentDescriptorsComboBox';
+import {Descriptor} from '../../app/page/Descriptor';
+import {PartComponentType} from '../../app/page/region/PartComponentType';
 
 export class PartPlaceholder
     extends ItemViewPlaceholder {
 
-    private comboBox: PartDescriptorComboBox;
+    private comboBox: ComponentDescriptorsComboBox;
 
     private displayName: H2El;
 
@@ -24,14 +24,14 @@ export class PartPlaceholder
 
         this.partComponentView = partView;
 
-        this.comboBox = new PartDescriptorComboBox();
+        this.comboBox = new ComponentDescriptorsComboBox(PartComponentType.get());
         this.comboBox.setContentId(partView.getLiveEditModel().getContent().getContentId());
 
         this.appendChild(this.comboBox);
 
         const partComponent = this.partComponentView.getComponent();
 
-        this.comboBox.onOptionSelected((event: SelectedOptionEvent<PartDescriptor>) => {
+        this.comboBox.onOptionSelected((event: SelectedOptionEvent<Descriptor>) => {
             this.partComponentView.showLoadingSpinner();
             const descriptor: Descriptor = event.getSelectedOption().getOption().getDisplayValue();
             partComponent.setDescriptor(descriptor);

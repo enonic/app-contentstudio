@@ -1,10 +1,10 @@
 import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
 import {LayoutDescriptorLoader} from './LayoutDescriptorLoader';
 import {DescriptorViewer} from '../DescriptorViewer';
-import {ComponentDescriptorDropdown} from './ComponentDescriptorDropdown';
-
+import {ComponentDescriptorsDropdown} from './ComponentDescriptorsDropdown';
+/*
 export class LayoutDescriptorDropdown
-    extends ComponentDescriptorDropdown<LayoutDescriptor> {
+    extends ComponentDescriptorsDropdown<LayoutDescriptor> {
 
     constructor() {
 
@@ -19,3 +19,4 @@ export class LayoutDescriptorDropdown
         return new LayoutDescriptorLoader();
     }
 }
+*/

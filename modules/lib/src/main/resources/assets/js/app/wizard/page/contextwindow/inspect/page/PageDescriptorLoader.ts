@@ -1,3 +1,4 @@
+/*
 import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {DescriptorByDisplayNameComparator} from '../DescriptorByDisplayNameComparator';
 import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
@@ -27,3 +28,4 @@ export class PageDescriptorLoader
         this.request.setContentId(contentId);
     }
 }
+*/
