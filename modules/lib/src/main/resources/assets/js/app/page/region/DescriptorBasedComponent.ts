@@ -1,11 +1,11 @@
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
-import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
 import {ComponentName} from './ComponentName';
 import {DescriptorBasedComponentJson} from './DescriptorBasedComponentJson';
 import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Equitable} from 'lib-admin-ui/Equitable';
+import {DescriptorKey} from '../DescriptorKey';
+import {Descriptor} from '../Descriptor';
 
 export abstract class DescriptorBasedComponent
     extends ConfigBasedComponent {

@@ -14,19 +14,20 @@ import {PageTemplate} from '../../../../../content/PageTemplate';
 import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
 import {PageTemplateKey} from '../../../../../page/PageTemplateKey';
 import {PageTemplateAndControllerOption, PageTemplateAndSelectorViewer} from './PageTemplateAndSelectorViewer';
-import {PageDescriptorLoader} from './PageDescriptorLoader';
+//import {PageDescriptorLoader} from './PageDescriptorLoader';
 import {PageControllerOption} from './PageControllerOption';
-import {GetPageDescriptorByKeyRequest} from '../../../../../resource/GetPageDescriptorByKeyRequest';
 import {PageMode} from '../../../../../page/PageMode';
 import {Dropdown, DropdownConfig} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {LoadedDataEvent} from 'lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {ContentServerChangeItem} from '../../../../../event/ContentServerChangeItem';
+import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
+import {Descriptor} from '../../../../../page/Descriptor';
+import {ComponentDescriptorsLoader} from '../region/ComponentDescriptorsLoader';
 
 export class PageTemplateAndControllerSelector
     extends Dropdown<PageTemplateAndControllerOption> {
@@ -144,9 +145,9 @@ export class PageTemplateAndControllerSelector
         const pageTemplate: PageTemplate = selectedOption.getData();
 
         if (pageTemplate) {
-            new GetPageDescriptorByKeyRequest(pageTemplate.getController())
+            new GetComponentDescriptorRequest(pageTemplate.getController().toString())
                 .sendAndParse()
-                .then((pageDescriptor: PageDescriptor) => {
+                .then((pageDescriptor: Descriptor) => {
                     const setTemplate = new SetTemplate(this).setTemplate(pageTemplate, pageDescriptor);
                     pageModel.setTemplate(setTemplate, true);
                 }).catch((reason: any) => {
@@ -166,7 +167,7 @@ export class PageTemplateAndControllerSelector
     }
 
     private doSelectController(selectedOption: PageControllerOption) {
-        const pageDescriptor: PageDescriptor = selectedOption.getData();
+        const pageDescriptor: Descriptor = selectedOption.getData();
         const setController = new SetController(this).setDescriptor(pageDescriptor).setConfig(new PropertyTree());
 
         this.liveEditModel.getPageModel().setController(setController);
@@ -230,12 +231,11 @@ export class PageTemplateAndControllerSelector
 
         const deferred = Q.defer<Option<PageControllerOption>[]>();
 
-        const loader = new PageDescriptorLoader();
-        loader.setContentId(this.liveEditModel.getContent().getContentId());
+        const loader = new ComponentDescriptorsLoader().setContentId(this.liveEditModel.getContent().getContentId());
 
-        loader.onLoadedData((event: LoadedDataEvent<PageDescriptor>) => {
+        loader.onLoadedData((event: LoadedDataEvent<Descriptor>) => {
             const options: Option<PageControllerOption>[] = event.getData().map(
-                (pageDescriptor: PageDescriptor) => PageTemplateAndControllerSelector.createControllerOption(pageDescriptor)
+                (pageDescriptor: Descriptor) => PageTemplateAndControllerSelector.createControllerOption(pageDescriptor)
             );
             deferred.resolve(options);
 
@@ -263,7 +263,7 @@ export class PageTemplateAndControllerSelector
             .build();
     }
 
-    private static createControllerOption(data: PageDescriptor): Option<PageControllerOption> {
+    private static createControllerOption(data: Descriptor): Option<PageControllerOption> {
         const value = data.getKey().toString();
         const displayValue = new PageControllerOption(data);
         const indices: string[] = [

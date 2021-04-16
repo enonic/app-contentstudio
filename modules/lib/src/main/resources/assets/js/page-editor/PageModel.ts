@@ -8,15 +8,15 @@ import {ComponentPropertyChangedEvent} from '../app/page/region/ComponentPropert
 import {Page, PageBuilder} from '../app/page/Page';
 import {PageTemplateKey} from '../app/page/PageTemplateKey';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Descriptor} from '../app/page/Descriptor';
 
 export class SetController {
 
     eventSource: any;
 
-    descriptor: PageDescriptor;
+    descriptor: Descriptor;
 
     regions: Regions;
 
@@ -26,7 +26,7 @@ export class SetController {
         this.eventSource = eventSource;
     }
 
-    setDescriptor(value: PageDescriptor): SetController {
+    setDescriptor(value: Descriptor): SetController {
         this.descriptor = value;
         return this;
     }
@@ -48,7 +48,7 @@ export class SetTemplate {
 
     template: PageTemplate;
 
-    descriptor: PageDescriptor;
+    descriptor: Descriptor;
 
     regions: Regions;
 
@@ -58,7 +58,7 @@ export class SetTemplate {
         this.eventSource = eventSource;
     }
 
-    setTemplate(template: PageTemplate, descriptor: PageDescriptor): SetTemplate {
+    setTemplate(template: PageTemplate, descriptor: Descriptor): SetTemplate {
         this.template = template;
         this.descriptor = descriptor;
         return this;
@@ -90,15 +90,15 @@ export class PageModel {
 
     private defaultTemplate: PageTemplate;
 
-    private defaultTemplateDescriptor: PageDescriptor;
+    private defaultTemplateDescriptor: Descriptor;
 
     private mode: PageMode;
 
-    private controller: PageDescriptor;
+    private controller: Descriptor;
 
     private template: PageTemplate;
 
-    private templateDescriptor: PageDescriptor;
+    private templateDescriptor: Descriptor;
 
     private regions: Regions;
 
@@ -126,7 +126,7 @@ export class PageModel {
 
     private customized: boolean;
 
-    constructor(liveEditModel: LiveEditModel, defaultTemplate: PageTemplate, defaultTemplateDescriptor: PageDescriptor,
+    constructor(liveEditModel: LiveEditModel, defaultTemplate: PageTemplate, defaultTemplateDescriptor: Descriptor,
                 pageMode: PageMode) {
         this.liveEditModel = liveEditModel;
         this.defaultTemplate = defaultTemplate;
@@ -161,7 +161,7 @@ export class PageModel {
         };
     }
 
-    update(defaultTemplate: PageTemplate, defaultTemplateDescriptor: PageDescriptor, pageMode: PageMode) {
+    update(defaultTemplate: PageTemplate, defaultTemplateDescriptor: Descriptor, pageMode: PageMode) {
         this.defaultTemplate = defaultTemplate;
         this.defaultTemplateDescriptor = defaultTemplateDescriptor;
 
@@ -434,7 +434,7 @@ export class PageModel {
         return this.defaultTemplate;
     }
 
-    getDefaultPageDescriptor(): PageDescriptor {
+    getDefaultPageDescriptor(): Descriptor {
         return this.defaultTemplateDescriptor;
     }
 
@@ -453,7 +453,7 @@ export class PageModel {
     /**
      * Return page descriptor depending on page mode
      */
-    getDescriptor(): PageDescriptor {
+    getDescriptor(): Descriptor {
         if (!this.isPageTemplate()) {
             if (this.mode === PageMode.FORCED_TEMPLATE) {
                 return this.templateDescriptor;
@@ -467,11 +467,11 @@ export class PageModel {
         return this.controller;
     }
 
-    getController(): PageDescriptor {
+    getController(): Descriptor {
         return this.controller;
     }
 
-    setControllerDescriptor(controller: PageDescriptor) {
+    setControllerDescriptor(controller: Descriptor) {
         this.controller = controller;
     }
 

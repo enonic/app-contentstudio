@@ -4,13 +4,14 @@ import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {SetController} from '../../../../../../page-editor/PageModel';
 import {ApplicationRemovedEvent} from '../../../../../site/ApplicationRemovedEvent';
-import {PageDescriptorLoader} from './PageDescriptorLoader';
 import {DescriptorBasedDropdown} from '../DescriptorBasedDropdown';
 import {DescriptorViewer} from '../DescriptorViewer';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {ComponentDescriptorsLoader} from '../region/ComponentDescriptorsLoader';
+import {Descriptor} from "../../../../../page/Descriptor";
 
 export class PageDescriptorDropdown
-    extends DescriptorBasedDropdown<PageDescriptor> {
+    extends DescriptorBasedDropdown {
 
     private loadedDataListeners: { (event: LoadedDataEvent<PageDescriptor>): void }[];
 
@@ -18,7 +19,7 @@ export class PageDescriptorDropdown
 
     constructor(model: LiveEditModel) {
         super({
-            optionDisplayValueViewer: new DescriptorViewer<PageDescriptor>(),
+            optionDisplayValueViewer: new DescriptorViewer(),
             dataIdProperty: 'value'
         }, 'page-controller');
 
@@ -29,16 +30,17 @@ export class PageDescriptorDropdown
     }
 
     load() {
-        (this.loader as PageDescriptorLoader).setContentId(this.liveEditModel.getContent().getContentId());
+        //(this.loader as PageDescriptorLoader).setContentId(this.liveEditModel.getContent().getContentId());
+        this.loader.setContentId(this.liveEditModel.getContent().getContentId());
 
         super.load();
     }
 
-    protected createLoader(): PageDescriptorLoader {
-        return new PageDescriptorLoader();
+    protected createLoader(): ComponentDescriptorsLoader {
+        return new ComponentDescriptorsLoader();
     }
 
-    handleLoadedData(event: LoadedDataEvent<PageDescriptor>) {
+    handleLoadedData(event: LoadedDataEvent<Descriptor>) {
         super.handleLoadedData(event);
         this.notifyLoadedData(event);
     }

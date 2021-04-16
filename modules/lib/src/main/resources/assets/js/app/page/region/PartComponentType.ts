@@ -5,8 +5,10 @@ export class PartComponentType
 
     private static INSTANCE: PartComponentType = new PartComponentType();
 
+    static NAME: string = 'layout';
+
     constructor() {
-        super('part');
+        super(PartComponentType.NAME);
     }
 
     public static get(): PartComponentType {

@@ -1,7 +1,8 @@
+/*
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PartDescriptor} from 'lib-admin-ui/content/page/region/PartDescriptor';
 import {PageDescriptorsJson} from 'lib-admin-ui/content/page/PageDescriptorsJson';
-import {SchemaFilterResourceRequest} from '../../../../../resource/SchemaFilterResourceRequest';
+import {SchemaFilterResourceRequest} from '../../../../../resource/GetComponentDescriptorsRequest';
 
 export class GetPartDescriptorsRequest
     extends SchemaFilterResourceRequest<PartDescriptor[]> {
@@ -15,3 +16,4 @@ export class GetPartDescriptorsRequest
         return response.getResult().descriptors.map((descJson) => PartDescriptor.fromJson(descJson));
     }
 }
+*/

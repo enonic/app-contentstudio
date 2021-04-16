@@ -1,15 +1,16 @@
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {LayoutComponentView} from './LayoutComponentView';
-import {LayoutDescriptorComboBox} from './LayoutDescriptorComboBox';
 import {LayoutComponent} from '../../app/page/region/LayoutComponent';
-import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
 import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ComponentDescriptorsComboBox} from '../ComponentDescriptorsComboBox';
+import {LayoutComponentType} from '../../app/page/region/LayoutComponentType';
+import {Descriptor} from '../../app/page/Descriptor';
 
 export class LayoutPlaceholder
     extends ItemViewPlaceholder {
 
-    private comboBox: LayoutDescriptorComboBox;
+    private comboBox: ComponentDescriptorsComboBox;
 
     private layoutComponentView: LayoutComponentView;
 
@@ -18,12 +19,12 @@ export class LayoutPlaceholder
         this.addClassEx('layout-placeholder');
         this.layoutComponentView = layoutView;
 
-        this.comboBox = new LayoutDescriptorComboBox();
+        this.comboBox = new ComponentDescriptorsComboBox(LayoutComponentType.get());
         this.comboBox.setContentId(layoutView.getLiveEditModel().getContent().getContentId());
 
         this.appendChild(this.comboBox);
 
-        this.comboBox.onOptionSelected((event: SelectedOptionEvent<LayoutDescriptor>) => {
+        this.comboBox.onOptionSelected((event: SelectedOptionEvent<Descriptor>) => {
             this.layoutComponentView.showLoadingSpinner();
             const descriptor = event.getSelectedOption().getOption().getDisplayValue();
 

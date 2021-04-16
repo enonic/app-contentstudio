@@ -28,8 +28,9 @@ import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
 import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 import {Component} from '../page/region/Component';
 import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
-import {GetLayoutDescriptorRequest} from './page/contextwindow/inspect/region/GetLayoutDescriptorRequest';
-import {GetPartDescriptorRequest} from './page/contextwindow/inspect/region/GetPartDescriptorRequest';
+import {GetComponentDescriptorRequest} from '../resource/GetComponentDescriptorRequest';
+import {LayoutComponentType} from '../page/region/LayoutComponentType';
+import {PartComponentType} from '../page/region/PartComponentType';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemViewTreeGridWrapper> {
@@ -216,8 +217,12 @@ export class PageComponentsTreeGrid
             }
         });
 
-        layoutDescriptors.forEach((descriptor: string) => requests.push(new GetLayoutDescriptorRequest(descriptor).sendAndParse()));
-        partDescriptors.forEach((descriptor: string) => requests.push(new GetPartDescriptorRequest(descriptor).sendAndParse()));
+        layoutDescriptors.forEach((descriptor: string) =>
+            requests.push(new GetComponentDescriptorRequest(descriptor, LayoutComponentType.get()).sendAndParse())
+        );
+        partDescriptors.forEach((descriptor: string) =>
+            requests.push(new GetComponentDescriptorRequest(descriptor, PartComponentType.get()).sendAndParse())
+        );
 
         return Q.all(requests).then((descriptors: Descriptor[]) =>
             descriptors.forEach((descriptor: Descriptor) => {

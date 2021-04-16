@@ -1,9 +1,9 @@
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {Dropdown} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {Form} from 'lib-admin-ui/ui/form/Form';
-import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
 import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
+import {Descriptor} from '../../../../../page/Descriptor';
 
 export class DescriptorBasedDropdownForm
     extends Form {

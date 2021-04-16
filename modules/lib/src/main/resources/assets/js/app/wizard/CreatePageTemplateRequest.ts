@@ -7,9 +7,9 @@ import {PageTemplateResourceRequest} from '../resource/PageTemplateResourceReque
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {Regions} from '../page/region/Regions';
-import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {DescriptorKey} from '../page/DescriptorKey';
 
 export class CreatePageTemplateRequest
     extends PageTemplateResourceRequest<Content>
