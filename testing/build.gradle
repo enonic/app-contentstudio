@@ -59,6 +59,7 @@ ext {
     xpServer = new ServerInstance()
     contentStudioFile = "$deployDir${File.separator}contentstudio-${appVersion}.jar"
     contentStudioAppUrl = "https://repo.enonic.com/dev/com/enonic/app/contentstudio/${appVersion}/contentstudio-${appVersion}.jar"
+    baseProject = "Test"
 }
 
 task ensureScreenshotsDirectory {
@@ -122,6 +123,7 @@ task zipScreenshots( type: Zip ) {
     from screenshotsDir
     include '*'
     include '*/*'
+    baseName = baseProject
     classifier 'screenshots'
 }
 
@@ -129,6 +131,7 @@ task zipReport( type: Zip ) {
     from mochaResultsDir
     include '*'
     include '*/*'
+    baseName = baseProject
     classifier 'mochaReport'
 }
 
@@ -177,6 +180,7 @@ task buildApplications( dependsOn: ['test-applications:simple-page:install'] )
 //run task in the task.js. Name of the task is 'test'
 task testContentStudioApp( type: NpmTask,
                            dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+    baseProject = "App"
     inputs.files fileTree( dir: '.' )
     outputs.files fileTree( dir: '/test-results' )
     args = ['test']
@@ -185,7 +189,7 @@ task testContentStudioApp( type: NpmTask,
 }
 
 task testContentStudioProjects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
-    baseName = 'contentStudioProjects'
+    baseProject = "Projects"
     args = ['run-script', 'test_project']
     startServer.mustRunAfter npmInstall
     copyApps.mustRunAfter startServer
@@ -201,6 +205,7 @@ task runSeparateTestLocally( type: Exec, dependsOn: [npmInstall, ensureScreensho
 }
 
 task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, ensureScreenshotsDirectory] ) {
+    baseProject = "App"
     inputs.files fileTree( dir: '.' )
     outputs.files fileTree( dir: '/test-results' )
     args = ['test']
