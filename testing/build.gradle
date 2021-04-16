@@ -185,6 +185,7 @@ task testContentStudioApp( type: NpmTask,
 }
 
 task testContentStudioProjects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+    baseName = 'contentStudioProjects'
     args = ['run-script', 'test_project']
     startServer.mustRunAfter npmInstall
     copyApps.mustRunAfter startServer
