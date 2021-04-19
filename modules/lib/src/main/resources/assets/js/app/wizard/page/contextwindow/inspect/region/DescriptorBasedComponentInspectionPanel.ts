@@ -143,12 +143,10 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         }
     }
 
-    //protected abstract createGetDescriptorRequest(key: DescriptorKey): GetComponentDescriptorRequest;
-
-    //protected abstract createSelector(): ComponentDescriptorsDropdown;
     protected createGetDescriptorRequest(key: DescriptorKey): GetComponentDescriptorRequest {
         return new GetComponentDescriptorRequest(key.toString(), this.componentType);
     }
+
     protected createSelector(): ComponentDescriptorsDropdown {
         return new ComponentDescriptorsDropdown({
             optionDisplayValueViewer: new DescriptorViewer(),
