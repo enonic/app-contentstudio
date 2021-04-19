@@ -7,7 +7,6 @@ const appConst = require('../../libs/app_const');
 const InsertLinkDialog = require('./insert.link.modal.dialog.cke');
 
 const XPATH = {
-    validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
     ckeTextArea: "//div[contains(@id,'cke_TextArea')]",
     ckeToolbox: "//span[contains(@class,'cke_toolbox')]",
     insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
@@ -56,7 +55,7 @@ class HtmlAreaForm extends Page {
     }
 
     get validationRecord() {
-        return lib.FORM_VIEW + XPATH.validationRecording;
+        return lib.FORM_VIEW + lib.inputView + lib.validationRecording;
     }
 
     get addButton() {

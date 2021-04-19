@@ -26,6 +26,8 @@ module.exports = Object.freeze({
     VALIDATION_RECORDING_VIEWER: "//div[contains(@id,'ValidationRecordingViewer')]//li",
     CONTENT_SUMMARY_AND_STATUS_VIEWER: "//div[contains(@id,'ContentSummaryAndCompareStatusViewer')]",
     OPTION_SET_MENU_BUTTON: "//button[contains(@id,'MoreButton')]",
+    validationRecording: "//div[contains(@id,'ValidationRecordingViewer')]//li",
+    inputView: "//div[contains(@id,'InputView')]",
     tabBarItemByName: function (name) {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
     },
