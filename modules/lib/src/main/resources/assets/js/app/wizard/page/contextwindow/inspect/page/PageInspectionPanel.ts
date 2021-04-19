@@ -12,10 +12,10 @@ import {ContentFormContext} from '../../../../../ContentFormContext';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {FormContextBuilder} from 'lib-admin-ui/form/FormContext';
 import {FormView} from 'lib-admin-ui/form/FormView';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
 import {PropertySet} from 'lib-admin-ui/data/PropertySet';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
+import {Descriptor} from '../../../../../page/Descriptor';
 
 export class PageInspectionPanel
     extends BaseInspectionPanel {
@@ -136,7 +136,7 @@ class BaseInspectionHandler {
         }
 
         const pageModel: PageModel = this.liveEditModel.getPageModel();
-        const pageDescriptor: PageDescriptor = pageModel.getDescriptor();
+        const pageDescriptor: Descriptor = pageModel.getDescriptor();
 
         if (!pageDescriptor || pageModel.getMode() === PageMode.FORCED_TEMPLATE || pageModel.getMode() === PageMode.AUTOMATIC) {
             return;

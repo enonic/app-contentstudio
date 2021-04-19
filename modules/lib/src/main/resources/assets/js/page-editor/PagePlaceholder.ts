@@ -7,8 +7,8 @@ import {ItemViewPlaceholder} from './ItemViewPlaceholder';
 import {PageDescriptorDropdown} from '../app/wizard/page/contextwindow/inspect/page/PageDescriptorDropdown';
 import {GetContentTypeByNameRequest} from '../app/resource/GetContentTypeByNameRequest';
 import {ContentType} from '../app/inputtype/schema/ContentType';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {LoadedDataEvent} from 'lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {Descriptor} from '../app/page/Descriptor';
 
 export class PagePlaceholder
     extends ItemViewPlaceholder {
@@ -48,7 +48,7 @@ export class PagePlaceholder
         return this.controllerDropdown;
     }
 
-    private handler: (event: LoadedDataEvent<PageDescriptor>) => void = (event: LoadedDataEvent<PageDescriptor>) => {
+    private handler: (event: LoadedDataEvent<Descriptor>) => void = (event: LoadedDataEvent<Descriptor>) => {
 
         if (event.getData().length > 0) {
             this.controllerDropdown.show();
@@ -83,6 +83,5 @@ export class PagePlaceholder
     remove() {
         this.controllerDropdown.unLoadedData(this.handler);
         return super.remove();
-
     }
 }

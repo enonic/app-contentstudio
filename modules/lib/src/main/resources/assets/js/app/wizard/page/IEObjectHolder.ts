@@ -1,6 +1,7 @@
 import {Regions} from '../../page/region/Regions';
 import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {IEObjectProcessor} from './IEObjectProcessor';
+import {Descriptor} from '../../page/Descriptor';
 
 export class IEObjectHolder {
 
@@ -14,7 +15,7 @@ export class IEObjectHolder {
         this.regionsCopy = !!regions ? this.objectsProcessor.copyRegions(regions) : null;
     }
 
-    setController(pageDescriptor: PageDescriptor) {
+    setController(pageDescriptor: Descriptor) {
         this.pageDescriptorCopy = !!pageDescriptor ? this.objectsProcessor.copyPageDescriptor(pageDescriptor) : null;
     }
 
@@ -30,7 +31,7 @@ export class IEObjectHolder {
         return this.objectsProcessor.restoreRegionsFromCopy(this.regionsCopy);
     }
 
-    getPageDescriptorCopy(): PageDescriptor {
+    getPageDescriptorCopy(): Descriptor {
         return this.objectsProcessor.restorePageDescriptorFromCopy(this.pageDescriptorCopy);
     }
 

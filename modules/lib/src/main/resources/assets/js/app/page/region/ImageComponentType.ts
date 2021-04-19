@@ -5,10 +5,8 @@ export class ImageComponentType
 
     private static INSTANCE: ImageComponentType = new ImageComponentType();
 
-    static NAME: string = 'image';
-
     constructor() {
-        super(ImageComponentType.NAME);
+        super('image');
     }
 
     public static get(): ImageComponentType {

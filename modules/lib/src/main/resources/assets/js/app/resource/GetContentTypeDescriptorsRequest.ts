@@ -1,24 +1,31 @@
+import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeSummaryListJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryListJson';
-import {ContentTypeSummaryJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryJson';
-import {SchemaFilterResourceRequest} from './GetComponentDescriptorsRequest';
+import {ProjectBasedResourceRequest} from '../wizard/ProjectBasedResourceRequest';
 
 export class GetContentTypeDescriptorsRequest
-    extends SchemaFilterResourceRequest<ContentTypeSummary[]> {
+    extends ProjectBasedResourceRequest<ContentTypeSummary[]> {
+
+    private contentId: ContentId;
 
     constructor() {
         super();
         this.addRequestPathElements('contentTypes');
     }
 
-    fromJsonToContentTypeSummary(json: ContentTypeSummaryJson): ContentTypeSummary {
-        return ContentTypeSummary.fromJson(json);
+    getParams(): Object {
+        return {
+            contentId: this.contentId?.toString()
+        };
+    }
+
+    setContentId(contentId: ContentId): GetContentTypeDescriptorsRequest {
+        this.contentId = contentId;
+        return this;
     }
 
     protected parseResponse(response: JsonResponse<ContentTypeSummaryListJson>): ContentTypeSummary[] {
-        return response.getResult().contentTypes.map((contentTypeJson: ContentTypeSummaryJson) => {
-            return this.fromJsonToContentTypeSummary(contentTypeJson);
-        });
+        return response.getResult().contentTypes.map((json) => ContentTypeSummary.fromJson(json));
     }
 }

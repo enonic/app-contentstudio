@@ -5,10 +5,8 @@ export class TextComponentType
 
     private static INSTANCE: TextComponentType = new TextComponentType();
 
-    static NAME: string = 'text';
-
     constructor() {
-        super(TextComponentType.NAME);
+        super('text');
     }
 
     public static get(): TextComponentType {

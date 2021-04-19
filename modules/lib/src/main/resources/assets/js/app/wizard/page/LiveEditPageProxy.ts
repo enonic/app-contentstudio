@@ -45,7 +45,6 @@ import {Component} from '../../page/region/Component';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {Regions} from '../../page/region/Regions';
 import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {IFrameEl} from 'lib-admin-ui/dom/IFrameEl';
 import {DragMask} from 'lib-admin-ui/ui/mask/DragMask';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
@@ -54,7 +53,7 @@ import {GLOBAL, GlobalLibAdmin, Store} from 'lib-admin-ui/store/Store';
 import {IEObjectHolder} from './IEObjectHolder';
 import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
 import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {Descriptor} from '../../page/Descriptor';
 
 declare var CONFIG;
 
@@ -963,7 +962,7 @@ export class LiveEditPageProxy {
     }
 
     private copyObjectsBeforeFrameReloadForIE() {
-        const controller: PageDescriptor = this.liveEditModel.getPageModel().getController();
+        const controller: Descriptor = this.liveEditModel.getPageModel().getController();
         const regions: Regions = this.liveEditModel.getPageModel().getRegions();
 
         this.ieObjectHolder = new IEObjectHolder();

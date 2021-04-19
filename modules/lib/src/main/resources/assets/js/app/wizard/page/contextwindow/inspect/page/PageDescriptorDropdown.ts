@@ -1,19 +1,17 @@
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {LoadedDataEvent} from 'lib-admin-ui/util/loader/event/LoadedDataEvent';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {SetController} from '../../../../../../page-editor/PageModel';
 import {ApplicationRemovedEvent} from '../../../../../site/ApplicationRemovedEvent';
-import {DescriptorBasedDropdown} from '../DescriptorBasedDropdown';
 import {DescriptorViewer} from '../DescriptorViewer';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
-import {ComponentDescriptorsLoader} from '../region/ComponentDescriptorsLoader';
-import {Descriptor} from "../../../../../page/Descriptor";
+import {Descriptor} from '../../../../../page/Descriptor';
+import {ComponentDescriptorsDropdown} from '../region/ComponentDescriptorsDropdown';
 
 export class PageDescriptorDropdown
-    extends DescriptorBasedDropdown {
+    extends ComponentDescriptorsDropdown {
 
-    private loadedDataListeners: { (event: LoadedDataEvent<PageDescriptor>): void }[];
+    private loadedDataListeners: { (event: LoadedDataEvent<Descriptor>): void }[];
 
     private liveEditModel: LiveEditModel;
 
@@ -27,17 +25,6 @@ export class PageDescriptorDropdown
         this.liveEditModel = model;
 
         this.initListeners();
-    }
-
-    load() {
-        //(this.loader as PageDescriptorLoader).setContentId(this.liveEditModel.getContent().getContentId());
-        this.loader.setContentId(this.liveEditModel.getContent().getContentId());
-
-        super.load();
-    }
-
-    protected createLoader(): ComponentDescriptorsLoader {
-        return new ComponentDescriptorsLoader();
     }
 
     handleLoadedData(event: LoadedDataEvent<Descriptor>) {
@@ -73,25 +60,25 @@ export class PageDescriptorDropdown
         });
     }
 
-    protected handleOptionSelected(event: OptionSelectedEvent<PageDescriptor>) {
+    protected handleOptionSelected(event: OptionSelectedEvent<Descriptor>) {
         let pageDescriptor = event.getOption().getDisplayValue();
         let setController = new SetController(this).setDescriptor(pageDescriptor);
         this.liveEditModel.getPageModel().setController(setController);
     }
 
-    onLoadedData(listener: (event: LoadedDataEvent<PageDescriptor>) => void) {
+    onLoadedData(listener: (event: LoadedDataEvent<Descriptor>) => void) {
         this.loadedDataListeners.push(listener);
     }
 
-    unLoadedData(listener: (event: LoadedDataEvent<PageDescriptor>) => void) {
+    unLoadedData(listener: (event: LoadedDataEvent<Descriptor>) => void) {
         this.loadedDataListeners =
-            this.loadedDataListeners.filter((currentListener: (event: LoadedDataEvent<PageDescriptor>) => void) => {
+            this.loadedDataListeners.filter((currentListener: (event: LoadedDataEvent<Descriptor>) => void) => {
                 return currentListener !== listener;
             });
     }
 
-    private notifyLoadedData(event: LoadedDataEvent<PageDescriptor>) {
-        this.loadedDataListeners.forEach((listener: (event: LoadedDataEvent<PageDescriptor>) => void) => {
+    private notifyLoadedData(event: LoadedDataEvent<Descriptor>) {
+        this.loadedDataListeners.forEach((listener: (event: LoadedDataEvent<Descriptor>) => void) => {
             listener.call(this, event);
         });
     }
