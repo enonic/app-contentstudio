@@ -14,7 +14,6 @@ import {PageTemplate} from '../../../../../content/PageTemplate';
 import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
 import {PageTemplateKey} from '../../../../../page/PageTemplateKey';
 import {PageTemplateAndControllerOption, PageTemplateAndSelectorViewer} from './PageTemplateAndSelectorViewer';
-//import {PageDescriptorLoader} from './PageDescriptorLoader';
 import {PageControllerOption} from './PageControllerOption';
 import {PageMode} from '../../../../../page/PageMode';
 import {Dropdown, DropdownConfig} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
