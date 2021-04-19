@@ -4,7 +4,6 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {DescriptorsJson} from '../page/DescriptorsJson';
 import {Descriptor} from '../page/Descriptor';
 import {ComponentType} from '../page/region/ComponentType';
-import {PageDescriptor} from '../page/PageDescriptor';
 
 export class GetComponentDescriptorsRequest
     extends ProjectBasedResourceRequest<Descriptor[]> {
@@ -16,11 +15,7 @@ export class GetComponentDescriptorsRequest
         super();
 
         this.componentType = componentType;
-        if (componentType) {
-            this.addRequestPathElements('schema', 'filter', `${componentType.getShortName()}s`);
-        } else {
-            this.addRequestPathElements('schema', 'filter', `pages`);
-        }
+        this.addRequestPathElements('schema', 'filter', `${componentType.getShortName()}s`);
     }
 
     getParams(): Object {
@@ -36,7 +31,7 @@ export class GetComponentDescriptorsRequest
 
     protected parseResponse(response: JsonResponse<DescriptorsJson>): Descriptor[] {
         return response.getResult().descriptors.map((descJson) =>
-            this.componentType ? Descriptor.fromJson(descJson).setComponentType(this.componentType) : PageDescriptor.fromJson(descJson)
+            Descriptor.fromJson(descJson).setComponentType(this.componentType)
         );
     }
 }

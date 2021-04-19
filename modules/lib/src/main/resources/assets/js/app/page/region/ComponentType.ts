@@ -23,4 +23,8 @@ export class ComponentType {
     getDefaultName(): ComponentName {
         return new ComponentName(StringHelper.capitalize(StringHelper.removeWhitespaces(this.shortName)));
     }
+
+    getIconCls(): string {
+        return '';
+    }
 }

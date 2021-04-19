@@ -5,13 +5,15 @@ export class LayoutComponentType
 
     private static INSTANCE: LayoutComponentType = new LayoutComponentType();
 
-    static NAME: string = 'layout';
-
     constructor() {
-        super(LayoutComponentType.NAME);
+        super('layout');
     }
 
     public static get(): LayoutComponentType {
         return LayoutComponentType.INSTANCE;
+    }
+
+    getIconCls(): string {
+        return 'part';
     }
 }

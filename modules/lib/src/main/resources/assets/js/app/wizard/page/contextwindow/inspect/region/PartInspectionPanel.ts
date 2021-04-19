@@ -5,10 +5,9 @@ import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewI
 import {PartComponent} from '../../../../../page/region/PartComponent';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {PartComponentType} from '../../../../../page/region/PartComponentType';
-import {Descriptor} from '../../../../../page/Descriptor';
 
 export class PartInspectionPanel
-    extends DescriptorBasedComponentInspectionPanel<PartComponent, Descriptor> {
+    extends DescriptorBasedComponentInspectionPanel<PartComponent> {
 
     constructor() {
         super(<DescriptorBasedComponentInspectionPanelConfig>{

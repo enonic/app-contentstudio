@@ -1969,11 +1969,6 @@ export class ContentWizardPanel
     }
 
     postPersistNewItem(persistedContent: Content): Q.Promise<Content> {
-
-        /*        if (persistedContent.isSite()) {
-                    this.site = <Site>persistedContent;
-                }*/
-
         return Q(persistedContent);
     }
 

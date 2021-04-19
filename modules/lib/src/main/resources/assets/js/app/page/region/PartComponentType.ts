@@ -5,13 +5,15 @@ export class PartComponentType
 
     private static INSTANCE: PartComponentType = new PartComponentType();
 
-    static NAME: string = 'layout';
-
     constructor() {
-        super(PartComponentType.NAME);
+        super('part');
     }
 
     public static get(): PartComponentType {
         return PartComponentType.INSTANCE;
+    }
+
+    getIconCls(): string {
+        return 'part';
     }
 }
