@@ -1,4 +1,3 @@
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
 import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
@@ -15,7 +14,6 @@ export abstract class ComponentViewPlaceholder<T extends DescriptorBasedComponen
 
     protected constructor(componentView: ComponentView<T>) {
         super();
-        this.addClassEx('part-placeholder').addClass(StyleHelper.getCommonIconCls('part'));
 
         this.comboBox = new ComponentDescriptorsComboBox(this.getType());
         this.comboBox.setContentId(componentView.getLiveEditModel().getContent().getContentId());
