@@ -6,8 +6,9 @@ import {SchemaFilterBasedRequest} from './SchemaFilterBasedRequest';
 export class GetContentTypeDescriptorsRequest
     extends SchemaFilterBasedRequest<ContentTypeSummary> {
 
-    getPostfixPathElement(): string {
-        return 'contentTypes';
+    constructor() {
+        super();
+        this.addRequestPathElements('contentTypes');
     }
 
     protected parseResponse(response: JsonResponse<ContentTypeSummaryListJson>): ContentTypeSummary[] {

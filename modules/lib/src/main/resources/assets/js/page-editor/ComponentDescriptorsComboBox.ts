@@ -24,12 +24,12 @@ export class ComponentDescriptorsComboBox
     constructor(componentType: ComponentType) {
         super(
             new ComponentDescriptorsComboBoxBuilder()
-            .setLoader(new ComponentDescriptorsLoader(componentType)) as RichComboBoxBuilder<Descriptor>
+            .setLoader(new ComponentDescriptorsLoader().setComponentType(componentType)) as RichComboBoxBuilder<Descriptor>
         );
     }
 
     setContentId(contentId: ContentId) {
-        (<ComponentDescriptorsLoader >this.getLoader()).setContentId(contentId);
+        (<ComponentDescriptorsLoader>this.getLoader()).setContentId(contentId);
     }
 
     getDescriptor(descriptorKey: DescriptorKey): Descriptor {

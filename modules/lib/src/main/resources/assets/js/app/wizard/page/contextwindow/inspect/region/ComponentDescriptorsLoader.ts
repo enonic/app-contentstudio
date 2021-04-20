@@ -9,17 +9,20 @@ export class ComponentDescriptorsLoader
     extends BaseLoader<Descriptor> {
 
     protected request: GetComponentDescriptorsRequest;
-    private readonly componentType: ComponentType;
 
-    constructor(componentType?: ComponentType) {
+    constructor() {
         super();
 
-        this.componentType = componentType;
         this.setComparator(new DescriptorByDisplayNameComparator());
     }
 
     protected createRequest(): GetComponentDescriptorsRequest {
-        return new GetComponentDescriptorsRequest(this.componentType);
+        return new GetComponentDescriptorsRequest();
+    }
+
+    setComponentType(componentType: ComponentType) {
+        this.request.setComponentType(componentType);
+        return this;
     }
 
     setContentId(contentId: ContentId) {
