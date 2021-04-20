@@ -83,8 +83,6 @@ import {Toolbar} from 'lib-admin-ui/ui/toolbar/Toolbar';
 import {CycleButton} from 'lib-admin-ui/ui/button/CycleButton';
 import {FormOptionSet} from 'lib-admin-ui/form/set/optionset/FormOptionSet';
 import {Property} from 'lib-admin-ui/data/Property';
-import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
-import {PropertySet} from 'lib-admin-ui/data/PropertySet';
 import {FormItemSet} from 'lib-admin-ui/form/set/itemset/FormItemSet';
 import {FieldSet} from 'lib-admin-ui/form/set/fieldset/FieldSet';
 import {FormOptionSetOption} from 'lib-admin-ui/form/set/optionset/FormOptionSetOption';
@@ -124,7 +122,8 @@ import {ContentWizardHeader} from './ContentWizardHeader';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {WizardHeaderWithDisplayNameAndNameOptions} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
-import {FormItem} from 'lib-admin-ui/form/FormItem';
+import {Descriptor} from '../page/Descriptor';
+import {GetPageDescriptorsByApplicationsRequest} from './page/contextwindow/inspect/page/GetPageDescriptorsByApplicationsRequest';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -765,13 +764,24 @@ export class ContentWizardPanel
         return deferred.promise;
     }
 
+    private loadDescriptorsFromApps(applicationKeys: ApplicationKey[]): Q.Promise<Descriptor[]> {
+        if (!applicationKeys.length) {
+            return Q<Descriptor[]>([]);
+        }
+
+        const request = new GetPageDescriptorsByApplicationsRequest(applicationKeys);
+        return request.sendAndParse().then((descriptors: Descriptor[]) => descriptors);
+    }
+
     private handleAppChange() {
         const appsIsMissing = this.missingOrStoppedAppKeys.length > 0;
         const livePanel = this.getLivePanel();
 
         if (livePanel) {
             if (!appsIsMissing) {
-                this.debouncedEditorRefresh(false);
+                if (this.renderable) {
+                    this.debouncedEditorRefresh(false);
+                }
                 livePanel.clearErrorMissingApps();
             } else {
                 livePanel.setErrorMissingApps();
@@ -856,14 +866,24 @@ export class ContentWizardPanel
             this.notifyDataChanged();
         }, 100);
 
+        let applicationKeys = [];
+        const debouncedSaveOnAppChange = AppHelper.debounce(() => {
+            this.loadDescriptorsFromApps(applicationKeys)
+                .then((descriptors: Descriptor[]) => descriptors.length ? this.saveChanges() : Q.resolve())
+                .then(this.handleAppChange)
+                .finally(() => applicationKeys=[]);
+        }, 500);
+
         this.applicationAddedListener = (event: ApplicationAddedEvent) => {
             this.addXDataStepForms(event.getApplicationKey());
-            this.handleAppChange();
+            applicationKeys.push(event.getApplicationKey());
+            debouncedSaveOnAppChange();
         };
 
         this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {
             this.removeXDataStepForms(event.getApplicationKey());
-            this.handleAppChange();
+            applicationKeys.push(event.getApplicationKey());
+            debouncedSaveOnAppChange();
         };
 
         this.applicationUninstalledListener = (event: ApplicationEvent) => {
@@ -1719,7 +1739,7 @@ export class ContentWizardPanel
         return this.updateButtonsState().then(() => {
             return this.initLiveEditor(this.formContext, content).then(() => {
 
-                this.fetchMissingOrStoppedAppKeys().then(this.handleAppChange.bind(this));
+                this.fetchMissingOrStoppedAppKeys().then(this.missingOrStoppedAppKeys.length && this.handleAppChange.bind(this));
 
                 return this.createWizardStepForms().then(() => {
                     const steps: ContentWizardStep[] = this.createSteps();
