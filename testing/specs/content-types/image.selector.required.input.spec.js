@@ -3,14 +3,14 @@
  */
 const chai = require('chai');
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const ImageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
-const DeleteContentDialog = require('../page_objects/delete.content.dialog');
-const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConstant = require('../../libs/app_const');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const ImageSelectorForm = require('../../page_objects/wizardpanel/imageselector.form.panel');
+const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('image.selector.required.input.spec tests for validation of content with required image',
     function () {
@@ -88,9 +88,9 @@ describe('image.selector.required.input.spec tests for validation of content wit
             async () => {
                 let imageSelectorForm = new ImageSelectorForm();
                 let contentWizard = new ContentWizard();
-                //1. Open existing not valid content:
+                //1. Open existing valid content with selected image:
                 await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
-                //2. select an image:
+                //2. click on the image:
                 await imageSelectorForm.clickOnImage(IMAGE_DISPLAY_NAME1);
                 //3. Click on 'Remove' button:
                 await imageSelectorForm.clickOnRemoveButton();
@@ -105,7 +105,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 await imageSelectorForm.waitForRemoveButtonNotDisplayed();
             });
 
-        it("Preconditions: just selected image has been deleted in Browse Panel",
+        it("Preconditions: the image (that is selected in existing content) has been deleted in Browse Panel",
             async () => {
                 let contentBrowsePanel = new ContentBrowsePanel();
                 let deleteContentDialog = new DeleteContentDialog();
