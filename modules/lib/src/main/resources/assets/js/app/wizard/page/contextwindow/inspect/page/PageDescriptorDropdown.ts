@@ -7,6 +7,7 @@ import {DescriptorViewer} from '../DescriptorViewer';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {Descriptor} from '../../../../../page/Descriptor';
 import {ComponentDescriptorsDropdown} from '../region/ComponentDescriptorsDropdown';
+import {PageComponentType} from '../../../../../page/region/PageComponentType';
 
 export class PageDescriptorDropdown
     extends ComponentDescriptorsDropdown {
@@ -21,6 +22,7 @@ export class PageDescriptorDropdown
             dataIdProperty: 'value'
         }, 'page-controller');
 
+        this.setComponentType(PageComponentType.get()).setContentId(model.getContent().getContentId());
         this.loadedDataListeners = [];
         this.liveEditModel = model;
 

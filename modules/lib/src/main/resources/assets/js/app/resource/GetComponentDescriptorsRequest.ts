@@ -7,16 +7,11 @@ import {SchemaFilterBasedRequest} from './SchemaFilterBasedRequest';
 export class GetComponentDescriptorsRequest
     extends SchemaFilterBasedRequest<Descriptor> {
 
-    private readonly componentType: ComponentType;
+    private componentType: ComponentType;
 
-    constructor(componentType: ComponentType) {
-        super();
-
+    setComponentType(componentType: ComponentType) {
         this.componentType = componentType;
-    }
-
-    getPostfixPathElement(): string {
-        return `${this.componentType.getShortName()}s`;
+        this.addRequestPathElements(`${componentType.getShortName()}s`);
     }
 
     protected parseResponse(response: JsonResponse<DescriptorsJson>): Descriptor[] {

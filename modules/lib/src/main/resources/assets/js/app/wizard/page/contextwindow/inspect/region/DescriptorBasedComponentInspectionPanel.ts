@@ -45,14 +45,14 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     constructor(config: DescriptorBasedComponentInspectionPanelConfig) {
         super(config);
 
-        this.componentType = config.componentType;
-        this.initElements();
+        //this.componentType = config.componentType;
+        this.initElements(config.componentType);
         this.initListeners();
     }
 
-    private initElements() {
+    private initElements(componentType: ComponentType) {
         this.formView = null;
-        this.selector = this.createSelector();
+        this.selector = this.createSelector(componentType);
         this.form = new DescriptorBasedDropdownForm(this.selector, this.getFormName());
     }
 
@@ -147,12 +147,12 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         return new GetComponentDescriptorRequest(key.toString(), this.componentType);
     }
 
-    protected createSelector(): ComponentDescriptorsDropdown {
+    protected createSelector(componentType: ComponentType): ComponentDescriptorsDropdown {
         return new ComponentDescriptorsDropdown({
             optionDisplayValueViewer: new DescriptorViewer(),
             dataIdProperty: 'value',
             noOptionsText: 'No components available'
-        }).setComponentType(this.componentType);
+        }).setComponentType(componentType);
     }
 
     protected abstract getFormName(): string;

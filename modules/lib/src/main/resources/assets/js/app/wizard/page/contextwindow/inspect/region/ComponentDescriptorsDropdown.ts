@@ -6,12 +6,10 @@ import {ComponentType} from '../../../../../page/region/ComponentType';
 export class ComponentDescriptorsDropdown
     extends DescriptorBasedDropdown {
 
-    private componentType: ComponentType;
-
     protected loader: ComponentDescriptorsLoader;
 
     setComponentType(componentType: ComponentType) {
-        this.componentType = componentType;
+        this.loader.setComponentType(componentType);
         return this;
     }
 
@@ -20,6 +18,6 @@ export class ComponentDescriptorsDropdown
     }
 
     protected createLoader(): ComponentDescriptorsLoader {
-        return new ComponentDescriptorsLoader(this.componentType);
+        return new ComponentDescriptorsLoader();
     }
 }

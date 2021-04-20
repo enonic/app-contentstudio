@@ -8,16 +8,12 @@ export abstract class SchemaFilterBasedRequest<T>
 
     constructor() {
         super();
-        this.addRequestPathElements('schema', 'filter', this.getPostfixPathElement());
-    }
-
-    getPostfixPathElement(): string {
-        throw new Error('Must be implemented by inheritors');
+        this.addRequestPathElements('schema', 'filter');
     }
 
     getParams(): Object {
         return {
-            contentId: this.contentId?.toString()
+            contentId: this.contentId.toString()
         };
     }
 

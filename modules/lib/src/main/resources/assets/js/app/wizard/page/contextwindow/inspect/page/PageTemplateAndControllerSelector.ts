@@ -27,6 +27,7 @@ import {ContentServerChangeItem} from '../../../../../event/ContentServerChangeI
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 import {Descriptor} from '../../../../../page/Descriptor';
 import {ComponentDescriptorsLoader} from '../region/ComponentDescriptorsLoader';
+import {PageComponentType} from '../../../../../page/region/PageComponentType';
 
 export class PageTemplateAndControllerSelector
     extends Dropdown<PageTemplateAndControllerOption> {
@@ -230,7 +231,9 @@ export class PageTemplateAndControllerSelector
 
         const deferred = Q.defer<Option<PageControllerOption>[]>();
 
-        const loader = new ComponentDescriptorsLoader().setContentId(this.liveEditModel.getContent().getContentId());
+        const loader = new ComponentDescriptorsLoader()
+            .setComponentType(PageComponentType.get())
+            .setContentId(this.liveEditModel.getContent().getContentId());
 
         loader.onLoadedData((event: LoadedDataEvent<Descriptor>) => {
             const options: Option<PageControllerOption>[] = event.getData().map(
