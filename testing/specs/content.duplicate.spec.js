@@ -84,7 +84,7 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             await studioUtils.typeNameInFilterPanel(folder1.displayName + '-copy-2');
             let state = await contentBrowsePanel.getWorkflowStateByName(folder1.displayName + '-copy-2');
             //duplicated folder should be 'Ready for publishing':
-            assert.equal(state, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+            assert.equal(state, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content should be 'Ready for publishing'");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
