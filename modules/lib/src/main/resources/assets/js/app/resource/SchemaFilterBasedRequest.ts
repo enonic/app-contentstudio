@@ -13,7 +13,7 @@ export abstract class SchemaFilterBasedRequest<T>
 
     getParams(): Object {
         return {
-            contentId: this.contentId.toString()
+            contentId: this.contentId?.toString()
         };
     }
 
