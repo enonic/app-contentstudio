@@ -24,14 +24,14 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     let htmlAreaContentEmpty;
     let SITE;
 
-    it(`Preconditions: new site should be created`,
+    it("Preconditions: new site should be created",
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN new wizard for htmlArea 2-4 is opened WHEN name has been typed AND Save pressed THEN content should be saved`,
+    it(`GIVEN new wizard for htmlArea 2-4 is opened WHEN name has been typed AND 'Save' pressed THEN content should be saved`,
         async () => {
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('htmlarea');

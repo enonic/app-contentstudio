@@ -10,6 +10,8 @@ const XPATH = {
     textInput: `//div[contains(@id,'FormItem') and child::label[text()='Text']]//input[@type='text']`,
     urlInput: `//div[contains(@id,'FormItem') and child::label[text()='Url']]//input[@type='text']`,
     emailInput: `//div[contains(@id,'FormItem') and child::label[text()='Email']]//input[@type='text']`,
+    urlInputValidationRecording: "//div[contains(@id,'FormItem') and child::label[text()='Url']]/..",
+    textInputValidationRecording: "//div[contains(@id,'FormItem') and child::label[text()='Text']]/..",
 };
 
 class InsertLinkDialog extends Page {
@@ -18,8 +20,17 @@ class InsertLinkDialog extends Page {
         return XPATH.container + XPATH.textInput;
     }
 
+    get textInputValidationRecording() {
+        return XPATH.container + XPATH.textInputValidationRecording + lib.VALIDATION_RECORDING_VIEWER;
+    }
+
+
     get urlInput() {
         return XPATH.container + XPATH.urlInput;
+    }
+
+    get urlInputValidationRecording() {
+        return XPATH.container + XPATH.urlInputValidationRecording + lib.VALIDATION_RECORDING_VIEWER;
     }
 
     get emailInput() {
@@ -140,7 +151,26 @@ class InsertLinkDialog extends Page {
         let selector = XPATH.container + lib.CONTENT_SELECTED_OPTION_VIEW + lib.H6_DISPLAY_NAME;
         return this.getText(selector);
     }
-};
+
+    waitForValidationMessageForTextInputDisplayed() {
+        return this.waitForElementDisplayed(this.textInputValidationRecording, appConst.mediumTimeout);
+    }
+
+    async getTextInputValidationMessage() {
+        await this.waitForValidationMessageForTextInputDisplayed();
+        return await this.getText(this.textInputValidationRecording);
+    }
+
+    waitForValidationMessageForUrlInputDisplayed() {
+        return this.waitForElementDisplayed(this.urlInputValidationRecording, appConst.mediumTimeout);
+    }
+
+    async getUrlInputValidationMessage() {
+        await this.waitForValidationMessageForUrlInputDisplayed();
+        return await this.getText(this.urlInputValidationRecording);
+    }
+}
+
 module.exports = InsertLinkDialog;
 
 
