@@ -247,8 +247,6 @@ module.exports = {
         //2. Type the data and save:
         if (site.data.controller) {
             await contentWizardPanel.selectPageDescriptor(site.data.controller);
-        } else {
-            await contentWizardPanel.waitAndClickOnSave();
         }
         await this.doCloseCurrentBrowserTab();
         await this.doSwitchToContentBrowsePanel();
