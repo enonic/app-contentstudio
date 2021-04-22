@@ -297,7 +297,7 @@ export class SiteConfigurator
         return this.comboBox.giveFocus();
     }
 
-    protected mayRenderValidationError(): boolean {
+    isValidationErrorToBeRendered(): boolean {
         return false;
     }
 
