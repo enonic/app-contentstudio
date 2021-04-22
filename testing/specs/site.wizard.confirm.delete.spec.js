@@ -31,8 +31,8 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(SITE.displayName);
             await siteFormPanel.addApplications([appConstant.APP_CONTENT_TYPES]);
-            //the site is saved:
-            await contentWizard.waitAndClickOnSave();
+            //the site should be automatically saved:
+            await contentWizard.waitForNotificationMessage();
             //Click on Delete... button and open Delete Content Dialog:
             await contentWizard.clickOnDelete();
             //Click on 'Delete Now' button:

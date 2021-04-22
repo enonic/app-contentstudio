@@ -48,7 +48,7 @@ describe('fragment.inspect.panel.update.path.spec - Select a site with not valid
             await contentWizardPanel.typeDisplayName(displayName);
             await contentWizardPanel.waitAndClickOnSave();
             // wait for the description is refreshing:
-            await contentWizardPanel.pause(1000);
+            await contentWizardPanel.pause(1400);
             //5. Fragment Inspection Panel should be loaded automatically. Verify that path is updated in the dropdown:
             let actualPath = await fragmentInspectionPanel.getSelectedOptionPath();
             assert.include(actualPath, displayName, "Path should be updated in Fragment Inspection Panel");
