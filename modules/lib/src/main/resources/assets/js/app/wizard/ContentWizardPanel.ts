@@ -2030,6 +2030,7 @@ export class ContentWizardPanel
 
             return content;
         }).then((content: Content) => {
+            this.formState.setIsNew(false);
             this.contentWizardStepForm.validate();
             this.xDataWizardStepForms.validate(false, true);
             this.displayValidationErrors(!this.isValid());
