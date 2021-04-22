@@ -120,13 +120,14 @@ export class ContentTypeFilter
         if (!ValueTypes.STRING.equals(propertyArray.getType())) {
             propertyArray.convertValues(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
-        super.layout(input, propertyArray);
 
-        this.appendChild(this.combobox = this.createComboBox());
+        return super.layout(input, propertyArray).then(() => {
+            this.appendChild(this.combobox = this.createComboBox());
 
-        return this.combobox.getLoader().load().then(() => {
-            this.validate(false);
-            return Q<void>(null);
+            return this.combobox.getLoader().load().then(() => {
+                this.validate(false);
+                return Q<void>(null);
+            });
         });
     }
 
