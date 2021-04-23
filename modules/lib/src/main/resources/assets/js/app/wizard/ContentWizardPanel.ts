@@ -867,12 +867,17 @@ export class ContentWizardPanel
         }, 100);
 
         let applicationKeys = [];
-        const debouncedSaveOnAppChange = AppHelper.debounce(() => {
+        const saveOnAppChange = () => {
+            if (this.getLivePanel()?.getPage()) {
+                this.handleAppChange();
+                return;
+            }
             this.loadDescriptorsFromApps(applicationKeys)
                 .then((descriptors: Descriptor[]) => descriptors.length ? this.saveChanges() : Q.resolve())
                 .then(this.handleAppChange)
                 .finally(() => applicationKeys=[]);
-        }, 500);
+        };
+        const debouncedSaveOnAppChange = AppHelper.debounce(saveOnAppChange, 300);
 
         this.applicationAddedListener = (event: ApplicationAddedEvent) => {
             this.addXDataStepForms(event.getApplicationKey());
@@ -883,7 +888,13 @@ export class ContentWizardPanel
         this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {
             this.removeXDataStepForms(event.getApplicationKey());
             applicationKeys.push(event.getApplicationKey());
-            debouncedSaveOnAppChange();
+
+            if (this.isSaving()) {
+                // Save might already have been initiated by the LiveEdit page on app remove
+                return;
+            }
+
+            saveOnAppChange();
         };
 
         this.applicationUninstalledListener = (event: ApplicationEvent) => {
@@ -1355,7 +1366,7 @@ export class ContentWizardPanel
             this.refreshScheduleWizardStep();
         }
 
-        this.fetchPersistedContent().then(this.updatePersistedItemIfNeeded.bind(this)).catch(DefaultErrorHandler.handle).done();
+        this.fetchPersistedContent().catch(DefaultErrorHandler.handle).done();
     }
 
     private updatePersistedItemIfNeeded(content: Content) {
@@ -1382,18 +1393,12 @@ export class ContentWizardPanel
         }
 
         if (!isEqualToForm || imageHasChanged) { //if image has changed then content contains new extraData to be set
-            this.setPersistedItem(content.clone());
-            this.initFormContext(content);
-            this.updateWizard(content, true);
+            const contentClone = content.clone();
+            this.setPersistedItem(contentClone);
+            this.initFormContext(contentClone);
+            this.updateWizard(contentClone, true);
 
-            if (this.isEditorEnabled()) {
-                // also update live form panel for renderable content without asking
-                this.updateLiveForm(content);
-            }
-
-            if (this.isDisplayNameUpdated()) {
-                // this.getWizardHeader().forceChangedEvent();
-            } else {
+            if (!this.isDisplayNameUpdated()) {
                 this.getWizardHeader().resetBaseValues();
             }
 
@@ -1542,9 +1547,7 @@ export class ContentWizardPanel
 
             let site = content.isSite() ? <Site>content : this.site;
 
-            this.unbindSiteModelListeners();
             this.siteModel = this.siteModel ? this.updateSiteModel(site) : this.createSiteModel(site);
-            this.initSiteModelListeners();
 
             return this.initLiveEditModel(content, this.siteModel, this.formContext).then((liveEditModel) => {
                 this.liveEditModel = liveEditModel;
@@ -1885,8 +1888,13 @@ export class ContentWizardPanel
     }
 
     private updateSiteModel(site: Site): SiteModel {
+        if (this.siteModel.getSite().equals(site)) {
+            return;
+        }
+
         this.unbindSiteModelListeners();
         this.siteModel.update(site);
+        this.site = site;
         this.initSiteModelListeners();
 
         return this.siteModel;
@@ -2315,6 +2323,10 @@ export class ContentWizardPanel
     }
 
     private initFormContext(content: Content) {
+        if (ContentWizardPanel.debug) {
+            console.debug('ContentWizardPanel.initFormContext');
+        }
+
         this.formContext = <ContentFormContext>ContentFormContext.create()
             .setSite(this.site)
             .setParentContent(this.parentContent)

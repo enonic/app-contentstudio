@@ -102,7 +102,7 @@ export class SiteConfigurator
             this.deselectOldViews(propertyArray);
 
             const selectedOptionViews = propertyArray.map(property =>
-                <SiteConfiguratorSelectedOptionView>this.selectOptionFromProperty(property).getOptionView());
+                <SiteConfiguratorSelectedOptionView>this.selectOptionFromProperty(property)?.getOptionView());
 
             const updatePromises = selectedOptionViews.map((view, index) => {
                 const configSet = propertyArray.get(index).getPropertySet().getProperty('config').getPropertySet();
