@@ -920,7 +920,7 @@ class HtmlEditorConfigBuilder {
     private enabledTools: string[] = [];
 
     private tools: any[] = [
-        ['Styles', 'Bold', 'Italic', 'Underline'],
+        ['Styles'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
         ['SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
@@ -975,11 +975,21 @@ class HtmlEditorConfigBuilder {
             this.includeTool('Fullscreen');
         }
 
+        const toolsToAdd: string[] = [];
+
+        this.enabledTools.forEach((tool: string) => {
+            if (tool === 'Bold' || tool === 'Italic' || tool === 'Underline') {
+                this.tools[0].push(tool);
+            } else {
+                toolsToAdd.push(tool);
+            }
+        });
+
         if (this.editorParams.isInline()) {
             this.tools[0].push('Strike', 'Superscript', 'Subscript');
         }
 
-        this.tools.push(this.enabledTools);
+        this.tools.push(toolsToAdd);
     }
 
     public static createEditorConfig(htmlEditorParams: HtmlEditorParams): Q.Promise<CKEDITOR.config> {
