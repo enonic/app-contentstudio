@@ -11,6 +11,8 @@ export interface ContentVersionJson {
 
     modified: string;
 
+    timestamp: string;
+
     comment: string;
 
     id: string;

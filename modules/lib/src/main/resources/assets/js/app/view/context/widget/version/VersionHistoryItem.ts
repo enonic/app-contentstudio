@@ -61,7 +61,7 @@ export class VersionHistoryItem {
 
         item.id = contentVersion.getId();
         item.revertable = !contentVersion.isActive();
-        item.dateTime = contentVersion.getModified();
+        item.dateTime = contentVersion.getTimestamp();
         item.user = contentVersion.getModifierDisplayName();
 
         if (isFirst) {
