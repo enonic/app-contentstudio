@@ -22,7 +22,6 @@ import {GridOptionsBuilder} from 'lib-admin-ui/ui/grid/GridOptions';
 import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
-import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
 import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
@@ -31,6 +30,7 @@ import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper
 import {GetComponentDescriptorRequest} from '../resource/GetComponentDescriptorRequest';
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {PartComponentType} from '../page/region/PartComponentType';
+import {Descriptor} from '../page/Descriptor';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemViewTreeGridWrapper> {

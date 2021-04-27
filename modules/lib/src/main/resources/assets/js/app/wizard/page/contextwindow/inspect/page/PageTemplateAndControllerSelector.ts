@@ -19,7 +19,6 @@ import {PageMode} from '../../../../../page/PageMode';
 import {Dropdown, DropdownConfig} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {LoadedDataEvent} from 'lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
-import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
@@ -28,6 +27,7 @@ import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponen
 import {Descriptor} from '../../../../../page/Descriptor';
 import {ComponentDescriptorsLoader} from '../region/ComponentDescriptorsLoader';
 import {PageComponentType} from '../../../../../page/region/PageComponentType';
+import {DescriptorKey} from '../../../../../page/DescriptorKey';
 
 export class PageTemplateAndControllerSelector
     extends Dropdown<PageTemplateAndControllerOption> {
