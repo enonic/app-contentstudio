@@ -23,7 +23,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
                 await studioUtils.doAddSite(SITE);
             });
 
-        it(`GIVEN content link is inserted in htmlarea WHEN 'Edit link' modal dialog is opened THEN Content tab should be active and expected content should be present in selected options`,
+        it(`GIVEN content link is inserted in a htmlarea WHEN 'Edit link' modal dialog is opened THEN Content tab should be active and expected content should be present in selected options`,
             async () => {
                 let htmlAreaForm = new HtmlAreaForm();
                 await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
@@ -41,10 +41,58 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
                 assert.equal(result, "Templates", "Expected selected option should be displayed in the  tab");
             });
 
-            //Verify issue Less strict Regexp for HtmlArea links
-            //Improvement: https://github.com/enonic/app-contentstudio/issues/1458
-            it.skip(
-                `GIVEN 'Insert Link' dialog is opened WHEN link to another section has been typed AND 'Insert' button pressed THEN the link should be inserted`,
+        it("GIVEN 'Insert Link' modal dialog is opened WHEN required 'URL' and text inputs are empty AND 'Insert' button has been pressed THEN validation message should appear in the dialog",
+            async () => {
+                let htmlAreaForm = new HtmlAreaForm();
+                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+                await htmlAreaForm.pause(1000);
+                //1. Open 'Insert Link' dialog:
+                let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+                //2. Do not insert a url and a text, but click on 'Insert' button:
+                await insertLinkDialog.clickOnInsertButton();
+                //3. Verify that both validation messages are displayed:
+                let validationMessage1 = await insertLinkDialog.getUrlInputValidationMessage();
+                assert.equal(validationMessage1, appConstant.THIS_FIELD_IS_REQUIRED, "Expected validation message gets visible");
+                let validationMessage2 = await insertLinkDialog.getTextInputValidationMessage();
+                assert.equal(validationMessage2, appConstant.THIS_FIELD_IS_REQUIRED, "Expected validation message gets visible");
+                studioUtils.saveScreenshot('htmlarea_url_link_empty');
+                //4. URL tab remains active:
+                let isActive = await insertLinkDialog.isTabActive('URL');
+                assert.isTrue(isActive, "'Url' tab should be active");
+            });
+
+        // verifies the XP-4698
+        it("GIVEN 'Insert Link' dialog is opened WHEN required 'text' input is not filled in AND 'Insert' button has been pressed THEN required validation message gets visible",
+            async () => {
+                let htmlAreaForm = new HtmlAreaForm();
+                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+                await htmlAreaForm.pause(1000);
+                //1. Open 'Insert Link' dialog and insert just an URL:
+                let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+                await insertLinkDialog.typeUrl("http://enonic.com");
+                //2. Click on 'Insert' button:
+                await insertLinkDialog.clickOnInsertButton();
+                //3. Verify that validation message for text-input is displayed(dialog is not closed):
+                let validationMessage = await insertLinkDialog.getTextInputValidationMessage();
+                assert.equal(validationMessage, appConstant.THIS_FIELD_IS_REQUIRED, "Expected validation message gets visible");
+            });
+
+        it("GIVEN InsertLinkModalDialog is opened WHEN 'Escape' key has been pressed THEN modal dialog should closes",
+            async () => {
+                let htmlAreaForm = new HtmlAreaForm();
+                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+                await htmlAreaForm.pause(1000);
+                //1. Open 'Insert Link' dialog:
+                let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
+                //2. Press Esc key and verify that the modal dialog is closed:
+                await insertLinkDialog.pressEscKey();
+                await insertLinkDialog.waitForDialogClosed();
+            });
+
+        //Verify issue Less strict Regexp for HtmlArea links
+        //Improvement: https://github.com/enonic/app-contentstudio/issues/1458
+        it.skip(
+            `GIVEN 'Insert Link' dialog is opened WHEN link to another section has been typed AND 'Insert' button pressed THEN the link should be inserted`,
             async () => {
                 let htmlAreaForm = new HtmlAreaForm();
                 await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');

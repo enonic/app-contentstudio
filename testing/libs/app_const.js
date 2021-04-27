@@ -173,6 +173,7 @@ module.exports = Object.freeze({
         HTML_AREA_0_1: `htmlarea0_1`,
         HTML_AREA_2_4: `htmlarea2_4`,
         IMG_SELECTOR_0_0: 'contenttypes:imageselector0_0',
+        IMG_SELECTOR_0_1: 'imageselector0_1',
         IMG_SELECTOR_1_1: 'imageselector1_1',
         IMG_SELECTOR_2_4: 'imageselector2_4',
         ARTICLE: `article`,

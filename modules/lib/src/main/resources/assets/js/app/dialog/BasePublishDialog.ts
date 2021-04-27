@@ -209,7 +209,8 @@ export abstract class BasePublishDialog
     }
 
     protected initActions() {
-        this.markAllAsReadyAction = new Action(i18n('action.markAsReady')).onExecuted(this.markAllAsReady.bind(this));
+        const allow = CONFIG.allowContentUpdate === 'true';
+        this.markAllAsReadyAction = new Action(i18n('action.markAsReady')).onExecuted(this.markAllAsReady.bind(this)).setEnabled(allow);
     }
 
     protected toggleAction(enable: boolean) {

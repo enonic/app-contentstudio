@@ -558,9 +558,14 @@ module.exports = {
     },
 
     async switchToContentTabWindow(contentDisplayName) {
-        await webDriverHelper.browser.switchWindow(contentDisplayName);
-        let contentWizardPanel = new ContentWizardPanel();
-        return await contentWizardPanel.waitForSpinnerNotVisible();
+        try {
+            await webDriverHelper.browser.switchWindow(contentDisplayName);
+            let contentWizardPanel = new ContentWizardPanel();
+            return await contentWizardPanel.waitForSpinnerNotVisible();
+        } catch (err) {
+            await webDriverHelper.browser.pause(1500);
+            await webDriverHelper.browser.switchWindow(contentDisplayName);
+        }
     },
     doPressBackspace: function () {
         return webDriverHelper.browser.keys('\uE003');

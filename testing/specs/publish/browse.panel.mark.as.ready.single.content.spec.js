@@ -36,7 +36,7 @@ describe('browse.panel.mark.as.ready.single.content.spec - select single content
                 await contentPublishDialog.waitForPublishNowButtonEnabled();
                 let state = await contentPublishDialog.getWorkflowState(name);
                 studioUtils.saveScreenshot("content_gets_ready_to_publish");
-                assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+                assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content gets 'Ready for publishing'");
             });
 
         //verifies https://github.com/enonic/app-contentstudio/issues/2736
@@ -61,7 +61,7 @@ describe('browse.panel.mark.as.ready.single.content.spec - select single content
                 await createRequestPublishDialog.waitForNextButtonEnabled();
                 let state = await createRequestPublishDialog.getWorkflowState(name);
                 studioUtils.saveScreenshot("ready_to_publish_via_menu_action");
-                assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+                assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content gets 'Ready for publishing'");
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -97,16 +97,16 @@ export class CustomSelector
         if (!ValueTypes.STRING.equals(propertyArray.getType())) {
             propertyArray.convertValues(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
-        super.layout(input, propertyArray);
 
-        this.comboBox = this.createComboBox(input, propertyArray);
+        return super.layout(input, propertyArray).then(() => {
+            this.comboBox = this.createComboBox(input, propertyArray);
+            this.appendChild(this.comboBox);
 
-        this.appendChild(this.comboBox);
+            this.setupSortable();
+            this.setLayoutInProgress(false);
 
-        this.setupSortable();
-        this.setLayoutInProgress(false);
-
-        return Q<void>(null);
+            return Q<void>(null);
+        });
     }
 
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {

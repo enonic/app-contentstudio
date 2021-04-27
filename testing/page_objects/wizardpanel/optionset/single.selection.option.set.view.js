@@ -20,6 +20,7 @@ const xpath = {
 
 class SingleSelectionOptionSet extends Page {
 
+    //Single selection, Option 1, name input:
     get nameTextInput() {
         return xpath.container + xpath.nameTextInput;
     }

@@ -119,10 +119,6 @@ export class MediaUploader
         return Q<void>(null);
     }
 
-    validate(): InputValidationRecording {
-        return new InputValidationRecording();
-    }
-
     updateProperty(property: Property, unchangedOnly?: boolean): Q.Promise<void> {
         if ((!unchangedOnly || !this.mediaUploaderEl.isDirty()) && this.getContext().content.getContentId()) {
 

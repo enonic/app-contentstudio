@@ -19,6 +19,8 @@ describe('htmlarea1_0.cke.spec: tests for html area with CKE', function () {
     const TEXT_TO_TYPE = "test text";
     let SITE;
     let htmlAreaContent;
+    const CONTENT_NAME_1 = contentBuilder.generateRandomName('area');
+    const CONTENT_NAME_2 = contentBuilder.generateRandomName('area');
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -27,28 +29,62 @@ describe('htmlarea1_0.cke.spec: tests for html area with CKE', function () {
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN html area is empty and the content has been saved THEN red icon should not be present, because the input is not required`,
+    it(`WHEN wizard for 'htmlArea 0:1' is opened THEN single htmlarea should be present by default`,
         async () => {
+            let htmlAreaForm = new HtmlAreaForm();
             let contentWizard = new ContentWizard();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
-            await contentWizard.typeDisplayName('test_area0_1');
+            await contentWizard.typeDisplayName(CONTENT_NAME_1);
             await contentWizard.waitAndClickOnSave();
-            let result = await contentWizard.isContentInvalid();
-            studioUtils.saveScreenshot('cke_htmlarea_should_be_valid');
-            assert.isFalse(result, EXPECTED_TEXT_TEXT1, 'the content should be valid, because the input is not required');
+            let ids = await htmlAreaForm.getIdOfHtmlAreas();
+            assert.equal(ids.length, 1, "Single html area should be displayed by default");
+            //Verify that toolbar is not visible:
+            let isToolbarVisible = await htmlAreaForm.isEditorToolbarVisible(0);
+            assert.isFalse(isToolbarVisible, 'Html Area toolbar should be hidden by default');
+            //Verify that Add button is not present:
+            await htmlAreaForm.waitForAddButtonNotDisplayed();
+            //Verify that Mark as ready button is displayed in the wizard toolbar:
+            await contentWizard.waitForMarkAsReadyButtonVisible();
         });
 
-    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN text has been typed THEN expected text should appear in the area`,
+    it(`GIVEN wizard for new 'htmlArea 0:1' is opened WHEN content has been saved THEN red icon should not be present, because the input is not required`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let htmlAreaForm = new HtmlAreaForm();
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            await contentWizard.typeDisplayName(CONTENT_NAME_2);
+            await contentWizard.waitAndClickOnSave();
+            let isNotValid = await contentWizard.isContentInvalid();
+            studioUtils.saveScreenshot('cke_htmlarea_should_be_valid');
+            assert.isFalse(isNotValid, 'the content should be valid, because the input is not required');
+            let actualResult = await htmlAreaForm.getTextFromHtmlArea();
+            assert.equal(actualResult[0], "", "Html Area should be empty");
+        });
+
+    it(`GIVEN htmlarea(0:1) content was saved with empty html area WHEN the content has been re-opened THEN text area should be empty`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let htmlAreaForm = new HtmlAreaForm();
+            await studioUtils.selectContentAndOpenWizard(CONTENT_NAME_2);
+            let isNotValid = await contentWizard.isContentInvalid();
+            studioUtils.saveScreenshot('cke_htmlarea_should_be_valid');
+            assert.isFalse(isNotValid, 'the content should be valid, because the input is not required');
+            let actualResult = await htmlAreaForm.getTextFromHtmlArea();
+            assert.equal(actualResult[0], "", "Html Area should be empty");
+        });
+
+    it(`GIVEN wizard for new 'htmlArea 0:1' is opened WHEN text has been typed THEN expected text should appear in the area`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
-            await htmlAreaForm.typeTextInHtmlArea(TEXT_TO_TYPE)
+            //await htmlAreaForm.typeTextInHtmlArea(TEXT_TO_TYPE);
+            await htmlAreaForm.insertTextInHtmlArea(0, TEXT_TO_TYPE);
             let result = await htmlAreaForm.getTextFromHtmlArea();
             studioUtils.saveScreenshot('cke_htmlarea_0_1');
             assert.equal(result[0], EXPECTED_TEXT_TEXT1, 'expected and actual value should be equals');
         });
 
-    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN all data has been typed and saved THEN expected notification message should be displayed `,
+    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN all data has been typed and saved THEN expected notification message should be displayed`,
         async () => {
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('htmlarea');

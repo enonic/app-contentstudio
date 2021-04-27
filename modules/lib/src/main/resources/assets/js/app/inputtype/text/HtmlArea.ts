@@ -103,10 +103,6 @@ export class HtmlArea
 
         const textAreaWrapper = new TextAreaWrapper();
 
-        if (this.inputConfig['include']) {
-            textAreaWrapper.addClass('customized-toolbar');
-        }
-
         textAreaEl.onRendered(() => {
             this.authRequest.then(() => {
                 this.initEditor(editorId, property, textAreaWrapper).then(() => {
