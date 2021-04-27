@@ -88,7 +88,11 @@ export class PublishScheduleForm
         if (!flag) {
             const data = this.scheduleFormView.getData();
             data.reset();
-            this.scheduleFormView.update(data, false);
+
+            if (this.scheduleFormView.isRendered()) {
+                this.scheduleFormView.update(data, false);
+            }
+
             this.removeClass('invalid');
         }
 
