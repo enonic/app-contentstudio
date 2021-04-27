@@ -1,5 +1,4 @@
 import {Regions} from '../../page/region/Regions';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {IEObjectProcessor} from './IEObjectProcessor';
 import {Descriptor} from '../../page/Descriptor';
 

@@ -23,7 +23,6 @@ import {Site} from '../../../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentQuery} from '../../../../content/ContentQuery';
 import {PageMode} from '../../../../page/PageMode';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
 import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
