@@ -34,7 +34,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             await studioUtils.doAddSite(SITE);
         });
 
-    it("GIVEN  WHEN  THEN ",
+    it.skip("GIVEN  WHEN  THEN ",
         async () => {
             let contentWizard = new ContentWizard();
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
