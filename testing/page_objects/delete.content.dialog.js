@@ -107,7 +107,7 @@ class DeleteContentDialog extends Page {
             await this.getBrowser().waitUntil(async () => {
                 let text = await this.getText(this.deleteNowButton);
                 return text.includes('(');
-            }, appConst.mediumTimeout);
+            }, {timeout: appConst.mediumTimeout});
             let result = await this.getText(this.deleteNowButton);
             let startIndex = result.indexOf('(');
             let endIndex = result.indexOf(')');
@@ -147,4 +147,5 @@ class DeleteContentDialog extends Page {
         return await this.getTextInElements(selector);
     }
 }
+
 module.exports = DeleteContentDialog;

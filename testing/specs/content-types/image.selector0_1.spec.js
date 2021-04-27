@@ -42,7 +42,7 @@ describe('image.selector0_1.spec tests for not required image selector',
                 assert.isFalse(result, "This content should be valid, because the image selector is not required input");
                 //5. Click on Mark as ready button:
                 await contentWizard.clickOnMarkAsReadyButton();
-                //6. Verify that Save button gets disabled:
+                //6. Verify that 'Save' button gets disabled:
                 await contentWizard.waitForSaveButtonDisabled();
                 //7. Verify the workflow state:
                 let iconState = await contentWizard.getIconWorkflowState();

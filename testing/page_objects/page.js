@@ -200,7 +200,7 @@ class Page {
     waitForElementNotDisplayed(selector, ms) {
         return this.getBrowser().waitUntil(() => {
             return this.getDisplayedElements(selector).then(result => {
-                return result.length == 0;
+                return result.length === 0;
             })
         }, {timeout: ms, timeoutMsg: "Timeout exception. Element " + selector + " still visible, timeout is " + ms});
     }

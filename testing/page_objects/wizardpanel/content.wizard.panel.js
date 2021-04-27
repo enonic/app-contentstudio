@@ -395,7 +395,6 @@ class ContentWizardPanel extends Page {
             this.saveScreenshot(appConst.generateRandomName("err_edit_perm_button"));
             throw new Error(err);
         }
-
     }
 
     waitForOpened() {
@@ -661,7 +660,6 @@ class ContentWizardPanel extends Page {
             await this.switchToMainFrame();
             throw new Error(err);
         }
-
     }
 
     waitForControllerOptionFilterInputNotVisible() {

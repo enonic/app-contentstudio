@@ -47,7 +47,7 @@ class EditPermissionsDialog extends Page {
         let message = "Edit Permissions Dialog is not closed! timeout is " + 3000;
         return this.getBrowser().waitUntil(() => {
             return this.isElementNotDisplayed(xpath.container);
-        }, appConst.mediumTimeout, message).then(() => {
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: message}).then(() => {
             return this.pause(400);
         })
     }

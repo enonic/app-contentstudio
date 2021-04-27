@@ -1,46 +1,20 @@
 /**
  * Created on 25.12.2017.
  */
-const Page = require('../page');
+const OccurrencesFormView = require('./occurrences.form.view');
 const lib = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
 const XPATH = {
     longInput: "//div[contains(@id,'Long') and contains(@class,'input-type-view')]",
-    validationRecording: "//div[contains(@id,'ValidationRecordingViewer')]//li",
+    occurrenceErrorBlock: `//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]`,
+    inputValidationView: "//div[contains(@id,'InputViewValidationViewer')]",
     addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
 };
 
-class LongForm extends Page {
+class LongForm extends OccurrencesFormView {
 
     get longInput() {
         return lib.FORM_VIEW + XPATH.longInput + lib.TEXT_INPUT;
-    }
-
-    get validationRecord() {
-        return lib.FORM_VIEW + XPATH.validationRecording;
-    }
-
-    get addButton() {
-        return lib.FORM_VIEW + XPATH.addButton;
-    }
-
-    async clickOnAddButton() {
-        await this.waitForElementDisplayed(this.addButton);
-        return await this.clickOnElement(this.addButton);
-    }
-
-    waitForValidationRecording(ms) {
-        return this.waitForElementDisplayed(this.validationRecord, ms);
-    }
-
-    isValidationRecordingVisible() {
-        return this.isElementDisplayed(this.validationRecord);
-    }
-
-    getValidationRecord() {
-        return this.getText(this.validationRecord).catch(err => {
-            this.saveScreenshot('err_long_validation_record');
-            throw new Error('getting Validation text: ' + err);
-        })
     }
 
     //get values in occurrences of inputs

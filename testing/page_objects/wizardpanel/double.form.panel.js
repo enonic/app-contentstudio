@@ -2,17 +2,19 @@
  * Created on 25.12.2017.
  */
 
-const Page = require('../page');
+const OccurrencesFormView = require('./occurrences.form.view');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
     doubleInput: `//div[contains(@id,'Double')]`,
-    validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
+    occurrenceErrorBlock: `//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]`,
+    inputValidationView: "//div[contains(@id,'InputViewValidationViewer')]",
+
     addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
     occurrenceView: "//div[contains(@id,'InputOccurrenceView')]",
 };
 
-class DoubleForm extends Page {
+class DoubleForm extends OccurrencesFormView {
 
     get doubleInput() {
         return lib.FORM_VIEW + XPATH.doubleInput + lib.TEXT_INPUT;
@@ -22,19 +24,6 @@ class DoubleForm extends Page {
         return XPATH.doubleInput + XPATH.occurrenceView + lib.REMOVE_BUTTON_2;
     }
 
-    get validationRecord() {
-        return lib.FORM_VIEW + XPATH.validationRecording;
-    }
-
-    get addButton() {
-        return lib.FORM_VIEW + XPATH.addButton;
-    }
-
-    async clickOnAddButton() {
-        await this.waitForElementDisplayed(this.addButton);
-        return await this.clickOnElement(this.addButton);
-    }
-
     async typeDouble(value, index) {
         index = typeof index !== 'undefined' ? index : 0;
         let doubleElements = await this.getDisplayedElements(this.doubleInput);
@@ -42,19 +31,8 @@ class DoubleForm extends Page {
         return await this.pause(300);
     }
 
-    waitForValidationRecording() {
-        return this.waitForElementDisplayed(this.validationRecord, appConst.shortTimeout);
-    }
-
-    isValidationRecordingVisible() {
-        return this.isElementDisplayed(this.validationRecord);
-    }
-
-    getValidationRecord() {
-        return this.getText(this.validationRecord).catch(err => {
-            this.saveScreenshot('err_double_validation_record');
-            throw new Error('getting Validation text: ' + err);
-        })
+    getNumberOfInputs() {
+        return this.getDisplayedElements(this.doubleInput);
     }
 
     async isInvalidValue(index) {

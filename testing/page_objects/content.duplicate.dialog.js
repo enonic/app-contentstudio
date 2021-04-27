@@ -109,7 +109,7 @@ class ContentDuplicateDialog extends Page {
             await this.getBrowser().waitUntil(async () => {
                 let text = await this.getText(this.duplicateButton);
                 return text.includes('(');
-            }, appConst.mediumTimeout);
+            }, {timeout: appConst.mediumTimeout});
             let result = await this.getText(this.duplicateButton);
             let startIndex = result.indexOf('(');
             let endIndex = result.indexOf(')');
