@@ -72,7 +72,7 @@ export class VersionHistoryList
             })
             .forEach((version: ContentVersion, index) => {
                 const displayDate = version.getDisplayDate();
-                const skipDuplicateVersion: boolean = this.versionDates[Number(version.getModified())] !== version.getId();
+                const skipDuplicateVersion: boolean = this.versionDates[Number(version.getTimestamp())] !== version.getId();
 
                 if (version.hasPublishInfo()) {
                     const publishInfo = version.getPublishInfo();
@@ -87,18 +87,18 @@ export class VersionHistoryList
 
                 if (!skipDuplicateVersion) {
                     const isFirstVersion: boolean = index === lastIndex;
-                    const modifiedDate: Date = isFirstVersion ? this.content.getContentSummary().getCreatedTime() : version.getModified();
-                    const modifiedDateAsString: string = DateHelper.formatDate(modifiedDate);
+                    const timestamp: Date = isFirstVersion ? this.content.getContentSummary().getCreatedTime() : version.getTimestamp();
+                    const timestampAsString: string = DateHelper.formatDate(timestamp);
 
                     if (!version.isUnpublished()) {
                         versionHistoryItems.push(
                             VersionHistoryItem.fromContentVersion(version, isFirstVersion ? modifiedDate : null)
-                                .setSkipDate(modifiedDateAsString === lastDate)
+                                .setSkipDate(timestampAsString === lastDate)
                                 .setActiveVersionId(this.activeVersionId)
                         );
                     }
 
-                    lastDate = modifiedDateAsString;
+                    lastDate = timestampAsString;
                 }
             });
 
@@ -137,7 +137,7 @@ export class VersionHistoryList
         this.versionDates = {};
         return new GetContentVersionsRequest(this.getContentId()).sendAndParse().then((contentVersions: ContentVersions) => {
             contentVersions.getContentVersions().forEach((version: ContentVersion, index: number) => {
-                this.versionDates[Number(version.getModified())] = version.getId();
+                this.versionDates[Number(version.getTimestamp())] = version.getId();
                 if (version.isActive()) {
                     this.activeVersionId = version.getId();
                 }

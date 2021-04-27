@@ -15,6 +15,8 @@ export class ContentVersion
 
     private modified: Date;
 
+    private timestamp: Date;
+
     private comment: string;
 
     private id: string;
@@ -33,6 +35,7 @@ export class ContentVersion
         this.modifier = builder.modifier;
         this.displayName = builder.displayName;
         this.modified = builder.modified;
+        this.timestamp = builder.timestamp;
         this.modifierDisplayName = builder.modifierDisplayName;
         this.comment = builder.comment;
         this.id = builder.id;
@@ -84,11 +87,15 @@ export class ContentVersion
             return publishInfo.getTimestamp();
         }
 
-        return this.getModified();
+        return this.getTimestamp();
     }
 
     getModified(): Date {
         return this.modified;
+    }
+
+    getTimestamp(): Date {
+        return this.timestamp;
     }
 
     getComment(): string {
@@ -194,6 +201,8 @@ export class ContentVersionBuilder {
 
     modified: Date;
 
+    timestamp: Date;
+
     comment: string;
 
     id: string;
@@ -210,6 +219,7 @@ export class ContentVersionBuilder {
             this.modifierDisplayName = source.getModifierDisplayName();
             this.displayName = source.getDisplayName();
             this.modified = !!source.getModified() ? new Date(source.getModified().getTime()) : null;
+            this.timestamp = !!source.getTimestamp() ? new Date(source.getTimestamp().getTime()) : null;
             this.comment = source.getComment();
             this.id = source.getId();
             this.workspaces = source.getWorkspaces().slice();
@@ -222,6 +232,7 @@ export class ContentVersionBuilder {
         this.modifier = contentVersionJson.modifier;
         this.displayName = contentVersionJson.displayName;
         this.modified = !!contentVersionJson.modified ? new Date(contentVersionJson.modified) : null;
+        this.timestamp = !!contentVersionJson.timestamp ? new Date(contentVersionJson.timestamp) : null;
         this.modifierDisplayName = contentVersionJson.modifierDisplayName;
         this.comment = contentVersionJson.comment;
         this.id = contentVersionJson.id;
