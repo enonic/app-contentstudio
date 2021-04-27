@@ -185,7 +185,11 @@ export class RequestContentPublishDialog
         this.publishScheduleForm.setFormVisible(false, true);   // form will be reset on hide as well
         this.publishProcessor.reloadPublishDependencies(true);
         this.requestDetailsPropertySet.reset();
-        this.detailsFormView.update(this.requestDetailsPropertySet, false);
+
+        if (this.detailsFormView.isRendered()) {
+            this.detailsFormView.update(this.requestDetailsPropertySet, false);
+        }
+
         this.goToStep(0);
 
         super.open();

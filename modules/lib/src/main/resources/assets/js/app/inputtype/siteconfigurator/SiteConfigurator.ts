@@ -268,12 +268,6 @@ export class SiteConfigurator
         return result;
     }
 
-    displayValidationErrors() {
-        this.comboBox.getSelectedOptionViews().forEach((view: SiteConfiguratorSelectedOptionView) => {
-            view.getFormView().displayValidationErrors(!this.hasValidUserInput());
-        });
-    }
-
     protected getNumberOfValids(): number {
         const anyInvalid: boolean = this.comboBox.getSelectedOptionViews().some((view: SiteConfiguratorSelectedOptionView) =>
             !view.getFormView().isValid()
