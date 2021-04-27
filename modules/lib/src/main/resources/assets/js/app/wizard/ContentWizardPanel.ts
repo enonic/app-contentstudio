@@ -1369,46 +1369,6 @@ export class ContentWizardPanel
         this.fetchPersistedContent().catch(DefaultErrorHandler.handle).done();
     }
 
-    private updatePersistedItemIfNeeded(content: Content) {
-        let isEqualToForm;
-        let imageHasChanged;
-
-        const current = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem()), true).build();
-
-        if (content.getType().isImage()) {
-            imageHasChanged = content.getIconUrl() !== current.getIconUrl();
-
-            // if new image has been uploaded then different iconUrl was generated on server from what we have here
-            // in this case don't compare extraData as it will be different for new image too
-            isEqualToForm = content.getDisplayName() === current.getDisplayName() &&
-                            content.getName().equals(current.getName()) &&
-                            (imageHasChanged || content.extraDataEquals(current.getAllExtraData(), true)) &&
-                            content.dataEquals(current.getContentData(), true) &&
-                            content.getPermissions().equals(current.getPermissions());
-        } else {
-            // Use `content` as `this` value in the `equals` call:
-            // `current` is instance of `Content`, while content may be the instance of `Site`.
-            // Another order may result in returning `false`.
-            isEqualToForm = current.equals(content, true);
-        }
-
-        if (!isEqualToForm || imageHasChanged) { //if image has changed then content contains new extraData to be set
-            const contentClone = content.clone();
-            this.setPersistedItem(contentClone);
-            this.initFormContext(contentClone);
-            this.updateWizard(contentClone, true);
-
-            if (!this.isDisplayNameUpdated()) {
-                this.getWizardHeader().resetBaseValues();
-            }
-
-            this.wizardActions.setDeleteOnlyMode(current, false);
-        } else {
-            // this update was triggered by our changes, so reset dirty state after save
-            this.resetWizard();
-        }
-    }
-
     private handleOtherContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
         const contentId: ContentId = updatedContent.getContentId();
         const containsIdPromise: Q.Promise<boolean> = this.createComponentsContainIdPromise(contentId);
@@ -1889,7 +1849,7 @@ export class ContentWizardPanel
 
     private updateSiteModel(site: Site): SiteModel {
         if (this.siteModel.getSite().equals(site)) {
-            return;
+            return this.siteModel;
         }
 
         this.unbindSiteModelListeners();
