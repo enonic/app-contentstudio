@@ -106,7 +106,7 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             //4. Verify this content is not valid, because double input is required:
             await contentWizard.waitUntilInvalidIconAppears();
             //5. Verify that validation form message gets visible after the saving:
-            let validationMessage = await doubleForm.getForFormValidationRecording();
+            let validationMessage = await doubleForm.getFormValidationRecording();
             assert.equal(validationMessage, appConstant.THIS_FIELD_IS_REQUIRED, "This field is required - this message should appear");
         });
 

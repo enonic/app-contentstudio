@@ -28,6 +28,8 @@ module.exports = Object.freeze({
     OPTION_SET_MENU_BUTTON: "//button[contains(@id,'MoreButton')]",
     validationRecording: "//div[contains(@id,'ValidationRecordingViewer')]//li",
     inputView: "//div[contains(@id,'InputView')]",
+    INPUT_VALIDATION_VIEW: "//div[contains(@id,'InputViewValidationViewer')]",
+    OCCURRENCE_ERROR_BLOCK: "//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]",
     tabBarItemByName: function (name) {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
     },

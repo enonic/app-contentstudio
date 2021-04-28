@@ -23,7 +23,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             let siteConfiguratorDialog = new SiteConfiguratorDialog();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for site configurator', [appConstant.APP_WITH_CONFIGURATOR]);
-            await studioUtils.doAddSite(SITE);
+            await studioUtils.doAddSite(SITE, true);
             //1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             //2. Click on Edit icon and open Site Configurator Dialog:

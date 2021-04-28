@@ -45,7 +45,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 assert.isTrue(result, "This content should be not valid, because the image selector is required input");
                 //6. Verify that validation recording appears after the saving:
                 await contentWizard.waitAndClickOnSave();
-                let record = await imageSelectorForm.getValidationRecord();
+                    let record = await imageSelectorForm.getFormValidationRecording();
                 assert.equal(record, "This field is required", "Expected validation record gets visible");
             });
 
@@ -99,7 +99,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 //5. Verify that default action is 'Create Task':
                 await contentWizard.waitForCreateTaskButtonDisplayed();
                 //6. Validation recording gets visible now:
-                let record = await imageSelectorForm.getValidationRecord();
+                    let record = await imageSelectorForm.getFormValidationRecording();
                 assert.equal(record, "This field is required", "Expected validation record gets visible");
                 //7. Remove button should be not visible:
                 await imageSelectorForm.waitForRemoveButtonNotDisplayed();

@@ -76,7 +76,7 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             let result = await contentWizard.isContentInvalid();
             assert.isTrue(result, "The content should be not valid, because html area is required input");
             //4. Verify that validation message gets visible now:
-            let message = await htmlAreaForm.getValidationRecord();
+            let message = await htmlAreaForm.getFormValidationRecording();
             assert.equal(message, "This field is required", "Expected message should be displayed");
         });
 

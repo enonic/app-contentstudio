@@ -1,7 +1,7 @@
 /**
  * Created on 26.04.2018.
  */
-const Page = require('../page');
+const OccurrencesFormView = require('./occurrences.form.view');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const InsertLinkDialog = require('./insert.link.modal.dialog.cke');
@@ -48,14 +48,10 @@ const XPATH = {
     }
 };
 
-class HtmlAreaForm extends Page {
+class HtmlAreaForm extends OccurrencesFormView {
 
     get fullScreenButton() {
         return lib.FORM_VIEW + XPATH.fullScreen;
-    }
-
-    get validationRecord() {
-        return lib.FORM_VIEW + lib.inputView + lib.validationRecording;
     }
 
     get addButton() {
@@ -359,24 +355,6 @@ class HtmlAreaForm extends Page {
             console.log('Increase Indent  button is not visible! ' + err);
             return false;
         })
-    }
-
-    waitForValidationRecording() {
-        return this.waitForElementDisplayed(this.validationRecord, appConst.mediumTimeout);
-    }
-
-    isValidationRecordingVisible() {
-        return this.isElementDisplayed(this.validationRecord);
-    }
-
-    async getValidationRecord() {
-        try {
-            await this.waitForValidationRecording();
-            return await this.getText(this.validationRecord);
-        } catch (err) {
-            this.saveScreenshot('err_textarea_validation_record');
-            throw new Error('getting Validation text: ' + err);
-        }
     }
 
     async removeTextArea(index) {

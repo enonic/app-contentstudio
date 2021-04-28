@@ -239,7 +239,7 @@ module.exports = {
             return this.doSwitchToContentBrowsePanel();
         });
     },
-    async doAddSite(site) {
+    async doAddSite(site, noControllers) {
         let contentWizardPanel = new ContentWizardPanel();
         //1. Open new site-wizard:
         await this.openContentWizard(appConst.contentTypes.SITE);
@@ -247,6 +247,9 @@ module.exports = {
         //2. Type the data and save:
         if (site.data.controller) {
             await contentWizardPanel.selectPageDescriptor(site.data.controller);
+        }
+        if (noControllers) {
+            await contentWizardPanel.waitAndClickOnSave();
         }
         await this.doCloseCurrentBrowserTab();
         await this.doSwitchToContentBrowsePanel();
