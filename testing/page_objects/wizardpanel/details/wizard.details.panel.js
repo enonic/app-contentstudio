@@ -34,10 +34,9 @@ class WizardDetailsPanel extends BaseDetailsPanel {
             }).then(el => {
                 return this.getBrowser().getElementCSSValue(el.elementId, "width");
             }).then(width => {
-                //console.log("COMPARE: " + (width.value) + " " + (getPanelWidth(width.value) > 0));
                 return getPanelWidth(width) > 100;
             })
-        }, appConst.shortTimeout, "Details Panel was not loaded in 2000!!!");
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Details Panel was not loaded in 2000!!!"});
     }
 
     isDetailsPanelLoaded() {
@@ -48,7 +47,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
                 console.log("width: " + width);
                 return getPanelWidth(width) > 0;
             });
-        }, appConst.TIMEOUT_1).catch(err => {
+        }, {timeout: appConst.TIMEOUT_1}).catch(err => {
             console.log("Wizard details panel is not loaded" + err);
             return false;
         });
@@ -57,8 +56,8 @@ class WizardDetailsPanel extends BaseDetailsPanel {
 
 function getPanelWidth(width) {
     return width.substring(0, width.indexOf("px"));
+}
 
-};
 module.exports = WizardDetailsPanel;
 
 

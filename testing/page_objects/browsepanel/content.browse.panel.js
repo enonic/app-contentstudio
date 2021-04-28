@@ -222,9 +222,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return this.getAttribute(xpath, 'class').then(result => {
                 return (!result.includes('in-progress') && !result.includes('ready'));
             });
-        }, appConst.mediumTimeout).catch(err => {
-            throw new Error("Workflow icon still visible in content: " + displayName + " " + err);
-        });
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Workflow icon is still visible in content: " + displayName});
     }
 
     //Wait for `Publish Menu` Button gets 'Mark as ready'

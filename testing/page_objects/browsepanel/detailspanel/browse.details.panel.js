@@ -15,6 +15,7 @@ class BrowseDetailsPanel extends BaseDetailsPanel {
     get widgetSelectorDropdownHandle() {
         return xpath.container + xpath.widgetSelectorDropdown + lib.DROP_DOWN_HANDLE;
     }
+
     get widgetSelectorDropdown() {
         return xpath.container + xpath.widgetSelectorDropdown;
     }
@@ -35,11 +36,9 @@ class BrowseDetailsPanel extends BaseDetailsPanel {
             return this.getAttribute(selector, 'class').then(result => {
                 return result.includes('no-selection');
             })
-        }, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_details_panel_not_cleared');
-            throw new Error("Details Panel should be cleared" + err);
-        });
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Details Panel should be cleared"});
     }
-};
+}
+
 module.exports = BrowseDetailsPanel;
 

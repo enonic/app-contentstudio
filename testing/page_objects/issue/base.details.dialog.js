@@ -115,7 +115,7 @@ class BaseDetailsDialog extends Page {
     waitForIssueTitleInputNotEditable() {
         return this.getBrowser().waitUntil(() => {
             return this.isElementDisplayed(`//div[contains(@id,'IssueDetailsInPlaceTextInput') and contains (@class,'disabled')]`);
-        }, appConst.mediumTimeout, "Issue details dialog - title should not be editable!");
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Issue details dialog - title should not be editable!"});
     }
 
     async clickOnIssueStatusSelectorAndCloseIssue() {

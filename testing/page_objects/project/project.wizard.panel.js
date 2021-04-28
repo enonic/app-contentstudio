@@ -326,7 +326,7 @@ class ProjectWizardPanel extends Page {
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(selector, "class");
             return result.includes("expanded");
-        }, appConst.mediumTimeout, "Project access menu should be expanded!");
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Project access menu should be expanded!"});
     }
 
     getSelectedRoleInProjectAccessControlEntry(name) {

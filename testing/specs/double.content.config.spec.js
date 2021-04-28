@@ -33,12 +33,17 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             //1. Click on 'Add' button and add one more input:
             await doubleForm.clickOnAddButton();
             await doubleForm.pause(1000);
+            let numberInputs = await doubleForm.getNumberOfInputs();
+            assert.equal(numberInputs.length, 3, "3 double input should be displayed");
             //2. Remove the top input:
             await doubleForm.clickOnRemoveIcon(0);
-            //3. Verify that the content is valid:
-            let isVisible = await doubleForm.isValidationRecordingVisible();
+            //3.Verify that number of inputs is 2:
+            numberInputs = await doubleForm.getNumberOfInputs();
+            assert.equal(numberInputs.length, 2, "Single double input should be displayed");
+            //4. Verify that the content is valid:
+            let recording = await doubleForm.getOccurrenceValidationRecording(0);
             studioUtils.saveScreenshot('double_default_value_1');
-            assert.isFalse(isVisible, 'Validation recording should not be displayed');
+            assert.equal(recording, "", 'Validation recording should not be displayed');
             let result = await contentWizard.isContentInvalid();
             assert.isFalse(result, "Double 2:4 content should be valid");
         });
@@ -51,9 +56,9 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             //1. Number in the allowed range has been typed
             await doubleForm.pause(1000);
             //2. Verify the validation recording:
-            let isVisible = await doubleForm.isValidationRecordingVisible();
+            let recording = await doubleForm.getOccurrenceValidationRecording(0);
             studioUtils.saveScreenshot('double_min_max_1');
-            assert.isFalse(isVisible, 'Validation recording should not be displayed');
+            assert.equal(recording, "", 'Validation recording should not be displayed');
         });
 
     it(`GIVEN wizard for 'Double(min 0,max 3.14159)' is opened WHEN value less than 'min' has been typed THEN validation record should be visible`,
@@ -63,10 +68,8 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             //1. value less than 'min' has been typed:
             await doubleForm.typeDouble('-1.1');
             //2. Verify the validation recording:
-            let isVisible = await doubleForm.waitForValidationRecording();
             studioUtils.saveScreenshot('double_min_max_2');
-            assert.isTrue(isVisible, 'Validation recording should appear');
-            let actualMessage = await doubleForm.getValidationRecord();
+            let actualMessage = await doubleForm.getOccurrenceValidationRecording(0);
             assert.equal(actualMessage, 'The value cannot be less than 0', 'expected validation recording should appear');
         });
 
@@ -77,12 +80,10 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             //1. Value more than max has been typed
             await doubleForm.typeDouble('3.5');
             //2. Verify the validation recording:
-            await doubleForm.waitForValidationRecording();
             studioUtils.saveScreenshot('double_min_max_3');
-            let actualMessage = await doubleForm.getValidationRecord();
-            //3. Verify the expected validation message:
+            let actualMessage = await doubleForm.getOccurrenceValidationRecording(0);
             assert.equal(actualMessage, 'The value cannot be greater than 3.14159', 'expected validation recording should appear');
-            //4. Verify that input is displayed with red border
+            //3. Verify that input is displayed with red border
             let isInputRed = await doubleForm.isInvalidValue(0);
             assert.isTrue(isInputRed, "input should be with red border");
         });
@@ -99,11 +100,14 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             //2. Verify the validation recording:
             await contentWizard.waitAndClickOnSave();
             studioUtils.saveScreenshot('double_min_max_4');
-            let actualMessage = await doubleForm.getValidationRecord();
+            let actualMessage = await doubleForm.getOccurrenceValidationRecording(0);
             //3. Verify the expected validation message:
             assert.equal(actualMessage, 'The value cannot be greater than 3.14159', 'expected validation recording should appear');
             //4. Verify this content is not valid, because double input is required:
             await contentWizard.waitUntilInvalidIconAppears();
+            //5. Verify that validation form message gets visible after the saving:
+            let validationMessage = await doubleForm.getForFormValidationRecording();
+            assert.equal(validationMessage, appConstant.THIS_FIELD_IS_REQUIRED, "This field is required - this message should appear");
         });
 
     it(`GIVEN wizard for 'Double(min 0,max 3.14159)' is opened WHEN max value has been typed THEN validation record should not be visible`,
@@ -114,10 +118,10 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             await doubleForm.typeDouble('3.14159');
             await doubleForm.pause(1000);
             //2. Verify the validation recording:
-            let isVisible = await doubleForm.isValidationRecordingVisible();
+            let recording = await doubleForm.getOccurrenceValidationRecording(0);
             studioUtils.saveScreenshot('double_min_max_4');
             //3. Verify that Validation message is not displayed:
-            assert.isFalse(isVisible, 'Validation recording should not be displayed');
+            assert.equal(recording, "", 'Validation recording should not be displayed');
             //4. Verify that input is displayed with red border
             let isInputRed = await doubleForm.isInvalidValue(0);
             assert.isFalse(isInputRed, "input should be with green border");
@@ -131,9 +135,9 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             await doubleForm.typeDouble('0');
             await doubleForm.pause(1000);
             //2. Verify the validation recording:
-            let isVisible = await doubleForm.isValidationRecordingVisible();
+            let recording = await doubleForm.getOccurrenceValidationRecording(0);
             studioUtils.saveScreenshot('double_min_max_5');
-            assert.isFalse(isVisible, 'Validation recording should not be displayed');
+            assert.equal(recording, "", 'Validation recording should not be displayed');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

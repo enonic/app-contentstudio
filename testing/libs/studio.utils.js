@@ -851,10 +851,7 @@ module.exports = {
             return this.getDisplayedElements(selector).then(result => {
                 return result.length > 0;
             })
-        }, ms).catch(err => {
-            this.saveScreenshot(appConst.generateRandomName("err_timeout"));
-            throw new Error("Timeout exception. Element " + selector + " still not visible in: " + ms);
-        });
+        }, {timeout: ms, timeoutMsg: "Timeout exception. Element " + selector + " still not visible in: " + ms});
     },
     async selectAndDeleteProject(projectName) {
         let confirmValueDialog = new ConfirmValueDialog();

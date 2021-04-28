@@ -14,6 +14,7 @@ const MultiSelectionOptionSet = require('../../page_objects/wizardpanel/optionse
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const LongForm = require('../../page_objects/wizardpanel/long.form.panel');
 const NotificationDialog = require('../../page_objects/notification.dialog');
+const OptionSetForm2View = require('../../page_objects/wizardpanel/optionset/optionset.form2.view');
 
 describe("optionset.title.labels.spec: checks option set's title and labels", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -31,6 +32,23 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
+        });
+
+    it.skip("GIVEN  WHEN  THEN ",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let multiSelectionOptionSet = new MultiSelectionOptionSet();
+            let optionSetForm2 = new OptionSetForm2View();
+            let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            //1. Open the new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard("site146582", 'optionset2');
+            await contentWizard.typeDisplayName(OPTION_SET_NAME1);
+            //2.
+            await optionSetForm2.selectOption("Text block");
+            await optionSetForm2.clickOnRadioButton("Full width");
+            await optionSetForm2.clickOnResetMenuItem();
+
+            assert.isFalse(true, "'Option 2' should not be selected after the saving");
         });
 
     //Verifies https://github.com/enonic/lib-admin-ui/issues/1878
