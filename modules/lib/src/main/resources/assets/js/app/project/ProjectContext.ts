@@ -2,6 +2,8 @@ import {Project} from '../settings/data/project/Project';
 
 export class ProjectContext {
 
+    public static LOCAL_STORAGE_KEY: string = 'contentstudio:defaultProject';
+
     private static INSTANCE: ProjectContext;
 
     private currentProject: Project;
@@ -29,6 +31,7 @@ export class ProjectContext {
     setProject(project: Project) {
         this.currentProject = project;
         this.state = State.INITIALIZED;
+        localStorage.setItem(ProjectContext.LOCAL_STORAGE_KEY, project.getName());
         this.notifyProjectChanged();
     }
 
