@@ -1,7 +1,7 @@
 /**
  * Created on 18.12.2017.
  */
-const Page = require('../page');
+const OccurrencesFormView = require('./occurrences.form.view');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const LoaderComboBox = require('../components/loader.combobox');
@@ -25,7 +25,7 @@ const XPATH = {
     },
 };
 
-class ImageSelectorForm extends Page {
+class ImageSelectorForm extends OccurrencesFormView {
 
     get imageComboBoxDrppdownHandle() {
         return XPATH.imageContentComboBox + lib.DROP_DOWN_HANDLE;
@@ -200,20 +200,6 @@ class ImageSelectorForm extends Page {
         let expanderIcon = XPATH.imageContentComboBox + XPATH.expanderIconByName(name);
         await this.clickOnElement(expanderIcon);
         return await this.pause(700);
-    }
-
-    async getValidationRecord() {
-        try {
-            await this.waitForValidationRecording();
-            return await this.getText(this.validationRecord);
-        } catch (err) {
-            this.saveScreenshot('err_image_selector_validation_record');
-            throw new Error('getting Validation text: ' + err);
-        }
-    }
-
-    waitForValidationRecording() {
-        return this.waitForElementDisplayed(this.validationRecord, appConst.mediumTimeout);
     }
 
     async clickOnImage(displayName) {

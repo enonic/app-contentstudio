@@ -6,21 +6,23 @@ const lib = require('../../libs/elements');
 
 const XPATH = {
     metadataWizardTabBarItem: `//li[contains(@id,'TabBarItem')]/a[text()='SEO Metadata']`,
-    metadataStepForm: `//div[contains(@id,'XDataWizardStepForm') and descendant::div[text()='Override "Title"']]`,
+    metadataStepForm: `//div[contains(@id,'XDataWizardStepForm')]`,
+    metadataTitleInputView: `//div[contains(@id,'InputView') and descendant::div[text()='Override "Title"']]`,
+    metadataDescriptionInputView: `//div[contains(@id,'InputView') and descendant::div[text()='Override "Description"']]`,
 };
 
 class TestMetadataStepForm extends Page {
 
     get overrideTitleInput() {
-        return XPATH.metadataStepForm + lib.FORM_VIEW + lib.TEXT_INPUT;
+        return lib.FORM_VIEW + XPATH.metadataTitleInputView + lib.TEXT_INPUT;
     }
 
     get overrideDescriptionTextArea() {
-        return XPATH.metadataStepForm + lib.FORM_VIEW + lib.TEXT_AREA;
+        return lib.FORM_VIEW + XPATH.metadataDescriptionInputView + lib.TEXT_AREA;
     }
 
-    get descriptionErrorMessage() {
-        return XPATH.metadataStepForm + lib.VALIDATION_RECORDING_VIEWER;
+    get descriptionValidationRecording() {
+        return XPATH.metadataDescriptionInputView + lib.INPUT_VALIDATION_VIEW;
     }
 
     type(metadata) {
@@ -43,8 +45,9 @@ class TestMetadataStepForm extends Page {
         })
     }
 
-    isValidationRecordingVisible() {
-        return this.isElementDisplayed(this.descriptionErrorMessage);
+    async getDescriptionValidationRecording() {
+        let recordingElements = await this.getDisplayedElements(this.descriptionValidationRecording);
+        return await recordingElements[0].getText();
     }
 
     isOverrideTitleInputVisible() {
@@ -55,5 +58,6 @@ class TestMetadataStepForm extends Page {
         return this.isElementDisplayed(this.overrideDescriptionTextArea);
     }
 
-};
+}
+
 module.exports = TestMetadataStepForm;

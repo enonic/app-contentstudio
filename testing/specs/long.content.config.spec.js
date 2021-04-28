@@ -43,7 +43,6 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             //1. Type a value less than min:
             await longForm.typeLong(0);
             //2. Verify that validation message gets visible:
-            let recording = await longForm.getOccurrenceValidationRecording(0);
             studioUtils.saveScreenshot('long_min_max_2');
             let actualText = await longForm.getOccurrenceValidationRecording(0);
             assert.equal(actualText, 'The value cannot be less than 1', 'expected validation recording should appear');
@@ -61,7 +60,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             assert.equal(actualText,'The value cannot be greater than 10', 'Validation recording should appear');
         });
 
-    it(`GIVEN wizard for 'Long(min 1,max 10,required)' is opened WHEN max value has been typed THEN validation record should not be visible`,
+    it(`GIVEN wizard for 'Long(min 1,max 10,required)' is opened WHEN max value has been typed THEN input validation record should not be visible`,
         async () => {
             let longForm = new LongForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.LONG_MIN_MAX);
@@ -74,7 +73,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             assert.equal(actualText,"", 'Input Validation recording should not be displayed');
         });
 
-    it(`GIVEN wizard for 'Long(min 1,max 10,required)' is opened WHEN min value has been typed THEN validation record should not be visible`,
+    it(`GIVEN wizard for 'Long(min 1,max 10,required)' is opened WHEN min value has been typed THEN input validation record should not be visible`,
         async () => {
             let longForm = new LongForm();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.LONG_MIN_MAX);

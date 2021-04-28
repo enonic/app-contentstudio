@@ -31,21 +31,9 @@ describe('textarea.content.config.spec:  verifies max-length value for TextArea'
             //2. Type the allowed length:
             await textAreaForm.typeText('hello');
             await textAreaForm.pause(1000);
-            let result = await textAreaForm.isValidationRecordingVisible();
+            let result = await textAreaForm.getOccurrenceValidationRecording(0);
             studioUtils.saveScreenshot('textarea_max_length_1');
-            assert.isFalse(result, 'Validation recording should not be displayed');
-        });
-
-    it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 42 chars has been typed THEN validation record should be visible`,
-        async () => {
-            let textAreaForm = new TextAreaForm();
-            //1. Open new wizard
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.TEXTAREA_MAX_LENGTH);
-            //2. Type not allowed length:
-            await textAreaForm.typeText(string42);
-            let result = await textAreaForm.waitForValidationRecording();
-            studioUtils.saveScreenshot('textarea_max_length_2');
-            assert.isTrue(result, 'Validation recording should appear');
+            assert.equal(result, "", 'Validation recording should not be displayed');
         });
 
     it(`GIVEN wizard for 'TextArea(max-length is 41)' is opened WHEN 42 chars has been typed THEN expected validation recording should appear`,
@@ -54,7 +42,7 @@ describe('textarea.content.config.spec:  verifies max-length value for TextArea'
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'textarea_conf');
             await textAreaForm.typeText(string42);
             await textAreaForm.pause(1000);
-            let text = await textAreaForm.getValidationRecord();
+            let text = await textAreaForm.getOccurrenceValidationRecording(0);
             studioUtils.saveScreenshot('textarea_max_length_3');
             assert.equal(text, appConstant.VALIDATION_MESSAGE.TEXT_IS_TOO_LONG, 'expected validation recording should appear');
         });
@@ -66,9 +54,9 @@ describe('textarea.content.config.spec:  verifies max-length value for TextArea'
             // max-length text has been typed:
             await textAreaForm.typeText(string41);
             await textAreaForm.pause(1000);
-            let result = await textAreaForm.isValidationRecordingVisible();
+            let result = await textAreaForm.getOccurrenceValidationRecording(0);
             studioUtils.saveScreenshot('textarea_max_length_4');
-            assert.isFalse(result, 'Validation recording should not be displayed');
+            assert.equal(result, "", 'Validation recording should not be displayed');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

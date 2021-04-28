@@ -29,33 +29,21 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
             //2. Type the text(less than MAX LENGTH)
             await textLine.typeText('hello');
             await textLine.pause(1000);
-            let result = await textLine.isValidationRecordingVisible();
+            let result = await textLine.getOccurrenceValidationRecording(0);
             studioUtils.saveScreenshot('textline_max_length_1');
-            assert.isFalse(result, 'Validation recording should not be displayed');
+            assert.equal(result, "", 'Input Validation recording should not be displayed');
         });
 
-    it(`GIVEN wizard for 'TextLine(max-length is 11)' is opened WHEN 12 chars has been typed THEN validation record gets visible`,
+    it(`GIVEN wizard for 'TextLine(max-length is 11)' is opened WHEN 12 chars has been typed THEN input validation record gets visible`,
         async () => {
             let textLine = new TextLine();
             //1. open new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.TEXTLINE_MAX_LENGTH);
             //2. Type text (more than MAX LENGTH)
             await textLine.typeText('123456789123');
-            let result = await textLine.waitForValidationRecording();
+            let result = await textLine.getOccurrenceValidationRecording(0);
             studioUtils.saveScreenshot('textline_max_length_2');
-            assert.isTrue(result, 'Validation recording gets visible');
-        });
-
-    it(`GIVEN wizard for 'TextLine(max-length is 11)' is opened WHEN 12 chars has been typed THEN expected validation recording should be displayed`,
-        async () => {
-            let textLine = new TextLine();
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.TEXTLINE_MAX_LENGTH);
-            //2. Type text (more than MAX LENGTH)
-            await textLine.typeText('123456789123');
-            await textLine.pause(1000);
-            let text = await textLine.getValidationRecord();
-            studioUtils.saveScreenshot('textline_max_length_3');
-            assert.equal(text, appConstant.VALIDATION_MESSAGE.TEXT_IS_TOO_LONG, 'expected validation recording should appear');
+            assert.equal(result, appConstant.VALIDATION_MESSAGE.TEXT_IS_TOO_LONG, 'Validation recording gets visible');
         });
 
     it(`GIVEN wizard for 'TextLine(max-length is 11)' is opened WHEN 11 chars has been typed THEN validation record should not be visible`,
@@ -65,9 +53,9 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
             //Type the text( MAX LENGTH)
             await textLine.typeText('12345678901');
             await textLine.pause(1000);
-            let result = await textLine.isValidationRecordingVisible();
+            let result = await textLine.getOccurrenceValidationRecording(0);
             studioUtils.saveScreenshot('textline_max_length_4');
-            assert.isFalse(result, 'Validation recording should not be displayed');
+            assert.equal(result, "", 'Input Validation recording should not be displayed');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
