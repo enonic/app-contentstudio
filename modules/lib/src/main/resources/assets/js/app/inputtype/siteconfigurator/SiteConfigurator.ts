@@ -103,7 +103,7 @@ export class SiteConfigurator
             const selectedOptionViews = propertyArray.map(property =>
                 <SiteConfiguratorSelectedOptionView>this.selectOptionFromProperty(property)?.getOptionView());
 
-            const updatePromises = selectedOptionViews.map((view, index) => {
+            const updatePromises = selectedOptionViews.filter(view => !!view).map((view, index) => {
                 const configSet = propertyArray.get(index).getPropertySet().getProperty('config').getPropertySet();
                 return view.getFormView().update(configSet, unchangedOnly);
             });
