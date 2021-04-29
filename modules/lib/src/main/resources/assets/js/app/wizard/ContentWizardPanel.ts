@@ -552,6 +552,25 @@ export class ContentWizardPanel
         return this.formState.isNew();
     }
 
+    private updateModifiedPersistedContent(newPersistedContent: Content) {
+        const viewedContent = this.assembleViewedContent(new ContentBuilder(this.getPersistedItem()), true).build();
+
+        if (!viewedContent.equals(newPersistedContent, true)) {
+            this.setPersistedItem(newPersistedContent);
+            this.initFormContext(newPersistedContent);
+            this.updateWizard(newPersistedContent, true);
+
+            if (!this.isDisplayNameUpdated()) {
+                this.getWizardHeader().resetBaseValues();
+            }
+
+            this.wizardActions.setDeleteOnlyMode(viewedContent, false);
+        } else {
+            // this update was triggered by our changes, so reset dirty state after save
+            this.resetWizard();
+        }
+    }
+
     private availableSizeChangedHandler(item: ResponsiveItem) {
         if (this.isVisible()) {
             this.updateStickyToolbar();
@@ -764,13 +783,13 @@ export class ContentWizardPanel
         return deferred.promise;
     }
 
-    private loadDescriptorsFromApps(applicationKeys: ApplicationKey[]): Q.Promise<Descriptor[]> {
+    private checkIfAppsHaveDescriptors(applicationKeys: ApplicationKey[]): Q.Promise<boolean> {
         if (!applicationKeys.length) {
-            return Q<Descriptor[]>([]);
+            return Q<boolean>(false);
         }
 
         const request = new GetPageDescriptorsByApplicationsRequest(applicationKeys);
-        return request.sendAndParse().then((descriptors: Descriptor[]) => descriptors);
+        return request.sendAndParse().then((descriptors: Descriptor[]) => descriptors.length > 0);
     }
 
     private handleAppChange() {
@@ -867,13 +886,13 @@ export class ContentWizardPanel
         }, 100);
 
         let applicationKeys = [];
-        const saveOnAppChange = () => {
+        const saveOnAppChange = (force: boolean = false) => {
             if (this.getLivePanel()?.getPage()) {
                 this.handleAppChange();
                 return;
             }
-            this.loadDescriptorsFromApps(applicationKeys)
-                .then((descriptors: Descriptor[]) => descriptors.length ? this.saveChanges() : Q.resolve())
+            (force ? Q.resolve(true) : this.checkIfAppsHaveDescriptors(applicationKeys))
+                .then((appsHaveDescriptors: boolean) => appsHaveDescriptors ? this.saveChanges() : Q.resolve())
                 .then(this.handleAppChange)
                 .finally(() => applicationKeys=[]);
         };
@@ -886,15 +905,17 @@ export class ContentWizardPanel
         };
 
         this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {
-            this.removeXDataStepForms(event.getApplicationKey());
-            applicationKeys.push(event.getApplicationKey());
+            this.removeXDataStepForms(event.getApplicationKey())
+                .then((removedXDataCount: number) => {
+                    applicationKeys.push(event.getApplicationKey());
 
-            if (this.isSaving()) {
-                // Save might already have been initiated by the LiveEdit page on app remove
-                return;
-            }
+                    if (this.isSaving()) {
+                        // Save might already have been initiated by the LiveEdit page on app remove
+                        return;
+                    }
 
-            saveOnAppChange();
+                    saveOnAppChange(removedXDataCount > 0);
+                });
         };
 
         this.applicationUninstalledListener = (event: ApplicationEvent) => {
@@ -1130,13 +1151,8 @@ export class ContentWizardPanel
         const publishOrUnpublishHandler = (contents: ContentSummaryAndCompareStatus[]) => {
             contents.forEach(content => {
                 if (this.isCurrentContentId(content.getContentId())) {
-                    this.currentContent = content;
-                    this.setPersistedContent(content);
-                    this.getMainToolbar().setItem(content);
-                    this.wizardActions.setContent(content).refreshState();
-                    this.workflowStateIconsManager.updateIcons();
+                    this.setUpdatedContent(content);
                     this.refreshScheduleWizardStep();
-
                     this.getWizardHeader().toggleNameGeneration(content.getCompareStatus() !== CompareStatus.EQUAL);
                 }
             });
@@ -1366,7 +1382,7 @@ export class ContentWizardPanel
             this.refreshScheduleWizardStep();
         }
 
-        this.fetchPersistedContent().catch(DefaultErrorHandler.handle).done();
+        this.fetchPersistedContent().then(this.updateModifiedPersistedContent.bind(this)).catch(DefaultErrorHandler.handle).done();
     }
 
     private handleOtherContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
@@ -2112,7 +2128,7 @@ export class ContentWizardPanel
         return xDataStepForm.layout(this.formContext, data, xDataForm);
     }
 
-    private removeXDataStepForms(applicationKey: ApplicationKey): Q.Promise<void> {
+    private removeXDataStepForms(applicationKey: ApplicationKey): Q.Promise<number> {
         this.missingOrStoppedAppKeys = [];
 
         this.applicationLoadCount++;
@@ -2122,6 +2138,7 @@ export class ContentWizardPanel
                 this.formMask.show();
                 this.handleAppChange();
                 this.removeXDataSteps(xDatasToRemove);
+                return xDatasToRemove.length;
             }).finally(() => {
             if (--this.applicationLoadCount === 0) {
                 this.formMask.hide();
