@@ -40,7 +40,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             let projectSelectionDialog = new ProjectSelectionDialog();
             await projectSelectionDialog.selectContext("Default");
             let site = contentBuilder.buildSite(SITE_NAME);
-            await studioUtils.doAddSite(site);
+            await studioUtils.doAddSite(site, true);
         });
 
     it("WHEN layer's context is selected THEN inherited site should be present in the layer",
@@ -104,8 +104,8 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
             //2. Select the site and click on Localize button then add an application and save it:
             await studioUtils.selectContentAndClickOnLocalize(SITE_NAME);
+            //Site should be automatically saved after the selecting an application with controllers:
             await siteFormPanel.addApplications([appConstant.APP_CONTENT_TYPES]);
-            await contentWizard.waitAndClickOnSave();
             //3. Close the site-wizard:
             await studioUtils.doCloseWindowTabAndSwitchToBrowsePanel();
             await contentBrowsePanel.pause(300);

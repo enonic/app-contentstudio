@@ -38,7 +38,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             let projectSelectionDialog = new ProjectSelectionDialog();
             await projectSelectionDialog.selectContext("Default");
             let site = contentBuilder.buildSite(SITE_NAME);
-            await studioUtils.doAddSite(site);
+            await studioUtils.doAddSite(site, true);
         });
 
     //Verifies Copy of inherited content should not be created as 'inherited' #8269
