@@ -16,6 +16,8 @@ import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
 import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {FormValidityChangedEvent} from 'lib-admin-ui/form/FormValidityChangedEvent';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {FormContext} from 'lib-admin-ui/form/FormContext';
+import {FormState} from 'lib-admin-ui/app/wizard/WizardPanel';
 
 export class SiteConfiguratorSelectedOptionView
     extends BaseSelectedOptionView<Application> {
@@ -204,7 +206,8 @@ export class SiteConfiguratorSelectedOptionView
     }
 
     private createFormView(siteConfig: ApplicationConfig): FormView {
-        let formView = new FormView(this.formContext, this.application.getForm(), siteConfig.getConfig());
+        const context: FormContext = FormContext.create().setFormState(new FormState(false)).build();
+        const formView: FormView = new FormView(context, this.application.getForm(), siteConfig.getConfig());
         formView.addClass('site-form');
 
         formView.onLayoutFinished(() => {
