@@ -37,7 +37,7 @@ jobs:
                     JAVA_HOME: ''
 
             -   name: Fail on bad config
-                if: steps.publish_vars.outputs.version == '' || steps.publish_vars.outputs.projectName == ''
+                if: steps.publish_vars.outputs.version == '' || steps.publish_vars.outputs.appProjectName == ''
                 run: exit 1
 
             -   name: Publish
@@ -69,8 +69,8 @@ jobs:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                 with:
                     upload_url: ${{ steps.create_release.outputs.upload_url }}
-                    asset_path: "modules/app/build/libs/${{ steps.publish_vars.outputs.projectName }}-${{ steps.publish_vars.outputs.version }}.jar"
-                    asset_name: "${{ steps.publish_vars.outputs.projectName }}-${{ steps.publish_vars.outputs.version }}.jar"
+                    asset_path: "modules/app/build/libs/${{ steps.publish_vars.outputs.appProjectName }}-${{ steps.publish_vars.outputs.version }}.jar"
+                    asset_name: "${{ steps.publish_vars.outputs.appProjectName }}-${{ steps.publish_vars.outputs.version }}.jar"
                     asset_content_type: application/java-archive
 
             -   name: Write new snapshot version
