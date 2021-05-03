@@ -464,7 +464,7 @@ export class LinkModalDialog
         this.onDragEnter((event: DragEvent) => {
             event.stopPropagation();
             mediaUploader.giveFocus();
-            mediaUploader.setDefaultDropzoneVisible(true, true);
+            mediaUploader.setDefaultDropzoneVisible(true);
         });
 
         mediaUploader.onDropzoneDragLeave(() => {

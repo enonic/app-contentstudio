@@ -119,7 +119,7 @@ export class MediaSelector
         this.onDragEnter((event: DragEvent) => {
             event.stopPropagation();
             uploader.giveFocus();
-            uploader.setDefaultDropzoneVisible(true, true);
+            uploader.setDefaultDropzoneVisible();
         });
 
         uploader.onDropzoneDragLeave(() => {
