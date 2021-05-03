@@ -63,7 +63,6 @@ export class ContentBrowseFilterPanel
     private dependenciesSection: DependenciesSection;
 
     constructor() {
-
         super();
 
         if (ProjectContext.get().isInitialized()) {
@@ -119,6 +118,12 @@ export class ContentBrowseFilterPanel
 
         handler.onContentUpdated(updatedHandler);
         handler.onContentPermissionsUpdated(permissionsUpdatedHandler);
+
+        ProjectContext.get().onProjectChanged(() => {
+            if (this.dependenciesSection.isActive()) {
+                this.removeDependencyItem();
+            }
+        });
     }
 
     protected getGroupViews(): AggregationGroupView[] {
