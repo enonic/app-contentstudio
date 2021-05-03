@@ -308,7 +308,7 @@ export class PageComponentsTreeGrid
     }
 
     protected isToBeExpanded(node: TreeNode<ItemViewTreeGridWrapper>): boolean {
-        return !node.getData().getItemView().getType().equals(LayoutItemType.get());
+        return super.isToBeExpanded(node) || !node.getData().getItemView().getType().equals(LayoutItemType.get());
     }
 
 }
