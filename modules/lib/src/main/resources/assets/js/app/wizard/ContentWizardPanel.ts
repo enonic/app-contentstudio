@@ -557,8 +557,10 @@ export class ContentWizardPanel
 
         if (!viewedContent.equals(newPersistedContent, true)) {
             this.setPersistedItem(newPersistedContent);
-            this.initFormContext(newPersistedContent);
-            this.updateWizard(newPersistedContent, true);
+
+            const contentClone: Content = newPersistedContent.clone();
+            this.initFormContext(contentClone);
+            this.updateWizard(contentClone, true);
 
             if (!this.isDisplayNameUpdated()) {
                 this.getWizardHeader().resetBaseValues();
