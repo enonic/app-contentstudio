@@ -15,7 +15,6 @@ import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {Dropdown} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {Button} from 'lib-admin-ui/ui/button/Button';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {Menu} from 'lib-admin-ui/ui/menu/Menu';
 import {Action} from 'lib-admin-ui/ui/Action';
@@ -25,6 +24,7 @@ import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {

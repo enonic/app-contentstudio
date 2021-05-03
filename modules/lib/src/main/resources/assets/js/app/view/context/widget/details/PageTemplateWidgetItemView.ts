@@ -4,7 +4,6 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {PEl} from 'lib-admin-ui/dom/PEl';
@@ -37,6 +36,7 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentServerChangeItem} from '../../../../event/ContentServerChangeItem';
 import {GetComponentDescriptorRequest} from '../../../../resource/GetComponentDescriptorRequest';
 import {Descriptor} from '../../../../page/Descriptor';
+import {ContentSummary} from '../../../../content/ContentSummary';
 
 export class PageTemplateWidgetItemView
     extends WidgetItemView {

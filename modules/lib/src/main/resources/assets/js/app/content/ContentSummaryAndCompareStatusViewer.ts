@@ -1,5 +1,4 @@
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
@@ -7,6 +6,7 @@ import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {ExtendedViewer} from '../view/ExtendedViewer';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentIconUrlResolver} from './ContentIconUrlResolver';
+import {ContentSummary} from './ContentSummary';
 
 export class ContentSummaryAndCompareStatusViewer
     extends ExtendedViewer<ContentSummaryAndCompareStatus> {

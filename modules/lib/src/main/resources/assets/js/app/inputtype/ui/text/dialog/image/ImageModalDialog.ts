@@ -7,7 +7,6 @@ import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
 import {Validators} from 'lib-admin-ui/ui/form/Validators';
@@ -47,6 +46,7 @@ import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {LinkEl} from 'lib-admin-ui/dom/LinkEl';
 import eventInfo = CKEDITOR.eventInfo;
+import {ContentSummary} from '../../../../../content/ContentSummary';
 
 export class ImageModalDialog
     extends OverrideNativeDialog {

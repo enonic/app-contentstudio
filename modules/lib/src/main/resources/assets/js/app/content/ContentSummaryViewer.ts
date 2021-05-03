@@ -1,8 +1,8 @@
 import { NamesAndIconViewer } from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import { ContentPath } from 'lib-admin-ui/content/ContentPath';
 import {ContentIconUrlResolver} from './ContentIconUrlResolver';
+import {ContentSummary} from './ContentSummary';
 
 export class ContentSummaryViewer
     extends NamesAndIconViewer<ContentSummary> {

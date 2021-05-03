@@ -3,7 +3,6 @@ import {showError} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
 import {Validators} from 'lib-admin-ui/ui/form/Validators';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
@@ -16,6 +15,7 @@ import {MacroComboBox} from 'lib-admin-ui/macro/MacroComboBox';
 import {HtmlAreaModalDialogConfig, ModalDialog, ModalDialogFormItemBuilder} from './ModalDialog';
 import {MacroDockedPanel} from './MacroDockedPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
+import {ContentSummary} from '../../../../content/ContentSummary';
 
 export interface MacroModalDialogConfig
     extends HtmlAreaModalDialogConfig {

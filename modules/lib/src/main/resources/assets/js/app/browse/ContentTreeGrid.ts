@@ -1,11 +1,9 @@
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
 import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
 import {SortContentEvent} from './sort/SortContentEvent';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentTreeGridToolbar} from './ContentTreeGridToolbar';
@@ -40,6 +38,7 @@ import {GridColumnConfig} from 'lib-admin-ui/ui/grid/GridColumn';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {DeletedContentItem} from './DeletedContentItem';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
+import {ContentSummary, ContentSummaryBuilder} from '../content/ContentSummary';
 
 export enum State {
     ENABLED, DISABLED

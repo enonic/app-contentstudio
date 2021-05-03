@@ -6,7 +6,7 @@ import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummary
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ContentSummary} from '../../../../content/ContentSummary';
 
 export class VersionHistoryView extends WidgetItemView {
 

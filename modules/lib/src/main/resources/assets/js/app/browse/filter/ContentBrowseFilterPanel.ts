@@ -3,7 +3,6 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentBrowseSearchData} from './ContentBrowseSearchData';
 import {ContentTypeAggregationGroupView} from './ContentTypeAggregationGroupView';
 import {Router} from '../../Router';
@@ -14,7 +13,6 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {ContentQuery} from '../../content/ContentQuery';
 import {ContentSummaryRequest} from '../../resource/ContentSummaryRequest';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {AggregationGroupView} from 'lib-admin-ui/aggregation/AggregationGroupView';
 import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
 import {SearchInputValues} from 'lib-admin-ui/query/SearchInputValues';
@@ -50,6 +48,8 @@ import {ContentIds} from '../../ContentIds';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ProjectContext} from '../../project/ProjectContext';
 import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
+import {ContentSummary} from '../../content/ContentSummary';
+import {ContentSummaryJson} from '../../content/ContentSummaryJson';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {

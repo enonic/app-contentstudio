@@ -1,9 +1,7 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentTreeGrid} from '../browse/ContentTreeGrid';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class OpenMoveDialogEvent
     extends Event {

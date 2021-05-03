@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ActionName, ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
 import {ContentTreeGrid, State} from './ContentTreeGrid';
@@ -38,6 +37,7 @@ import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {DeletedContentItem} from './DeletedContentItem';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class ContentBrowsePanel
     extends BrowsePanel {

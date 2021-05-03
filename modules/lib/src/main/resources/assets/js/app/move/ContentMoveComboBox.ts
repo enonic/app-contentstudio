@@ -1,5 +1,4 @@
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentComboBox, ContentComboBoxBuilder, ContentSelectedOptionsView} from '../inputtype/ui/selector/ContentComboBox';
 import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
@@ -7,6 +6,7 @@ import {ContentAndStatusTreeSelectorItem} from '../item/ContentAndStatusTreeSele
 import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentSummaryViewer} from '../content/ContentSummaryViewer';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class ContentMoveComboBox
     extends ContentComboBox<ContentTreeSelectorItem> {

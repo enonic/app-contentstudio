@@ -1,7 +1,6 @@
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {ImageSelectorForm} from './ImageSelectorForm';
@@ -20,6 +19,7 @@ import {FormView} from 'lib-admin-ui/form/FormView';
 import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentSummary, ContentSummaryBuilder} from '../../../../../content/ContentSummary';
 
 export class ImageInspectionPanel
     extends ComponentInspectionPanel<ImageComponent> {

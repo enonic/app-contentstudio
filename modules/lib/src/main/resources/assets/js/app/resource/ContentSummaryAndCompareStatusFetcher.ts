@@ -1,7 +1,6 @@
 import * as Q from 'q';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {ContentResponse} from './ContentResponse';
 import {ListContentByIdRequest} from './ListContentByIdRequest';
@@ -18,6 +17,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ContentSummaryRequest} from './ContentSummaryRequest';
 import {FieldOrderExpr, FieldOrderExprBuilder} from 'lib-admin-ui/content/order/FieldOrderExpr';
 import {IsRenderableRequest} from './IsRenderableRequest';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class ContentSummaryAndCompareStatusFetcher {
 

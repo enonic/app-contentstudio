@@ -4,7 +4,6 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {MacroDescriptor} from 'lib-admin-ui/macro/MacroDescriptor';
 import {MacroPreview} from 'lib-admin-ui/macro/MacroPreview';
@@ -19,6 +18,7 @@ import {GetPreviewRequest} from 'lib-admin-ui/macro/resource/GetPreviewRequest';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {GetPreviewStringRequest} from 'lib-admin-ui/macro/resource/GetPreviewStringRequest';
 import {IFrameEl} from 'lib-admin-ui/dom/IFrameEl';
+import {ContentSummary} from '../../../../content/ContentSummary';
 
 export class MacroDockedPanel
     extends DockedPanel {

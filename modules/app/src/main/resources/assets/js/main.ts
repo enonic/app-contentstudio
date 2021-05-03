@@ -43,9 +43,7 @@ import {ElementRemovedEvent} from 'lib-admin-ui/dom/ElementRemovedEvent';
 import {ElementRegistry} from 'lib-admin-ui/dom/ElementRegistry';
 import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {FormEditEvent} from 'lib-admin-ui/content/event/FormEditEvent';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
@@ -60,6 +58,8 @@ import {Path} from 'lib-admin-ui/rest/Path';
 import {ProjectListWithMissingRequest} from 'lib-contentstudio/app/settings/resource/ProjectListWithMissingRequest';
 import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/ProjectHelper';
 import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconUrlResolver';
+import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
+import {ContentFormEditEvent} from 'lib-contentstudio/app/content/event/ContentFormEditEvent';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -509,7 +509,7 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams, connec
     wizard.onClosed(event => window.close());
 
     // TODO: Remove hack, that connects content events in `FormView`
-    FormEditEvent.on((event) => {
+    ContentFormEditEvent.on((event) => {
         const model = ContentSummaryAndCompareStatus.fromContentSummary(event.getModels());
         new EditContentEvent([model]).fire();
     });

@@ -2,7 +2,6 @@ import * as $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {TextItemType} from './TextItemType';
@@ -27,6 +26,7 @@ import {SectionEl} from 'lib-admin-ui/dom/SectionEl';
 import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {Action} from 'lib-admin-ui/ui/Action';
 import * as Q from 'q';
+import {ContentSummary} from '../../app/content/ContentSummary';
 
 declare var CONFIG;
 

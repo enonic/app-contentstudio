@@ -1,9 +1,9 @@
 import * as Q from 'q';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {GetContentSummaryByIds} from '../../../../resource/GetContentSummaryByIds';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentSummary} from '../../../../content/ContentSummary';
 
 type RequestToken = {
     contentId: ContentId;

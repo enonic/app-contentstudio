@@ -1,7 +1,6 @@
 import * as Q from 'q';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {DependantItemsDialog, DependantItemsDialogConfig} from '../../dialog/DependantItemsDialog';
 import {IssueDialogForm} from './IssueDialogForm';
@@ -14,6 +13,7 @@ import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
+import {ContentSummary} from '../../content/ContentSummary';
 
 export abstract class IssueDialog
     extends DependantItemsDialog {

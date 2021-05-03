@@ -1,7 +1,7 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class ContentUpdatedEvent
     extends Event {

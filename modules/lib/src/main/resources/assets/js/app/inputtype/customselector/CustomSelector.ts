@@ -8,7 +8,6 @@ import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOpt
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {RichComboBox} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorComboBox, CustomSelectorSelectedOptionsView} from './CustomSelectorComboBox';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
@@ -23,6 +22,7 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {ProjectContext} from '../../project/ProjectContext';
 import {Branch} from '../../versioning/Branch';
+import {ContentSummary} from '../../content/ContentSummary';
 
 export class CustomSelector
     extends BaseInputTypeManagingAdd {

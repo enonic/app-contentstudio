@@ -1,11 +1,11 @@
 import * as Q from 'q';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ListContentResult} from './ListContentResult';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class GetContentSummaryByIds
     extends ContentResourceRequest<ContentSummary[]> {

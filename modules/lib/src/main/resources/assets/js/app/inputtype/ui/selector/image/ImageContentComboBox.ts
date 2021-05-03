@@ -1,6 +1,5 @@
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
@@ -18,6 +17,7 @@ import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {GridOptions} from 'lib-admin-ui/ui/grid/GridOptions';
 import {Grid} from 'lib-admin-ui/ui/grid/Grid';
+import {ContentSummary} from '../../../../content/ContentSummary';
 
 export class ImageContentComboBox
     extends ContentComboBox<MediaTreeSelectorItem> {

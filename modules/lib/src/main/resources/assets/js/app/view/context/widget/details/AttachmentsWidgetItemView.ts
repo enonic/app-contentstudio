@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {WidgetItemView} from '../../WidgetItemView';
 import {GetContentAttachmentsRequest} from '../../../../resource/GetContentAttachmentsRequest';
@@ -15,6 +14,7 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UrlHelper} from '../../../../util/UrlHelper';
+import {ContentSummary} from '../../../../content/ContentSummary';
 
 export class AttachmentsWidgetItemView extends WidgetItemView {
 

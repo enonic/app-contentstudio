@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentResponse} from './ContentResponse';
 import {ListContentByIdRequest} from './ListContentByIdRequest';
 import {GetContentByIdRequest} from './GetContentByIdRequest';
@@ -8,6 +7,7 @@ import {GetContentSummaryByIds} from './GetContentSummaryByIds';
 import {IsContentReadOnlyRequest} from './isContentReadOnlyRequest';
 import {Content} from '../content/Content';
 import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class ContentSummaryFetcher {
 
