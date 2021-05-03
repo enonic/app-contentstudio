@@ -187,54 +187,34 @@ export class PageComponentsTreeGrid
     }
 
     private fetchDescriptions(itemViews: ItemView[]): Q.Promise<ItemView[]> {
-        const layoutDescriptors: string[] = [];
-        const partDescriptors: string[] = [];
+        const requests = itemViews.map(this.fetchDescription);
 
-        const componentMap: { [descKey: string]: DescriptorBasedComponent[] } = {};
-        const requests = [];
+        return Q.all(requests);
+    }
 
-        itemViews.forEach((itemView: ItemView) => {
-            if (!itemView.isPart() && !itemView.isLayout()) {
-                return;
-            }
+    private fetchDescription(itemView: ItemView): Q.Promise<ItemView> {
+        if (!itemView.isPart() && !itemView.isLayout()) {
+            return Q.resolve(itemView);
+        }
 
-            const component: DescriptorBasedComponent = (<ComponentView<any>>itemView).getComponent();
-            if (!component || !component.hasDescriptor()) {
-                return;
-            }
+        const component: DescriptorBasedComponent = (<ComponentView<any>>itemView).getComponent();
+        if (!component || !component.hasDescriptor()) {
+            return Q.resolve(itemView);
+        }
 
-            const descriptorKey = component.getDescriptorKey().toString();
-            if (componentMap[descriptorKey]) {
-                componentMap[descriptorKey].push(component);
-            } else {
-                componentMap[descriptorKey] = [component];
-            }
+        const descriptorKey = component.getDescriptorKey().toString();
+        let request;
+        if (itemView.isLayout()) {
+            request = new GetComponentDescriptorRequest(descriptorKey, LayoutComponentType.get()).sendAndParse();
+        } else if (itemView.isPart()) {
+            request = new GetComponentDescriptorRequest(descriptorKey, PartComponentType.get()).sendAndParse();
+        }
 
-            if (itemView.isLayout() && layoutDescriptors.indexOf(descriptorKey) === -1) {
-                layoutDescriptors.push(descriptorKey);
-            } else if (itemView.isPart() && partDescriptors.indexOf(descriptorKey) === -1) {
-                partDescriptors.push(descriptorKey);
-            }
+        return request.then((descriptor: Descriptor) => {
+            component.setDescription(descriptor.getDescription());
+            component.setIcon(descriptor.getIcon());
+            return itemView;
         });
-
-        layoutDescriptors.forEach((descriptor: string) =>
-            requests.push(new GetComponentDescriptorRequest(descriptor, LayoutComponentType.get()).sendAndParse())
-        );
-        partDescriptors.forEach((descriptor: string) =>
-            requests.push(new GetComponentDescriptorRequest(descriptor, PartComponentType.get()).sendAndParse())
-        );
-
-        return Q.all(requests).then((descriptors: Descriptor[]) =>
-            descriptors.forEach((descriptor: Descriptor) => {
-                const components = componentMap[descriptor.getKey().toString()];
-                if (components) {
-                    components.forEach(component => {
-                        component.setDescription(descriptor.getDescription());
-                        component.setIcon(descriptor.getIcon());
-                    });
-                }
-            })
-        ).then(() => itemViews);
     }
 
     private getDataChildren(data: ItemView): ItemView[] {
@@ -279,6 +259,7 @@ export class PageComponentsTreeGrid
         }
 
         this.insertDataToParentNode(new ItemViewTreeGridWrapper(component), parentNode, index);
+        this.fetchDescription(component);
     }
 
     refreshComponentNode(componentView: ComponentView<Component>, oldComponentView: ComponentView<Component>) {
