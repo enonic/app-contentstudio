@@ -21,7 +21,6 @@ import {Value} from 'lib-admin-ui/data/Value';
 import {ValueType} from 'lib-admin-ui/data/ValueType';
 import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {AfterContentSavedEvent} from '../../event/AfterContentSavedEvent';
 import {Page} from '../../page/Page';
 
 export class AttachmentUploader
@@ -34,10 +33,6 @@ export class AttachmentUploader
     private uploaderEl: AttachmentUploaderEl;
 
     private config: ContentInputTypeViewContext;
-
-    private skipServerEvents: boolean;
-
-    private startListenServerEventsHandler: () => void;
 
     constructor(config: ContentInputTypeViewContext) {
         super('file-uploader');
@@ -55,9 +50,8 @@ export class AttachmentUploader
 
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
         return super.update(propertyArray, unchangedOnly).then(() => {
-            if (!this.skipServerEvents) {
-                this.doRefresh();
-            }
+            this.doRefresh();
+            return Q(null);
         });
     }
 
@@ -137,18 +131,20 @@ export class AttachmentUploader
     }
 
     private removeItemCallback(attachmentName: string) {
-        const values: string[] = this.getFileNamesFromProperty();
-        const index: number = values.indexOf(attachmentName);
-        this.getPropertyArray().remove(index);
         this.toggleUploadButtonVisibility();
 
-        if (!this.isAttachmentInUse(attachmentName)) {
-            this.deleteAttachment(attachmentName);
-        } else {
+        this.deleteAttachmentIfNotUsed(attachmentName).then(() => {
+            const values: string[] = this.getFileNamesFromProperty();
+            const index: number = values.indexOf(attachmentName);
+            this.getPropertyArray().remove(index);
+
             new ContentRequiresSaveEvent(this.config.content.getContentId()).fire();
-        }
+        }).catch(DefaultErrorHandler.handle);
     }
 
+    private deleteAttachmentIfNotUsed(attachmentName: string): Q.Promise<void> {
+        return this.isAttachmentInUse(attachmentName) ? Q(null) : this.deleteAttachment(attachmentName);
+    }
 
     private isAttachmentInUse(attachmentName: string): boolean {
         if (this.isAttachmentReferencedFromContent()) {
@@ -183,14 +179,11 @@ export class AttachmentUploader
         return page.getPropertyValueUsageCount(page, attachmentInputName, attachmentName) > 1;
     }
 
-    private deleteAttachment(itemName: string) {
-        new DeleteAttachmentRequest()
+    private deleteAttachment(itemName: string): Q.Promise<Content> {
+        return new DeleteAttachmentRequest()
             .setContentId(this.config.content.getContentId())
             .addAttachmentName(itemName)
-            .sendAndParse()
-            .then((content: Content) => {
-                new ContentRequiresSaveEvent(content.getContentId()).fire();
-            }).catch(DefaultErrorHandler.handle);
+            .sendAndParse();
     }
 
     private createUploaderWrapper(): DivEl {
@@ -212,17 +205,17 @@ export class AttachmentUploader
     }
 
     private initElementListeners() {
-        this.startListenServerEventsHandler = this.startListenServerEvents.bind(this);
+        let uploadedItemsNames: string[] = [];
 
         this.uploaderEl.onUploadStarted(() => {
+            uploadedItemsNames = [];
             this.uploaderWrapper.removeClass('empty');
             this.uploadButton.setEnabled(false);
-            this.stopListenServerEvents();
         });
 
         this.uploaderEl.onFileUploaded((event: UploadedEvent<Attachment>) => {
             const attachment: Attachment = <Attachment>event.getUploadItem().getModel();
-            this.addFileNameToProperty(attachment.getName().toString());
+            uploadedItemsNames.push(attachment.getName().toString());
 
             showFeedback(i18n('notify.upload.success', attachment.getName().toString()));
         });
@@ -231,7 +224,10 @@ export class AttachmentUploader
             this.validate(false);
             this.uploadButton.setEnabled(true);
 
-            AfterContentSavedEvent.on(this.startListenServerEventsHandler);
+            uploadedItemsNames.forEach((itemName: string) => {
+                this.addFileNameToProperty(itemName);
+            });
+
             new ContentRequiresSaveEvent(this.config.content.getContentId()).fire();
         });
 
@@ -241,16 +237,6 @@ export class AttachmentUploader
             this.uploadButton.setEnabled(true);
             showError(i18n('notify.upload.failure', event.getUploadItem().getFileName()));
         });
-    }
-
-    private stopListenServerEvents() {
-        this.skipServerEvents = true;
-    }
-
-    private startListenServerEvents() {
-        AfterContentSavedEvent.un(this.startListenServerEventsHandler);
-        this.skipServerEvents = false;
-        this.doRefresh();
     }
 
     private addFileNameToProperty(fileName: string) {
