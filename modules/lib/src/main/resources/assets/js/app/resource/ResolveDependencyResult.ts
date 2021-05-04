@@ -1,5 +1,5 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentDependencyJson} from './json/ContentDependencyJson';
+import {ContentId} from '../content/ContentId';
 
 export interface ResolveDependencyResultJson {
 
@@ -11,9 +11,9 @@ export interface ResolveDependencyResultJson {
 
 export class ResolveDependencyResult {
 
-    private contentId: ContentId;
+    private readonly contentId: ContentId;
 
-    private dependency: ContentDependencyJson;
+    private readonly dependency: ContentDependencyJson;
 
     constructor(contentId: ContentId, dependency: ContentDependencyJson) {
 

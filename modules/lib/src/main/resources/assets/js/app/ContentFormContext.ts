@@ -1,4 +1,3 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {Input} from 'lib-admin-ui/form/Input';
 import {PropertyPath} from 'lib-admin-ui/data/PropertyPath';
@@ -7,6 +6,7 @@ import {Content} from './content/Content';
 import {Site} from './content/Site';
 import {FormContext, FormContextBuilder} from 'lib-admin-ui/form/FormContext';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentId} from './content/ContentId';
 
 export class ContentFormContext
     extends FormContext {

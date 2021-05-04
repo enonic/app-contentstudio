@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
 import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
 import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
@@ -18,6 +17,7 @@ import {Button} from 'lib-admin-ui/ui/button/Button';
 import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {ContentSummary} from '../../content/ContentSummary';
+import {ContentId} from '../../content/ContentId';
 
 export class IssueDialogForm
     extends Form {

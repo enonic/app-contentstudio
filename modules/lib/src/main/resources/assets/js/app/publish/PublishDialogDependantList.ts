@@ -1,14 +1,14 @@
 import {Element} from 'lib-admin-ui/dom/Element';
 import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DialogDependantList} from '../dialog/DependantItemsDialog';
 import {StatusSelectionItem} from '../dialog/StatusSelectionItem';
-import {ContentIds} from '../ContentIds';
+import {ContentIds} from '../content/ContentIds';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatusChecker} from '../content/CompareStatus';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {ContentId} from '../content/ContentId';
 
 export class PublishDialogDependantList
     extends DialogDependantList {

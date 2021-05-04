@@ -29,8 +29,7 @@ import {RepositoryEvent} from 'lib-admin-ui/content/event/RepositoryEvent';
 import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {BrowsePanel} from 'lib-admin-ui/app/browse/BrowsePanel';
-import {ContentIds} from '../ContentIds';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentIds} from '../content/ContentIds';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {UrlAction} from '../UrlAction';
 import {ProjectContext} from '../project/ProjectContext';
@@ -38,6 +37,7 @@ import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {DeletedContentItem} from './DeletedContentItem';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentId} from '../content/ContentId';
 
 export class ContentBrowsePanel
     extends BrowsePanel {

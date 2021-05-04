@@ -2,9 +2,9 @@ import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {FragmentContentSummaryLoader} from './FragmentContentSummaryLoader';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {RichDropdown} from 'lib-admin-ui/ui/selector/dropdown/RichDropdown';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentSummaryViewer} from '../../../../../content/ContentSummaryViewer';
 import {ContentSummary} from '../../../../../content/ContentSummary';
+import {ContentId} from '../../../../../content/ContentId';
 
 export class FragmentDropdown
     extends RichDropdown<ContentSummary> {

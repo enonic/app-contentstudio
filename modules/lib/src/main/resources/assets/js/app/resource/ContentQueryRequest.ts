@@ -1,5 +1,4 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {AggregationQueryTypeWrapperJson} from 'lib-admin-ui/query/aggregation/AggregationQueryTypeWrapperJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';
@@ -15,6 +14,7 @@ import {Filter} from 'lib-admin-ui/query/filter/Filter';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummaryJson} from '../content/ContentSummaryJson';
 
 export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends ContentResourceRequest<ContentQueryResult<CONTENT, CONTENT_JSON>> {

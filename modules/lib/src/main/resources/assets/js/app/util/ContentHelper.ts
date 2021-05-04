@@ -1,10 +1,8 @@
 import * as Q from 'q';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
 import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
 import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentQueryRequest} from '../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../resource/ContentQueryResult';
 import {GetContentByIdRequest} from '../resource/GetContentByIdRequest';
@@ -12,6 +10,8 @@ import {Content} from '../content/Content';
 import {ContentQuery} from '../content/ContentQuery';
 import {QueryField} from 'lib-admin-ui/query/QueryField';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentId} from '../content/ContentId';
+import {ContentSummaryJson} from '../content/ContentSummaryJson';
 
 export class ContentHelper {
 

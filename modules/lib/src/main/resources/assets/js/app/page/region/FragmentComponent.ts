@@ -1,11 +1,11 @@
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Equitable} from 'lib-admin-ui/Equitable';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {FragmentComponentJson} from './FragmentComponentJson';
 import {ComponentName} from './ComponentName';
 import {FragmentComponentType} from './FragmentComponentType';
 import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
+import {ContentId} from '../../content/ContentId';
 
 export class FragmentComponent
     extends ConfigBasedComponent {

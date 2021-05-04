@@ -2,7 +2,7 @@ import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
-import {ContentIds} from '../ContentIds';
+import {ContentIds} from '../content/ContentIds';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 

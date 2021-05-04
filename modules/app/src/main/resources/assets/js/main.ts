@@ -29,7 +29,6 @@ import {GetContentByPathRequest} from 'lib-contentstudio/app/resource/GetContent
 import {ContentServerEventsHandler} from 'lib-contentstudio/app/event/ContentServerEventsHandler';
 import {EditContentEvent} from 'lib-contentstudio/app/event/EditContentEvent';
 import {Content} from 'lib-contentstudio/app/content/Content';
-import {ContentSummaryAndCompareStatus} from 'lib-contentstudio/app/content/ContentSummaryAndCompareStatus';
 import {ContentUpdatedEvent} from 'lib-contentstudio/app/event/ContentUpdatedEvent';
 import {RequestContentPublishPromptEvent} from 'lib-contentstudio/app/browse/RequestContentPublishPromptEvent';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
@@ -59,7 +58,6 @@ import {ProjectListWithMissingRequest} from 'lib-contentstudio/app/settings/reso
 import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/ProjectHelper';
 import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconUrlResolver';
 import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
-import {ContentFormEditEvent} from 'lib-contentstudio/app/content/event/ContentFormEditEvent';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -508,11 +506,6 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams, connec
 
     wizard.onClosed(event => window.close());
 
-    // TODO: Remove hack, that connects content events in `FormView`
-    ContentFormEditEvent.on((event) => {
-        const model = ContentSummaryAndCompareStatus.fromContentSummary(event.getModels());
-        new EditContentEvent([model]).fire();
-    });
     EditContentEvent.on(ContentEventsProcessor.handleEdit);
 
     Body.get().addClass('wizard-page').appendChild(wizard);

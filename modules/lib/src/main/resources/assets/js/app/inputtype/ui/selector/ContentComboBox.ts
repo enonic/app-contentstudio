@@ -4,7 +4,6 @@ import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
@@ -33,6 +32,7 @@ import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {Grid} from 'lib-admin-ui/ui/grid/Grid';
 import {ContentSummary} from '../../../content/ContentSummary';
+import {ContentId} from '../../../content/ContentId';
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     extends RichComboBox<ContentTreeSelectorItem> {

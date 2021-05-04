@@ -1,5 +1,4 @@
 import * as Q from 'q';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {ImageContentLoader} from './ImageContentLoader';
@@ -9,6 +8,7 @@ import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem'
 import {OptionDataLoaderData} from 'lib-admin-ui/ui/selector/OptionDataLoader';
 import {ContentAndStatusTreeSelectorItem} from '../../../../item/ContentAndStatusTreeSelectorItem';
 import {ContentSummary} from '../../../../content/ContentSummary';
+import {ContentId} from '../../../../content/ContentId';
 
 export class ImageOptionDataLoader
     extends ContentSummaryOptionDataLoader<MediaTreeSelectorItem> {

@@ -1,8 +1,8 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {IconUrlResolver} from 'lib-admin-ui/icon/IconUrlResolver';
 import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UrlHelper} from './UrlHelper';
+import {ContentId} from '../content/ContentId';
 
 export class ImageUrlResolver
     extends IconUrlResolver {

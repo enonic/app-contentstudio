@@ -9,7 +9,6 @@ import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {FieldOrderExpr} from 'lib-admin-ui/query/expr/FieldOrderExpr';
 import {OrderDirection} from 'lib-admin-ui/query/expr/OrderDirection';
 import {ConstraintExpr} from 'lib-admin-ui/query/expr/ConstraintExpr';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentQueryRequest} from './ContentQueryRequest';
 import {ContentQueryResult} from './ContentQueryResult';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';
@@ -19,6 +18,7 @@ import {Expand} from 'lib-admin-ui/rest/Expand';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {PathMatchExpressionBuilder} from 'lib-admin-ui/query/PathMatchExpression';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummaryJson} from '../content/ContentSummaryJson';
 
 export class ContentSummaryRequest
     extends ResourceRequest<ContentSummary[]> {

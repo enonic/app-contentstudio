@@ -1,13 +1,13 @@
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Equitable} from 'lib-admin-ui/Equitable';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentState} from 'lib-admin-ui/schema/content/ContentState';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentId} from '../content/ContentId';
 
 export class ContentTreeSelectorItemJson {
 

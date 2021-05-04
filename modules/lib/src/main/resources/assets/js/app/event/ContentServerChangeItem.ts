@@ -1,16 +1,16 @@
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {NodeEventNodeJson} from 'lib-admin-ui/event/NodeServerEvent';
 import {NodeServerChangeItem, NodeServerChangeItemBuilder} from 'lib-admin-ui/event/NodeServerChangeItem';
+import {ContentId} from '../content/ContentId';
 
 export class ContentServerChangeItem
     extends NodeServerChangeItem {
 
     public static pathPrefix: string = '/content';
 
-    private contentId: ContentId;
+    private readonly contentId: ContentId;
 
-    private contentPath: ContentPath;
+    private readonly contentPath: ContentPath;
 
 
     constructor(builder: ContentServerChangeItemBuilder) {

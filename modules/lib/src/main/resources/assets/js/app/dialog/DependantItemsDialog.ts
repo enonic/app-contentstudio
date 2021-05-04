@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {StatusSelectionItem} from './StatusSelectionItem';
@@ -16,6 +15,7 @@ import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
+import {ContentId} from '../content/ContentId';
 
 export interface DependantItemsDialogConfig
     extends ModalDialogWithConfirmationConfig {

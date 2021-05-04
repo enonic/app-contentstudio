@@ -1,9 +1,9 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HasUnpublishedChildrenListJson} from './json/HasUnpublishedChildrenJson';
 import {HasUnpublishedChildrenResult} from './HasUnpublishedChildrenResult';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentId} from '../content/ContentId';
 
 export class HasUnpublishedChildrenRequest
     extends ContentResourceRequest<HasUnpublishedChildrenResult> {

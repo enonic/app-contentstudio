@@ -1,7 +1,7 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {AccessControlList} from '../access/AccessControlList';
+import {ContentId} from '../content/ContentId';
 
 export class ContentPermissionsApplyEvent
     extends Event {

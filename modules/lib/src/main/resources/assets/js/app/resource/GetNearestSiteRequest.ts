@@ -1,9 +1,9 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Site} from '../content/Site';
 import {ContentJson} from '../content/ContentJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentId} from '../content/ContentId';
 
 export class GetNearestSiteRequest
     extends ContentResourceRequest<Site> {

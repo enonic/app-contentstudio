@@ -1,9 +1,7 @@
 import * as Q from 'q';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {OptionDataLoader, OptionDataLoaderData} from 'lib-admin-ui/ui/selector/OptionDataLoader';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
 import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
 import {ContentTreeSelectorQueryRequest} from '../../../resource/ContentTreeSelectorQueryRequest';
@@ -15,6 +13,8 @@ import {CompareContentResult} from '../../../resource/CompareContentResult';
 import {GetContentSummaryByIds} from '../../../resource/GetContentSummaryByIds';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {ContentSummary} from '../../../content/ContentSummary';
+import {ContentId} from '../../../content/ContentId';
+import {ContentSummaryJson} from '../../../content/ContentSummaryJson';
 
 export class ContentSummaryOptionDataLoader<DATA extends ContentTreeSelectorItem>
     extends OptionDataLoader<DATA> {

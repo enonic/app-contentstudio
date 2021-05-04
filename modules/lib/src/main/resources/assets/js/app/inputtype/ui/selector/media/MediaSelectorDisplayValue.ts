@@ -1,12 +1,12 @@
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Equitable} from 'lib-admin-ui/Equitable';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentIconUrlResolver} from '../../../../content/ContentIconUrlResolver';
 import {ContentSummary} from '../../../../content/ContentSummary';
+import {ContentId} from '../../../../content/ContentId';
 
 export class MediaSelectorDisplayValue {
 

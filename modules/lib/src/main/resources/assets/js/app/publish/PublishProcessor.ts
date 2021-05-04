@@ -1,7 +1,6 @@
 import * as Q from 'q';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {PublishDialogItemList} from './PublishDialogItemList';
 import {PublishDialogDependantList} from './PublishDialogDependantList';
 import {ResolvePublishDependenciesRequest} from '../resource/ResolvePublishDependenciesRequest';
@@ -13,6 +12,7 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {CompareStatus} from '../content/CompareStatus';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {ContentId} from '../content/ContentId';
 
 export class PublishProcessor {
 

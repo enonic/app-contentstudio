@@ -1,7 +1,7 @@
 import {DescriptorBasedDropdown} from '../DescriptorBasedDropdown';
 import {ComponentDescriptorsLoader} from './ComponentDescriptorsLoader';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ComponentType} from '../../../../../page/region/ComponentType';
+import {ContentId} from '../../../../../content/ContentId';
 
 export class ComponentDescriptorsDropdown
     extends DescriptorBasedDropdown {

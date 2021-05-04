@@ -1,11 +1,11 @@
 import * as Q from 'q';
 import {Path} from 'lib-admin-ui/rest/Path';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {RepositoryId} from '../repository/RepositoryId';
+import {ContentId} from '../content/ContentId';
 
 declare var CONFIG;
 

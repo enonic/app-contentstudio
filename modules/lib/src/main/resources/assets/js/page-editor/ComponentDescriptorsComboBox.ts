@@ -12,11 +12,11 @@ import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ComponentDescriptorsLoader} from '../app/wizard/page/contextwindow/inspect/region/ComponentDescriptorsLoader';
 import {Descriptor} from '../app/page/Descriptor';
 import {DescriptorViewer} from '../app/wizard/page/contextwindow/inspect/DescriptorViewer';
 import {ComponentType} from '../app/page/region/ComponentType';
+import {ContentId} from '../app/content/ContentId';
 
 export class ComponentDescriptorsComboBox
     extends RichComboBox<Descriptor> {

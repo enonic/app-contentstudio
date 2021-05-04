@@ -1,15 +1,15 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {ContentId} from '../content/ContentId';
 
 export class GetContentSummaryByIdRequest
     extends ContentResourceRequest<ContentSummary> {
 
     private id: ContentId;
 
-    private expand: string;
+    private readonly expand: string;
 
     constructor(id: ContentId) {
         super();

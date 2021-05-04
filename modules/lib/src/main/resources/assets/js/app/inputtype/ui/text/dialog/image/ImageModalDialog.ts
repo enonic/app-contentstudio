@@ -6,7 +6,6 @@ import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
 import {Validators} from 'lib-admin-ui/ui/form/Validators';
@@ -47,6 +46,7 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {LinkEl} from 'lib-admin-ui/dom/LinkEl';
 import eventInfo = CKEDITOR.eventInfo;
 import {ContentSummary} from '../../../../../content/ContentSummary';
+import {ContentId} from '../../../../../content/ContentId';
 
 export class ImageModalDialog
     extends OverrideNativeDialog {
@@ -66,7 +66,6 @@ export class ImageModalDialog
     private dropzoneContainer: DropzoneContainer;
     private imageSelectorFormItem: FormItem;
     private previewFrame: IFrameEl;
-    private scrollNavigationWrapperDiv: DivEl;
     private editorWidth: number;
     protected config: ImageModalDialogConfig;
 

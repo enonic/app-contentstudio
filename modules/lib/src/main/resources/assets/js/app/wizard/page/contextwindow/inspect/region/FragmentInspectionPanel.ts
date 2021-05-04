@@ -3,7 +3,6 @@ import {showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {FragmentSelectorForm} from './FragmentSelectorForm';
@@ -25,6 +24,7 @@ import {Button} from 'lib-admin-ui/ui/button/Button';
 import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentSummary} from '../../../../../content/ContentSummary';
+import {ContentId} from '../../../../../content/ContentId';
 
 export class FragmentInspectionPanel
     extends ComponentInspectionPanel<FragmentComponent> {

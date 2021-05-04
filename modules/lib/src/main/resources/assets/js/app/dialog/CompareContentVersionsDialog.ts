@@ -5,7 +5,6 @@ import {Delta, DiffPatcher, formatters} from 'jsondiffpatch';
 import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
 import {ContentVersions} from '../ContentVersions';
 import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {CheckboxBuilder} from 'lib-admin-ui/ui/Checkbox';
@@ -25,6 +24,7 @@ import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentId} from '../content/ContentId';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {

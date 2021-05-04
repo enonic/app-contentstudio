@@ -1,11 +1,11 @@
 import * as Q from 'q';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentSelectorRequest} from './ContentSelectorRequest';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentJson} from '../content/ContentJson';
 import {Expand} from 'lib-admin-ui/rest/Expand';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummaryJson} from '../content/ContentSummaryJson';
 
 export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends ContentSelectorRequest<CONTENT> {

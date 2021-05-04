@@ -1,11 +1,11 @@
 import * as Q from 'q';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {PostLoader} from 'lib-admin-ui/util/loader/PostLoader';
 import {ContentSummaryRequest} from '../../../../../resource/ContentSummaryRequest';
 import {GetContentSummaryByIds} from '../../../../../resource/GetContentSummaryByIds';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentSummary} from '../../../../../content/ContentSummary';
+import {ContentId} from '../../../../../content/ContentId';
 
 export class ContentSummaryLoader
     extends PostLoader<ContentSummary> {

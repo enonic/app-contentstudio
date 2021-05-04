@@ -1,12 +1,12 @@
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentResponse} from './ContentResponse';
 import {ListContentResult} from './ListContentResult';
 import {ContentMetadata} from '../content/ContentMetadata';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummaryJson} from '../content/ContentSummaryJson';
 
 export class BatchContentRequest
     extends ContentResourceRequest<ContentResponse<ContentSummary>> {

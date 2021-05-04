@@ -24,10 +24,10 @@ import {ComponentPropertyValueChangedEvent} from '../../app/page/region/Componen
 import {Component} from '../../app/page/region/Component';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {ContentId} from '../../app/content/ContentId';
 
 export class FragmentComponentViewBuilder
     extends ContentBasedComponentViewBuilder<FragmentComponent> {

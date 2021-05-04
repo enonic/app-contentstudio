@@ -1,12 +1,12 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentId} from '../content/ContentId';
 
 export class ContentUpdatedEvent
     extends Event {
 
-    private contentSummary: ContentSummary;
+    private readonly contentSummary: ContentSummary;
 
     constructor(contentSummary: ContentSummary) {
         super();

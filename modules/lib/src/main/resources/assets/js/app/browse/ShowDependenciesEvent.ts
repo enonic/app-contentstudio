@@ -1,7 +1,7 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentId} from '../content/ContentId';
 
 export class ShowDependenciesEvent
     extends Event {

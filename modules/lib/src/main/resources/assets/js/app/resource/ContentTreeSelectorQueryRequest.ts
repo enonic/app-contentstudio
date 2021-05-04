@@ -1,11 +1,11 @@
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {ContentTreeSelectorListJson} from './ContentTreeSelectorListResult';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ContentMetadata} from '../content/ContentMetadata';
 import {ContentSelectorRequest} from './ContentSelectorRequest';
 import {ContentSummary} from '../content/ContentSummary';
+import {ChildOrder} from './order/ChildOrder';
 
 export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorItem>
     extends ContentSelectorRequest<DATA> {

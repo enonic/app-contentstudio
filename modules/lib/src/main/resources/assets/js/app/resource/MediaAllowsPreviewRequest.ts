@@ -1,13 +1,13 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {ContentId} from '../content/ContentId';
 
 export class MediaAllowsPreviewRequest
     extends ContentResourceRequest<boolean> {
 
-    private contentId: ContentId;
+    private readonly contentId: ContentId;
 
-    private identifier: string;
+    private readonly identifier: string;
 
     constructor(contentId: ContentId, identifier?: string) {
         super();

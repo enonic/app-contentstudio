@@ -1,9 +1,9 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {PageResourceRequest} from '../resource/PageResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
+import {ContentId} from '../content/ContentId';
 
 export class DeletePageRequest
     extends PageResourceRequest<Content>

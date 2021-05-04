@@ -4,16 +4,16 @@ import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ContentSummaryJson} from './ContentSummaryJson';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {assert} from 'lib-admin-ui/util/Assert';
 import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
-import {ContentInheritType} from 'lib-admin-ui/content/ContentInheritType';
+import {ContentInheritType} from './ContentInheritType';
+import {ContentId} from './ContentId';
+import {ChildOrder} from '../resource/order/ChildOrder';
 
 export class ContentSummary {
 

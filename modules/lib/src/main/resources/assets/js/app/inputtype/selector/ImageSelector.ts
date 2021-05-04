@@ -24,6 +24,8 @@ import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypes
 import {ImageOptionDataLoader} from '../ui/selector/image/ImageOptionDataLoader';
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {EditContentEvent} from '../../event/EditContentEvent';
 
 export class ImageSelector
     extends MediaSelector {
@@ -58,7 +60,9 @@ export class ImageSelector
 
         selectedOptionsView.onEditSelectedOptions((options: SelectedOption<MediaTreeSelectorItem>[]) => {
             options.forEach((option: SelectedOption<MediaTreeSelectorItem>) => {
-                this.notifyEditContentRequested(option.getOption().getDisplayValue().getContentSummary());
+                const content = option.getOption().getDisplayValue().getContentSummary();
+                const model = ContentSummaryAndCompareStatus.fromContentSummary(content);
+                new EditContentEvent([model]).fire();
             });
         });
 

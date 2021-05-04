@@ -8,10 +8,10 @@ import {ContentServerEventsHandler} from '../../../event/ContentServerEventsHand
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
 import {ContentServerChangeItem} from '../../../event/ContentServerChangeItem';
 import {ValueType} from 'lib-admin-ui/data/ValueType';
-import {EditableInputTypeManagingAdd} from '../../EditableInputTypeManagingAdd';
+import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 
 export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
-    extends EditableInputTypeManagingAdd {
+    extends BaseInputTypeManagingAdd {
 
     protected config: ContentInputTypeViewContext;
 

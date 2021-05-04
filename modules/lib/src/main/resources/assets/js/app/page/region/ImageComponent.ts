@@ -1,7 +1,6 @@
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Equitable} from 'lib-admin-ui/Equitable';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {Form, FormBuilder} from 'lib-admin-ui/form/Form';
 import {OccurrencesBuilder} from 'lib-admin-ui/form/Occurrences';
 import {TextArea} from 'lib-admin-ui/form/inputtype/text/TextArea';
@@ -14,6 +13,7 @@ import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedCo
 import {Content} from '../../content/Content';
 import {ImageHelper} from '../../util/ImageHelper';
 import {InputBuilder} from 'lib-admin-ui/form/Input';
+import {ContentId} from '../../content/ContentId';
 
 export class ImageComponent
     extends ConfigBasedComponent {

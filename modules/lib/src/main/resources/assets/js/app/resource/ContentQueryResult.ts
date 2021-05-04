@@ -1,7 +1,7 @@
 import {ContentMetadata} from '../content/ContentMetadata';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummaryJson} from '../content/ContentSummaryJson';
 
 export class ContentQueryResult<CONTENT extends ContentSummary, CONTENT_JSON extends ContentSummaryJson> {
 

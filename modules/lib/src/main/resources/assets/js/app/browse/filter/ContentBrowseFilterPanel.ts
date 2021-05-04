@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentBrowseSearchData} from './ContentBrowseSearchData';
 import {ContentTypeAggregationGroupView} from './ContentTypeAggregationGroupView';
 import {Router} from '../../Router';
@@ -44,12 +43,13 @@ import {FulltextSearchExpressionBuilder} from 'lib-admin-ui/query/FulltextSearch
 import {Expression} from 'lib-admin-ui/query/expr/Expression';
 import {Expand} from 'lib-admin-ui/rest/Expand';
 import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationView';
-import {ContentIds} from '../../ContentIds';
+import {ContentIds} from '../../content/ContentIds';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ProjectContext} from '../../project/ProjectContext';
 import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentSummaryJson} from '../../content/ContentSummaryJson';
+import {ContentId} from '../../content/ContentId';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {

@@ -6,7 +6,7 @@ import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {OpenMoveDialogEvent} from './OpenMoveDialogEvent';
 import {ContentMoveComboBox} from './ContentMoveComboBox';
 import {MoveContentRequest} from '../resource/MoveContentRequest';
-import {ContentIds} from '../ContentIds';
+import {ContentIds} from '../content/ContentIds';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';

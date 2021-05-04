@@ -3,7 +3,6 @@ import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {PEl} from 'lib-admin-ui/dom/PEl';
@@ -27,16 +26,17 @@ import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
 import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
 import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
-import {ContentIds} from '../../../../ContentIds';
+import {ContentIds} from '../../../../content/ContentIds';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../../resource/ContentSummaryAndCompareStatusFetcher';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentServerChangeItem} from '../../../../event/ContentServerChangeItem';
 import {GetComponentDescriptorRequest} from '../../../../resource/GetComponentDescriptorRequest';
 import {Descriptor} from '../../../../page/Descriptor';
 import {ContentSummary} from '../../../../content/ContentSummary';
+import {ContentId} from '../../../../content/ContentId';
+import {ContentSummaryJson} from '../../../../content/ContentSummaryJson';
 
 export class PageTemplateWidgetItemView
     extends WidgetItemView {

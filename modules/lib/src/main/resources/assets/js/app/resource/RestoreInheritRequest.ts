@@ -1,9 +1,9 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentInheritType} from 'lib-admin-ui/content/ContentInheritType';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ProjectContext} from '../project/ProjectContext';
+import {ContentInheritType} from '../content/ContentInheritType';
+import {ContentId} from '../content/ContentId';
 
 export class RestoreInheritRequest extends ContentResourceRequest<void> {
 

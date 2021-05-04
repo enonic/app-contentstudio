@@ -1,8 +1,8 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentIdBaseItemJson} from './json/ResolvePublishContentResultJson';
-import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
+import {ContentId} from '../content/ContentId';
+import {ChildOrder} from './order/ChildOrder';
 
 export class GetContentIdsByParentRequest
     extends ContentResourceRequest<any> {

@@ -9,7 +9,6 @@ import {
 } from 'lib-admin-ui/query/aggregation/TermsAggregationQuery';
 import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {QueryField} from 'lib-admin-ui/query/QueryField';
 import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {AggregateContentTypesResult, ContentTypeAggregation} from './AggregateContentTypesResult';
@@ -19,6 +18,7 @@ import {ContentQueryResult} from './ContentQueryResult';
 import {ContentQuery} from '../content/ContentQuery';
 import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummaryJson} from '../content/ContentSummaryJson';
 
 export class AggregateContentTypesByPathRequest
     extends ContentResourceRequest<AggregateContentTypesResult> {
