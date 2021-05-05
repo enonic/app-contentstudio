@@ -1,4 +1,3 @@
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentComboBox, ContentComboBoxBuilder, ContentSelectedOptionsView} from '../inputtype/ui/selector/ContentComboBox';
 import {ContentSummaryOptionDataLoader} from '../inputtype/ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
@@ -7,11 +6,12 @@ import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOpt
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentSummaryViewer} from '../content/ContentSummaryViewer';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentPath} from '../content/ContentPath';
 
 export class ContentMoveComboBox
     extends ContentComboBox<ContentTreeSelectorItem> {
 
-    private readonlyChecker: MoveReadOnlyChecker;
+    private readonly readonlyChecker: MoveReadOnlyChecker;
 
     constructor() {
         const contentComboBoxBuilder: ContentComboBoxBuilder<ContentTreeSelectorItem> =

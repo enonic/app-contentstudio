@@ -1,8 +1,8 @@
 import { NamesAndIconViewer } from 'lib-admin-ui/ui/NamesAndIconViewer';
-import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
-import { ContentPath } from 'lib-admin-ui/content/ContentPath';
+import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 import {ContentSummary} from './ContentSummary';
+import {ContentPath} from './ContentPath';
 
 export class ContentSummaryViewer
     extends NamesAndIconViewer<ContentSummary> {
@@ -29,11 +29,11 @@ export class ContentSummaryViewer
         let contentName = object.getName();
         if (this.isRelativePath) {
             return !contentName.isUnnamed() ? object.getName().toString() :
-                   ContentUnnamed.prettifyUnnamed();
+                NamePrettyfier.prettifyUnnamed();
         } else {
             return !contentName.isUnnamed() ? object.getPath().toString() :
                    ContentPath.fromParent(object.getPath().getParentPath(),
-                       ContentUnnamed.prettifyUnnamed()).toString();
+                       NamePrettyfier.prettifyUnnamed()).toString();
         }
     }
 

@@ -5,8 +5,6 @@ import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {MacroDescriptor} from 'lib-admin-ui/macro/MacroDescriptor';
-import {MacroPreview} from 'lib-admin-ui/macro/MacroPreview';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {DockedPanel} from 'lib-admin-ui/ui/panel/DockedPanel';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
@@ -14,11 +12,13 @@ import {PropertySet} from 'lib-admin-ui/data/PropertySet';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {ContentFormContext} from '../../../../ContentFormContext';
 import {Content} from '../../../../content/Content';
-import {GetPreviewRequest} from 'lib-admin-ui/macro/resource/GetPreviewRequest';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {GetPreviewStringRequest} from 'lib-admin-ui/macro/resource/GetPreviewStringRequest';
 import {IFrameEl} from 'lib-admin-ui/dom/IFrameEl';
 import {ContentSummary} from '../../../../content/ContentSummary';
+import {GetPreviewRequest} from '../../../../macro/resource/GetPreviewRequest';
+import {GetPreviewStringRequest} from '../../../../macro/resource/GetPreviewStringRequest';
+import {MacroDescriptor} from 'lib-admin-ui/macro/MacroDescriptor';
+import {MacroPreview} from '../../../../macro/MacroPreview';
 
 export class MacroDockedPanel
     extends DockedPanel {

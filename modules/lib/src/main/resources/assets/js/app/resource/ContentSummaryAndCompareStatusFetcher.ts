@@ -1,5 +1,4 @@
 import * as Q from 'q';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentResponse} from './ContentResponse';
 import {ListContentByIdRequest} from './ListContentByIdRequest';
 import {CompareContentRequest} from './CompareContentRequest';
@@ -18,6 +17,7 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ChildOrder} from './order/ChildOrder';
 import {ContentId} from '../content/ContentId';
 import {FieldOrderExpr, FieldOrderExprBuilder} from './order/FieldOrderExpr';
+import {ContentPath} from '../content/ContentPath';
 
 export class ContentSummaryAndCompareStatusFetcher {
 

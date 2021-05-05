@@ -1,5 +1,4 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
@@ -9,6 +8,7 @@ import {AccessControlList} from '../access/AccessControlList';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentName} from '../content/ContentName';
 
 export class UpdateContentRequest
     extends ContentResourceRequest<Content> {

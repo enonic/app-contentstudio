@@ -1,6 +1,4 @@
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
@@ -9,8 +7,10 @@ import {ExtraData} from '../content/ExtraData';
 import {ExtraDataJson} from './json/ExtraDataJson';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentName} from '../content/ContentName';
+import {ContentPath} from '../content/ContentPath';
+import {ContentUnnamed} from '../content/ContentUnnamed';
 
 export class CreateContentRequest
     extends ContentResourceRequest<Content> {

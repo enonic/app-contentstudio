@@ -6,10 +6,10 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {ContentPath} from '../content/ContentPath';
 
 export class RenameContentDialog extends ModalDialog {
 

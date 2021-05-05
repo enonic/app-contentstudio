@@ -22,9 +22,9 @@ import {LayoutComponentType} from '../../../../../page/region/LayoutComponentTyp
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {Button} from 'lib-admin-ui/ui/button/Button';
 import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
+import {ContentPath} from '../../../../../content/ContentPath';
 
 export class FragmentInspectionPanel
     extends ComponentInspectionPanel<FragmentComponent> {

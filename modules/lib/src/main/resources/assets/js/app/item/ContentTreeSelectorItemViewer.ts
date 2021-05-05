@@ -1,8 +1,8 @@
-import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentTreeSelectorItem} from './ContentTreeSelectorItem';
 import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
+import {ContentPath} from '../content/ContentPath';
+import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 
 export class ContentTreeSelectorItemViewer
     extends NamesAndIconViewer<ContentTreeSelectorItem> {
@@ -30,10 +30,10 @@ export class ContentTreeSelectorItemViewer
         const contentName = object.getName();
         let subName = '';
         if (relativePath) {
-            subName = !contentName.isUnnamed() ? contentName.toString() : ContentUnnamed.prettifyUnnamed();
+            subName = !contentName.isUnnamed() ? contentName.toString() : NamePrettyfier.prettifyUnnamed();
         } else {
             subName = !contentName.isUnnamed() ? object.getPath().toString() :
-                   ContentPath.fromParent(object.getPath().getParentPath(), ContentUnnamed.prettifyUnnamed()).toString();
+                   ContentPath.fromParent(object.getPath().getParentPath(), NamePrettyfier.prettifyUnnamed()).toString();
         }
 
         this.setTitle(subName);

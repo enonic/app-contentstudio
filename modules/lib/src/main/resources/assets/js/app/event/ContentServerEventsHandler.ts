@@ -1,5 +1,4 @@
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
 import {ContentDeletedEvent} from './ContentDeletedEvent';
 import {BatchContentServerEvent} from './BatchContentServerEvent';
@@ -17,6 +16,7 @@ import {RepositoryId} from '../repository/RepositoryId';
 import {ContentServerEvent} from './ContentServerEvent';
 import {NodeServerChangeItem} from 'lib-admin-ui/event/NodeServerChangeItem';
 import {ContentId} from '../content/ContentId';
+import {ContentPath} from '../content/ContentPath';
 
 /**
  * Class that listens to server events and fires UI events

@@ -1,9 +1,9 @@
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {RenderingMode} from './RenderingMode';
 import {Branch} from '../versioning/Branch';
 import {ComponentPath} from '../page/region/ComponentPath';
 import {UriHelper as UIUriHelper} from 'lib-admin-ui/util/UriHelper';
 import {ProjectContext} from '../project/ProjectContext';
+import {ContentPath} from '../content/ContentPath';
 
 export class UriHelper {
 

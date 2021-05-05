@@ -68,9 +68,6 @@ import {WorkflowStateIconsManager, WorkflowStateStatus} from './WorkflowStateIco
 import {RoutineContext} from './Flow';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {FormView} from 'lib-admin-ui/form/FormView';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentName} from 'lib-admin-ui/content/ContentName';
-import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
@@ -124,6 +121,9 @@ import {Descriptor} from '../page/Descriptor';
 import {GetPageDescriptorsByApplicationsRequest} from './page/contextwindow/inspect/page/GetPageDescriptorsByApplicationsRequest';
 import {ContentId} from '../content/ContentId';
 import {MaskContentWizardPanelEvent} from './MaskContentWizardPanelEvent';
+import {ContentPath} from '../content/ContentPath';
+import {ContentName} from '../content/ContentName';
+import {ContentUnnamed} from '../content/ContentUnnamed';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {

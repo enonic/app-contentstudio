@@ -19,13 +19,13 @@ import {ImageSelectorSelectedOptionView} from '../ui/selector/image/ImageSelecto
 import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {Content} from '../../content/Content';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
 import {ImageOptionDataLoader} from '../ui/selector/image/ImageOptionDataLoader';
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {EditContentEvent} from '../../event/EditContentEvent';
+import {ContentPath} from '../../content/ContentPath';
 
 export class ImageSelector
     extends MediaSelector {

@@ -1,10 +1,10 @@
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentIdBaseItemJson} from './json/ResolvePublishContentResultJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
+import {ContentPath} from '../content/ContentPath';
 
 export class GetDescendantsOfContentsRequest
     extends ContentResourceRequest<ContentId[]> {

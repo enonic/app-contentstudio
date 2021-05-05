@@ -1,5 +1,4 @@
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {RichComboBox} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
@@ -9,6 +8,7 @@ import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAnd
 import {ContentServerChangeItem} from '../../../event/ContentServerChangeItem';
 import {ValueType} from 'lib-admin-ui/data/ValueType';
 import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
+import {ContentPath} from '../../../content/ContentPath';
 
 export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     extends BaseInputTypeManagingAdd {

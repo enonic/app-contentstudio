@@ -1,5 +1,4 @@
 import {Thumbnail} from 'lib-admin-ui/thumb/Thumbnail';
-import {ContentState} from 'lib-admin-ui/schema/content/ContentState';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
@@ -7,13 +6,14 @@ import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ContentSummaryJson} from './ContentSummaryJson';
-import {ContentName} from 'lib-admin-ui/content/ContentName';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
+import {ContentName} from './ContentName';
+import {ContentPath} from './ContentPath';
 import {assert} from 'lib-admin-ui/util/Assert';
-import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
+import {ContentUnnamed} from './ContentUnnamed';
 import {ContentInheritType} from './ContentInheritType';
 import {ContentId} from './ContentId';
 import {ChildOrder} from '../resource/order/ChildOrder';
+import {ContentState} from './ContentState';
 
 export class ContentSummary {
 

@@ -23,7 +23,6 @@ import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {TreeGridItemClickedEvent} from 'lib-admin-ui/ui/treegrid/TreeGridItemClickedEvent';
 import {RepositoryEvent} from 'lib-admin-ui/content/event/RepositoryEvent';
 import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
@@ -38,6 +37,7 @@ import {DeletedContentItem} from './DeletedContentItem';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentId} from '../content/ContentId';
+import {ContentPath} from '../content/ContentPath';
 
 export class ContentBrowsePanel
     extends BrowsePanel {

@@ -1,8 +1,8 @@
 import {ItemJson} from 'lib-admin-ui/item/ItemJson';
 import {ThumbnailJson} from 'lib-admin-ui/thumb/ThumbnailJson';
-import {ContentPublishTimeRangeJson} from 'lib-admin-ui/content/json/ContentPublishTimeRangeJson';
 import {WorkflowJson} from 'lib-admin-ui/content/json/WorkflowJson';
 import {ChildOrderJson} from '../resource/json/ChildOrderJson';
+import {ContentPublishTimeRangeJson} from '../resource/json/ContentPublishTimeRangeJson';
 
 export interface ContentSummaryJson
     extends ItemJson {

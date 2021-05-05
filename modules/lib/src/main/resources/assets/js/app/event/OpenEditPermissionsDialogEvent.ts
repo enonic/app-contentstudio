@@ -1,9 +1,9 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {Content} from '../content/Content';
 import {AccessControlList} from '../access/AccessControlList';
 import {ContentId} from '../content/ContentId';
+import {ContentPath} from '../content/ContentPath';
 
 export class OpenEditPermissionsDialogEvent
     extends Event {

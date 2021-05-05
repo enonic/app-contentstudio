@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
@@ -9,6 +8,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {GetTaskInfoRequest} from 'lib-admin-ui/task/GetTaskInfoRequest';
 import {TaskInfo} from 'lib-admin-ui/task/TaskInfo';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentPath} from '../content/ContentPath';
 
 export class DeleteContentRequest extends ContentResourceRequest<TaskId> {
 

@@ -5,7 +5,6 @@ import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {HtmlEditorParams} from './HtmlEditorParams';
 import {Styles} from './styles/Styles';
@@ -21,6 +20,7 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UrlHelper} from '../../../util/UrlHelper';
 import eventInfo = CKEDITOR.eventInfo;
 import widget = CKEDITOR.plugins.widget;
+import {ContentPath} from '../../../content/ContentPath';
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];

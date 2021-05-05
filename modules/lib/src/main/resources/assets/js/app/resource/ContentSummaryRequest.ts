@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {Path} from 'lib-admin-ui/rest/Path';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {QueryField} from 'lib-admin-ui/query/QueryField';
 import {OrderExpr} from 'lib-admin-ui/query/expr/OrderExpr';
@@ -19,6 +18,7 @@ import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {PathMatchExpressionBuilder} from 'lib-admin-ui/query/PathMatchExpression';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {ContentPath} from '../content/ContentPath';
 
 export class ContentSummaryRequest
     extends ResourceRequest<ContentSummary[]> {

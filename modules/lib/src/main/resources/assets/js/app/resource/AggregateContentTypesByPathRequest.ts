@@ -10,7 +10,6 @@ import {
 import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {QueryField} from 'lib-admin-ui/query/QueryField';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {AggregateContentTypesResult, ContentTypeAggregation} from './AggregateContentTypesResult';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentQueryRequest} from './ContentQueryRequest';
@@ -19,6 +18,7 @@ import {ContentQuery} from '../content/ContentQuery';
 import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {ContentPath} from '../content/ContentPath';
 
 export class AggregateContentTypesByPathRequest
     extends ContentResourceRequest<AggregateContentTypesResult> {

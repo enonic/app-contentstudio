@@ -11,12 +11,10 @@ import {ContextView} from './context/ContextView';
 import {MobilePreviewFoldButton} from './MobilePreviewFoldButton';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ContentHelper} from '../util/ContentHelper';
-import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {ItemStatisticsPanel} from 'lib-admin-ui/app/view/ItemStatisticsPanel';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {IEl} from 'lib-admin-ui/dom/IEl';
-import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
+import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 
 export class MobileContentItemStatisticsPanel
     extends ItemStatisticsPanel {
@@ -134,7 +132,7 @@ export class MobileContentItemStatisticsPanel
     private makeDisplayName(item: ContentSummaryAndCompareStatus): string {
         let localName = item.getType().getLocalName() || '';
         return StringHelper.isEmpty(item.getDisplayName())
-               ? ContentUnnamed.prettifyUnnamed(localName)
+               ? NamePrettyfier.prettifyUnnamed(localName)
                : item.getDisplayName();
     }
 

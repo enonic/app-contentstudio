@@ -1,5 +1,4 @@
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {CompareStatus, CompareStatusChecker, CompareStatusFormatter} from './CompareStatus';
 import {PublishStatus, PublishStatusChecker} from '../publish/PublishStatus';
 import {Equitable} from 'lib-admin-ui/Equitable';
@@ -12,6 +11,7 @@ import {Cloneable} from 'lib-admin-ui/Cloneable';
 import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
 import {ContentInheritType} from './ContentInheritType';
 import {ContentId} from './ContentId';
+import {ContentPath} from './ContentPath';
 
 export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
 

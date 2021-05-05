@@ -20,13 +20,13 @@ import {HtmlEditorParams} from '../../app/inputtype/ui/text/HtmlEditorParams';
 import {HtmlEditor} from '../../app/inputtype/ui/text/HtmlEditor';
 import {StylesRequest} from '../../app/inputtype/ui/text/styles/StylesRequest';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {SectionEl} from 'lib-admin-ui/dom/SectionEl';
 import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {Action} from 'lib-admin-ui/ui/Action';
 import * as Q from 'q';
 import {ContentSummary} from '../../app/content/ContentSummary';
+import {ContentPath} from '../../app/content/ContentPath';
 
 declare var CONFIG;
 

@@ -25,7 +25,6 @@ import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
 import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {TreeGridContextMenu} from 'lib-admin-ui/ui/treegrid/TreeGridContextMenu';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {BrowseFilterResetEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterResetEvent';
 import {BrowseFilterRefreshEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterRefreshEvent';
@@ -39,6 +38,7 @@ import {ContentSummary, ContentSummaryBuilder} from '../content/ContentSummary';
 import {ChildOrder} from '../resource/order/ChildOrder';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {ContentPath} from '../content/ContentPath';
 
 export enum State {
     ENABLED, DISABLED

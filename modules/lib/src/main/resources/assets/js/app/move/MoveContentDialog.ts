@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {showError} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {OpenMoveDialogEvent} from './OpenMoveDialogEvent';
 import {ContentMoveComboBox} from './ContentMoveComboBox';
 import {MoveContentRequest} from '../resource/MoveContentRequest';
@@ -20,6 +19,7 @@ import {ModalDialogWithConfirmation} from 'lib-admin-ui/ui/dialog/ModalDialogWit
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {ContentTreeGrid} from '../browse/ContentTreeGrid';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentPath} from '../content/ContentPath';
 
 export class MoveContentDialog
     extends ModalDialogWithConfirmation

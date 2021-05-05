@@ -1,10 +1,10 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
 import {Branch} from '../versioning/Branch';
 import {ContentId} from '../content/ContentId';
+import {ContentPath} from '../content/ContentPath';
 
 export class ContentDeletedEvent
     extends Event {

@@ -1,12 +1,12 @@
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentName} from 'lib-admin-ui/content/ContentName';
+import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
-import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {ExtendedViewer} from '../view/ExtendedViewer';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 import {ContentSummary} from './ContentSummary';
+import {ContentName} from './ContentName';
+import {ContentPath} from './ContentPath';
 
 export class ContentSummaryAndCompareStatusViewer
     extends ExtendedViewer<ContentSummaryAndCompareStatus> {
@@ -56,12 +56,12 @@ export class ContentSummaryAndCompareStatusViewer
 
         if (this.isRelativePath) {
             return !contentName.isUnnamed() ? contentName.toString() :
-                   ContentUnnamed.prettifyUnnamed();
+                   NamePrettyfier.prettifyUnnamed();
         }
 
         return !contentName.isUnnamed() ? contentSummary.getPath().toString() :
                ContentPath.fromParent(contentSummary.getPath().getParentPath(),
-                   ContentUnnamed.prettifyUnnamed()).toString();
+                   NamePrettyfier.prettifyUnnamed()).toString();
     }
 
     private toggleState(object: ContentSummaryAndCompareStatus) {

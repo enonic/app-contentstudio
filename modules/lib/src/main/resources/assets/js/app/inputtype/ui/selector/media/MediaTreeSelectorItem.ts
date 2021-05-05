@@ -1,7 +1,6 @@
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Equitable} from 'lib-admin-ui/Equitable';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {MediaSelectorDisplayValue} from './MediaSelectorDisplayValue';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
 import {ContentAndStatusTreeSelectorItem} from '../../../../item/ContentAndStatusTreeSelectorItem';
@@ -9,6 +8,7 @@ import {CompareStatus} from '../../../../content/CompareStatus';
 import {PublishStatus} from '../../../../publish/PublishStatus';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';
+import {ContentPath} from '../../../../content/ContentPath';
 
 export class MediaTreeSelectorItem
     extends ContentTreeSelectorItem {

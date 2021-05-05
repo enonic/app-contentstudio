@@ -17,9 +17,9 @@ import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOpt
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSummaryAndCompareStatus';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentSummary, ContentSummaryBuilder} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
+import {ContentPath} from '../../../../../content/ContentPath';
 
 export class ImageInspectionPanel
     extends ComponentInspectionPanel<ImageComponent> {
