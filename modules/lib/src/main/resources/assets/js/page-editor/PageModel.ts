@@ -599,4 +599,20 @@ export class PageModel {
         });
     }
 
+    onChange(listener: () => void) {
+        this.onPropertyChanged(listener);
+        this.onComponentPropertyChangedEvent(listener);
+        this.onCustomizeChanged(listener);
+        this.onPageModeChanged(listener);
+        this.onReset(listener);
+    }
+
+    unChange(listener: () => void) {
+        this.unPropertyChanged(listener);
+        this.unComponentPropertyChangedEvent(listener);
+        this.unCustomizeChanged(listener);
+        this.unPageModeChanged(listener);
+        this.unReset(listener);
+    }
+
 }

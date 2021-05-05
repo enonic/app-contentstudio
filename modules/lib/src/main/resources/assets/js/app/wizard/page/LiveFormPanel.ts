@@ -351,7 +351,7 @@ export class LiveFormPanel
     }
 
     private createContextWindow(proxy: LiveEditPageProxy, model: LiveEditModel): ContextWindow { //
-        this.inspectionsPanel = this.createInspectionsPanel(model, this.saveAsTemplateAction);
+        this.inspectionsPanel = this.createInspectionsPanel();
 
         this.insertablesPanel = new InsertablesPanel({
             liveEditPage: proxy,
@@ -367,10 +367,10 @@ export class LiveFormPanel
         });
     }
 
-    private createInspectionsPanel(model: LiveEditModel, saveAsTemplateAction: SaveAsTemplateAction): InspectionsPanel {
-        let saveAction = new Action(i18n('action.apply'));
-        saveAction.onExecuted(() => {
+    private createInspectionsPanel(): InspectionsPanel {
+        const saveAction: Action = new Action(i18n('action.apply'));
 
+        saveAction.onExecuted(() => {
             if (this.pageView) {
                 const itemView = this.pageView.getSelectedView();
                 if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
@@ -387,7 +387,7 @@ export class LiveFormPanel
 
         this.contentInspectionPanel = new ContentInspectionPanel();
 
-        this.pageInspectionPanel = new PageInspectionPanel(saveAsTemplateAction);
+        this.pageInspectionPanel = new PageInspectionPanel(this.saveAsTemplateAction);
         this.partInspectionPanel = new PartInspectionPanel();
         this.layoutInspectionPanel = new LayoutInspectionPanel();
         this.imageInspectionPanel = new ImageInspectionPanel();
