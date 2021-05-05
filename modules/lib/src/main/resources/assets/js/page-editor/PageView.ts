@@ -1073,4 +1073,16 @@ export class PageView
             listener(locked);
         });
     }
+
+    onChange(listener: () => void) {
+        this.onItemViewAdded(listener);
+        this.onItemViewRemoved(listener);
+        this.onPageLocked(listener);
+    }
+
+    unChange(listener: () => void) {
+        this.unItemViewAdded(listener);
+        this.unItemViewRemoved(listener);
+        this.unPageLocked(listener);
+    }
 }

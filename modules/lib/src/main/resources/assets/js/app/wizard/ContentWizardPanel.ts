@@ -243,7 +243,6 @@ export class ContentWizardPanel
         }
 
         this.contentParams = params;
-
         this.loadData();
 
         this.isContentFormValid = false;
@@ -2531,18 +2530,13 @@ export class ContentWizardPanel
 
         if (pageView) {
             pageView.setRenderable(this.renderable);
-            pageView.onItemViewAdded(listener);
-            pageView.onItemViewRemoved(listener);
-            pageView.onPageLocked(listener);
+            pageView.onChange(listener);
         }
-        const pageModel = this.liveEditModel ? this.liveEditModel.getPageModel() : null;
+
+        const pageModel: PageModel = this.liveEditModel?.getPageModel();
 
         if (pageModel) {
-            pageModel.onPropertyChanged(listener);
-            pageModel.onComponentPropertyChangedEvent(listener);
-            pageModel.onCustomizeChanged(listener);
-            pageModel.onPageModeChanged(listener);
-            pageModel.onReset(listener);
+            pageModel.onChange(listener);
         }
     }
 
