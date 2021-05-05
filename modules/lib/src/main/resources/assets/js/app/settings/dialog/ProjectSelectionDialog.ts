@@ -65,6 +65,7 @@ export class ProjectSelectionDialog
 
         this.projectsList = new ProjectList();
         this.noItemsInfoBlock = new H6El('notification-dialog-text').setHtml(i18n('notify.settings.project.notInitialized'));
+        this.noItemsInfoBlock.hide();
     }
 
     close() {
@@ -126,7 +127,6 @@ export class ProjectSelectionDialog
         return super.doRender().then((rendered: boolean) => {
                 this.appendChildToContentPanel(this.projectsList);
                 this.appendChildToContentPanel(this.noItemsInfoBlock);
-                this.noItemsInfoBlock.hide();
 
             return rendered;
         });
