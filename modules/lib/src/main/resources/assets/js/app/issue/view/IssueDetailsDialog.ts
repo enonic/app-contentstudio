@@ -708,7 +708,10 @@ export class IssueDetailsDialog
         }
 
         this.scheduleFormPropertySet.setPropertySet('publish', 0, publishScheduleSet);
-        this.publishScheduleForm.update(this.scheduleFormPropertySet);
+
+        if (this.publishScheduleForm.isRendered()) {
+            this.publishScheduleForm.update(this.scheduleFormPropertySet);
+        }
 
         this.updateLabels();
 
