@@ -100,8 +100,8 @@ export class UpdatePersistedContentRoutine
                !persisted.extraDataEquals(viewed.getAllExtraData()) ||
                !ObjectHelper.equals(persisted.getOwner(), viewed.getOwner()) ||
                persisted.getLanguage() !== viewed.getLanguage() ||
-               persisted.getPublishFromTime() !== viewed.getPublishFromTime() ||
-               persisted.getPublishToTime() !== viewed.getPublishToTime() ||
+               !ObjectHelper.dateEquals(persisted.getPublishFromTime(), viewed.getPublishFromTime()) ||
+               !ObjectHelper.dateEquals(persisted.getPublishToTime(), viewed.getPublishToTime()) ||
                !persisted.getPermissions().equals(viewed.getPermissions()) ||
                persisted.isInheritPermissionsEnabled() !== viewed.isInheritPermissionsEnabled() ||
                persisted.isOverwritePermissionsEnabled() !== viewed.isOverwritePermissionsEnabled();
