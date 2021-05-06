@@ -693,22 +693,29 @@ export class IssueDetailsDialog
         this.commentTextArea.setValue('', true);
         this.setReadOnly(issue && issue.getIssueStatus() === IssueStatus.CLOSED);
 
-        let publishScheduleSet;
+        let publishScheduleSet: PropertySet;
+
         if (issue.getPublishFrom() || issue.getPublishTo()) {
             publishScheduleSet = new PropertySet(this.scheduleFormPropertySet.getTree());
+
             if (issue.getPublishFrom()) {
                 publishScheduleSet.setLocalDateTime('from', 0, LocalDateTime.fromDate(issue.getPublishFrom()));
             }
+
             if (issue.getPublishTo()) {
                 publishScheduleSet.setLocalDateTime('to', 0, LocalDateTime.fromDate(issue.getPublishTo()));
             }
+
             this.publishScheduleForm.setFormVisible(true, true);
         } else {
             this.publishScheduleForm.setFormVisible(false, true);
         }
 
         this.scheduleFormPropertySet.setPropertySet('publish', 0, publishScheduleSet);
-        this.publishScheduleForm.update(this.scheduleFormPropertySet);
+
+        this.publishScheduleForm.whenFormLayoutFinished(() => {
+            this.publishScheduleForm.update(this.scheduleFormPropertySet);
+        });
 
         this.updateLabels();
 

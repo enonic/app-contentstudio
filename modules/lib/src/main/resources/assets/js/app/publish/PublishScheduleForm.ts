@@ -133,4 +133,8 @@ export class PublishScheduleForm
     private updateTogglesState(flag: boolean) {
         this.externalToggles.forEach((toggle) => toggle.toggleClass('active', flag));
     }
+
+    public whenFormLayoutFinished(callback: () => void) {
+        this.scheduleFormView.whenLayoutFinished(callback);
+    }
 }

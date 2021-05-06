@@ -107,7 +107,7 @@ export abstract class DependantItemsDialog
         this.dependantList.onItemsAdded(() => this.onDependantsChanged());
 
         this.getBody().onScrolled(() => this.doPostLoad());
-        this.getBody().onScroll(() =>  this.doPostLoad());
+        this.getBody().onScroll(() => this.doPostLoad());
 
         this.onRendered(() => this.setDependantListVisible(this.showDependantList));
     }
@@ -143,7 +143,10 @@ export abstract class DependantItemsDialog
 
     protected onDependantsChanged() {
         const doShow: boolean = this.countDependantItems() > 0;
-        this.dependantsContainer.setVisible(doShow);
+        const wasVisible = this.dependantsContainer.isVisible();
+        if (doShow !== wasVisible) {
+            this.setDependantsContainerVisible(doShow);
+        }
 
         if (doShow) {
             // update dependants header according to list visibility
@@ -156,8 +159,15 @@ export abstract class DependantItemsDialog
         this.updateDependantsHeader(this.getDependantsHeader(visible));
     }
 
+    private setDependantsContainerVisible(visible: boolean) {
+        this.dependantsContainer.setVisible(visible);
+
+        this.previousScrollTop = undefined;
+        this.getBody().getEl().setScrollTop(0);
+    }
+
     protected getDependantsHeader(listVisible: boolean): string {
-        return i18n(`dialog.${listVisible ? 'hide' : 'show' }Dependants`);
+        return i18n(`dialog.${listVisible ? 'hide' : 'show'}Dependants`);
     }
 
     protected updateDependantsHeader(header?: string) {
@@ -204,8 +214,7 @@ export abstract class DependantItemsDialog
 
         this.itemList.clearItems(true);
         this.dependantList.clearItems(true);
-
-        this.dependantsContainer.setVisible(false);
+        this.setDependantsContainerVisible(false);
         this.unlockControls();
     }
 

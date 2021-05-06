@@ -572,17 +572,19 @@ async function startContentBrowser(application: Application) {
 }
 
 function initProjectContext(application: Application): Q.Promise<void> {
-    const projectName: string = application.getPath().getElement(0);
-
     return new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {
         ProjectSelectionDialog.get().setProjects(projects);
 
-        const currentProject: Project =
-            projects.find((project: Project) => ProjectHelper.isAvailable(project) && project.getName() === projectName);
+        const projectName: string = application.getPath().getElement(0) || localStorage.getItem(ProjectContext.LOCAL_STORAGE_KEY);
 
-        if (currentProject) {
-            ProjectContext.get().setProject(currentProject);
-            return Q(null);
+        if (projectName) {
+            const currentProject: Project =
+                projects.find((project: Project) => ProjectHelper.isAvailable(project) && project.getName() === projectName);
+
+            if (currentProject) {
+                ProjectContext.get().setProject(currentProject);
+                return Q(null);
+            }
         }
 
         if (projects.length === 1 && ProjectHelper.isAvailable(projects[0])) {

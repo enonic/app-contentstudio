@@ -58,7 +58,20 @@
 
 .no-modify-permissions {
   .inspections-panel {
-      opacity: 0.8;
-      pointer-events: none;
+    opacity: 0.8;
+    pointer-events: none;
+  }
+}
+
+.context-panel.mobile {
+  .inspections-panel {
+    > .deck-panel {
+      bottom: 92px;
+      margin-bottom: 0;
+    }
+
+    > .button-bar {
+      bottom: 40px; // leave space for the mobile publish and mark as ready buttons at the bottom
+    }
   }
 }

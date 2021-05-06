@@ -132,6 +132,9 @@ export class CompareContentVersionsDialog
 
             this.handleVersionChanged(dropdown === this.leftDropdown);
         });
+
+        this.onClosed(() => dropdown.hideDropdown());
+
         return dropdown;
     }
 
