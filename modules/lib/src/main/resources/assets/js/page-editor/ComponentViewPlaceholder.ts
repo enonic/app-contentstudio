@@ -1,11 +1,11 @@
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
 import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ComponentDescriptorsComboBox} from './ComponentDescriptorsComboBox';
 import {Descriptor} from '../app/page/Descriptor';
 import {ComponentView} from './ComponentView';
 import {DescriptorBasedComponent} from '../app/page/region/DescriptorBasedComponent';
 import {ComponentType} from '../app/page/region/ComponentType';
+import {ContentId} from '../app/content/ContentId';
 
 export abstract class ComponentViewPlaceholder<T extends DescriptorBasedComponent>
     extends ItemViewPlaceholder {

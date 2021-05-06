@@ -2,13 +2,13 @@ import {Element} from 'lib-admin-ui/dom/Element';
 import {showError} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Body} from 'lib-admin-ui/dom/Body';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ImageErrorEvent} from './ImageErrorEvent';
 import {MediaUploaderEl, MediaUploaderElConfig} from '../../upload/MediaUploaderEl';
 import {ImageEditor, Point, Rect} from './ImageEditor';
 import {ImageUrlResolver} from '../../../../util/ImageUrlResolver';
-import {MaskContentWizardPanelEvent} from 'lib-admin-ui/app/wizard/MaskContentWizardPanelEvent';
+import {ContentId} from '../../../../content/ContentId';
+import {MaskContentWizardPanelEvent} from '../../../../wizard/MaskContentWizardPanelEvent';
 
 export class ImageUploaderEl
     extends MediaUploaderEl {

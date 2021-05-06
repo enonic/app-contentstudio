@@ -1,11 +1,11 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {SetChildOrderJson} from 'lib-admin-ui/content/json/SetChildOrderJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
-import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentId} from '../content/ContentId';
+import {ChildOrder} from './order/ChildOrder';
+import {SetChildOrderJson} from './json/SetChildOrderJson';
 
 export class OrderContentRequest extends ContentResourceRequest<Content> {
 

@@ -1,7 +1,7 @@
 import {NodeServerChange, NodeServerChangeBuilder, NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {NodeEventJson, NodeEventNodeJson} from 'lib-admin-ui/event/NodeServerEvent';
 import {ContentServerChangeItem} from './ContentServerChangeItem';
+import {ContentPath} from '../content/ContentPath';
 
 export class ContentServerChange
     extends NodeServerChange {

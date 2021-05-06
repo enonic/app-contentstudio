@@ -1,4 +1,3 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {FragmentResourceRequest} from './FragmentResourceRequest';
 import {Content} from '../app/content/Content';
 import {ContentJson} from '../app/content/ContentJson';
@@ -7,6 +6,7 @@ import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentId} from '../app/content/ContentId';
 
 export class CreateFragmentRequest
     extends FragmentResourceRequest<Content> {

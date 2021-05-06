@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultModels} from './page/DefaultModels';
 import {DefaultModelsFactory, DefaultModelsFactoryConfig} from './page/DefaultModelsFactory';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
@@ -16,6 +15,7 @@ import {PublishStatus} from '../publish/PublishStatus';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
+import {ContentId} from '../content/ContentId';
 
 export class ContentWizardDataLoader {
 

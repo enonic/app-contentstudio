@@ -8,7 +8,6 @@ import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
 import {KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultModels} from './page/DefaultModels';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {SettingsWizardStepForm} from './SettingsWizardStepForm';
@@ -69,9 +68,6 @@ import {WorkflowStateIconsManager, WorkflowStateStatus} from './WorkflowStateIco
 import {RoutineContext} from './Flow';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {FormView} from 'lib-admin-ui/form/FormView';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentName} from 'lib-admin-ui/content/ContentName';
-import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
@@ -101,7 +97,6 @@ import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {ValidityChangedEvent} from 'lib-admin-ui/ValidityChangedEvent';
 import {PropertyTreeComparator} from 'lib-admin-ui/data/PropertyTreeComparator';
 import {GetApplicationRequest} from 'lib-admin-ui/application/GetApplicationRequest';
-import {MaskContentWizardPanelEvent} from 'lib-admin-ui/app/wizard/MaskContentWizardPanelEvent';
 import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
 import {Input} from 'lib-admin-ui/form/Input';
 import {FormItemContainer} from 'lib-admin-ui/form/FormItemContainer';
@@ -109,7 +104,7 @@ import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {assert} from 'lib-admin-ui/util/Assert';
-import {ContentIds} from '../ContentIds';
+import {ContentIds} from '../content/ContentIds';
 import {AfterContentSavedEvent} from '../event/AfterContentSavedEvent';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {ProjectContext} from '../project/ProjectContext';
@@ -124,6 +119,11 @@ import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
 import {WizardHeaderWithDisplayNameAndNameOptions} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {Descriptor} from '../page/Descriptor';
 import {GetPageDescriptorsByApplicationsRequest} from './page/contextwindow/inspect/page/GetPageDescriptorsByApplicationsRequest';
+import {ContentId} from '../content/ContentId';
+import {MaskContentWizardPanelEvent} from './MaskContentWizardPanelEvent';
+import {ContentPath} from '../content/ContentPath';
+import {ContentName} from '../content/ContentName';
+import {ContentUnnamed} from '../content/ContentUnnamed';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {

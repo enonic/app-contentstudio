@@ -1,6 +1,6 @@
 import {ResolveDependencyResult} from './ResolveDependencyResult';
 import {ContentDependencyJson} from './json/ContentDependencyJson';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentId} from '../content/ContentId';
 
 export interface ResolveDependenciesResultJson {
     dependencies: { key: string, value: ContentDependencyJson };

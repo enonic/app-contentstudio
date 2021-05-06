@@ -1,8 +1,8 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
+import {ContentId} from '../content/ContentId';
 
 export class GetContentByIdRequest
     extends ContentResourceRequest<Content> {

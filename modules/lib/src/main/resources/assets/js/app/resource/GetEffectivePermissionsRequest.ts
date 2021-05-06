@@ -1,8 +1,8 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {EffectivePermissionJson} from './json/EffectivePermissionJson';
 import {EffectivePermission} from '../security/EffectivePermission';
+import {ContentId} from '../content/ContentId';
 
 export class GetEffectivePermissionsRequest
     extends ContentResourceRequest<EffectivePermission[]> {

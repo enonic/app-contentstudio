@@ -1,5 +1,5 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ProjectBasedResourceRequest} from '../wizard/ProjectBasedResourceRequest';
+import {ContentId} from '../content/ContentId';
 
 export abstract class SchemaFilterBasedRequest<T>
     extends ProjectBasedResourceRequest<T[]> {

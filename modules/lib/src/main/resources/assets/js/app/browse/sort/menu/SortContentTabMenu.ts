@@ -1,6 +1,5 @@
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {SortContentTabMenuItem} from './SortContentTabMenuItem';
-import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {DropdownHandle} from 'lib-admin-ui/ui/button/DropdownHandle';
 import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
 import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
@@ -9,6 +8,7 @@ import {QueryField} from 'lib-admin-ui/query/QueryField';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {AscDescSortContentTabMenuItem} from './AscDescSortContentTabMenuItem';
 import {ManualSortContentTabMenuItem} from './ManualSortContentTabMenuItem';
+import {ChildOrder} from '../../../resource/order/ChildOrder';
 
 export class SortContentTabMenu
     extends TabMenu {

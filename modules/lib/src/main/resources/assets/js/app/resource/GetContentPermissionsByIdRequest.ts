@@ -1,8 +1,8 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {PermissionsJson} from '../access/PermissionsJson';
 import {AccessControlList} from '../access/AccessControlList';
+import {ContentId} from '../content/ContentId';
 
 export class GetContentPermissionsByIdRequest
     extends ContentResourceRequest<AccessControlList> {

@@ -1,6 +1,6 @@
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Equitable} from 'lib-admin-ui/Equitable';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentId} from '../content/ContentId';
 
 export class PageTemplateKey
     extends ContentId {

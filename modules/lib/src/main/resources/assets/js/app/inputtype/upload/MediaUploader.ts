@@ -1,7 +1,5 @@
 import * as Q from 'q';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {Input} from 'lib-admin-ui/form/Input';
 import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
@@ -16,12 +14,13 @@ import {BaseInputTypeSingleOccurrence} from 'lib-admin-ui/form/inputtype/support
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
-import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
 import {Button} from 'lib-admin-ui/ui/button/Button';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {Content} from '../../content/Content';
 import {ImageUrlResolver} from '../../util/ImageUrlResolver';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
+import {ContentSummary} from '../../content/ContentSummary';
+import {ContentId} from '../../content/ContentId';
 
 export interface MediaUploaderConfigAllowType {
     name: string;

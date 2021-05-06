@@ -1,10 +1,10 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {OrderChildMovements} from './order/OrderChildMovements';
 import {ReorderChildContentsJson} from './json/ReorderChildContentsJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentId} from '../content/ContentId';
+import {ChildOrder} from './order/ChildOrder';
 
 export class OrderChildContentRequest
     extends ContentResourceRequest<any> {

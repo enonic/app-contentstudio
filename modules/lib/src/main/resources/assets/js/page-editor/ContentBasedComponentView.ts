@@ -1,6 +1,4 @@
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
 import {ComponentView, ComponentViewBuilder} from './ComponentView';
 import {DragAndDrop} from './DragAndDrop';
 import {EditContentEvent} from '../app/event/EditContentEvent';
@@ -8,6 +6,8 @@ import {ContentSummaryAndCompareStatus} from '../app/content/ContentSummaryAndCo
 import {Component} from '../app/page/region/Component';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {Action} from 'lib-admin-ui/ui/Action';
+import {ContentSummary, ContentSummaryBuilder} from '../app/content/ContentSummary';
+import {ContentId} from '../app/content/ContentId';
 
 export class ContentBasedComponentViewBuilder<COMPONENT extends Component>
     extends ComponentViewBuilder<COMPONENT> {

@@ -6,8 +6,6 @@ import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
 import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
@@ -32,6 +30,8 @@ import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
+import {ContentSummary} from '../../content/ContentSummary';
+import {ContentPath} from '../../content/ContentPath';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {

@@ -1,5 +1,5 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ResolvePublishContentResultJson} from './json/ResolvePublishContentResultJson';
+import {ContentId} from '../content/ContentId';
 
 export class ResolvePublishDependenciesResult {
 

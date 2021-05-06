@@ -1,7 +1,6 @@
 import {Property} from 'lib-admin-ui/data/Property';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {RoleKeys} from 'lib-admin-ui/security/RoleKeys';
-import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
 import {PropertyTreeHelper} from 'lib-admin-ui/util/PropertyTreeHelper';
 import {Attachments, AttachmentsBuilder} from '../attachment/Attachments';
 import {ContentJson} from './ContentJson';
@@ -17,6 +16,7 @@ import {Cloneable} from 'lib-admin-ui/Cloneable';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
 
 export class Content
     extends ContentSummary

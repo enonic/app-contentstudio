@@ -1,7 +1,6 @@
 import * as Q from 'q';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {IssueStatus} from '../issue/IssueStatus';
 import {FindIssuesRequest} from '../issue/resource/FindIssuesRequest';
@@ -12,6 +11,7 @@ import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler'
 import {IssueType} from '../issue/IssueType';
 import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
 import {Action} from 'lib-admin-ui/ui/Action';
+import {ContentId} from '../content/ContentId';
 
 export class ContentItemPreviewToolbar
     extends ContentStatusToolbar {

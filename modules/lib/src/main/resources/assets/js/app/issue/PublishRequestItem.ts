@@ -1,12 +1,12 @@
 import {PublishRequestItemJson} from './json/PublishRequestItemJson';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {ContentId} from '../content/ContentId';
 
 export class PublishRequestItem {
 
-    private id: ContentId;
+    private readonly id: ContentId;
 
-    private includeChildren: boolean;
+    private readonly includeChildren: boolean;
 
     constructor(builder: PublishRequestItemBuilder) {
         this.id = builder.id;

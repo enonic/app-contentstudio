@@ -1,4 +1,3 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageCUDRequest} from './PageCUDRequest';
 import {PageResourceRequest} from './PageResourceRequest';
@@ -10,6 +9,7 @@ import {Component} from '../page/region/Component';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {DescriptorKey} from '../page/DescriptorKey';
+import {ContentId} from '../content/ContentId';
 
 export class UpdatePageRequest extends PageResourceRequest<Content> implements PageCUDRequest {
 

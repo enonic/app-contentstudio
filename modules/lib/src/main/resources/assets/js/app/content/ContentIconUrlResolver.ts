@@ -1,6 +1,6 @@
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import { IconUrlResolver } from 'lib-admin-ui/icon/IconUrlResolver';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ContentSummary} from './ContentSummary';
 
 export class ContentIconUrlResolver
     extends IconUrlResolver {

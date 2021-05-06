@@ -1,5 +1,4 @@
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ApplicationAddedEvent} from './ApplicationAddedEvent';
 import {ApplicationRemovedEvent} from './ApplicationRemovedEvent';
 import {Site} from '../content/Site';
@@ -10,6 +9,7 @@ import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {PropertyAddedEvent} from 'lib-admin-ui/data/PropertyAddedEvent';
 import {PropertyRemovedEvent} from 'lib-admin-ui/data/PropertyRemovedEvent';
 import {Property} from 'lib-admin-ui/data/Property';
+import {ContentId} from '../content/ContentId';
 
 export class SiteModel {
 

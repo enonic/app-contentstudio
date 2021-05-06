@@ -1,6 +1,6 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class ToggleSearchPanelWithDependenciesGlobalEvent
     extends Event {

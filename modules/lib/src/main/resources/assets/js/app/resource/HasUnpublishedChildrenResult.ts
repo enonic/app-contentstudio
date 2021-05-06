@@ -1,5 +1,5 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {HasUnpublishedChildrenJson, HasUnpublishedChildrenListJson} from './json/HasUnpublishedChildrenJson';
+import {ContentId} from '../content/ContentId';
 
 export class HasUnpublishedChildrenResult {
 

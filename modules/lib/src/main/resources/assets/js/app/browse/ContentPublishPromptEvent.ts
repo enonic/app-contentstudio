@@ -1,8 +1,8 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {BaseContentModelEvent} from './BaseContentModelEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ContentId} from '../content/ContentId';
 
 export interface ContentPublishPromptEventConfig {
     model: ContentSummaryAndCompareStatus[];

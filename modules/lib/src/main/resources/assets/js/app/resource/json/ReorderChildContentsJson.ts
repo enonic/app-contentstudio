@@ -1,6 +1,6 @@
 import {ReorderChildContentJson} from './ReorderChildContentJson';
-import {ChildOrderJson} from 'lib-admin-ui/content/json/ChildOrderJson';
-import {SetOrderUpdateJson} from 'lib-admin-ui/content/json/SetOrderUpdateJson';
+import {ChildOrderJson} from './ChildOrderJson';
+import {SetOrderUpdateJson} from './SetOrderUpdateJson';
 
 export interface ReorderChildContentsJson
     extends SetOrderUpdateJson {

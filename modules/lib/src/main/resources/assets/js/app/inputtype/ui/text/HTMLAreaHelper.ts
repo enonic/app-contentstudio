@@ -1,6 +1,5 @@
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {Styles} from './styles/Styles';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
@@ -9,6 +8,7 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
+import {ContentId} from '../../../content/ContentId';
 
 export class HTMLAreaHelper {
 

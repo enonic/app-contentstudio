@@ -1,9 +1,9 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ResolvePublishDependenciesResult} from './ResolvePublishDependenciesResult';
 import {ResolvePublishContentResultJson} from './json/ResolvePublishContentResultJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentId} from '../content/ContentId';
 
 export class ResolvePublishDependenciesRequest
     extends ContentResourceRequest<ResolvePublishDependenciesResult> {

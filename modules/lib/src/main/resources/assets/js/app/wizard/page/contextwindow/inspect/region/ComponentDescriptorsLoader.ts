@@ -1,9 +1,9 @@
 import {Descriptor} from '../../../../../page/Descriptor';
 import {DescriptorByDisplayNameComparator} from '../DescriptorByDisplayNameComparator';
 import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {GetComponentDescriptorsRequest} from '../../../../../resource/GetComponentDescriptorsRequest';
 import {ComponentType} from '../../../../../page/region/ComponentType';
+import {ContentId} from '../../../../../content/ContentId';
 
 export class ComponentDescriptorsLoader
     extends BaseLoader<Descriptor> {

@@ -2,8 +2,6 @@ import * as Q from 'q';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {Input} from 'lib-admin-ui/form/Input';
 import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
@@ -21,10 +19,12 @@ import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {GetContentSummaryByIds} from '../../resource/GetContentSummaryByIds';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
 import {Reference} from 'lib-admin-ui/util/Reference';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {ContentSummary} from '../../content/ContentSummary';
+import {ContentId} from '../../content/ContentId';
+import {ContentPath} from '../../content/ContentPath';
 
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
@@ -309,7 +309,7 @@ export class ContentSelector
     }
 
     protected setContentIdProperty(contentId: ContentId) {
-        let reference = Reference.from(contentId);
+        let reference = new Reference(contentId.toString());
 
         let value = new Value(reference, ValueTypes.REFERENCE);
 

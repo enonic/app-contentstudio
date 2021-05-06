@@ -1,10 +1,10 @@
 import {showSuccess, showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {UndoPendingDeleteContentResultJson} from './json/UndoPendingDeleteContentResultJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentId} from '../content/ContentId';
 
 export class UndoPendingDeleteContentRequest
     extends ContentResourceRequest<number> {

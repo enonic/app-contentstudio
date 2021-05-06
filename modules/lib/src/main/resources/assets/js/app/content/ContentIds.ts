@@ -1,7 +1,7 @@
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Equitable} from 'lib-admin-ui/Equitable';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
+import {ContentId} from './ContentId';
+import {ContentSummary} from './ContentSummary';
 
 export class ContentIds
     implements Equitable {

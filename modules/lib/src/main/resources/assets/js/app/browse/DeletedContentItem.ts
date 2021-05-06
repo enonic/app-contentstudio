@@ -1,5 +1,5 @@
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentId} from '../content/ContentId';
+import {ContentPath} from '../content/ContentPath';
 
 export class DeletedContentItem {
     readonly id: ContentId;

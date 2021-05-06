@@ -1,9 +1,9 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {GetContentVersionsForViewResultsJson} from './json/GetContentVersionsForViewResultsJson';
 import {ContentVersions} from '../ContentVersions';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentId} from '../content/ContentId';
 
 export class GetContentVersionsRequest
     extends ContentResourceRequest<ContentVersions> {

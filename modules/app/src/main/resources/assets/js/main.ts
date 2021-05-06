@@ -29,7 +29,6 @@ import {GetContentByPathRequest} from 'lib-contentstudio/app/resource/GetContent
 import {ContentServerEventsHandler} from 'lib-contentstudio/app/event/ContentServerEventsHandler';
 import {EditContentEvent} from 'lib-contentstudio/app/event/EditContentEvent';
 import {Content} from 'lib-contentstudio/app/content/Content';
-import {ContentSummaryAndCompareStatus} from 'lib-contentstudio/app/content/ContentSummaryAndCompareStatus';
 import {ContentUpdatedEvent} from 'lib-contentstudio/app/event/ContentUpdatedEvent';
 import {RequestContentPublishPromptEvent} from 'lib-contentstudio/app/browse/RequestContentPublishPromptEvent';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
@@ -41,11 +40,8 @@ import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
 import {ElementRemovedEvent} from 'lib-admin-ui/dom/ElementRemovedEvent';
 import {ElementRegistry} from 'lib-admin-ui/dom/ElementRegistry';
-import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {FormEditEvent} from 'lib-admin-ui/content/event/FormEditEvent';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
@@ -60,6 +56,8 @@ import {Path} from 'lib-admin-ui/rest/Path';
 import {ProjectListWithMissingRequest} from 'lib-contentstudio/app/settings/resource/ProjectListWithMissingRequest';
 import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/ProjectHelper';
 import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconUrlResolver';
+import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
+import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -337,7 +335,7 @@ function preLoadApplication() {
             } else {
                 new GetContentTypeByNameRequest(wizardParams.contentTypeName).setRequestProjectName(projectName).sendAndParse().then(
                     (contentType) => {
-                        updateTabTitle(ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
+                        updateTabTitle(NamePrettyfier.prettifyUnnamed(contentType.getDisplayName()));
                     });
             }
         }
@@ -478,7 +476,7 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams, connec
 
         }
         if (!dataPreloaded) {
-            updateTabTitle(content.getDisplayName() || ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
+            updateTabTitle(content.getDisplayName() || NamePrettyfier.prettifyUnnamed(contentType.getDisplayName()));
         }
     });
     wizard.onWizardHeaderCreated(() => {
@@ -486,7 +484,7 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams, connec
         wizard.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
             if (event.getPropertyName() === 'displayName') {
                 let contentType = wizard.getContentType();
-                let name = <string>event.getNewValue() || ContentUnnamed.prettifyUnnamed(contentType.getDisplayName());
+                let name = <string>event.getNewValue() || NamePrettyfier.prettifyUnnamed(contentType.getDisplayName());
 
                 updateTabTitle(name);
             }
@@ -508,11 +506,6 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams, connec
 
     wizard.onClosed(event => window.close());
 
-    // TODO: Remove hack, that connects content events in `FormView`
-    FormEditEvent.on((event) => {
-        const model = ContentSummaryAndCompareStatus.fromContentSummary(event.getModels());
-        new EditContentEvent([model]).fire();
-    });
     EditContentEvent.on(ContentEventsProcessor.handleEdit);
 
     Body.get().addClass('wizard-page').appendChild(wizard);

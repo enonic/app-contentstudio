@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultModels} from './DefaultModels';
 import {GetDefaultPageTemplateRequest} from './GetDefaultPageTemplateRequest';
 import {PageTemplate} from '../../content/PageTemplate';
@@ -10,6 +9,7 @@ import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
 import {GetComponentDescriptorRequest} from '../../resource/GetComponentDescriptorRequest';
 import {PageComponentType} from '../../page/region/PageComponentType';
 import {Descriptor} from '../../page/Descriptor';
+import {ContentId} from '../../content/ContentId';
 
 export interface DefaultModelsFactoryConfig {
 

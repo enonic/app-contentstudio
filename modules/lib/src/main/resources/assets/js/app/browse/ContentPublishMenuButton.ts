@@ -1,7 +1,6 @@
 import * as Q from 'q';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {FindIssuesRequest} from '../issue/resource/FindIssuesRequest';
 import {IssueStatus} from '../issue/IssueStatus';
 import {IssueDialogsManager} from '../issue/IssueDialogsManager';
@@ -12,6 +11,7 @@ import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {MenuButtonProgressBarManager} from 'lib-admin-ui/ui/button/MenuButtonProgressBarManager';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {ContentId} from '../content/ContentId';
 
 export interface ContentPublishMenuButtonConfig {
     publishAction: Action;

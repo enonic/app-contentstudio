@@ -1,6 +1,6 @@
-import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {TabMenuItem, TabMenuItemBuilder} from 'lib-admin-ui/ui/tab/TabMenuItem';
-import {FieldOrderExprBuilder} from 'lib-admin-ui/content/order/FieldOrderExpr';
+import {FieldOrderExprBuilder} from '../../../resource/order/FieldOrderExpr';
+import {ChildOrder} from '../../../resource/order/ChildOrder';
 
 export abstract class SortContentTabMenuItem
     extends TabMenuItem {

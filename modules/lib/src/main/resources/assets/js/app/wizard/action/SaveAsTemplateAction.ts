@@ -1,6 +1,5 @@
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {PageModel} from '../../../page-editor/PageModel';
 import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
@@ -9,6 +8,7 @@ import {EditContentEvent} from '../../event/EditContentEvent';
 import {Site} from '../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {Permission} from '../../access/Permission';
+import {ContentSummary} from '../../content/ContentSummary';
 
 export class SaveAsTemplateAction
     extends Action {

@@ -17,12 +17,10 @@ import {AggregateContentTypesByPathRequest} from '../resource/AggregateContentTy
 import {FileInput} from './FileInput';
 import {Content} from '../content/Content';
 import {NewContentUploader} from './NewContentUploader';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
-import {ContentTypeSummaries} from 'lib-admin-ui/schema/content/ContentTypeSummaries';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {UploadStartedEvent} from 'lib-admin-ui/ui/uploader/UploadStartedEvent';
 import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
@@ -35,6 +33,8 @@ import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
 import {GetContentTypeDescriptorsRequest} from '../resource/GetContentTypeDescriptorsRequest';
+import {ContentPath} from '../content/ContentPath';
+import {ContentTypeSummaries} from '../content/ContentTypeSummaries';
 
 export class NewContentDialog
     extends ModalDialog {

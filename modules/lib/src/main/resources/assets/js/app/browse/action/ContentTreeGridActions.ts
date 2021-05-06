@@ -1,7 +1,6 @@
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ToggleSearchPanelAction} from './ToggleSearchPanelAction';
 import {ShowNewContentDialogAction} from './ShowNewContentDialogAction';
@@ -33,6 +32,7 @@ import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {MarkAsReadyContentAction} from './MarkAsReadyContentAction';
+import {ContentId} from '../../content/ContentId';
 
 export enum ActionName {
     SHOW_NEW_DIALOG, PREVIEW, EDIT, DELETE, DUPLICATE, MOVE, SORT, PUBLISH, PUBLISH_TREE, UNPUBLISH, MARK_AS_READY, REQUEST_PUBLISH,

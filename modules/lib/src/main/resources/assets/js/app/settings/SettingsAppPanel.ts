@@ -1,3 +1,4 @@
+import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 import {NavigatedAppPanel} from 'lib-admin-ui/app/NavigatedAppPanel';
 import {SettingsBrowsePanel} from './browse/SettingsBrowsePanel';
 import {SettingsAppBar} from './SettingsAppBar';
@@ -5,7 +6,6 @@ import {NewProjectEvent} from './event/NewProjectEvent';
 import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
 import {AppBarTabMenuItem, AppBarTabMenuItemBuilder} from 'lib-admin-ui/app/bar/AppBarTabMenuItem';
 import {ProjectWizardPanel} from './wizard/panel/ProjectWizardPanel';
-import {ContentUnnamed} from 'lib-admin-ui//content/ContentUnnamed';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {TabMenuItem} from 'lib-admin-ui/ui/tab/TabMenuItem';
 import {EditSettingsItemEvent} from './event/EditSettingsItemEvent';
@@ -111,7 +111,7 @@ export class SettingsAppPanel
             this.selectPanel(tabMenuItem);
         } else {
             const isLayer = event.getProjectType().equals(SettingsTypes.LAYER);
-            const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed(
+            const unnamedTabMenuText: string = NamePrettyfier.prettifyUnnamed(
                 isLayer ? i18n('settings.items.type.layer') : i18n('settings.items.type.project')
             );
             const wizard: ProjectWizardPanel = new ProjectWizardPanel({
@@ -153,7 +153,7 @@ export class SettingsAppPanel
         if (tabMenuItem != null) {
             this.selectPanel(tabMenuItem);
         } else {
-            const unnamedTabMenuText: string = ContentUnnamed.prettifyUnnamed();
+            const unnamedTabMenuText: string = NamePrettyfier.prettifyUnnamed();
             const wizard: SettingsDataItemWizardPanel<SettingsDataViewItem<any>> = this.getWizardPanelForEdit(item, tabId);
             const newTabMenuItem: AppBarTabMenuItem = new AppBarTabMenuItemBuilder()
                 .setLabel(item.getDisplayName())

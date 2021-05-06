@@ -3,7 +3,6 @@ import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {DialogItemList} from './DependantItemsDialog';
 import {StatusSelectionItem} from './StatusSelectionItem';
@@ -11,8 +10,9 @@ import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
-import {ContentIds} from '../ContentIds';
+import {ContentIds} from '../content/ContentIds';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {ContentId} from '../content/ContentId';
 
 export class DialogTogglableItemList
     extends DialogItemList {

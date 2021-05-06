@@ -1,12 +1,12 @@
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {PreviewActionHelper} from '../../action/PreviewActionHelper';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {ContentSummary} from '../../content/ContentSummary';
 
 export class PreviewContentAction
     extends ContentTreeGridAction {

@@ -2,8 +2,6 @@ import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {Form} from 'lib-admin-ui/ui/form/Form';
 import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
@@ -36,6 +34,8 @@ import {NavigatedDeckPanel} from 'lib-admin-ui/ui/panel/NavigatedDeckPanel';
 import {TabBarItem} from 'lib-admin-ui/ui/tab/TabBarItem';
 import {InputEl} from 'lib-admin-ui/dom/InputEl';
 import eventInfo = CKEDITOR.eventInfo;
+import {ContentSummary} from '../../../../content/ContentSummary';
+import {ContentId} from '../../../../content/ContentId';
 
 export interface LinkModalDialogConfig
     extends HtmlAreaModalDialogConfig {
