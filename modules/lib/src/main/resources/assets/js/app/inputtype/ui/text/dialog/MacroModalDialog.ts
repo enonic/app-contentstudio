@@ -217,6 +217,18 @@ export class MacroModalDialog
     isDirty(): boolean {
         return (<MacroComboBox>this.macroFormItem.getInput()).isDirty();
     }
+
+    open(): void {
+        super.open();
+
+        this.getEditor().focusManager.lock();
+    }
+
+    close() {
+        super.close();
+
+        this.getEditor().focusManager.unlock();
+    }
 }
 
 export interface SelectedMacro {
