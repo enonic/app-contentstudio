@@ -3,7 +3,7 @@ import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary
 import {ContentTypeSummaryJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryJson';
 import {ContentTypeResourceRequest} from './ContentTypeResourceRequest';
 import {ContentId} from '../content/ContentId';
-import {ContentTypeSummaryListJson} from '../content/ContentTypeSummaryListJson';
+import {ContentTypeSummaryListJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryListJson';
 
 export class GetContentTypesByContentRequest
     extends ContentTypeResourceRequest<ContentTypeSummary[]> {

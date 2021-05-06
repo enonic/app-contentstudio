@@ -1,7 +1,7 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {SchemaFilterBasedRequest} from './SchemaFilterBasedRequest';
-import {ContentTypeSummaryListJson} from '../content/ContentTypeSummaryListJson';
+import {ContentTypeSummaryListJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryListJson';
 
 export class GetContentTypeDescriptorsRequest
     extends SchemaFilterBasedRequest<ContentTypeSummary> {

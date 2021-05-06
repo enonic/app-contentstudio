@@ -40,7 +40,6 @@ import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
 import {ElementRemovedEvent} from 'lib-admin-ui/dom/ElementRemovedEvent';
 import {ElementRegistry} from 'lib-admin-ui/dom/ElementRegistry';
-import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
@@ -58,6 +57,7 @@ import {ProjectListWithMissingRequest} from 'lib-contentstudio/app/settings/reso
 import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/ProjectHelper';
 import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconUrlResolver';
 import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
+import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -335,7 +335,7 @@ function preLoadApplication() {
             } else {
                 new GetContentTypeByNameRequest(wizardParams.contentTypeName).setRequestProjectName(projectName).sendAndParse().then(
                     (contentType) => {
-                        updateTabTitle(ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
+                        updateTabTitle(NamePrettyfier.prettifyUnnamed(contentType.getDisplayName()));
                     });
             }
         }
@@ -476,7 +476,7 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams, connec
 
         }
         if (!dataPreloaded) {
-            updateTabTitle(content.getDisplayName() || ContentUnnamed.prettifyUnnamed(contentType.getDisplayName()));
+            updateTabTitle(content.getDisplayName() || NamePrettyfier.prettifyUnnamed(contentType.getDisplayName()));
         }
     });
     wizard.onWizardHeaderCreated(() => {
@@ -484,7 +484,7 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams, connec
         wizard.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
             if (event.getPropertyName() === 'displayName') {
                 let contentType = wizard.getContentType();
-                let name = <string>event.getNewValue() || ContentUnnamed.prettifyUnnamed(contentType.getDisplayName());
+                let name = <string>event.getNewValue() || NamePrettyfier.prettifyUnnamed(contentType.getDisplayName());
 
                 updateTabTitle(name);
             }
