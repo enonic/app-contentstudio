@@ -328,6 +328,8 @@ export class ContentWizardPanel
                 this.site = loader.siteContent;
                 this.contentType = loader.contentType;
                 this.parentContent = loader.parentContent;
+                this.isMarkedAsReady = loader.content.getWorkflow().getState() === WorkflowState.READY;
+
                 this.currentContent =
                     ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
                         loader.content, loader.compareStatus, loader.publishStatus
@@ -517,6 +519,7 @@ export class ContentWizardPanel
 
             this.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
                 this.wizardActions.setContentCanBeMarkedAsReady(status.inProgress).refreshState();
+                this.isMarkedAsReady = status.ready;
             });
 
             this.getContentWizardToolbarPublishControls().getPublishButton().onPublishRequestActionChanged((added: boolean) => {
@@ -637,7 +640,6 @@ export class ContentWizardPanel
 
             return persistedItem;
         }).finally(() => {
-            this.isMarkedAsReady = false;
             this.contentUpdateDisabled = false;
             this.updateButtonsState();
 
