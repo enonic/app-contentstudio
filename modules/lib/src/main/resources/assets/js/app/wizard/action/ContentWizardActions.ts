@@ -454,7 +454,9 @@ export class ContentWizardActions
         const canBeUnpublished: boolean = this.content.isPublished() && this.userCanPublish;
         const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
         const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline() && !this.content.isPendingDelete();
-        const canBeReset: boolean = this.userCanModify && this.content.hasOriginProject() && !this.content.isFullyInherited();
+        const canBeReset: boolean = this.wizardPanel.isContentExistsInParentProject() && this.userCanModify &&
+                                    this.content.hasOriginProject() &&
+                                    !this.content.isFullyInherited();
 
         this.enableActions({
             PUBLISH: canBePublished,
@@ -467,7 +469,8 @@ export class ContentWizardActions
         });
 
         this.actionsMap.OPEN_REQUEST.setVisible(this.hasPublishRequest);
-        this.actionsMap.RESET.setVisible(this.content.hasOriginProject() && !this.content.isFullyInherited());
+        this.actionsMap.RESET.setVisible(
+            this.wizardPanel.isContentExistsInParentProject() && this.content.hasOriginProject() && !this.content.isFullyInherited());
     }
 
     private canBePublished(): boolean {

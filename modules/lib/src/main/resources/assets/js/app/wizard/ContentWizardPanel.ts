@@ -136,6 +136,8 @@ export class ContentWizardPanel
 
     private parentContent: Content;
 
+    private contentExistsInParentProject: boolean;
+
     private defaultModels: DefaultModels;
 
     private site: Site;
@@ -329,7 +331,7 @@ export class ContentWizardPanel
                 this.contentType = loader.contentType;
                 this.parentContent = loader.parentContent;
                 this.isMarkedAsReady = loader.content.getWorkflow().getState() === WorkflowState.READY;
-
+                this.contentExistsInParentProject = !!loader.contentExistsInParentProject;
                 this.currentContent =
                     ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
                         loader.content, loader.compareStatus, loader.publishStatus
@@ -2634,5 +2636,9 @@ export class ContentWizardPanel
     private handleCUD() {
         IsRenderableRequest.clearCache();
         this.getWizardHeader()?.refreshNameUniqueness();
+    }
+
+    isContentExistsInParentProject(): boolean {
+        return !!this.contentExistsInParentProject;
     }
 }
