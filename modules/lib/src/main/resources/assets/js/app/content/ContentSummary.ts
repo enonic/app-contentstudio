@@ -17,61 +17,63 @@ import {ContentState} from './ContentState';
 
 export class ContentSummary {
 
-    private id: string;
+    private readonly id: string;
 
-    private contentId: ContentId;
+    private readonly contentId: ContentId;
 
-    private name: ContentName;
+    private readonly name: ContentName;
 
-    private displayName: string;
+    private readonly displayName: string;
 
-    private path: ContentPath;
+    private readonly path: ContentPath;
 
-    private root: boolean;
+    private readonly root: boolean;
 
-    private children: boolean;
+    private readonly children: boolean;
 
-    private type: ContentTypeName;
+    private readonly type: ContentTypeName;
 
-    private iconUrl: string;
+    private readonly iconUrl: string;
 
-    private thumbnail: Thumbnail;
+    private readonly thumbnail: Thumbnail;
 
-    private modifier: string;
+    private readonly modifier: string;
 
-    private owner: PrincipalKey;
+    private readonly owner: PrincipalKey;
 
-    private page: boolean;
+    private readonly page: boolean;
 
-    private valid: boolean;
+    private readonly valid: boolean;
 
-    private requireValid: boolean;
+    private readonly requireValid: boolean;
 
-    private createdTime: Date;
+    private readonly createdTime: Date;
 
-    private modifiedTime: Date;
+    private readonly modifiedTime: Date;
 
-    private publishFirstTime: Date;
+    private readonly publishFirstTime: Date;
 
-    private publishFromTime: Date;
+    private readonly publishFromTime: Date;
 
-    private publishToTime: Date;
+    private readonly publishToTime: Date;
 
-    private deletable: boolean;
+    private readonly deletable: boolean;
 
-    private editable: boolean;
+    private readonly editable: boolean;
 
-    private childOrder: ChildOrder;
+    private readonly childOrder: ChildOrder;
 
-    private language: string;
+    private readonly language: string;
 
-    private contentState: ContentState;
+    private readonly contentState: ContentState;
 
-    private workflow: Workflow;
+    private readonly workflow: Workflow;
 
-    private inherit: ContentInheritType[];
+    private readonly inherit: ContentInheritType[];
 
-    private originProject: string;
+    private readonly originProject: string;
+
+    private readonly listTitle: string;
 
     constructor(builder: ContentSummaryBuilder) {
         this.name = builder.name;
@@ -103,6 +105,7 @@ export class ContentSummary {
         this.workflow = builder.workflow;
         this.inherit = builder.inherit;
         this.originProject = builder.originProject;
+        this.listTitle = builder.listTitle;
     }
 
     static fromJson(json: ContentSummaryJson): ContentSummary {
@@ -273,6 +276,10 @@ export class ContentSummary {
         return this.originProject;
     }
 
+    getListTitle(): string {
+        return this.listTitle;
+    }
+
     private isInheritedByType(type: ContentInheritType): boolean {
         return this.isInherited() && this.inherit.some((inheritType: ContentInheritType) => inheritType === type);
     }
@@ -425,6 +432,8 @@ export class ContentSummaryBuilder {
 
     originProject: string;
 
+    listTitle: string;
+
     constructor(source?: ContentSummary) {
         if (source) {
             this.id = source.getId();
@@ -455,6 +464,7 @@ export class ContentSummaryBuilder {
             this.workflow = source.getWorkflow();
             this.inherit = source.getInherit();
             this.originProject = source.getOriginProject();
+            this.listTitle = source.getListTitle();
         }
     }
 
@@ -491,6 +501,7 @@ export class ContentSummaryBuilder {
         this.workflow = Workflow.fromJson(json.workflow);
         this.inherit = json.inherit && json.inherit.length > 0 ? json.inherit.map((type: string) => ContentInheritType[type])  : [];
         this.originProject = json.originProject;
+        this.listTitle = json.listTitle;
 
         return this;
     }

@@ -323,12 +323,12 @@ export class ContentWizardPanel
                     // in case of new content will be created in super.loadData()
                     this.formState.setIsNew(false);
                     this.setPersistedItem(loader.content);
+                    this.isMarkedAsReady = loader.content.getWorkflow().getState() === WorkflowState.READY;
                 }
                 this.defaultModels = loader.defaultModels;
                 this.site = loader.siteContent;
                 this.contentType = loader.contentType;
                 this.parentContent = loader.parentContent;
-                this.isMarkedAsReady = loader.content.getWorkflow().getState() === WorkflowState.READY;
 
                 this.currentContent =
                     ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(

@@ -46,4 +46,6 @@ export interface ContentSummaryJson
     inherit: string[];
 
     originProject: string;
+
+    listTitle: string;
 }
