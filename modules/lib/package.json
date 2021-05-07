@@ -20,7 +20,7 @@
     "jquery-ui": "^1.12.1",
     "jsondiffpatch": "^0.4.1",
     "lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "q": "^1.5.1"
   },
   "devDependencies": {
