@@ -501,7 +501,7 @@ export class ContentSummaryBuilder {
         this.workflow = Workflow.fromJson(json.workflow);
         this.inherit = json.inherit && json.inherit.length > 0 ? json.inherit.map((type: string) => ContentInheritType[type])  : [];
         this.originProject = json.originProject;
-        this.listTitle = json.listTitle;
+        this.listTitle = ObjectHelper.isDefined(json.listTitle) ? json.listTitle : json.displayName;
 
         return this;
     }
