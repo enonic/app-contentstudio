@@ -23,9 +23,9 @@ jobs:
                     path: |
                      ~/.gradle/caches
                      ~/.gradle/wrapper
-                    key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+                    key: ${{ runner.os }}-gradle-2-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
                     restore-keys: |
-                        ${{ runner.os }}-gradle-
+                        ${{ runner.os }}-gradle-2-
 
             -   run: ./gradlew build -Pcom.enonic.xp.app.production=true
 
