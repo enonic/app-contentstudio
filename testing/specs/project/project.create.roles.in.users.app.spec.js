@@ -20,8 +20,7 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
         async () => {
             let userBrowsePanel = new UserBrowsePanel();
             //1. Save new project:
-            await studioUtils.navigateToContentStudioWithProjects();
-            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, "test description");
 
@@ -72,8 +71,7 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
     it(`WHEN existing project has been deleted THEN its roles should be deleted`,
         async () => {
             let userBrowsePanel = new UserBrowsePanel();
-            await studioUtils.navigateToContentStudioWithProjects();
-            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioApp();
             await studioUtils.openSettingsPanel();
             //1. click on the project and delete it:
             await studioUtils.selectAndDeleteProject(PROJECT_DISPLAY_NAME);

@@ -21,9 +21,6 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
 
     it(`Preconditions: new project(with Norsk (no) language) and 'Private' access mode should be added`,
         async () => {
-            //1. Navigate to Settings Panel:
-            await studioUtils.closeProjectSelectionDialog();
-            await studioUtils.openSettingsPanel();
             //1. Save new project (mode access is Public):
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, TEST_DESCRIPTION, appConstant.LANGUAGES.NORSK_NO, null, "Public");
         });
@@ -58,7 +55,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
             //4. Save the layer:
             await layerWizard.waitAndClickOnSave();
             await layerWizard.waitForNotificationMessage();
-            await layerWizard.waitForSpinnerNotVisible();
+            await layerWizard.waitForSpinnerNotVisible(appConstant.saveProjectTimeout);
             //5. Switch to Content Mode:
             let contentBrowsePanel = await studioUtils.switchToContentMode();
             //6. Open modal dialog and select the layer's context:
@@ -251,8 +248,7 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioWithProjects();
-        await studioUtils.closeProjectSelectionDialog();
+        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

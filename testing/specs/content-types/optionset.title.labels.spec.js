@@ -41,7 +41,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             let optionSetForm2 = new OptionSetForm2View();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             //1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard("site146582", 'optionset2');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset2');
             await contentWizard.typeDisplayName(OPTION_SET_NAME1);
             //2.
             await optionSetForm2.selectOption("Text block");

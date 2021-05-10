@@ -37,18 +37,16 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
 
     it("Precondition 2 - new site should be added in 'Default'(parent) context",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
-            await projectSelectionDialog.selectContext("Default");
+            //await projectSelectionDialog.selectContext("Default");
             let site = contentBuilder.buildSite(SITE_NAME);
             await studioUtils.doAddSite(site, true);
         });
 
     it("WHEN layer's context is selected THEN inherited site should be present in the layer",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Select the layer's context:
-            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
             studioUtils.saveScreenshot("site_is_inherited");
             //2. Verify that inherited site should be present in the layer:
             let result = await contentBrowsePanel.isContentInherited(SITE_NAME);
@@ -60,8 +58,8 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             let sortContentDialog = new SortContentDialog();
             let projectSelectionDialog = new ProjectSelectionDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the layer's context:
-            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            //1. layer's context should be selected automatically:
+            //await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
             //2. Select the inherited site and open Sort dialog:
             let result = await studioUtils.findAndSelectItem(SITE_NAME);
             await contentBrowsePanel.clickOnSortButton();
@@ -76,10 +74,9 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
     it("GIVEN inherited site has been selected WHEN sorting order has been updated THEN the site remains 'inherited' after updating the sorting order",
         async () => {
             let sortContentDialog = new SortContentDialog();
-            let projectSelectionDialog = new ProjectSelectionDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the layer's context:
-            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            //1. layer's context should be selected automatically:
+            //await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
             //2. Select the inherited site and open Sort dialog:
             let result = await studioUtils.findAndSelectItem(SITE_NAME);
             await contentBrowsePanel.clickOnSortButton();
@@ -96,12 +93,10 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
 
     it("GIVEN layer's context is selected WHEN inherited site has been updated THEN the site gets localized",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
             let siteFormPanel = new SiteFormPanel();
-            let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the layer's context:
-            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            //1. layer's context should be selected automatically:
+            //await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
             //2. Select the site and click on Localize button then add an application and save it:
             await studioUtils.selectContentAndClickOnLocalize(SITE_NAME);
             //Site should be automatically saved after the selecting an application with controllers:
@@ -119,9 +114,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
     it.skip(
         "GIVEN localized site is selected WHEN Layers widget has been opened THEN the second item in the widget should contain button 'Edit'",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
-            //1. Select the layer's context:
-            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            //1.  layer's context should be selected automatically:
             //2. Open Layers widget:
             await studioUtils.findAndSelectItem(SITE_NAME);
             studioUtils.saveScreenshot("site_widget_after_localizing");
@@ -132,13 +125,12 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
 
     it("Postconditions - the layer should be deleted",
         async () => {
-            await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
         });
 
     beforeEach(async () => {
-        return await studioUtils.navigateToContentStudioWithProjects();
+        return await studioUtils.navigateToContentStudioApp();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

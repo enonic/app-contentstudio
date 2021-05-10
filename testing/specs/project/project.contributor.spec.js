@@ -51,8 +51,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1. Do Log in with 'SU' and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioWithProjects();
-            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
 
             //2.Open new project wizard:
@@ -72,12 +71,11 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
 
     it("Precondition 2: 'Work in Progress' and Ready folders should be created in the just created project",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
             FOLDER_WORK_IN_PROGRESS = contentBuilder.buildFolder(FOLDER_NAME_1);
             FOLDER_READY_TO_PUBLISH = contentBuilder.buildFolder(FOLDER_NAME_2);
             //1. Do Log in with 'SU' and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioWithProjects();
-            await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
+            await studioUtils.navigateToContentStudioApp();
+            await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             await studioUtils.doAddFolder(FOLDER_WORK_IN_PROGRESS);
             await studioUtils.doAddReadyFolder(FOLDER_READY_TO_PUBLISH);
 
@@ -95,7 +93,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             let contentWizardPanel = new ContentWizardPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-contributor and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
             await contentBrowsePanel.pause(1000);
             //2. Open existing site(controller is not selected yet):
             await contentBrowsePanel.doubleClickOnRowByDisplayName(SITE.displayName);
@@ -110,7 +108,6 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         async () => {
             //1. Do log in with the user and navigate to 'Settings':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
-            await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //2.Click(select) on existing project:

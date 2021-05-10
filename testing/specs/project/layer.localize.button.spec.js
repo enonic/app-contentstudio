@@ -27,7 +27,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             let settingsBrowsePanel = new SettingsBrowsePanel();
             await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
-            //1.Select 'Default' project and open wizard for new layer:
+            //1.'Default' project should be loaded after closing the 'Select project' dialog, then open wizard for new layer:
             let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard("Default");
             await layerWizard.clickOnAccessModeRadio("Public");
             await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
@@ -39,8 +39,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
 
     it("Precondition 2 - two new folders should be added in 'Default' context",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
-            await projectSelectionDialog.selectContext("Default");
+            //Default project should be loaded automatically when SU is logged in the second time.
             //1. folder1 - status is 'work in progress'
             let folder = contentBuilder.buildFolder(FOLDER_NAME);
             await studioUtils.doAddFolder(folder);
@@ -51,10 +50,9 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
 
     it("GIVEN layer context is switched WHEN a content that is inherited from a parent has been selected THEN 'Localize' button gets visible and enabled",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. Select the layer's context:
-            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            //1. Default project is loaded by default, so need to select the layer's context:
+            await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
             //Wait for content is inherited from the parent project:
             await contentBrowsePanel.pause(5000);
             await studioUtils.findAndSelectItem(FOLDER_NAME);
@@ -63,12 +61,12 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             await contentBrowsePanel.waitForLocalizeButtonEnabled();
         });
 
+    //Layers Widget is available only in CS+
     it.skip(
-        "WHEN content that is inherited from a parent has been selected THEN 'Localize' button should be enabled in the second layer widget item",
+        "WHEN content, that is inherited from the parent project has been selected THEN 'Localize' button should be enabled in the second layer widget item",
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
-            //1. Select the layer's context:
-            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            //1. layer's context should be loaded by default now!
             //2. Select the folder that was inherited from the parent project:
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             //3. Open Layers widget:
@@ -80,12 +78,10 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             //5. Verify that 'Localize' button is enabled in the second item:
             await browseLayersWidget.waitForLocalizeButtonEnabled(LAYER_DISPLAY_NAME);
         });
-
+    //Layers Widget is available only in CS+
     it.skip(
         "GIVEN content that is inherited from a parent has been selected WHEN Layers widget has been opened THEN expected layers should be present",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
-            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
             //1. Select the folder in layer and open Layers widget:
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             let browseLayersWidget = await studioUtils.openLayersWidgetInBrowsePanel();
@@ -100,13 +96,12 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             assert.equal(language, "(no)", "Expected language should be displayed in the layer");
         });
 
+    //Layers Widget is available only in CS+
     it.skip(
         "GIVEN content that is inherited from a parent has been selected WHEN Localize button(in widget) has been clicked THEN the content should be loaded in the new wizard tab",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
             let contentWizard = new ContentWizard();
             let wizardSettingsForm = new SettingsForm();
-            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
             //1. Select the folder in layer and open Layers widget:
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             let browseLayersWidget = await studioUtils.openLayersWidgetInBrowsePanel();
@@ -122,7 +117,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             assert.equal(actualDisplayName, FOLDER_NAME, "Expected folder's displayName should be displayed in the wizard");
             assert.equal(actualProjectName, LAYER_DISPLAY_NAME + "(no)", "Expected project displayName should be displayed in the wizard");
         });
-
+    //Layers Widget is available only in CS+
     it.skip(
         "GIVEN existing content is opened for localizing WHEN Layers widget has been opened THEN postfix with '?' should be present in the name of folder because localizing changes are not saved",
         async () => {
@@ -146,7 +141,7 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             let actualStatus = await wizardLayersWidget.getContentStatus(LAYER_DISPLAY_NAME);
             assert.equal(actualStatus, "New", "Expected content status should be present in the widget item")
         });
-
+    //Layers Widget is available only in CS+
     it.skip(
         "GIVEN content that is inherited from a parent has been opened WHEN 'Layers' widget has been opened in the wizard THEN expected layers should be present in the widget",
         async () => {
@@ -175,10 +170,9 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
 
     it("GIVEN content that is inherited from a parent has been opened WHEN 'Save' button has been pressed THEN 'Localize' button should be replaced with 'Edit' button",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentWizardPanel = new ContentWizard();
-            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            // layer's context should be loaded by default now!
             //1. Select the folder:
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             //2. Click on `Localize` button and open it:
@@ -209,10 +203,9 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
     //Notification about successful content localisation should be given only once
     it("GIVEN localized content has been opened and updated WHEN 'Save' button has been pressed THEN expected notification should appear",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
             let contentWizardPanel = new ContentWizard();
             let settingsForm = new SettingsStepForm();
-            await projectSelectionDialog.selectContext(LAYER_DISPLAY_NAME);
+            // layer's context should be loaded by default now!
             //1. Select the folder and click on Edit:
             await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
             //2. Verify that 'Save' button is disabled:
@@ -229,13 +222,12 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
 
     it("Postconditions: the layer should be deleted",
         async () => {
-            await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
         });
 
     beforeEach(async () => {
-        return await studioUtils.navigateToContentStudioWithProjects();
+        return await studioUtils.navigateToContentStudioApp();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

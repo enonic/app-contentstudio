@@ -47,8 +47,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1. Do Log in with 'SU' and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioWithProjects();
-            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
 
             //2.Open new project wizard:
@@ -72,12 +71,10 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
 
     it("Precondition 2: new site should be created in the just created project",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
             //1. Do Log in with 'SU':
-            await studioUtils.navigateToContentStudioWithProjects();
-            await projectSelectionDialog.waitForDialogLoaded();
-            //2. Select the new user context:
-            await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
+            await studioUtils.navigateToContentStudioApp();
+            //2. Select the user's context:
+            await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             //3. SU adds new site:
             SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
@@ -89,7 +86,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     it("GIVEN user with 'Author' role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",
         async () => {
             //1. Do Log in with the user:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
             //2. load existing site from the current project:
             let url = "http://localhost:8080/admin/site/preview" + `/${PROJECT_DISPLAY_NAME}/draft/${SITE_NAME}`;
             await webDriverHelper.browser.url(url);
@@ -104,7 +101,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     it("GIVEN user with 'Author' role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
         async () => {
             //1. Do log in with the user and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //2.Click(select) on existing project:
@@ -121,7 +118,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
             //1. Do log in with the user-author and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await contentBrowsePanel.waitForNewButtonEnabled();
             //2. Click on 'New...' button
             await contentBrowsePanel.clickOnNewButton();
@@ -140,7 +137,7 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
             let contentWizard = new ContentWizard();
             let settingsStepForm = new SettingsStepForm();
             //1. Do log in with the user-author and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Open folder-wizard and save new folder:
             await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);

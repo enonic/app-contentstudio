@@ -170,8 +170,7 @@ describe('multiselect.in.settings.panel.spec - tests for selection of several it
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioWithProjects();
-        await studioUtils.closeProjectSelectionDialog();
+        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

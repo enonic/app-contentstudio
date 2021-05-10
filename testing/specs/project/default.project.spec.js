@@ -76,8 +76,7 @@ describe('default.project.spec - ui-tests for Default project', function () {
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioWithProjects();
-        await studioUtils.closeProjectSelectionDialog();
+        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
