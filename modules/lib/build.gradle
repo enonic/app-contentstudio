@@ -1,23 +1,31 @@
+apply plugin: 'maven-publish'
+
+group='com.enonic.lib'
 archivesBaseName = 'lib-contentstudio'
 
 configurations {
-    devResources
+    devResources {
+        attributes {
+            attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, 'dev-resources'))
+        }
+    }
 }
 
 dependencies {
     devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 }
 
-task copyDevResources(type: Copy) {
-    from( { zipTree( configurations.devResources.singleFile ) } ) {
-        include 'dev/**'
+task copyDevResources {
+    doLast {
+        copy {
+            from configurations.devResources.files.collect { zipTree( it ) }
+            include 'dev/**'
+            into '.xp'
+        }
     }
-    into '.xp'
 }
 
-compileJava.enabled = false
-compileTestJava.enabled = false
-classes.enabled = false
+npmInstall.dependsOn copyDevResources
 
 node {
     download = true
@@ -29,9 +37,6 @@ if ( hasLibAdminUi() )
     build.dependsOn += libAdminBuildTask
     clean.dependsOn += libAdminCleanTask
 }
-
-npmInstall.mustRunAfter copyDevResources
-processResources.dependsOn += copyDevResources
 
 task lint( type: NpmTask, dependsOn: npmInstall ) {
     args = [ 'run', 'lint' ]
@@ -79,7 +84,25 @@ jar {
     exclude 'services/**'
     exclude 'application.svg'
     exclude 'application.xml'
+    exclude 'dev/**'
 
     includeEmptyDirs = false
-    dependsOn += typescript
+    dependsOn typescript
+}
+
+task devJar ( type: Jar ) {
+    archiveClassifier = 'dev-resources'
+    from sourceSets.main.output
+    include 'dev/**'
+    includeEmptyDirs = false
+    dependsOn typescript
+}
+
+jar.dependsOn devJar
+
+artifacts {
+    devResources devJar
+}
+
+components.java.addVariantsFromConfiguration( configurations.devResources )  {
 }
