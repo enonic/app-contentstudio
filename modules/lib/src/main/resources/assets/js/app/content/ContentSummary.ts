@@ -27,8 +27,6 @@ export class ContentSummary {
 
     private readonly path: ContentPath;
 
-    private readonly root: boolean;
-
     private readonly children: boolean;
 
     private readonly type: ContentTypeName;
@@ -79,7 +77,6 @@ export class ContentSummary {
         this.name = builder.name;
         this.displayName = builder.displayName;
         this.path = builder.path;
-        this.root = builder.root;
         this.children = builder.children;
         this.type = builder.type;
         this.iconUrl = builder.iconUrl;
@@ -130,10 +127,6 @@ export class ContentSummary {
 
     getPath(): ContentPath {
         return this.path;
-    }
-
-    isRoot(): boolean {
-        return this.root;
     }
 
     hasChildren(): boolean {
@@ -310,9 +303,6 @@ export class ContentSummary {
         if (!ObjectHelper.equals(this.path, other.getPath())) {
             return false;
         }
-        if (!ObjectHelper.booleanEquals(this.root, other.isRoot())) {
-            return false;
-        }
         if (!ObjectHelper.booleanEquals(this.children, other.hasChildren())) {
             return false;
         }
@@ -386,8 +376,6 @@ export class ContentSummaryBuilder {
 
     path: ContentPath;
 
-    root: boolean;
-
     children: boolean;
 
     type: ContentTypeName;
@@ -441,7 +429,6 @@ export class ContentSummaryBuilder {
             this.name = source.getName();
             this.displayName = source.getDisplayName();
             this.path = source.getPath();
-            this.root = source.isRoot();
             this.children = source.hasChildren();
             this.type = source.getType();
             this.iconUrl = source.getIconUrl();
@@ -472,7 +459,6 @@ export class ContentSummaryBuilder {
         this.name = ContentSummaryBuilder.createName(json.name);
         this.displayName = json.displayName;
         this.path = ContentPath.fromString(json.path);
-        this.root = json.isRoot;
         this.children = json.hasChildren;
         this.type = new ContentTypeName(json.type);
         this.iconUrl = json.iconUrl;

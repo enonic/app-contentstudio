@@ -13,8 +13,6 @@ export interface ContentSummaryJson
 
     path: string;
 
-    isRoot: boolean;
-
     hasChildren: boolean;
 
     type: string;
