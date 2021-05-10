@@ -86,6 +86,7 @@ task copyApps( type: Copy ) {
 }
 
 dependencies {
+    xpVersion = extProgram['xpVersion']
     compile "com.enonic.xp:core-api:$xpVersion"
     distro "com.enonic.xp:enonic-xp-generic:$xpVersion@zip"
 }
@@ -206,6 +207,7 @@ task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, ensureS
 }
 
 testContentStudioApp.finalizedBy = ['stopServer']
+testContentStudioProjects.finalizedBy = ['stopServer']
 
 repositories {
     mavenLocal()

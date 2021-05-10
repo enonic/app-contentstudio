@@ -429,11 +429,14 @@ class ContentWizardPanel extends Page {
         });
     }
 
-    waitForSavedButtonVisible() {
-        return this.waitForElementDisplayed(this.savedButton, appConst.mediumTimeout).catch(err => {
+    async waitForSavedButtonVisible() {
+        try {
+            await this.waitForElementDisplayed(this.savedButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.savedButton, appConst.mediumTimeout);
+        } catch (err) {
             this.saveScreenshot('err_saved_button_not_visible');
-            throw new Error("Saved button is not visible in 3 seconds" + err);
-        });
+            throw new Error("Saved button is not visible or it is not disabled" + err);
+        }
     }
 
     switchToLiveEditFrame() {

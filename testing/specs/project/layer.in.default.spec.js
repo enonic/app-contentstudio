@@ -13,7 +13,6 @@ describe('layer.in.default.spec - ui-tests for creating a layer in Default proje
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-
     it("GIVEN Default project is selected WHEN wizard for new layer is opened THEN expected parent project should be displayed",
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -141,8 +140,7 @@ describe('layer.in.default.spec - ui-tests for creating a layer in Default proje
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioWithProjects();
-        await studioUtils.closeProjectSelectionDialog();
+        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

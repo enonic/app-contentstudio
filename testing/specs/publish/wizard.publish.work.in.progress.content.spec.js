@@ -17,11 +17,11 @@ describe('wizard.publish.work.in.progress.content.spec - publishes work in progr
     let TEST_FOLDER;
     let SITE;
 
-    it("Precondition  - new site should be added",
+    it("Precondition - new site should be added",
         async () => {
             let siteName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(siteName);
-            await studioUtils.doAddSite(SITE);
+            await studioUtils.doAddSite(SITE, true);
         });
 
     it("GIVEN 'Work in progress' folder is opened WHEN 'Publish...' menu item has been pressed AND 'Mark as ready' menu item clicked THEN the content gets 'Ready for publishing'",

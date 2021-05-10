@@ -39,21 +39,19 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
     it(`Precondition 2 - parent project with private access mode should be created`,
         async () => {
             //1. Navigate to Settings Panel:
-            await studioUtils.navigateToContentStudioWithProjects();
-            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //2. Save new project (mode access is Private):
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME);
         });
 
-    it("Precondition 3: new site should be created in the parent project",
+    it("Precondition 3: new site should be created by the SU in the parent project",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do Log in with 'SU':
-            await studioUtils.navigateToContentStudioWithProjects();
-            await projectSelectionDialog.waitForDialogLoaded();
-            //2. Select the new user context:
-            await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
+            await studioUtils.navigateToContentStudioApp();
+            //2. Select the new user's context:
+            await contentBrowsePanel.selectContext(PROJECT_DISPLAY_NAME);
             //3. SU adds new site:
             SITE = contentBuilder.buildSite(SITE_NAME, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
             await studioUtils.doAddSite(SITE);
@@ -63,8 +61,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //1. Do Log in with 'SU':
-            await studioUtils.navigateToContentStudioWithProjects();
-            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioApp();
             await studioUtils.openSettingsPanel();
             let layerWizard = await settingsBrowsePanel.selectParentAndOpenNewLayerWizard(PROJECT_DISPLAY_NAME);
             await layerWizard.typeDisplayName(LAYER_DISPLAY_NAME);
@@ -87,7 +84,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //Verify that Project Selection dialog is loaded, then close it
             await studioUtils.closeProjectSelectionDialog();
             //Verify that Project Selection dialog is loaded, then close it
@@ -107,9 +104,8 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
-            //Verify that Project Selection dialog is loaded, then close it
-            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            //user's context should be loaded by default now!
             //2. Select the site:
             await studioUtils.findAndSelectItem(SITE_NAME);
             //3. Verify that 'Mark as Ready' is default action in Publish Menu
@@ -119,9 +115,8 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
     it("GIVEN user with 'Owner'-layer role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",
         async () => {
             //1. Do Log in with the user:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
-            //Verify that Project Selection dialog is loaded, then close it
-            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            //user's context should be loaded by default now!
             //2. load existing site from the current layer:
             let url = "http://localhost:8080/admin/site/preview" + `/${LAYER_DISPLAY_NAME}/draft/${SITE_NAME}`;
             await webDriverHelper.browser.url(url);
@@ -136,14 +131,12 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
 
     it("Precondition: Existing site has been marked as ready in the parent project",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
-            //1. Do Log in with 'SU':
-            await studioUtils.navigateToContentStudioWithProjects();
-            await projectSelectionDialog.waitForDialogLoaded();
-            //2. Select the new user context:
-            await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
-            await studioUtils.findAndSelectItem(SITE_NAME);
             let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Do Log in with 'SU':
+            await studioUtils.navigateToContentStudioApp();
+            //2. the  user's context should be loaded by default, so need to switch to Default project
+            await contentBrowsePanel.selectContext("Default");
+            await studioUtils.findAndSelectItem(SITE_NAME);
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             //Do log out:
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
@@ -154,9 +147,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
-            //Verify that Project Selection dialog is loaded, then close it
-            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
             //2. Select the site:
             await studioUtils.findAndSelectItem(SITE_NAME);
             //3. Verify that 'Localize' button appears in the browse toolbar:
