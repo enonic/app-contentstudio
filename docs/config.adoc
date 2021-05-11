@@ -1,6 +1,6 @@
 = Configuration file
 :toc: right
-:imagesdir: ../images
+:imagesdir: config/images
 
 This section describes how to configure Content Studio via the config file.
 
@@ -20,4 +20,20 @@ You can allow `<script>` tag in html fields at your own risk by adding the follo
 [source,properties]
 ----
 htmlinput.allowScripts = true
+----
+
+=== Disable "Mark as Ready" in the Publishing Wizard
+
+Whenever the Publishing Wizard contains at least one item that is "_Work in progress_", publishing will be disabled. The editor can
+overrule this by applying "*Mark as ready*" bulk action from the button dropdown menu and marking all of such items as "_Ready for Publishing_".
+
+image::publishing-mark-as-ready.png[Mark as ready action in the Publishing Wizard, 410]
+
+To add another level of restriction and prevent accidental publishing of items that are not ready for publishing, the "*Mark as ready*" bulk action
+can be disabled by adding the following parameter to the config file:
+
+.com.enonic.app.contentstudio.cfg
+[source,properties]
+----
+publishingWizard.allowContentUpdate = false
 ----
