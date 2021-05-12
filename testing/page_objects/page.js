@@ -265,6 +265,11 @@ class Page {
         }
     }
 
+    async isNotificationMessageDisplayed() {
+        let notificationXpath = "//div[@class='notification-content']";
+        return await this.isElementDisplayed(notificationXpath);
+    }
+
     //returns array of messages
     async waitForNotificationMessages() {
         try {

@@ -51,6 +51,20 @@ describe('page.template.controller: select a controller in a template-wizard', f
             assert.isTrue(isDisplayed, "Uploader button should be present on the modal dialog");
         });
 
+    // verifies: Page Template wizard - Save button remains enabled after selecting a controller in unnamed template (#3091).
+    it(`GIVEN new template wizard is opened WHEN controller has been selected THEN Save button gets disabled in unnamed wizard`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            //1. Open wizard for new template
+            await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
+            //2. Select a page descriptor
+            await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
+            //3. Wait for the notification message:
+            await contentWizard.waitForNotificationMessage();
+            //4. Verify that 'Save' button gets disabled
+            await contentWizard.waitForSaveButtonDisabled();
+        });
+
     // verifies the xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
     it(`GIVEN template wizard is opened WHEN controller has been selected THEN Live Context Window should be loaded automatically`,
         async () => {
