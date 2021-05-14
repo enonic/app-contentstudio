@@ -24,16 +24,31 @@ image::component-types-image-edit.png[]
 
 Part components are reusable, configurable components that can be placed into any region of a page. This allows content editors to build and customize pages without writing any code. There are no built-in part components. Each one is custom made in the application code. Parts are typically created to render custom content, lists of content, forms, etc.
 
-The first step in adding a part component to a page is to edit the page content and open the <<../widgets#insert-tab,Insert tab>> of the components widget. Drag the part component placeholder (puzzle piece) to the desired location on the page. The part placeholder will now appear as a blue box with a dropdown selector. The same part dropdown selector will appear in the components widget. Use one of the selectors to find the desired part component.
+The first step in adding a part component to a page is to edit the page content and open the <<../widgets#insert_tab,Insert tab>> of the Components widget. Drag the part component placeholder (puzzle piece) to the desired location on the page. The part placeholder will now appear as a blue box with a dropdown selector. The same part dropdown selector will appear in the components widget. Use one of the selectors to find the desired part component.
 
 image::component-types-part-edit.png[]
 
-Once a part component is selected, the placeholder will be replaced with the actual part and the <<../widgets#insert-tab,Insert tab>> will show the part’s configuration options in a form.
+Once a part component is selected, the placeholder will be replaced with the actual part and the <<../widgets#insert_tab,Insert tab>> will show the part’s configuration options in a form.
 
 Some parts won’t have any configuration. Parts with configuration options are independently configured. This means that the same part component can be added to multiple pages, or even multiple times on the same page, and each instance can have different configuration values.
 
 image::component-types-part-insert.png[]
 
+TIP: It's possible to limit a part to be used only on specific content type(s).
+
+[source,xml]
+----
+<part>
+  <display-name>My article part</display-name>
+  <form></form>
+  <config>
+    <allow-on-content-type>portal:site</allow-on-content-type>
+    <allow-on-content-type>${app}:article*</allow-on-content-type>
+  </config>
+</part>
+----
+
+This part will only be allowed on a site and content types (from the same application) whose names start with "article"
 
 == Layout component
 
@@ -49,6 +64,20 @@ image::component-types-layout-edit.png[]
 
 NOTE: While editing a page, it may be difficult to select a layout to access its configuration. In this case, the <<page-editor#components-view,Components View>> can help to select the layout. Alternatively, a part within the layout can be selected and then that part’s parent can be selected from the right-click context menu. Continue selecting the parent component until the layout is the selected component.
 
+TIP: Just as with parts, you can limit a layout to be used only on specific content type(s).
+
+[source,xml]
+----
+<layout>
+  <display-name>My article part</display-name>
+  <form></form>
+  <config>
+    <allow-on-content-type>portal:site</allow-on-content-type>
+  </config>
+</layout>
+----
+
+This layout will only be allowed on a site, but not for example on a page template or any of custom content types.
 
 == Text component
 
