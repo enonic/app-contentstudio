@@ -183,6 +183,8 @@ export class CompareContentVersionsDialog
         });
         button.appendChild(menu);
 
+        this.onClosed(() => this.setMenuVisible(false, menu, button));
+
         return button;
     }
 
@@ -205,9 +207,7 @@ export class CompareContentVersionsDialog
     }
 
     private setMenuVisible(flag: boolean, menu: Menu, button: Button) {
-        if (menu.isVisible() !== flag) {
-            menu.setVisible(flag);
-        }
+        menu.setVisible(flag);
         button.toggleClass('expanded', flag);
         this.bindOutsideClickListener(flag, menu, button);
     }
