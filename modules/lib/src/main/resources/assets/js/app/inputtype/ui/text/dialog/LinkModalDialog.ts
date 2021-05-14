@@ -226,7 +226,7 @@ export class LinkModalDialog
 
     private createUrlPanel(): Panel {
         const getUrl: Function = () => {
-            return this.isUrl() ? this.link : StringHelper.EMPTY_STRING;
+            return this.isUrl() ? this.link : 'https://';
         };
 
         return this.createFormPanel([
