@@ -25,6 +25,8 @@ import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentId} from '../../content/ContentId';
 import {ContentPath} from '../../content/ContentPath';
+import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 
 export class ContentSelector
     extends ContentInputTypeManagingAdd<ContentTreeSelectorItem> {
@@ -47,10 +49,39 @@ export class ContentSelector
 
     constructor(config?: ContentInputTypeViewContext) {
         super('content-selector', config);
+        this.initEventsListeners();
+    }
+
+    private initEventsListeners() {
+        const contentId: string = this.config.content.getId();
+
+        ContentServerEventsHandler.getInstance().onContentRenamed((data: ContentSummaryAndCompareStatus[]) => {
+            const isCurrentContentRenamed: boolean = data.some((item: ContentSummaryAndCompareStatus) => item.getId() === contentId);
+
+            if (isCurrentContentRenamed) {
+                this.handleContentRenamed();
+            }
+        });
+    }
+
+    protected handleContentRenamed() {
+        const selectedIds: ContentId[] = this.getSelectedOptions().map(
+            (option: SelectedOption<ContentTreeSelectorItem>) => option.getOption().getDisplayValue().getContentId());
+
+        this.doLoadContent(selectedIds).then((contents: ContentSummary[]) => {
+            this.contentComboBox.clearSelection(true, false);
+
+            contents.forEach((content: ContentSummary) => {
+                this.contentComboBox.select(this.createSelectorItem(content));
+            });
+        });
+    }
+
+    protected createSelectorItem(content: ContentSummary): ContentTreeSelectorItem {
+        return new ContentTreeSelectorItem(content);
     }
 
     protected readConfig(inputConfig: { [element: string]: { [name: string]: string }[]; }): void {
-
         const isTreeModeConfig = inputConfig['treeMode'] ? inputConfig['treeMode'][0] : {};
         this.treeMode = !StringHelper.isBlank(isTreeModeConfig['value']) ? isTreeModeConfig['value'].toLowerCase() === 'true' : false;
 
@@ -95,25 +126,25 @@ export class ContentSelector
         if (!ValueTypes.REFERENCE.equals(propertyArray.getType())) {
             propertyArray.convertValues(ValueTypes.REFERENCE, ValueTypeConverter.convertTo);
         }
+
         return super.layout(input, propertyArray).then(() => {
             this.contentComboBox = this.createContentComboBox(input, propertyArray);
-
             this.comboBoxWrapper = new DivEl('combobox-wrapper');
             this.comboBoxWrapper.appendChild(this.contentComboBox);
 
             this.appendChild(this.comboBoxWrapper);
 
             return this.doLayout(propertyArray);
-
         });
     }
 
     protected doLayout(propertyArray: PropertyArray): Q.Promise<void> {
-
         const contentIds: ContentId[] = [];
+
         propertyArray.forEach((property: Property) => {
             if (property.hasNonNullValue()) {
-                let referenceValue = property.getReference();
+                const referenceValue: Reference = property.getReference();
+
                 if (ObjectHelper.iFrameSafeInstanceOf(referenceValue, Reference)) {
                     contentIds.push(ContentId.fromReference(referenceValue));
                 }
@@ -121,7 +152,6 @@ export class ContentSelector
         });
 
         return this.doLoadContent(contentIds).then((contents: ContentSummary[]) => {
-
             this.setupSortable();
 
             //TODO: original value doesn't work because of additional request, so have to select manually
@@ -154,8 +184,8 @@ export class ContentSelector
     }
 
     protected createContentComboBoxBuilder(input: Input, propertyArray: PropertyArray): ContentComboBoxBuilder<ContentTreeSelectorItem> {
-        const optionDataLoader = this.createOptionDataLoader();
-        const comboboxValue = this.getValueFromPropertyArray(propertyArray);
+        const optionDataLoader: ContentSummaryOptionDataLoader<ContentTreeSelectorItem> = this.createOptionDataLoader();
+        const comboboxValue: string = this.getValueFromPropertyArray(propertyArray);
 
         return this.doCreateContentComboBoxBuilder()
                 .setComboBoxName(input.getName())
@@ -172,7 +202,6 @@ export class ContentSelector
     }
 
     protected initEvents(contentComboBox: ContentComboBox<ContentTreeSelectorItem>) {
-
         contentComboBox.getComboBox().onContentMissing((ids: string[]) => {
             ids.forEach(id => this.removePropertyWithId(id));
             this.validate(false);
@@ -195,7 +224,6 @@ export class ContentSelector
         });
 
         contentComboBox.onOptionDeselected((event: SelectedOptionEvent<ContentTreeSelectorItem>) => {
-
             this.handleDeselected(event.getSelectedOption().getIndex());
             this.updateSelectedOptionStyle();
             this.validate(false);
@@ -205,7 +233,7 @@ export class ContentSelector
     }
 
     protected createContentComboBox(input: Input, propertyArray: PropertyArray): ContentComboBox<ContentTreeSelectorItem> {
-        const contentComboBox = this.doCreateContentComboBox(input, propertyArray);
+        const contentComboBox: ContentComboBox<ContentTreeSelectorItem> = this.doCreateContentComboBox(input, propertyArray);
 
         this.initEvents(contentComboBox);
 
@@ -213,7 +241,8 @@ export class ContentSelector
     }
 
     protected removePropertyWithId(id: string) {
-        let length = this.getPropertyArray().getSize();
+        const length: number = this.getPropertyArray().getSize();
+
         for (let i = 0; i < length; i++) {
             if (this.getPropertyArray().get(i).getValue().getString() === id) {
                 this.getPropertyArray().remove(i);
@@ -228,6 +257,7 @@ export class ContentSelector
         if (ContentSelector.debug) {
             console.log('update(' + propertyArray.toJson() + ')');
         }
+
         return super.update(propertyArray, unchangedOnly).then(() => {
             /*let value = this.getValueFromPropertyArray(propertyArray);
             this.contentComboBox.setValue(value);*/
@@ -251,13 +281,14 @@ export class ContentSelector
     }
 
     private isResetRequired(): boolean {
-        const values = this.contentComboBox.getSelectedDisplayValues();
+        const values: ContentTreeSelectorItem[] = this.contentComboBox.getSelectedDisplayValues();
+
         if (this.getPropertyArray().getSize() !== values.length) {
             return true;
         }
 
         return !values.every((value: ContentTreeSelectorItem, index: number) => {
-            const property = this.getPropertyArray().get(index);
+            const property: Property = this.getPropertyArray().get(index);
             return property?.getString() === value.getId();
         });
     }
@@ -266,10 +297,12 @@ export class ContentSelector
         if (ContentSelector.debug) {
             console.log('resetPropertyValues()');
         }
+
         if (!this.isResetRequired()) {
             return;
         }
-        const values = this.contentComboBox.getSelectedDisplayValues();
+
+        const values: ContentTreeSelectorItem[] = this.contentComboBox.getSelectedDisplayValues();
 
         this.ignorePropertyChange(true);
 
@@ -293,7 +326,6 @@ export class ContentSelector
     }
 
     protected doLoadContent(contentIds: ContentId[]): Q.Promise<ContentSummary[]> {
-
         ContentSelector.contentIdBatch = ContentSelector.contentIdBatch.concat(contentIds);
 
         if (!ContentSelector.loadSummariesResult) {
@@ -303,15 +335,14 @@ export class ContentSelector
         ContentSelector.loadSummaries();
 
         return ContentSelector.loadSummariesResult.promise.then((result: ContentSummary[]) => {
-            let contentIdsStr = contentIds.map(id => id.toString());
+            const contentIdsStr: string[] = contentIds.map((id: ContentId) => id.toString());
             return result.filter(content => contentIdsStr.indexOf(content.getId()) >= 0);
         });
     }
 
     protected setContentIdProperty(contentId: ContentId) {
-        let reference = new Reference(contentId.toString());
-
-        let value = new Value(reference, ValueTypes.REFERENCE);
+        const reference: Reference = new Reference(contentId.toString());
+        const value: Value = new Value(reference, ValueTypes.REFERENCE);
 
         if (!this.getPropertyArray().containsValue(value)) {
             this.ignorePropertyChange(true);
@@ -350,8 +381,8 @@ export class ContentSelector
     }
 
     protected updateSelectedOptionIsEditable(selectedOption: SelectedOption<ContentTreeSelectorItem>) {
-        let selectedContentId = selectedOption.getOption().getDisplayValue().getContentId();
-        let refersToItself = selectedContentId.toString() === this.config.content.getId();
+        const selectedContentId: ContentId = selectedOption.getOption().getDisplayValue().getContentId();
+        const refersToItself: boolean = selectedContentId.toString() === this.config.content.getId();
         selectedOption.getOptionView().toggleClass('non-editable', refersToItself);
     }
 

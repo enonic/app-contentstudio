@@ -1,3 +1,4 @@
+import * as Q from 'q';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
 import {Form} from 'lib-admin-ui/form/Form';
 import {FormContext} from 'lib-admin-ui/form/FormContext';
@@ -7,6 +8,7 @@ import {WizardStepValidityChangedEvent} from 'lib-admin-ui/app/wizard/WizardStep
 import {WizardStepForm} from 'lib-admin-ui/app/wizard/WizardStepForm';
 import {FormValidityChangedEvent} from 'lib-admin-ui/form/FormValidityChangedEvent';
 import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
+import {ContentFormContext} from '../ContentFormContext';
 
 export class ContentWizardStepForm
     extends WizardStepForm {
@@ -38,26 +40,26 @@ export class ContentWizardStepForm
         return this.formView.reset();
     }
 
-    layout(formContext: FormContext, data: PropertyTree, form: Form): Q.Promise<void> {
-
+    layout(formContext: ContentFormContext, data: PropertyTree, form: Form): Q.Promise<void> {
         this.formContext = formContext;
         this.form = form;
         this.data = data;
+
         return this.doLayout(form, data);
     }
 
     protected doLayout(form: Form, data: PropertyTree): Q.Promise<void> {
-
         if (this.formView) {
             this.formView.remove();
         }
 
         this.formView = new FormView(this.formContext, form, data.getRoot());
-        return this.formView.layout().then(() => {
 
+        return this.formView.layout().then(() => {
             this.formView.onFocus((event) => {
                 this.notifyFocused(event);
             });
+
             this.formView.onBlur((event) => {
                 this.notifyBlurred(event);
             });
@@ -72,6 +74,8 @@ export class ContentWizardStepForm
             if (form.getFormItems().length === 0) {
                 this.hide();
             }
+
+            return Q(null);
         });
     }
 

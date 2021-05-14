@@ -26,6 +26,7 @@ export class ContentFormContext
         this.site = builder.site;
         this.parentContent = builder.parentContent;
         this.persistedContent = builder.persistedContent;
+
         if (builder.contentTypeName) {
             this.contentTypeName = builder.contentTypeName;
         } else if (builder.persistedContent) {
@@ -35,6 +36,11 @@ export class ContentFormContext
 
     getSite(): Site {
         return this.site;
+    }
+
+    setSite(site: Site): ContentFormContext {
+        this.site = site;
+        return this;
     }
 
     getContentId(): ContentId {
@@ -54,13 +60,19 @@ export class ContentFormContext
         return this.parentContent.getPath();
     }
 
+    setParentContent(content: Content): ContentFormContext {
+        this.parentContent = content;
+        return this;
+    }
+
     getPersistedContent(): Content {
         return this.persistedContent;
     }
 
-    updatePersistedContent(content: Content) {
+    setPersistedContent(content: Content): ContentFormContext {
         this.persistedContent = content;
         this.contentUpdatedListeners.forEach(listener => listener(content));
+        return this;
     }
 
     getContentTypeName(): ContentTypeName {

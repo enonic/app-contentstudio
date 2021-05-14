@@ -1290,7 +1290,6 @@ export class ContentWizardPanel
 
         const versionChangeHandler = () => {
             this.handleCUD();
-
             this.updateButtonsState();
         };
 
@@ -1982,26 +1981,21 @@ export class ContentWizardPanel
     }
 
     private produceCreateContentRequest(): Q.Promise<CreateContentRequest> {
-        let deferred = Q.defer<CreateContentRequest>();
+        return this.contentType.getContentTypeName().isMedia() ? Q(null) : this.doCreateContentRequest();
+    }
 
-        let parentPath = this.parentContent != null ? this.parentContent.getPath() : ContentPath.ROOT;
+    private doCreateContentRequest(): Q.Promise<CreateContentRequest> {
+        const parentPath: ContentPath = this.parentContent != null ? this.parentContent.getPath() : ContentPath.ROOT;
 
-        if (this.contentType.getContentTypeName().isMedia()) {
-            deferred.resolve(null);
-        } else {
-            deferred.resolve(
-                new CreateContentRequest()
-                    .setRequireValid(this.requireValid)
-                    .setName(ContentUnnamed.newUnnamed())
-                    .setParent(parentPath)
-                    .setContentType(this.contentType.getContentTypeName())
-                    .setDisplayName('')     // new content is created on wizard open so display name is always empty
-                    .setData(new PropertyTree())
-                    .setExtraData([])
-                    .setWorkflow(Workflow.create().setState(WorkflowState.IN_PROGRESS).build()));
-        }
-
-        return deferred.promise;
+        return Q(new CreateContentRequest()
+            .setRequireValid(this.requireValid)
+            .setName(ContentUnnamed.newUnnamed())
+            .setParent(parentPath)
+            .setContentType(this.contentType.getContentTypeName())
+            .setDisplayName('')     // new content is created on wizard open so display name is always empty
+            .setData(new PropertyTree())
+            .setExtraData([])
+            .setWorkflow(Workflow.create().setState(WorkflowState.IN_PROGRESS).build()));
     }
 
     updatePersistedItem(): Q.Promise<Content> {
@@ -2014,7 +2008,7 @@ export class ContentWizardPanel
             .setWorkflowState(this.isMarkedAsReady ? WorkflowState.READY : WorkflowState.IN_PROGRESS);
 
         return updateContentRoutine.execute().then((context: RoutineContext) => {
-            const content = context.content;
+            const content: Content = context.content;
             this.wizardFormUpdatedDuringSave = context.dataUpdated;
             this.pageEditorUpdatedDuringSave = context.pageUpdated;
 
@@ -2310,14 +2304,14 @@ export class ContentWizardPanel
             console.debug('ContentWizardPanel.initFormContext');
         }
 
-        this.formContext = <ContentFormContext>ContentFormContext.create()
-            .setSite(this.site)
-            .setParentContent(this.parentContent)
-            .setPersistedContent(content)
-            .setContentTypeName(this.contentType ? this.contentType.getContentTypeName() : undefined)
-            .setFormState(this.formState)
-            .setShowEmptyFormItemSetOccurrences(this.isItemPersisted())
-            .build();
+        if (!this.formContext) {
+            this.formContext =
+                ContentFormContext.create().setPersistedContent(content).setContentTypeName(this.contentType?.getContentTypeName()).build();
+        }
+
+        this.formContext.setSite(this.site).setParentContent(this.parentContent).setPersistedContent(content);
+        this.formContext.setFormState(this.formState);
+        this.formContext.setShowEmptyFormItemSetOccurrences(this.isItemPersisted());
     }
 
     private setModifyPermissions() {
