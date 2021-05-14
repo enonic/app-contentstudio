@@ -9,6 +9,10 @@
       "label": "stable",
       "checkout": "master",
       "latest": true
+    },
+    {
+      "label": "next",
+      "checkout": "a505597709debfdf910bd6e7fa693c597ccafff5"
     }
   ]
 }
