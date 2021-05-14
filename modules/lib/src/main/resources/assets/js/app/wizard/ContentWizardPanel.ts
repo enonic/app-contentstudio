@@ -2314,6 +2314,7 @@ export class ContentWizardPanel
             .setContentTypeName(this.contentType ? this.contentType.getContentTypeName() : undefined)
             .setFormState(this.formState)
             .setShowEmptyFormItemSetOccurrences(this.isItemPersisted())
+            .setLanguage(content.getLanguage())
             .build();
     }
 
