@@ -150,13 +150,13 @@ content type behaviour in Content Studio.
     </input>
   </form>
   <config>  <!--1-->
-    <allow-new-content>true</allow-new-content>  <!--2-->
+    <allow-new-content>false</allow-new-content>  <!--2-->
     <list-title-expression>${data.firstName} ${data.lastName} from ${data.city}</list-title-expression> <!--3-->
   </config>
 </content-type>
 ----
 <1> *config* Optional object that defines content type behaviour in the Content Studio.
-<2> *allow-new-content* (default: `false`) When set to `true`, removes the content type from the "New Content" modal dialog.
+<2> *allow-new-content* (default: `true`) When set to `false`, removes the content type from the "New Content" modal dialog.
 Existing content of this type will not be affected. New content of this type can still be created via Content API.
 <3> *list-title-expression* (optional) This config is similar to `display-name-expression` in the
 https://developer.enonic.com/docs/xp/stable/cms/content-types#display_name_expressions[base settings] but used for displaying content
