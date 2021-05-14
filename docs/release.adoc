@@ -6,6 +6,20 @@ TIP: Release Notes for Content Studio 2.x can be found https://developer.enonic.
 
 == Content Studio 3.3
 
+=== Hide content types that are no longer in use
+
+It's now possible to turn on a config for a content type to specify that no new content can be created for it. This will
+effectively remove the content type from the list in the "New Content" dialog.
+
+=== Relationship between content types
+
+It's now possible to specify what content types are allowed as children of a certain content type. This setting will limit the
+list of content types shown in the "New Content" dialog by showing only the allowed child content types for a selected content item.
+
+=== Relationship between page components and content types
+
+It's now possible to specify that a part or a layout can be used only on specific content types.
+
 === Length counter in TextLine and TextArea
 
 Input types https://developer.enonic.com/docs/xp/stable/cms/input-types#textline[TextLine]
@@ -13,6 +27,11 @@ and https://developer.enonic.com/docs/xp/stable/cms/input-types#textarea[TextAre
 to turn on text length counter.
 
 image::cs33-text-counter.png[Length counter in TextLine, 778]
+
+=== Hide "Mark as Ready" action in the "Publishing Wizard"
+
+A new property in the Content Studio's config file can be used to hide the "Mark as Ready" action in the "Publishing Wizard" dialog to
+disallow bulk update of selected items marking them as ready for publishing.
 
 == Content Studio 3.2
 
