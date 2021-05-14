@@ -5,7 +5,7 @@ import {XData} from '../content/XData';
 import {Form} from 'lib-admin-ui/form/Form';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {FormContext} from 'lib-admin-ui/form/FormContext';
+import {ContentFormContext} from '../ContentFormContext';
 
 export class XDataWizardStepForm
     extends ContentWizardStepForm {
@@ -64,7 +64,7 @@ export class XDataWizardStepForm
         return this.enabled ? this.doLayout(this.form, this.data) : Q(null);
     }
 
-    layout(formContext: FormContext, data: PropertyTree, form: Form): Q.Promise<void> {
+    layout(formContext: ContentFormContext, data: PropertyTree, form: Form): Q.Promise<void> {
         this.enabled = !this.isOptional() || data.getRoot().getPropertyArrays().length > 0;
         return super.layout(formContext, data, form);
     }
