@@ -37,7 +37,7 @@ dependencies {
     include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
     include project( ':lib-contentstudio' )
     include project( ':rest' )
-    devResources project( ':lib-contentstudio' )
+    devResources project(path: ':lib-contentstudio', configuration: 'devResources' )
     devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 }
 
@@ -60,6 +60,7 @@ node {
 
 if ( hasLibAdminUi() )
 {
+    copyDevResources.dependsOn += libAdminBuildTask
     build.dependsOn += libAdminBuildTask
     clean.dependsOn += libAdminCleanTask
 }
