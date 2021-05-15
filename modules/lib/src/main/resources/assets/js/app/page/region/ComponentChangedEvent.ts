@@ -2,7 +2,7 @@ import {ComponentPath} from './ComponentPath';
 
 export class ComponentChangedEvent {
 
-    private path: ComponentPath;
+    private readonly path: ComponentPath;
 
     constructor(path: ComponentPath) {
         this.path = path;

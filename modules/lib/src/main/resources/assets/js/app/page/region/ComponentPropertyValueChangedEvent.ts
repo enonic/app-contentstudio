@@ -4,10 +4,11 @@ import {ComponentPath} from './ComponentPath';
 export class ComponentPropertyValueChangedEvent
     extends ComponentChangedEvent {
 
-    private propertyName: string;
+    private readonly propertyName: string;
 
     constructor(path: ComponentPath, propertyName: string) {
         super(path);
+
         this.propertyName = propertyName;
     }
 
