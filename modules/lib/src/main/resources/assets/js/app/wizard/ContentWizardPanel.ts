@@ -249,7 +249,6 @@ export class ContentWizardPanel
 
         this.isContentFormValid = false;
         this.isMarkedAsReady = false;
-
         this.requireValid = false;
         this.skipValidation = false;
         this.contentNamedListeners = [];
@@ -259,7 +258,6 @@ export class ContentWizardPanel
         this.isFirstUpdateAndRenameEventSkiped = false;
 
         this.displayNameResolver = new DisplayNameResolver();
-
         this.xDataWizardStepForms = new XDataWizardStepForms();
 
         this.workflowStateIconsManager = new WorkflowStateIconsManager(this);
@@ -1582,7 +1580,7 @@ export class ContentWizardPanel
     private updateThumbnailWithContent(content: Content) {
         const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
         thumbnailUploader.toggleClass('has-origin-project', !!content.getOriginProject());
-        const id = content.getContentId().toString();
+        const id: string = content.getContentId().toString();
 
         thumbnailUploader
             .setParams({id})
@@ -1595,34 +1593,32 @@ export class ContentWizardPanel
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.initLiveEditor at ' + new Date().toISOString());
         }
-        let deferred = Q.defer<void>();
-        let liveFormPanel = this.getLivePanel();
-        if (liveFormPanel) {
 
+        const liveFormPanel: LiveFormPanel = this.getLivePanel();
+
+        if (liveFormPanel) {
             if (!this.liveEditModel) {
-                let site = content.isSite() ? <Site>content : this.site;
+                const site: Site = content.isSite() ? <Site>content : this.site;
 
                 this.unbindSiteModelListeners();
                 this.siteModel = this.siteModel ? this.updateSiteModel(site) : this.createSiteModel(site);
                 this.initSiteModelListeners();
 
-                this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
+                return this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
                     this.liveEditModel = liveEditModel;
 
                     liveFormPanel.setModel(this.liveEditModel);
                     liveFormPanel.loadPage();
                     this.setupWizardLiveEdit();
 
-                    deferred.resolve(null);
+                    return Q(null);
                 });
             } else {
                 liveFormPanel.loadPage();
-                deferred.resolve(null);
             }
-        } else {
-            deferred.resolve(null);
         }
-        return deferred.promise;
+
+        return Q(null);
     }
 
     // sync persisted content extra data with xData
@@ -2014,7 +2010,7 @@ export class ContentWizardPanel
             .setWorkflowState(this.isMarkedAsReady ? WorkflowState.READY : WorkflowState.IN_PROGRESS);
 
         return updateContentRoutine.execute().then((context: RoutineContext) => {
-            const content = context.content;
+            const content: Content = context.content;
             this.wizardFormUpdatedDuringSave = context.dataUpdated;
             this.pageEditorUpdatedDuringSave = context.pageUpdated;
 

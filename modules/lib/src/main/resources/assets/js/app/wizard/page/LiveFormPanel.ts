@@ -632,11 +632,10 @@ export class LiveFormPanel
     }
 
     saveAndReloadOnlyComponent(componentView: ComponentView<Component>) {
-
         assertNotNull(componentView, 'componentView cannot be null');
-
         this.pageSkipReload = true;
-        const componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
+
+        const componentUrl: string = UriHelper.getComponentUri(this.content.getContentId().toString(),
             componentView.getComponentPath(),
             RenderingMode.EDIT);
 
@@ -645,23 +644,11 @@ export class LiveFormPanel
             componentView.showLoadingSpinner();
             return this.liveEditPageProxy.loadComponent(componentView, componentUrl);
         }).catch((error: any) => {
-
             DefaultErrorHandler.handle(error);
 
             componentView.hideLoadingSpinner();
             componentView.showRenderingError(componentUrl, error.message);
         }).done();
-    }
-
-    updateFrameContainerSize(contextWindowShown: boolean, contextWindowWidth?: number) {
-        if (!this.frameContainer) {
-            return;
-        }
-        if (contextWindowShown && contextWindowWidth) {
-            this.frameContainer.getEl().setWidth('calc(100% - ' + (contextWindowWidth - 1) + 'px)');
-        } else {
-            this.frameContainer.getEl().setWidth('100%');
-        }
     }
 
     private liveEditListen() {
@@ -710,6 +697,7 @@ export class LiveFormPanel
 
         this.liveEditPageProxy.onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
             this.pageView = event.getPageView();
+
             if (this.pageView) {
                 this.insertablesPanel.setPageView(this.pageView);
                 this.pageView.getContextMenuActions().push(this.saveAsTemplateAction);
