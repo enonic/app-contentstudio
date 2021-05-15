@@ -92,9 +92,9 @@ function processApplicationPath(): Path {
 }
 
 function startLostConnectionDetector(): ConnectionDetector {
-    let readonlyMessageId;
+    let readonlyMessageId: string;
 
-    const connectionDetector =
+    const connectionDetector: ConnectionDetector =
         ConnectionDetector.get()
             .setAuthenticated(true)
             .setSessionExpireRedirectUrl(UriHelper.getToolUri(''))
@@ -108,6 +108,7 @@ function startLostConnectionDetector(): ConnectionDetector {
             readonlyMessageId = null;
         }
     });
+
     connectionDetector.startPolling(true);
 
     return connectionDetector;
@@ -348,7 +349,15 @@ function startServerEventListeners(application: Application) {
 
     serverEventsListener.onConnectionError(() => {
         if (!wsConnectionErrorId) {
-            wsConnectionErrorId = showError(i18n('notify.websockets.error'), false);
+            const pollHandler: () => void = () => {
+                if (ConnectionDetector.get().isConnected()) {
+                    wsConnectionErrorId = showError(i18n('notify.websockets.error'), false);
+                }
+
+                ConnectionDetector.get().unPoll(pollHandler);
+            };
+
+            ConnectionDetector.get().onPoll(pollHandler);
         }
     });
 
