@@ -12,6 +12,8 @@ export class ProjectContext {
 
     private projectChangedEventListeners: { (project: Project): void }[] = [];
 
+    private noProjectsAvailableListeners: { (): void }[] = [];
+
     private constructor() {
     //
     }
@@ -35,6 +37,13 @@ export class ProjectContext {
         this.notifyProjectChanged();
     }
 
+    setNoProjects() {
+        this.currentProject = null;
+        this.state = State.NO_AVAILABLE;
+        localStorage.removeItem(ProjectContext.LOCAL_STORAGE_KEY);
+        this.notifyNoProjectsAvailable();
+    }
+
     isInitialized(): boolean {
         return this.state === State.INITIALIZED;
     }
@@ -54,8 +63,24 @@ export class ProjectContext {
             handler(this.currentProject);
         });
     }
+
+    onNoProjectsAvailable(handler: () => void) {
+        this.noProjectsAvailableListeners.push(handler);
+    }
+
+    unNoProjectsAvailable(handler: (project: Project) => void) {
+        this.noProjectsAvailableListeners = this.noProjectsAvailableListeners.filter((curr: () => void) => {
+            return handler !== curr;
+        });
+    }
+
+    private notifyNoProjectsAvailable() {
+        this.noProjectsAvailableListeners.forEach((handler: () => void) => {
+            handler();
+        });
+    }
 }
 
 enum State {
-    INITIALIZED, NOT_INITIALIZED
+    INITIALIZED, NOT_INITIALIZED, NO_AVAILABLE
 }
