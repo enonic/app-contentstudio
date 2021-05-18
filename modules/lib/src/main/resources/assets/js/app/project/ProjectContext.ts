@@ -37,9 +37,9 @@ export class ProjectContext {
         this.notifyProjectChanged();
     }
 
-    setNoProjects() {
+    setNotAvailable() {
         this.currentProject = null;
-        this.state = State.NO_AVAILABLE;
+        this.state = State.NOT_AVAILABLE;
         localStorage.removeItem(ProjectContext.LOCAL_STORAGE_KEY);
         this.notifyNoProjectsAvailable();
     }
@@ -82,5 +82,5 @@ export class ProjectContext {
 }
 
 enum State {
-    INITIALIZED, NOT_INITIALIZED, NO_AVAILABLE
+    INITIALIZED, NOT_INITIALIZED, NOT_AVAILABLE
 }
