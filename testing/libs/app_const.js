@@ -251,6 +251,7 @@ module.exports = Object.freeze({
         CM_ADMIN: 'Content Manager Administrator',
         ADMIN_CONSOLE: 'Administration Console Login',
         CM_APP: 'Content Manager App',
+        CM_APP_EXPERT: 'Content Manager Expert',
         ADMINISTRATOR: 'Administrator',
         USERS_APP: 'Users App',
         AUTHENTICATED: 'Authenticated',

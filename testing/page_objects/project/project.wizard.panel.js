@@ -194,6 +194,10 @@ class ProjectWizardPanel extends Page {
         return this.waitForElementDisabled(this.projectIdentifierInput, appConst.shortTimeout);
     }
 
+    waitForProjectIdentifierInputEnabled() {
+        return this.waitForElementEnabled(this.projectIdentifierInput, appConst.shortTimeout);
+    }
+
     async typeInProjectIdentifier(identifier) {
         await this.waitForElementDisplayed(this.projectIdentifierInput);
         await this.clearInputText(this.projectIdentifierInput);
@@ -379,5 +383,6 @@ class ProjectWizardPanel extends Page {
             throw new Error('Error when removing the language! ' + err);
         }
     }
-};
+}
+
 module.exports = ProjectWizardPanel;

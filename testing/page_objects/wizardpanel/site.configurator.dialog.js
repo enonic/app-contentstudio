@@ -6,6 +6,7 @@ const XPATH = {
     applyButton: `//button[contains(@id,'DialogButton') and child::span[text()='Apply']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     imageSelectorOptionFilterInput: `//div[contains(@id,'ImageContentComboBox')]//input[contains(@id,'ComboBoxOptionFilterInput')]`,
+    trackingIdTextInput: "//input[contains(@name,'trackingId')]"
 };
 
 class SiteConfiguratorDialog extends Page {
@@ -67,6 +68,10 @@ class SiteConfiguratorDialog extends Page {
         }).then(() => {
             return this.waitForDialogClosed();
         })
+    }
+
+    waitForApplyButtonDisabled() {
+        return this.waitForElementDisabled(this.applyButton, appConst.mediumTimeout);
     }
 
     waitForDialogOpened() {

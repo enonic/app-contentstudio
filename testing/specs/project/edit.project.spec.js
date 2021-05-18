@@ -20,6 +20,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     const TEST_DESCRIPTION = "my description";
     const NEW_DESCRIPTION = "new description";
 
+    //Verifies  Project identifier field is editable issue#2923
     it(`GIVEN a display name, description and access mode has been filled in WHEN 'Save' button has been pressed THEN all data should be saved`,
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -31,15 +32,18 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.typeDescription(TEST_DESCRIPTION);
             await projectWizard.clickOnAccessModeRadio("Private");
             await projectWizard.selectLanguage(appConstant.LANGUAGES.EN);
+            await projectWizard.waitForProjectIdentifierInputEnabled();
             await projectWizard.waitAndClickOnSave();
-            //3. verify the saved data:
+            //3. Verify that Identifier Input gets disabled after saving the project
+            await projectWizard.waitForProjectIdentifierInputDisabled();
+            //4. verify the saved data:
             let actualDescription = await projectWizard.getDescription();
             assert.equal(actualDescription, TEST_DESCRIPTION, "Expected description should be displayed");
             let actualProjectIdentifier = await projectWizard.getProjectIdentifier();
             assert.equal(actualProjectIdentifier, PROJECT_DISPLAY_NAME, "Expected identifier should be displayed");
             let actualLanguage = await projectWizard.getSelectedLanguage();
             assert.equal(actualLanguage, appConstant.LANGUAGES.EN, "Expected language should be displayed");
-            //4. Verify that Delete button gets enabled, because new project is created now:
+            //5. Verify that 'Delete' button gets enabled, because new project is created now:
             await projectWizard.waitForDeleteButtonEnabled();
         });
 
