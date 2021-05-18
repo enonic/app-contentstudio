@@ -602,7 +602,7 @@ function initProjectContext(application: Application): Q.Promise<void> {
         }
 
         if (projects.length === 0) {
-            ProjectContext.get().setNoProjects();
+            ProjectContext.get().setNotAvailable();
         }
 
         ProjectSelectionDialog.get().open();
