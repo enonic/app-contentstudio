@@ -87,8 +87,6 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //Verify that Project Selection dialog is loaded, then close it
             await studioUtils.closeProjectSelectionDialog();
-            //Verify that Project Selection dialog is loaded, then close it
-            await studioUtils.closeProjectSelectionDialog();
             //2. Select the site:
             await studioUtils.findAndSelectItem(SITE_NAME);
             //3. Verify that 'Localize' button appears in the browse toolbar:
