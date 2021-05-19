@@ -564,6 +564,13 @@ export class ContentWizardPanel
             this.initFormContext(contentClone);
             this.updateWizard(contentClone, true);
 
+            const liveFormPanel: LiveFormPanel = this.getLivePanel();
+
+            if (liveFormPanel) {
+                this.liveEditModel.setContent(contentClone);
+                this.updateLiveForm(contentClone);
+            }
+
             if (!this.isDisplayNameUpdated()) {
                 this.getWizardHeader().resetBaseValues();
             }
