@@ -249,7 +249,6 @@ export class ContentWizardPanel
 
         this.isContentFormValid = false;
         this.isMarkedAsReady = false;
-
         this.requireValid = false;
         this.skipValidation = false;
         this.contentNamedListeners = [];
@@ -565,6 +564,13 @@ export class ContentWizardPanel
             const contentClone: Content = newPersistedContent.clone();
             this.initFormContext(contentClone);
             this.updateWizard(contentClone, true);
+
+            const liveFormPanel: LiveFormPanel = this.getLivePanel();
+
+            if (liveFormPanel) {
+                this.liveEditModel.setContent(contentClone);
+                this.updateLiveForm(contentClone);
+            }
 
             if (!this.isDisplayNameUpdated()) {
                 this.getWizardHeader().resetBaseValues();
