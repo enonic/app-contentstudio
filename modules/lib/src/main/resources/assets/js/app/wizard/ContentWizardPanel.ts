@@ -2302,12 +2302,19 @@ export class ContentWizardPanel
 
         if (!this.formContext) {
             this.formContext =
-                ContentFormContext.create().setPersistedContent(content).setContentTypeName(this.contentType?.getContentTypeName()).build();
+                ContentFormContext.create()
+                    .setPersistedContent(content)
+                    .setContentTypeName(this.contentType?.getContentTypeName())
+                    .build();
         }
 
-        this.formContext.setSite(this.site).setParentContent(this.parentContent).setPersistedContent(content);
+        this.formContext
+            .setSite(this.site)
+            .setParentContent(this.parentContent)
+            .setPersistedContent(content);
         this.formContext.setFormState(this.formState);
         this.formContext.setShowEmptyFormItemSetOccurrences(this.isItemPersisted());
+        this.formContext.setLanguage(content.getLanguage());
     }
 
     private setModifyPermissions() {
