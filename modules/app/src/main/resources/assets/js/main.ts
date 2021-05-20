@@ -601,6 +601,10 @@ function initProjectContext(application: Application): Q.Promise<void> {
             return Q(null);
         }
 
+        if (projects.length === 0) {
+            ProjectContext.get().setNotAvailable();
+        }
+
         ProjectSelectionDialog.get().open();
 
         return Q(null);

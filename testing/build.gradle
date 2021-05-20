@@ -59,7 +59,10 @@ ext {
     xpServer = new ServerInstance()
     contentStudioFile = "$deployDir${File.separator}contentstudio-${appVersion}.jar"
     contentStudioAppUrl = "https://repo.enonic.com/dev/com/enonic/app/contentstudio/${appVersion}/contentstudio-${appVersion}.jar"
-    artifactAppendix = ""
+}
+
+def artifactAppendix() {
+    return hasProperty( 'artifactAppendix' ) ? artifactAppendix : ''
 }
 
 task ensureScreenshotsDirectory {
@@ -125,7 +128,7 @@ task zipScreenshots( type: Zip ) {
     include '*'
     include '*/*'
     classifier 'screenshots'
-    archiveAppendix = artifactAppendix
+    archiveAppendix = artifactAppendix()
 }
 
 task zipReport( type: Zip ) {
@@ -133,7 +136,7 @@ task zipReport( type: Zip ) {
     include '*'
     include '*/*'
     classifier 'mochaReport'
-    archiveAppendix = artifactAppendix
+    archiveAppendix = artifactAppendix()
 }
 
 publishing {
@@ -186,16 +189,12 @@ task testContentStudioApp( type: NpmTask,
     args = ['test']
     startServer.mustRunAfter npmInstall
     copyApps.mustRunAfter startServer
-
-    artifactAppendix = ""
 }
 
 task testContentStudioProjects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
     args = ['run-script', 'test_project']
     startServer.mustRunAfter npmInstall
     copyApps.mustRunAfter startServer
-
-    artifactAppendix = "project"
 }
 
 task runSeparateTestLocally( type: Exec, dependsOn: [npmInstall, ensureScreenshotsDirectory] ) {

@@ -17,6 +17,7 @@ import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
 import {Content} from '../../content/Content';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
+import {ContentSummary} from '../../content/ContentSummary';
 
 export class MediaSelector
     extends ContentSelector {
@@ -102,7 +103,7 @@ export class MediaSelector
 
             const option = Option.create<MediaTreeSelectorItem>()
                     .setValue(createdContent.getContentId().toString())
-                    .setDisplayValue(new MediaTreeSelectorItem(createdContent))
+                    .setDisplayValue(this.createSelectorItem(createdContent))
                     .build();
 
             this.contentComboBox.selectOption(option);
@@ -147,6 +148,10 @@ export class MediaSelector
         });
 
         return uploader;
+    }
+
+    protected createSelectorItem(content: ContentSummary): MediaTreeSelectorItem {
+        return new MediaTreeSelectorItem(content);
     }
 
     protected selectedOptionHandler(_selectedOption: SelectedOption<ContentTreeSelectorItem>) {

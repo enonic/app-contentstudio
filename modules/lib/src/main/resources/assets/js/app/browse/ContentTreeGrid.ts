@@ -234,6 +234,11 @@ export class ContentTreeGrid
         }
     }
 
+    clean() {
+        this.deselectAll();
+        this.getGridData().setItems([]);
+    }
+
     reload(): Q.Promise<void> {
         if (this.state === State.DISABLED) {
             return Q(null);

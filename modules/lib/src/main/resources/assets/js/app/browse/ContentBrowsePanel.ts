@@ -38,6 +38,8 @@ import {IsRenderableRequest} from '../resource/IsRenderableRequest';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ContentBrowsePanel
     extends BrowsePanel {
@@ -242,7 +244,6 @@ export class ContentBrowsePanel
         });
 
         ToggleSearchPanelWithDependenciesEvent.on((event: ToggleSearchPanelWithDependenciesEvent) => {
-
             if (this.treeGrid.getToolbar().getSelectionPanelToggler().isActive()) {
                 this.treeGrid.getToolbar().getSelectionPanelToggler().setActive(false);
             }
@@ -277,10 +278,17 @@ export class ContentBrowsePanel
                 this.treeGrid.reload();
             });
         });
+
+        ProjectContext.get().onNoProjectsAvailable(() => {
+            this.handleProjectNotSet();
+            this.treeGrid.clean();
+            NotifyManager.get().showWarning(i18n('notify.settings.project.notInitialized'));
+        });
     }
 
     private selectInlinedContentInGrid(contentInlinePath: string) {
         const path: string = this.getPathFromInlinePath(contentInlinePath);
+
         if (path) {
             this.treeGrid.selectInlinedContentInGrid(ContentPath.fromString(path));
         }

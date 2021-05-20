@@ -88,7 +88,9 @@ export class ContentAppContainer
     }
 
     private handleNoProjectsAvailable() {
-    //
+        this.appBar.disable();
+
+        ProjectContext.get().setNotAvailable();
     }
 
     private initSearchPanelListener(panel: ContentAppPanel) {
