@@ -234,6 +234,10 @@ export abstract class DependantItemsDialog
         this.itemList.removeItems(items, silent);
     }
 
+    clearListItems(silent?: boolean) {
+        this.itemList.clearItems(silent);
+    }
+
     setDependantItems(items: ContentSummaryAndCompareStatus[]) {
         this.dependantList.setItems(items);
     }

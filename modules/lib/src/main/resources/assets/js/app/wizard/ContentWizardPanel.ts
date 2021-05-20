@@ -2301,11 +2301,8 @@ export class ContentWizardPanel
         }
 
         if (!this.formContext) {
-            this.formContext =
-                ContentFormContext.create()
-                    .setPersistedContent(content)
-                    .setContentTypeName(this.contentType?.getContentTypeName())
-                    .build();
+            const type: ContentTypeName = this.contentType?.getContentTypeName() || content.getType();
+            this.formContext = ContentFormContext.create().setContentTypeName(type).build();
         }
 
         this.formContext
