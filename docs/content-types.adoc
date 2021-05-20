@@ -151,16 +151,63 @@ content type behaviour in Content Studio.
   </form>
   <config>  <!--1-->
     <allow-new-content>false</allow-new-content>  <!--2-->
-    <list-title-expression>${data.firstName} ${data.lastName} from ${data.city}</list-title-expression> <!--3-->
   </config>
 </content-type>
 ----
 <1> *config* Optional object that defines content type behaviour in the Content Studio.
 <2> *allow-new-content* (default: `true`) When set to `false`, removes the content type from the "New Content" modal dialog.
-Existing content of this type will not be affected. New content of this type can still be created via Content API.
-<3> *list-title-expression* (optional) This config is similar to `display-name-expression` in the
-https://developer.enonic.com/docs/xp/stable/cms/content-types#display_name_expressions[base settings] but used for displaying content
-title in the Content Studio's Content Browser. For example, by defining an expression like in the example above you can combine values of three fields
-with static text.
+Existing content items of this type will not be affected. New content of this type can still be created via
+https://developer.enonic.com/docs/xp/stable/api/lib-content[Content API].
+
+== Display name expression
+
+It's possible to auto-generate display name based on values from the form fields by using ES6 template literals.
+In the example below, the display name will consist of the values from the `firstName` and `lastName` fields, separated by a space.
+
+NOTE: Only simple input types may be used as variables, so input types like HtmlArea or CheckBox are not supported. Additionally, if an input allows multiple occurrences, only the first occurrence will be used in the generated display name.
+
+[source,xml]
+----
+<content-type>
+  <display-name>Person</display-name>
+  <display-name-expression>${firstName} ${lastName}</display-name-expression> <!--1-->
+  <form>
+    <input name="firstName" type="TextLine">
+      <label>First Name</label>
+    </input>
+    <input name="lastName" type="TextLine">
+      <label>Last Name</label>
+    </input>
+  </form>
+</content-type>
+----
+
+== List title expression
+
+This config is similar to <<#_display_name_expression, display-name-expression>> but used for displaying a composite content
+title in the Content Studio's Content Browser. For example, by defining an expression like in the example below you can combine three field values
+with some static text.
+
+[source,xml]
+----
+<content-type>
+  <display-name>Person</display-name>
+  <super-type>base:structured</super-type>
+  <form>
+    <input name="firstName" type="TextLine">
+      <label>First Name</label>
+    </input>
+    <input name="lastName" type="TextLine">
+      <label>Last Name</label>
+    </input>
+    <input name="city" type="TextLine">
+      <label>City</label>
+    </input>
+  </form>
+  <config>
+    <list-title-expression>${data.firstName} ${data.lastName} from ${data.city}</list-title-expression>
+  </config>
+</content-type>
+----
 
 image::list-title-expression.png[List title expression]
