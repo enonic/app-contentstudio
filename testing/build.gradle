@@ -61,6 +61,10 @@ ext {
     contentStudioAppUrl = "https://repo.enonic.com/dev/com/enonic/app/contentstudio/${appVersion}/contentstudio-${appVersion}.jar"
 }
 
+def createAppendix( classifier ) {
+    return hasProperty( 'artifactAppendix' ) ? "${artifactAppendix}-${classifier}" : classifier
+}
+
 task ensureScreenshotsDirectory {
     doLast {
         mkdir screenshotsDir
@@ -123,14 +127,14 @@ task zipScreenshots( type: Zip ) {
     from screenshotsDir
     include '*'
     include '*/*'
-    classifier 'screenshots'
+    classifier createAppendix( 'screenshots' )
 }
 
 task zipReport( type: Zip ) {
     from mochaResultsDir
     include '*'
     include '*/*'
-    classifier 'mochaReport'
+    classifier createAppendix( 'mochaReport' )
 }
 
 publishing {
@@ -175,7 +179,7 @@ task deleteFolders( type: Delete ) {
 
 task buildApplications( dependsOn: ['test-applications:simple-page:install'] )
 
-//run task in the task.js. Name of the task is 'test'
+// run task in the task.js. Name of the task is 'test'
 task testContentStudioApp( type: NpmTask,
                            dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
     inputs.files fileTree( dir: '.' )
