@@ -73,8 +73,7 @@ describe("delete.project.in.filtered.grid.spec - Delete projects in filtered gri
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioWithProjects();
-        await studioUtils.closeProjectSelectionDialog();
+        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

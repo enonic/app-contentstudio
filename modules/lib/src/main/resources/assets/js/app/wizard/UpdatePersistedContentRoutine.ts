@@ -7,7 +7,6 @@ import {UpdatePageRequest} from '../resource/UpdatePageRequest';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {Flow, RoutineContext} from './Flow';
 import {Content} from '../content/Content';
-import {Site} from '../content/Site';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {Page} from '../page/Page';
@@ -15,9 +14,9 @@ import {Page} from '../page/Page';
 export class UpdatePersistedContentRoutine
     extends Flow {
 
-    private persistedContent: Content;
+    private readonly persistedContent: Content;
 
-    private viewedContent: Content;
+    private readonly viewedContent: Content;
 
     private requireValid: boolean;
 
@@ -37,7 +36,14 @@ export class UpdatePersistedContentRoutine
 
     doExecuteNext(context: RoutineContext): Q.Promise<RoutineContext> {
         let promise: Q.Promise<void>;
-        const isContentChanged = this.hasContentChanged();
+
+        const isPageChanged: boolean = this.hasPageChanged();
+
+        if (isPageChanged) {
+            this.workflowState = WorkflowState.IN_PROGRESS;
+        }
+
+        const isContentChanged: boolean = this.hasContentChanged();
 
         if (isContentChanged || this.hasNamesChanged()) {
             promise = this.doHandleUpdateContent(context, isContentChanged);
@@ -45,7 +51,7 @@ export class UpdatePersistedContentRoutine
             promise = Q(null);
         }
 
-        if (this.hasPageChanged()) {
+        if (isPageChanged) {
             promise = promise.then(this.doHandlePage.bind(this, context));
         }
 
@@ -74,10 +80,8 @@ export class UpdatePersistedContentRoutine
         if (pageCUDRequest != null) {
             return pageCUDRequest.sendAndParse()
                 .then((content: Content): void => {
-
                     context.content = content;
                     context.pageUpdated = true;
-
                 });
         } else {
             return Q(null);
@@ -100,8 +104,8 @@ export class UpdatePersistedContentRoutine
                !persisted.extraDataEquals(viewed.getAllExtraData()) ||
                !ObjectHelper.equals(persisted.getOwner(), viewed.getOwner()) ||
                persisted.getLanguage() !== viewed.getLanguage() ||
-               persisted.getPublishFromTime() !== viewed.getPublishFromTime() ||
-               persisted.getPublishToTime() !== viewed.getPublishToTime() ||
+               !ObjectHelper.dateEquals(persisted.getPublishFromTime(), viewed.getPublishFromTime()) ||
+               !ObjectHelper.dateEquals(persisted.getPublishToTime(), viewed.getPublishToTime()) ||
                !persisted.getPermissions().equals(viewed.getPermissions()) ||
                persisted.isInheritPermissionsEnabled() !== viewed.isInheritPermissionsEnabled() ||
                persisted.isOverwritePermissionsEnabled() !== viewed.isOverwritePermissionsEnabled();

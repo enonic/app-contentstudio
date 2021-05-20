@@ -86,6 +86,16 @@ export class ContentFormContext
         return viewContext;
     }
 
+    cloneBuilder(): ContentFormContextBuilder {
+        return <ContentFormContextBuilder>ContentFormContext.create()
+            .setSite(this.site)
+            .setParentContent(this.parentContent)
+            .setPersistedContent(this.persistedContent)
+            .setContentTypeName(this.contentTypeName)
+            .setFormState(this.getFormState())
+            .setShowEmptyFormItemSetOccurrences(this.getShowEmptyFormItemSetOccurrences());
+    }
+
     static create(): ContentFormContextBuilder {
         return new ContentFormContextBuilder();
     }

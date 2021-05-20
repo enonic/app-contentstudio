@@ -2,6 +2,7 @@
  * Created on 24/03/2020.
  */
 const Page = require('../page');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
@@ -67,9 +68,6 @@ class ProjectSelectionDialog extends Page {
         let selector = XPATH.container + XPATH.projectList + lib.itemByDisplayName(projectDisplayName);
         await this.waitForElementDisplayed(selector, appConst.longTimeout);
         await this.scrollAndClickOnElement(selector);
-        // let browsePanel = new BrowsePanel();
-        // await browsePanel.waitForGridLoaded(appConst.longTimeout);
-        // return browsePanel;
     }
 
     async getProjectsDisplayName() {
@@ -81,6 +79,13 @@ class ProjectSelectionDialog extends Page {
         let locator = XPATH.container + XPATH.projectList + lib.itemByDisplayName(projectDisplayName) + lib.P_SUB_NAME;
         return this.getText(locator);
     }
+
+    async getWarningMessage() {
+        let locator = XPATH.container + "//h6[@class='notification-dialog-text']";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
 }
+
 module.exports = ProjectSelectionDialog;
 

@@ -13,8 +13,6 @@ export interface ContentSummaryJson
 
     path: string;
 
-    isRoot: boolean;
-
     hasChildren: boolean;
 
     type: string;
@@ -46,4 +44,6 @@ export interface ContentSummaryJson
     inherit: string[];
 
     originProject: string;
+
+    listTitle: string;
 }

@@ -59,6 +59,7 @@ ext {
     xpServer = new ServerInstance()
     contentStudioFile = "$deployDir${File.separator}contentstudio-${appVersion}.jar"
     contentStudioAppUrl = "https://repo.enonic.com/dev/com/enonic/app/contentstudio/${appVersion}/contentstudio-${appVersion}.jar"
+    artifactAppendix = ""
 }
 
 task ensureScreenshotsDirectory {
@@ -86,6 +87,7 @@ task copyApps( type: Copy ) {
 }
 
 dependencies {
+    xpVersion = extProgram['xpVersion']
     compile "com.enonic.xp:core-api:$xpVersion"
     distro "com.enonic.xp:enonic-xp-generic:$xpVersion@zip"
 }
@@ -123,6 +125,7 @@ task zipScreenshots( type: Zip ) {
     include '*'
     include '*/*'
     classifier 'screenshots'
+    archiveAppendix = artifactAppendix
 }
 
 task zipReport( type: Zip ) {
@@ -130,6 +133,7 @@ task zipReport( type: Zip ) {
     include '*'
     include '*/*'
     classifier 'mochaReport'
+    archiveAppendix = artifactAppendix
 }
 
 publishing {
@@ -174,7 +178,7 @@ task deleteFolders( type: Delete ) {
 
 task buildApplications( dependsOn: ['test-applications:simple-page:install'] )
 
-//run task in the task.js. Name of the task is 'test'
+// run task in the task.js. Name of the task is 'test'
 task testContentStudioApp( type: NpmTask,
                            dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
     inputs.files fileTree( dir: '.' )
@@ -182,12 +186,16 @@ task testContentStudioApp( type: NpmTask,
     args = ['test']
     startServer.mustRunAfter npmInstall
     copyApps.mustRunAfter startServer
+
+    artifactAppendix = ""
 }
 
 task testContentStudioProjects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
     args = ['run-script', 'test_project']
     startServer.mustRunAfter npmInstall
     copyApps.mustRunAfter startServer
+
+    artifactAppendix = "project"
 }
 
 task runSeparateTestLocally( type: Exec, dependsOn: [npmInstall, ensureScreenshotsDirectory] ) {
@@ -206,6 +214,7 @@ task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, ensureS
 }
 
 testContentStudioApp.finalizedBy = ['stopServer']
+testContentStudioProjects.finalizedBy = ['stopServer']
 
 repositories {
     mavenLocal()

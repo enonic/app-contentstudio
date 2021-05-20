@@ -469,6 +469,16 @@ module.exports = {
         }
     },
 
+    async openProjectSelectionDialogAndSelectContext(context) {
+        try {
+            let browsePanel = new BrowsePanel();
+            return await browsePanel.selectContext(context);
+        } catch (err) {
+            throw new Error("Error when opening Filter Panel! " + err);
+        }
+    },
+
+
     async doLogout() {
         let launcherPanel = new LauncherPanel();
         let loginPage = new LoginPage();
@@ -499,11 +509,12 @@ module.exports = {
             return await this.doLoginAndClickOnContentStudio(userName, password);
         }
     },
-    async navigateToContentStudioWithProjects(userName, password) {
+    async navigateToContentStudioCloseProjectSelectionDialog(userName, password) {
         try {
             await this.clickOnContentStudioLink(userName, password);
             await webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin");
-            return await webDriverHelper.browser.pause(1000);
+            await webDriverHelper.browser.pause(700);
+            await this.closeProjectSelectionDialog();
         } catch (err) {
             this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
             throw new Error('error when navigate to Content Studio app ' + err);
@@ -532,7 +543,8 @@ module.exports = {
             let browsePanel = new BrowsePanel();
             await webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin");
             console.log("switched to content browse panel...");
-            return await browsePanel.waitForGridLoaded(appConst.longTimeout);
+            await browsePanel.waitForGridLoaded(appConst.longTimeout);
+            return browsePanel;
         } catch (err) {
             throw new Error("Error when switching to Content Studio App " + err);
         }

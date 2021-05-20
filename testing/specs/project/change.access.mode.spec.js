@@ -23,7 +23,6 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
     it(`Preconditions: new projects with 'Private' access mode should be added`,
         async () => {
             //1. Navigate to Settings Panel:
-            await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //1. Save new project (mode access is Private):
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, "test description", null, null, "Private");
@@ -32,9 +31,8 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
     it("Precondition: new folder should be added in existing project(Private mode access)",
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
-            await projectSelectionDialog.waitForDialogLoaded();
             //1. Select the project in 'Select Context' dialog
-            await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
+            await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             //2. add new folder:
             FOLDER = contentBuilder.buildFolder(TEST_FOLDER_NAME);
             await studioUtils.doAddFolder(FOLDER);
@@ -45,7 +43,6 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             let confirmationDialog = new ConfirmationDialog();
-            await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //1.Open existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
@@ -71,7 +68,6 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
         async () => {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
-            await studioUtils.closeProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
             //1. reopen the project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
@@ -88,11 +84,9 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
 
     it(`GIVEN existing project context is selected WHEN existing folder has been clicked THEN 'Everyone can read this item' header should be displayed in Access Widget`,
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
             let userAccessWidget = new UserAccessWidget();
-            await projectSelectionDialog.waitForDialogLoaded();
             //1. Select the project in 'Select Context' dialog
-            await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
+            await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             //2. Select existing folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             //3. Verify that Widget Access is updated:
@@ -104,7 +98,7 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
         });
 
     beforeEach(async () => {
-        await studioUtils.navigateToContentStudioWithProjects();
+        await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

@@ -33,6 +33,9 @@ const XPATH = {
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     duplicateButton: `/button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
+    contentSummaryListViewerByName: function (name) {
+        return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
+    },
     contentSummaryByName: function (name) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
@@ -592,7 +595,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     // this method does not wait, it just checks the attribute
     isRedIconDisplayed(contentName) {
-        let xpath = XPATH.contentSummaryByName(contentName);
+        let xpath = XPATH.contentSummaryListViewerByName(contentName);
         return this.getAttribute(xpath, 'class').then(result => {
             return result.includes('invalid');
         });
@@ -600,7 +603,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     // this method waits until 'invalid' appears in the @class
     waitForRedIconDisplayed(contentName) {
-        let xpath = XPATH.contentSummaryByName(contentName);
+        let xpath = XPATH.contentSummaryListViewerByName(contentName);
         return this.waitUntilInvalid(xpath);
     }
 
@@ -720,7 +723,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
 //find workflow state by the name
     async getWorkflowStateByName(name) {
-        let xpath = XPATH.contentSummaryByName(name);
+        let xpath = XPATH.contentSummaryListViewerByName(name);
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {

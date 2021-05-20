@@ -17,67 +17,66 @@ import {ContentState} from './ContentState';
 
 export class ContentSummary {
 
-    private id: string;
+    private readonly id: string;
 
-    private contentId: ContentId;
+    private readonly contentId: ContentId;
 
-    private name: ContentName;
+    private readonly name: ContentName;
 
-    private displayName: string;
+    private readonly displayName: string;
 
-    private path: ContentPath;
+    private readonly path: ContentPath;
 
-    private root: boolean;
+    private readonly children: boolean;
 
-    private children: boolean;
+    private readonly type: ContentTypeName;
 
-    private type: ContentTypeName;
+    private readonly iconUrl: string;
 
-    private iconUrl: string;
+    private readonly thumbnail: Thumbnail;
 
-    private thumbnail: Thumbnail;
+    private readonly modifier: string;
 
-    private modifier: string;
+    private readonly owner: PrincipalKey;
 
-    private owner: PrincipalKey;
+    private readonly page: boolean;
 
-    private page: boolean;
+    private readonly valid: boolean;
 
-    private valid: boolean;
+    private readonly requireValid: boolean;
 
-    private requireValid: boolean;
+    private readonly createdTime: Date;
 
-    private createdTime: Date;
+    private readonly modifiedTime: Date;
 
-    private modifiedTime: Date;
+    private readonly publishFirstTime: Date;
 
-    private publishFirstTime: Date;
+    private readonly publishFromTime: Date;
 
-    private publishFromTime: Date;
+    private readonly publishToTime: Date;
 
-    private publishToTime: Date;
+    private readonly deletable: boolean;
 
-    private deletable: boolean;
+    private readonly editable: boolean;
 
-    private editable: boolean;
+    private readonly childOrder: ChildOrder;
 
-    private childOrder: ChildOrder;
+    private readonly language: string;
 
-    private language: string;
+    private readonly contentState: ContentState;
 
-    private contentState: ContentState;
+    private readonly workflow: Workflow;
 
-    private workflow: Workflow;
+    private readonly inherit: ContentInheritType[];
 
-    private inherit: ContentInheritType[];
+    private readonly originProject: string;
 
-    private originProject: string;
+    private readonly listTitle: string;
 
     constructor(builder: ContentSummaryBuilder) {
         this.name = builder.name;
         this.displayName = builder.displayName;
         this.path = builder.path;
-        this.root = builder.root;
         this.children = builder.children;
         this.type = builder.type;
         this.iconUrl = builder.iconUrl;
@@ -103,6 +102,7 @@ export class ContentSummary {
         this.workflow = builder.workflow;
         this.inherit = builder.inherit;
         this.originProject = builder.originProject;
+        this.listTitle = builder.listTitle;
     }
 
     static fromJson(json: ContentSummaryJson): ContentSummary {
@@ -127,10 +127,6 @@ export class ContentSummary {
 
     getPath(): ContentPath {
         return this.path;
-    }
-
-    isRoot(): boolean {
-        return this.root;
     }
 
     hasChildren(): boolean {
@@ -273,6 +269,10 @@ export class ContentSummary {
         return this.originProject;
     }
 
+    getListTitle(): string {
+        return this.listTitle;
+    }
+
     private isInheritedByType(type: ContentInheritType): boolean {
         return this.isInherited() && this.inherit.some((inheritType: ContentInheritType) => inheritType === type);
     }
@@ -301,9 +301,6 @@ export class ContentSummary {
             return false;
         }
         if (!ObjectHelper.equals(this.path, other.getPath())) {
-            return false;
-        }
-        if (!ObjectHelper.booleanEquals(this.root, other.isRoot())) {
             return false;
         }
         if (!ObjectHelper.booleanEquals(this.children, other.hasChildren())) {
@@ -379,8 +376,6 @@ export class ContentSummaryBuilder {
 
     path: ContentPath;
 
-    root: boolean;
-
     children: boolean;
 
     type: ContentTypeName;
@@ -425,6 +420,8 @@ export class ContentSummaryBuilder {
 
     originProject: string;
 
+    listTitle: string;
+
     constructor(source?: ContentSummary) {
         if (source) {
             this.id = source.getId();
@@ -432,7 +429,6 @@ export class ContentSummaryBuilder {
             this.name = source.getName();
             this.displayName = source.getDisplayName();
             this.path = source.getPath();
-            this.root = source.isRoot();
             this.children = source.hasChildren();
             this.type = source.getType();
             this.iconUrl = source.getIconUrl();
@@ -455,6 +451,7 @@ export class ContentSummaryBuilder {
             this.workflow = source.getWorkflow();
             this.inherit = source.getInherit();
             this.originProject = source.getOriginProject();
+            this.listTitle = source.getListTitle();
         }
     }
 
@@ -462,7 +459,6 @@ export class ContentSummaryBuilder {
         this.name = ContentSummaryBuilder.createName(json.name);
         this.displayName = json.displayName;
         this.path = ContentPath.fromString(json.path);
-        this.root = json.isRoot;
         this.children = json.hasChildren;
         this.type = new ContentTypeName(json.type);
         this.iconUrl = json.iconUrl;
@@ -491,6 +487,7 @@ export class ContentSummaryBuilder {
         this.workflow = Workflow.fromJson(json.workflow);
         this.inherit = json.inherit && json.inherit.length > 0 ? json.inherit.map((type: string) => ContentInheritType[type])  : [];
         this.originProject = json.originProject;
+        this.listTitle = ObjectHelper.isDefined(json.listTitle) ? json.listTitle : json.displayName;
 
         return this;
     }

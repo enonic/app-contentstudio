@@ -4,12 +4,13 @@ import {Component} from './Component';
 export class ComponentPropertyChangedEvent
     extends ComponentChangedEvent {
 
-    private component: Component;
+    private readonly component: Component;
 
-    private propertyName: string;
+    private readonly propertyName: string;
 
     constructor(builder: ComponentPropertyChangedEventBuilder) {
         super(builder.component.getPath());
+
         this.component = builder.component;
         this.propertyName = builder.propertyName;
     }

@@ -136,6 +136,8 @@ export class ContentWizardPanel
 
     private parentContent: Content;
 
+    private contentExistsInParentProject: boolean;
+
     private defaultModels: DefaultModels;
 
     private site: Site;
@@ -243,12 +245,10 @@ export class ContentWizardPanel
         }
 
         this.contentParams = params;
-
         this.loadData();
 
         this.isContentFormValid = false;
         this.isMarkedAsReady = false;
-
         this.requireValid = false;
         this.skipValidation = false;
         this.contentNamedListeners = [];
@@ -258,7 +258,6 @@ export class ContentWizardPanel
         this.isFirstUpdateAndRenameEventSkiped = false;
 
         this.displayNameResolver = new DisplayNameResolver();
-
         this.xDataWizardStepForms = new XDataWizardStepForms();
 
         this.workflowStateIconsManager = new WorkflowStateIconsManager(this);
@@ -324,11 +323,13 @@ export class ContentWizardPanel
                     // in case of new content will be created in super.loadData()
                     this.formState.setIsNew(false);
                     this.setPersistedItem(loader.content);
+                    this.isMarkedAsReady = loader.content.getWorkflow().getState() === WorkflowState.READY;
                 }
                 this.defaultModels = loader.defaultModels;
                 this.site = loader.siteContent;
                 this.contentType = loader.contentType;
                 this.parentContent = loader.parentContent;
+                this.contentExistsInParentProject = !!loader.contentExistsInParentProject;
                 this.currentContent =
                     ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(
                         loader.content, loader.compareStatus, loader.publishStatus
@@ -518,6 +519,7 @@ export class ContentWizardPanel
 
             this.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
                 this.wizardActions.setContentCanBeMarkedAsReady(status.inProgress).refreshState();
+                this.isMarkedAsReady = status.ready;
             });
 
             this.getContentWizardToolbarPublishControls().getPublishButton().onPublishRequestActionChanged((added: boolean) => {
@@ -638,7 +640,6 @@ export class ContentWizardPanel
 
             return persistedItem;
         }).finally(() => {
-            this.isMarkedAsReady = false;
             this.contentUpdateDisabled = false;
             this.updateButtonsState();
 
@@ -1579,7 +1580,7 @@ export class ContentWizardPanel
     private updateThumbnailWithContent(content: Content) {
         const thumbnailUploader: ThumbnailUploaderEl = this.getFormIcon();
         thumbnailUploader.toggleClass('has-origin-project', !!content.getOriginProject());
-        const id = content.getContentId().toString();
+        const id: string = content.getContentId().toString();
 
         thumbnailUploader
             .setParams({id})
@@ -1592,34 +1593,32 @@ export class ContentWizardPanel
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.initLiveEditor at ' + new Date().toISOString());
         }
-        let deferred = Q.defer<void>();
-        let liveFormPanel = this.getLivePanel();
-        if (liveFormPanel) {
 
+        const liveFormPanel: LiveFormPanel = this.getLivePanel();
+
+        if (liveFormPanel) {
             if (!this.liveEditModel) {
-                let site = content.isSite() ? <Site>content : this.site;
+                const site: Site = content.isSite() ? <Site>content : this.site;
 
                 this.unbindSiteModelListeners();
                 this.siteModel = this.siteModel ? this.updateSiteModel(site) : this.createSiteModel(site);
                 this.initSiteModelListeners();
 
-                this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
+                return this.initLiveEditModel(content, this.siteModel, formContext).then((liveEditModel) => {
                     this.liveEditModel = liveEditModel;
 
                     liveFormPanel.setModel(this.liveEditModel);
                     liveFormPanel.loadPage();
                     this.setupWizardLiveEdit();
 
-                    deferred.resolve(null);
+                    return Q(null);
                 });
             } else {
                 liveFormPanel.loadPage();
-                deferred.resolve(null);
             }
-        } else {
-            deferred.resolve(null);
         }
-        return deferred.promise;
+
+        return Q(null);
     }
 
     // sync persisted content extra data with xData
@@ -2011,7 +2010,7 @@ export class ContentWizardPanel
             .setWorkflowState(this.isMarkedAsReady ? WorkflowState.READY : WorkflowState.IN_PROGRESS);
 
         return updateContentRoutine.execute().then((context: RoutineContext) => {
-            const content = context.content;
+            const content: Content = context.content;
             this.wizardFormUpdatedDuringSave = context.dataUpdated;
             this.pageEditorUpdatedDuringSave = context.pageUpdated;
 
@@ -2532,18 +2531,13 @@ export class ContentWizardPanel
 
         if (pageView) {
             pageView.setRenderable(this.renderable);
-            pageView.onItemViewAdded(listener);
-            pageView.onItemViewRemoved(listener);
-            pageView.onPageLocked(listener);
+            pageView.onChange(listener);
         }
-        const pageModel = this.liveEditModel ? this.liveEditModel.getPageModel() : null;
+
+        const pageModel: PageModel = this.liveEditModel?.getPageModel();
 
         if (pageModel) {
-            pageModel.onPropertyChanged(listener);
-            pageModel.onComponentPropertyChangedEvent(listener);
-            pageModel.onCustomizeChanged(listener);
-            pageModel.onPageModeChanged(listener);
-            pageModel.onReset(listener);
+            pageModel.onChange(listener);
         }
     }
 
@@ -2639,5 +2633,9 @@ export class ContentWizardPanel
     private handleCUD() {
         IsRenderableRequest.clearCache();
         this.getWizardHeader()?.refreshNameUniqueness();
+    }
+
+    isContentExistsInParentProject(): boolean {
+        return !!this.contentExistsInParentProject;
     }
 }
