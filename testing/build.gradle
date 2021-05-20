@@ -61,8 +61,8 @@ ext {
     contentStudioAppUrl = "https://repo.enonic.com/dev/com/enonic/app/contentstudio/${appVersion}/contentstudio-${appVersion}.jar"
 }
 
-def artifactAppendix() {
-    return hasProperty( 'artifactAppendix' ) ? artifactAppendix : ''
+def createAppendix( classifier ) {
+    return hasProperty( 'artifactAppendix' ) ? "${artifactAppendix}-${classifier}" : classifier
 }
 
 task ensureScreenshotsDirectory {
@@ -127,16 +127,14 @@ task zipScreenshots( type: Zip ) {
     from screenshotsDir
     include '*'
     include '*/*'
-    classifier 'screenshots'
-    archiveAppendix = artifactAppendix()
+    classifier createAppendix( 'screenshots' )
 }
 
 task zipReport( type: Zip ) {
     from mochaResultsDir
     include '*'
     include '*/*'
-    classifier 'mochaReport'
-    archiveAppendix = artifactAppendix()
+    classifier createAppendix( 'mochaReport' )
 }
 
 publishing {
