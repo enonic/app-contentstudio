@@ -23,15 +23,11 @@ export class ContentFormContext
 
     constructor(builder: ContentFormContextBuilder) {
         super(builder);
+
         this.site = builder.site;
         this.parentContent = builder.parentContent;
         this.persistedContent = builder.persistedContent;
-
-        if (builder.contentTypeName) {
-            this.contentTypeName = builder.contentTypeName;
-        } else if (builder.persistedContent) {
-            this.contentTypeName = builder.persistedContent.getType();
-        }
+        this.contentTypeName = builder.contentTypeName;
     }
 
     getSite(): Site {

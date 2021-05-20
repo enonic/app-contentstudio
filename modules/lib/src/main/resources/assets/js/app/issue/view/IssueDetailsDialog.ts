@@ -653,9 +653,8 @@ export class IssueDetailsDialog
     }
 
     setIssue(issue: Issue): IssueDetailsDialog {
-
-        const forceUpdateDialog = (this.isRendered() || this.isRendering()) && !!issue;
-        const isPublishRequest = this.isPublishRequest(issue);
+        const forceUpdateDialog: boolean = (this.isRendered() || this.isRendering()) && !!issue;
+        const isPublishRequest: boolean = this.isPublishRequest(issue);
         this.toggleClass('publish-request', isPublishRequest);
 
         this.issue = issue;
@@ -672,11 +671,12 @@ export class IssueDetailsDialog
         if (ids.length > 0) {
             this.itemSelector.setValue(ids.map(id => id.toString()).join(';'));
             ContentSummaryAndCompareStatusFetcher.fetchByIds(ids).then(items => {
-                this.setListItems(items, true);
+                this.clearListItems(true);
+                this.setListItems(items);
             });
         } else {
             this.itemSelector.getComboBox().clearSelection(true, false);
-            this.getItemList().clearItems(true);
+            this.getItemList().clearItems();
         }
 
         this.getHeader().setTitleId(issue.getIndex()).setHeading(issue.getTitle());
