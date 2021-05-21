@@ -1,7 +1,7 @@
 /**
  * Created on 10.04.2021.
  */
-const Page = require('../../page');
+const BaseOptionSetFormView = require('./base.option.set.form.view');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
@@ -14,12 +14,15 @@ const xpath = {
     checkboxByLabel: label => `//div[contains(@id,'Checkbox') and descendant::label[text()='${label}']]//label`,
 };
 
-class OptionSetForm2View extends Page {
+class OptionSetForm2View extends BaseOptionSetFormView {
+
+    get formOptionSet() {
+        return xpath.formOptionSet;
+    }
 
     get selectionDropDownHandle() {
         return xpath.formOptionSet + xpath.dropDownDiv + lib.DROP_DOWN_HANDLE;
     }
-
 
     get optionSetMenuButton() {
         return xpath.formOptionSet + xpath.optionSetMenuButton;
@@ -59,6 +62,14 @@ class OptionSetForm2View extends Page {
         let resetMenuItems = await this.getDisplayedElements(xpath.resetMenuItem);
         await resetMenuItems[0].click();
         return await this.pause(400);
+    }
+
+    async waitForOptionSetRedBorderDisplayed() {
+        let locator = xpath.formOptionSet + "//div[contains(@id,'FormOptionSetOccurrenceView')]";
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getAttribute(locator, "class");
+            return !result.includes("hide-validation-errors");
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Red border should be displayed in Option Set Form!"});
     }
 }
 
