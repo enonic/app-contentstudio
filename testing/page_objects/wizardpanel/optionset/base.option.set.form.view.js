@@ -1,21 +1,17 @@
 /**
- * Created on 25.12.2017.
+ * Created on 20.05.2021.
  */
-const Page = require('../page');
-const lib = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
+const Page = require('../../page');
+const lib = require('../../../libs/elements');
+const appConst = require('../../../libs/app_const');
 const XPATH = {
-    addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
+    formOptionSetOccurrenceView: "//div[contains(@id,'FormOptionSetOccurrenceView')]"
 };
 
-class OccurrencesFormView extends Page {
+class BaseOptionSetFormView extends Page {
 
     get formValidationRecording() {
-        return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
-    }
-
-    get inputOccurrenceErrorRecording() {
-        return lib.FORM_VIEW + lib.OCCURRENCE_ERROR_BLOCK;
+        return this.formOptionSet + XPATH.formOptionSetOccurrenceView + "//div[@class='selection-message']";
     }
 
     async waitForFormValidationRecordingDisplayed() {
@@ -25,13 +21,13 @@ class OccurrencesFormView extends Page {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Form Validation recording should be displayed"});
     }
 
-    async getFormValidationRecording() {
+    async getOptionSetValidationRecording() {
         await this.waitForFormValidationRecordingDisplayed();
         let recordingElements = await this.getDisplayedElements(this.formValidationRecording);
         return await recordingElements[0].getText();
     }
 
-    async waitForFormValidationRecordingNotDisplayed() {
+    async waitForOptionSetValidationRecordingNotDisplayed() {
         await this.getBrowser().waitUntil(async () => {
             let elements = await this.getDisplayedElements(this.formValidationRecording);
             return elements.length === 0;
@@ -41,25 +37,16 @@ class OccurrencesFormView extends Page {
 
     async getOccurrenceValidationRecording(index) {
         try {
-            let elements = await this.findElements(this.inputOccurrenceErrorRecording);
+            let elements = await this.findElements(this.formValidationRecording);
             if (elements.length === 0) {
-                throw new Error("occurrences form - Element was not found:" + this.inputOccurrenceErrorRecording);
+                throw new Error("occurrences  option set form - Element was not found:" + this.formValidationRecording);
             }
             return await elements[index].getText();
         } catch (err) {
-            this.saveScreenshot('err_long_validation_recording');
+            this.saveScreenshot('err_option_set_validation_recording');
             throw new Error('getting Validation text: ' + err);
         }
     }
-
-    get addButton() {
-        return lib.FORM_VIEW + XPATH.addButton;
-    }
-
-    async clickOnAddButton() {
-        await this.waitForElementDisplayed(this.addButton);
-        return await this.clickOnElement(this.addButton);
-    }
 }
 
-module.exports = OccurrencesFormView;
+module.exports = BaseOptionSetFormView;

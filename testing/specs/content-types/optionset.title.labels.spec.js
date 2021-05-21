@@ -34,21 +34,46 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             await studioUtils.doAddSite(SITE);
         });
 
-    it.skip("GIVEN  WHEN  THEN ",
+    //Invalid Option Set is not highlighted when saved in a new content #3183
+    //https://github.com/enonic/app-contentstudio/issues/3183
+    it("GIVEN new Option Set wizard(required input) is opened AND name input is filled in WHEN Save button has been pressed THEN Red border should be displayed in Option Set Form",
         async () => {
             let contentWizard = new ContentWizard();
-            let multiSelectionOptionSet = new MultiSelectionOptionSet();
             let optionSetForm2 = new OptionSetForm2View();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             //1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset2');
-            await contentWizard.typeDisplayName(OPTION_SET_NAME1);
-            //2.
+            //2. Fill in the name input:
+            await contentWizard.typeDisplayName(contentBuilder.generateRandomName('optionset'));
+            await contentWizard.waitAndClickOnSave();
+            //3. Verify that red border is displayed in Option Set Form
+            await optionSetForm2.waitForOptionSetRedBorderDisplayed();
+            //4. Verify that content gets not valid
+            await contentWizard.waitUntilInvalidIconAppears();
+            let validationRecording = await optionSetForm2.getOptionSetValidationRecording();
+            assert.equal(validationRecording, "At least one option must be selected", "expected validation recording should appear");
+        });
+
+    //Invalid Option Set is not highlighted when saved in a new content #3183
+    //https://github.com/enonic/app-contentstudio/issues/3183
+    it("GIVEN new Option Set wizard is opened AND 'Text block' option is selected WHEN the option has been reset AND content has been saved THEN Red border should be displayed in Option Set Form",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let optionSetForm2 = new OptionSetForm2View();
+            //1. Open the new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset2');
+            await contentWizard.typeDisplayName(contentBuilder.generateRandomName('optionset'));
+            //2. Select 'Text block' option
             await optionSetForm2.selectOption("Text block");
             await optionSetForm2.clickOnRadioButton("Full width");
+            //3. Reset just selected option:
             await optionSetForm2.clickOnResetMenuItem();
-
-            assert.isFalse(true, "'Option 2' should not be selected after the saving");
+            //4. Save the content
+            await contentWizard.waitAndClickOnSave();
+            //5. Verify that red border is displayed in Option Set Form
+            await optionSetForm2.waitForOptionSetRedBorderDisplayed();
+            //6. Verify that content gets not valid
+            await contentWizard.waitUntilInvalidIconAppears();
         });
 
     //Verifies https://github.com/enonic/lib-admin-ui/issues/1878
@@ -58,7 +83,6 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
         async () => {
             let contentWizard = new ContentWizard();
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
-            let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             //1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
@@ -205,7 +229,6 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
     //Option Set - subheader is not correctly displayed
     it(`GIVEN existing option set is opened WHEN 'Option 3' checkbox has been clicked THEN this content gets not valid`,
         async () => {
-            let contentWizard = new ContentWizard();
             let htmlAreaForm = new HtmlAreaForm();
             let multiSelectionOptionSet = new MultiSelectionOptionSet();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();

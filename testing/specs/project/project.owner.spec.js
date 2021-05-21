@@ -212,6 +212,8 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
         });
 
     //Verifies that user with Owner role can publish content in 'Publish Request Details' Dialog - "Publish Now" should be enabled in the Last stage.
+    //Request Details Dialog - Publish Now button is not displayed when content is ready for publishing #3177
+    //https://github.com/enonic/app-contentstudio/issues/3177
     it("GIVEN user with 'Owner' role is logged in WHEN existing folder has been selected and 'Publish Request' has been created THEN 'Publish Now' button should be enabled on the last stage",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();

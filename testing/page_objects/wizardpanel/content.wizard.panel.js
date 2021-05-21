@@ -273,11 +273,14 @@ class ContentWizardPanel extends Page {
         })
     }
 
-    clickOnXdataToggler() {
-        return this.clickOnElement(XPATH.xDataToggler).catch(err => {
+    async clickOnXdataToggler() {
+        try {
+            await this.clickOnElement(XPATH.xDataToggler);
+            return await this.pause(500);
+        } catch (err) {
             this.saveScreenshot('err_click_on_xdata_toggler');
             throw new Error("Error when clicking on x-data toggler " + err);
-        })
+        }
     }
 
     async clickOnXdataTogglerByName(name) {

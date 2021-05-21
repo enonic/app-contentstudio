@@ -133,7 +133,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             //1. Do Log in with 'SU':
             await studioUtils.navigateToContentStudioApp();
             //2. the  user's context should be loaded by default, so need to switch to Default project
-            await contentBrowsePanel.selectContext("Default");
+            await contentBrowsePanel.selectContext(PROJECT_DISPLAY_NAME);
             await studioUtils.findAndSelectItem(SITE_NAME);
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             //Do log out:
