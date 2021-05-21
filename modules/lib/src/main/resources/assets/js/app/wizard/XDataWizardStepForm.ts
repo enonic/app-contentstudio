@@ -113,6 +113,7 @@ export class XDataWizardStepForm
         }
 
         let promise: Q.Promise<void>;
+
         if (this.enabled) {
             if (this.form && this.data) {
                 if (this.stashedData) {
@@ -121,6 +122,7 @@ export class XDataWizardStepForm
 
                 promise = this.doLayout(this.form, this.data).then(() => {
                    this.validate(true);
+                   this.displayValidationErrors(!this.isValid());
                    return Q(null);
                 });
             }

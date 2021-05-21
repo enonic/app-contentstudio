@@ -539,6 +539,7 @@ export class ContentWizardPanel
 
     private handleEditPermissionsButtonClicked() {
         const content: Content = this.getPersistedItem();
+
         OpenEditPermissionsDialogEvent.create()
             .setContentId(content.getContentId())
             .setContentPath(content.getPath())
@@ -548,6 +549,7 @@ export class ContentWizardPanel
             .setOverwritePermissions(false)
             .build()
             .fire();
+
     }
 
     isNew(): boolean {
