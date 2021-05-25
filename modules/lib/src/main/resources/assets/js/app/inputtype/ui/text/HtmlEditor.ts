@@ -957,7 +957,7 @@ class HtmlEditorConfigBuilder {
         if (disabledTools && disabledTools instanceof Array) {
             this.disabledTools = disabledTools.map(tool => tool.value).join().replace(/\s+/g, ',');
             if (this.disabledTools === '*') {
-                this.tools = [];
+                this.tools = [[]];
             }
         }
 
