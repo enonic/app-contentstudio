@@ -8,7 +8,7 @@ TIP: Release Notes for Content Studio 2.x can be found https://developer.enonic.
 
 === Hide content types that are no longer in use
 
-It's now possible to turn on a config property <<_content-types#custom_content_types, `allow-new-content`>> in the content type schema
+It's now possible to turn on a config property <<content-types#custom_content_types, `allow-new-content`>> in the content type schema
 to specify that no new content can be created for this content type.
 This will effectively remove the content type from the list in the "New Content" dialog.
 
@@ -19,7 +19,8 @@ https://developer.enonic.com/docs/xp/stable/cms/content-types#form_definition[`a
 This setting will limit the list of content types shown in the "New Content" dialog by showing only the allowed child content types
 for a selected content item.
 
-NOTE: This restriction will also be validated by Content Create API and Content Move API.
+NOTE: This restriction will also be validated by https://developer.enonic.com/docs/xp/stable/api/lib-content#create[Content Create API]
+and https://developer.enonic.com/docs/xp/next/api/lib-content#move[Content Move API].
 
 === Relations between page components and content types
 
@@ -36,7 +37,7 @@ image::cs33-text-counter.png[Length counter in TextLine, 778]
 
 === Hide "Mark as Ready" action in the "Publishing Wizard"
 
-A new property <<_config#disable_mark_as_ready_in_the_publishing_wizard, `publishingWizard.allowContentUpdate`>> in the Content Studio's config file
+A new property <<config#disable_mark_as_ready_in_the_publishing_wizard, `publishingWizard.allowContentUpdate`>> in the Content Studio's config file
 can be used to hide the "Mark as Ready" action in the "Publishing Wizard" dialog to disallow bulk update of selected items as ready for publishing.
 
 === Misc updates and improvements
