@@ -8,17 +8,23 @@ TIP: Release Notes for Content Studio 2.x can be found https://developer.enonic.
 
 === Hide content types that are no longer in use
 
-It's now possible to turn on a config for a content type to specify that no new content can be created for it. This will
-effectively remove the content type from the list in the "New Content" dialog.
+It's now possible to turn on a config property <<_content-types#custom_content_types, `allow-new-content`>> in the content type schema
+to specify that no new content can be created for this content type.
+This will effectively remove the content type from the list in the "New Content" dialog.
 
-=== Relationship between content types
+=== Relations between content types
 
-It's now possible to specify what content types are allowed as children of a certain content type. This setting will limit the
-list of content types shown in the "New Content" dialog by showing only the allowed child content types for a selected content item.
+It's now possible to specify parent-child relations between content types via property
+https://developer.enonic.com/docs/xp/stable/cms/content-types#form_definition[`allow-child-content-type`] in the content type schema.
+This setting will limit the list of content types shown in the "New Content" dialog by showing only the allowed child content types
+for a selected content item.
 
-=== Relationship between page components and content types
+NOTE: This restriction will also be validated by Content Create API and Content Move API.
 
-It's now possible to specify that a part or a layout can be used only on specific content types.
+=== Relations between page components and content types
+
+It's now possible to specify that a part or a layout can be used only on specific content types
+via config property https://developer.enonic.com/docs/xp/stable/cms/components#descriptor[`allow-on-content-type`]
 
 === Length counter in TextLine and TextArea
 
@@ -30,8 +36,15 @@ image::cs33-text-counter.png[Length counter in TextLine, 778]
 
 === Hide "Mark as Ready" action in the "Publishing Wizard"
 
-A new property in the Content Studio's config file can be used to hide the "Mark as Ready" action in the "Publishing Wizard" dialog to
-disallow bulk update of selected items marking them as ready for publishing.
+A new property <<_config#disable_mark_as_ready_in_the_publishing_wizard, `publishingWizard.allowContentUpdate`>> in the Content Studio's config file
+can be used to hide the "Mark as Ready" action in the "Publishing Wizard" dialog to disallow bulk update of selected items as ready for publishing.
+
+=== Misc updates and improvements
+
+* Responsive display of content status in Content Selectors based on available space
+* Responsive layout in the Image Selector's gallery mode (3, 2 or 1 image based on available space)
+* Remember the last used project or layer
+* Automatically show child/dependent items when opening Publishing Wizard in the "Publish Tree" mode
 
 == Content Studio 3.2
 
