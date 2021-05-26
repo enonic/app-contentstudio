@@ -5,12 +5,13 @@ import {XData} from '../content/XData';
 import {Form} from 'lib-admin-ui/form/Form';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {FormContext} from 'lib-admin-ui/form/FormContext';
+import {ContentFormContext} from '../ContentFormContext';
+import {ExtraData} from '../content/ExtraData';
 
 export class XDataWizardStepForm
     extends ContentWizardStepForm {
 
-    private xData: XData;
+    private readonly xData: XData;
 
     private enabled: boolean = false;
 
@@ -64,7 +65,7 @@ export class XDataWizardStepForm
         return this.enabled ? this.doLayout(this.form, this.data) : Q(null);
     }
 
-    layout(formContext: FormContext, data: PropertyTree, form: Form): Q.Promise<void> {
+    layout(formContext: ContentFormContext, data: PropertyTree, form: Form): Q.Promise<void> {
         this.enabled = !this.isOptional() || data.getRoot().getPropertyArrays().length > 0;
         return super.layout(formContext, data, form);
     }
@@ -120,7 +121,7 @@ export class XDataWizardStepForm
                 }
 
                 promise = this.doLayout(this.form, this.data).then(() => {
-                   this.validate(true);
+                   this.validate();
                    return Q(null);
                 });
             }
@@ -161,5 +162,30 @@ export class XDataWizardStepForm
         this.enableChangedListeners.forEach((listener) => {
             listener(value);
         });
+    }
+
+    displayValidationErrors(display: boolean) {
+        if (this.isValidationErrorToBeRendered()) {
+            super.displayValidationErrors(display);
+        }
+    }
+
+    private isValidationErrorToBeRendered(): boolean {
+        if (this.formContext?.getFormState().isNew()) {
+            return false;
+        }
+
+        if (!this.isOptional()) {
+            return true;
+        }
+
+        return this.isEnabled() && this.isSaved();
+    }
+
+    private isSaved(): boolean {
+        const persistedXData: ExtraData =
+            (<ContentFormContext>this.formContext).getPersistedContent().getExtraDataByName(this.getXDataName());
+
+        return persistedXData?.getData()?.getRoot()?.getPropertyArrays().length > 0;
     }
 }

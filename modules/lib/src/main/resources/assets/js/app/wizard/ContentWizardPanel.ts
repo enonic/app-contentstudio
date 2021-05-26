@@ -620,7 +620,6 @@ export class ContentWizardPanel
         return super.saveChanges().then((content: Content) => {
             const persistedItem = content.clone();
             if (liveFormPanel) {
-                this.initFormContext(persistedItem);
                 this.liveEditModel.setContent(persistedItem);
 
                 if (this.pageEditorUpdatedDuringSave) {
@@ -2039,14 +2038,16 @@ export class ContentWizardPanel
             this.getWizardHeader().resetBaseValues();
 
             return content;
-        }).then((content: Content) => {
-            this.formState.setIsNew(false);
-            this.contentWizardStepForm.validate();
-            this.xDataWizardStepForms.validate(false, true);
-            this.displayValidationErrors(!this.isValid());
-
-            return content;
         });
+    }
+
+    postUpdatePersistedItem(persistedItem: Content): Q.Promise<Content> {
+        this.initFormContext(persistedItem.clone());
+        this.contentWizardStepForm.validate();
+        this.xDataWizardStepForms.validate();
+        this.displayValidationErrors(!this.isValid());
+
+        return Q(persistedItem);
     }
 
     private showFeedbackContentSaved(content: Content, wasInherited: boolean = false) {
@@ -2316,14 +2317,18 @@ export class ContentWizardPanel
             console.debug('ContentWizardPanel.initFormContext');
         }
 
-        this.formContext = <ContentFormContext>ContentFormContext.create()
-            .setSite(this.site)
-            .setParentContent(this.parentContent)
-            .setPersistedContent(content)
-            .setContentTypeName(this.contentType ? this.contentType.getContentTypeName() : undefined)
-            .setFormState(this.formState)
-            .setShowEmptyFormItemSetOccurrences(this.isItemPersisted())
-            .build();
+        if (!this.formContext) {
+            this.formContext = <ContentFormContext>ContentFormContext.create()
+                .setSite(this.site)
+                .setParentContent(this.parentContent)
+                .setPersistedContent(content.clone())
+                .setContentTypeName(this.contentType ? this.contentType.getContentTypeName() : undefined)
+                .setFormState(this.formState)
+                .setShowEmptyFormItemSetOccurrences(this.isItemPersisted())
+                .build();
+        } else {
+            this.formContext.updatePersistedContent(content.clone());
+        }
     }
 
     private setModifyPermissions() {
