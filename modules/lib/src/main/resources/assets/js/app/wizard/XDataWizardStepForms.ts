@@ -64,9 +64,9 @@ export class XDataWizardStepForms {
         });
     }
 
-    validate(silent: boolean = false, forceNotify: boolean = false) {
+    validate() {
         this.forEach((form: XDataWizardStepForm) => {
-            form.validate(silent, forceNotify);
+            form.validate();
         });
     }
 }
