@@ -87,8 +87,6 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //Verify that Project Selection dialog is loaded, then close it
             await studioUtils.closeProjectSelectionDialog();
-            //Verify that Project Selection dialog is loaded, then close it
-            await studioUtils.closeProjectSelectionDialog();
             //2. Select the site:
             await studioUtils.findAndSelectItem(SITE_NAME);
             //3. Verify that 'Localize' button appears in the browse toolbar:
@@ -135,7 +133,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             //1. Do Log in with 'SU':
             await studioUtils.navigateToContentStudioApp();
             //2. the  user's context should be loaded by default, so need to switch to Default project
-            await contentBrowsePanel.selectContext("Default");
+            await contentBrowsePanel.selectContext(PROJECT_DISPLAY_NAME);
             await studioUtils.findAndSelectItem(SITE_NAME);
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             //Do log out:
