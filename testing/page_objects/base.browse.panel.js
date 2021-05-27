@@ -264,7 +264,7 @@ class BaseBrowsePanel extends Page {
             let nameXpath = this.treeGrid + lib.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             await this.doDoubleClick(nameXpath);
-            return await this.pause(300);
+            return await this.pause(1000);
         } catch (err) {
             this.saveScreenshot('err_find_' + displayName);
             throw Error('Browse Panel - Row with the displayName ' + displayName + ' was not found' + err)

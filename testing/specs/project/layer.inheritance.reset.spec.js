@@ -140,8 +140,8 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
             let confirmationDialog = await contentWizard.clickOnResetAndWaitForConfirmationDialog();
             //4. Click on 'Yes' button in confirmation dialog:
             await confirmationDialog.clickOnYesButton();
-            //Verify that 'Saved' button is disabled:
-            await contentWizard.waitForSavedButtonVisible();
+            //Verify that 'Save' button is disabled:
+            await contentWizard.waitForSaveButtonDisabled()
             //5. Verify that option filter input for controller gets visible:
             await contentWizard.waitForControllerOptionFilterInputVisible();
             //6. Verify that Show Components View button gets not visible after the resetting
