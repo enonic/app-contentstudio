@@ -38,6 +38,22 @@ class XDataHtmlArea extends OccurrencesFormView {
             return elements.length === 0;
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Form Validation recording should not be displayed"});
     }
+
+    async waitForXdataRedBorderDisplayed() {
+        let locator = XPATH.container + "//div[contains(@id,'FormView')]";
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getAttribute(locator, "class");
+            return result.includes("display-validation-errors");
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Red border should be displayed in X-data Form!"});
+    }
+
+    async waitForXdataRedBorderNotDisplayed() {
+        let locator = XPATH.container + "//div[contains(@id,'FormView')]";
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getAttribute(locator, "class");
+            return !result.includes("display-validation-errors");
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Red border should not be displayed in X-data Form!"});
+    }
 }
 
 module.exports = XDataHtmlArea;

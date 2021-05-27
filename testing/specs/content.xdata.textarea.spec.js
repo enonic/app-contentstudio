@@ -38,23 +38,30 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             assert.isFalse(isDisplayed, 'Inactive optional x-data should not be visible in the Content Wizard navigation bar');
         });
 
-    // verifies https://github.com/enonic/app-contentstudio/issues/487
-    //Inactive optional x-data should not be visible in the Content Wizard navigation bar
+    // verifies:
+    //1) https://github.com/enonic/app-contentstudio/issues/2928
+    //Optional X-data gets instantly validated #2928
+    //2) Error message should not be shown before new X-data form is validated #3178
     it(`GIVEN site with optional x-data is opened WHEN x-data has been activated THEN x-data should be visible in the Content Wizard navigation bar`,
         async () => {
             let contentWizard = new ContentWizard();
+            let xDataHtmlArea = new XDataHtmlArea();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             //Click on '+' icon and enable the x-data:
             await contentWizard.clickOnXdataToggler();
             let isDisplayed = await contentWizard.waitForWizardStepPresent(X_DATA_STEP_WIZARD);
-            assert.isTrue(isDisplayed,
-                'optional x-data should be visible in the Content Wizard navigation bar, because it was activated');
+            assert.isTrue(isDisplayed, 'optional x-data should be visible in the Content Wizard navigation bar');
+            //Verify that 'This field is required' is not displayed before saving this content:
+            await xDataHtmlArea.waitForFormValidationRecordingNotDisplayed();
+            //Verify that red border is not displayed in x-data form
+            await xDataHtmlArea.waitForXdataRedBorderNotDisplayed();
         });
 
     //verifies "https://github.com/enonic/app-contentstudio/issues/467" (Incorrect validation inside X-data with ItemSet and htmlArea)
     it(`GIVEN existing site with optional x-data(required html-area) WHEN x-data has been activated AND Save button pressed THEN content is getting invalid`,
         async () => {
             let contentWizard = new ContentWizard();
+            let xDataHtmlArea = new XDataHtmlArea();
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             //Click on '+' icon and enable the x-data:
             await contentWizard.clickOnXdataToggler();
@@ -62,6 +69,7 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             await contentWizard.waitAndClickOnSave();
             //Red icon appears in the site-wizard, because required html-area in x-data is empty
             await contentWizard.waitUntilInvalidIconAppears();
+            await xDataHtmlArea.waitForFormValidationRecordingDisplayed();
         });
 
     it(`GIVEN existing site with optional x-data(required html-area) WHEN text has been typed in x-data (required htmlarea) AND Save button pressed THEN content is getting valid`,
