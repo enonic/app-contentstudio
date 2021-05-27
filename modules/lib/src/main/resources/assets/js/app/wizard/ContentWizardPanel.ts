@@ -256,10 +256,8 @@ export class ContentWizardPanel
         this.contentUpdateDisabled = false;
         this.applicationLoadCount = 0;
         this.isFirstUpdateAndRenameEventSkiped = false;
-
         this.displayNameResolver = new DisplayNameResolver();
         this.xDataWizardStepForms = new XDataWizardStepForms();
-
         this.workflowStateIconsManager = new WorkflowStateIconsManager(this);
 
         this.listenToContentEvents();
@@ -2030,14 +2028,16 @@ export class ContentWizardPanel
             this.getWizardHeader().resetBaseValues();
 
             return content;
-        }).then((content: Content) => {
-            this.formState.setIsNew(false);
-            this.contentWizardStepForm.validate();
-            this.xDataWizardStepForms.validate(false, true);
-            this.displayValidationErrors(!this.isValid());
-
-            return content;
         });
+    }
+
+    postUpdatePersistedItem(persistedItem: Content): Q.Promise<Content> {
+        this.initFormContext(persistedItem);
+        this.contentWizardStepForm.validate();
+        this.xDataWizardStepForms.validate();
+        this.displayValidationErrors(!this.isValid());
+
+        return Q(persistedItem);
     }
 
     private showFeedbackContentSaved(content: Content, wasInherited: boolean = false) {
@@ -2302,7 +2302,9 @@ export class ContentWizardPanel
         });
     }
 
-    private initFormContext(content: Content) {
+    private initFormContext(persistedItem: Content) {
+        const content: Content = persistedItem.clone();
+
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.initFormContext');
         }
