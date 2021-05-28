@@ -44,11 +44,6 @@ export class CustomSelectorLoader
         return this.request;
     }
 
-    isLoaded(): boolean {
-        // CustomSelector is never "loaded" - it has to fetch data every time.
-        return false;
-    }
-
     setSearchString(value: string) {
         super.setSearchString(value);
         this.getRequest().setQuery(value);
