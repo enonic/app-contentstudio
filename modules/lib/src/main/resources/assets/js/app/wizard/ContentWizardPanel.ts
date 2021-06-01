@@ -1780,6 +1780,7 @@ export class ContentWizardPanel
         xDatas.forEach((xData: XData) => {
             const stepForm: XDataWizardStepForm = new XDataWizardStepForm(xData);
             stepForm.onEnableChanged(this.dataChangedHandler);
+            stepForm.onEnableChanged(() => this.getStepNavigatorContainer().checkAndMinimize());
             this.xDataWizardStepForms.add(stepForm);
             added.push(stepForm);
         });
