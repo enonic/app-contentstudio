@@ -36,6 +36,7 @@ image::component-types-part-insert.png[]
 
 TIP: It's possible to limit a part to be used only on specific content type(s).
 
+.Example of a part descriptor allowed on a site and content types (from the same application) whose names start with "article"
 [source,xml]
 ----
 <part>
@@ -48,7 +49,17 @@ TIP: It's possible to limit a part to be used only on specific content type(s).
 </part>
 ----
 
-This part will only be allowed on a site and content types (from the same application) whose names start with "article"
+.Example of a part descriptor NOT allowed for content types that end with ":post"
+[source,XML]
+----
+<part>
+  <display-name>My article part</display-name>
+  <form></form>
+  <config>
+    <allow-on-content-type>^(?!.*[:]post$).*$</allow-on-content-type>
+  </config>
+</part>
+----
 
 == Layout component
 
