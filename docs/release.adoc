@@ -24,8 +24,8 @@ and https://developer.enonic.com/docs/xp/next/api/lib-content#move[Content Move 
 
 === Relations between page components and content types
 
-It's now possible to specify that a part or a layout can be used only on specific content types
-via config property https://developer.enonic.com/docs/xp/stable/cms/components#descriptor[`allow-on-content-type`]
+It's now possible to configure a <<editor/component-types#_part_component, part>> or a
+<<editor/component-types#_layout_component, layout>> to be allowed only for specific content types via config property `allow-on-content-type`.
 
 === Length counter in TextLine and TextArea
 
