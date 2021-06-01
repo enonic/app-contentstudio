@@ -14,6 +14,7 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
+    const IP_ADDRESS = '127.0.0.1';
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -88,10 +89,51 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
             //Type the text( length==MAX LENGTH)
             await textLine.typeText('12345678901');
             await textLine.pause(1000);
-            //validation record should not be visible:
+            //validation recording should not be visible:
             let result = await textLine.getOccurrenceValidationRecording(0);
             studioUtils.saveScreenshot('textline_max_length_4');
             assert.equal(result, "", 'Input Validation recording should not be displayed');
+        });
+
+    //Verifies https://github.com/enonic/app-contentstudio/issues/3190
+    //Wizard does not load for text line with regexp in config
+    it(`GIVEN wizard for 'TextLine'  with regexp is opened WHEN correct ip-address has ben typed THEN validation record should not be visible`,
+        async () => {
+            let textLine = new TextLine();
+            let contentWizard = new ContentWizard();
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.TEXTLINE_REGEXP);
+            await contentWizard.typeDisplayName(contentBuilder.generateRandomName('textline'));
+            //1. Type the valid ip address:
+            await textLine.typeText(IP_ADDRESS);
+            //2. Save the content
+            await textLine.pause(1000);
+            //validation recording should not be visible:
+            let result = await textLine.getOccurrenceValidationRecording(0);
+            studioUtils.saveScreenshot('textline_regexp_1');
+            assert.equal(result, "", 'Input Validation recording should not be displayed');
+            //3. Verify that content is valid before saving
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.isFalse(isInvalid, "Content should ve valid in wizard");
+        });
+
+    it(`GIVEN wizard for 'TextLine'  with regexp is opened WHEN correct ip-address has ben typed AND saved THEN validation record should not be visible`,
+        async () => {
+            let textLine = new TextLine();
+            let contentWizard = new ContentWizard();
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.TEXTLINE_REGEXP);
+            await contentWizard.typeDisplayName(contentBuilder.generateRandomName('textline'));
+            //1. Type the valid ip address:
+            await textLine.typeText(IP_ADDRESS);
+            //2. Save the content
+            await contentWizard.waitAndClickOnSave();
+            await textLine.pause(300);
+            //validation recording should not be visible:
+            let result = await textLine.getOccurrenceValidationRecording(0);
+            studioUtils.saveScreenshot('textline_regexp_2');
+            assert.equal(result, "", 'Input Validation recording should not be displayed');
+            //3. Verify that content is valid after saving
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.isFalse(isInvalid, "Content should ve valid in wizard");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
