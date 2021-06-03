@@ -220,6 +220,28 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
             assert.equal(actualMessage, expectedMessage, "Item is saved - this message should appear");
         });
 
+    it("Precondition 3: content has been deleted in the parent context",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await contentBrowsePanel.selectContext('Default');
+            await studioUtils.doDeleteContent(FOLDER_NAME);
+        });
+
+    //Verifies: https://github.com/enonic/app-contentstudio/issues/3132
+    //Hide "Reset" button in the Content Wizard if content item doesn't have a parent #3132
+    it("WHEN content does not have corresponding item in parent project THEN 'Reset' button should not be displayed in the wizard toolbar",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let contentWizardPanel = new ContentWizard();
+            //1. Switch to the layer's context:
+            await contentBrowsePanel.selectContext(LAYER_DISPLAY_NAME);
+            //2. Select the folder and click on Edit:
+            await studioUtils.selectAndOpenContentInWizard(FOLDER_NAME);
+            studioUtils.saveScreenshot("reset_button_parent_deleted");
+            //3. Verify that 'Reset' button is not displayed:
+            await contentWizardPanel.waitForResetButtonNotDisplayed();
+        });
+
     it("Postconditions: the layer should be deleted",
         async () => {
             await studioUtils.openSettingsPanel();
