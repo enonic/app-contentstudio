@@ -574,6 +574,7 @@ export class ContentWizardPanel
             }
 
             this.wizardActions.setDeleteOnlyMode(viewedContent, false);
+            this.updateButtonsState();
         } else {
             // this update was triggered by our changes, so reset dirty state after save
             this.resetWizard();
