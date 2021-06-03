@@ -246,7 +246,6 @@ export class ContentWizardPanel
 
         this.contentParams = params;
         this.loadData();
-
         this.isContentFormValid = false;
         this.isMarkedAsReady = false;
         this.requireValid = false;
@@ -2350,11 +2349,9 @@ export class ContentWizardPanel
      * @param content
      */
     private updateXDataStepForms(content: Content, unchangedOnly: boolean = true) {
-
         this.xDataWizardStepForms.forEach((form: XDataWizardStepForm) => {
             const xDataName: XDataName = new XDataName(form.getXDataNameAsString());
             const extraData: ExtraData = content.getExtraDataByName(xDataName);
-            const viewedData = form.getData().copy();
 
             form.getData().unChanged(this.dataChangedHandler);
 
@@ -2368,6 +2365,8 @@ export class ContentWizardPanel
             } else {
                 form.resetData();
             }
+
+            const viewedData: PropertyTree = form.getData().copy();
 
             if (!form.isOptional() || !extraData || extraData.getData().getRoot().getSize() > 0) {
                 this.syncPersistedItemWithXData(xDataName, form.isEnabled() ? viewedData : new PropertyTree());
