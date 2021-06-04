@@ -124,6 +124,10 @@ import {MaskContentWizardPanelEvent} from './MaskContentWizardPanelEvent';
 import {ContentPath} from '../content/ContentPath';
 import {ContentName} from '../content/ContentName';
 import {ContentUnnamed} from '../content/ContentUnnamed';
+import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {RepositoryId} from '../repository/RepositoryId';
+import {ContentsExistRequest} from '../resource/ContentsExistRequest';
+import {ContentsExistResult} from '../resource/ContentsExistResult';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1300,6 +1304,38 @@ export class ContentWizardPanel
             this.handleCUD();
         };
 
+        const otherRepoDelete = (items: ContentServerChangeItem[]) => {
+            if (!this.isItemPersisted() || !this.getPersistedItem().isInherited()) {
+                return;
+            }
+
+            const parentProject: string = ProjectContext.get().getProject().getParent();
+
+            if (!parentProject) {
+                return;
+            }
+
+            const parentProjectRepo: string = RepositoryId.fromProjectName(parentProject).toString();
+            const thisContentId: ContentId = this.getPersistedItem().getContentId();
+            const thisContentIdAsString: string = this.getPersistedItem().getContentId().toString();
+            const isParentDeleted: boolean = items.some((item: ContentServerChangeItem) => {
+                return item.getContentId().equals(thisContentId) && item.getRepo() === parentProjectRepo;
+            });
+
+            if (isParentDeleted) {
+                return new ContentsExistRequest([thisContentIdAsString])
+                    .setRequestProjectName(parentProject)
+                    .sendAndParse()
+                    .then((result: ContentsExistResult) => {
+                        this.contentExistsInParentProject = !!result.getContentsExistMap()[thisContentIdAsString];
+
+                        if (!this.contentExistsInParentProject) {
+                            this.wizardActions.refreshState();
+                        }
+                    }).catch(DefaultErrorHandler.handle);
+            }
+        };
+
         ActiveContentVersionSetEvent.on(versionChangeHandler);
         ContentDeletedEvent.on(deleteHandler);
 
@@ -1311,6 +1347,7 @@ export class ContentWizardPanel
         serverEvents.onContentPublished(publishOrUnpublishHandler);
         serverEvents.onContentUnpublished(publishOrUnpublishHandler);
         serverEvents.onContentRenamed(contentRenamedHandler);
+        serverEvents.onContentDeletedInOtherRepos(otherRepoDelete);
 
         this.onClosed(() => {
             ActiveContentVersionSetEvent.un(versionChangeHandler);
@@ -1324,6 +1361,7 @@ export class ContentWizardPanel
             serverEvents.unContentPublished(publishOrUnpublishHandler);
             serverEvents.unContentUnpublished(publishOrUnpublishHandler);
             serverEvents.unContentRenamed(contentRenamedHandler);
+            serverEvents.unContentDeletedInOtherRepos(otherRepoDelete);
         });
 
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
