@@ -1005,8 +1005,7 @@ export class ItemView
     private getInsertActions(liveEditModel: LiveEditModel): Action[] {
         let isFragmentContent = liveEditModel.getContent().getType().isFragment();
 
-        let actions = [this.createInsertSubAction('image', ImageItemType.get()),
-            this.createInsertSubAction('part', PartItemType.get())];
+        let actions = [this.createInsertSubAction('part', PartItemType.get())];
 
         let isInRegion = this.getRegionView().getType().equals(RegionItemType.get());
         if (isInRegion && !this.getRegionView().hasParentLayoutComponentView() && !isFragmentContent) {

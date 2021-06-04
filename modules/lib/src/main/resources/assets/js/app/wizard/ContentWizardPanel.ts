@@ -258,12 +258,10 @@ export class ContentWizardPanel
         this.displayNameResolver = new DisplayNameResolver();
         this.xDataWizardStepForms = new XDataWizardStepForms();
         this.workflowStateIconsManager = new WorkflowStateIconsManager(this);
-
         this.listenToContentEvents();
         this.handleSiteConfigApply();
         this.handleBrokenImageInTheWizard();
         this.initBindings();
-
         this.debouncedEditorRefresh = AppHelper.debounce((clearInspection: boolean = true) => {
             const livePanel = this.getLivePanel();
 
