@@ -51,8 +51,6 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
     protected treeModeToggler?: ModeTogglerButton;
 
-    protected maxHeight: number = 230;
-
     private statusColumn: GridColumn<any>;
 
     constructor(builder: ContentComboBoxBuilder<ITEM_TYPE>) {
@@ -142,7 +140,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
             builder.setLoader(<ContentSummaryOptionDataLoader<ITEM_TYPE>>this.createLoader(builder));
         }
 
-        builder.setMaxHeight(this.maxHeight);
+        builder.setMaxHeight(this.getMaxHeight());
         builder.setCreateColumns([this.statusColumn]);
 
         if (builder.isRequestMissingOptions) {
@@ -150,6 +148,10 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
                 return new ContentsExistRequest(missingOptionIds).sendAndParse().then(result => result.getContentsExistMap());
             });
         }
+    }
+
+    protected getMaxHeight(): number {
+        return 230;
     }
 
     protected createLoader(builder: ContentComboBoxBuilder<ITEM_TYPE>): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {

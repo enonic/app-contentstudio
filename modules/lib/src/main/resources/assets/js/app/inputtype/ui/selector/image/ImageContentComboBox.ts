@@ -22,8 +22,6 @@ import {ContentId} from '../../../../content/ContentId';
 export class ImageContentComboBox
     extends ContentComboBox<MediaTreeSelectorItem> {
 
-    protected maxHeight: number = 250;
-
     private item: ResponsiveItem;
 
     constructor(builder: ImageContentComboBoxBuilder) {
@@ -49,6 +47,10 @@ export class ImageContentComboBox
                 this.doToggleGridOptions(false, columnsFitInRow);
             }
         }
+    }
+
+    protected getMaxHeight(): number {
+        return 620;
     }
 
     protected createLoader(builder: ImageContentComboBoxBuilder): ImageOptionDataLoader {
