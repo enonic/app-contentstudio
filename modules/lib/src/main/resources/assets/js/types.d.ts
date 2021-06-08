@@ -3,7 +3,7 @@ declare const CONFIG: {
     adminUrl: string,
     allowScriptsInEditor: string,
     allowContentUpdate: string,
-    pathTransliteration: string,
+    allowPathTransliteration: string,
     appIconUrl: string,
     appId: string,
     appVersion: string,

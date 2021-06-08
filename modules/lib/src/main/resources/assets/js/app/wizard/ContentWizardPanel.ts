@@ -703,7 +703,7 @@ export class ContentWizardPanel
             this.updateThumbnailWithContent(persistedContent);
 
             this.getWizardHeader().setSimplifiedNameGeneration(
-                persistedContent.getType().isDescendantOfMedia() || CONFIG.pathTransliteration !== 'true');
+                persistedContent.getType().isDescendantOfMedia() || CONFIG.allowPathTransliteration !== 'true');
 
             if (this.isRendered()) {
 
