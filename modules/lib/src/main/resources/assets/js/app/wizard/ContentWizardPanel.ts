@@ -258,7 +258,6 @@ export class ContentWizardPanel
         this.displayNameResolver = new DisplayNameResolver();
         this.xDataWizardStepForms = new XDataWizardStepForms();
         this.workflowStateIconsManager = new WorkflowStateIconsManager(this);
-
         this.listenToContentEvents();
         this.handleSiteConfigApply();
         this.handleBrokenImageInTheWizard();
@@ -700,7 +699,7 @@ export class ContentWizardPanel
             this.updateThumbnailWithContent(persistedContent);
 
             this.getWizardHeader().setSimplifiedNameGeneration(
-                persistedContent.getType().isDescendantOfMedia() || CONFIG.pathTransliteration !== 'true');
+                persistedContent.getType().isDescendantOfMedia() || CONFIG.allowPathTransliteration !== 'true');
 
             if (this.isRendered()) {
 
