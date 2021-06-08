@@ -31,6 +31,9 @@ import {GetComponentDescriptorRequest} from '../resource/GetComponentDescriptorR
 import {LayoutComponentType} from '../page/region/LayoutComponentType';
 import {PartComponentType} from '../page/region/PartComponentType';
 import {Descriptor} from '../page/Descriptor';
+import {TextItemType} from '../../page-editor/text/TextItemType';
+import {TextComponentView} from '../../page-editor/text/TextComponentView';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemViewTreeGridWrapper> {
@@ -98,7 +101,20 @@ export class PageComponentsTreeGrid
             this.updateTreeNodeWithFragmentsOnLoad(node);
         }
 
+        if (ObjectHelper.iFrameSafeInstanceOf(data.getItemView().getType(), TextItemType)) {
+            this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>data.getItemView());
+        }
+
         return node;
+    }
+
+    private bindTreeTextNodeUpdateOnTextComponentModify(textComponentView: TextComponentView) {
+        const handler = AppHelper.debounce((event) => {
+            this.updateNodeByData(new ItemViewTreeGridWrapper(textComponentView));
+        }, 500, false);
+
+        textComponentView.onKeyUp(handler);
+        textComponentView.getHTMLElement().onpaste = handler;
     }
 
     private updateTreeNodeWithFragmentsOnLoad(node: TreeNode<ItemViewTreeGridWrapper>) {
@@ -133,17 +149,15 @@ export class PageComponentsTreeGrid
 
     public static nameFormatter(content: Content, row: number, cell: number, value: any, columnDef: any,
                                 node: TreeNode<ItemViewTreeGridWrapper>) {
-        let viewer = <PageComponentsItemViewer>node.getViewer('name');
-        if (!viewer) {
-            viewer = new PageComponentsItemViewer(content);
-            const data = node.getData().getItemView();
+        const viewer: PageComponentsItemViewer = <PageComponentsItemViewer>node.getViewer('name') || new PageComponentsItemViewer(content);
+        node.setViewer('name', viewer);
+        const data: ItemView = node.getData().getItemView();
+        viewer.setObject(data);
 
-            viewer.setObject(data);
-            node.setViewer('name', viewer);
-            if (!(ObjectHelper.iFrameSafeInstanceOf(data, RegionView) || ObjectHelper.iFrameSafeInstanceOf(data, PageView))) {
-                viewer.addClass('draggable');
-            }
+        if (!(ObjectHelper.iFrameSafeInstanceOf(data, RegionView) || ObjectHelper.iFrameSafeInstanceOf(data, PageView))) {
+            viewer.addClass('draggable');
         }
+
         return viewer.toString();
     }
 
@@ -276,6 +290,10 @@ export class PageComponentsTreeGrid
 
         if (componentView.isSelected()) {
             this.selectNode(dataId);
+        }
+
+        if (ObjectHelper.iFrameSafeInstanceOf(componentView.getType(), TextItemType)) {
+            this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>componentView);
         }
     }
 
