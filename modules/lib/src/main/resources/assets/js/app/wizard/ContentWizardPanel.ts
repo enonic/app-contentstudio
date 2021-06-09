@@ -235,8 +235,6 @@ export class ContentWizardPanel
 
     public static debug: boolean = false;
 
-    private loginResult: LoginResult;
-
     private formContext: ContentFormContext;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
@@ -1374,14 +1372,13 @@ export class ContentWizardPanel
 
     private setAllowedActionsBasedOnPermissions() {
         new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            this.loginResult = loginResult;
-            const userCanPublish: boolean = this.isContentPublishableByUser();
-            const userCanModify: boolean = this.isContentModifiableByUser();
+            const userCanPublish: boolean = this.isContentPublishableByUser(loginResult);
+            const userCanModify: boolean = this.isContentModifiableByUser(loginResult);
             this.wizardActions
                 .setUserCanPublish(userCanPublish)
                 .setUserCanModify(userCanModify)
                 .refreshState();
-            this.toggleStepFormsVisibility();
+            this.toggleStepFormsVisibility(loginResult);
         }).catch(DefaultErrorHandler.handle);
     }
 
@@ -1600,12 +1597,12 @@ export class ContentWizardPanel
         });
     }
 
-    private isContentPublishableByUser(): boolean {
-        return PermissionHelper.hasPermission(Permission.PUBLISH, this.loginResult, this.getPersistedItem().getPermissions());
+    private isContentPublishableByUser(loginResult: LoginResult): boolean {
+        return PermissionHelper.hasPermission(Permission.PUBLISH, loginResult, this.getPersistedItem().getPermissions());
     }
 
-    private isContentModifiableByUser(): boolean {
-        return PermissionHelper.hasPermission(Permission.MODIFY, this.loginResult, this.getPersistedItem().getPermissions());
+    private isContentModifiableByUser(loginResult: LoginResult): boolean {
+        return PermissionHelper.hasPermission(Permission.MODIFY, loginResult, this.getPersistedItem().getPermissions());
     }
 
     saveChangesWithoutValidation(reloadPageEditor?: boolean): Q.Promise<Content> {
@@ -1868,15 +1865,15 @@ export class ContentWizardPanel
         this.settingsWizardStep.getTabBarItem().setVisible(visible);
     }
 
-    private toggleStepFormsVisibility() {
-        const hasAdminPermissions: boolean = this.hasAdminPermissions();
+    private toggleStepFormsVisibility(loginResult: LoginResult) {
+        const hasAdminPermissions: boolean = this.hasAdminPermissions(loginResult);
 
         if (hasAdminPermissions) {
             this.toggleSettingsElementsVisibility(true);
             this.editPermissionsToolbarButton.setVisible(true);
         } else {
-            ProjectHelper.isUserProjectOwner(this.loginResult).then((isOwner: boolean) => {
-                const isContentExpert: boolean = this.loginResult.isContentExpert();
+            ProjectHelper.isUserProjectOwner(loginResult).then((isOwner: boolean) => {
+                const isContentExpert: boolean = loginResult.isContentExpert();
 
                 this.toggleSettingsElementsVisibility(isContentExpert || isOwner);
                 this.editPermissionsToolbarButton.setVisible(isOwner);
@@ -1884,24 +1881,24 @@ export class ContentWizardPanel
         }
     }
 
-    private hasAdminPermissions(): boolean {
-        if (this.loginResult.getPrincipals().some(principalKey => RoleKeys.isAdmin(principalKey))) {
+    private hasAdminPermissions(loginResult: LoginResult): boolean {
+        if (loginResult.getPrincipals().some(principalKey => RoleKeys.isAdmin(principalKey))) {
             return true;
         }
 
-        if (this.loginResult.isContentAdmin()) {
+        if (loginResult.isContentAdmin()) {
             return true;
         }
 
-        return this.hasFullAccess();
+        return this.hasFullAccess(loginResult);
     }
 
-    private hasFullAccess(): boolean {
+    private hasFullAccess(loginResult: LoginResult): boolean {
         const principalKeysWithFullAccess: PrincipalKey[] = this.getPersistedItem().getPermissions().getEntries().filter(
             (ace: AccessControlEntry) => AccessControlEntryView.getAccessValueFromEntry(ace) === Access.FULL).map(
             (ace: AccessControlEntry) => ace.getPrincipalKey());
 
-        const principals: PrincipalKey[] = this.loginResult.getPrincipals();
+        const principals: PrincipalKey[] = loginResult.getPrincipals();
 
         return principalKeysWithFullAccess.some((principalFullAccess: PrincipalKey) => principals.some(
             (principal: PrincipalKey) => principalFullAccess.equals(principal)));
@@ -2362,12 +2359,9 @@ export class ContentWizardPanel
         this.formContext.setLanguage(content.getLanguage());
     }
 
-    private setModifyPermissions() {
-        if (!this.loginResult) {
-            return;
-        }
+    private setModifyPermissions(loginResult: LoginResult) {
         this.modifyPermissions =
-            this.getPersistedItem().isAnyPrincipalAllowed(this.loginResult.getPrincipals(), Permission.MODIFY);
+            this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY);
         this.getEl().toggleClass('no-modify-permissions', !this.modifyPermissions);
         if (this.getLivePanel()) {
             this.getLivePanel().setModifyPermissions(this.modifyPermissions);
@@ -2661,8 +2655,6 @@ export class ContentWizardPanel
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {
         return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            this.loginResult = loginResult;
-
             return Q(this.getPersistedItem().isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.MODIFY));
         });
     }
@@ -2670,8 +2662,11 @@ export class ContentWizardPanel
     protected handleCanModify(canModify: boolean): void {
         super.handleCanModify(canModify);
 
-        this.setModifyPermissions();
-        this.toggleStepFormsVisibility();
+        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+            this.setModifyPermissions(loginResult);
+            this.toggleStepFormsVisibility(loginResult);
+        }).catch(DefaultErrorHandler.handle);
+
         this.updateUrlAction();
     }
 

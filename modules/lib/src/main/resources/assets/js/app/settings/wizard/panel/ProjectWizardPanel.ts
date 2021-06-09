@@ -42,8 +42,6 @@ export class ProjectWizardPanel
 
     private editProjectAccessDialog: EditProjectAccessDialog = new EditProjectAccessDialog();
 
-    private loginResult: LoginResult;
-
     private hasChildrenLayers: boolean = false;
 
     protected getIconClass(): string {
@@ -108,19 +106,8 @@ export class ProjectWizardPanel
         }
     }
 
-    getLoginResult(): Q.Promise<LoginResult> {
-        if (this.loginResult) {
-            return Q.resolve(this.loginResult);
-        }
-
-        return new IsAuthenticatedRequest().sendAndParse().then(loginResult => {
-            this.loginResult = loginResult;
-            return Q.resolve(this.loginResult);
-        });
-    }
-
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {
-        return this.getLoginResult().then((loginResult: LoginResult) => this.isEditAllowed(loginResult));
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => this.isEditAllowed(loginResult));
     }
 
     protected createStepsForms(persistedItem: ProjectViewItem): SettingDataItemWizardStepForm<ProjectViewItem>[] {
