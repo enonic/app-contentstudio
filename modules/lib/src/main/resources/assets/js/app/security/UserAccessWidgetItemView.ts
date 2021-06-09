@@ -32,8 +32,6 @@ export class UserAccessWidgetItemView
 
     private bottomEl: AEl;
 
-    private loginResult: LoginResult;
-
     public static debug: boolean = false;
 
     constructor() {
@@ -68,13 +66,13 @@ export class UserAccessWidgetItemView
         this.prependChild(this.headerEl);
     }
 
-    private layoutBottom(content: Content) {
+    private layoutBottom(content: Content, loginResult: LoginResult) {
 
         if (this.hasChild(this.bottomEl)) {
             this.removeChild(this.bottomEl);
         }
 
-        if (!content.isAnyPrincipalAllowed(this.loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS)) {
+        if (!content.isAnyPrincipalAllowed(loginResult.getPrincipals(), Permission.WRITE_PERMISSIONS)) {
             return;
         }
 
@@ -94,7 +92,7 @@ export class UserAccessWidgetItemView
 
     }
 
-    private layoutList(content: Content): Q.Promise<boolean> {
+    private layoutList(content: Content, loginResult: LoginResult): Q.Promise<boolean> {
         const request = new GetEffectivePermissionsRequest(content.getContentId());
 
         return request.sendAndParse().then((results: EffectivePermission[]) => {
@@ -104,7 +102,7 @@ export class UserAccessWidgetItemView
             }
 
             const everyoneAccessValue: Access = this.getEveryoneAccessValue(content);
-            const userAccessList = this.getUserAccessList(results, everyoneAccessValue);
+            const userAccessList = this.getUserAccessList(results, everyoneAccessValue, loginResult);
 
             this.accessListView = new UserAccessListView();
             this.accessListView.setItemViews(userAccessList);
@@ -123,15 +121,13 @@ export class UserAccessWidgetItemView
     }
 
     private layoutUserAccess(): Q.Promise<any> {
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult) => {
-
-            this.loginResult = loginResult;
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             if (this.contentId) {
                 return new GetContentByIdRequest(this.contentId).sendAndParse().then((content: Content) => {
                     if (content) {
                         this.layoutHeader(content);
-                        return this.layoutList(content).then(() => {
-                            this.layoutBottom(content);
+                        return this.layoutList(content, loginResult).then(() => {
+                            this.layoutBottom(content, loginResult);
                         });
                     }
                 });
@@ -139,15 +135,15 @@ export class UserAccessWidgetItemView
         });
     }
 
-    private getUserAccessList(results: EffectivePermission[], everyoneAccessValue: Access): UserAccessListItemView[] {
-
-        return results.filter(item => item.getAccess() !== everyoneAccessValue &&
-                                      item.getPermissionAccess().getCount() > 0).map((item: EffectivePermission) => {
-            const view = new UserAccessListItemView();
-            view.setObject(item);
-            view.setCurrentUser(this.loginResult.getUser());
-            return view;
-        });
+    private getUserAccessList(results: EffectivePermission[], everyoneAccess: Access, loginResult: LoginResult): UserAccessListItemView[] {
+        return results.filter(
+            (item: EffectivePermission) => item.getAccess() !== everyoneAccess && item.getPermissionAccess().getCount() > 0).map(
+            (item: EffectivePermission) => {
+                const view: UserAccessListItemView = new UserAccessListItemView();
+                view.setObject(item);
+                view.setCurrentUser(loginResult.getUser());
+                return view;
+            });
     }
 
     private getEveryoneAccessValue(content: Content): Access {
