@@ -151,7 +151,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     }
 
     protected getMaxHeight(): number {
-        return 230;
+        return 370;
     }
 
     protected createLoader(builder: ContentComboBoxBuilder<ITEM_TYPE>): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
