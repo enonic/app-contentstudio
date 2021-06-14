@@ -1,6 +1,10 @@
 
 Licenses used by Content Studio for Enonic XP (full license texts are provided after the list of libraries)
 
+    Apache Commons
+    Apache License 2.0
+    http://www.apache.org/licenses/LICENSE-2.0
+
     CKEditor 4
     GNU GPL 3.0
     https://ckeditor.com/legal/ckeditor-oss-license/
