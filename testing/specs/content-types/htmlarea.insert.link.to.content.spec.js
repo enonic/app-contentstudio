@@ -52,7 +52,7 @@ describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlA
                 await insertLinkDialog.clickOnInsertButton();
                 //3. Verify that both validation messages are displayed:
                 let validationMessage1 = await insertLinkDialog.getUrlInputValidationMessage();
-                assert.equal(validationMessage1, appConstant.THIS_FIELD_IS_REQUIRED, "Expected validation message gets visible");
+                assert.equal(validationMessage1, "Invalid value entered", "Expected validation message gets visible");
                 let validationMessage2 = await insertLinkDialog.getTextInputValidationMessage();
                 assert.equal(validationMessage2, appConstant.THIS_FIELD_IS_REQUIRED, "Expected validation message gets visible");
                 studioUtils.saveScreenshot('htmlarea_url_link_empty');
