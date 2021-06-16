@@ -176,12 +176,17 @@
     }
 
     &.toggle-live {
-      .live-form-panel {
+      .context-split-panel {
         width: 100% !important;
+        z-index: 1;
+        .live-form-panel {
+          width: 100% !important;
+        }
+        & > .splitter, .form-panel {
+          display: none !important;
+        }
       }
-      & > .splitter, .form-panel {
-        display: none !important;
-      }
+
     }
 
     &.toggle-split {
