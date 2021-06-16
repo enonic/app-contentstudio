@@ -45,7 +45,7 @@ export class ContextSplitPanel
 
         super(builder);
         this.addClass('context-split-panel');
-        this.setSecondPanelSize(32, SplitPanelUnit.PERCENT);
+        this.setSecondPanelSize(38, SplitPanelUnit.PERCENT);
 
         this.data = data;
         this.leftPanel = leftPanel;
