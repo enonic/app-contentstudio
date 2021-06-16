@@ -13,7 +13,7 @@ import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {SettingsWizardStepForm} from './SettingsWizardStepForm';
 import {ScheduleWizardStepForm} from './ScheduleWizardStepForm';
 import {DisplayNameResolver} from './DisplayNameResolver';
-import {LiveFormPanel, LiveFormPanelConfig} from './page/LiveFormPanel';
+import {LiveFormPanel, LiveFormPanelConfig, PageEditorData} from './page/LiveFormPanel';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
@@ -93,7 +93,7 @@ import {WizardPanel} from 'lib-admin-ui/app/wizard/WizardPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {WizardHeader} from 'lib-admin-ui/app/wizard/WizardHeader';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
-import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
+import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder, SplitPanelUnit} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {ValidityChangedEvent} from 'lib-admin-ui/ValidityChangedEvent';
 import {PropertyTreeComparator} from 'lib-admin-ui/data/PropertyTreeComparator';
 import {GetApplicationRequest} from 'lib-admin-ui/application/GetApplicationRequest';
@@ -128,15 +128,21 @@ import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {RepositoryId} from '../repository/RepositoryId';
 import {ContentsExistRequest} from '../resource/ContentsExistRequest';
 import {ContentsExistResult} from '../resource/ContentsExistResult';
+import {ActivatedEvent} from 'lib-admin-ui/ui/ActivatedEvent';
+import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
 
     private contextSplitPanel: ContextSplitPanel;
 
+    private livePanel?: LiveFormPanel;
+
     protected wizardActions: ContentWizardActions;
 
-    private contentParams: ContentWizardPanelParams;
+    protected params: ContentWizardPanelParams;
+
+    protected wizardHeader: ContentWizardHeader;
 
     private parentContent: Content;
 
@@ -170,6 +176,12 @@ export class ContentWizardPanel
 
     private editPermissionsToolbarButton: Element;
 
+    private minimizeEditButton?: DivEl;
+
+    private toggleMinimizeListener?: (event: ActivatedEvent) => void;
+
+    private splitPanel?: SplitPanel;
+
     private requireValid: boolean;
 
     private isContentFormValid: boolean;
@@ -185,6 +197,12 @@ export class ContentWizardPanel
     private currentContent: ContentSummaryAndCompareStatus;
 
     private persistedContent: ContentSummaryAndCompareStatus;
+
+    private splitPanelThreshold: number = 960;
+
+    private minimized: boolean = false;
+
+    private scrollPosition: number = 0;
 
     private dataChangedHandler: () => void;
 
@@ -240,16 +258,19 @@ export class ContentWizardPanel
     private formContext: ContentFormContext;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
-        super({
-            tabId: params.tabId
-        });
+        super(params);
 
         if (cls) {
             this.addClass(cls);
         }
 
-        this.contentParams = params;
         this.loadData();
+        this.initBindings();
+    }
+
+    protected initElements() {
+        super.initElements();
+
         this.isContentFormValid = false;
         this.isMarkedAsReady = false;
         this.requireValid = false;
@@ -262,22 +283,166 @@ export class ContentWizardPanel
         this.displayNameResolver = new DisplayNameResolver();
         this.xDataWizardStepForms = new XDataWizardStepForms();
         this.workflowStateIconsManager = new WorkflowStateIconsManager(this);
-        this.listenToContentEvents();
-        this.handleSiteConfigApply();
-        this.handleBrokenImageInTheWizard();
-        this.initBindings();
         this.debouncedEditorRefresh = AppHelper.debounce((clearInspection: boolean = true) => {
             const livePanel = this.getLivePanel();
 
             livePanel.skipNextReloadConfirmation(true);
             livePanel.loadPage(clearInspection);
         }, 500);
+
+        this.dataChangedHandler = AppHelper.debounce(() => {
+            if (!this.isRendered()) {
+                return;
+            }
+            this.updatePublishStatusOnDataChange();
+            this.notifyDataChanged();
+        }, 100);
+
+        let applicationKeys: ApplicationKey[] = [];
+        const saveOnAppChange = (force: boolean = false) => {
+            if (this.getLivePanel()?.getPage()) {
+                this.handleAppChange();
+                return;
+            }
+            (force ? Q.resolve(true) : this.checkIfAppsHaveDescriptors(applicationKeys))
+                .then((appsHaveDescriptors: boolean) => appsHaveDescriptors ? this.saveChanges() : Q.resolve())
+                .then(this.handleAppChange)
+                .finally(() => applicationKeys=[]);
+        };
+        const debouncedSaveOnAppChange = AppHelper.debounce(saveOnAppChange, 300);
+
+        this.applicationAddedListener = (event: ApplicationAddedEvent) => {
+            this.addXDataStepForms(event.getApplicationKey());
+            applicationKeys.push(event.getApplicationKey());
+            debouncedSaveOnAppChange();
+        };
+
+        this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {
+            this.removeXDataStepForms(event.getApplicationKey())
+                .then((removedXDataCount: number) => {
+                    applicationKeys.push(event.getApplicationKey());
+
+                    if (this.isSaving()) {
+                        // Save might already have been initiated by the LiveEdit page on app remove
+                        return;
+                    }
+
+                    saveOnAppChange(removedXDataCount > 0);
+                });
+        };
+
+        this.applicationUninstalledListener = (event: ApplicationEvent) => {
+            if (!this.isAppUsedByContent(event.getApplicationKey())) {
+                return;
+            }
+            this.missingOrStoppedAppKeys.push(event.getApplicationKey());
+            this.handleAppChange();
+        };
+
+        this.applicationStoppedListener = (event: ApplicationEvent) => {
+            if (!this.isAppUsedByContent(event.getApplicationKey())) {
+                return;
+            }
+            this.missingOrStoppedAppKeys.push(event.getApplicationKey());
+
+            let message = i18n('notify.app.missing', event.getApplicationKey().toString());
+
+            if (this.isVisible()) {
+                showWarning(message);
+            } else {
+                let shownHandler = () => {
+                    new GetApplicationRequest(event.getApplicationKey()).sendAndParse()
+                        .then(
+                            (application: Application) => {
+                                if (application.getState() === 'stopped') {
+                                    showWarning(message);
+                                }
+                            })
+                        .catch((reason: any) => { //app was uninstalled
+                            showWarning(message);
+                        });
+
+                    this.unShown(shownHandler);
+                };
+
+                this.onShown(shownHandler);
+            }
+            this.handleAppChange();
+        };
+
+        this.applicationStartedListener = (event: ApplicationEvent) => {
+            if (!this.isAppUsedByContent(event.getApplicationKey())) {
+                return;
+            }
+            let indexToRemove = -1;
+            this.missingOrStoppedAppKeys.some((applicationKey: ApplicationKey, index) => {
+                indexToRemove = index;
+                return event.getApplicationKey().equals(applicationKey);
+            });
+            if (indexToRemove > -1) {
+                this.missingOrStoppedAppKeys.splice(indexToRemove, 1);
+            }
+            this.handleAppChange();
+        };
     }
 
     private initBindings() {
         let nextActions = this.getActions();
         let currentKeyBindings = Action.getKeyBindings(nextActions);
         KeyBindings.get().bindKeys(currentKeyBindings);
+    }
+
+    protected initEventsListeners() {
+        super.initEventsListeners();
+
+        this.onShown(() => {
+            if (this.livePanel && !this.livePanel.isRendered()) {
+                this.liveMask.show();
+            }
+        });
+
+        this.listenToContentEvents();
+        this.handleSiteConfigApply();
+        this.handleBrokenImageInTheWizard();
+        this.getWizardHeader().onPropertyChanged(this.dataChangedHandler);
+    }
+
+    toggleMinimize(navigationIndex: number = -1) {
+
+        this.stepsPanel.setListenToScroll(false);
+
+        let scroll = this.stepsPanel.getScroll();
+        this.minimized = !this.minimized;
+        this.splitPanel.setSplitterIsHidden(this.minimized);
+
+        this.stepNavigator.unNavigationItemActivated(this.toggleMinimizeListener);
+        this.formPanel.toggleClass('minimized');
+
+        new MinimizeWizardPanelEvent().fire();
+
+        if (this.minimized) {
+            this.stepNavigator.setScrollEnabled(false);
+
+            this.scrollPosition = scroll;
+            this.splitPanel.savePanelSizesAndDistribute(40, 0, SplitPanelUnit.PIXEL);
+            this.splitPanel.hideSplitter();
+
+            this.stepNavigator.onNavigationItemActivated(this.toggleMinimizeListener);
+        } else {
+            this.splitPanel.loadPanelSizesAndDistribute();
+            this.splitPanel.showSplitter();
+            this.stepsPanel.setScroll(this.scrollPosition);
+            this.stepsPanel.setListenToScroll(true);
+            this.stepNavigator.setScrollEnabled(true);
+
+            this.stepNavigator.selectNavigationItem(navigationIndex, false, true);
+        }
+
+        const maximized = !this.minimized;
+        if (this.helpTextToggleButton) {
+            this.helpTextToggleButton.setVisible(maximized);
+        }
+        this.stepNavigatorAndToolbarContainer.changeOrientation(maximized);
     }
 
     protected createWizardActions(): ContentWizardActions {
@@ -313,7 +478,7 @@ export class ContentWizardPanel
         if (ContentWizardPanel.debug) {
             console.debug('ContentWizardPanel.doLoadData at ' + new Date().toISOString());
         }
-        return new ContentWizardDataLoader().loadData(this.contentParams)
+        return new ContentWizardDataLoader().loadData(this.params)
             .then((loader: ContentWizardDataLoader) => {
                 if (ContentWizardPanel.debug) {
                     console.debug('ContentWizardPanel.doLoadData: loaded data at ' + new Date().toISOString(), loader);
@@ -335,20 +500,34 @@ export class ContentWizardPanel
                     );
                 this.setPersistedContent(this.currentContent);
 
+                this.livePanel = this.createLivePanel();
+
+                if (this.livePanel) {
+                    this.toggleMinimizeListener = (event: ActivatedEvent) => {
+                        this.toggleMinimize(event.getIndex());
+                    };
+
+                    this.minimizeEditButton = new DivEl('minimize-edit');
+                    this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
+                    this.liveMask = new LoadMask(this.livePanel);
+
+                    this.livePanel.whenRendered(() => {
+                        if (WizardPanel.debug) {
+                            console.debug('WizardPanel: livePanel.onRendered');
+                        }
+                        this.liveMask.hide();
+                        this.livePanel.removeClass('rendering');
+                    });
+                }
+
             }).then(() => super.doLoadData());
     }
 
     protected createFormIcon(): ThumbnailUploaderEl {
-        const thumbnailUploader: ThumbnailUploaderEl = new ThumbnailUploaderEl({
+        return  new ThumbnailUploaderEl({
             name: 'thumbnail-uploader',
             deferred: true
         });
-
-        if (this.contentParams.createSite || this.getPersistedItem().isSite()) {
-            thumbnailUploader.addClass('site');
-        }
-
-        return thumbnailUploader;
     }
 
     public getFormIcon(): ThumbnailUploaderEl {
@@ -357,7 +536,7 @@ export class ContentWizardPanel
 
     protected createMainToolbar(): Toolbar {
         return new ContentWizardToolbar({
-            application: this.contentParams.application,
+            application: this.params.application,
             actions: this.wizardActions,
             workflowStateIconsManager: this.workflowStateIconsManager
         });
@@ -383,8 +562,6 @@ export class ContentWizardPanel
             header.initNames(existing.getDisplayName(), existing.getName().toString(), false);
         }
 
-        header.onPropertyChanged(this.dataChangedHandler);
-
         return header;
     }
 
@@ -401,11 +578,11 @@ export class ContentWizardPanel
     }
 
     public getLivePanel(): LiveFormPanel {
-        return <LiveFormPanel>super.getLivePanel();
+        return this.livePanel;
     }
 
     protected createWizardAndDetailsSplitPanel(leftPanel: Panel): SplitPanel {
-        const wizardActions = this.getWizardActions();
+        const wizardActions: ContentWizardActions = this.getWizardActions();
         const contextActions = [
             wizardActions.getUnpublishAction(),
             wizardActions.getPublishAction(),
@@ -413,12 +590,15 @@ export class ContentWizardPanel
             wizardActions.getDuplicateAction()
         ];
 
-        const data = this.getLivePanel() ? this.getLivePanel().getPageEditorData() : LiveFormPanel.createEmptyPageEditorData();
+        const data: PageEditorData = this.getLivePanel()
+                                     ? this.getLivePanel().getPageEditorData()
+                                     : LiveFormPanel.createEmptyPageEditorData();
         this.contextSplitPanel = new ContextSplitPanel(leftPanel, contextActions, data);
 
         this.onRendered(() => {
-            const mainToolbar = this.getMainToolbar();
-            const toggler = mainToolbar.getMobileItemStatisticsToggler();
+            const mainToolbar: ContentWizardToolbar = this.getMainToolbar();
+            const toggler: TogglerButton = mainToolbar.getMobileItemStatisticsToggler();
+
             this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {
                 if (!isMobile) {
                     if (toggler.isActive()) {
@@ -442,7 +622,7 @@ export class ContentWizardPanel
         return this.contextSplitPanel;
     }
 
-    protected createLivePanel(): Panel {
+    private createLivePanel(): LiveFormPanel {
         if (this.isLivePanelAllowed()) {
             return new LiveFormPanel(<LiveFormPanelConfig>{
                 contentWizardPanel: this,
@@ -455,7 +635,7 @@ export class ContentWizardPanel
     }
 
     private isLivePanelAllowed(): boolean {
-        const isSiteOrWithinSite: boolean = !!this.site || this.contentParams.createSite;
+        const isSiteOrWithinSite: boolean = !!this.site || this.params.createSite;
         const isPageTemplate: boolean = this.contentType.isPageTemplate();
         const isShortcut: boolean = this.contentType.isShortcut();
 
@@ -509,10 +689,8 @@ export class ContentWizardPanel
                 }
             });
 
-            if (thumbnailUploader) {
-                thumbnailUploader.setEnabled(!this.contentType.isImage());
-                thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
-            }
+            thumbnailUploader.setEnabled(!this.contentType.isImage());
+            thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
 
             this.contextSplitPanel.onRendered(() => this.contextSplitPanel.setContent(this.persistedContent));
 
@@ -532,8 +710,42 @@ export class ContentWizardPanel
             this.editPermissionsToolbarButton.onClicked(this.handleEditPermissionsButtonClicked.bind(this));
             this.getStepNavigatorContainer().appendChild(this.editPermissionsToolbarButton);
 
+            if (this.livePanel) {
+                this.livePanel.addClass('rendering');
+                ResponsiveManager.onAvailableSizeChanged(this.formPanel);
+                this.stepNavigatorAndToolbarContainer.appendChild(this.minimizeEditButton);
+            }
+
+            if (this.params.createSite || this.getPersistedItem().isSite()) {
+                thumbnailUploader.addClass('site');
+            }
+
             return rendered;
         });
+    }
+
+    protected prepareMainPanel(): Panel {
+        if (this.livePanel) {
+            this.splitPanel = this.createSplitPanel(this.formPanel, this.createWizardAndDetailsSplitPanel(this.livePanel));
+            return this.splitPanel;
+        }
+
+        return this.createWizardAndDetailsSplitPanel(this.formPanel);
+    }
+
+    private createSplitPanel(firstPanel: Panel, secondPanel: Panel): SplitPanel {
+        const builder = new SplitPanelBuilder(firstPanel, secondPanel)
+            .setFirstPanelMinSize(280, SplitPanelUnit.PIXEL)
+            .setAlignment(SplitPanelAlignment.VERTICAL);
+
+        if ($(window).width() > this.splitPanelThreshold) {
+            builder.setFirstPanelSize(32, SplitPanelUnit.PERCENT);
+        }
+
+        const splitPanel = builder.build();
+        splitPanel.addClass('wizard-and-preview');
+
+        return splitPanel;
     }
 
     private handleEditPermissionsButtonClicked() {
@@ -887,101 +1099,6 @@ export class ContentWizardPanel
                 });
             }
         });
-
-        this.dataChangedHandler = AppHelper.debounce(() => {
-            if (!this.isRendered()) {
-                return;
-            }
-            this.updatePublishStatusOnDataChange();
-            this.notifyDataChanged();
-        }, 100);
-
-        let applicationKeys = [];
-        const saveOnAppChange = (force: boolean = false) => {
-            if (this.getLivePanel()?.getPage()) {
-                this.handleAppChange();
-                return;
-            }
-            (force ? Q.resolve(true) : this.checkIfAppsHaveDescriptors(applicationKeys))
-                .then((appsHaveDescriptors: boolean) => appsHaveDescriptors ? this.saveChanges() : Q.resolve())
-                .then(this.handleAppChange)
-                .finally(() => applicationKeys=[]);
-        };
-        const debouncedSaveOnAppChange = AppHelper.debounce(saveOnAppChange, 300);
-
-        this.applicationAddedListener = (event: ApplicationAddedEvent) => {
-            this.addXDataStepForms(event.getApplicationKey());
-            applicationKeys.push(event.getApplicationKey());
-            debouncedSaveOnAppChange();
-        };
-
-        this.applicationRemovedListener = (event: ApplicationRemovedEvent) => {
-            this.removeXDataStepForms(event.getApplicationKey())
-                .then((removedXDataCount: number) => {
-                    applicationKeys.push(event.getApplicationKey());
-
-                    if (this.isSaving()) {
-                        // Save might already have been initiated by the LiveEdit page on app remove
-                        return;
-                    }
-
-                    saveOnAppChange(removedXDataCount > 0);
-                });
-        };
-
-        this.applicationUninstalledListener = (event: ApplicationEvent) => {
-            if (!this.isAppUsedByContent(event.getApplicationKey())) {
-                return;
-            }
-            this.missingOrStoppedAppKeys.push(event.getApplicationKey());
-            this.handleAppChange();
-        };
-
-        this.applicationStoppedListener = (event: ApplicationEvent) => {
-            if (!this.isAppUsedByContent(event.getApplicationKey())) {
-                return;
-            }
-            this.missingOrStoppedAppKeys.push(event.getApplicationKey());
-
-            let message = i18n('notify.app.missing', event.getApplicationKey().toString());
-
-            if (this.isVisible()) {
-                showWarning(message);
-            } else {
-                let shownHandler = () => {
-                    new GetApplicationRequest(event.getApplicationKey()).sendAndParse()
-                        .then(
-                            (application: Application) => {
-                                if (application.getState() === 'stopped') {
-                                    showWarning(message);
-                                }
-                            })
-                        .catch((reason: any) => { //app was uninstalled
-                            showWarning(message);
-                        });
-
-                    this.unShown(shownHandler);
-                };
-
-                this.onShown(shownHandler);
-            }
-            this.handleAppChange();
-        };
-
-        this.applicationStartedListener = (event: ApplicationEvent) => {
-            if (!this.isAppUsedByContent(event.getApplicationKey())) {
-                return;
-            }
-            let indexToRemove = -1;
-            this.missingOrStoppedAppKeys.some((applicationKey: ApplicationKey, index) => {
-                indexToRemove = index;
-                return event.getApplicationKey().equals(applicationKey);
-            });
-            if (indexToRemove > -1) {
-                this.missingOrStoppedAppKeys.splice(indexToRemove, 1);
-            }
-            this.handleAppChange();
-        };
 
         MaskContentWizardPanelEvent.on(event => {
             if (this.getPersistedItem().getContentId().equals(event.getContentId())) {
@@ -1719,7 +1836,7 @@ export class ContentWizardPanel
 
         if (this.isSplitEditModeActive()) {
             this.wizardActions.getShowSplitEditAction().execute();
-        } else if (this.getSplitPanel()) {
+        } else if (this.splitPanel) {
             this.wizardActions.getShowFormAction().execute();
         }
         if (editorEnabled) {
@@ -2222,7 +2339,7 @@ export class ContentWizardPanel
             return;
         }
 
-        this.getSplitPanel().addClass('toggle-live').removeClass('toggle-form toggle-split');
+        this.splitPanel.addClass('toggle-live').removeClass('toggle-form toggle-split');
         this.getMainToolbar().toggleClass('live', true);
         this.toggleClass('form', false);
 
@@ -2230,7 +2347,7 @@ export class ContentWizardPanel
     }
 
     showSplitEdit() {
-        this.getSplitPanel().addClass('toggle-split').removeClass('toggle-live toggle-form');
+        this.splitPanel.addClass('toggle-split').removeClass('toggle-live toggle-form');
         this.getMainToolbar().toggleClass('live', true);
         this.toggleClass('form', false);
 
@@ -2238,7 +2355,7 @@ export class ContentWizardPanel
     }
 
     showForm() {
-        this.getSplitPanel().addClass('toggle-form').removeClass('toggle-live toggle-split');
+        this.splitPanel.addClass('toggle-form').removeClass('toggle-live toggle-split');
         this.getMainToolbar().toggleClass('live', false);
         this.toggleClass('form', true);
 
@@ -2246,11 +2363,11 @@ export class ContentWizardPanel
     }
 
     private isSplitView(): boolean {
-        return this.getSplitPanel() && this.getSplitPanel().hasClass('toggle-split');
+        return this.splitPanel && this.splitPanel.hasClass('toggle-split');
     }
 
     private isLiveView(): boolean {
-        return this.getSplitPanel() && this.getSplitPanel().hasClass('toggle-live');
+        return this.splitPanel && this.splitPanel.hasClass('toggle-live');
     }
 
 
@@ -2446,7 +2563,7 @@ export class ContentWizardPanel
             this.getMainToolbar().getMobileItemStatisticsToggler().setActive(false);
         }
 
-        this.getSplitPanel().showSecondPanel();
+        this.splitPanel.showSecondPanel();
         const showInspectionPanel = ResponsiveRanges._1920_UP.isFitOrBigger(this.getEl().getWidthWithBorder());
         livePanel.clearPageViewSelectionAndOpenInspectPage(showInspectionPanel);
         this.showMinimizeEditButton();
@@ -2456,7 +2573,7 @@ export class ContentWizardPanel
         if (this.contextSplitPanel.isMobileMode()) {
             this.getMainToolbar().getMobileItemStatisticsToggler().setActive(false);
         }
-        this.getSplitPanel().hideSecondPanel();
+        this.splitPanel.hideSecondPanel();
         this.hideMinimizeEditButton();
 
         if (this.liveMask && this.liveMask.isVisible()) {
@@ -2640,10 +2757,7 @@ export class ContentWizardPanel
     protected setPersistedItem(newPersistedItem: Content): void {
         super.setPersistedItem(newPersistedItem);
 
-        if (this.getWizardHeader()) {
-            this.getWizardHeader().setPersistedPath(newPersistedItem);
-            this.getWizardHeader().setOnline(this.persistedContent.isOnline());
-        }
+        this.wizardHeader?.setPersistedPath(newPersistedItem);
     }
 
     isHeaderValidForSaving(): boolean {
@@ -2653,9 +2767,7 @@ export class ContentWizardPanel
     private setPersistedContent(content: ContentSummaryAndCompareStatus) {
         this.persistedContent = content;
 
-        if (this.getWizardHeader()) {
-            this.getWizardHeader().setOnline(this.persistedContent.isOnline());
-        }
+        this.wizardHeader?.setOnline(this.persistedContent.isOnline());
     }
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {
@@ -2681,5 +2793,17 @@ export class ContentWizardPanel
 
     isContentExistsInParentProject(): boolean {
         return !!this.contentExistsInParentProject;
+    }
+
+    isMinimized(): boolean {
+        return this.minimized;
+    }
+
+    protected calcNavigationWidth(): number {
+        if (this.minimized) {
+            return this.splitPanel.getEl().getHeight() + this.stepNavigatorAndToolbarContainer.getEl().getPaddingLeft();
+        }
+
+        return super.calcNavigationWidth();
     }
 }

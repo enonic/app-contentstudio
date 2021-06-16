@@ -138,7 +138,7 @@ export class ContentBrowsePanel
         return filterPanel;
     }
 
-    protected createMainContentSplitPanel(gridAndItemsSplitPanel: SplitPanel): SplitPanel {
+    protected createBrowseWithItemsPanel(): SplitPanel {
         const browseActions: ContentTreeGridActions = this.getBrowseActions();
         const mobileActions: Action[] = [
             browseActions.getAction(ActionName.UNPUBLISH),
@@ -150,7 +150,8 @@ export class ContentBrowsePanel
             browseActions.getAction(ActionName.EDIT),
             browseActions.getAction(ActionName.SHOW_NEW_DIALOG)
         ];
-        this.contextSplitPanel = new ContextSplitPanel(gridAndItemsSplitPanel, mobileActions);
+
+        this.contextSplitPanel = new ContextSplitPanel(this.getBrowseItemPanel(), mobileActions);
 
         return this.contextSplitPanel;
     }

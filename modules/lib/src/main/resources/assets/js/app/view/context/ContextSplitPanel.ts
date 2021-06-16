@@ -39,14 +39,13 @@ export class ContextSplitPanel
 
         const builder = new SplitPanelBuilder(leftPanel, dockedContextPanel)
             .setAlignment(SplitPanelAlignment.VERTICAL)
-            .setSecondPanelSize(280, SplitPanelUnit.PIXEL)
             .setSecondPanelMinSize(280, SplitPanelUnit.PIXEL)
             .setAnimationDelay(600)
             .setSecondPanelShouldSlideRight(true);
 
         super(builder);
         this.addClass('context-split-panel');
-        this.setSecondPanelSize(280, SplitPanelUnit.PIXEL);
+        this.setSecondPanelSize(32, SplitPanelUnit.PERCENT);
 
         this.data = data;
         this.leftPanel = leftPanel;
@@ -69,7 +68,7 @@ export class ContextSplitPanel
                 return this.isMobileMode();
             });
         }
-        nonMobileContextPanelsManagerBuilder.setSplitPanelWithGridAndContext(this);
+        nonMobileContextPanelsManagerBuilder.setSplitPanelWithContext(this);
         nonMobileContextPanelsManagerBuilder.setDefaultContextPanel(this.dockedContextPanel);
         this.floatingContextPanel = new FloatingContextPanel(this.contextView);
         nonMobileContextPanelsManagerBuilder.setFloatingContextPanel(this.floatingContextPanel);

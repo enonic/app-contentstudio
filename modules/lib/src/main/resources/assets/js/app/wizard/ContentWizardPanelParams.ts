@@ -4,8 +4,10 @@ import {ContentAppBarTabId} from '../ContentAppBarTabId';
 import {Project} from '../settings/data/project/Project';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentId} from '../content/ContentId';
+import {WizardPanelParams} from 'lib-admin-ui/app/wizard/WizardPanel';
+import {Content} from '../content/Content';
 
-export class ContentWizardPanelParams {
+export class ContentWizardPanelParams implements WizardPanelParams<Content> {
 
     application: Application;
 
