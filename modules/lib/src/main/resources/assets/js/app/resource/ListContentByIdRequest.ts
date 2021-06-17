@@ -1,13 +1,13 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentResponse} from './ContentResponse';
 import {ListContentResult} from './ListContentResult';
 import {ContentMetadata} from '../content/ContentMetadata';
 import {Expand} from 'lib-admin-ui/rest/Expand';
-import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
+import {ContentSummary} from '../content/ContentSummary';
+import {ContentId} from '../content/ContentId';
+import {ChildOrder} from './order/ChildOrder';
+import {ContentSummaryJson} from '../content/ContentSummaryJson';
 
 export class ListContentByIdRequest
     extends ContentResourceRequest<ContentResponse<ContentSummary>> {

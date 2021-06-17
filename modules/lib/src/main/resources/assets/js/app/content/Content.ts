@@ -1,7 +1,6 @@
 import {Property} from 'lib-admin-ui/data/Property';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {RoleKeys} from 'lib-admin-ui/security/RoleKeys';
-import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
 import {PropertyTreeHelper} from 'lib-admin-ui/util/PropertyTreeHelper';
 import {Attachments, AttachmentsBuilder} from '../attachment/Attachments';
 import {ContentJson} from './ContentJson';
@@ -17,6 +16,7 @@ import {Cloneable} from 'lib-admin-ui/Cloneable';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
 
 export class Content
     extends ContentSummary
@@ -190,6 +190,10 @@ export class Content
     newBuilder(): ContentBuilder {
         return new ContentBuilder(this);
     }
+
+    newBuilderWithoutProperties(): ContentBuilder {
+        return new ContentBuilder(this, false);
+    }
 }
 
 export class ContentBuilder
@@ -209,14 +213,16 @@ export class ContentBuilder
 
     overwritePermissions: boolean = false;
 
-    constructor(source?: Content) {
+    constructor(source?: Content, cloneProperties: boolean = true) {
         super(source);
-        if (source) {
 
-            this.data = source.getContentData() ? source.getContentData().copy() : null;
+        if (source) {
+            if (cloneProperties) {
+                this.data = source.getContentData() ? source.getContentData().copy() : null;
+                this.extraData = source.getAllExtraData() ? source.getAllExtraData().map((extraData: ExtraData) => extraData.clone()) : [];
+                this.pageObj = source.getPage() ? source.getPage().clone() : null;
+            }
             this.attachments = source.getAttachments();
-            this.extraData = source.getAllExtraData() ? source.getAllExtraData().map((extraData: ExtraData) => extraData.clone()) : [];
-            this.pageObj = source.getPage() ? source.getPage().clone() : null;
             this.permissions = source.getPermissions(); // TODO clone?
             this.inheritPermissions = source.isInheritPermissionsEnabled();
             this.overwritePermissions = source.isOverwritePermissionsEnabled();

@@ -24,14 +24,14 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     let htmlAreaContentEmpty;
     let SITE;
 
-    it(`Preconditions: new site should be created`,
+    it("Preconditions: new site should be created",
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN new wizard for htmlArea 2-4 is opened WHEN name has been typed AND Save pressed THEN content should be saved`,
+    it(`GIVEN new wizard for htmlArea 2-4 is opened WHEN name has been typed AND 'Save' pressed THEN content should be saved`,
         async () => {
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('htmlarea');
@@ -54,7 +54,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             let contentWizard = new ContentWizard();
             //1. Open existing content:
             await studioUtils.selectContentAndOpenWizard(htmlAreaContentEmpty.displayName);
-            let result = await htmlAreaForm.getValidationRecord();
+            let result = await htmlAreaForm.getFormValidationRecording();
             studioUtils.saveScreenshot('htmlarea_2_4_empty_area');
             //2. Verify that validation record is displayed:
             assert.equal(result, "Min 2 occurrences required", "Expected validation record should be displayed");
@@ -144,7 +144,7 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             //4. Verify that red icon gets visible
             let isRedIconDisplayed = await contentWizard.isContentInvalid();
             assert.isTrue(isRedIconDisplayed, "Red icon should appear in the wizard, because both inputs are required");
-            let validationRecord = await htmlAreaForm.getValidationRecord();
+            let validationRecord = await htmlAreaForm.getFormValidationRecording();
             assert.equal(validationRecord, "Min 2 occurrences required", "Expected validation record gets visible");
         });
 

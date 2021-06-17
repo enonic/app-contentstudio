@@ -4,7 +4,6 @@ import {showError} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {Body} from 'lib-admin-ui/dom/Body';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
@@ -19,6 +18,7 @@ import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {AutosizeTextInput} from 'lib-admin-ui/ui/text/AutosizeTextInput';
 import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
+import {ContentId} from '../content/ContentId';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.

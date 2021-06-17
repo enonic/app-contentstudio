@@ -67,6 +67,10 @@
       "document": "keyboard-shortcuts"
     },
     {
+      "title": "Configuration",
+      "document": "config"
+    },
+    {
       "title": "Release Notes",
       "document" : "release"
     }

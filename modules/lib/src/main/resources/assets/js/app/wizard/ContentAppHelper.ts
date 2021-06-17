@@ -1,11 +1,10 @@
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
 import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {Application} from 'lib-admin-ui/app/Application';
 import {ContentAppBarTabId} from '../ContentAppBarTabId';
 import {UrlAction} from '../UrlAction';
-
+import {ContentId} from '../content/ContentId';
 
 export class ContentAppHelper {
 

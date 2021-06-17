@@ -18,8 +18,8 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
 import {DropdownButtonRow} from 'lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ResolveDeleteRequest} from '../resource/ResolveDeleteRequest';
+import {ContentId} from '../content/ContentId';
 
 export class ContentDeleteDialog
     extends DependantItemsWithProgressDialog {

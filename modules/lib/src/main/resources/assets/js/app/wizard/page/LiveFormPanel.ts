@@ -78,16 +78,16 @@ import {PageMode} from '../../page/PageMode';
 import {RegionPath} from '../../page/region/RegionPath';
 import {BaseInspectionPanel} from './contextwindow/inspect/BaseInspectionPanel';
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
-import {ContentIds} from '../../ContentIds';
+import {ContentIds} from '../../content/ContentIds';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {BrEl} from 'lib-admin-ui/dom/BrEl';
+import {ContentId} from '../../content/ContentId';
 
 export interface LiveFormPanelConfig {
 
@@ -101,6 +101,11 @@ export interface LiveFormPanelConfig {
 export interface PageEditorData {
     contextWindow?: ContextWindow;
     liveFormPanel?: LiveFormPanel;
+}
+
+enum ErrorType {
+    APP_MISSING = 0,
+    RENDER_ERROR = 1
 }
 
 export class LiveFormPanel
@@ -142,6 +147,10 @@ export class LiveFormPanel
     private contentWizardPanel: ContentWizardPanel;
 
     private liveEditPageProxy: LiveEditPageProxy;
+
+    private previewMessageEl: PEl;
+
+    private errorMessages: {type: ErrorType, message: string}[] = [];
 
     private contentEventListener: (event: any) => void;
 
@@ -342,7 +351,7 @@ export class LiveFormPanel
     }
 
     private createContextWindow(proxy: LiveEditPageProxy, model: LiveEditModel): ContextWindow { //
-        this.inspectionsPanel = this.createInspectionsPanel(model, this.saveAsTemplateAction);
+        this.inspectionsPanel = this.createInspectionsPanel();
 
         this.insertablesPanel = new InsertablesPanel({
             liveEditPage: proxy,
@@ -358,10 +367,10 @@ export class LiveFormPanel
         });
     }
 
-    private createInspectionsPanel(model: LiveEditModel, saveAsTemplateAction: SaveAsTemplateAction): InspectionsPanel {
-        let saveAction = new Action(i18n('action.apply'));
-        saveAction.onExecuted(() => {
+    private createInspectionsPanel(): InspectionsPanel {
+        const saveAction: Action = new Action(i18n('action.apply'));
 
+        saveAction.onExecuted(() => {
             if (this.pageView) {
                 const itemView = this.pageView.getSelectedView();
                 if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
@@ -378,7 +387,7 @@ export class LiveFormPanel
 
         this.contentInspectionPanel = new ContentInspectionPanel();
 
-        this.pageInspectionPanel = new PageInspectionPanel(saveAsTemplateAction);
+        this.pageInspectionPanel = new PageInspectionPanel(this.saveAsTemplateAction);
         this.partInspectionPanel = new PartInspectionPanel();
         this.layoutInspectionPanel = new LayoutInspectionPanel();
         this.imageInspectionPanel = new ImageInspectionPanel();
@@ -431,14 +440,10 @@ export class LiveFormPanel
             this.frameContainer.appendChildren<Element>(this.liveEditPageProxy.getIFrame(),
                 this.liveEditPageProxy.getPlaceholderIFrame(), this.liveEditPageProxy.getDragMask());
 
-            const noPreviewMessageEl = new PEl('no-preview-message').appendChildren<any>(
-                SpanEl.fromText(i18n('field.preview.failed')),
-                new BrEl(),
-                SpanEl.fromText(i18n('field.preview.failed.description'))
-            );
+            this.previewMessageEl = new PEl('no-preview-message');
 
             // append mask here in order for the context window to be above
-            this.appendChildren<Element>(this.frameContainer, noPreviewMessageEl);
+            this.appendChildren<Element>(this.frameContainer, this.previewMessageEl);
 
             this.liveEditListen();
 
@@ -454,6 +459,61 @@ export class LiveFormPanel
             });
 
             return liveEditDeferred.promise;
+        });
+    }
+
+    private togglePreviewPanel(visible: boolean) {
+        this.toggleClass('no-preview', visible);
+    }
+
+    private hasErrorMessage(type: ErrorType): boolean {
+        return this.errorMessages.some((errorMessage) => errorMessage.type === type);
+    }
+
+    private addErrorMessage(type: ErrorType, message: string): boolean {
+        if (this.hasErrorMessage(type)) {
+            return;
+        }
+        this.errorMessages.push({type, message});
+        this.togglePreviewErrors();
+    }
+
+    private setErrorRenderingFailed() {
+        this.addErrorMessage(ErrorType.RENDER_ERROR, 'field.preview.failed.description');
+    }
+
+    setErrorMissingApps() {
+        this.addErrorMessage(ErrorType.APP_MISSING, 'field.preview.missing.description');
+    }
+
+    clearErrorMissingApps() {
+        if (!this.errorMessages.length) {
+            return;
+        }
+        this.errorMessages = this.errorMessages.filter((errorMessage) => errorMessage.type !== ErrorType.APP_MISSING);
+        this.togglePreviewErrors();
+    }
+
+    private clearPreviewErrors() {
+        this.errorMessages = [];
+        this.togglePreviewErrors();
+    }
+
+    private togglePreviewErrors() {
+        this.whenRendered(() => {
+            if (!this.errorMessages.length) {
+                this.togglePreviewPanel(false);
+                return;
+            }
+            const message = this.errorMessages.sort(
+                (e1, e2) => e1.type - e2.type)[0].message;
+            this.previewMessageEl.removeChildren();
+            this.previewMessageEl.appendChildren<any>(
+                SpanEl.fromText(i18n('field.preview.failed')),
+                new BrEl(),
+                SpanEl.fromText(i18n(message))
+            );
+            this.togglePreviewPanel(true);
         });
     }
 
@@ -558,6 +618,7 @@ export class LiveFormPanel
                 this.insertablesPanel.getComponentsView().removeClass('loading');
             });
 
+            this.clearPreviewErrors();
             this.liveEditPageProxy.load();
 
             if (clearInspection) {
@@ -571,11 +632,10 @@ export class LiveFormPanel
     }
 
     saveAndReloadOnlyComponent(componentView: ComponentView<Component>) {
-
         assertNotNull(componentView, 'componentView cannot be null');
-
         this.pageSkipReload = true;
-        const componentUrl = UriHelper.getComponentUri(this.content.getContentId().toString(),
+
+        const componentUrl: string = UriHelper.getComponentUri(this.content.getContentId().toString(),
             componentView.getComponentPath(),
             RenderingMode.EDIT);
 
@@ -584,23 +644,11 @@ export class LiveFormPanel
             componentView.showLoadingSpinner();
             return this.liveEditPageProxy.loadComponent(componentView, componentUrl);
         }).catch((error: any) => {
-
             DefaultErrorHandler.handle(error);
 
             componentView.hideLoadingSpinner();
             componentView.showRenderingError(componentUrl, error.message);
         }).done();
-    }
-
-    updateFrameContainerSize(contextWindowShown: boolean, contextWindowWidth?: number) {
-        if (!this.frameContainer) {
-            return;
-        }
-        if (contextWindowShown && contextWindowWidth) {
-            this.frameContainer.getEl().setWidth('calc(100% - ' + (contextWindowWidth - 1) + 'px)');
-        } else {
-            this.frameContainer.getEl().setWidth('100%');
-        }
     }
 
     private liveEditListen() {
@@ -649,12 +697,15 @@ export class LiveFormPanel
 
         this.liveEditPageProxy.onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
             this.pageView = event.getPageView();
+
             if (this.pageView) {
                 this.insertablesPanel.setPageView(this.pageView);
                 this.pageView.getContextMenuActions().push(this.saveAsTemplateAction);
                 restoreSelection();
 
                 this.notifyPageViewReady(this.pageView);
+            } else {
+                this.setErrorRenderingFailed();
             }
         });
 

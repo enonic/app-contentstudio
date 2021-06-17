@@ -1,11 +1,11 @@
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentJson} from '../content/ContentJson';
 import {Content, ContentBuilder} from '../content/Content';
 import {SiteBuilder} from '../content/Site';
 import {PageTemplateBuilder} from '../content/PageTemplate';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ProjectBasedResourceRequest} from '../wizard/ProjectBasedResourceRequest';
+import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummaryJson} from '../content/ContentSummaryJson';
 
 export abstract class ContentResourceRequest<PARSED_TYPE>
     extends ProjectBasedResourceRequest<PARSED_TYPE> {

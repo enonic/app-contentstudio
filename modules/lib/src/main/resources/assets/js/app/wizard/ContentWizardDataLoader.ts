@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultModels} from './page/DefaultModels';
 import {DefaultModelsFactory, DefaultModelsFactoryConfig} from './page/DefaultModelsFactory';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
@@ -16,6 +15,11 @@ import {PublishStatus} from '../publish/PublishStatus';
 import {ContentType} from '../inputtype/schema/ContentType';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
+import {ContentId} from '../content/ContentId';
+import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
+import {ProjectContext} from '../project/ProjectContext';
+import {ContentsExistRequest} from '../resource/ContentsExistRequest';
+import {ContentsExistResult} from '../resource/ContentsExistResult';
 
 export class ContentWizardDataLoader {
 
@@ -32,6 +36,8 @@ export class ContentWizardDataLoader {
     compareStatus: CompareStatus;
 
     publishStatus: PublishStatus;
+
+    contentExistsInParentProject: boolean;
 
     loadData(params: ContentWizardPanelParams): Q.Promise<ContentWizardDataLoader> {
         if (!params.contentId) {
@@ -67,34 +73,43 @@ export class ContentWizardDataLoader {
     }
 
     private loadDataForEdit(params: ContentWizardPanelParams): Q.Promise<ContentWizardDataLoader> {
-
-        let sitePromise = this.loadSite(params.contentId).then((loadedSite: Site) => {
+        const sitePromise: Q.Promise<void> = this.loadSite(params.contentId).then((loadedSite: Site) => {
             this.siteContent = loadedSite;
+            return Q(null);
         });
 
-        let contentPromise = this.loadContent(params.contentId).then((loadedContent: Content) => {
+        const contentPromise: Q.Promise<void> = this.loadContent(params.contentId).then((loadedContent: Content) => {
             this.content = loadedContent;
+            return Q(null);
         });
 
-        let modelsPromise = Q.all([sitePromise, contentPromise]).then(() => {
+        const modelsPromise: Q.Promise<void> = Q.all([sitePromise, contentPromise]).then(() => {
             return this.loadDefaultModels(this.siteContent, this.content.getType()).then((defaultModels) => {
                 this.defaultModels = defaultModels;
+                return Q(null);
             });
         });
 
-        let otherPromises = contentPromise.then(() => {
-            let parentPromise = this.loadParentContent(params, false);
-            let typePromise = this.loadContentType(this.content.getType());
-            let statusPromise = ContentSummaryAndCompareStatusFetcher.fetchByContent(this.content);
+        const otherPromises: Q.Promise<void> = contentPromise.then(() => {
+            const parentPromise: Q.Promise<Content> = this.loadParentContent(params, false);
+            const typePromise: Q.Promise<ContentType> = this.loadContentType(this.content.getType());
+            const statusPromise: Q.Promise<ContentSummaryAndCompareStatus> =
+                ContentSummaryAndCompareStatusFetcher.fetchByContent(this.content);
+            const parentProjectContentExistsPromise: Q.Promise<boolean> = this.loadParentProjectItemIfExists();
 
-            return Q.all([parentPromise, typePromise, statusPromise]).spread((parentContent, contentType, compareStatus) => {
-                this.parentContent = parentContent;
-                this.contentType = contentType;
-                if (compareStatus) {
-                    this.compareStatus = compareStatus.getCompareStatus();
-                    this.publishStatus = compareStatus.getPublishStatus();
-                }
-            });
+            return Q.all([parentPromise, typePromise, statusPromise, parentProjectContentExistsPromise]).spread(
+                (parentContent, contentType, compareStatus, existsInParentProject) => {
+                    this.parentContent = parentContent;
+                    this.contentType = contentType;
+                    this.contentExistsInParentProject = existsInParentProject;
+
+                    if (compareStatus) {
+                        this.compareStatus = compareStatus.getCompareStatus();
+                        this.publishStatus = compareStatus.getPublishStatus();
+                    }
+
+                    return Q(null);
+                });
         });
 
         return Q.all([modelsPromise, otherPromises]).then(() => {
@@ -103,11 +118,7 @@ export class ContentWizardDataLoader {
     }
 
     private loadContent(contentId: ContentId): Q.Promise<Content> {
-        /*        if (ObjectHelper.iFrameSafeInstanceOf(contentId, Content)) {
-         return Q(<Content> contentId);
-         } else {*/
         return new GetContentByIdRequest(contentId).sendAndParse();
-        // }
     }
 
     private loadContentType(name: ContentTypeName): Q.Promise<ContentType> {
@@ -126,7 +137,6 @@ export class ContentWizardDataLoader {
     }
 
     public loadDefaultModels(site: Site, contentType: ContentTypeName): Q.Promise<DefaultModels> {
-
         if (site) {
             return DefaultModelsFactory.create(<DefaultModelsFactoryConfig>{
                 siteId: site.getContentId(),
@@ -141,21 +151,28 @@ export class ContentWizardDataLoader {
     }
 
     private loadParentContent(params: ContentWizardPanelParams, isNew: boolean = true): Q.Promise<Content> {
-        /*
-         if (ObjectHelper.iFrameSafeInstanceOf(params.parentContentId, Content)) {
-         return Q(<Content> params.parentContentId);
-         }*/
-
         if (!isNew && !this.content.hasParent() ||
             isNew && params.parentContentId == null) {
             return Q<Content>(null);
-
         } else if (this.content) {
             return new GetContentByPathRequest(this.content.getPath().getParentPath()).sendAndParse();
-
         } else if (params.parentContentId) {
             return new GetContentByIdRequest(params.parentContentId).sendAndParse();
         }
     }
 
+    private loadParentProjectItemIfExists(): Q.Promise<boolean> {
+        const parentProjectName: string = ProjectContext.get().getProject().getParent();
+
+        if (!parentProjectName) {
+            return Q(false);
+        }
+
+        const id: string = this.content.getId();
+
+        return new ContentsExistRequest([id])
+            .setRequestProjectName(parentProjectName)
+            .sendAndParse()
+            .then((result: ContentsExistResult) => !!result.getContentsExistMap()[id]);
+    }
 }

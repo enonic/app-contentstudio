@@ -1,7 +1,6 @@
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Equitable} from 'lib-admin-ui/Equitable';
-import {LayoutDescriptor} from 'lib-admin-ui/content/page/region/LayoutDescriptor';
 import {Regions} from './Regions';
 import {Region} from './Region';
 import {ComponentPath, ComponentPathRegionAndComponent} from './ComponentPath';
@@ -11,6 +10,7 @@ import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {LayoutComponentType} from './LayoutComponentType';
 import {LayoutRegionsMerger} from './LayoutRegionsMerger';
 import {DescriptorBasedComponent, DescriptorBasedComponentBuilder} from './DescriptorBasedComponent';
+import {Descriptor} from '../Descriptor';
 
 export class LayoutComponent
     extends DescriptorBasedComponent {
@@ -97,7 +97,7 @@ export class LayoutComponent
         }
     }
 
-    setDescriptor(descriptor: LayoutDescriptor) {
+    setDescriptor(descriptor: Descriptor) {
         super.setDescriptor(descriptor);
 
         if (descriptor) {
@@ -105,9 +105,9 @@ export class LayoutComponent
         }
     }
 
-    addRegions(layoutDescriptor: LayoutDescriptor) {
+    addRegions(descriptor: Descriptor) {
         const sourceRegions = this.getRegions();
-        const mergedRegions = new LayoutRegionsMerger().merge(sourceRegions, layoutDescriptor.getRegions(), this);
+        const mergedRegions = new LayoutRegionsMerger().merge(sourceRegions, descriptor.getRegions(), this);
         this.setRegions(mergedRegions);
     }
 

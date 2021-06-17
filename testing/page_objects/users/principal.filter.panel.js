@@ -95,6 +95,7 @@ class PrincipalFilterPanel extends Page {
     isPanelVisible() {
         return this.isElementDisplayed(xpath.container);
     }
-};
+}
+
 module.exports = PrincipalFilterPanel;
 

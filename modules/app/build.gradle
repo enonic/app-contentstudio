@@ -16,6 +16,14 @@ app {
     devSourcePaths += file( "../lib/src/main/resources" )
 }
 
+configurations {
+    devResources {
+        attributes {
+            attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, 'dev-resources'))
+        }
+    }
+}
+
 dependencies {
     implementation "com.enonic.xp:core-api:${xpVersion}"
     implementation "com.enonic.xp:portal-api:${xpVersion}"
@@ -29,7 +37,21 @@ dependencies {
     include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
     include project( ':lib-contentstudio' )
     include project( ':rest' )
+    devResources project(path: ':lib-contentstudio', configuration: 'devResources' )
+    devResources "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
 }
+
+task copyDevResources {
+    doLast {
+        copy {
+            from configurations.devResources.files.collect { zipTree( it ) }
+            include 'dev/**'
+            into '.xp'
+        }
+    }
+}
+
+npmInstall.dependsOn copyDevResources
 
 node {
     version = '15.8.0'
@@ -38,17 +60,9 @@ node {
 
 if ( hasLibAdminUi() )
 {
+    copyDevResources.dependsOn += libAdminBuildTask
     build.dependsOn += libAdminBuildTask
     clean.dependsOn += libAdminCleanTask
-}
-
-npmInstall.mustRunAfter unpackDevResources
-processResources.dependsOn += unpackDevResources
-
-project.afterEvaluate {
-    jar {
-        bnd ('Private-Package': '!dev.*, *;-split-package:=merge-first')
-    }
 }
 
 task lint( type: NpmTask, dependsOn: npmInstall ) {
@@ -83,6 +97,6 @@ jar {
 
     outputs.dir "$buildDir/resources/main"
 
-    dependsOn += webpack
+    dependsOn webpack
 }
 

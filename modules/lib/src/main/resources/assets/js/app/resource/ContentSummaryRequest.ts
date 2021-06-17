@@ -1,7 +1,5 @@
 import * as Q from 'q';
 import {Path} from 'lib-admin-ui/rest/Path';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {QueryField} from 'lib-admin-ui/query/QueryField';
 import {OrderExpr} from 'lib-admin-ui/query/expr/OrderExpr';
@@ -10,7 +8,6 @@ import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {FieldOrderExpr} from 'lib-admin-ui/query/expr/FieldOrderExpr';
 import {OrderDirection} from 'lib-admin-ui/query/expr/OrderDirection';
 import {ConstraintExpr} from 'lib-admin-ui/query/expr/ConstraintExpr';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ContentQueryRequest} from './ContentQueryRequest';
 import {ContentQueryResult} from './ContentQueryResult';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';
@@ -19,6 +16,9 @@ import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {Expand} from 'lib-admin-ui/rest/Expand';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {PathMatchExpressionBuilder} from 'lib-admin-ui/query/PathMatchExpression';
+import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {ContentPath} from '../content/ContentPath';
 
 export class ContentSummaryRequest
     extends ResourceRequest<ContentSummary[]> {

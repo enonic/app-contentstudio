@@ -273,11 +273,14 @@ class ContentWizardPanel extends Page {
         })
     }
 
-    clickOnXdataToggler() {
-        return this.clickOnElement(XPATH.xDataToggler).catch(err => {
+    async clickOnXdataToggler() {
+        try {
+            await this.clickOnElement(XPATH.xDataToggler);
+            return await this.pause(500);
+        } catch (err) {
             this.saveScreenshot('err_click_on_xdata_toggler');
             throw new Error("Error when clicking on x-data toggler " + err);
-        })
+        }
     }
 
     async clickOnXdataTogglerByName(name) {
@@ -395,7 +398,6 @@ class ContentWizardPanel extends Page {
             this.saveScreenshot(appConst.generateRandomName("err_edit_perm_button"));
             throw new Error(err);
         }
-
     }
 
     waitForOpened() {
@@ -403,7 +405,7 @@ class ContentWizardPanel extends Page {
             this.saveScreenshot(contentBuilder.generateRandomName('err_open_wizard'));
             throw new Error("Content wizard was not loaded! " + err);
         }).then(() => {
-            return this.waitForSpinnerNotVisible(appConst.mediumTimeout);
+            return this.waitForSpinnerNotVisible(appConst.longTimeout);
         });
     }
 
@@ -430,11 +432,14 @@ class ContentWizardPanel extends Page {
         });
     }
 
-    waitForSavedButtonVisible() {
-        return this.waitForElementDisplayed(this.savedButton, appConst.mediumTimeout).catch(err => {
+    async waitForSavedButtonVisible() {
+        try {
+            await this.waitForElementDisplayed(this.savedButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.savedButton, appConst.mediumTimeout);
+        } catch (err) {
             this.saveScreenshot('err_saved_button_not_visible');
-            throw new Error("Saved button is not visible in 3 seconds" + err);
-        });
+            throw new Error("Saved button is not visible or it is not disabled" + err);
+        }
     }
 
     switchToLiveEditFrame() {
@@ -571,7 +576,7 @@ class ContentWizardPanel extends Page {
         });
     }
 
-    waitUntilInvalidIconAppears(displayName) {
+    waitUntilInvalidIconAppears() {
         let selector = this.thumbnailUploader;
         return this.waitUntilInvalid(selector).catch(err => {
             this.saveScreenshot('err_wizard_validation_icon1');
@@ -579,7 +584,7 @@ class ContentWizardPanel extends Page {
         });
     }
 
-    waitUntilInvalidIconDisappears(displayName) {
+    waitUntilInvalidIconDisappears() {
         let selector = this.thumbnailUploader;
         return this.getBrowser().waitUntil(() => {
             return this.getAttribute(selector, 'class').then(result => {
@@ -661,7 +666,6 @@ class ContentWizardPanel extends Page {
             await this.switchToMainFrame();
             throw new Error(err);
         }
-
     }
 
     waitForControllerOptionFilterInputNotVisible() {

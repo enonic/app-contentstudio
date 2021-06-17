@@ -4,6 +4,7 @@ import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from 'lib-admin-ui/Class';
 import {Property} from 'lib-admin-ui/data/Property';
 import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
+import {PropertySet} from 'lib-admin-ui/data/PropertySet';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {Value} from 'lib-admin-ui/data/Value';
 import {ValueType} from 'lib-admin-ui/data/ValueType';
@@ -22,9 +23,7 @@ import {ContentFormContext} from '../../ContentFormContext';
 import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
-import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
 import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 export class SiteConfigurator
     extends BaseInputTypeManagingAdd {
@@ -65,29 +64,28 @@ export class SiteConfigurator
     }
 
     layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
+        return super.layout(input, propertyArray).then(() => {
+            let deferred = Q.defer<void>();
 
-        super.layout(input, propertyArray);
+            this.siteConfigProvider = new ApplicationConfigProvider(propertyArray);
+            // ignore changes made to property by siteConfigProvider
+            this.siteConfigProvider.onBeforePropertyChanged(() => this.ignorePropertyChange(true));
+            this.siteConfigProvider.onAfterPropertyChanged(() => this.ignorePropertyChange(false));
 
-        let deferred = Q.defer<void>();
+            this.comboBox = this.createComboBox(input, this.siteConfigProvider);
 
-        this.siteConfigProvider = new ApplicationConfigProvider(propertyArray);
-        // ignore changes made to property by siteConfigProvider
-        this.siteConfigProvider.onBeforePropertyChanged(() => this.ignorePropertyChange = true);
-        this.siteConfigProvider.onAfterPropertyChanged(() => this.ignorePropertyChange = false);
+            this.readOnlyPromise.then((readonly: boolean) => {
+                this.comboBox.setEnabled(!readonly);
+            });
 
-        this.comboBox = this.createComboBox(input, this.siteConfigProvider);
+            this.appendChild(this.comboBox);
 
-        this.readOnlyPromise.then((readonly: boolean) => {
-            this.comboBox.setEnabled(!readonly);
+            this.comboBox.render().then(() => {
+                this.setLayoutInProgress(false);
+                deferred.resolve(null);
+            });
+            return deferred.promise;
         });
-
-        this.appendChild(this.comboBox);
-
-        this.comboBox.render().then(() => {
-            this.setLayoutInProgress(false);
-            deferred.resolve(null);
-        });
-        return deferred.promise;
     }
 
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
@@ -95,23 +93,23 @@ export class SiteConfigurator
             const optionsMissing = !!propertyArray && propertyArray.getSize() > 0 && this.comboBox.getOptions().length === 0;
             return optionsMissing ? this.comboBox.getLoader().preLoad() : null;
         }).then(() => {
-            const ignorePropertyChange = this.ignorePropertyChange;
-            this.ignorePropertyChange = true;
+            const ignorePropertyChange = this.isPropertyChangeIgnored();
+            this.ignorePropertyChange(true);
 
             this.siteConfigProvider.setPropertyArray(propertyArray);
 
             this.deselectOldViews(propertyArray);
 
             const selectedOptionViews = propertyArray.map(property =>
-                <SiteConfiguratorSelectedOptionView>this.selectOptionFromProperty(property).getOptionView());
+                <SiteConfiguratorSelectedOptionView>this.selectOptionFromProperty(property)?.getOptionView());
 
-            const updatePromises = selectedOptionViews.map((view, index) => {
+            const updatePromises = selectedOptionViews.filter(view => !!view).map((view, index) => {
                 const configSet = propertyArray.get(index).getPropertySet().getProperty('config').getPropertySet();
                 return view.getFormView().update(configSet, unchangedOnly);
             });
 
             return Q.all(updatePromises).then(() => {
-                this.ignorePropertyChange = ignorePropertyChange;
+                this.ignorePropertyChange(ignorePropertyChange);
                 if (!unchangedOnly || !this.comboBox.isDirty()) {
                     this.comboBox.setValue(this.getValueFromPropertyArray(propertyArray));
                 } else if (this.comboBox.isDirty()) {
@@ -185,7 +183,7 @@ export class SiteConfigurator
         const comboBox = new SiteConfiguratorComboBox(maximum, siteConfigProvider, this.formContext, value);
 
         const forcedValidate = () => {
-            this.ignorePropertyChange = false;
+            this.ignorePropertyChange(false);
             this.validate(false);
         };
         const saveAndForceValidate = (selectedOption: SelectedOption<Application>) => {
@@ -195,7 +193,7 @@ export class SiteConfigurator
         };
 
         comboBox.onOptionDeselected((event: SelectedOptionEvent<Application>) => {
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
 
             this.getPropertyArray().remove(event.getSelectedOption().getIndex());
 
@@ -204,16 +202,18 @@ export class SiteConfigurator
 
         comboBox.onOptionSelected((event: SelectedOptionEvent<Application>) => {
             this.fireFocusSwitchEvent(event);
+            this.ignorePropertyChange(true);
 
-            this.ignorePropertyChange = true;
-
-            const selectedOption = event.getSelectedOption();
+            const selectedOption: SelectedOption<Application> = event.getSelectedOption();
             const view: SiteConfiguratorSelectedOptionView = <SiteConfiguratorSelectedOptionView>selectedOption.getOptionView();
 
-            const propertyArray = this.getPropertyArray();
-            const configSet = propertyArray.get(selectedOption.getIndex()).getPropertySet().getProperty('config').getPropertySet();
+            const propertyArray: PropertyArray = this.getPropertyArray();
+            const configSet: PropertySet =
+                propertyArray.get(selectedOption.getIndex()).getPropertySet().getProperty('config').getPropertySet();
 
-            view.getFormView().update(configSet, false);
+            view.whenRendered(() => {
+                view.getFormView().update(configSet, false);
+            });
 
             const key = selectedOption.getOption().getDisplayValue().getApplicationKey();
             if (key) {
@@ -222,7 +222,7 @@ export class SiteConfigurator
         });
 
         comboBox.onOptionMoved((selectedOption: SelectedOption<Application>, fromIndex: number) => {
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
 
             this.getPropertyArray().move(fromIndex, selectedOption.getIndex());
             forcedValidate();
@@ -239,35 +239,20 @@ export class SiteConfigurator
             this.validate(false);
         });
 
-        let handleAppEvent = (view: SiteConfiguratorSelectedOptionView, hasUninstalledClass: boolean, hasStoppedClass) => {
-            if (view) {
-                view.toggleClass('stopped', hasStoppedClass);
-                view.toggleClass('uninstalled', hasUninstalledClass);
+        const handleAppEvent = (event: ApplicationEvent) => {
+            if (!event.isNeedToUpdateApplication()) {
+                return;
             }
+            const selectedOptionView: SiteConfiguratorSelectedOptionView = this.getMatchedOption(comboBox, event);
+            if (!selectedOptionView) {
+                return;
+            }
+            selectedOptionView.toggleClass('stopped', ApplicationEventType.STOPPED === event.getEventType());
+            selectedOptionView.toggleClass('uninstalled', ApplicationEventType.UNINSTALLED === event.getEventType());
+            selectedOptionView.update();
         };
 
-        ApplicationEvent.on((event: ApplicationEvent) => {
-            if (ApplicationEventType.STOPPED === event.getEventType()) {
-                handleAppEvent(this.getMatchedOption(comboBox, event), false, true);
-            } else if (ApplicationEventType.STARTED === event.getEventType()) {
-                const view: SiteConfiguratorSelectedOptionView = this.getMatchedOption(comboBox, event);
-                handleAppEvent(view, false, false);
-                if (view) {
-                    view.update();
-
-                    if (view.getOption().isEmpty()) {
-                        view.removeClass('empty');
-                    }
-                }
-            } else if (ApplicationEventType.UNINSTALLED === event.getEventType()) {
-                handleAppEvent(this.getMatchedOption(comboBox, event), true, false);
-            } else if (ApplicationEventType.INSTALLED === event.getEventType()) {
-                const view: SiteConfiguratorSelectedOptionView = this.getMatchedOption(comboBox, event);
-                if (view) {
-                    view.update();
-                }
-            }
-        });
+        ApplicationEvent.on((event: ApplicationEvent) => handleAppEvent(event));
 
         return comboBox;
     }
@@ -283,31 +268,20 @@ export class SiteConfigurator
         return result;
     }
 
-    displayValidationErrors(value: boolean) {
-        this.comboBox.getSelectedOptionViews().forEach((view: SiteConfiguratorSelectedOptionView) => {
-            view.getFormView().displayValidationErrors(value);
-        });
-    }
-
     protected getNumberOfValids(): number {
-        return this.comboBox.countSelected();
+        const anyInvalid: boolean = this.comboBox.getSelectedOptionViews().some((view: SiteConfiguratorSelectedOptionView) =>
+            !view.getFormView().isValid()
+        );
+
+        return anyInvalid ? -1 : this.comboBox.countSelected();
     }
 
-    validate(silent: boolean = true): InputValidationRecording {
-        let recording = new InputValidationRecording();
-
+    validate(silent: boolean = true) {
         this.comboBox.getSelectedOptionViews().forEach((view: SiteConfiguratorSelectedOptionView) => {
-
-            let validationRecording = view.getFormView().validate(true);
-            if (!validationRecording.isMinimumOccurrencesValid()) {
-                recording.setBreaksMinimumOccurrences(true);
-            }
-            if (!validationRecording.isMaximumOccurrencesValid()) {
-                recording.setBreaksMaximumOccurrences(true);
-            }
+             view.getFormView().validate(true);
         });
 
-        return super.validate(silent, recording);
+        super.validate(silent);
     }
 
     giveFocus(): boolean {
@@ -315,6 +289,10 @@ export class SiteConfigurator
             return false;
         }
         return this.comboBox.giveFocus();
+    }
+
+    isValidationErrorToBeRendered(): boolean {
+        return false;
     }
 
 }

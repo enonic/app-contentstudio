@@ -12,11 +12,11 @@
           position: absolute;
           margin: 10px;
           box-sizing: border-box;
-          background-color: #ffffff;
-          border: 1px solid #d3d3d3;
+          background-color: @admin-white;
+          border: 1px solid @admin-bg-light-gray;
 
           &.active, &:hover {
-            background-color: #ffffff;
+            background-color: @admin-white;
             .image-selector-active-cell();
           }
 
@@ -86,6 +86,10 @@
               }
 
             }
+
+            &.status {
+              display: none;
+            }
           }
 
           .slick-cell-checkboxsel {
@@ -102,23 +106,13 @@
       }
     }
 
-    &._240-360 {
-      .slick-cell {
-        &:hover, &.selected {
-          .@{_COMMON_PREFIX}names-view {
-            padding: 0 !important;
-            .@{_COMMON_PREFIX}main-name {
-              font-size: 8px !important;
-            }
-          }
-        }
-      }
-    }
+    &._240-360,
     &._360-540 {
       .slick-cell {
         &:hover, &.selected {
           .@{_COMMON_PREFIX}names-view {
             padding: 0 !important;
+
             .@{_COMMON_PREFIX}main-name {
               font-size: 10px !important;
             }
@@ -127,10 +121,35 @@
       }
     }
   }
+
+  &._0-240,
+  &._240-360 {
+    .image-grid-width(~"calc(100% - 20px)");
+  }
+
+  &._360-540 {
+    .image-grid-width(~"calc(50% - 20px)");
+  }
 }
 
 .image-selector-active-cell() {
   border: 1px solid @admin-input-blue;
   box-shadow: 0 0 10px darken(@admin-input-blue, 10%);
   z-index: @z-index-wizard-option;
+}
+
+.image-grid-width(@width) {
+  .grid:not(.tree-mode) {
+
+    .slick-viewport {
+      scroll-behavior: smooth;
+
+      .grid-canvas {
+
+        .slick-row.ui-widget-content {
+          width: @width;
+        }
+      }
+    }
+  }
 }

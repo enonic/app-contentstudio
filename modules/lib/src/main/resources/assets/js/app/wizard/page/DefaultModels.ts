@@ -1,13 +1,13 @@
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {PageTemplate} from '../../content/PageTemplate';
+import {Descriptor} from '../../page/Descriptor';
 
 export class DefaultModels {
 
     private pageTemplate: PageTemplate;
 
-    private pageDescriptor: PageDescriptor;
+    private pageDescriptor: Descriptor;
 
-    constructor(pageTemplate: PageTemplate, pageDescriptor: PageDescriptor) {
+    constructor(pageTemplate: PageTemplate, pageDescriptor: Descriptor) {
         this.pageTemplate = pageTemplate;
         this.pageDescriptor = pageDescriptor;
     }
@@ -20,7 +20,7 @@ export class DefaultModels {
         return this.pageTemplate ? this.pageTemplate.clone() : null;
     }
 
-    getPageDescriptor(): PageDescriptor {
+    getPageDescriptor(): Descriptor {
         return this.pageDescriptor;
     }
 }

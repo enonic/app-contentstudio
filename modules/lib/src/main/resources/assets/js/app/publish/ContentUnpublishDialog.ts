@@ -1,7 +1,6 @@
 import * as Q from 'q';
 import {showError} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentUnpublishPromptEvent} from '../browse/ContentUnpublishPromptEvent';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {UnpublishContentRequest} from '../resource/UnpublishContentRequest';
@@ -14,6 +13,7 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ConfirmValueDialog} from '../remove/ConfirmValueDialog';
 import {ResolveUnpublishRequest} from '../resource/ResolveUnpublishRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentId} from '../content/ContentId';
 
 export class ContentUnpublishDialog
     extends DependantItemsWithProgressDialog {

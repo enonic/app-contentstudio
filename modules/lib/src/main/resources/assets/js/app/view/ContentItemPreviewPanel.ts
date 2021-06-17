@@ -2,7 +2,6 @@ import * as $ from 'jquery';
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
 import {ContentItemPreviewToolbar} from './ContentItemPreviewToolbar';
@@ -16,9 +15,9 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ItemPreviewPanel} from 'lib-admin-ui/app/view/ItemPreviewPanel';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
-import {BrEl} from 'lib-admin-ui/dom/BrEl';
 import {UrlHelper} from '../util/UrlHelper';
 import {ProjectContext} from '../project/ProjectContext';
+import {ContentSummary} from '../content/ContentSummary';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -27,7 +26,8 @@ enum PREVIEW_TYPE {
     MEDIA,
     EMPTY,
     FAILED,
-    BLANK
+    BLANK,
+    MISSING
 }
 
 export class ContentItemPreviewPanel
@@ -277,6 +277,10 @@ export class ContentItemPreviewPanel
                 this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.failed.description')]);
                 break;
             }
+            case PREVIEW_TYPE.MISSING: {
+                this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
+                break;
+            }
             case PREVIEW_TYPE.BLANK: {
                 this.getEl().addClass('no-preview');
                 break;
@@ -286,7 +290,7 @@ export class ContentItemPreviewPanel
 
         this.previewType = previewType;
 
-        if (PREVIEW_TYPE.FAILED === previewType || PREVIEW_TYPE.EMPTY === previewType) {
+        if (PREVIEW_TYPE.FAILED === previewType || PREVIEW_TYPE.EMPTY === previewType || PREVIEW_TYPE.MISSING) {
             this.hideMask();
         }
     }
@@ -307,12 +311,8 @@ export class ContentItemPreviewPanel
         this.getEl().addClass('no-preview');
         this.previewMessage.removeChildren();
 
-        messages.forEach((message: string, index: number) => {
+        messages.forEach((message: string) => {
             this.previewMessage.appendChild(SpanEl.fromText(message));
-            const isLastMessage = index === messages.length - 1;
-            if (!isLastMessage) {
-                this.previewMessage.appendChild<any>(new BrEl());
-            }
         });
 
         this.frame.setSrc('about:blank');
@@ -371,7 +371,9 @@ export class ContentItemPreviewPanel
                 url: src
             }).done(() => {
                 this.frame.setSrc(src);
-            }).fail(() => this.setPreviewType(PREVIEW_TYPE.FAILED));
+            }).fail((reason: any) =>  {
+                this.setPreviewType(reason.status === 404 ? PREVIEW_TYPE.MISSING : PREVIEW_TYPE.FAILED);
+            });
         } else {
             this.setPreviewType(PREVIEW_TYPE.EMPTY);
         }

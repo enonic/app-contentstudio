@@ -56,7 +56,6 @@ module.exports = {
     optimization: {
         minimizer: [
             new TerserPlugin({
-                sourceMap: !isProd,
                 extractComments: false,
                 terserOptions: {
                     compress: {
@@ -93,7 +92,7 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                {from: 'icons/fonts/icomoon.*', to: 'page-editor/fonts/[name].[ext]'}
+                {from: 'icons/fonts/icomoon.*', to: 'page-editor/fonts/[name][ext]'}
             ]
         }),
         new CircularDependencyPlugin({

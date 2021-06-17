@@ -13,7 +13,7 @@ import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {PageTemplateContentTypeLoader} from './PageTemplateContentTypeLoader';
 import {ContentTypeComboBox} from './ContentTypeComboBox';
 import {ContentTypeSummaryLoader} from './ContentTypeSummaryLoader';
-import {ContentTypeSummaryByDisplayNameComparator} from './ContentTypeSummaryByDisplayNameComparator';
+import {ContentTypeComparator} from './ContentTypeComparator';
 import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
 import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from 'lib-admin-ui/Class';
@@ -60,7 +60,7 @@ export class ContentTypeFilter
             loader = new ContentTypeSummaryLoader(contentId);
         }
 
-        loader.setComparator(new ContentTypeSummaryByDisplayNameComparator());
+        loader.setComparator(new ContentTypeComparator());
 
         return loader;
     }
@@ -97,7 +97,7 @@ export class ContentTypeFilter
         if (this.isLayoutInProgress()) {
             return;
         }
-        this.ignorePropertyChange = true;
+        this.ignorePropertyChange(true);
         let value = new Value(selectedOption.getOption().getDisplayValue().getContentTypeName().toString(), ValueTypes.STRING);
         if (this.combobox.countSelected() === 1) { // overwrite initial value
             this.getPropertyArray().set(0, value);
@@ -106,27 +106,28 @@ export class ContentTypeFilter
         }
 
         this.validate(false);
-        this.ignorePropertyChange = false;
+        this.ignorePropertyChange(false);
     }
 
     private onContentTypeDeselected(option: SelectedOption<ContentTypeSummary>): void {
-        this.ignorePropertyChange = true;
+        this.ignorePropertyChange(true);
         this.getPropertyArray().remove(option.getIndex());
         this.validate(false);
-        this.ignorePropertyChange = false;
+        this.ignorePropertyChange(false);
     }
 
     layout(input: Input, propertyArray: PropertyArray): Q.Promise<void> {
         if (!ValueTypes.STRING.equals(propertyArray.getType())) {
             propertyArray.convertValues(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
-        super.layout(input, propertyArray);
 
-        this.appendChild(this.combobox = this.createComboBox());
+        return super.layout(input, propertyArray).then(() => {
+            this.appendChild(this.combobox = this.createComboBox());
 
-        return this.combobox.getLoader().load().then(() => {
-            this.validate(false);
-            return Q<void>(null);
+            return this.combobox.getLoader().load().then(() => {
+                this.validate(false);
+                return Q<void>(null);
+            });
         });
     }
 

@@ -1,8 +1,8 @@
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {CreateHtmlAreaDialogEvent} from './CreateHtmlAreaDialogEvent';
+import {ContentSummary} from '../../../content/ContentSummary';
+import {ContentPath} from '../../../content/ContentPath';
 
 export class HtmlEditorParams {
 

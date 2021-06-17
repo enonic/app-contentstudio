@@ -91,11 +91,11 @@ module.exports = Object.freeze({
         CUSTOM: "Custom"
     },
     //waitForTimeout
-    TIMEOUT_10: 10000,
     mediumTimeout: 3000,
     TIMEOUT_4: 4000,
     TIMEOUT_5: 5000,
-    longTimeout: 7000,
+    longTimeout: 10000,
+    saveProjectTimeout: 15000,
     shortTimeout: 2000,
     TIMEOUT_1: 1000,
     SUITE_TIMEOUT: 180000,
@@ -134,7 +134,8 @@ module.exports = Object.freeze({
         NORD: 'nord',
         CAPE: 'cape',
         BRO: 'bro',
-        MAN2: 'man2'
+        MAN2: 'man2',
+        SEVEROMOR: 'severomor'
     },
     MENU_ITEMS: {
         INSERT: 'Insert',
@@ -173,14 +174,17 @@ module.exports = Object.freeze({
         HTML_AREA_0_1: `htmlarea0_1`,
         HTML_AREA_2_4: `htmlarea2_4`,
         IMG_SELECTOR_0_0: 'contenttypes:imageselector0_0',
+        IMG_SELECTOR_0_1: 'imageselector0_1',
         IMG_SELECTOR_1_1: 'imageselector1_1',
         IMG_SELECTOR_2_4: 'imageselector2_4',
         ARTICLE: `article`,
         CUSTOM_RELATIONSHIP: 'custom-relationship2_4',
         DOUBLE_MIN_MAX: 'double_max',
+        DOUBLE_DEFAULT_2_4: 'double2_4_def',
         LONG_MIN_MAX: 'long_max',
         TEXTAREA_MAX_LENGTH: 'textarea_conf',
         TEXTLINE_MAX_LENGTH: 'textline_conf',
+        TEXTLINE_REGEXP: 'text_line_regexp',
     },
     permissions: {
         FULL_ACCESS: `Full Access`,
@@ -248,6 +252,7 @@ module.exports = Object.freeze({
         CM_ADMIN: 'Content Manager Administrator',
         ADMIN_CONSOLE: 'Administration Console Login',
         CM_APP: 'Content Manager App',
+        CM_APP_EXPERT: 'Content Manager Expert',
         ADMINISTRATOR: 'Administrator',
         USERS_APP: 'Users App',
         AUTHENTICATED: 'Authenticated',

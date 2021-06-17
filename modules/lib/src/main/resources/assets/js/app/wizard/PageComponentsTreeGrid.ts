@@ -15,23 +15,22 @@ import {LayoutItemType} from '../../page-editor/layout/LayoutItemType';
 import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {PartItemType} from '../../page-editor/part/PartItemType';
 import {ComponentView} from '../../page-editor/ComponentView';
 import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
-import {GetPartDescriptorsByApplicationsRequest} from './page/contextwindow/inspect/region/GetPartDescriptorsByApplicationsRequest';
-import {GetLayoutDescriptorsByApplicationsRequest} from './page/contextwindow/inspect/region/GetLayoutDescriptorsByApplicationsRequest';
 import {GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
 import {GridOptionsBuilder} from 'lib-admin-ui/ui/grid/GridOptions';
 import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
-import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
 import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 import {Component} from '../page/region/Component';
 import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
+import {GetComponentDescriptorRequest} from '../resource/GetComponentDescriptorRequest';
+import {LayoutComponentType} from '../page/region/LayoutComponentType';
+import {PartComponentType} from '../page/region/PartComponentType';
+import {Descriptor} from '../page/Descriptor';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemViewTreeGridWrapper> {
@@ -187,60 +186,34 @@ export class PageComponentsTreeGrid
         });
     }
 
-    fetchDescriptions(itemViews: ItemView[]): Q.Promise<ItemView[]> {
+    private fetchDescriptions(itemViews: ItemView[]): Q.Promise<ItemView[]> {
+        const requests = itemViews.map(this.fetchDescription);
 
-        const partKeys: ApplicationKey[] = [];
-        const layoutKeys: ApplicationKey[] = [];
-        const componentMap: { [descKey: string]: DescriptorBasedComponent[] } = {};
+        return Q.all(requests);
+    }
 
-        itemViews.forEach((itemView) => {
-            const isPartItemType: boolean = PartItemType.get().equals(itemView.getType());
-            const isLayoutItemType: boolean = LayoutItemType.get().equals(itemView.getType());
-            if (!isLayoutItemType && !isPartItemType) {
-                return;
-            }
-
-            const component: DescriptorBasedComponent = (<ComponentView<any>>itemView).getComponent();
-            if (!component || !component.hasDescriptor()) {
-                return;
-            }
-
-            const descKey = component.getDescriptorKey();
-            if (componentMap[descKey.toString()]) {
-                componentMap[descKey.toString()].push(component);
-            } else {
-                componentMap[descKey.toString()] = [component];
-            }
-
-            const appKey = descKey.getApplicationKey();
-            if (isLayoutItemType) {
-                layoutKeys.push(appKey);
-            } else {
-                partKeys.push(appKey);
-            }
-        });
-
-        const requests = [];
-        if (partKeys.length > 0) {
-            requests.push(new GetPartDescriptorsByApplicationsRequest(partKeys).sendAndParse());
+    private fetchDescription(itemView: ItemView): Q.Promise<ItemView> {
+        if (!itemView.isPart() && !itemView.isLayout()) {
+            return Q.resolve(itemView);
         }
-        if (layoutKeys.length > 0) {
-            requests.push(new GetLayoutDescriptorsByApplicationsRequest(layoutKeys).sendAndParse());
+
+        const component: DescriptorBasedComponent = (<ComponentView<any>>itemView).getComponent();
+        if (!component || !component.hasDescriptor()) {
+            return Q.resolve(itemView);
         }
-        return Q.all(requests).then((descriptorsArray) => {
-            descriptorsArray.forEach((descriptors: Descriptor[]) => {
-                descriptors.forEach(desc => {
-                    const components = componentMap[desc.getKey().toString()];
-                    if (components) {
-                        components.forEach(component => {
-                            component.setDescription(desc.getDescription());
-                            component.setIcon(desc.getIcon());
-                        });
-                    }
-                });
-            });
-        }).then(() => {
-            return itemViews;
+
+        const descriptorKey = component.getDescriptorKey().toString();
+        let request;
+        if (itemView.isLayout()) {
+            request = new GetComponentDescriptorRequest(descriptorKey, LayoutComponentType.get()).sendAndParse();
+        } else if (itemView.isPart()) {
+            request = new GetComponentDescriptorRequest(descriptorKey, PartComponentType.get()).sendAndParse();
+        }
+
+        return request.then((descriptor: Descriptor) => {
+            component.setDescription(descriptor.getDescription());
+            component.setIcon(descriptor.getIcon());
+            return itemView;
         });
     }
 
@@ -286,6 +259,7 @@ export class PageComponentsTreeGrid
         }
 
         this.insertDataToParentNode(new ItemViewTreeGridWrapper(component), parentNode, index);
+        this.fetchDescription(component);
     }
 
     refreshComponentNode(componentView: ComponentView<Component>, oldComponentView: ComponentView<Component>) {
@@ -315,7 +289,7 @@ export class PageComponentsTreeGrid
     }
 
     protected isToBeExpanded(node: TreeNode<ItemViewTreeGridWrapper>): boolean {
-        return !node.getData().getItemView().getType().equals(LayoutItemType.get());
+        return super.isToBeExpanded(node) || !node.getData().getItemView().getType().equals(LayoutItemType.get());
     }
 
 }

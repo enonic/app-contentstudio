@@ -1,8 +1,8 @@
 import {InputTypeViewContext} from 'lib-admin-ui/form/inputtype/InputTypeViewContext';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {ContentFormContext} from '../ContentFormContext';
 import {Site} from '../content/Site';
+import {ContentSummary} from '../content/ContentSummary';
+import {ContentPath} from '../content/ContentPath';
 
 export interface ContentInputTypeViewContext
     extends InputTypeViewContext {

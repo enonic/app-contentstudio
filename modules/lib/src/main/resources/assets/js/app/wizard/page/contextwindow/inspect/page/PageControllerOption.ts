@@ -1,10 +1,10 @@
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {TemplateOrControllerOption} from './TemplateOrControllerOption';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
+import {Descriptor} from '../../../../../page/Descriptor';
 
 export class PageControllerOption
-    extends TemplateOrControllerOption<PageDescriptor> {
+    extends TemplateOrControllerOption<Descriptor> {
 
     equals(o: Equitable): boolean {
 

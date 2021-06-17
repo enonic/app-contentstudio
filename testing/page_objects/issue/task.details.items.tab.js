@@ -72,7 +72,6 @@ class TaskDetailsDialogItemsTab extends Page {
     // clicks on Publish... button and  opens 'Publishing Wizard'
     async clickOnPublishAndOpenPublishWizard() {
         try {
-            let res = await this.findElements(this.publishButton);
             await this.clickOnElement(this.publishButton);
             let publishContentDialog = new ContentPublishDialog();
             await publishContentDialog.waitForDialogOpened();
@@ -225,5 +224,5 @@ class TaskDetailsDialogItemsTab extends Page {
         let locator = xpath.container + xpath.dependantList + xpath.dependantItemViewer + lib.H6_DISPLAY_NAME;
         return this.getTextInElements(locator);
     }
-};
+}
 module.exports = TaskDetailsDialogItemsTab;

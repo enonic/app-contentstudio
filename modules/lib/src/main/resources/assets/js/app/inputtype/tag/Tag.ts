@@ -62,42 +62,44 @@ export class Tag
         if (!ValueTypes.STRING.equals(propertyArray.getType())) {
             propertyArray.convertValues(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
-        super.layout(input, propertyArray);
 
-        let tagsBuilder = new TagsBuilder().setTagSuggester(this.tagSuggester).setMaxTags(this.context.input.getOccurrences().getMaximum());
+        return super.layout(input, propertyArray).then(() => {
+            const tagsBuilder =
+                new TagsBuilder().setTagSuggester(this.tagSuggester).setMaxTags(this.context.input.getOccurrences().getMaximum());
 
-        propertyArray.forEach((property) => {
-            let value = property.getString();
-            if (value) {
-                tagsBuilder.addTag(value);
-            }
+            propertyArray.forEach((property) => {
+                let value = property.getString();
+                if (value) {
+                    tagsBuilder.addTag(value);
+                }
+            });
+
+            this.tags = tagsBuilder.build();
+            this.appendChild(this.tags);
+
+            this.tags.onTagAdded((event: TagAddedEvent) => {
+                this.ignorePropertyChange(true);
+                let value = new Value(event.getValue(), ValueTypes.STRING);
+                if (this.tags.countTags() === 1) {
+                    this.getPropertyArray().set(0, value);
+                } else {
+                    this.getPropertyArray().add(value);
+                }
+                this.validate(false);
+                this.ignorePropertyChange(false);
+            });
+
+            this.tags.onTagRemoved((event: TagRemovedEvent) => {
+                this.ignorePropertyChange(true);
+                this.getPropertyArray().remove(event.getIndex());
+                this.validate(false);
+                this.ignorePropertyChange(false);
+            });
+
+            this.setLayoutInProgress(false);
+
+            return Q<void>(null);
         });
-
-        this.tags = tagsBuilder.build();
-        this.appendChild(this.tags);
-
-        this.tags.onTagAdded((event: TagAddedEvent) => {
-            this.ignorePropertyChange = true;
-            let value = new Value(event.getValue(), ValueTypes.STRING);
-            if (this.tags.countTags() === 1) {
-                this.getPropertyArray().set(0, value);
-            } else {
-                this.getPropertyArray().add(value);
-            }
-            this.validate(false);
-            this.ignorePropertyChange = false;
-        });
-
-        this.tags.onTagRemoved((event: TagRemovedEvent) => {
-            this.ignorePropertyChange = true;
-            this.getPropertyArray().remove(event.getIndex());
-            this.validate(false);
-            this.ignorePropertyChange = false;
-        });
-
-        this.setLayoutInProgress(false);
-
-        return Q<void>(null);
     }
 
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {

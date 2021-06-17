@@ -4,8 +4,8 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {RestoreInheritRequest} from '../../resource/RestoreInheritRequest';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentInheritType} from 'lib-admin-ui/content/ContentInheritType';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
+import {ContentInheritType} from '../../content/ContentInheritType';
 
 export class ResetContentAction
     extends Action {

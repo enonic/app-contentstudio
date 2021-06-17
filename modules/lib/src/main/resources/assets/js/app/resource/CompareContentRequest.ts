@@ -1,10 +1,9 @@
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {CompareContentResults} from './CompareContentResults';
 import {CompareContentResultsJson} from './json/CompareContentResultsJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
-import {Project} from '../settings/data/project/Project';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class CompareContentRequest
     extends ContentResourceRequest<CompareContentResults> {

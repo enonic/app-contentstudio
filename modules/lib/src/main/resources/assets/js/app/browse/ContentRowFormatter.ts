@@ -9,6 +9,7 @@ import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAnd
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ProgressBar} from 'lib-admin-ui/ui/ProgressBar';
 import {MediaTreeSelectorItem} from '../inputtype/ui/selector/media/MediaTreeSelectorItem';
+import {ContentSummaryListViewer} from '../content/ContentSummaryListViewer';
 
 export class ContentRowFormatter {
 
@@ -18,7 +19,7 @@ export class ContentRowFormatter {
         if (data.getContentSummary() || data.getUploadItem()) {
             let viewer = <ContentSummaryAndCompareStatusViewer> node.getViewer('name');
             if (!viewer) {
-                viewer = new ContentSummaryAndCompareStatusViewer();
+                viewer = new ContentSummaryListViewer();
                 node.setViewer('name', viewer);
             }
             viewer.setIsRelativePath(node.calcLevel() > 1);

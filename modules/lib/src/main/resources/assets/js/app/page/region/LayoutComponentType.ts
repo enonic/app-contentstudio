@@ -12,4 +12,8 @@ export class LayoutComponentType
     public static get(): LayoutComponentType {
         return LayoutComponentType.INSTANCE;
     }
+
+    getIconCls(): string {
+        return 'part';
+    }
 }

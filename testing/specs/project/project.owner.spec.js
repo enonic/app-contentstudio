@@ -52,8 +52,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1. Do Log in with 'SU' and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioWithProjects();
-            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
 
             //2.Open new project wizard:
@@ -74,15 +73,14 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
     //Verifies https://github.com/enonic/xp/issues/8139  Users with Owner or Editor roles can not be assigned to issues
     it("WHEN SU have created new folder and new task for user-owner THEN expected notification message should appear",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             let createTaskDialog = new CreateTaskDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
             let issueDetailsDialogAssigneesTab = new IssueDetailsDialogAssigneesTab();
             FOLDER_ISSUE = contentBuilder.buildFolder(FOLDER_NAME_2);
             //1. Do Log in with 'SU' and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioWithProjects();
-            await projectSelectionDialog.selectContext(PROJECT_DISPLAY_NAME);
+            await studioUtils.navigateToContentStudioApp();
+            await contentBrowsePanel.selectContext(PROJECT_DISPLAY_NAME);
             //2. Add new folder:
             await studioUtils.doAddReadyFolder(FOLDER_ISSUE);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(FOLDER_NAME_2);
@@ -115,7 +113,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
     it("GIVEN user with 'Owner' role is logged in WHEN existing project has been opened THEN all inputs should be enabled",
         async () => {
             //1. Do Log in with the user-owner and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
@@ -214,6 +212,8 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
         });
 
     //Verifies that user with Owner role can publish content in 'Publish Request Details' Dialog - "Publish Now" should be enabled in the Last stage.
+    //Request Details Dialog - Publish Now button is not displayed when content is ready for publishing #3177
+    //https://github.com/enonic/app-contentstudio/issues/3177
     it("GIVEN user with 'Owner' role is logged in WHEN existing folder has been selected and 'Publish Request' has been created THEN 'Publish Now' button should be enabled on the last stage",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();

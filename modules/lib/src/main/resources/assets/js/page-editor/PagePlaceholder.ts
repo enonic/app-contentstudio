@@ -7,8 +7,8 @@ import {ItemViewPlaceholder} from './ItemViewPlaceholder';
 import {PageDescriptorDropdown} from '../app/wizard/page/contextwindow/inspect/page/PageDescriptorDropdown';
 import {GetContentTypeByNameRequest} from '../app/resource/GetContentTypeByNameRequest';
 import {ContentType} from '../app/inputtype/schema/ContentType';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {LoadedDataEvent} from 'lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {Descriptor} from '../app/page/Descriptor';
 
 export class PagePlaceholder
     extends ItemViewPlaceholder {
@@ -23,33 +23,32 @@ export class PagePlaceholder
 
     constructor(pageView: PageView) {
         super();
-        this.addClassEx('page-placeholder');
 
         this.pageView = pageView;
 
-        this.infoBlock = new PagePlaceholderInfoBlock();
-        this.createControllerDropdown();
+        this.initElements();
+        this.initListeners();
 
-        this.pageDescriptorPlaceholder = new DivEl('page-descriptor-placeholder', StyleHelper.getCurrentPrefix());
-        this.pageDescriptorPlaceholder.appendChild(this.infoBlock);
-        this.pageDescriptorPlaceholder.appendChild(this.controllerDropdown);
-
-        this.appendChild(this.pageDescriptorPlaceholder);
-    }
-
-    private createControllerDropdown(): PageDescriptorDropdown {
-        this.controllerDropdown = new PageDescriptorDropdown(this.pageView.getLiveEditModel());
-        this.controllerDropdown.addClassEx('page-descriptor-dropdown');
         this.controllerDropdown.hide();
         this.controllerDropdown.load();
-
-        this.addControllerDropdownEvents();
-
-        return this.controllerDropdown;
     }
 
-    private handler: (event: LoadedDataEvent<PageDescriptor>) => void = (event: LoadedDataEvent<PageDescriptor>) => {
+    private initListeners() {
+        this.controllerDropdown.onLoadedData(this.dataLoadedHandler);
 
+        this.controllerDropdown.onClicked((event: MouseEvent) => {
+            this.controllerDropdown.giveFocus();
+            event.stopPropagation();
+        });
+    }
+
+    private initElements() {
+        this.infoBlock = new PagePlaceholderInfoBlock();
+        this.controllerDropdown = new PageDescriptorDropdown(this.pageView.getLiveEditModel());
+        this.pageDescriptorPlaceholder = new DivEl('page-descriptor-placeholder', StyleHelper.getCurrentPrefix());
+    }
+
+    private dataLoadedHandler: (event: LoadedDataEvent<Descriptor>) => void = (event: LoadedDataEvent<Descriptor>) => {
         if (event.getData().length > 0) {
             this.controllerDropdown.show();
             let content = this.pageView.getLiveEditModel().getContent();
@@ -71,18 +70,21 @@ export class PagePlaceholder
         }
     }
 
-    private addControllerDropdownEvents() {
-        this.controllerDropdown.onLoadedData(this.handler);
-
-        this.controllerDropdown.onClicked((event: MouseEvent) => {
-            this.controllerDropdown.giveFocus();
-            event.stopPropagation();
-        });
+    remove() {
+        this.controllerDropdown.unLoadedData(this.dataLoadedHandler);
+        return super.remove();
     }
 
-    remove() {
-        this.controllerDropdown.unLoadedData(this.handler);
-        return super.remove();
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addClassEx('page-placeholder');
+            this.controllerDropdown.addClassEx('page-descriptor-dropdown');
 
+            this.pageDescriptorPlaceholder.appendChild(this.infoBlock);
+            this.pageDescriptorPlaceholder.appendChild(this.controllerDropdown);
+            this.appendChild(this.pageDescriptorPlaceholder);
+
+            return rendered;
+        });
     }
 }

@@ -1,24 +1,24 @@
 import * as Q from 'q';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
-import {PageDescriptorsJson} from 'lib-admin-ui/content/page/PageDescriptorsJson';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {PageDescriptorResourceRequest} from '../../../../../resource/PageDescriptorResourceRequest';
 import {ApplicationBasedCache} from '../../../../../application/ApplicationBasedCache';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {Descriptor} from '../../../../../page/Descriptor';
+import {DescriptorsJson} from '../../../../../page/DescriptorsJson';
 
 export class GetPageDescriptorsByApplicationsRequest
-    extends PageDescriptorResourceRequest<PageDescriptor[]> {
+    extends PageDescriptorResourceRequest<Descriptor[]> {
 
     private applicationKeys: ApplicationKey[];
 
-    private cache: ApplicationBasedCache<PageDescriptor>;
+    private cache: ApplicationBasedCache<Descriptor>;
 
     constructor(applicationKeys?: ApplicationKey[]) {
         super();
         this.setMethod(HttpMethod.POST);
         this.applicationKeys = applicationKeys;
-        this.cache = ApplicationBasedCache.registerCache<PageDescriptor>(PageDescriptor, GetPageDescriptorsByApplicationsRequest);
+        this.cache = ApplicationBasedCache.registerCache<Descriptor>(Descriptor, GetPageDescriptorsByApplicationsRequest);
         this.addRequestPathElements('list', 'by_applications');
     }
 
@@ -33,8 +33,8 @@ export class GetPageDescriptorsByApplicationsRequest
         return this;
     }
 
-    sendAndParse(): Q.Promise<PageDescriptor[]> {
-        const cached: PageDescriptor[] = this.cache.getByApplications(this.applicationKeys);
+    sendAndParse(): Q.Promise<Descriptor[]> {
+        const cached: Descriptor[] = this.cache.getByApplications(this.applicationKeys);
         if (cached) {
             return Q(cached);
         }
@@ -42,10 +42,10 @@ export class GetPageDescriptorsByApplicationsRequest
         return super.sendAndParse();
     }
 
-    protected parseResponse(response: JsonResponse<PageDescriptorsJson>): PageDescriptor[] {
+    protected parseResponse(response: JsonResponse<DescriptorsJson>): Descriptor[] {
         this.cache.putApplicationKeys(this.applicationKeys);
         return response.getResult().descriptors.map((descJson) => {
-            const desc = PageDescriptor.fromJson(descJson);
+            const desc = Descriptor.fromJson(descJson);
             this.cache.put(desc);
             return desc;
         });

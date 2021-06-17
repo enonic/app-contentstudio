@@ -12,6 +12,7 @@ const XPATH = {
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
 };
 
+//ScheduleWizardStepForm, DateTimeRange
 class DateTimeRange extends Page {
 
     get onlineFromDateTimeInput() {

@@ -1,6 +1,6 @@
 import * as Q from 'q';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {PageTemplateResourceRequest} from './PageTemplateResourceRequest';
+import {ContentId} from '../content/ContentId';
 
 export class IsRenderableRequest
     extends PageTemplateResourceRequest<boolean> {

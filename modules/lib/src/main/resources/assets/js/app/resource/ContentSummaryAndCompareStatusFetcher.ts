@@ -1,8 +1,4 @@
 import * as Q from 'q';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
-import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {ContentResponse} from './ContentResponse';
 import {ListContentByIdRequest} from './ListContentByIdRequest';
 import {CompareContentRequest} from './CompareContentRequest';
@@ -16,8 +12,12 @@ import {CompareContentResult} from './CompareContentResult';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryRequest} from './ContentSummaryRequest';
-import {FieldOrderExpr, FieldOrderExprBuilder} from 'lib-admin-ui/content/order/FieldOrderExpr';
 import {IsRenderableRequest} from './IsRenderableRequest';
+import {ContentSummary} from '../content/ContentSummary';
+import {ChildOrder} from './order/ChildOrder';
+import {ContentId} from '../content/ContentId';
+import {FieldOrderExpr, FieldOrderExprBuilder} from './order/FieldOrderExpr';
+import {ContentPath} from '../content/ContentPath';
 
 export class ContentSummaryAndCompareStatusFetcher {
 
@@ -80,9 +80,11 @@ export class ContentSummaryAndCompareStatusFetcher {
     }
 
     static fetchByContent(content: Content): Q.Promise<ContentSummaryAndCompareStatus> {
-
         return CompareContentRequest.fromContentSummaries([content]).sendAndParse().then((compareResults: CompareContentResults) => {
-            return ContentSummaryAndCompareStatusFetcher.updateCompareStatus([content], compareResults)[0];
+            const result: ContentSummaryAndCompareStatus = ContentSummaryAndCompareStatusFetcher.updateCompareStatus([content],
+                compareResults)[0];
+
+            return ContentSummaryAndCompareStatusFetcher.updateReadOnly([result]).then(() => result);
         });
     }
 

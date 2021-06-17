@@ -1,9 +1,9 @@
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {Application} from 'lib-admin-ui/app/Application';
 import {ContentAppBarTabId} from '../ContentAppBarTabId';
 import {Project} from '../settings/data/project/Project';
 import {ProjectContext} from '../project/ProjectContext';
+import {ContentId} from '../content/ContentId';
 
 export class ContentWizardPanelParams {
 

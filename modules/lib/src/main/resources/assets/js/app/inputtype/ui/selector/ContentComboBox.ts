@@ -4,8 +4,6 @@ import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
@@ -33,6 +31,8 @@ import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {Grid} from 'lib-admin-ui/ui/grid/Grid';
+import {ContentSummary} from '../../../content/ContentSummary';
+import {ContentId} from '../../../content/ContentId';
 
 export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     extends RichComboBox<ContentTreeSelectorItem> {
@@ -50,8 +50,6 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     protected preventReload: boolean;
 
     protected treeModeToggler?: ModeTogglerButton;
-
-    protected maxHeight: number = 230;
 
     private statusColumn: GridColumn<any>;
 
@@ -142,7 +140,7 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
             builder.setLoader(<ContentSummaryOptionDataLoader<ITEM_TYPE>>this.createLoader(builder));
         }
 
-        builder.setMaxHeight(this.maxHeight);
+        builder.setMaxHeight(this.getMaxHeight());
         builder.setCreateColumns([this.statusColumn]);
 
         if (builder.isRequestMissingOptions) {
@@ -150,6 +148,10 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
                 return new ContentsExistRequest(missingOptionIds).sendAndParse().then(result => result.getContentsExistMap());
             });
         }
+    }
+
+    protected getMaxHeight(): number {
+        return 370;
     }
 
     protected createLoader(builder: ContentComboBoxBuilder<ITEM_TYPE>): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
@@ -209,8 +211,6 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
     protected toggleGridOptions(_treeMode: boolean) {
         // May be overridden in deriving class if the grid should
         // have different settings in different modes
-
-        return false;
     }
 
     private initTreeModeToggler() {

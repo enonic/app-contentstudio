@@ -2,6 +2,8 @@ declare const CONFIG: {
     adminAssetsUri: string,
     adminUrl: string,
     allowScriptsInEditor: string,
+    allowContentUpdate: string,
+    allowPathTransliteration: string,
     appIconUrl: string,
     appId: string,
     appVersion: string,

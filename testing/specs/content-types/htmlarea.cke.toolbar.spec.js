@@ -19,7 +19,8 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
-    let EXPECTED_URL = '<p><a href="http://google.com">test</a></p>';
+    const NORWEGIAN_TEXT = "Hej og hå så kan det gå";
+    let EXPECTED_URL = '<p><a href="http://google.com">Hej og hå så kan det gå</a></p>';
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -115,7 +116,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             await contentWizard.pause(1000);
             //Open Insert Link dialog:
             let insertLinkDialog = await htmlAreaForm.showToolbarAndClickOnInsertLinkButton();
-            await insertLinkDialog.typeText('test');
+            await insertLinkDialog.typeText(NORWEGIAN_TEXT);
             //type the URL:
             await insertLinkDialog.typeUrl('http://google.com');
             await insertLinkDialog.clickOnInsertButton();
@@ -127,7 +128,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             assert.equal(result[0], EXPECTED_URL, 'correct data should be in CKE');
         });
 
-    it(`GIVEN wizard for 'htmlArea 0:1' is opened WHEN 'format-dropdown' handle has been clicked THEN expected options should appear`,
+    it("GIVEN wizard for 'htmlArea 0:1' is opened WHEN 'format-dropdown' handle has been clicked THEN expected options should appear",
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');

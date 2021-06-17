@@ -39,8 +39,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let projectWizard = new ProjectWizard();
             //1. Do Log in with 'SU' and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioWithProjects();
-            await studioUtils.closeProjectSelectionDialog();
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
             await studioUtils.openSettingsPanel();
 
             //2.Open new project wizard:
@@ -64,7 +63,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
     //Verifies Project selector button should not be clickable if current user has access to only one project #2089
     it("WHEN current user has access to only one project THEN ProjectViewer button should not be clickable",
         async () => {
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioCloseProjectSelectionDialog(USER.displayName, PASSWORD);
             let contentBrowsePanel = new ContentBrowsePanel();
             studioUtils.saveScreenshot("project_editor_button_not_clckable");
             let isClickable = await contentBrowsePanel.isProjectViewerClickable();
@@ -74,7 +73,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
     it("GIVEN user with Editor role is logged in WHEN existing project has been selected THEN New...,Edit, Delete buttons should be disabled",
         async () => {
             //1. Do log in with the user and navigate to 'Settings':
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.openSettingsPanel();
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //2.Click(select) on existing project:
@@ -91,7 +90,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             let contentBrowsePanel = new ContentBrowsePanel();
             let newContentDialog = new NewContentDialog();
             //1. Do log in with the user-editor and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await contentBrowsePanel.waitForNewButtonEnabled();
             //2. Click on New... button
             await contentBrowsePanel.clickOnNewButton();
@@ -104,13 +103,13 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             assert.isTrue(items.includes("Shortcut"), "Shortcut is allowed for creating");
         });
 
-    //Verify that Editor can select a language:
+    //Verify that user-editor can select a language:
     it("GIVEN user with Editor role is logged in WHEN new folder has been saved THEN 'Mark as Ready' should be as default action in Publish Menu",
         async () => {
             let contentWizard = new ContentWizard();
             let settingsStepForm = new SettingsStepForm();
             //1. Do log in with the user-editor and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Open folder-wizard and save new folder:
             await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
@@ -122,12 +121,12 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await contentWizard.waitForMarkAsReadyButtonVisible();
         });
 
-    //Verify that 'Editor' can publish content:
+    //Verify that 'user-editor' can publish content:
     it("GIVEN user with 'Editor' role is logged in WHEN existing folder(work in progress) has been published THEN the folder gets Published",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-editor and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             await studioUtils.findAndSelectItem(FOLDER_NAME);
             //2. The folder has been 'Marked as ready' in browse panel:
             await contentBrowsePanel.clickOnMarkAsReadyButton();

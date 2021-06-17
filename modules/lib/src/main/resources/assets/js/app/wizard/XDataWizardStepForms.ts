@@ -64,4 +64,9 @@ export class XDataWizardStepForms {
         });
     }
 
+    validate() {
+        this.forEach((form: XDataWizardStepForm) => {
+            form.validate();
+        });
+    }
 }

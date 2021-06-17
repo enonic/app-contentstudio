@@ -107,8 +107,7 @@ class BaseBrowsePanel extends Page {
         await this.getBrowser().waitUntil(async () => {
             let text = await this.getAttribute(selector, "class");
             return text.includes('partial');
-        }, appConst.shortTimeout, "Selection Controller checkBox should displayed as partial");
-        return true;
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Selection Controller checkBox should displayed as partial"});
     }
 
     async isSelectionControllerPartial() {
@@ -226,7 +225,7 @@ class BaseBrowsePanel extends Page {
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getDisplayedElements(lib.TREE_GRID_CONTEXT_MENU);
             return result.length;
-        }, appConst.mediumTimeout, "Context menu was not loaded");
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Context menu was not loaded"});
     }
 
     async waitForContextMenuItemEnabled(menuItem) {
@@ -238,7 +237,7 @@ class BaseBrowsePanel extends Page {
         return await this.browser.waitUntil(async () => {
             let result = await el[0].getAttribute("class");
             return !result.includes("disabled");
-        }, appConst.mediumTimeout, "context menu item is not enabled in 3000 ms");
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "context menu item is not enabled in 3000 ms"});
     }
 
     async waitForContextMenuItemDisabled(menuItem) {
@@ -250,7 +249,7 @@ class BaseBrowsePanel extends Page {
         return await this.browser.waitUntil(async () => {
             let result = await el[0].getAttribute("class");
             return result.includes("disabled");
-        }, appConst.mediumTimeout, "context menu item is not disabled in 3000 ms");
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "context menu item is not disabled in 3000 ms"});
     }
 
     async clickOnMenuItem(menuItem) {
@@ -265,7 +264,7 @@ class BaseBrowsePanel extends Page {
             let nameXpath = this.treeGrid + lib.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             await this.doDoubleClick(nameXpath);
-            return await this.pause(300);
+            return await this.pause(1000);
         } catch (err) {
             this.saveScreenshot('err_find_' + displayName);
             throw Error('Browse Panel - Row with the displayName ' + displayName + ' was not found' + err)
@@ -294,11 +293,14 @@ class BaseBrowsePanel extends Page {
         }
     }
 
-    async isRowCheckboxSelected(itemName) {
+    async waitForRowCheckboxSelected(itemName) {
         let checkboxDiv = this.treeGrid + `${lib.itemByName(
             itemName)}/ancestor::div[contains(@class,'slick-row')]/div[contains(@class,'slick-cell-checkboxsel')]`;
-        let classAttr = await this.getAttribute(checkboxDiv, "class");
-        return classAttr.includes("selected");
+
+        await this.getBrowser().waitUntil(async () => {
+            let classAttr = await this.getAttribute(checkboxDiv, 'class');
+            return classAttr.includes("selected");
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "row and Checkbox is not selected"});
     }
 }
 

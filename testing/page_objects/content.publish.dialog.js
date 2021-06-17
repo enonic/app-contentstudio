@@ -92,12 +92,14 @@ class ContentPublishDialog extends Page {
 
     async clickOnExcludeInvalidItemsButton() {
         await this.waitForElementDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
-        return await this.clickOnElement(this.excludeInvalidItemsButton);
+        await this.clickOnElement(this.excludeInvalidItemsButton);
+        return await this.pause(300);
     }
 
     async clickOnExcludeWorkInProgressItemsButton() {
         await this.waitForElementDisplayed(this.excludeWorkInProgressItemsButton, appConst.mediumTimeout);
-        return await this.clickOnElement(this.excludeWorkInProgressItemsButton);
+        await this.clickOnElement(this.excludeWorkInProgressItemsButton);
+        return await this.pause(300);
     }
 
     async clickOnMarkAsReadyDropdownHandle() {
@@ -119,7 +121,7 @@ class ContentPublishDialog extends Page {
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.TIMEOUT_10).catch(err => {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout).catch(err => {
             this.saveScreenshot('err_close_publish_dialog');
             throw new Error('Publish dialog must be closed ' + err);
         })
@@ -154,7 +156,8 @@ class ContentPublishDialog extends Page {
     async clickOnScheduleButton() {
         try {
             await this.waitForScheduleButtonEnabled();
-            return await this.clickOnElement(this.scheduleButton);
+            await this.clickOnElement(this.scheduleButton);
+            return await this.pause(300);
         } catch (err) {
             this.saveScreenshot('err_publish_dialog_schedule_button');
             throw new Error('Error when clicking Publish  ' + err);

@@ -1,7 +1,6 @@
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentBrowsePanel} from './browse/ContentBrowsePanel';
 import {GetIssueRequest} from './issue/resource/GetIssueRequest';
 import {Issue} from './issue/Issue';
@@ -23,6 +22,7 @@ import {UrlAction} from './UrlAction';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {AppContext} from './AppContext';
 import {ProjectContext} from './project/ProjectContext';
+import {ContentId} from './content/ContentId';
 
 export class ContentAppPanel
     extends AppPanel {

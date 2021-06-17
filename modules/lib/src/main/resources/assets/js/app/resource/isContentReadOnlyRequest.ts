@@ -1,7 +1,7 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentId} from '../content/ContentId';
 
 export class IsContentReadOnlyRequest
     extends ContentResourceRequest<string[]> {

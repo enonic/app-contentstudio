@@ -5,7 +5,7 @@ import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {BasePublishAction} from '../wizard/action/BasePublishAction';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentId} from '../content/ContentId';
 
 export interface ContentWizardPublishMenuButtonConfig extends ContentPublishMenuButtonConfig {
     openRequestAction: Action;

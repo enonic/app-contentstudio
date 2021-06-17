@@ -2,8 +2,6 @@ import * as Q from 'q';
 import {showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
@@ -27,6 +25,8 @@ import {H6El} from 'lib-admin-ui/dom/H6El';
 import {SectionEl} from 'lib-admin-ui/dom/SectionEl';
 import {Form} from 'lib-admin-ui/ui/form/Form';
 import {applyMixins, DefaultModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {ContentId} from '../content/ContentId';
+import {ContentPath} from '../content/ContentPath';
 
 export class EditPermissionsDialog
     extends ModalDialogWithConfirmation

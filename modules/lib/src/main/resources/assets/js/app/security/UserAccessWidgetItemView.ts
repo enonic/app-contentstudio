@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {UserAccessListItemView} from './UserAccessListItemView';
@@ -20,6 +19,7 @@ import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {RoleKeys} from 'lib-admin-ui/security/RoleKeys';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {ContentId} from '../content/ContentId';
 
 export class UserAccessWidgetItemView
     extends WidgetItemView {

@@ -67,6 +67,21 @@ describe('content.image.selector: Image content specification', function () {
             assert.strictEqual(options[0], appConstant.TEST_FOLDER_WITH_IMAGES);
         });
 
+    it(`GIVEN wizard for image-selector is opened WHEN options have been expanded in tree mode THEN image status should be displayed in options`,
+        async () => {
+            let imageSelectorForm = new ImageSelectorForm();
+            //1. Open wizard with Image Selector:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4);
+            //2. Switch the selector to Tree-mode and expand the test folder:
+            await imageSelectorForm.clickOnModeTogglerButton();
+            //3. Expand a folder with images:
+            await imageSelectorForm.expandFolderInOptions(appConstant.TEST_FOLDER_NAME);
+            //4. Verify that content status is displayed in each option
+            studioUtils.saveScreenshot('img_sel_tree_mode_status');
+            let statusList = await imageSelectorForm.getTreeModeOptionStatus();
+            assert.isTrue(statusList.length > 0, "Content status should be displayed in each row");
+        });
+
     it(`GIVEN wizard for image-selector is opened WHEN 'dropdown handle' button has been pressed THEN flat mode should be present in the options list`,
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
@@ -94,8 +109,8 @@ describe('content.image.selector: Image content specification', function () {
             //3. Verify that expected options are present in the expanded list:
             let optionsName = await imageSelectorForm.getFlatModeOptionImageNames();
             studioUtils.saveScreenshot('img_sel_filtered');
-            assert.equal(optionsName.length, 1, 'one option should be present in options, because text files should be filtered');
-            assert.isTrue(optionsName[0].includes('.svg'), 'pdf and text- files should be filtered in drop down list');
+            assert.equal(optionsName.length, 2, 'one option should be present in options, because text files should be filtered');
+            assert.isTrue(optionsName[1].includes('.svg'), 'pdf and text- files should be filtered in drop down list');
         });
 
     it(`GIVEN new content(image-selector 2:4) is saved WHEN one image was selected THEN that content should be not valid(in grid)`,

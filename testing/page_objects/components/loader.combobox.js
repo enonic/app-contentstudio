@@ -20,16 +20,17 @@ class LoaderComboBox extends Page {
         let optionSelector = lib.slickRowByDisplayName(XPATH.container, optionDisplayName);
         await this.getBrowser().waitUntil(async () => {
             return await this.isElementDisplayed(optionSelector);
-        }, appConst.longTimeout, 'option was not found! ' + optionDisplayName);
+        }, {timeout: appConst.longTimeout, timeoutMsg: 'option was not found! ' + optionDisplayName});
         let optionElement = await this.getDisplayedElements(optionSelector);
-        return await optionElement[0].click();
+        await optionElement[0].click();
+        return await this.pause(200);
     }
 
     async selectOptionByName(optionName) {
         let optionSelector = lib.slickRowByName(XPATH.container, optionName);
         await this.getBrowser().waitUntil(async () => {
             return await this.isElementDisplayed(optionSelector);
-        }, appConst.longTimeout, 'option was not found! ' + optionName);
+        }, {timeout: appConst.longTimeout, timeoutMsg: 'option was not found! ' + optionName});
         let optionElement = await this.getDisplayedElements(optionSelector);
         return await optionElement[0].click();
     }
@@ -50,7 +51,7 @@ class LoaderComboBox extends Page {
             await this.waitForElementDisplayed(optionSelector, appConst.longTimeout);
             await this.pause(300);
             await this.clickOnElement(optionSelector);
-            return await this.pause(500);
+            return await this.pause(700);
         } catch (err) {
             this.saveScreenshot(appConst.generateRandomName("err_combobox"));
             throw new Error(err);

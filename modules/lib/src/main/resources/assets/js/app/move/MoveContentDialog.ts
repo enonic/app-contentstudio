@@ -2,17 +2,14 @@ import * as Q from 'q';
 import {showError} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {OpenMoveDialogEvent} from './OpenMoveDialogEvent';
 import {ContentMoveComboBox} from './ContentMoveComboBox';
 import {MoveContentRequest} from '../resource/MoveContentRequest';
-import {ContentIds} from '../ContentIds';
+import {ContentIds} from '../content/ContentIds';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {ProgressBarManager} from 'lib-admin-ui/ui/dialog/ProgressBarManager';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {Action} from 'lib-admin-ui/ui/Action';
@@ -21,6 +18,8 @@ import {ManagedActionExecutor} from 'lib-admin-ui/managedaction/ManagedActionExe
 import {ModalDialogWithConfirmation} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {ContentTreeGrid} from '../browse/ContentTreeGrid';
+import {ContentSummary} from '../content/ContentSummary';
+import {ContentPath} from '../content/ContentPath';
 
 export class MoveContentDialog
     extends ModalDialogWithConfirmation

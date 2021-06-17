@@ -1,6 +1,6 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentId} from '../../../../content/ContentId';
 
 export class ImageErrorEvent
     extends Event {

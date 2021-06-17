@@ -22,8 +22,6 @@ export class ProjectSelectionDialog
 
     private updateOnOpen: boolean = false;
 
-    private selectedProject: Project;
-
     private constructor() {
         super({
             title: i18n('text.selectContext'),
@@ -47,7 +45,7 @@ export class ProjectSelectionDialog
             itemView.onClicked((event: MouseEvent) => {
                 if (!event.ctrlKey && !event.shiftKey) {
                     if (itemView.isSelectable()) {
-                        this.selectedProject = itemView.getProject();
+                        ProjectContext.get().setProject(itemView.getProject());
                         this.close();
                     }
 
@@ -67,20 +65,19 @@ export class ProjectSelectionDialog
 
         this.projectsList = new ProjectList();
         this.noItemsInfoBlock = new H6El('notification-dialog-text').setHtml(i18n('notify.settings.project.notInitialized'));
+        this.noItemsInfoBlock.hide();
     }
 
     close() {
         super.close();
 
-        const project: Project = this.getProjectToSelect();
+        if (!ProjectContext.get().isInitialized()) {
+            const project: Project = this.getDefaultProject();
 
-        if (project) {
-            ProjectContext.get().setProject(project);
+            if (project) {
+                ProjectContext.get().setProject(project);
+            }
         }
-    }
-
-    private getProjectToSelect(): Project {
-        return !!this.selectedProject ? this.selectedProject : this.getDefaultProject();
     }
 
     private getDefaultProject(): Project {
@@ -130,7 +127,6 @@ export class ProjectSelectionDialog
         return super.doRender().then((rendered: boolean) => {
                 this.appendChildToContentPanel(this.projectsList);
                 this.appendChildToContentPanel(this.noItemsInfoBlock);
-                this.noItemsInfoBlock.hide();
 
             return rendered;
         });

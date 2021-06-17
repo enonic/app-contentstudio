@@ -12,4 +12,8 @@ export class PartComponentType
     public static get(): PartComponentType {
         return PartComponentType.INSTANCE;
     }
+
+    getIconCls(): string {
+        return 'part';
+    }
 }

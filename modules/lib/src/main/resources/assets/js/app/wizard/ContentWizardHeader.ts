@@ -8,15 +8,15 @@ import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {RenameContentDialog} from './RenameContentDialog';
 import {Content} from '../content/Content';
 import {UpdateContentRequest} from '../resource/UpdateContentRequest';
-import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {ContentUnnamed} from 'lib-admin-ui/content/ContentUnnamed';
 import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
+import {ContentName} from '../content/ContentName';
+import {ContentUnnamed} from '../content/ContentUnnamed';
+import {ContentPath} from '../content/ContentPath';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {

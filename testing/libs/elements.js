@@ -26,6 +26,10 @@ module.exports = Object.freeze({
     VALIDATION_RECORDING_VIEWER: "//div[contains(@id,'ValidationRecordingViewer')]//li",
     CONTENT_SUMMARY_AND_STATUS_VIEWER: "//div[contains(@id,'ContentSummaryAndCompareStatusViewer')]",
     OPTION_SET_MENU_BUTTON: "//button[contains(@id,'MoreButton')]",
+    validationRecording: "//div[contains(@id,'ValidationRecordingViewer')]//li",
+    inputView: "//div[contains(@id,'InputView')]",
+    INPUT_VALIDATION_VIEW: "//div[contains(@id,'InputViewValidationViewer')]",
+    OCCURRENCE_ERROR_BLOCK: "//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]",
     tabBarItemByName: function (name) {
         return `//li[contains(@id,'TabBarItem') and child::a[text()='${name}']] `
     },
@@ -49,6 +53,10 @@ module.exports = Object.freeze({
     formItemByLabel: (label) => {
         return `//div[contains(@id,'FormItem') and descendant::label[contains(.,'${label}')]]`
     },
+    expanderIconByName: name => {
+        return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]` +
+               `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
+    },
     tabMenuItem: menuName => `//li[contains(@id,'TabMenuItem') and child::a[text()='${menuName}']]`,
     TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,
@@ -57,9 +65,10 @@ module.exports = Object.freeze({
     PRINCIPAL_SELECTED_OPTIONS: `//div[contains(@id,'PrincipalSelectedOptionsView')]`,
     PRINCIPAL_SELECTED_OPTION: `//div[contains(@id,'PrincipalSelectedOptionView')]`,
     PRINCIPAL_COMBOBOX: "//div[contains(@id,'PrincipalComboBox')]",
-    REMOVE_ICON: `//a[@class='remove']`,
-    REMOVE_BUTTON: `//a[@class='remove-button']`,
-    INCLUDE_CHILDREN_TOGGLER: `//div[contains(@id,'IncludeChildrenToggler')]`,
+    REMOVE_ICON: "//a[@class='remove']",
+    REMOVE_BUTTON: "//a[@class='remove-button']",
+    REMOVE_BUTTON_2: "//button[contains(@class,'remove-button')]",
+    INCLUDE_CHILDREN_TOGGLER: "//div[contains(@id,'IncludeChildrenToggler')]",
     VERSION_HISTORY_MENU_OPTION: `//div[text()='Version history']`,
     DEPENDENCIES_MENU_OPTION: `//div[text()='Dependencies']`,
     DETAILS_MENU_OPTION: `//div[text()='Details']`,
@@ -71,6 +80,6 @@ module.exports = Object.freeze({
     COMPARE_WITH_CURRENT_VERSION: `//button[contains(@id,'ActionButton') and @title='Compare with current version']`,
     LIVE_EDIT_FRAME: "//iframe[contains(@class,'live-edit-frame shown')]",
     APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
-    SETTINGS_BUTTON: "//button[contains(@id,AppModeButton) and @title='Settings']",
+    SETTINGS_BUTTON: "//button[contains(@id,AppModeButton) and child::span[text()='Settings']]",
     MODE_CONTENT_BUTTON: "//button[contains(@id,AppModeButton) and @title='Content']"
 });

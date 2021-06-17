@@ -1,15 +1,16 @@
 /**
  * Created on 28.12.2017.
  */
-const Page = require('../page');
+const OccurrencesFormView = require('./occurrences.form.view');
 const lib = require('../../libs/elements');
-const appConst = require('../../libs/app_const');
 const XPATH = {
-    textLine: `//div[contains(@id,'TextLine')]`,
-    validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
+    textLine: "//div[contains(@id,'TextLine')]",
+    counterElement: "//div[contains(@id,'InputValueLengthCounterEl')]",
+    spanTotalCounter: "//span[@class='total-counter']",
+    spanLeftCounter: "//span[contains(@class,'left-counter')]"
 };
 
-class TextLineForm extends Page {
+class TextLineForm extends OccurrencesFormView {
 
     get textLineInput() {
         return lib.FORM_VIEW + XPATH.textLine + lib.TEXT_INPUT;
@@ -27,19 +28,23 @@ class TextLineForm extends Page {
         return this.typeTextInInput(this.textLineInput, value);
     }
 
-    waitForValidationRecording() {
-        return this.waitForElementDisplayed(this.validationRecord, appConst.shortTimeout);
+    async getTotalCounter(index) {
+        let locator = "//div[contains(@id,'InputOccurrenceView')]" + XPATH.spanTotalCounter;
+        let elements = await this.findElements(locator);
+        if (elements.length === 0) {
+            throw new Error("occurrences form - Element was not found: " + locator);
+        }
+        return await elements[index].getText();
     }
 
-    isValidationRecordingVisible() {
-        return this.isElementDisplayed(this.validationRecord);
+    async getRemaining(index) {
+        let locator = "//div[contains(@id,'InputOccurrenceView')]" + XPATH.spanLeftCounter;
+        let elements = await this.findElements(locator);
+        if (elements.length === 0) {
+            throw new Error("occurrences form - Element was not found: " + locator);
+        }
+        return await elements[index].getText();
     }
+}
 
-    getValidationRecord() {
-        return this.getText(this.validationRecord).catch(err => {
-            this.saveScreenshot('err_textline_validation_record');
-            throw new Error('getting Validation text: ' + err);
-        })
-    }
-};
 module.exports = TextLineForm;

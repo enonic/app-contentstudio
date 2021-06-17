@@ -34,10 +34,10 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             //3. Get 'workflow state' in toolbar in the wizard-page:
             let toolbarState = await contentWizard.getToolbarWorkflowState();
             studioUtils.saveScreenshot("wizard_workflow_state_1");
-            assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+            assert.equal(toolbarState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content should be 'Ready for publishing'");
             //4. Check the icon:
             let iconState = await contentWizard.getIconWorkflowState();
-            assert.equal(iconState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
+            assert.equal(iconState, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content should be 'Ready for publishing'");
             await contentWizard.waitForPublishButtonDisplayed();
         });
 

@@ -9,6 +9,8 @@ function handleGet() {
     var context = contextLib.get();
     var branch = context.branch;
     var allowScriptsInEditor = app.config['htmlinput.allowScripts'] === 'true' || false;
+    var allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
+    var allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
 
     var params = {
         adminUrl: admin.getBaseUri(),
@@ -29,6 +31,8 @@ function handleGet() {
             contentServiceUrl: portal.serviceUrl({service: 'content'})
         },
         allowScriptsInEditor: allowScriptsInEditor,
+        allowContentUpdate: allowContentUpdate,
+        allowPathTransliteration: allowPathTransliteration,
         mainUrl: portal.pageUrl({})
     };
 

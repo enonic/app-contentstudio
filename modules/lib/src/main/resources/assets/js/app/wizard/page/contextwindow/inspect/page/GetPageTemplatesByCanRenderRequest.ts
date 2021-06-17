@@ -1,10 +1,10 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PageTemplateResourceRequest} from '../../../../../resource/PageTemplateResourceRequest';
 import {ListContentResult} from '../../../../../resource/ListContentResult';
 import {PageTemplate} from '../../../../../content/PageTemplate';
 import {ContentJson} from '../../../../../content/ContentJson';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentId} from '../../../../../content/ContentId';
 
 export class GetPageTemplatesByCanRenderRequest
     extends PageTemplateResourceRequest<PageTemplate[]> {

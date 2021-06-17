@@ -4,8 +4,8 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
+import {ContentId} from '../content/ContentId';
 
 export class PublishDialogItemList
     extends DialogTogglableItemList {

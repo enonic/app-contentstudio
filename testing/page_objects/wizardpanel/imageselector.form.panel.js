@@ -1,19 +1,23 @@
 /**
  * Created on 18.12.2017.
  */
-const Page = require('../page');
+const OccurrencesFormView = require('./occurrences.form.view');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const LoaderComboBox = require('../components/loader.combobox');
 const XPATH = {
-    wizardStep: `//li[contains(@id,'TabBarItem')]/a[text()='Image selector']`,
-    imageContentComboBox: `//div[contains(@id,'ImageContentComboBox')]`,
-    flatOptionView: `//div[contains(@id,'ImageSelectorViewer')]`,
+    container: "//div[contains(@id,'ImageSelector')]",
+    wizardStep: "//li[contains(@id,'TabBarItem')]/a[text()='Image selector']",
+    uploaderButton: "//a[@class='dropzone']",
+    imageContentComboBox: "//div[contains(@id,'ImageContentComboBox')]",
+    flatOptionView: "//div[contains(@id,'ImageSelectorViewer')]",
     modeTogglerButton: `//button[contains(@id,'ModeTogglerButton')]`,
     selectedOption: "//div[contains(@id,'ImageSelectorSelectedOptionView')]",
     selectedOptions: "//div[contains(@id,'ImageSelectorSelectedOptionsView')]",
-    selectedImageByName: function (imageName) {
-        return `//div[contains(@id,'ImageSelectorSelectedOptionView') and descendant::div[contains(@class,'label') and text()='${imageName}']]`
+    editButton: "//div[contains(@id,'SelectionToolbar')]//button[child::span[contains(.,'Edit')]]",
+    removeButton: "//div[contains(@id,'SelectionToolbar')]//button[child::span[contains(.,'Remove')]]",
+    selectedImageByDisplayName: function (imageDisplayName) {
+        return `//div[contains(@id,'ImageSelectorSelectedOptionView') and descendant::div[contains(@class,'label') and text()='${imageDisplayName}']]`
     },
     expanderIconByName: function (name) {
         return lib.itemByName(name) +
@@ -21,7 +25,7 @@ const XPATH = {
     },
 };
 
-class ImageSelectorForm extends Page {
+class ImageSelectorForm extends OccurrencesFormView {
 
     get imageComboBoxDrppdownHandle() {
         return XPATH.imageContentComboBox + lib.DROP_DOWN_HANDLE;
@@ -32,11 +36,32 @@ class ImageSelectorForm extends Page {
     }
 
     get imagesOptionsFilterInput() {
-        return lib.FORM_VIEW + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return lib.FORM_VIEW + XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+    }
+
+    get uploaderButton() {
+        return XPATH.container + XPATH.uploaderButton;
+    }
+
+    get validationRecord() {
+        return lib.FORM_VIEW + lib.inputView + lib.validationRecording;
+    }
+
+    get editButton() {
+        return lib.FORM_VIEW + XPATH.editButton;
+    }
+
+    get removeButton() {
+        return lib.FORM_VIEW + XPATH.removeButton;
     }
 
     type(contentData) {
         return this.selectImages(contentData.images);
+    }
+
+    async getSelectedImages() {
+        let locator = XPATH.selectedOption + "//div[@class='label']";
+        return await this.getTextInElements(locator);
     }
 
     async clickOnDropdownHandle() {
@@ -54,8 +79,21 @@ class ImageSelectorForm extends Page {
         return await this.pause(1500);
     }
 
-    getTreeModeOptionDisplayNames() {
+    //Expands a folder in Tree Mode:
+    async expandFolderInOptions(folderName) {
+        let locator = lib.expanderIconByName(folderName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        return await this.pause(300);
+    }
+
+    async getTreeModeOptionDisplayNames() {
         let options = lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
+        return await this.getTextInElements(options);
+    }
+
+    getTreeModeOptionStatus() {
+        let options = lib.SLICK_VIEW_PORT + "//div[contains(@class,'r1')]";
         return this.getTextInElements(options);
     }
 
@@ -82,7 +120,7 @@ class ImageSelectorForm extends Page {
         return result;
     }
 
-    clickOnElements(elements, viewport) {
+    clickOnOptions(elements, viewport) {
         let result = Promise.resolve();
         let i = 0;
         elements.forEach(el => {
@@ -102,19 +140,6 @@ class ImageSelectorForm extends Page {
         return result;
     }
 
-    async clickOnElements1(elements, viewport) {
-        let i = 0;
-        for (const item of elements) {
-            await item.click();
-            await this.pause(300);
-            i++;
-            if (i === 3) {
-                await this.doScroll(viewport, 180);
-            }
-            await this.pause(300);
-        }
-    }
-
     async clickOnDropDownHandleAndSelectImages(numberImages) {
         await this.clickOnDropdownHandle();
         await this.pause(700);
@@ -123,7 +148,7 @@ class ImageSelectorForm extends Page {
         let viewportElement = await this.findElements(
             XPATH.imageContentComboBox + "//div[contains(@id,'OptionsTreeGrid')]" + "//div[contains(@class, 'slick-viewport')]");
         //Scrolls and clicks on options in the dropdown:
-        await this.clickOnElements(elems.slice(0, numberImages), viewportElement[0]);
+        await this.clickOnOptions(elems.slice(0, numberImages), viewportElement[0]);
         await this.clickOnApplyButton();
         return await this.pause(1000);
     }
@@ -159,10 +184,52 @@ class ImageSelectorForm extends Page {
         });
     }
 
+    waitForUploaderButtonEnabled() {
+        return this.waitForElementEnabled(this.uploaderButton, appConst.mediumTimeout);
+    }
+
+    waitForOptionsFilterInputDisplayed() {
+        return this.waitForElementDisplayed(this.imagesOptionsFilterInput, appConst.mediumTimeout);
+    }
+
+    waitForOptionsFilterInputNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.imagesOptionsFilterInput, appConst.mediumTimeout);
+    }
+
     async clickOnExpanderIconInOptions(name) {
         let expanderIcon = XPATH.imageContentComboBox + XPATH.expanderIconByName(name);
         await this.clickOnElement(expanderIcon);
         return await this.pause(700);
     }
-};
+
+    async clickOnImage(displayName) {
+        let locator = XPATH.selectedImageByDisplayName(displayName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.clickOnElement(locator);
+    }
+
+    //Remove image button:
+    waitForRemoveButtonDisplayed() {
+        return this.waitForElementDisplayed(this.removeButton, appConst.mediumTimeout);
+    }
+
+    waitForRemoveButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.removeButton, appConst.mediumTimeout);
+    }
+
+    async clickOnRemoveButton() {
+        await this.waitForRemoveButtonDisplayed();
+        return await this.clickOnElement(this.removeButton);
+    }
+
+    //Edit image button
+    waitForEditButtonDisplayed() {
+        return this.waitForElementDisplayed(this.editButton, appConst.mediumTimeout);
+    }
+
+    async getNumberItemInRemoveButton() {
+        return this.waitForElementDisplayed(this.removeButton, appConst.mediumTimeout);
+    }
+}
+
 module.exports = ImageSelectorForm;

@@ -8,7 +8,6 @@ import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOpt
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {RichComboBox} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {CustomSelectorComboBox, CustomSelectorSelectedOptionsView} from './CustomSelectorComboBox';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
@@ -23,6 +22,7 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {ProjectContext} from '../../project/ProjectContext';
 import {Branch} from '../../versioning/Branch';
+import {ContentSummary} from '../../content/ContentSummary';
 
 export class CustomSelector
     extends BaseInputTypeManagingAdd {
@@ -97,16 +97,16 @@ export class CustomSelector
         if (!ValueTypes.STRING.equals(propertyArray.getType())) {
             propertyArray.convertValues(ValueTypes.STRING, ValueTypeConverter.convertTo);
         }
-        super.layout(input, propertyArray);
 
-        this.comboBox = this.createComboBox(input, propertyArray);
+        return super.layout(input, propertyArray).then(() => {
+            this.comboBox = this.createComboBox(input, propertyArray);
+            this.appendChild(this.comboBox);
 
-        this.appendChild(this.comboBox);
+            this.setupSortable();
+            this.setLayoutInProgress(false);
 
-        this.setupSortable();
-        this.setLayoutInProgress(false);
-
-        return Q<void>(null);
+            return Q<void>(null);
+        });
     }
 
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
@@ -151,7 +151,7 @@ export class CustomSelector
             .build();
 
         comboBox.onOptionSelected((event: SelectedOptionEvent<CustomSelectorItem>) => {
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
 
             const option = event.getSelectedOption();
             let value = new Value(String(option.getOption().getValue()), ValueTypes.STRING);
@@ -162,19 +162,19 @@ export class CustomSelector
             }
             this.refreshSortable();
 
-            this.ignorePropertyChange = false;
-            this.validate(false);
+            this.ignorePropertyChange(false);
 
+            this.validate(false);
             this.fireFocusSwitchEvent(event);
         });
 
         comboBox.onOptionDeselected((event: SelectedOptionEvent<CustomSelectorItem>) => {
-            this.ignorePropertyChange = true;
+            this.ignorePropertyChange(true);
 
             this.getPropertyArray().remove(event.getSelectedOption().getIndex());
 
             this.refreshSortable();
-            this.ignorePropertyChange = false;
+            this.ignorePropertyChange(false);
             this.validate(false);
         });
 

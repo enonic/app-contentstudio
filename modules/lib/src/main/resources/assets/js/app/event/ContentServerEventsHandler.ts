@@ -1,14 +1,12 @@
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ContentDeletedEvent} from './ContentDeletedEvent';
 import {BatchContentServerEvent} from './BatchContentServerEvent';
 import {ContentUpdatedEvent} from './ContentUpdatedEvent';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatusChecker} from '../content/CompareStatus';
-import {ContentIds} from '../ContentIds';
+import {ContentIds} from '../content/ContentIds';
 import {Branch} from '../versioning/Branch';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentServerChangeItem} from './ContentServerChangeItem';
@@ -17,6 +15,8 @@ import {ProjectContext} from '../project/ProjectContext';
 import {RepositoryId} from '../repository/RepositoryId';
 import {ContentServerEvent} from './ContentServerEvent';
 import {NodeServerChangeItem} from 'lib-admin-ui/event/NodeServerChangeItem';
+import {ContentId} from '../content/ContentId';
+import {ContentPath} from '../content/ContentPath';
 
 /**
  * Class that listens to server events and fires UI events

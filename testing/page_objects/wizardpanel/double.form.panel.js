@@ -2,45 +2,54 @@
  * Created on 25.12.2017.
  */
 
-const Page = require('../page');
+const OccurrencesFormView = require('./occurrences.form.view');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
     doubleInput: `//div[contains(@id,'Double')]`,
-    validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
+    occurrenceErrorBlock: `//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]`,
+    addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
+    occurrenceView: "//div[contains(@id,'InputOccurrenceView')]",
 };
 
-class DoubleForm extends Page {
+class DoubleForm extends OccurrencesFormView {
 
     get doubleInput() {
         return lib.FORM_VIEW + XPATH.doubleInput + lib.TEXT_INPUT;
     }
 
-    get validationRecord() {
-        return lib.FORM_VIEW + XPATH.validationRecording;
+    get removeInputButton() {
+        return XPATH.doubleInput + XPATH.occurrenceView + lib.REMOVE_BUTTON_2;
     }
 
-    type(doubleData) {
-        return this.typeDouble(doubleData.doubleValue);
+    async typeDouble(value, index) {
+        index = typeof index !== 'undefined' ? index : 0;
+        let doubleElements = await this.getDisplayedElements(this.doubleInput);
+        await doubleElements[index].setValue(value);
+        return await this.pause(300);
     }
 
-    typeDouble(value) {
-        return this.typeTextInInput(this.doubleInput, value);
+    getNumberOfInputs() {
+        return this.getDisplayedElements(this.doubleInput);
     }
 
-    waitForValidationRecording() {
-        return this.waitForElementDisplayed(this.validationRecord, appConst.shortTimeout);
+    async isInvalidValue(index) {
+        let inputs = await this.getDisplayedElements(this.doubleInput);
+        if (inputs.length === 0) {
+            throw new Error("Double Form - Double inputs were not found!");
+        }
+        let attr = await inputs[index].getAttribute("class");
+        return attr.includes("invalid");
     }
 
-    isValidationRecordingVisible() {
-        return this.isElementDisplayed(this.validationRecord);
+    async clickOnRemoveIcon(index) {
+        let removeButtons = await this.getDisplayedElements(this.removeInputButton);
+        if (removeButtons.length === 0) {
+            throw new Error("Double Form - Remove buttons were not found!");
+        }
+        await removeButtons[index].click();
+        return await this.pause(500);
     }
+}
 
-    getValidationRecord() {
-        return this.getText(this.validationRecord).catch(err => {
-            this.saveScreenshot('err_double_validation_record');
-            throw new Error('getting Validation text: ' + err);
-        })
-    }
-};
 module.exports = DoubleForm;

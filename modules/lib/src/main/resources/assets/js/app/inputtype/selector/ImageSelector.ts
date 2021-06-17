@@ -1,7 +1,6 @@
 import * as Q from 'q';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {Input} from 'lib-admin-ui/form/Input';
 import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from 'lib-admin-ui/Class';
@@ -20,17 +19,16 @@ import {ImageSelectorSelectedOptionView} from '../ui/selector/image/ImageSelecto
 import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {Content} from '../../content/Content';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
 import {ImageOptionDataLoader} from '../ui/selector/image/ImageOptionDataLoader';
 import {ContentSummaryOptionDataLoader} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
+import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
+import {EditContentEvent} from '../../event/EditContentEvent';
+import {ContentPath} from '../../content/ContentPath';
 
 export class ImageSelector
     extends MediaSelector {
-
-    private editContentRequestListeners: { (content: ContentSummary): void }[] = [];
 
     private isPendingPreload: boolean = true;
 
@@ -62,7 +60,9 @@ export class ImageSelector
 
         selectedOptionsView.onEditSelectedOptions((options: SelectedOption<MediaTreeSelectorItem>[]) => {
             options.forEach((option: SelectedOption<MediaTreeSelectorItem>) => {
-                this.notifyEditContentRequested(option.getOption().getDisplayValue().getContentSummary());
+                const content = option.getOption().getDisplayValue().getContentSummary();
+                const model = ContentSummaryAndCompareStatus.fromContentSummary(content);
+                new EditContentEvent([model]).fire();
             });
         });
 
@@ -216,16 +216,12 @@ export class ImageSelector
         });
     }
 
-    validate(silent: boolean = true,
-             rec: InputValidationRecording = null): InputValidationRecording {
-
+    validate(silent: boolean = true) {
         if (!this.isPendingPreload) {
-            return super.validate(silent, rec);
+            super.validate(silent);
         }
-
-        return new InputValidationRecording();
     }
-
+/*
     onEditContentRequest(listener: (content: ContentSummary) => void) {
         this.editContentRequestListeners.push(listener);
     }
@@ -241,7 +237,7 @@ export class ImageSelector
         this.editContentRequestListeners.forEach((listener) => {
             listener(content);
         });
-    }
+    }*/
 }
 
 InputTypeManager.register(new Class('ImageSelector', ImageSelector));

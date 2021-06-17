@@ -29,6 +29,7 @@ import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticated
 import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
 import {ProjectDataItemFormIcon} from './form/element/ProjectDataItemFormIcon';
 import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
+import {TextInputSize} from 'lib-admin-ui/ui/text/TextInput';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {
@@ -73,7 +74,7 @@ export class ProjectWizardPanel
     }
 
     protected initConfirmationDialog(): ConfirmValueDialog {
-        return new ConfirmValueDialog()
+        return new ConfirmValueDialog({inputSize: TextInputSize.LARGE})
             .setValueToCheck(this.getPersistedItem().getId())
             .setSubheaderText(i18n('dialog.project.delete.confirm.subheader'))
             .setHeaderText(i18n('dialog.confirmDelete'))
@@ -156,10 +157,11 @@ export class ProjectWizardPanel
             const parentProject = item.getData().getParent();
             if (parentProject) {
                 this.projectWizardStepForm.showProjectsChain(parentProject);
-                this.projectWizardStepForm.disableProjectNameInput();
                 this.projectWizardStepForm.disableParentProjectHelpText();
                 this.projectWizardStepForm.disableParentProjectInput();
             }
+
+            this.projectWizardStepForm.disableProjectNameInput();
 
             return Q(item);
         });

@@ -74,9 +74,8 @@ export class WorkflowStateIconsManager {
         const contentSummary = content.getContentSummary();
 
         const isValid = this.wizard.isValid();
-        const isOnline = content.isOnline();
         const isPendingDelete = content.isPendingDelete();
-        const isInWorkflow = isValid && !isOnline && !isPendingDelete;
+        const isInWorkflow = isValid && !isPendingDelete;
         const hasUnsavedChanges = this.wizard.hasUnsavedChanges();
 
         const isReady: boolean = isInWorkflow && !hasUnsavedChanges && contentSummary.isReady();

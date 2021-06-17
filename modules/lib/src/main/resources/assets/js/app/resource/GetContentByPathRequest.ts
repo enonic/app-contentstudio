@@ -1,8 +1,8 @@
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
+import {ContentPath} from '../content/ContentPath';
 
 export class GetContentByPathRequest
     extends ContentResourceRequest<Content> {

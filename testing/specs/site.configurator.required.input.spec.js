@@ -12,7 +12,7 @@ const contentBuilder = require("../libs/content.builder");
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const SiteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
 
-describe('site.configurator.required.input.spec: verifies wizarvalidation when the dialog contains required input', function () {
+describe('site.configurator.required.input.spec: verifies wizard validation when the dialog contains required input', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
@@ -23,7 +23,7 @@ describe('site.configurator.required.input.spec: verifies wizarvalidation when t
             let siteConfiguratorDialog = new SiteConfiguratorDialog();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test for site configurator', [appConstant.APP_WITH_CONFIGURATOR]);
-            await studioUtils.doAddSite(SITE);
+            await studioUtils.doAddSite(SITE, true);
             //1. Open existing site:
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             //2. Click on Edit icon and open Site Configurator Dialog:
@@ -79,6 +79,20 @@ describe('site.configurator.required.input.spec: verifies wizarvalidation when t
             //5. Verify that red icon gets not visible:
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isFalse(isInvalid, "red icon should be not visible");
+        });
+
+    //Verifies: Site/Provider configurator -Apply button should not submit invalid config form (#3097).
+    it("GIVEN existing site with the configurator is opened WHEN required text input has been cleared THEN 'Apply' button gets disabled",
+        async () => {
+            let siteFormPanel = new SiteFormPanel();
+            let siteConfiguratorDialog = new SiteConfiguratorDialog();
+            //1. Open the site and open Site Configurator Dialog:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await siteFormPanel.openSiteConfiguratorDialog(appConstant.APP_WITH_CONFIGURATOR);
+            //2. Clear the required text input:
+            await siteConfiguratorDialog.typeInTextInput("");
+            //3. Verify that 'Apply' button gets disabled
+            await siteConfiguratorDialog.waitForApplyButtonDisabled();
         });
 
     it(`GIVEN existing site with the configurator WHEN required input in the config is filled THEN the site should be valid in Browse Panel`,

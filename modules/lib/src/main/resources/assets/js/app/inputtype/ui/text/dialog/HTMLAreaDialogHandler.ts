@@ -10,8 +10,8 @@ import {FindAndReplaceDialog} from './FindAndReplaceDialog';
 import {SpecialCharDialog} from './SpecialCharDialog';
 import {FullscreenDialog} from './FullscreenDialog';
 import {TableDialog} from './TableDialog';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ContentSummary} from '../../../../content/ContentSummary';
 
 export class HTMLAreaDialogHandler {
 

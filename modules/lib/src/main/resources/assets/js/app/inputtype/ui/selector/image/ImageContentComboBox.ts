@@ -1,6 +1,4 @@
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
@@ -13,18 +11,46 @@ import {ImageSelectorSelectedOptionsView} from './ImageSelectorSelectedOptionsVi
 import {ImageSelectorViewer} from './ImageSelectorViewer';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
+import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
+import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {GridOptions} from 'lib-admin-ui/ui/grid/GridOptions';
+import {Grid} from 'lib-admin-ui/ui/grid/Grid';
+import {ContentSummary} from '../../../../content/ContentSummary';
+import {ContentId} from '../../../../content/ContentId';
 
 export class ImageContentComboBox
     extends ContentComboBox<MediaTreeSelectorItem> {
 
-    protected maxHeight: number = 250;
+    private item: ResponsiveItem;
 
     constructor(builder: ImageContentComboBoxBuilder) {
         super(builder);
 
         this.addClass('image-content-combo-box');
+        this.initAvailableSizeChangeListener();
         this.toggleGridOptions(builder.treegridDropdownEnabled);
         this.setKeyEventsHandler(new ImageContentComboboxKeyEventsHandler(this));
+    }
+
+    private initAvailableSizeChangeListener() {
+        this.item = ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => this.updateGalleryModeColumnsNumber());
+    }
+
+    private updateGalleryModeColumnsNumber() {
+        const options: GridOptions<any> = this.getComboBox().getComboBoxDropdownGrid().getGrid().getOptions();
+
+        if (options.enableGalleryMode) {
+            const columnsFitInRow: number = this.getGalleryModeColumnsNumber();
+
+            if (options.galleryModeColumns !== columnsFitInRow) {
+                this.doToggleGridOptions(false, columnsFitInRow);
+            }
+        }
+    }
+
+    protected getMaxHeight(): number {
+        return 620;
     }
 
     protected createLoader(builder: ImageContentComboBoxBuilder): ImageOptionDataLoader {
@@ -50,19 +76,36 @@ export class ImageContentComboBox
     }
 
     protected toggleGridOptions(treeMode: boolean) {
-        const grid = this.getComboBox().getComboBoxDropdownGrid().getGrid();
+        const columnsFitInRow: number = treeMode ? 3 : this.getGalleryModeColumnsNumber();
+
+        this.doToggleGridOptions(treeMode, columnsFitInRow);
+    }
+
+    private getGalleryModeColumnsNumber(): number {
+        if (this.item.isInRangeOrSmaller(ResponsiveRanges._240_360)) {
+            return 1;
+        }
+
+        if (this.item.isInRangeOrSmaller(ResponsiveRanges._360_540)) {
+            return 2;
+        }
+
+        return 3;
+    }
+
+    private doToggleGridOptions(treeMode: boolean, columns: number) {
+        const grid: Grid<any> = this.getComboBox().getComboBoxDropdownGrid().getGrid();
         grid.toggleClass('tree-mode', treeMode);
 
         grid.getOptions().setRowHeight(treeMode ? 50 : 198)
             .setEnableGalleryMode(!treeMode)
-            .setGalleryModeColumns(3);
+            .setGalleryModeColumns(columns);
 
-        return true;
+        grid.invalidate();
     }
 
     protected createOption(data: Object, readOnly?: boolean): Option<MediaTreeSelectorItem> {
         const item: MediaTreeSelectorItem = this.dataToMediaTreeSelectorItem(data);
-
         if (item) {
             return this.optionsFactory.createOption(item, readOnly);
         }
@@ -101,7 +144,7 @@ export class ImageContentComboBoxBuilder
     comboBoxName: string = 'imageContentSelector';
 
     selectedOptionsView: SelectedOptionsView<MediaTreeSelectorItem> =
-        <SelectedOptionsView<MediaTreeSelectorItem>> new ImageSelectorSelectedOptionsView();
+        <SelectedOptionsView<MediaTreeSelectorItem>>new ImageSelectorSelectedOptionsView();
 
     optionDisplayValueViewer: ImageSelectorViewer = new ImageSelectorViewer();
 

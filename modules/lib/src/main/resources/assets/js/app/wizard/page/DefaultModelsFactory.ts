@@ -1,14 +1,15 @@
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DefaultModels} from './DefaultModels';
 import {GetDefaultPageTemplateRequest} from './GetDefaultPageTemplateRequest';
-import {GetPageDescriptorByKeyRequest} from '../../resource/GetPageDescriptorByKeyRequest';
 import {PageTemplate} from '../../content/PageTemplate';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
+import {GetComponentDescriptorRequest} from '../../resource/GetComponentDescriptorRequest';
+import {PageComponentType} from '../../page/region/PageComponentType';
+import {Descriptor} from '../../page/Descriptor';
+import {ContentId} from '../../content/ContentId';
 
 export interface DefaultModelsFactoryConfig {
 
@@ -29,14 +30,15 @@ export class DefaultModelsFactory {
                 let defaultPageTemplateDescriptorPromise = null;
                 if (defaultPageTemplate && defaultPageTemplate.isPage()) {
                     defaultPageTemplateDescriptorPromise =
-                        new GetPageDescriptorByKeyRequest(defaultPageTemplate.getController()).sendAndParse();
+                        new GetComponentDescriptorRequest(defaultPageTemplate.getController().toString(), PageComponentType.get())
+                            .sendAndParse();
                 } else if (defaultPageTemplate && !defaultPageTemplate.isPage()) {
                     defaultPageTemplate = null;
                 }
 
                 let deferred = Q.defer<DefaultModels>();
                 if (defaultPageTemplateDescriptorPromise) {
-                    defaultPageTemplateDescriptorPromise.then((defaultPageTemplateDescriptor: PageDescriptor) => {
+                    defaultPageTemplateDescriptorPromise.then((defaultPageTemplateDescriptor: Descriptor) => {
 
                         deferred.resolve(new DefaultModels(defaultPageTemplate, defaultPageTemplateDescriptor));
                     }).catch((reason) => {

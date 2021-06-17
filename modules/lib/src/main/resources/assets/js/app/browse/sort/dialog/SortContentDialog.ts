@@ -11,7 +11,6 @@ import {OrderChildMovements} from '../../../resource/order/OrderChildMovements';
 import {OrderContentRequest} from '../../../resource/OrderContentRequest';
 import {Content} from '../../../content/Content';
 import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAndCompareStatus';
-import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {TabMenuItem, TabMenuItemBuilder} from 'lib-admin-ui/ui/tab/TabMenuItem';
 import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
 import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
@@ -23,7 +22,8 @@ import {ContentsExistRequest} from '../../../resource/ContentsExistRequest';
 import {ContentsExistResult} from '../../../resource/ContentsExistResult';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../resource/ContentSummaryAndCompareStatusFetcher';
 import {RestoreInheritRequest} from '../../../resource/RestoreInheritRequest';
-import {ContentInheritType} from 'lib-admin-ui/content/ContentInheritType';
+import {ContentInheritType} from '../../../content/ContentInheritType';
+import {ChildOrder} from '../../../resource/order/ChildOrder';
 
 export class SortContentDialog
     extends ModalDialog {

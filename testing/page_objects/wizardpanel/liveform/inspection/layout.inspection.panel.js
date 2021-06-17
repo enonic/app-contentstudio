@@ -7,7 +7,7 @@ const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'LayoutInspectionPanel')]`,
-    layoutDropdown: `//div[contains(@id,'LayoutDescriptorDropdown')]`,
+    layoutDropdown: `//div[contains(@id,'ComponentDescriptorsDropdown')]`,
     selectedOptionView: `//div[contains(@id,'SelectedOptionView')]`,
 };
 
@@ -33,6 +33,7 @@ class LayoutInspectionPanel extends Page {
             throw new Error('Live Edit, Layout Inspection Panel is not loaded' + err);
         });
     }
-};
+}
+
 module.exports = LayoutInspectionPanel;
 

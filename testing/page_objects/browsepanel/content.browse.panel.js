@@ -33,6 +33,9 @@ const XPATH = {
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     duplicateButton: `/button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
+    contentSummaryListViewerByName: function (name) {
+        return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
+    },
     contentSummaryByName: function (name) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
@@ -222,9 +225,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return this.getAttribute(xpath, 'class').then(result => {
                 return (!result.includes('in-progress') && !result.includes('ready'));
             });
-        }, appConst.mediumTimeout).catch(err => {
-            throw new Error("Workflow icon still visible in content: " + displayName + " " + err);
-        });
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Workflow icon is still visible in content: " + displayName});
     }
 
     //Wait for `Publish Menu` Button gets 'Mark as ready'
@@ -530,10 +531,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async clickOnCheckboxAndSelectRowByName(name) {
         try {
             await this.clickOnCheckbox(name);
-            let isSelected = await this.isRowCheckboxSelected(name);
-            if (!isSelected) {
-                throw new Error("Checkbox was not selected. " + name);
-            }
+            await this.waitForRowCheckboxSelected(name);
         } catch (err) {
             this.saveScreenshot('err_select_item');
             throw Error('Row with the name ' + name + ' was not selected ' + err)
@@ -544,7 +542,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         let checkBox = XPATH.checkboxByName(name);
         await this.waitForElementDisplayed(checkBox, appConst.mediumTimeout);
         await this.clickOnElement(checkBox);
-        return await this.pause(400);
+        return await this.pause(300);
     }
 
     getNumberOfSelectedRows() {
@@ -597,7 +595,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     // this method does not wait, it just checks the attribute
     isRedIconDisplayed(contentName) {
-        let xpath = XPATH.contentSummaryByName(contentName);
+        let xpath = XPATH.contentSummaryListViewerByName(contentName);
         return this.getAttribute(xpath, 'class').then(result => {
             return result.includes('invalid');
         });
@@ -605,7 +603,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     // this method waits until 'invalid' appears in the @class
     waitForRedIconDisplayed(contentName) {
-        let xpath = XPATH.contentSummaryByName(contentName);
+        let xpath = XPATH.contentSummaryListViewerByName(contentName);
         return this.waitUntilInvalid(xpath);
     }
 
@@ -653,7 +651,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-
     async waitForPublishMenuItemEnabled(menuItem) {
         let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
         return await this.waitForAttributeNotIncludesValue(selector, "class", "disabled");
@@ -676,6 +673,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             this.saveScreenshot("err_click_issue_menuItem");
             throw new Error('error when try to click on publish menu item, ' + err);
         }
+    }
+
+    async getPublishMenuItems() {
+        //await this.openPublishMenu();
+        let locator = "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem')]";
+        return await this.getTextInDisplayedElements(locator);
+
     }
 
     async openPublishMenuAndClickOnCreateTask() {
@@ -719,7 +723,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
 //find workflow state by the name
     async getWorkflowStateByName(name) {
-        let xpath = XPATH.contentSummaryByName(name);
+        let xpath = XPATH.contentSummaryListViewerByName(name);
         await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {

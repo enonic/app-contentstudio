@@ -2,11 +2,11 @@ import {ComponentName} from '../../page/region/ComponentName';
 import {ComponentPath} from '../../page/region/ComponentPath';
 import {Region} from '../../page/region/Region';
 import {Regions} from '../../page/region/Regions';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {Component} from '../../page/region/Component';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
 import {ComponentFactory} from '../../page/region/ComponentFactory';
+import {Descriptor} from '../../page/Descriptor';
 
 export class IEObjectProcessor {
     private componentNames: Map<string, string> = new Map();
@@ -33,7 +33,7 @@ export class IEObjectProcessor {
         }
     }
 
-    copyPageDescriptor(pageDescriptor: PageDescriptor): any {
+    copyPageDescriptor(pageDescriptor: Descriptor): any {
         const pageDescriptorCopy: any = JSON.parse(JSON.stringify(pageDescriptor));
         pageDescriptorCopy.key = pageDescriptor.getKey().toString();
         pageDescriptorCopy.config = JSON.parse(JSON.stringify(pageDescriptor.getConfig().toJson()));
@@ -61,7 +61,7 @@ export class IEObjectProcessor {
         component.setName(new ComponentName(this.componentNames.get(component.getPath().toString())));
     }
 
-    restorePageDescriptorFromCopy(copy: any): PageDescriptor {
-        return PageDescriptor.fromJson(copy);
+    restorePageDescriptorFromCopy(copy: any): Descriptor {
+        return Descriptor.fromJson(copy);
     }
 }

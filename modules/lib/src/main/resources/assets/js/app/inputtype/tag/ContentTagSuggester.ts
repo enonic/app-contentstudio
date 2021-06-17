@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
 import {PropertyPath} from 'lib-admin-ui/data/PropertyPath';
 import {Property} from 'lib-admin-ui/data/Property';
@@ -14,6 +13,7 @@ import {Expression} from 'lib-admin-ui/query/expr/Expression';
 import {FulltextSearchExpressionBuilder} from 'lib-admin-ui/query/FulltextSearchExpression';
 import {QueryField} from 'lib-admin-ui/query/QueryField';
 import {Expand} from 'lib-admin-ui/rest/Expand';
+import {ContentSummary} from '../../content/ContentSummary';
 
 export class ContentTagSuggesterBuilder {
 

@@ -44,9 +44,10 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
             let isDisplayed = await metadataStepForm.isOverrideDescriptionTextAreaVisible();
             assert.isTrue(isDisplayed, "'Override Description' text area should be displayed");
             isDisplayed = await metadataStepForm.isOverrideTitleInputVisible();
-            assert.isTrue(isDisplayed, "`Override Title` input should be displayed");
-            isDisplayed = await metadataStepForm.isValidationRecordingVisible();
-            assert.isTrue(isDisplayed, "'This field is required' should appear, because the required input for metadata is empty");
+            assert.isTrue(isDisplayed, "'Override Title' input should be displayed");
+            let validationRecording = await metadataStepForm.getDescriptionValidationRecording();
+            assert.equal(validationRecording, 'This field is required',
+                "Expected recording should appear, the text area is empty in metadata form");
 
             let isRedIconPresent = await contentWizard.isContentInvalid();
             studioUtils.saveScreenshot('site_metadata_wizard');
@@ -66,20 +67,20 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
         });
 
     //Verifies the https://github.com/enonic/xp-apps/issues/533
-    it(`GIVEN creating of a new site with application-metadata AND data is saved WHEN description in metadata has been typed THEN 'Saved' label should be changed to 'Save'`,
+    it(`GIVEN wizard for new site with metadata is opened AND data is saved WHEN description in metadata has been typed THEN 'Saved' label should be changed to 'Save'`,
         async () => {
             let metadataStepForm = new MetadataStepForm();
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('site-meta');
             let testSite = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConstant.APP_WITH_METADATA_MIXIN]);
-            //New site-wizard is opened:
+            //1. New site-wizard is opened:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(testSite.displayName);
+            //2. Application with controllers has been selected:
             await siteFormPanel.addApplications([appConstant.APP_WITH_METADATA_MIXIN]);
-            //the site is saved:
-            await contentWizard.waitAndClickOnSave();
-            //Description has been typed:
+            //the site automatically saved:
+            //3. Description has been typed:
             await metadataStepForm.typeDescription('test description');
             //'Save' button gets visible and enabled, because description is updated
             await contentWizard.waitForSaveButtonEnabled();

@@ -1,4 +1,3 @@
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {OrderExpr} from 'lib-admin-ui/query/expr/OrderExpr';
 import {FieldOrderExpr} from 'lib-admin-ui/query/expr/FieldOrderExpr';
 import {OrderDirection} from 'lib-admin-ui/query/expr/OrderDirection';
@@ -10,6 +9,7 @@ import {ContentResourceRequest} from './ContentResourceRequest';
 import {Expand} from 'lib-admin-ui/rest/Expand';
 import {PathMatchExpressionBuilder} from 'lib-admin-ui/query/PathMatchExpression';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class ContentSelectorRequest<CONTENT>
     extends ContentResourceRequest<CONTENT[]> {

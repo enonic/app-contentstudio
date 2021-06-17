@@ -1,8 +1,8 @@
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {PageTemplate} from '../../../../../content/PageTemplate';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
+import {Descriptor} from '../../../../../page/Descriptor';
 
-export type TemplateOrController = PageTemplate | PageDescriptor;
+export type TemplateOrController = PageTemplate | Descriptor;
 
 export abstract class TemplateOrControllerOption<DATA extends TemplateOrController>
     implements Equitable {

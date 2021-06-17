@@ -1005,8 +1005,7 @@ export class ItemView
     private getInsertActions(liveEditModel: LiveEditModel): Action[] {
         let isFragmentContent = liveEditModel.getContent().getType().isFragment();
 
-        let actions = [this.createInsertSubAction('image', ImageItemType.get()),
-            this.createInsertSubAction('part', PartItemType.get())];
+        let actions = [this.createInsertSubAction('part', PartItemType.get())];
 
         let isInRegion = this.getRegionView().getType().equals(RegionItemType.get());
         if (isInRegion && !this.getRegionView().hasParentLayoutComponentView() && !isFragmentContent) {
@@ -1025,6 +1024,14 @@ export class ItemView
 
     protected getRegionView(): ItemView {
         return this.getParentItemView();
+    }
+
+    isLayout(): boolean {
+        return LayoutItemType.get().equals(this.getType());
+    }
+
+    isPart(): boolean {
+        return PartItemType.get().equals(this.getType());
     }
 
     getPageView(): PageView {
@@ -1085,7 +1092,7 @@ export class ItemView
     }
 
     isContainer(): boolean {
-        return this.isDraggableView() || this.getType().equals(LayoutItemType.get());
+        return this.isDraggableView() || this.isLayout();
     }
 
     private isViewInsideSelectedContainer() {

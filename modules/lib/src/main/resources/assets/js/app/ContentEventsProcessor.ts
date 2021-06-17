@@ -14,9 +14,9 @@ import {ProjectContext} from './project/ProjectContext';
 import {ContentAppBarTabId} from './ContentAppBarTabId';
 import {UrlAction} from './UrlAction';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {AppMode} from './AppMode';
+import {ContentSummary} from './content/ContentSummary';
 
 export class ContentEventsProcessor {
 

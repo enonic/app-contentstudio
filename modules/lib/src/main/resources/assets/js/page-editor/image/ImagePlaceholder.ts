@@ -1,10 +1,8 @@
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {StyleHelper} from 'lib-admin-ui/StyleHelper';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {ImageComponentView} from './ImageComponentView';
-import {ImageOptionDataLoader} from '../../app/inputtype/ui/selector/image/ImageOptionDataLoader';
 import {ImageContentComboBox} from '../../app/inputtype/ui/selector/image/ImageContentComboBox';
 import {ImageUploaderEl} from '../../app/inputtype/ui/selector/image/ImageUploaderEl';
 import {MediaTreeSelectorItem} from '../../app/inputtype/ui/selector/media/MediaTreeSelectorItem';
@@ -12,10 +10,10 @@ import {MediaUploaderElOperation} from '../../app/inputtype/ui/upload/MediaUploa
 import {Content} from '../../app/content/Content';
 import {ImageComponent} from '../../app/page/region/ImageComponent';
 import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {ContentSummary} from '../../app/content/ContentSummary';
 
 export class ImagePlaceholder
     extends ItemViewPlaceholder {

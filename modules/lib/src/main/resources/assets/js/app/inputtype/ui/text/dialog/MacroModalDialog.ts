@@ -3,19 +3,19 @@ import {showError} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
 import {Validators} from 'lib-admin-ui/ui/form/Validators';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
-import {MacroDescriptor} from 'lib-admin-ui/macro/MacroDescriptor';
-import {GetMacrosRequest} from 'lib-admin-ui/macro/resource/GetMacrosRequest';
 import {PropertySet} from 'lib-admin-ui/data/PropertySet';
-import {MacrosLoader} from 'lib-admin-ui/macro/resource/MacrosLoader';
-import {MacroComboBox} from 'lib-admin-ui/macro/MacroComboBox';
 import {HtmlAreaModalDialogConfig, ModalDialog, ModalDialogFormItemBuilder} from './ModalDialog';
 import {MacroDockedPanel} from './MacroDockedPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
+import {ContentSummary} from '../../../../content/ContentSummary';
+import {MacroDescriptor} from 'lib-admin-ui/macro/MacroDescriptor';
+import {MacrosLoader} from '../../../../macro/resource/MacrosLoader';
+import {GetMacrosRequest} from '../../../../macro/resource/GetMacrosRequest';
+import {MacroComboBox} from '../../../../macro/MacroComboBox';
 
 export interface MacroModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -216,6 +216,18 @@ export class MacroModalDialog
 
     isDirty(): boolean {
         return (<MacroComboBox>this.macroFormItem.getInput()).isDirty();
+    }
+
+    open(): void {
+        super.open();
+
+        this.getEditor().focusManager.lock();
+    }
+
+    close() {
+        super.close();
+
+        this.getEditor().focusManager.unlock();
     }
 }
 

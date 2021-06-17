@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ActionName, ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentBrowseToolbar} from './ContentBrowseToolbar';
 import {ContentTreeGrid, State} from './ContentTreeGrid';
@@ -24,20 +23,23 @@ import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {TreeGridItemClickedEvent} from 'lib-admin-ui/ui/treegrid/TreeGridItemClickedEvent';
 import {RepositoryEvent} from 'lib-admin-ui/content/event/RepositoryEvent';
 import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {BrowsePanel} from 'lib-admin-ui/app/browse/BrowsePanel';
-import {ContentIds} from '../ContentIds';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
+import {ContentIds} from '../content/ContentIds';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {UrlAction} from '../UrlAction';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {DeletedContentItem} from './DeletedContentItem';
 import {IsRenderableRequest} from '../resource/IsRenderableRequest';
+import {ContentSummary} from '../content/ContentSummary';
+import {ContentId} from '../content/ContentId';
+import {ContentPath} from '../content/ContentPath';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ContentBrowsePanel
     extends BrowsePanel {
@@ -242,7 +244,6 @@ export class ContentBrowsePanel
         });
 
         ToggleSearchPanelWithDependenciesEvent.on((event: ToggleSearchPanelWithDependenciesEvent) => {
-
             if (this.treeGrid.getToolbar().getSelectionPanelToggler().isActive()) {
                 this.treeGrid.getToolbar().getSelectionPanelToggler().setActive(false);
             }
@@ -277,10 +278,17 @@ export class ContentBrowsePanel
                 this.treeGrid.reload();
             });
         });
+
+        ProjectContext.get().onNoProjectsAvailable(() => {
+            this.handleProjectNotSet();
+            this.treeGrid.clean();
+            NotifyManager.get().showWarning(i18n('notify.settings.project.notInitialized'));
+        });
     }
 
     private selectInlinedContentInGrid(contentInlinePath: string) {
         const path: string = this.getPathFromInlinePath(contentInlinePath);
+
         if (path) {
             this.treeGrid.selectInlinedContentInGrid(ContentPath.fromString(path));
         }

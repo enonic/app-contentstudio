@@ -239,7 +239,7 @@ module.exports = {
             return this.doSwitchToContentBrowsePanel();
         });
     },
-    async doAddSite(site) {
+    async doAddSite(site, noControllers) {
         let contentWizardPanel = new ContentWizardPanel();
         //1. Open new site-wizard:
         await this.openContentWizard(appConst.contentTypes.SITE);
@@ -247,7 +247,8 @@ module.exports = {
         //2. Type the data and save:
         if (site.data.controller) {
             await contentWizardPanel.selectPageDescriptor(site.data.controller);
-        } else {
+        }
+        if (noControllers) {
             await contentWizardPanel.waitAndClickOnSave();
         }
         await this.doCloseCurrentBrowserTab();
@@ -468,6 +469,16 @@ module.exports = {
         }
     },
 
+    async openProjectSelectionDialogAndSelectContext(context) {
+        try {
+            let browsePanel = new BrowsePanel();
+            return await browsePanel.selectContext(context);
+        } catch (err) {
+            throw new Error("Error when opening Filter Panel! " + err);
+        }
+    },
+
+
     async doLogout() {
         let launcherPanel = new LauncherPanel();
         let loginPage = new LoginPage();
@@ -498,11 +509,12 @@ module.exports = {
             return await this.doLoginAndClickOnContentStudio(userName, password);
         }
     },
-    async navigateToContentStudioWithProjects(userName, password) {
+    async navigateToContentStudioCloseProjectSelectionDialog(userName, password) {
         try {
             await this.clickOnContentStudioLink(userName, password);
             await webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin");
-            return await webDriverHelper.browser.pause(700);
+            await webDriverHelper.browser.pause(700);
+            await this.closeProjectSelectionDialog();
         } catch (err) {
             this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
             throw new Error('error when navigate to Content Studio app ' + err);
@@ -531,7 +543,8 @@ module.exports = {
             let browsePanel = new BrowsePanel();
             await webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin");
             console.log("switched to content browse panel...");
-            return await browsePanel.waitForGridLoaded(appConst.longTimeout);
+            await browsePanel.waitForGridLoaded(appConst.longTimeout);
+            return browsePanel;
         } catch (err) {
             throw new Error("Error when switching to Content Studio App " + err);
         }
@@ -558,9 +571,14 @@ module.exports = {
     },
 
     async switchToContentTabWindow(contentDisplayName) {
-        await webDriverHelper.browser.switchWindow(contentDisplayName);
-        let contentWizardPanel = new ContentWizardPanel();
-        return await contentWizardPanel.waitForSpinnerNotVisible();
+        try {
+            await webDriverHelper.browser.switchWindow(contentDisplayName);
+            let contentWizardPanel = new ContentWizardPanel();
+            return await contentWizardPanel.waitForSpinnerNotVisible();
+        } catch (err) {
+            await webDriverHelper.browser.pause(1500);
+            await webDriverHelper.browser.switchWindow(contentDisplayName);
+        }
     },
     doPressBackspace: function () {
         return webDriverHelper.browser.keys('\uE003');
@@ -673,9 +691,18 @@ module.exports = {
         return atrValue.includes("sidebar-expanded");
     },
     async openSettingsPanel() {
-        await this.openContentStudioMenu();
-        await this.clickOnElement(lib.SETTINGS_BUTTON);
-        return await webDriverHelper.browser.pause(300);
+        try {
+            let settingsBrowsePanel = new SettingsBrowsePanel();
+            await this.openContentStudioMenu();
+            await this.waitForElementDisplayed(lib.SETTINGS_BUTTON, appConst.mediumTimeout);
+            await this.clickOnElement(lib.SETTINGS_BUTTON);
+            await webDriverHelper.browser.pause(300);
+            await settingsBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
+            return settingsBrowsePanel;
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_open_settings"));
+            throw new Error(err);
+        }
     },
     async switchToContentMode() {
         await this.clickOnElement(lib.MODE_CONTENT_BUTTON);
@@ -839,10 +866,7 @@ module.exports = {
             return this.getDisplayedElements(selector).then(result => {
                 return result.length > 0;
             })
-        }, ms).catch(err => {
-            this.saveScreenshot(appConst.generateRandomName("err_timeout"));
-            throw new Error("Timeout exception. Element " + selector + " still not visible in: " + ms);
-        });
+        }, {timeout: ms, timeoutMsg: "Timeout exception. Element " + selector + " still not visible in: " + ms});
     },
     async selectAndDeleteProject(projectName) {
         let confirmValueDialog = new ConfirmValueDialog();

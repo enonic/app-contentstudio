@@ -30,13 +30,13 @@ import {ShowSplitEditEvent} from '../../wizard/ShowSplitEditEvent';
 import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {CompareStatus} from '../../content/CompareStatus';
-import {ContentIds} from '../../ContentIds';
+import {ContentIds} from '../../content/ContentIds';
 import {ContextPanel} from './ContextPanel';
 import {Widget} from 'lib-admin-ui/content/Widget';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
+import {ContentId} from '../../content/ContentId';
 
 export class ContextView
     extends DivEl {

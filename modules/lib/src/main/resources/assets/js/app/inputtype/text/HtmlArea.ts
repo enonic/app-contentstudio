@@ -6,8 +6,6 @@ import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
 import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
@@ -32,6 +30,8 @@ import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
+import {ContentSummary} from '../../content/ContentSummary';
+import {ContentPath} from '../../content/ContentPath';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
@@ -88,10 +88,6 @@ export class HtmlArea
         return ValueTypes.STRING;
     }
 
-    newInitialValue(): Value {
-        return super.newInitialValue() || ValueTypes.STRING.newValue('');
-    }
-
     createInputOccurrenceElement(index: number, property: Property): Element {
         if (!ValueTypes.STRING.equals(property.getType())) {
             property.convertValueType(ValueTypes.STRING, ValueTypeConverter.convertTo);
@@ -105,11 +101,7 @@ export class HtmlArea
         const clazz = editorId.replace(/\./g, '_');
         textAreaEl.addClass(clazz);
 
-        const textAreaWrapper = new DivEl();
-
-        if (this.inputConfig['include']) {
-            textAreaWrapper.addClass('customized-toolbar');
-        }
+        const textAreaWrapper = new TextAreaWrapper();
 
         textAreaEl.onRendered(() => {
             this.authRequest.then(() => {
@@ -120,9 +112,7 @@ export class HtmlArea
         });
 
         textAreaEl.onValueChanged((event: ValueChangedEvent) => {
-            const processedValue: string = HTMLAreaHelper.convertPreviewSrcToRenderSrc(event.getNewValue());
-            const valueObj: Value = ValueTypes.STRING.newValue(processedValue);
-            this.notifyOccurrenceValueChanged(textAreaWrapper, valueObj);
+            this.handleOccurrenceInputValueChanged(textAreaWrapper, event);
         });
 
         textAreaWrapper.appendChild(textAreaEl);
@@ -130,6 +120,11 @@ export class HtmlArea
         this.setFocusOnEditorAfterCreate(textAreaWrapper, editorId);
 
         return textAreaWrapper;
+    }
+
+    protected getValue(textAreaWrapper: DivEl, event: ValueChangedEvent): Value {
+        const processedValue: string = HTMLAreaHelper.convertPreviewSrcToRenderSrc(event.getNewValue());
+        return this.getValueType().newValue(processedValue);
     }
 
     protected updateFormInputElValue(occurrence: FormInputEl, property: Property) {
@@ -442,12 +437,6 @@ export class HtmlArea
         return value.isNull() || !value.getType().equals(ValueTypes.STRING) || StringHelper.isBlank(value.getString());
     }
 
-    hasInputElementValidUserInput(_inputElement: Element) {
-
-        // TODO
-        return true;
-    }
-
     handleDnDStart(ui: JQueryUI.SortableUIParams): void {
         super.handleDnDStart(ui);
 
@@ -530,6 +519,10 @@ export interface HtmlAreaOccurrenceInfo {
     textAreaEl: TextArea;
     property: Property;
     hasStickyToolbar: boolean;
+}
+
+class TextAreaWrapper extends DivEl {
+
 }
 
 InputTypeManager.register(new Class('HtmlArea', HtmlArea));

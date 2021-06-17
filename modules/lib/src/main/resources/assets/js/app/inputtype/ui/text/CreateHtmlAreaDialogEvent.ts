@@ -1,8 +1,8 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ContentSummary} from '../../../content/ContentSummary';
+import {ContentPath} from '../../../content/ContentPath';
 
 export enum HtmlAreaDialogType {
     ANCHOR, IMAGE, LINK, MACRO, SEARCHREPLACE, CODE, SPECIALCHAR, FULLSCREEN, TABLE
@@ -11,15 +11,15 @@ export enum HtmlAreaDialogType {
 export class CreateHtmlAreaDialogEvent
     extends Event {
 
-    private config: any;
+    private readonly config: any;
 
-    private type: HtmlAreaDialogType;
+    private readonly type: HtmlAreaDialogType;
 
-    private content: ContentSummary;
+    private readonly content: ContentSummary;
 
-    private contentPath: ContentPath;
+    private readonly contentPath: ContentPath;
 
-    private applicationKeys: ApplicationKey[];
+    private readonly applicationKeys: ApplicationKey[];
 
     constructor(builder: CreateHtmlAreaDialogEventBuilder) {
         super();

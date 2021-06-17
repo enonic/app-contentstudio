@@ -1,5 +1,5 @@
-import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
 import {Comparator} from 'lib-admin-ui/Comparator';
+import {Descriptor} from '../../../../page/Descriptor';
 
 export class DescriptorByDisplayNameComparator
     implements Comparator<Descriptor> {

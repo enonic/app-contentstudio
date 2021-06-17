@@ -3,7 +3,6 @@ import {showError} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {ContentDuplicateDialogAction} from './ContentDuplicateDialogAction';
 import {ContentDuplicatePromptEvent} from '../browse/ContentDuplicatePromptEvent';
@@ -19,6 +18,7 @@ import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {ContentAppBarTabId} from '../ContentAppBarTabId';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class ContentDuplicateDialog
     extends DependantItemsWithProgressDialog

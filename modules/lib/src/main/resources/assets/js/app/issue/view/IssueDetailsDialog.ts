@@ -4,7 +4,6 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {AEl} from 'lib-admin-ui/dom/AEl';
@@ -61,6 +60,7 @@ import {ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {LocalDateTime} from 'lib-admin-ui/util/LocalDateTime';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {IssueComment} from '../IssueComment';
+import {ContentId} from '../../content/ContentId';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -653,9 +653,8 @@ export class IssueDetailsDialog
     }
 
     setIssue(issue: Issue): IssueDetailsDialog {
-
-        const forceUpdateDialog = (this.isRendered() || this.isRendering()) && !!issue;
-        const isPublishRequest = this.isPublishRequest(issue);
+        const forceUpdateDialog: boolean = (this.isRendered() || this.isRendering()) && !!issue;
+        const isPublishRequest: boolean = this.isPublishRequest(issue);
         this.toggleClass('publish-request', isPublishRequest);
 
         this.issue = issue;
@@ -672,6 +671,7 @@ export class IssueDetailsDialog
         if (ids.length > 0) {
             this.itemSelector.setValue(ids.map(id => id.toString()).join(';'));
             ContentSummaryAndCompareStatusFetcher.fetchByIds(ids).then(items => {
+                this.clearListItems(true);
                 this.setListItems(items);
             });
         } else {
@@ -693,22 +693,29 @@ export class IssueDetailsDialog
         this.commentTextArea.setValue('', true);
         this.setReadOnly(issue && issue.getIssueStatus() === IssueStatus.CLOSED);
 
-        let publishScheduleSet;
+        let publishScheduleSet: PropertySet;
+
         if (issue.getPublishFrom() || issue.getPublishTo()) {
             publishScheduleSet = new PropertySet(this.scheduleFormPropertySet.getTree());
+
             if (issue.getPublishFrom()) {
                 publishScheduleSet.setLocalDateTime('from', 0, LocalDateTime.fromDate(issue.getPublishFrom()));
             }
+
             if (issue.getPublishTo()) {
                 publishScheduleSet.setLocalDateTime('to', 0, LocalDateTime.fromDate(issue.getPublishTo()));
             }
+
             this.publishScheduleForm.setFormVisible(true, true);
         } else {
             this.publishScheduleForm.setFormVisible(false, true);
         }
 
         this.scheduleFormPropertySet.setPropertySet('publish', 0, publishScheduleSet);
-        this.publishScheduleForm.update(this.scheduleFormPropertySet);
+
+        this.publishScheduleForm.whenFormLayoutFinished(() => {
+            this.publishScheduleForm.update(this.scheduleFormPropertySet);
+        });
 
         this.updateLabels();
 

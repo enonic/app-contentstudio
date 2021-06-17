@@ -194,6 +194,10 @@ class ProjectWizardPanel extends Page {
         return this.waitForElementDisabled(this.projectIdentifierInput, appConst.shortTimeout);
     }
 
+    waitForProjectIdentifierInputEnabled() {
+        return this.waitForElementEnabled(this.projectIdentifierInput, appConst.shortTimeout);
+    }
+
     async typeInProjectIdentifier(identifier) {
         await this.waitForElementDisplayed(this.projectIdentifierInput);
         await this.clearInputText(this.projectIdentifierInput);
@@ -326,7 +330,7 @@ class ProjectWizardPanel extends Page {
         await this.getBrowser().waitUntil(async () => {
             let result = await this.getAttribute(selector, "class");
             return result.includes("expanded");
-        }, appConst.mediumTimeout, "Project access menu should be expanded!");
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Project access menu should be expanded!"});
     }
 
     getSelectedRoleInProjectAccessControlEntry(name) {
@@ -379,5 +383,6 @@ class ProjectWizardPanel extends Page {
             throw new Error('Error when removing the language! ' + err);
         }
     }
-};
+}
+
 module.exports = ProjectWizardPanel;

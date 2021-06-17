@@ -3,15 +3,12 @@ import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {AEl} from 'lib-admin-ui/dom/AEl';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {WidgetItemView} from '../../WidgetItemView';
 import {DefaultModels} from '../../../../wizard/page/DefaultModels';
 import {DefaultModelsFactory, DefaultModelsFactoryConfig} from '../../../../wizard/page/DefaultModelsFactory';
-import {GetPageDescriptorByKeyRequest} from '../../../../resource/GetPageDescriptorByKeyRequest';
 import {GetPageTemplateByKeyRequest} from '../../../../resource/GetPageTemplateByKeyRequest';
 import {ContentQueryRequest} from '../../../../resource/ContentQueryRequest';
 import {GetNearestSiteRequest} from '../../../../resource/GetNearestSiteRequest';
@@ -24,19 +21,22 @@ import {Site} from '../../../../content/Site';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {ContentQuery} from '../../../../content/ContentQuery';
 import {PageMode} from '../../../../page/PageMode';
-import {PageDescriptor} from 'lib-admin-ui/content/page/PageDescriptor';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
 import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
 import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
-import {ContentIds} from '../../../../ContentIds';
+import {ContentIds} from '../../../../content/ContentIds';
 import {ContentSummaryAndCompareStatusFetcher} from '../../../../resource/ContentSummaryAndCompareStatusFetcher';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentServerChangeItem} from '../../../../event/ContentServerChangeItem';
+import {GetComponentDescriptorRequest} from '../../../../resource/GetComponentDescriptorRequest';
+import {Descriptor} from '../../../../page/Descriptor';
+import {ContentSummary} from '../../../../content/ContentSummary';
+import {ContentId} from '../../../../content/ContentId';
+import {ContentSummaryJson} from '../../../../content/ContentSummaryJson';
 
 export class PageTemplateWidgetItemView
     extends WidgetItemView {
@@ -156,8 +156,8 @@ export class PageTemplateWidgetItemView
 
             pageTemplateViewer.setPageMode(PageMode.FORCED_CONTROLLER);
 
-            return new GetPageDescriptorByKeyRequest(content.getPage().getController()).sendAndParse()
-                .then((pageDescriptor: PageDescriptor) => {
+            return new GetComponentDescriptorRequest(content.getPage().getController().toString()).sendAndParse()
+                .then((pageDescriptor: Descriptor) => {
                     pageTemplateViewer.setPageController(pageDescriptor);
                     pageTemplateViewer.setContent(this.content);
 
@@ -214,7 +214,7 @@ export class PageTemplateWidgetItemView
 class PageTemplateViewer {
     private pageMode: PageMode;
     private pageTemplate: PageTemplate;
-    private pageController: PageDescriptor;
+    private pageController: Descriptor;
     private content: ContentSummary;
 
     constructor() {
@@ -237,7 +237,7 @@ class PageTemplateViewer {
         return this.pageTemplate;
     }
 
-    setPageController(pageController: PageDescriptor) {
+    setPageController(pageController: Descriptor) {
         this.pageController = pageController;
     }
 

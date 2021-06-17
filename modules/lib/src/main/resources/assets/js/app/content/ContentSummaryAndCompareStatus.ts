@@ -1,17 +1,17 @@
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
-import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {CompareStatus, CompareStatusChecker, CompareStatusFormatter} from './CompareStatus';
 import {PublishStatus, PublishStatusChecker} from '../publish/PublishStatus';
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ContentInheritType} from 'lib-admin-ui/content/ContentInheritType';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
+import {ContentInheritType} from './ContentInheritType';
+import {ContentId} from './ContentId';
+import {ContentPath} from './ContentPath';
 
 export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
 

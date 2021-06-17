@@ -1,9 +1,7 @@
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Cloneable} from 'lib-admin-ui/Cloneable';
 import {Equitable} from 'lib-admin-ui/Equitable';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {PropertyTreeHelper} from 'lib-admin-ui/util/PropertyTreeHelper';
 import {PageTemplateKey} from './PageTemplateKey';
 import {Regions} from './region/Regions';
@@ -23,6 +21,9 @@ import {ComponentType} from './region/ComponentType';
 import {TextComponentType} from './region/TextComponentType';
 import {PartComponentType} from './region/PartComponentType';
 import {ComponentJson} from './region/ComponentJson';
+import {ConfigBasedComponent} from './region/ConfigBasedComponent';
+import {DescriptorKey} from './DescriptorKey';
+import {ContentId} from '../content/ContentId';
 
 export class Page
     implements Equitable, Cloneable {
@@ -202,6 +203,29 @@ export class Page
                 return false;
             });
         });
+    }
+
+    public getPropertyValueUsageCount(container: Page | LayoutComponent, name: string, value: string, startFrom: number = 0): number {
+        let counter: number = startFrom;
+        const regions: Region[] = container.getRegions().getRegions();
+
+        regions.forEach((region: Region) => {
+            region.getComponents().forEach((component: Component) => {
+                if (ObjectHelper.iFrameSafeInstanceOf(component, ConfigBasedComponent)) {
+                    const config: PropertyTree = (<ConfigBasedComponent>component).getConfig();
+
+                    if (config.getProperty(name)?.getString() === value) {
+                        counter++;
+                    }
+                }
+
+                if (ObjectHelper.iFrameSafeInstanceOf(component, LayoutComponent)) {
+                    counter = this.getPropertyValueUsageCount(<LayoutComponent>component, name, value, counter);
+                }
+            });
+        });
+
+        return counter;
     }
 
     findComponentByPath(componentPath: ComponentPath, regions?: Region[]): Component {

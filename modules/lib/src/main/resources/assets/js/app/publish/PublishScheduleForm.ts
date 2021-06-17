@@ -88,7 +88,11 @@ export class PublishScheduleForm
         if (!flag) {
             const data = this.scheduleFormView.getData();
             data.reset();
-            this.scheduleFormView.update(data, false);
+
+            if (this.scheduleFormView.isRendered()) {
+                this.scheduleFormView.update(data, false);
+            }
+
             this.removeClass('invalid');
         }
 
@@ -128,5 +132,9 @@ export class PublishScheduleForm
 
     private updateTogglesState(flag: boolean) {
         this.externalToggles.forEach((toggle) => toggle.toggleClass('active', flag));
+    }
+
+    public whenFormLayoutFinished(callback: () => void) {
+        this.scheduleFormView.whenLayoutFinished(callback);
     }
 }

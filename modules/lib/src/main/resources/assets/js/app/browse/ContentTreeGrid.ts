@@ -1,11 +1,8 @@
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
 import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary, ContentSummaryBuilder} from 'lib-admin-ui/content/ContentSummary';
 import {SortContentEvent} from './sort/SortContentEvent';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
 import {ContentTreeGridToolbar} from './ContentTreeGridToolbar';
@@ -28,8 +25,6 @@ import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
 import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {TreeGridContextMenu} from 'lib-admin-ui/ui/treegrid/TreeGridContextMenu';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {BrowseFilterResetEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterResetEvent';
 import {BrowseFilterRefreshEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterRefreshEvent';
@@ -39,7 +34,11 @@ import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {GridColumnConfig} from 'lib-admin-ui/ui/grid/GridColumn';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {DeletedContentItem} from './DeletedContentItem';
-import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
+import {ContentSummary, ContentSummaryBuilder} from '../content/ContentSummary';
+import {ChildOrder} from '../resource/order/ChildOrder';
+import {ContentId} from '../content/ContentId';
+import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {ContentPath} from '../content/ContentPath';
 
 export enum State {
     ENABLED, DISABLED
@@ -233,6 +232,11 @@ export class ContentTreeGrid
             this.getToolbar().disable();
             this.disableKeys();
         }
+    }
+
+    clean() {
+        this.deselectAll();
+        this.getGridData().setItems([]);
     }
 
     reload(): Q.Promise<void> {

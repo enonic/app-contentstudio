@@ -200,7 +200,7 @@ class Page {
     waitForElementNotDisplayed(selector, ms) {
         return this.getBrowser().waitUntil(() => {
             return this.getDisplayedElements(selector).then(result => {
-                return result.length == 0;
+                return result.length === 0;
             })
         }, {timeout: ms, timeoutMsg: "Timeout exception. Element " + selector + " still visible, timeout is " + ms});
     }
@@ -257,7 +257,7 @@ class Page {
             let notificationXpath = "//div[@class='notification-content']";
             await this.getBrowser().waitUntil(async () => {
                 return await this.isElementDisplayed(notificationXpath);
-            }, {timeout: appConst.mediumTimeout, timeoutMsg: 'Error when wait for notification message'});
+            }, {timeout: appConst.longTimeout, timeoutMsg: 'Error when wait for notification message'});
             await this.pause(400);
             return await this.getText(notificationXpath);
         } catch (err) {

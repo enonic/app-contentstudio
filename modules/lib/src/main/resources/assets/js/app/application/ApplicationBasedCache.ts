@@ -3,13 +3,13 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
 import {ApplicationCaches} from 'lib-admin-ui/application/ApplicationCaches';
-import {Descriptor} from 'lib-admin-ui/content/page/Descriptor';
-import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {Cache} from 'lib-admin-ui/cache/Cache';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {Descriptor} from '../page/Descriptor';
+import {DescriptorKey} from '../page/DescriptorKey';
 
 export interface CacheableRequest {
     new(keys: ApplicationKey[] | ApplicationKey): ResourceRequest<Descriptor[]>;
@@ -38,15 +38,19 @@ export class ApplicationBasedCache<T extends Descriptor> {
         this.applicationCaches = new ApplicationCaches<SimpleApplicationCache<T>>();
 
         ApplicationEvent.on((event: ApplicationEvent) => {
-            const key = event.getApplicationKey().toString();
+            const key = event.getApplicationKey();
             const className = ClassHelper.getClassName(this);
 
+            if (!key) {
+                return;
+            }
+
             if (ApplicationEventType.STARTED === event.getEventType()) {
-                console.log(`${className} received ApplicationEvent STARTED, calling - loadByApplication. ${key}`);
-                loadByApplication([event.getApplicationKey()]);
+                console.log(`${className} received ApplicationEvent STARTED, calling - loadByApplication. ${key.toString()}`);
+                loadByApplication([key]);
             } else if (ApplicationEventType.STOPPED === event.getEventType()) {
-                console.log(`${className} received ApplicationEvent STOPPED - calling deleteByApplicationKey. ${key}`);
-                this.deleteByApplicationKey(event.getApplicationKey());
+                console.log(`${className} received ApplicationEvent STOPPED - calling deleteByApplicationKey. ${key.toString()}`);
+                this.deleteByApplicationKey(key);
             }
         });
     }

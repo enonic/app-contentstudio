@@ -1,7 +1,7 @@
 import {SortContentTabMenuItem, SortContentTabMenuItemBuilder} from './SortContentTabMenuItem';
-import {ChildOrder} from 'lib-admin-ui/content/order/ChildOrder';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import * as Q from 'q';
+import {ChildOrder} from '../../../resource/order/ChildOrder';
 
 export class InheritedSortContentTabMenuItem extends SortContentTabMenuItem {
 

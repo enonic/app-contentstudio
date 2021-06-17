@@ -5,7 +5,6 @@ import {Delta, DiffPatcher, formatters} from 'jsondiffpatch';
 import {GetContentVersionsRequest} from '../resource/GetContentVersionsRequest';
 import {ContentVersions} from '../ContentVersions';
 import {DefaultModalDialogHeader, ModalDialog, ModalDialogConfig, ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {CheckboxBuilder} from 'lib-admin-ui/ui/Checkbox';
@@ -15,7 +14,6 @@ import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {Dropdown} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
 import {Button} from 'lib-admin-ui/ui/button/Button';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {Menu} from 'lib-admin-ui/ui/menu/Menu';
 import {Action} from 'lib-admin-ui/ui/Action';
@@ -25,6 +23,8 @@ import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ActiveContentVersionSetEvent} from '../event/ActiveContentVersionSetEvent';
+import {ContentSummary} from '../content/ContentSummary';
+import {ContentId} from '../content/ContentId';
 
 export class CompareContentVersionsDialog
     extends ModalDialog {
@@ -66,6 +66,8 @@ export class CompareContentVersionsDialog
     private revertVersionCallback: (versionId: string, versionDate: Date, activeVersionId?: string) => void;
 
     private activeVersionId: string;
+
+    private readOnly: boolean;
 
     protected constructor() {
         super(<ModalDialogConfig>{
@@ -130,6 +132,9 @@ export class CompareContentVersionsDialog
 
             this.handleVersionChanged(dropdown === this.leftDropdown);
         });
+
+        this.onClosed(() => dropdown.hideDropdown());
+
         return dropdown;
     }
 
@@ -178,6 +183,8 @@ export class CompareContentVersionsDialog
         });
         button.appendChild(menu);
 
+        this.onClosed(() => this.setMenuVisible(false, menu, button));
+
         return button;
     }
 
@@ -200,9 +207,7 @@ export class CompareContentVersionsDialog
     }
 
     private setMenuVisible(flag: boolean, menu: Menu, button: Button) {
-        if (menu.isVisible() !== flag) {
-            menu.setVisible(flag);
-        }
+        menu.setVisible(flag);
         button.toggleClass('expanded', flag);
         this.bindOutsideClickListener(flag, menu, button);
     }
@@ -283,6 +288,11 @@ export class CompareContentVersionsDialog
     setContent(content: ContentSummary): CompareContentVersionsDialog {
         this.contentId = content ? content.getContentId() : null;
         (<CompareContentVersionsDialogHeader>this.header).setSubTitle(content ? content.getPath().toString() : null);
+        return this;
+    }
+
+    setReadOnly(value: boolean): CompareContentVersionsDialog {
+        this.readOnly = value;
         return this;
     }
 
@@ -643,11 +653,16 @@ export class CompareContentVersionsDialog
     }
 
     private updateButtonsState() {
-        const isLeftVersionActive = this.leftDropdown.getSelectedOption().getDisplayValue().isActive();
-        const isRightVersionActive = this.rightDropdown.getSelectedOption().getDisplayValue().isActive();
+        this.revertLeftButton.setEnabled(!this.readOnly && !this.isLeftVersionActive());
+        this.revertRightButton.setEnabled(!this.readOnly && !this.isRightVersionActive());
+    }
 
-        this.revertLeftButton.setEnabled(!isLeftVersionActive);
-        this.revertRightButton.setEnabled(!isRightVersionActive);
+    private isLeftVersionActive(): boolean {
+        return this.leftDropdown.getSelectedOption().getDisplayValue().isActive();
+    }
+
+    private isRightVersionActive(): boolean {
+        return this.rightDropdown.getSelectedOption().getDisplayValue().isActive();
     }
 
     private processContent(contentJson: any): Object {

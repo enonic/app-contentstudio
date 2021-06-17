@@ -126,6 +126,7 @@ export class VersionHistoryListItem
     private openCompareDialog() {
         CompareContentVersionsDialog.get()
             .setContent(this.content.getContentSummary())
+            .setReadOnly(this.content.isReadOnly())
             .setLeftVersion(this.version.getId())
             .resetRightVersion()
             .setRevertVersionCallback(this.revert.bind(this))

@@ -5,13 +5,15 @@ import {XData} from '../content/XData';
 import {Form} from 'lib-admin-ui/form/Form';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {ContentFormContext} from '../ContentFormContext';
+import {ExtraData} from '../content/ExtraData';
 
 export class XDataWizardStepForm
     extends ContentWizardStepForm {
 
-    private xData: XData;
+    private readonly xData: XData;
 
-    private enabled: boolean;
+    private enabled: boolean = false;
 
     private stashedData: PropertyTree;
 
@@ -63,15 +65,14 @@ export class XDataWizardStepForm
         return this.enabled ? this.doLayout(this.form, this.data) : Q(null);
     }
 
-    protected doLayout(form: Form, data: PropertyTree): Q.Promise<void> {
-        if (this.enabled === undefined) {
-            this.resetState(data);
-        }
+    layout(formContext: ContentFormContext, data: PropertyTree, form: Form): Q.Promise<void> {
+        this.enabled = !this.isOptional() || data.getRoot().getPropertyArrays().length > 0;
+        return super.layout(formContext, data, form);
+    }
 
+    protected doLayout(form: Form, data: PropertyTree): Q.Promise<void> {
         if (this.enabled) {
-            return super.doLayout(form, data).then(() => {
-                this.validate(false, true);
-            });
+            return super.doLayout(form, data);
         } else {
             this.formView = new FormView(this.formContext, form, data.getRoot());
         }
@@ -103,10 +104,10 @@ export class XDataWizardStepForm
     }
 
     private setEnabledState(value: boolean, silent: boolean = false): Q.Promise<void> {
-        let changed: boolean = value !== this.enabled;
+        const changed: boolean = value !== this.enabled;
         this.enabled = value;
 
-        this.enabled ? this.show() : this.hide();
+        this.setVisible(this.enabled);
 
         if (!changed) {
             return Q(null);
@@ -118,7 +119,11 @@ export class XDataWizardStepForm
                 if (this.stashedData) {
                     this.data.getRoot().addPropertiesFromSet(this.stashedData.getRoot());
                 }
-                promise = this.doLayout(this.form, this.data);
+
+                promise = this.doLayout(this.form, this.data).then(() => {
+                   this.validate();
+                   return Q(null);
+                });
             }
         } else {
             if (this.data) {
@@ -157,5 +162,30 @@ export class XDataWizardStepForm
         this.enableChangedListeners.forEach((listener) => {
             listener(value);
         });
+    }
+
+    displayValidationErrors(display: boolean) {
+        if (this.isValidationErrorToBeRendered()) {
+            super.displayValidationErrors(display);
+        }
+    }
+
+    private isValidationErrorToBeRendered(): boolean {
+        if (this.formContext?.getFormState().isNew()) {
+            return false;
+        }
+
+        if (!this.isOptional()) {
+            return true;
+        }
+
+        return this.isEnabled() && this.isSaved();
+    }
+
+    private isSaved(): boolean {
+        const persistedXData: ExtraData =
+            (<ContentFormContext>this.formContext).getPersistedContent().getExtraDataByName(this.getXDataName());
+
+        return persistedXData?.getData()?.getRoot()?.getPropertyArrays().length > 0;
     }
 }

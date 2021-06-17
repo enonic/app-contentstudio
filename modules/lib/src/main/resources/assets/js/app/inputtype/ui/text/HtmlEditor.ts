@@ -5,7 +5,6 @@ import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {HtmlEditorParams} from './HtmlEditorParams';
 import {Styles} from './styles/Styles';
@@ -21,6 +20,7 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UrlHelper} from '../../../util/UrlHelper';
 import eventInfo = CKEDITOR.eventInfo;
 import widget = CKEDITOR.plugins.widget;
+import {ContentPath} from '../../../content/ContentPath';
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];
@@ -920,7 +920,7 @@ class HtmlEditorConfigBuilder {
     private enabledTools: string[] = [];
 
     private tools: any[] = [
-        ['Styles', 'Bold', 'Italic', 'Underline'],
+        ['Styles'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
         ['SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
@@ -957,7 +957,7 @@ class HtmlEditorConfigBuilder {
         if (disabledTools && disabledTools instanceof Array) {
             this.disabledTools = disabledTools.map(tool => tool.value).join().replace(/\s+/g, ',');
             if (this.disabledTools === '*') {
-                this.tools = [];
+                this.tools = [[]];
             }
         }
 
@@ -975,11 +975,21 @@ class HtmlEditorConfigBuilder {
             this.includeTool('Fullscreen');
         }
 
+        const toolsToAdd: string[] = [];
+
+        this.enabledTools.forEach((tool: string) => {
+            if (tool === 'Bold' || tool === 'Italic' || tool === 'Underline') {
+                this.tools[0].push(tool);
+            } else {
+                toolsToAdd.push(tool);
+            }
+        });
+
         if (this.editorParams.isInline()) {
             this.tools[0].push('Strike', 'Superscript', 'Subscript');
         }
 
-        this.tools.push(this.enabledTools);
+        this.tools.push(toolsToAdd);
     }
 
     public static createEditorConfig(htmlEditorParams: HtmlEditorParams): Q.Promise<CKEDITOR.config> {

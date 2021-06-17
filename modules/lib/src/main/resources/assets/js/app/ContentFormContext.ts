@@ -1,5 +1,3 @@
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {Input} from 'lib-admin-ui/form/Input';
 import {PropertyPath} from 'lib-admin-ui/data/PropertyPath';
 import {ContentInputTypeViewContext} from './inputtype/ContentInputTypeViewContext';
@@ -7,6 +5,8 @@ import {Content} from './content/Content';
 import {Site} from './content/Site';
 import {FormContext, FormContextBuilder} from 'lib-admin-ui/form/FormContext';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentId} from './content/ContentId';
+import {ContentPath} from './content/ContentPath';
 
 export class ContentFormContext
     extends FormContext {
@@ -23,18 +23,20 @@ export class ContentFormContext
 
     constructor(builder: ContentFormContextBuilder) {
         super(builder);
+
         this.site = builder.site;
         this.parentContent = builder.parentContent;
         this.persistedContent = builder.persistedContent;
-        if (builder.contentTypeName) {
-            this.contentTypeName = builder.contentTypeName;
-        } else if (builder.persistedContent) {
-            this.contentTypeName = builder.persistedContent.getType();
-        }
+        this.contentTypeName = builder.contentTypeName;
     }
 
     getSite(): Site {
         return this.site;
+    }
+
+    setSite(site: Site): ContentFormContext {
+        this.site = site;
+        return this;
     }
 
     getContentId(): ContentId {
@@ -54,13 +56,19 @@ export class ContentFormContext
         return this.parentContent.getPath();
     }
 
+    setParentContent(content: Content): ContentFormContext {
+        this.parentContent = content;
+        return this;
+    }
+
     getPersistedContent(): Content {
         return this.persistedContent;
     }
 
-    updatePersistedContent(content: Content) {
+    setPersistedContent(content: Content): ContentFormContext {
         this.persistedContent = content;
         this.contentUpdatedListeners.forEach(listener => listener(content));
+        return this;
     }
 
     getContentTypeName(): ContentTypeName {
@@ -84,6 +92,16 @@ export class ContentFormContext
         });
 
         return viewContext;
+    }
+
+    cloneBuilder(): ContentFormContextBuilder {
+        return <ContentFormContextBuilder>ContentFormContext.create()
+            .setSite(this.site)
+            .setParentContent(this.parentContent)
+            .setPersistedContent(this.persistedContent)
+            .setContentTypeName(this.contentTypeName)
+            .setFormState(this.getFormState())
+            .setShowEmptyFormItemSetOccurrences(this.getShowEmptyFormItemSetOccurrences());
     }
 
     static create(): ContentFormContextBuilder {

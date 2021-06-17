@@ -1,15 +1,15 @@
-import {ContentPath} from 'lib-admin-ui/content/ContentPath';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {ContentName} from 'lib-admin-ui/content/ContentName';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {PageTemplateResourceRequest} from '../resource/PageTemplateResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {Regions} from '../page/region/Regions';
-import {DescriptorKey} from 'lib-admin-ui/content/page/DescriptorKey';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {DescriptorKey} from '../page/DescriptorKey';
+import {ContentName} from '../content/ContentName';
+import {ContentPath} from '../content/ContentPath';
 
 export class CreatePageTemplateRequest
     extends PageTemplateResourceRequest<Content>

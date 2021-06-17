@@ -7,22 +7,15 @@ buildscript {
             jcenter()
         }
     }
-    dependencies {
-        classpath 'com.moowork.gradle:gradle-gulp-plugin:0.13'
-        classpath "com.moowork.gradle:gradle-node-plugin:0.13"
-    }
 }
 
 plugins {
     id 'java'
     id 'maven-publish'
     id 'com.enonic.defaults' version '2.0.1'
-    id 'com.moowork.node' version '0.13'
-    id 'com.moowork.gulp' version '0.13'
-    id 'com.github.psxpaul.execfork' version '0.1.8'
 }
-    group = 'com.enonic.xp.js_testing'
-    version = '1.0'
+group = 'com.enonic.xp.js_testing'
+version = '1.0'
 
 subprojects {
     name = 'app-contentstudio-projects'
@@ -32,8 +25,6 @@ configurations {
 }
 
 apply plugin: 'com.enonic.defaults'
-apply plugin: 'com.moowork.node'
-apply plugin: 'com.moowork.gulp'
 
 ext.extProgram = new Properties()
 extProgram.load( new FileInputStream( "../gradle.properties" ) )
@@ -61,6 +52,10 @@ ext {
     contentStudioAppUrl = "https://repo.enonic.com/dev/com/enonic/app/contentstudio/${appVersion}/contentstudio-${appVersion}.jar"
 }
 
+def createAppendix( classifier ) {
+    return hasProperty( 'artifactAppendix' ) ? "${artifactAppendix}-${classifier}" : classifier
+}
+
 task ensureScreenshotsDirectory {
     doLast {
         mkdir screenshotsDir
@@ -86,6 +81,7 @@ task copyApps( type: Copy ) {
 }
 
 dependencies {
+    xpVersion = extProgram['xpVersion']
     compile "com.enonic.xp:core-api:$xpVersion"
     distro "com.enonic.xp:enonic-xp-generic:$xpVersion@zip"
 }
@@ -122,14 +118,14 @@ task zipScreenshots( type: Zip ) {
     from screenshotsDir
     include '*'
     include '*/*'
-    classifier 'screenshots'
+    classifier createAppendix( 'screenshots' )
 }
 
 task zipReport( type: Zip ) {
     from mochaResultsDir
     include '*'
     include '*/*'
-    classifier 'mochaReport'
+    classifier createAppendix( 'mochaReport' )
 }
 
 publishing {
@@ -174,7 +170,7 @@ task deleteFolders( type: Delete ) {
 
 task buildApplications( dependsOn: ['test-applications:simple-page:install'] )
 
-//run task in the task.js. Name of the task is 'test'
+// run task in the task.js. Name of the task is 'test'
 task testContentStudioApp( type: NpmTask,
                            dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
     inputs.files fileTree( dir: '.' )
@@ -206,6 +202,7 @@ task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, ensureS
 }
 
 testContentStudioApp.finalizedBy = ['stopServer']
+testContentStudioProjects.finalizedBy = ['stopServer']
 
 repositories {
     mavenLocal()

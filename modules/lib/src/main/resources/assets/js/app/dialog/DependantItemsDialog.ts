@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {StatusSelectionItem} from './StatusSelectionItem';
@@ -16,6 +15,7 @@ import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
+import {ContentId} from '../content/ContentId';
 
 export interface DependantItemsDialogConfig
     extends ModalDialogWithConfirmationConfig {
@@ -107,7 +107,7 @@ export abstract class DependantItemsDialog
         this.dependantList.onItemsAdded(() => this.onDependantsChanged());
 
         this.getBody().onScrolled(() => this.doPostLoad());
-        this.getBody().onScroll(() =>  this.doPostLoad());
+        this.getBody().onScroll(() => this.doPostLoad());
 
         this.onRendered(() => this.setDependantListVisible(this.showDependantList));
     }
@@ -143,7 +143,10 @@ export abstract class DependantItemsDialog
 
     protected onDependantsChanged() {
         const doShow: boolean = this.countDependantItems() > 0;
-        this.dependantsContainer.setVisible(doShow);
+        const wasVisible = this.dependantsContainer.isVisible();
+        if (doShow !== wasVisible) {
+            this.setDependantsContainerVisible(doShow);
+        }
 
         if (doShow) {
             // update dependants header according to list visibility
@@ -156,8 +159,15 @@ export abstract class DependantItemsDialog
         this.updateDependantsHeader(this.getDependantsHeader(visible));
     }
 
+    private setDependantsContainerVisible(visible: boolean) {
+        this.dependantsContainer.setVisible(visible);
+
+        this.previousScrollTop = undefined;
+        this.getBody().getEl().setScrollTop(0);
+    }
+
     protected getDependantsHeader(listVisible: boolean): string {
-        return i18n(`dialog.${listVisible ? 'hide' : 'show' }Dependants`);
+        return i18n(`dialog.${listVisible ? 'hide' : 'show'}Dependants`);
     }
 
     protected updateDependantsHeader(header?: string) {
@@ -204,8 +214,7 @@ export abstract class DependantItemsDialog
 
         this.itemList.clearItems(true);
         this.dependantList.clearItems(true);
-
-        this.dependantsContainer.setVisible(false);
+        this.setDependantsContainerVisible(false);
         this.unlockControls();
     }
 
@@ -223,6 +232,10 @@ export abstract class DependantItemsDialog
 
     removeListItems(items: ContentSummaryAndCompareStatus[], silent?: boolean) {
         this.itemList.removeItems(items, silent);
+    }
+
+    clearListItems(silent?: boolean) {
+        this.itemList.clearItems(silent);
     }
 
     setDependantItems(items: ContentSummaryAndCompareStatus[]) {

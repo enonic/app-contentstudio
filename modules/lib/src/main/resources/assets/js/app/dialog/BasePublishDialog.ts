@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {PublishProcessor} from '../publish/PublishProcessor';
@@ -23,6 +22,7 @@ import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {ContentId} from '../content/ContentId';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
@@ -209,7 +209,8 @@ export abstract class BasePublishDialog
     }
 
     protected initActions() {
-        this.markAllAsReadyAction = new Action(i18n('action.markAsReady')).onExecuted(this.markAllAsReady.bind(this));
+        const allow = CONFIG.allowContentUpdate === 'true';
+        this.markAllAsReadyAction = new Action(i18n('action.markAsReady')).onExecuted(this.markAllAsReady.bind(this)).setEnabled(allow);
     }
 
     protected toggleAction(enable: boolean) {

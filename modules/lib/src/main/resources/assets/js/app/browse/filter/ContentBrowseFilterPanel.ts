@@ -2,8 +2,6 @@ import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentId} from 'lib-admin-ui/content/ContentId';
-import {ContentSummary} from 'lib-admin-ui/content/ContentSummary';
 import {ContentBrowseSearchData} from './ContentBrowseSearchData';
 import {ContentTypeAggregationGroupView} from './ContentTypeAggregationGroupView';
 import {Router} from '../../Router';
@@ -14,7 +12,6 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {ContentQuery} from '../../content/ContentQuery';
 import {ContentSummaryRequest} from '../../resource/ContentSummaryRequest';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {ContentSummaryJson} from 'lib-admin-ui/content/json/ContentSummaryJson';
 import {AggregationGroupView} from 'lib-admin-ui/aggregation/AggregationGroupView';
 import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
 import {SearchInputValues} from 'lib-admin-ui/query/SearchInputValues';
@@ -46,10 +43,13 @@ import {FulltextSearchExpressionBuilder} from 'lib-admin-ui/query/FulltextSearch
 import {Expression} from 'lib-admin-ui/query/expr/Expression';
 import {Expand} from 'lib-admin-ui/rest/Expand';
 import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationView';
-import {ContentIds} from '../../ContentIds';
+import {ContentIds} from '../../content/ContentIds';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ProjectContext} from '../../project/ProjectContext';
 import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
+import {ContentSummary} from '../../content/ContentSummary';
+import {ContentSummaryJson} from '../../content/ContentSummaryJson';
+import {ContentId} from '../../content/ContentId';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
@@ -63,7 +63,6 @@ export class ContentBrowseFilterPanel
     private dependenciesSection: DependenciesSection;
 
     constructor() {
-
         super();
 
         if (ProjectContext.get().isInitialized()) {
@@ -119,6 +118,12 @@ export class ContentBrowseFilterPanel
 
         handler.onContentUpdated(updatedHandler);
         handler.onContentPermissionsUpdated(permissionsUpdatedHandler);
+
+        ProjectContext.get().onProjectChanged(() => {
+            if (this.dependenciesSection.isActive()) {
+                this.removeDependencyItem();
+            }
+        });
     }
 
     protected getGroupViews(): AggregationGroupView[] {
