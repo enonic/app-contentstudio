@@ -31,9 +31,10 @@ export class ContextSplitPanel
     private nonMobileContextPanelsManager: NonMobileContextPanelsManager;
     private dockedModeChangedListeners: { (isDocked: boolean): void }[];
     private leftPanel: Panel;
+    private wizardFormPanel?: Panel;
     private mobileContextPanel: MobileContextPanel;
 
-    constructor(leftPanel: Panel, actions: Action[], data?: PageEditorData) {
+    constructor(leftPanel: Panel, actions: Action[], data?: PageEditorData, wizardFormPanel?: Panel) {
         const contextView = new ContextView(data);
         const dockedContextPanel = new DockedContextPanel(contextView);
 
@@ -48,6 +49,7 @@ export class ContextSplitPanel
         this.setSecondPanelSize(38, SplitPanelUnit.PERCENT);
 
         this.data = data;
+        this.wizardFormPanel = wizardFormPanel;
         this.leftPanel = leftPanel;
         this.contextView = contextView;
         this.dockedContextPanel = dockedContextPanel;
@@ -63,7 +65,7 @@ export class ContextSplitPanel
         const nonMobileContextPanelsManagerBuilder = NonMobileContextPanelsManager.create();
         if (this.isPageEditorPresent()) {
             nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
-            nonMobileContextPanelsManagerBuilder.setWizardPanel(<Panel>(<SplitPanel>this.leftPanel).getFirstChild());
+            nonMobileContextPanelsManagerBuilder.setWizardPanel(this.wizardFormPanel);
             nonMobileContextPanelsManagerBuilder.setIsMobileMode(() => {
                 return this.isMobileMode();
             });
@@ -177,9 +179,9 @@ export class ContextSplitPanel
                 }
             }
         }, 50);
-        ResponsiveManager.onAvailableSizeChanged(this, debouncedResponsiveHandler);
+        ResponsiveManager.onAvailableSizeChanged(this.getParentElement(), debouncedResponsiveHandler);
         this.onRemoved(() => {
-            ResponsiveManager.unAvailableSizeChanged(this);
+            ResponsiveManager.unAvailableSizeChanged(this.getParentElement());
         });
     }
 
