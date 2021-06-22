@@ -817,10 +817,7 @@ export class ContentWizardPanel
 
     saveChanges(): Q.Promise<Content> {
         this.handleCUD();
-        let liveFormPanel = this.getLivePanel();
-        if (liveFormPanel) {
-            liveFormPanel.skipNextReloadConfirmation(true);
-        }
+        this.livePanel?.skipNextReloadConfirmation(true);
         this.setRequireValid(false);
         this.contentUpdateDisabled = true;
         this.isFirstUpdateAndRenameEventSkiped = false;
@@ -828,7 +825,8 @@ export class ContentWizardPanel
 
         return super.saveChanges().then((content: Content) => {
             const persistedItem = content.clone();
-            if (liveFormPanel) {
+
+            if (this.livePanel && this.liveEditModel) {
                 this.initFormContext(persistedItem);
                 this.liveEditModel.setContent(persistedItem);
 
