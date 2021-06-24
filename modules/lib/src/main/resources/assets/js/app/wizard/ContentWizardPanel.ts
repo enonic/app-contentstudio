@@ -116,7 +116,6 @@ import {UrlAction} from '../UrlAction';
 import {ContentWizardHeader} from './ContentWizardHeader';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
-import {WizardHeaderWithDisplayNameAndNameOptions} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {Descriptor} from '../page/Descriptor';
 import {GetPageDescriptorsByApplicationsRequest} from './page/contextwindow/inspect/page/GetPageDescriptorsByApplicationsRequest';
 import {ContentId} from '../content/ContentId';
@@ -406,7 +405,6 @@ export class ContentWizardPanel
     }
 
     toggleMinimize(navigationIndex: number = -1) {
-
         this.stepsPanel.setListenToScroll(false);
 
         let scroll = this.stepsPanel.getScroll();
@@ -518,6 +516,16 @@ export class ContentWizardPanel
                     });
                 }
 
+                this.wizardHeader.setPlaceholder(this.contentType?.getDisplayNameLabel());
+                this.wizardHeader.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
+                this.wizardHeader.setPath(this.getWizardHeaderPath());
+
+                const existing: Content = this.getPersistedItem();
+                if (existing) {
+                    this.wizardHeader.setDisplayName(existing.getDisplayName());
+                    this.wizardHeader.setName(existing.getName().toString());
+                }
+
             }).then(() => super.doLoadData());
     }
 
@@ -545,22 +553,7 @@ export class ContentWizardPanel
     }
 
     protected createWizardHeader(): WizardHeader {
-        const headerOptions: WizardHeaderWithDisplayNameAndNameOptions = {
-            displayNameGenerator: this.displayNameResolver,
-            displayNameLabel: this.contentType ? this.contentType.getDisplayNameLabel() : null
-        };
-
-        const header: ContentWizardHeader = new ContentWizardHeader(headerOptions);
-
-        header.setPersistedPath(this.isItemPersisted() ? this.getPersistedItem() : null);
-        header.setPath(this.getWizardHeaderPath());
-
-        const existing: Content = this.getPersistedItem();
-        if (existing) {
-            header.initNames(existing.getDisplayName(), existing.getName().toString(), false);
-        }
-
-        return header;
+        return new ContentWizardHeader();
     }
 
     private getWizardHeaderPath(): string {
@@ -2224,11 +2217,9 @@ export class ContentWizardPanel
     }
 
     private enableDisplayNameScriptExecution(formView: FormView) {
-
         if (this.displayNameResolver.hasExpression()) {
-
             formView.onKeyUp((event: KeyboardEvent) => {
-                this.getWizardHeader().setDisplayName(this.displayNameResolver.execute());
+                this.getWizardHeader().setDisplayName(this.displayNameResolver.execute(), true);
             });
         }
     }
@@ -2541,7 +2532,8 @@ export class ContentWizardPanel
     private updateWizardHeader(content: Content) {
         this.updateThumbnailWithContent(content);
 
-        this.getWizardHeader().initNames(content.getDisplayName(), content.getName().toString(), true, false);
+        this.getWizardHeader().setDisplayName(content.getDisplayName());
+        this.getWizardHeader().setName(content.getName().toString());
 
         // case when content was moved
         this.getWizardHeader()
