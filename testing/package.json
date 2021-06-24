@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node ./tasks/test.js",
     "test_project": "node ./tasks/test-project.js",
-    "test_by_name": "node ./tasks/test-by-name.js"
+    "test_by_name": "node ./tasks/test-by-name.js",
+    "base_tests": "node ./tasks/base-tests.js"
   },
   "devDependencies": {
     "assert": "^2.0.0",

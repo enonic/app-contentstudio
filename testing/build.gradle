@@ -191,6 +191,11 @@ task testContentStudioProjects( type: NpmTask, dependsOn: [npmInstall, startServ
     copyApps.mustRunAfter startServer
 }
 
+task baseContentStudioTests( type: NpmTask, dependsOn: [npmInstall, ensureScreenshotsDirectory] ) {
+    args = ['run-script', 'base_tests']
+    ensureScreenshotsDirectory.mustRunAfter npmInstall
+}
+
 task runSeparateTestLocally( type: Exec, dependsOn: [npmInstall, ensureScreenshotsDirectory] ) {
     if ( project.hasProperty( "t_name" ) )
     {
