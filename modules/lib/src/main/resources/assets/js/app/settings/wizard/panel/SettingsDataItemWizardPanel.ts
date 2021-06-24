@@ -4,10 +4,7 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {Toolbar} from 'lib-admin-ui/ui/toolbar/Toolbar';
 import {WizardStep} from 'lib-admin-ui/app/wizard/WizardStep';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {
-    WizardHeaderWithDisplayNameAndName,
-    WizardHeaderWithDisplayNameAndNameOptions
-} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
+import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {FormIcon} from 'lib-admin-ui/app/wizard/FormIcon';
 import {SettingDataItemWizardStepForm} from './form/SettingDataItemWizardStepForm';
@@ -56,13 +53,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
         this.type = params.type;
         this.loadData();
-        this.initElements();
-        this.listenEvents();
         ResponsiveManager.onAvailableSizeChanged(this);
-    }
-
-    protected getType(): SettingsType {
-        return this.type;
     }
 
     public getFormIcon(): SettingsDataItemFormIcon {
@@ -111,7 +102,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         const steps: WizardStep[] = [];
 
         this.wizardStepForms.forEach((stepForm: SettingDataItemWizardStepForm<ITEM>) => {
-            steps.push(new WizardStep(stepForm.getName(this.getType()), stepForm));
+            steps.push(new WizardStep(stepForm.getName(this.getParams().type), stepForm));
         });
 
         return steps;
@@ -218,7 +209,8 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
         this.setPersistedItem(item);
 
-        this.wizardHeader.initNames(item.getDisplayName(), item.getId(), false);
+        this.wizardHeader.setDisplayName(item.getDisplayName());
+        this.wizardHeader.setName(item.getId());
 
         if (item.getIconUrl()) {
             this.getFormIcon().setSrc(item.getIconUrl());
@@ -328,14 +320,16 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
-        const wizardHeader: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndName(
-            {displayNameLabel: this.type.getDisplayNamePlaceholder()});
+        const wizardHeader: WizardHeaderWithDisplayNameAndName = new WizardHeaderWithDisplayNameAndName();
+        wizardHeader.setPlaceholder(this.getParams().type.getDisplayNamePlaceholder());
+
         const existing: ITEM = this.getPersistedItem();
         const displayName: string = !!existing ? existing.getDisplayName() : '';
 
         wizardHeader.toggleNameInput(false);
         wizardHeader.setPath('');
-        wizardHeader.initNames(displayName, 'not_used', false, true, true);
+        wizardHeader.setDisplayName(displayName);
+        wizardHeader.setName('not_used');
 
         wizardHeader.onPropertyChanged(() => {
             this.handleDataChanged();
@@ -345,10 +339,6 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         return wizardHeader;
     }
 
-    protected initElements() {
-        //
-    }
-
     protected deletePersistedItem() {
         this.createDeleteRequest().sendAndParse().then(() => {
             showFeedback(this.getSuccessfulDeleteMessage());
@@ -356,7 +346,9 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         }).catch(DefaultErrorHandler.handle);
     }
 
-    protected listenEvents() {
+    protected initEventsListeners() {
+        super.initEventsListeners();
+
         this.wizardActions.getDeleteAction().onExecuted(() => {
             if (!this.getPersistedItem()) {
                 return;
@@ -394,5 +386,9 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
         this.wizardHeaderNameUpdatedListeners.forEach((listener: (name: string) => void) => {
             listener(this.wizardHeader.getDisplayName());
         });
+    }
+
+    protected getParams(): SettingsWizardPanelParams<ITEM> {
+        return <SettingsWizardPanelParams<ITEM>>super.getParams();
     }
 }
