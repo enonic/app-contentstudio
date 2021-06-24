@@ -45,7 +45,7 @@ export class ProjectWizardPanel
     private hasChildrenLayers: boolean = false;
 
     protected getIconClass(): string {
-        return !!this.getPersistedItem() ? this.getPersistedItem().getIconClass() : this.getType().getIconClass();
+        return !!this.getPersistedItem() ? this.getPersistedItem().getIconClass() : this.getParams().type.getIconClass();
     }
 
     protected createWizardHeader(): WizardHeaderWithDisplayNameAndName {
