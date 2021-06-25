@@ -959,14 +959,19 @@ class HtmlEditorConfigBuilder {
         const disabledTools = tools['exclude'];
 
         if (disabledTools && disabledTools instanceof Array) {
-            this.disabledTools = disabledTools.map(tool => tool.value).join().replace(/\s+/g, ',');
+            this.disabledTools = disabledTools.map(tool => tool.value).join().replace('Format', 'Styles').replace(/\s+/g, ',');
             if (this.disabledTools === '*') {
                 this.tools = [[]];
             }
         }
 
         if (enabledTools && enabledTools instanceof Array) {
-            this.includeTools(enabledTools.map(tool => tool.value).join().replace(/\|/g, '-').split(/\s+/));
+            this.includeTools(enabledTools.map(tool => tool.value)
+                .join()
+                .replace('Format', 'Styles') // Styles plugin is used instead of Format
+                .replace(/\|/g, '-')
+                .split(/\s+/)
+                .filter((tool: string) => !this.isDefaultTool(tool)));
         }
     }
 
@@ -1101,6 +1106,10 @@ class HtmlEditorConfigBuilder {
 
     private isToolDisabled(tool: string): boolean {
         return this.disabledTools.indexOf(tool) > -1;
+    }
+
+    private isDefaultTool(tool: string): boolean {
+        return this.tools.some((toolgroup: string[]) => toolgroup.some((defaultTool: string) => defaultTool === tool));
     }
 }
 
