@@ -105,5 +105,6 @@ class TextComponent extends Page {
         await this.switchToParentFrame();
         return await insertImageDialog.waitForDialogVisible();
     }
-};
+}
+
 module.exports = TextComponent;

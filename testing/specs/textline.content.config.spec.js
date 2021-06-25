@@ -97,7 +97,7 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/3190
     //Wizard does not load for text line with regexp in config
-    it(`GIVEN wizard for 'TextLine'  with regexp is opened WHEN correct ip-address has ben typed THEN validation record should not be visible`,
+    it(`GIVEN wizard for 'TextLine'  with regexp is opened WHEN correct ip-address has been typed THEN validation record should not be visible`,
         async () => {
             let textLine = new TextLine();
             let contentWizard = new ContentWizard();
@@ -114,9 +114,12 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
             //3. Verify that content is valid before saving
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isFalse(isInvalid, "Content should ve valid in wizard");
+
+            let status = await textLine.getRegExStatus(0);
+            assert.equal(status, "Valid", "Valid status should be displayed in the input");
         });
 
-    it(`GIVEN wizard for 'TextLine'  with regexp is opened WHEN correct ip-address has ben typed AND saved THEN validation record should not be visible`,
+    it(`GIVEN wizard for 'TextLine'  with regexp is opened WHEN correct ip-address has been typed AND saved THEN validation record should not be visible`,
         async () => {
             let textLine = new TextLine();
             let contentWizard = new ContentWizard();
@@ -134,6 +137,8 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
             //3. Verify that content is valid after saving
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isFalse(isInvalid, "Content should ve valid in wizard");
+            let status = await textLine.getRegExStatus(0);
+            assert.equal(status, "Valid", "Valid status should be displayed in the input");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
