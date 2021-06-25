@@ -185,4 +185,8 @@ export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
     resolveIconClass(object: WidgetViewOption): string {
         return object.getWidgetView().getWidgetIconClass();
     }
+
+    getPreferredHeight(): number {
+        return 50;
+    }
 }
