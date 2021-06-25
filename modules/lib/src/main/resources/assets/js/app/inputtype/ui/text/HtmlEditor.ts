@@ -690,6 +690,7 @@ export class HtmlEditor {
         const allowedTags = editor.config.format_tags.split(';');
         ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div']
             .filter(tag => allowedTags.indexOf(tag) > -1)
+            .concat('strong', 'em', 'u')
             .forEach(tag => this.editor.addCommand(tag, commandDef));
 
         this.editor.addCommand('address', commandDef);
@@ -698,6 +699,9 @@ export class HtmlEditor {
             this.editor.setKeystroke(CKEDITOR.CTRL + 70, 'find'); // open find dialog on CTRL + F
             this.editor.setKeystroke(CKEDITOR.CTRL + 75, 'link'); // open link dialog on CTRL + K
             this.editor.setKeystroke(CKEDITOR.CTRL + 76, 'image'); // open link dialog on CTRL + L
+            this.editor.setKeystroke(CKEDITOR.CTRL + 66, 'strong'); // apply Bold styling if toolbar button is missing
+            this.editor.setKeystroke(CKEDITOR.CTRL + 73, 'em'); // apply Italic styling if toolbar button is missing
+            this.editor.setKeystroke(CKEDITOR.CTRL + 85, 'u'); // apply Underline styling if toolbar button is missing
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.ALT + 49, 'h1'); // apply Heading 1 format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.ALT + 50, 'h2'); // apply Heading 2 format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.ALT + 51, 'h3'); // apply Heading 3 format
