@@ -984,6 +984,20 @@ class HtmlEditorConfigBuilder {
             this.includeTool('Fullscreen');
         }
 
+        if (this.editorParams.isFullScreenMode()) {
+            if (!this.isToolDisabled('Bold')) {
+                this.includeTool('Bold');
+            }
+
+            if (!this.isToolDisabled('Italic')) {
+                this.includeTool('Italic');
+            }
+
+            if (!this.isToolDisabled('Underline')) {
+                this.includeTool('Underline');
+            }
+        }
+
         const toolsToAdd: string[] = [];
 
         this.enabledTools.forEach((tool: string) => {
@@ -1105,7 +1119,7 @@ class HtmlEditorConfigBuilder {
     }
 
     private isToolDisabled(tool: string): boolean {
-        return this.disabledTools.indexOf(tool) > -1;
+        return this.disabledTools === '*' || this.disabledTools.indexOf(tool) > -1;
     }
 
     private isDefaultTool(tool: string): boolean {
