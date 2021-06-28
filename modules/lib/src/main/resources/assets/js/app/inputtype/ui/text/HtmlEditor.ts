@@ -985,17 +985,9 @@ class HtmlEditorConfigBuilder {
         }
 
         if (this.editorParams.isFullScreenMode()) {
-            if (!this.isToolDisabled('Bold')) {
-                this.includeTool('Bold');
-            }
-
-            if (!this.isToolDisabled('Italic')) {
-                this.includeTool('Italic');
-            }
-
-            if (!this.isToolDisabled('Underline')) {
-                this.includeTool('Underline');
-            }
+            ['Bold', 'Italic', 'Underline']
+                .filter((tool: string) =>!this.isToolDisabled(tool))
+                .forEach((tool: string) => this.includeTool(tool));
         }
 
         const toolsToAdd: string[] = [];
