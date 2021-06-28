@@ -312,7 +312,7 @@ class Page {
                 pointerType: 'mouse'
             },
             actions: [
-                {type: "pointerMove", origin: "pointer", "x": x, "y": y},
+                {type: "pointerMove", origin: "pointer", "x": Math.floor(x), "y": Math.floor(y)},
                 {
                     type: 'pointerDown',
                     button: 2

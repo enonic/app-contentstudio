@@ -6,7 +6,7 @@ const BaseVersionsWidget = require('../../details_panel/base.versions.widget');
 const XPATH = {
     widget: "//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'VersionHistoryView')]",
     versionsList: "//ul[contains(@id,'VersionHistoryList')]",
-    versionItem: "//li[contains(@class,'version-list-item') and child::div[@class='viewer version-viewer']]",
+    versionItem: "//li[contains(@class,'version-list-item') and child::div[contains(@class,'version-viewer')]]",
     publishActionItems: "//li[contains(@class,'version-list-item')and child::div[contains(@class,'publish-action')]]",
 };
 
