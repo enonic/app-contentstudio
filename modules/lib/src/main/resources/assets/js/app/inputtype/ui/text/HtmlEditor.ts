@@ -682,7 +682,14 @@ export class HtmlEditor {
 
         const commandDef: CKEDITOR.commandDefinition = {
             exec: function () {
-                editor.applyStyle(new CKEDITOR.style({element: this['name']}, null)); // name is command name
+                const style: CKEDITOR.style = new CKEDITOR.style({element: this['name']}, null);
+
+                if (style.checkActive(editor.elementPath(), editor)) {
+                    editor.removeStyle(style);
+                } else {
+                    editor.applyStyle(style); // name is command name
+                }
+
                 return true;
             }
         };
