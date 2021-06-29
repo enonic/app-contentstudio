@@ -43,6 +43,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             await xDataImageSelector.waitForImageSelected();
         });
 
+    //Verifies: https://github.com/enonic/app-contentstudio/issues/3267
     it(`GIVEN existing content with x-data(image) is opened WHEN 'Dependencies widget' has been opened THEN 'Show Outbound' button should be present AND 'Show Inbound' should not be present`,
         async () => {
             let contentWizard = new ContentWizard();
