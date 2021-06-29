@@ -55,13 +55,14 @@ class TextLineForm extends OccurrencesFormView {
         return attr.includes("invalid");
     }
 
-    async getRegExStatus(index) {
-        let locator = XPATH.textLine + "//div[contains(@class,'input-wrapper')]";
+    async isRegExStatusValid(index) {
+        let locator = XPATH.textLine + "//div[contains(@class,'input-wrapper')]//input";
         let inputs = await this.getDisplayedElements(locator);
         if (inputs.length === 0) {
             throw new Error("Text line Form - text inputs were not found!");
         }
-        return await inputs[index].getAttribute("data-regex-status");
+        let value = await inputs[index].getAttribute("class");
+        return value.includes('valid');
     }
 
 }
