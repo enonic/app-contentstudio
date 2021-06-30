@@ -1,15 +1,13 @@
 import * as Q from 'q';
-import {showError, showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {showError} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentDeleteDialogAction} from './ContentDeleteDialogAction';
 import {ConfirmValueDialog} from './ConfirmValueDialog';
 import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {DeleteDialogItemList} from './DeleteDialogItemList';
-import {DeleteItemViewer} from './DeleteItemViewer';
 import {ResolveDependenciesRequest} from '../resource/ResolveDependenciesRequest';
 import {ResolveDependenciesResult} from '../resource/ResolveDependenciesResult';
 import {DeleteContentRequest} from '../resource/DeleteContentRequest';
@@ -20,6 +18,17 @@ import {DropdownButtonRow} from 'lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {ResolveDeleteRequest} from '../resource/ResolveDeleteRequest';
 import {ContentId} from '../content/ContentId';
+import {StatusLine} from './StatusLine';
+import {ContentAppBarTabId} from '../ContentAppBarTabId';
+import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
+import {ContentEventsProcessor} from '../ContentEventsProcessor';
+import {ToggleSearchPanelWithDependenciesGlobalEvent} from '../browse/ToggleSearchPanelWithDependenciesGlobalEvent';
+import {StatusSelectionItem} from '../dialog/StatusSelectionItem';
+import {ContentSummary} from '../content/ContentSummary';
+import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
+import {NamesAndIconView} from 'lib-admin-ui/app/NamesAndIconView';
+import {DialogDependantList} from '../dialog/DependantItemsDialog';
+import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 
 export class ContentDeleteDialog
     extends DependantItemsWithProgressDialog {
@@ -30,11 +39,13 @@ export class ContentDeleteDialog
 
     private totalItemsToDelete: number;
 
-    private messageId: string;
-
     private markDeletedAction: Action;
 
     private deleteConfirmationDialog?: ConfirmValueDialog;
+
+    private statusLine: StatusLine;
+
+    private resolveDependenciesResult: ResolveDependenciesResult;
 
     constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
@@ -64,6 +75,18 @@ export class ContentDeleteDialog
 
         const menuButton = this.getButtonRow().makeActionMenu(deleteNowAction, [this.markDeletedAction]);
         this.actionButton = menuButton.getActionButton();
+
+        this.statusLine = new StatusLine();
+    }
+
+    protected postInitElements(): void {
+        super.postInitElements();
+
+        this.statusLine
+            .setIconClass('icon-link')
+            .setMainText(i18n('dialog.delete.hasInbound.part1'))
+            .setSecondaryText(i18n('dialog.delete.hasInbound.part2'))
+            .hide();
     }
 
     getButtonRow(): ContentDeleteDialogButtonRow {
@@ -74,11 +97,23 @@ export class ContentDeleteDialog
         super.initListeners();
 
         this.getItemList().onItemsRemoved(this.onListItemsRemoved.bind(this));
+
+        const itemsAddedHandler = (items: ContentSummaryAndCompareStatus[], itemList: ListBox<ContentSummaryAndCompareStatus>) => {
+            if (this.resolveDependenciesResult) {
+                this.updateItemViewsWithInboundDependencies(
+                    items.map((item: ContentSummaryAndCompareStatus) => <StatusSelectionItem>itemList.getItemView(item)));
+            }
+        };
+
+        this.getItemList().onItemsAdded((items: ContentSummaryAndCompareStatus[]) => itemsAddedHandler(items, this.getItemList()));
+        this.getDependantList().onItemsAdded(
+            (items: ContentSummaryAndCompareStatus[]) => itemsAddedHandler(items, this.getDependantList()));
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addCancelButtonToBottom();
+            this.prependChildToContentPanel(this.statusLine);
 
             return rendered;
         });
@@ -102,37 +137,70 @@ export class ContentDeleteDialog
         return <DeleteDialogItemList>super.getItemList();
     }
 
-    protected manageInboundDependencies(contents: ContentSummaryAndCompareStatus[]) {
-        new ResolveDependenciesRequest(contents.map(content => content.getContentId())).sendAndParse().then(
+    protected getDependantList(): DialogDependantList {
+        return <DialogDependantList>super.getDependantList();
+    }
+
+    private manageInboundDependencies() {
+        new ResolveDependenciesRequest(this.resolvedIds).sendAndParse().then(
             (result: ResolveDependenciesResult) => {
+                this.resolveDependenciesResult = result;
 
-                const dependencyCount = result.getIncomingDependenciesCount();
-
-                if (!Object.keys(dependencyCount).length) {
+                if (result.getIncomingDependenciesCount().size === 0) {
                     return;
                 }
 
-                this.messageId = showWarning(
-                    i18n('dialog.delete.dependency.warning'), false);
-
-                this.addClickIgnoredElement(NotifyManager.get().getNotification(this.messageId));
-
-                this.getItemList().getItemViews().forEach((itemView) => {
-                    const contentId = (<ContentSummaryAndCompareStatus>itemView.getBrowseItem()).getContentId().toString();
-
-                    if (dependencyCount.hasOwnProperty(contentId)) {
-                        (<DeleteItemViewer>itemView.getViewer()).setInboundDependencyCount(dependencyCount[contentId]);
-                    }
-
-                });
+                this.statusLine.show();
+                this.updateItemViewsWithInboundDependencies(
+                    this.getItemList().getItemViews().concat(this.getDependantList().getItemViews()));
             });
     }
 
-    protected manageDescendants() {
+    private handleItemClick(contentSummary: ContentSummary) {
+        const tabId: ContentAppBarTabId = ContentAppBarTabId.forBrowse(contentSummary.getId());
+
+        const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
+            .setTabId(tabId)
+            .setContentTypeName(contentSummary.getType())
+            .setContentId(contentSummary.getContentId());
+
+        const win: Window = ContentEventsProcessor.openWizardTab(wizardParams);
+
+        setTimeout(() => {
+            new ToggleSearchPanelWithDependenciesGlobalEvent(contentSummary, true).fire(win);
+        }, 1000);
+    }
+
+    private updateItemViewsWithInboundDependencies(itemViews: StatusSelectionItem[]) {
+        itemViews
+            .filter((itemView: StatusSelectionItem) => this.resolveDependenciesResult.getIncomingDependenciesCount().has(
+                itemView.getBrowseItem().getId()))
+            .filter((itemView: StatusSelectionItem) => !itemView.hasClass('has-inbound'))
+            .forEach((itemView: StatusSelectionItem) => this.updateItemViewWithInboundDependencies(itemView));
+    }
+
+    private updateItemViewWithInboundDependencies(itemView: StatusSelectionItem) {
+        itemView.addClass('has-inbound');
+        itemView.getViewer().whenRendered(() => {
+            const namesAndIconView: NamesAndIconView =
+                (<ContentSummaryAndCompareStatusViewer>itemView.getViewer()).getNamesAndIconView();
+            namesAndIconView.whenRendered(() => {
+                namesAndIconView.getFirstChild().onClicked(() => {
+                    this.handleItemClick((<ContentSummaryAndCompareStatus>itemView.getBrowseItem()).getContentSummary());
+                });
+            });
+
+            namesAndIconView.setIconClass('icon-link');
+            namesAndIconView.setIconToolTip(i18n('dialog.delete.hasInbound.tooltip'));
+        });
+    }
+
+    private manageDescendants() {
         this.showLoadMask();
         this.lockControls();
 
         this.loadDescendantIds().then(() => {
+            this.manageInboundDependencies();
             return this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
                 this.setDependantItems(descendants);
                 this.manageInstantDeleteStatus(this.getItemList().getItems());
@@ -170,21 +238,9 @@ export class ContentDeleteDialog
         this.markDeletedAction.setEnabled(!allOffline && !allPendingDelete);
     }
 
-    close() {
-        super.close();
-        if (this.messageId) {
-
-            this.removeClickIgnoredElement(NotifyManager.get().getNotification(this.messageId));
-            NotifyManager.get().hide(this.messageId);
-
-            this.messageId = '';
-        }
-    }
-
     setContentToDelete(contents: ContentSummaryAndCompareStatus[]): ContentDeleteDialog {
         this.manageContentToDelete(contents);
         this.manageInstantDeleteStatus(contents);
-        this.manageInboundDependencies(contents);
         this.manageDescendants();
 
         return this;
@@ -319,6 +375,12 @@ export class ContentDeleteDialog
             .setSubheaderText((i18n('dialog.confirmDelete.subname')));
     }
 
+    close() {
+        super.close();
+
+        this.statusLine.hide();
+        this.resolveDependenciesResult = null;
+    }
 }
 
 export class ContentDeleteDialogButtonRow

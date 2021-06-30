@@ -15,4 +15,48 @@
       display: none !important;
     }
   }
+
+  .status-line {
+    display: flex;
+    align-items: center;
+    padding-bottom: 10px;
+
+    .icon {
+      color: @admin-red;
+    }
+
+    .part {
+      padding-left: 7px;
+    }
+
+    .part1 {
+      font-weight: bold;
+    }
+  }
+
+  .names-and-icon-viewer {
+    .icon-link {
+      color: @admin-red;
+    }
+  }
+
+  .item-list {
+    .names-and-icon-viewer {
+      .names-and-icon-view {
+        .icon-link {
+          font-size: 24px;
+        }
+      }
+    }
+  }
+
+  .dependant-list {
+    .names-and-icon-viewer {
+      .names-and-icon-view {
+        .icon-link {
+          font-size: 16px;
+        }
+      }
+    }
+  }
 }

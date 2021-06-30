@@ -54,6 +54,8 @@ export abstract class DependantItemsDialog
 
     protected previousScrollTop: number;
 
+    protected resolvedIds: ContentId[];
+
     protected dependantIds: ContentId[];
 
     private showDependantList: boolean;
@@ -69,6 +71,7 @@ export abstract class DependantItemsDialog
 
         this.showDependantList = false;
         this.dependantIds = [];
+        this.resolvedIds = [];
         this.loading = false;
         this.loadingRequested = false;
         this.subTitle = new H6El('sub-title').setHtml(this.config.dialogSubName);
@@ -179,7 +182,7 @@ export abstract class DependantItemsDialog
         return new DialogItemList();
     }
 
-    protected createDependantList(): ListBox<ContentSummaryAndCompareStatus> {
+    protected createDependantList(): DialogDependantList {
         return new DialogDependantList();
     }
 
@@ -248,6 +251,7 @@ export abstract class DependantItemsDialog
 
     clearDependantItems() {
         this.dependantIds = [];
+        this.resolvedIds = [];
         this.dependantList.clearItems();
     }
 
@@ -276,11 +280,14 @@ export abstract class DependantItemsDialog
         return this.getItemList().getItems();
     }
 
-    protected loadDescendantIds() {
+    protected loadDescendantIds(): Q.Promise<void> {
         const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
 
         return this.createResolveDescendantsRequest().sendAndParse().then((resolvedIds: ContentId[]) => {
+            this.resolvedIds = resolvedIds;
             this.dependantIds = resolvedIds.filter((resolveId: ContentId) => !ids.some((id: ContentId) => id.equals(resolveId)));
+
+            return Q(null);
         });
     }
 
@@ -460,7 +467,7 @@ export class DialogDependantList
         super(className);
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): Element {
+    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): StatusSelectionItem {
 
         const dependantViewer = new DependantItemViewer();
 
@@ -493,6 +500,10 @@ export class DialogDependantList
         this.itemClickListeners = this.itemClickListeners.filter((curr) => {
             return curr !== listener;
         });
+    }
+
+    getItemViews(): StatusSelectionItem[] {
+        return <StatusSelectionItem[]>super.getItemViews();
     }
 
     protected notifyItemClicked(item: ContentSummaryAndCompareStatus) {
