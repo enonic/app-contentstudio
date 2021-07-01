@@ -43,7 +43,7 @@ TIP: It's possible to limit a part to be used only on specific content type(s).
   <display-name>My article part</display-name>
   <form></form>
   <config>
-    <allow-on-content-type>portal:site</allow-on-content-type>
+    <allow-on-content-type>my.cool.app:my-cool-type</allow-on-content-type>
     <allow-on-content-type>${app}:article*</allow-on-content-type>
   </config>
 </part>
@@ -60,6 +60,24 @@ TIP: It's possible to limit a part to be used only on specific content type(s).
   </config>
 </part>
 ----
+
+IMPORTANT: Note that sites and page templates are considered content types as well (`portal:site` and `portal:page-template` respectively),
+so if you want to enable a part (or layout) for a specific content type(s) and still be able to use it on a site and/or template then you have
+to explicitly add their types to allowed content types:
+
+[source,xml]
+----
+<part>
+  <display-name>My article part</display-name>
+  <form></form>
+  <config>
+    <allow-on-content-type>${app}:article</allow-on-content-type>
+    <allow-on-content-type>portal:site</allow-on-content-type>
+    <allow-on-content-type>portal:page-template</allow-on-content-type>
+  </config>
+</part>
+----
+
 
 == Layout component
 
