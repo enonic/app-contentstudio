@@ -133,14 +133,13 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         return config;
     }
 
-    private prepareBuilder(builder: ContentComboBoxBuilder<ITEM_TYPE>) {
+    protected prepareBuilder(builder: ContentComboBoxBuilder<ITEM_TYPE>) {
         this.createStatusColumn();
 
         if (!builder.loader) {
             builder.setLoader(<ContentSummaryOptionDataLoader<ITEM_TYPE>>this.createLoader(builder));
         }
 
-        builder.setMaxHeight(this.getMaxHeight());
         builder.setCreateColumns([this.statusColumn]);
 
         if (builder.isRequestMissingOptions) {
@@ -148,10 +147,6 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
                 return new ContentsExistRequest(missingOptionIds).sendAndParse().then(result => result.getContentsExistMap());
             });
         }
-    }
-
-    protected getMaxHeight(): number {
-        return 370;
     }
 
     protected createLoader(builder: ContentComboBoxBuilder<ITEM_TYPE>): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {

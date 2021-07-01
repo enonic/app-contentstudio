@@ -49,8 +49,10 @@ export class ImageContentComboBox
         }
     }
 
-    protected getMaxHeight(): number {
-        return 620;
+    protected prepareBuilder(builder: ContentComboBoxBuilder<MediaTreeSelectorItem>) {
+        super.prepareBuilder(builder);
+        builder.setMaxHeight(620);
+
     }
 
     protected createLoader(builder: ImageContentComboBoxBuilder): ImageOptionDataLoader {

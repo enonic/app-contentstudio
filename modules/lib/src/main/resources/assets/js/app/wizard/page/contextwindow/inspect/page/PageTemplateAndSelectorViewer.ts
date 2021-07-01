@@ -57,7 +57,4 @@ export class PageTemplateAndSelectorViewer
         return (iconClass ? StyleHelper.getCommonIconCls(iconClass) + ' ' : '') + 'icon-large';
     }
 
-    getPreferredHeight(): number {
-        return 50;
-    }
 }

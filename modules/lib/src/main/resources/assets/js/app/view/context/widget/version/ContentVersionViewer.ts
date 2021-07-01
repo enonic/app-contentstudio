@@ -17,10 +17,6 @@ export class ContentVersionViewer
         this.appendChild(this.namesAndIconView);
     }
 
-    getPreferredHeight(): number {
-        return 50;
-    }
-
     private getIconClass(version: ContentVersion): string {
         if (version.isPublished()) {
             if (version.getPublishInfo().isScheduled()) {
