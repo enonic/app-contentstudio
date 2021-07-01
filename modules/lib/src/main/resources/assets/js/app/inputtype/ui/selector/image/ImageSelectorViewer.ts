@@ -32,4 +32,8 @@ export class ImageSelectorViewer
     protected getHintTargetEl(): ElementHelper {
         return this.getEl();
     }
+
+    getPreferredHeight(): number {
+        return 40;
+    }
 }

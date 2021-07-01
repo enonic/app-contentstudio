@@ -18,20 +18,27 @@ export class SiteConfiguratorComboBox
     constructor(maxOccurrences: number, siteConfigProvider: ApplicationConfigProvider,
                 formContext: ContentFormContext, value?: string) {
 
-        let filterObject = {
+        const filterObject = {
             state: Application.STATE_STARTED
         };
 
-        let builder = new RichComboBoxBuilder<Application>();
-        builder.setMaximumOccurrences(maxOccurrences).setIdentifierMethod('getApplicationKey').setComboBoxName(
-            'applicationSelector').setLoader(new SiteApplicationLoader(filterObject)).setSelectedOptionsView(
-            new SiteConfiguratorSelectedOptionsView(siteConfigProvider, formContext)).setOptionDisplayValueViewer(
-            new ApplicationViewer()).setValue(value).setDelayedInputValueChangedHandling(
-            500).setDisplayMissingSelectedOptions(true);
+        const builder: RichComboBoxBuilder<Application> = new RichComboBoxBuilder<Application>();
+        builder
+            .setMaximumOccurrences(maxOccurrences)
+            .setIdentifierMethod('getApplicationKey')
+            .setComboBoxName('applicationSelector')
+            .setLoader(new SiteApplicationLoader(filterObject))
+            .setSelectedOptionsView(new SiteConfiguratorSelectedOptionsView(siteConfigProvider, formContext))
+            .setOptionDisplayValueViewer(new ApplicationViewer()).setValue(value)
+            .setDelayedInputValueChangedHandling(500)
+            .setMaxHeight(370)
+            .setDisplayMissingSelectedOptions(true);
 
         super(builder);
 
         this.siteConfiguratorSelectedOptionsView = <SiteConfiguratorSelectedOptionsView>builder.getSelectedOptionsView();
+
+        this.addClass('site-configurator-combobox');
     }
 
     getSelectedOptionViews(): SiteConfiguratorSelectedOptionView[] {
