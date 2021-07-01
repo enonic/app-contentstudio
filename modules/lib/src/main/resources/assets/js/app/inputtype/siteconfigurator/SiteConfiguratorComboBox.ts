@@ -31,7 +31,6 @@ export class SiteConfiguratorComboBox
             .setSelectedOptionsView(new SiteConfiguratorSelectedOptionsView(siteConfigProvider, formContext))
             .setOptionDisplayValueViewer(new ApplicationViewer()).setValue(value)
             .setDelayedInputValueChangedHandling(500)
-            .setMaxHeight(370)
             .setDisplayMissingSelectedOptions(true);
 
         super(builder);

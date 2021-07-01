@@ -23,8 +23,4 @@ export class DescriptorViewer
     resolveIconUrl(_object: Descriptor): string {
         return _object.getIcon();
     }
-
-    getPreferredHeight(): number {
-        return 50;
-    }
 }

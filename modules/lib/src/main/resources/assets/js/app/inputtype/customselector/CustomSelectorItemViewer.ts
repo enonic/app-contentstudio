@@ -27,8 +27,4 @@ export class CustomSelectorItemViewer
     resolveIconUrl(object: CustomSelectorItem): string {
         return object.iconUrl;
     }
-
-    getPreferredHeight(): number {
-        return 40;
-    }
 }
