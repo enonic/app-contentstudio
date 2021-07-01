@@ -50,6 +50,8 @@ export class CustomSelectorSelectedOptionView
 export class CustomSelectorComboBoxBuilder
     extends RichComboBoxBuilder<CustomSelectorItem> {
 
+    maxHeight: number = 370;
+
     optionDisplayValueViewer: Viewer<CustomSelectorItem> = new CustomSelectorItemViewer();
 
     delayedInputValueChangedHandling: number = 300;

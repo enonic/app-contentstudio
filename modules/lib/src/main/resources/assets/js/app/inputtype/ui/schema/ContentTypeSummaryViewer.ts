@@ -23,4 +23,8 @@ export class ContentTypeSummaryViewer
     resolveIconUrl(object: ContentTypeSummary): string {
         return this.contentTypeIconUrlResolver.resolve(object);
     }
+
+    getPreferredHeight(): number {
+        return 40;
+    }
 }
