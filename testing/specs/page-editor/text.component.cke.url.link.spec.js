@@ -43,6 +43,8 @@ describe('Text Component with CKE - insert link and table specification', functi
             await pageComponentView.openMenu("main");
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
             await pageComponentView.clickOnCloseButton();
+            //Close the details panel
+            await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
             //2. Click on 'Insert Table' menu-button:
             await textComponentCke.clickOnInsertTableButton();
@@ -62,6 +64,8 @@ describe('Text Component with CKE - insert link and table specification', functi
             await pageComponentView.openMenu("main");
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
             await pageComponentView.clickOnCloseButton();
+            //Close the details panel
+            await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
             await textComponentCke.clickOnInsertLinkButton();
             await insertLinkDialog.typeText("url_link");
@@ -85,6 +89,8 @@ describe('Text Component with CKE - insert link and table specification', functi
             await pageComponentView.openMenu("main");
             await pageComponentView.selectMenuItem(["Insert", "Text"]);
             await pageComponentView.clickOnCloseButton();
+            //Close the details panel
+            await contentWizard.clickOnDetailsPanelToggleButton();
             await textComponentCke.switchToLiveEditFrame();
             //2. Open Insert Link dialog and add the link:
             await textComponentCke.clickOnInsertLinkButton();

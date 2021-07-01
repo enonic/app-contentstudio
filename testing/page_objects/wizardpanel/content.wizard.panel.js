@@ -536,7 +536,10 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForElementDisplayed(this.publishButton, appConst.mediumTimeout);
             await this.waitForElementEnabled(this.publishButton, appConst.mediumTimeout);
-            return await this.clickOnElement(this.publishButton);
+            await this.clickOnElement(this.publishButton);
+            let contentPublishDialog = new ContentPublishDialog();
+            await contentPublishDialog.waitForDialogOpened();
+            return await contentPublishDialog.waitForSpinnerNotVisible(appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot('err_when_click_on_publish_button');
             throw new Error('Error when Publish button has been clicked ' + err);
