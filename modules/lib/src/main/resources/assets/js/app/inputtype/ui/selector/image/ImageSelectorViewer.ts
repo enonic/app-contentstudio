@@ -33,7 +33,4 @@ export class ImageSelectorViewer
         return this.getEl();
     }
 
-    getPreferredHeight(): number {
-        return 40;
-    }
 }

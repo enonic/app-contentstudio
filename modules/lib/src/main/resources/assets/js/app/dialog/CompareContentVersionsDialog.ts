@@ -120,6 +120,7 @@ export class CompareContentVersionsDialog
 
         const dropdown = new Dropdown(`${stylePrefix}-version`, {
             optionDisplayValueViewer: new ContentVersionViewer(),
+            rowHeight: 50,
             disableFilter: true,
             dataIdProperty: 'value',
             value: versionId

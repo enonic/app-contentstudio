@@ -50,8 +50,4 @@ export class ContentTreeSelectorItemViewer
             return new ContentIconUrlResolver().setContent(object.getContent()).resolve();
         }
     }
-
-    getPreferredHeight(): number {
-        return 40;
-    }
 }
