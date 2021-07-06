@@ -15,6 +15,7 @@ import {Project} from '../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
+import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 
 export interface ContentWizardToolbarConfig {
     application: Application;
@@ -28,6 +29,8 @@ export class ContentWizardToolbar
     private componentsViewToggler: TogglerButton;
 
     private cycleViewModeButton: CycleButton;
+
+    private contextPanelToggler: NonMobileContextPanelToggleButton;
 
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
 
@@ -171,9 +174,11 @@ export class ContentWizardToolbar
         const actions: ContentWizardActions = this.config.actions;
         this.cycleViewModeButton = new CycleButton([actions.getShowLiveEditAction(), actions.getShowFormAction()]);
         this.componentsViewToggler = new TogglerButton('icon-clipboard', i18n('field.showComponent'));
+        this.contextPanelToggler = new NonMobileContextPanelToggleButton();
 
         super.addElement(this.componentsViewToggler);
         super.addElement(this.cycleViewModeButton);
+        super.addElement(this.contextPanelToggler);
     }
 
     getStateIcon() {
@@ -186,6 +191,10 @@ export class ContentWizardToolbar
 
     getComponentsViewToggler(): TogglerButton {
         return this.componentsViewToggler;
+    }
+
+    getContextPanelToggler(): NonMobileContextPanelToggleButton {
+        return this.contextPanelToggler;
     }
 
     getContentWizardToolbarPublishControls() {

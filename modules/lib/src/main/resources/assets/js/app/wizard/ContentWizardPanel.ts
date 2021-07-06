@@ -93,7 +93,7 @@ import {WizardPanel} from 'lib-admin-ui/app/wizard/WizardPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {WizardHeader} from 'lib-admin-ui/app/wizard/WizardHeader';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
-import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder, SplitPanelUnit} from 'lib-admin-ui/ui/panel/SplitPanel';
+import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {ValidityChangedEvent} from 'lib-admin-ui/ValidityChangedEvent';
 import {PropertyTreeComparator} from 'lib-admin-ui/data/PropertyTreeComparator';
 import {GetApplicationRequest} from 'lib-admin-ui/application/GetApplicationRequest';
@@ -129,6 +129,7 @@ import {ContentsExistRequest} from '../resource/ContentsExistRequest';
 import {ContentsExistResult} from '../resource/ContentsExistResult';
 import {ActivatedEvent} from 'lib-admin-ui/ui/ActivatedEvent';
 import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
+import { SplitPanelSize } from 'lib-admin-ui/ui/panel/SplitPanelSize';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -420,7 +421,7 @@ export class ContentWizardPanel
             this.stepNavigator.setScrollEnabled(false);
 
             this.scrollPosition = scroll;
-            this.splitPanel.savePanelSizesAndDistribute(40, 0, SplitPanelUnit.PIXEL);
+            this.splitPanel.savePanelSizesAndDistribute(SplitPanelSize.Pixels(40));
             this.splitPanel.hideSplitter();
 
             this.stepNavigator.onNavigationItemActivated(this.toggleMinimizeListener);
@@ -726,11 +727,11 @@ export class ContentWizardPanel
 
     private createSplitPanel(firstPanel: Panel, secondPanel: Panel): SplitPanel {
         const builder = new SplitPanelBuilder(firstPanel, secondPanel)
-            .setFirstPanelMinSize(280, SplitPanelUnit.PIXEL)
+            .setFirstPanelMinSize(SplitPanelSize.Pixels(280))
             .setAlignment(SplitPanelAlignment.VERTICAL);
 
         if ($(window).width() > this.splitPanelThreshold) {
-            builder.setFirstPanelSize(32, SplitPanelUnit.PERCENT);
+            builder.setFirstPanelSize(SplitPanelSize.Percents(32));
         }
 
         const splitPanel = builder.build();
