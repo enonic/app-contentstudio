@@ -9,21 +9,11 @@
 
   width: 100%;
 
-  @media screen and (min-width: @mobile-panel-width) {
-    width: calc(100% - @app-header-height);
-  }
-
   .fold-button .@{_COMMON_PREFIX}dropdown .@{_COMMON_PREFIX}:hover {
     background-color: @admin-bg-light-gray;
   }
 
   & > * {
     flex: 0 0 auto;
-  }
-}
-
-.split-panel {
-  &.context-panel-expanded .content-browse-toolbar {
-    padding-right: 0;
   }
 }

@@ -2,7 +2,8 @@ import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
 import {Action} from 'lib-admin-ui/ui/Action';
-import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder, SplitPanelUnit} from 'lib-admin-ui/ui/panel/SplitPanel';
+import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from 'lib-admin-ui/ui/panel/SplitPanel';
+import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {DockedContextPanel} from './DockedContextPanel';
@@ -40,13 +41,13 @@ export class ContextSplitPanel
 
         const builder = new SplitPanelBuilder(leftPanel, dockedContextPanel)
             .setAlignment(SplitPanelAlignment.VERTICAL)
-            .setSecondPanelMinSize(280, SplitPanelUnit.PIXEL)
+            .setSecondPanelMinSize(SplitPanelSize.Pixels(280))
             .setAnimationDelay(600)
             .setSecondPanelShouldSlideRight(true);
 
         super(builder);
         this.addClass('context-split-panel');
-        this.setSecondPanelSize(38, SplitPanelUnit.PERCENT);
+        this.setSecondPanelSize(SplitPanelSize.Percents(38));
 
         this.data = data;
         this.wizardFormPanel = wizardFormPanel;
@@ -103,15 +104,6 @@ export class ContextSplitPanel
         if (this.nonMobileContextPanelsManager.requiresCollapsedContextPanel()) {
             this.nonMobileContextPanelsManager.hideDockedContextPanel();
         }
-
-        this.nonMobileContextPanelsManager.ensureButtonHasCorrectState();
-        this.contextView.appendChild(this.nonMobileContextPanelsManager.getToggleButton());
-
-        this.onShown(() => {
-            if (this.nonMobileContextPanelsManager.getActivePanel().getActiveWidget()) {
-                this.nonMobileContextPanelsManager.getActivePanel().getActiveWidget().slideIn();
-            }
-        });
 
         this.subscribeContextPanelsOnEvents(this.nonMobileContextPanelsManager);
     }
@@ -266,11 +258,4 @@ export class ContextSplitPanel
         return this.mobileMode;
     }
 
-    enableToggleButton() {
-        this.nonMobileContextPanelsManager.getToggleButton().setEnabled(true);
-    }
-
-    disableToggleButton() {
-        this.nonMobileContextPanelsManager.getToggleButton().setEnabled(false);
-    }
 }
