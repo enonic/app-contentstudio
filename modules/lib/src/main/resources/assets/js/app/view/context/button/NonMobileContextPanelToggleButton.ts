@@ -1,21 +1,28 @@
 import {Button} from 'lib-admin-ui/ui/button/Button';
-import {InspectEvent} from '../../../event/InspectEvent';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ToggleContextPanelEvent} from '../ToggleContextPanelEvent';
+import {ContextPanelStateEvent} from '../ContextPanelStateEvent';
+import {ContextPanelState} from '../ContextPanelState';
 
 export class NonMobileContextPanelToggleButton
     extends Button {
 
     constructor() {
         super();
+
         this.addClass('icon-list non-mobile-details-panel-toggle-button');
-        this.onClicked(this.handleClick.bind(this));
+        this.initListeners();
     }
 
-    private handleClick() {
-        new ToggleContextPanelEvent().fire();
+    private initListeners() {
+        this.onClicked(() => {
+            new ToggleContextPanelEvent().fire();
+        });
 
-        // this.toggleClass('expanded', this.open);
-        // this.setTitle(this.open ? i18n('tooltip.contextPanel.hide') : i18n('tooltip.contextPanel.show'), false);
+        ContextPanelStateEvent.on((event: ContextPanelStateEvent) => {
+            const expanded: boolean = event.getState() !== ContextPanelState.COLLAPSED;
+            this.toggleClass('expanded', expanded);
+            this.setTitle(expanded ? i18n('tooltip.contextPanel.hide') : i18n('tooltip.contextPanel.show'), false);
+        });
     }
 }
