@@ -1,9 +1,7 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ContextPanel} from './ContextPanel';
 import {FloatingContextPanel} from './FloatingContextPanel';
 import {DockedContextPanel} from './DockedContextPanel';
-import {NonMobileContextPanelToggleButton} from './button/NonMobileContextPanelToggleButton';
 import {ActiveContextPanelManager} from './ActiveContextPanelManager';
 import {InspectEvent} from '../../event/InspectEvent';
 import {LiveFormPanel} from '../../wizard/page/LiveFormPanel';
@@ -11,8 +9,12 @@ import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {ResponsiveRange} from 'lib-admin-ui/ui/responsive/ResponsiveRange';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
-import {Button} from 'lib-admin-ui/ui/button/Button';
 import {Body} from 'lib-admin-ui/dom/Body';
+import {ToggleContextPanelEvent} from './ToggleContextPanelEvent';
+
+enum State {
+    EXPANDED, COLLAPSED
+}
 
 export class NonMobileContextPanelsManager {
 
@@ -24,13 +26,13 @@ export class NonMobileContextPanelsManager {
 
     private resizeEventMonitorLocked: boolean = false;
 
-    private toggleButton: Button = new NonMobileContextPanelToggleButton();
-
     private debouncedResizeHandler: () => void = AppHelper.debounce(this.doHandleResizeEvent, 300, false);
 
     private pageEditor: LiveFormPanel;
 
     private wizardPanel: Panel;
+
+    private state: State = State.COLLAPSED;
 
     constructor(builder: NonMobileContextPanelsManagerBuilder) {
         this.splitPanelWithContext = builder.getSplitPanelWithContext();
@@ -40,12 +42,6 @@ export class NonMobileContextPanelsManager {
         this.pageEditor = builder.getPageEditor();
         this.wizardPanel = builder.getWizardPanel();
 
-        this.toggleButton.onClicked(() => {
-            if (this.requiresAnimation()) {
-                this.doPanelAnimation();
-            }
-        });
-
         const isMobileMode = builder.getIsMobileMode() || (() => false);
 
         InspectEvent.on((event: InspectEvent) => {
@@ -54,8 +50,21 @@ export class NonMobileContextPanelsManager {
             }
         });
 
+        ToggleContextPanelEvent.on(() => {
+            if (this.requiresAnimation()) {
+                this.doPanelAnimation();
+            }
+        });
+
         this.dockedContextPanel.onShown(() => {
             this.splitPanelWithContext.distribute();
+        });
+
+        this.splitPanelWithContext.onShown(() => {
+            if (this.getActivePanel().getActiveWidget() && !this.requiresFloatingPanelDueToShortWidth()) {
+                this.getActivePanel().getActiveWidget().slideIn();
+                this.state = State.EXPANDED;
+            }
         });
     }
 
@@ -64,8 +73,7 @@ export class NonMobileContextPanelsManager {
     }
 
     private doHandleResizeEvent() {
-
-        if (this.resizeEventMonitorLocked || !this.toggleButton.isRendered()) {
+        if (this.resizeEventMonitorLocked) {
             return;
         }
 
@@ -78,18 +86,11 @@ export class NonMobileContextPanelsManager {
             } else if (this.isFloatingContextPanelActive()) {
                 this.floatingContextPanel.notifyPanelSizeChanged();
             }
+
             setTimeout(() => {
                 this.resizeEventMonitorLocked = false;
             }, 600);
 
-        } else {
-
-            if (this.isExpanded() && !this.isFloatingContextPanelActive() && !this.nonMobileContextPanelIsActive()) {
-                this.toggleButton.removeClass('expanded');
-                this.splitPanelWithContext.removeClass('context-panel-expanded');
-            }
-
-            return;
         }
     }
 
@@ -127,12 +128,9 @@ export class NonMobileContextPanelsManager {
         } else {
             this.switchToDockedMode(canSetActivePanel, onResize);
         }
-
-        this.ensureButtonHasCorrectState();
     }
 
     private switchToDockedMode(canSetActivePanel: boolean = true, onResize?: boolean) {
-        this.toggleButton.removeClass('floating-mode');
         if (this.floatingPanelIsShown()) {
             this.floatingToDockedSync();
         }
@@ -145,10 +143,12 @@ export class NonMobileContextPanelsManager {
 
         if (!this.isExpanded() || onResize) {
             this.splitPanelWithContext.showSecondPanel(false);
+            this.state = State.EXPANDED;
         } else {
             if (!this.splitPanelWithContext.isSecondPanelHidden()) {
                 this.splitPanelWithContext.foldSecondPanel();
             }
+            this.state = State.COLLAPSED;
         }
 
         setTimeout(() => {
@@ -166,7 +166,6 @@ export class NonMobileContextPanelsManager {
             return;
         }
 
-        this.toggleButton.addClass('floating-mode');
         if (!this.splitPanelWithContext.isSecondPanelHidden()) {
             this.dockedToFloatingSync();
         }
@@ -179,8 +178,10 @@ export class NonMobileContextPanelsManager {
             this.floatingContextPanel.resetWidgetsWidth();
             this.floatingContextPanel.slideIn();
             this.floatingContextPanel.notifyPanelSizeChanged();
+            this.state = State.EXPANDED;
         } else {
             this.floatingContextPanel.slideOut();
+            this.state = State.COLLAPSED;
         }
         this.splitPanelWithContext.setActiveWidthPxOfSecondPanel(this.floatingContextPanel.getActualWidth());
         this.splitPanelWithContext.removeClass('sliding');
@@ -188,23 +189,16 @@ export class NonMobileContextPanelsManager {
 
     hideActivePanel(onResize: boolean = false) {
         if (this.isFloatingContextPanelActive()) {
-            this.toggleButton.removeClass('floating-mode');
             this.floatingContextPanel.slideOut();
         } else {
             this.hideDockedContextPanel();
         }
 
-        setTimeout(() => {
-            this.ensureButtonHasCorrectState();
-        }, this.isExpanded() ? 300 : 0);
+        this.state = State.COLLAPSED;
     }
 
     hideDockedContextPanel() {
         this.splitPanelWithContext.foldSecondPanel();
-    }
-
-    getToggleButton(): Button {
-        return this.toggleButton;
     }
 
     getActivePanel(): ContextPanel {
@@ -212,7 +206,7 @@ export class NonMobileContextPanelsManager {
     }
 
     private isExpanded(): boolean {
-        return this.toggleButton.hasClass('expanded');
+        return this.state === State.EXPANDED;
     }
 
     private dockedToFloatingSync() {
@@ -260,7 +254,7 @@ export class NonMobileContextPanelsManager {
     private requiresFloatingPanelDueToShortWidth(): boolean {
         const panelWidth: number = this.splitPanelWithContext.getParentElement().getEl().getWidthWithBorder();
         const maximumThreshold: ResponsiveRange = this.isPageEditorShown() ?
-                                 (this.isWizardPanelMaximized() ? ResponsiveRanges._1380_1620 : ResponsiveRanges._540_720) :
+                                 (this.isWizardPanelMaximized() ? ResponsiveRanges._1200_1380 : ResponsiveRanges._540_720) :
                                  ResponsiveRanges._720_960;
 
         if (this.floatingPanelIsShown()) {
@@ -285,13 +279,6 @@ export class NonMobileContextPanelsManager {
     requiresCollapsedContextPanel(): boolean {
         const totalWidth: number = Body.get().getEl().getWidthWithBorder();
         return this.requiresFloatingPanelDueToShortWidth() || ResponsiveRanges._1620_1920.isFitOrSmaller(totalWidth);
-    }
-
-    ensureButtonHasCorrectState() {
-        this.toggleButton.toggleClass('expanded',
-            !this.splitPanelWithContext.isSecondPanelHidden() || this.floatingPanelIsShown());
-        this.toggleButton.setTitle(this.isExpanded() ? i18n('tooltip.contextPanel.hide') : i18n('tooltip.contextPanel.show'), false);
-        this.splitPanelWithContext.toggleClass('context-panel-expanded', this.isExpanded());
     }
 
     static create(): NonMobileContextPanelsManagerBuilder {

@@ -95,7 +95,8 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
             skipExpandOnClick: true,
             inputPlaceholderText: '',
             listMaxHeight: 250,
-            optionDisplayValueViewer: new WidgetViewer()
+            optionDisplayValueViewer: new WidgetViewer(),
+            rowHeight: 50
         });
 
         this.onClicked((event) => {
@@ -186,7 +187,4 @@ export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
         return object.getWidgetView().getWidgetIconClass();
     }
 
-    getPreferredHeight(): number {
-        return 50;
-    }
 }

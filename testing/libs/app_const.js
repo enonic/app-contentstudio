@@ -36,6 +36,9 @@ module.exports = Object.freeze({
     saveFailedAttempt: function (name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
     },
+    requiredValidationMessage: (occurrences) => {
+        return `Min ${occurrences} valid occurrence(s) required`;
+    },
     projectCreatedMessage: name => `Project \"${name}\" is created.`,
     projectNameAlreadyExistsMessage: name => `Project with name [${name}] already exists`,
     projectDeletedMessage: name => `Project \"${name}\" is deleted.`,

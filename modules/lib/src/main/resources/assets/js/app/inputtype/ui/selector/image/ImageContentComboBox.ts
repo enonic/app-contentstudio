@@ -49,8 +49,10 @@ export class ImageContentComboBox
         }
     }
 
-    protected getMaxHeight(): number {
-        return 620;
+    protected prepareBuilder(builder: ContentComboBoxBuilder<MediaTreeSelectorItem>) {
+        super.prepareBuilder(builder);
+        builder.setMaxHeight(620);
+
     }
 
     protected createLoader(builder: ImageContentComboBoxBuilder): ImageOptionDataLoader {
@@ -97,7 +99,7 @@ export class ImageContentComboBox
         const grid: Grid<any> = this.getComboBox().getComboBoxDropdownGrid().getGrid();
         grid.toggleClass('tree-mode', treeMode);
 
-        grid.getOptions().setRowHeight(treeMode ? 50 : 198)
+        grid.getOptions().setRowHeight(treeMode ? 40 : 198)
             .setEnableGalleryMode(!treeMode)
             .setGalleryModeColumns(columns);
 

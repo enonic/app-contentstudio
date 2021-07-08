@@ -32,4 +32,5 @@ export class ImageSelectorViewer
     protected getHintTargetEl(): ElementHelper {
         return this.getEl();
     }
+
 }
