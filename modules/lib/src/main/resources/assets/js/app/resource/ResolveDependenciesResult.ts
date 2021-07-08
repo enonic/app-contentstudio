@@ -33,6 +33,10 @@ export class ResolveDependenciesResult {
         return this.incomingDependenciesCount;
     }
 
+    public hasIncomingDependency(id: string): boolean {
+        return this.incomingDependenciesCount.has(id);
+    }
+
     public static fromJson(json: ResolveDependenciesResultJson): ResolveDependenciesResult {
         const dependencies: ResolveDependencyResult[] = [];
 

@@ -488,8 +488,11 @@ export class DialogDependantList
     }
 
     setItems(items: ContentSummaryAndCompareStatus[], silent?: boolean) {
-        items.sort(DialogDependantList.invalidAndReadOnlyOnTop);
-        super.setItems(items, silent);
+        super.setItems(this.sortItems(items), silent);
+    }
+
+    protected sortItems(items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] {
+        return items.sort(DialogDependantList.invalidAndReadOnlyOnTop);
     }
 
     onItemClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
@@ -512,16 +515,16 @@ export class DialogDependantList
         });
     }
 
-    private static invalidAndReadOnlyOnTop(a: ContentSummaryAndCompareStatus, b: ContentSummaryAndCompareStatus): number {
+    protected static invalidAndReadOnlyOnTop(a: ContentSummaryAndCompareStatus, b: ContentSummaryAndCompareStatus): number {
         return DialogDependantList.readOnlyToNumber(b) - DialogDependantList.readOnlyToNumber(a) +
                DialogDependantList.validityToNumber(a) - DialogDependantList.validityToNumber(b);
     }
 
-    private static readOnlyToNumber(a: ContentSummaryAndCompareStatus): number {
+    protected static readOnlyToNumber(a: ContentSummaryAndCompareStatus): number {
         return +(a.isReadOnly() === true);
     }
 
-    private static validityToNumber(a: ContentSummaryAndCompareStatus): number {
+    protected static validityToNumber(a: ContentSummaryAndCompareStatus): number {
         return +(a.getContentSummary().isValid() === true);
     }
 }
