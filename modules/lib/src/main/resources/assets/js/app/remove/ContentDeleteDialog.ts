@@ -29,6 +29,7 @@ import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAnd
 import {NamesAndIconView} from 'lib-admin-ui/app/NamesAndIconView';
 import {DialogDependantList} from '../dialog/DependantItemsDialog';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {DeleteDialogDependantList} from './DeleteDialogDependantList';
 
 export class ContentDeleteDialog
     extends DependantItemsWithProgressDialog {
@@ -137,23 +138,12 @@ export class ContentDeleteDialog
         return <DeleteDialogItemList>super.getItemList();
     }
 
-    protected getDependantList(): DialogDependantList {
-        return <DialogDependantList>super.getDependantList();
+    protected createDependantList(): DialogDependantList {
+        return new DeleteDialogDependantList();
     }
 
-    private manageInboundDependencies() {
-        new ResolveDependenciesRequest(this.resolvedIds).sendAndParse().then(
-            (result: ResolveDependenciesResult) => {
-                this.resolveDependenciesResult = result;
-
-                if (result.getIncomingDependenciesCount().size === 0) {
-                    return;
-                }
-
-                this.statusLine.show();
-                this.updateItemViewsWithInboundDependencies(
-                    this.getItemList().getItemViews().concat(this.getDependantList().getItemViews()));
-            });
+    protected getDependantList(): DialogDependantList {
+        return <DialogDependantList>super.getDependantList();
     }
 
     private handleItemClick(contentSummary: ContentSummary) {
@@ -173,10 +163,13 @@ export class ContentDeleteDialog
 
     private updateItemViewsWithInboundDependencies(itemViews: StatusSelectionItem[]) {
         itemViews
-            .filter((itemView: StatusSelectionItem) => this.resolveDependenciesResult.getIncomingDependenciesCount().has(
-                itemView.getBrowseItem().getId()))
+            .filter((itemView: StatusSelectionItem) => this.hasInboundRef(itemView.getBrowseItem().getId()))
             .filter((itemView: StatusSelectionItem) => !itemView.hasClass('has-inbound'))
             .forEach((itemView: StatusSelectionItem) => this.updateItemViewWithInboundDependencies(itemView));
+    }
+
+    private hasInboundRef(id: string): boolean {
+        return this.resolveDependenciesResult?.hasIncomingDependency(id);
     }
 
     private updateItemViewWithInboundDependencies(itemView: StatusSelectionItem) {
@@ -200,20 +193,42 @@ export class ContentDeleteDialog
         this.lockControls();
 
         this.loadDescendantIds().then(() => {
-            this.manageInboundDependencies();
-            return this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
-                this.setDependantItems(descendants);
-                this.manageInstantDeleteStatus(this.getItemList().getItems());
-            }).finally(() => {
-                this.notifyResize();
-                this.hideLoadMask();
-                this.unlockControls();
-                this.countItemsToDeleteAndUpdateButtonCounter();
-                this.updateTabbable();
-                this.actionButton.giveFocus();
+            return this.resolveItemsWithInboundRefs().then(() => {
+                return this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
+                    this.setDependantItems(descendants);
+                    this.manageInstantDeleteStatus(this.getItemList().getItems());
+                    return Q(null);
+                }).finally(() => {
+                    this.notifyResize();
+                    this.hideLoadMask();
+                    this.unlockControls();
+                    this.countItemsToDeleteAndUpdateButtonCounter();
+                    this.updateTabbable();
+                    this.actionButton.giveFocus();
+                });
             });
         }).catch((reason: any) => {
             DefaultErrorHandler.handle(reason);
+        });
+    }
+
+    private resolveItemsWithInboundRefs(): Q.Promise<void> {
+        return new ResolveDependenciesRequest(this.resolvedIds).sendAndParse().then((result: ResolveDependenciesResult) => {
+            this.resolveDependenciesResult = result;
+            (<DeleteDialogDependantList>this.getDependantList()).setResolveDependenciesResult(result);
+
+            const itemsWithInboundRefs: ContentId[] =
+                this.dependantIds.filter((id: ContentId) => this.hasInboundRef(id.toString()));
+            this.dependantIds = this.dependantIds.filter((contentId: ContentId) => !this.hasInboundRef(contentId.toString()));
+            this.dependantIds.unshift(...itemsWithInboundRefs);
+
+            if (result.getIncomingDependenciesCount().size !== 0) {
+                this.statusLine.show();
+                this.updateItemViewsWithInboundDependencies(
+                    this.getItemList().getItemViews().concat(this.getDependantList().getItemViews()));
+            }
+
+            return Q(null);
         });
     }
 
