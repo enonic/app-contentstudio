@@ -23,7 +23,7 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
         let SITE;
         let CONTROLLER_NAME = 'main region';
 
-        it("Preconditions: new site should be created",
+            it.skip("Preconditions: new site should be created",
             async () => {
                 let displayName = contentBuilder.generateRandomName('site');
                 SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
@@ -32,7 +32,8 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
 
         //Verifies https://github.com/enonic/lib-admin-ui/issues/1846
         //Filtering selector by parent display name doesn't work if the name contains spaces #1846
-        it("GIVEN image-component has been inserted WHEN folder's display name with spaces has been typed in 'Inspect Panel' THEN matching images should be present in selector's options",
+            it.skip(
+                "GIVEN image-component has been inserted WHEN folder's display name with spaces has been typed in 'Inspect Panel' THEN matching images should be present in selector's options",
             async () => {
                 let pageComponentView = new PageComponentView();
                 let contentWizard = new ContentWizard();
@@ -59,7 +60,8 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
 
         //Verifies https://github.com/enonic/app-contentstudio/issues/2954
         // Images are not displayed in the Image Component's descriptor selector #2954
-        it(`GIVEN image-component has been inserted WHEN image combobox has been switched to tree mode in Inspect Panel THEN expected images should be present in comboboox options`,
+            it.skip(
+                `GIVEN image-component has been inserted WHEN image combobox has been switched to tree mode in Inspect Panel THEN expected images should be present in comboboox options`,
             async () => {
                 let pageComponentView = new PageComponentView();
                 let contentWizard = new ContentWizard();
@@ -87,7 +89,8 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
 
         //verifies: Inspect Panel is not correctly rendered after inserting an image. #1176
         //verifies: Error appears in Inspect Panel after applying changes in Site Configurator. #1198       ( https://github.com/enonic/app-contentstudio/issues/1198)
-        it(`GIVEN image-component has been inserted WHEN image has been selected in Inspect Panel AND site config has been updated THEN Inspect Panel should be correctly rendered`,
+            it.skip(
+                `GIVEN image-component has been inserted WHEN image has been selected in Inspect Panel AND site config has been updated THEN Inspect Panel should be correctly rendered`,
             async () => {
                 let pageComponentView = new PageComponentView();
                 let contentWizard = new ContentWizard();

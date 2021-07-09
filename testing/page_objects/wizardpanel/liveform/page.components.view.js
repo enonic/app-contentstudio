@@ -10,6 +10,8 @@ const xpath = {
     closeButton: "//button[contains(@id,'CloseButton')]",
     pageComponentsItemViewer: "//div[contains(@id,'PageComponentsItemViewer')]",
     pageComponentsTreeGrid: `//div[contains(@id,'PageComponentsTreeGrid')]`,
+    fragmentsName: "//div[contains(@id,'PageComponentsItemViewer') and descendant::div[contains(@class,'icon-fragment')]]" +
+                   lib.H6_DISPLAY_NAME,
     contextMenuItemByName: function (name) {
         return `//dl[contains(@id,'TreeContextMenu')]//*[contains(@id,'TreeMenuItem') and text()='${name}']`;
     },
@@ -92,12 +94,9 @@ class PageComponentView extends Page {
         return attr.includes("selected");
     }
 
-    isMenuItemPresent(name) {
+    waitForMenuItemPresent(name) {
         let selector = xpath.contextMenuItemByName(name);
-        return this.waitForElementDisplayed(selector, appConst.shortTimeout).catch(err => {
-            console.log(err);
-            return false;
-        })
+        return this.waitForElementDisplayed(selector, appConst.shortTimeout);
     }
 
     //example: clicks on Insert/Image menu items
@@ -172,6 +171,11 @@ class PageComponentView extends Page {
             return await items[0].isDisplayed();
         }
         return await items[index].isDisplayed();
+    }
+
+    getFragmentsDisplayName() {
+        let locator = xpath.container + xpath.fragmentsName;
+        return this.getTextInDisplayedElements(locator);
     }
 }
 

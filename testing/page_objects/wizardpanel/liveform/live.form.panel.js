@@ -14,8 +14,8 @@ const xpath = {
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     imageInTextComponentByDisplayName:
         displayName => `//figure[contains(@data-widget,'image')]//img[contains(@src,'${displayName}')]`,
-    textComponentByText:
-        text => `//div[contains(@id,'TextComponentView')]//p[contains(.,'${text}')]`,
+    textComponentByText: text => `//div[contains(@id,'TextComponentView')]//p[contains(.,'${text}')]`,
+    captionByText: text => `//div[contains(@id,'TextComponentView')]//figcaption[contains(.,'${text}')]`
 };
 
 class LiveFormPanel extends Page {
@@ -109,7 +109,7 @@ class LiveFormPanel extends Page {
 
     async doRightClickOnImageComponent(imageName, liveFrameX, liveFrameY) {
         try {
-            if(isNaN(liveFrameX) || isNaN(liveFrameY)) {
+            if (isNaN(liveFrameX) || isNaN(liveFrameY)) {
                 throw new Error("Error when clicking on Image Component  in Live Frame!")
             }
             let selector = xpath.imageInTextComponentByDisplayName(imageName);
@@ -150,5 +150,26 @@ class LiveFormPanel extends Page {
         await this.waitForItemViewContextMenu();
         return await this.getTextInElements(selector);
     }
+
+    async selectFragmentByDisplayName(displayName) {
+        try {
+            let parentForComboBox = `//div[contains(@id,'FragmentPlaceholder')]`;
+            let contentWizard = new ContentWizard();
+            let loaderComboBox = new LoaderComboBox();
+            await contentWizard.switchToLiveEditFrame();
+            await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
+            return await this.pause(1000);
+        } catch (err) {
+            this.saveScreenshot('err_select_fragment_' + displayName);
+            throw new Error("Error when selecting the fragment in Live Edit - " + err);
+        }
+    }
+
+    async waitForCaptionDisplayed(text) {
+        let locator = xpath.captionByText(text);
+        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+
+    }
 }
+
 module.exports = LiveFormPanel;

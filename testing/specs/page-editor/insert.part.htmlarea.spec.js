@@ -126,7 +126,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await contentWizard.clickOnShowComponentViewToggler();
             //3. Expand the menu and click on "Save as Fragment" menu item
             await pageComponentView.openMenu("Html Area Example");
-            await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await pageComponentView.clickOnMenuItem(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             //4. Go to Fragment Wizard (generated displayName is 'Html Area Example'")
             await studioUtils.switchToContentTabWindow("Html Area Example");
             //5. Open Page Component View in Fragment Wizard:
@@ -151,7 +151,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await contentWizard.clickOnShowComponentViewToggler();
             //3. Expand the menu and click on "Detach from fragment" menu item
             await pageComponentView.openMenuByDescription("part");
-            await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.DETACH_FROM_FRAGMENT);
+            await pageComponentView.clickOnMenuItem(appConstant.COMPONENT_VIEW_MENU_ITEMS.DETACH_FROM_FRAGMENT);
             //4. Verify that custom icon should be displayed after the part detached from fragment:
             let isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 0);
             assert.isFalse(isDefaultIcon, "The part should be displayed with the custom icon");
