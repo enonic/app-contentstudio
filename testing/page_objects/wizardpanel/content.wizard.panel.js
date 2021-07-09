@@ -206,23 +206,26 @@ class ContentWizardPanel extends Page {
     }
 
     // opens Details Panel if it is not loaded
-    openDetailsPanel() {
+    async openDetailsPanel() {
         let detailsPanel = new DetailsPanel();
-        return detailsPanel.isDetailsPanelLoaded().then(result => {
+        try {
+            let result = await detailsPanel.isDetailsPanelLoaded();
             if (!result) {
-                return this.clickOnDetailsPanelToggleButton().then(() => {
-                    return detailsPanel.waitForDetailsPanelLoaded();
-                })
+                await this.clickOnDetailsPanelToggleButton();
+                return await detailsPanel.isDetailsPanelLoaded();
             } else {
                 console.log("Content wizard is opened and Details Panel is loaded");
             }
-        })
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_details_panel'));
+            throw new Error(err);
+        }
     }
 
     async clickOnDetailsPanelToggleButton() {
         try {
             await this.clickOnElement(this.detailsPanelToggleButton);
-            return await this.pause(300);
+            return await this.pause(400);
         } catch (err) {
             throw new Error("Error when trying to open Details Panel in Wizard");
         }
@@ -344,7 +347,7 @@ class ContentWizardPanel extends Page {
     }
 
     clickOnShowComponentViewToggler() {
-        return this.waitForElementDisplayed(this.showComponentViewToggler, appConst.shortTimeout).then(() => {
+        return this.waitForElementDisplayed(this.showComponentViewToggler, appConst.mediumTimeout).then(() => {
             return this.clickOnElement(this.showComponentViewToggler);
         }).catch(err => {
             this.saveScreenshot('err_click_on_show_component_view');
@@ -355,7 +358,7 @@ class ContentWizardPanel extends Page {
     }
 
     clickOnComponentViewToggler() {
-        return this.waitForElementDisplayed(this.componentViewToggler, appConst.shortTimeout).then(() => {
+        return this.waitForElementDisplayed(this.componentViewToggler, appConst.mediumTimeout).then(() => {
             return this.clickOnElement(this.componentViewToggler);
         }).catch(err => {
             this.saveScreenshot('err_click_on_show_component_view');

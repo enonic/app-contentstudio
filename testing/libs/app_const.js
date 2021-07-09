@@ -140,12 +140,16 @@ module.exports = Object.freeze({
         MAN2: 'man2',
         SEVEROMOR: 'severomor'
     },
-    MENU_ITEMS: {
+    COMPONENT_VIEW_MENU_ITEMS: {
         INSERT: 'Insert',
         SAVE_AS_FRAGMENT: 'Save as Fragment',
         DETACH_FROM_FRAGMENT: 'Detach from fragment',
-        SPUMANS: 'spumans',
-        BOOK: 'book',
+        INSPECT: 'Inspect',
+        REMOVE: 'Remove',
+        DUPLICATE: 'Duplicate',
+        EDIT: 'Edit',
+        SELECT_PARENT: "Select parent",
+        RESET: 'Reset'
     },
     PROJECTS: {
         ROOT_FOLDER: "Projects",
