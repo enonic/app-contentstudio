@@ -1,7 +1,6 @@
 import * as Q from 'q';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {FormView} from 'lib-admin-ui/form/FormView';
@@ -13,10 +12,9 @@ import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
 import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
 import {ContentFormContext} from '../../ContentFormContext';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
-import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {FormValidityChangedEvent} from 'lib-admin-ui/form/FormValidityChangedEvent';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
-import {FormContext} from 'lib-admin-ui/form/FormContext';
 import {FormState} from 'lib-admin-ui/app/wizard/WizardPanel';
 
 export class SiteConfiguratorSelectedOptionView
@@ -41,26 +39,20 @@ export class SiteConfiguratorSelectedOptionView
     private namesAndIconView: NamesAndIconView;
 
     constructor(option: Option<Application>, siteConfig: ApplicationConfig, formContext: ContentFormContext) {
-        super(option);
+        super(new BaseSelectedOptionViewBuilder<Application>().setOption(option));
 
         this.siteConfigFormDisplayedListeners = [];
-
         this.application = option.getDisplayValue();
         this.siteConfig = siteConfig;
         this.formContext = formContext;
 
-        if (!this.application.getForm() || this.application.getForm().getFormItems().length === 0) {
-            this.setEditable(false);
-        }
+        this.setEditable(this.application.getForm()?.getFormItems().length === 0);
     }
 
     doRender(): Q.Promise<boolean> {
         this.namesAndIconView = this.createNamesAndIconView();
 
-        const header: DivEl = new DivEl('header');
-        header.appendChild(this.namesAndIconView);
-
-        this.appendChild(header);
+        this.appendChild(this.namesAndIconView);
 
         this.formValidityChangedHandler = (event: FormValidityChangedEvent) => {
             this.toggleClass('invalid', !event.isValid());
@@ -69,7 +61,7 @@ export class SiteConfiguratorSelectedOptionView
         this.toggleClass('uninstalled', this.getOption().isEmpty() === true);
         this.toggleClass('stopped', this.application.getState() === Application.STATE_STOPPED);
 
-        this.appendActionButtons(header);
+        this.appendActionButtons();
 
         this.configureDialog = this.initConfigureDialog();
 
