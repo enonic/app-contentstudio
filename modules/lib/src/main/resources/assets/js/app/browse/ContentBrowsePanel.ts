@@ -141,7 +141,7 @@ export class ContentBrowsePanel
             browseActions.getAction(ActionName.PUBLISH),
             browseActions.getAction(ActionName.MOVE),
             browseActions.getAction(ActionName.SORT),
-            browseActions.getAction(ActionName.DELETE),
+            browseActions.getAction(ActionName.ARCHIVE),
             browseActions.getAction(ActionName.DUPLICATE),
             browseActions.getAction(ActionName.EDIT),
             browseActions.getAction(ActionName.SHOW_NEW_DIALOG)

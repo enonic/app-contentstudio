@@ -148,7 +148,7 @@ export class ContentWizardToolbar
         super.addActions([
             actions.getSaveAction(),
             actions.getResetAction(),
-            actions.getDeleteAction(),
+            actions.getArchiveAction(),
             actions.getDuplicateAction(),
             actions.getPreviewAction(),
             actions.getUndoPendingDeleteAction()
