@@ -6,10 +6,10 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
-export class DeleteContentAction extends ContentTreeGridAction {
+export class ArchiveContentAction extends ContentTreeGridAction {
 
     constructor(grid: ContentTreeGrid) {
-        super(grid, i18n('action.deleteMore'), 'mod+del');
+        super(grid, i18n('action.archiveMore'), 'mod+del');
         this.setEnabled(false);
     }
 

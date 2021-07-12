@@ -579,7 +579,7 @@ export class ContentWizardPanel
         const contextActions = [
             wizardActions.getUnpublishAction(),
             wizardActions.getPublishAction(),
-            wizardActions.getDeleteAction(),
+            wizardActions.getArchiveAction(),
             wizardActions.getDuplicateAction()
         ];
 
