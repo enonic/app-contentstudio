@@ -4,11 +4,11 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Action} from 'lib-admin-ui/ui/Action';
 
-export class DeleteContentAction
+export class ArchiveContentAction
     extends Action {
 
     constructor(wizardPanel: ContentWizardPanel) {
-        super(i18n('action.deleteMore'), 'mod+del', true);
+        super(i18n('action.archiveMore'), 'mod+del', true);
         this.onExecuted(() => {
             new ContentDeletePromptEvent([new ContentSummaryAndCompareStatus().
                 setContentSummary(wizardPanel.getPersistedItem()).

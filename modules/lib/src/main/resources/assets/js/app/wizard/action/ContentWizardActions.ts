@@ -3,7 +3,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DuplicateContentAction} from './DuplicateContentAction';
-import {DeleteContentAction} from './DeleteContentAction';
+import {ArchiveContentAction} from './ArchiveContentAction';
 import {PublishAction} from './PublishAction';
 import {PublishTreeAction} from './PublishTreeAction';
 import {CreateIssueAction} from './CreateIssueAction';
@@ -61,7 +61,7 @@ type ActionNames =
 type ActionsMap = {
     SAVE?: Action,
     RESET?: Action,
-    DELETE?: Action,
+    ARCHIVE?: Action,
     DUPLICATE?: Action,
     PREVIEW?: Action,
     PUBLISH?: Action,
@@ -82,7 +82,7 @@ type ActionsMap = {
 type ActionsState = {
     SAVE?: boolean,
     RESET?: boolean,
-    DELETE?: boolean,
+    ARCHIVE?: boolean,
     DUPLICATE?: boolean,
     PREVIEW?: boolean,
     PUBLISH?: boolean,
@@ -137,7 +137,7 @@ export class ContentWizardActions
         super(
             new ContentSaveAction(wizardPanel),
             new ResetContentAction(wizardPanel),
-            new DeleteContentAction(wizardPanel),
+            new ArchiveContentAction(wizardPanel),
             new DuplicateContentAction(wizardPanel),
             new PreviewAction(wizardPanel),
             new PublishAction(wizardPanel),
@@ -163,7 +163,7 @@ export class ContentWizardActions
         this.actionsMap = {
             SAVE: actions[0],
             RESET: actions[1],
-            DELETE: actions[2],
+            ARCHIVE: actions[2],
             DUPLICATE: actions[3],
             PREVIEW: actions[4],
             PUBLISH: actions[5],
@@ -182,7 +182,7 @@ export class ContentWizardActions
         };
 
         const stashableActionsMap: ActionsMap = {
-            DELETE: this.actionsMap.DELETE,
+            ARCHIVE: this.actionsMap.ARCHIVE,
             DUPLICATE: this.actionsMap.DUPLICATE,
             PUBLISH: this.actionsMap.PUBLISH,
             PUBLISH_TREE: this.actionsMap.PUBLISH_TREE,
@@ -269,7 +269,7 @@ export class ContentWizardActions
 
         this.actionsMap.UNDO_PENDING_DELETE.setVisible(isPendingDelete);
         this.actionsMap.SAVE.setVisible(!isPendingDelete);
-        this.actionsMap.DELETE.setVisible(!isPendingDelete);
+        this.actionsMap.ARCHIVE.setVisible(!isPendingDelete);
         this.actionsMap.DUPLICATE.setVisible(!isPendingDelete);
         this.actionsMap.UNPUBLISH.setVisible(!isPendingDelete);
         this.actionsMap.PREVIEW.setVisible(this.isActionEnabled('PREVIEW') && !isPendingDelete);
@@ -278,7 +278,7 @@ export class ContentWizardActions
             this.enableActions({
                 SAVE: false,
                 RESET: false,
-                DELETE: false,
+                ARCHIVE: false,
                 DUPLICATE: false
             });
         } else {
@@ -300,7 +300,7 @@ export class ContentWizardActions
     enableActionsForNew() {
         this.persistedContent = null;
         this.stateManager.enableActions({});
-        this.enableActions({SAVE: this.wizardPanel.hasUnsavedChanges(), DELETE: true});
+        this.enableActions({SAVE: this.wizardPanel.hasUnsavedChanges(), ARCHIVE: true});
         this.actionsMap.RESET.setVisible(false);
         (<PreviewAction>this.actionsMap.PREVIEW).setWritePermissions(true);
     }
@@ -309,7 +309,7 @@ export class ContentWizardActions
         this.persistedContent = existing;
 
         this.enableActions({
-            DELETE: existing.isDeletable()
+            ARCHIVE: existing.isDeletable()
         });
 
         this.actionsMap.RESET.setVisible(false);
@@ -338,7 +338,7 @@ export class ContentWizardActions
         if (valueOn) {
             this.enableDeleteIfAllowed(content);
         } else {
-            this.enableActions({DELETE: true});
+            this.enableActions({ARCHIVE: true});
             this.enableActionsForExistingByPermissions(content);
         }
     }
@@ -347,7 +347,7 @@ export class ContentWizardActions
         new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             let hasDeletePermission = PermissionHelper.hasPermission(Permission.DELETE,
                 loginResult, content.getPermissions());
-            this.enableActions({DELETE: hasDeletePermission});
+            this.enableActions({ARCHIVE: hasDeletePermission});
         });
     }
 
@@ -364,7 +364,7 @@ export class ContentWizardActions
                 this.enableActions({SAVE: false, SAVE_AND_CLOSE: false, MARK_AS_READY: false, RESET: false});
             }
             if (!hasDeletePermission) {
-                this.enableActions({DELETE: false});
+                this.enableActions({ARCHIVE: false});
             }
             if (!this.userCanPublish) {
                 this.enableActions({
@@ -517,8 +517,8 @@ export class ContentWizardActions
         });
     }
 
-    getDeleteAction(): Action {
-        return this.actionsMap.DELETE;
+    getArchiveAction(): Action {
+        return this.actionsMap.ARCHIVE;
     }
 
     getResetAction(): Action {

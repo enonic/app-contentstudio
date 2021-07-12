@@ -6,7 +6,7 @@ import {ToggleSearchPanelAction} from './ToggleSearchPanelAction';
 import {ShowNewContentDialogAction} from './ShowNewContentDialogAction';
 import {PreviewContentAction} from './PreviewContentAction';
 import {EditContentAction} from './EditContentAction';
-import {DeleteContentAction} from './DeleteContentAction';
+import {ArchiveContentAction} from './ArchiveContentAction';
 import {DuplicateContentAction} from './DuplicateContentAction';
 import {MoveContentAction} from './MoveContentAction';
 import {SortContentAction} from './SortContentAction';
@@ -35,7 +35,7 @@ import {MarkAsReadyContentAction} from './MarkAsReadyContentAction';
 import {ContentId} from '../../content/ContentId';
 
 export enum ActionName {
-    SHOW_NEW_DIALOG, PREVIEW, EDIT, DELETE, DUPLICATE, MOVE, SORT, PUBLISH, PUBLISH_TREE, UNPUBLISH, MARK_AS_READY, REQUEST_PUBLISH,
+    SHOW_NEW_DIALOG, PREVIEW, EDIT, ARCHIVE, DUPLICATE, MOVE, SORT, PUBLISH, PUBLISH_TREE, UNPUBLISH, MARK_AS_READY, REQUEST_PUBLISH,
     CREATE_ISSUE, TOGGLE_SEARCH_PANEL, UNDO_PENDING_DELETE
 }
 
@@ -65,7 +65,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         this.actionsMap.set(ActionName.SHOW_NEW_DIALOG, new ShowNewContentDialogAction(this.grid));
         this.actionsMap.set(ActionName.PREVIEW, new PreviewContentAction(this.grid));
         this.actionsMap.set(ActionName.EDIT, new EditContentAction(this.grid));
-        this.actionsMap.set(ActionName.DELETE, new DeleteContentAction(this.grid));
+        this.actionsMap.set(ActionName.ARCHIVE, new ArchiveContentAction(this.grid));
         this.actionsMap.set(ActionName.DUPLICATE, new DuplicateContentAction(this.grid));
         this.actionsMap.set(ActionName.MOVE, new MoveContentAction(this.grid));
         this.actionsMap.set(ActionName.SORT, new SortContentAction(this.grid));
@@ -139,7 +139,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         return [
             this.getAction(ActionName.SHOW_NEW_DIALOG),
             this.getAction(ActionName.EDIT),
-            this.getAction(ActionName.DELETE),
+            this.getAction(ActionName.ARCHIVE),
             this.getAction(ActionName.DUPLICATE),
             this.getAction(ActionName.MOVE),
             this.getAction(ActionName.SORT),
@@ -200,7 +200,7 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         const defaultActions = [
             this.getAction(ActionName.SHOW_NEW_DIALOG),
             this.getAction(ActionName.EDIT),
-            this.getAction(ActionName.DELETE),
+            this.getAction(ActionName.ARCHIVE),
             this.getAction(ActionName.DUPLICATE),
             this.getAction(ActionName.MOVE),
             this.getAction(ActionName.SORT),
