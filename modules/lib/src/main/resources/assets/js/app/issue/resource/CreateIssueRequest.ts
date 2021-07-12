@@ -1,4 +1,3 @@
-import {IssueResourceRequest} from './IssueResourceRequest';
 import {PublishRequest} from '../PublishRequest';
 import {IssueJson} from '../json/IssueJson';
 import {Issue} from '../Issue';
@@ -6,9 +5,10 @@ import {IssueType} from '../IssueType';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 
 export class CreateIssueRequest
-    extends IssueResourceRequest<Issue> {
+    extends CmsIssueResourceRequest<Issue> {
 
     private title: string;
 

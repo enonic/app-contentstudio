@@ -1,9 +1,10 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {Issue} from '../Issue';
 import {IssueJson} from '../json/IssueJson';
-import {IssueResourceRequest} from './IssueResourceRequest';
+import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 
-export class GetIssueRequest extends IssueResourceRequest<Issue> {
+export class GetIssueRequest
+    extends CmsIssueResourceRequest<Issue> {
 
     private id: string;
 
