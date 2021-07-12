@@ -68,8 +68,6 @@ export class NonMobileContextPanelsManager {
             this.splitPanelWithContext.distribute();
         });
 
-        console.log(this.splitPanelWithContext.isVisible());
-
         this.splitPanelWithContext.whenShown(() => {
             if (this.getActivePanel().getActiveWidget() && !this.requiresFloatingPanelDueToShortWidth()) {
                 this.getActivePanel().getActiveWidget().slideIn();
