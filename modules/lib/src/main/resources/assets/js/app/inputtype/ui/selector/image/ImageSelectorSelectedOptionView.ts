@@ -4,7 +4,7 @@ import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
-import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {Checkbox} from 'lib-admin-ui/ui/Checkbox';
@@ -31,7 +31,7 @@ export class ImageSelectorSelectedOptionView
     private selectionChangeListeners: { (option: ImageSelectorSelectedOptionView, checked: boolean): void; }[] = [];
 
     constructor(option: Option<MediaTreeSelectorItem>) {
-        super(option);
+        super(new BaseSelectedOptionViewBuilder<MediaTreeSelectorItem>().setOption(option));
     }
 
     setOption(option: Option<MediaTreeSelectorItem>) {

@@ -60,17 +60,15 @@ describe('wizard.detailspanel.inbound.outbound: select a content with inbound an
                 await siteWizard.clickOnShowComponentViewToggler();
                 await pageComponentView.openMenu("main");
                 await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
-
                 //Select the image in the image-selector:
                 await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
-
                 await siteWizard.switchToMainFrame();
                 //Open Page Component View:
                 await siteWizard.clickOnShowComponentViewToggler();
                 //open the context menu:
                 await pageComponentView.openMenu(IMAGE_DISPLAY_NAME);
                 //Click on 'Save as Fragment' menu item:
-                await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
+                    await pageComponentView.clickOnMenuItem(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
                 await pageComponentView.pause(3000);
 
                 //open Details panel in the site-wizard:

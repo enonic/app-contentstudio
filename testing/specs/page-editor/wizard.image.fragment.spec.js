@@ -51,7 +51,7 @@ describe('wizard.image.fragment: changing of an image in image-fragment',
                 await pageComponentView.openMenu(IMAGE_DISPLAY_NAME1);
                 studioUtils.saveScreenshot("image_fragment_step1");
                 // save the image as fragment
-                await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
+                await pageComponentView.clickOnMenuItem(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
                 await pageComponentView.pause(2000);
             });
 

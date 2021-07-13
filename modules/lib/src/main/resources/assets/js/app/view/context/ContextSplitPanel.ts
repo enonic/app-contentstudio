@@ -154,7 +154,7 @@ export class ContextSplitPanel
             }
 
             if (item.isInRangeOrSmaller(ResponsiveRanges._540_720)) {
-                nonMobileContextPanelsManager.hideActivePanel(true);
+                nonMobileContextPanelsManager.hideActivePanel();
                 ActiveContextPanelManager.setActiveContextPanel(this.getMobileContextPanel());
                 if (ResponsiveRanges._720_960.isFitOrBigger(item.getOldRangeValue())) {
                     // transition through 720 from bigger side

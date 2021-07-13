@@ -1,7 +1,6 @@
 /**
  * Created on 15.02.2018.
  */
-
 const Page = require('../../../page');
 const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
@@ -38,24 +37,23 @@ class PageInspectionPanel extends Page {
     }
 
     //clicks on dropdown handle and select an option
-    selectPageTemplateOrController(displayName) {
-        let optionSelector = lib.slickRowByDisplayName(xpath.pageTemplateSelector, displayName);
-        return this.waitForElementDisplayed(this.pageTemplateDropdownHandle, appConst.longTimeout).then(() => {
-            return this.clickOnPageTemplateDropdownHandle();
-        }).then(() => {
-            return this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
-        }).then(() => {
-            return this.clickOnElement(optionSelector);
-        }).then(() => {
-            return this.pause(700);
-        }).catch(err => {
+    async selectPageTemplateOrController(displayName) {
+        try {
+            let optionSelector = lib.slickRowByDisplayName(xpath.pageTemplateSelector, displayName);
+            await this.waitForElementDisplayed(this.pageTemplateDropdownHandle, appConst.longTimeout);
+            await this.clickOnPageTemplateDropdownHandle();
+            await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
+            await this.clickOnElement(optionSelector);
+            return await this.pause(700);
+        } catch (err) {
             this.saveScreenshot('err_select_option');
             throw new Error('Page Inspection Panel' + err);
-        });
+        }
     }
 
     waitForOpened(ms) {
         return this.waitForElementDisplayed(xpath.container, ms);
     }
-};
+}
+
 module.exports = PageInspectionPanel;
