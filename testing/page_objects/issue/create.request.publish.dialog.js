@@ -103,7 +103,7 @@ class CreateRequestPublishDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.invalidIcon, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot("err_request_publish_dialog_invalid_icon");
+            await this.saveScreenshot("err_request_publish_dialog_invalid_icon");
             throw new Error("Request Publishing dialog:  'invalid' icon should be visible :" + err);
         }
     }
@@ -112,7 +112,7 @@ class CreateRequestPublishDialog extends Page {
         try {
             await this.waitForElementNotDisplayed(this.invalidIcon, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot("err_request_publish_dialog_invalid_icon");
+            await this.saveScreenshot("err_request_publish_dialog_invalid_icon");
             throw new Error("Request Publishing dialog:  'invalid' icon should be not visible :" + err);
         }
     }
