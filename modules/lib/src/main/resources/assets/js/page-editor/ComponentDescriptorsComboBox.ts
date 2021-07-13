@@ -5,7 +5,7 @@ import {NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
 import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {DescriptorKey} from '../app/page/DescriptorKey';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
@@ -72,7 +72,7 @@ export class DescriptorSelectedOptionView
     private descriptor: Descriptor;
 
     constructor(option: Option<Descriptor>) {
-        super(option);
+        super(new BaseSelectedOptionViewBuilder<Descriptor>().setOption(option));
 
         this.descriptor = option.getDisplayValue();
         this.addClass('part-descriptor-selected-option-view');

@@ -11,10 +11,9 @@ import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {ToggleContextPanelEvent} from './ToggleContextPanelEvent';
-
-enum State {
-    EXPANDED, COLLAPSED
-}
+import {ContextPanelStateEvent} from './ContextPanelStateEvent';
+import {ContextPanelState} from './ContextPanelState';
+import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 
 export class NonMobileContextPanelsManager {
 
@@ -32,7 +31,7 @@ export class NonMobileContextPanelsManager {
 
     private wizardPanel: Panel;
 
-    private state: State = State.COLLAPSED;
+    private state: ContextPanelState = ContextPanelState.COLLAPSED;
 
     constructor(builder: NonMobileContextPanelsManagerBuilder) {
         this.splitPanelWithContext = builder.getSplitPanelWithContext();
@@ -51,8 +50,17 @@ export class NonMobileContextPanelsManager {
         });
 
         ToggleContextPanelEvent.on(() => {
-            if (this.requiresAnimation()) {
+            if (this.state !== ContextPanelState.COLLAPSED) {
+                this.hideActivePanel();
+            } else {
                 this.doPanelAnimation();
+            }
+        });
+
+        ShowContentFormEvent.on(() => {
+            if (this.state === ContextPanelState.DOCKED) {
+                this.hideDockedContextPanel();
+                this.switchToFloatingMode();
             }
         });
 
@@ -60,12 +68,18 @@ export class NonMobileContextPanelsManager {
             this.splitPanelWithContext.distribute();
         });
 
-        this.splitPanelWithContext.onShown(() => {
+        this.splitPanelWithContext.whenShown(() => {
             if (this.getActivePanel().getActiveWidget() && !this.requiresFloatingPanelDueToShortWidth()) {
                 this.getActivePanel().getActiveWidget().slideIn();
-                this.state = State.EXPANDED;
+                this.setState(ContextPanelState.DOCKED);
             }
         });
+    }
+
+    private setState(state: ContextPanelState) {
+        this.state = state;
+
+        new ContextPanelStateEvent(state).fire();
     }
 
     handleResizeEvent() {
@@ -123,7 +137,7 @@ export class NonMobileContextPanelsManager {
     private doPanelAnimation(canSetActivePanel: boolean = true, onResize: boolean = false) {
         this.splitPanelWithContext.addClass('sliding');
 
-        if (this.requiresFloatingPanelDueToShortWidth()) {
+        if (!this.dockedContextPanel.isVisible() || this.requiresFloatingPanelDueToShortWidth()) {
             this.switchToFloatingMode(canSetActivePanel, onResize);
         } else {
             this.switchToDockedMode(canSetActivePanel, onResize);
@@ -132,7 +146,7 @@ export class NonMobileContextPanelsManager {
 
     private switchToDockedMode(canSetActivePanel: boolean = true, onResize?: boolean) {
         if (this.floatingPanelIsShown()) {
-            this.floatingToDockedSync();
+            this.floatingContextPanel.slideOut();
         }
 
         if (canSetActivePanel) {
@@ -143,12 +157,12 @@ export class NonMobileContextPanelsManager {
 
         if (!this.isExpanded() || onResize) {
             this.splitPanelWithContext.showSecondPanel(false);
-            this.state = State.EXPANDED;
+            this.setState(ContextPanelState.DOCKED);
         } else {
             if (!this.splitPanelWithContext.isSecondPanelHidden()) {
                 this.splitPanelWithContext.foldSecondPanel();
             }
-            this.state = State.COLLAPSED;
+            this.setState(ContextPanelState.COLLAPSED);
         }
 
         setTimeout(() => {
@@ -166,8 +180,8 @@ export class NonMobileContextPanelsManager {
             return;
         }
 
-        if (!this.splitPanelWithContext.isSecondPanelHidden()) {
-            this.dockedToFloatingSync();
+        if (this.dockedContextPanel.isVisible() && !this.splitPanelWithContext.isSecondPanelHidden()) {
+            this.hideDockedContextPanel();
         }
 
         if (canSetActivePanel) {
@@ -178,27 +192,27 @@ export class NonMobileContextPanelsManager {
             this.floatingContextPanel.resetWidgetsWidth();
             this.floatingContextPanel.slideIn();
             this.floatingContextPanel.notifyPanelSizeChanged();
-            this.state = State.EXPANDED;
+            this.setState(ContextPanelState.FLOATING);
         } else {
             this.floatingContextPanel.slideOut();
-            this.state = State.COLLAPSED;
+            this.setState(ContextPanelState.COLLAPSED);
         }
         this.splitPanelWithContext.setActiveWidthPxOfSecondPanel(this.floatingContextPanel.getActualWidth());
         this.splitPanelWithContext.removeClass('sliding');
     }
 
-    hideActivePanel(onResize: boolean = false) {
+    hideActivePanel() {
         if (this.isFloatingContextPanelActive()) {
             this.floatingContextPanel.slideOut();
+            this.setState(ContextPanelState.COLLAPSED);
         } else {
             this.hideDockedContextPanel();
         }
-
-        this.state = State.COLLAPSED;
     }
 
     hideDockedContextPanel() {
         this.splitPanelWithContext.foldSecondPanel();
+        this.setState(ContextPanelState.COLLAPSED);
     }
 
     getActivePanel(): ContextPanel {
@@ -206,7 +220,7 @@ export class NonMobileContextPanelsManager {
     }
 
     private isExpanded(): boolean {
-        return this.state === State.EXPANDED;
+        return this.state !== ContextPanelState.COLLAPSED;
     }
 
     private dockedToFloatingSync() {
@@ -216,13 +230,6 @@ export class NonMobileContextPanelsManager {
         let activePanelWidth = this.splitPanelWithContext.getActiveWidthPxOfSecondPanel();
         this.hideDockedContextPanel();
         this.floatingContextPanel.setWidthPx(activePanelWidth + halfSplitter);
-    }
-
-    private floatingToDockedSync() {
-        const halfSplitter: number = this.splitPanelWithContext.getSplitterThickness() / 2;
-        this.floatingContextPanel.slideOut();
-        let activePanelWidth: number = this.floatingContextPanel.getActualWidth();
-        this.splitPanelWithContext.setActiveWidthPxOfSecondPanel(activePanelWidth - halfSplitter);
     }
 
     private needsSwitchToFloatingMode(): boolean {

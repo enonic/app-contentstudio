@@ -167,6 +167,16 @@
 
   .non-mobile-details-panel-toggle-button {
     order: 6;
+
+    &.expanded {
+      &::before {
+        color: @admin-button-blue1;
+      }
+
+      &:hover::before {
+        color: @admin-button-blue2;
+      }
+    }
   }
 
 }

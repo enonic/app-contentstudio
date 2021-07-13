@@ -1746,7 +1746,6 @@ export class ContentWizardPanel
         if (liveFormPanel) {
             if (!this.liveEditModel) {
                 const site: Site = content.isSite() ? <Site>content : this.site;
-
                 this.unbindSiteModelListeners();
                 this.siteModel = this.siteModel ? this.updateSiteModel(site) : this.createSiteModel(site);
                 this.initSiteModelListeners();
