@@ -46,7 +46,7 @@ export class SiteConfiguratorSelectedOptionView
         this.siteConfig = siteConfig;
         this.formContext = formContext;
 
-        this.setEditable(this.application.getForm()?.getFormItems().length === 0);
+        this.setEditable(this.application.getForm()?.getFormItems().length > 0);
     }
 
     doRender(): Q.Promise<boolean> {
