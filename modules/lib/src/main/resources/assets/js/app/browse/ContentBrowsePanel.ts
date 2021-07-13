@@ -321,8 +321,10 @@ export class ContentBrowsePanel
 
         handler.onContentMoved((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             // combination of delete and create
-            this.handleContentDeleted(data.map(
-                (item: ContentSummaryAndCompareStatus, index: number) => new DeletedContentItem(item.getContentId(), oldPaths[index])));
+            const items: DeletedContentItem[] = oldPaths.map(
+                (oldPath: ContentPath, index: number) => new DeletedContentItem(data[index]?.getContentId(), oldPath));
+
+            this.handleContentDeleted(items);
             this.handleContentCreated(data);
         });
 
@@ -334,9 +336,11 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: created', data);
         }
 
-        this.handleCUD();
-        this.treeGrid.addContentNodes(data);
-        this.refreshFilterWithDelay();
+        if (data && data.length > 0) {
+            this.handleCUD();
+            this.treeGrid.addContentNodes(data);
+            this.refreshFilterWithDelay();
+        }
     }
 
     private handleContentRenamed(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) {
@@ -401,9 +405,9 @@ export class ContentBrowsePanel
             return;
         }
 
-        const itemId: ContentId = itemInDetailPanel.getContentId();
+        const itemPath: ContentPath = itemInDetailPanel.getContentSummary().getPath();
 
-        if (items.some((item: DeletedContentItem) => item.id.equals(itemId))) {
+        if (items.some((item: DeletedContentItem) => item.path.equals(itemPath))) {
             this.doUpdateContextPanel(null);
         }
     }
