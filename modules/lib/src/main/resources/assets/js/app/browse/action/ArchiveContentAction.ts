@@ -14,25 +14,7 @@ export class ArchiveContentAction extends ContentTreeGridAction {
     }
 
     protected handleExecuted() {
-        const contents: ContentSummaryAndCompareStatus[] = this.grid.getSelectedDataList();
-
-        new ContentDeletePromptEvent(contents)
-            .setNoCallback(null)
-            .setYesCallback(this.handleYesCallback.bind(this)).fire();
-    }
-
-    private handleYesCallback(exclude?: CompareStatus[]) {
-        const excludeStatuses: CompareStatus[] = exclude ? exclude : [CompareStatus.EQUAL, CompareStatus.NEWER, CompareStatus.MOVED,
-            CompareStatus.PENDING_DELETE, CompareStatus.OLDER];
-        const deselected: string[] = [];
-
-        this.grid.getSelectedDataList().forEach((content: ContentSummaryAndCompareStatus) => {
-            if (excludeStatuses.indexOf(content.getCompareStatus()) < 0) {
-                deselected.push(content.getId());
-            }
-        });
-
-        this.grid.deselectNodes(deselected);
+        new ContentDeletePromptEvent(this.grid.getSelectedDataList()).fire();
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {

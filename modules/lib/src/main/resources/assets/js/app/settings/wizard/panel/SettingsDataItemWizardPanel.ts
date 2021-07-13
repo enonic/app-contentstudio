@@ -371,7 +371,7 @@ export abstract class SettingsDataItemWizardPanel<ITEM extends SettingsDataViewI
 
     protected initConfirmationDialog(): ModalDialog {
         return new ConfirmationDialog()
-            .setQuestion(i18n('settings.dialog.delete.question'))
+            .setQuestion(i18n('settings.dialog.archive.question'))
             .setNoCallback(null)
             .setYesCallback(this.deletePersistedItem.bind(this));
     }
