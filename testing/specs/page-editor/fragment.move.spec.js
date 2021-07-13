@@ -48,7 +48,7 @@ describe('Move Fragment specification', function () {
             //2. wait for (1500) page is rendered and open the menu
             await pageComponentView.openMenu("text_component_1");
             //3. Click on Save as Fragment menu item:
-            await pageComponentView.clickOnMenuItem(appConstant.MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await pageComponentView.clickOnMenuItem(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             studioUtils.saveScreenshot('text_saved_as_fragment2');
             //4. Wait for the description is refreshing:
             await contentWizard.pause(5500);

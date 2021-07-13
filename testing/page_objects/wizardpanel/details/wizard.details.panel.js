@@ -6,7 +6,7 @@ const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    container: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'DockedContextPanel')]`,
+    container: `//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'DockedContextPanel') or contains(@id,'FloatingContextPanel')]`,
     widgetSelectorDropdown: `//div[contains(@id,'WidgetSelectorDropdown')]`,
     widgetItem: `//div[contains(@id,'ContentWidgetItemView')]`
 };
@@ -47,7 +47,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
                 console.log("width: " + width);
                 return getPanelWidth(width) > 0;
             });
-        }, {timeout: appConst.TIMEOUT_1}).catch(err => {
+        }, {timeout: appConst.shortTimeout}).catch(err => {
             console.log("Wizard details panel is not loaded" + err);
             return false;
         });

@@ -7,7 +7,6 @@
   justify-content: flex-start;
   align-items: flex-end;
   align-content: stretch;
-  padding-right: @app-header-height;
   height: @app-header-height;
   line-height: @app-header-height;
 
@@ -166,6 +165,20 @@
     }
   }
 
+  .non-mobile-details-panel-toggle-button {
+    order: 6;
+
+    &.expanded {
+      &::before {
+        color: @admin-button-blue1;
+      }
+
+      &:hover::before {
+        color: @admin-button-blue2;
+      }
+    }
+  }
+
 }
 
 @media screen and (min-width: 720px) {
@@ -179,6 +192,10 @@
 @media screen and (max-width: 720px) {
   .content-wizard-toolbar {
     padding-right: 1px;
+
+    .non-mobile-details-panel-toggle-button {
+      display: none;
+    }
 
     .details-toggle {
       text-align: center;

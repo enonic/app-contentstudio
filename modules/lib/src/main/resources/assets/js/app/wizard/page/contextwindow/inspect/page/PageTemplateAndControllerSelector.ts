@@ -44,7 +44,7 @@ export class PageTemplateAndControllerSelector
         const optionViewer = new PageTemplateAndSelectorViewer();
         super(
             'pageTemplateAndController',
-            <DropdownConfig<PageTemplateOption>>{optionDisplayValueViewer: optionViewer}
+            <DropdownConfig<PageTemplateOption>>{optionDisplayValueViewer: optionViewer, rowHeight: 50}
         );
 
         this.optionViewer = optionViewer;

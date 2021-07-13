@@ -12,8 +12,10 @@ const xpath = {
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
     imageComponentView: "//figure[contains(@id,'ImageComponentView')]",
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
-    imageComponentByDisplayName:
-        displayName => `//figure[contains(@id,'ImageComponentView')]//img[contains(@src,'${displayName}')]`,
+    imageInTextComponentByDisplayName:
+        displayName => `//figure[contains(@data-widget,'image')]//img[contains(@src,'${displayName}')]`,
+    textComponentByText: text => `//div[contains(@id,'TextComponentView')]//p[contains(.,'${text}')]`,
+    captionByText: text => `//div[contains(@id,'TextComponentView')]//figcaption[contains(.,'${text}')]`
 };
 
 class LiveFormPanel extends Page {
@@ -77,35 +79,59 @@ class LiveFormPanel extends Page {
 
     async waitForImageDisplayed(imageName) {
         try {
-            let selector = xpath.imageComponentByDisplayName(imageName);
+            let selector = xpath.imageInTextComponentByDisplayName(imageName);
             return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot("err_live_frame_image_component1");
+            this.saveScreenshot("err_live_frame_image__text_component1");
             throw new Error("Image component is not visible in Live Editor! " + err);
         }
     }
 
-    async waitForImageNotDisplayed(imageName) {
+    async waitForTextComponentNotDisplayed(text) {
         try {
-            let selector = xpath.imageComponentByDisplayName(imageName);
+            let selector = xpath.textComponentByText(text);
             return await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot("err_live_frame_image_component2");
-            throw new Error("Image component should not visible in Live Editor! " + err);
+            this.saveScreenshot("err_live_frame_text_component2");
+            throw new Error("Text component should not visible in Live Editor! " + err);
+        }
+    }
+
+    async waitForTextComponentDisplayed(text) {
+        try {
+            let selector = xpath.textComponentByText(text);
+            return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        } catch (err) {
+            this.saveScreenshot("err_live_frame_text_component1");
+            throw new Error("Text component should be visible in Live Editor! " + err);
         }
     }
 
     async doRightClickOnImageComponent(imageName, liveFrameX, liveFrameY) {
         try {
-            if(isNaN(liveFrameX) || isNaN(liveFrameY)) {
+            if (isNaN(liveFrameX) || isNaN(liveFrameY)) {
                 throw new Error("Error when clicking on Image Component  in Live Frame!")
             }
-            let selector = xpath.imageComponentByDisplayName(imageName);
+            let selector = xpath.imageInTextComponentByDisplayName(imageName);
             await this.doRightClickWithOffset(selector, liveFrameX + 35, liveFrameY + 35);
             return await this.pause(200);
         } catch (err) {
             this.saveScreenshot("err_live_frame_right_click");
             throw new Error("Error when showing context menu in Live Editor! " + err);
+        }
+    }
+
+    async doRightClickOnTextComponent(text, liveFrameX, liveFrameY) {
+        try {
+            if (isNaN(liveFrameX) || isNaN(liveFrameY)) {
+                throw new Error("Error when clicking on Image Component  in Live Frame!")
+            }
+            let selector = xpath.textComponentByText(text);
+            await this.doRightClickWithOffset(selector, liveFrameX + 35, liveFrameY + 0);
+            return await this.pause(200);
+        } catch (err) {
+            this.saveScreenshot("err_live_frame_right_click");
+            throw new Error("Error when showing context menu for text component! " + err);
         }
     }
 
@@ -124,5 +150,26 @@ class LiveFormPanel extends Page {
         await this.waitForItemViewContextMenu();
         return await this.getTextInElements(selector);
     }
-};
+
+    async selectFragmentByDisplayName(displayName) {
+        try {
+            let parentForComboBox = `//div[contains(@id,'FragmentPlaceholder')]`;
+            let contentWizard = new ContentWizard();
+            let loaderComboBox = new LoaderComboBox();
+            await contentWizard.switchToLiveEditFrame();
+            await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
+            return await this.pause(1000);
+        } catch (err) {
+            this.saveScreenshot('err_select_fragment_' + displayName);
+            throw new Error("Error when selecting the fragment in Live Edit - " + err);
+        }
+    }
+
+    async waitForCaptionDisplayed(text) {
+        let locator = xpath.captionByText(text);
+        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+
+    }
+}
+
 module.exports = LiveFormPanel;

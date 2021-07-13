@@ -32,6 +32,8 @@ const ConfirmationDialog = require('../page_objects/confirmation.dialog');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 const DateTimeRange = require('../page_objects/components/datetime.range');
+const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
+const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
 
 module.exports = {
     setTextInCKE: function (id, text) {
@@ -401,7 +403,8 @@ module.exports = {
         await browsePanel.clickOnEditButton();
         //switch to the opened wizard:
         await this.doSwitchToNewWizard();
-        return await contentWizardPanel.waitForOpened();
+        await contentWizardPanel.waitForOpened();
+        return await contentWizardPanel.waitForSpinnerNotVisible(appConst.longTimeout);
     },
     async findContentAndClickCheckBox(displayName) {
         let browsePanel = new BrowsePanel();
@@ -647,8 +650,9 @@ module.exports = {
     openDependencyWidgetInBrowsePanel() {
         let browsePanel = new BrowsePanel();
         let browseDependenciesWidget = new BrowseDependenciesWidget();
+        let browseDetailsPanel = new BrowseDetailsPanel();
         return browsePanel.openDetailsPanel().then(() => {
-            return browsePanel.openDependencies();
+            return browseDetailsPanel.openDependencies();
         }).then(() => {
             return browseDependenciesWidget.waitForWidgetLoaded();
         })
@@ -890,5 +894,14 @@ module.exports = {
         await dateTimeRange.typeOnlineFrom(date, "//div[contains(@id,'ContentPublishDialog')]");
         await contentPublishDialog.clickOnScheduleButton();
         return await contentPublishDialog.waitForDialogClosed();
+    },
+    async openWizardDependencyWidget() {
+        let contentWizard = new ContentWizardPanel();
+        let wizardDependenciesWidget = new WizardDependenciesWidget();
+        let wizardDetailsPanel = new WizardDetailsPanel();
+        await contentWizard.openDetailsPanel();
+        await wizardDetailsPanel.openDependencies();
+        await wizardDependenciesWidget.waitForWidgetLoaded();
+        return wizardDependenciesWidget;
     }
 };

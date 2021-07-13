@@ -36,6 +36,9 @@ module.exports = Object.freeze({
     saveFailedAttempt: function (name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
     },
+    requiredValidationMessage: (occurrences) => {
+        return `Min ${occurrences} valid occurrence(s) required`;
+    },
     projectCreatedMessage: name => `Project \"${name}\" is created.`,
     projectNameAlreadyExistsMessage: name => `Project with name [${name}] already exists`,
     projectDeletedMessage: name => `Project \"${name}\" is deleted.`,
@@ -137,12 +140,16 @@ module.exports = Object.freeze({
         MAN2: 'man2',
         SEVEROMOR: 'severomor'
     },
-    MENU_ITEMS: {
+    COMPONENT_VIEW_MENU_ITEMS: {
         INSERT: 'Insert',
         SAVE_AS_FRAGMENT: 'Save as Fragment',
         DETACH_FROM_FRAGMENT: 'Detach from fragment',
-        SPUMANS: 'spumans',
-        BOOK: 'book',
+        INSPECT: 'Inspect',
+        REMOVE: 'Remove',
+        DUPLICATE: 'Duplicate',
+        EDIT: 'Edit',
+        SELECT_PARENT: "Select parent",
+        RESET: 'Reset'
     },
     PROJECTS: {
         ROOT_FOLDER: "Projects",

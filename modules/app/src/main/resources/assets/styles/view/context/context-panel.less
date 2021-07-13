@@ -90,15 +90,6 @@
       animation-duration: 0.5s;
       animation-timing-function: linear;
       animation-delay: 0s;
-
-      &.expanded {
-        &::before {
-          color: @admin-button-blue1;
-        }
-        &:hover::before {
-          color: @admin-button-blue2;
-        }
-      }
     }
   }
 
@@ -174,19 +165,15 @@
       .widget-viewer {
         font-size: 14px;
         cursor: default;
+        .ellipsis();
 
         .names-and-icon-view {
-          .@{_COMMON_PREFIX}names-view {
-            margin: 0 0 0 34px;
-          }
-
           .@{_COMMON_PREFIX}wrapper {
             margin-right: 8px;
 
             img {
               width: 26px;
               height: 26px;
-              margin-top: -1px;
             }
 
             .font-icon-default {

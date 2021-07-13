@@ -18,7 +18,6 @@ export class SettingsTreeGridActions
     private readonly DELETE: Action;
     private readonly SYNC: SyncAction;
     private readonly grid: SettingsItemsTreeGrid;
-    private loginResult: LoginResult;
 
     private actions: Action[] = [];
 
@@ -37,22 +36,14 @@ export class SettingsTreeGridActions
     }
 
     updateActionsEnabledState(items: SettingsViewItem[]): Q.Promise<void> {
-        return this.getAuthInfo().then((loginResult: LoginResult) => {
+        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             this.EDIT.setEnabled(this.isEditAllowed(items, loginResult));
             this.DELETE.setEnabled(this.isDeleteAllowed(items, loginResult));
             this.NEW.setEnabled(this.isNewAllowed(loginResult));
-            this.updateSyncAction();
-        });
-    }
 
-    getAuthInfo(): Q.Promise<LoginResult> {
-        if (this.loginResult) {
-            return Q(this.loginResult);
-        }
-
-        return new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            this.loginResult = loginResult;
-            return this.loginResult;
+            if (loginResult.isAdmin()) {
+                this.SYNC.updateState();
+            }
         });
     }
 
@@ -71,14 +62,6 @@ export class SettingsTreeGridActions
 
     private isNewAllowed(loginResult: LoginResult): boolean {
         return loginResult.isContentAdmin();
-    }
-
-    private updateSyncAction() {
-        if (!this.loginResult.isAdmin()) {
-            return;
-        }
-
-        this.SYNC.updateState();
     }
 
     getSyncAction(): SyncAction {

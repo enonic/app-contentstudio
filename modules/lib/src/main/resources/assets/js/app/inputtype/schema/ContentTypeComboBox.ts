@@ -23,6 +23,11 @@ export class ContentTypeComboBox
 
 export class ContentTypeSelectedOptionsView
     extends BaseSelectedOptionsView<ContentTypeSummary> {
+    constructor() {
+        super();
+
+        this.setReadonly(true);
+    }
 
     createSelectedOption(option: Option<ContentTypeSummary>): SelectedOption<ContentTypeSummary> {
 
@@ -35,7 +40,8 @@ export class ContentTypeSelectedOptionView
     extends RichSelectedOptionView<ContentTypeSummary> {
 
     constructor(option: Option<ContentTypeSummary>) {
-        super(new RichSelectedOptionViewBuilder<ContentTypeSummary>(option));
+        super(<RichSelectedOptionViewBuilder<ContentTypeSummary>>
+            new RichSelectedOptionViewBuilder<ContentTypeSummary>().setOption(option));
     }
 
     resolveIconUrl(content: ContentTypeSummary): string {

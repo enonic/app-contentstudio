@@ -1,16 +1,16 @@
 /**
  * Created on 29/11/2018.
  */
-const Page = require('../../page');
+const BaseDependenciesWidget = require('../../details_panel/base.dependencies.widget');
 const appConst = require('../../../libs/app_const');
 
 const xpath = {
-    widget: `//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'DependenciesWidgetItemView')]`,
-    showOutboundButton: `//button/span[contains(.,'Show Outbound')]`,
-    showInboundButton: `//button/span[contains(.,'Show Inbound')]`
+    widget: "//div[contains(@id,'ContentBrowsePanel')]//div[contains(@id,'DependenciesWidgetItemView')]",
+    showOutboundButton: "//button/span[contains(.,'Show Outbound')]",
+    showInboundButton: "//button/span[contains(.,'Show Inbound')]"
 };
 
-class BrowseDependenciesWidget extends Page {
+class BrowseDependenciesWidget extends BaseDependenciesWidget {
 
     get dependenciesWidget() {
         return xpath.widget;
@@ -20,7 +20,7 @@ class BrowseDependenciesWidget extends Page {
         return xpath.widget + xpath.showOutboundButton;
     }
 
-    showInboundButton() {
+    get showInboundButton() {
         return xpath.widget + xpath.showInboundButton;
     }
 
@@ -33,7 +33,7 @@ class BrowseDependenciesWidget extends Page {
             throw new Error('Content Wizard: Dependencies Widget was not loaded in ' + appConst.shortTimeout);
         });
     }
-};
+}
 module.exports = BrowseDependenciesWidget;
 
 

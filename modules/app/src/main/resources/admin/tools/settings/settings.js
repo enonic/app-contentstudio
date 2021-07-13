@@ -10,6 +10,7 @@ function handleGet() {
     var branch = context.branch;
     var allowScriptsInEditor = app.config['htmlinput.allowScripts'] === 'true' || false;
     var allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
+    var allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
 
     var params = {
         adminUrl: admin.getBaseUri(),
@@ -31,6 +32,7 @@ function handleGet() {
         },
         allowScriptsInEditor: allowScriptsInEditor,
         allowContentUpdate: allowContentUpdate,
+        allowPathTransliteration: allowPathTransliteration,
         mainUrl: portal.pageUrl().replace('/settings', '')
     };
 

@@ -107,7 +107,8 @@ describe('double.content.config.spec:  verifies `Min/max value config for Double
             await contentWizard.waitUntilInvalidIconAppears();
             //5. Verify that validation form message gets visible after the saving:
             let validationMessage = await doubleForm.getFormValidationRecording();
-            assert.equal(validationMessage, appConstant.THIS_FIELD_IS_REQUIRED, "This field is required - this message should appear");
+            assert.equal(validationMessage, appConstant.requiredValidationMessage(1),
+                "Min 1 valid occurrence(s) required - this message should appear");
         });
 
     it(`GIVEN wizard for 'Double(min 0,max 3.14159)' is opened WHEN max value has been typed THEN validation record should not be visible`,

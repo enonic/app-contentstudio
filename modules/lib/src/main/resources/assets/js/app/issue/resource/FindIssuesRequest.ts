@@ -1,13 +1,13 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueStatus} from '../IssueStatus';
 import {Issue} from '../Issue';
 import {FindIssuesResult} from './FindIssuesResult';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../../content/ContentId';
+import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 
 export class FindIssuesRequest
-    extends IssueResourceRequest<Issue[]> {
+    extends CmsIssueResourceRequest<Issue[]> {
 
     private static DEFAULT_FETCH_SIZE: number = 10;
 

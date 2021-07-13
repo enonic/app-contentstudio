@@ -682,7 +682,14 @@ export class HtmlEditor {
 
         const commandDef: CKEDITOR.commandDefinition = {
             exec: function () {
-                editor.applyStyle(new CKEDITOR.style({element: this['name']}, null)); // name is command name
+                const style: CKEDITOR.style = new CKEDITOR.style({element: this['name']}, null);
+
+                if (style.checkActive(editor.elementPath(), editor)) {
+                    editor.removeStyle(style);
+                } else {
+                    editor.applyStyle(style); // name is command name
+                }
+
                 return true;
             }
         };
@@ -690,6 +697,7 @@ export class HtmlEditor {
         const allowedTags = editor.config.format_tags.split(';');
         ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div']
             .filter(tag => allowedTags.indexOf(tag) > -1)
+            .concat('strong', 'em', 'u')
             .forEach(tag => this.editor.addCommand(tag, commandDef));
 
         this.editor.addCommand('address', commandDef);
@@ -698,6 +706,9 @@ export class HtmlEditor {
             this.editor.setKeystroke(CKEDITOR.CTRL + 70, 'find'); // open find dialog on CTRL + F
             this.editor.setKeystroke(CKEDITOR.CTRL + 75, 'link'); // open link dialog on CTRL + K
             this.editor.setKeystroke(CKEDITOR.CTRL + 76, 'image'); // open link dialog on CTRL + L
+            this.editor.setKeystroke(CKEDITOR.CTRL + 66, 'strong'); // apply Bold styling if toolbar button is missing
+            this.editor.setKeystroke(CKEDITOR.CTRL + 73, 'em'); // apply Italic styling if toolbar button is missing
+            this.editor.setKeystroke(CKEDITOR.CTRL + 85, 'u'); // apply Underline styling if toolbar button is missing
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.ALT + 49, 'h1'); // apply Heading 1 format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.ALT + 50, 'h2'); // apply Heading 2 format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.ALT + 51, 'h3'); // apply Heading 3 format
@@ -955,14 +966,19 @@ class HtmlEditorConfigBuilder {
         const disabledTools = tools['exclude'];
 
         if (disabledTools && disabledTools instanceof Array) {
-            this.disabledTools = disabledTools.map(tool => tool.value).join().replace(/\s+/g, ',');
+            this.disabledTools = disabledTools.map(tool => tool.value).join().replace('Format', 'Styles').replace(/\s+/g, ',');
             if (this.disabledTools === '*') {
                 this.tools = [[]];
             }
         }
 
         if (enabledTools && enabledTools instanceof Array) {
-            this.includeTools(enabledTools.map(tool => tool.value).join().replace(/\|/g, '-').split(/\s+/));
+            this.includeTools(enabledTools.map(tool => tool.value)
+                .join()
+                .replace('Format', 'Styles') // Styles plugin is used instead of Format
+                .replace(/\|/g, '-')
+                .split(/\s+/)
+                .filter((tool: string) => !this.isDefaultTool(tool)));
         }
     }
 
@@ -973,6 +989,12 @@ class HtmlEditorConfigBuilder {
 
         if (!this.editorParams.isInline()) {
             this.includeTool('Fullscreen');
+        }
+
+        if (this.editorParams.isFullScreenMode()) {
+            ['Bold', 'Italic', 'Underline']
+                .filter((tool: string) =>!this.isToolDisabled(tool))
+                .forEach((tool: string) => this.includeTool(tool));
         }
 
         const toolsToAdd: string[] = [];
@@ -1096,7 +1118,11 @@ class HtmlEditorConfigBuilder {
     }
 
     private isToolDisabled(tool: string): boolean {
-        return this.disabledTools.indexOf(tool) > -1;
+        return this.disabledTools === '*' || this.disabledTools.indexOf(tool) > -1;
+    }
+
+    private isDefaultTool(tool: string): boolean {
+        return this.tools.some((toolgroup: string[]) => toolgroup.some((defaultTool: string) => defaultTool === tool));
     }
 }
 

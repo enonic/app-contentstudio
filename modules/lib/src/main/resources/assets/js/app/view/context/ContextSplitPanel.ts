@@ -2,7 +2,8 @@ import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
 import {Action} from 'lib-admin-ui/ui/Action';
-import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder, SplitPanelUnit} from 'lib-admin-ui/ui/panel/SplitPanel';
+import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from 'lib-admin-ui/ui/panel/SplitPanel';
+import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {DockedContextPanel} from './DockedContextPanel';
@@ -31,24 +32,25 @@ export class ContextSplitPanel
     private nonMobileContextPanelsManager: NonMobileContextPanelsManager;
     private dockedModeChangedListeners: { (isDocked: boolean): void }[];
     private leftPanel: Panel;
+    private wizardFormPanel?: Panel;
     private mobileContextPanel: MobileContextPanel;
 
-    constructor(leftPanel: Panel, actions: Action[], data?: PageEditorData) {
+    constructor(leftPanel: Panel, actions: Action[], data?: PageEditorData, wizardFormPanel?: Panel) {
         const contextView = new ContextView(data);
         const dockedContextPanel = new DockedContextPanel(contextView);
 
         const builder = new SplitPanelBuilder(leftPanel, dockedContextPanel)
             .setAlignment(SplitPanelAlignment.VERTICAL)
-            .setSecondPanelSize(280, SplitPanelUnit.PIXEL)
-            .setSecondPanelMinSize(280, SplitPanelUnit.PIXEL)
+            .setSecondPanelMinSize(SplitPanelSize.Pixels(280))
             .setAnimationDelay(600)
             .setSecondPanelShouldSlideRight(true);
 
         super(builder);
         this.addClass('context-split-panel');
-        this.setSecondPanelSize(280, SplitPanelUnit.PIXEL);
+        this.setSecondPanelSize(SplitPanelSize.Percents(38));
 
         this.data = data;
+        this.wizardFormPanel = wizardFormPanel;
         this.leftPanel = leftPanel;
         this.contextView = contextView;
         this.dockedContextPanel = dockedContextPanel;
@@ -64,12 +66,12 @@ export class ContextSplitPanel
         const nonMobileContextPanelsManagerBuilder = NonMobileContextPanelsManager.create();
         if (this.isPageEditorPresent()) {
             nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
-            nonMobileContextPanelsManagerBuilder.setWizardPanel(<Panel>(<SplitPanel>this.leftPanel).getFirstChild());
+            nonMobileContextPanelsManagerBuilder.setWizardPanel(this.wizardFormPanel);
             nonMobileContextPanelsManagerBuilder.setIsMobileMode(() => {
                 return this.isMobileMode();
             });
         }
-        nonMobileContextPanelsManagerBuilder.setSplitPanelWithGridAndContext(this);
+        nonMobileContextPanelsManagerBuilder.setSplitPanelWithContext(this);
         nonMobileContextPanelsManagerBuilder.setDefaultContextPanel(this.dockedContextPanel);
         this.floatingContextPanel = new FloatingContextPanel(this.contextView);
         nonMobileContextPanelsManagerBuilder.setFloatingContextPanel(this.floatingContextPanel);
@@ -102,15 +104,6 @@ export class ContextSplitPanel
         if (this.nonMobileContextPanelsManager.requiresCollapsedContextPanel()) {
             this.nonMobileContextPanelsManager.hideDockedContextPanel();
         }
-
-        this.nonMobileContextPanelsManager.ensureButtonHasCorrectState();
-        this.contextView.appendChild(this.nonMobileContextPanelsManager.getToggleButton());
-
-        this.onShown(() => {
-            if (this.nonMobileContextPanelsManager.getActivePanel().getActiveWidget()) {
-                this.nonMobileContextPanelsManager.getActivePanel().getActiveWidget().slideIn();
-            }
-        });
 
         this.subscribeContextPanelsOnEvents(this.nonMobileContextPanelsManager);
     }
@@ -161,7 +154,7 @@ export class ContextSplitPanel
             }
 
             if (item.isInRangeOrSmaller(ResponsiveRanges._540_720)) {
-                nonMobileContextPanelsManager.hideActivePanel(true);
+                nonMobileContextPanelsManager.hideActivePanel();
                 ActiveContextPanelManager.setActiveContextPanel(this.getMobileContextPanel());
                 if (ResponsiveRanges._720_960.isFitOrBigger(item.getOldRangeValue())) {
                     // transition through 720 from bigger side
@@ -178,9 +171,9 @@ export class ContextSplitPanel
                 }
             }
         }, 50);
-        ResponsiveManager.onAvailableSizeChanged(this, debouncedResponsiveHandler);
+        ResponsiveManager.onAvailableSizeChanged(this.getParentElement(), debouncedResponsiveHandler);
         this.onRemoved(() => {
-            ResponsiveManager.unAvailableSizeChanged(this);
+            ResponsiveManager.unAvailableSizeChanged(this.getParentElement());
         });
     }
 
@@ -265,11 +258,4 @@ export class ContextSplitPanel
         return this.mobileMode;
     }
 
-    enableToggleButton() {
-        this.nonMobileContextPanelsManager.getToggleButton().setEnabled(true);
-    }
-
-    disableToggleButton() {
-        this.nonMobileContextPanelsManager.getToggleButton().setEnabled(false);
-    }
 }

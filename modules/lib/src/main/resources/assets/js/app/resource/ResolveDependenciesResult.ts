@@ -8,38 +8,46 @@ export interface ResolveDependenciesResultJson {
 
 export class ResolveDependenciesResult {
 
-    private dependencies: ResolveDependencyResult[] = [];
+    private readonly dependencies: ResolveDependencyResult[] = [];
+
+    private readonly incomingDependenciesCount: Map<string, number> = new Map<string, number>();
+
+    constructor(dependencies: ResolveDependencyResult[]) {
+        this.dependencies = dependencies;
+
+        this.dependencies.forEach(dependencyResult => {
+            const dependency: ContentDependencyJson = dependencyResult.getDependency();
+            const contentId: string = dependencyResult.getContentId().toString();
+
+            if (dependency.inbound && dependency.inbound.length > 0) {
+                this.incomingDependenciesCount.set(contentId, dependency.inbound.reduce((sum, dep) => sum + dep.count, 0));
+            }
+        });
+    }
 
     public getDependencies(): ResolveDependencyResult[] {
         return this.dependencies;
     }
 
-    public getIncomingDependenciesCount(): Object {
-        const object = {};
-        this.dependencies.forEach(dependencyResult => {
-            const dependency = dependencyResult.getDependency();
-            const contentId = dependencyResult.getContentId().toString();
-            if (dependency.inbound && dependency.inbound.length > 0) {
-                object[contentId] = dependency.inbound.reduce((sum, dep) => sum + dep.count, 0);
-            }
-        });
+    public getIncomingDependenciesCount(): Map<string, number> {
+        return this.incomingDependenciesCount;
+    }
 
-        return object;
+    public hasIncomingDependency(id: string): boolean {
+        return this.incomingDependenciesCount.has(id);
     }
 
     public static fromJson(json: ResolveDependenciesResultJson): ResolveDependenciesResult {
-
-        const result = new ResolveDependenciesResult();
+        const dependencies: ResolveDependencyResult[] = [];
 
         if (json) {
-
             for (let id in json.dependencies) {
                 if (json.dependencies.hasOwnProperty(id)) {
-                    result.getDependencies().push(new ResolveDependencyResult(new ContentId(id), json.dependencies[id]));
+                    dependencies.push(new ResolveDependencyResult(new ContentId(id), json.dependencies[id]));
                 }
             }
         }
 
-        return result;
+        return new ResolveDependenciesResult(dependencies);
     }
 }

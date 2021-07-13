@@ -3,9 +3,7 @@ import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {SettingsDataItemWizardActions} from './SettingsDataItemWizardActions';
 import {ProjectWizardPanel} from '../panel/ProjectWizardPanel';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
-import {ProjectListRequest} from '../../resource/ProjectListRequest';
-import {Project} from '../../data/project/Project';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 
 export class ProjectWizardActions
     extends SettingsDataItemWizardActions<ProjectViewItem> {
@@ -28,7 +26,7 @@ export class ProjectWizardActions
     }
 
     private updateActionsEnabledState() {
-        this.wizardPanel.getLoginResult().then((loginResult: LoginResult) => {
+        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             this.save.setEnabled(this.isEditAllowed(loginResult));
             this.toggleDeleteAction(loginResult);
         });

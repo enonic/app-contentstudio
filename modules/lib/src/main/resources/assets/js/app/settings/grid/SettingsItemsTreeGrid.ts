@@ -17,6 +17,7 @@ import {FolderItemBuilder, FolderViewItem} from '../view/FolderViewItem';
 import {ProjectListWithMissingRequest} from '../resource/ProjectListWithMissingRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 
 export class SettingsItemsTreeGrid
     extends TreeGrid<SettingsViewItem> {
@@ -148,7 +149,7 @@ export class SettingsItemsTreeGrid
     protected editItem(node: TreeNode<SettingsViewItem>) {
         const item: SettingsViewItem = node.getData();
 
-        this.treeGridActions.getAuthInfo().then((loginResult: LoginResult) => {
+        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             if (item.isEditAllowed(loginResult)) {
                 new EditSettingsItemEvent([item]).fire();
             }

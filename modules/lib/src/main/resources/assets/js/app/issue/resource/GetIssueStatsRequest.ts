@@ -1,10 +1,11 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueStatsJson} from '../json/IssueStatsJson';
-import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueType} from '../IssueType';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 
-export class GetIssueStatsRequest extends IssueResourceRequest<IssueStatsJson> {
+export class GetIssueStatsRequest
+    extends CmsIssueResourceRequest<IssueStatsJson> {
 
     private readonly type: IssueType;
 
