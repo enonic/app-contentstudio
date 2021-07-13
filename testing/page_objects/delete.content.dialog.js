@@ -61,7 +61,7 @@ class DeleteContentDialog extends Page {
             await this.clickOnElement(this.deleteNowButton);
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_click_on_delete_now_dialog');
+            await this.saveScreenshot('err_click_on_delete_now_dialog');
             throw new Error(err);
         }
     }
@@ -71,7 +71,7 @@ class DeleteContentDialog extends Page {
             await this.clickOnElement(this.deleteNowButton);
             return await this.waitForDialogClosed();
         } catch (err) {
-            this.saveScreenshot('err_click_on_delete_now_dialog');
+            await this.saveScreenshot('err_click_on_delete_now_dialog');
             throw new Error(err);
         }
     }
