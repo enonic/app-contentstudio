@@ -23,14 +23,19 @@ export class DescriptorBasedDropdown
         this.resetSelected();
 
         if (descriptor) {
-            let option = this.getOptionByValue(descriptor.getKey().toString());
-            if (option) {
-                this.selectOption(option, true);
-            }
+            const option: Option<Descriptor> = this.getOptionByValue(descriptor.getKey().toString()) ||
+                                               this.createReadOnlyOption(descriptor);
+            this.selectOption(option, true);
         } else {
             this.reset();
             this.hideDropdown();
         }
+    }
+
+    private createReadOnlyOption(descriptor: Descriptor): Option<Descriptor> {
+        const readonlyOption: Option<Descriptor> = this.createOption(descriptor);
+        readonlyOption.setReadOnly(true);
+        return readonlyOption;
     }
 
     getDescriptor(descriptorKey: DescriptorKey): Descriptor {
