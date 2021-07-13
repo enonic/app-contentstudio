@@ -30,6 +30,12 @@ import {NamesAndIconView} from 'lib-admin-ui/app/NamesAndIconView';
 import {DialogDependantList} from '../dialog/DependantItemsDialog';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {DeleteDialogDependantList} from './DeleteDialogDependantList';
+import {ContentResourceRequest} from '../resource/ContentResourceRequest';
+import {ArchiveContentRequest} from '../resource/ArchiveContentRequest';
+
+enum ActionType {
+    DELETE, ARCHIVE
+}
 
 export class ContentDeleteDialog
     extends DependantItemsWithProgressDialog {
@@ -40,9 +46,11 @@ export class ContentDeleteDialog
 
     private totalItemsToDelete: number;
 
-    private markDeletedAction: Action;
+    private archiveAction: Action;
 
-    private deleteConfirmationDialog?: ConfirmValueDialog;
+    private deleteNowAction: ContentDeleteDialogAction;
+
+    private confirmExecutionDialog?: ConfirmValueDialog;
 
     private statusLine: StatusLine;
 
@@ -50,10 +58,10 @@ export class ContentDeleteDialog
 
     constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
-                title: i18n('dialog.delete'),
+                title: i18n('dialog.archive'),
                 class: 'delete-dialog',
-                dialogSubName: i18n('dialog.delete.subname'),
-                dependantsDescription: i18n('dialog.delete.dependants'),
+                dialogSubName: i18n('dialog.archive.subname'),
+                dependantsDescription: i18n('dialog.archive.dependants'),
                 showDependantList: true,
                 processingLabel: `${i18n('field.progress.deleting')}...`,
                 buttonRow: new ContentDeleteDialogButtonRow(),
@@ -68,13 +76,13 @@ export class ContentDeleteDialog
     protected initElements() {
         super.initElements();
 
-        this.markDeletedAction = new Action(i18n('dialog.delete.markDeleted'));
-        this.markDeletedAction.onExecuted(this.doDelete.bind(this, false, false));
+        this.archiveAction = new Action(i18n('dialog.archive'));
+        this.archiveAction.onExecuted(this.archive.bind(this));
 
-        const deleteNowAction = new ContentDeleteDialogAction();
-        deleteNowAction.onExecuted(this.doDelete.bind(this, false, true));
+        this.deleteNowAction = new ContentDeleteDialogAction();
+        this.deleteNowAction.onExecuted(this.delete.bind(this, false, true));
 
-        const menuButton = this.getButtonRow().makeActionMenu(deleteNowAction, [this.markDeletedAction]);
+        const menuButton = this.getButtonRow().makeActionMenu(this.archiveAction, [this.deleteNowAction]);
         this.actionButton = menuButton.getActionButton();
 
         this.statusLine = new StatusLine();
@@ -85,8 +93,8 @@ export class ContentDeleteDialog
 
         this.statusLine
             .setIconClass('icon-link')
-            .setMainText(i18n('dialog.delete.hasInbound.part1'))
-            .setSecondaryText(i18n('dialog.delete.hasInbound.part2'))
+            .setMainText(i18n('dialog.archive.hasInbound.part1'))
+            .setSecondaryText(i18n('dialog.archive.hasInbound.part2'))
             .hide();
     }
 
@@ -184,7 +192,7 @@ export class ContentDeleteDialog
             });
 
             namesAndIconView.setIconClass('icon-link');
-            namesAndIconView.setIconToolTip(i18n('dialog.delete.hasInbound.tooltip'));
+            namesAndIconView.setIconToolTip(i18n('dialog.archive.hasInbound.tooltip'));
         });
     }
 
@@ -196,7 +204,6 @@ export class ContentDeleteDialog
             return this.resolveItemsWithInboundRefs().then(() => {
                 return this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
                     this.setDependantItems(descendants);
-                    this.manageInstantDeleteStatus(this.getItemList().getItems());
                     return Q(null);
                 }).finally(() => {
                     this.notifyResize();
@@ -246,16 +253,8 @@ export class ContentDeleteDialog
         return this;
     }
 
-    private manageInstantDeleteStatus(items: ContentSummaryAndCompareStatus[]) {
-        const allOffline = this.isEveryOffline(items);
-        const allPendingDelete = this.isEveryPendingDelete(items);
-
-        this.markDeletedAction.setEnabled(!allOffline && !allPendingDelete);
-    }
-
     setContentToDelete(contents: ContentSummaryAndCompareStatus[]): ContentDeleteDialog {
         this.manageContentToDelete(contents);
-        this.manageInstantDeleteStatus(contents);
         this.manageDescendants();
 
         return this;
@@ -271,69 +270,109 @@ export class ContentDeleteDialog
         return this;
     }
 
-    private doDelete(ignoreConfirmation: boolean = false, isInstantDelete: boolean) {
-        if (!ignoreConfirmation && (this.totalItemsToDelete > 1 || this.isAnySiteToBeDeleted())) {
-            const totalItemsToDelete = this.totalItemsToDelete;
-            const deleteRequest = this.createDeleteRequest(isInstantDelete);
-            const content = this.getItemList().getItems().slice(0);
-            const descendants = this.getDependantList().getItems().slice(0);
-            const yesCallback = () => {
-                // Manually manage content and dependants without any requests
-                this.manageContentToDelete(content);
-                this.setDependantItems(descendants);
-                this.countItemsToDeleteAndUpdateButtonCounter();
-                this.open();
-                this.doDelete(true, isInstantDelete);
-            };
+    private archive() {
+        this.executeAction(ActionType.ARCHIVE);
+    }
 
-            this.close();
+    private delete() {
+        this.executeAction(ActionType.DELETE);
+    }
 
-            if (!this.deleteConfirmationDialog) {
-                this.initDeleteConfirmationDialog();
-            }
-
-            this.deleteConfirmationDialog
-                .setValueToCheck('' + totalItemsToDelete)
-                .setYesCallback(yesCallback)
-                .open();
+    private executeAction(type: ActionType) {
+        if (this.totalItemsToDelete > 1 || this.isAnySiteToBeDeleted()) {
+            this.confirmAndExecute(type);
         } else {
-            if (this.yesCallback) {
-                isInstantDelete ? this.yesCallback([]) : this.yesCallback();
-            }
-
-            this.lockControls();
-
-            this.createDeleteRequest(isInstantDelete)
-                .sendAndParse()
-                .then((taskId: TaskId) => {
-                    this.pollTask(taskId);
-                })
-                .catch((reason) => {
-                    this.close();
-                    if (reason && reason.message) {
-                        showError(reason.message);
-                    }
-                });
+            this.executeNow(type);
         }
     }
 
-    private countItemsToDeleteAndUpdateButtonCounter() {
-        this.actionButton.setLabel(i18n('dialog.deleteNow'));
+    private confirmAndExecute(type: ActionType) {
+        const totalItemsToProcess: number = this.totalItemsToDelete;
+        const yesCallback: () => void = this.createConfirmExecutionCallback(type);
 
-        this.totalItemsToDelete = this.countTotal();
-        this.updateButtonCount(i18n('dialog.deleteNow'), this.totalItemsToDelete);
+        this.close();
+
+        if (!this.confirmExecutionDialog) {
+            this.confirmExecutionDialog = new ConfirmValueDialog();
+        }
+
+        this.confirmExecutionDialog
+            .setHeaderText(type === ActionType.DELETE ? i18n('dialog.confirmDelete') : i18n('dialog.confirmArchive'))
+            .setSubheaderText(type === ActionType.DELETE ? i18n('dialog.confirmDelete.subname') : i18n('dialog.confirmArchive.subname'))
+            .setValueToCheck('' + totalItemsToProcess)
+            .setYesCallback(yesCallback)
+            .open();
     }
 
-    private createDeleteRequest(isInstantDelete: boolean): DeleteContentRequest {
-        let deleteRequest = new DeleteContentRequest();
+    private createConfirmExecutionCallback(type: ActionType): () => void {
+        const content = this.getItemList().getItems().slice(0);
+        const descendants = this.getDependantList().getItems().slice(0);
 
-        this.getItemList().getItems().forEach((item) => {
+        return () => {
+            // Manually manage content and dependants without any requests
+            this.manageContentToDelete(content);
+            this.setDependantItems(descendants);
+            this.countItemsToDeleteAndUpdateButtonCounter();
+            this.open();
+            this.executeNow(type);
+        };
+    }
+
+    private executeNow(type: ActionType) {
+        if (this.yesCallback) {
+            this.yesCallback();
+        }
+
+        this.lockControls();
+
+        this.createExecutionRequest(type)
+            .sendAndParse()
+            .then((taskId: TaskId) => {
+                this.pollTask(taskId);
+            })
+            .catch((reason) => {
+                this.close();
+                if (reason && reason.message) {
+                    showError(reason.message);
+                }
+            });
+    }
+
+    private countItemsToDeleteAndUpdateButtonCounter() {
+        this.actionButton.setLabel(i18n('dialog.archive'));
+        this.deleteNowAction.setLabel(i18n('dialog.deleteNow'));
+
+        this.totalItemsToDelete = this.countTotal();
+        this.updateButtonCount(i18n('dialog.archive'), this.totalItemsToDelete);
+        this.deleteNowAction.setLabel(this.totalItemsToDelete > 1 ?
+                                      i18n('dialog.deleteNow') + ' (' + this.totalItemsToDelete + ')' :
+                                      i18n('dialog.deleteNow'));
+    }
+
+    private createExecutionRequest(type: ActionType): ContentResourceRequest<TaskId> {
+        return type === ActionType.DELETE ? this.createDeleteRequest() : this.createArchiveRequest();
+    }
+
+    private createDeleteRequest(): DeleteContentRequest {
+        const deleteRequest: DeleteContentRequest = new DeleteContentRequest();
+
+        this.getItemList().getItems().forEach((item: ContentSummaryAndCompareStatus) => {
             deleteRequest.addContentPath(item.getContentSummary().getPath());
         });
 
-        deleteRequest.setDeleteOnline(isInstantDelete);
+        deleteRequest.setDeleteOnline(true);
 
         return deleteRequest;
+    }
+
+    private createArchiveRequest(): ArchiveContentRequest {
+        const archiveContentRequest: ArchiveContentRequest = new ArchiveContentRequest();
+
+        this.getItemList().getItems().forEach((item: ContentSummaryAndCompareStatus) => {
+            archiveContentRequest.addContentId(item.getContentId());
+        });
+
+        return archiveContentRequest;
     }
 
     private doAnyHaveChildren(items: ContentSummaryAndCompareStatus[]): boolean {
@@ -355,13 +394,9 @@ export class ContentDeleteDialog
     }
 
     private updateSubTitle() {
-        let items = this.getItemList().getItems();
+        const items: ContentSummaryAndCompareStatus[] = this.getItemList().getItems();
 
-        if (!this.doAnyHaveChildren(items)) {
-            super.setSubTitle('');
-        } else {
-            super.setSubTitle(i18n('dialog.delete.subname'));
-        }
+        super.setSubTitle(this.doAnyHaveChildren(items) ? i18n('dialog.archive.subname') : '');
     }
 
     private isAnySiteToBeDeleted(): boolean {
@@ -381,13 +416,6 @@ export class ContentDeleteDialog
         } else {
             return false;
         }
-    }
-
-    private initDeleteConfirmationDialog() {
-        this.deleteConfirmationDialog = new ConfirmValueDialog();
-        this.deleteConfirmationDialog
-            .setHeaderText(i18n('dialog.confirmDelete'))
-            .setSubheaderText((i18n('dialog.confirmDelete.subname')));
     }
 
     close() {
