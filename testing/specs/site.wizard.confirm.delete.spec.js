@@ -38,7 +38,7 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             //Click on 'Delete Now' button:
             await deleteContentDialog.clickOnDeleteNowButton();
             await confirmValueDialog.waitForDialogOpened();
-            studioUtils.saveScreenshot("site_wizard_confirm_delete_dialog");
+            await studioUtils.saveScreenshot("site_wizard_confirm_delete_dialog");
 
             //Cancel button should be enabled
             await confirmValueDialog.waitForCancelButtonEnabled();
@@ -62,7 +62,7 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             await confirmValueDialog.typeNumberOrName(2);
             await confirmValueDialog.clickOnConfirmButton();
             await studioUtils.doSwitchToContentBrowsePanel();
-            studioUtils.saveScreenshot("site_wizard_confirm_delete_dialog");
+            await studioUtils.saveScreenshot("site_wizard_confirm_delete_dialog");
             //the site should not be present in the grid:
             await contentBrowsePanel.waitForContentNotDisplayed(SITE.displayName);
         });

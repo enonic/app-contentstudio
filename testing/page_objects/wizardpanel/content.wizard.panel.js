@@ -194,14 +194,25 @@ class ContentWizardPanel extends Page {
         })
     }
 
+    //Wait for button with "Show Component View" title is visible
     async waitForShowComponentVewTogglerNotVisible() {
         try {
             let res = await this.getDisplayedElements(this.showComponentViewToggler);
             let result = await this.isElementDisplayed(this.showComponentViewToggler);
             await this.waitForElementNotDisplayed(this.showComponentViewToggler, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot('err_show_component_toggler_should_not_be_visible');
+            await this.saveScreenshot(appConst.generateRandomName('err_show_component_toggler_visible'));
             throw new Error('Component View toggler is still visible after the interval sec:' + 3 + '  ' + err);
+        }
+    }
+
+    //Wait for button(toggler) for "Component View" is not visible
+    async waitForComponentVewTogglerNotVisible() {
+        try {
+            await this.waitForElementNotDisplayed(this.componentViewToggler, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_component_toggler_should_visible'));
+            throw new Error('Component View toggler is still visible after sec:' + 3 + '  ' + err);
         }
     }
 
