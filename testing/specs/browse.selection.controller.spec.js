@@ -89,7 +89,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             await contentBrowsePanel.clickOnSelectionToggler();
             await contentBrowsePanel.pause(1000);
             //4. Verify 'Selection Controller' checkBox is selected:
-            studioUtils.saveScreenshot("selection_toggle_clicked_checkbox_selected");
+            await studioUtils.saveScreenshot("selection_toggle_clicked_checkbox_selected");
             let result = await contentBrowsePanel.isSelectionControllerSelected();
             assert.isTrue(result, "Selection Controller checkBox should be selected");
         });
@@ -110,7 +110,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             //4. Click on Selection Toggle (circle, Hide Selection), initial state of thr grid is restored:
             await contentBrowsePanel.clickOnSelectionToggler();
             await contentBrowsePanel.pause(500);
-            studioUtils.saveScreenshot("selection_toggle_checkbox_partial");
+            await studioUtils.saveScreenshot("selection_toggle_checkbox_partial");
             //5. Verify 'Selection Controller' checkBox shows that the selection is partial:
             await contentBrowsePanel.waitForSelectionControllerPartial();
         });
@@ -135,12 +135,12 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             assert.equal(result1.length, 2, "Two items should be present in the grid");
             //5. Click on 'Selection Toggle' (circle, Hide Selection):
             await contentBrowsePanel.clickOnSelectionToggler();
-            studioUtils.saveScreenshot("selection_toggle_hide_selection");
+            await studioUtils.saveScreenshot("selection_toggle_hide_selection");
             //6. Click on 'Selection Controller' checkbox:
             await contentBrowsePanel.clickOnSelectionControllerCheckbox();
             await contentBrowsePanel.pause(1000);
             //7. Verify that initial grid is loaded:
-            studioUtils.saveScreenshot("selection_toggle_initial_grid_restored");
+            await studioUtils.saveScreenshot("selection_toggle_initial_grid_restored");
             let result2 = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.isAbove(result2.length, result1.length);
             //8. Verify that Selection Controller checkBox gets unselected:

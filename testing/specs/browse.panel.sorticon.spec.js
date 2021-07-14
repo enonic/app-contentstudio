@@ -27,10 +27,10 @@ describe('browse.panel.sorticon.spec, do sort a folder and check a sort-icon in 
             await sortContentDialog.clickOnMenuButton();
             //2. 'Manually sorted' menu item has been clicked:
             await sortContentDialog.selectSortMenuItem(appConstant.sortMenuItem.MANUALLY_SORTED);
-            studioUtils.saveScreenshot('sort_menu_item_clicked');
+            await studioUtils.saveScreenshot('sort_menu_item_clicked');
             //3. Save the sorting and close the dialog:
             await sortContentDialog.clickOnSaveButton();
-            studioUtils.saveScreenshot('manually_sorted');
+            await studioUtils.saveScreenshot('manually_sorted');
             //4. The folder is selected, get sorting-type in grid:
             let sortingType = await contentBrowsePanel.getSortingIcon(appConstant.TEST_FOLDER_WITH_IMAGES);
             assert.equal(sortingType, appConstant.sortMenuItem.MANUALLY_SORTED, "expected icon for Manually sorted folder should appear");

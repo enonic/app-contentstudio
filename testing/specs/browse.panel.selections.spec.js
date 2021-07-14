@@ -19,7 +19,7 @@ describe('Browse panel selections spec', function () {
             //1. click on existing folder(the row gets highlighted):
             await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.pause(900);
-            studioUtils.saveScreenshot('row_clicked_1');
+            await studioUtils.saveScreenshot('row_clicked_1');
             let actualName = await contentBrowsePanel.getNameInHighlightedRow();
             //2. expected content should be highlighted:
             assert.equal(actualName, appConstant.TEST_FOLDER_WITH_IMAGES, "expected content should be highlighted");
@@ -39,7 +39,7 @@ describe('Browse panel selections spec', function () {
             //1. Click on the checkbox and select the row:
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
             let number1 = await contentBrowsePanel.getNumberOfSelectedRows();
-            studioUtils.saveScreenshot('one_row_checked');
+            await studioUtils.saveScreenshot('one_row_checked');
             assert.equal(number1, 0, "no one row should be highlighted");
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.isTrue(number2 === 1, "One row should be checked");
@@ -55,7 +55,7 @@ describe('Browse panel selections spec', function () {
             await contentBrowsePanel.clickCheckboxAndSelectRowByDisplayName(appConstant.TEST_FOLDER_2_DISPLAY_NAME);
             await contentBrowsePanel.pause(500);
             let number = await contentBrowsePanel.getNumberOfSelectedRows();
-            studioUtils.saveScreenshot('two_rows_checked');
+            await studioUtils.saveScreenshot('two_rows_checked');
             assert.equal(number, 0, "the number of highlighted rows should be 0");
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(number2, 2, "Two rows should be checked");
@@ -71,7 +71,7 @@ describe('Browse panel selections spec', function () {
             await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.pause(1000);
             let numberOfHighlighted = await contentBrowsePanel.getNumberOfSelectedRows();
-            studioUtils.saveScreenshot('check_row_unselected');
+            await studioUtils.saveScreenshot('check_row_unselected');
             assert.equal(numberOfHighlighted, 0, "number of highlighted rows should be 0");
             let numberOfChecked = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(numberOfChecked, 0, "number of checked rows should be 0");
