@@ -24,7 +24,7 @@ describe('Browse panel, properties widget, language spec`', function () {
             await studioUtils.doAddFolder(TEST_FOLDER);
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await studioUtils.openBrowseDetailsPanel();
-            studioUtils.saveScreenshot("details_panel_language_en");
+            await studioUtils.saveScreenshot("details_panel_language_en");
             let propertiesWidget = new PropertiesWidget();
             //Verify that expected language should be displayed in Details Panel
             let actualLanguage = await propertiesWidget.getLanguage();
@@ -45,7 +45,7 @@ describe('Browse panel, properties widget, language spec`', function () {
             //3. Open browse details panel:
             await studioUtils.openBrowseDetailsPanel();
             //4. Language should not be present in the widget now :
-            studioUtils.saveScreenshot("details_panel_language_removed");
+            await studioUtils.saveScreenshot("details_panel_language_removed");
             await propertiesWidget.waitForLanguageNotVisible();
         });
 
@@ -57,13 +57,13 @@ describe('Browse panel, properties widget, language spec`', function () {
             let widgetItemView = new WidgetItemView();
             //1. Click on row with the folder:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            studioUtils.saveScreenshot("details_panel_folder_selected");
+            await studioUtils.saveScreenshot("details_panel_folder_selected");
             let actualDisplayName = await widgetItemView.getContentName();
             assert.equal(actualDisplayName, TEST_FOLDER.displayName, "Expected displayName should be in the widget");
             //2. Open browse details panel:
             await studioUtils.openBrowseDetailsPanel();
             //3. click on the row in the second time:
-            studioUtils.saveScreenshot("details_panel_cleared_1");
+            await studioUtils.saveScreenshot("details_panel_cleared_1");
             await contentBrowsePanel.clickOnRowByDisplayName(TEST_FOLDER.displayName);
             //4. Verify that Details Panel is cleared:
             await widgetItemView.waitForNotDisplayed();
@@ -83,7 +83,7 @@ describe('Browse panel, properties widget, language spec`', function () {
             //2. Open browse details panel:
             await studioUtils.openBrowseDetailsPanel();
             //3. uncheck the row :
-            studioUtils.saveScreenshot("details_panel_cleared_2");
+            await studioUtils.saveScreenshot("details_panel_cleared_2");
             await contentBrowsePanel.clickOnCheckbox(TEST_FOLDER.displayName);
             //4. Verify that Details Panel is cleared:
             await widgetItemView.waitForNotDisplayed();

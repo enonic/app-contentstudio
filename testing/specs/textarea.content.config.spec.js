@@ -32,7 +32,7 @@ describe('textarea.content.config.spec:  verifies max-length value for TextArea'
             await textAreaForm.typeText('hello');
             await textAreaForm.pause(1000);
             let result = await textAreaForm.getOccurrenceValidationRecording(0);
-            studioUtils.saveScreenshot('textarea_max_length_1');
+            await studioUtils.saveScreenshot('textarea_max_length_1');
             assert.equal(result, "", 'Validation recording should not be displayed');
         });
 
@@ -43,7 +43,7 @@ describe('textarea.content.config.spec:  verifies max-length value for TextArea'
             await textAreaForm.typeText(string42);
             await textAreaForm.pause(1000);
             let text = await textAreaForm.getOccurrenceValidationRecording(0);
-            studioUtils.saveScreenshot('textarea_max_length_3');
+            await studioUtils.saveScreenshot('textarea_max_length_3');
             assert.equal(text, appConstant.VALIDATION_MESSAGE.TEXT_IS_TOO_LONG, 'expected validation recording should appear');
         });
 
@@ -55,7 +55,7 @@ describe('textarea.content.config.spec:  verifies max-length value for TextArea'
             await textAreaForm.typeText(string41);
             await textAreaForm.pause(1000);
             let result = await textAreaForm.getOccurrenceValidationRecording(0);
-            studioUtils.saveScreenshot('textarea_max_length_4');
+            await studioUtils.saveScreenshot('textarea_max_length_4');
             assert.equal(result, "", 'Validation recording should not be displayed');
         });
 

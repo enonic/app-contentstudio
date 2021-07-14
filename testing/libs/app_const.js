@@ -102,7 +102,7 @@ module.exports = Object.freeze({
     shortTimeout: 2000,
     TIMEOUT_1: 1000,
     SUITE_TIMEOUT: 180000,
-    DELETE_INBOUND_MESSAGE: 'The content you are about to delete has inbound references. Please verify them before deletion.',
+    DELETE_INBOUND_MESSAGE: 'One or more items are referenced from another content',
 
     IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
     WIDGET_TITLE: {

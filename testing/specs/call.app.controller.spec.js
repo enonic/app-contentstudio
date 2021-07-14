@@ -15,7 +15,7 @@ describe('Call the `Application controller` specification', function () {
         async () => {
             let page = new Page();
             await webDriverHelper.browser.url("http://127.0.0.1:8080/webapp/com.enonic.app.appControllerTest");
-            studioUtils.saveScreenshot("app_controller_test1");
+            await studioUtils.saveScreenshot("app_controller_test1");
             //Expected header should be loaded:
             await page.waitForElementDisplayed("//h1[text()='My controller test page']", appConstant.mediumTimeout);
         });
@@ -25,7 +25,7 @@ describe('Call the `Application controller` specification', function () {
         async () => {
             let page = new Page();
             await webDriverHelper.browser.url("http://127.0.0.1:8080/webapp/com.enonic.app.appControllerTest/");
-            studioUtils.saveScreenshot("app_controller_test2");
+            await studioUtils.saveScreenshot("app_controller_test2");
             await page.waitForElementDisplayed("//h1[text()='My controller test page']", appConstant.mediumTimeout);
         });
 
