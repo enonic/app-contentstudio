@@ -15,6 +15,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.google.common.io.ByteSource;
 
+import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.content.ResolvedImage;
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.jaxrs.JaxRsComponent;
@@ -23,7 +24,6 @@ import com.enonic.xp.project.ProjectName;
 import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.security.RoleKeys;
 
-import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 @Path(ResourceConstants.REST_ROOT + "project/icon")
@@ -60,7 +60,7 @@ public final class ProjectIconResource
                                                Response.Status.INTERNAL_SERVER_ERROR );
         }
 
-        final ResolvedImage resolvedImage = new ResolvedImage( iconSource.read(), iconAttachment.getMimeType() );
+        final ResolvedImage resolvedImage = new ResolvedImage( iconSource, iconAttachment.getMimeType() );
 
         if ( resolvedImage.isOK() )
         {
