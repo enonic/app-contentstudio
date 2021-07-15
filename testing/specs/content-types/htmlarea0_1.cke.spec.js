@@ -29,6 +29,33 @@ describe('htmlarea1_0.cke.spec: tests for html area with CKE', function () {
             await studioUtils.doAddSite(SITE);
         });
 
+    //Verifies: https://github.com/enonic/app-contentstudio/issues/3294
+    //Wizard toolbar - button 'Show Component View' should not be visible when a controller is not selected #3294
+    it(`GIVEN wizard for new site is opened(controller is not selected) WHEN 'Hide Page Editor' then 'Show Page Editor' have been clicked THEN toggler for Component View should not be visible in the toolbar`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            //1. Open a content without controllers
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            //2. Click on 'Hide Page Editor' button:
+            await contentWizard.clickOnPageEditorToggler();
+            //3. Click on 'Show Page Editor' button:
+            await contentWizard.clickOnPageEditorToggler();
+            //4. Verify that "Show Component View" toggler is not visible:
+            await contentWizard.waitForComponentVewTogglerNotVisible();
+        });
+
+    //Verifies: https://github.com/enonic/app-contentstudio/issues/3294
+    it(`GIVEN wizard for a content that has no controller is opened WHEN Show Page Editor has been clicked THEN toggler for Component View should not be visible in the toolbar`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            //1. Open a content without controllers
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
+            //2. Click on 'Show Page Editor' button:
+            await contentWizard.clickOnPageEditorToggler();
+            //3. Verify that "Show Component View" toggler is not visible:
+            await contentWizard.waitForComponentVewTogglerNotVisible();
+        });
+
     it(`WHEN wizard for 'htmlArea 0:1' is opened THEN single htmlarea should be present by default`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();

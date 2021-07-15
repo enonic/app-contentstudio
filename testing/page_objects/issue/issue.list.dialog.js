@@ -109,7 +109,7 @@ class IssuesListDialog extends Page {
         try {
             await this.waitForElementDisabled(this.openButton, appConst.shortTimeout);
         } catch (err) {
-            this.saveScreenshot("err_open_button_should_be_disabled");
+            await this.saveScreenshot("err_open_button_should_be_disabled");
             throw new Error("Issues List Dialog-  'Open' button should be disabled " + err);
         }
     }

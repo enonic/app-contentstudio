@@ -9,8 +9,9 @@ const XPATH = {
     cancelButton: `//button/span[text()='Cancel']`,
     itemToDeleteList: `//ul[contains(@id,'DeleteDialogItemList')]`,
     itemViewer: `//div[contains(@id,'DeleteItemViewer']`,
-    deleteItemByDisplayName: function (displayName) {
-        return `//div[contains(@id,'DeleteItemViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
+    inboundWarningPart2: "//h6/span[contains(@class,'part2')]",
+    itemToDeleteByDisplayName: displayName => {
+        return `//div[contains(@id,'NamesAndIconView') and descendant::span[contains(@class,'display-name') and contains(.,'${displayName}')]]`
     },
     inboundLink: `//a[contains(@class,'inbound-dependency')]`,
     getContentStatus(displayName) {
@@ -61,7 +62,7 @@ class DeleteContentDialog extends Page {
             await this.clickOnElement(this.deleteNowButton);
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_click_on_delete_now_dialog');
+            await this.saveScreenshot('err_click_on_delete_now_dialog');
             throw new Error(err);
         }
     }
@@ -71,14 +72,11 @@ class DeleteContentDialog extends Page {
             await this.clickOnElement(this.deleteNowButton);
             return await this.waitForDialogClosed();
         } catch (err) {
-            this.saveScreenshot('err_click_on_delete_now_dialog');
+            await this.saveScreenshot('err_click_on_delete_now_dialog');
             throw new Error(err);
         }
     }
 
-    clickOnNoButton() {
-        return this.clickOnElement(this.noButton);
-    }
 
     async clickOnDeleteMenuDropDownHandle() {
         await this.clickOnElement(this.deleteMenuDropDownHandle);
@@ -92,14 +90,17 @@ class DeleteContentDialog extends Page {
         return await this.pause(300);
     }
 
-    isItemHasInboundLink(itemDisplayName) {
-        let selector = XPATH.deleteItemByDisplayName(itemDisplayName) + XPATH.inboundLink;
-        return this.waitForElementDisplayed(selector, appConst.shortTimeout);
+    getInboundDependenciesWarning() {
+        let selector = XPATH.container + XPATH.inboundWarningPart2;
+        return this.getText(selector);
     }
 
-    getNumberOfInboundDependency(itemDisplayName) {
-        let selector = XPATH.deleteItemByDisplayName(itemDisplayName) + XPATH.inboundLink;
-        return this.getText(selector);
+    async clickOnShowInboundLink(itemDisplayName) {
+        let locator = XPATH.container + XPATH.itemToDeleteByDisplayName(itemDisplayName) +
+                      "//div[@title='Click to show the inbound references']";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        return await this.pause(2000);
     }
 
     async getTotalNumberItemsToDelete() {

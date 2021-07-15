@@ -67,7 +67,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             await createRequestPublishDialog.clickOnItemToPublishAndSwitchToWizard(FOLDER1_NAME);
             //new wizard-tab should be opened
             await contentWizard.waitForOpened();
-            studioUtils.saveScreenshot("publish_request_dialog_item_clicked");
+            await studioUtils.saveScreenshot("publish_request_dialog_item_clicked");
             let displayName = await contentWizard.getDisplayName();
             assert.equal(displayName, FOLDER1_NAME, "Expected display name should be present in that wizard");
         });
@@ -82,7 +82,7 @@ describe('request.publish.dialog.spec - opens request publish modal dialog and c
             //2. expand the Publish Menu and select 'Request Publishing...' menu item
             await contentBrowsePanel.openPublishMenuAndClickOnRequestPublish();
             await createRequestPublishDialog.clickOnNextButton();
-            studioUtils.saveScreenshot("request_publishing_next");
+            await studioUtils.saveScreenshot("request_publishing_next");
             //'Create Request' button should be disabled , because required input is empty:
             await createRequestPublishDialog.waitForCreateRequestButtonDisabled();
             //Previous button.
