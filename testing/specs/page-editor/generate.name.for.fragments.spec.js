@@ -6,7 +6,6 @@ const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
-const LayoutInspectPanel = require('../../page_objects/wizardpanel/liveform/inspection/layout.inspection.panel');
 const ContentFilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -16,6 +15,9 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
 const BrowseDependenciesWidget = require('../../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
+
 
 describe('Generate name for fragments  specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -87,16 +89,27 @@ describe('Generate name for fragments  specification', function () {
         async () => {
             let pageComponentView = new PageComponentView();
             let contentWizard = new ContentWizard();
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            let wizardDependenciesWidget = new WizardDependenciesWidget();
+            //1. Open the site with a fragment(text component)
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             await contentWizard.clickOnShowComponentViewToggler();
-            //2. Insert new text-component
+            //2. Click on text-component and expand the menu, then click on Remove menu item:
             await pageComponentView.openMenu("Text");
             await pageComponentView.selectMenuItemAndCloseDialog([appConstant.COMPONENT_VIEW_MENU_ITEMS.REMOVE]);
+            //3. Save the site:
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
+            //TODO check this behavior:
+            await wizardDetailsPanel.openDependencies();
+            //4. Verify that there are no fragments in Page Component View:
             await contentWizard.clickOnComponentViewToggler();
             let result = await pageComponentView.getFragmentsDisplayName();
             assert.equal(result.length, 0, "Fragment should not be present in Page Component View");
+            //5. 'Show outbound" button should disappear in the widget, because the fragment was removed in Page Component View
+            await wizardDependenciesWidget.waitForOutboundButtonNotVisible();
+            //6. 'No outgoing dependencies' message should be displayed:
+            await wizardDependenciesWidget.waitForNoOutgoingDependenciesMessage();
         });
 
     it(`WHEN existing fragment-text has been inserted in site THEN the site should be automatically saved`,
@@ -138,10 +151,8 @@ describe('Generate name for fragments  specification', function () {
             assert.equal(fragmentContent, "Layout", "Expected display name should be generated in Fragment-Wizard");
         });
 
-    beforeEach(() => studioUtils.navigateToContentStudioApp()
-    );
-    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome()
-    );
+    beforeEach(() => studioUtils.navigateToContentStudioApp());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {
         return console.log('specification starting: ' + this.title);
     });
