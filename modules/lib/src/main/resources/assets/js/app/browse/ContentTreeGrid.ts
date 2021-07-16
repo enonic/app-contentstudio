@@ -703,7 +703,7 @@ export class ContentTreeGrid
 
         items.forEach((item: DeletedContentItem) => {
             const nodeToDelete: TreeNode<ContentSummaryAndCompareStatus> = allNodes.find(
-                (node: TreeNode<ContentSummaryAndCompareStatus>) => node.getData()?.getPath().equals(item.path));
+                (node: TreeNode<ContentSummaryAndCompareStatus>) => node.getData()?.getPath()?.equals(item.path));
 
             if (nodeToDelete) {
                 this.deleteNode(nodeToDelete);
