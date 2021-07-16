@@ -58,13 +58,6 @@ node {
     download = true
 }
 
-if ( hasLibAdminUi() )
-{
-    copyDevResources.dependsOn += libAdminBuildTask
-    build.dependsOn += libAdminBuildTask
-    clean.dependsOn += libAdminCleanTask
-}
-
 task lint( type: NpmTask, dependsOn: npmInstall ) {
     args = [ 'run', 'lint' ]
     inputs.files fileTree( dir: 'modules', include: 'src/main/**.*' )
