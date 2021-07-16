@@ -5,7 +5,7 @@ import {Application} from 'lib-admin-ui/app/Application';
 import * as Q from 'q';
 import {AppContext} from './AppContext';
 
-export abstract class MainAppContainer
+export abstract class AppContainer
     extends DivEl {
 
     protected appBar: AppBar;
@@ -51,7 +51,5 @@ export abstract class MainAppContainer
 
         this.appPanel.bindKeys();
     }
-
-    abstract generateAppUrl(): string;
 }
 

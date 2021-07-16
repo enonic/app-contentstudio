@@ -2,8 +2,8 @@ import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {Project} from '../../settings/data/project/Project';
 import {ProjectListItem} from './ProjectListItem';
 import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
-import {AppMode} from '../../AppMode';
 import {UrlAction} from '../../UrlAction';
+import {ContentAppId} from '../../ContentAppId';
 
 export class ProjectList
     extends ListBox<Project> {
@@ -19,7 +19,7 @@ export class ProjectList
         const itemView: ProjectListItem = new ProjectListItem(item);
         itemView.addClass(`level-${this.projectLevel.get(item.getName())}`);
 
-        const url: string = `${AppMode.MAIN}#/${itemView.getProject().getName()}/${UrlAction.BROWSE}`;
+        const url: string = `${ContentAppId.ID}#/${itemView.getProject().getName()}/${UrlAction.BROWSE}`;
         itemView.setUrl(url);
 
         return itemView;
