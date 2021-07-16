@@ -7,13 +7,16 @@ plugins {
     id 'org.aim42.htmlSanityCheck' version '1.1.6'
 }
 
+allprojects {
+    apply from: "$rootDir/gradle/env.gradle"
+    apply from: "$rootDir/gradle/node.gradle"
+    apply from: "$rootDir/gradle/lib-admin.gradle"
+}
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'com.enonic.defaults'
     apply plugin: 'com.enonic.xp.base'
-    apply from: "$rootDir/gradle/env.gradle"
-    apply from: "$rootDir/gradle/node.gradle"
-    apply from: "$rootDir/gradle/lib-admin.gradle"
 
     dependencies {
         testImplementation 'junit:junit:4.13.2'
