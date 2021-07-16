@@ -38,11 +38,21 @@ def applyBuildTaskDependencies()
     }
 }
 
+def applyCleanTaskDependencies() {
+    def libAdminCleanTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':clean' )
+
+    if ( hasTask( 'clean' ) )
+    {
+        clean.dependsOn(libAdminCleanTask)
+    }
+}
+
 if ( hasLibAdminUi() )
 {
     afterEvaluate {
         applyExcludedTasks()
         applyBuildTaskDependencies()
+        applyCleanTaskDependencies()
     }
 
     ext {
