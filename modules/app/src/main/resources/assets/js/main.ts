@@ -60,6 +60,8 @@ import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/Project
 import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconUrlResolver';
 import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
 import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
+import {ContentApp} from 'lib-contentstudio/app/ContentApp';
+import {SettingsApp} from 'lib-contentstudio/app/settings/SettingsApp';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -536,15 +538,16 @@ async function startContentBrowser(application: Application) {
 
     await import ('lib-contentstudio/app/ContentAppPanel');
     const AppWrapper = (await import ('lib-contentstudio/app/AppWrapper')).AppWrapper;
-    const commonWrapper = new AppWrapper(application, getTheme());
+    const apps = [new ContentApp(), new SettingsApp()];
+    const activeApp = window.location.href.indexOf('settings') > -1 ? apps[1] : apps[0];
+    const commonWrapper = new AppWrapper(application, activeApp, apps, getTheme());
     body.appendChild(commonWrapper);
 
     const NewContentDialog = (await import ('lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;
 
     const newContentDialog = new NewContentDialog();
     ShowNewContentDialogEvent.on((event) => {
-
-        let parentContent: ContentSummary = event.getParentContent()
+        const parentContent: ContentSummary = event.getParentContent()
                                             ? event.getParentContent().getContentSummary() : null;
 
         if (parentContent != null) {
