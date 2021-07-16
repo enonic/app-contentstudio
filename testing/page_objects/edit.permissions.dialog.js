@@ -39,8 +39,9 @@ class EditPermissionsDialog extends Page {
         return xpath.container + xpath.inheritPermissionsCheckbox;
     }
 
-    waitForDialogLoaded() {
-        return this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
+    async waitForDialogLoaded() {
+        await this.waitForElementDisplayed(this.applyButton, appConst.mediumTimeout);
+        return await this.pause(300);
     }
 
     waitForDialogClosed() {
@@ -163,6 +164,6 @@ class EditPermissionsDialog extends Page {
             throw new Error('Error when checking Overwrite child permissions link ' + err);
         })
     }
-};
+}
 module.exports = EditPermissionsDialog;
 
