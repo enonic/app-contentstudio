@@ -52,7 +52,6 @@ task typescriptPkg( type: NpmTask, dependsOn: [npmInstall, lint] ) {
     args = [ 'run', "build:$buildEnv" ]
     inputs.dir "$projectDir/src/main/resources/assets/"
     outputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
-//    outputs.upToDateWhen { false }
 }
 
 task minifyPkg( type: NpmTask, dependsOn: [npmInstall, typescriptPkg] ) {
