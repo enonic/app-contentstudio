@@ -7,52 +7,36 @@ import {Application} from 'lib-admin-ui/app/Application';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {AppContext} from './AppContext';
-import {AppMode} from './AppMode';
-import {MainAppContainer} from './MainAppContainer';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {AppContainerFactory} from './AppContainerFactory';
+import {AppId} from './AppId';
+import {App} from './App';
 
 export class AppWrapper
     extends DivEl {
 
     private sidebar: Sidebar;
 
-    private appContainers: Map<AppMode, MainAppContainer> = new Map<AppMode, MainAppContainer>();
+    private apps: App[];
 
-    private currentAppContainer: MainAppContainer;
+    private currentApp: App;
 
     private toggleSidebarButton: Button;
 
     private touchListener: (event: MouseEvent) => void;
 
-    constructor(application: Application, className?: string) {
+    constructor(application: Application, currentApp: App, apps: App[], className?: string) {
         super(`main-app-wrapper ${(className || '')}`.trim());
 
-        this.initAppContext(application);
+        this.apps = apps;
+        AppContext.get().setCurrentApp(currentApp.getAppId());
+        AppContext.get().setApplication(application);
         this.initElements();
         this.initListeners();
-        this.startInitialAppContainer();
-    }
-
-    private initAppContext(application: Application) {
-        AppContext.get().setMode(this.getAppMode());
-        AppContext.get().setApplication(application);
-    }
-
-    private getAppMode(): AppMode {
-        if (this.isSettingsPage()) {
-            return AppMode.SETTINGS;
-        }
-
-        return AppMode.MAIN;
-    }
-
-    private isSettingsPage(): boolean {
-        return window.location.href.indexOf(`${CONFIG.mainUrl}/${AppMode.SETTINGS}`) > -1;
+        this.handleAppSelected(currentApp.getAppId());
     }
 
     private initElements() {
-        this.sidebar = new Sidebar();
+        this.sidebar = new Sidebar(this.apps);
         this.toggleSidebarButton = new ToggleIcon();
     }
 
@@ -60,34 +44,27 @@ export class AppWrapper
         this.toggleSidebarButton.onClicked(this.toggleSidebar.bind(this));
         this.handleTouchOutsideSidebar();
 
-        this.sidebar.onAppModeSelected((mode: AppMode) => {
-            this.handleAppSelected(mode);
+        this.sidebar.onAppModeSelected((appId: AppId) => {
+            this.handleAppSelected(appId);
         });
     }
 
-    private handleAppSelected(mode: AppMode) {
-        const appToShow: MainAppContainer = this.getOrCreateAppContainerByMode(mode);
-        history.pushState(null, null, appToShow.generateAppUrl());
-        AppContext.get().setMode(mode);
-        this.currentAppContainer.hide();
-        appToShow.show();
-        this.currentAppContainer = appToShow;
-    }
+    private handleAppSelected(appId: AppId) {
+        const appToShow: App = this.getAppById(appId);
 
-    private getOrCreateAppContainerByMode(mode: AppMode): MainAppContainer {
-        if (this.appContainers.has(mode)) {
-            return this.appContainers.get(mode);
+        if (!this.hasChild(appToShow.getAppContainer())) {
+            this.appendChild(appToShow.getAppContainer());
         }
 
-        return this.createAppContainer(mode);
+        history.pushState(null, null, appToShow.generateAppUrl());
+        AppContext.get().setCurrentApp(appId);
+        this.currentApp?.hide();
+        appToShow.show();
+        this.currentApp = appToShow;
     }
 
-    private createAppContainer(mode: AppMode): MainAppContainer {
-        const appContainer: MainAppContainer = AppContainerFactory.get().createApp(mode);
-        this.appContainers.set(mode, appContainer);
-        this.appendChild(appContainer);
-
-        return appContainer;
+    private getAppById(appId: AppId): App {
+        return this.apps.find((app: App) => app.getAppId().equals(appId));
     }
 
     private collapseSidebarOnMouseEvent(event: MouseEvent) {
@@ -134,12 +111,6 @@ export class AppWrapper
         }
     }
 
-    private startInitialAppContainer() {
-        const appContainer: MainAppContainer = this.createAppContainer(AppContext.get().getMode());
-        appContainer.show();
-        this.currentAppContainer = appContainer;
-    }
-
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.appendChildren(this.toggleSidebarButton, <Element>this.sidebar);
@@ -147,7 +118,6 @@ export class AppWrapper
             return rendered;
         });
     }
-
 }
 
 class ToggleIcon
@@ -174,36 +144,28 @@ class AppModeSwitcher
 
     private buttons: AppModeButton[] = [];
 
-    private appModeSelectedListeners: { (mode: AppMode): void } [] = [];
+    private appModeSelectedListeners: { (mode: AppId): void } [] = [];
 
-    constructor() {
+    constructor(apps: App[]) {
         super('actions-block');
 
-        this.initElements();
+        this.initButtons(apps);
         this.initListeners();
     }
 
-    private initElements() {
-        this.createContentButton();
-        this.createSettingsButton();
+    private initButtons(apps: App[]) {
+        apps.forEach((app: App) => {
+            this.createButton(app);
+        });
     }
 
     private initListeners() {
         this.buttons.forEach(this.listenButtonClicked.bind(this));
     }
 
-    private createContentButton() {
-        const name: string = i18n('app.content');
-        const contentButton: AppModeButton = new AppModeButton(name, 'icon-version-modified', AppMode.MAIN);
+    private createButton(app: App) {
+        const contentButton: AppModeButton = new AppModeButton(app.getIconName(), app.getIconClass(), app.getAppId());
         this.buttons.push(contentButton);
-    }
-
-    private createSettingsButton(): AppModeButton {
-        const name: string = i18n('app.settings');
-        const settingsButton: AppModeButton = new AppModeButton(name, 'icon-cog', AppMode.SETTINGS);
-        this.buttons.push(settingsButton);
-
-        return settingsButton;
     }
 
     private onButtonClicked(button: AppModeButton) {
@@ -211,8 +173,8 @@ class AppModeSwitcher
             b.toggleSelected(b === button);
         });
 
-        if (button.getMode() !== AppContext.get().getMode()) {
-            this.notifyAppModeSelected(button.getMode());
+        if (button.getAppId() !== AppContext.get().getCurrentApp()) {
+            this.notifyAppModeSelected(button.getAppId());
         }
     }
 
@@ -221,13 +183,13 @@ class AppModeSwitcher
         button.onClicked(() => this.onButtonClicked(button));
     }
 
-    private notifyAppModeSelected(mode: AppMode) {
-        this.appModeSelectedListeners.forEach((listener: (mode: AppMode) => void) => {
-            listener(mode);
+    private notifyAppModeSelected(appId: AppId) {
+        this.appModeSelectedListeners.forEach((listener: (id: AppId) => void) => {
+            listener(appId);
         });
     }
 
-    onAppModeSelected(handler: (mode: AppMode) => void) {
+    onAppModeSelected(handler: (mode: AppId) => void) {
         this.appModeSelectedListeners.push(handler);
     }
 
@@ -247,21 +209,21 @@ class AppModeSwitcher
 class AppModeButton
     extends Button {
 
-    private mode: AppMode;
+    private readonly appId: AppId;
 
     private static SELECTED_CLASS: string = 'selected';
 
-    constructor(name: string, iconClass: string, mode: AppMode) {
+    constructor(name: string, iconClass: string, appId: AppId) {
         super(name);
 
-        this.mode = mode;
+        this.appId = appId;
         this.setTitle(name);
         this.addClass(iconClass);
-        this.toggleClass(AppModeButton.SELECTED_CLASS, mode === AppContext.get().getMode());
+        this.toggleClass(AppModeButton.SELECTED_CLASS, appId === AppContext.get().getCurrentApp());
     }
 
-    getMode(): AppMode {
-        return this.mode;
+    getAppId(): AppId {
+        return this.appId;
     }
 
     toggleSelected(condition: boolean) {
@@ -274,10 +236,10 @@ class Sidebar
 
     private appModeSwitcher: AppModeSwitcher;
 
-    constructor() {
+    constructor(apps: App[]) {
         super('sidebar');
 
-        this.appModeSwitcher = new AppModeSwitcher();
+        this.appModeSwitcher = new AppModeSwitcher(apps);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -291,7 +253,7 @@ class Sidebar
         });
     }
 
-    onAppModeSelected(handler: (mode: AppMode) => void) {
+    onAppModeSelected(handler: (mode: AppId) => void) {
         this.appModeSwitcher.onAppModeSelected(handler);
     }
 
