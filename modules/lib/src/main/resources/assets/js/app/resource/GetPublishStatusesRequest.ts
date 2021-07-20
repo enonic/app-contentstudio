@@ -1,11 +1,11 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {GetPublishStatusesResult} from './GetPublishStatusesResult';
 import {GetPublishStatusesResultJson} from './json/GetPublishStatusesResultJson';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetPublishStatusesRequest
-    extends ContentResourceRequest<GetPublishStatusesResult> {
+    extends CmsContentResourceRequest<GetPublishStatusesResult> {
 
     private ids: string[];
 

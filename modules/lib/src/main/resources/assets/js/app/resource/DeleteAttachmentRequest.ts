@@ -1,12 +1,12 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class DeleteAttachmentRequest
-    extends ContentResourceRequest<Content> {
+    extends CmsContentResourceRequest<Content> {
 
     private contentId: ContentId;
 

@@ -1,9 +1,9 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export type DuplicatableId = {
     contentId: ContentId,
@@ -11,7 +11,7 @@ export type DuplicatableId = {
 };
 
 export class DuplicateContentRequest
-    extends ContentResourceRequest<TaskId> {
+    extends CmsContentResourceRequest<TaskId> {
 
     private contents: DuplicatableId[];
 

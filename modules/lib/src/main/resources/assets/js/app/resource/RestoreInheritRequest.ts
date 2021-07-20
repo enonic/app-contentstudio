@@ -1,11 +1,12 @@
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentInheritType} from '../content/ContentInheritType';
 import {ContentId} from '../content/ContentId';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
-export class RestoreInheritRequest extends ContentResourceRequest<void> {
+export class RestoreInheritRequest
+    extends CmsContentResourceRequest<void> {
 
     private contentId: ContentId;
 

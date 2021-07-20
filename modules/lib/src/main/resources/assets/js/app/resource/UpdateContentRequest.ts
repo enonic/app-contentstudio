@@ -1,6 +1,5 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {ExtraData} from '../content/ExtraData';
@@ -9,9 +8,10 @@ import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentName} from '../content/ContentName';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class UpdateContentRequest
-    extends ContentResourceRequest<Content> {
+    extends CmsContentResourceRequest<Content> {
 
     private id: string;
 

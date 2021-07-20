@@ -5,14 +5,14 @@ import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {Expression} from 'lib-admin-ui/query/expr/Expression';
 import {QueryField} from 'lib-admin-ui/query/QueryField';
 import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {Expand} from 'lib-admin-ui/rest/Expand';
 import {PathMatchExpressionBuilder} from 'lib-admin-ui/query/PathMatchExpression';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class ContentSelectorRequest<CONTENT>
-    extends ContentResourceRequest<CONTENT[]> {
+    extends CmsContentResourceRequest<CONTENT[]> {
 
     public static MODIFIED_TIME_DESC: FieldOrderExpr = new FieldOrderExpr(new FieldExpr('modifiedTime'), OrderDirection.DESC);
 

@@ -1,11 +1,11 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentIdBaseItemJson} from './json/ResolvePublishContentResultJson';
 import {ContentId} from '../content/ContentId';
 import {ChildOrder} from './order/ChildOrder';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetContentIdsByParentRequest
-    extends ContentResourceRequest<any> {
+    extends CmsContentResourceRequest<any> {
 
     private parentId: ContentId;
 

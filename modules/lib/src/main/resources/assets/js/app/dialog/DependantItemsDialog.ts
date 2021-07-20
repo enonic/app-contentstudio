@@ -14,8 +14,8 @@ import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {PEl} from 'lib-admin-ui/dom/PEl';
-import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ContentId} from '../content/ContentId';
+import {CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
 
 export interface DependantItemsDialogConfig
     extends ModalDialogWithConfirmationConfig {
@@ -291,7 +291,7 @@ export abstract class DependantItemsDialog
         });
     }
 
-    protected createResolveDescendantsRequest(): ContentResourceRequest<ContentId[]> {
+    protected createResolveDescendantsRequest(): CmsContentResourceRequest<ContentId[]> {
         const contents: ContentSummaryAndCompareStatus[] = this.getContentsToLoad();
 
         return new GetDescendantsOfContentsRequest().setContentPaths(contents.map(content => content.getContentSummary().getPath()));

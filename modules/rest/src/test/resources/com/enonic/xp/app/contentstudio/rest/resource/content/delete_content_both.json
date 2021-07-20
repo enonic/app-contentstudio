@@ -1,0 +1,5 @@
+{
+  "failureReason": "Not able to delete content with path [/two]: Some reason",
+  "pending": 0,
+  "success": 1
+}

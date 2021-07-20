@@ -1,6 +1,5 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {Workflow} from 'lib-admin-ui/content/Workflow';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {ExtraData} from '../content/ExtraData';
@@ -11,9 +10,10 @@ import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentName} from '../content/ContentName';
 import {ContentPath} from '../content/ContentPath';
 import {ContentUnnamed} from '../content/ContentUnnamed';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class CreateContentRequest
-    extends ContentResourceRequest<Content> {
+    extends CmsContentResourceRequest<Content> {
 
     private valid: boolean;
 

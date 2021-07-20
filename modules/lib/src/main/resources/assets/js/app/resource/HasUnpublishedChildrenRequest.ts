@@ -1,12 +1,12 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HasUnpublishedChildrenListJson} from './json/HasUnpublishedChildrenJson';
 import {HasUnpublishedChildrenResult} from './HasUnpublishedChildrenResult';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class HasUnpublishedChildrenRequest
-    extends ContentResourceRequest<HasUnpublishedChildrenResult> {
+    extends CmsContentResourceRequest<HasUnpublishedChildrenResult> {
 
     private ids: ContentId[] = [];
 

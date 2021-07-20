@@ -1,11 +1,11 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {PermissionsJson} from '../access/PermissionsJson';
 import {AccessControlList} from '../access/AccessControlList';
 import {ContentId} from '../content/ContentId';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetContentPermissionsByIdRequest
-    extends ContentResourceRequest<AccessControlList> {
+    extends CmsContentResourceRequest<AccessControlList> {
 
     private contentId: ContentId;
 

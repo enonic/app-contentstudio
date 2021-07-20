@@ -1,5 +1,4 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentResponse} from './ContentResponse';
 import {ListContentResult} from './ListContentResult';
 import {ContentMetadata} from '../content/ContentMetadata';
@@ -7,9 +6,10 @@ import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {ContentPath} from '../content/ContentPath';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class BatchContentRequest
-    extends ContentResourceRequest<ContentResponse<ContentSummary>> {
+    extends CmsContentResourceRequest<ContentResponse<ContentSummary>> {
 
     private contentPaths: ContentPath[] = [];
 

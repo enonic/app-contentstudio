@@ -1,11 +1,11 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentsExistResult} from './ContentsExistResult';
 import {ContentsExistJson} from './json/ContentsExistJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class ContentsExistRequest
-    extends ContentResourceRequest<ContentsExistResult> {
+    extends CmsContentResourceRequest<ContentsExistResult> {
 
     private contentIds: string[] = [];
 

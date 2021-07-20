@@ -1,12 +1,12 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {CompareContentResults} from './CompareContentResults';
 import {CompareContentResultsJson} from './json/CompareContentResultsJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class CompareContentRequest
-    extends ContentResourceRequest<CompareContentResults> {
+    extends CmsContentResourceRequest<CompareContentResults> {
 
     private ids: string[];
 

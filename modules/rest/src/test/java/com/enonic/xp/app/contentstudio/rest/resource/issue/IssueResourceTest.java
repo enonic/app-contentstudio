@@ -16,13 +16,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 
-import com.enonic.xp.app.contentstudio.json.content.json.PublishRequestJson;
-import com.enonic.xp.app.contentstudio.json.content.json.PublishRequestScheduleJson;
 import com.enonic.xp.app.contentstudio.json.issue.DeleteIssueCommentResultJson;
 import com.enonic.xp.app.contentstudio.json.issue.IssueCommentJson;
 import com.enonic.xp.app.contentstudio.json.issue.IssueStatsJson;
 import com.enonic.xp.app.contentstudio.json.issue.PublishRequestItemJson;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishRequestJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishRequestScheduleJson;
 import com.enonic.xp.app.contentstudio.rest.resource.issue.json.CountStatsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.issue.json.CreateIssueCommentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.issue.json.CreateIssueJson;
