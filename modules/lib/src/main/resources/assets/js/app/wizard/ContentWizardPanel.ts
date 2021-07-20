@@ -293,6 +293,7 @@ export class ContentWizardPanel
             if (!this.isRendered()) {
                 return;
             }
+
             this.updatePublishStatusOnDataChange();
             this.notifyDataChanged();
         }, 100);
