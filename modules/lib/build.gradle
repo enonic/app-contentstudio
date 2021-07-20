@@ -32,6 +32,8 @@ node {
     version = '16.0.0'
 }
 
+def resourcesDir = file( 'src/main/resources' )
+
 if ( hasLibAdminUi() )
 {
     copyDevResources.dependsOn += libAdminBuildTask
@@ -44,6 +46,14 @@ task lint( type: NpmTask, dependsOn: npmInstall ) {
     inputs.files fileTree( dir: 'modules', include: 'src/main/**.*' )
     outputs.dir file('gradle')
     outputs.upToDateWhen { false }
+}
+
+task typescriptLib( type: NpmTask, dependsOn: lint ) {
+    environment = [ 'NODE_ENV': nodeEnvironment() ]
+    description = 'Build library, that should be included to HTML.'
+    args = [ 'run', 'build:lib' ]
+    inputs.dir "$resourcesDir/assets"
+    outputs.dir "$buildDir/resources/main/assets"
 }
 
 task typescriptPkg( type: NpmTask, dependsOn: [npmInstall, lint] ) {
@@ -72,13 +82,16 @@ task copyPackage( type: NodeTask, dependsOn: typescriptPkg ) {
 
 task typescript {
     dependsOn 'typescriptPkg'
+    dependsOn 'typescriptLib'
     dependsOn 'minifyPkg'
     dependsOn 'copyPackage'
 }
 
 jar {
     exclude 'admin/**'
-    exclude 'assets/**'
+    exclude 'assets/js/**'
+    exclude 'assets/icons/**'
+    exclude 'assets/styles/**/*.less'
     exclude 'com/**'
     exclude 'i18n/**/common*'
     exclude 'lib/**'
