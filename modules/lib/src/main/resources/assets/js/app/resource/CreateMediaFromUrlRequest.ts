@@ -1,11 +1,11 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class CreateMediaFromUrlRequest
-    extends ContentResourceRequest<Content> {
+    extends CmsContentResourceRequest<Content> {
 
     private url: string;
 

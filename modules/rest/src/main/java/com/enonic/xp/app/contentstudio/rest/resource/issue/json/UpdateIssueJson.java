@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.enonic.xp.app.contentstudio.json.content.json.PublishRequestJson;
-import com.enonic.xp.app.contentstudio.json.content.json.PublishRequestScheduleJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishRequestJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishRequestScheduleJson;
 import com.enonic.xp.issue.IssueId;
 import com.enonic.xp.issue.IssueStatus;
 import com.enonic.xp.issue.PublishRequest;

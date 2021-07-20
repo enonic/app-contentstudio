@@ -1,5 +1,4 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentResponse} from './ContentResponse';
 import {ListContentResult} from './ListContentResult';
 import {ContentMetadata} from '../content/ContentMetadata';
@@ -8,9 +7,10 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ContentId} from '../content/ContentId';
 import {ChildOrder} from './order/ChildOrder';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class ListContentByIdRequest
-    extends ContentResourceRequest<ContentResponse<ContentSummary>> {
+    extends CmsContentResourceRequest<ContentResponse<ContentSummary>> {
 
     private parentId: ContentId;
 

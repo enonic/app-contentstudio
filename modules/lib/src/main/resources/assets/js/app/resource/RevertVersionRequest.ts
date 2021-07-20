@@ -1,10 +1,10 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentVersionJson} from './json/ContentVersionJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class RevertVersionRequest
-    extends ContentResourceRequest<string> {
+    extends CmsContentResourceRequest<string> {
 
     private versionId: string;
 
