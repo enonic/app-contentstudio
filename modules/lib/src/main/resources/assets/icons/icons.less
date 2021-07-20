@@ -1,0 +1,343 @@
+@font-face {
+  font-family: 'icomoon';
+  src: url('fonts/icomoon.eot?d2dpl4');
+  src:
+    url('fonts/icomoon.eot?#iefixd2dpl4') format('embedded-opentype'),
+    url('fonts/icomoon.woff?d2dpl4') format('woff'),
+    url('fonts/icomoon.ttf?d2dpl4') format('truetype'),
+    url('fonts/icomoon.svg?d2dpl4#icomoon-release') format('svg');
+}
+
+.icon {
+  .icon-mixin('icomoon');
+}
+
+.icon-spinner {
+  .icon();
+
+  &::before {
+    content: "\e007";
+  }
+}
+
+.icon-image {
+  .icon();
+
+  &::before {
+    content: "\e90d";
+  }
+}
+
+.icon-calendar {
+  .icon();
+
+  &::before {
+    content: "\e953";
+  }
+}
+
+.icon-pie {
+  .icon();
+
+  &::before {
+    content: "\e1f7";
+  }
+}
+
+.icon-fragment {
+  .icon-pie();
+}
+
+.icon-signup {
+  .icon();
+
+  &::before {
+    content: "\e296";
+  }
+}
+
+.icon-list {
+  .icon();
+
+  &::before {
+    content: "\e299";
+  }
+}
+
+.icon-attachment {
+  .icon();
+
+  &::before {
+    content: "\e9cd";
+  }
+}
+
+.icon-close {
+  .icon();
+
+  &::before {
+    content: "\e36b";
+  }
+}
+
+.icon-plus {
+  .icon();
+
+  &::before {
+    content: "\e36c";
+  }
+}
+
+.icon-keyboard_arrow_left {
+  .icon();
+
+  &::before {
+    content: "\e900";
+  }
+}
+
+.icon-arrow-left {
+  .icon-keyboard_arrow_left;
+}
+
+.icon-arrow-right {
+  .icon-keyboard_arrow_left;
+  .rotate(180deg);
+}
+
+.icon-arrow-left2 {
+  .icon();
+
+  &::before {
+    content: "\ea40";
+  }
+}
+
+.icon-font-size {
+  .icon();
+
+  &::before {
+    content: "\ea62";
+  }
+}
+
+.icon-insert-template {
+  .icon();
+
+  &::before {
+    content: "\ea73";
+  }
+}
+
+.icon-layout {
+  .icon-insert-template;
+
+  &::before {
+    display: inline-block;
+    .rotate(90deg);
+  }
+}
+
+.icon-page-template {
+  .icon-insert-template;
+}
+
+.icon-wrench {
+  .icon();
+
+  &::before {
+    content: "\e992";
+  }
+}
+
+.icon-pencil {
+  .icon();
+
+  &::before {
+    content: "\e906";
+  }
+}
+
+.icon-disk {
+  .icon();
+
+  &::before {
+    content: "\e134";
+  }
+}
+
+.icon-tree.mode-toggler-button {
+  .icon();
+
+  &::before {
+    content: "\e92f";
+  }
+
+  &.active {
+    &::before {
+      content: "\e930";
+    }
+  }
+
+  &::before {
+    font-size: 22px;
+  }
+}
+
+.icon-history {
+  .icon();
+
+  &::before {
+    content: "\e94d";
+  }
+}
+
+.icon-link {
+  .icon();
+
+  &::before {
+    content: "\e9cb";
+  }
+}
+
+.icon-big-plus {
+  .icon();
+
+  &::before {
+    content: "\ea0a";
+  }
+}
+
+.icon-state-invalid {
+  .icon();
+
+  &:before {
+    color: #CB0300;
+    content: "\e905";
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
+}
+
+.icon-state-in-progress {
+  .icon();
+
+  &:before {
+    color: #CBAD00;
+    content: "\e904";
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
+}
+
+.icon-state-ready {
+  .icon();
+
+  &:before {
+    content: "\e907";
+    color: @admin-green;
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
+}
+
+.icon-version-modified {
+  .icon();
+
+  &:before {
+    content: "\e908";
+  }
+}
+
+.icon-version-published {
+  .icon();
+
+  &:before {
+    content: "\e909";
+  }
+}
+
+.icon-version-unpublished {
+  .icon();
+
+  &:before {
+    content: "\e2c1";
+  }
+}
+
+.icon-publish-request {
+  .icon();
+
+  &:before {
+    content: "\e9a0";
+  }
+}
+
+.icon-issue {
+  .icon();
+
+  &:before {
+    content: "\e9a1";
+  }
+}
+
+.icon-publish-request,
+.icon-issue {
+  &.closed {
+    color: #777777;
+  }
+
+  &.opened {
+    color: #609E24;
+  }
+}
+
+.icon-compare {
+  .icon();
+
+  &:before {
+    content: "\e915";
+  }
+}
+
+.icon-tree-2 {
+  .icon();
+
+  &:before {
+    content: "\e978";
+  }
+}
+
+.icon-blocked {
+  .icon();
+
+  &:before {
+    content: "\ea0e";
+    color: @admin-red;
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
+}
+
+.icon-layer {
+  .icon();
+
+  &:before {
+    content: "\e932";
+  }
+}
+
+.icon-cloud-download(@size: 18px, @bottom: -6px, @left:-4px) {
+  &::after {
+    background-image: url("cloud-download.svg");
+    background-repeat: no-repeat;
+    background-size: @size;
+    display: block;
+    width: @size;
+    height: @size;
+    content: " ";
+    position: absolute;
+    bottom: @bottom;
+    left: @left;
+  }
+}

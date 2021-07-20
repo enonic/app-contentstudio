@@ -1,39 +1,32 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const ProvidePlugin = require('webpack/lib/ProvidePlugin');
-
+const ErrorLoggerPlugin = require('error-logger-webpack-plugin');
 const path = require('path');
+
+const MiniCssExtractPluginCleanup = require('./util/MiniCssExtractPluginCleanup');
 
 const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
-        'js/main': './js/main.ts',
-        'page-editor/js/editor': './js/page-editor.ts',
-        'page-editor/lib/vendors': './page-editor/lib/index.js',
-        'page-editor/styles/main': './page-editor/styles/main.less'
+        'styles/contentlib': './styles/main.less',
+        'lib/vendors': './lib/index.js',
+        'lib/ckeditor/plugins/pasteModeSwitcher/plugin': './lib/ckeditor/plugins/pasteModeSwitcher/plugin.raw.js',
+        // html editor css imported separately in the HTMLAreaBuilder for legacy mode
+        'styles/html-editor': './styles/inputtype/text/htmlarea/html-editor.less'
     },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
-        filename: './[name].js',
-        assetModuleFilename: './[file]'
+        filename: './[name].js'
     },
     resolve: {
         extensions: ['.ts', '.js', '.less', '.css']
     },
     module: {
         rules: [
-            {
-                test: /\.js$/,
-                enforce: 'pre',
-                use: ['source-map-loader'],
-                exclude: [
-                    path.resolve(__dirname, 'node_modules/fine-uploader/'),
-                ],
-            },
             {
                 test: /\.tsx?$/,
                 use: [{loader: 'ts-loader', options: {configFile: 'tsconfig.json'}}]
@@ -48,11 +41,12 @@ module.exports = {
                 ]
             },
             {
+                test: /\.(eot|woff|woff2|ttf)$|icomoon.svg/,
+                use: 'file-loader?name=fonts/[name].[ext]'
+            },
+            {
                 test: /^((?!icomoon).)*\.(svg|png|jpg|gif)$/,
-                type: 'asset/resource',
-                generator: {
-                    filename: 'img/[base]'
-                }
+                use: 'file-loader?name=img/[name].[ext]'
             }
         ]
     },
@@ -93,17 +87,20 @@ module.exports = {
             filename: '[name].css',
             chunkFilename: './styles/[id].css'
         }),
-        new CopyWebpackPlugin({
-            patterns: [
-                {from: 'icons/fonts/icomoon.*', to: 'page-editor/[file]'}
-            ]
-        }),
+        new MiniCssExtractPluginCleanup([/main\.(lite\.)?js(\.map)?$/]),
         new CircularDependencyPlugin({
             exclude: /a\.js|node_modules/,
             failOnError: true
         }),
+        //new ErrorLoggerPlugin({showColumn: false})
     ],
     mode: isProd ? 'production' : 'development',
-    devtool: isProd ? false : 'eval-source-map',
-    performance: {hints: false}
+    devtool: isProd ? false : 'source-map',
+    performance: {
+        hints: false,
+    },
+    stats: {
+        assets: false,
+        modules: false,
+    }
 };
