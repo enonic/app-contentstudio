@@ -1,15 +1,13 @@
 @font-face {
-  font-family: 'icomoon';
-  src: url('fonts/icomoon.eot?d2dpl4');
+  font-family: 'icomoon-studio-lib';
   src:
-    url('fonts/icomoon.eot?#iefixd2dpl4') format('embedded-opentype'),
-    url('fonts/icomoon.woff?d2dpl4') format('woff'),
-    url('fonts/icomoon.ttf?d2dpl4') format('truetype'),
-    url('fonts/icomoon.svg?d2dpl4#icomoon-release') format('svg');
+    url('fonts/icomoon-studio-lib.woff?d2dpl4') format('woff'),
+    url('fonts/icomoon-studio-lib.ttf?d2dpl4') format('truetype'),
+    url('fonts/icomoon-studio-lib.svg?d2dpl4#icomoon-release') format('svg');
 }
 
 .icon {
-  .icon-mixin('icomoon');
+  .icon-mixin('icomoon-studio-lib');
 }
 
 .icon-spinner {
@@ -42,10 +40,6 @@
   &::before {
     content: "\e1f7";
   }
-}
-
-.icon-fragment {
-  .icon-pie();
 }
 
 .icon-signup {
@@ -119,27 +113,6 @@
   &::before {
     content: "\ea62";
   }
-}
-
-.icon-insert-template {
-  .icon();
-
-  &::before {
-    content: "\ea73";
-  }
-}
-
-.icon-layout {
-  .icon-insert-template;
-
-  &::before {
-    display: inline-block;
-    .rotate(90deg);
-  }
-}
-
-.icon-page-template {
-  .icon-insert-template;
 }
 
 .icon-wrench {
