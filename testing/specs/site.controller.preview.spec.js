@@ -49,7 +49,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             let contentWizard = new ContentWizard();
             let contextWindow = new ContextWindow();
             let pageInspectionPanel = new PageInspectionPanel();
-            //1. Open new existing site-wizard:
+            //1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             //await contentBrowsePanel.waitForPreviewButtonDisabled();
             //2. Select the controller:
@@ -82,7 +82,7 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await contentBrowsePanel.waitForContextMenuItemEnabled("Preview");
         });
 
-    it(`GIVEN existing site is opened WHEN selected controller has been reset THEN 'Preview' button gets not visible in browser`,
+    it(`GIVEN existing site is opened WHEN selected controller has been reset THEN 'Preview' button gets not visible in wizard-toolbar and gets disabled in browse-toolbar `,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();

@@ -11,7 +11,7 @@ class BaseDetailsPanel extends Page {
     async clickOnWidgetSelectorDropdownHandle() {
         try {
             await this.waitForElementDisplayed(this.widgetSelectorDropdownHandle, appConst.mediumTimeout);
-            await this.pause(200);
+            await this.pause(300);
             return await this.clickOnElement(this.widgetSelectorDropdownHandle);
         } catch (err) {
             throw new Error('Error when clicking on Widget Selector dropdown handle  ' + err);
@@ -37,6 +37,11 @@ class BaseDetailsPanel extends Page {
         }
     }
 
+    getWidgetSelectorDropdownOptions() {
+        let locator = this.widgetSelectorDropdown + lib.H6_DISPLAY_NAME;
+        return this.getTextInDisplayedElements(locator);
+    }
+
     //clicks on dropdown handle and select the 'Dependencies' menu item
     async openDependencies() {
         await this.clickOnWidgetSelectorDropdownHandle();
@@ -56,6 +61,19 @@ class BaseDetailsPanel extends Page {
             return await this.pause(500);
         } catch (err) {
             throw new Error("Error when opening Layers widget" + err);
+        }
+    }
+
+    async openEmulatorWidget() {
+        try {
+            await this.clickOnWidgetSelectorDropdownHandle();
+            let emulatorOptionLocator = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.EMULATOR);
+            await this.waitForElementDisplayed(emulatorOptionLocator, appConst.mediumTimeout);
+            let result = await this.getDisplayedElements(emulatorOptionLocator);
+            await result[0].click();
+            return await this.pause(500);
+        } catch (err) {
+            throw new Error("Error when opening Emulator widget" + err);
         }
     }
 }

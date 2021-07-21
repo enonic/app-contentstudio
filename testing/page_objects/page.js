@@ -466,6 +466,12 @@ class Page {
         await this.getBrowser().execute(script, id, scrollTop);
         return await this.pause(300);
     }
+
+    async getCSSProperty(locator, property) {
+        let elems = await this.findElements(locator);
+        return await elems[0].getCSSProperty(property);
+
+    }
 }
 
 module.exports = Page;
