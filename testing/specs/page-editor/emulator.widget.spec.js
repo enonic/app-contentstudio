@@ -77,7 +77,7 @@ describe('emulator.widget.spec: tests for emulator widget', function () {
             assert.equal(actualHeight, "667px", "Expected height of Page Editor is present");
         });
 
-    it(`GIVEN wizard for new site is opened WHEN 'Notebook 13' resolution has been clicked THEN Page Editor size gets 1280x800px`,
+    it(`GIVEN existing site is opened WHEN 'Notebook 13' resolution has been clicked THEN Page Editor size gets 1280x800px`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardDetailsPanel = new WizardDetailsPanel();
@@ -94,7 +94,7 @@ describe('emulator.widget.spec: tests for emulator widget', function () {
             assert.equal(actualHeight, "800px", "Expected height of Page Editor is present");
         });
 
-    it(`GIVEN wizard for new site is opened WHEN 'Notebook 15' resolution has been clicked THEN Page Editor size gets 1366x758px`,
+    it(`GIVEN existing site is opened WHEN 'Notebook 15' resolution has been clicked THEN Page Editor size gets 1366x758px`,
         async () => {
             let contentWizard = new ContentWizard();
             let wizardDetailsPanel = new WizardDetailsPanel();
