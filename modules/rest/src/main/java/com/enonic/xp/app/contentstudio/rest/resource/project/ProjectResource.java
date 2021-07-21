@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.enonic.xp.app.contentstudio.rest.resource.AdminRestConfig;
+import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.ProjectsSyncTask;
 import com.enonic.xp.app.contentstudio.rest.resource.project.json.CreateProjectParamsJson;

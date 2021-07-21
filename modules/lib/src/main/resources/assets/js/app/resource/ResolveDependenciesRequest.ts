@@ -1,11 +1,11 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ResolveDependenciesResult, ResolveDependenciesResultJson} from './ResolveDependenciesResult';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class ResolveDependenciesRequest
-    extends ContentResourceRequest<ResolveDependenciesResult> {
+    extends CmsContentResourceRequest<ResolveDependenciesResult> {
 
     private ids: ContentId[];
 
