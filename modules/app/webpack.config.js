@@ -39,11 +39,11 @@ module.exports = {
                 ]
             },
             {
-                test: /\.(eot|woff|woff2|ttf)$|icomoon.svg/,
+                test: /\.(eot|woff|woff2|ttf)$|icomoon-studio-app.svg/,
                 use: 'file-loader?name=fonts/[name].[ext]'
             },
             {
-                test: /^((?!icomoon).)*\.(svg|png|jpg|gif)$/,
+                test: /^((?!icomoon-studio-app).)*\.(svg|png|jpg|gif)$/,
                 use: 'file-loader?name=img/[name].[ext]'
             }
         ]
@@ -87,7 +87,7 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                {from: 'icons/fonts/icomoon.*', to: 'page-editor/fonts/[name][ext]'}
+                {from: 'icons/fonts/icomoon-studio-app.*', to: 'page-editor/fonts/[name][ext]'}
             ]
         }),
         new CircularDependencyPlugin({
