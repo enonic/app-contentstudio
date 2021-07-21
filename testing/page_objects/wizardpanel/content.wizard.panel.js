@@ -1058,6 +1058,16 @@ class ContentWizardPanel extends Page {
         await dialog.waitForDialogOpened();
         return dialog;
     }
+
+    async getPageEditorWidth() {
+        let widthProperty = await this.getCSSProperty(XPATH.liveEditFrame, "width");
+        return widthProperty.value;
+    }
+
+    async getPageEditorHeight() {
+        let heightProperty = await this.getCSSProperty(XPATH.liveEditFrame, "height");
+        return heightProperty.value;
+    }
 }
 
 module.exports = ContentWizardPanel;
