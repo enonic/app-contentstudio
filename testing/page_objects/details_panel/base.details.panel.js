@@ -68,7 +68,7 @@ class BaseDetailsPanel extends Page {
         try {
             await this.clickOnWidgetSelectorDropdownHandle();
             let emulatorOptionLocator = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.EMULATOR);
-            await this.waitForElementDisplayed(emulatorOption, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(emulatorOptionLocator, appConst.mediumTimeout);
             let result = await this.getDisplayedElements(emulatorOptionLocator);
             await result[0].click();
             return await this.pause(500);
