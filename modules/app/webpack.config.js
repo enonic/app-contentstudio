@@ -48,7 +48,7 @@ module.exports = {
                 ]
             },
             {
-                test: /^((?!icomoon).)*\.(svg|png|jpg|gif)$/,
+                test: /^((?!icomoon-studio-app).)*\.(svg|png|jpg|gif)$/,
                 type: 'asset/resource',
                 generator: {
                     filename: 'img/[base]'
@@ -95,7 +95,7 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                {from: 'icons/fonts/icomoon.*', to: 'page-editor/[file]'}
+                {from: 'icons/fonts/icomoon-studio-app.*', to: 'page-editor/fonts/[file]'}
             ]
         }),
         new CircularDependencyPlugin({
