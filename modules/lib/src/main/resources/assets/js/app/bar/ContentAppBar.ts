@@ -74,6 +74,8 @@ export class ContentAppBar
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
+            const iconEl: DivEl = new DivEl('project-selection-icon icon-compare');
+            this.selectedProjectViewer.appendChild(iconEl);
             this.selectedProjectViewer.setTitle(i18n('text.selectContext'));
             this.addClass('appbar-content');
             this.insertChild(this.selectedProjectViewer, 0);
