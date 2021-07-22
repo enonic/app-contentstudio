@@ -181,6 +181,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await contentWizard.waitAndClickOnSave();
             //5. Open text-component context menu:
             await pageComponentView.openMenu("test text");
+            await studioUtils.saveScreenshot("fragment-template-context-menu");
             //6. Verify that 'Save as Fragment' menu item is not present in the menu:
             await pageComponentView.waitForMenuItemNotDisplayed(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
         });

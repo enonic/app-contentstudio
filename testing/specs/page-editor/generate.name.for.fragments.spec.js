@@ -165,6 +165,7 @@ describe('Generate name for fragments  specification', function () {
             //3. Select a fragment in Inspection Panel:
             let fragmentDisplayName = "Layout";
             await fragmentInspectionPanel.typeNameAndSelectFragment(fragmentDisplayName);
+            await studioUtils.saveScreenshot("fragment-inserted-in-inspect");
             //4. Verify that the site is automatically saved and Save button is disabled
             await contentWizard.waitForNotificationMessage();
             await contentWizard.waitForSaveButtonDisabled();
