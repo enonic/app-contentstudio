@@ -59,7 +59,7 @@ describe("revert.site.with.component.spec: Insert Text component then revert the
                 //2. Do right click on the image-component:
                 await contentWizard.switchToLiveEditFrame();
                 await liveFormPanel.doRightClickOnTextComponent(TEXT, position.x, position.y);
-                studioUtils.saveScreenshot("image_component_context_menu");
+                await studioUtils.saveScreenshot("image_component_context_menu");
                 //3. Verify menu items:
                 let result = await liveFormPanel.getItemViewContextMenuItems();
                 assert.equal(result[0], 'Select parent');

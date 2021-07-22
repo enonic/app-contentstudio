@@ -168,7 +168,15 @@ class LiveFormPanel extends Page {
     async waitForCaptionDisplayed(text) {
         let locator = xpath.captionByText(text);
         return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
 
+    async getFragmentsNumber() {
+        let contentWizard = new ContentWizard();
+        let locator = xpath.fragmentComponentView;
+        await contentWizard.switchToLiveEditFrame();
+        let result = await this.getDisplayedElements(locator);
+        await contentWizard.switchToMainFrame();
+        return result.length;
     }
 }
 
