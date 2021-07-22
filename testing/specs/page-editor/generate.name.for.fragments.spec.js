@@ -17,7 +17,7 @@ const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.d
 const BrowseDependenciesWidget = require('../../page_objects/browsepanel/detailspanel/browse.dependencies.widget');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
-
+const FragmentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/fragment.inspection.panel');
 
 describe('Generate name for fragments  specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -26,7 +26,6 @@ describe('Generate name for fragments  specification', function () {
     let SITE;
     let CONTROLLER_NAME = 'main region';
     let TEST_IMAGE_NAME = appConstant.TEST_IMAGES.FOSS;
-
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -149,6 +148,29 @@ describe('Generate name for fragments  specification', function () {
             //4. Verify the generated display name(should be 'Layout'):
             let fragmentContent = await contentWizard.getDisplayName();
             assert.equal(fragmentContent, "Layout", "Expected display name should be generated in Fragment-Wizard");
+        });
+
+    it(`GIVEN existing site is opened WHEN the third fragment has been added and selected in Fragment Inspection panel THEN 3 fragments should be present in Live Edit`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            let fragmentInspectionPanel = new FragmentInspectionPanel();
+            let liveFormPanel = new LiveFormPanel();
+            //1. Open existing site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            //2. Insert new fragment-component
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Fragment"]);
+            //3. Select a fragment in Inspection Panel:
+            let fragmentDisplayName = "Layout";
+            await fragmentInspectionPanel.typeNameAndSelectFragment(fragmentDisplayName);
+            //4. Verify that the site is automatically saved and Save button is disabled
+            await contentWizard.waitForNotificationMessage();
+            await contentWizard.waitForSaveButtonDisabled();
+            //5. Verify the number of fragments in Live Edit:
+            let number = await liveFormPanel.getFragmentsNumber();
+            assert.equal(number, 3, "Three fragments should be in Live Edit");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

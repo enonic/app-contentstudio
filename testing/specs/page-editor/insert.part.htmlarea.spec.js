@@ -11,6 +11,7 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const TextComponentCke = require('../../page_objects/components/text.component');
 
 describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -20,6 +21,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
     let CONTENT_NAME;
     let PART_DESCRIPTION = "Html Area Example";
     let TEST_TEXT = "Test text";
+    let TEMPLATE;
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -140,8 +142,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
         });
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/1523 Case 2
-    it.skip(
-        `GIVEN existing content with fragment(created from a part) is opened WHEN fragment has been detached THEN part with custom icon should appear in the Page Component View`,
+    it(`GIVEN existing content with fragment(created from a part) is opened WHEN fragment has been detached THEN part with custom icon should appear in the Page Component View`,
         async () => {
             let contentWizard = new ContentWizard();
             let pageComponentView = new PageComponentView();
@@ -157,6 +158,31 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             assert.isFalse(isDefaultIcon, "The part should be displayed with the custom icon");
             isDefaultIcon = await pageComponentView.isItemWithDefaultIcon("Html Area Example", 1);
             assert.isFalse(isDefaultIcon, "The part should be displayed with the custom icon");
+        });
+
+    it(`GIVEN new page template with a text component is saved WHEN text component context menu has been opened THEN 'Save as fragment' menu item should not be present in the menu`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageComponentView = new PageComponentView();
+            let textComponentCke = new TextComponentCke();
+            //1. Expand the site and add a template:
+            let templateName = contentBuilder.generateRandomName('template');
+            TEMPLATE = contentBuilder.buildPageTemplate(templateName, "Site", CONTROLLER_NAME);
+            await studioUtils.doOpenPageTemplateWizard(SITE.displayName);
+            await contentWizard.typeData(TEMPLATE);
+            await contentWizard.selectPageDescriptor(TEMPLATE.data.controllerDisplayName);
+            //2. Open Page Component View in template-wizard:
+            await contentWizard.clickOnShowComponentViewToggler();
+            //3.Click on the item and open Context Menu:
+            await pageComponentView.openMenu("main");
+            //4. Insert Text Component with test text and save it:
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await textComponentCke.typeTextInCkeEditor("test text");
+            await contentWizard.waitAndClickOnSave();
+            //5. Open text-component context menu:
+            await pageComponentView.openMenu("test text");
+            //6. Verify that 'Save as Fragment' menu item is not present in the menu:
+            await pageComponentView.waitForMenuItemNotDisplayed(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
