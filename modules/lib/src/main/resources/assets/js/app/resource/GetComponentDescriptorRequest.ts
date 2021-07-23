@@ -1,13 +1,13 @@
 import {Descriptor} from '../page/Descriptor';
 import {DescriptorJson} from '../page/DescriptorJson';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ComponentType} from '../page/region/ComponentType';
 import {PageComponentType} from '../page/region/PageComponentType';
+import {CmsResourceRequest} from './CmsResourceRequest';
 
 export class GetComponentDescriptorRequest
-    extends ResourceRequest<Descriptor> {
+    extends CmsResourceRequest<Descriptor> {
 
     private readonly descriptorKey: string;
     private readonly componentType: ComponentType;
