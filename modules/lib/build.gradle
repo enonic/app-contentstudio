@@ -33,7 +33,7 @@ node {
 }
 
 task lint( type: NpmTask, dependsOn: npmInstall ) {
-    args = [ 'run', 'lint' ]
+    args = [ 'run', 'lint:quiet' ]
     inputs.files fileTree( dir: 'modules', include: 'src/main/**.*' )
     outputs.dir file('gradle')
     outputs.upToDateWhen { false }
