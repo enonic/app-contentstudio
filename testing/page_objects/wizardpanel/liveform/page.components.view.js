@@ -99,6 +99,11 @@ class PageComponentView extends Page {
         return this.waitForElementDisplayed(selector, appConst.shortTimeout);
     }
 
+    waitForMenuItemNotDisplayed(menuItem) {
+        let selector = xpath.contextMenuItemByName(menuItem);
+        return this.waitForElementNotDisplayed(selector, appConst.shortTimeout);
+    }
+
     //example: clicks on Insert/Image menu items
     selectMenuItem(items) {
         let result = Promise.resolve();

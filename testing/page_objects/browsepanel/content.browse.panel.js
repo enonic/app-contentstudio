@@ -42,8 +42,6 @@ const XPATH = {
     contentSummaryByDisplayName: function (displayName) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
     },
-    projectItemByDisplayName:
-        displayName => `//div[contains(@id,'ProjectListItemViewer')and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     publishMenuItemByName: function (name) {
         return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
@@ -403,6 +401,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_preview_disabled_button');
             throw Error('Preview button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
+        })
+    }
+
+    waitForPreviewButtonEnabled() {
+        return this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout).catch(err => {
+            this.saveScreenshot('err_preview_enabled_button');
+            throw Error('Preview button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
         })
     }
 
@@ -812,6 +817,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
         await this.clickOnElement(this.localizeButton);
         return await this.pause(1000);
+    }
+
+    rightClickOnItemByDisplayName(displayName) {
+        const nameXpath = XPATH.container + XPATH.rowByDisplayName(displayName);
+        return this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout).then(() => {
+            return this.doRightClick(nameXpath);
+        }).catch(err => {
+            throw Error(`Error when do right click on the row:` + err);
+        })
     }
 }
 
