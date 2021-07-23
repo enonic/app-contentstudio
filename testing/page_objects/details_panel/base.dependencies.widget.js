@@ -19,6 +19,10 @@ class BaseDependenciesWidget extends Page {
         return this.clickOnElement(this.showInboundButton);
     }
 
+    waitForNoOutgoingDependenciesMessage() {
+        return this.waitForElementDisplayed("//div[@class='dependencies-container outbound no-dependencies']");
+    }
+
     getNumberOutboundItems() {
         return this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout).then(() => {
             return this.getText(this.showOutboundButton);

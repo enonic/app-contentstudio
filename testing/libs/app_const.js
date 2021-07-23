@@ -108,7 +108,16 @@ module.exports = Object.freeze({
     WIDGET_TITLE: {
         VERSION_HISTORY: 'Version history',
         DEPENDENCIES: 'Dependencies',
-        LAYERS: 'Layers'
+        LAYERS: 'Layers',
+        EMULATOR: 'Emulator'
+    },
+    EMULATOR_RESOLUTION: {
+        MEDIUM_PHONE: 'Medium Phone',
+        LARGE_PHONE: 'Large Phone',
+        TABLET: 'Tablet',
+        NOTEBOOK_13: "13\" Notebook",
+        SMALL_PHONE: 'Small Phone',
+        NOTEBOOK_15: "15\" Notebook",
     },
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',
