@@ -55,6 +55,7 @@ ext {
     xpServer = new ServerInstance()
     contentStudioFile = "$deployDir${File.separator}contentstudio-${appVersion}.jar"
     contentStudioAppUrl = "https://repo.enonic.com/dev/com/enonic/app/contentstudio/${appVersion}/contentstudio-${appVersion}.jar"
+    contentStudioDir = "$projectDir/../modules/app/build/libs"
 }
 
 def createAppendix( classifier ) {
@@ -81,6 +82,16 @@ task copyApps( type: Copy ) {
     println appDir
     println deployDir
     from file( appDir )
+    include '*.jar'
+    into file( deployDir )
+}
+task copyCS( type: Copy ) {
+    println '*********************************************************'
+    println '* task started:copy Content Studio  *'
+    println '*********************************************************'
+    println contentStudioDir
+    println deployDir
+    from file( contentStudioDir )
     include '*.jar'
     into file( deployDir )
 }
@@ -154,6 +165,15 @@ task startServer( dependsOn: [unpackDistro, copyConfig, deployContentStudio] ) {
     deployContentStudio.mustRunAfter unpackDistro
 }
 
+task startServerInGithub( dependsOn: [unpackDistro, copyConfig] ) {
+    doLast {
+        xpServer.installDir = file( distroDir )
+        xpServer.startupDelay = 50000
+        xpServer.start()
+    }
+    copyConfig.mustRunAfter unpackDistro
+}
+
 task stopServer {
     doLast {
         xpServer.stop()
@@ -191,6 +211,12 @@ task testContentStudioProjects( type: NpmTask, dependsOn: [npmInstall, startServ
     copyApps.mustRunAfter startServer
 }
 
+task baseContentStudioTests( type: NpmTask, dependsOn: [npmInstall, startServerInGithub, copyApps, copyCS, ensureScreenshotsDirectory] ) {
+    args = ['run-script', 'base_tests']
+    startServerInGithub.mustRunAfter npmInstall
+    copyCS.mustRunAfter startServer
+}
+
 task runSeparateTestLocally( type: Exec, dependsOn: [npmInstall, ensureScreenshotsDirectory] ) {
     if ( project.hasProperty( "t_name" ) )
     {
@@ -208,6 +234,7 @@ task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, ensureS
 
 testContentStudioApp.finalizedBy = ['stopServer']
 testContentStudioProjects.finalizedBy = ['stopServer']
+baseContentStudioTests.finalizedBy = ['stopServer']
 
 repositories {
     mavenLocal()
