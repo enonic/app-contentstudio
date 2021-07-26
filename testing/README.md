@@ -16,6 +16,7 @@ go to '/testing' folder and run:
   2. gradle testContentStudioAppLocally  ( --project-cache-dir d:/cache)
   3. gradle runSeparateTestLocally -Pt_name=overwrite.permissions.spec  --project-cache-dir d:/cache
   4. gradlew testContentStudioProjects  --project-cache-dir d:/cache
+  5. gradlew baseContentStudioTests  --project-cache-dir d:/cache
   
 
 ### Reporting 
