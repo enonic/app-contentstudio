@@ -245,7 +245,7 @@ export class Page
             for (let j = 0; j < components.length; j++) {
                 const component = components[j];
                 if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), ComponentType)) {
-                    if ((<Component>component).getPath().equals(componentPath)) {
+                    if ((component).getPath().equals(componentPath)) {
                         return component;
                     }
                 }

@@ -7,7 +7,7 @@ import {ContentJson} from '../content/ContentJson';
 import {RepositoryId} from '../repository/RepositoryId';
 import {ContentId} from '../content/ContentId';
 
-declare var CONFIG;
+declare let CONFIG;
 
 export class GetContentVersionRequest
     extends ContentResourceRequest<Content> {

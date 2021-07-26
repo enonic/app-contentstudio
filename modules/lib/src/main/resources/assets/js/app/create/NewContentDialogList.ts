@@ -19,7 +19,7 @@ export class NewContentDialogList
     }
 
     unSelected(listener: (event: NewContentDialogItemSelectedEvent)=>void) {
-        this.selectedListeners = this.selectedListeners.filter((currentListener: (event: NewContentDialogItemSelectedEvent)=>void)=> {
+        this.selectedListeners = this.selectedListeners.filter((currentListener: (event: NewContentDialogItemSelectedEvent) => void) => {
             return currentListener !== listener;
         });
     }

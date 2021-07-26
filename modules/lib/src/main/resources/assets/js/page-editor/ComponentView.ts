@@ -424,7 +424,7 @@ export class ComponentView<COMPONENT extends Component>
 
         let parentIsPage = PageItemType.get().equals(this.getParentItemView().getType());
         if (parentIsPage) {
-            const pageView = <PageView>this.getPageView();
+            const pageView = this.getPageView();
             pageView.unregisterFragmentComponentView(this);
             pageView.registerFragmentComponentView(replacement);
         } else {
@@ -506,7 +506,7 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     getPageView(): PageView {
-        return <PageView>super.getPageView();
+        return super.getPageView();
     }
 
     protected getRegionView(): RegionView {

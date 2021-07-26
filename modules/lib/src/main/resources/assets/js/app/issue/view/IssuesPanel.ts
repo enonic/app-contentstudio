@@ -50,7 +50,7 @@ export class IssuesPanel
 
         this.statusFilter.onStatusChanged((status: IssueStatus) => {
             this.typeFilter.toggleActionsByStatus(status);
-            return this.filter();
+            void this.filter();
         });
     }
 

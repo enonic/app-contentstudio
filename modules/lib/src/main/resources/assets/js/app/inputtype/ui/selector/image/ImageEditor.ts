@@ -289,7 +289,7 @@ export class ImageEditor
 
     private renderSrc(src: string) {
         this.image.setSrc(src);
-        const image: SVGImageElement = <SVGImageElement>this.clip.getHTMLElement().querySelector('image');
+        const image: SVGImageElement = this.clip.getHTMLElement().querySelector('image');
         image.setAttribute('xlink:href', src);
     }
 
@@ -306,7 +306,7 @@ export class ImageEditor
     }
 
     private setImageClipPath(path: Element) {
-        let image: SVGImageElement = <SVGImageElement>this.clip.getHTMLElement().querySelector('image');
+        let image: SVGImageElement = this.clip.getHTMLElement().querySelector('image');
         image.setAttribute('clip-path', 'url(#' + path.getId() + ')');
     }
 

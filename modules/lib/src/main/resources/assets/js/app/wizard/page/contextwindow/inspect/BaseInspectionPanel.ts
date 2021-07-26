@@ -9,6 +9,6 @@ export abstract class BaseInspectionPanel
     }
 
     isNotFoundError(reason: any): boolean {
-        return reason instanceof RequestError && (<RequestError>reason).isNotFound();
+        return reason instanceof RequestError && (reason).isNotFound();
     }
 }

@@ -8,7 +8,7 @@ export class XDataName
     extends ApplicationBasedName {
 
     constructor(name: string) {
-        assertNotNull(name, `XData name can't be null`);
+        assertNotNull(name, 'XData name can\'t be null');
         let parts = name.split(ApplicationBasedName.SEPARATOR);
         super(ApplicationKey.fromString(parts[0]), parts[1]);
     }

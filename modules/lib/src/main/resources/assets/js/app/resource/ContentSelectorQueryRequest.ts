@@ -44,7 +44,7 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
         let contents: CONTENT[];
 
         if (this.getExpand() === Expand.SUMMARY) {
-            contents = <any[]> this.fromJsonToContentSummaryArray(<ContentSummaryJson[]>contentsAsJson);
+            contents = <any[]>this.fromJsonToContentSummaryArray(contentsAsJson);
         } else {
             contents = <any[]>this.fromJsonToContentArray(<ContentJson[]>contentsAsJson);
         }

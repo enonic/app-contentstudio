@@ -47,7 +47,7 @@ export class ThumbnailUploaderEl
 
     createModel(serverResponse: ContentJson): Content {
         if (serverResponse) {
-            return new ContentBuilder().fromContentJson(<ContentJson> serverResponse).build();
+            return new ContentBuilder().fromContentJson(serverResponse).build();
         } else {
             return null;
         }
