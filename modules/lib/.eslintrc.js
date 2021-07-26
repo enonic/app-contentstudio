@@ -22,7 +22,6 @@ module.exports = {
         'computed-property-spacing': ['error', 'never'],
         'template-curly-spacing': ['error', 'never'],
         'object-property-newline': ['off', {'allowMultiplePropertiesPerLine': true}],
-        'no-plusplus': ['error', {'allowForLoopAfterthoughts': true}],
         'quotes': ['error', 'single', {'avoidEscape': true}],
         'no-unused-vars': 'off',
         '@typescript-eslint/no-unused-vars': ['off'],
