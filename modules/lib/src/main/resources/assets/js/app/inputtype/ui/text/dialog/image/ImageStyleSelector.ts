@@ -28,7 +28,7 @@ export class ImageStyleSelector
         this.addOptions();
 
         this.onOptionSelected((event: OptionSelectedEvent<ImageStyleOption>) => {
-            if ((<ImageStyleOption>event.getOption().getDisplayValue()).isEmpty()) {
+            if ((event.getOption().getDisplayValue()).isEmpty()) {
                 this.reset();
             }
         });

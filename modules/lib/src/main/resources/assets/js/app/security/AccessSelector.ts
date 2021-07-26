@@ -17,7 +17,7 @@ export class AccessSelector
         super('access-selector');
 
         ACCESS_OPTIONS.forEach((option: Access) => {
-            let menuItem = (<TabMenuItemBuilder>new TabMenuItemBuilder()
+            let menuItem = (new TabMenuItemBuilder()
                 .setLabel(i18n(`security.access.${option}`))
                 .setAddLabelTitleAttribute(false))
                 .build();

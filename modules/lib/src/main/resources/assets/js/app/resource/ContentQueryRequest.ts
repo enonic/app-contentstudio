@@ -78,7 +78,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         if (this.expand === Expand.NONE) {
             contents = <any[]> this.fromJsonToContentIdBaseItemArray(contentsAsJson);
         } else if (this.expand === Expand.SUMMARY) {
-            contents = <any[]> this.fromJsonToContentSummaryArray(<ContentSummaryJson[]>contentsAsJson);
+            contents = <any[]>this.fromJsonToContentSummaryArray(contentsAsJson);
         } else {
             contents = <any[]>this.fromJsonToContentArray(<ContentJson[]>contentsAsJson);
         }

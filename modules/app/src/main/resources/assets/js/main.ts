@@ -61,7 +61,7 @@ import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
-declare var require: { context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void };
+declare const require: { context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void };
 const importAll = r => r.keys().forEach(r);
 importAll(require.context('lib-contentstudio/app/inputtype', true, /^(?!\.[\/\\](ui)).*(\.js)$/));
 

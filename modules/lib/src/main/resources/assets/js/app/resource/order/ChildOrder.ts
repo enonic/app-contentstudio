@@ -120,13 +120,9 @@ export class ChildOrder
         if (this.orderExpressions.length !== other.getOrderExpressions().length) {
             return false;
         }
-        for (let count in this.orderExpressions) {
-            if (!this.orderExpressions[count].equals(other.getOrderExpressions()[count])) {
-                return false;
-            }
-        }
-
-        return true;
+        return this.orderExpressions.every((orderExpression, index) => {
+            return orderExpression.equals(other.getOrderExpressions()[index]);
+        });
     }
 
 }

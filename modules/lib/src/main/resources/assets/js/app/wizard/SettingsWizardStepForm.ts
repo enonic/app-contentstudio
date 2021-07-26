@@ -98,7 +98,7 @@ export class SettingsWizardStepForm
     }
 
     private setModel(model: ContentSettingsModel) {
-        assertNotNull(model, `Model can't be null`);
+        assertNotNull(model, 'Model can\'t be null');
 
         if (this.model) {
             model.unPropertyChanged(this.modelChangeListener);

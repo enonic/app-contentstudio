@@ -436,7 +436,7 @@ export class DialogItemList
     }
 
     getItems(): ContentSummaryAndCompareStatus[] {
-        return <ContentSummaryAndCompareStatus[]>super.getItems();
+        return super.getItems();
     }
 
 

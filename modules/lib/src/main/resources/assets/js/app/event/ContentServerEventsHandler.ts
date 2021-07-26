@@ -434,7 +434,7 @@ export class ContentServerEventsHandler {
         const otherReposChanges: ContentServerChange[] = [];
 
         event.getEvents().map((ev: ContentServerEvent) => ev.getNodeChange()).forEach((change: ContentServerChange) => {
-            if (change.getChangeItems().some((changeItem: NodeServerChangeItem) => changeItem.getRepo() === currentRepo )) {
+            if (change.getChangeItems().some((changeItem: NodeServerChangeItem) => changeItem.getRepo() === currentRepo)) {
                 currentRepoChanges.push(change);
             } else {
                 otherReposChanges.push(change);

@@ -22,7 +22,7 @@ export class EffectivePermissionMember {
     }
 
     toPrincipal(): Principal {
-        return <Principal>Principal.create().setKey(this.userKey).setDisplayName(this.displayName).build();
+        return Principal.create().setKey(this.userKey).setDisplayName(this.displayName).build();
     }
 
     static fromJson(json: EffectivePermissionMemberJson) {
