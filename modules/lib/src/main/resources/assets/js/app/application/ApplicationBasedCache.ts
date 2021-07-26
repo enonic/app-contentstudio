@@ -17,7 +17,6 @@ export interface CacheableRequest {
 
 export class ApplicationBasedCache<T extends Descriptor> {
 
-    // tslint:disable-next-line variable-name
     static registerCache<T extends Descriptor>(descriptor: typeof Descriptor, Request: CacheableRequest): ApplicationBasedCache<T> {
         const w = WindowDOM.get();
         const topWindow: any = w.getTopParent() == null ? w.asWindow() : w.getTopParent().asWindow();

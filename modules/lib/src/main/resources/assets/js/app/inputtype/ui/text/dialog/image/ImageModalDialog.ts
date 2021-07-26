@@ -844,7 +844,6 @@ export class ImageDialogToolbar
 
     private resetActiveAlignmentButton() {
 
-        // tslint:disable-next-line
         for (let alignment in this.alignmentButtons) {
             this.alignmentButtons[alignment].removeClass('active');
         }

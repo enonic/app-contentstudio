@@ -295,7 +295,6 @@ export class PageBuilder {
         this.setCustomized(json.customized);
 
         if (json.fragment) {
-            // tslint:disable-next-line:max-line-length
             let component: Component = ComponentFactory.createFromJson(json.fragment as ComponentTypeWrapperJson, 0, null);
             this.setFragment(component);
         }
