@@ -20,58 +20,19 @@ def applyExcludedTasks()
     gradle.includedBuild( 'lib-admin-ui' ).getLoadedSettings().getStartParameter().setExcludedTaskNames( excludedTasks )
 }
 
-def applyBuildTaskDependencies()
-{
-    def libAdminBuildTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':build' )
-
-    if ( hasTask( 'copyDevResources' ) ) {
-        copyDevResources.dependsOn += libAdminBuildTask
-    }
-    if ( hasTask( 'typescript' ) ) {
-        typescript.dependsOn += libAdminBuildTask
-        typescript.mustRunAfter(libAdminBuildTask)
-
-    }
-    if ( hasTask( 'webpack' ) ) {
-        webpack.dependsOn += libAdminBuildTask
-        webpack.mustRunAfter(libAdminBuildTask)
-    }
-}
-
-def applyCleanTaskDependencies() {
-    def libAdminCleanTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':clean' )
-
-    if ( hasTask( 'clean' ) )
-    {
-        clean.dependsOn(libAdminCleanTask)
-    }
-}
-
 if ( hasLibAdminUi() )
 {
-    afterEvaluate {
-        applyExcludedTasks()
-        applyBuildTaskDependencies()
-        applyCleanTaskDependencies()
-    }
-
-    ext {
-        libAdminBuildTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':build' )
-        libAdminCleanTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':clean' )
-        libAdminFlushTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':flush' )
-    }
+    applyExcludedTasks()
 }
 
 ext {
     hasLibAdminUi = this.&hasLibAdminUi
 }
 
-afterEvaluate {
-    if ( hasTask( 'clean' ) )
-    {
-        task flush( type: Delete, dependsOn: clean ) {
-            description = 'Clean the project from built sources and dependencies'
-            delete '.xp'
-        }
+if ( hasTask( 'clean' ) )
+{
+    task flush( type: Delete, dependsOn: clean ) {
+        description = 'Clean the project from built sources and dependencies'
+        delete '.xp'
     }
 }
