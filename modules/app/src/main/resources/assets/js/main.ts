@@ -370,7 +370,6 @@ function startServerEventListeners(application: Application) {
 
     serverEventsListener.start();
 
-    // tslint:disable-next-line:no-unused-expression
     new SettingsServerEventsListener([application]);
 }
 
@@ -450,7 +449,6 @@ async function startApplication() {
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
     const EditPermissionsDialog = (await import('lib-contentstudio/app/wizard/EditPermissionsDialog')).EditPermissionsDialog;
-    // tslint:disable-next-line:no-unused-expression
     new EditPermissionsDialog();
 
     application.setLoaded(true);
@@ -570,13 +568,10 @@ async function startContentBrowser(application: Application) {
     const SortContentDialog = (await import('lib-contentstudio/app/browse/sort/dialog/SortContentDialog')).SortContentDialog;
     const MoveContentDialog = (await import('lib-contentstudio/app/move/MoveContentDialog')).MoveContentDialog;
 
-    // tslint:disable-next-line:no-unused-expression
     IssueListDialog.get();
 
-    // tslint:disable-next-line:no-unused-expression
     new SortContentDialog();
 
-    // tslint:disable-next-line:no-unused-expression
     new MoveContentDialog();
 }
 

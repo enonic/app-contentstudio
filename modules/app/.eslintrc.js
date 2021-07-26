@@ -12,6 +12,7 @@ module.exports = {
         'tsconfigRootDir': '.',
     },
     'rules': {
+        'max-len': ['error', {'code': 140, 'comments': 180}],
         'block-spacing': ['error', 'always'],
         'space-before-function-paren': ['error', {'anonymous': 'always', 'named': 'never'}],
         'space-in-parens': ['error', 'never'],

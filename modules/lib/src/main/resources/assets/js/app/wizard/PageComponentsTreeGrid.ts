@@ -90,7 +90,6 @@ export class PageComponentsTreeGrid
         this.content = content;
         this.pageView = pageView;
 
-        // tslint:disable-next-line:no-unused-expression
         (new PageComponentsGridDragHandler(this));
     }
 

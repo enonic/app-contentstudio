@@ -12,7 +12,7 @@ export enum DeviceType {
 export class EmulatorDevice
     implements Equitable {
 
-    // tslint:disable max-line-length
+    /* eslint-disable max-len */
     public static FULLSCREEN: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.fullsize'), DeviceType.MONITOR, 100, 100, '%',
         true, false);
 
@@ -36,7 +36,7 @@ export class EmulatorDevice
 
     public static HDTV: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.highDefinitionTV'), DeviceType.MONITOR, 1920, 1080, 'px',
         false, false);
-    // tslint:enable
+    /* eslint-enable max-len */
 
     private name: string;
 
