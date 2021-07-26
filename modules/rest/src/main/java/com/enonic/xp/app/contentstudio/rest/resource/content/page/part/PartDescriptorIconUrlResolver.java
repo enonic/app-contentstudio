@@ -8,7 +8,7 @@ import com.enonic.xp.region.PartDescriptor;
 public final class PartDescriptorIconUrlResolver
     extends IconUrlResolver
 {
-    public static final String DESCRIPTOR_ICON = "/admin/rest/content/page/part/descriptor/icon/";
+    public static final String DESCRIPTOR_ICON = "/admin/v2/rest/content/page/part/descriptor/icon/";
 
     public String resolve( final PartDescriptor partDescriptor )
     {

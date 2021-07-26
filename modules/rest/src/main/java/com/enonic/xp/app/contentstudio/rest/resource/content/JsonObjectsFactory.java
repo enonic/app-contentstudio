@@ -40,6 +40,11 @@ public class JsonObjectsFactory
 
     private ContentListTitleResolver contentListTitleResolver;
 
+    public JsonObjectsFactory()
+    {
+        int i = 0;
+    }
+
     public PartDescriptorJson createPartDescriptorJson( final PartDescriptor descriptor )
     {
         return new PartDescriptorJson( descriptor, new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey() ),
