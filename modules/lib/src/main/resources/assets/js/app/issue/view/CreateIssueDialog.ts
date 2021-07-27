@@ -53,7 +53,7 @@ export class CreateIssueDialog
         super.initListeners();
 
         const onItemsChanged = (items) => {
-            (<CreateIssueAction>this.createAction).updateLabel(this.getItemList().getItemCount());
+            (this.createAction).updateLabel(this.getItemList().getItemCount());
         };
         this.getItemList().onItemsAdded(onItemsChanged);
         this.getItemList().onItemsRemoved(onItemsChanged);

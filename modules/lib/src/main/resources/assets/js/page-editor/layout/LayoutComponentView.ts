@@ -126,7 +126,7 @@ export class LayoutComponentView
 
     private doParseRegions(parentElement?: Element) {
 
-        let layoutComponent: LayoutComponent = <LayoutComponent>this.getComponent();
+        let layoutComponent: LayoutComponent = this.getComponent();
         let layoutRegions = layoutComponent.getRegions();
         if (!layoutRegions) {
             return;

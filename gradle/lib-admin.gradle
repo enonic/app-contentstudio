@@ -8,24 +8,31 @@ def hasLibAdminUi()
     return hasEnvironment() && isLibAdminUiIncluded()
 }
 
+def hasTask( name )
+{
+    return project.tasks.findByName( name ) != null
+}
+
+def applyExcludedTasks()
+{
+    def excludedTasks = gradle.startParameter.getExcludedTaskNames().findAll( { it == 'lint' || it == 'test' } )
+
+    gradle.includedBuild( 'lib-admin-ui' ).getLoadedSettings().getStartParameter().setExcludedTaskNames( excludedTasks )
+}
+
 if ( hasLibAdminUi() )
 {
-    def libAdminUi = gradle.includedBuild( 'lib-admin-ui' )
-    def excludedTasks = gradle.startParameter.getExcludedTaskNames().findAll( { it == 'lint' || it == 'test' } )
-    libAdminUi.getLoadedSettings().getStartParameter().setExcludedTaskNames( excludedTasks )
-
-    ext {
-        libAdminBuildTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':build' )
-        libAdminCleanTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':clean' )
-        libAdminFlushTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':flush' )
-    }
+    applyExcludedTasks()
 }
 
 ext {
     hasLibAdminUi = this.&hasLibAdminUi
 }
 
-task flush( type: Delete, dependsOn: clean ) {
-    description = 'Clean the project from built sources and dependencies'
-    delete '.xp'
+if ( hasTask( 'clean' ) )
+{
+    task flush( type: Delete, dependsOn: clean ) {
+        description = 'Clean the project from built sources and dependencies'
+        delete '.xp'
+    }
 }

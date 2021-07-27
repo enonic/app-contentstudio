@@ -68,7 +68,7 @@ export class PagePlaceholder
             this.infoBlock.setEmptyText();
             this.infoBlock.addClass('empty');
         }
-    }
+    };
 
     remove() {
         this.controllerDropdown.unLoadedData(this.dataLoadedHandler);

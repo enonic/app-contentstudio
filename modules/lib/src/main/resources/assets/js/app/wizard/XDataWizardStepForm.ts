@@ -145,7 +145,7 @@ export class XDataWizardStepForm
             this.notifyEnableChanged(value);
         }
 
-        return promise || Q(null);
+        return promise != null ? promise : Q(null);
     }
 
     onEnableChanged(listener: (value: boolean) => void) {

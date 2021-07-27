@@ -24,7 +24,7 @@ export class TextInspectionPanel
 
     setTextComponent(textComponentView: TextComponentView) {
 
-        let textComponent: TextComponent = <TextComponent>textComponentView.getComponent();
+        let textComponent: TextComponent = textComponentView.getComponent();
 
         if (textComponent) {
             let viewer = <TextComponentViewer>textComponentView.getViewer();

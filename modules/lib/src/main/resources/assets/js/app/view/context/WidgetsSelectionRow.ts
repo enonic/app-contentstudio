@@ -128,7 +128,7 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
 
     private static isDefaultOptionDisplayValueViewer(object: Object) {
         if (object && object instanceof HTMLElement) {
-            const elem = <HTMLElement> object;
+            const elem = object;
             return elem.parentElement.className.indexOf('option-value') > -1
                    && elem.id.indexOf('DropdownHandle') === -1;
         }

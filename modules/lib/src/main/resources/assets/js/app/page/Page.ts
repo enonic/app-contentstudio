@@ -245,7 +245,7 @@ export class Page
             for (let j = 0; j < components.length; j++) {
                 const component = components[j];
                 if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), ComponentType)) {
-                    if ((<Component>component).getPath().equals(componentPath)) {
+                    if ((component).getPath().equals(componentPath)) {
                         return component;
                     }
                 }
@@ -295,7 +295,6 @@ export class PageBuilder {
         this.setCustomized(json.customized);
 
         if (json.fragment) {
-            // tslint:disable-next-line:max-line-length
             let component: Component = ComponentFactory.createFromJson(json.fragment as ComponentTypeWrapperJson, 0, null);
             this.setFragment(component);
         }

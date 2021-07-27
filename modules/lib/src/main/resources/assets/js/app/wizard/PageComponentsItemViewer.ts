@@ -8,7 +8,6 @@ import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
 import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 import {PageItemType} from '../../page-editor/PageItemType';
 import {Content} from '../content/Content';
-import {TextComponent} from '../page/region/TextComponent';
 import {LayoutItemType} from '../../page-editor/layout/LayoutItemType';
 import {PartItemType} from '../../page-editor/part/PartItemType';
 import {PartComponentView} from '../../page-editor/part/PartComponentView';
@@ -29,8 +28,8 @@ export class PageComponentsItemViewer
 
     resolveDisplayName(object: ItemView): string {
         if (ObjectHelper.iFrameSafeInstanceOf(object.getType(), TextItemType)) {
-            let textView = <TextComponentView> object;
-            let textComponent = <TextComponent>textView.getComponent();
+            let textView = <TextComponentView>object;
+            let textComponent = textView.getComponent();
             let viewer = <TextComponentViewer>object.getViewer();
             return viewer.resolveDisplayName(textComponent, textView);
         } else if (ObjectHelper.iFrameSafeInstanceOf(object.getType(), FragmentItemType)) {

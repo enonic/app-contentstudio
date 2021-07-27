@@ -8,6 +8,7 @@ export class ExtendedViewer<OBJECT> extends NamesAndIconViewer<OBJECT> {
     constructor(className?: string) {
         super('extended-viewer ' + (!!className ? className : ''));
     }
+
     protected resolveSecondaryName(object: OBJECT): string {
         return '';
     }

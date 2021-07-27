@@ -35,7 +35,7 @@ export class IssueStatusFormatter {
         const statuses = [];
 
         // Polyfill for browsers not supporting ES6
-        Number.isInteger = Number.isInteger || function(value: any) {
+        Number.isInteger = Number.isInteger || function (value: any) {
             return typeof value === 'number' &&
                    isFinite(value) &&
                    Math.floor(value) === value;
