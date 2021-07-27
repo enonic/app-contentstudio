@@ -93,7 +93,7 @@ export class AccessControlEntryView
     public setItem(ace: AccessControlEntry) {
         super.setItem(ace);
 
-        const principal: Principal = <Principal>Principal.create().setKey(ace.getPrincipalKey()).setDisplayName(
+        const principal: Principal = Principal.create().setKey(ace.getPrincipalKey()).setDisplayName(
             ace.getPrincipalDisplayName()).build();
         this.setObject(principal);
 
@@ -171,17 +171,20 @@ export class AccessControlEntryView
             allow: [],
             deny: []
         };
-        // Falls-through are intended !
+
         switch (access) {
         case Access.FULL:
             permissions.allow.push(Permission.READ_PERMISSIONS);
             permissions.allow.push(Permission.WRITE_PERMISSIONS);
+            break;
         case Access.PUBLISH:
             permissions.allow.push(Permission.PUBLISH);
+            break;
         case Access.WRITE:
             permissions.allow.push(Permission.CREATE);
             permissions.allow.push(Permission.MODIFY);
             permissions.allow.push(Permission.DELETE);
+            break;
         case Access.READ:
             permissions.allow.push(Permission.READ);
             break;

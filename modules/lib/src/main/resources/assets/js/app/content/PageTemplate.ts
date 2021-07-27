@@ -36,7 +36,7 @@ export class PageTemplate
             if (this.getPage().hasController()) {
                 return PageMode.FORCED_CONTROLLER;
             } else {
-                throw new Error(`Illegal state: A PageTemplate's Page must a controller set`);
+                throw new Error('Illegal state: A PageTemplate\'s Page must a controller set');
             }
         } else {
             return PageMode.NO_CONTROLLER;

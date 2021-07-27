@@ -101,7 +101,8 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
     private removeStatusColumnIfShown() {
         if (this.isStatusColumnShown()) {
-            const newColumns: GridColumn<any>[] = this.getColumnsWithoutCheckbox().filter((column: GridColumn<any>) => column.id !== 'status') ;
+            const newColumns: GridColumn<any>[] = this.getColumnsWithoutCheckbox()
+                .filter((column: GridColumn<any>) => column.id !== 'status');
             this.getDataGrid().setColumns(newColumns, true);
         }
     }

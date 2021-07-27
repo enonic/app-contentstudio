@@ -120,7 +120,7 @@ export class Region
     getComponentByIndex(index: number): Component {
         let component = this.components[index];
         if (!component) {
-            let message = `The rendered page is not consistent with the page components structure. Expected component with index ` +
+            let message = 'The rendered page is not consistent with the page components structure. Expected component with index ' +
                           `${index} was not found in region '${this.getName()}'.`;
             console.error(message);
             throw new Exception(message, ExceptionType.ERROR);

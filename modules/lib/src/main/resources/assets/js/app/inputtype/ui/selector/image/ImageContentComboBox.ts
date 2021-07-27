@@ -74,7 +74,7 @@ export class ImageContentComboBox
     }
 
     getComboBox(): ComboBox<MediaTreeSelectorItem> {
-        return <ComboBox<MediaTreeSelectorItem>>super.getComboBox();
+        return super.getComboBox();
     }
 
     protected toggleGridOptions(treeMode: boolean) {

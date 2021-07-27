@@ -1,7 +1,6 @@
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {EditContentEvent} from '../../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Action} from 'lib-admin-ui/ui/Action';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
@@ -32,7 +31,7 @@ export class EditContentAction extends ContentTreeGridAction {
 
     updateLabel(state: ContentTreeGridItemsState) {
         if (state.hasAllReadOnly()) {
-            this.setLabel( i18n('action.open'));
+            this.setLabel(i18n('action.open'));
         } else if (state.hasAllInherited()) {
             this.setLabel(i18n('action.translate'));
         } else {

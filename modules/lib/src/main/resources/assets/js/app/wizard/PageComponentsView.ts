@@ -658,7 +658,7 @@ export class PageComponentsView
 
         if (node) {
             itemView = node.getData().getItemView();
-            pageView = <PageView>itemView.getPageView();
+            pageView = itemView.getPageView();
         } else {
             pageView = this.pageView;
         }

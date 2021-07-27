@@ -17,7 +17,6 @@ export interface CacheableRequest {
 
 export class ApplicationBasedCache<T extends Descriptor> {
 
-    // tslint:disable-next-line variable-name
     static registerCache<T extends Descriptor>(descriptor: typeof Descriptor, Request: CacheableRequest): ApplicationBasedCache<T> {
         const w = WindowDOM.get();
         const topWindow: any = w.getTopParent() == null ? w.asWindow() : w.getTopParent().asWindow();
@@ -25,7 +24,7 @@ export class ApplicationBasedCache<T extends Descriptor> {
         const cacheName = `${ClassHelper.getFunctionName(descriptor)}Cache`;
 
         if (!topWindow[cacheName] || BrowserHelper.isIE()) { // IE: Cache fails to work after frame reload (issue with freed script)
-            const loadByApplications = (keys: ApplicationKey[]) => new Request(keys).sendAndParse().catch(DefaultErrorHandler.handle);
+            const loadByApplications = (keys: ApplicationKey[]) => void new Request(keys).sendAndParse().catch(DefaultErrorHandler.handle);
             topWindow[cacheName] = new ApplicationBasedCache<T>(loadByApplications);
         }
         return topWindow[cacheName];

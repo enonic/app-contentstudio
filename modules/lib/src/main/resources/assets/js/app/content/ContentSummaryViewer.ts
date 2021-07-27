@@ -1,4 +1,4 @@
-import { NamesAndIconViewer } from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 import {ContentSummary} from './ContentSummary';

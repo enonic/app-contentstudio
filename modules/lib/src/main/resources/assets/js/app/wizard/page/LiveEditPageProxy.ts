@@ -55,7 +55,7 @@ import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
 import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
 import {Descriptor} from '../../page/Descriptor';
 
-declare var CONFIG;
+declare let CONFIG;
 
 export class LiveEditPageProxy {
 

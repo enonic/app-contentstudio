@@ -7,7 +7,7 @@ import {RepositoryId} from '../repository/RepositoryId';
 import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
-declare var CONFIG;
+declare let CONFIG;
 
 export class GetContentVersionRequest
     extends CmsContentResourceRequest<Content> {

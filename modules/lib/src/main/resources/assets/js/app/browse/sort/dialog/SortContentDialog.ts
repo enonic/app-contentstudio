@@ -133,7 +133,7 @@ export class SortContentDialog
 
     private initTabMenu() {
         const menu: TabMenu = new TabMenu();
-        const tabMenuItem: TabMenuItem = (<TabMenuItemBuilder>new TabMenuItemBuilder().setLabel(i18n('field.sortType'))).build();
+        const tabMenuItem: TabMenuItem = (new TabMenuItemBuilder().setLabel(i18n('field.sortType'))).build();
         tabMenuItem.setActive(true);
         menu.addNavigationItem(tabMenuItem);
         menu.selectNavigationItem(0);

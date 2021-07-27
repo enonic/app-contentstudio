@@ -140,7 +140,7 @@ export class ImageUploader
         this.ignorePropertyChange = true;
         let property = this.getProperty();
         switch (property.getType()) {
-        case ValueTypes.DATA:
+        case ValueTypes.DATA: {
             // update the attachment name, and reset the focal point data
             const set = property.getPropertySet();
             set.setProperty('attachment', 0, value);
@@ -152,8 +152,8 @@ export class ImageUploader
             set.setPropertySet('focalPoint', 0, focalSet);
             set.removeProperty('cropPosition', 0);
             set.removeProperty('zoomPosition', 0);
-
             break;
+        }
         case ValueTypes.STRING:
             property.setValue(value);
             break;
@@ -257,7 +257,7 @@ export class ImageUploader
         case ValueTypes.DATA:
             container = property.getPropertySet();
             break;
-        case ValueTypes.STRING:
+        case ValueTypes.STRING: {
             // save in new format always no matter what was the format originally
             container = new PropertyTree().getRoot();
             container.setString('attachment', 0, property.getString());
@@ -269,6 +269,7 @@ export class ImageUploader
             // update local property reference
             this.registerProperty(newProperty);
             break;
+        }
         }
         return container;
     }

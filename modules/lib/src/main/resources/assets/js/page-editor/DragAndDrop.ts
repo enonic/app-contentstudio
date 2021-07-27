@@ -390,7 +390,6 @@ export class DragAndDrop {
 
         if (!ui.placeholder || !ui.placeholder.parent()[0]) {
             if (DragAndDrop.debug) {
-                // tslint:disable-next-line:max-line-length
                 console.log(
                     'DragAndDrop.handleDragOut skipping because there is no placeholder, probably item has been already dropped...');
             }

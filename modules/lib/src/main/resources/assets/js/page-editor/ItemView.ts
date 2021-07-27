@@ -27,7 +27,6 @@ import {FragmentItemType} from './fragment/FragmentItemType';
 import {TextItemType} from './text/TextItemType';
 import {LayoutItemType} from './layout/LayoutItemType';
 import {PartItemType} from './part/PartItemType';
-import {ImageItemType} from './image/ImageItemType';
 import {PageViewController} from './PageViewController';
 import {ItemViewFactory} from './ItemViewFactory';
 import {RegionItemType} from './RegionItemType';
@@ -52,7 +51,7 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
-import { IDentifiable } from 'lib-admin-ui/IDentifiable';
+import {IDentifiable} from 'lib-admin-ui/IDentifiable';
 import {ContentIconUrlResolver} from '../app/content/ContentIconUrlResolver';
 
 export interface ElementDimensions {
@@ -1035,6 +1034,7 @@ export class ItemView
     }
 
     getPageView(): PageView {
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         let itemView: ItemView = this;
         while (!PageItemType.get().equals(itemView.getType())) {
             itemView = itemView.getParentItemView();

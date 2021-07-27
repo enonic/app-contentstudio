@@ -40,7 +40,7 @@ export class Shader {
         this.shaders = [this.pageShader, this.northShader, this.eastShader, this.southShader, this.westShader];
 
         let body = Body.get();
-        body.appendChildren.apply(body, this.shaders);
+        body.appendChildren(...this.shaders);
         body.onMouseWheel((event: MouseEvent) => {
             if (this.target && this.isVisible()) {
                 if (Shader.debug) {

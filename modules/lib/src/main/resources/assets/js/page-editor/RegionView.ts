@@ -283,7 +283,7 @@ export class RegionView
     }
 
     handleClick(event: MouseEvent) {
-        const pageView = <PageView>this.getPageView();
+        const pageView = this.getPageView();
         if (pageView.isTextEditMode()) {
             event.stopPropagation();
             if (!pageView.hasTargetWithinTextComponent(this.mouseDownLastTarget)) {
@@ -455,7 +455,7 @@ export class RegionView
     }
 
     getPageView(): PageView {
-        return <PageView>super.getPageView();
+        return super.getPageView();
     }
 
     remove(): RegionView {

@@ -181,7 +181,6 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         ];
     }
 
-    // tslint:disable-next-line:max-line-length
     updateActionsEnabledState(items: ContentSummaryAndCompareStatus[]): Q.Promise<void> {
         if (this.state === State.DISABLED) {
             return Q<void>(null);

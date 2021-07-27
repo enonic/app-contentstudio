@@ -61,7 +61,7 @@ export class MediaUploaderEl
         }
 
         const data: string = dropEvent.dataTransfer.getData('text/html');
-        const isImgUrlDragged: boolean = data && !!data.match(/<img.*\ssrc="/i);
+        const isImgUrlDragged: boolean = data && !!(/<img.*\ssrc="/i.exec(data));
 
         if (!isImgUrlDragged) {
             return;
@@ -118,7 +118,7 @@ export class MediaUploaderEl
     }
 
     private generateUniqueName(imgSrc: string): string {
-        const imgFormatRegExp: RegExpMatchArray = imgSrc.match(/image\/([a-z]+?);/i);
+        const imgFormatRegExp: RegExpMatchArray = /image\/([a-z]+?);/i.exec(imgSrc);
         const type: string = imgFormatRegExp ? imgFormatRegExp[1] ? imgFormatRegExp[1] : 'jpg' : 'jpg';
 
         const date: Date = new Date();
@@ -130,7 +130,7 @@ export class MediaUploaderEl
 
     createModel(serverResponse: ContentJson): Content {
         if (serverResponse) {
-            return new ContentBuilder().fromContentJson(<ContentJson> serverResponse).build();
+            return new ContentBuilder().fromContentJson(serverResponse).build();
         } else {
             return null;
         }
