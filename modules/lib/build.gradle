@@ -32,15 +32,6 @@ node {
     version = '16.0.0'
 }
 
-def resourcesDir = file( 'src/main/resources' )
-
-if ( hasLibAdminUi() )
-{
-    copyDevResources.dependsOn += libAdminBuildTask
-    build.dependsOn += libAdminBuildTask
-    clean.dependsOn += libAdminCleanTask
-}
-
 task lint( type: NpmTask, dependsOn: npmInstall ) {
     args = [ 'run', 'lint:quiet' ]
     inputs.files fileTree( dir: 'modules', include: 'src/main/**.*' )
