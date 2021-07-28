@@ -48,7 +48,7 @@ export class ImagePlaceholder
         this.comboBox.onOptionSelected((event: SelectedOptionEvent<MediaTreeSelectorItem>) => {
             const component: ImageComponent = this.imageComponentView.getComponent();
             const imageContentSummary: ContentSummary =
-                (<MediaTreeSelectorItem>event.getSelectedOption().getOption().getDisplayValue()).getContentSummary();
+                (event.getSelectedOption().getOption().getDisplayValue()).getContentSummary();
 
             new GetContentByIdRequest(imageContentSummary.getContentId()).sendAndParse().then((imageContent: Content) => {
                 component.setImage(imageContent);

@@ -89,8 +89,8 @@ export class UserAccessListItemView
     private getVisibleCount(): number {
         let userIcons = this.userLine.getChildren();
         let count = 0;
-        for (let userIconKey in userIcons) {
-            if (userIcons[userIconKey].getEl().getOffsetTopRelativeToParent() === 0) {
+        for (let userIcon of userIcons) {
+            if (userIcon.getEl().getOffsetTopRelativeToParent() === 0) {
                 count++;
             } else {
                 break;

@@ -18,9 +18,9 @@ import {NotificationMessage} from 'lib-admin-ui/notify/NotificationMessage';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UrlHelper} from '../../../util/UrlHelper';
+import {ContentPath} from '../../../content/ContentPath';
 import eventInfo = CKEDITOR.eventInfo;
 import widget = CKEDITOR.plugins.widget;
-import {ContentPath} from '../../../content/ContentPath';
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];
@@ -993,7 +993,7 @@ class HtmlEditorConfigBuilder {
 
         if (this.editorParams.isFullScreenMode()) {
             ['Bold', 'Italic', 'Underline']
-                .filter((tool: string) =>!this.isToolDisabled(tool))
+                .filter((tool: string) => !this.isToolDisabled(tool))
                 .forEach((tool: string) => this.includeTool(tool));
         }
 
@@ -1165,7 +1165,7 @@ class GoogleDocPasteHandler {
 
     private ffReplaceFunction(match: string, p1: string, p2: string, p3: string, p4: string, p5: string, p6: string, p7: string) {
         const isItalic: boolean = p4.indexOf('font-style:italic') > 0;
-        const fontWeight: RegExpMatchArray = p4.match(/font-weight:(\d+);/);
+        const fontWeight: RegExpMatchArray = /font-weight:(\d+);/.exec(p4);
         const isBold: boolean = !!fontWeight && +fontWeight[1] > 400;
 
         if (isItalic && isBold) {

@@ -184,7 +184,7 @@ export class ContentBrowsePanel
 
             return rendered;
         }).catch((error) => {
-            console.error(`Couldn't render ContentBrowsePanel`, error);
+            console.error('Couldn\'t render ContentBrowsePanel', error);
             return true;
         });
     }

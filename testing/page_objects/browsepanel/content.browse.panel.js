@@ -42,8 +42,6 @@ const XPATH = {
     contentSummaryByDisplayName: function (displayName) {
         return `//div[contains(@id,'ContentSummaryAndCompareStatusViewer') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`
     },
-    projectItemByDisplayName:
-        displayName => `//div[contains(@id,'ProjectListItemViewer')and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`,
     publishMenuItemByName: function (name) {
         return `//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and contains(.,'${name}')]`
     },
@@ -214,7 +212,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         try {
             return await this.waitForElementDisplayed(this.publishButton, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot("err_publish_button");
+            await this.saveScreenshot("err_publish_button");
             throw new Error("Publish button is not visible! " + err);
         }
     }
@@ -334,7 +332,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(expanderIcon);
             return await this.pause(900);
         } catch (err) {
-            this.saveScreenshot('err_click_on_expander');
+            await this.saveScreenshot('err_click_on_expander');
             throw new Error('error when clicking on expander-icon ' + err);
         }
     }
@@ -390,7 +388,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(this.previewButton);
             return await this.pause(2000);
         } catch (err) {
-            this.saveScreenshot(appConst.generateRandomName("err_browsepanel_preview"));
+            await this.saveScreenshot(appConst.generateRandomName("err_browsepanel_preview"));
             throw new Error('Error when clicking on Preview button ' + err);
         }
     }
@@ -403,6 +401,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return this.waitForElementDisabled(this.previewButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_preview_disabled_button');
             throw Error('Preview button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
+        })
+    }
+
+    waitForPreviewButtonEnabled() {
+        return this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout).catch(err => {
+            this.saveScreenshot('err_preview_enabled_button');
+            throw Error('Preview button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
         })
     }
 
@@ -425,7 +430,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.duplicateButton, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot('err_duplicate_disabled_button');
+            await this.saveScreenshot('err_duplicate_disabled_button');
             throw Error('Duplicate button should be disabled, timeout: ' + 3000 + 'ms')
         }
     }
@@ -435,7 +440,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
             return await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot('err_localize_enabled_button');
+            await this.saveScreenshot('err_localize_enabled_button');
             throw Error('Localize button should be enabled, timeout: ' + 3000 + 'ms')
         }
     }
@@ -455,7 +460,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(this.openButton, appConst.mediumTimeout);
             return await this.waitForElementEnabled(this.openButton, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot('err_open_button_is_not_enabled');
+            await this.saveScreenshot('err_open_button_is_not_enabled');
             throw Error('Open button should be disabled, timeout: ' + 3000 + 'ms')
         }
     }
@@ -466,7 +471,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(this.openButton);
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_browse_panel_open_button');
+            await this.saveScreenshot('err_browse_panel_open_button');
             throw new Error('Browse Panel: Edit button is not enabled! ' + err);
         }
     }
@@ -533,7 +538,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnCheckbox(name);
             await this.waitForRowCheckboxSelected(name);
         } catch (err) {
-            this.saveScreenshot('err_select_item');
+            await this.saveScreenshot('err_select_item');
             throw Error('Row with the name ' + name + ' was not selected ' + err)
         }
     }
@@ -646,7 +651,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             let selector = XPATH.toolbar + XPATH.publishMenuItemByName(menuItem);
             return await this.waitForAttributeHasValue(selector, "class", "disabled");
         } catch (err) {
-            this.saveScreenshot("err_publish_menuItem");
+            await this.saveScreenshot("err_publish_menuItem");
             throw new Error(menuItem + " should be disabled! " + err);
         }
     }
@@ -670,7 +675,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
-            this.saveScreenshot("err_click_issue_menuItem");
+            await this.saveScreenshot("err_click_issue_menuItem");
             throw new Error('error when try to click on publish menu item, ' + err);
         }
     }
@@ -812,6 +817,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
         await this.clickOnElement(this.localizeButton);
         return await this.pause(1000);
+    }
+
+    rightClickOnItemByDisplayName(displayName) {
+        const nameXpath = XPATH.container + XPATH.rowByDisplayName(displayName);
+        return this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout).then(() => {
+            return this.doRightClick(nameXpath);
+        }).catch(err => {
+            throw Error(`Error when do right click on the row:` + err);
+        })
     }
 }
 

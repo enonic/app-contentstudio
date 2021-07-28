@@ -12,7 +12,6 @@ import {Highlighter} from '../Highlighter';
 import {ItemView} from '../ItemView';
 import {PageViewController} from '../PageViewController';
 import {DragAndDrop} from '../DragAndDrop';
-import {PageView} from '../PageView';
 import {HTMLAreaHelper} from '../../app/inputtype/ui/text/HTMLAreaHelper';
 import {ModalDialog} from '../../app/inputtype/ui/text/dialog/ModalDialog';
 import {TextComponent} from '../../app/page/region/TextComponent';
@@ -28,7 +27,7 @@ import * as Q from 'q';
 import {ContentSummary} from '../../app/content/ContentSummary';
 import {ContentPath} from '../../app/content/ContentPath';
 
-declare var CONFIG;
+declare let CONFIG;
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder<TextComponent> {
@@ -444,7 +443,7 @@ export class TextComponentView
     }
 
     private anyEditorHasFocus(): boolean {
-        const textItemViews = (<PageView>this.getPageView()).getItemViewsByType(TextItemType.get());
+        const textItemViews = (this.getPageView()).getItemViewsByType(TextItemType.get());
 
         const editorFocused = textItemViews.some((view: ItemView) => {
             return view.getEl().hasClass(TextComponentView.EDITOR_FOCUSED_CLASS);
@@ -490,7 +489,7 @@ export class TextComponentView
     }
 
     private startPageTextEditMode() {
-        let pageView = <PageView>this.getPageView();
+        let pageView = this.getPageView();
 
         if (pageView.hasSelectedView()) {
             pageView.getSelectedView().deselect();

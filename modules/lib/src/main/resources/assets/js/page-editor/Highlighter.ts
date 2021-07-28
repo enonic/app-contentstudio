@@ -126,10 +126,10 @@ export class Highlighter
 
             this.getEl().setWidthPx(w).setHeightPx(h).setTopPx(top).setLeftPx(left);
             break;
-        case HighlighterMode.CROSSHAIR:
-            let bodyEl = Body.get().getEl();
-            let screenH = bodyEl.getHeight();
-            let screenW = bodyEl.getWidth();
+        case HighlighterMode.CROSSHAIR: {
+            const bodyEl = Body.get().getEl();
+            const screenH = bodyEl.getHeight();
+            const screenW = bodyEl.getWidth();
 
             strokeW = parseInt(window.getComputedStyle(this.path.getHTMLElement(), null).getPropertyValue('stroke-width'), 10);
 
@@ -152,6 +152,7 @@ export class Highlighter
 
             this.getEl().setWidthPx(screenW).setHeightPx(screenH).setTopPx(0).setLeftPx(left);
             break;
+        }
         }
     }
 

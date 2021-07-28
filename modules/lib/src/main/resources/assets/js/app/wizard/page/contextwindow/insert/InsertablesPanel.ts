@@ -165,7 +165,7 @@ export class InsertablesPanel
             return;
         }
 
-        let over = this.isOverIFrame(<JQueryEventObject>event);
+        let over = this.isOverIFrame(event);
         if (this.overIFrame !== over) {
             if (over) {
                 this.onEnterIFrame(event, ui);

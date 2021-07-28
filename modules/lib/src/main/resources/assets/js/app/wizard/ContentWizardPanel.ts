@@ -129,7 +129,7 @@ import {ContentsExistRequest} from '../resource/ContentsExistRequest';
 import {ContentsExistResult} from '../resource/ContentsExistResult';
 import {ActivatedEvent} from 'lib-admin-ui/ui/ActivatedEvent';
 import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
-import { SplitPanelSize } from 'lib-admin-ui/ui/panel/SplitPanelSize';
+import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -921,7 +921,7 @@ export class ContentWizardPanel
                         liveFormPanel.loadPage();
                     }
                 } else {
-                    console.warn(`Received Content from server differs from what's viewed:`);
+                    console.warn('Received Content from server differs from what\'s viewed:');
                     if (!viewedContent.getContentData().equals(persistedContent.getContentData())) {
                         console.warn(' inequality found in Content.data');
                         if (persistedContent.getContentData() && viewedContent.getContentData()) {
@@ -955,8 +955,8 @@ export class ContentWizardPanel
                     } else {
                         new ConfirmationDialog()
                             .setQuestion(i18n('dialog.confirm.contentDiffers'))
-                            .setYesCallback(() => this.doLayoutPersistedItem(persistedContentCopy))
-                            .setNoCallback(() => {/* empty */
+                            .setYesCallback(() => void this.doLayoutPersistedItem(persistedContentCopy))
+                            .setNoCallback(() => { /* empty */
                             })
                             .show();
                     }
@@ -1411,7 +1411,7 @@ export class ContentWizardPanel
             this.handleCUD();
         };
 
-        const otherRepoDelete = (items: ContentServerChangeItem[]) => {
+        const otherRepoDelete = (items: ContentServerChangeItem[]): void => {
             if (!this.isItemPersisted() || !this.getPersistedItem().isInherited()) {
                 return;
             }
@@ -1430,7 +1430,7 @@ export class ContentWizardPanel
             });
 
             if (isParentDeleted) {
-                return new ContentsExistRequest([thisContentIdAsString])
+                void new ContentsExistRequest([thisContentIdAsString])
                     .setRequestProjectName(parentProject)
                     .sendAndParse()
                     .then((result: ContentsExistResult) => {

@@ -493,7 +493,7 @@ export class PageView
         const target = <HTMLElement> event.target;
         const prefix = 'cke';
         if (!!target) {
-            const parent = <HTMLElement> target.parentElement;
+            const parent = target.parentElement;
             return (target.id.indexOf(prefix) >= 0 || target.className.indexOf(prefix) >= 0 ||
                     parent.id.indexOf(prefix) >= 0 || parent.className.indexOf(prefix) >= 0);
         }
@@ -638,7 +638,7 @@ export class PageView
     }
 
     private getEditorToolbarWidth(): number {
-        return $(`.cke-toolbar-container .cke_reset_all:not([style*='display: none']) .cke_top`).outerHeight();
+        return $('.cke-toolbar-container .cke_reset_all:not([style*=\'display: none\']) .cke_top').outerHeight();
     }
 
     hasTargetWithinTextComponent(target: HTMLElement) {

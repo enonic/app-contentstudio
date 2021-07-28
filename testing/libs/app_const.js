@@ -102,13 +102,22 @@ module.exports = Object.freeze({
     shortTimeout: 2000,
     TIMEOUT_1: 1000,
     SUITE_TIMEOUT: 180000,
-    DELETE_INBOUND_MESSAGE: 'The content you are about to delete has inbound references. Please verify them before deletion.',
+    DELETE_INBOUND_MESSAGE: 'One or more items are referenced from another content',
 
     IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
     WIDGET_TITLE: {
         VERSION_HISTORY: 'Version history',
         DEPENDENCIES: 'Dependencies',
-        LAYERS: 'Layers'
+        LAYERS: 'Layers',
+        EMULATOR: 'Emulator'
+    },
+    EMULATOR_RESOLUTION: {
+        MEDIUM_PHONE: 'Medium Phone',
+        LARGE_PHONE: 'Large Phone',
+        TABLET: 'Tablet',
+        NOTEBOOK_13: "13\" Notebook",
+        SMALL_PHONE: 'Small Phone',
+        NOTEBOOK_15: "15\" Notebook",
     },
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',

@@ -194,14 +194,25 @@ class ContentWizardPanel extends Page {
         })
     }
 
+    //Wait for button with "Show Component View" title is visible
     async waitForShowComponentVewTogglerNotVisible() {
         try {
             let res = await this.getDisplayedElements(this.showComponentViewToggler);
             let result = await this.isElementDisplayed(this.showComponentViewToggler);
             await this.waitForElementNotDisplayed(this.showComponentViewToggler, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot('err_show_component_toggler_should_not_be_visible');
+            await this.saveScreenshot(appConst.generateRandomName('err_show_component_toggler_visible'));
             throw new Error('Component View toggler is still visible after the interval sec:' + 3 + '  ' + err);
+        }
+    }
+
+    //Wait for button(toggler) for "Component View" is not visible
+    async waitForComponentVewTogglerNotVisible() {
+        try {
+            await this.waitForElementNotDisplayed(this.componentViewToggler, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_component_toggler_should_visible'));
+            throw new Error('Component View toggler is still visible after sec:' + 3 + '  ' + err);
         }
     }
 
@@ -346,15 +357,15 @@ class ContentWizardPanel extends Page {
         })
     }
 
-    clickOnShowComponentViewToggler() {
-        return this.waitForElementDisplayed(this.showComponentViewToggler, appConst.mediumTimeout).then(() => {
-            return this.clickOnElement(this.showComponentViewToggler);
-        }).catch(err => {
-            this.saveScreenshot('err_click_on_show_component_view');
+    async clickOnShowComponentViewToggler() {
+        try {
+            await this.waitForElementDisplayed(this.showComponentViewToggler, appConst.mediumTimeout);
+            await this.clickOnElement(this.showComponentViewToggler);
+            return await this.pause(200);
+        } catch (err) {
+            await this.saveScreenshot('err_click_on_show_component_view');
             throw new Error("Error when clicking on 'Show Component View!'" + err);
-        }).then(() => {
-            return this.pause(500);
-        });
+        }
     }
 
     clickOnComponentViewToggler() {
@@ -798,7 +809,6 @@ class ContentWizardPanel extends Page {
         return this.getBrowser().waitUntil(() => {
             return this.isElementDisplayed(selector);
         }, appConst.mediumTimeout, message);
-
     }
 
     async getContentAuthor() {
@@ -950,6 +960,10 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    waitForPageEditorTogglerDisplayed() {
+        return this.waitForElementDisplayed(this.pageEditorTogglerButton, appConst.mediumTimeout);
+    }
+
     async getProjectDisplayName() {
         let selector = XPATH.toolbar + "//div[contains(@class,'project-info')]" + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
@@ -984,6 +998,14 @@ class ContentWizardPanel extends Page {
             this.saveScreenshot('err_wizard_preview');
             throw new Error('Error when clicking on Preview button ' + err);
         }
+    }
+
+    waitForPreviewButtonDisplayed() {
+        return this.waitForElementDisplayed(this.previewButton, appConst.mediumTimeout);
+    }
+
+    waitForPreviewButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.previewButton, appConst.mediumTimeout);
     }
 
     waitForValidationPathMessageDisplayed() {
@@ -1035,6 +1057,16 @@ class ContentWizardPanel extends Page {
         let dialog = new ConfirmationDialog();
         await dialog.waitForDialogOpened();
         return dialog;
+    }
+
+    async getPageEditorWidth() {
+        let widthProperty = await this.getCSSProperty(XPATH.liveEditFrame, "width");
+        return widthProperty.value;
+    }
+
+    async getPageEditorHeight() {
+        let heightProperty = await this.getCSSProperty(XPATH.liveEditFrame, "height");
+        return heightProperty.value;
     }
 }
 

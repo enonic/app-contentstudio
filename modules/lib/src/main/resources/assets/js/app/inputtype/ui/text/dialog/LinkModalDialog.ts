@@ -33,9 +33,9 @@ import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {NavigatedDeckPanel} from 'lib-admin-ui/ui/panel/NavigatedDeckPanel';
 import {TabBarItem} from 'lib-admin-ui/ui/tab/TabBarItem';
 import {InputEl} from 'lib-admin-ui/dom/InputEl';
-import eventInfo = CKEDITOR.eventInfo;
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';
+import eventInfo = CKEDITOR.eventInfo;
 
 export interface LinkModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -163,11 +163,13 @@ export class LinkModalDialog
         case 'anchor':
             this.link = LinkModalDialog.anchorPrefix + this.getOriginalAnchorElem().getValue();
             break;
-        default:
+        default: {
             const val = this.getOriginalUrlElem().getValue();
             const protocol: string = this.getOriginalProtocolElem().getValue();
-            this.link = StringHelper.isEmpty(val) ? StringHelper.EMPTY_STRING : protocol +
-                                                                                this.getOriginalUrlElem().getValue();
+            this.link = StringHelper.isEmpty(val) ?
+                        StringHelper.EMPTY_STRING :
+                        protocol + this.getOriginalUrlElem().getValue();
+        }
         }
     }
 
@@ -362,9 +364,9 @@ export class LinkModalDialog
         };
     }
 
-    private createSelector( getValueFn: Function,
-                            loaderBuilder: ContentSummaryOptionDataLoaderBuilder
-                            ): ContentComboBox<ContentTreeSelectorItem> {
+    private createSelector(getValueFn: Function,
+                           loaderBuilder: ContentSummaryOptionDataLoaderBuilder
+    ): ContentComboBox<ContentTreeSelectorItem> {
         const selector = ContentComboBox.create()
             .setTreegridDropdownEnabled(true)
             .setMaximumOccurrences(1)

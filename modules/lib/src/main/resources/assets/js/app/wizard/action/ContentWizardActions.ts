@@ -244,7 +244,7 @@ export class ContentWizardActions
                         !this.isPendingDelete() &&
                         this.userCanModify;
         }
-        this.enableActions({ SAVE: isEnabled });
+        this.enableActions({SAVE: isEnabled});
 
         this.getSaveAction().setLabel(i18n(this.wizardPanel.hasUnsavedChanges() || isEnabled || !this.getSaveAction().isSavedStateEnabled()
                                            ? 'action.save' : 'action.saved'));

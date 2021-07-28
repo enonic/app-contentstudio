@@ -28,7 +28,7 @@ describe('Custom error handling - specification. Verify that application error p
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Select existing site (controller with a error is selected)
             await studioUtils.findAndSelectItem(SITE.displayName);
-            //2. Click on Preview button and switch to new browser tab:
+            //2. Click on 'Preview' button and switch to new browser tab:
             await contentBrowsePanel.clickOnPreviewButton();
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             //3. Verify that expected error-page is loaded:

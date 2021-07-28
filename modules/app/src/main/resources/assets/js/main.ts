@@ -63,7 +63,7 @@ import {SettingsApp} from 'lib-contentstudio/app/settings/SettingsApp';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
-declare var require: { context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void };
+declare const require: { context: (directory: string, useSubdirectories: boolean, filter: RegExp) => void };
 const importAll = r => r.keys().forEach(r);
 importAll(require.context('lib-contentstudio/app/inputtype', true, /^(?!\.[\/\\](ui)).*(\.js)$/));
 
@@ -372,7 +372,6 @@ function startServerEventListeners(application: Application) {
 
     serverEventsListener.start();
 
-    // tslint:disable-next-line:no-unused-expression
     new SettingsServerEventsListener([application]);
 }
 
@@ -452,7 +451,6 @@ async function startApplication() {
     ShowDependenciesEvent.on(ContentEventsProcessor.handleShowDependencies);
 
     const EditPermissionsDialog = (await import('lib-contentstudio/app/wizard/EditPermissionsDialog')).EditPermissionsDialog;
-    // tslint:disable-next-line:no-unused-expression
     new EditPermissionsDialog();
 
     application.setLoaded(true);
@@ -573,13 +571,10 @@ async function startContentBrowser(application: Application) {
     const SortContentDialog = (await import('lib-contentstudio/app/browse/sort/dialog/SortContentDialog')).SortContentDialog;
     const MoveContentDialog = (await import('lib-contentstudio/app/move/MoveContentDialog')).MoveContentDialog;
 
-    // tslint:disable-next-line:no-unused-expression
     IssueListDialog.get();
 
-    // tslint:disable-next-line:no-unused-expression
     new SortContentDialog();
 
-    // tslint:disable-next-line:no-unused-expression
     new MoveContentDialog();
 }
 

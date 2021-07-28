@@ -214,7 +214,7 @@ export class AttachmentUploader
         });
 
         this.uploaderEl.onFileUploaded((event: UploadedEvent<Attachment>) => {
-            const attachment: Attachment = <Attachment>event.getUploadItem().getModel();
+            const attachment: Attachment = event.getUploadItem().getModel();
             uploadedItemsNames.push(attachment.getName().toString());
 
             showFeedback(i18n('notify.upload.success', attachment.getName().toString()));
