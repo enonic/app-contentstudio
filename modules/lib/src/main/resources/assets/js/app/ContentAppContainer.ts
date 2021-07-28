@@ -12,7 +12,6 @@ import {Project} from './settings/data/project/Project';
 import {ProjectListRequest} from './settings/resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {AppContext} from './AppContext';
-import {AppId} from './AppId';
 import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentId} from './content/ContentId';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
@@ -20,7 +19,7 @@ import {EditContentEvent} from './event/EditContentEvent';
 import {GetIssueRequest} from './issue/resource/GetIssueRequest';
 import {Issue} from './issue/Issue';
 import {IssueDialogsManager} from './issue/IssueDialogsManager';
-import { Path } from 'lib-admin-ui/rest/Path';
+import {Path} from 'lib-admin-ui/rest/Path';
 import {ContentTreeGridLoadedEvent} from './browse/ContentTreeGridLoadedEvent';
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
 import {ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
@@ -28,7 +27,6 @@ import {ResolveDependencyResult} from './resource/ResolveDependencyResult';
 import {Router} from './Router';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentAppId} from './ContentAppId';
 
 export class ContentAppContainer
     extends AppContainer {
