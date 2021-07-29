@@ -1,11 +1,11 @@
 import {Application} from 'lib-admin-ui/app/Application';
-import {AppId} from './AppId';
+import {DescriptorKey} from './page/DescriptorKey';
 
 export class AppContext {
 
     private static INSTANCE: AppContext;
 
-    private appId: AppId;
+    private appId: DescriptorKey;
 
     private application: Application;
 
@@ -21,7 +21,7 @@ export class AppContext {
         return AppContext.INSTANCE;
     }
 
-    setCurrentApp(value: AppId) {
+    setCurrentApp(value: DescriptorKey) {
         this.appId = value;
     }
 
@@ -29,7 +29,7 @@ export class AppContext {
         this.application = application;
     }
 
-    getCurrentApp(): AppId {
+    getCurrentApp(): DescriptorKey {
         return this.appId;
     }
 

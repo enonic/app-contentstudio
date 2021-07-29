@@ -17,7 +17,8 @@ declare const CONFIG: {
     services: {
         contentUrl: string,
         i18nUrl: string,
-        stylesUrl: string
+        stylesUrl: string,
+        adminToolsUrl: string
     }
     theme: string
 };
