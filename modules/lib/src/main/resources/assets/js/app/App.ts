@@ -1,17 +1,17 @@
-import {AppId} from './AppId';
 import {AppContainer} from './AppContainer';
+import {DescriptorKey} from './page/DescriptorKey';
 
 export abstract class App {
 
-    protected appId: AppId;
+    protected appId: DescriptorKey;
 
     protected appContainer: AppContainer;
 
-    constructor() {
-        this.appId = this.createAppId();
+    protected constructor(name: string) {
+        this.appId = DescriptorKey.fromString(`${CONFIG.appId}:${name}`);
     }
 
-    getAppId(): AppId {
+    getAppId(): DescriptorKey {
         return this.appId;
     }
 
@@ -31,13 +31,9 @@ export abstract class App {
         this.appContainer?.hide();
     }
 
-    protected abstract createAppId(): AppId;
-
     protected abstract createAppContainer(): AppContainer;
 
     abstract generateAppUrl(): string;
 
     abstract getIconName(): string;
-
-    abstract getIconClass(): string;
 }

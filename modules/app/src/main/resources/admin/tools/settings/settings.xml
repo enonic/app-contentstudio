@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <tool xmlns="urn:enonic:xp:model:1.0">
-  <!--<display-name i18n="admin.tool.displayName">Content Studio</display-name> That makes settings not appear in launcher menu -->
-  <description i18n="admin.tool.description">Manage content and sites</description>
+<!--  <display-name i18n="admin.tool.settings.displayName">Settings</display-name> That makes tool not appear in launcher menu -->
+  <description i18n="admin.tool.settings.description">Manage content and sites</description>
   <allow>
     <principal>role:system.admin</principal>
     <principal>role:cms.admin</principal>
