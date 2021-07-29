@@ -3,7 +3,6 @@ import {Project} from '../../settings/data/project/Project';
 import {ProjectListItem} from './ProjectListItem';
 import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
 import {UrlAction} from '../../UrlAction';
-import {ContentAppId} from '../../ContentAppId';
 
 export class ProjectList
     extends ListBox<Project> {
@@ -19,7 +18,7 @@ export class ProjectList
         const itemView: ProjectListItem = new ProjectListItem(item);
         itemView.addClass(`level-${this.projectLevel.get(item.getName())}`);
 
-        const url: string = `${ContentAppId.ID}#/${itemView.getProject().getName()}/${UrlAction.BROWSE}`;
+        const url: string = `main#/${itemView.getProject().getName()}/${UrlAction.BROWSE}`;
         itemView.setUrl(url);
 
         return itemView;

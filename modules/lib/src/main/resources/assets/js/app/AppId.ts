@@ -6,7 +6,7 @@ export class AppId implements Equitable {
     private readonly id: string;
 
     constructor(id: string) {
-        this.id = id;
+        this.id = `${CONFIG.appId}:${id}`;
     }
 
     getId(): string {
