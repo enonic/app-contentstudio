@@ -5,6 +5,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import com.enonic.xp.app.contentstudio.rest.resource.content.CmsResourceDynamicFeature;
 import com.enonic.xp.jaxrs.JaxRsService;
 import com.enonic.xp.jaxrs.JaxRsServiceFactory;
 import com.enonic.xp.web.dispatch.DispatchConstants;
@@ -30,5 +31,6 @@ public final class AdminCmsRestActivator
     public void setService( final JaxRsServiceFactory factory )
     {
         this.service = factory.newService( "v2", "/admin/v2/rest", DispatchConstants.XP_CONNECTOR );
+        this.service.add( new CmsResourceDynamicFeature() );
     }
 }
