@@ -77,7 +77,7 @@ describe('Generate name for fragments  specification', function () {
             await studioUtils.doSwitchToNextTab();
             //5. 'Dependencies Section' should be present, in the filter panel'
             await contentFilterPanel.waitForDependenciesSectionVisible();
-            studioUtils.saveScreenshot('text_component_inbound_section');
+            await studioUtils.saveScreenshot('text_component_inbound_section');
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
 
             assert.equal(result[0], SITE.displayName, 'expected display name of dependency');

@@ -62,6 +62,7 @@ module.exports = Object.freeze({
     TEST_FOLDER_NAME: 'all-content-types-images',
     APP_CONTENT_TYPES: 'All Content Types App',
     SIMPLE_SITE_APP: 'Simple Site App',
+    MY_FIRST_APP: "My First App",
     APP_WITH_CONFIGURATOR: 'Second Selenium App',
     APP_WITH_METADATA_MIXIN: 'Third Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
