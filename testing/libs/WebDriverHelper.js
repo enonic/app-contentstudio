@@ -32,7 +32,6 @@ WebDriverHelper.prototype.setupBrowser = function setupBrowser() {
         let file = path.join(__dirname, '/../browser.properties');
         let properties = PropertiesReader(file);
         let browser_name = properties.get('browser.name');
-        let platform_name = properties.get('platform');
         let baseUrl = properties.get('base.url');
         let isHeadless = properties.get('is.headless');
         let width = properties.get('browser.width');
