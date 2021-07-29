@@ -8,8 +8,11 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {AppContext} from './AppContext';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {AppId} from './AppId';
 import {App} from './App';
+import {GetAdminToolsRequest} from './resource/GetAdminToolsRequest';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {AdminTool} from './AdminTool';
+import {DescriptorKey} from './page/DescriptorKey';
 
 export class AppWrapper
     extends DivEl {
@@ -44,12 +47,12 @@ export class AppWrapper
         this.toggleSidebarButton.onClicked(this.toggleSidebar.bind(this));
         this.handleTouchOutsideSidebar();
 
-        this.sidebar.onAppModeSelected((appId: AppId) => {
+        this.sidebar.onAppModeSelected((appId: DescriptorKey) => {
             this.handleAppSelected(appId);
         });
     }
 
-    private handleAppSelected(appId: AppId) {
+    private handleAppSelected(appId: DescriptorKey) {
         const appToShow: App = this.getAppById(appId);
 
         if (!this.hasChild(appToShow.getAppContainer())) {
@@ -63,7 +66,7 @@ export class AppWrapper
         this.currentApp = appToShow;
     }
 
-    private getAppById(appId: AppId): App {
+    private getAppById(appId: DescriptorKey): App {
         return this.apps.find((app: App) => app.getAppId().equals(appId));
     }
 
@@ -144,18 +147,25 @@ class AppModeSwitcher
 
     private buttons: AppModeButton[] = [];
 
-    private appModeSelectedListeners: { (mode: AppId): void } [] = [];
+    private apps: App[];
+
+    private appModeSelectedListeners: { (mode: DescriptorKey): void } [] = [];
 
     constructor(apps: App[]) {
         super('actions-block');
 
-        this.initButtons(apps);
-        this.initListeners();
+        this.apps = apps;
     }
 
-    private initButtons(apps: App[]) {
-        apps.forEach((app: App) => {
-            this.createButton(app);
+    setAdminTools(adminTools: AdminTool[]) {
+        this.initButtons(adminTools);
+        this.initListeners();
+        this.appendChildren(...this.buttons);
+    }
+
+    private initButtons(adminTools: AdminTool[]) {
+        adminTools.forEach((tool: AdminTool) => {
+            this.createButton(tool);
         });
     }
 
@@ -163,18 +173,22 @@ class AppModeSwitcher
         this.buttons.forEach(this.listenButtonClicked.bind(this));
     }
 
-    private createButton(app: App) {
-        const contentButton: AppModeButton = new AppModeButton(app.getIconName(), app.getIconClass(), app.getAppId());
+    private createButton(adminTool: AdminTool) {
+        const contentButton: AppModeButton = new AppModeButton(adminTool);
         this.buttons.push(contentButton);
     }
 
     private onButtonClicked(button: AppModeButton) {
-        this.buttons.forEach((b: AppModeButton) => {
-            b.toggleSelected(b === button);
-        });
+        if (this.containsApp(button.getAppId())) {
+            this.buttons.forEach((b: AppModeButton) => {
+                b.toggleSelected(b === button);
+            });
 
-        if (button.getAppId() !== AppContext.get().getCurrentApp()) {
-            this.notifyAppModeSelected(button.getAppId());
+            if (!button.getAppId().equals(AppContext.get().getCurrentApp())) {
+                this.notifyAppModeSelected(button.getAppId());
+            }
+        } else {
+            window.open(button.getAdminTool().getUri(), button.getAppId().toString());
         }
     }
 
@@ -183,22 +197,18 @@ class AppModeSwitcher
         button.onClicked(() => this.onButtonClicked(button));
     }
 
-    private notifyAppModeSelected(appId: AppId) {
-        this.appModeSelectedListeners.forEach((listener: (id: AppId) => void) => {
+    private notifyAppModeSelected(appId: DescriptorKey) {
+        this.appModeSelectedListeners.forEach((listener: (id: DescriptorKey) => void) => {
             listener(appId);
         });
     }
 
-    onAppModeSelected(handler: (mode: AppId) => void) {
-        this.appModeSelectedListeners.push(handler);
+    private containsApp(id: DescriptorKey): boolean {
+        return this.apps.some((app: App) => app.getAppId().equals(id));
     }
 
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            this.appendChildren(...this.buttons);
-
-            return rendered;
-        });
+    onAppModeSelected(handler: (mode: DescriptorKey) => void) {
+        this.appModeSelectedListeners.push(handler);
     }
 
     getButtons(): AppModeButton[] {
@@ -209,21 +219,25 @@ class AppModeSwitcher
 class AppModeButton
     extends Button {
 
-    private readonly appId: AppId;
+    private readonly adminTool: AdminTool;
 
     private static SELECTED_CLASS: string = 'selected';
 
-    constructor(name: string, iconClass: string, appId: AppId) {
-        super(name);
+    constructor(adminTool: AdminTool) {
+        super();
 
-        this.appId = appId;
-        this.setTitle(name);
-        this.addClass(iconClass);
-        this.toggleClass(AppModeButton.SELECTED_CLASS, appId === AppContext.get().getCurrentApp());
+        this.adminTool = adminTool;
+        // this.setTitle(name);
+        this.toggleClass(AppModeButton.SELECTED_CLASS, adminTool.getKey().equals(AppContext.get().getCurrentApp()));
+        this.prependChild(Element.fromString(`<div class="icon">${adminTool.getIcon()}</div>`));
     }
 
-    getAppId(): AppId {
-        return this.appId;
+    getAppId(): DescriptorKey {
+        return this.adminTool.getKey();
+    }
+
+    getAdminTool(): AdminTool {
+        return this.adminTool;
     }
 
     toggleSelected(condition: boolean) {
@@ -240,6 +254,10 @@ class Sidebar
         super('sidebar');
 
         this.appModeSwitcher = new AppModeSwitcher(apps);
+
+        new GetAdminToolsRequest().sendAndParse().then((adminTools: AdminTool[]) => {
+            this.appModeSwitcher.setAdminTools(adminTools);
+        }).catch(DefaultErrorHandler.handle);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -253,7 +271,7 @@ class Sidebar
         });
     }
 
-    onAppModeSelected(handler: (mode: AppId) => void) {
+    onAppModeSelected(handler: (mode: DescriptorKey) => void) {
         this.appModeSwitcher.onAppModeSelected(handler);
     }
 

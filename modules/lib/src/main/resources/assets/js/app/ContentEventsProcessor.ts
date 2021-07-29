@@ -16,7 +16,6 @@ import {UrlAction} from './UrlAction';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentSummary} from './content/ContentSummary';
-import {ContentAppId} from './ContentAppId';
 
 export class ContentEventsProcessor {
 
@@ -107,7 +106,7 @@ export class ContentEventsProcessor {
         const id: string = event.getId().toString();
         const type: string = event.getContentType() ? event.getContentType().toString() : null;
         const project: string = ProjectContext.get().getProject().getName();
-        const url = `${ContentAppId.ID}#/${project}/${mode}/${id}` + (!!type ? `/${type}` : '');
+        const url = `main#/${project}/${mode}/${id}` + (!!type ? `/${type}` : '');
 
         ContentEventsProcessor.openTab(url);
     }
