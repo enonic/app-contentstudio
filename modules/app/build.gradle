@@ -49,6 +49,8 @@ task copyDevResources {
             into '.xp'
         }
     }
+
+    dependsOn ':lib-contentstudio:devJar'
 }
 
 npmInstall.dependsOn copyDevResources
