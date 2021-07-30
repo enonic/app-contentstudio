@@ -29,12 +29,9 @@ def applyBuildTaskDependencies()
     }
     if ( hasTask( 'typescript' ) ) {
         typescript.dependsOn libAdminBuildTask
-        typescript.mustRunAfter(libAdminBuildTask)
-
     }
     if ( hasTask( 'webpack' ) ) {
         webpack.dependsOn libAdminBuildTask
-        webpack.mustRunAfter(libAdminBuildTask)
     }
 }
 
