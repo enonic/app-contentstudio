@@ -51,6 +51,20 @@ jobs:
             -   name: Build with Gradle
                 run: ./gradlew build -Pcom.enonic.xp.app.production=true
 
+            -   name: Run Base Selenium Tests
+                run: ./gradlew :testing:baseContentStudioTests
+
+            -   uses: actions/upload-artifact@v2
+                if: always()
+                with:
+                    name: mochawesome-report
+                    path: testing/mochawesome-report/
+            -   uses: actions/upload-artifact@v2
+                if: always()
+                with:
+                    name: screenshots
+                    path: testing/build/screenshots/
+
             -   uses: codecov/codecov-action@v2.0.2
 
             -   name: Publish
