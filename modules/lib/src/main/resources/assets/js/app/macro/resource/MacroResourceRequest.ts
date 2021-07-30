@@ -1,7 +1,7 @@
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {CmsResourceRequest} from 'lib-admin-ui/rest/CmsResourceRequest';
 
 export class MacroResourceRequest<PARSED_TYPE>
-    extends ResourceRequest<PARSED_TYPE> {
+    extends CmsResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();
