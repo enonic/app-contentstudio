@@ -25,15 +25,15 @@ def applyBuildTaskDependencies()
     def libAdminBuildTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':build' )
 
     if ( hasTask( 'copyDevResources' ) ) {
-        copyDevResources.dependsOn += libAdminBuildTask
+        copyDevResources.dependsOn libAdminBuildTask
     }
     if ( hasTask( 'typescript' ) ) {
-        typescript.dependsOn += libAdminBuildTask
+        typescript.dependsOn libAdminBuildTask
         typescript.mustRunAfter(libAdminBuildTask)
 
     }
     if ( hasTask( 'webpack' ) ) {
-        webpack.dependsOn += libAdminBuildTask
+        webpack.dependsOn libAdminBuildTask
         webpack.mustRunAfter(libAdminBuildTask)
     }
 }
