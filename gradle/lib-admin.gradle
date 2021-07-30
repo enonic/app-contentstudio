@@ -20,18 +20,12 @@ def applyExcludedTasks()
     gradle.includedBuild( 'lib-admin-ui' ).getLoadedSettings().getStartParameter().setExcludedTaskNames( excludedTasks )
 }
 
-def applyBuildTaskDependencies()
+def applyResourcesTaskDependencies()
 {
-    def libAdminBuildTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':build' )
+    def libAdminDevJarTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':devJar' )
 
     if ( hasTask( 'copyDevResources' ) ) {
-        copyDevResources.dependsOn libAdminBuildTask
-    }
-    if ( hasTask( 'typescript' ) ) {
-        typescript.dependsOn libAdminBuildTask
-    }
-    if ( hasTask( 'webpack' ) ) {
-        webpack.dependsOn libAdminBuildTask
+        copyDevResources.dependsOn libAdminDevJarTask
     }
 }
 
@@ -39,7 +33,7 @@ if ( hasLibAdminUi() )
 {
     afterEvaluate {
         applyExcludedTasks()
-        applyBuildTaskDependencies()
+        applyResourcesTaskDependencies()
     }
 }
 
