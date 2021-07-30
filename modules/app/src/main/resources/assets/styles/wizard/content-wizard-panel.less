@@ -161,7 +161,6 @@
         }
       }
     }
-
   }
 
   .split-panel.wizard-and-preview {
@@ -176,12 +175,18 @@
     }
 
     &.toggle-live {
-      .live-form-panel {
+      .context-split-panel {
         width: 100% !important;
+        z-index: 1;
+
+        .live-form-panel {
+          width: 100% !important;
+        }
+        & > .splitter, .form-panel {
+          display: none !important;
+        }
       }
-      & > .splitter, .form-panel {
-        display: none !important;
-      }
+
     }
 
     &.toggle-split {
@@ -324,6 +329,10 @@
       margin-top: @app-header-height; // leave space for the wizard toolbar
       top: 3000px; // hide by default;
     }
+  }
+
+  .split-panel .context-panel.floating-context-panel {
+    top: 0;
   }
 
   &._0-240, &._240-360, &._360-540, &._540-720 {

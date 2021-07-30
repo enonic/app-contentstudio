@@ -26,7 +26,7 @@ export class ProjectAccessControlEntryView
     public setItem(ace: ProjectAccessControlEntry) {
         super.setItem(ace);
 
-        const principal: Principal = <Principal>Principal.create().setKey(ace.getPrincipal().getKey()).setModifiedTime(
+        const principal: Principal = Principal.create().setKey(ace.getPrincipal().getKey()).setModifiedTime(
             ace.getPrincipal().getModifiedTime()).setDisplayName(
             ace.getPrincipal().getDisplayName()).build();
         this.setObject(principal);

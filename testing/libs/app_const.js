@@ -36,6 +36,9 @@ module.exports = Object.freeze({
     saveFailedAttempt: function (name) {
         return `Content \[${name}\] could not be updated. A content with that name already exists`;
     },
+    requiredValidationMessage: (occurrences) => {
+        return `Min ${occurrences} valid occurrence(s) required`;
+    },
     projectCreatedMessage: name => `Project \"${name}\" is created.`,
     projectNameAlreadyExistsMessage: name => `Project with name [${name}] already exists`,
     projectDeletedMessage: name => `Project \"${name}\" is deleted.`,
@@ -59,6 +62,7 @@ module.exports = Object.freeze({
     TEST_FOLDER_NAME: 'all-content-types-images',
     APP_CONTENT_TYPES: 'All Content Types App',
     SIMPLE_SITE_APP: 'Simple Site App',
+    MY_FIRST_APP: "My First App",
     APP_WITH_CONFIGURATOR: 'Second Selenium App',
     APP_WITH_METADATA_MIXIN: 'Third Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',
@@ -99,13 +103,22 @@ module.exports = Object.freeze({
     shortTimeout: 2000,
     TIMEOUT_1: 1000,
     SUITE_TIMEOUT: 180000,
-    DELETE_INBOUND_MESSAGE: 'The content you are about to delete has inbound references. Please verify them before deletion.',
+    DELETE_INBOUND_MESSAGE: 'One or more items are referenced from another content',
 
     IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
     WIDGET_TITLE: {
         VERSION_HISTORY: 'Version history',
         DEPENDENCIES: 'Dependencies',
-        LAYERS: 'Layers'
+        LAYERS: 'Layers',
+        EMULATOR: 'Emulator'
+    },
+    EMULATOR_RESOLUTION: {
+        MEDIUM_PHONE: 'Medium Phone',
+        LARGE_PHONE: 'Large Phone',
+        TABLET: 'Tablet',
+        NOTEBOOK_13: "13\" Notebook",
+        SMALL_PHONE: 'Small Phone',
+        NOTEBOOK_15: "15\" Notebook",
     },
     ACCESS_MENU_ITEM: {
         CUSTOM: 'Custom...',
@@ -137,12 +150,16 @@ module.exports = Object.freeze({
         MAN2: 'man2',
         SEVEROMOR: 'severomor'
     },
-    MENU_ITEMS: {
+    COMPONENT_VIEW_MENU_ITEMS: {
         INSERT: 'Insert',
         SAVE_AS_FRAGMENT: 'Save as Fragment',
         DETACH_FROM_FRAGMENT: 'Detach from fragment',
-        SPUMANS: 'spumans',
-        BOOK: 'book',
+        INSPECT: 'Inspect',
+        REMOVE: 'Remove',
+        DUPLICATE: 'Duplicate',
+        EDIT: 'Edit',
+        SELECT_PARENT: "Select parent",
+        RESET: 'Reset'
     },
     PROJECTS: {
         ROOT_FOLDER: "Projects",

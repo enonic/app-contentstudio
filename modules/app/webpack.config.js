@@ -31,6 +31,14 @@ module.exports = {
     module: {
         rules: [
             {
+                test: /\.js$/,
+                enforce: 'pre',
+                use: ['source-map-loader'],
+                exclude: [
+                    path.resolve(__dirname, 'node_modules/fine-uploader/'),
+                ],
+            },
+            {
                 test: /\.tsx?$/,
                 use: [{loader: 'ts-loader', options: {configFile: 'tsconfig.json'}}]
             },
@@ -101,6 +109,6 @@ module.exports = {
         }),
     ],
     mode: isProd ? 'production' : 'development',
-    devtool: isProd ? false : 'source-map',
+    devtool: isProd ? false : 'eval-source-map',
     performance: {hints: false}
 };

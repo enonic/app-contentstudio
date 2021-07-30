@@ -238,7 +238,7 @@ export class ContentPublishMenuButton
             this.issueActionsList.length = 0;
             this.removeMenuSeparator();
         }
-        if (!this.issuesRequest && highlightedOrSelected) {
+        if (this.issuesRequest == null && highlightedOrSelected) {
             const contentId = highlightedOrSelected.getContentSummary().getContentId();
             this.issuesRequest = this.findIssues(contentId)
                 .catch(DefaultErrorHandler.handle)

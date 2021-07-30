@@ -51,7 +51,7 @@ describe('content.image.selector: Image content specification', function () {
             //3. Type a not existing name:
             await imageSelectorForm.doFilterOptions('zzzzzz');
             let isDisplayed = await imageSelectorForm.waitForEmptyOptionsMessage();
-            studioUtils.saveScreenshot('img_empty_options2');
+            await studioUtils.saveScreenshot('img_empty_options2');
             assert.isTrue(isDisplayed, "No matching items - this message should appear");
         });
 
@@ -63,7 +63,7 @@ describe('content.image.selector: Image content specification', function () {
             //2. Switch the selector to Tree-mode:
             await imageSelectorForm.clickOnModeTogglerButton();
             let options = await imageSelectorForm.getTreeModeOptionDisplayNames();
-            studioUtils.saveScreenshot('img_sel_tree_mode');
+            await studioUtils.saveScreenshot('img_sel_tree_mode');
             assert.strictEqual(options[0], appConstant.TEST_FOLDER_WITH_IMAGES);
         });
 
@@ -77,7 +77,7 @@ describe('content.image.selector: Image content specification', function () {
             //3. Expand a folder with images:
             await imageSelectorForm.expandFolderInOptions(appConstant.TEST_FOLDER_NAME);
             //4. Verify that content status is displayed in each option
-            studioUtils.saveScreenshot('img_sel_tree_mode_status');
+            await studioUtils.saveScreenshot('img_sel_tree_mode_status');
             let statusList = await imageSelectorForm.getTreeModeOptionStatus();
             assert.isTrue(statusList.length > 0, "Content status should be displayed in each row");
         });
@@ -90,9 +90,9 @@ describe('content.image.selector: Image content specification', function () {
             //2. Click on dropdown handle in the selector:
             await imageSelectorForm.clickOnDropdownHandle();
             //3. Verify expanded options:
-            studioUtils.saveScreenshot("selector_flat_mode");
+            await studioUtils.saveScreenshot("selector_flat_mode");
             let nameImages = await imageSelectorForm.getFlatModeOptionImageNames();
-            studioUtils.saveScreenshot('img_sel_flat_mode');
+            await studioUtils.saveScreenshot('img_sel_flat_mode');
             assert.isTrue(nameImages.length > 0, 'images should be present in the dropdown list');
             assert.isTrue(nameImages[0].includes('.png') || nameImages[0].includes('.jpg') || nameImages[0].includes('.jpeg') ||
                           nameImages[0].includes('.svg'), 'Expected extension should be in all the names');

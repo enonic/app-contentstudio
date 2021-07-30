@@ -3,7 +3,6 @@ import {Element} from 'lib-admin-ui/dom/Element';
 import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
 import {Body} from 'lib-admin-ui/dom/Body';
@@ -257,7 +256,6 @@ export class PageComponentsView
                 this.tree.expandNodeByDataId(componentDataId);
                 return;
             }
-
         });
 
         this.liveEditPage.onComponentReset((event: ComponentResetEvent) => {
@@ -287,10 +285,6 @@ export class PageComponentsView
             } else {
                 this.tree.expandNodeByDataId(componentDataId);
             }
-        }
-
-        if (ObjectHelper.iFrameSafeInstanceOf(event.getComponentView(), TextComponentView)) {
-            this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>event.getComponentView());
         }
 
         this.constrainToParent();
@@ -403,7 +397,6 @@ export class PageComponentsView
         this.tree.onRemoved((event) => this.tree.getGrid().unsubscribeOnDblClick(this.dblClickListener));
 
         this.tree.onLoaded(() => {
-            this.bindTextComponentViewsUpdateOnTextModify();
             this.subscribeOnFragmentLoadError();
         });
 
@@ -442,18 +435,6 @@ export class PageComponentsView
         return !!element && !!element.className && element.className.indexOf('menu-icon') > -1;
     }
 
-    private bindTextComponentViewsUpdateOnTextModify() {
-        this.tree.getGrid().getDataView().getItems().map((dataItem) => {
-            return dataItem.getData().getItemView();
-        }).filter((itemView: ItemView) => {
-            return ObjectHelper.iFrameSafeInstanceOf(itemView, TextComponentView);
-        }).filter((textComponentView: TextComponentView) => {
-            return !textComponentView.getHTMLElement().onpaste; // filtering text components that already have these listeners
-        }).forEach((textComponentView: TextComponentView) => {
-            this.bindTreeTextNodeUpdateOnTextComponentModify(textComponentView);
-        });
-    }
-
     private subscribeOnFragmentLoadError() {
         this.tree.getGrid().getDataView().getItems().map((dataItem) => {
             return dataItem.getData().getItemView();
@@ -462,15 +443,6 @@ export class PageComponentsView
         }).forEach((fragmentComponentView: FragmentComponentView) => {
             this.bindFragmentLoadErrorHandler(fragmentComponentView);
         });
-    }
-
-    private bindTreeTextNodeUpdateOnTextComponentModify(textComponentView: TextComponentView) {
-        let handler = AppHelper.debounce((event) => {
-            this.tree.updateNodeByData(new ItemViewTreeGridWrapper(textComponentView));
-        }, 500, false);
-
-        textComponentView.onKeyUp(handler);
-        textComponentView.getHTMLElement().onpaste = handler;
     }
 
     private bindTreeFragmentNodeUpdateOnComponentLoaded(fragmentComponentView: FragmentComponentView) {
@@ -686,7 +658,7 @@ export class PageComponentsView
 
         if (node) {
             itemView = node.getData().getItemView();
-            pageView = <PageView>itemView.getPageView();
+            pageView = itemView.getPageView();
         } else {
             pageView = this.pageView;
         }

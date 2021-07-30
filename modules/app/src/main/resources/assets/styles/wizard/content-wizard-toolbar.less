@@ -7,7 +7,6 @@
   justify-content: flex-start;
   align-items: flex-end;
   align-content: stretch;
-  padding-right: @app-header-height;
   height: @app-header-height;
   line-height: @app-header-height;
 
@@ -23,8 +22,14 @@
     }
   }
 
-  .fold-button .@{_COMMON_PREFIX}button {
-    line-height: 18px;
+  .fold-button {
+    .@{_COMMON_PREFIX}dropdown {
+      top: @app-header-height;
+    }
+
+    .@{_COMMON_PREFIX}button {
+      line-height: 18px;
+    }
   }
 
   .app-icon-mixin(true, true);
@@ -166,6 +171,10 @@
     }
   }
 
+  .non-mobile-details-panel-toggle-button {
+    order: 6;
+  }
+
 }
 
 @media screen and (min-width: 720px) {
@@ -179,6 +188,10 @@
 @media screen and (max-width: 720px) {
   .content-wizard-toolbar {
     padding-right: 1px;
+
+    .non-mobile-details-panel-toggle-button {
+      display: none;
+    }
 
     .details-toggle {
       text-align: center;

@@ -54,19 +54,12 @@ task copyDevResources {
 npmInstall.dependsOn copyDevResources
 
 node {
-    version = '15.8.0'
+    version = '16.0.0'
     download = true
 }
 
-if ( hasLibAdminUi() )
-{
-    copyDevResources.dependsOn += libAdminBuildTask
-    build.dependsOn += libAdminBuildTask
-    clean.dependsOn += libAdminCleanTask
-}
-
 task lint( type: NpmTask, dependsOn: npmInstall ) {
-    args = [ 'run', 'lint' ]
+    args = [ 'run', 'lint:quiet' ]
     inputs.files fileTree( dir: 'modules', include: 'src/main/**.*' )
     outputs.dir file('gradle')
     outputs.upToDateWhen { false }

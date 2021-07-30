@@ -172,7 +172,7 @@ export class FragmentComponentView
                     .setParentView(regionView)
                     .setParentElement(regionView));
 
-            this.addComponentView(<ComponentView<any>>componentView, index);
+            this.addComponentView(componentView, index);
             this.remove();
 
             new ComponentDetachedFromFragmentEvent(componentView, component.getType()).fire();

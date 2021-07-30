@@ -42,7 +42,7 @@ describe('fragment.inspect.panel.update.path.spec - Select a site with not valid
             await layoutInspectionPanel.typeNameAndSelectLayout('3-col');
             await pageComponentView.openMenu('3-col');
             //3. Click on 'Save as Fragment' menu item. (Save the layout as fragment)
-            await pageComponentView.clickOnMenuItem(appConst.MENU_ITEMS.SAVE_AS_FRAGMENT);
+            await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
             await contentWizardPanel.pause(3000);
             //4. Type new site's name and save:
             await contentWizardPanel.typeDisplayName(displayName);

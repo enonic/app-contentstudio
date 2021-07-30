@@ -6,7 +6,7 @@ import {Styles} from './Styles';
 import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {ProjectContext} from '../../../../project/ProjectContext';
 
-declare var CONFIG;
+declare let CONFIG;
 
 export interface GetStylesResponse {
     css: string[];
@@ -53,7 +53,7 @@ export class StylesRequest
     }
 
     sendAndParse(): Q.Promise<Styles> {
-        if (StylesRequest.requests[this.contentId]) {
+        if (StylesRequest.requests[this.contentId] != null) {
             // Avoid sending multiple requests for the same contentId,
             // for example when there are several HTML Area inputs on the same page
             return StylesRequest.requests[this.contentId];

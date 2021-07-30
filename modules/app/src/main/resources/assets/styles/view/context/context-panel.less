@@ -52,54 +52,6 @@
         font-size: 13px;
       }
     }
-
-    .non-mobile-details-panel-toggle-button {
-      .button(@admin-font-gray2, transparent, @admin-font-gray3, transparent, true);
-
-      z-index: @z-index-launcher-panel;
-      order: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0 12px;
-      border: 0 transparent;
-      background-color: transparent;
-      position: fixed;
-      right: 0;
-      top: @app-header-height + 1;
-      width: @app-header-height;
-      height: @toolbar-height;
-      border-bottom: 1px solid @admin-bg-light-gray;
-
-      @media screen and (max-width: @mobile-panel-width) {
-        display: none !important;
-      }
-
-      &:focus {
-        box-shadow: none;
-      }
-
-      * {
-        vertical-align: top;
-      }
-
-      &:before {
-        font-size: 18px;
-      }
-
-      animation-duration: 0.5s;
-      animation-timing-function: linear;
-      animation-delay: 0s;
-
-      &.expanded {
-        &::before {
-          color: @admin-button-blue1;
-        }
-        &:hover::before {
-          color: @admin-button-blue2;
-        }
-      }
-    }
   }
 
   .context-container {
@@ -174,19 +126,15 @@
       .widget-viewer {
         font-size: 14px;
         cursor: default;
+        .ellipsis();
 
         .names-and-icon-view {
-          .@{_COMMON_PREFIX}names-view {
-            margin: 0 0 0 34px;
-          }
-
           .@{_COMMON_PREFIX}wrapper {
             margin-right: 8px;
 
             img {
               width: 26px;
               height: 26px;
-              margin-top: -1px;
             }
 
             .font-icon-default {
@@ -251,7 +199,46 @@
   &.floating-context-panel {
     top: @toolbar-with-border-height;
   }
-  .non-mobile-details-panel-toggle-button {
-    top: 0;
+}
+
+.toolbar > .non-mobile-details-panel-toggle-button {
+  .button(@admin-font-gray2, transparent, @admin-font-gray3, transparent, true);
+
+  z-index: @z-index-launcher-panel;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 12px;
+  border: 0 transparent;
+  border-bottom: 1px solid @admin-bg-light-gray;
+
+  @media screen and (max-width: @mobile-panel-width) {
+    display: none !important;
   }
+
+  &.expanded {
+    &::before {
+      color: @admin-button-blue1;
+    }
+
+    &:hover::before {
+      color: @admin-button-blue2;
+    }
+  }
+
+  &:focus {
+    box-shadow: none;
+  }
+
+  * {
+    vertical-align: top;
+  }
+
+  &:before {
+    font-size: 18px;
+  }
+
+  animation-duration: 0.5s;
+  animation-timing-function: linear;
+  animation-delay: 0s;
 }

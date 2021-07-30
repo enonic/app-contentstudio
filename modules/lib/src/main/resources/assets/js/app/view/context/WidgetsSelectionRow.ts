@@ -95,7 +95,8 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
             skipExpandOnClick: true,
             inputPlaceholderText: '',
             listMaxHeight: 250,
-            optionDisplayValueViewer: new WidgetViewer()
+            optionDisplayValueViewer: new WidgetViewer(),
+            rowHeight: 50
         });
 
         this.onClicked((event) => {
@@ -127,7 +128,7 @@ export class WidgetSelectorDropdown extends Dropdown<WidgetViewOption> {
 
     private static isDefaultOptionDisplayValueViewer(object: Object) {
         if (object && object instanceof HTMLElement) {
-            const elem = <HTMLElement> object;
+            const elem = object;
             return elem.parentElement.className.indexOf('option-value') > -1
                    && elem.id.indexOf('DropdownHandle') === -1;
         }
@@ -185,4 +186,5 @@ export class WidgetViewer extends NamesAndIconViewer<WidgetViewOption> {
     resolveIconClass(object: WidgetViewOption): string {
         return object.getWidgetView().getWidgetIconClass();
     }
+
 }

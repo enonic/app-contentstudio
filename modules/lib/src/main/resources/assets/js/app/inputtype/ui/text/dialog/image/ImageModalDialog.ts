@@ -22,7 +22,7 @@ import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from '../ModalDia
 import {ImageStyleSelector} from './ImageStyleSelector';
 import {MediaTreeSelectorItem} from '../../../selector/media/MediaTreeSelectorItem';
 import {ImageUploaderEl} from '../../../selector/image/ImageUploaderEl';
-import {ImageContentComboBox, ImageContentComboBoxBuilder} from '../../../selector/image/ImageContentComboBox';
+import {ImageContentComboBox} from '../../../selector/image/ImageContentComboBox';
 import {ContentSelectedOptionsView} from '../../../selector/ContentComboBox';
 import {MediaUploaderElOperation} from '../../../upload/MediaUploaderEl';
 import {GetContentByIdRequest} from '../../../../../resource/GetContentByIdRequest';
@@ -44,9 +44,9 @@ import {Checkbox} from 'lib-admin-ui/ui/Checkbox';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {LinkEl} from 'lib-admin-ui/dom/LinkEl';
-import eventInfo = CKEDITOR.eventInfo;
 import {ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
+import eventInfo = CKEDITOR.eventInfo;
 
 export class ImageModalDialog
     extends OverrideNativeDialog {
@@ -213,7 +213,7 @@ export class ImageModalDialog
 
     private createImageSelector(id: string): FormItem {
 
-        const imageSelector = (<ImageContentComboBoxBuilder>ImageContentComboBox.create()
+        const imageSelector = (ImageContentComboBox.create()
             .setMaximumOccurrences(1))
             .setContent(this.content)
             .setSelectedOptionsView(new ContentSelectedOptionsView())
@@ -844,7 +844,6 @@ export class ImageDialogToolbar
 
     private resetActiveAlignmentButton() {
 
-        // tslint:disable-next-line
         for (let alignment in this.alignmentButtons) {
             this.alignmentButtons[alignment].removeClass('active');
         }

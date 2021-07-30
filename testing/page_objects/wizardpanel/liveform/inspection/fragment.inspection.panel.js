@@ -7,7 +7,7 @@ const lib = require('../../../../libs/elements');
 const appConst = require('../../../../libs/app_const');
 const xpath = {
     container: `//div[contains(@id,'FragmentInspectionPanel')]`,
-    fragmentDropdown: `//div[contains(@id,'FragmentDescriptorDropdown')]`,
+    fragmentDropdown: `//div[contains(@id,'FragmentDropdown')]`,
     selectedOptionView: `//div[contains(@id,'SelectedOptionView')]`,
 };
 

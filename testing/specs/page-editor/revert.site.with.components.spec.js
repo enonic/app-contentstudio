@@ -11,13 +11,14 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const TextComponentCke = require('../../page_objects/components/text.component');
 
-describe("revert.site.with.component.spec: Insert image component then revert the previous version and check Live Frame",
+describe("revert.site.with.component.spec: Insert Text component then revert the previous version and check Live Frame",
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
         webDriverHelper.setupBrowser();
+        const TEXT = "test text";
 
-        let IMAGE_DISPLAY_NAME = 'seng';
         let SITE;
         let CONTROLLER_NAME = 'main region';
 
@@ -32,6 +33,7 @@ describe("revert.site.with.component.spec: Insert image component then revert th
             async () => {
                 let contentWizard = new ContentWizard();
                 let pageComponentView = new PageComponentView();
+                let textComponentCke = new TextComponentCke();
                 let liveFormPanel = new LiveFormPanel();
                 await studioUtils.selectContentAndOpenWizard(SITE.displayName);
                 //1. Open  'Page Component View' dialog:
@@ -39,16 +41,12 @@ describe("revert.site.with.component.spec: Insert image component then revert th
                 //2. Open the context menu:
                 await pageComponentView.openMenu("main");
                 //3. Click on the 'Insert image' menu item:
-                await pageComponentView.selectMenuItem(["Insert", "Image"]);
-                //4. Close the 'Page Component View' dialog:
-                await pageComponentView.clickOnCloseButton();
-                //5. Select the image in the Page Editor:
-                await liveFormPanel.selectImageByDisplayName(IMAGE_DISPLAY_NAME);
-                //6. The image should appear in Live Frame:
-                await liveFormPanel.waitForImageDisplayed(IMAGE_DISPLAY_NAME);
-                await contentWizard.switchToMainFrame();
-                //The site should be saved automatically!
-                await contentWizard.waitForSaveButtonDisabled();
+                await pageComponentView.selectMenuItem(["Insert", "Text"]);
+                await textComponentCke.typeTextInCkeEditor(TEXT);
+                await contentWizard.waitAndClickOnSave();
+                await textComponentCke.switchToLiveEditFrame();
+                //Verify that text component is present:
+                await liveFormPanel.waitForTextComponentDisplayed(TEXT);
             });
 
         it(`GIVEN existing site with image component is opened WHEN do right click on the image-component THEN component's context menu should appear`,
@@ -60,18 +58,17 @@ describe("revert.site.with.component.spec: Insert image component then revert th
                 let position = await contentWizard.getLiveFramePosition();
                 //2. Do right click on the image-component:
                 await contentWizard.switchToLiveEditFrame();
-                await liveFormPanel.doRightClickOnImageComponent(IMAGE_DISPLAY_NAME, position.x, position.y);
-                studioUtils.saveScreenshot("image_component_context_menu");
+                await liveFormPanel.doRightClickOnTextComponent(TEXT, position.x, position.y);
+                await studioUtils.saveScreenshot("image_component_context_menu");
                 //3. Verify menu items:
                 let result = await liveFormPanel.getItemViewContextMenuItems();
                 assert.equal(result[0], 'Select parent');
                 assert.equal(result[1], 'Insert');
-                assert.equal(result[2], "Inspect");
-                assert.equal(result[3], "Reset");
-                assert.equal(result[4], "Remove");
-                assert.equal(result[5], "Duplicate");
-                assert.equal(result[6], "Save as Fragment");
-                assert.equal(result[7], "Edit");
+                assert.equal(result[2], "Reset");
+                assert.equal(result[3], "Remove");
+                assert.equal(result[4], "Duplicate");
+                assert.equal(result[5], "Save as Fragment");
+                assert.equal(result[6], "Edit");
             });
 
         //Verifies https://github.com/enonic/xp/issues/7603  (Page changes are not reverted on version revert )
@@ -89,7 +86,7 @@ describe("revert.site.with.component.spec: Insert image component then revert th
                 studioUtils.saveScreenshot("site_reverted1");
                 await contentWizard.switchToLiveEditFrame();
                 //3. After reverting - Image should not be present in Live Frame
-                await liveFormPanel.waitForImageNotDisplayed(IMAGE_DISPLAY_NAME);
+                await liveFormPanel.waitForTextComponentNotDisplayed(TEXT);
                 await contentWizard.switchToMainFrame();
                 //4.Verify - Save button should be disabled after the reverting:
                 await contentWizard.waitForSaveButtonDisabled();

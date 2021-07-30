@@ -12,7 +12,10 @@ const XPATH = {
     styleOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
     customWidthCheckbox: "//div[contains(@class,'custom-width-checkbox')]",
     imageRangeValue: "//div[contains(@class,'custom-width-range-container')]//span[contains(@class,'custom-width-board')]",
-    selectedOptionView: "//div[contains(@id,'ImageStyleSelector')]//div[contains(@id,'SelectedOptionView')]"
+    selectedOptionView: "//div[contains(@id,'ImageStyleSelector')]//div[contains(@id,'SelectedOptionView')]",
+    captionInput: "//div[contains(@id,'FormItem') and contains(@class,'caption')]//input",
+
+    defaultActionByName: name => `//button[contains(@id, 'ActionButton') and child::span[contains(.,'${name}')]]`,
 };
 
 class InsertImageDialog extends Page {
@@ -27,6 +30,10 @@ class InsertImageDialog extends Page {
 
     get styleSelector() {
         return XPATH.container + XPATH.styleSelector;
+    }
+
+    get captionInput() {
+        return XPATH.container + XPATH.captionInput;
     }
 
     get customWidthCheckbox() {
@@ -51,6 +58,11 @@ class InsertImageDialog extends Page {
 
     get updateButton() {
         return XPATH.container + XPATH.updateButton;
+    }
+
+    async typeCaption(text) {
+        await this.waitForElementDisplayed(this.captionInput, appConst.mediumTimeout);
+        return await this.typeTextInInput(this.captionInput, text);
     }
 
     clickOnCustomWidthCheckBox() {
@@ -142,20 +154,17 @@ class InsertImageDialog extends Page {
         } catch (err) {
             throw new Error("Error when getting text in element with image range " + err);
         }
-
     }
 
     waitForImageRangeNotVisible() {
         return this.waitForElementNotDisplayed(XPATH.imageRangeValue, appConst.shortTimeout);
     }
 
-    filterAndSelectImage(imageDisplayName) {
+    async filterAndSelectImage(imageDisplayName) {
         let comboBox = new ComboBox();
-        return this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.shortTimeout).then(() => {
-            return comboBox.typeTextAndSelectOption(imageDisplayName, XPATH.container);
-        }).then(() => {
-            return this.waitForSpinnerNotVisible(appConst.shortTimeout);
-        })
+        await this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.shortTimeout);
+        await comboBox.typeTextAndSelectOption(imageDisplayName, XPATH.container);
+        return await this.waitForSpinnerNotVisible(appConst.shortTimeout);
     }
 
     waitForStyleSelectorVisible() {
@@ -173,6 +182,7 @@ class InsertImageDialog extends Page {
         let selectedOption = XPATH.container + XPATH.selectedOptionView + "//h6[contains(@class,'main-name')]";
         return this.getText(selectedOption);
     }
-};
+}
+
 module.exports = InsertImageDialog;
 

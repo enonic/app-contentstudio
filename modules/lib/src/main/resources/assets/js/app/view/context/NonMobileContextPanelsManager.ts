@@ -1,20 +1,23 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ContextPanel} from './ContextPanel';
 import {FloatingContextPanel} from './FloatingContextPanel';
 import {DockedContextPanel} from './DockedContextPanel';
-import {NonMobileContextPanelToggleButton} from './button/NonMobileContextPanelToggleButton';
 import {ActiveContextPanelManager} from './ActiveContextPanelManager';
 import {InspectEvent} from '../../event/InspectEvent';
 import {LiveFormPanel} from '../../wizard/page/LiveFormPanel';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {ResponsiveRange} from 'lib-admin-ui/ui/responsive/ResponsiveRange';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
-import {Button} from 'lib-admin-ui/ui/button/Button';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {ToggleContextPanelEvent} from './ToggleContextPanelEvent';
+import {ContextPanelStateEvent} from './ContextPanelStateEvent';
+import {ContextPanelState} from './ContextPanelState';
+import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 
 export class NonMobileContextPanelsManager {
 
-    private splitPanelWithGridAndContext: SplitPanel;
+    private splitPanelWithContext: SplitPanel;
 
     private dockedContextPanel: DockedContextPanel;
 
@@ -22,28 +25,21 @@ export class NonMobileContextPanelsManager {
 
     private resizeEventMonitorLocked: boolean = false;
 
-    private toggleButton: Button = new NonMobileContextPanelToggleButton();
-
     private debouncedResizeHandler: () => void = AppHelper.debounce(this.doHandleResizeEvent, 300, false);
 
     private pageEditor: LiveFormPanel;
 
     private wizardPanel: Panel;
 
-    constructor(builder: NonMobileContextPanelsManagerBuilder) {
+    private state: ContextPanelState = ContextPanelState.COLLAPSED;
 
-        this.splitPanelWithGridAndContext = builder.getSplitPanelWithGridAndContext();
+    constructor(builder: NonMobileContextPanelsManagerBuilder) {
+        this.splitPanelWithContext = builder.getSplitPanelWithContext();
         this.dockedContextPanel = builder.getDefaultContextPanel();
         this.floatingContextPanel = builder.getFloatingContextPanel();
 
         this.pageEditor = builder.getPageEditor();
         this.wizardPanel = builder.getWizardPanel();
-
-        this.toggleButton.onClicked(() => {
-            if (this.requiresAnimation()) {
-                this.doPanelAnimation();
-            }
-        });
 
         const isMobileMode = builder.getIsMobileMode() || (() => false);
 
@@ -53,9 +49,37 @@ export class NonMobileContextPanelsManager {
             }
         });
 
-        this.dockedContextPanel.onShown(() => {
-            this.splitPanelWithGridAndContext.distribute();
+        ToggleContextPanelEvent.on(() => {
+            if (this.state !== ContextPanelState.COLLAPSED) {
+                this.hideActivePanel();
+            } else {
+                this.doPanelAnimation();
+            }
         });
+
+        ShowContentFormEvent.on(() => {
+            if (this.state === ContextPanelState.DOCKED) {
+                this.hideDockedContextPanel();
+                this.switchToFloatingMode();
+            }
+        });
+
+        this.dockedContextPanel.onShown(() => {
+            this.splitPanelWithContext.distribute();
+        });
+
+        this.splitPanelWithContext.whenShown(() => {
+            if (this.getActivePanel().getActiveWidget() && !this.requiresFloatingPanelDueToShortWidth()) {
+                this.getActivePanel().getActiveWidget().slideIn();
+                this.setState(ContextPanelState.DOCKED);
+            }
+        });
+    }
+
+    private setState(state: ContextPanelState) {
+        this.state = state;
+
+        new ContextPanelStateEvent(state).fire();
     }
 
     handleResizeEvent() {
@@ -63,8 +87,7 @@ export class NonMobileContextPanelsManager {
     }
 
     private doHandleResizeEvent() {
-
-        if (this.resizeEventMonitorLocked || !this.toggleButton.isRendered()) {
+        if (this.resizeEventMonitorLocked) {
             return;
         }
 
@@ -72,23 +95,16 @@ export class NonMobileContextPanelsManager {
             this.resizeEventMonitorLocked = true;
             if (this.needsModeSwitch()) {
                 this.doPanelAnimation(true, true);
-            } else if (!this.splitPanelWithGridAndContext.isSecondPanelHidden()) {
+            } else if (!this.splitPanelWithContext.isSecondPanelHidden()) {
                 this.dockedContextPanel.notifyPanelSizeChanged();
             } else if (this.isFloatingContextPanelActive()) {
                 this.floatingContextPanel.notifyPanelSizeChanged();
             }
+
             setTimeout(() => {
                 this.resizeEventMonitorLocked = false;
             }, 600);
 
-        } else {
-
-            if (this.isExpanded() && !this.isFloatingContextPanelActive() && !this.nonMobileContextPanelIsActive()) {
-                this.toggleButton.removeClass('expanded');
-                this.splitPanelWithGridAndContext.removeClass('context-panel-expanded');
-            }
-
-            return;
         }
     }
 
@@ -97,7 +113,7 @@ export class NonMobileContextPanelsManager {
     }
 
     private contentBrowsePanelIsVisible(): boolean {
-        return this.splitPanelWithGridAndContext.getParentElement().isVisible();
+        return this.splitPanelWithContext.getParentElement().isVisible();
     }
 
     private isFloatingContextPanelActive(): boolean {
@@ -119,22 +135,18 @@ export class NonMobileContextPanelsManager {
     }
 
     private doPanelAnimation(canSetActivePanel: boolean = true, onResize: boolean = false) {
+        this.splitPanelWithContext.addClass('sliding');
 
-        this.splitPanelWithGridAndContext.addClass('sliding');
-
-        if (this.requiresFloatingPanelDueToShortWidth()) {
+        if (!this.dockedContextPanel.isVisible() || this.requiresFloatingPanelDueToShortWidth()) {
             this.switchToFloatingMode(canSetActivePanel, onResize);
         } else {
             this.switchToDockedMode(canSetActivePanel, onResize);
         }
-
-        this.ensureButtonHasCorrectState();
     }
 
     private switchToDockedMode(canSetActivePanel: boolean = true, onResize?: boolean) {
-        this.toggleButton.removeClass('floating-mode');
         if (this.floatingPanelIsShown()) {
-            this.floatingToDockedSync();
+            this.floatingContextPanel.slideOut();
         }
 
         if (canSetActivePanel) {
@@ -144,20 +156,22 @@ export class NonMobileContextPanelsManager {
         this.dockedContextPanel.addClass('left-bordered');
 
         if (!this.isExpanded() || onResize) {
-            this.splitPanelWithGridAndContext.showSecondPanel(false);
+            this.splitPanelWithContext.showSecondPanel(false);
+            this.setState(ContextPanelState.DOCKED);
         } else {
-            if (!this.splitPanelWithGridAndContext.isSecondPanelHidden()) {
-                this.splitPanelWithGridAndContext.foldSecondPanel();
+            if (!this.splitPanelWithContext.isSecondPanelHidden()) {
+                this.splitPanelWithContext.foldSecondPanel();
             }
+            this.setState(ContextPanelState.COLLAPSED);
         }
 
         setTimeout(() => {
             this.dockedContextPanel.removeClass('left-bordered');
             if (this.isExpanded()) {
-                this.splitPanelWithGridAndContext.showSplitter();
+                this.splitPanelWithContext.showSplitter();
                 this.dockedContextPanel.notifyPanelSizeChanged();
             }
-            this.splitPanelWithGridAndContext.removeClass('sliding');
+            this.splitPanelWithContext.removeClass('sliding');
         }, 600);
     }
 
@@ -166,9 +180,8 @@ export class NonMobileContextPanelsManager {
             return;
         }
 
-        this.toggleButton.addClass('floating-mode');
-        if (!this.splitPanelWithGridAndContext.isSecondPanelHidden()) {
-            this.dockedToFloatingSync();
+        if (this.dockedContextPanel.isVisible() && !this.splitPanelWithContext.isSecondPanelHidden()) {
+            this.hideDockedContextPanel();
         }
 
         if (canSetActivePanel) {
@@ -179,32 +192,27 @@ export class NonMobileContextPanelsManager {
             this.floatingContextPanel.resetWidgetsWidth();
             this.floatingContextPanel.slideIn();
             this.floatingContextPanel.notifyPanelSizeChanged();
+            this.setState(ContextPanelState.FLOATING);
         } else {
             this.floatingContextPanel.slideOut();
+            this.setState(ContextPanelState.COLLAPSED);
         }
-        this.splitPanelWithGridAndContext.setActiveWidthPxOfSecondPanel(this.floatingContextPanel.getActualWidth());
-        this.splitPanelWithGridAndContext.removeClass('sliding');
+        this.splitPanelWithContext.setActiveWidthPxOfSecondPanel(this.floatingContextPanel.getActualWidth());
+        this.splitPanelWithContext.removeClass('sliding');
     }
 
-    hideActivePanel(onResize: boolean = false) {
+    hideActivePanel() {
         if (this.isFloatingContextPanelActive()) {
-            this.toggleButton.removeClass('floating-mode');
             this.floatingContextPanel.slideOut();
+            this.setState(ContextPanelState.COLLAPSED);
         } else {
             this.hideDockedContextPanel();
         }
-
-        setTimeout(() => {
-            this.ensureButtonHasCorrectState();
-        }, this.isExpanded() ? 300 : 0);
     }
 
     hideDockedContextPanel() {
-        this.splitPanelWithGridAndContext.foldSecondPanel();
-    }
-
-    getToggleButton(): Button {
-        return this.toggleButton;
+        this.splitPanelWithContext.foldSecondPanel();
+        this.setState(ContextPanelState.COLLAPSED);
     }
 
     getActivePanel(): ContextPanel {
@@ -212,37 +220,30 @@ export class NonMobileContextPanelsManager {
     }
 
     private isExpanded(): boolean {
-        return this.toggleButton.hasClass('expanded');
+        return this.state !== ContextPanelState.COLLAPSED;
     }
 
     private dockedToFloatingSync() {
         // Add half splitter, since in docked mode, this value will be subtracted by split panel hanlders,
         // when showing hidden panel
-        const halfSplitter: number = this.splitPanelWithGridAndContext.getSplitterThickness() / 2;
-        let activePanelWidth = this.splitPanelWithGridAndContext.getActiveWidthPxOfSecondPanel();
+        const halfSplitter: number = this.splitPanelWithContext.getSplitterThickness() / 2;
+        let activePanelWidth = this.splitPanelWithContext.getActiveWidthPxOfSecondPanel();
         this.hideDockedContextPanel();
         this.floatingContextPanel.setWidthPx(activePanelWidth + halfSplitter);
     }
 
-    private floatingToDockedSync() {
-        const halfSplitter: number = this.splitPanelWithGridAndContext.getSplitterThickness() / 2;
-        this.floatingContextPanel.slideOut();
-        let activePanelWidth: number = this.floatingContextPanel.getActualWidth();
-        this.splitPanelWithGridAndContext.setActiveWidthPxOfSecondPanel(activePanelWidth - halfSplitter);
-    }
-
     private needsSwitchToFloatingMode(): boolean {
-        return !this.splitPanelWithGridAndContext.isSecondPanelHidden() && this.requiresFloatingPanelDueToShortWidth();
+        return !this.splitPanelWithContext.isSecondPanelHidden() && this.requiresFloatingPanelDueToShortWidth();
     }
 
     private needsSwitchToDockedMode(): boolean {
-        return this.splitPanelWithGridAndContext.isSecondPanelHidden() && this.isExpanded() && !this.requiresFloatingPanelDueToShortWidth();
+        return this.splitPanelWithContext.isSecondPanelHidden() && this.isExpanded() && !this.requiresFloatingPanelDueToShortWidth();
     }
 
     private requiresAnimation(): boolean {
         return this.isExpanded()
-               ? (!this.splitPanelWithGridAndContext.isSecondPanelHidden() || this.floatingPanelIsShown())
-               : (this.splitPanelWithGridAndContext.isSecondPanelHidden() && !this.floatingPanelIsShown());
+               ? (!this.splitPanelWithContext.isSecondPanelHidden() || this.floatingPanelIsShown())
+               : (this.splitPanelWithContext.isSecondPanelHidden() && !this.floatingPanelIsShown());
     }
 
     private floatingPanelIsShown(): boolean {
@@ -258,17 +259,16 @@ export class NonMobileContextPanelsManager {
     }
 
     private requiresFloatingPanelDueToShortWidth(): boolean {
-        const panelWidth = this.splitPanelWithGridAndContext.getEl().getWidthWithBorder();
-
-        const maximumThreshold = this.isPageEditorShown() ?
-                                 (this.isWizardPanelMaximized() ? ResponsiveRanges._1380_1620 : ResponsiveRanges._540_720) :
-                                 ResponsiveRanges._960_1200;
+        const panelWidth: number = this.splitPanelWithContext.getParentElement().getEl().getWidthWithBorder();
+        const maximumThreshold: ResponsiveRange = this.isPageEditorShown() ?
+                                 (this.isWizardPanelMaximized() ? ResponsiveRanges._1200_1380 : ResponsiveRanges._540_720) :
+                                 ResponsiveRanges._720_960;
 
         if (this.floatingPanelIsShown()) {
             return maximumThreshold.isFitOrSmaller(panelWidth - this.floatingContextPanel.getActualWidth());
         } else {
-            const defaultContextPanelWidth = this.splitPanelWithGridAndContext.getActiveWidthPxOfSecondPanel();
-            const halfSplitter: number = this.splitPanelWithGridAndContext.getSplitterThickness() / 2;
+            const defaultContextPanelWidth: number = this.splitPanelWithContext.getActiveWidthPxOfSecondPanel();
+            const halfSplitter: number = this.splitPanelWithContext.getSplitterThickness() / 2;
             // Calculate context panel with half width of the splitter, since context panel in floating mode
             // is bigger on that value.
             return maximumThreshold.isFitOrSmaller(panelWidth - (defaultContextPanelWidth + halfSplitter));
@@ -284,15 +284,8 @@ export class NonMobileContextPanelsManager {
     }
 
     requiresCollapsedContextPanel(): boolean {
-        let splitPanelWidth = this.splitPanelWithGridAndContext.getEl().getWidthWithBorder();
-        return this.requiresFloatingPanelDueToShortWidth() || ResponsiveRanges._1620_1920.isFitOrSmaller(splitPanelWidth);
-    }
-
-    ensureButtonHasCorrectState() {
-        this.toggleButton.toggleClass('expanded',
-            !this.splitPanelWithGridAndContext.isSecondPanelHidden() || this.floatingPanelIsShown());
-        this.toggleButton.setTitle(this.isExpanded() ? i18n('tooltip.contextPanel.hide') : i18n('tooltip.contextPanel.show'), false);
-        this.splitPanelWithGridAndContext.toggleClass('context-panel-expanded', this.isExpanded());
+        const totalWidth: number = Body.get().getEl().getWidthWithBorder();
+        return this.requiresFloatingPanelDueToShortWidth() || ResponsiveRanges._1620_1920.isFitOrSmaller(totalWidth);
     }
 
     static create(): NonMobileContextPanelsManagerBuilder {
@@ -302,7 +295,7 @@ export class NonMobileContextPanelsManager {
 
 export class NonMobileContextPanelsManagerBuilder {
 
-    private splitPanelWithGridAndContext: SplitPanel;
+    private splitPanelWithContext: SplitPanel;
 
     private dockedContextPanel: DockedContextPanel;
 
@@ -314,8 +307,8 @@ export class NonMobileContextPanelsManagerBuilder {
 
     private isMobileMode: () => boolean;
 
-    setSplitPanelWithGridAndContext(splitPanelWithGridAndContext: SplitPanel) {
-        this.splitPanelWithGridAndContext = splitPanelWithGridAndContext;
+    setSplitPanelWithContext(splitPanelWithContext: SplitPanel) {
+        this.splitPanelWithContext = splitPanelWithContext;
     }
 
     setDefaultContextPanel(dockedContextPanel: DockedContextPanel) {
@@ -338,8 +331,8 @@ export class NonMobileContextPanelsManagerBuilder {
         this.isMobileMode = isMobileMode;
     }
 
-    getSplitPanelWithGridAndContext(): SplitPanel {
-        return this.splitPanelWithGridAndContext;
+    getSplitPanelWithContext(): SplitPanel {
+        return this.splitPanelWithContext;
     }
 
     getDefaultContextPanel(): DockedContextPanel {

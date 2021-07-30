@@ -1,7 +1,4 @@
-import {
-    WizardHeaderWithDisplayNameAndName,
-    WizardHeaderWithDisplayNameAndNameOptions
-} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
+import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
@@ -33,8 +30,8 @@ export class ContentWizardHeader
 
     private lockElem: ButtonEl;
 
-    constructor(options?: WizardHeaderWithDisplayNameAndNameOptions) {
-        super(options);
+    constructor() {
+        super();
     }
 
     protected initElements() {

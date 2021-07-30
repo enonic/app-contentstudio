@@ -30,7 +30,7 @@ describe('site.wizard.select.controller.spec: Saves site-data and selects a cont
             //4. switch to 'LiveEdit' and select the controller
             await contentWizard.selectPageDescriptor('Page');
             //The notification message should appear, because the site automatically saved after the selecting a page-controller.
-            studioUtils.saveScreenshot("site_page_descriptor_selected1");
+            await studioUtils.saveScreenshot("site_page_descriptor_selected1");
             let result = await contentWizard.waitForNotificationMessage();
             assert.equal(result, appConstant.itemSavedNotificationMessage(displayName), "Expected notification message should appear");
         });

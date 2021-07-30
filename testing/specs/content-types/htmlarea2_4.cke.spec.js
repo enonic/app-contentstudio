@@ -56,8 +56,8 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             await studioUtils.selectContentAndOpenWizard(htmlAreaContentEmpty.displayName);
             let result = await htmlAreaForm.getFormValidationRecording();
             studioUtils.saveScreenshot('htmlarea_2_4_empty_area');
-            //2. Verify that validation record is displayed:
-            assert.equal(result, "Min 2 occurrences required", "Expected validation record should be displayed");
+            //2. Verify that validation record is displayed: 'Min 2 valid occurrence(s) required'
+            assert.equal(result, appConstant.requiredValidationMessage(2), "Expected validation record should be displayed");
             //3. Verify that red icon is present:
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isTrue(isInvalid, "Red icon should be present, because both inputs are empty");
@@ -145,7 +145,8 @@ describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
             let isRedIconDisplayed = await contentWizard.isContentInvalid();
             assert.isTrue(isRedIconDisplayed, "Red icon should appear in the wizard, because both inputs are required");
             let validationRecord = await htmlAreaForm.getFormValidationRecording();
-            assert.equal(validationRecord, "Min 2 occurrences required", "Expected validation record gets visible");
+            //'Min 2 valid occurrence(s) required'
+            assert.equal(validationRecord, appConstant.requiredValidationMessage(2), "Expected validation record gets visible");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

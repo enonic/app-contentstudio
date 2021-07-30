@@ -102,7 +102,7 @@ export class ImageSelector
     protected initEvents(contentComboBox: ImageContentComboBox) {
 
         const comboBox: ComboBox<MediaTreeSelectorItem> = contentComboBox.getComboBox();
-        const loader = <ImageOptionDataLoader>contentComboBox.getLoader();
+        const loader = contentComboBox.getLoader();
 
         const onPreloadedData = (data: MediaTreeSelectorItem[]) => {
             data.forEach((item: MediaTreeSelectorItem) => {

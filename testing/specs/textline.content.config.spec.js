@@ -23,9 +23,7 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
             await studioUtils.doAddSite(SITE);
         });
 
-    //Verifies https://github.com/enonic/lib-admin-ui/issues/1957
-    // Validation displays irrelevant error message
-    it(`GIVEN wizard for 'TextLine(max-length is 11)' is opened WHEN 12 chars has been typed AND Saved THEN 'This field is required' should not be present`,
+    it(`GIVEN wizard for 'TextLine(max-length is 11)' is opened WHEN 12 chars has been typed AND Saved THEN 'Min 1 valid occurrence(s) required' should be visible`,
         async () => {
             let textLine = new TextLine();
             let contentWizard = new ContentWizard();
@@ -41,8 +39,10 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
             let result = await textLine.getOccurrenceValidationRecording(0);
             studioUtils.saveScreenshot('textline_issue_1957');
             assert.equal(result, appConstant.VALIDATION_MESSAGE.TEXT_IS_TOO_LONG, 'occurrence validation recording gets visible');
-            //5. Verify that "This field is required" should not be displayed:
-            await textLine.waitForFormValidationRecordingNotDisplayed();
+            //5. Verify that "Min 1 valid occurrence(s) required" gets visible:
+            let validationMessage = await textLine.getFormValidationRecording();
+            assert.equal(validationMessage, appConstant.requiredValidationMessage(1),
+                "Min 1 valid occurrence(s) required - this message should appear");
         });
 
     it(`GIVEN wizard for 'TextLine(max-length is 11)' is opened WHEN 5 chars has been typed THEN validation message should not be present`,
@@ -97,7 +97,7 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/3190
     //Wizard does not load for text line with regexp in config
-    it(`GIVEN wizard for 'TextLine'  with regexp is opened WHEN correct ip-address has ben typed THEN validation record should not be visible`,
+    it(`GIVEN wizard for 'TextLine'  with regexp is opened WHEN correct ip-address has been typed THEN validation record should not be visible`,
         async () => {
             let textLine = new TextLine();
             let contentWizard = new ContentWizard();
@@ -114,9 +114,12 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
             //3. Verify that content is valid before saving
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isFalse(isInvalid, "Content should ve valid in wizard");
+            //text input should be with green border:
+            let isValid = await textLine.isRegExStatusValid(0);
+            assert.isTrue(isValid, "Valid", "Valid status should be present in the text input");
         });
 
-    it(`GIVEN wizard for 'TextLine'  with regexp is opened WHEN correct ip-address has ben typed AND saved THEN validation record should not be visible`,
+    it(`GIVEN wizard for 'TextLine'  with regexp is opened WHEN correct ip-address has been typed AND saved THEN validation record should not be visible`,
         async () => {
             let textLine = new TextLine();
             let contentWizard = new ContentWizard();
@@ -134,6 +137,9 @@ describe('textline.content.config.spec:  verifies `max-length value config for t
             //3. Verify that content is valid after saving
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isFalse(isInvalid, "Content should ve valid in wizard");
+            //text input should be with green border:
+            let isValid = await textLine.isRegExStatusValid(0);
+            assert.isTrue(isValid, "Valid", "Valid status should be present in the text input");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

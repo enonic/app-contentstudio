@@ -60,7 +60,7 @@ describe('Check Outbound dependencies after rollback a version of content with i
                 await openWizardDependencyWidget();
                 //3. Click on Show Outbound button:
                 await wizardDependenciesWidget.clickOnShowOutboundButton();
-                //4. Revert the version with one selected image:
+                //4. Revert the version with single selected image:
                 await rollbackVersion();
                 await studioUtils.doSwitchToNextTab();
                 //Verify that one image should be present in the grid:

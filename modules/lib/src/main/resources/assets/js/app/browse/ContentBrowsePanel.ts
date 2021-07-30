@@ -40,6 +40,7 @@ import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 
 export class ContentBrowsePanel
     extends BrowsePanel {
@@ -51,6 +52,7 @@ export class ContentBrowsePanel
     private debouncedFilterRefresh: () => void;
     private debouncedBrowseActionsAndPreviewRefreshOnDemand: () => void;
     private browseActionsAndPreviewUpdateRequired: boolean = false;
+    private contextPanelToggler: NonMobileContextPanelToggleButton;
 
     constructor() {
         super();
@@ -66,6 +68,8 @@ export class ContentBrowsePanel
             }
         }, 300);
 
+        this.contextPanelToggler = new NonMobileContextPanelToggleButton();
+
         if (!ProjectContext.get().isInitialized()) {
             this.handleProjectNotSet();
         } else {
@@ -76,13 +80,13 @@ export class ContentBrowsePanel
     private handleProjectNotSet() {
         this.getBrowseActions().setState(State.DISABLED);
         this.toggleFilterPanelAction.setEnabled(false);
-        this.contextSplitPanel.disableToggleButton();
+        this.contextPanelToggler.setEnabled(false);
         this.treeGrid.setState(State.DISABLED);
 
         const projectSetHandler = () => {
             this.getBrowseActions().setState(State.ENABLED);
             this.toggleFilterPanelAction.setEnabled(true);
-            this.contextSplitPanel.enableToggleButton();
+            this.contextPanelToggler.setEnabled(true);
             this.treeGrid.setState(State.ENABLED);
             Router.get().setHash(UrlAction.BROWSE);
             ProjectContext.get().unProjectChanged(projectSetHandler);
@@ -138,7 +142,7 @@ export class ContentBrowsePanel
         return filterPanel;
     }
 
-    protected createMainContentSplitPanel(gridAndItemsSplitPanel: SplitPanel): SplitPanel {
+    protected createBrowseWithItemsPanel(): SplitPanel {
         const browseActions: ContentTreeGridActions = this.getBrowseActions();
         const mobileActions: Action[] = [
             browseActions.getAction(ActionName.UNPUBLISH),
@@ -150,7 +154,8 @@ export class ContentBrowsePanel
             browseActions.getAction(ActionName.EDIT),
             browseActions.getAction(ActionName.SHOW_NEW_DIALOG)
         ];
-        this.contextSplitPanel = new ContextSplitPanel(gridAndItemsSplitPanel, mobileActions);
+
+        this.contextSplitPanel = new ContextSplitPanel(this.getBrowseItemPanel(), mobileActions);
 
         return this.contextSplitPanel;
     }
@@ -179,7 +184,7 @@ export class ContentBrowsePanel
 
             return rendered;
         }).catch((error) => {
-            console.error(`Couldn't render ContentBrowsePanel`, error);
+            console.error('Couldn\'t render ContentBrowsePanel', error);
             return true;
         });
     }
@@ -523,6 +528,7 @@ export class ContentBrowsePanel
         });
 
         this.browseToolbar.appendChild(contentPublishMenuButton);
+        this.browseToolbar.appendChild(this.contextPanelToggler);
 
         browseActions.onBeforeActionsStashed(() => {
             contentPublishMenuButton.setRefreshDisabled(true);

@@ -23,7 +23,7 @@ import {ContentSummaryAndCompareStatus} from '../../../content/ContentSummaryAnd
 import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {GridColumn, GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
-import {BaseSelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
 import {ContentSummaryViewer} from '../../../content/ContentSummaryViewer';
@@ -101,7 +101,8 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
 
     private removeStatusColumnIfShown() {
         if (this.isStatusColumnShown()) {
-            const newColumns: GridColumn<any>[] = this.getColumnsWithoutCheckbox().filter((column: GridColumn<any>) => column.id !== 'status') ;
+            const newColumns: GridColumn<any>[] = this.getColumnsWithoutCheckbox()
+                .filter((column: GridColumn<any>) => column.id !== 'status');
             this.getDataGrid().setColumns(newColumns, true);
         }
     }
@@ -133,14 +134,13 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
         return config;
     }
 
-    private prepareBuilder(builder: ContentComboBoxBuilder<ITEM_TYPE>) {
+    protected prepareBuilder(builder: ContentComboBoxBuilder<ITEM_TYPE>) {
         this.createStatusColumn();
 
         if (!builder.loader) {
             builder.setLoader(<ContentSummaryOptionDataLoader<ITEM_TYPE>>this.createLoader(builder));
         }
 
-        builder.setMaxHeight(this.getMaxHeight());
         builder.setCreateColumns([this.statusColumn]);
 
         if (builder.isRequestMissingOptions) {
@@ -148,10 +148,6 @@ export class ContentComboBox<ITEM_TYPE extends ContentTreeSelectorItem>
                 return new ContentsExistRequest(missingOptionIds).sendAndParse().then(result => result.getContentsExistMap());
             });
         }
-    }
-
-    protected getMaxHeight(): number {
-        return 370;
     }
 
     protected createLoader(builder: ContentComboBoxBuilder<ITEM_TYPE>): ContentSummaryOptionDataLoader<ContentTreeSelectorItem> {
@@ -328,7 +324,7 @@ export class MissingContentSelectedOptionView
     private id: string;
 
     constructor(option: Option<ContentTreeSelectorItem>) {
-        super(option);
+        super(new BaseSelectedOptionViewBuilder<ContentTreeSelectorItem>().setOption(option));
         this.id = option.getValue();
         this.setEditable(false);
     }
@@ -347,10 +343,11 @@ export class ContentSelectedOptionView
     extends RichSelectedOptionView<ContentTreeSelectorItem> {
 
     constructor(option: Option<ContentTreeSelectorItem>) {
-        super(
-            new RichSelectedOptionViewBuilder<ContentTreeSelectorItem>(option)
-                .setEditable(true)
+        super(<RichSelectedOptionViewBuilder<ContentTreeSelectorItem>>
+            new RichSelectedOptionViewBuilder<ContentTreeSelectorItem>()
                 .setDraggable(true)
+                .setEditable(true)
+                .setOption(option)
         );
         this.addClass('content-selected-option-view');
     }

@@ -20,7 +20,4 @@ export class ImageStyleOptionViewer
         return super.setObject(object);
     }
 
-    getPreferredHeight(): number {
-        return 26;
-    }
 }

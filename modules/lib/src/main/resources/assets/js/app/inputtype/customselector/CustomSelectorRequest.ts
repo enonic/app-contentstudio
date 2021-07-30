@@ -60,13 +60,13 @@ export class CustomSelectorRequest
         const isInvalid = (value) => value == null || value == null;
 
         if (isInvalid(result.total)) {
-            errors.push(`'total'`);
+            errors.push('\'total\'');
         }
         if (isInvalid(result.count)) {
-            errors.push(`'count'`);
+            errors.push('\'count\'');
         }
         if (isInvalid(result.hits)) {
-            errors.push(`'hits'`);
+            errors.push('\'hits\'');
         }
         if (errors.length > 0) {
             throw new Error(i18n('field.customSelector.errors', errors.join(', ')));

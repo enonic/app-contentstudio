@@ -47,7 +47,7 @@ export class MacroSelectedOptionView
     extends RichSelectedOptionView<MacroDescriptor> {
 
     constructor(option: Option<MacroDescriptor>) {
-        super(new RichSelectedOptionViewBuilder<MacroDescriptor>(option));
+        super(<RichSelectedOptionViewBuilder<MacroDescriptor>>new RichSelectedOptionViewBuilder<MacroDescriptor>().setOption(option));
     }
 
     resolveIconUrl(macroDescriptor: MacroDescriptor): string {

@@ -23,4 +23,5 @@ export class ContentTypeSummaryViewer
     resolveIconUrl(object: ContentTypeSummary): string {
         return this.contentTypeIconUrlResolver.resolve(object);
     }
+
 }

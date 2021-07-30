@@ -32,8 +32,8 @@ export class PublishDialogDependantList
         });
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): Element {
-        const statusView: StatusSelectionItem = <StatusSelectionItem>super.createItemView(item, readOnly);
+    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): StatusSelectionItem {
+        const statusView: StatusSelectionItem = super.createItemView(item, readOnly);
 
         if (this.isRemovable(item)) {
             statusView.addClass('removable');

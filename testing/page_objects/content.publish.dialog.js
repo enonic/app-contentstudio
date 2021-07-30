@@ -113,7 +113,7 @@ class ContentPublishDialog extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.pause(200);
         await this.clickOnElement(locator);
-        return await this.pause(200);
+        return await this.pause(1000);
     }
 
     waitForDialogOpened() {

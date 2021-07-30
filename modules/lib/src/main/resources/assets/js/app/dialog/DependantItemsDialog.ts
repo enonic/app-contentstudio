@@ -54,6 +54,8 @@ export abstract class DependantItemsDialog
 
     protected previousScrollTop: number;
 
+    protected resolvedIds: ContentId[];
+
     protected dependantIds: ContentId[];
 
     private showDependantList: boolean;
@@ -69,6 +71,7 @@ export abstract class DependantItemsDialog
 
         this.showDependantList = false;
         this.dependantIds = [];
+        this.resolvedIds = [];
         this.loading = false;
         this.loadingRequested = false;
         this.subTitle = new H6El('sub-title').setHtml(this.config.dialogSubName);
@@ -179,7 +182,7 @@ export abstract class DependantItemsDialog
         return new DialogItemList();
     }
 
-    protected createDependantList(): ListBox<ContentSummaryAndCompareStatus> {
+    protected createDependantList(): DialogDependantList {
         return new DialogDependantList();
     }
 
@@ -248,6 +251,7 @@ export abstract class DependantItemsDialog
 
     clearDependantItems() {
         this.dependantIds = [];
+        this.resolvedIds = [];
         this.dependantList.clearItems();
     }
 
@@ -276,11 +280,14 @@ export abstract class DependantItemsDialog
         return this.getItemList().getItems();
     }
 
-    protected loadDescendantIds() {
+    protected loadDescendantIds(): Q.Promise<void> {
         const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
 
         return this.createResolveDescendantsRequest().sendAndParse().then((resolvedIds: ContentId[]) => {
+            this.resolvedIds = resolvedIds;
             this.dependantIds = resolvedIds.filter((resolveId: ContentId) => !ids.some((id: ContentId) => id.equals(resolveId)));
+
+            return Q(null);
         });
     }
 
@@ -429,7 +436,7 @@ export class DialogItemList
     }
 
     getItems(): ContentSummaryAndCompareStatus[] {
-        return <ContentSummaryAndCompareStatus[]>super.getItems();
+        return super.getItems();
     }
 
 
@@ -460,7 +467,7 @@ export class DialogDependantList
         super(className);
     }
 
-    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): Element {
+    createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): StatusSelectionItem {
 
         const dependantViewer = new DependantItemViewer();
 
@@ -481,8 +488,11 @@ export class DialogDependantList
     }
 
     setItems(items: ContentSummaryAndCompareStatus[], silent?: boolean) {
-        items.sort(DialogDependantList.invalidAndReadOnlyOnTop);
-        super.setItems(items, silent);
+        super.setItems(this.sortItems(items), silent);
+    }
+
+    protected sortItems(items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] {
+        return items.sort(DialogDependantList.invalidAndReadOnlyOnTop);
     }
 
     onItemClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {
@@ -495,22 +505,26 @@ export class DialogDependantList
         });
     }
 
+    getItemViews(): StatusSelectionItem[] {
+        return <StatusSelectionItem[]>super.getItemViews();
+    }
+
     protected notifyItemClicked(item: ContentSummaryAndCompareStatus) {
         this.itemClickListeners.forEach(listener => {
             listener(item);
         });
     }
 
-    private static invalidAndReadOnlyOnTop(a: ContentSummaryAndCompareStatus, b: ContentSummaryAndCompareStatus): number {
+    protected static invalidAndReadOnlyOnTop(a: ContentSummaryAndCompareStatus, b: ContentSummaryAndCompareStatus): number {
         return DialogDependantList.readOnlyToNumber(b) - DialogDependantList.readOnlyToNumber(a) +
                DialogDependantList.validityToNumber(a) - DialogDependantList.validityToNumber(b);
     }
 
-    private static readOnlyToNumber(a: ContentSummaryAndCompareStatus): number {
+    protected static readOnlyToNumber(a: ContentSummaryAndCompareStatus): number {
         return +(a.isReadOnly() === true);
     }
 
-    private static validityToNumber(a: ContentSummaryAndCompareStatus): number {
+    protected static validityToNumber(a: ContentSummaryAndCompareStatus): number {
         return +(a.getContentSummary().isValid() === true);
     }
 }

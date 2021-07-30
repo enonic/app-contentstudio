@@ -45,6 +45,26 @@ class TextLineForm extends OccurrencesFormView {
         }
         return await elements[index].getText();
     }
+
+    async isRedBorderDisplayed(index) {
+        let inputs = await this.getDisplayedElements(this.textLineInput);
+        if (inputs.length === 0) {
+            throw new Error("Text line Form - text inputs were not found!");
+        }
+        let attr = await inputs[index].getAttribute("class");
+        return attr.includes("invalid");
+    }
+
+    async isRegExStatusValid(index) {
+        let locator = XPATH.textLine + "//div[contains(@class,'input-wrapper')]//input";
+        let inputs = await this.getDisplayedElements(locator);
+        if (inputs.length === 0) {
+            throw new Error("Text line Form - text inputs were not found!");
+        }
+        let value = await inputs[index].getAttribute("class");
+        return value.includes('valid');
+    }
+
 }
 
 module.exports = TextLineForm;

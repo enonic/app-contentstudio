@@ -13,7 +13,8 @@ export class ImageStyleSelector
     constructor(contentId: string) {
         super('imageSelector', <DropdownConfig<ImageStyleOption>>{
             optionDisplayValueViewer: new ImageStyleOptionViewer(),
-            inputPlaceholderText: i18n('dialog.image.style.apply')
+            inputPlaceholderText: i18n('dialog.image.style.apply'),
+            rowHeight: 26
         });
 
         this.contentId = contentId;
@@ -27,7 +28,7 @@ export class ImageStyleSelector
         this.addOptions();
 
         this.onOptionSelected((event: OptionSelectedEvent<ImageStyleOption>) => {
-            if ((<ImageStyleOption>event.getOption().getDisplayValue()).isEmpty()) {
+            if ((event.getOption().getDisplayValue()).isEmpty()) {
                 this.reset();
             }
         });
