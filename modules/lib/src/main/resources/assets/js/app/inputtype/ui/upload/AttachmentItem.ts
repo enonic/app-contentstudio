@@ -19,7 +19,7 @@ export class AttachmentItem
         this.value = value;
 
         this.link = new AEl().setUrl(
-            UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/content/media/${contentId}/${encodeURIComponent(value)}`));
+            UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/content/media/${contentId}/${encodeURIComponent(value)}`));
         this.link.setHtml(value);
 
         this.initRemoveButton();

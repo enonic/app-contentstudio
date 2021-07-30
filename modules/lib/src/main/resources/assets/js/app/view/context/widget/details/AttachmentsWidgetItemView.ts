@@ -94,7 +94,7 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
     private createLinkEl(contentId: ContentId, attachmentName: AttachmentName): AEl {
         const name: string = encodeURIComponent(attachmentName.toString());
         const url: string = `${UrlHelper.getCMSPath()}/content/media/${contentId.toString()}/${name}`;
-        const link: AEl = new AEl().setUrl(UriHelper.getRestUri(url), '_blank');
+        const link: AEl = new AEl().setUrl(UrlHelper.getCmsRestUri(url), '_blank');
         link.setHtml(attachmentName.toString());
         return link;
     }

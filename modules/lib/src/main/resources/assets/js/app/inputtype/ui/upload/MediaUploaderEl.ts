@@ -44,7 +44,7 @@ export class MediaUploaderEl
     }
 
     protected beforeSubmit() {
-        this.uploader.setEndpoint(UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/${this.config.url}`));
+        this.uploader.setEndpoint(UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/${this.config.url}`));
     }
 
     private initImageDropHandler() {
@@ -162,7 +162,7 @@ export class MediaUploaderEl
     }
 
     createResultItem(value: string): Element {
-        this.link = new AEl().setUrl(UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/content/media/${value}`), '_blank');
+        this.link = new AEl().setUrl(UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/content/media/${value}`), '_blank');
         this.link.setHtml(this.fileName != null && this.fileName !== '' ? this.fileName : value);
 
         return this.link;

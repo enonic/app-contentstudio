@@ -16,7 +16,6 @@ import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathR
 import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
 import {NotificationMessage} from 'lib-admin-ui/notify/NotificationMessage';
 import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {ContentPath} from '../../../content/ContentPath';
 import eventInfo = CKEDITOR.eventInfo;
@@ -1044,7 +1043,7 @@ class HtmlEditorConfigBuilder {
                 StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS,
                 StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS],
             disallowedContent: 'img[width,height]',
-            uploadUrl: UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/content/createMedia`),
+            uploadUrl: UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/content/createMedia`),
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
             disableNativeSpellChecker: false
         };
