@@ -9,9 +9,18 @@ import {Path} from 'lib-admin-ui/rest/Path';
 import {Response} from 'lib-admin-ui/rest/Response';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
+import {Element, NewElementBuilder} from 'lib-admin-ui/dom/Element';
 
 export class ContentSummaryListViewer
     extends ContentSummaryAndCompareStatusViewer {
+
+    private iconWrapperId: string;
+
+    constructor() {
+        super();
+
+        this.addClass('content-summary-list-viewer');
+    }
 
     resolveDisplayName(object: ContentSummaryAndCompareStatus): string {
         if (object.hasContentSummary()) {
@@ -24,13 +33,14 @@ export class ContentSummaryListViewer
     doLayout(object: ContentSummaryAndCompareStatus) {
         super.doLayout(object);
 
-        if (object.getType().isImage()) {
+        if (object.getType()?.isImage()) {
             this.namesAndIconView?.getIconImageEl().getEl().setSrc(ImgEl.PLACEHOLDER);
+            this.namesAndIconView.removeClass('no-icon');
         }
     }
 
     resolveIconUrl(object: ContentSummaryAndCompareStatus): string {
-        if (object.getType().isImage()) {
+        if (object.getType()?.isImage()) {
             this.checkAndSetImageUrlAsync(object);
             return null;
         }
@@ -42,16 +52,26 @@ export class ContentSummaryListViewer
         const url: string = super.resolveIconUrl(object);
 
         if (!StringHelper.isBlank(url)) {
-            this.sendImageRequest(url);
+            if (!this.iconWrapperId) {
+                const iconWrapper: Element =
+                    new Element(new NewElementBuilder().setTagName('div').setGenerateId(true).setClassName('icon-spinner icon-wrapper'));
+                this.namesAndIconView.getIconImageEl().wrapWithElement(iconWrapper);
+                this.iconWrapperId = iconWrapper.getId();
+            }
+
+            this.sendImageRequest(url).finally(() => {
+                document.getElementById(this.iconWrapperId)?.classList.remove('icon-spinner');
+            }).catch(DefaultErrorHandler.handle);
         }
     }
 
-    private sendImageRequest(url: string) {
+    private sendImageRequest(url: string): Q.Promise<void> {
         const request: ImageRequest = new ImageRequest(url);
 
-        request.sendAndGet().then((imageResponse: ImageResponse) => {
+        return request.sendAndGet().then((imageResponse: ImageResponse) => {
             this.handleImageResponse(imageResponse);
-        }).catch(DefaultErrorHandler.handle);
+            return Q(null);
+        });
     }
 
     private handleImageResponse(imageResponse: ImageResponse) {
