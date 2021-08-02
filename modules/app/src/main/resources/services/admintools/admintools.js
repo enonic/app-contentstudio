@@ -36,7 +36,8 @@ function processTools(adminTools) {
             uri: admin.getToolUrl(
                 adminTools[i].application,
                 adminTools[i].name
-            )
+            ),
+            displayName: adminTools[i].displayName
         });
     }
 

@@ -13,6 +13,7 @@ import {GetAdminToolsRequest} from './resource/GetAdminToolsRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {AdminTool} from './AdminTool';
 import {DescriptorKey} from './page/DescriptorKey';
+import {TooltipHelper} from './TooltipHelper';
 
 export class AppWrapper
     extends DivEl {
@@ -36,6 +37,7 @@ export class AppWrapper
         this.initElements();
         this.initListeners();
         this.handleAppSelected(currentApp.getAppId());
+        TooltipHelper.init();
     }
 
     private initElements() {
@@ -227,9 +229,10 @@ class AppModeButton
         super();
 
         this.adminTool = adminTool;
-        // this.setTitle(name);
+        this.setTitle(adminTool.getDisplayName());
         this.toggleClass(AppModeButton.SELECTED_CLASS, adminTool.getKey().equals(AppContext.get().getCurrentApp()));
         this.prependChild(Element.fromString(`<div class="icon">${adminTool.getIcon()}</div>`));
+        this.setLabel(adminTool.getDisplayName());
     }
 
     getAppId(): DescriptorKey {
@@ -288,12 +291,15 @@ class Sidebar
         return appNameWrapper;
     }
 
-    private createAppVersionBlock(): SpanEl {
-        const cleanVersion = StringHelper.cleanVersion(CONFIG.appVersion);
-        const appVersionSpan = SpanEl.fromText(`v${cleanVersion}`, 'app-version');
+    private createAppVersionBlock(): DivEl {
+        const cleanVersion: string = StringHelper.cleanVersion(CONFIG.appVersion);
+        const appVersionSpan: DivEl = new DivEl('app-version');
+        appVersionSpan.setHtml(`v${cleanVersion}`);
+
         if (CONFIG.appVersion !== cleanVersion) {
             appVersionSpan.setTitle(`v${CONFIG.appVersion}`);
         }
+
         return appVersionSpan;
     }
 }

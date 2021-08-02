@@ -17,17 +17,21 @@ public final class GetAdminToolsScriptBean
 {
     private AdminToolDescriptorService adminToolDescriptorService;
 
+    private LocaleService localeService;
+
     public List<MapSerializable> execute()
     {
         final PrincipalKeys principals = ContextAccessor.current().
             getAuthInfo().
             getPrincipals();
+        final StringTranslator stringTranslator = new StringTranslator( this.localeService );
 
         return adminToolDescriptorService.getAllowedAdminToolDescriptors( principals ).
             stream().
             filter( this::isStudioApp ).
             map( adminToolDescriptor -> new AdminToolMapper( adminToolDescriptor,
-                                                             adminToolDescriptorService.getIconByKey( adminToolDescriptor.getKey() )) ).
+                                                             adminToolDescriptorService.getIconByKey( adminToolDescriptor.getKey() ),
+                                                             stringTranslator) ).
             collect( Collectors.toList() );
     }
 
@@ -40,5 +44,6 @@ public final class GetAdminToolsScriptBean
     public void initialize( final BeanContext context )
     {
         this.adminToolDescriptorService = context.getService( AdminToolDescriptorService.class ).get();
+        this.localeService = context.getService( LocaleService.class ).get();
     }
 }
