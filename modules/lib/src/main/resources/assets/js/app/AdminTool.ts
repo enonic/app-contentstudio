@@ -12,14 +12,17 @@ export class AdminTool
 
     private readonly icon: string;
 
-    private constructor(key: DescriptorKey, uri: string, icon: string) {
+    private readonly displayName: string;
+
+    private constructor(key: DescriptorKey, uri: string, icon: string, displayName: string) {
         this.key = key;
         this.uri = uri;
         this.icon = icon;
+        this.displayName = displayName;
     }
 
     public static fromJSON(json: AdminToolJson): AdminTool {
-        return new AdminTool(DescriptorKey.fromString(json.key), json.uri, json.icon);
+        return new AdminTool(DescriptorKey.fromString(json.key), json.uri, json.icon, json.displayName);
     }
 
     getKey(): DescriptorKey {
@@ -34,6 +37,10 @@ export class AdminTool
         return this.icon;
     }
 
+    getDisplayName(): string {
+        return this.displayName;
+    }
+
     equals(o: Equitable): boolean {
         if (!ObjectHelper.iFrameSafeInstanceOf(o, AdminTool)) {
             return false;
@@ -46,6 +53,10 @@ export class AdminTool
         }
 
         if (!ObjectHelper.stringEquals(this.icon, other.icon)) {
+            return false;
+        }
+
+        if (!ObjectHelper.stringEquals(this.displayName, other.displayName)) {
             return false;
         }
 

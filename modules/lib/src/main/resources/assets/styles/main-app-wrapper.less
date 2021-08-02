@@ -5,6 +5,8 @@
   @sidebar-bg-color: #2C4A38;
 
   .sidebar {
+    display: flex;
+    flex-direction: column;
     z-index: 3;
     padding-top: 44px;
     background-color: @sidebar-bg-color;
@@ -33,6 +35,8 @@
     }
 
     .actions-block {
+      flex-grow: 1;
+
       a {
         text-decoration: none;
       }
@@ -40,7 +44,7 @@
       button {
         font-size: 20px;
         width: 100%;
-        padding: 12px 0;
+        padding: 13px;
         display: flex;
         justify-content: center;
 
@@ -77,10 +81,7 @@
     }
 
     .app-version {
-      position: absolute;
-      text-align: center;
-      bottom: 5px;
-      width: 100%;
+      padding: 5px;
       .ellipsis();
     }
   }
@@ -272,11 +273,12 @@
       .actions-block {
         button {
           justify-content: flex-start;
-          padding: 8px 0 8px 3px;
+          align-items: center;
 
           span {
             display: block;
             font-size: 18px;
+            padding-left: 18px;
           }
 
           &:before {
