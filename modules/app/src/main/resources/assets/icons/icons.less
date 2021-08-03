@@ -1,11 +1,8 @@
 @font-face {
   font-family: 'icomoon';
-  src: url('fonts/icomoon.eot?d2dpl4');
   src:
-    url('fonts/icomoon.eot?#iefixd2dpl4') format('embedded-opentype'),
-    url('fonts/icomoon.woff?d2dpl4') format('woff'),
-    url('fonts/icomoon.ttf?d2dpl4') format('truetype'),
-    url('fonts/icomoon.svg?d2dpl4#icomoon-release') format('svg');
+    url('fonts/icomoon.woff2') format('woff2'),
+    url('fonts/icomoon.woff') format('woff');
 }
 
 .icon {
@@ -329,7 +326,7 @@
 
 .icon-cloud-download(@size: 18px, @bottom: -6px, @left:-4px) {
   &::after {
-    background-image: url("cloud-download.svg");
+    background-image: url("../images/cloud-download.svg");
     background-repeat: no-repeat;
     background-size: @size;
     display: block;
