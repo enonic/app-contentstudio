@@ -23,7 +23,8 @@ module.exports = {
     },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
-        filename: './[name].js'
+        filename: './[name].js',
+        assetModuleFilename: './[file]'
     },
     resolve: {
         extensions: ['.ts', '.js', '.less', '.css']
@@ -52,12 +53,11 @@ module.exports = {
                 ]
             },
             {
-                test: /\.(eot|woff|woff2|ttf)$|icomoon.svg/,
-                use: 'file-loader?name=fonts/[name].[ext]'
-            },
-            {
                 test: /^((?!icomoon).)*\.(svg|png|jpg|gif)$/,
-                use: 'file-loader?name=img/[name].[ext]'
+                type: 'asset/resource',
+                generator: {
+                    filename: 'img/[name][ext]'
+                }
             }
         ]
     },
