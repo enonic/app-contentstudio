@@ -70,8 +70,8 @@ export class HTMLAreaHelper {
 
         while (imgSrcs) {
             imgSrcs.forEach((imgSrc: string) => {
-                if (imgSrc.startsWith(ImageUrlResolver.URL_PREFIX_RENDER) ||
-                    imgSrc.startsWith(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL)) {
+                if (imgSrc.indexOf(ImageUrlResolver.URL_PREFIX_RENDER) === 0 ||
+                    imgSrc.indexOf(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL) === 0) {
                     processedContent =
                         processedContent.replace(` src="${imgSrc}"`, HTMLAreaHelper.getConvertedImageSrc(imgSrc, contentId));
                 }
@@ -90,7 +90,7 @@ export class HTMLAreaHelper {
         AppHelper.whileTruthy(() => regex.exec(editorContent), (imgTags) => {
             const imgTag = imgTags[0];
 
-            if (imgTag.startsWith('<img ') &&
+            if (imgTag.indexOf('<img ') === 0 &&
                 (imgTag.includes(ImageUrlResolver.URL_PREFIX_RENDER) || imgTag.includes(ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL))) {
                 const dataSrc = /<img.*?data-src="(.*?)".*?>/.exec(imgTag)[1];
                 const src = /<img.*?\ssrc="(.*?)".*?>/.exec(imgTags[0])[1];
