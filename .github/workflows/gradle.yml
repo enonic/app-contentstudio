@@ -2,8 +2,10 @@ name: Gradle Build
 
 on:
     push:
+    repository_dispatch:
+        types: [ lib-admin-ui ]
 
-concurrency: ${{ github.ref }}
+concurrency: build-${{ github.ref }}
 
 jobs:
     publish_vars:
