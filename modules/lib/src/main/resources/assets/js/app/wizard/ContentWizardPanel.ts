@@ -2784,6 +2784,10 @@ export class ContentWizardPanel
         return this.minimized;
     }
 
+    isRenderable(): boolean {
+        return this.renderable;
+    }
+
     protected calcNavigationWidth(): number {
         if (this.minimized) {
             return this.splitPanel.getEl().getHeight() + this.stepNavigatorAndToolbarContainer.getEl().getPaddingLeft();

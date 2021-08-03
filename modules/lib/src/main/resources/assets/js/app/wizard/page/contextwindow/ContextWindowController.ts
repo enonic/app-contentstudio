@@ -39,7 +39,7 @@ export class ContextWindowController {
         });
 
         let liveEditShownHandler = () => {
-            if (this.contextWindow.isLiveFormShown()) {
+            if (this.contextWindow.isLiveFormShown() && this.contentWizardPanel.isRenderable()) {
                 this.componentsViewToggler.setEnabled(true);
             }
         };
