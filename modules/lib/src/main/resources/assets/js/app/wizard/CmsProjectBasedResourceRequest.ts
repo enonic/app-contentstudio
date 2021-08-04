@@ -13,7 +13,7 @@ export abstract class CmsProjectBasedResourceRequest<PARSED_TYPE>
     }
 
     setRequestProject(value: Project): CmsProjectBasedResourceRequest<PARSED_TYPE> {
-        this.projectName = !!value ? value.getName() : null;
+        this.projectName = value?.getName();
         return this;
     }
 
