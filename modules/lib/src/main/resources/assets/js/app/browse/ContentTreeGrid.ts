@@ -61,39 +61,6 @@ export class ContentTreeGrid
                 .setLoadBufferSize(20)
                 .prependClasses('content-tree-grid');
 
-        const [
-            nameColumn,
-            compareStatusColumn,
-            orderColumn,
-            modifiedTimeColumn,
-        ] = builder.getColumns().slice(0);
-
-        const updateColumns = () => {
-            const width: number = this.getEl().getWidth();
-            const checkSelIsMoved: boolean = ResponsiveRanges._540_720.isFitOrSmaller(Body.get().getEl().getWidth());
-            const curClass: string = nameColumn.getCssClass();
-
-            if (checkSelIsMoved) {
-                nameColumn.setCssClass(curClass || 'shifted');
-            } else if (curClass && curClass.indexOf('shifted') >= 0) {
-                nameColumn.setCssClass(curClass.replace('shifted', ''));
-            }
-
-            if (ResponsiveRanges._240_360.isFitOrSmaller(width)) {
-                this.setColumns([nameColumn, orderColumn], checkSelIsMoved);
-            } else if (ResponsiveRanges._540_720.isFitOrSmaller(width)) {
-                modifiedTimeColumn.setMaxWidth(90);
-                modifiedTimeColumn.setFormatter(DateTimeFormatter.formatNoTimestamp);
-                this.setColumns([nameColumn, orderColumn, compareStatusColumn], checkSelIsMoved);
-            } else {
-                modifiedTimeColumn.setMaxWidth(135);
-                modifiedTimeColumn.setFormatter(DateTimeFormatter.format);
-                this.setColumns([nameColumn, orderColumn, compareStatusColumn, modifiedTimeColumn]);
-            }
-        };
-
-        builder.setColumnUpdater(updateColumns);
-
         super(builder);
 
         this.state = State.ENABLED;
@@ -110,17 +77,17 @@ export class ContentTreeGrid
             formatter: ContentRowFormatter.nameFormatter,
             style: {cssClass: 'name', minWidth: 130}
         }, {
-            name: 'CompareStatus',
-            id: 'compareStatus',
-            field: 'compareStatus',
-            formatter: ContentRowFormatter.statusFormatter,
-            style: {cssClass: 'status', minWidth: 75, maxWidth: 75}
-        }, {
             name: 'Order',
             id: 'order',
             field: 'contentSummary.order',
             formatter: ContentRowFormatter.orderFormatter,
             style: {cssClass: 'order', minWidth: 25, maxWidth: 40}
+        }, {
+            name: 'CompareStatus',
+            id: 'compareStatus',
+            field: 'compareStatus',
+            formatter: ContentRowFormatter.statusFormatter,
+            style: {cssClass: 'status', minWidth: 75, maxWidth: 75}
         }, {
             name: 'ModifiedTime',
             id: 'modifiedTime',
