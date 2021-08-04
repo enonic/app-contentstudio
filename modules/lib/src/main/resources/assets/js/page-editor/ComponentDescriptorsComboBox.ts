@@ -82,11 +82,14 @@ export class DescriptorSelectedOptionView
 
         let namesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build();
         namesAndIconView.setIconClass(StyleHelper.getCommonIconCls('part') + ' icon-medium')
-            .setIconUrl(this.descriptor.getIcon())
             .setMainName(this.descriptor.getDisplayName())
             .setSubName(this.descriptor.getKey().toString());
 
-        let removeButtonEl = new AEl('remove');
+        if (this.descriptor.getIcon()) {
+            namesAndIconView.setIconUrl(this.descriptor.getIcon());
+        }
+
+        const removeButtonEl: AEl = new AEl('remove');
         removeButtonEl.onClicked((event: MouseEvent) => {
             this.notifyRemoveClicked();
 
