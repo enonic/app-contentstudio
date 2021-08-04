@@ -1,10 +1,11 @@
 import * as Q from 'q';
-import {TaskResourceRequest} from 'lib-admin-ui/rest/TaskResourceRequest';
+import {CmsTaskResourceRequest} from 'lib-admin-ui/rest/CmsTaskResourceRequest';
 import {ProjectResourceRequest} from './ProjectResourceRequest';
 import {TaskInfo} from 'lib-admin-ui/task/TaskInfo';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 
-export class SyncLayersRequest extends TaskResourceRequest<void> {
+export class SyncLayersRequest
+    extends CmsTaskResourceRequest<void> {
 
     private finishedHandler: () => void;
 
