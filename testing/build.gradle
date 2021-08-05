@@ -6,13 +6,7 @@ plugins {
     id 'com.enonic.defaults'
     id 'com.github.node-gradle.node'
 }
-group = 'com.enonic.xp.js_testing'
-version = '1.0'
-
-repositories {
-    mavenCentral()
-    xp.enonicRepo('dev')
-}
+group = 'com.enonic.app.contentstudio.js_testing'
 
 configurations {
     distro
