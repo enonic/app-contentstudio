@@ -1,4 +1,4 @@
-import {CmsResourceRequest} from 'lib-admin-ui/rest/CmsResourceRequest';
+import {CmsResourceRequest} from '../../resource/CmsResourceRequest';
 
 export class MacroResourceRequest<PARSED_TYPE>
     extends CmsResourceRequest<PARSED_TYPE> {
