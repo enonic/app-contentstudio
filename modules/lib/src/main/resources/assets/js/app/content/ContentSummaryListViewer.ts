@@ -101,7 +101,8 @@ class ImageRequest
 
     private readonly url: string;
 
-    private static cachedRequestsPromises: Map<string, Q.Promise<ImageResponse>> = new Map<string, Q.Promise<ImageResponse>>();
+    private static cachedRequestsPromises: Map<string, promiseQ.Promise<ImageResponse>> =
+        new Map<string, promiseQ.Promise<ImageResponse>>();
 
     constructor(url: string) {
         super(HttpMethod.GET);
@@ -118,12 +119,12 @@ class ImageRequest
         return this.request.status;
     }
 
-    sendAndGet(): Q.Promise<ImageResponse> {
+    sendAndGet(): promiseQ.Promise<ImageResponse> {
         if (ImageRequest.cachedRequestsPromises.has(this.url)) {
             return ImageRequest.cachedRequestsPromises.get(this.url);
         }
 
-        const requestPromise: Q.Promise<ImageResponse> = this.doSend();
+        const requestPromise: promiseQ.Promise<ImageResponse> = this.doSend();
 
         ImageRequest.cachedRequestsPromises.set(this.url, requestPromise);
 
@@ -135,7 +136,7 @@ class ImageRequest
         this.request.responseType = 'blob';
     }
 
-    private doSend(): Q.Promise<ImageResponse> {
+    private doSend(): promiseQ.Promise<ImageResponse> {
         return this.send().then((response: Response) => {
             return this.request.status === 200 ? this.encodeImageAsURL(response) : promiseQ({status: this.request.status});
         }).catch((reason: any) => {
@@ -143,7 +144,7 @@ class ImageRequest
         });
     }
 
-    private encodeImageAsURL(response: Response): Q.Promise<ImageResponse> {
+    private encodeImageAsURL(response: Response): promiseQ.Promise<ImageResponse> {
         const deferred: promiseQ.Deferred<ImageResponse> = promiseQ.defer<ImageResponse>();
 
         const reader: FileReader = new FileReader();
