@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import * as promiseQ from 'q';
 import {ContentSummaryAndCompareStatusViewer} from './ContentSummaryAndCompareStatusViewer';
 import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
@@ -70,7 +70,7 @@ export class ContentSummaryListViewer
 
         return request.sendAndGet().then((imageResponse: ImageResponse) => {
             this.handleImageResponse(imageResponse);
-            return Q(null);
+            return promiseQ(null);
         });
     }
 
@@ -137,14 +137,14 @@ class ImageRequest
 
     private doSend(): Q.Promise<ImageResponse> {
         return this.send().then((response: Response) => {
-            return this.request.status === 200 ? this.encodeImageAsURL(response) : Q({status: this.request.status});
+            return this.request.status === 200 ? this.encodeImageAsURL(response) : promiseQ({status: this.request.status});
         }).catch((reason: any) => {
-            return Q({error: reason});
+            return promiseQ({error: reason});
         });
     }
 
     private encodeImageAsURL(response: Response): Q.Promise<ImageResponse> {
-        const deferred: Q.Deferred<ImageResponse> = Q.defer<ImageResponse>();
+        const deferred: promiseQ.Deferred<ImageResponse> = promiseQ.defer<ImageResponse>();
 
         const reader: FileReader = new FileReader();
 
