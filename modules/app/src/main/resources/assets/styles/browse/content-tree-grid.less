@@ -8,7 +8,7 @@
           .@{_COMMON_PREFIX}wrapper {
             flex-shrink: 0;
 
-            &:before {
+            &::before {
               display: none;
             }
           }
@@ -82,7 +82,10 @@
     line-height: 37px;
   }
 
-  &._0-240, &._240-360, &._360-540, &._540-720 {
+  &._0-240,
+  &._240-360,
+  &._360-540,
+  &._540-720 {
     .grid .slick-row {
       .slick-cell {
         &.modified {
@@ -92,10 +95,12 @@
     }
   }
 
-  &._0-240, &._240-360 {
+  &._0-240,
+  &._240-360 {
     .grid .slick-row {
       .slick-cell {
-        &.status, &.modified {
+        &.status,
+        &.modified {
           display: none;
         }
       }
