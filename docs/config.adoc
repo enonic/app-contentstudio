@@ -37,3 +37,23 @@ can be disabled by adding the following parameter to the config file:
 ----
 publishingWizard.allowContentUpdate = false
 ----
+
+=== Matching mode for content type patterns
+
+Defines matching mode for content type patterns. Can be `MATCH` or `LEGACY`. Default: `MATCH`. See https://developer.enonic.com/docs/xp/stable/cms/input-types#allowContentType[description].
+
+.com.enonic.app.contentstudio.cfg
+[source,properties]
+----
+contentTypePatternMode = MATCH
+----
+
+=== Max file upload size
+
+Used for setting size limit on attachments, media content and both project and content thumbnail uploads
+
+.com.enonic.app.contentstudio.cfg
+[source,properties]
+----
+uploadMaxFileSize = 100mb
+----
