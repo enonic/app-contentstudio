@@ -1,7 +1,12 @@
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {ProjectContext} from '../project/ProjectContext';
 import {Project} from '../settings/data/project/Project';
 
 export class UrlHelper {
+
+    static getCmsRestUri(path: string): string {
+        return UriHelper.getAdminUri(UriHelper.joinPath('v2', 'rest', UriHelper.relativePath(path)));
+    }
 
     static getCMSPath(): string {
         const requestProject: Project = ProjectContext.get().getProject();

@@ -1,9 +1,9 @@
 import {PageTemplate} from '../content/PageTemplate';
 import {ContentJson} from '../content/ContentJson';
-import {ContentResourceRequest} from './ContentResourceRequest';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export abstract class PageTemplateResourceRequest<PARSED_TYPE>
-    extends ContentResourceRequest<PARSED_TYPE> {
+    extends CmsContentResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();

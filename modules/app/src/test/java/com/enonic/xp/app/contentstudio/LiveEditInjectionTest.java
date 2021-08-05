@@ -66,7 +66,7 @@ public class LiveEditInjectionTest
 
         final String result = list.get( 0 );
         assertNotNull( result );
-        assertEquals( readResource( "liveEditInjectionHeadBegin.html" ).trim() + "\n", result );
+        assertEquals( readResource( "liveEditInjectionHeadBegin.html" ).trim() + System.lineSeparator(), result );
     }
 
     @Test
@@ -81,7 +81,7 @@ public class LiveEditInjectionTest
 
         final String result = list.get( 0 );
         assertNotNull( result );
-        assertEquals( readResource( "liveEditInjectionBodyEnd.html" ).trim() + "\n", result );
+        assertEquals( readResource( "liveEditInjectionBodyEnd.html" ).trim() + System.lineSeparator(), result );
     }
 
     private void mockCurrentContextHttpRequest()

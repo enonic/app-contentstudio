@@ -9,8 +9,8 @@ import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByK
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Locale} from 'lib-admin-ui/locale/Locale';
-import {GetLocalesRequest} from 'lib-admin-ui/locale/GetLocalesRequest';
 import {ProjectHelper} from '../../../../data/project/ProjectHelper';
+import {GetLocalesRequest} from '../../../../../resource/GetLocalesRequest';
 
 export class ProjectMetaStatisticsBlock extends StatisticsBlock {
 

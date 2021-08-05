@@ -1,13 +1,13 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {AccessControlList} from '../access/AccessControlList';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class ApplyContentPermissionsRequest
-    extends ContentResourceRequest<TaskId> {
+    extends CmsContentResourceRequest<TaskId> {
 
     private id: ContentId;
 

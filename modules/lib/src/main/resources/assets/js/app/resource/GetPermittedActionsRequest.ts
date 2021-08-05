@@ -1,11 +1,11 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {Permission} from '../access/Permission';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetPermittedActionsRequest
-    extends ContentResourceRequest<Permission[]> {
+    extends CmsContentResourceRequest<Permission[]> {
 
     private contentIds: ContentId[] = [];
 

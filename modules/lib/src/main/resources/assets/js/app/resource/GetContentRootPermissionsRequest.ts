@@ -1,10 +1,10 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {PermissionsJson} from '../access/PermissionsJson';
 import {AccessControlList} from '../access/AccessControlList';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetContentRootPermissionsRequest
-    extends ContentResourceRequest<AccessControlList> {
+    extends CmsContentResourceRequest<AccessControlList> {
 
     constructor() {
         super();

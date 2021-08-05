@@ -4,7 +4,6 @@ import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 import {FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
 import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
-import {LocaleComboBox} from 'lib-admin-ui/ui/locale/LocaleComboBox';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {WizardStepForm} from 'lib-admin-ui/app/wizard/WizardStepForm';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
@@ -14,6 +13,7 @@ import {Principal} from 'lib-admin-ui/security/Principal';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
 import {ProjectContext} from '../project/ProjectContext';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {LocaleComboBox} from '../locale/LocaleComboBox';
 
 export class SettingsWizardStepForm
     extends WizardStepForm {

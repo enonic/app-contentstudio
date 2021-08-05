@@ -15,9 +15,7 @@ import {Principal} from 'lib-admin-ui/security/Principal';
 import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
 import {ProjectPermissions} from '../../../data/project/ProjectPermissions';
 import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
-import {LocaleComboBox} from 'lib-admin-ui/ui/locale/LocaleComboBox';
 import {Locale} from 'lib-admin-ui/locale/Locale';
-import {LocaleLoader} from 'lib-admin-ui/locale/LocaleLoader';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ProjectFormItemBuilder} from './element/ProjectFormItem';
 import {Button} from 'lib-admin-ui/ui/button/Button';
@@ -26,6 +24,8 @@ import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {Project} from '../../../data/project/Project';
 import {ProjectHelper} from '../../../data/project/ProjectHelper';
+import {LocaleComboBox} from '../../../../locale/LocaleComboBox';
+import {LocaleLoader} from '../../../../locale/LocaleLoader';
 
 export class ProjectReadAccessWizardStepForm
     extends ProjectWizardStepForm {

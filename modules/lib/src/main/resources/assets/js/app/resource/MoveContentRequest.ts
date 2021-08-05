@@ -2,12 +2,12 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {ContentIds} from '../content/ContentIds';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentPath} from '../content/ContentPath';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class MoveContentRequest
-    extends ContentResourceRequest<TaskId> {
+    extends CmsContentResourceRequest<TaskId> {
 
     private readonly ids: ContentIds;
 

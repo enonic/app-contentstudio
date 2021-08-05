@@ -2,13 +2,14 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueResponse} from './IssueResponse';
 import {ListIssuesResult} from './ListIssuesResult';
 import {IssueMetadata} from '../IssueMetadata';
-import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueStatus} from '../IssueStatus';
 import {IssueWithAssigneesJson} from '../json/IssueWithAssigneesJson';
 import {IssueWithAssignees} from '../IssueWithAssignees';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 
-export class ListIssuesRequest extends IssueResourceRequest<IssueResponse> {
+export class ListIssuesRequest
+    extends CmsIssueResourceRequest<IssueResponse> {
 
     private static DEFAULT_FETCH_SIZE: number = 10;
 

@@ -325,7 +325,7 @@ export class ContentItemPreviewPanel
             if (allows) {
                 this.setPreviewType(PREVIEW_TYPE.MEDIA);
                 if (this.isVisible()) {
-                    this.frame.setSrc(UriHelper.getRestUri(
+                    this.frame.setSrc(UrlHelper.getCmsRestUri(
                         `${UrlHelper.getCMSPath()}/content/media/${contentSummary.getId()}?download=false#view=fit`));
                 }
             } else {

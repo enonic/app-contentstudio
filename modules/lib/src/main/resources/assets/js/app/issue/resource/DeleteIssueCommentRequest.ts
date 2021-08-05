@@ -1,9 +1,9 @@
-import {IssueResourceRequest} from './IssueResourceRequest';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 
 export class DeleteIssueCommentRequest
-    extends IssueResourceRequest<boolean> {
+    extends CmsIssueResourceRequest<boolean> {
 
     private commentId: string;
 

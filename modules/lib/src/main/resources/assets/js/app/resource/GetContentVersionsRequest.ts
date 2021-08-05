@@ -1,12 +1,12 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {GetContentVersionsForViewResultsJson} from './json/GetContentVersionsForViewResultsJson';
 import {ContentVersions} from '../ContentVersions';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetContentVersionsRequest
-    extends ContentResourceRequest<ContentVersions> {
+    extends CmsContentResourceRequest<ContentVersions> {
 
     private contentId: ContentId;
     private from: number;

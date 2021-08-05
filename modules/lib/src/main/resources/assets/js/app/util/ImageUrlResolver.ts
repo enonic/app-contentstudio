@@ -1,6 +1,5 @@
 import {IconUrlResolver} from 'lib-admin-ui/icon/IconUrlResolver';
 import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UrlHelper} from './UrlHelper';
 import {ContentId} from '../content/ContentId';
 
@@ -69,27 +68,25 @@ export class ImageUrlResolver
         return this;
     }
 
-    setScaleWidth(value: boolean) : ImageUrlResolver {
+    setScaleWidth(value: boolean): ImageUrlResolver {
         this.scaleWidth = value;
         return this;
     }
 
-    private getBaseUrl(urlPrefix: string, isAbsoluteUrl: boolean): string {
-        const url = `${urlPrefix}${this.contentId.toString()}`;
-
-        return isAbsoluteUrl ? UriHelper.getRestUri(url) : url;
+    private getBaseUrl(urlPrefix: string): string {
+        return `${urlPrefix}${this.contentId.toString()}`;
     }
 
     resolveForRender(styleName: string = ''): string {
         const isOriginalImageStyle: boolean = StyleHelper.isOriginalImage(styleName);
         const urlPrefix: string = isOriginalImageStyle ? ImageUrlResolver.URL_PREFIX_RENDER_ORIGINAL : ImageUrlResolver.URL_PREFIX_RENDER;
-        const url: string = this.getBaseUrl(urlPrefix, false);
+        const url: string = this.getBaseUrl(urlPrefix);
 
         return (isOriginalImageStyle || !styleName) ? url : `${url}?style=${styleName}`;
     }
 
     resolveForPreview(): string {
-        let url = this.getBaseUrl(`${UrlHelper.getCMSPath()}/${ImageUrlResolver.URL_PREFIX_PREVIEW}`, true);
+        let url = this.getBaseUrl(UrlHelper.getCmsRestUri(`/${ImageUrlResolver.URL_PREFIX_PREVIEW}`));
 
         if (this.timeStamp) {
             url = this.appendParam('ts', '' + this.timeStamp.getTime(), url);

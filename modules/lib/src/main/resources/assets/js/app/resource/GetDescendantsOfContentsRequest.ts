@@ -1,13 +1,13 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentIdBaseItemJson} from './json/ResolvePublishContentResultJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetDescendantsOfContentsRequest
-    extends ContentResourceRequest<ContentId[]> {
+    extends CmsContentResourceRequest<ContentId[]> {
 
     private contentPaths: ContentPath[] = [];
 

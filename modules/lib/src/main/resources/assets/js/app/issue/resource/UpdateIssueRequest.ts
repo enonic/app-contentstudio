@@ -1,14 +1,14 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueJson} from '../json/IssueJson';
 import {Issue} from '../Issue';
 import {IssueStatus} from '../IssueStatus';
 import {PublishRequest} from '../PublishRequest';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 
 export class UpdateIssueRequest
-    extends IssueResourceRequest<Issue> {
+    extends CmsIssueResourceRequest<Issue> {
 
     private id: string;
 
