@@ -261,7 +261,7 @@ export class PageComponentsView
         this.liveEditPage.onComponentReset((event: ComponentResetEvent) => {
             const oldDataId: string = event.getOldComponentView().getItemId().toString();
 
-            this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView());
+            this.tree.refreshComponentNode(event.getNewComponentView(), event.getOldComponentView(), true);
 
             this.removeFromInvalidItems(oldDataId);
         });

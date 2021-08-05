@@ -275,12 +275,14 @@ export class PageComponentsTreeGrid
         this.fetchDescription(component);
     }
 
-    refreshComponentNode(componentView: ComponentView<Component>, oldComponentView: ComponentView<Component>) {
+    refreshComponentNode(componentView: ComponentView<Component>, oldComponentView: ComponentView<Component>, clean?: boolean) {
         const oldDataId: string = oldComponentView.getItemId().toString();
         const oldNode: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(oldDataId);
 
-        if (oldNode.hasChildren()) {
-            oldNode.removeChildren();
+        if (clean) {
+            oldNode.getChildren().forEach((childNode: TreeNode<ItemViewTreeGridWrapper>) => {
+               this.deleteNode(childNode);
+            });
         }
 
         this.updateNodeByData(new ItemViewTreeGridWrapper(componentView), oldDataId);
@@ -294,6 +296,11 @@ export class PageComponentsTreeGrid
         if (ObjectHelper.iFrameSafeInstanceOf(componentView.getType(), TextItemType)) {
             this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>componentView);
         }
+    }
+
+    protected doUpdateNodeByData(nodeToUpdate: TreeNode<ItemViewTreeGridWrapper>, data: ItemViewTreeGridWrapper): void {
+        nodeToUpdate.setExpandable(this.hasChildren(data));
+        super.doUpdateNodeByData(nodeToUpdate, data);
     }
 
     scrollToItem(dataId: string) {
