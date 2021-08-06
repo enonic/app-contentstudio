@@ -27,12 +27,12 @@ jobs:
                     distribution: 'adopt'
 
             -   name: Run Selenium Tests
-                run: ./gradlew :contentstudio:build :testing:${{ matrix.suite }} :testing:publish
+                run: ./gradlew :contentstudio:build :testing:${{ matrix.suite }} :testing:publish -PartifactAppendix=${{ matrix.suite }}
 
             -   uses: actions/upload-artifact@v2
                 if: always()
                 with:
                     name: 'ui-test-report-${{ matrix.branch }}-${{ matrix.suite }}'
                     path: |
-                        testing/mochawesome-report/
-                        testing/build/screenshots/
+                        testing/mochawesome-report/*
+                        testing/build/screenshots/*

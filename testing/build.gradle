@@ -92,18 +92,22 @@ task deployContentStudio( type: DefaultTask ) {
     mustRunAfter unpackDistro
 }
 
+def createAppendix( classifier ) {
+    return hasProperty( 'artifactAppendix' ) ? "${artifactAppendix}-${classifier}" : classifier
+}
+
 task zipScreenshots( type: Zip ) {
     from screenshotsDir
     include '*'
     include '*/*'
-    classifier 'screenshots'
+    classifier createAppendix( 'screenshots' )
 }
 
 task zipReport( type: Zip ) {
     from mochaResultsDir
     include '*'
     include '*/*'
-    classifier 'mochaReport'
+    classifier createAppendix( 'mochaReport' )
 }
 
 publishing {
