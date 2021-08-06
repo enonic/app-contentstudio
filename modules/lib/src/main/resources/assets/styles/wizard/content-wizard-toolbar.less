@@ -22,8 +22,14 @@
     }
   }
 
-  .fold-button .@{_COMMON_PREFIX}button {
-    line-height: 18px;
+  .fold-button {
+    .@{_COMMON_PREFIX}dropdown {
+      top: @app-header-height;
+    }
+
+    .@{_COMMON_PREFIX}button {
+      line-height: 18px;
+    }
   }
 
   .app-icon-mixin(true, true);
@@ -155,7 +161,7 @@
     width: 20px;
     height: 20px;
     content: "";
-    background-image: url("../../icons/publish-request-open.svg");
+    background-image: url("../../images/publish-request-open.svg");
     background-size: contain;
   }
 
@@ -167,16 +173,6 @@
 
   .non-mobile-details-panel-toggle-button {
     order: 6;
-
-    &.expanded {
-      &::before {
-        color: @admin-button-blue1;
-      }
-
-      &:hover::before {
-        color: @admin-button-blue2;
-      }
-    }
   }
 
 }

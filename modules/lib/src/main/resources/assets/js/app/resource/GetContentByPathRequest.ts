@@ -1,11 +1,11 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {ContentPath} from '../content/ContentPath';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetContentByPathRequest
-    extends ContentResourceRequest<Content> {
+    extends CmsContentResourceRequest<Content> {
 
     private contentPath: ContentPath;
 

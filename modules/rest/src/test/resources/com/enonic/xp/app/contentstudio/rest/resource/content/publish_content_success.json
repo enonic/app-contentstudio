@@ -1,0 +1,15 @@
+{
+  "deleted": [],
+  "failures": [
+    {
+      "name": "content",
+      "reason": "Parent content does not exist"
+    }
+  ],
+  "successes": [
+    {
+      "id": "my-content",
+      "name": "My Content"
+    }
+  ]
+}

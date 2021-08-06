@@ -1,10 +1,10 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class IsContentReadOnlyRequest
-    extends ContentResourceRequest<string[]> {
+    extends CmsContentResourceRequest<string[]> {
 
     private ids: ContentId[];
 

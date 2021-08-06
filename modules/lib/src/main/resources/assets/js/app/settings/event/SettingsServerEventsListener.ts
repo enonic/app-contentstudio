@@ -20,7 +20,7 @@ export class SettingsServerEventsListener
     protected onUnknownServerEvent(eventJson: EventJson) {
         const eventType: string = eventJson.type;
 
-        if (!eventType || !eventType.startsWith('node.')) {
+        if (!eventType || eventType.indexOf('node.') === -1) {
             return;
         }
 

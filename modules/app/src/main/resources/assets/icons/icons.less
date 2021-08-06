@@ -1,9 +1,8 @@
 @font-face {
   font-family: 'icomoon-studio-app';
   src:
-    url('fonts/icomoon-studio-app.woff?d2dpl4') format('woff'),
-    url('fonts/icomoon-studio-app.ttf?d2dpl4') format('truetype'),
-    url('fonts/icomoon-studio-app.svg?d2dpl4#icomoon-release') format('svg');
+    url('fonts/icomoon-studio-app.woff2') format('woff2'),
+    url('fonts/icomoon-studio-app.woff') format('woff');
 }
 
 .icon {
@@ -47,6 +46,140 @@
   .icon();
 
   &::before {
-    content: "\e1f7";
+    content: "\ea0a";
+  }
+}
+
+.icon-state-invalid {
+  .icon();
+
+  &:before {
+    color: #CB0300;
+    content: "\e905";
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
+}
+
+.icon-state-in-progress {
+  .icon();
+
+  &:before {
+    color: #CBAD00;
+    content: "\e904";
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
+}
+
+.icon-state-ready {
+  .icon();
+
+  &:before {
+    content: "\e907";
+    color: @admin-green;
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
+}
+
+.icon-version-modified {
+  .icon();
+
+  &:before {
+    content: "\e908";
+  }
+}
+
+.icon-version-published {
+  .icon();
+
+  &:before {
+    content: "\e909";
+  }
+}
+
+.icon-version-unpublished {
+  .icon();
+
+  &:before {
+    content: "\e2c1";
+  }
+}
+
+.icon-publish-request {
+  .icon();
+
+  &:before {
+    content: "\e9a0";
+  }
+}
+
+.icon-issue {
+  .icon();
+
+  &:before {
+    content: "\e9a1";
+  }
+}
+
+.icon-publish-request,
+.icon-issue {
+  &.closed {
+    color: #777777;
+  }
+
+  &.opened {
+    color: #609E24;
+  }
+}
+
+.icon-compare {
+  .icon();
+
+  &:before {
+    content: "\e915";
+  }
+}
+
+.icon-tree-2 {
+  .icon();
+
+  &:before {
+    content: "\e978";
+  }
+}
+
+.icon-blocked {
+  .icon();
+
+  &:before {
+    content: "\ea0e";
+    color: @admin-red;
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
+}
+
+.icon-layer {
+  .icon();
+
+  &:before {
+    content: "\e932";
+  }
+}
+
+.icon-cloud-download(@size: 18px, @bottom: -6px, @left:-4px) {
+  &::after {
+    background-image: url("../images/cloud-download.svg");
+    background-repeat: no-repeat;
+    background-size: @size;
+    display: block;
+    width: @size;
+    height: @size;
+    content: " ";
+    position: absolute;
+    bottom: @bottom;
+    left: @left;
   }
 }

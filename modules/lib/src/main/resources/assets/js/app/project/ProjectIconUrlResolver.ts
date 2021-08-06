@@ -1,7 +1,7 @@
 import {Project} from '../settings/data/project/Project';
 import {IconUrlResolver} from 'lib-admin-ui/icon/IconUrlResolver';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {UrlHelper} from '../util/UrlHelper';
 
 export class ProjectIconUrlResolver
     extends IconUrlResolver {
@@ -10,7 +10,7 @@ export class ProjectIconUrlResolver
 
     private static DEFAULT_LAYER_ICON_CLASS: string = 'icon-layer';
 
-    private static PREFIX: string = UriHelper.getRestUri('project/icon/');
+    private static PREFIX: string = UrlHelper.getCmsRestUri('project/icon/');
 
     private name: string;
 

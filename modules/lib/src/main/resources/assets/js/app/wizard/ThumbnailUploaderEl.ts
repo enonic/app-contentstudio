@@ -15,7 +15,7 @@ export class ThumbnailUploaderEl
     constructor(config?: UploaderElConfig) {
 
         if (config.url == null) {
-            config.url = UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/content/updateThumbnail`);
+            config.url = UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/content/updateThumbnail`);
         }
 
         if (config.showCancel == null) {

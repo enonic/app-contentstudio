@@ -9,8 +9,7 @@
   },
   "scripts": {
     "build:prod": "tsc",
-    "build:dev": "tsc --sourceMap --declarationMap",
-    "build:lib": "webpack --color",
+    "build:dev": "tsc --sourceMap --inlineSources",
     "build:minify": "node util/minify.js",
     "lint": "eslint **/*.ts",
     "lint:quiet": "eslint **/*.ts --quiet",

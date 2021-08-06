@@ -1,8 +1,8 @@
-import {ProjectBasedResourceRequest} from '../wizard/ProjectBasedResourceRequest';
 import {ContentId} from '../content/ContentId';
+import {CmsProjectBasedResourceRequest} from '../wizard/CmsProjectBasedResourceRequest';
 
 export abstract class SchemaFilterBasedRequest<T>
-    extends ProjectBasedResourceRequest<T[]> {
+    extends CmsProjectBasedResourceRequest<T[]> {
 
     private contentId: ContentId;
 

@@ -1,10 +1,10 @@
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class MarkAsReadyRequest
-    extends ContentResourceRequest<void> {
+    extends CmsContentResourceRequest<void> {
 
     private ids: ContentId[];
 

@@ -20,19 +20,33 @@ def applyExcludedTasks()
     gradle.includedBuild( 'lib-admin-ui' ).getLoadedSettings().getStartParameter().setExcludedTaskNames( excludedTasks )
 }
 
+def applyResourcesTaskDependencies()
+{
+    def libAdminDevJarTask = gradle.includedBuild( 'lib-admin-ui' ).task( ':devJar' )
+
+    if ( hasTask( 'copyDevResources' ) ) {
+        copyDevResources.dependsOn libAdminDevJarTask
+    }
+}
+
 if ( hasLibAdminUi() )
 {
-    applyExcludedTasks()
+    afterEvaluate {
+        applyExcludedTasks()
+        applyResourcesTaskDependencies()
+    }
 }
 
 ext {
     hasLibAdminUi = this.&hasLibAdminUi
 }
 
-if ( hasTask( 'clean' ) )
-{
-    task flush( type: Delete, dependsOn: clean ) {
-        description = 'Clean the project from built sources and dependencies'
-        delete '.xp'
+afterEvaluate {
+    if ( hasTask( 'clean' ) )
+    {
+        task flush( type: Delete, dependsOn: clean ) {
+            description = 'Clean the project from built sources and dependencies'
+            delete '.xp'
+        }
     }
 }

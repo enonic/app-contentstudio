@@ -1,11 +1,11 @@
 import {IssueCommentJson} from '../json/IssueCommentJson';
-import {IssueResourceRequest} from './IssueResourceRequest';
 import {IssueComment} from '../IssueComment';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 
 export class UpdateIssueCommentRequest
-    extends IssueResourceRequest<IssueComment> {
+    extends CmsIssueResourceRequest<IssueComment> {
 
     private text: string;
     private commentId: string;

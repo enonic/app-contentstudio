@@ -18,13 +18,22 @@ module.exports = {
     },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
-        filename: './[name].js'
+        filename: './[name].js',
+        assetModuleFilename: './[file]'
     },
     resolve: {
         extensions: ['.ts', '.js', '.less', '.css']
     },
     module: {
         rules: [
+            {
+                test: /\.js$/,
+                enforce: 'pre',
+                use: ['source-map-loader'],
+                exclude: [
+                    path.resolve(__dirname, 'node_modules/fine-uploader/'),
+                ],
+            },
             {
                 test: /\.tsx?$/,
                 use: [{loader: 'ts-loader', options: {configFile: 'tsconfig.json'}}]
@@ -39,12 +48,11 @@ module.exports = {
                 ]
             },
             {
-                test: /\.(eot|woff|woff2|ttf)$|icomoon-studio-app.svg/,
-                use: 'file-loader?name=fonts/[name].[ext]'
-            },
-            {
                 test: /^((?!icomoon-studio-app).)*\.(svg|png|jpg|gif)$/,
-                use: 'file-loader?name=img/[name].[ext]'
+                type: 'asset/resource',
+                generator: {
+                    filename: 'img/[name][ext]'
+                }
             }
         ]
     },
@@ -96,6 +104,6 @@ module.exports = {
         }),
     ],
     mode: isProd ? 'production' : 'development',
-    devtool: isProd ? false : 'source-map',
+    devtool: isProd ? false : 'eval-source-map',
     performance: {hints: false}
 };

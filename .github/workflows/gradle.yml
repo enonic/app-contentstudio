@@ -2,8 +2,10 @@ name: Gradle Build
 
 on:
     push:
+    repository_dispatch:
+        types: [ lib-admin-ui ]
 
-concurrency: ${{ github.ref }}
+concurrency: build-${{ github.ref }}
 
 jobs:
     publish_vars:
@@ -49,7 +51,21 @@ jobs:
             -   name: Build with Gradle
                 run: ./gradlew build -Pcom.enonic.xp.app.production=true
 
-            -   uses: codecov/codecov-action@v1
+            -   name: Run Base Selenium Tests
+                run: ./gradlew :testing:baseContentStudioTests
+
+            -   uses: actions/upload-artifact@v2
+                if: always()
+                with:
+                    name: mochawesome-report
+                    path: testing/mochawesome-report/
+            -   uses: actions/upload-artifact@v2
+                if: always()
+                with:
+                    name: screenshots
+                    path: testing/build/screenshots/
+
+            -   uses: codecov/codecov-action@v2.0.2
 
             -   name: Publish
                 if: needs.publish_vars.outputs.publish == 'true'

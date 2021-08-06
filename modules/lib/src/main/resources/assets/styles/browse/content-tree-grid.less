@@ -1,13 +1,50 @@
 .content-tree-grid {
   .grid .slick-row {
-    .status {
-      text-overflow: clip;
-      padding-left: 0;
-      font-size: 0.9em;
+    .slick-cell {
+      &.name {
+        flex-grow: 1;
 
-      span {
-        width: 100%;
-        white-space: normal;
+        .viewer {
+          .@{_COMMON_PREFIX}wrapper {
+            flex-shrink: 0;
+
+            &::before {
+              display: none;
+            }
+          }
+        }
+      }
+
+      &.status {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        justify-content: center;
+        line-height: unset;
+        flex-shrink: 0;
+
+        .pending_delete {
+          font-size: 0.8em;
+        }
+
+        padding-left: 0;
+        font-size: 0.9em;
+        flex-basis: 75px;
+
+        span {
+          .ellipsis();
+        }
+      }
+
+      &.modified {
+        padding-left: 8px;
+        flex-basis: 135px;
+        flex-shrink: 0;
+      }
+
+      &.order {
+        flex-basis: 25px;
+        flex-shrink: 0;
       }
     }
 
@@ -45,26 +82,27 @@
     line-height: 37px;
   }
 
-  .grid .slick-row {
-    .slick-cell {
-      &.status {
-        display: flex;
-        align-items: center;
-        text-align: center;
-        justify-content: center;
-        line-height: unset;
-
-        .pending_delete {
-          font-size: 0.8em;
+  &._0-240,
+  &._240-360,
+  &._360-540,
+  &._540-720 {
+    .grid .slick-row {
+      .slick-cell {
+        &.modified {
+          display: none;
         }
       }
+    }
+  }
 
-      &.modified {
-        padding-left: 8px;
-      }
-
-      &.order .sort-dialog-trigger:before {
-        margin-left: 6px;
+  &._0-240,
+  &._240-360 {
+    .grid .slick-row {
+      .slick-cell {
+        &.status,
+        &.modified {
+          display: none;
+        }
       }
     }
   }

@@ -1,14 +1,14 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {IssueResourceRequest} from './IssueResourceRequest';
 import {ListIssueCommentsResult} from './ListIssueCommentsResult';
 import {ListIssueCommentsResponse} from './ListIssueCommentsResponse';
 import {IssueComment} from '../IssueComment';
 import {IssueMetadata} from '../IssueMetadata';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 
 export class ListIssueCommentsRequest
-    extends IssueResourceRequest<ListIssueCommentsResponse> {
+    extends CmsIssueResourceRequest<ListIssueCommentsResponse> {
 
     private static DEFAULT_FETCH_SIZE: number = 150;
 

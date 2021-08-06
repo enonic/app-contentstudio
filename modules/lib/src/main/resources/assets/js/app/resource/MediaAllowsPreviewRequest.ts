@@ -1,9 +1,9 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {ContentId} from '../content/ContentId';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class MediaAllowsPreviewRequest
-    extends ContentResourceRequest<boolean> {
+    extends CmsContentResourceRequest<boolean> {
 
     private readonly contentId: ContentId;
 

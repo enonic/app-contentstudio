@@ -3,7 +3,6 @@ import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {AttachmentItem} from './AttachmentItem';
 import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
 import {AttachmentJson} from '../../../attachment/AttachmentJson';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
 import * as Q from 'q';
 import {UrlHelper} from '../../../util/UrlHelper';
@@ -46,7 +45,7 @@ export class AttachmentUploaderEl
     }
 
     protected beforeSubmit() {
-        this.uploader.setEndpoint(UriHelper.getRestUri(`${UrlHelper.getCMSPath()}/${this.config.url}`));
+        this.uploader.setEndpoint(UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/${this.config.url}`));
     }
 
     protected doSetValue(value: string): AttachmentUploaderEl {

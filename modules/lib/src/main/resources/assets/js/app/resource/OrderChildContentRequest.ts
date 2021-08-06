@@ -1,13 +1,13 @@
 import {OrderChildMovements} from './order/OrderChildMovements';
 import {ReorderChildContentsJson} from './json/ReorderChildContentsJson';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
 import {ChildOrder} from './order/ChildOrder';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class OrderChildContentRequest
-    extends ContentResourceRequest<any> {
+    extends CmsContentResourceRequest<any> {
 
     private silent: boolean = false;
 
