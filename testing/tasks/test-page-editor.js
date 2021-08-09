@@ -13,6 +13,8 @@ const seleniumVersion = properties.get('selenium.version');
 const mocha = new Mocha({
     reporter: 'mochawesome',
     reporterOptions: {
+        reportDir: 'build/mochawesome-report',
+        reportFilename: 'results',
         quiet: true
     }
 });

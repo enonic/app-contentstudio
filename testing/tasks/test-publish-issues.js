@@ -15,6 +15,8 @@ const testFilesIssues = './specs/issue/*.js';
 const mocha = new Mocha({
     reporter: 'mochawesome',
     reporterOptions: {
+        reportDir: 'build/mochawesome-report',
+        reportFilename: 'results',
         quiet: true
     }
 });

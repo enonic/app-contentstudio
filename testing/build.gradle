@@ -18,12 +18,11 @@ enonic {
 
 ext {
     unpackDir = "$buildDir/install"
-    screenshotsDir = "$buildDir/screenshots"
     distroDir = "$unpackDir/enonic-xp-generic-$xpVersion"
     deployDir = "$distroDir/home/deploy"
     appDir = "$projectDir/test-applications"
     seleniumDir = "$projectDir/test-applications/selenium"
-    mochaResultsDir = "$projectDir/mochawesome-report"
+    mochaResultsDir = "$buildDir/mochawesome-report"
     xpHome = "$distroDir/home"
     configDir = "$xpHome/config"
     xpServer = new ServerInstance()
@@ -40,12 +39,6 @@ task unpackDistro( type: Copy ) {
         configurations.distro.collect { zipTree( it ) }
     }
     into file( unpackDir )
-}
-
-task ensureScreenshotsDirectory {
-    doLast {
-        mkdir screenshotsDir
-    }
 }
 
 task copyConfig( type: Copy ) {
@@ -96,13 +89,6 @@ def createAppendix( classifier ) {
     return hasProperty( 'artifactAppendix' ) ? "${artifactAppendix}-${classifier}" : classifier
 }
 
-task zipScreenshots( type: Zip ) {
-    from screenshotsDir
-    include '*'
-    include '*/*'
-    classifier createAppendix( 'screenshots' )
-}
-
 task zipReport( type: Zip ) {
     from mochaResultsDir
     include '*'
@@ -113,7 +99,6 @@ task zipReport( type: Zip ) {
 publishing {
     publications {
         mavenJava( MavenPublication ) {
-            artifact zipScreenshots
             artifact zipReport
         }
     }
@@ -133,50 +118,46 @@ task stopServer {
     }
 }
 
-task deleteFolders( type: Delete ) {
-    delete unpackDir, screenshotsDir
-}
-
 task buildApplications( dependsOn: ['test-applications:simple-page:install'] )
 
 // run task in the task.js. Name of the task is 'test'
 task testContentStudioApp( type: NpmTask,
-                           dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+                           dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['test']
     finalizedBy stopServer
 }
 
-task testContentStudioProjects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+task testContentStudioProjects( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_project']
     finalizedBy stopServer
 }
 
-task testPageEditor( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+task testPageEditor( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_page_editor']
     finalizedBy stopServer
 }
 
-task testInputTypes( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+task testInputTypes( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_input_types']
     finalizedBy stopServer
 }
 
-task testWizardsGrid( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+task testWizardsGrid( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_wizards_grid']
     finalizedBy stopServer
 }
 
-task testPublishIssues( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+task testPublishIssues( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'test_publish_issues']
     finalizedBy stopServer
 }
 
-task baseContentStudioTests( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+task baseContentStudioTests( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'base_tests']
     finalizedBy stopServer
 }
 
-task runSeparateTestLocally( type: Exec, dependsOn: [npmInstall, ensureScreenshotsDirectory] ) {
+task runSeparateTestLocally( type: Exec, dependsOn: [npmInstall] ) {
     if ( project.hasProperty( "t_name" ) )
     {
         println( "N_A_M_E: " + t_name );
@@ -185,6 +166,6 @@ task runSeparateTestLocally( type: Exec, dependsOn: [npmInstall, ensureScreensho
     }
 }
 
-task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall, ensureScreenshotsDirectory] ) {
+task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['test']
 }
