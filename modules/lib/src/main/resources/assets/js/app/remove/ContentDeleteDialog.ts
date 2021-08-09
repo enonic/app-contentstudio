@@ -30,8 +30,8 @@ import {NamesAndIconView} from 'lib-admin-ui/app/NamesAndIconView';
 import {DialogDependantList} from '../dialog/DependantItemsDialog';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {DeleteDialogDependantList} from './DeleteDialogDependantList';
-import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ArchiveContentRequest} from '../resource/ArchiveContentRequest';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 
 enum ActionType {
     DELETE, ARCHIVE
@@ -349,7 +349,7 @@ export class ContentDeleteDialog
                                       i18n('dialog.deleteNow'));
     }
 
-    private createExecutionRequest(type: ActionType): ContentResourceRequest<TaskId> {
+    private createExecutionRequest(type: ActionType): ResourceRequest<TaskId> {
         return type === ActionType.DELETE ? this.createDeleteRequest() : this.createArchiveRequest();
     }
 
