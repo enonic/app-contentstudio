@@ -59,8 +59,7 @@ jobs:
                 with:
                     name: ui-test-report
                     path: |
-                       testing/mochawesome-report/*
-                       testing/build/screenshots/*
+                        testing/build/mochawesome-report
 
             -   uses: codecov/codecov-action@v2.0.2
 
