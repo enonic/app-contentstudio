@@ -151,6 +151,26 @@ task testContentStudioProjects( type: NpmTask, dependsOn: [npmInstall, startServ
     finalizedBy stopServer
 }
 
+task testPageEditor( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+    args = ['run-script', 'test_page_editor']
+    finalizedBy stopServer
+}
+
+task testInputTypes( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+    args = ['run-script', 'test_input_types']
+    finalizedBy stopServer
+}
+
+task testWizardsGrid( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+    args = ['run-script', 'test_wizards_grid']
+    finalizedBy stopServer
+}
+
+task testPublishIssues( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
+    args = ['run-script', 'test_publish_issues']
+    finalizedBy stopServer
+}
+
 task baseContentStudioTests( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps, ensureScreenshotsDirectory] ) {
     args = ['run-script', 'base_tests']
     finalizedBy stopServer
