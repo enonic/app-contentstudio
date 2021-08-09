@@ -87,7 +87,7 @@ jar {
     exclude 'assets/page-editor/lib/_include.js'
     exclude 'assets/page-editor/lib/jquery*.js'
     exclude 'assets/icons/*.txt'
-    exclude 'assets/lib/ckeditor/**/plugin.raw.js'
+
     if (isProd()) {
         exclude 'assets/**/*.map'
     }
