@@ -8,8 +8,6 @@ import {ConfirmValueDialog} from './ConfirmValueDialog';
 import {ContentDeletePromptEvent} from '../browse/ContentDeletePromptEvent';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {DeleteDialogItemList} from './DeleteDialogItemList';
-import {ResolveDependenciesRequest} from '../resource/ResolveDependenciesRequest';
-import {ResolveDependenciesResult} from '../resource/ResolveDependenciesResult';
 import {DeleteContentRequest} from '../resource/DeleteContentRequest';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
@@ -30,8 +28,8 @@ import {NamesAndIconView} from 'lib-admin-ui/app/NamesAndIconView';
 import {DialogDependantList} from '../dialog/DependantItemsDialog';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {DeleteDialogDependantList} from './DeleteDialogDependantList';
-import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ArchiveContentRequest} from '../resource/ArchiveContentRequest';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDeleteResult';
 
 enum ActionType {
@@ -348,7 +346,7 @@ export class ContentDeleteDialog
                                       i18n('dialog.deleteNow'));
     }
 
-    private createExecutionRequest(type: ActionType): ContentResourceRequest<TaskId> {
+    private createExecutionRequest(type: ActionType): ResourceRequest<TaskId> {
         return type === ActionType.DELETE ? this.createDeleteRequest() : this.createArchiveRequest();
     }
 
