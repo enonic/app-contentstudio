@@ -10,7 +10,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                suite: [testContentStudioApp, testContentStudioProjects, testPageEditor, testInputTypes, testWizardsGrid, testPublishIssues]
+                suite: [testContentStudioProjects, testPageEditor, testInputTypes, testWizardsGrid, testPublishIssues]
                 branch: ['master']
 
         runs-on: ubuntu-latest
