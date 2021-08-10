@@ -95,7 +95,9 @@ export class ContentRowFormatter {
 
         if (data.getUploadItem()) { // uploading node
             const compareStatusText = new ProgressBar(data.getUploadItem().getProgress());
-            return new SpanEl().appendChild(compareStatusText).toString();
+            const wrapper: SpanEl = new SpanEl();
+            wrapper.getEl().setWidth('100%');
+            return wrapper.appendChild(compareStatusText).toString();
         }
     }
 }
