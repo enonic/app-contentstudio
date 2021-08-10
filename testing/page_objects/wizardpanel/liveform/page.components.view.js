@@ -25,6 +25,7 @@ const xpath = {
     componentByDescription: function (description) {
         return `//div[contains(@id,'PageComponentsItemViewer') and descendant::p[contains(@class,'sub-name')  and contains(.,'${description}')]]`;
     },
+    itemExpanderIcon: (name) => `//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and text()='${name}']]//span[@class='toggle icon expand']`,
 };
 
 //Modal Dialog:
@@ -36,7 +37,7 @@ class PageComponentView extends Page {
 
     async clickOnCloseButton() {
         await this.clickOnElement(this.closeButton);
-        await this.waitForClosed();
+        return await this.waitForClosed();
     }
 
     clickOnComponent(displayName) {
@@ -186,6 +187,12 @@ class PageComponentView extends Page {
     getPageComponentsDisplayName() {
         let locator = xpath.container + lib.SLICK_VIEW_PORT + xpath.pageComponentsItemViewer + lib.H6_DISPLAY_NAME;
         return this.getTextInDisplayedElements(locator);
+    }
+
+    async expandItem(item) {
+        let locator = xpath.itemExpanderIcon(item);
+        await this.clickOnElement(locator);
+        return await this.pause(200);
     }
 }
 
