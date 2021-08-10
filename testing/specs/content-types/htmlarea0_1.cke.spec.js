@@ -12,7 +12,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const FullScreenDialog = require('../../page_objects/wizardpanel/html.full.screen.dialog');
 const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
 
-describe('htmlarea1_0.cke.spec: tests for html area with CKE', function () {
+describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     const EXPECTED_TEXT_TEXT1 = '<p>test text</p>';
@@ -178,8 +178,10 @@ describe('htmlarea1_0.cke.spec: tests for html area with CKE', function () {
             await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
             await htmlAreaForm.clickOnFullScreenButton();
             await fullScreenDialog.waitForDialogLoaded();
+            studioUtils.saveScreenshot('htmlarea_full_screen_opened');
             // click on ESC:
             await fullScreenDialog.pressEscKey();
+            studioUtils.saveScreenshot('htmlarea_full_screen_closed');
             //'full screen dialog should be closed:
             await fullScreenDialog.waitForDialogClosed();
         });
