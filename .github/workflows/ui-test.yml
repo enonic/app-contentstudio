@@ -27,7 +27,7 @@ jobs:
                     distribution: 'adopt'
 
             -   name: Run Selenium Tests
-                run: ./gradlew :contentstudio:build :testing:${{ matrix.suite }} :testing:publish -PartifactAppendix=${{ matrix.suite }} --continue
+                run: ./gradlew :contentstudio:build :testing:${{ matrix.suite }} :testing:publish -PartifactAppendix=${{ matrix.suite }} --continue -PrepoUser=${{ secrets.ARTIFACTORY_USERNAME }} -PrepoPassword=${{ secrets.ARTIFACTORY_PASSWORD }}
 
             -   uses: actions/upload-artifact@v2
                 if: always()
