@@ -364,7 +364,9 @@ export class ContentTreeGrid
 
     private addUploadItemListeners(uploadNode: TreeNode<ContentSummaryAndCompareStatus>, data: ContentSummaryAndCompareStatus) {
         const uploadItem: UploadItem<ContentSummary> = uploadNode.getData().getUploadItem();
-        uploadItem.onProgress(this.invalidate.bind(this));
+        uploadItem.onProgress(() => {
+            this.invalidateNodes([uploadNode]);
+        });
         uploadItem.onUploaded(() => {
             this.deleteNode(uploadNode);
             showFeedback(i18n('notify.item.created', data.getContentSummary().getType().toString(), uploadItem.getName()));
