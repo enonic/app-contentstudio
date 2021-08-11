@@ -10,7 +10,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
-describe('wizard.mark.as.ready.multiselection.spec - select 2 folders and do Mark as Ready action`', function () {
+describe('browse.panel.mark.as.ready.multiselection.spec - select 2 folders and do Mark as Ready action`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER1;

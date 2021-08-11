@@ -191,7 +191,7 @@ class ProjectWizardPanel extends Page {
     }
 
     waitForProjectIdentifierInputDisabled() {
-        return this.waitForElementDisabled(this.projectIdentifierInput, appConst.shortTimeout);
+        return this.waitForElementDisabled(this.projectIdentifierInput, appConst.mediumTimeout);
     }
 
     waitForProjectIdentifierInputEnabled() {
