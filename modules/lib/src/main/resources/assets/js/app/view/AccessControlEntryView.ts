@@ -22,7 +22,6 @@ export class AccessControlEntryView
 
     doLayout(object: Principal) {
         super.doLayout(object);
-        this.addClass('access-control-entry');
 
         if (AccessControlEntryView.debug) {
             console.debug('AccessControlEntryView.doLayout');
