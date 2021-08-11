@@ -137,7 +137,7 @@ export class NonMobileContextPanelsManager {
     private doPanelAnimation(canSetActivePanel: boolean = true, onResize: boolean = false) {
         this.splitPanelWithContext.addClass('sliding');
 
-        if (!this.dockedContextPanel.isVisible() || this.requiresFloatingPanelDueToShortWidth()) {
+        if (!this.splitPanelWithContext.isVisible() || this.requiresFloatingPanelDueToShortWidth()) {
             this.switchToFloatingMode(canSetActivePanel, onResize);
         } else {
             this.switchToDockedMode(canSetActivePanel, onResize);
