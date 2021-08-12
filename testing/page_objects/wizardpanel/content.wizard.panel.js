@@ -1068,6 +1068,13 @@ class ContentWizardPanel extends Page {
         let heightProperty = await this.getCSSProperty(XPATH.liveEditFrame, "height");
         return heightProperty.value;
     }
+
+    async waitForDisplayNameInputFocused() {
+        let message = "Display Name input is not focused" + appConst.mediumTimeout;
+        await this.getBrowser().waitUntil(async () => {
+            return await this.isFocused(this.displayNameInput);
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
+    }
 }
 
 module.exports = ContentWizardPanel;

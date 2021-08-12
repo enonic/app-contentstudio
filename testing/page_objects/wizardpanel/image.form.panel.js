@@ -46,6 +46,7 @@ class ImageFormPanel extends Page {
     async clickOnFlipButton() {
         try {
             await this.waitForElementDisplayed(this.buttonFlip, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.buttonFlip, appConst.mediumTimeout);
             await this.pause(1200);
             await this.clickOnElement(this.buttonFlip);
             return await this.pause(700);
@@ -58,6 +59,7 @@ class ImageFormPanel extends Page {
     async clickOnRotateButton() {
         try {
             await this.waitForElementDisplayed(this.buttonRotate, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.buttonRotate, appConst.mediumTimeout);
             await this.pause(1200);
             await this.clickOnElement(this.buttonRotate);
             return await this.pause(700);
@@ -67,13 +69,14 @@ class ImageFormPanel extends Page {
         }
     }
 
-    clickOnResetButton() {
-        return this.clickOnElement(this.buttonResetFilters).then(() => {
-            return this.pause(500);
-        }).catch(err => {
+    async clickOnResetButton() {
+        try {
+            await this.clickOnElement(this.buttonResetFilters);
+            return await this.pause(500);
+        } catch (err) {
             this.saveScreenshot('err_click_on_reset_button');
             throw new Error('Image Editor, button reset  ' + err);
-        })
+        }
     }
 
     waitForResetFilterDisplayed() {
@@ -121,4 +124,5 @@ class ImageFormPanel extends Page {
         }
     }
 }
+
 module.exports = ImageFormPanel;

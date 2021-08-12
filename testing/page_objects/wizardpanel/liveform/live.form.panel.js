@@ -12,6 +12,8 @@ const xpath = {
     fragmentComponentView: "//div[contains(@id,'FragmentComponentView')]",
     imageComponentView: "//figure[contains(@id,'ImageComponentView')]",
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
+    layoutComponentView: "//div[contains(@id,'LayoutComponentView')]",
+    textComponentView: "//div[contains(@id,'TextComponentView')]",
     imageInTextComponentByDisplayName:
         displayName => `//figure[contains(@data-widget,'image')]//img[contains(@src,'${displayName}')]`,
     textComponentByText: text => `//div[contains(@id,'TextComponentView')]//p[contains(.,'${text}')]`,
@@ -46,6 +48,7 @@ class LiveFormPanel extends Page {
             let loaderComboBox = new LoaderComboBox();
             await contentWizard.switchToLiveEditFrame();
             await loaderComboBox.typeTextAndSelectOption(displayName, parentForComboBox);
+            await contentWizard.switchToParentFrame();
             return await this.pause(1000);
         } catch (err) {
             this.saveScreenshot('err_select_layout_' + displayName);
@@ -74,6 +77,17 @@ class LiveFormPanel extends Page {
             return await this.getText(selector);
         } catch (err) {
             throw new Error("Error when getting text in the part component! " + err);
+        }
+    }
+
+    async getTextInLayoutComponent() {
+        try {
+            let selector = xpath.layoutComponentView + xpath.textComponentView + "/section/p";
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            return await this.getTextInDisplayedElements(selector);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_layout_text'));
+            throw new Error("Error when getting text in the layout component! " + err);
         }
     }
 
@@ -177,6 +191,14 @@ class LiveFormPanel extends Page {
         let result = await this.getDisplayedElements(locator);
         await contentWizard.switchToMainFrame();
         return result.length;
+    }
+
+    async getLayoutColumnNumber() {
+        let contentWizard = new ContentWizard();
+        await contentWizard.switchToLiveEditFrame();
+        let columns = await this.getDisplayedElements(xpath.layoutComponentView + "//div[contains(@id,'RegionView')]");
+        await contentWizard.switchToMainFrame();
+        return columns.length;
     }
 }
 
