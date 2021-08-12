@@ -414,7 +414,8 @@ module.exports = {
         //switch to the opened wizard:
         await this.doSwitchToNewWizard();
         await contentWizardPanel.waitForOpened();
-        return await contentWizardPanel.waitForSpinnerNotVisible(appConst.longTimeout);
+        await contentWizardPanel.waitForSpinnerNotVisible(appConst.longTimeout);
+        return await contentWizardPanel.waitForDisplayNameInputFocused();
     },
     async findContentAndClickCheckBox(displayName) {
         let browsePanel = new BrowsePanel();
@@ -433,7 +434,8 @@ module.exports = {
         await newContentDialog.typeSearchText(contentType);
         await newContentDialog.clickOnContentType(contentType);
         await this.doSwitchToNewWizard();
-        return await contentWizardPanel.waitForOpened();
+        await contentWizardPanel.waitForOpened();
+        return contentWizardPanel.waitForDisplayNameInputFocused();
     },
     //Open delete dialog, click on 'Delete Now' button then type a number to delete
     async doDeleteNowAndConfirm(numberOfContents) {

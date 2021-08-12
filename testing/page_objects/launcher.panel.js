@@ -36,6 +36,7 @@ class LauncherPanel extends Page {
 
     async clickOnContentStudioLink() {
         await this.waitForElementDisplayed(this.contentStudioLink, appConst.longTimeout);
+        await this.waitForElementEnabled(this.contentStudioLink, appConst.longTimeout);
         await this.clickOnElement(this.contentStudioLink);
         return await this.pause(1000);
     }
@@ -65,5 +66,6 @@ class LauncherPanel extends Page {
             return false;
         })
     }
-};
+}
+
 module.exports = LauncherPanel;

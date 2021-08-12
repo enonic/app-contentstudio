@@ -10,7 +10,7 @@ const contentBuilder = require("../../libs/content.builder");
 const CustomSelectorForm = require('../../page_objects/wizardpanel/custom.selector.form');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
-describe('custom.selector.0_2.spec:  tests for content with custom selector (0:2)', function () {
+describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;

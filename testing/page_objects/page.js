@@ -229,7 +229,7 @@ class Page {
         let message = "Spinner still displayed! timeout is " + timeout;
         return this.browser.waitUntil(() => {
             return this.isElementNotDisplayed("//div[@class='spinner']");
-        }, {timeout: ms, timeoutMsg: message});
+        }, {timeout: timeout, timeoutMsg: message});
     }
 
     waitUntilElementNotVisible(selector, ms) {
