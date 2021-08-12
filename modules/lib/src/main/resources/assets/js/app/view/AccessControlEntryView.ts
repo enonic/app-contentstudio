@@ -136,37 +136,34 @@ export class AccessControlEntryView
     }
 
     private static canWrite(allowed: Permission[]): boolean {
-        return this.canRead(allowed) &&
-               allowed.indexOf(Permission.CREATE) >= 0 &&
+        return allowed.indexOf(Permission.CREATE) >= 0 &&
                allowed.indexOf(Permission.MODIFY) >= 0 &&
                allowed.indexOf(Permission.DELETE) >= 0;
     }
 
     private static canOnlyWrite(allowed: Permission[]): boolean {
-        return this.canWrite(allowed) && allowed.length === 4;
+        return this.canWrite(allowed) && allowed.length === 3;
     }
 
     private static canPublish(allowed: Permission[]): boolean {
-        return this.canWrite(allowed) &&
-               allowed.indexOf(Permission.PUBLISH) >= 0;
+        return allowed.indexOf(Permission.PUBLISH) >= 0;
     }
 
     private static canOnlyPublish(allowed: Permission[]): boolean {
-        return this.canPublish(allowed) && allowed.length === 5;
+        return this.canPublish(allowed) && allowed.length === 1;
     }
 
     private static isFullAccess(allowed: Permission[]): boolean {
-        return this.canPublish(allowed) &&
-               allowed.indexOf(Permission.READ_PERMISSIONS) >= 0 &&
+        return allowed.indexOf(Permission.READ_PERMISSIONS) >= 0 &&
                allowed.indexOf(Permission.WRITE_PERMISSIONS) >= 0;
     }
 
     private static onlyFullAccess(allowed: Permission[]): boolean {
-        return this.isFullAccess(allowed) && allowed.length === 7;
+        return this.isFullAccess(allowed) && allowed.length === 2;
     }
 
     private getPermissionsValueFromAccess(access: Access) {
-        let permissions = {
+        const permissions = {
             allow: [],
             deny: []
         };
@@ -190,6 +187,7 @@ export class AccessControlEntryView
         }
         permissions.allow.sort();
         permissions.deny.sort();
+
         return permissions;
     }
 }
