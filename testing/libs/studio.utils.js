@@ -190,7 +190,8 @@ module.exports = {
         await newContentDialog.clickOnContentType(contentType);
         //Switch to the new wizard:
         await this.doSwitchToNewWizard();
-        return await contentWizardPanel.waitForOpened();
+        await contentWizardPanel.waitForOpened();
+        return await contentWizardPanel.waitForDisplayNameInputFocused();
     },
     async selectAndOpenContentInWizard(contentName) {
         let contentWizardPanel = new ContentWizardPanel();
@@ -199,6 +200,7 @@ module.exports = {
         await browsePanel.clickOnEditButton();
         await this.doSwitchToNewWizard();
         await contentWizardPanel.waitForOpened();
+        await contentWizardPanel.waitForDisplayNameInputFocused();
         return contentWizardPanel;
     },
 
@@ -209,6 +211,7 @@ module.exports = {
         await browsePanel.clickOnLocalizeButton();
         await this.doSwitchToNewWizard();
         await contentWizardPanel.waitForOpened();
+        await contentWizardPanel.waitForDisplayNameInputFocused();
         return contentWizardPanel;
     },
 
@@ -652,7 +655,7 @@ module.exports = {
     saveScreenshot: function (name, that) {
         let screenshotsDir = path.join(__dirname, '/../build/mochawesome-report/screenshots/');
         if (!fs.existsSync(screenshotsDir)) {
-            fs.mkdirSync(screenshotsDir, { recursive: true });
+            fs.mkdirSync(screenshotsDir, {recursive: true});
         }
         return webDriverHelper.browser.saveScreenshot(screenshotsDir + name + '.png').then(() => {
             if (that) {
@@ -752,6 +755,7 @@ module.exports = {
         await projectWizard.pause(400);
         await projectWizard.waitAndClickOnSave();
         await projectWizard.waitForNotificationMessage();
+        await projectWizard.waitForSpinnerNotVisible();
         await projectWizard.pause(700);
         await settingsBrowsePanel.clickOnCloseIcon(name);
         await projectWizard.waitForWizardClosed();
@@ -846,6 +850,7 @@ module.exports = {
         await browsePanel.clickOnRowByName('system');
         await browsePanel.waitForNewButtonEnabled();
         await browsePanel.clickOnNewButton();
+        await newPrincipalDialog.waitForDialogLoaded();
         await newPrincipalDialog.clickOnItem('User');
         return await userWizard.waitForOpened();
     },

@@ -64,7 +64,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await projectWizard.updateUserAccessRole(USER.displayName, appConstant.PROJECT_ROLES.OWNER);
             await projectWizard.waitAndClickOnSave();
             await projectWizard.waitForNotificationMessage();
-            studioUtils.saveScreenshot("project_owner_1");
+            await studioUtils.saveScreenshot("project_owner_1");
             //4. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
@@ -93,6 +93,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let message = await contentBrowsePanel.waitForNotificationMessage();
             assert.equal(message, appConstant.TASK_CREATED_MESSAGE);
             await taskDetailsDialog.clickOnAssigneesTabBarItem();
+            await studioUtils.saveScreenshot("project_owner_assignees_tab");
             let actualUsers = await issueDetailsDialogAssigneesTab.getSelectedUsers();
             assert.equal(actualUsers[0], USER.displayName, "Expected user should be present in Assignees tab");
             //Do log out:

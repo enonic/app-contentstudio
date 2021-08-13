@@ -37,7 +37,8 @@ class NewPrincipalDialog extends Page {
 
     async waitForDialogLoaded() {
         try {
-            return await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+            return await this.pause(300);
         } catch (err) {
             throw new Error("New Principal dialog is not loaded in: " + appConst.mediumTimeout + " ms  " + err);
         }
@@ -81,6 +82,6 @@ class NewPrincipalDialog extends Page {
         let selector = XPATH.container + XPATH.itemViewer + lib.itemByName(name);
         return this.waitForElementDisplayed(selector, appConst.shortTimeout);
     }
-};
+}
 module.exports = NewPrincipalDialog;
 

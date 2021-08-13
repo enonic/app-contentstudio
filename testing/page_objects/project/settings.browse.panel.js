@@ -229,6 +229,8 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         //4. Click on 'Project' item:
         await newSettingsItemDialog.clickOnProjectItem("Project");
         await projectWizard.waitForLoaded();
+        await projectWizard.waitForSpinnerNotVisible(appConst.mediumTimeout);
+        await projectWizard.waitForDisplayNameInputFocused();
         return projectWizard;
     }
 

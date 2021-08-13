@@ -18,9 +18,11 @@ class IssueDetailsDialogAssigneesTab extends Page {
         })
     }
 
-    getSelectedUsers() {
+    async getSelectedUsers() {
         let locator = this.principalComboBox + lib.PRINCIPAL_SELECTED_OPTION + lib.H6_DISPLAY_NAME;
-        return this.getTextInElements(locator);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInElements(locator);
     }
 }
+
 module.exports = IssueDetailsDialogAssigneesTab;

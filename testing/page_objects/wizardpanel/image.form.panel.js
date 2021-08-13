@@ -46,7 +46,7 @@ class ImageFormPanel extends Page {
     async clickOnFlipButton() {
         try {
             await this.waitForElementDisplayed(this.buttonFlip, appConst.mediumTimeout);
-            await this.waitForElementEnabled(this.buttonFlip, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.buttonFlip, appConst.longTimeout);
             await this.pause(1200);
             await this.clickOnElement(this.buttonFlip);
             await this.waitForSpinnerNotVisible(appConst.longTimeout);
@@ -60,7 +60,7 @@ class ImageFormPanel extends Page {
     async clickOnRotateButton() {
         try {
             await this.waitForElementDisplayed(this.buttonRotate, appConst.mediumTimeout);
-            await this.waitForElementEnabled(this.buttonRotate, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.buttonRotate, appConst.longTimeout);
             await this.pause(1200);
             await this.clickOnElement(this.buttonRotate);
             await this.waitForSpinnerNotVisible(appConst.longTimeout);
