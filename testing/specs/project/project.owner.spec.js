@@ -238,12 +238,13 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             //6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
             //7. Verify that 'Publish Now' button is enabled:
-            studioUtils.saveScreenshot("project_owner_8");
+            await studioUtils.saveScreenshot("project_owner_8");
             await publishRequestDetailsDialog.waitForPublishNowButtonEnabled();
             //8. Click on Publish Now button:
             await publishRequestDetailsDialog.clickOnPublishNowButton();
             //9. Verify that modal dialog is closed:
             await publishRequestDetailsDialog.waitForClosed();
+            await studioUtils.saveScreenshot("project_owner_9");
             let actualStatus = await contentBrowsePanel.getContentStatus(FOLDER_NAME);
             assert.equal(actualStatus, "Published", "the folder should be 'Published'");
         });
