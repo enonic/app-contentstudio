@@ -93,7 +93,7 @@ class ProjectWizardPanel extends Page {
     async waitAndClickOnSave() {
         await this.waitForSaveButtonEnabled();
         await this.clickOnElement(this.saveButton);
-        return await this.pause(200);
+        return await this.pause(1000);
     }
 
     async getProjectIdentifierValidationMessage() {
@@ -132,7 +132,7 @@ class ProjectWizardPanel extends Page {
         try {
             let result = await this.getDisplayedElements(this.saveButton);
             if (result.length === 0) {
-                this.saveScreenshot("err_pr_wizard");
+                await this.saveScreenshot("err_pr_wizard");
                 throw new Error("Save button is not disabled!");
             }
             return await this.waitForElementDisabled(this.saveButton, appConst.shortTimeout);
@@ -145,7 +145,7 @@ class ProjectWizardPanel extends Page {
         try {
             let result = await this.getDisplayedElements(this.deleteButton);
             if (result.length === 0) {
-                this.saveScreenshot("err_pr_wizard");
+                await this.saveScreenshot("err_pr_wizard");
                 throw new Error("Delete button is not disabled!");
             }
             return await this.waitForElementDisabled(this.deleteButton, appConst.shortTimeout);
@@ -382,6 +382,13 @@ class ProjectWizardPanel extends Page {
             this.saveScreenshot("err_click_on_remove_language_icon");
             throw new Error('Error when removing the language! ' + err);
         }
+    }
+
+    async waitForDisplayNameInputFocused() {
+        let message = "Display Name input is not focused" + appConst.mediumTimeout;
+        await this.getBrowser().waitUntil(async () => {
+            return await this.isFocused(this.displayNameInput);
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
     }
 }
 
