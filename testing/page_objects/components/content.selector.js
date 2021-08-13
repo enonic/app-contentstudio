@@ -37,20 +37,23 @@ class ContentSelector extends LoaderComboBox {
         });
     }
 
-    clickOnModeTogglerButton() {
-        return this.clickOnElement(this.modeTogglerButton).catch(err => {
-            this.saveScreenshot('err_click_content_sel_toggler');
-            throw  new Error('mode toggler not found ' + err);
-        }).then(() => {
-            return this.pause(1000);
-        })
+    async clickOnModeTogglerButton() {
+        await this.waitForModeTogglerDisplayed();
+        await this.waitForElementEnabled(this.modeTogglerButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.modeTogglerButton);
+        return await this.pause(700);
     }
 
-    getTreeModeOptionDisplayNames() {
+    async getTreeModeOptionDisplayNames() {
         let options = XPATH.container + lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
-        return this.getTextInElements(options).catch(err => {
-            throw new Error(err);
-        });
+        try {
+            await this.waitForElementDisplayed(options, appConst.mediumTimeout);
+            return await this.getTextInElements(options)
+        } catch (err) {
+            await this.saveScreenshot('err_tree_mode_options');
+            throw new Error("Content Selector treemode options : " + err);
+        }
     }
-};
+}
+
 module.exports = ContentSelector;
