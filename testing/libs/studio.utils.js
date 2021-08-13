@@ -435,7 +435,7 @@ module.exports = {
         await newContentDialog.clickOnContentType(contentType);
         await this.doSwitchToNewWizard();
         await contentWizardPanel.waitForOpened();
-        return contentWizardPanel.waitForDisplayNameInputFocused();
+        return await contentWizardPanel.waitForDisplayNameInputFocused();
     },
     //Open delete dialog, click on 'Delete Now' button then type a number to delete
     async doDeleteNowAndConfirm(numberOfContents) {

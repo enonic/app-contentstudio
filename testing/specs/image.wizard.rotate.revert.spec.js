@@ -26,7 +26,7 @@ describe("image.wizard.rotate.revert.spec: Open an image, click on Rotate then r
                 //1. open existing image and click on Rotate button:
                 await studioUtils.selectContentAndOpenWizard(IMAGE_DISPLAY_NAME);
                 await imageFormPanel.clickOnRotateButton();
-                studioUtils.saveScreenshot("image_rotated");
+                    await studioUtils.saveScreenshot("image_rotated");
                 // 2. Save the image:
                 await contentWizard.waitAndClickOnSave();
                 //3. Open Versions Panel:

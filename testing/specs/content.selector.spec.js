@@ -52,7 +52,6 @@ describe('content.selector.spec: content-selector specification', function () {
         async () => {
             let contentSelector = new ContentSelector();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.CUSTOM_RELATIONSHIP);
-            await contentSelector.waitForModeTogglerDisplayed();
             //1. Click on mode toggler button:
             await contentSelector.clickOnModeTogglerButton();
             //2. Verify new mode:

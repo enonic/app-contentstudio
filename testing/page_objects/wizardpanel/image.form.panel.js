@@ -49,6 +49,7 @@ class ImageFormPanel extends Page {
             await this.waitForElementEnabled(this.buttonFlip, appConst.mediumTimeout);
             await this.pause(1200);
             await this.clickOnElement(this.buttonFlip);
+            await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(700);
         } catch (err) {
             this.saveScreenshot('err_click_on_flip_button');
@@ -62,6 +63,7 @@ class ImageFormPanel extends Page {
             await this.waitForElementEnabled(this.buttonRotate, appConst.mediumTimeout);
             await this.pause(1200);
             await this.clickOnElement(this.buttonRotate);
+            await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(700);
         } catch (err) {
             this.saveScreenshot('err_click_on_rotate_button');
@@ -71,7 +73,9 @@ class ImageFormPanel extends Page {
 
     async clickOnResetButton() {
         try {
+            await this.waitForElementEnabled(this.buttonResetFilters, appConst.mediumTimeout);
             await this.clickOnElement(this.buttonResetFilters);
+            await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(500);
         } catch (err) {
             this.saveScreenshot('err_click_on_reset_button');
