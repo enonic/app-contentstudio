@@ -165,31 +165,46 @@ export class AccessControlEntryView
         return this.isFullAccess(allowed) && allowed.length === 7;
     }
 
-    private getPermissionsValueFromAccess(access: Access) {
-        let permissions = {
-            allow: [],
+    private getPermissionsValueFromAccess(access: Access): { allow: Permission[]; deny: Permission[] } {
+        return {
+            allow: this.getPermissionsByAccess(access).sort(),
             deny: []
         };
+    }
 
-        switch (access) {
-        case Access.FULL:
-            permissions.allow.push(Permission.READ_PERMISSIONS);
-            permissions.allow.push(Permission.WRITE_PERMISSIONS);
-            break;
-        case Access.PUBLISH:
-            permissions.allow.push(Permission.PUBLISH);
-            break;
-        case Access.WRITE:
-            permissions.allow.push(Permission.CREATE);
-            permissions.allow.push(Permission.MODIFY);
-            permissions.allow.push(Permission.DELETE);
-            break;
-        case Access.READ:
-            permissions.allow.push(Permission.READ);
-            break;
+    private getPermissionsByAccess(access: Access): Permission[] {
+        if (access === Access.FULL) {
+            return this.getFullPermissions();
         }
-        permissions.allow.sort();
-        permissions.deny.sort();
-        return permissions;
+
+        if (access === Access.PUBLISH) {
+            return this.getPublishPermissions();
+        }
+
+        if (access === Access.WRITE) {
+            return this.getWritePermissions();
+        }
+
+        if (access === Access.READ) {
+            return this.getReadPermissions();
+        }
+
+        return [];
+    }
+
+    private getFullPermissions(): Permission[] {
+        return [Permission.READ_PERMISSIONS, Permission.WRITE_PERMISSIONS, ...this.getPublishPermissions()];
+    }
+
+    private getPublishPermissions(): Permission[] {
+        return [Permission.PUBLISH, ...this.getWritePermissions()];
+    }
+
+    private getWritePermissions(): Permission[] {
+        return [Permission.CREATE, Permission.MODIFY, Permission.DELETE, ...this.getReadPermissions()];
+    }
+
+    private getReadPermissions(): Permission[] {
+        return [Permission.READ];
     }
 }
