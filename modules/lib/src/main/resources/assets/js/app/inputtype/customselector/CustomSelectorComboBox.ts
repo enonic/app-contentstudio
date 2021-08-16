@@ -7,6 +7,7 @@ import {CustomSelectorItemViewer} from './CustomSelectorItemViewer';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
 
 export class CustomSelectorComboBox
     extends RichComboBox<CustomSelectorItem> {
@@ -16,14 +17,16 @@ export class CustomSelectorComboBox
     }
 
     protected reload(inputValue: string): Q.Promise<any> {
-        if (this.getLoader().isLoaded() && this.getLoader().getSearchString() === inputValue) {
-            return this.getLoader().search(inputValue);
+        const loader: BaseLoader<CustomSelectorItem> = this.getLoader();
+
+        if (loader.isLoaded() && loader.getSearchString() === inputValue) {
+            return loader.search(inputValue);
         }
 
-        this.getLoader().setSearchString(inputValue);
+        loader.setSearchString(inputValue);
 
-        return this.getLoader().load().then(() => {
-            return this.getLoader().search(inputValue);
+        return loader.load().then(() => {
+            return loader.search(inputValue);
         });
     }
 
