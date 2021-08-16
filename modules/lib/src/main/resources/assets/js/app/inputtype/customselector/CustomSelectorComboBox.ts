@@ -15,6 +15,18 @@ export class CustomSelectorComboBox
         super(builder);
     }
 
+    protected reload(inputValue: string): Q.Promise<any> {
+        if (this.getLoader().isLoaded() && this.getLoader().getSearchString() === inputValue) {
+            return this.getLoader().search(inputValue);
+        }
+
+        this.getLoader().setSearchString(inputValue);
+
+        return this.getLoader().load().then(() => {
+            return this.getLoader().search(inputValue);
+        });
+    }
+
     static create(): CustomSelectorComboBoxBuilder {
         return new CustomSelectorComboBoxBuilder();
     }
