@@ -32,10 +32,6 @@ export class CustomSelectorLoader
         }, 200);
     }
 
-    isLoaded(): boolean {
-        return false;
-    }
-
     setRequestPath(requestPath: string) {
         this.getRequest().setRequestPath(requestPath);
     }
