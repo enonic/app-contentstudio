@@ -241,12 +241,14 @@ class ProjectWizardPanel extends Page {
     async updateUserAccessRole(userDisplayName, newRole) {
         let menuLocator = XPATH.container + XPATH.projectAccessControlComboBox + XPATH.accessItemByName(userDisplayName) +
                           "//div[contains(@id,'TabMenuButton')]";
+        await this.waitForElementEnabled(menuLocator, appConst.mediumTimeout);
         await this.clickOnElement(menuLocator);
         await this.pause(400);
         let menuItem = XPATH.container + XPATH.projectAccessControlComboBox + XPATH.accessItemByName(userDisplayName) +
                        lib.tabMenuItem(newRole);
         await this.waitForElementDisplayed(menuItem, appConst.shortTimeout);
-        return await this.clickOnElement(menuItem);
+        await this.clickOnElement(menuItem);
+        return await this.pause(500);
     }
 
     async getSelectedProjectAccessItems() {

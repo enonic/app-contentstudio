@@ -62,6 +62,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             //3. Select the user in roles, assign Owner role him:
             await projectWizard.selectProjectAccessRoles(USER.displayName);
             await projectWizard.updateUserAccessRole(USER.displayName, appConstant.PROJECT_ROLES.OWNER);
+            await studioUtils.saveScreenshot("project_owner_0");
             await projectWizard.waitAndClickOnSave();
             await projectWizard.waitForNotificationMessage();
             await studioUtils.saveScreenshot("project_owner_1");
@@ -88,6 +89,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await createTaskDialog.typeTitle(TASK_TITLE);
             //3. Select the user with owner role in Assignees selector:
             await createTaskDialog.selectUserInAssignees(USER.displayName);
+            await studioUtils.saveScreenshot("project_owner_1_1");
             //4. Click on 'Create Task' button and create new task:
             await createTaskDialog.clickOnCreateTaskButton();
             let message = await contentBrowsePanel.waitForNotificationMessage();
@@ -141,7 +143,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            studioUtils.saveScreenshot("project_owner_1");
+            studioUtils.saveScreenshot("project_owner_1_2");
             //3. Verify that 'New' button is disabled in the toolbar:
             await settingsBrowsePanel.waitForNewButtonDisabled();
             //4. Edit button should be disabled

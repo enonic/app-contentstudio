@@ -1072,10 +1072,15 @@ class ContentWizardPanel extends Page {
     }
 
     async waitForDisplayNameInputFocused() {
-        let message = "Display Name input is not focused" + appConst.mediumTimeout;
-        await this.getBrowser().waitUntil(async () => {
-            return await this.isFocused(this.displayNameInput);
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
+        try {
+            let message = "Display Name input is not focused in " + appConst.mediumTimeout;
+            await this.getBrowser().waitUntil(async () => {
+                return await this.isFocused(this.displayNameInput);
+            }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_focused'));
+            throw new Error(err + "Display Name input was not focused in " + appConst.mediumTimeout);
+        }
     }
 }
 

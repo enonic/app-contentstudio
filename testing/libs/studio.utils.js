@@ -193,14 +193,18 @@ module.exports = {
         await contentWizardPanel.waitForOpened();
         return await contentWizardPanel.waitForDisplayNameInputFocused();
     },
-    async selectAndOpenContentInWizard(contentName) {
+    async selectAndOpenContentInWizard(contentName, checkFocused) {
         let contentWizardPanel = new ContentWizardPanel();
         let browsePanel = new BrowsePanel();
         await this.findAndSelectItem(contentName);
         await browsePanel.clickOnEditButton();
         await this.doSwitchToNewWizard();
         await contentWizardPanel.waitForOpened();
-        await contentWizardPanel.waitForDisplayNameInputFocused();
+        //timeout = ms === undefined ? appConst.longTimeout : ms;
+        let waitForFocused = checkFocused === undefined ? true : checkFocused;
+        if (waitForFocused) {
+            await contentWizardPanel.waitForDisplayNameInputFocused();
+        }
         return contentWizardPanel;
     },
 
