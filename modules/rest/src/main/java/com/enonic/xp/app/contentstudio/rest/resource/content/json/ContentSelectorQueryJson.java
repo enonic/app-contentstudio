@@ -24,6 +24,8 @@ public class ContentSelectorQueryJson
 
     private final String relationshipType;
 
+    private final boolean includeArchive;
+
     private Integer from;
 
     private Integer size;
@@ -36,7 +38,8 @@ public class ContentSelectorQueryJson
                                      @JsonProperty("inputName") final String inputName,
                                      @JsonProperty("contentTypeNames") final List<String> contentTypeNamesString,
                                      @JsonProperty("allowedContentPaths") final List<String> allowedContentPaths,
-                                     @JsonProperty("relationshipType") final String relationshipType )
+                                     @JsonProperty("relationshipType") final String relationshipType,
+                                     @JsonProperty("includeArchive") final boolean includeArchive  )
     {
 
         this.from = from;
@@ -48,6 +51,7 @@ public class ContentSelectorQueryJson
         this.contentTypeNames = contentTypeNamesString;
         this.allowedContentPaths = allowedContentPaths;
         this.relationshipType = relationshipType;
+        this.includeArchive = includeArchive;
     }
 
     @JsonIgnore
@@ -112,5 +116,9 @@ public class ContentSelectorQueryJson
     public void setSize( final Integer size )
     {
         this.size = size;
+    }
+
+    public boolean isIncludeArchive() {
+        return includeArchive;
     }
 }
