@@ -74,7 +74,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
         allowPaths.add( "/path/to/parent" );
 
         ContentSelectorQueryJson contentQueryJson =
-            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", contentTypeNames, allowPaths, null );
+            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", contentTypeNames, allowPaths, null, false );
         ContentSelectorQueryJsonToContentQueryConverter processor = ContentSelectorQueryJsonToContentQueryConverter.create()
             .contentQueryJson( contentQueryJson )
             .contentService( contentService )
@@ -110,7 +110,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
             thenReturn( site );
 
         ContentSelectorQueryJson contentQueryJson =
-            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", Collections.emptyList(), allowPaths, null );
+            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", Collections.emptyList(), allowPaths, null, false );
         ContentSelectorQueryJsonToContentQueryConverter processor = ContentSelectorQueryJsonToContentQueryConverter.create()
             .contentQueryJson( contentQueryJson )
             .contentService( contentService )
@@ -144,7 +144,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
         final List<String> allowTypesFromJson = Arrays.asList( "myApplication:type1", "myApplication:type2", "myApplication:type2" );
 
         ContentSelectorQueryJson contentQueryJson =
-            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", allowTypesFromJson, allowPaths, null );
+            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", allowTypesFromJson, allowPaths, null, false );
         ContentSelectorQueryJsonToContentQueryConverter processor = ContentSelectorQueryJsonToContentQueryConverter.create()
             .contentQueryJson( contentQueryJson )
             .contentService( contentService )
@@ -177,7 +177,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
             thenReturn( null );
 
         ContentSelectorQueryJson contentQueryJson =
-            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", Collections.emptyList(), allowPaths, null );
+            new ContentSelectorQueryJson( "", 0, 100, "summary", "contentId", "inputName", Collections.emptyList(), allowPaths, null, false );
         ContentSelectorQueryJsonToContentQueryConverter processor = ContentSelectorQueryJsonToContentQueryConverter.create()
             .contentQueryJson( contentQueryJson )
             .contentService( contentService )
@@ -199,7 +199,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
         ContentSelectorQueryJson contentQueryJson = new ContentSelectorQueryJson(
             "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) " +
                 "ORDER BY _modifiedTime DESC", 0, 100, "summary", "contentId", "inputName", Collections.emptyList(),
-            Collections.emptyList(), null );
+            Collections.emptyList(), null, false );
         ContentSelectorQueryJsonToContentQueryConverter processor = getProcessor( contentQueryJson );
 
         final ContentQuery contentQuery = processor.createQuery();
@@ -240,7 +240,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
 
         ContentSelectorQueryJson contentQueryJson = new ContentSelectorQueryJson(
             "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) " +
-                "ORDER BY _modifiedTime DESC", 0, 100, "summary", "contentId", "inputName", contentTypeNames, allowPaths, null );
+                "ORDER BY _modifiedTime DESC", 0, 100, "summary", "contentId", "inputName", contentTypeNames, allowPaths, null, false );
         ContentSelectorQueryJsonToContentQueryConverter processor = getProcessor( contentQueryJson );
 
         final ContentQuery contentQuery = processor.createQuery();
@@ -281,7 +281,7 @@ public class ContentSelectorQueryJsonToContentQueryConverterTest
         ContentSelectorQueryJson contentQueryJson = new ContentSelectorQueryJson(
             "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) " +
                 "ORDER BY _modifiedTime DESC", 0, 100, "summary", "contentId", "inputName", Collections.emptyList(), allowPaths,
-            "relationship-type" );
+            "relationship-type", false );
         ContentSelectorQueryJsonToContentQueryConverter processor = getProcessor( contentQueryJson );
 
         final ContentQuery contentQuery = processor.createQuery();

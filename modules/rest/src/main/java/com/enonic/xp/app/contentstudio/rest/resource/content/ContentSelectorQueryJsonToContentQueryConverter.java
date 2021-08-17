@@ -1,25 +1,10 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import com.google.common.base.Preconditions;
-
 import com.enonic.xp.app.ApplicationWildcardMatcher;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentSelectorQueryJson;
-import com.enonic.xp.content.Content;
-import com.enonic.xp.content.ContentConstants;
-import com.enonic.xp.content.ContentQuery;
-import com.enonic.xp.content.ContentRelativePathResolver;
-import com.enonic.xp.content.ContentService;
+import com.enonic.xp.content.*;
 import com.enonic.xp.node.NodeIndexPath;
-import com.enonic.xp.query.expr.CompareExpr;
-import com.enonic.xp.query.expr.ConstraintExpr;
-import com.enonic.xp.query.expr.FieldExpr;
-import com.enonic.xp.query.expr.LogicalExpr;
-import com.enonic.xp.query.expr.QueryExpr;
-import com.enonic.xp.query.expr.ValueExpr;
+import com.enonic.xp.query.expr.*;
 import com.enonic.xp.query.parser.QueryParser;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
@@ -29,6 +14,11 @@ import com.enonic.xp.schema.relationship.RelationshipType;
 import com.enonic.xp.schema.relationship.RelationshipTypeName;
 import com.enonic.xp.schema.relationship.RelationshipTypeService;
 import com.enonic.xp.site.Site;
+import com.google.common.base.Preconditions;
+
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 
@@ -66,7 +56,8 @@ public class ContentSelectorQueryJsonToContentQueryConverter
             .from( this.contentQueryJson.getFrom() )
             .size( this.contentQueryJson.getSize() )
             .queryExpr( this.createQueryExpr() )
-            .addContentTypeNames( this.getContentTypeNamesFromJson() );
+            .addContentTypeNames( this.getContentTypeNamesFromJson() )
+            .includeArchive( contentQueryJson.isIncludeArchive() );
 
         return builder.build();
     }
