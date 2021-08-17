@@ -127,6 +127,12 @@ class ImageFormPanel extends Page {
             throw new Error("Button 'Reset filters' is still displayed in 2 seconds " + err);
         }
     }
+
+    async waitForImageLoaded(ms) {
+        let timeout = ms === undefined ? appConst.longTimeout : ms;
+        let locator = xpath.imageEditor + "//div[@class='image-canvas']";
+        return await this.waitForElementDisplayed(locator, appConst, timeout);
+    }
 }
 
 module.exports = ImageFormPanel;

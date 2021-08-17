@@ -90,11 +90,11 @@ describe('Content with image-selector, select images and verify that Outbound de
                 //3. Click on Save button and close the wizard:
                 await studioUtils.saveAndCloseWizard();
                 //4. Reopen the content again:
-                await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME2);
+                await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME2, false);
                 studioUtils.saveScreenshot("image_selector_reopened");
                 //Details Panel should be automatically opened:
                 //Verify that the content is valid:
-                let result = await wizardDetailsPanel.icContentInvalid();
+                let result = await wizardDetailsPanel.isContentInvalid();
                 assert.isFalse(result, "Red icon should not be present in the Widget View(Details Panel)");
             });
 

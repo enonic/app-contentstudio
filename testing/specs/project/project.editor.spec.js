@@ -50,6 +50,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await projectWizard.selectProjectAccessRoles(USER.displayName);
             await projectWizard.updateUserAccessRole(USER.displayName, appConstant.PROJECT_ROLES.EDITOR);
             await projectWizard.waitAndClickOnSave();
+            await studioUtils.saveScreenshot("project_editor_0");
             await projectWizard.waitForNotificationMessage();
             studioUtils.saveScreenshot("project_editor_1");
             //4. Verify that expected user is present in selected options:
@@ -82,7 +83,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await settingsBrowsePanel.waitForNewButtonDisabled();
             await settingsBrowsePanel.waitForEditButtonDisabled();
             await settingsBrowsePanel.waitForDeleteButtonDisabled();
-            studioUtils.saveScreenshot("project_editor_1");
+            studioUtils.saveScreenshot("project_editor_2");
         });
 
     it("GIVEN user with Editor role is logged in WHEN New Content Dialog has been opened THEN only Folder and Shortcut types are allowed for Editor role",

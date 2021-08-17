@@ -21,7 +21,7 @@ class WizardDetailsPanel extends BaseDetailsPanel {
         return xpath.container + xpath.widgetSelectorDropdown + lib.DROP_DOWN_HANDLE;
     }
 
-    async icContentInvalid() {
+    async isContentInvalid() {
         let selector = xpath.container + xpath.widgetItem + lib.CONTENT_SUMMARY_AND_STATUS_VIEWER;
         let attr = await this.getAttribute(selector, 'class');
         return await attr.includes("invalid");
