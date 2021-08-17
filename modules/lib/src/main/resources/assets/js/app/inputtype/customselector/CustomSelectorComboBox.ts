@@ -1,3 +1,4 @@
+/*global Q*/
 import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
