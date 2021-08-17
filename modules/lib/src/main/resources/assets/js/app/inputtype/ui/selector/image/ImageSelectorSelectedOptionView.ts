@@ -52,7 +52,7 @@ export class ImageSelectorSelectedOptionView
 
     setReadonly(readonly: boolean): void {
         super.setReadonly(readonly);
-        this.check.setEnabled(!readonly);
+        this.whenRendered(() => this.check.setEnabled(!readonly));
     }
 
     private updateIconSrc(content: MediaTreeSelectorItem) {
