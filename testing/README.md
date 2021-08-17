@@ -11,12 +11,14 @@ Before trying to run tests, you need to verify that the following software are i
 * Chrome browser installed on system.
 
 Run tests for app-admin-home.
-go to '/testing' folder and run:
-  1. gradle testContentStudioApp
-  2. gradle testContentStudioAppLocally  ( --project-cache-dir d:/cache)
-  3. gradle runSeparateTestLocally -Pt_name=overwrite.permissions.spec  --project-cache-dir d:/cache
+go to 'app-contentstudio' directory and run:
+  1. gradlew testContentStudioApp
+  2. gradlew testContentStudioAppLocally  ( --project-cache-dir d:/cache)
+  3. gradlew runSeparateTestLocally -Pt_name=overwrite.permissions.spec  --project-cache-dir d:/cache
   4. gradlew testContentStudioProjects  --project-cache-dir d:/cache
   5. gradlew baseContentStudioTests  --project-cache-dir d:/cache
+  6. gradlew testPublishIssues  --project-cache-dir d:/cache
+  7. gradlew testWizardsGrid --project-cache-dir d:/cache
   
 
 ### Reporting 

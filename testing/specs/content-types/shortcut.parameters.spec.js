@@ -44,7 +44,7 @@ describe('Shortcut parameters specification', function () {
             await contentWizard.waitUntilInvalidIconAppears();
         });
 
-    it(`GIVEN shortcut-wizard is opened WHEN 'Add Parameters' button has been clicked THEN 2 inputs should appear AND 'Collapse' link gets visible`,
+    it(`GIVEN new shortcut-wizard is opened WHEN 'Add Parameters' button has been clicked THEN 2 inputs should appear AND 'Collapse' link gets visible`,
         async () => {
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();
@@ -93,7 +93,6 @@ describe('Shortcut parameters specification', function () {
             await shortcutForm.waitForCollapseTopLinkVisible();
         });
 
-
     it(`GIVEN existing shortcut with parameters is opened WHEN the parameter has been removed THEN 'Add Parameters' button should appear`,
         async () => {
             let shortcutForm = new ShortcutForm();
@@ -126,8 +125,7 @@ describe('Shortcut parameters specification', function () {
             await wizardVersionsWidget.waitForVersionsLoaded();
             //Expand the previous version:
             await wizardVersionsWidget.clickAndExpandVersion(1);
-
-            studioUtils.saveScreenshot("shortcut_version_selected");
+            await studioUtils.saveScreenshot("shortcut_version_selected");
             //Click on 'Revert' button:
             await wizardVersionsWidget.clickOnRevertButton();
             studioUtils.saveScreenshot("shortcut_parameter_version_rollback");

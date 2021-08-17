@@ -1,6 +1,7 @@
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const path = require('path');
+const fs = require('fs');
 
 class Page {
     constructor() {
@@ -134,7 +135,10 @@ class Page {
     }
 
     saveScreenshot(name) {
-        let screenshotsDir = path.join(__dirname, '/../build/screenshots/');
+        let screenshotsDir = path.join(__dirname, '/../build/mochawesome-report/screenshots/');
+        if (!fs.existsSync(screenshotsDir)) {
+            fs.mkdirSync(screenshotsDir, { recursive: true });
+        }
         return this.browser.saveScreenshot(screenshotsDir + name + '.png').then(() => {
             console.log('screenshot is saved ' + name);
         }).catch(err => {
@@ -225,7 +229,7 @@ class Page {
         let message = "Spinner still displayed! timeout is " + timeout;
         return this.browser.waitUntil(() => {
             return this.isElementNotDisplayed("//div[@class='spinner']");
-        }, {timeout: ms, timeoutMsg: message});
+        }, {timeout: timeout, timeoutMsg: message});
     }
 
     waitUntilElementNotVisible(selector, ms) {

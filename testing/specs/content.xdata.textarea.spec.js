@@ -148,8 +148,10 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
             let xDataTextArea = new XDataTextArea();
             //1. Open existing content with enabled x-data:
             await studioUtils.selectContentAndOpenWizard(contentName);
+            studioUtils.saveScreenshot('xdata-before-disabling');
             //2. Disable the x-data and save the content:
             await contentWizard.clickOnXdataToggler();
+            studioUtils.saveScreenshot('xdata-after-disabling');
             await contentWizard.waitAndClickOnSave();
             //3. 'text area' gets hidden
             await xDataTextArea.waitForTextAreaNotVisible();

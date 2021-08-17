@@ -18,6 +18,7 @@ import {ProjectListWithMissingRequest} from '../resource/ProjectListWithMissingR
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {SettingsItemsTreeGridHelper} from './SettingsItemsTreeGridHelper';
 
 export class SettingsItemsTreeGrid
     extends TreeGrid<SettingsViewItem> {
@@ -29,34 +30,11 @@ export class SettingsItemsTreeGrid
     private projects: Project[];
 
     constructor() {
-        const builder = new TreeGridBuilder<SettingsViewItem>().setColumnConfig([{
-            name: i18n('field.name'),
-            id: 'name',
-            field: 'displayName',
-            formatter: SettingsItemRowFormatter.nameFormatter,
-            style: {minWidth: 200}
-        }]).setPartialLoadEnabled(true).setLoadBufferSize(20).prependClasses('settings-tree-grid');
-
-        const columns = builder.getColumns().slice(0);
-        const [nameColumn] = columns;
-
-        const updateColumns = () => {
-            let checkSelIsMoved = ResponsiveRanges._540_720.isFitOrSmaller(Body.get().getEl().getWidth());
-
-            const curClass = nameColumn.getCssClass();
-
-            if (checkSelIsMoved) {
-                nameColumn.setCssClass(curClass || 'shifted');
-            } else if (curClass && curClass.indexOf('shifted') >= 0) {
-                nameColumn.setCssClass(curClass.replace('shifted', ''));
-            }
-
-            this.setColumns(columns.slice(0), checkSelIsMoved);
-        };
-
-        builder.setColumnUpdater(updateColumns);
-
-        super(builder);
+        super(new TreeGridBuilder<SettingsViewItem>()
+            .setColumnConfig(SettingsItemsTreeGridHelper.generateColumnsConfig())
+            .setPartialLoadEnabled(true)
+            .setLoadBufferSize(20)
+            .prependClasses('settings-tree-grid'));
 
         this.treeGridActions = new SettingsTreeGridActions(this);
 

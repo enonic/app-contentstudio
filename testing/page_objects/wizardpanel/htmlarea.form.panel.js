@@ -249,7 +249,8 @@ class HtmlAreaForm extends OccurrencesFormView {
     async clickOnFullScreenButton() {
         await this.clickOnElement(XPATH.ckeTextArea);
         await this.waitForElementDisplayed(this.fullScreenButton, appConst.mediumTimeout);
-        return await this.clickOnElement(this.fullScreenButton);
+        await this.clickOnElement(this.fullScreenButton);
+        return await this.pause(200);
     }
 
     isBoldButtonDisplayed() {

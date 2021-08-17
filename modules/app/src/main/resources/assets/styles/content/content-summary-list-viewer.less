@@ -1,0 +1,15 @@
+.content-summary-list-viewer {
+
+  .names-and-icon-view .@{_COMMON_PREFIX}wrapper .icon-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &::before {
+      position: absolute;
+      .animation(rotate360, 0.5s, 0s, linear);
+    }
+  }
+}

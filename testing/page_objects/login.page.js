@@ -20,7 +20,8 @@ class LoginPage extends Page {
     }
 
     async clickOnLoginButton() {
-        return this.clickOnElement(this.loginButton);
+        await this.clickOnElement(this.loginButton);
+        return await this.pause(200);
     }
 
     waitForPageLoaded(ms) {
@@ -33,7 +34,7 @@ class LoginPage extends Page {
         return this.browser.getTitle();
     }
 
-    async doLogin(userName,password) {
+    async doLogin(userName, password) {
         let name = userName ? userName : 'su';
         let pass = password ? password : 'password';
         let usernameInput = await this.findElement(this.usernameInput);
@@ -43,5 +44,6 @@ class LoginPage extends Page {
         await passwordInput.addValue(pass);
         return await this.clickOnLoginButton();
     }
-};
+}
+
 module.exports = LoginPage;

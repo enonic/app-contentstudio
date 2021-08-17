@@ -35,6 +35,9 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             await contentWizard.waitForNotificationMessage();
             //Click on Delete... button and open Delete Content Dialog:
             await contentWizard.clickOnDelete();
+            //Verify that the dialog is loaded:
+            await deleteContentDialog.waitForDialogOpened();
+            await deleteContentDialog.waitForSpinnerNotVisible();
             //Click on 'Delete Now' button:
             await deleteContentDialog.clickOnDeleteNowButton();
             await confirmValueDialog.waitForDialogOpened();
@@ -56,6 +59,8 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             //2. Open 'Confirm Content Delete' dialog:
             await contentWizard.clickOnDelete();
+            await deleteContentDialog.waitForDialogOpened();
+            await deleteContentDialog.waitForSpinnerNotVisible();
             await deleteContentDialog.clickOnDeleteNowButton();
             await confirmValueDialog.waitForDialogOpened();
             //3. Type the required number to delete:

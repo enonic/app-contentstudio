@@ -77,7 +77,8 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/2780
     //Publishing Scheduled status remains after scheduled content has been marked as deleted
-    it(`GIVEN existing folder has been scheduled WHEN the folder has been marked as deleted THEN 'Marked for deletion' status should be in browse panel`,
+    it.skip(
+        `GIVEN existing folder has been scheduled WHEN the folder has been marked as deleted THEN 'Marked for deletion' status should be in browse panel`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let dateRangeInput = new DateRangeInput();

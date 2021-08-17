@@ -307,6 +307,7 @@ class ContentPublishDialog extends Page {
     async clickOnItemToPublishAndSwitchToWizard(displayName) {
         let selector = XPATH.publishItemList + XPATH.itemToPublish(displayName);
         await this.clickOnElement(selector);
+        await this.pause(1000);
         return await this.getBrowser().switchWindow(displayName);
     }
 

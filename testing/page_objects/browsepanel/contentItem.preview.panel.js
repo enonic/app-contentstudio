@@ -152,7 +152,6 @@ class ContentItemPreviewPanel extends Page {
         }
     }
 
-
     async clickOnElementInFrame(selector) {
         try {
             await this.switchToFrame(xpath.container + "//iframe[contains(@src,'admin/site')]");
@@ -172,12 +171,13 @@ class ContentItemPreviewPanel extends Page {
     //switches to iframe and gets text in the panel
     async getTextInAttachmentPreview() {
         try {
-            let attachmentFrame = "//iframe[contains(@src,'/admin/rest/cms/default/base/content/media')]";
+            let attachmentFrame = "//iframe[contains(@src,'/admin/v2/rest/cms/default/base/content/media')]";
             await this.switchToFrame(attachmentFrame);
             return await this.getText("//body/pre");
         } catch (err) {
             throw new Error("Content Item Preview Panel - " + err);
         }
     }
-};
+}
+
 module.exports = ContentItemPreviewPanel;

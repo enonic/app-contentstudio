@@ -6,6 +6,10 @@
   "scripts": {
     "test": "node ./tasks/test.js",
     "test_project": "node ./tasks/test-project.js",
+    "test_page_editor": "node ./tasks/test-page-editor.js",
+    "test_publish_issues": "node tasks/test-publish-issues.js",
+    "test_input_types": "node ./tasks/test-input-types.js",
+    "test_wizards_grid": "node ./tasks/test-wizards-grid.js",
     "test_by_name": "node ./tasks/test-by-name.js",
     "base_tests": "node ./tasks/base-tests.js"
   },

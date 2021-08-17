@@ -80,18 +80,6 @@ class BaseVersionsWidget extends Page {
         return await this.waitForElementDisplayed(this.publishActionItems, appConst.mediumTimeout);
     }
 
-    async isEditButtonDisplayed(index) {
-        try {
-            await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
-            let elements = await this.findElements(this.versionItems);
-            let result = await elements[index].$$(".//button/span[text()='Edit']");
-            return result.length > 0;
-        } catch (err) {
-            this.saveScreenshot("err_versions_widget_active_version");
-            throw new Error("Version Panel - error when trying to find 'Edit' button: " + err);
-        }
-    }
-
     async getContentStatus() {
         let locator = this.versionsWidget + "/div[contains(@class,'status')]";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
@@ -113,6 +101,29 @@ class BaseVersionsWidget extends Page {
     versionItemByDisplayName(displayName) {
         return this.versionsWidget + xpath.versionsList + xpath.versionItemByDisplayName(displayName);
     }
+
+    async waitForActiveVersionButtonDisplayed() {
+        try {
+
+            let locator = xpath.versionItemExpanded + "//button[child::span[text()='Active version']]";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot("active_version_button");
+            throw new Error("Version Widget -  'Active version' button is not displayed " + err);
+        }
+    }
+
+    async waitForActiveVersionButtonNotDisplayed() {
+        try {
+
+            let locator = xpath.versionItemExpanded + "//button[child::span[text()='Active version']]";
+            await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot("active_version_button");
+            throw new Error("Version Widget -  'Active version' button should not be displayed " + err);
+        }
+    }
+
 
 }
 

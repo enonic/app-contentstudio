@@ -88,13 +88,15 @@ class ImageSelectorForm extends OccurrencesFormView {
     }
 
     async getTreeModeOptionDisplayNames() {
-        let options = lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
+        let options = XPATH.imageContentComboBox + lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(options, appConst.mediumTimeout);
         return await this.getTextInElements(options);
     }
 
-    getTreeModeOptionStatus() {
-        let options = lib.SLICK_VIEW_PORT + "//div[contains(@class,'r1')]";
-        return this.getTextInElements(options);
+    async getTreeModeOptionStatus() {
+        let options = XPATH.imageContentComboBox + lib.SLICK_VIEW_PORT + "//div[contains(@class,'r1')]";
+        await this.waitForElementDisplayed(options, appConst.mediumTimeout);
+        return await this.getTextInElements(options);
     }
 
     getFlatModeOptionImageNames() {
@@ -219,7 +221,8 @@ class ImageSelectorForm extends OccurrencesFormView {
 
     async clickOnRemoveButton() {
         await this.waitForRemoveButtonDisplayed();
-        return await this.clickOnElement(this.removeButton);
+        await this.clickOnElement(this.removeButton);
+        return await this.pause(300);
     }
 
     //Edit image button

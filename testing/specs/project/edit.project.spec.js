@@ -34,6 +34,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
             await projectWizard.selectLanguage(appConstant.LANGUAGES.EN);
             await projectWizard.waitForProjectIdentifierInputEnabled();
             await projectWizard.waitAndClickOnSave();
+            await projectWizard.waitForSpinnerNotVisible(appConstant.longTimeout);
             //3. Verify that Identifier Input gets disabled after saving the project
             await projectWizard.waitForProjectIdentifierInputDisabled();
             //4. verify the saved data:

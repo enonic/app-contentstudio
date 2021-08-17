@@ -1,3 +1,4 @@
+/*global Q*/
 import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
@@ -7,12 +8,27 @@ import {CustomSelectorItemViewer} from './CustomSelectorItemViewer';
 import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
 import {Viewer} from 'lib-admin-ui/ui/Viewer';
 import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
 
 export class CustomSelectorComboBox
     extends RichComboBox<CustomSelectorItem> {
 
     constructor(builder: CustomSelectorComboBoxBuilder) {
         super(builder);
+    }
+
+    protected reload(inputValue: string): Q.Promise<any> {
+        const loader: BaseLoader<CustomSelectorItem> = this.getLoader();
+
+        if (loader.isLoaded() && loader.getSearchString() === inputValue) {
+            return loader.search(inputValue);
+        }
+
+        loader.setSearchString(inputValue);
+
+        return loader.load().then(() => {
+            return loader.search(inputValue);
+        });
     }
 
     static create(): CustomSelectorComboBoxBuilder {

@@ -46,8 +46,10 @@ class ImageFormPanel extends Page {
     async clickOnFlipButton() {
         try {
             await this.waitForElementDisplayed(this.buttonFlip, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.buttonFlip, appConst.longTimeout);
             await this.pause(1200);
             await this.clickOnElement(this.buttonFlip);
+            await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(700);
         } catch (err) {
             this.saveScreenshot('err_click_on_flip_button');
@@ -58,8 +60,10 @@ class ImageFormPanel extends Page {
     async clickOnRotateButton() {
         try {
             await this.waitForElementDisplayed(this.buttonRotate, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.buttonRotate, appConst.longTimeout);
             await this.pause(1200);
             await this.clickOnElement(this.buttonRotate);
+            await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(700);
         } catch (err) {
             this.saveScreenshot('err_click_on_rotate_button');
@@ -67,13 +71,16 @@ class ImageFormPanel extends Page {
         }
     }
 
-    clickOnResetButton() {
-        return this.clickOnElement(this.buttonResetFilters).then(() => {
-            return this.pause(500);
-        }).catch(err => {
+    async clickOnResetButton() {
+        try {
+            await this.waitForElementEnabled(this.buttonResetFilters, appConst.mediumTimeout);
+            await this.clickOnElement(this.buttonResetFilters);
+            await this.waitForSpinnerNotVisible(appConst.longTimeout);
+            return await this.pause(500);
+        } catch (err) {
             this.saveScreenshot('err_click_on_reset_button');
             throw new Error('Image Editor, button reset  ' + err);
-        })
+        }
     }
 
     waitForResetFilterDisplayed() {
@@ -120,5 +127,12 @@ class ImageFormPanel extends Page {
             throw new Error("Button 'Reset filters' is still displayed in 2 seconds " + err);
         }
     }
+
+    async waitForImageLoaded(ms) {
+        let timeout = ms === undefined ? appConst.longTimeout : ms;
+        let locator = xpath.imageEditor + "//div[@class='image-canvas']";
+        return await this.waitForElementDisplayed(locator, appConst, timeout);
+    }
 }
+
 module.exports = ImageFormPanel;

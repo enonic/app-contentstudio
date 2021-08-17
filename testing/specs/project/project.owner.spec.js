@@ -62,9 +62,10 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             //3. Select the user in roles, assign Owner role him:
             await projectWizard.selectProjectAccessRoles(USER.displayName);
             await projectWizard.updateUserAccessRole(USER.displayName, appConstant.PROJECT_ROLES.OWNER);
+            await studioUtils.saveScreenshot("project_owner_0");
             await projectWizard.waitAndClickOnSave();
             await projectWizard.waitForNotificationMessage();
-            studioUtils.saveScreenshot("project_owner_1");
+            await studioUtils.saveScreenshot("project_owner_1");
             //4. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
@@ -88,11 +89,13 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             await createTaskDialog.typeTitle(TASK_TITLE);
             //3. Select the user with owner role in Assignees selector:
             await createTaskDialog.selectUserInAssignees(USER.displayName);
+            await studioUtils.saveScreenshot("project_owner_1_1");
             //4. Click on 'Create Task' button and create new task:
             await createTaskDialog.clickOnCreateTaskButton();
             let message = await contentBrowsePanel.waitForNotificationMessage();
             assert.equal(message, appConstant.TASK_CREATED_MESSAGE);
             await taskDetailsDialog.clickOnAssigneesTabBarItem();
+            await studioUtils.saveScreenshot("project_owner_assignees_tab");
             let actualUsers = await issueDetailsDialogAssigneesTab.getSelectedUsers();
             assert.equal(actualUsers[0], USER.displayName, "Expected user should be present in Assignees tab");
             //Do log out:
@@ -140,7 +143,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let settingsBrowsePanel = new SettingsBrowsePanel();
             //2.Click(select) on existing project:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
-            studioUtils.saveScreenshot("project_owner_1");
+            studioUtils.saveScreenshot("project_owner_1_2");
             //3. Verify that 'New' button is disabled in the toolbar:
             await settingsBrowsePanel.waitForNewButtonDisabled();
             //4. Edit button should be disabled
@@ -237,12 +240,13 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             //6. Verify that 'Request Details' dialog is loaded:
             await publishRequestDetailsDialog.waitForTabLoaded();
             //7. Verify that 'Publish Now' button is enabled:
-            studioUtils.saveScreenshot("project_owner_8");
+            await studioUtils.saveScreenshot("project_owner_8");
             await publishRequestDetailsDialog.waitForPublishNowButtonEnabled();
             //8. Click on Publish Now button:
             await publishRequestDetailsDialog.clickOnPublishNowButton();
             //9. Verify that modal dialog is closed:
             await publishRequestDetailsDialog.waitForClosed();
+            await studioUtils.saveScreenshot("project_owner_9");
             let actualStatus = await contentBrowsePanel.getContentStatus(FOLDER_NAME);
             assert.equal(actualStatus, "Published", "the folder should be 'Published'");
         });

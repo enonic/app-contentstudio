@@ -1,9 +1,6 @@
 import * as Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
-import {i18n} from 'lib-admin-ui/util/Messages';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {PageComponentsItemViewer} from './PageComponentsItemViewer';
 import {PageComponentsGridDragHandler} from './PageComponentsGridDragHandler';
 import {ItemView} from '../../page-editor/ItemView';
 import {PageView} from '../../page-editor/PageView';
@@ -14,15 +11,11 @@ import {RegionItemType} from '../../page-editor/RegionItemType';
 import {LayoutItemType} from '../../page-editor/layout/LayoutItemType';
 import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
 import {Content} from '../content/Content';
-import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ComponentView} from '../../page-editor/ComponentView';
 import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
-import {GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
-import {GridOptionsBuilder} from 'lib-admin-ui/ui/grid/GridOptions';
 import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
 import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 import {Component} from '../page/region/Component';
@@ -34,6 +27,7 @@ import {Descriptor} from '../page/Descriptor';
 import {TextItemType} from '../../page-editor/text/TextItemType';
 import {TextComponentView} from '../../page-editor/text/TextComponentView';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {PageComponentsTreeGridHelper} from './PageComponentsTreeGridHelper';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemViewTreeGridWrapper> {
@@ -43,48 +37,11 @@ export class PageComponentsTreeGrid
 
     constructor(content: Content, pageView: PageView) {
         super(new TreeGridBuilder<ItemViewTreeGridWrapper>()
-            .setColumns([
-                new GridColumnBuilder<TreeNode<ItemViewTreeGridWrapper>>()
-                    .setName(i18n('field.name'))
-                    .setId('displayName')
-                    .setField('displayName')
-                    .setFormatter(PageComponentsTreeGrid.nameFormatter.bind(null, content))
-                    .setMinWidth(250)
-                    .setBehavior('selectAndMove')
-                    .setResizable(true)
-                    .build(),
-                new GridColumnBuilder<TreeNode<ItemViewTreeGridWrapper>>()
-                    .setName(i18n('field.menu'))
-                    .setId('menu')
-                    .setMinWidth(30)
-                    .setMaxWidth(45)
-                    .setField('menu')
-                    .setCssClass('menu-cell')
-                    .setResizable(false)
-                    .setFormatter(PageComponentsTreeGrid.menuFormatter).build()
-            ])
-            .setOptions(
-                new GridOptionsBuilder<TreeNode<ItemViewTreeGridWrapper>>()
-                    .setShowHeaderRow(false)
-                    .setHideColumnHeaders(true)
-                    .setForceFitColumns(true)
-                    .setFullWidthRows(true)
-                    .setHeight('initial')
-                    .setWidth('340')
-                    // It is necessary to turn off the library key handling. It may cause
-                    // the conflicts with Mousetrap, which leads to skipping the key events
-                    // Do not set to true, if you are not fully aware of the result
-                    .setEnableCellNavigation(false)
-                    .setSelectedCellCssClass('selected cell')
-                    .setCheckableRows(false)
-                    .disableMultipleSelection(true)
-                    .setMultiSelect(false)
-                    .setRowHeight(45)
-                    .setDragAndDrop(true).build()
-            )
+            .setColumns(PageComponentsTreeGridHelper.generateColumns(content))
+            .setOptions(PageComponentsTreeGridHelper.generateOptions())
             .setShowToolbar(false)
             .setAutoLoad(true)
-            .prependClasses('components-grid')
+            .prependClasses('page-components-tree-grid')
         );
 
         this.content = content;
@@ -144,20 +101,6 @@ export class PageComponentsTreeGrid
     setPageView(pageView: PageView): Q.Promise<void> {
         this.pageView = pageView;
         return this.reload();
-    }
-
-    public static nameFormatter(content: Content, row: number, cell: number, value: any, columnDef: any,
-                                node: TreeNode<ItemViewTreeGridWrapper>) {
-        const viewer: PageComponentsItemViewer = <PageComponentsItemViewer>node.getViewer('name') || new PageComponentsItemViewer(content);
-        node.setViewer('name', viewer);
-        const data: ItemView = node.getData().getItemView();
-        viewer.setObject(data);
-
-        if (!(ObjectHelper.iFrameSafeInstanceOf(data, RegionView) || ObjectHelper.iFrameSafeInstanceOf(data, PageView))) {
-            viewer.addClass('draggable');
-        }
-
-        return viewer.toString();
     }
 
     setInvalid(dataIds: string[]) {
@@ -252,14 +195,6 @@ export class PageComponentsTreeGrid
         return children;
     }
 
-    public static menuFormatter(row: number, cell: number, value: any, columnDef: any, node: TreeNode<ContentSummaryAndCompareStatus>) {
-        let wrapper = new SpanEl();
-
-        let icon = new DivEl('menu-icon icon-menu2');
-        wrapper.appendChild(icon);
-        return wrapper.toString();
-    }
-
     addComponentToParent(component: ComponentView<Component>, parent: RegionView) {
         const parentNode: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(parent.getItemId().toString());
         if (!parentNode) {
@@ -275,12 +210,14 @@ export class PageComponentsTreeGrid
         this.fetchDescription(component);
     }
 
-    refreshComponentNode(componentView: ComponentView<Component>, oldComponentView: ComponentView<Component>) {
+    refreshComponentNode(componentView: ComponentView<Component>, oldComponentView: ComponentView<Component>, clean?: boolean) {
         const oldDataId: string = oldComponentView.getItemId().toString();
         const oldNode: TreeNode<ItemViewTreeGridWrapper> = this.getRoot().getNodeByDataIdFromCurrent(oldDataId);
 
-        if (oldNode.hasChildren()) {
-            oldNode.removeChildren();
+        if (clean) {
+            oldNode.getChildren().forEach((childNode: TreeNode<ItemViewTreeGridWrapper>) => {
+               this.deleteNode(childNode);
+            });
         }
 
         this.updateNodeByData(new ItemViewTreeGridWrapper(componentView), oldDataId);
@@ -294,6 +231,11 @@ export class PageComponentsTreeGrid
         if (ObjectHelper.iFrameSafeInstanceOf(componentView.getType(), TextItemType)) {
             this.bindTreeTextNodeUpdateOnTextComponentModify(<TextComponentView>componentView);
         }
+    }
+
+    protected doUpdateNodeByData(nodeToUpdate: TreeNode<ItemViewTreeGridWrapper>, data: ItemViewTreeGridWrapper): void {
+        nodeToUpdate.setExpandable(this.hasChildren(data));
+        super.doUpdateNodeByData(nodeToUpdate, data);
     }
 
     scrollToItem(dataId: string) {

@@ -14,6 +14,7 @@ class BaseDetailsPanel extends Page {
             await this.pause(300);
             return await this.clickOnElement(this.widgetSelectorDropdownHandle);
         } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_widget_dropdown'));
             throw new Error('Error when clicking on Widget Selector dropdown handle  ' + err);
         }
     }
@@ -33,6 +34,7 @@ class BaseDetailsPanel extends Page {
             await elements[0].click();
             return await this.pause(200);
         } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_open_versions'));
             throw new Error("Error when opening Version History: " + err);
         }
     }

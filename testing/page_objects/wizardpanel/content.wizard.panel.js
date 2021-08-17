@@ -292,7 +292,7 @@ class ContentWizardPanel extends Page {
             await this.clickOnElement(XPATH.xDataToggler);
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_click_on_xdata_toggler');
+            await this.saveScreenshot('err_click_on_xdata_toggler');
             throw new Error("Error when clicking on x-data toggler " + err);
         }
     }
@@ -383,7 +383,7 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(this.hideComponentViewToggler, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot('err_hide_component_view_not_displayed');
+            await this.saveScreenshot('err_hide_component_view_not_displayed');
             throw new Error("'Hide Component View!' button should appear: " + err);
         }
     }
@@ -393,7 +393,7 @@ class ContentWizardPanel extends Page {
             await this.waitForHideComponentViewTogglerDisplayed();
             await this.clickOnElement(this.hideComponentViewToggler);
         } catch (err) {
-            this.saveScreenshot('err_click_on_hide_component_view');
+            await this.saveScreenshot('err_click_on_hide_component_view');
             throw new Error("Error when clicking on 'Hide Component View' " + err);
         }
         return await this.pause(300);
@@ -414,13 +414,15 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    waitForOpened() {
-        return this.waitForElementDisplayed(this.deleteButton, appConst.longTimeout).catch(err => {
-            this.saveScreenshot(contentBuilder.generateRandomName('err_open_wizard'));
+    async waitForOpened() {
+        try {
+            await this.waitForElementDisplayed(this.deleteButton, appConst.longTimeout);
+            await this.waitForSpinnerNotVisible(appConst.longTimeout);
+            return await this.pause(200);
+        } catch (err) {
+            await this.saveScreenshot(contentBuilder.generateRandomName('err_open_wizard'));
             throw new Error("Content wizard was not loaded! " + err);
-        }).then(() => {
-            return this.waitForSpinnerNotVisible(appConst.longTimeout);
-        });
+        }
     }
 
     //exception will be thrown if Save button is disabled after 3 seconds
@@ -451,7 +453,7 @@ class ContentWizardPanel extends Page {
             await this.waitForElementDisplayed(this.savedButton, appConst.mediumTimeout);
             return await this.waitForElementDisabled(this.savedButton, appConst.mediumTimeout);
         } catch (err) {
-            this.saveScreenshot('err_saved_button_not_visible');
+            await this.saveScreenshot('err_saved_button_not_visible');
             throw new Error("Saved button is not visible or it is not disabled" + err);
         }
     }
@@ -878,7 +880,7 @@ class ContentWizardPanel extends Page {
         let selector = XPATH.container + XPATH.markAsReadyButton;
         await this.waitForMarkAsReadyButtonVisible();
         await this.clickOnElement(selector);
-        return await this.pause(700);
+        return await this.pause(1000);
     }
 
     async clickOnUnpublishButton() {
@@ -1067,6 +1069,18 @@ class ContentWizardPanel extends Page {
     async getPageEditorHeight() {
         let heightProperty = await this.getCSSProperty(XPATH.liveEditFrame, "height");
         return heightProperty.value;
+    }
+
+    async waitForDisplayNameInputFocused() {
+        try {
+            let message = "Display Name input is not focused in " + appConst.mediumTimeout;
+            await this.getBrowser().waitUntil(async () => {
+                return await this.isFocused(this.displayNameInput);
+            }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_focused'));
+            throw new Error(err + "Display Name input was not focused in " + appConst.mediumTimeout);
+        }
     }
 }
 

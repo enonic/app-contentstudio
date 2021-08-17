@@ -34,6 +34,9 @@ const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialo
 const DateTimeRange = require('../page_objects/components/datetime.range');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
+const fs = require('fs');
+const path = require('path');
+const addContext = require('mochawesome/addContext');
 
 module.exports = {
     setTextInCKE: function (id, text) {
@@ -187,15 +190,21 @@ module.exports = {
         await newContentDialog.clickOnContentType(contentType);
         //Switch to the new wizard:
         await this.doSwitchToNewWizard();
-        return await contentWizardPanel.waitForOpened();
+        await contentWizardPanel.waitForOpened();
+        return await contentWizardPanel.waitForDisplayNameInputFocused();
     },
-    async selectAndOpenContentInWizard(contentName) {
+    async selectAndOpenContentInWizard(contentName, checkFocused) {
         let contentWizardPanel = new ContentWizardPanel();
         let browsePanel = new BrowsePanel();
         await this.findAndSelectItem(contentName);
         await browsePanel.clickOnEditButton();
         await this.doSwitchToNewWizard();
         await contentWizardPanel.waitForOpened();
+        //timeout = ms === undefined ? appConst.longTimeout : ms;
+        let waitForFocused = checkFocused === undefined ? true : checkFocused;
+        if (waitForFocused) {
+            await contentWizardPanel.waitForDisplayNameInputFocused();
+        }
         return contentWizardPanel;
     },
 
@@ -206,6 +215,7 @@ module.exports = {
         await browsePanel.clickOnLocalizeButton();
         await this.doSwitchToNewWizard();
         await contentWizardPanel.waitForOpened();
+        await contentWizardPanel.waitForDisplayNameInputFocused();
         return contentWizardPanel;
     },
 
@@ -411,7 +421,8 @@ module.exports = {
         //switch to the opened wizard:
         await this.doSwitchToNewWizard();
         await contentWizardPanel.waitForOpened();
-        return await contentWizardPanel.waitForSpinnerNotVisible(appConst.longTimeout);
+        await contentWizardPanel.waitForSpinnerNotVisible(appConst.longTimeout);
+        return await contentWizardPanel.waitForDisplayNameInputFocused();
     },
     async findContentAndClickCheckBox(displayName) {
         let browsePanel = new BrowsePanel();
@@ -430,7 +441,8 @@ module.exports = {
         await newContentDialog.typeSearchText(contentType);
         await newContentDialog.clickOnContentType(contentType);
         await this.doSwitchToNewWizard();
-        return await contentWizardPanel.waitForOpened();
+        await contentWizardPanel.waitForOpened();
+        return await contentWizardPanel.waitForDisplayNameInputFocused();
     },
     //Open delete dialog, click on 'Delete Now' button then type a number to delete
     async doDeleteNowAndConfirm(numberOfContents) {
@@ -644,10 +656,15 @@ module.exports = {
         });
     },
 
-    saveScreenshot: function (name) {
-        let path = require('path');
-        let screenshotsDir = path.join(__dirname, '/../build/screenshots/');
+    saveScreenshot: function (name, that) {
+        let screenshotsDir = path.join(__dirname, '/../build/mochawesome-report/screenshots/');
+        if (!fs.existsSync(screenshotsDir)) {
+            fs.mkdirSync(screenshotsDir, {recursive: true});
+        }
         return webDriverHelper.browser.saveScreenshot(screenshotsDir + name + '.png').then(() => {
+            if (that) {
+                addContext(that, 'screenshots/' + name + '.png');
+            }
             return console.log('screenshot saved ' + name);
         }).catch(err => {
             return console.log('screenshot was not saved ' + screenshotsDir + 'utils  ' + err);
@@ -742,6 +759,7 @@ module.exports = {
         await projectWizard.pause(400);
         await projectWizard.waitAndClickOnSave();
         await projectWizard.waitForNotificationMessage();
+        await projectWizard.waitForSpinnerNotVisible();
         await projectWizard.pause(700);
         await settingsBrowsePanel.clickOnCloseIcon(name);
         await projectWizard.waitForWizardClosed();
@@ -836,6 +854,7 @@ module.exports = {
         await browsePanel.clickOnRowByName('system');
         await browsePanel.waitForNewButtonEnabled();
         await browsePanel.clickOnNewButton();
+        await newPrincipalDialog.waitForDialogLoaded();
         await newPrincipalDialog.clickOnItem('User');
         return await userWizard.waitForOpened();
     },

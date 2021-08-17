@@ -42,6 +42,8 @@ describe('image.selector0_1.spec tests for not required image selector',
                 assert.isFalse(result, "This content should be valid, because the image selector is not required input");
                 //5. Click on Mark as ready button:
                 await contentWizard.clickOnMarkAsReadyButton();
+                await contentWizard.waitForNotificationMessage();
+                await studioUtils.saveScreenshot("test_workflow_icon");
                 //6. Verify that 'Save' button gets disabled:
                 await contentWizard.waitForSaveButtonDisabled();
                 //7. Verify the workflow state:
@@ -64,6 +66,7 @@ describe('image.selector0_1.spec tests for not required image selector',
                 await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();
                 //5. Verify that 'Save' button gets enabled:
                 await contentWizard.waitForSaveButtonEnabled();
+                await studioUtils.saveScreenshot("test_workflow_icon_2");
                 //6. Verify the workflow state:
                 let iconState = await contentWizard.getIconWorkflowState();
                 assert.equal(iconState, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS, "The content gets 'Ready for publishing'");
@@ -80,10 +83,11 @@ describe('image.selector0_1.spec tests for not required image selector',
                 await imageSelectorForm.clickOnImage(IMAGE_DISPLAY_NAME1);
                 //3. Click on 'Remove' button:
                 await imageSelectorForm.clickOnRemoveButton();
-                //4. Verify that the content remains valid:
-                let isInvalid = await contentWizard.isContentInvalid();
-                //5. Verify that default action is 'Mark as Ready':
+                await studioUtils.saveScreenshot("test_workflow_icon_3");
+                //4. Verify that default action is 'Mark as Ready':
                 await contentWizard.waitForMarkAsReadyButtonVisible();
+                //5. Verify that the content remains valid:
+                let isInvalid = await contentWizard.isContentInvalid();
                 assert.isFalse(isInvalid, "The content remains valid after removing the selected image");
                 //7. Remove button should be not visible:
                 await imageSelectorForm.waitForRemoveButtonNotDisplayed();

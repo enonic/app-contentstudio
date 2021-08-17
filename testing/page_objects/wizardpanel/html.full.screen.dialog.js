@@ -18,7 +18,7 @@ class HtmlFullScreenDialog extends Page {
     }
 
     waitForDialogLoaded() {
-        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_open_full_screen_dialog');
             throw new Error('Full Screen Dialog must be opened!' + err);
         });

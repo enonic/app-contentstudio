@@ -31,11 +31,13 @@ class LauncherPanel extends Page {
 
     async clickOnUsersLink() {
         await this.waitForElementDisplayed(this.usersLink, appConst.mediumTimeout);
-        return await this.clickOnElement(this.usersLink);
+        await this.clickOnElement(this.usersLink);
+        return await this.pause(500);
     }
 
     async clickOnContentStudioLink() {
         await this.waitForElementDisplayed(this.contentStudioLink, appConst.longTimeout);
+        await this.waitForElementEnabled(this.contentStudioLink, appConst.longTimeout);
         await this.clickOnElement(this.contentStudioLink);
         return await this.pause(1000);
     }
@@ -65,5 +67,6 @@ class LauncherPanel extends Page {
             return false;
         })
     }
-};
+}
+
 module.exports = LauncherPanel;

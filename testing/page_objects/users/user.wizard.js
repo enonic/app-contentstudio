@@ -188,11 +188,16 @@ class UserWizard extends wizards.WizardPanel {
         })
     }
 
-    waitForOpened() {
-        return this.waitForElementDisplayed(this.displayNameInput, appConst.mediumTimeout).catch(err => {
+    async waitForOpened() {
+        try {
+            await this.waitForElementDisplayed(this.displayNameInput, appConst.mediumTimeout);
+            return await this.pause(500);
+        } catch (err) {
+            await this.saveScreenshot("err_user_wizard");
             throw new Error('User Wizard is not loaded! ' + err);
-        });
+        }
     }
 }
+
 module.exports = UserWizard;
 
