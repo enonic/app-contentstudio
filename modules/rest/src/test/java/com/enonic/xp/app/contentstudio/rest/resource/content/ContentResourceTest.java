@@ -1995,7 +1995,7 @@ public class ContentResourceTest
             .thenReturn( Contents.from( content ) );
 
         AbstractContentQueryResultJson result =
-            contentResource.query( new ContentQueryJson( "", 0, 10, new ArrayList<>(), null, null, null, null ) );
+            contentResource.query( new ContentQueryJson( "", 0, 10, new ArrayList<>(), null, null, null, null, null ) );
 
         assertEquals( 1, result.getContents().size() );
         assertTrue( result.getContents().contains( new ContentIdJson( content.getId() ) ) );
@@ -2033,7 +2033,7 @@ public class ContentResourceTest
             .thenReturn( Contents.from( content ) );
 
         AbstractContentQueryResultJson result = contentResource.selectorQuery(
-            new ContentTreeSelectorQueryJson( "", 0, 10, null, null, null, new ArrayList<>(), new ArrayList<>(), null, null, null ) );
+            new ContentTreeSelectorQueryJson( "", 0, 10, null, null, null, new ArrayList<>(), new ArrayList<>(), null, null, null, false ) );
 
         assertEquals( 1, result.getContents().size() );
         assertTrue( result.getContents().contains( new ContentIdJson( content.getId() ) ) );
@@ -2428,7 +2428,7 @@ public class ContentResourceTest
                              .build() );
 
         List<ContentIdJson> result =
-            contentResource.listChildrenIds( parentContent.getId().toString(), ChildOrder.defaultOrder().toString() );
+            contentResource.listChildrenIds( parentContent.getId().toString(), ChildOrder.defaultOrder().toString(), false );
 
         assertTrue( result.contains( new ContentIdJson( content1.getId() ) ) );
         assertTrue( result.contains( new ContentIdJson( content2.getId() ) ) );
