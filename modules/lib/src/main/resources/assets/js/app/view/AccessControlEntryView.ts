@@ -107,22 +107,24 @@ export class AccessControlEntryView
         return ace;
     }
 
+    // eslint-disable-next-line complexity
     public static getAccessValueFromEntry(ace: AccessControlEntry): Access {
+        if (ace.getDeniedPermissions().length > 0) {
+            return Access.CUSTOM;
+        }
 
-        if (ace.getDeniedPermissions().length === 0) {
-            let allowedPermissions = ace.getAllowedPermissions();
-            if (this.onlyFullAccess(allowedPermissions)) {
-                return Access.FULL;
-            }
-            if (this.canOnlyPublish(allowedPermissions)) {
-                return Access.PUBLISH;
-            }
-            if (this.canOnlyWrite(allowedPermissions)) {
-                return Access.WRITE;
-            }
-            if (this.canOnlyRead(allowedPermissions)) {
-                return Access.READ;
-            }
+        const allowedPermissions = ace.getAllowedPermissions();
+        if (this.onlyFullAccess(allowedPermissions)) {
+            return Access.FULL;
+        }
+        if (this.canOnlyPublish(allowedPermissions)) {
+            return Access.PUBLISH;
+        }
+        if (this.canOnlyWrite(allowedPermissions)) {
+            return Access.WRITE;
+        }
+        if (this.canOnlyRead(allowedPermissions)) {
+            return Access.READ;
         }
         return Access.CUSTOM;
     }
@@ -172,20 +174,25 @@ export class AccessControlEntryView
         };
     }
 
-    /*eslint complexity: ["error", 5]*/
+    // eslint-disable-next-line complexity
     private getPermissionsByAccess(access: Access): Permission[] {
-        switch (access) {
-            case Access.FULL:
-                return this.getFullPermissions();
-            case Access.PUBLISH:
-                return this.getPublishPermissions();
-            case Access.WRITE:
-                return this.getWritePermissions();
-            case Access.READ:
-                return this.getReadPermissions();
-            default:
-                return [];
+        if (access === Access.FULL) {
+            return this.getFullPermissions();
         }
+
+        if (access === Access.PUBLISH) {
+            return this.getPublishPermissions();
+        }
+
+        if (access === Access.WRITE) {
+            return this.getWritePermissions();
+        }
+
+        if (access === Access.READ) {
+            return this.getReadPermissions();
+        }
+
+        return [];
     }
 
     private getFullPermissions(): Permission[] {
