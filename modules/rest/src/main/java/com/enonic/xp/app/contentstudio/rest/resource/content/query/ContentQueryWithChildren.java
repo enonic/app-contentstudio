@@ -1,21 +1,10 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.query;
 
-import java.util.stream.Collectors;
-
-import com.enonic.xp.content.ContentPath;
-import com.enonic.xp.content.ContentPaths;
-import com.enonic.xp.content.ContentQuery;
-import com.enonic.xp.content.ContentService;
-import com.enonic.xp.content.FindContentIdsByQueryResult;
+import com.enonic.xp.content.*;
 import com.enonic.xp.index.ChildOrder;
-import com.enonic.xp.query.expr.CompareExpr;
-import com.enonic.xp.query.expr.ConstraintExpr;
-import com.enonic.xp.query.expr.FieldExpr;
-import com.enonic.xp.query.expr.FieldOrderExpr;
-import com.enonic.xp.query.expr.LogicalExpr;
-import com.enonic.xp.query.expr.OrderExpr;
-import com.enonic.xp.query.expr.QueryExpr;
-import com.enonic.xp.query.expr.ValueExpr;
+import com.enonic.xp.query.expr.*;
+
+import java.util.stream.Collectors;
 
 public class ContentQueryWithChildren
 {
@@ -29,6 +18,8 @@ public class ContentQueryWithChildren
 
     private final ContentService contentService;
 
+    private final boolean includeArchive;
+
     private ContentQueryWithChildren( Builder builder )
     {
         this.contentsPaths = builder.contentsPaths.build();
@@ -36,6 +27,7 @@ public class ContentQueryWithChildren
         this.size = builder.size;
         this.from = builder.from;
         this.contentService = builder.contentService;
+        this.includeArchive = builder.includeArchive;
     }
 
     private QueryExpr constructExprToFindChildren()
@@ -73,8 +65,15 @@ public class ContentQueryWithChildren
             return FindContentIdsByQueryResult.empty();
         }
         final QueryExpr expr = constructExprToFindChildren();
-        final ContentQuery query = ContentQuery.create().from( this.from ).size( this.size ).queryExpr( expr ).build();
-        return this.contentService.find( query );
+
+        final ContentQuery query = ContentQuery.create()
+                .from( this.from )
+                .size( this.size )
+                .queryExpr( expr )
+                .includeArchive( this.includeArchive )
+                .build();
+
+        return this.contentService.find(query);
     }
 
     public FindContentIdsByQueryResult findOrdered()
@@ -84,7 +83,13 @@ public class ContentQueryWithChildren
             return FindContentIdsByQueryResult.empty();
         }
         final QueryExpr expr = constructExprToFindOrdered();
-        final ContentQuery query = ContentQuery.create().from( this.from ).size( this.size ).queryExpr( expr ).build();
+        final ContentQuery query = ContentQuery.create()
+                .from( this.from )
+                .size( this.size )
+                .queryExpr( expr )
+                .includeArchive( this.includeArchive )
+                .build();
+
         return this.contentService.find( query );
     }
 
@@ -104,6 +109,8 @@ public class ContentQueryWithChildren
         private int from = 0;
 
         private ContentService contentService;
+
+        private boolean includeArchive = false;
 
         private Builder()
         {
@@ -136,6 +143,12 @@ public class ContentQueryWithChildren
         public Builder contentService( ContentService contentService )
         {
             this.contentService = contentService;
+            return this;
+        }
+
+        public Builder includeArchive( boolean includeArchive )
+        {
+            this.includeArchive = includeArchive;
             return this;
         }
 

@@ -39,6 +39,7 @@ public class RestoreRunnableTask
         final long childrenIds = ContentQueryWithChildren.create().
             contentService( this.contentService ).
             contentsPaths( contentService.getByIds( new GetContentByIdsParams( contentToRestoreList ) ).getPaths() ).
+            includeArchive( true ).
             build().
             find().
             getTotalHits();
