@@ -173,23 +173,18 @@ export class AccessControlEntryView
     }
 
     private getPermissionsByAccess(access: Access): Permission[] {
-        if (access === Access.FULL) {
-            return this.getFullPermissions();
+        switch (access) {
+            case Access.FULL:
+                return this.getFullPermissions();
+            case Access.PUBLISH:
+                return this.getPublishPermissions();
+            case Access.WRITE:
+                return this.getWritePermissions();
+            case Access.READ:
+                return this.getReadPermissions();
+            default:
+                return [];
         }
-
-        if (access === Access.PUBLISH) {
-            return this.getPublishPermissions();
-        }
-
-        if (access === Access.WRITE) {
-            return this.getWritePermissions();
-        }
-
-        if (access === Access.READ) {
-            return this.getReadPermissions();
-        }
-
-        return [];
     }
 
     private getFullPermissions(): Permission[] {
