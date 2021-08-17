@@ -20,7 +20,11 @@ const xpath = {
 class ShortcutForm extends Page {
 
     get targetOptionsFilterInput() {
-        return lib.FORM_VIEW + lib.CONTENT_SELECTOR + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return xpath.stepForm + lib.FORM_VIEW + lib.CONTENT_SELECTOR + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+    }
+
+    get removeTargetIcon() {
+        return xpath.stepForm + lib.CONTENT_SELECTED_OPTION_VIEW + lib.REMOVE_ICON;
     }
 
     get addParametersButton() {
@@ -139,6 +143,18 @@ class ShortcutForm extends Page {
         let loaderComboBox = new LoaderComboBox();
         await this.typeTextInInput(this.targetOptionsFilterInput, displayName);
         return await loaderComboBox.selectOption(displayName);
+    }
+
+    async getSelectedTargetDisplayName() {
+        let locator = xpath.stepForm + lib.CONTENT_SELECTED_OPTION_VIEW + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
+    async clickOnRemoveTargetIcon() {
+        await this.waitForElementDisplayed(this.removeTargetIcon, appConst.mediumTimeout);
+        await this.clickOnElement(this.removeTargetIcon);
+        return await this.pause(200);
     }
 }
 
