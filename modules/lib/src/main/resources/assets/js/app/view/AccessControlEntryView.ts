@@ -172,6 +172,7 @@ export class AccessControlEntryView
         };
     }
 
+    /*eslint complexity: ["error", 5]*/
     private getPermissionsByAccess(access: Access): Permission[] {
         switch (access) {
             case Access.FULL:
