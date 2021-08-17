@@ -880,7 +880,7 @@ class ContentWizardPanel extends Page {
         let selector = XPATH.container + XPATH.markAsReadyButton;
         await this.waitForMarkAsReadyButtonVisible();
         await this.clickOnElement(selector);
-        return await this.pause(700);
+        return await this.pause(1000);
     }
 
     async clickOnUnpublishButton() {

@@ -23,7 +23,7 @@ class LoaderComboBox extends Page {
         }, {timeout: appConst.longTimeout, timeoutMsg: 'option was not found! ' + optionDisplayName});
         let optionElement = await this.getDisplayedElements(optionSelector);
         await optionElement[0].click();
-        return await this.pause(200);
+        return await this.pause(300);
     }
 
     async selectOptionByName(optionName) {

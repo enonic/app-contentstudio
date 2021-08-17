@@ -221,7 +221,8 @@ class ImageSelectorForm extends OccurrencesFormView {
 
     async clickOnRemoveButton() {
         await this.waitForRemoveButtonDisplayed();
-        return await this.clickOnElement(this.removeButton);
+        await this.clickOnElement(this.removeButton);
+        return await this.pause(300);
     }
 
     //Edit image button
