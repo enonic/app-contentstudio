@@ -179,8 +179,7 @@ class ImageSelectorForm extends OccurrencesFormView {
     }
 
     waitForEmptyOptionsMessage() {
-        return this.waitForElementDisplayed(`//div[contains(@class,'empty-options') and text()='No matching items']`,
-            appConst.TIMEOUT_4).catch(err => {
+        return this.waitForElementDisplayed(XPATH.container + lib.EMPTY_OPTIONS_DIV, appConst.longTimeout).catch(err => {
             this.saveScreenshot("err_empty_options");
             return false;
         });

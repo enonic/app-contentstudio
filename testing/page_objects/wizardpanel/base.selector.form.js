@@ -17,6 +17,11 @@ class BaseSelectorForm extends Page {
         return await loaderComboBox.pause(300);
     }
 
+    async typeTextInOptionsFilterInput(text) {
+        await this.typeTextInInput(this.optionsFilterInput, text);
+        return await this.pause(500);
+    }
+
     //Selects an option by the name
     async selectOptionByName(optionName) {
         let loaderComboBox = new LoaderComboBox();
@@ -37,5 +42,15 @@ class BaseSelectorForm extends Page {
     isOptionFilterDisplayed() {
         return this.isElementDisplayed(this.optionsFilterInput);
     }
+
+    async waitForEmptyOptionsMessage() {
+        try {
+            return await this.waitForElementDisplayed(lib.EMPTY_OPTIONS_DIV, appConst.longTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_empty_opt"));
+            throw new Error("Empty options text is not visible " + err);
+        }
+    }
 }
+
 module.exports = BaseSelectorForm;
