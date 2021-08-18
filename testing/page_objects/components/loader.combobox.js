@@ -56,11 +56,15 @@ class LoaderComboBox extends Page {
             this.saveScreenshot(appConst.generateRandomName("err_combobox"));
             throw new Error(err);
         }
-
     }
 
-    getOptionDisplayNames() {
-        //TODO implement it
+    async getOptionDisplayNames(xpath) {
+        let locator = lib.SLICK_VIEW_PORT + lib.H6_DISPLAY_NAME;
+        if (xpath === undefined) {
+            xpath = '';
+        }
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
     }
 }
 
