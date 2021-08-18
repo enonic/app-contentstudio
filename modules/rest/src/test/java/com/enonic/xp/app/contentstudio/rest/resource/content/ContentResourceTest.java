@@ -2014,7 +2014,7 @@ public class ContentResourceTest
             .thenReturn( Contents.from( content ) );
 
         AbstractContentQueryResultJson result =
-            contentResource.query( new ContentQueryJson( "", 0, 10, new ArrayList<>(), null, null, null, null, null ) );
+            contentResource.query( new ContentQueryJson( "", 0, 10, new ArrayList<>(), null, null, null, null, false ) );
 
         assertEquals( 1, result.getContents().size() );
         assertTrue( result.getContents().contains( new ContentIdJson( content.getId() ) ) );
