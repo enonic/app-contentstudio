@@ -39,6 +39,13 @@ class PageTemplateForm extends Page {
             return this.pause(1000);
         });
     }
-};
+
+    async getSupportSelectedOptions() {
+        let locator = XPATH.supportsCombobox + "//div[contains(@id,'ContentTypeSelectedOptionsView')]" + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
+    }
+}
+
 module.exports = PageTemplateForm;
 

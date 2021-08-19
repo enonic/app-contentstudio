@@ -153,6 +153,7 @@ module.exports = Object.freeze({
     COMPONENT_VIEW_MENU_ITEMS: {
         INSERT: 'Insert',
         SAVE_AS_FRAGMENT: 'Save as Fragment',
+        SAVE_AS_TEMPLATE: "Save as Template",
         DETACH_FROM_FRAGMENT: 'Detach from fragment',
         INSPECT: 'Inspect',
         REMOVE: 'Remove',
