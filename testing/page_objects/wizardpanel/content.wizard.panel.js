@@ -360,6 +360,7 @@ class ContentWizardPanel extends Page {
     async clickOnShowComponentViewToggler() {
         try {
             await this.waitForElementDisplayed(this.showComponentViewToggler, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.showComponentViewToggler, appConst.mediumTimeout);
             await this.clickOnElement(this.showComponentViewToggler);
             return await this.pause(200);
         } catch (err) {
@@ -667,7 +668,6 @@ class ContentWizardPanel extends Page {
         await this.switchToLiveEditFrame();
         await this.doFilterControllersAndClickOnOption(pageControllerDisplayName);
         await this.switchToParentFrame();
-        this.saveScreenshot(contentBuilder.generateRandomName("controller"));
         return await this.waitForContextWindowVisible();
     }
 

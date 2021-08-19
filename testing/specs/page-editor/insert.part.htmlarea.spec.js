@@ -184,6 +184,8 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await studioUtils.saveScreenshot("fragment-template-context-menu");
             //6. Verify that 'Save as Fragment' menu item is not present in the menu:
             await pageComponentView.waitForMenuItemNotDisplayed(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
+            //7. Verify that 'Save as Template' menu item is not present in the menu:
+            await pageComponentView.waitForMenuItemNotDisplayed(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_TEMPLATE);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
