@@ -7,6 +7,7 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
 
+import com.enonic.xp.app.contentstudio.rest.resource.archive.ArchiveResource;
 import com.enonic.xp.app.contentstudio.rest.resource.content.page.PageResource;
 import com.enonic.xp.app.contentstudio.rest.resource.content.page.PageTemplateResource;
 import com.enonic.xp.app.contentstudio.rest.resource.content.page.fragment.FragmentResource;
@@ -24,7 +25,7 @@ public final class CmsResourceDynamicFeature
     private final Set<Class<? extends JaxRsComponent>> supportedResources =
         Set.of( ContentResource.class, ContentImageResource.class, ContentIconResource.class, ContentMediaResource.class,
                 IssueResource.class, FilterByContentResource.class, ContentTypeResource.class, PageResource.class,
-                PageTemplateResource.class, FragmentResource.class, XDataResource.class );
+                PageTemplateResource.class, FragmentResource.class, XDataResource.class, ArchiveResource.class);
 
 
     @Override
