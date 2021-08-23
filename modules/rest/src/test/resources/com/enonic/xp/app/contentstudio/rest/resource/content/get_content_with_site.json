@@ -57,7 +57,7 @@
   "displayName": "My Site",
   "editable": true,
   "hasChildren": false,
-  "iconUrl": "/admin/v2/rest/schema/content/icon/portal:site?hash=85c1537f2ca690ae18093ff406706abd",
+  "iconUrl": "/admin/rest-v2/cs/schema/content/icon/portal:site?hash=85c1537f2ca690ae18093ff406706abd",
   "id": "aaa",
   "inherit": [],
   "inheritPermissions": true,

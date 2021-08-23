@@ -18,20 +18,14 @@ public class FormJson
 
     private final List<FormItemJson> items;
 
-    private final LocaleMessageResolver localeMessageResolver;
-
-    private final InlineMixinResolver inlineMixinResolver;
-
     public FormJson( final Form form, final LocaleMessageResolver localeMessageResolver, final InlineMixinResolver inlineMixinResolver )
     {
-        this.localeMessageResolver = localeMessageResolver;
-        this.inlineMixinResolver = inlineMixinResolver;
         this.form = inlineMixinResolver.inlineForm( form );
 
         items = new ArrayList<>( this.form.size() );
         for ( FormItem formItem : this.form )
         {
-            items.add( FormItemJsonFactory.create( formItem, this.localeMessageResolver ) );
+            items.add( FormItemJsonFactory.create( formItem, localeMessageResolver ) );
         }
         FormDefaultValuesJsonProcessor.setDefaultValues( this.form, this );
     }
