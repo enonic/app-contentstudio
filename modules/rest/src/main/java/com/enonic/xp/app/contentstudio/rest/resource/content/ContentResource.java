@@ -207,7 +207,7 @@ import static java.util.Optional.ofNullable;
 @Path(REST_ROOT + "{content:(content|" + CMS_PATH + "/content)}")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
-@Component(immediate = true, property = "group=v2", configurationPid = "com.enonic.app.contentstudio")
+@Component(immediate = true, property = "group=v2cs", configurationPid = "com.enonic.app.contentstudio")
 public final class ContentResource
     implements JaxRsComponent
 {

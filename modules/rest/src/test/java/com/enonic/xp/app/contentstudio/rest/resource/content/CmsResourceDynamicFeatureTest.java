@@ -37,7 +37,7 @@ public class CmsResourceDynamicFeatureTest
         throws IOException
     {
         final UriInfo uriInfo = Mockito.mock( UriInfo.class );
-        Mockito.when( uriInfo.getPath() ).thenReturn( "/admin/v2/rest/content/update" );
+        Mockito.when( uriInfo.getPath() ).thenReturn( "/admin/rest-v2/cs/content/update" );
 
         Mockito.when( context.getUriInfo() ).thenReturn( uriInfo );
         this.filter.filter( context );
@@ -50,7 +50,7 @@ public class CmsResourceDynamicFeatureTest
         throws IOException
     {
         final UriInfo uriInfo = Mockito.mock( UriInfo.class );
-        Mockito.when( uriInfo.getPath() ).thenReturn( "/admin/v2/rest/cms/project1/layer1/update" );
+        Mockito.when( uriInfo.getPath() ).thenReturn( "/admin/rest-v2/cs/cms/project1/layer1/update" );
 
         Mockito.when( context.getUriInfo() ).thenReturn( uriInfo );
         this.filter.filter( context );

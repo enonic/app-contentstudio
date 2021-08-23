@@ -17,4 +17,14 @@ public class PropertyValueJson
         this.value = value.getObject();
         this.type = value.getType().getName();
     }
+
+    public Object getValue()
+    {
+        return value;
+    }
+
+    public String getType()
+    {
+        return type;
+    }
 }

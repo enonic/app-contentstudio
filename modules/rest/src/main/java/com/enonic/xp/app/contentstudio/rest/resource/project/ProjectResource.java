@@ -68,7 +68,7 @@ import com.enonic.xp.web.multipart.MultipartItem;
 @Path(ResourceConstants.REST_ROOT + "project")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_ID, RoleKeys.ADMIN_LOGIN_ID})
-@Component(immediate = true, property = "group=v2")
+@Component(immediate = true, property = "group=v2cs")
 public final class ProjectResource
     implements JaxRsComponent
 {

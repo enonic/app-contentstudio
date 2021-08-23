@@ -7,9 +7,9 @@ import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummary
 import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {Application} from 'lib-admin-ui/application/Application';
 import {DlEl} from 'lib-admin-ui/dom/DlEl';
-import {GetApplicationRequest} from 'lib-admin-ui/application/GetApplicationRequest';
 import {DdDtEl} from 'lib-admin-ui/dom/DdDtEl';
 import {ContentSummary} from '../../../../content/ContentSummary';
+import {GetApplicationRequest} from '../../../../resource/GetApplicationRequest';
 
 export class PropertiesWidgetItemView extends WidgetItemView {
 

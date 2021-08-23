@@ -36,7 +36,7 @@ public class FieldSetJson
         this.items = wrapFormItems( fieldSet.getFormItems(), localeMessageResolver );
     }
 
-    private static Iterable<FormItem> unwrapFormItems( final List<FormItemJson> items )
+    static Iterable<FormItem> unwrapFormItems( final List<FormItemJson> items )
     {
         final List<FormItem> formItems = new ArrayList<>( items.size() );
         for ( FormItemJson formItemJson : items )
@@ -46,7 +46,7 @@ public class FieldSetJson
         return formItems;
     }
 
-    private static List<FormItemJson> wrapFormItems( final FormItems items, final LocaleMessageResolver localeMessageResolver )
+    static List<FormItemJson> wrapFormItems( final FormItems items, final LocaleMessageResolver localeMessageResolver )
     {
         final List<FormItemJson> formItemJsonList = new ArrayList<>();
         for ( FormItem formItem : items )
