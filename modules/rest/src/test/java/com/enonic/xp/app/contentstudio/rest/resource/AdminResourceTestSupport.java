@@ -7,6 +7,6 @@ public abstract class AdminResourceTestSupport
 {
     public AdminResourceTestSupport()
     {
-        super( ResourceConstants.REST_ROOT );
+        super( ResourceConstants.REST_ROOT.substring( 1 ) );
     }
 }

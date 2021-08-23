@@ -16,13 +16,13 @@ import javax.ws.rs.core.Response;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
-import com.enonic.xp.app.contentstudio.rest.resource.widget.json.WidgetDescriptorJson;
 import com.enonic.xp.admin.widget.WidgetDescriptor;
 import com.enonic.xp.admin.widget.WidgetDescriptorService;
 import com.enonic.xp.app.ApplicationDescriptor;
 import com.enonic.xp.app.ApplicationDescriptorService;
 import com.enonic.xp.app.ApplicationKey;
+import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
+import com.enonic.xp.app.contentstudio.rest.resource.widget.json.WidgetDescriptorJson;
 import com.enonic.xp.descriptor.Descriptors;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.jaxrs.JaxRsComponent;
@@ -35,7 +35,7 @@ import static java.util.stream.Collectors.toList;
 @Path(ResourceConstants.REST_ROOT + "widget")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
-@Component(immediate = true, property = "group=v2")
+@Component(immediate = true, property = "group=v2cs")
 public class WidgetResource
     implements JaxRsComponent
 {

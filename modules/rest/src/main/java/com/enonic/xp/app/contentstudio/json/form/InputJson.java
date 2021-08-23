@@ -155,12 +155,9 @@ public class InputJson
 
         for ( final Map.Entry<String, String> attribute : property.getAttributes().entrySet() )
         {
-            if ( InputTypeName.RADIO_BUTTON.equals( this.input.getInputType() ) )
+            if ( InputTypeName.RADIO_BUTTON.equals( this.input.getInputType() ) && "i18n".equals( attribute.getKey() ) )
             {
-                if ( "i18n".equals( attribute.getKey() ) )
-                {
-                    propertyValue = this.localeMessageResolver.localizeMessage( attribute.getValue(), propertyValue );
-                }
+                propertyValue = this.localeMessageResolver.localizeMessage( attribute.getValue(), propertyValue );
             }
             json.put( "@" + attribute.getKey(), attribute.getValue() );
         }

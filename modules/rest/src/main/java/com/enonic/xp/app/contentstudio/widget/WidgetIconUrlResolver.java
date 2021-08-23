@@ -10,10 +10,6 @@ public class WidgetIconUrlResolver
 {
     private static final String REST_SCHEMA_ICON_URL = ResourceConstants.REST_ROOT + "widget/icon/";
 
-    public WidgetIconUrlResolver()
-    {
-    }
-
     public String resolve( final WidgetDescriptor widgetDescriptor )
     {
         if ( widgetDescriptor != null && widgetDescriptor.getIcon() != null )
