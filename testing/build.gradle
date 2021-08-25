@@ -12,17 +12,12 @@ configurations {
     distro
 }
 
-enonic {
-    publishRepo = 'inhouse'
-}
-
 ext {
     unpackDir = "$buildDir/install"
     distroDir = "$unpackDir/enonic-xp-generic-$xpVersion"
     deployDir = "$distroDir/home/deploy"
     appDir = "$projectDir/test-applications"
     seleniumDir = "$projectDir/test-applications/selenium"
-    mochaResultsDir = "$buildDir/mochawesome-report"
     xpHome = "$distroDir/home"
     configDir = "$xpHome/config"
     xpServer = new ServerInstance()
@@ -83,25 +78,6 @@ task deployContentStudio( type: DefaultTask ) {
         }
     }
     mustRunAfter unpackDistro
-}
-
-def createAppendix( classifier ) {
-    return hasProperty( 'artifactAppendix' ) ? "${artifactAppendix}-${classifier}" : classifier
-}
-
-task zipReport( type: Zip ) {
-    from mochaResultsDir
-    include '*'
-    include '*/*'
-    classifier createAppendix( 'mochaReport' )
-}
-
-publishing {
-    publications {
-        mavenJava( MavenPublication ) {
-            artifact zipReport
-        }
-    }
 }
 
 task startServer( dependsOn: [unpackDistro, copyConfig, deployContentStudio] ) {
