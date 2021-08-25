@@ -40,15 +40,15 @@ class PageComponentView extends Page {
         return await this.waitForClosed();
     }
 
-    clickOnComponent(displayName) {
-        let selector = xpath.container + lib.itemByDisplayName(displayName);
-        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).then(() => {
-            return this.clickOnElement(selector);
-        }).catch(err => {
+    async clickOnComponent(displayName) {
+        try {
+            let selector = xpath.container + lib.itemByDisplayName(displayName);
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            await this.clickOnElement(selector);
+            return await this.pause(400);
+        } catch (err) {
             throw new Error("Page Component View - Error when clicking on the component " + err);
-        }).then(() => {
-            return this.pause(400);
-        });
+        }
     }
 
     async openMenu(componentName) {
@@ -58,7 +58,7 @@ class PageComponentView extends Page {
             await this.clickOnElement(menuButton);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot('err_component_view');
+            await this.saveScreenshot(appConst.generateRandomName('err_component_view'));
             throw new Error('Page Component View, open menu - Error when clicking on `Menu button`: ' + err);
         }
     }
@@ -70,7 +70,7 @@ class PageComponentView extends Page {
             await this.clickOnElement(menuButton);
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_component_view');
+            await this.saveScreenshot(appConst.generateRandomName('err_component_view'));
             throw new Error('Page Component View, open menu - Error when clicking on `Menu button`: ' + err);
         }
     }
@@ -123,16 +123,16 @@ class PageComponentView extends Page {
         return await this.waitForClosed();
     }
 
-    clickOnMenuItem(menuItem) {
-        let selector = xpath.contextMenuItemByName(menuItem);
-        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot("err_menu_item");
+    async clickOnMenuItem(menuItem) {
+        try {
+            let selector = xpath.contextMenuItemByName(menuItem);
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            await this.clickOnElement(selector);
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_menu_item"));
             throw new Error("Page Component View: Menu Item still not visible - " + menuItem + " " + err);
-        }).then(() => {
-            return this.clickOnElement(selector);
-        }).then(() => {
-            return this.pause(300);
-        });
+        }
     }
 
     waitForOpened() {
@@ -149,7 +149,7 @@ class PageComponentView extends Page {
         let source = await this.findElement(sourceElem);
         let destination = await this.findElement(destinationElem);
         await source.dragAndDrop(destination);
-        await this.pause(1000);
+        return await this.pause(1000);
     }
 
     async getComponentDescription(name, index) {

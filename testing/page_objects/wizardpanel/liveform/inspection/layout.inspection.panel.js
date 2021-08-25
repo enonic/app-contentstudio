@@ -18,6 +18,10 @@ class LayoutInspectionPanel extends Page {
         return xpath.container + xpath.layoutDropdown;
     }
 
+    get layoutDropdownHandle() {
+        return xpath.container + xpath.layoutDropdown + lib.DROP_DOWN_HANDLE;
+    }
+
     async typeNameAndSelectLayout(displayName) {
         let optionSelector = lib.slickRowByDisplayName(xpath.layoutDropdown, displayName);
         await this.waitForElementDisplayed(this.layoutDropdown + lib.DROPDOWN_OPTION_FILTER_INPUT, appConst.longTimeout);
@@ -32,6 +36,20 @@ class LayoutInspectionPanel extends Page {
             this.saveScreenshot('err_load_inspect_panel');
             throw new Error('Live Edit, Layout Inspection Panel is not loaded' + err);
         });
+    }
+
+    async clickOnLayoutDropdownHandle() {
+        await this.waitForElementDisplayed(this.layoutDropdownHandle, appConst.mediumTimeout);
+        await this.clickOnElement(this.layoutDropdownHandle);
+        return await this.pause(300);
+    }
+
+    async clickOnOptionInLayoutDropdown(option) {
+        let optionSelector = lib.slickRowByDisplayName(xpath.layoutDropdown, option);
+        await this.waitForElementDisplayed(optionSelector, appConst.mediumTimeout);
+        await this.clickOnElement(optionSelector);
+        await this.waitForSpinnerNotVisible();
+        return await this.pause(2000);
     }
 }
 
