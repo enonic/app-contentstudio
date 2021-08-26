@@ -28,10 +28,11 @@ class SortContentDialog extends Page {
         try {
             await this.waitForSaveButtonEnabled();
             await this.clickOnElement(this.saveButton);
+            await this.waitForSpinnerNotVisible();
             await this.waitForDialogClosed();
             return await this.pause(1200);
         } catch (err) {
-            this.saveScreenshot('err_click_sort_save_button');
+            await this.saveScreenshot('err_click_sort_save_button');
             throw new Error(err);
         }
     }
@@ -49,7 +50,7 @@ class SortContentDialog extends Page {
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementNotDisplayed(XPATH.container, appConst.longTimeout).catch(err => {
             this.saveScreenshot('err_close_sort_content_dialog');
             throw new Error('Sort content dialog must be closed' + err);
         })
