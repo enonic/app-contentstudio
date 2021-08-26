@@ -1,6 +1,6 @@
 import {AggregationTypeWrapperJson} from 'lib-admin-ui/aggregation/AggregationTypeWrapperJson';
 import {ContentMetadata} from '../../content/ContentMetadata';
-import {ContentIdBaseItemJson} from './ResolvePublishContentResultJson';
+import {ContentIdBaseItemJson} from './ContentIdBaseItemJson';
 
 export interface ContentQueryResultJson<T extends ContentIdBaseItemJson> {
 
