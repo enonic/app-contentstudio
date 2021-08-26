@@ -93,6 +93,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishContent
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ReorderChildJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ReorderChildrenJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResetContentInheritJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolveContentForDeleteResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolvePublishContentResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolvePublishDependenciesJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.RevertContentJson;
@@ -127,6 +128,7 @@ import com.enonic.xp.content.ContentConstants;
 import com.enonic.xp.content.ContentDependencies;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentIds;
+import com.enonic.xp.content.ContentIndexPath;
 import com.enonic.xp.content.ContentListMetaData;
 import com.enonic.xp.content.ContentName;
 import com.enonic.xp.content.ContentNotFoundException;
@@ -172,6 +174,8 @@ import com.enonic.xp.extractor.BinaryExtractor;
 import com.enonic.xp.extractor.ExtractedData;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.jaxrs.JaxRsComponent;
+import com.enonic.xp.query.filter.BooleanFilter;
+import com.enonic.xp.query.filter.IdFilter;
 import com.enonic.xp.query.parser.QueryParser;
 import com.enonic.xp.repository.IndexException;
 import com.enonic.xp.schema.content.ContentTypeService;
@@ -211,11 +215,11 @@ import static java.util.Optional.ofNullable;
 public final class ContentResource
     implements JaxRsComponent
 {
-    private static final Set<String> ALLOWED_PROTOCOLS = Set.of( "http", "https" );
-
     public static final String DEFAULT_SORT_FIELD = "modifiedTime";
 
     public static final int GET_ALL_SIZE_FLAG = -1;
+
+    private static final Set<String> ALLOWED_PROTOCOLS = Set.of( "http", "https" );
 
     private static final String DEFAULT_FROM_PARAM = "0";
 
@@ -1121,7 +1125,7 @@ public final class ContentResource
 
     @POST
     @Path("resolveForDelete")
-    public List<ContentIdJson> resolveForDelete( final ContentIdsJson params )
+    public ResolveContentForDeleteResultJson resolveForDelete( final ContentIdsJson params )
     {
         final Contents parents = contentService.getByIds( new GetContentByIdsParams( params.getContentIds() ) );
 
@@ -1132,10 +1136,28 @@ public final class ContentResource
             .build()
             .find();
 
-        return Stream.concat( parents.getIds().stream(),
-                              children.getContentIds().stream().filter( id -> !parents.getIds().contains( id ) ) )
-            .map( ContentIdJson::new )
-            .collect( Collectors.toList() );
+        final List<ContentId> idsToRemove =
+            Stream.concat( parents.getIds().stream(), children.getContentIds().stream().filter( id -> !parents.getIds().contains( id ) ) )
+                .collect( Collectors.toList() );
+
+        final List<String> idsToRemoveAsStrings = idsToRemove.stream().map( ContentId::toString ).collect( Collectors.toList() );
+
+        final BooleanFilter inboundDependenciesFilter = BooleanFilter.create()
+            .must( BooleanFilter.create()
+                       .should(
+                           IdFilter.create().fieldName( ContentIndexPath.REFERENCES.getPath() ).values( idsToRemoveAsStrings ).build() )
+                       .build() )
+            .mustNot( IdFilter.create().fieldName( ContentIndexPath.ID.getPath() ).values( idsToRemoveAsStrings ).build() )
+            .build();
+
+        final ContentIds inboundDependencies =
+            this.contentService.find( ContentQuery.create().queryFilter( inboundDependenciesFilter ).size( GET_ALL_SIZE_FLAG ).build() )
+                .getContentIds();
+
+        return ResolveContentForDeleteResultJson.create()
+            .addContentIds( idsToRemove )
+            .addInboundDependencies( inboundDependencies.getSet() )
+            .build();
     }
 
     private Stream<ContentId> filterIdsByStatus( final ContentIds ids, final Collection<CompareStatus> statuses )

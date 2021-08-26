@@ -15,7 +15,6 @@ import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {ContentId} from '../content/ContentId';
-import {CmsContentResourceRequest} from '../resource/CmsContentResourceRequest';
 
 export interface DependantItemsDialogConfig
     extends ModalDialogWithConfirmationConfig {
@@ -283,7 +282,7 @@ export abstract class DependantItemsDialog
     protected loadDescendantIds(): Q.Promise<void> {
         const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
 
-        return this.createResolveDescendantsRequest().sendAndParse().then((resolvedIds: ContentId[]) => {
+        return this.resolveDescendants().then((resolvedIds: ContentId[]) => {
             this.resolvedIds = resolvedIds;
             this.dependantIds = resolvedIds.filter((resolveId: ContentId) => !ids.some((id: ContentId) => id.equals(resolveId)));
 
@@ -291,10 +290,11 @@ export abstract class DependantItemsDialog
         });
     }
 
-    protected createResolveDescendantsRequest(): CmsContentResourceRequest<ContentId[]> {
+    protected resolveDescendants(): Q.Promise<ContentId[]> {
         const contents: ContentSummaryAndCompareStatus[] = this.getContentsToLoad();
 
-        return new GetDescendantsOfContentsRequest().setContentPaths(contents.map(content => content.getContentSummary().getPath()));
+        return new GetDescendantsOfContentsRequest().setContentPaths(
+            contents.map(content => content.getContentSummary().getPath())).sendAndParse();
     }
 
     protected loadDescendants(from: number,
