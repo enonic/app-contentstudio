@@ -32,6 +32,16 @@ class CustomSelectorForm extends BaseSelectorForm {
         return await loaderComboBox.getOptionDisplayNames(XPATH.container);
     }
 
+    async waitForEmptyOptionsMessage() {
+        try {
+            let locator = XPATH.container + lib.EMPTY_OPTIONS_DIV;
+            return await this.waitForElementDisplayed(locator, appConst.longTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_empty_opt"));
+            throw new Error("Empty options text is not visible " + err);
+        }
+    }
+
 }
 
 module.exports = CustomSelectorForm;

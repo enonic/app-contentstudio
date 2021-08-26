@@ -88,9 +88,11 @@ describe('fragment.inspect.panel.spec - Select a site with not valid child and t
             await pageComponentView.openMenu(LAYOUT_3_COL);
             //3. Click on 'Save as Fragment' menu item. (Save the layout as fragment)
             await pageComponentView.clickOnMenuItem(appConst.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
-            await contentWizardPanel.pause(2000);
+            await contentWizardPanel.pause(7000);
+            await contentWizardPanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
             //5. Fragment Inspection Panel should be loaded automatically. Verify that path is updated in the dropdown:
             await fragmentInspectionPanel.clickOnFragmentDropdownHandle();
+            await studioUtils.saveScreenshot("fragment_inspect_panel_options");
             let actualOptions = await fragmentInspectionPanel.getFragmentDropdownOptions();
             //6. Verify that options in the dropdown list are refreshed:
             assert.equal(actualOptions.length, 2, "Two options should be present in the dropdown list");

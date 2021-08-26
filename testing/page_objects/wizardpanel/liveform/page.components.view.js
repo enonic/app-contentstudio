@@ -47,6 +47,7 @@ class PageComponentView extends Page {
             await this.clickOnElement(selector);
             return await this.pause(400);
         } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_component_click'));
             throw new Error("Page Component View - Error when clicking on the component " + err);
         }
     }

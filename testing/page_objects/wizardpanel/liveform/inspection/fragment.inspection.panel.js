@@ -49,7 +49,7 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
 
     async getFragmentDropdownOptions() {
         let locator = xpath.container + xpath.fragmentDropdown + lib.SLICK_ROW + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
 
