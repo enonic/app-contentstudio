@@ -22,7 +22,7 @@
     "mutation-observer": "^1.0.3",
     "promise-polyfill": "8.2.0",
     "q": "^1.5.1",
-    "whatwg-fetch": "^3.4.1"
+    "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
     "@types/ckeditor": "^4.9.10",
