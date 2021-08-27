@@ -618,30 +618,30 @@ class ContentWizardPanel extends Page {
         return contentSettingsForm.filterOptionsAndSelectLanguage(settings.language);
     }
 
-    doUnlockLiveEditor() {
-        return this.doOpenItemViewContextMenu().then(() => {
-            return this.clickOnCustomizeMenuItem();
-        })
+    async doUnlockLiveEditor() {
+        await this.doOpenItemViewContextMenu();
+        return await this.clickOnCustomizeMenuItem();
     }
 
-    doOpenItemViewContextMenu() {
-        let selector = `//div[contains(@id,'Panel') and contains(@class,'frame-container')]`;
-        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).then(() => {
-            return this.clickOnElement(selector);
-        }).then(() => {
-            return this.switchToLiveEditFrame();
-        }).then(() => {
-            return this.waitForElementDisplayed(XPATH.itemViewContextMenu, appConst.mediumTimeout);
-        }).catch(err => {
-            this.saveScreenshot("err_customize_menu_item");
+    async doOpenItemViewContextMenu() {
+        try {
+            let selector = `//div[contains(@id,'Panel') and contains(@class,'frame-container')]`;
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            await this.clickOnElement(selector);
+            await this.switchToLiveEditFrame();
+            await this.waitForElementDisplayed(XPATH.itemViewContextMenu, appConst.mediumTimeout);
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot("err_customize_menu_item");
             throw  new Error(`'Customize Page' menu item is not displayed` + err);
-        });
+        }
     }
 
-    // wait for 'Customize Page' context menu item
+// wait for 'Customize Page' context menu item
     async clickOnCustomizeMenuItem() {
-        let selector = XPATH.itemViewContextMenu + "//dl//dt[text()='Customize Page']";
-        await this.clickOnElement(selector);
+        let locator = XPATH.itemViewContextMenu + "//dl//dt[text()='Customize Page']";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
         return await this.pause(700);
     }
 
@@ -663,7 +663,7 @@ class ContentWizardPanel extends Page {
         return this.isClickable(this.controllerOptionFilterInput);
     }
 
-    //Select a page descriptor and wait for Context Window is loaded
+//Select a page descriptor and wait for Context Window is loaded
     async selectPageDescriptor(pageControllerDisplayName) {
         await this.switchToLiveEditFrame();
         await this.doFilterControllersAndClickOnOption(pageControllerDisplayName);
@@ -846,7 +846,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    //Clicks on publish-menu dropdown handler then click on Publish... menu item
+//Clicks on publish-menu dropdown handler then click on Publish... menu item
     async openPublishMenuAndPublish() {
         let contentPublishDialog = new ContentPublishDialog();
         let contentWizardPanel = new ContentWizardPanel();
@@ -902,7 +902,7 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(selector, appConst.shortTimeout);
     }
 
-    //Wait for 'Create Task' button gets default action in the Publish menu:
+//Wait for 'Create Task' button gets default action in the Publish menu:
     async waitForCreateTaskButtonDisplayed() {
         try {
             let selector = XPATH.container + XPATH.publishMenuButton + XPATH.createTaskButton;

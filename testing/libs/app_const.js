@@ -203,6 +203,8 @@ module.exports = Object.freeze({
         TEXTAREA_MAX_LENGTH: 'textarea_conf',
         TEXTLINE_MAX_LENGTH: 'textline_conf',
         TEXTLINE_REGEXP: 'text_line_regexp',
+        TEXTLINE_0_1: 'textline0_1',
+        TEXTLINE_1_0: 'textline1_0',
     },
     permissions: {
         FULL_ACCESS: `Full Access`,
