@@ -3,11 +3,13 @@
  */
 const OccurrencesFormView = require('./occurrences.form.view');
 const lib = require('../../libs/elements');
+const appConst = require('../../libs/app_const');
+
 const XPATH = {
     textLine: "//div[contains(@id,'TextLine')]",
     counterElement: "//div[contains(@id,'InputValueLengthCounterEl')]",
     spanTotalCounter: "//span[@class='total-counter']",
-    spanLeftCounter: "//span[contains(@class,'left-counter')]"
+    spanLeftCounter: "//span[contains(@class,'left-counter')]",
 };
 
 class TextLineForm extends OccurrencesFormView {
@@ -20,12 +22,21 @@ class TextLineForm extends OccurrencesFormView {
         return lib.FORM_VIEW + XPATH.validationRecording;
     }
 
-    type(textLineData) {
-        return this.typeLong(textLineData.text);
+    async getTexLineValues() {
+        let values = [];
+        let textLineElements = await this.getDisplayedElements(this.textLineInput);
+        await Promise.all(textLineElements.map(async (el) => {
+            const value = await el.getValue();
+            values.push(value);
+        }));
+        return values;
     }
 
-    typeText(value) {
-        return this.typeTextInInput(this.textLineInput, value);
+    async typeText(text, index) {
+        index = typeof index !== 'undefined' ? index : 0;
+        let textLine = await this.getDisplayedElements(this.textLineInput);
+        await textLine[index].setValue(text);
+        return await this.pause(300);
     }
 
     async getTotalCounter(index) {

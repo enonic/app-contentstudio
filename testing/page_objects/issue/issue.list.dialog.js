@@ -126,7 +126,7 @@ class IssuesListDialog extends Page {
     async clickOnClosedButton() {
         try {
             let el = await this.getDisplayedElements(this.closedButton);
-            await el[0].waitForEnabled(appConst.shortTimeout);
+            await el[0].waitForEnabled({timeout: appConst.shortTimeout});
             //await this.waitForElementEnabled(this.showClosedIssuesButton,appConst.shortTimeout);
             await this.clickOnElement(this.closedButton);
             return await this.pause(700);
@@ -139,7 +139,7 @@ class IssuesListDialog extends Page {
     async clickOnOpenButton() {
         try {
             let el = await this.getDisplayedElements(this.openButton);
-            await el[0].waitForEnabled(appConst.shortTimeout);
+            await el[0].waitForEnabled({timeout: appConst.shortTimeout});
             //await this.waitForElementEnabled(this.showClosedIssuesButton,appConst.shortTimeout);
             await this.clickOnElement(this.openButton);
             return await this.pause(400);

@@ -6,6 +6,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
     addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
+    removeButton: "//div[contains(@id,'TextLine')]//button[@class='remove-button']",
 };
 
 class OccurrencesFormView extends Page {
@@ -16,6 +17,20 @@ class OccurrencesFormView extends Page {
 
     get inputOccurrenceErrorRecording() {
         return lib.FORM_VIEW + lib.OCCURRENCE_ERROR_BLOCK;
+    }
+
+    get addButton() {
+        return lib.FORM_VIEW + XPATH.addButton;
+    }
+
+    get removeButton() {
+        return lib.FORM_VIEW + XPATH.removeButton;
+    }
+
+    async clickOnLastRemoveButton() {
+        await this.waitForRemoveButtonDisplayed();
+        let removeElements = await this.getDisplayedElements(this.removeButton);
+        return await removeElements[removeElements.length - 1].click();
     }
 
     async waitForFormValidationRecordingDisplayed() {
@@ -38,7 +53,6 @@ class OccurrencesFormView extends Page {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Form Validation recording should not be displayed"});
     }
 
-
     async getOccurrenceValidationRecording(index) {
         try {
             let elements = await this.findElements(this.inputOccurrenceErrorRecording);
@@ -52,13 +66,26 @@ class OccurrencesFormView extends Page {
         }
     }
 
-    get addButton() {
-        return lib.FORM_VIEW + XPATH.addButton;
+    waitForAddButtonDisplayed() {
+        return this.waitUntilDisplayed(this.addButton, appConst.mediumTimeout);
+    }
+
+    waitForRemoveButtonDisplayed() {
+        return this.waitUntilDisplayed(this.removeButton, appConst.mediumTimeout);
+    }
+
+    waitForRemoveButtonNotDisplayed() {
+        this.waitForElementNotDisplayed(this.removeButton, appConst.mediumTimeout);
+    }
+
+    waitForAddButtonNotDisplayed() {
+        this.waitForElementNotDisplayed(this.addButton, appConst.mediumTimeout);
     }
 
     async clickOnAddButton() {
-        await this.waitForElementDisplayed(this.addButton);
-        return await this.clickOnElement(this.addButton);
+        await this.waitForAddButtonDisplayed();
+        let result = await this.getDisplayedElements(this.addButton);
+        return await result[0].click();
     }
 }
 

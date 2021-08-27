@@ -618,6 +618,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return this.getText(selector);
     }
 
+    async waitForStatus(name, expectedStatus) {
+        let locator = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r3')]";
+        await this.getBrowser().waitUntil(async () => {
+            let actualStatus = await this.getText(locator);
+            return actualStatus === expectedStatus;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Expected status should be " + expectedStatus});
+
+    }
+
     waitForShowPublishMenuDropDownVisible() {
         return this.waitForElementDisplayed(this.showPublishMenuButton, appConst.mediumTimeout);
     }
