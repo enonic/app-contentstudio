@@ -19,7 +19,7 @@ class DefaultPageInspectionPanel extends PageInspectionPanel {
 
     async typeTitle(text) {
         try {
-            await this.waitForElementDisplayed(this.titleTextInput, appConst.mediumTimeout);
+            await this.waitUntilDisplayed(this.titleTextInput, appConst.mediumTimeout);
             return await this.typeTextInInput(this.titleTextInput, text);
         } catch (err) {
             await this.saveScreenshot('err_type_text_in_title_input');
@@ -36,7 +36,7 @@ class DefaultPageInspectionPanel extends PageInspectionPanel {
 
     async waitForTitleInputDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.titleTextInput, appConst.mediumTimeout);
+            return await this.waitUntilDisplayed(this.titleTextInput, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot('err_default_page_inspect_panel');
             throw new Error("Inspection Panel, default page- required text input is not visible " + err);
