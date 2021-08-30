@@ -1,7 +1,9 @@
 .widget-view.dependency-widget {
+  &.active {
+    display: flex;
+  }
 
   height: 100%;
-  display: flex;
   flex-direction: column;
 
   .widget-item-view {
@@ -15,6 +17,7 @@
     .btn-inbound, .btn-outbound {
       height: 35px;
       width: 200px;
+      text-align: center;
     }
 
     .main-container {
