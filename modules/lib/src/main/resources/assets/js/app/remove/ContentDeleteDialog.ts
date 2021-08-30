@@ -239,9 +239,9 @@ export class ContentDeleteDialog
         });
     }
 
-    protected createResolveDescendantsRequest(): ResolveDeleteRequest {
+    protected resolveDescendants(): Q.Promise<ContentId[]> {
         const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
-        return new ResolveDeleteRequest(ids);
+        return new ResolveDeleteRequest(ids).sendAndParse().then(result => result.getContentIds());
     }
 
     manageContentToDelete(contents: ContentSummaryAndCompareStatus[]): ContentDeleteDialog {

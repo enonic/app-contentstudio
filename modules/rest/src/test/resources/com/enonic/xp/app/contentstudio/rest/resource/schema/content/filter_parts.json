@@ -27,7 +27,7 @@
       "description": null,
       "displayName": "Fancy part",
       "editable": false,
-      "icon": "/admin/v2/rest/content/page/part/descriptor/icon/module:fancy-part",
+      "icon": "/admin/rest-v2/cs/content/page/part/descriptor/icon/module:fancy-part",
       "key": "module:fancy-part",
       "name": "fancy-part"
     }

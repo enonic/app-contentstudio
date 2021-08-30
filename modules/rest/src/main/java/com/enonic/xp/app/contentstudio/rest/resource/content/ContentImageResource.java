@@ -50,7 +50,7 @@ import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.RE
 @Path(REST_ROOT + "{content:(content|" + CMS_PATH + "/content)}/image")
 @Produces("image/*")
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
-@Component(immediate = true, property = "group=v2")
+@Component(immediate = true, property = "group=v2cs")
 public final class ContentImageResource
     implements JaxRsComponent
 {

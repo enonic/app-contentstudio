@@ -6,13 +6,16 @@ const appConst = require('../../libs/app_const');
 
 class BaseDependenciesWidget extends Page {
 
-    clickOnShowOutboundButton() {
-        return this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_outbound_button');
+    async clickOnShowOutboundButton() {
+        try {
+            await this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout);
+            await this.waitForElementEnabled(this.showOutboundButton, appConst.shortTimeout);
+            await this.clickOnElement(this.showOutboundButton);
+            return await this.pause(500);
+        } catch (err) {
+            await this.saveScreenshot('err_outbound_button');
             throw new Error('Show Outbound button is not visible in ' + err);
-        }).then(() => {
-            return this.clickOnElement(this.showOutboundButton);
-        })
+        }
     }
 
     clickOnShowInboundButton() {
@@ -58,6 +61,7 @@ class BaseDependenciesWidget extends Page {
         });
     }
 }
+
 module.exports = BaseDependenciesWidget;
 
 

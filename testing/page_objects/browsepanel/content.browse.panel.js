@@ -358,6 +358,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             //Wait for modal dialog loaded:
             let contentDuplicateDialog = new ContentDuplicateDialog();
             await contentDuplicateDialog.waitForDialogOpened();
+            await contentDuplicateDialog.waitForSpinnerNotVisible(appConst.mediumTimeout);
             return contentDuplicateDialog;
         } catch (err) {
             throw new Error('error when clicking on the Duplicate button ' + err);
@@ -615,6 +616,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     getContentStatus(name) {
         let selector = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r3')]";
         return this.getText(selector);
+    }
+
+    async waitForStatus(name, expectedStatus) {
+        let locator = lib.slickRowByDisplayName(XPATH.treeGrid, name) + "//div[contains(@class,'r3')]";
+        await this.getBrowser().waitUntil(async () => {
+            let actualStatus = await this.getText(locator);
+            return actualStatus === expectedStatus;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Expected status should be " + expectedStatus});
+
     }
 
     waitForShowPublishMenuDropDownVisible() {

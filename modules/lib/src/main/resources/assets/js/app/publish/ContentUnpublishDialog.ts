@@ -21,7 +21,7 @@ export class ContentUnpublishDialog
     private unPublishConfirmationDialog?: ConfirmValueDialog;
 
     constructor() {
-        super(<DependantItemsWithProgressDialogConfig> {
+        super(<DependantItemsWithProgressDialogConfig>{
                 title: i18n('dialog.unpublish'),
                 class: 'unpublish-dialog',
                 dialogSubName: i18n('dialog.unpublish.subname'),
@@ -140,9 +140,9 @@ export class ContentUnpublishDialog
 
     }
 
-    protected createResolveDescendantsRequest(): ResolveUnpublishRequest {
+    protected resolveDescendants(): Q.Promise<ContentId[]> {
         const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
-        return new ResolveUnpublishRequest(ids);
+        return new ResolveUnpublishRequest(ids).sendAndParse();
     }
 
     private filterUnpublishableItems(items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] {

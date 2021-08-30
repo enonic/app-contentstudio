@@ -26,7 +26,7 @@ import com.enonic.xp.security.RoleKeys;
 @Path(ResourceConstants.REST_ROOT + "{content:(content|" + ResourceConstants.CMS_PATH + "/content)}/page/fragment")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
-@Component(immediate = true, property = "group=v2")
+@Component(immediate = true, property = "group=v2cs")
 public final class FragmentResource
     implements JaxRsComponent
 {

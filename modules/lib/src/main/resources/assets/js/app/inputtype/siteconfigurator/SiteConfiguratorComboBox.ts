@@ -1,7 +1,6 @@
 import {Application} from 'lib-admin-ui/application/Application';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ApplicationViewer} from 'lib-admin-ui/application/ApplicationViewer';
-import {SiteApplicationLoader} from 'lib-admin-ui/application/SiteApplicationLoader';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {ApplicationConfigProvider} from 'lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
@@ -9,6 +8,7 @@ import {SiteConfiguratorSelectedOptionsView} from './SiteConfiguratorSelectedOpt
 import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
 import {ContentFormContext} from '../../ContentFormContext';
 import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {SiteApplicationLoader} from '../../application/SiteApplicationLoader';
 
 export class SiteConfiguratorComboBox
     extends RichComboBox<Application> {

@@ -1,5 +1,6 @@
 package com.enonic.xp.app.contentstudio.rest.resource.macro;
 
+import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.IconUrlResolver;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.macro.MacroDescriptor;
@@ -8,7 +9,7 @@ import com.enonic.xp.macro.MacroKey;
 public class MacroIconUrlResolver
     extends IconUrlResolver
 {
-    public static final String REST_SCHEMA_ICON_URL = "/admin/rest/macro/icon/";
+    public static final String REST_SCHEMA_ICON_URL = ResourceConstants.REST_ROOT + "macro/icon/";
 
     private final MacroIconResolver macroIconResolver;
 

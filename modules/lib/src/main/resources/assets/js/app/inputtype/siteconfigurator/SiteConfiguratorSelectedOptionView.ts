@@ -7,7 +7,6 @@ import {FormView} from 'lib-admin-ui/form/FormView';
 import {Application} from 'lib-admin-ui/application/Application';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ApplicationConfig} from 'lib-admin-ui/application/ApplicationConfig';
-import {GetApplicationRequest} from 'lib-admin-ui/application/GetApplicationRequest';
 import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
 import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
 import {ContentFormContext} from '../../ContentFormContext';
@@ -16,6 +15,7 @@ import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from 'lib-admin-u
 import {FormValidityChangedEvent} from 'lib-admin-ui/form/FormValidityChangedEvent';
 import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
 import {FormState} from 'lib-admin-ui/app/wizard/WizardPanel';
+import {GetApplicationRequest} from '../../resource/GetApplicationRequest';
 
 export class SiteConfiguratorSelectedOptionView
     extends BaseSelectedOptionView<Application> {

@@ -96,7 +96,6 @@ import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {ValidityChangedEvent} from 'lib-admin-ui/ValidityChangedEvent';
 import {PropertyTreeComparator} from 'lib-admin-ui/data/PropertyTreeComparator';
-import {GetApplicationRequest} from 'lib-admin-ui/application/GetApplicationRequest';
 import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
 import {Input} from 'lib-admin-ui/form/Input';
 import {FormItemContainer} from 'lib-admin-ui/form/FormItemContainer';
@@ -130,6 +129,7 @@ import {ContentsExistResult} from '../resource/ContentsExistResult';
 import {ActivatedEvent} from 'lib-admin-ui/ui/ActivatedEvent';
 import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
 import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
+import {GetApplicationRequest} from '../resource/GetApplicationRequest';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {

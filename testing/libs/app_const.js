@@ -153,6 +153,7 @@ module.exports = Object.freeze({
     COMPONENT_VIEW_MENU_ITEMS: {
         INSERT: 'Insert',
         SAVE_AS_FRAGMENT: 'Save as Fragment',
+        SAVE_AS_TEMPLATE: "Save as Template",
         DETACH_FROM_FRAGMENT: 'Detach from fragment',
         INSPECT: 'Inspect',
         REMOVE: 'Remove',
@@ -202,6 +203,8 @@ module.exports = Object.freeze({
         TEXTAREA_MAX_LENGTH: 'textarea_conf',
         TEXTLINE_MAX_LENGTH: 'textline_conf',
         TEXTLINE_REGEXP: 'text_line_regexp',
+        TEXTLINE_0_1: 'textline0_1',
+        TEXTLINE_1_0: 'textline1_0',
     },
     permissions: {
         FULL_ACCESS: `Full Access`,

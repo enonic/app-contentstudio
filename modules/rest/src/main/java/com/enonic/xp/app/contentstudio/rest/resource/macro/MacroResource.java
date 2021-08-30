@@ -74,7 +74,7 @@ import static com.google.common.base.Strings.nullToEmpty;
 @Path(ResourceConstants.REST_ROOT + "macro")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
-@Component(immediate = true, property = "group=v2")
+@Component(immediate = true, property = "group=v2cs")
 public final class MacroResource
     implements JaxRsComponent
 {

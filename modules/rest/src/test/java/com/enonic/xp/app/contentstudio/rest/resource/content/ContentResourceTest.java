@@ -77,6 +77,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.MoveContentJso
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ReorderChildrenJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResetContentInheritJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolveContentForDeleteResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.RevertContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.SetActiveVersionJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDeleteContentJson;
@@ -232,6 +233,12 @@ public class ContentResourceTest
 
     private final Instant fixedTime = Instant.parse( "2013-08-23T12:55:09.162Z" );
 
+    Set<ContentType> knownContentTypes;
+
+    ContentResource resource;
+
+    AdminRestConfig config;
+
     private ContentTypeService contentTypeService;
 
     private ContentService contentService;
@@ -249,13 +256,6 @@ public class ContentResourceTest
     private PartDescriptorService partDescriptorService;
 
     private SyncContentService syncContentService;
-
-    Set<ContentType> knownContentTypes;
-
-    ContentResource resource;
-
-    AdminRestConfig config;
-
 
     @Override
     protected ContentResource getResourceInstance()
@@ -357,11 +357,11 @@ public class ContentResourceTest
         throws Exception
     {
         final User admin = User.create().displayName( "Admin" ).key( PrincipalKey.from( "user:system:admin" ) ).login( "admin" ).build();
-        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.from( "user:system:admin" ) ) ).thenReturn(
-            Optional.of( admin ) );
+        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.from( "user:system:admin" ) ) )
+            .thenReturn( Optional.of( admin ) );
         final User anon = User.create().displayName( "Anonymous" ).key( PrincipalKey.ofAnonymous() ).login( "anonymous" ).build();
-        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) ).thenReturn(
-            Optional.of( anon ) );
+        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) )
+            .thenReturn( Optional.of( anon ) );
 
         final AccessControlList permissions = getTestPermissions();
 
@@ -377,11 +377,11 @@ public class ContentResourceTest
         throws Exception
     {
         final User admin = User.create().displayName( "Admin" ).key( PrincipalKey.from( "user:system:admin" ) ).login( "admin" ).build();
-        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.from( "user:system:admin" ) ) ).thenReturn(
-            Optional.of( admin ) );
+        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.from( "user:system:admin" ) ) )
+            .thenReturn( Optional.of( admin ) );
         final User anon = User.create().displayName( "Anonymous" ).key( PrincipalKey.ofAnonymous() ).login( "anonymous" ).build();
-        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) ).thenReturn(
-            Optional.of( anon ) );
+        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) )
+            .thenReturn( Optional.of( anon ) );
 
         final Content content1 = createContent( "aaa", "my_a_content", "myapplication:my_type" );
         final Content content2 = createContent( "bbb", "my_b_content", "myapplication:my_type" );
@@ -958,11 +958,11 @@ public class ContentResourceTest
         throws Exception
     {
         final User admin = User.create().displayName( "Admin" ).key( PrincipalKey.from( "user:system:admin" ) ).login( "admin" ).build();
-        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.from( "user:system:admin" ) ) ).thenReturn(
-            Optional.of( admin ) );
+        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.from( "user:system:admin" ) ) )
+            .thenReturn( Optional.of( admin ) );
         final User anon = User.create().displayName( "Anonymous" ).key( PrincipalKey.ofAnonymous() ).login( "anonymous" ).build();
-        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) ).thenReturn(
-            Optional.of( anon ) );
+        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) )
+            .thenReturn( Optional.of( anon ) );
 
         final AccessControlList permissions = getTestPermissions();
         Mockito.when( contentService.getRootPermissions() ).thenReturn( permissions );
@@ -979,11 +979,11 @@ public class ContentResourceTest
         throws Exception
     {
         final User admin = User.create().displayName( "Admin" ).key( PrincipalKey.from( "user:system:admin" ) ).login( "admin" ).build();
-        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.from( "user:system:admin" ) ) ).thenReturn(
-            Optional.of( admin ) );
+        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.from( "user:system:admin" ) ) )
+            .thenReturn( Optional.of( admin ) );
         final User anon = User.create().displayName( "Anonymous" ).key( PrincipalKey.ofAnonymous() ).login( "anonymous" ).build();
-        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) ).thenReturn(
-            Optional.ofNullable( null ) );
+        Mockito.<Optional<? extends Principal>>when( securityService.getPrincipal( PrincipalKey.ofAnonymous() ) )
+            .thenReturn( Optional.ofNullable( null ) );
 
         final AccessControlList permissions = getTestPermissions();
         Mockito.when( contentService.getRootPermissions() ).thenReturn( permissions );
@@ -1941,19 +1941,27 @@ public class ContentResourceTest
         Mockito.when( contentService.getByIds( new GetContentByIdsParams( ContentIds.from( "content-id1", "content-id2" ) ) ) )
             .thenReturn( Contents.from( content1, content2 ) );
 
-        final FindContentIdsByQueryResult findResult = FindContentIdsByQueryResult.create()
+        final FindContentIdsByQueryResult idsToRemove = FindContentIdsByQueryResult.create()
             .aggregations( Aggregations.empty() )
             .hits( 2L )
             .totalHits( 2L )
             .contents( ContentIds.from( content1.getId(), content2.getId() ) )
             .build();
 
-        Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) ).thenReturn( findResult );
+        final FindContentIdsByQueryResult inbound = FindContentIdsByQueryResult.create()
+            .aggregations( Aggregations.empty() )
+            .hits( 1L )
+            .totalHits( 1L )
+            .contents( ContentIds.from( "content-id3" ) )
+            .build();
 
-        final List<ContentIdJson> result =
+        Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) ).thenReturn( idsToRemove ).thenReturn( inbound );
+
+        final ResolveContentForDeleteResultJson result =
             contentResource.resolveForDelete( new ContentIdsJson( List.of( "content-id1", "content-id2" ) ) );
 
-        assertEquals( 2, result.size() );
+        assertEquals( 2, result.getContentIds().size() );
+        assertEquals( 1, result.getInboundDependencies().size() );
     }
 
     @Test

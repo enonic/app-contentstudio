@@ -26,7 +26,34 @@ describe('custom.selector0_2.spec:  tests for content with custom selector (0:2)
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`GIVEN wizard with 'custom-selector' (0:2) is opened AND one option has been selected THEN option filter input should be displayed`,
+    //Verifies Custom Selector incorrectly loads options #3407
+    //https://github.com/enonic/app-contentstudio/issues/3407
+    it(`GIVEN wizard with 'custom-selector' (0:2) is opened WHEN non existing option has been typed THEN 'No matching items' should be displayed`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let customSelectorForm = new CustomSelectorForm();
+            CONTENT_NAME = contentBuilder.generateRandomName("cselector");
+            //1. Wizard for Custom-Selector content is opened
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, CUSTOM_SELECTOR);
+            await contentWizard.typeDisplayName(CONTENT_NAME);
+            //2. non existing option has been typed in the Options Filter Input
+            await customSelectorForm.typeTextInOptionsFilterInput("test");
+            //3. Verify that 'No matching items' is displayed
+            await customSelectorForm.waitForEmptyOptionsMessage();
+            await studioUtils.saveScreenshot("custom_sel_empty");
+            //4. Press Backspace button and clear the input
+            await studioUtils.doPressBackspace();
+            await studioUtils.doPressBackspace();
+            await studioUtils.doPressBackspace();
+            await studioUtils.doPressBackspace();
+            await customSelectorForm.pause(500);
+            //5. Verify that 2 options are loaded after clearing the input:
+            await studioUtils.saveScreenshot("custom_sel_empty");
+            let results = await customSelectorForm.getDropDownListOptions();
+            assert.equal(results.length, 2, "Two options should be present in the options list");
+        });
+
+    it(`GIVEN wizard with 'custom-selector' (0:2) is opened WHEN one option has been selected THEN option filter input should be displayed`,
         async () => {
             let contentWizard = new ContentWizard();
             let customSelectorForm = new CustomSelectorForm();

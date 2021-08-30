@@ -29,7 +29,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 @Path(ResourceConstants.REST_ROOT + "project/icon")
 @Produces("image/*")
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
-@Component(immediate = true, property = "group=v2")
+@Component(immediate = true, property = "group=v2cs")
 public final class ProjectIconResource
     implements JaxRsComponent
 {

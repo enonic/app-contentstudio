@@ -1,4 +1,4 @@
-import {ContentIdBaseItemJson} from './ResolvePublishContentResultJson';
+import {ContentIdBaseItemJson} from './ContentIdBaseItemJson';
 
 export interface HasUnpublishedChildrenListJson {
     contents: HasUnpublishedChildrenJson[];

@@ -17,13 +17,14 @@ class DefaultPageInspectionPanel extends PageInspectionPanel {
         return xpath.container + "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Title']]" + lib.TEXT_INPUT;
     }
 
-    typeTitle(text) {
-        return this.waitForElementDisplayed(this.titleTextInput, appConst.shortTimeout).then(() => {
-            return this.typeTextInInput(this.titleTextInput, text);
-        }).catch(err => {
-            this.saveScreenshot('err_type_text_in_title_input');
+    async typeTitle(text) {
+        try {
+            await this.waitForElementDisplayed(this.titleTextInput, appConst.mediumTimeout);
+            return await this.typeTextInInput(this.titleTextInput, text);
+        } catch (err) {
+            await this.saveScreenshot('err_type_text_in_title_input');
             throw new Error('error- Default page, Inspect Panel, type text in Title input: ' + err)
-        })
+        }
     }
 
     getTitle() {
@@ -35,7 +36,7 @@ class DefaultPageInspectionPanel extends PageInspectionPanel {
 
     async waitForTitleInputDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.titleTextInput);
+            return await this.waitForElementDisplayed(this.titleTextInput, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot('err_default_page_inspect_panel');
             throw new Error("Inspection Panel, default page- required text input is not visible " + err);
@@ -45,8 +46,9 @@ class DefaultPageInspectionPanel extends PageInspectionPanel {
     async clickOnApplyButton() {
         let selector = "//div[contains(@id,'ContextWindow')]" + lib.ACTION_BUTTON + "/span[text()='Apply']";
         await this.clickOnElement(selector);
-        return this.pause(2000);
+        return await this.pause(2000);
     }
-};
+}
+
 module.exports = DefaultPageInspectionPanel;
 

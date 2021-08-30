@@ -41,7 +41,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 @Path(REST_ROOT + "{content:(content|" + CMS_PATH + "/content)}/icon")
 @Produces("image/*")
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
-@Component(immediate = true, property = "group=v2")
+@Component(immediate = true, property = "group=v2cs")
 public final class ContentIconResource
     implements JaxRsComponent
 {
