@@ -40,10 +40,10 @@ describe('template.config.spec: template config should be displayed in the Inspe
     it(`WHEN new wizard for article has been opened THEN input from template-config should be displayed in the Inspection Panel`,
         async () => {
             let defaultPageInspectionPanel = new DefaultPageInspectionPanel();
-            let siteWizard = new ContentWizard();
+            let contentWizard = new ContentWizard();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
-            await siteWizard.doUnlockLiveEditor();
-            await siteWizard.switchToMainFrame();
+            await contentWizard.doUnlockLiveEditor();
+            await contentWizard.switchToMainFrame();
             //Inspection Panel should be automatically opened:
             await defaultPageInspectionPanel.waitForTitleInputDisplayed();
             await defaultPageInspectionPanel.typeTitle(TITLE_TEXT);
