@@ -25,7 +25,7 @@ import {Form, FormBuilder} from 'lib-admin-ui/form/Form';
 import {InputBuilder} from 'lib-admin-ui/form/Input';
 import {OccurrencesBuilder} from 'lib-admin-ui/form/Occurrences';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
+import {UrlHelper} from '../util/UrlHelper';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -157,7 +157,9 @@ export class RequestContentPublishDialog
             .setMaximizeUIInputWidth(true)
             .setInputTypeConfig({
                 principalType: PrincipalType[PrincipalType.USER],
-                skipPrincipals: [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]
+                skipPrincipals: [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()],
+                listUri: UrlHelper.getCmsRestUri('security/principals'),
+                getUri: UrlHelper.getCmsRestUri('security/principals/resolveByKeys')
             })
             .build();
 
