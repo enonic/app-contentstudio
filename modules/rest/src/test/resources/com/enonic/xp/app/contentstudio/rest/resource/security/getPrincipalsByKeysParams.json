@@ -1,0 +1,8 @@
+{
+  "keys": [
+    "group:system:group-a",
+    "user:local:a",
+    "role:superuser"
+  ],
+  "memberships": false
+}

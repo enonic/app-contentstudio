@@ -5,12 +5,13 @@ import {Permission} from '../access/Permission';
 import {PrincipalContainerCombobox, PrincipalContainerComboboxBuilder} from 'lib-admin-ui/ui/security/PrincipalContainerCombobox';
 import {PrincipalContainerSelectedOptionsView} from 'lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
 import {Principal} from 'lib-admin-ui/security/Principal';
+import {ContentPrincipalLoader} from '../security/ContentPrincipalLoader';
 
 export class AccessControlComboBox
     extends PrincipalContainerCombobox<AccessControlEntry> {
 
-    constructor() {
-        super(new AccessControlComboBoxBuilder());
+    constructor(builder: AccessControlComboBoxBuilder) {
+        super(builder);
     }
 
     protected loadedItemToDisplayValue(value: Principal): AccessControlEntry {
@@ -41,5 +42,10 @@ export class AccessControlComboBoxBuilder
     extends PrincipalContainerComboboxBuilder<AccessControlEntry> {
 
     selectedOptionsView: ACESelectedOptionsView = new ACESelectedOptionsView();
-}
 
+    loader: ContentPrincipalLoader = new ContentPrincipalLoader();
+
+    build(): AccessControlComboBox {
+        return new AccessControlComboBox(this);
+    }
+}

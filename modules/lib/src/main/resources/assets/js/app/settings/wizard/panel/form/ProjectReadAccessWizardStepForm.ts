@@ -26,6 +26,7 @@ import {Project} from '../../../data/project/Project';
 import {ProjectHelper} from '../../../data/project/ProjectHelper';
 import {LocaleComboBox} from '../../../../locale/LocaleComboBox';
 import {LocaleLoader} from '../../../../locale/LocaleLoader';
+import {ContentPrincipalLoader} from '../../../../security/ContentPrincipalLoader';
 
 export class ProjectReadAccessWizardStepForm
     extends ProjectWizardStepForm {
@@ -93,7 +94,8 @@ export class ProjectReadAccessWizardStepForm
         }
 
         this.copyParentLanguageButton.setEnabled(this.parentProject &&
-            !ObjectHelper.stringEquals(this.parentProject.getLanguage(), this.localeCombobox.getValue()));
+                                                 !ObjectHelper.stringEquals(this.parentProject.getLanguage(),
+                                                     this.localeCombobox.getValue()));
     }
 
     private getLocales(): Q.Promise<Locale[]> {
@@ -268,7 +270,8 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private createPrincipalsCombobox(): PrincipalComboBox {
-        const loader: PrincipalLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
+        const loader: PrincipalLoader = new ContentPrincipalLoader()
+            .setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
         const principalsCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).build();
 
         return principalsCombobox;
