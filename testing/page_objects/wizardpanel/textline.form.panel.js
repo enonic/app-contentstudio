@@ -75,7 +75,6 @@ class TextLineForm extends OccurrencesFormView {
         let value = await inputs[index].getAttribute("class");
         return value.includes('valid');
     }
-
 }
 
 module.exports = TextLineForm;
