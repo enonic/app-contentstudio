@@ -205,6 +205,7 @@ module.exports = Object.freeze({
         TEXTLINE_REGEXP: 'text_line_regexp',
         TEXTLINE_0_1: 'textline0_1',
         TEXTLINE_1_0: 'textline1_0',
+        TEXTLINE_1_1: 'textline1_1',
     },
     permissions: {
         FULL_ACCESS: `Full Access`,

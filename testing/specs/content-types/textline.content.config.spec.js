@@ -3,12 +3,12 @@
  */
 const chai = require('chai');
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const TextLine = require('../page_objects/wizardpanel/textline.form.panel');
-const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConstant = require('../../libs/app_const');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const TextLine = require('../../page_objects/wizardpanel/textline.form.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('textline.content.config.spec:  verifies `max-length value config for textLine`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
