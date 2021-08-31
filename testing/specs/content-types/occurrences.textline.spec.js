@@ -184,8 +184,8 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             //3. Verify saved values in both inputs
             await studioUtils.saveScreenshot('textline_1_0_valid_4');
             let result = await textLine.getTexLineValues();
-            assert.equal(result[0], TEXT_2, "Expected text should be in the first texline");
-            assert.equal(result[1], TEXT_3, "Expected text should be in the second textline");
+            assert.isTrue(result.includes(TEXT_2), "Expected text should be in the first texline");
+            assert.isTrue(result.includes(TEXT_3), "Expected text should be in the second textline");
         });
 
     it(`GIVEN wizard for new  TextLine-content (1:1) is opened WHEN display name has been typed and saved THEN content should be not valid`,
