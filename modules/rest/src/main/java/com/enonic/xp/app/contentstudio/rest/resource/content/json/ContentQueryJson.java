@@ -28,8 +28,6 @@ public class ContentQueryJson
 
     private final List<FilterJson> queryFilters;
 
-    private final boolean includeArchive;
-
     @JsonCreator
     public ContentQueryJson( @JsonProperty("queryExpr") final String queryExprString, //
                              @JsonProperty("from") final Integer from, //
@@ -38,8 +36,7 @@ public class ContentQueryJson
                              @JsonProperty("mustBeReferencedById") final String mustBeReferencedById,
                              @JsonProperty("expand") final String expand,
                              @JsonProperty("aggregationQueries") final List<AggregationQueryJson> aggregationQueries, //
-                             @JsonProperty("queryFilters") final List<FilterJson> queryFilters,
-                             @JsonProperty("includeArchive") final boolean includeArchive )
+                             @JsonProperty("queryFilters") final List<FilterJson> queryFilters )
     {
 
         this.queryExprString = queryExprString;
@@ -49,7 +46,6 @@ public class ContentQueryJson
         this.mustBeReferencedById = mustBeReferencedById != null ? ContentId.from( mustBeReferencedById ) : null;
         this.aggregationQueries = aggregationQueries;
         this.queryFilters = queryFilters;
-        this.includeArchive = includeArchive;
 
         this.expand = expand != null ? expand : "none";
     }
@@ -100,10 +96,5 @@ public class ContentQueryJson
     public String getExpand()
     {
         return expand;
-    }
-
-    @JsonIgnore
-    public boolean isIncludeArchive() {
-        return includeArchive;
     }
 }
