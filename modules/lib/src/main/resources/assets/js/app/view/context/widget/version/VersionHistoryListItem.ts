@@ -47,7 +47,7 @@ export class VersionHistoryListItem
 
         if (!this.version.isActive() && !this.version.isPublishAction()) {
             const compareButton: ActionButton = this.createCompareButton();
-            versionViewer.appendChild(compareButton);
+            versionViewer.appendToNamesAndIconViewWrapper(compareButton);
         }
 
         if (this.version.getMessage()) {
