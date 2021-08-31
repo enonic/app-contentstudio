@@ -5,7 +5,7 @@ import {Permission} from '../access/Permission';
 import {PrincipalContainerCombobox, PrincipalContainerComboboxBuilder} from 'lib-admin-ui/ui/security/PrincipalContainerCombobox';
 import {PrincipalContainerSelectedOptionsView} from 'lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
 import {Principal} from 'lib-admin-ui/security/Principal';
-import {ContentPrincipalLoader} from '../security/ContentPrincipalLoader';
+import {PrincipalLoader} from '../security/PrincipalLoader';
 
 export class AccessControlComboBox
     extends PrincipalContainerCombobox<AccessControlEntry> {
@@ -43,7 +43,7 @@ export class AccessControlComboBoxBuilder
 
     selectedOptionsView: ACESelectedOptionsView = new ACESelectedOptionsView();
 
-    loader: ContentPrincipalLoader = new ContentPrincipalLoader();
+    loader: PrincipalLoader = new PrincipalLoader();
 
     build(): AccessControlComboBox {
         return new AccessControlComboBox(this);

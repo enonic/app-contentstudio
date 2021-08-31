@@ -57,7 +57,7 @@ import {LocalDateTime} from 'lib-admin-ui/util/LocalDateTime';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {IssueComment} from '../IssueComment';
 import {ContentId} from '../../content/ContentId';
-import {ContentPrincipalLoader} from '../../security/ContentPrincipalLoader';
+import {PrincipalLoader} from '../../security/PrincipalLoader';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -191,7 +191,7 @@ export class IssueDetailsDialog
     }
 
     protected initTabs() {
-        const userLoader = new ContentPrincipalLoader()
+        const userLoader = new PrincipalLoader()
             .setAllowedTypes([PrincipalType.USER])
             .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
         this.assigneesCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(userLoader).build();

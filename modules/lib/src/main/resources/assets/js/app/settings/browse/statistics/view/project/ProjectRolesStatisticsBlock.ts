@@ -4,7 +4,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectViewItem} from '../../../../view/ProjectViewItem';
 import {PrincipalsListBox} from '../PrincipalsListBox';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import {GetPrincipalsByKeysRequest} from '../../../../../security/GetPrincipalsByKeysRequest';
 import {Principal} from 'lib-admin-ui/security/Principal';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ProjectHelper} from '../../../../data/project/ProjectHelper';
