@@ -1154,9 +1154,29 @@ public final class ContentResource
             this.contentService.find( ContentQuery.create().queryFilter( inboundDependenciesFilter ).size( GET_ALL_SIZE_FLAG ).build() )
                 .getContentIds();
 
+        final Map<ContentId, Set<ContentId>> map = new HashMap<>();
+
+        inboundDependencies.forEach( inboundDependencyId -> {
+            final ContentIds outboundRefs = contentService.getOutboundDependencies( inboundDependencyId );
+            final Set<ContentId> referencedIds =
+                outboundRefs.stream().filter( idsToRemove::contains ).collect( Collectors.toSet() );
+
+            referencedIds.forEach( referencedId -> {
+                final Set<ContentId> inbounds = map.computeIfAbsent( referencedId, ( id ) -> new HashSet() );
+                inbounds.add( inboundDependencyId );
+            } );
+
+        } );
+
         return ResolveContentForDeleteResultJson.create()
             .addContentIds( idsToRemove )
-            .addInboundDependencies( inboundDependencies.getSet() )
+            .addInboundDependencies( map.entrySet()
+                                         .stream()
+                                         .map( entry -> ResolveContentForDeleteResultJson.InboundDependenciesJson.create()
+                                             .id( entry.getKey() )
+                                             .addInboundDependencies( entry.getValue() )
+                                             .build() )
+                                         .collect( Collectors.toList() ) )
             .build();
     }
 

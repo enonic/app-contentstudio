@@ -1950,18 +1950,24 @@ public class ContentResourceTest
 
         final FindContentIdsByQueryResult inbound = FindContentIdsByQueryResult.create()
             .aggregations( Aggregations.empty() )
-            .hits( 1L )
-            .totalHits( 1L )
-            .contents( ContentIds.from( "content-id3" ) )
+            .hits( 2L )
+            .totalHits( 2L )
+            .contents( ContentIds.from( "content-id3", "content-id4" ) )
             .build();
 
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) ).thenReturn( idsToRemove ).thenReturn( inbound );
+        Mockito.when( contentService.getOutboundDependencies( ContentId.from( "content-id3" ) ) ).thenReturn( ContentIds.from( "content-id1", "content-id2" ) );
+        Mockito.when( contentService.getOutboundDependencies( ContentId.from( "content-id4" ) ) ).thenReturn( ContentIds.from( "content-id1" ) );
 
         final ResolveContentForDeleteResultJson result =
             contentResource.resolveForDelete( new ContentIdsJson( List.of( "content-id1", "content-id2" ) ) );
 
         assertEquals( 2, result.getContentIds().size() );
-        assertEquals( 1, result.getInboundDependencies().size() );
+        assertEquals( 2, result.getInboundDependencies().size() );
+        assertEquals( "content-id1", result.getInboundDependencies().get( 0 ).getId().getId() );
+        assertEquals( 2, result.getInboundDependencies().get( 0 ).getInboundDependencies().size() );
+        assertEquals( "content-id2", result.getInboundDependencies().get( 1 ).getId().getId() );
+        assertEquals( 1, result.getInboundDependencies().get( 1 ).getInboundDependencies().size() );
     }
 
     @Test
