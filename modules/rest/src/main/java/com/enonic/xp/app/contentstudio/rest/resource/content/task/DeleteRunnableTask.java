@@ -71,7 +71,6 @@ public class DeleteRunnableTask
                 parentPath( contentPath ).
                 size( ContentResource.GET_ALL_SIZE_FLAG ).
                 recursive( true ).
-                includeArchive( true ).
                 build() ).
                 getTotalHits() ).
             sum();

@@ -56,8 +56,7 @@ public class ContentSelectorQueryJsonToContentQueryConverter
             .from( this.contentQueryJson.getFrom() )
             .size( this.contentQueryJson.getSize() )
             .queryExpr( this.createQueryExpr() )
-            .addContentTypeNames( this.getContentTypeNamesFromJson() )
-            .includeArchive( contentQueryJson.isIncludeArchive() );
+            .addContentTypeNames( this.getContentTypeNamesFromJson() );
 
         return builder.build();
     }
