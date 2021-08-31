@@ -10,7 +10,7 @@ import {Principal} from 'lib-admin-ui/security/Principal';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
-import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import {GetPrincipalsByKeysRequest} from '../../../../security/GetPrincipalsByKeysRequest';
 import {ProjectFormItemBuilder} from './element/ProjectFormItem';
 import {Button} from 'lib-admin-ui/ui/button/Button';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';

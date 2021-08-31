@@ -17,7 +17,7 @@ import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {FormView} from 'lib-admin-ui/form/FormView';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentId} from '../../content/ContentId';
-import {ContentPrincipalLoader} from '../../security/ContentPrincipalLoader';
+import {PrincipalLoader} from '../../security/PrincipalLoader';
 
 export class IssueDialogForm
     extends Form {
@@ -66,7 +66,7 @@ export class IssueDialogForm
         this.description = new TextArea('description');
         this.description.addClass('description');
 
-        const principalLoader = new ContentPrincipalLoader()
+        const principalLoader = new PrincipalLoader()
             .setAllowedTypes([PrincipalType.USER])
             .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
 
