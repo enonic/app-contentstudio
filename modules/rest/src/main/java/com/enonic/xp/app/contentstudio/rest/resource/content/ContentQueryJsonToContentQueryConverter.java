@@ -50,8 +50,7 @@ public class ContentQueryJsonToContentQueryConverter
             from( contentQueryJson.getFrom() ).
             size( contentQueryJson.getSize() ).
             queryExpr( QueryParser.parse( contentQueryJson.getQueryExprString() ) ).
-            addContentTypeNames( contentQueryJson.getContentTypeNames() ).
-            includeArchive( contentQueryJson.isIncludeArchive() );
+            addContentTypeNames( contentQueryJson.getContentTypeNames() );
 
         addOutboundContentIdsToFilter( builder );
 

@@ -77,6 +77,18 @@ public final class ArchiveResource
             .createTaskResult();
     }
 
+    @GET
+    @Path("list")
+    public List<ArchivedContainerLayerJson> list( @QueryParam("parentId") @DefaultValue("") final String parentId )
+    {
+        final ContentId parentContentId = isNullOrEmpty( parentId ) ? null : ContentId.from( parentId );
+
+        return contentService.listArchived( ListContentsParams.create().parent( parentContentId ).build() )
+            .stream()
+            .map( ArchivedContainerLayerJson::new )
+            .collect( Collectors.toList() );
+    }
+
     @POST
     @Path("resolve")
     public List<ArchivedContainerJson> resolve( final ResolveArchivedJson params )

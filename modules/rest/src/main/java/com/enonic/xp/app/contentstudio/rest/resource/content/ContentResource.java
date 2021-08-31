@@ -875,8 +875,7 @@ public final class ContentResource
                                         @QueryParam("expand") @DefaultValue(EXPAND_SUMMARY) final String expandParam,
                                         @QueryParam("from") @DefaultValue(DEFAULT_FROM_PARAM) final Integer fromParam,
                                         @QueryParam("size") @DefaultValue(DEFAULT_SIZE_PARAM) final Integer sizeParam,
-                                        @QueryParam("childOrder") @DefaultValue("") final String childOrder,
-                                        @QueryParam("includeArchive") @DefaultValue("false") final boolean includeArchiveParam)
+                                        @QueryParam("childOrder") @DefaultValue("") final String childOrder )
     {
         final ContentPath parentContentPath;
 
@@ -896,7 +895,6 @@ public final class ContentResource
             .size( sizeParam )
             .parentPath( parentContentPath )
             .childOrder( ChildOrder.from( childOrder ) )
-            .includeArchive( includeArchiveParam )
             .build();
 
         return doGetByParentPath( expandParam, params, parentContentPath );
@@ -948,7 +946,6 @@ public final class ContentResource
                 .contentService( this.contentService )
                 .contentsPaths( contentsPaths )
                 .size( GET_ALL_SIZE_FLAG )
-                .includeArchive( true )
                 .build()
                 .find();
 
@@ -978,7 +975,6 @@ public final class ContentResource
                     .contentService( this.contentService )
                     .contentsPaths( parents.getPaths() )
                     .size( GET_ALL_SIZE_FLAG )
-                    .includeArchive( true )
                     .build()
                     .find();
 
@@ -996,7 +992,6 @@ public final class ContentResource
                 .contentService( this.contentService )
                 .contentsPaths( parents.getPaths() )
                 .size( GET_ALL_SIZE_FLAG )
-                .includeArchive( true )
                 .build()
                 .find();
 
@@ -1123,7 +1118,6 @@ public final class ContentResource
                         : ContentPath.from("/"))
                 .childOrder(layerOrder)
                 .size(-1)
-                .includeArchive(contentQueryJson.isIncludeArchive())
                 .build());
 
         final List<Content> layersContents = findLayerContentsResult.getContents()
@@ -1357,14 +1351,12 @@ public final class ContentResource
     @GET
     @Path("listIds")
     public List<ContentIdJson> listChildrenIds( @QueryParam("parentId") final String parentId,
-                                                @QueryParam("childOrder") @DefaultValue("") final String childOrder,
-                                                @QueryParam("includeArchive") @DefaultValue("false") final boolean includeArchive)
+                                                @QueryParam("childOrder") @DefaultValue("") final String childOrder )
     {
 
         final FindContentByParentParams params = FindContentByParentParams.create()
             .parentId( isNullOrEmpty( parentId ) ? null : ContentId.from( parentId ) )
             .childOrder( isNullOrEmpty( childOrder ) ? null : ChildOrder.from( childOrder ) )
-            .includeArchive( includeArchive )
             .build();
 
         final FindContentIdsByParentResult result = this.contentService.findIdsByParent( params );
@@ -1545,7 +1537,6 @@ public final class ContentResource
         return ContentQueryWithChildren.create()
                 .contentService( this.contentService )
                 .contentsPaths( contentsPaths )
-                .includeArchive( true )
                 .build()
                 .find()
                 .getTotalHits();

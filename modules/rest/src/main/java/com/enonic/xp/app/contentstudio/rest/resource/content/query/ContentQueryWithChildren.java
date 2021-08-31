@@ -18,8 +18,6 @@ public class ContentQueryWithChildren
 
     private final ContentService contentService;
 
-    private final boolean includeArchive;
-
     private ContentQueryWithChildren( Builder builder )
     {
         this.contentsPaths = builder.contentsPaths.build();
@@ -27,7 +25,6 @@ public class ContentQueryWithChildren
         this.size = builder.size;
         this.from = builder.from;
         this.contentService = builder.contentService;
-        this.includeArchive = builder.includeArchive;
     }
 
     private QueryExpr constructExprToFindChildren()
@@ -70,7 +67,6 @@ public class ContentQueryWithChildren
                 .from( this.from )
                 .size( this.size )
                 .queryExpr( expr )
-                .includeArchive( this.includeArchive )
                 .build();
 
         return this.contentService.find(query);
@@ -87,7 +83,6 @@ public class ContentQueryWithChildren
                 .from( this.from )
                 .size( this.size )
                 .queryExpr( expr )
-                .includeArchive( this.includeArchive )
                 .build();
 
         return this.contentService.find( query );
@@ -109,8 +104,6 @@ public class ContentQueryWithChildren
         private int from = 0;
 
         private ContentService contentService;
-
-        private boolean includeArchive = false;
 
         private Builder()
         {
@@ -143,12 +136,6 @@ public class ContentQueryWithChildren
         public Builder contentService( ContentService contentService )
         {
             this.contentService = contentService;
-            return this;
-        }
-
-        public Builder includeArchive( boolean includeArchive )
-        {
-            this.includeArchive = includeArchive;
             return this;
         }
 
