@@ -58,7 +58,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await optionSetForm.selectOptionInSingleSelection("Option 1");
             //3. Expand the menu in the single item set:
             await singleSelectionOptionSet.expandItemSetMenu(0);
-            studioUtils.saveScreenshot('single_item_set_menu_expanded');
+            await studioUtils.saveScreenshot('single_item_set_menu_expanded');
             let isDeleteDisabled = await singleSelectionOptionSet.isDeleteSetMenuItemDisabled();
             assert.isTrue(isDeleteDisabled, "Delete menu item should be disabled");
             let isAddAboveDisabled = await singleSelectionOptionSet.isAddAboveSetMenuItemDisabled();
@@ -80,19 +80,19 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             //2. Select 'Option 1' and click on add new item-set:
             await optionSetForm.selectOptionInSingleSelection("Option 1");
             await singleSelectionOptionSet.clickOnAddItemSetButton();
-            studioUtils.saveScreenshot('new_item_set_added_1');
+            await studioUtils.saveScreenshot('new_item_set_added_1');
             await singleSelectionOptionSet.typeOptionName("test option");
             //3. Type a text in the second item-set:
             await singleSelectionOptionSet.typeInLabelInput("label1", 1);
             //3. Click on 'remove-icon' and try to close the second item-set:
             await singleSelectionOptionSet.expandMenuClickOnDelete(1);
-            studioUtils.saveScreenshot('item_set_confirmation_dialog');
+            await studioUtils.saveScreenshot('item_set_confirmation_dialog');
             //"Confirmation mask dialog" should appear, because new item-set has dirty fields:
             await confirmationMask.waitForDialogOpened();
         });
 
     //New set with no dirty fields (ie only default values): no confirmation
-    it(`GIVEN wizard for new 'option set' is opened  AND 'Add My Item-set' has been clicked WHEN text typed in the second item-set AND 'remove' item-set button has been pressed THEN 'Confirmation Dialog' should appear`,
+    it(`GIVEN wizard for new 'option set' is opened  AND 'Add My Item-set' has been clicked WHEN text typed in the second item-set AND 'remove' item-set button has been pressed THEN 'Confirmation Dialog' should not appear`,
         async () => {
             let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
@@ -126,7 +126,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await singleSelectionOptionSet.typeInLabelInput("label1", 1);
             //4. Click on 'Delete' menu item and try to delete the second item-set:
             await singleSelectionOptionSet.expandMenuClickOnDelete(1);
-            studioUtils.saveScreenshot('item_set_confirmation_dialog');
+            await studioUtils.saveScreenshot('item_set_confirmation_dialog');
             //"Confirmation mask dialog" loads appear, because new item-set has dirty fields:
             await confirmationMask.waitForDialogOpened();
             //5. Press on 'Esc' key:
@@ -153,7 +153,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             //4. Fill in the required 'name' input:
             await singleSelectionOptionSet.typeOptionName("test option");
             await contentWizard.waitAndClickOnSave();
-            studioUtils.saveScreenshot('item_set_validation1');
+            await studioUtils.saveScreenshot('item_set_validation1');
             //5. Verify - "Red icon" should not be displayed, because required inputs are filled in!
             await contentWizard.waitUntilInvalidIconDisappears();
         });
@@ -167,7 +167,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let displayName = contentBuilder.generateRandomName('optionset');
             await contentWizard.typeDisplayName(displayName);
             await contentWizard.waitAndClickOnSave();
-            studioUtils.saveScreenshot('item_set_saved_button_wizard');
+            await studioUtils.saveScreenshot('item_set_saved_button_wizard');
             //"Saved" button should appear in the wizard-toolbar
             await contentWizard.waitForSavedButtonVisible();
         });
@@ -187,7 +187,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await contentWizard.pause(1000);
             //3. Verify that content is not valid, because the second required input is empty:
             let result = await contentWizard.isContentInvalid();
-            studioUtils.saveScreenshot('article_wizard_1');
+            await studioUtils.saveScreenshot('article_wizard_1');
             assert.isTrue(result, "Article content should be invalid because required body text area is empty");
         });
 
@@ -208,7 +208,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await contentWizard.pause(2000);
             //4. Verify that content is not valid, because the second required input is empty:
             let result = await contentWizard.isContentInvalid();
-            studioUtils.saveScreenshot('article_wizard_2');
+            await studioUtils.saveScreenshot('article_wizard_2');
             assert.isTrue(result, "Article content should be invalid because required body text area is empty");
         });
 
@@ -231,7 +231,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await contentWizard.pause(2000);
             //4. Verify that content is not valid, because the second required input is empty:
             let result = await contentWizard.isContentInvalid();
-            studioUtils.saveScreenshot('article_wizard_3');
+            await studioUtils.saveScreenshot('article_wizard_3');
             assert.isFalse(result, "Article content should be valid because required inputs are filled");
         });
 
