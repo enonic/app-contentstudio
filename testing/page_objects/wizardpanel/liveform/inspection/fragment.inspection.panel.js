@@ -42,9 +42,14 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async clickOnFragmentDropdownHandle() {
-        await this.waitForElementDisplayed(this.fragmentDropdownHandle, appConst.mediumTimeout);
-        await this.clickOnElement(this.fragmentDropdownHandle);
-        return await this.pause(300);
+        try {
+            await this.waitForElementDisplayed(this.fragmentDropdownHandle, appConst.mediumTimeout);
+            await this.clickOnElement(this.fragmentDropdownHandle);
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_fragment_inspect"));
+            throw new Error(err);
+        }
     }
 
     async getFragmentDropdownOptions() {
