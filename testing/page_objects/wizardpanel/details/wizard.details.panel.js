@@ -27,16 +27,17 @@ class WizardDetailsPanel extends BaseDetailsPanel {
         return await attr.includes("invalid");
     }
 
-    waitForDetailsPanelLoaded() {
-        return this.getBrowser().waitUntil(() => {
-            return this.findElement(xpath.container).catch(err => {
-                throw new Error("Error when checking Details Panel in wizard" + err);
-            }).then(el => {
-                return this.getBrowser().getElementCSSValue(el.elementId, "width");
-            }).then(width => {
-                return getPanelWidth(width) > 100;
-            })
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Details Panel was not loaded in 2000!!!"});
+    async waitForDetailsPanelLoaded() {
+        try {
+            await this.getBrowser().waitUntil(async () => {
+                let el = await this.findElement(xpath.container);
+                let width = await this.getBrowser().getElementCSSValue(el.elementId, "width");
+                return getPanelWidth(width) > 150;
+            }, {timeout: appConst.mediumTimeout, timeoutMsg: "Details Panel was not loaded in " + appConst.mediumTimeout});
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_load_details"));
+            throw new Error(err);
+        }
     }
 
     isDetailsPanelLoaded() {

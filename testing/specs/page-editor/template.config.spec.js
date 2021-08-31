@@ -12,6 +12,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const DefaultPageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/default.page.inspection.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -40,10 +41,12 @@ describe('template.config.spec: template config should be displayed in the Inspe
     it(`WHEN new wizard for article has been opened THEN input from template-config should be displayed in the Inspection Panel`,
         async () => {
             let defaultPageInspectionPanel = new DefaultPageInspectionPanel();
+            let wizardDetailsPanel = new WizardDetailsPanel();
             let contentWizard = new ContentWizard();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToMainFrame();
+            await wizardDetailsPanel.waitForDetailsPanelLoaded();
             //Inspection Panel should be automatically opened:
             await defaultPageInspectionPanel.waitForTitleInputDisplayed();
             await defaultPageInspectionPanel.typeTitle(TITLE_TEXT);
