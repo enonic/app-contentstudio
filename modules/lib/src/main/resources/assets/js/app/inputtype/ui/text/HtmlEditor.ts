@@ -991,7 +991,7 @@ class HtmlEditorConfigBuilder {
             this.includeTool('Fullscreen');
         }
 
-        if (this.editorParams.isFullScreenMode()) {
+        if (this.editorParams.isFullScreenMode() || this.editorParams.isInline()) {
             ['Bold', 'Italic', 'Underline']
                 .filter((tool: string) =>!this.isToolDisabled(tool))
                 .forEach((tool: string) => this.includeTool(tool));
