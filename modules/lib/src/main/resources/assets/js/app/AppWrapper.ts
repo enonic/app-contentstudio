@@ -64,7 +64,7 @@ export class AppWrapper
 
     private handleAppSelected(adminTool: AdminTool) {
         if (!this.containsApp(adminTool.getKey())) {
-            window.open(adminTool.getUri(), adminTool.getKey().toString());
+            window.location.href = adminTool.getUri();
         } else {
             this.selectApp(this.getAppById(adminTool.getKey()));
         }
