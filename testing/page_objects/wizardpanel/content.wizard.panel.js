@@ -620,6 +620,7 @@ class ContentWizardPanel extends Page {
 
     async doUnlockLiveEditor() {
         await this.doOpenItemViewContextMenu();
+        await this.saveScreenshot("item_view_context_menu");
         return await this.clickOnCustomizeMenuItem();
     }
 
