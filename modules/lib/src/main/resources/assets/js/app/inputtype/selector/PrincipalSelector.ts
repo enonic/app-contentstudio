@@ -1,5 +1,5 @@
-import {PrincipalSelector as LibPrincipalSelector} from 'lib-admin-ui/form/inputtype/principal/PrincipalSelector';
-import {PrincipalLoader as LibPrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
+import {PrincipalSelector as BasePrincipalSelector} from 'lib-admin-ui/form/inputtype/principal/PrincipalSelector';
+import {PrincipalLoader as BasePrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 import {PrincipalLoader} from '../../security/PrincipalLoader';
 import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from 'lib-admin-ui/Class';
@@ -7,9 +7,9 @@ import {Class} from 'lib-admin-ui/Class';
 import {InputTypeName} from 'lib-admin-ui/form/InputTypeName';
 
 export class PrincipalSelector
-    extends LibPrincipalSelector {
+    extends BasePrincipalSelector {
 
-    protected createLoader(): LibPrincipalLoader {
+    protected createLoader(): BasePrincipalLoader {
         return new PrincipalLoader();
     }
 
