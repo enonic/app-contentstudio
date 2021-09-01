@@ -122,7 +122,7 @@ class ProjectWizardPanel extends Page {
 
     async waitForSaveButtonEnabled() {
         try {
-            return await this.waitForElementEnabled(this.saveButton, appConst.shortTimeout);
+            return await this.waitForElementEnabled(this.saveButton, appConst.mediumTimeout);
         } catch (err) {
             throw new Error("Save button is not enabled :" + err);
         }
@@ -135,7 +135,7 @@ class ProjectWizardPanel extends Page {
                 await this.saveScreenshot("err_pr_wizard");
                 throw new Error("Save button is not disabled!");
             }
-            return await this.waitForElementDisabled(this.saveButton, appConst.shortTimeout);
+            return await this.waitForElementDisabled(this.saveButton, appConst.mediumTimeout);
         } catch (err) {
             throw new Error("Save button is not disabled :" + err);
         }
@@ -148,7 +148,7 @@ class ProjectWizardPanel extends Page {
                 await this.saveScreenshot("err_pr_wizard");
                 throw new Error("Delete button is not disabled!");
             }
-            return await this.waitForElementDisabled(this.deleteButton, appConst.shortTimeout);
+            return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
         } catch (err) {
             throw new Error("Delete button is not disabled :" + err);
         }
@@ -320,11 +320,11 @@ class ProjectWizardPanel extends Page {
     }
 
     waitForCustomAccessModeComboboxDisabled() {
-        return this.waitForElementDisabled(this.customReadAccessOptionsFilterInput, appConst.shortTimeout);
+        return this.waitForElementDisabled(this.customReadAccessOptionsFilterInput, appConst.mediumTimeout);
     }
 
     waitForCustomReadAccessComboboxEnabled() {
-        return this.waitForElementEnabled(this.customReadAccessOptionsFilterInput, appConst.shortTimeout);
+        return this.waitForElementEnabled(this.customReadAccessOptionsFilterInput, appConst.mediumTimeout);
     }
 
     async waitForProjectAccessSelectorTabMenuExpanded(principalName) {

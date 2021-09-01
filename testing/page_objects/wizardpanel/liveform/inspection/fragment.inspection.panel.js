@@ -73,7 +73,7 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_load_inspect_panel');
             throw new Error('Live Edit, Fragment Inspection Panel is not loaded' + err);
         });

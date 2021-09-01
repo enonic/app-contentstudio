@@ -213,7 +213,7 @@ class ContentPublishDialog extends Page {
 
     async getWorkflowState(displayName) {
         let xpath = XPATH.contentSummaryByDisplayName(displayName);
-        await this.waitForElementDisplayed(xpath, appConst.shortTimeout);
+        await this.waitForElementDisplayed(xpath, appConst.mediumTimeout);
         let result = await this.getAttribute(xpath, 'class');
         if (result.includes('in-progress')) {
             return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;

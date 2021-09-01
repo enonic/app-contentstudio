@@ -68,7 +68,7 @@ class FreeFormView extends Page {
     async selectMenuItem(menuItem) {
         let res = await this.getDisplayedElements(`//li[contains(@id,'MenuItem') and text()='${menuItem}']`);
         await res[0].waitForEnabled(
-            {timeout: appConst.shortTimeout, timeoutMsg: `free form -  menu item '${menuItem}'] should be enabled!`});
+            {timeout: appConst.mediumTimeout, timeoutMsg: `free form -  menu item '${menuItem}'] should be enabled!`});
         await res[0].click();
         return await this.pause(400);
     }

@@ -17,7 +17,7 @@ class ContentUnpublishDialog extends Page {
     }
 
     waitForDialogOpened() {
-        return this.waitForElementDisplayed(this.unpublishButton, appConst.shortTimeout);
+        return this.waitForElementDisplayed(this.unpublishButton, appConst.mediumTimeout);
     }
 
     waitForDialogClosed() {
