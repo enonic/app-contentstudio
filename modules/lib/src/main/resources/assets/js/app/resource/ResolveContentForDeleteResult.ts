@@ -23,6 +23,14 @@ export class ResolveContentForDeleteResult {
         return this.inboundDependencies;
     }
 
+    hasInboundDependencies() {
+        return this.inboundDependencies.length > 0;
+    }
+
+    hasInboundDependency(id: string): boolean {
+        return this.inboundDependencies.some((dep: InboundDependenciesResult) => dep.getId().toString() === id);
+    }
+
     static fromJson(json: ResolveContentForDeleteJson): ResolveContentForDeleteResult {
 
         const contentIds: ContentId[] = json.contentIds

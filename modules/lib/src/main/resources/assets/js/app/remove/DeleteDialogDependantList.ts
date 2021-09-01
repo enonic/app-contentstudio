@@ -1,16 +1,16 @@
 import {DialogDependantList} from '../dialog/DependantItemsDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ResolveDependenciesResult} from '../resource/ResolveDependenciesResult';
+import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDeleteResult';
 
 export class DeleteDialogDependantList extends DialogDependantList {
 
-    private resolveDependenciesResult: ResolveDependenciesResult;
+    private resolveDependenciesResult: ResolveContentForDeleteResult;
 
     protected sortItems(items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] {
         return items.sort(this.itemsWithRefsOnTop.bind(this));
     }
 
-    setResolveDependenciesResult(resolveDependenciesResult: ResolveDependenciesResult) {
+    setResolveDependenciesResult(resolveDependenciesResult: ResolveContentForDeleteResult) {
         this.resolveDependenciesResult = resolveDependenciesResult;
     }
 
@@ -19,7 +19,7 @@ export class DeleteDialogDependantList extends DialogDependantList {
     }
 
     private hasInboundToNumber(item: ContentSummaryAndCompareStatus): number {
-        return this.resolveDependenciesResult?.hasIncomingDependency(item.getId()) ? 3 : 0;
+        return this.resolveDependenciesResult?.hasInboundDependency(item.getId()) ? 3 : 0;
     }
 
 }
