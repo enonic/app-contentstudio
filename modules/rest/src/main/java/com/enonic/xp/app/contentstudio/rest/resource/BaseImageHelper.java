@@ -3,6 +3,7 @@ package com.enonic.xp.app.contentstudio.rest.resource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.time.Instant;
 
 import javax.imageio.ImageIO;
@@ -31,7 +32,7 @@ public abstract class BaseImageHelper
         }
         catch ( IOException e )
         {
-            throw new RuntimeException( "Failed to load default image: " + imageName, e );
+            throw new UncheckedIOException( "Failed to load default image: " + imageName, e );
         }
     }
 

@@ -10,18 +10,22 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
+const TextComponentCke = require('../../page_objects/components/text.component');
 
-describe('wizard.publish.work.in.progress.content.spec - publishes work in progress content in the wizard', function () {
+describe('publish.work.in.progress.spec - publishes work in progress content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
     let SITE;
+    let CONTROLLER_NAME = 'main region';
 
     it("Precondition - new site should be added",
         async () => {
-            let siteName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(siteName);
-            await studioUtils.doAddSite(SITE, true);
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
+            await studioUtils.doAddSite(SITE);
         });
 
     it("GIVEN 'Work in progress' folder is opened WHEN 'Publish...' menu item has been pressed AND 'Mark as ready' menu item clicked THEN the content gets 'Ready for publishing'",
@@ -62,16 +66,58 @@ describe('wizard.publish.work.in.progress.content.spec - publishes work in progr
             let unpublishDialog = await contentWizard.clickOnUnpublishButton();
             await unpublishDialog.clickOnUnpublishButton();
             await confirmValueDialog.waitForDialogOpened();
-            //5. Verify that input for number of items is displayed in the modal dialog
+            //5. Fill in the input for required number of items:
             await confirmValueDialog.typeNumberOrName(1);
-            //6. Confirm the unpublishing:
+            //6. Click on the Confirm button:
             await confirmValueDialog.clickOnConfirmButton();
             await confirmValueDialog.waitForDialogClosed();
             await contentWizard.waitForNotificationMessage();
-            //7. Verify that status in wizard is UNPUBLISHED now
+            //7. Verify that the status is UNPUBLISHED  in the wizard
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.UNPUBLISHED, "The content gets Unpublished");
             await contentWizard.waitForPublishButtonDisplayed();
+        });
+
+    it(`GIVEN existing unpublished site is selected WHEN 'Publish...' button has been pressed AND Include children has been clicked THEN the site should be published`,
+        async () => {
+            let contentPublishDialog = new ContentPublishDialog();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Open an existing site (work in progress)
+            await studioUtils.findAndSelectItem(SITE.displayName);
+            await contentBrowsePanel.clickOnPublishButton();
+            await contentPublishDialog.waitForDialogOpened();
+            //2. Click on 'Include children' icon
+            await contentPublishDialog.clickOnIncludeChildrenToogler();
+            //3. Click on 'Publish Now' button
+            await contentPublishDialog.clickOnPublishNowButton();
+            await contentPublishDialog.waitForDialogClosed();
+            let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
+            //4. Verify that the status gets 'Published'
+            await contentBrowsePanel.waitForStatus(SITE.displayName, appConst.CONTENT_STATUS.PUBLISHED);
+            assert.equal(actualMessage, appConst.TWO_ITEMS_PUBLISHED, "'2 items are published.' should appear");
+        });
+
+    it("GIVEN existing published site is opened WHEN a text component has been inserted THEN site's state should be 'Modified' and 'Work in progress' icon should be displayed in the grid",
+        async () => {
+            let pageComponentView = new PageComponentView();
+            let textComponentCke = new TextComponentCke();
+            let contentWizard = new ContentWizard();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Open an existing site (work in progress)
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            await pageComponentView.openMenu("main");
+            //2. Insert Text Component with test text and save it:
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await textComponentCke.typeTextInCkeEditor("test text");
+            await contentWizard.waitAndClickOnSave();
+            //3. Verify the workflow state in the wizard and in the grid
+            let workflowInWizard = await contentWizard.getToolbarWorkflowState();
+            assert.equal(workflowInWizard, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
+            await studioUtils.doSwitchToContentBrowsePanel();
+            await contentBrowsePanel.waitForStatus(SITE.displayName, appConst.CONTENT_STATUS.MODIFIED);
+            let actualState = await contentBrowsePanel.getWorkflowState(SITE.displayName);
+            assert.equal(actualState, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "'Work in progress' should be displayed in browse panel");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

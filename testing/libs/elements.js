@@ -37,6 +37,7 @@ module.exports = Object.freeze({
         return container +
                `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]`;
     },
+    actionButton: (label) => `//button[contains(@id,'ActionButton') and child::span[contains(.,'${label}')]]`,
     slickRowByName: (container, displayName) => {
         return container +
                `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::p[contains(@class,'sub-name') and contains(.,'${displayName}')]]`;
@@ -57,6 +58,7 @@ module.exports = Object.freeze({
         return `//div[contains(@id,'NamesView') and child::p[contains(@class,'xp-admin-common-sub-name') and contains(.,'${name}')]]` +
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
     },
+    EMPTY_OPTIONS_DIV: "//div[contains(@class,'empty-options') and text()='No matching items']",
     tabMenuItem: menuName => `//li[contains(@id,'TabMenuItem') and child::a[text()='${menuName}']]`,
     TREE_GRID_CONTEXT_MENU: "//ul[contains(@id,'TreeGridContextMenu')]",
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,

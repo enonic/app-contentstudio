@@ -7,10 +7,11 @@ const appConst = require('../../libs/app_const');
 const LoaderComboBox = require('../components/loader.combobox');
 const xpath = {
     stepForm: `//div[contains(@id,'ContentWizardStepForm')]`,
+    parametersSet: "//div[contains(@id,'FormItemSetView') and descendant::h5[contains(.,'Parameters')]]",
     parametersFormOccurrence: `//div[contains(@id,'FormItemSetOccurrenceView')]`,
     parameterNameInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Name']]//input`,
     parameterValueInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Value']]//input`,
-    addParametersButton: "//button[@title='Add Parameters']",
+    addParametersButton: "//button[contains(@id,'Button') and child::span[contains(.,'Add')]]",
     collapseButtonTop: "//div[contains(@class,'top-button-row')]//a[contains(@class,'collapse-button') and (text()='Collapse' or text()='Collapse all')]",
     collapseButtonBottom: "//div[contains(@class,'bottom-button-row')]//a[contains(@class,'collapse-button') and  (text()='Collapse' or text()='Collapse all')]",
     expandButton: "//div[@class='bottom-button-row']//a[contains(@class,'collapse-button') and text()='Expand']",
@@ -28,7 +29,7 @@ class ShortcutForm extends Page {
     }
 
     get addParametersButton() {
-        return xpath.stepForm + xpath.addParametersButton;
+        return xpath.stepForm + xpath.parametersSet + "/div[@class='bottom-button-row']" + xpath.addParametersButton;
     }
 
     waitForParametersFormVisible() {
@@ -131,8 +132,13 @@ class ShortcutForm extends Page {
     }
 
     async clickOnAddParametersButton() {
-        await this.waitForAddParametersButtonVisible();
-        return await this.clickOnElement(this.addParametersButton);
+        try {
+            await this.waitForAddParametersButtonVisible();
+            return await this.clickOnElement(this.addParametersButton);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_short"));
+            throw new Error(err);
+        }
     }
 
     type(shortcutData) {

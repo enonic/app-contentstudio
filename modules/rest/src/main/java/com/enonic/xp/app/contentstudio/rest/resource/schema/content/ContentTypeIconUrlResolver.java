@@ -1,5 +1,6 @@
 package com.enonic.xp.app.contentstudio.rest.resource.schema.content;
 
+import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.IconUrlResolver;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.schema.content.ContentType;
@@ -9,7 +10,7 @@ public final class ContentTypeIconUrlResolver
     extends IconUrlResolver
 {
 
-    public static final String REST_SCHEMA_ICON_URL = "/admin/v2/rest/schema/content/icon/";
+    public static final String REST_SCHEMA_ICON_URL = ResourceConstants.REST_ROOT + "schema/content/icon/";
 
     private final ContentTypeIconResolver contentTypeIconResolver;
 

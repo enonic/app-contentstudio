@@ -7,6 +7,46 @@ import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentListJso
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.LimitingInputStream;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.*;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.AbstractContentQueryResultJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ApplyContentPermissionsJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.BatchContentJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.CompareContentsJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentIdsJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentIdsPermissionsJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentPathsJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentQueryJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentSelectorQueryJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentTreeSelectorJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentTreeSelectorQueryJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.CreateContentJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.CreateMediaFromUrlJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.DeleteAttachmentJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.DeleteContentJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.DuplicateContentsJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.EffectivePermissionAccessJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.EffectivePermissionJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.EffectivePermissionMemberJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetContentVersionsJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetDependenciesResultJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.GetDescendantsOfContents;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.HasUnpublishedChildrenResultJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.LocaleListJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.MarkAsReadyJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.MoveContentJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.PublishContentJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ReorderChildJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ReorderChildrenJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResetContentInheritJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolveContentForDeleteResultJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolvePublishContentResultJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.ResolvePublishDependenciesJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.RevertContentJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.SetActiveVersionJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.SetChildOrderJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDeleteContentJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDeleteContentResultJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.UnpublishContentJson;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.UpdateContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.query.ContentQueryWithChildren;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.*;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconResolver;
@@ -14,12 +54,64 @@ import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeI
 import com.enonic.xp.attachment.*;
 import com.enonic.xp.branch.Branches;
 import com.enonic.xp.content.*;
+import com.enonic.xp.content.CompareContentResult;
+import com.enonic.xp.content.CompareContentResults;
+import com.enonic.xp.content.CompareContentsParams;
+import com.enonic.xp.content.CompareStatus;
+import com.enonic.xp.content.Content;
+import com.enonic.xp.content.ContentAlreadyExistsException;
+import com.enonic.xp.content.ContentConstants;
+import com.enonic.xp.content.ContentDependencies;
+import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.ContentIds;
+import com.enonic.xp.content.ContentIndexPath;
+import com.enonic.xp.content.ContentListMetaData;
+import com.enonic.xp.content.ContentName;
+import com.enonic.xp.content.ContentNotFoundException;
+import com.enonic.xp.content.ContentPath;
+import com.enonic.xp.content.ContentPaths;
+import com.enonic.xp.content.ContentQuery;
+import com.enonic.xp.content.ContentService;
+import com.enonic.xp.content.ContentValidityParams;
+import com.enonic.xp.content.ContentValidityResult;
+import com.enonic.xp.content.ContentVersion;
+import com.enonic.xp.content.ContentVersionId;
+import com.enonic.xp.content.Contents;
+import com.enonic.xp.content.CreateMediaParams;
+import com.enonic.xp.content.FindContentByParentParams;
+import com.enonic.xp.content.FindContentByParentResult;
+import com.enonic.xp.content.FindContentIdsByParentResult;
+import com.enonic.xp.content.FindContentIdsByQueryResult;
+import com.enonic.xp.content.FindContentVersionsParams;
+import com.enonic.xp.content.FindContentVersionsResult;
+import com.enonic.xp.content.GetActiveContentVersionParams;
+import com.enonic.xp.content.GetActiveContentVersionsParams;
+import com.enonic.xp.content.GetActiveContentVersionsResult;
+import com.enonic.xp.content.GetContentByIdsParams;
+import com.enonic.xp.content.GetPublishStatusesParams;
+import com.enonic.xp.content.GetPublishStatusesResult;
+import com.enonic.xp.content.HasUnpublishedChildrenParams;
+import com.enonic.xp.content.RenameContentParams;
+import com.enonic.xp.content.ReorderChildContentsParams;
+import com.enonic.xp.content.ReorderChildContentsResult;
+import com.enonic.xp.content.ReorderChildParams;
+import com.enonic.xp.content.ResolvePublishDependenciesParams;
+import com.enonic.xp.content.ResolveRequiredDependenciesParams;
+import com.enonic.xp.content.SetActiveContentVersionResult;
+import com.enonic.xp.content.SetContentChildOrderParams;
+import com.enonic.xp.content.SyncContentService;
+import com.enonic.xp.content.UndoPendingDeleteContentParams;
+import com.enonic.xp.content.UpdateContentParams;
+import com.enonic.xp.content.UpdateMediaParams;
+import com.enonic.xp.content.WorkflowInfo;
 import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.extractor.BinaryExtractor;
 import com.enonic.xp.extractor.ExtractedData;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.jaxrs.JaxRsComponent;
+import com.enonic.xp.query.filter.BooleanFilter;
+import com.enonic.xp.query.filter.IdFilter;
 import com.enonic.xp.query.parser.QueryParser;
 import com.enonic.xp.repository.IndexException;
 import com.enonic.xp.schema.content.ContentTypeService;
@@ -70,15 +162,15 @@ import static java.util.Optional.ofNullable;
 @Path(REST_ROOT + "{content:(content|" + CMS_PATH + "/content)}")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
-@Component(immediate = true, property = "group=v2", configurationPid = "com.enonic.app.contentstudio")
+@Component(immediate = true, property = "group=v2cs", configurationPid = "com.enonic.app.contentstudio")
 public final class ContentResource
     implements JaxRsComponent
 {
-    private static final Set<String> ALLOWED_PROTOCOLS = Set.of( "http", "https" );
-
     public static final String DEFAULT_SORT_FIELD = "modifiedTime";
 
     public static final int GET_ALL_SIZE_FLAG = -1;
+
+    private static final Set<String> ALLOWED_PROTOCOLS = Set.of( "http", "https" );
 
     private static final String DEFAULT_FROM_PARAM = "0";
 
@@ -984,7 +1076,7 @@ public final class ContentResource
 
     @POST
     @Path("resolveForDelete")
-    public List<ContentIdJson> resolveForDelete( final ContentIdsJson params )
+    public ResolveContentForDeleteResultJson resolveForDelete( final ContentIdsJson params )
     {
         final Contents parents = contentService.getByIds( new GetContentByIdsParams( params.getContentIds() ) );
 
@@ -995,12 +1087,28 @@ public final class ContentResource
                 .build()
                 .find();
 
-        return Stream.concat( parents.getIds().stream(),
-                              children.getContentIds()
-                                      .stream()
-                                      .filter( id -> !parents.getIds().contains( id ) ) )
-            .map( ContentIdJson::new )
-            .collect( Collectors.toList() );
+        final List<ContentId> idsToRemove =
+            Stream.concat( parents.getIds().stream(), children.getContentIds().stream().filter( id -> !parents.getIds().contains( id ) ) )
+                .collect( Collectors.toList() );
+
+        final List<String> idsToRemoveAsStrings = idsToRemove.stream().map( ContentId::toString ).collect( Collectors.toList() );
+
+        final BooleanFilter inboundDependenciesFilter = BooleanFilter.create()
+            .must( BooleanFilter.create()
+                       .should(
+                           IdFilter.create().fieldName( ContentIndexPath.REFERENCES.getPath() ).values( idsToRemoveAsStrings ).build() )
+                       .build() )
+            .mustNot( IdFilter.create().fieldName( ContentIndexPath.ID.getPath() ).values( idsToRemoveAsStrings ).build() )
+            .build();
+
+        final ContentIds inboundDependencies =
+            this.contentService.find( ContentQuery.create().queryFilter( inboundDependenciesFilter ).size( GET_ALL_SIZE_FLAG ).build() )
+                .getContentIds();
+
+        return ResolveContentForDeleteResultJson.create()
+            .addContentIds( idsToRemove )
+            .addInboundDependencies( inboundDependencies.getSet() )
+            .build();
     }
 
     private Stream<ContentId> filterIdsByStatus( final ContentIds ids, final Collection<CompareStatus> statuses )

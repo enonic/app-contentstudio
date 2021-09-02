@@ -84,7 +84,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 @Path(ResourceConstants.REST_ROOT + "{content:(issue|" + ResourceConstants.CMS_PATH + "/issue)}")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
-@Component(immediate = true, property = "group=v2")
+@Component(immediate = true, property = "group=v2cs")
 public final class IssueResource
     implements JaxRsComponent
 {

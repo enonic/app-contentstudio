@@ -54,7 +54,7 @@ describe('Shortcut parameters specification', function () {
             await shortcutForm.filterOptionsAndSelectTarget('whale');
             //2. Click on Add Parameter button:
             await shortcutForm.clickOnAddParametersButton();
-            //"Add Parameters" button should be visible"
+            //"Add Parameters" button remains visible"
             await shortcutForm.waitForAddParametersButtonVisible();
 
             //'Collapse bottom' link gets visible:

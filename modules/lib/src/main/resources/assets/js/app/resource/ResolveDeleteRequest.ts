@@ -1,11 +1,12 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
-import {ContentIdBaseItemJson} from './json/ResolvePublishContentResultJson';
 import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {ResolveContentForDeleteJson} from './json/ResolveContentForDeleteJson';
+import {ResolveContentForDeleteResult} from './ResolveContentForDeleteResult';
 
 export class ResolveDeleteRequest
-    extends CmsContentResourceRequest<ContentId[]> {
+    extends CmsContentResourceRequest<ResolveContentForDeleteResult> {
 
     private ids: ContentId[];
 
@@ -22,7 +23,7 @@ export class ResolveDeleteRequest
         };
     }
 
-    protected parseResponse(response: JsonResponse<ContentIdBaseItemJson[]>): ContentId[] {
-        return response.getResult().map((item => new ContentId(item.id)));
+    protected parseResponse(response: JsonResponse<ResolveContentForDeleteJson>): ResolveContentForDeleteResult {
+        return ResolveContentForDeleteResult.fromJson(response.getResult());
     }
 }

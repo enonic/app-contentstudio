@@ -1,6 +1,4 @@
-export interface ContentIdBaseItemJson {
-    id: string;
-}
+import {ContentIdBaseItemJson} from './ContentIdBaseItemJson';
 
 export interface ResolvePublishContentResultJson {
     dependentContents: ContentIdBaseItemJson[];

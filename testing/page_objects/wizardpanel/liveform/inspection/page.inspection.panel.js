@@ -20,6 +20,16 @@ class PageInspectionPanel extends Page {
         return xpath.container + xpath.pageTemplateSelector + lib.DROP_DOWN_HANDLE;
     }
 
+    get saveAsTemplateButton() {
+        return xpath.container + lib.actionButton("Save as Template");
+    }
+
+    async clickOnSaveAsTemplateButton() {
+        await this.waitForElementDisplayed(this.saveAsTemplateButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.saveAsTemplateButton);
+        return await this.pause(3000);
+    }
+
     clickOnPageTemplateDropdownHandle() {
         return this.clickOnElement(this.pageTemplateDropdownHandle).catch(err => {
             this.saveScreenshot('err_click_on_dropdownhandle_inspection');

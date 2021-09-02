@@ -1,8 +1,8 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
-import {ContentIdBaseItemJson} from './json/ResolvePublishContentResultJson';
 import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
 
 export class ResolveUnpublishRequest
     extends CmsContentResourceRequest<ContentId[]> {

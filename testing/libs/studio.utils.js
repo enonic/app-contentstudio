@@ -601,13 +601,14 @@ module.exports = {
             await webDriverHelper.browser.switchWindow(contentDisplayName);
         }
     },
-    doPressBackspace: function () {
-        return webDriverHelper.browser.keys('\uE003');
+    async doPressBackspace() {
+        await webDriverHelper.browser.keys('\uE003');
+        return await webDriverHelper.browser.pause(200);
     },
-    doPressTabKey: function () {
+    doPressTabKey() {
         return webDriverHelper.browser.keys('Tab');
     },
-    doPressEnter: function () {
+    doPressEnter() {
         return webDriverHelper.browser.keys('Enter');
     },
 
