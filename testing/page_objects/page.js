@@ -251,9 +251,14 @@ class Page {
     }
 
     async removeNotificationMessage() {
-        let selector = "//div[contains(@id,'NotificationContainer')]//span[@class='notification-remove']";
-        await this.clickOnElement(selector);
-        return await this.pause(300);
+        try {
+            let selector = "//div[contains(@id,'NotificationContainer')]//span[@class='notification-remove']";
+            await this.clickOnElement(selector);
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_remove_notif_msg"));
+            throw new Error(err);
+        }
     }
 
     async waitForNotificationMessage() {

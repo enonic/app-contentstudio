@@ -14,6 +14,7 @@ const xpath = {
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     layoutComponentView: "//div[contains(@id,'LayoutComponentView')]",
     textComponentView: "//div[contains(@id,'TextComponentView')]",
+    shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
     imageInTextComponentByDisplayName:
         displayName => `//figure[contains(@data-widget,'image')]//img[contains(@src,'${displayName}')]`,
     textComponentByText: text => `//div[contains(@id,'TextComponentView')]//p[contains(.,'${text}')]`,
@@ -199,6 +200,12 @@ class LiveFormPanel extends Page {
         let columns = await this.getDisplayedElements(xpath.layoutComponentView + "//div[contains(@id,'RegionView')]");
         await contentWizard.switchToMainFrame();
         return columns.length;
+    }
+
+    async isShaderDisplayed() {
+        let shaderElement = await this.findElement(xpath.shaderPage);
+        let style = await shaderElement.getAttribute("style");
+        return !style.includes("display: none");
     }
 }
 
