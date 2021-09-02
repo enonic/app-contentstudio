@@ -43,6 +43,7 @@ export class AppWrapper
         this.initListeners();
         this.selectApp(currentApp);
         this.updateAdminTools();
+        this.toggleSidebar();
         TooltipHelper.init();
     }
 
@@ -308,7 +309,6 @@ class Sidebar
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.hide();
             this.appendChild(this.createAppNameBlock());
             this.appendChildren(this.appModeSwitcher);
             this.appendChild(this.createAppVersionBlock());
