@@ -19,7 +19,6 @@ const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.d
 const RenamePublishedContentDialog = require('./rename.content.dialog');
 const WizardLayersWidget = require('./details/wizard.layers.widget');
 const ContentUnpublishDialog = require('../content.unpublish.dialog');
-const LiveFormPanel = require("./liveform/live.form.panel");
 
 
 const XPATH = {
@@ -64,6 +63,7 @@ const XPATH = {
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     buttonModifyPath: "//button[contains(@class,'icon-pencil')]",
+    shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -1089,10 +1089,10 @@ class ContentWizardPanel extends Page {
     }
 
     async isLiveEditLocked() {
-        let liveFormPanel = new LiveFormPanel();
         await this.switchToLiveEditFrame();
-        return await liveFormPanel.isShaderDisplayed();
-
+        let shaderElement = await this.findElement(XPATH.shaderPage);
+        let style = await shaderElement.getAttribute("style");
+        return !style.includes("display: none");
     }
 }
 
