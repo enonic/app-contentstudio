@@ -35,6 +35,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT, CONTROLLER_NAME);
             await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE);
+            await studioUtils.saveScreenshot("article_template");
         });
 
     //verifies https://github.com/enonic/xp/issues/7396 and https://github.com/enonic/app-contentstudio/issues/947
@@ -47,6 +48,7 @@ describe('template.config.spec: template config should be displayed in the Inspe
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToMainFrame();
             await wizardDetailsPanel.waitForDetailsPanelLoaded();
+            await studioUtils.saveScreenshot("article_details_panel");
             //Inspection Panel should be automatically opened:
             await defaultPageInspectionPanel.waitForTitleInputDisplayed();
             await defaultPageInspectionPanel.typeTitle(TITLE_TEXT);

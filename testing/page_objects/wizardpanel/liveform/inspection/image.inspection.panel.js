@@ -66,14 +66,14 @@ class ImageInspectionPanel extends Page {
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_load_inspect_panel');
             throw new Error('Live Edit, Inspection not loaded' + err);
         });
     }
 
     typeCaption(caption) {
-        return this.waitForElementDisplayed(this.captionTextArea, appConst.shortTimeout).then(() => {
+        return this.waitForElementDisplayed(this.captionTextArea, appConst.mediumTimeout).then(() => {
             return this.typeTextInInput(this.captionTextArea, caption);
         }).catch(err => {
             this.saveScreenshot('err_type_text_in_caption');
