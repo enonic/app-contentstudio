@@ -20,33 +20,68 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
     let SITE;
     let TEMPLATE1;
     let TEMPLATE2;
-    let SUPPORT = 'Site';
+    let SUPPORT_SITE = 'Site';
     let CONTROLLER_NAME1 = 'main region';
     let CONTROLLER_NAME2 = 'default';
 
-    it(`Preconditions: new site should be created`,
+    it(`Precondition 1: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.SIMPLE_SITE_APP]);
             await studioUtils.doAddSite(SITE);
         });
 
-    it(`Precondition: the first template should be added `,
+    it(`GIVEN existing site is opened WHEN a controller is not selected THEN button 'Show Page Editor' should be present in the wizard toolbar`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageInspectionPanel = new PageInspectionPanel();
+            let confirmationDialog = new ConfirmationDialog();
+            //1. Open the existing site(no page controller is selected):
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            //2. Verify that 'Hide Page Editor' button is displayed
+            await contentWizard.waitForHidePageEditorTogglerButtonDisplayed();
+            //3. Verify that 'Show Component View' is not visible now
+            await contentWizard.waitForShowComponentVewTogglerNotVisible();
+            //4. Verify that 'Show Context Window' button is visible:
+            await contentWizard.waitForShowContextPanelButtonDisplayed();
+        });
+
+    it(`Precondition 2: the first template should be added`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            TEMPLATE1 = contentBuilder.buildPageTemplate("template1", SUPPORT, CONTROLLER_NAME1);
+            TEMPLATE1 = contentBuilder.buildPageTemplate(appConstant.generateRandomName("template"), SUPPORT_SITE, CONTROLLER_NAME1);
             await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE1);
             await studioUtils.findAndSelectItem(TEMPLATE1.displayName);
             await contentBrowsePanel.waitForContentDisplayed(TEMPLATE1.displayName);
         });
 
-    it(`Precondition: the second template should be added `,
+    it(`Precondition 3:  the second template should be added`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            TEMPLATE2 = contentBuilder.buildPageTemplate("template2", SUPPORT, CONTROLLER_NAME2);
+            TEMPLATE2 = contentBuilder.buildPageTemplate(appConstant.generateRandomName("template"), SUPPORT_SITE, CONTROLLER_NAME2);
             await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE2);
             await studioUtils.findAndSelectItem(TEMPLATE2.displayName);
             await contentBrowsePanel.waitForContentDisplayed(TEMPLATE2.displayName);
+        });
+
+    it(`GIVEN existing site with a template is opened(shader should be applied) WHEN Customize menu item has been clicked THEN shader gets not displayed`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let pageInspectionPanel = new PageInspectionPanel();
+            let confirmationDialog = new ConfirmationDialog();
+            //1. Open the site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.pause(1000);
+            //2. Verify that LiveEdit is locked:
+            let isLocked = await contentWizard.isLiveEditLocked();
+            assert.isTrue(isLocked, "Page editor should be locked");
+            await contentWizard.switchToParentFrame();
+            //3. Unlock the LiveEdit
+            await contentWizard.doUnlockLiveEditor();
+            //2. Verify that LiveEdit is unlocked:
+            await contentWizard.switchToParentFrame();
+            isLocked = await contentWizard.isLiveEditLocked();
+            assert.isFalse(isLocked, "Page editor should not be locked");
         });
 
     it(`GIVEN site is opened AND Inspection Panel is opened WHEN the second template has been selected in the Inspect Panel THEN site should be saved automatically AND 'Saved' button should appear`,
@@ -59,7 +94,7 @@ describe('site.with.several.templates: click on dropdown handle in Inspection Pa
             await contentWizard.doUnlockLiveEditor();
             await contentWizard.switchToParentFrame();
             //2. Select the controller:
-            await pageInspectionPanel.selectPageTemplateOrController("template1");
+            await pageInspectionPanel.selectPageTemplateOrController(TEMPLATE1.displayName);
             //3. Confirmation dialog appears:
             await confirmationDialog.waitForDialogOpened();
             //4. Confirm it:
