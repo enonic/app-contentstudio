@@ -24,8 +24,12 @@ class PageInspectionPanel extends Page {
         return xpath.container + lib.actionButton("Save as Template");
     }
 
+    waitForSaveAsTemplateButtonDisplayed() {
+        return this.waitForElementDisplayed(this.saveAsTemplateButton, appConst.mediumTimeout);
+    }
+
     async clickOnSaveAsTemplateButton() {
-        await this.waitForElementDisplayed(this.saveAsTemplateButton, appConst.mediumTimeout);
+        await this.waitForSaveAsTemplateButtonDisplayed();
         await this.clickOnElement(this.saveAsTemplateButton);
         return await this.pause(3000);
     }
@@ -61,8 +65,18 @@ class PageInspectionPanel extends Page {
         }
     }
 
-    waitForOpened(ms) {
-        return this.waitForElementDisplayed(xpath.container, ms);
+    waitForOpened() {
+        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
+    }
+
+    async getSelectedPageController() {
+        let locator = xpath.container + xpath.pageTemplateSelector + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
+    waitForNotDipplayed() {
+        return this.waitForElementNotDisplayed(xpath.container, appConst.mediumTimeout);
     }
 }
 
