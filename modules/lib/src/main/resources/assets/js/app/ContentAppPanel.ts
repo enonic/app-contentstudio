@@ -6,6 +6,9 @@ import {Action} from 'lib-admin-ui/ui/Action';
 export class ContentAppPanel
     extends AppPanel {
 
+    constructor() {
+        super('content-app-panel');
+    }
     handleBrowse() {
         super.handleBrowse();
     }
