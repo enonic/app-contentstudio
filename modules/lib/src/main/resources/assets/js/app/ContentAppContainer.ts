@@ -27,6 +27,7 @@ import {ResolveDependencyResult} from './resource/ResolveDependencyResult';
 import {Router} from './Router';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {Store} from 'lib-admin-ui/store/Store';
 
 export class ContentAppContainer
     extends AppContainer {
@@ -73,7 +74,7 @@ export class ContentAppContainer
         });
 
         this.onShown(() => {
-            this.route(AppContext.get().getApplication().getPath());
+            this.route(Store.instance().get('application').getPath());
         });
     }
 

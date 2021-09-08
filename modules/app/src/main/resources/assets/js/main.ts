@@ -56,6 +56,7 @@ import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
 import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 import {ContentApp} from 'lib-contentstudio/app/ContentApp';
 import {SettingsApp} from 'lib-contentstudio/app/settings/SettingsApp';
+import {Store} from 'lib-admin-ui/store/Store';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -254,6 +255,7 @@ function startServerEventListeners(application: Application) {
 async function startApplication() {
     const application: Application = getApplication();
     const connectionDetector = startLostConnectionDetector();
+    Store.instance().set('application', application);
 
     startServerEventListeners(application);
 
@@ -267,7 +269,7 @@ async function startApplication() {
             if (ContentAppHelper.isContentWizard(application)) {
                 startContentWizard(ContentAppHelper.createWizardParamsFromApp(application), connectionDetector);
             } else {
-                startContentBrowser(application);
+                startContentBrowser();
             }
         });
 
@@ -398,13 +400,14 @@ function getTheme(): string {
     return CONFIG.theme ? (`theme-${CONFIG.theme}` || '') : '';
 }
 
-async function startContentBrowser(application: Application) {
+async function startContentBrowser() {
 
     await import ('lib-contentstudio/app/ContentAppPanel');
     const AppWrapper = (await import ('lib-contentstudio/app/AppWrapper')).AppWrapper;
     const apps = [new ContentApp(), new SettingsApp()];
     const activeApp = window.location.href.indexOf('settings') > -1 ? apps[1] : apps[0];
-    const commonWrapper = new AppWrapper(application, activeApp, apps, getTheme());
+    const commonWrapper = new AppWrapper(apps, getTheme());
+    commonWrapper.selectApp(activeApp);
     body.appendChild(commonWrapper);
 
     const NewContentDialog = (await import ('lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;

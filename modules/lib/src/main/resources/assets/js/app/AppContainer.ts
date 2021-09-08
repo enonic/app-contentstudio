@@ -3,7 +3,7 @@ import {AppBar} from 'lib-admin-ui/app/bar/AppBar';
 import {AppPanel} from 'lib-admin-ui/app/AppPanel';
 import {Application} from 'lib-admin-ui/app/Application';
 import * as Q from 'q';
-import {AppContext} from './AppContext';
+import {Store} from 'lib-admin-ui/store/Store';
 
 export abstract class AppContainer
     extends DivEl {
@@ -19,7 +19,7 @@ export abstract class AppContainer
     }
 
     private initElements() {
-        this.appBar = this.createAppBar(AppContext.get().getApplication());
+        this.appBar = this.createAppBar(Store.instance().get('application'));
         this.appPanel = this.createAppPanel();
     }
 

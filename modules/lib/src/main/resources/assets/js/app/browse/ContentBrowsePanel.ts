@@ -182,6 +182,8 @@ export class ContentBrowsePanel
             this.subscribeContextPanelsOnEvents();
             this.createContentPublishMenuButton();
 
+            this.addClass('content-browse-panel');
+
             return rendered;
         }).catch((error) => {
             console.error('Couldn\'t render ContentBrowsePanel', error);

@@ -8,6 +8,9 @@ import {ProjectContext} from './project/ProjectContext';
 export class ContentAppPanel
     extends AppPanel {
 
+    constructor() {
+        super('content-app-panel');
+    }
     handleBrowse() {
         super.handleBrowse();
     }
