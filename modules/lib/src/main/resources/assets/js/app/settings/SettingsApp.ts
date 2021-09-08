@@ -13,11 +13,11 @@ export class SettingsApp extends App {
         return new SettingsAppContainer();
     }
 
-    generateAppUrl(): string {
-        return this.appId.getName().toString();
+    getIconClass(): string {
+        return 'icon-cog';
     }
 
-    getIconName(): string {
+    getDisplayName(): string {
         return i18n('app.settings');
     }
 }

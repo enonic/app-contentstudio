@@ -15,11 +15,11 @@ export class ContentApp extends App {
         return new ContentAppContainer();
     }
 
-    generateAppUrl(): string {
-        return `${this.appId.getName().toString()}#/${ProjectContext.get().getProject().getName()}/${UrlAction.BROWSE}`;
+    getIconClass(): string {
+        return 'icon-tree-2';
     }
 
-    getIconName(): string {
+    getDisplayName(): string {
         return i18n('app.content');
     }
 
