@@ -10,6 +10,7 @@ const XPATH = {
     uploaderButton: "//div[contains(@id,'NewContentUploader')]",
     header: `//div[contains(@id,'NewContentDialogHeader')]`,
     typesList: `//ul[contains(@id,'FilterableItemsList')]`,
+    mostPopularBlock: "//div[contains(@id,'MostPopularItemsBlock')]",
     contentTypeByName: function (name) {
         return `//div[@class='content-types-content']//li[contains(@class,'content-types-list-item') and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`;
     },
@@ -54,15 +55,22 @@ class NewContentDialog extends Page {
         });
     }
 
+    waitForMostPopularBlockDisplayed() {
+        let locator = XPATH.container + XPATH.mostPopularBlock;
+        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
     getHeaderText() {
         return this.getText(this.header);
     }
 
     //type Search Text In Hidden Input
-    typeSearchText(text) {
-        return this.getBrowser().keys(text).catch(err => {
-            throw new Error("New Content Dialog- error when typing the text in search input! ");
-        });
+    async typeSearchText(text) {
+        try {
+            await this.getBrowser().keys(text)
+            return await this.pause(200);
+        } catch (err) {
+            throw new Error("New Content Dialog- error when typing the text in search input! " + err);
+        }
     }
 
     async clickOnContentType(contentTypeName) {
@@ -84,5 +92,6 @@ class NewContentDialog extends Page {
         let locator = XPATH.typesList + lib.H6_DISPLAY_NAME;
         return this.getTextInElements(locator);
     }
-};
+}
+
 module.exports = NewContentDialog;

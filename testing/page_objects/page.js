@@ -137,7 +137,7 @@ class Page {
     saveScreenshot(name) {
         let screenshotsDir = path.join(__dirname, '/../build/mochawesome-report/screenshots/');
         if (!fs.existsSync(screenshotsDir)) {
-            fs.mkdirSync(screenshotsDir, { recursive: true });
+            fs.mkdirSync(screenshotsDir, {recursive: true});
         }
         return this.browser.saveScreenshot(screenshotsDir + name + '.png').then(() => {
             console.log('screenshot is saved ' + name);
@@ -394,6 +394,11 @@ class Page {
     async pressEscKey() {
         await this.keys('Escape');
         return await this.pause(500);
+    }
+
+    async pressEnterKey() {
+        await this.keys('Enter');
+        return await this.pause(400);
     }
 
     async switchToFrame(selector) {
