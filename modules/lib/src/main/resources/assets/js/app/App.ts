@@ -33,7 +33,7 @@ export abstract class App {
 
     protected abstract createAppContainer(): AppContainer;
 
-    abstract generateAppUrl(): string;
+    abstract getIconClass(): string;
 
-    abstract getIconName(): string;
+    abstract getDisplayName(): string;
 }

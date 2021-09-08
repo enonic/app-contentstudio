@@ -53,28 +53,3 @@ exports.get = function () {
         body: adminTools
     }
 };
-
-var doGetContent = function (contentId, versionId) {
-
-    return contentLib.get({
-        key: contentId,
-        versionId: versionId
-    });
-}
-
-var getContent = function (contentId, versionId, repositoryId) {
-    if (!repositoryId) {
-        return doGetContent(contentId,versionId);
-    }
-
-    return contextLib.run(
-        {
-            repository: repositoryId,
-            branch: 'draft'
-        },
-        function() {
-            return doGetContent(contentId, versionId);
-        }
-    );
-
-};

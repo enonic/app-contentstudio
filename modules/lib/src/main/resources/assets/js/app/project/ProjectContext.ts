@@ -1,10 +1,9 @@
 import {Project} from '../settings/data/project/Project';
+import {Store} from 'lib-admin-ui/store/Store';
 
 export class ProjectContext {
 
     public static LOCAL_STORAGE_KEY: string = 'contentstudio:defaultProject';
-
-    private static INSTANCE: ProjectContext;
 
     private currentProject: Project;
 
@@ -19,11 +18,14 @@ export class ProjectContext {
     }
 
     static get(): ProjectContext {
-        if (!ProjectContext.INSTANCE) {
-            ProjectContext.INSTANCE = new ProjectContext();
+        let instance: ProjectContext = Store.instance().get('projectContext');
+
+        if (instance == null && document.body) {
+            instance = new ProjectContext();
+            Store.instance().set('projectContext', instance);
         }
 
-        return ProjectContext.INSTANCE;
+        return instance;
     }
 
     getProject(): Project {
