@@ -41,16 +41,6 @@ describe('page.template.controller: select a controller in a template-wizard', f
             assert.isFalse(isDisplayed, "Uploader button should not be displayed (_templates is selected)");
         });
 
-    it(`GIVEN no selections in the grid WHEN New button has been pressed THEN upload button should be present in New Content dialog`,
-        async () => {
-            let newContentDialog = new NewContentDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            await contentBrowsePanel.clickOnNewButton();
-            await newContentDialog.waitForOpened();
-            let isDisplayed = await newContentDialog.waitForUploaderButtonDisplayed();
-            assert.isTrue(isDisplayed, "Uploader button should be present on the modal dialog");
-        });
-
     // verifies the xp-apps#686 "Template Wizard - Inspection Panel should appear after page controller is selected"
     it(`GIVEN template wizard is opened WHEN controller has been selected THEN Live Context Window should be loaded automatically`,
         async () => {
