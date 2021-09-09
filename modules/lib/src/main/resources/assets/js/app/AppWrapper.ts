@@ -139,7 +139,6 @@ export class AppWrapper
                 const assetUrl = CONFIG.assetsUri.replace(new RegExp(studioApp, 'g'), adminToolApp);
                 const mainJsUrl = `${assetUrl}/js/main.js`;
                 const mainCssUrl = `${assetUrl}/styles/main.css`;
-                console.log(mainJsUrl, mainCssUrl);
 
                 document.querySelector('head').innerHTML += `<link rel="stylesheet" href="${mainCssUrl}" type="text/css"/>`;
 
@@ -169,9 +168,9 @@ export class AppWrapper
         return key.toString().indexOf('com.enonic.app.contentstudio') >= 0;
     }
 
-    addApp(app: App) {
+    addApp(app: App, index: number = -1) {
         this.apps.push(app);
-        this.sidebar.addAdminTool(app);
+        this.sidebar.addAdminTool(app, index);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -221,8 +220,8 @@ class AppModeSwitcher
         this.cleanButtons();
     }
 
-    addAdminTool(app: App) {
-        this.createButton(app);
+    addAdminTool(app: App, index: number = -1) {
+        this.createButton(app, index);
     }
 
     private cleanButtons() {
@@ -236,11 +235,16 @@ class AppModeSwitcher
         });
     }
 
-    private createButton(app: App) {
+    private createButton(app: App, index: number = -1) {
         const contentButton: AppModeButton = new AppModeButton(app);
         this.listenButtonClicked(contentButton);
         this.buttons.push(contentButton);
-        this.appendChild(contentButton);
+
+        if (index > -1) {
+            this.insertChild(contentButton, index);
+        } else {
+            this.appendChild(contentButton);
+        }
     }
 
     private onButtonClicked(button: AppModeButton) {
@@ -346,8 +350,8 @@ class Sidebar
         this.appModeSwitcher.setAdminTools(apps);
     }
 
-    addAdminTool(app: App) {
-        this.appModeSwitcher.addAdminTool(app);
+    addAdminTool(app: App, index: number = -1) {
+        this.appModeSwitcher.addAdminTool(app, index);
     }
 
     private createAppNameBlock(): Element {

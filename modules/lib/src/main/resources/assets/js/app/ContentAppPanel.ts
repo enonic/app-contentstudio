@@ -11,6 +11,7 @@ export class ContentAppPanel
     constructor() {
         super('content-app-panel');
     }
+
     handleBrowse() {
         super.handleBrowse();
     }
