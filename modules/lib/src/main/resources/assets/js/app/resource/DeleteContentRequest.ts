@@ -4,11 +4,11 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
-import {GetTaskInfoRequest} from 'lib-admin-ui/task/GetTaskInfoRequest';
 import {TaskInfo} from 'lib-admin-ui/task/TaskInfo';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentPath} from '../content/ContentPath';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {GetTaskInfoRequest} from './GetTaskInfoRequest';
 
 export class DeleteContentRequest
     extends CmsContentResourceRequest<TaskId> {
