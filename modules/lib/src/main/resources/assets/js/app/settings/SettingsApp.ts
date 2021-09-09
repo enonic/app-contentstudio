@@ -2,11 +2,12 @@ import {App} from '../App';
 import {AppContainer} from '../AppContainer';
 import {SettingsAppContainer} from './SettingsAppContainer';
 import {i18n} from 'lib-admin-ui/util/Messages';
+import {DescriptorKey} from '../page/DescriptorKey';
 
 export class SettingsApp extends App {
 
     constructor() {
-        super('settings');
+        super(DescriptorKey.fromString(`${CONFIG.appId}:settings`));
     }
 
     protected createAppContainer(): AppContainer {
