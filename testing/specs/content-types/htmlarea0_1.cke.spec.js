@@ -104,7 +104,6 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
-            //await htmlAreaForm.typeTextInHtmlArea(TEXT_TO_TYPE);
             await htmlAreaForm.insertTextInHtmlArea(0, TEXT_TO_TYPE);
             let result = await htmlAreaForm.getTextFromHtmlArea();
             studioUtils.saveScreenshot('cke_htmlarea_0_1');
@@ -141,8 +140,28 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await htmlAreaForm.clickOnFullScreenButton();
             await fullScreenDialog.waitForDialogLoaded();
             let result = await fullScreenDialog.getTextFromHtmlArea();
-            studioUtils.saveScreenshot('htmlarea_0_1_full_screen_mode');
+            await studioUtils.saveScreenshot('htmlarea_0_1_full_screen_mode');
             assert.equal(result[0], EXPECTED_TEXT_TEXT1, "expected text should be present in 'full screen' dialog");
+        });
+
+    it("'fullscreen' button has been pressed THEN expected buttons should be in the toolbar",
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let fullScreenDialog = new FullScreenDialog();
+            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            await htmlAreaForm.clickOnFullScreenButton();
+            await fullScreenDialog.waitForDialogLoaded();
+            let numberOfButtons = await fullScreenDialog.getNumberOfToolbarButtons();
+            assert.equal(numberOfButtons, 21, "21 button should be present in toolbar in Full screen mode");
+            await fullScreenDialog.waitForBoldButtonDisplayed();
+            await fullScreenDialog.waitForItalicButtonDisplayed();
+            await fullScreenDialog.waitForUnderlineButtonDisplayed();
+            await fullScreenDialog.waitForJustifyButtonDisplayed();
+            await fullScreenDialog.waitForAlignRightButtonDisplayed();
+            await fullScreenDialog.waitForAlignLeftButtonDisplayed();
+            await fullScreenDialog.waitForInsertMacroButtonDisplayed();
+            await fullScreenDialog.waitForInsertImageButtonDisplayed();
+            await fullScreenDialog.waitForInsertAnchorButtonDisplayed();
         });
 
     it(`GIVEN existing 'htmlArea 0:1' is opened WHEN 'Source Code' button has been pressed THEN source dialog should appear with expected text`,
@@ -153,8 +172,25 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await htmlAreaForm.clickOnSourceButton();
             await sourceCodeDialog.waitForDialogLoaded();
             let result = await sourceCodeDialog.getText();
-            studioUtils.saveScreenshot('htmlarea_0_1_source_code_dialog');
+            await studioUtils.saveScreenshot('htmlarea_0_1_source_code_dialog');
             assert.equal(result.trim(), EXPECTED_TEXT_TEXT1, 'expected text should be present in `full screen` dialog');
+        });
+
+    it("GIVEN 'fullscreen' button has been pressed WHEN 'Increase indent' button has been pressed THEN 'Decrease indent' button gets enabled",
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let fullScreenDialog = new FullScreenDialog();
+            await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
+            //1. Open Full Screen dialog:
+            await htmlAreaForm.clickOnFullScreenButton();
+            await fullScreenDialog.waitForDialogLoaded();
+            //2. Verify that Decrease Indent button is disabled:
+            await fullScreenDialog.waitForDecreaseIndentButtonDisabled();
+            //3. Click on 'Increase Indent' button
+            await fullScreenDialog.clickOnIncreaseIndentButton();
+            await studioUtils.saveScreenshot('fullscreen_mode_increased');
+            //4. Verify that Decrease Indent button gets enabled
+            await fullScreenDialog.waitForDecreaseIndentButtonEnabled();
         });
 
     it(`GIVEN 'Source Code' dialog is opened WHEN text has been cleared THEN htmlArea should be cleared as well`,
@@ -167,7 +203,7 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await sourceCodeDialog.typeText("");
             await sourceCodeDialog.clickOnOkButton();
             let result = await htmlAreaForm.getTextFromHtmlArea();
-            studioUtils.saveScreenshot('htmlarea_0_1_cleared');
+            await studioUtils.saveScreenshot('htmlarea_0_1_cleared');
             assert.equal(result[0], "", 'htmlArea should be cleared as well');
         });
 
@@ -178,12 +214,27 @@ describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
             await studioUtils.selectContentAndOpenWizard(htmlAreaContent.displayName);
             await htmlAreaForm.clickOnFullScreenButton();
             await fullScreenDialog.waitForDialogLoaded();
-            studioUtils.saveScreenshot('htmlarea_full_screen_opened');
+            await studioUtils.saveScreenshot('htmlarea_full_screen_opened');
             // click on ESC:
             await fullScreenDialog.pressEscKey();
-            studioUtils.saveScreenshot('htmlarea_full_screen_closed');
+            await studioUtils.saveScreenshot('htmlarea_full_screen_closed');
             //'full screen dialog should be closed:
             await fullScreenDialog.waitForDialogClosed();
+        });
+
+    it(`GIVEN JustifyLeft JustifyRight | Bold Italic included only WHEN Full screen dialog opened THEN only 6 buttons should be present in the dialog`,
+        async () => {
+            let fullScreenDialog = new FullScreenDialog();
+            let htmlAreaForm = new HtmlAreaForm();
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea_conf');
+            //1. Open full screen dialog
+            await htmlAreaForm.clickOnFullScreenButton();
+            await fullScreenDialog.waitForDialogLoaded();
+            await studioUtils.saveScreenshot('htmlarea_full_screen_conf');
+            //2. Verify that only 6 buttons are present in the toolbar - JustifyLeft JustifyRight | Bold Italic + 'Source' + Fullscreen buttons
+            let numberOfButtons = await fullScreenDialog.getNumberOfToolbarButtons();
+            assert.equal(numberOfButtons, 6, "6 buttons should be present in toolbar in Full screen mode");
+            await fullScreenDialog.waitForUnderlineButtonNotDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

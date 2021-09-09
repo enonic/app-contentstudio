@@ -10,25 +10,69 @@ const InsertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor
 const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
 
 const component = {
-    toolbox: `//span[contains(@id,'cke_1_toolbox')]`,
+    toolbox: `//span[contains(@class,'cke_toolbox')]`,
 };
 
 class TextComponent extends Page {
 
     get insertTableButton() {
-        return component.toolbox + `//a[contains(@class,'cke_button') and @title='Table']`;
+        return component.toolbox + lib.CKE.insertTableButton;
     }
 
     get insertLinkButton() {
-        return component.toolbox + `//a[contains(@class,'cke_button') and contains(@title,'Link')]`;
+        return component.toolbox + lib.CKE.insertLinkButton;
     }
 
     get insertAnchorButton() {
-        return component.toolbox + `//a[contains(@class,'cke_button') and contains(@title,'Anchor')]`;
+        return component.toolbox + lib.CKE.insertAnchorButton;
     }
 
     get insertImageButton() {
-        return component.toolbox + `//a[contains(@class,'cke_button') and contains(@title,'Image')]`;
+        return component.toolbox + lib.CKE.insertImageButton;
+    }
+
+    get boldButton() {
+        return component.toolbox + lib.CKE.boldButton;
+    }
+
+    get italicButton() {
+        return component.toolbox + lib.CKE.italicButton;
+    }
+
+    get underlineButton() {
+        return component.toolbox + lib.CKE.underlineButton;
+    }
+
+    get justifyButton() {
+        return component.toolbox + lib.CKE.justifyButton;
+    }
+
+    get alignLeftButton() {
+        return component.toolbox + lib.CKE.alignLeftButton;
+    }
+
+    get alignRightButton() {
+        return component.toolbox + lib.CKE.alignRightButton;
+    }
+
+    get centerButton() {
+        return component.toolbox + lib.CKE.centerButton;
+    }
+
+    get decreaseIndentButton() {
+        return component.toolbox + lib.CKE.decreaseIndentButton;
+    }
+
+    get increaseIndentButton() {
+        return component.toolbox + lib.CKE.increaseIndentButton;
+    }
+
+    get bulletedButton() {
+        return component.toolbox + lib.CKE.bulletedButton;
+    }
+
+    get insertSpecialCharacterButton() {
+        return component.toolbox + lib.CKE.insertSpecialCharacter;
     }
 
     async typeTextInCkeEditor(text) {
@@ -104,6 +148,35 @@ class TextComponent extends Page {
         await this.clickOnElement(this.insertImageButton);
         await this.switchToParentFrame();
         return await insertImageDialog.waitForDialogVisible();
+    }
+
+    async waitForBoldButtonDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getDisplayedElements(this.boldButton);
+            return result.length > 0;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Bold button should be displayed"});
+    }
+
+    async waitForItalicButtonDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getDisplayedElements(this.italicButton);
+            return result.length > 0;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Italic button should be displayed"});
+    }
+
+    waitForBulletedButtonDisplayed() {
+        return this.waitForElementDisplayed(this.bulletedButton, appConst.mediumTimeout);
+    }
+
+    async waitForUnderlineButtonDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            let result = await this.getDisplayedElements(this.underlineButton);
+            return result.length > 0;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Underline button should be displayed"});
+    }
+
+    waitForJustifyButtonButtonDisplayed() {
+        return this.waitForElementDisplayed(this.justifyButton, appConst.mediumTimeout);
     }
 }
 
