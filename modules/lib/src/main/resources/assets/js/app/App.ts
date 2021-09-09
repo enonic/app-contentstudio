@@ -7,8 +7,8 @@ export abstract class App {
 
     protected appContainer: AppContainer;
 
-    protected constructor(name: string) {
-        this.appId = DescriptorKey.fromString(`${CONFIG.appId}:${name}`);
+    protected constructor(appId: DescriptorKey) {
+        this.appId = appId;
     }
 
     getAppId(): DescriptorKey {

@@ -4,11 +4,12 @@ import {AppContainer} from './AppContainer';
 import {ProjectContext} from './project/ProjectContext';
 import {UrlAction} from './UrlAction';
 import {ContentAppContainer} from './ContentAppContainer';
+import {DescriptorKey} from './page/DescriptorKey';
 
 export class ContentApp extends App {
 
     constructor() {
-        super('main');
+        super(DescriptorKey.fromString(`${CONFIG.appId}:main`));
     }
 
     protected createAppContainer(): AppContainer {
