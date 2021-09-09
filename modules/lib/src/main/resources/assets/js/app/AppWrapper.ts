@@ -131,9 +131,9 @@ export class AppWrapper
     }
 
     private injectMissingAdminTools(adminTools: AdminTool[]) {
-        const studioApp = CONFIG.appId;
+        const studioApp: string = CONFIG.appId;
         adminTools
-            .filter((adminTool: AdminTool) => adminTool.getKey().getApplicationKey().getName() !== studioApp)
+            .filter((adminTool: AdminTool) => !this.hasAdminTool(adminTool))
             .forEach((remoteAdminTool: AdminTool) => {
                 const adminToolApp: string = remoteAdminTool.getKey().getApplicationKey().toString();
                 const assetUrl = CONFIG.assetsUri.replace(new RegExp(studioApp, 'g'), adminToolApp);
@@ -149,12 +149,20 @@ export class AppWrapper
             });
     }
 
+    private hasAdminTool(adminTool: AdminTool): boolean {
+        return this.apps.some((app: App) => app.getAppId().equals(adminTool.getKey()));
+    }
+
     private listenAppEvents() {
         const debouncedAdminToolUpdate = AppHelper.debounce(() => {
             this.updateAdminTools();
         }, 500);
 
         ApplicationEvent.on((event: ApplicationEvent) => {
+            // if (this.isAdminToolApp(event.getApplicationKey())) {
+            //
+            // }
+
             if (ApplicationEventType.STOPPED === event.getEventType() || ApplicationEventType.UNINSTALLED === event.getEventType()
                 || ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED) {
                 if (this.isAdminToolApp(event.getApplicationKey())) {
