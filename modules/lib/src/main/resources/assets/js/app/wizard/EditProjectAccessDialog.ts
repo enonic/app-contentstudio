@@ -2,12 +2,12 @@ import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
-import {TaskProgressInterface} from 'lib-admin-ui/ui/dialog/TaskProgressInterface';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {applyMixins, DefaultModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
-import {ProgressBarManager} from 'lib-admin-ui/ui/dialog/ProgressBarManager';
+import {TaskProgressInterface} from '../dialog/TaskProgressInterface';
+import {ProgressBarManager} from '../dialog/ProgressBarManager';
 
 export class EditProjectAccessDialog
     extends ModalDialogWithConfirmation

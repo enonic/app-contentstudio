@@ -13,10 +13,8 @@ import {Content} from '../content/Content';
 import {AccessControlList} from '../access/AccessControlList';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
-import {TaskProgressInterface} from 'lib-admin-ui/ui/dialog/TaskProgressInterface';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
-import {ProgressBarManager} from 'lib-admin-ui/ui/dialog/ProgressBarManager';
 import {Checkbox} from 'lib-admin-ui/ui/Checkbox';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {SectionEl} from 'lib-admin-ui/dom/SectionEl';
@@ -24,6 +22,8 @@ import {Form} from 'lib-admin-ui/ui/form/Form';
 import {applyMixins, DefaultModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
+import {TaskProgressInterface} from '../dialog/TaskProgressInterface';
+import {ProgressBarManager} from '../dialog/ProgressBarManager';
 
 export class EditPermissionsDialog
     extends ModalDialogWithConfirmation

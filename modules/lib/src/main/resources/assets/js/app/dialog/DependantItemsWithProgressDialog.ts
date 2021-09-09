@@ -1,9 +1,9 @@
 import {applyMixins} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {DependantItemsDialog, DependantItemsDialogConfig} from './DependantItemsDialog';
-import {ProgressBarManager} from 'lib-admin-ui/ui/dialog/ProgressBarManager';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
-import {TaskProgressInterface} from 'lib-admin-ui/ui/dialog/TaskProgressInterface';
+import {TaskProgressInterface} from './TaskProgressInterface';
+import {ProgressBarManager} from './ProgressBarManager';
 
 export abstract class DependantItemsWithProgressDialog
     extends DependantItemsDialog
