@@ -9,6 +9,7 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
+const PublishContentDialog = require('../page_objects/content.publish.dialog');
 
 describe('delete.content.dialog.spec:  tests for Delete Content Dialog', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -16,7 +17,7 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
 
     let FOLDER1;
     let FOLDER2;
-    it(`Precondition: WHEN two folders has been added THEN folders should be present in the grid`,
+    it(`Precondition: two folders should be added`,
         async () => {
             let displayName1 = contentBuilder.generateRandomName('folder');
             let displayName2 = contentBuilder.generateRandomName('folder');
@@ -24,6 +25,40 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             FOLDER2 = contentBuilder.buildFolder(displayName1);
             await studioUtils.doAddFolder(FOLDER1);
             await studioUtils.doAddFolder(FOLDER2);
+        });
+
+    //verifies - https://github.com/enonic/app-contentstudio/issues/1032  Delete button is missing a number of items to delete
+    it(`GIVEN two folders are checked WHEN 'Delete Content Dialog' has been opened THEN expected number(2) should be present in the Delete button`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let deleteContentDialog = new DeleteContentDialog();
+            //1. Select 2 folders
+            await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
+            await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
+            //2. Click on Delete... button in the toolbar:
+            await contentBrowsePanel.clickOnDeleteButton();
+            await deleteContentDialog.waitForDialogOpened();
+            await studioUtils.saveScreenshot("2_folders_to_delete");
+            //3. Verify the number of items in Delete button
+            let result = await deleteContentDialog.getTotalNumberItemsToDelete();
+            assert.equal(result, '2', "Expected number of content (2) should be present in the Delete button");
+        });
+
+    it(`GIVEN two folders are checked WHEN 'Publish Content Dialog' has been opened THEN expected number(2) should be present in the Publish button`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let publishContentDialog = new PublishContentDialog();
+            //1. Select 2 folders
+            await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
+            await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
+            //2. Open Publish Wizard
+            await contentBrowsePanel.clickOnMarkAsReadyButtonAndConfirm();
+            await contentBrowsePanel.clickOnPublishButton();
+            await publishContentDialog.waitForDialogOpened();
+            await studioUtils.saveScreenshot("2_folders_to_publish");
+            //3. Verify the number of items in 'Publish Now' button
+            let result = await publishContentDialog.getNumberItemsToPublish();
+            assert.equal(result, '2', "Expected number of content (2) should be present in the 'Publish now' button");
         });
 
     it(`"WHEN existing folder is selected and 'Delete Content Dialog' has been opened THEN expected elements should be present`,
@@ -45,9 +80,8 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
 
             let isCancelTopButtonDisplayed = await deleteContentDialog.isCancelTopButtonDisplayed();
             assert.isTrue(isCancelTopButtonDisplayed, 'Cancel top button should be displayed');
-
-            //'Delete Menu should be disabled, because the folder has New status
-            await deleteContentDialog.waitForDeleteMenuDropDownHandleDisabled();
+            //'Delete Menu should not be displayed, because the folder has 'New' status
+            await deleteContentDialog.waitForDeleteMenuDropDownHandleNotDisplayed();
 
             let itemsToDelete = await deleteContentDialog.getDisplayNamesToDelete();
             assert.equal(itemsToDelete[0], FOLDER1.displayName, "Expected item to delete should be present");
@@ -57,10 +91,11 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
+            //1. Open Delete Dialog
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
             await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
-
+            //2. Click on Cancel button
             await deleteContentDialog.clickOnCancelButton();
             await deleteContentDialog.waitForDialogClosed();
         });
@@ -69,10 +104,11 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
+            //1. Open Delete Dialog
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
             await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
-
+            //2. Click on Cancel Top button
             await deleteContentDialog.clickOnCancelTopButton();
             await deleteContentDialog.waitForDialogClosed();
         });
@@ -83,7 +119,6 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             let deleteContentDialog = new DeleteContentDialog();
             //1.Select and publish the folder:
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
-            await contentBrowsePanel.clickOnMarkAsReadyButton();
             await studioUtils.doPublish();
             //2. Open Delete Dialog:
             await contentBrowsePanel.clickOnDeleteButton();
@@ -99,22 +134,21 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             assert.equal(status, "Published", 'Published status should be displayed');
         });
 
-    it(`GIVEN two folders are selected WHEN delete dialog has been opened THEN two folders should be present in the modal dialog`,
+    it(`GIVEN one 'published' folder AND one 'new' folder are selected WHEN delete dialog has been opened THEN Delete Menu with Mark as ready menu item should be present`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
-            //1. Click on the checkbox and select the first folder:
+            //1. select a published folder:
             await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
-            //2. Click on the checkbox and select the second folder:
+            //2. select 'new' folder:
             await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
-
+            //3. Open Delete Dialog
             await contentBrowsePanel.clickOnDeleteButton();
             await deleteContentDialog.waitForDialogOpened();
-
             let itemsToDelete = await deleteContentDialog.getDisplayNamesToDelete();
             assert.equal(itemsToDelete[0], FOLDER1.displayName, "Expected item to delete should be present");
             assert.equal(itemsToDelete[1], FOLDER2.displayName, "Expected item to delete should be present");
-
+            //4. Verify that Delete Menu is present in Delete button
             let isDropdownHandleDisplayed = await deleteContentDialog.isDeleteMenuDropDownHandleDisplayed();
             assert.isTrue(isDropdownHandleDisplayed, "Delete menu should be present in the dialog, because there is one Published folder");
         });

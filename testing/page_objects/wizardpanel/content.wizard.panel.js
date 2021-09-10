@@ -511,11 +511,14 @@ class ContentWizardPanel extends Page {
         return this.waitForElementNotDisplayed(this.savingButton, appConst.longTimeout);
     }
 
-    clickOnDelete() {
-        return this.clickOnElement(this.deleteButton).catch(err => {
+    async clickOnDelete() {
+        try {
+            await this.waitForDeleteButtonEnabled();
+            return await this.clickOnElement(this.deleteButton);
+        } catch (err) {
             this.saveScreenshot('err_delete_wizard');
-            throw new Error('Error when Delete button has been clicked ' + err);
-        });
+            throw new Error('Error when clicking on Delete button ' + err);
+        }
     }
 
     async clickOnDeleteAndDeleteNow() {
@@ -981,6 +984,10 @@ class ContentWizardPanel extends Page {
         return this.isClickable(this.displayNameInput);
     }
 
+    waitForDuplicateButtonEnabled() {
+        return this.waitForElementEnabled(this.duplicateButton, appConst.mediumTimeout);
+    }
+
     async waitForDuplicateButtonDisabled() {
         try {
             await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
@@ -994,6 +1001,10 @@ class ContentWizardPanel extends Page {
     async waitForDeleteButtonDisabled() {
         await this.waitForElementDisplayed(this.deleteButton, appConst.mediumTimeout);
         return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
+    }
+
+    waitForDeleteButtonEnabled() {
+        return this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout);
     }
 
     async clickOnPreviewButton() {
