@@ -3,12 +3,12 @@
  */
 const chai = require('chai');
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const TagForm = require('../page_objects/wizardpanel/tag.form.panel');
-const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConstant = require('../../libs/app_const');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const TagForm = require('../../page_objects/wizardpanel/tag.form.panel');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);

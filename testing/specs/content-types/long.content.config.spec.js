@@ -3,12 +3,12 @@
  */
 const chai = require('chai');
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const LongForm = require('../page_objects/wizardpanel/long.form.panel');
-const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.panel');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConstant = require('../../libs/app_const');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const LongForm = require('../../page_objects/wizardpanel/long.form.panel');
+const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('long.content.config.spec:  verifies `Min/max value config for Long`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);

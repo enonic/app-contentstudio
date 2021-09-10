@@ -10,6 +10,9 @@ const XPATH = {
     itemToDeleteList: `//ul[contains(@id,'DeleteDialogItemList')]`,
     itemViewer: `//div[contains(@id,'DeleteItemViewer']`,
     inboundWarningPart2: "//h6/span[contains(@class,'part2')]",
+    dependantList: "//ul[contains(@id,'DeleteDialogDependantList')]",
+    hideDependantItemsLink: "//div[@class='dependants']//h6[@class='dependants-header' and contains(.,'Hide dependent items')]",
+    showDependantItemsLink: "//div[@class='dependants']//h6[@class='dependants-header' and contains(.,'Show dependent items')]",
     itemToDeleteByDisplayName: displayName => {
         return `//div[contains(@id,'NamesAndIconView') and descendant::span[contains(@class,'display-name') and contains(.,'${displayName}')]]`
     },
@@ -77,7 +80,6 @@ class DeleteContentDialog extends Page {
         }
     }
 
-
     async clickOnDeleteMenuDropDownHandle() {
         await this.clickOnElement(this.deleteMenuDropDownHandle);
         return await this.pause(300);
@@ -139,13 +141,19 @@ class DeleteContentDialog extends Page {
         return await this.isElementDisplayed(this.deleteMenuDropDownHandle);
     }
 
-    waitForDeleteMenuDropDownHandleDisabled() {
-        return this.waitForElementDisabled(this.deleteMenuDropDownHandle, appConst.mediumTimeout);
+    waitForDeleteMenuDropDownHandleNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.deleteMenuDropDownHandle, appConst.mediumTimeout);
     }
 
     async getDisplayNamesToDelete() {
         let selector = XPATH.container + XPATH.itemToDeleteList + lib.H6_DISPLAY_NAME;
         return await this.getTextInElements(selector);
+    }
+
+    async getDependantItemsName() {
+        let locator = XPATH.container + XPATH.dependantList + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
     }
 }
 
