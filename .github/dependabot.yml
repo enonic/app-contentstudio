@@ -36,7 +36,7 @@ updates:
       - "alansemenov"
     reviewers:
       - "alansemenov"
-- package-ecosystem: "github-actions"
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
