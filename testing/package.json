@@ -16,7 +16,7 @@
   "devDependencies": {
     "assert": "^2.0.0",
     "chai": "^4.3.4",
-    "globby": "^11.0.4",
+    "globby": "^12.0.2",
     "mocha": "^9.1.1",
     "mochawesome": "6.2.2",
     "properties-reader": "2.2.0",
