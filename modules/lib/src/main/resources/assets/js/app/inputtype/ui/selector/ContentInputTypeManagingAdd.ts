@@ -9,6 +9,9 @@ import {ContentServerChangeItem} from '../../../event/ContentServerChangeItem';
 import {ValueType} from 'lib-admin-ui/data/ValueType';
 import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import {ContentPath} from '../../../content/ContentPath';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationBasedName} from 'lib-admin-ui/application/ApplicationBasedName';
+import {FormItem} from 'lib-admin-ui/form/FormItem';
 
 export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     extends BaseInputTypeManagingAdd {
@@ -28,7 +31,7 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         this.addClass('input-type-view');
         this.config = config;
 
-        this.readConfig(config.inputConfig);
+        this.readConfig();
 
         this.handleContentDeletedEvent();
         this.handleContentUpdatedEvent();
@@ -50,14 +53,29 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         return this.getContentComboBox().getSelectedOptionView();
     }
 
-    protected readConfig(inputConfig: { [element: string]: { [name: string]: string }[]; }): void {
-        let relationshipTypeConfig = inputConfig['relationshipType'] ? inputConfig['relationshipType'][0] : {};
+    private prependApplicationName(applicationKey: ApplicationKey, name: string): string {
+        if (!applicationKey) {
+            return name;
+        }
+        if (!/^[a-zA-Z0-9-_]+$/.test(name)) {
+            return name;
+        }
+
+        return new ApplicationBasedName(applicationKey, name).toString();
+    }
+
+    protected readConfig(): void {
+        const inputConfig: { [element: string]: { [name: string]: string }[]; } = this.config.inputConfig;
+        const applicationKey: ApplicationKey = (<FormItem>this.config.input).getApplicationKey();
+        const relationshipTypeConfig = inputConfig['relationshipType'] ? inputConfig['relationshipType'][0] : {};
         this.relationshipType = relationshipTypeConfig['value'];
 
-        let allowContentTypeConfig = inputConfig['allowContentType'] || [];
-        this.allowedContentTypes = allowContentTypeConfig.map((cfg) => cfg['value']).filter((val) => !!val);
+        const allowContentTypeConfig = inputConfig['allowContentType'] || [];
+        this.allowedContentTypes = allowContentTypeConfig
+            .map((cfg) => this.prependApplicationName(applicationKey, cfg['value']))
+            .filter((val) => !!val);
 
-        let allowContentPathConfig = inputConfig['allowPath'] || [];
+        const allowContentPathConfig = inputConfig['allowPath'] || [];
         this.allowedContentPaths =
             allowContentPathConfig.length > 0 ? allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val) :
             (!StringHelper.isBlank(this.getDefaultAllowPath())

@@ -49,8 +49,8 @@ export class ContentSelector
         super('content-selector', config);
     }
 
-    protected readConfig(inputConfig: { [element: string]: { [name: string]: string }[]; }): void {
-
+    protected readConfig(): void {
+        const inputConfig: { [element: string]: { [name: string]: string }[]; } = this.config.inputConfig;
         const isTreeModeConfig = inputConfig['treeMode'] ? inputConfig['treeMode'][0] : {};
         this.treeMode = !StringHelper.isBlank(isTreeModeConfig['value']) ? isTreeModeConfig['value'].toLowerCase() === 'true' : false;
 
@@ -58,7 +58,7 @@ export class ContentSelector
         this.hideToggleIcon =
             !StringHelper.isBlank(hideToggleIconConfig['value']) ? hideToggleIconConfig['value'].toLowerCase() === 'true' : false;
 
-        super.readConfig(inputConfig);
+        super.readConfig();
     }
 
     protected getDefaultAllowPath(): string {
