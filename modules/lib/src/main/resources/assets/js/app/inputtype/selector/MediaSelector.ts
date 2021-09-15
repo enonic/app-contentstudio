@@ -48,8 +48,8 @@ export class MediaSelector
         return ContentTypeName.getMediaTypes();
     }
 
-    protected readConfig(inputConfig: { [element: string]: { [name: string]: string }[]; }): void {
-        super.readConfig(inputConfig);
+    protected readConfig(): void {
+        super.readConfig();
 
         const allowedContentTypes: string[] = this.getDefaultContentTypes().map(type => type.toString());
         let allowedMediaTypes: string[] = this.allowedContentTypes.filter(value => allowedContentTypes.indexOf(value) >= 0);
