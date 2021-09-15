@@ -19,12 +19,11 @@ function stopSelenuim() {
     selenium.child.kill();
 }
 
-//console.log("!!!!!!!!!!Test file is  :" + process.env.t_name);
-//const testFile = process.env.t_name;
-const testFile = "wizard.xdata.long.form.spec.js"
+console.log("!!!!!!!!!!Test file is  :" + process.env.t_name);
+const testFile = process.env.t_name;
 
 async function runTest() {
-    console.log("#################Test is starting! !")
+    console.log("#################Test is starting! !");
     if (testFile == undefined) {
         throw new Error("test file should be specified");
     } else {
