@@ -1,15 +1,14 @@
 const path = require('path');
-const fs = require('fs');
-const globby = require('globby');
 const Mocha = require('mocha');
+const glob = require('glob');
 const selenium = require('selenium-standalone');
+const testFilesGlob = glob.sync('../specs/content-types/*.js', { cwd: __dirname });
 const PropertiesReader = require('properties-reader');
 const file = path.join(__dirname, '/../browser.properties');
 const properties = PropertiesReader(file);
 const driverVersion = properties.get('chromedriver.version');
 const seleniumVersion = properties.get('selenium.version');
 
-const testFilesInputTypes = './specs/content-types/*.js';
 
 const mocha = new Mocha({
     reporter: 'mochawesome',
@@ -20,67 +19,57 @@ const mocha = new Mocha({
     }
 });
 
-function stopSelenuim() {
-    selenium.child.kill();
+function execute() {
+    return new Promise((resolve) => {
+        mocha.run((failures) => {
+            if (failures === 0) {
+                return resolve();
+            }
+            process.exit(failures);
+        });
+    });
+}
+
+function addFiles() {
+    return new Promise((resolve) => {
+        testFilesGlob.forEach(function(file) {
+            file = path.join(__dirname, file);
+            console.log(file);
+            mocha.addFile(file);
+        });
+        resolve();
+    });
 }
 
 async function runTests() {
-    const paths = await globby([testFilesInputTypes]);
-    paths.forEach(function (filePath) {
-        console.log(filePath);
-        mocha.addFile(filePath);
-    });
-
-    mocha.run(function (exitCode) {
-        stopSelenuim();
-        if (exitCode !== 0) {
-            process.exit(exitCode);
-        }
-    });
+    await addFiles();
+    await execute();
 }
 
-function runSeleniumTests() {
-    selenium.install(
-        {
-            version: seleniumVersion,
-            baseURL: 'https://selenium-release.storage.googleapis.com',
-            drivers: {
-                chrome: {
-                    version: driverVersion,
-                    arch: process.arch,
-                    baseURL: 'https://chromedriver.storage.googleapis.com'
-                }
+async function uiTests() {
+    console.log("Download chrome driver");
+    await selenium.install({
+        version: seleniumVersion,
+        baseURL: 'https://selenium-release.storage.googleapis.com',
+        drivers: {
+            chrome: {
+                version: driverVersion,
+                arch: process.arch,
+                baseURL: 'https://chromedriver.storage.googleapis.com'
             },
-
-            logger: msg => console.log(msg)
-        },
-        function (error) {
-            if (error) {
-                console.log("CHROMEDRIVER VERSION -  " + driverVersion);
-                console.log("Selenium server is not started! 1" + error);
-                return error;
-            }
-            console.log("CHROMEDRIVER VERSION - " + driverVersion);
-            selenium.start({
-                version: seleniumVersion,
-                drivers: {
-                    chrome: {
-                        version: driverVersion
-                    }
-                }
-            }, (error, child) => {
-
-                if (error) {
-                    console.log("Selenium server is not started 2 !" + error);
-                    return error;
-                }
-                console.log("Selenium server is started!")
-                selenium.child = child;
-                runTests();
-            });
         }
-    );
+    });
+
+    console.log("Start selenium server");
+    const seleniumChildProcess = await selenium.start({
+        drivers: {
+            chrome: {
+                version: driverVersion,
+            },
+        }
+    });
+    await runTests();
+    await seleniumChildProcess.kill();
 }
 
-runSeleniumTests();
-
+uiTests();
