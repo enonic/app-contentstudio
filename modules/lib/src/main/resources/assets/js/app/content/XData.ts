@@ -6,6 +6,7 @@ import {Schema, SchemaBuilder} from 'lib-admin-ui/schema/Schema';
 import {FormItem} from 'lib-admin-ui/form/FormItem';
 import {Form, FormBuilder} from 'lib-admin-ui/form/Form';
 import {FormItemFactoryImpl} from 'lib-admin-ui/form/FormItemFactoryImpl';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
 export class XData
     extends Schema
@@ -100,10 +101,9 @@ export class XDataBuilder
 
         this.formItems = [];
         if (xDataJson.form && xDataJson.form.formItems) {
+            const applicationKey: ApplicationKey = new XDataName(this.name).getApplicationKey();
             xDataJson.form.formItems.forEach((formItemJson) => {
-                const formItem: FormItem = FormItemFactoryImpl.get()
-                    .createFormItem(formItemJson)
-                    .setApplicationKey(new XDataName(this.name).getApplicationKey());
+                const formItem: FormItem = FormItemFactoryImpl.get().createFormItem(formItemJson).setApplicationKey(applicationKey);
                 if (formItem) {
                     this.formItems.push(formItem);
                 }
