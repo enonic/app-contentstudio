@@ -64,23 +64,39 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
         return new ApplicationBasedName(applicationKey, name).toString();
     }
 
-    protected readConfig(): void {
-        const inputConfig: { [element: string]: { [name: string]: string }[]; } = this.config.inputConfig;
-        const applicationKey: ApplicationKey = (<FormItem>this.config.input).getApplicationKey();
+    private getRelationShipType(inputConfig: { [element: string]: { [name: string]: string }[]; }): string {
         const relationshipTypeConfig = inputConfig['relationshipType'] ? inputConfig['relationshipType'][0] : {};
-        this.relationshipType = relationshipTypeConfig['value'];
+        return relationshipTypeConfig['value'];
+    }
 
+    private getAllowedContentTypes(inputConfig: { [element: string]: { [name: string]: string }[]; }): string[] {
+        const applicationKey: ApplicationKey = (<FormItem>this.config.input).getApplicationKey();
         const allowContentTypeConfig = inputConfig['allowContentType'] || [];
-        this.allowedContentTypes = allowContentTypeConfig
+        return allowContentTypeConfig
             .map((cfg) => this.prependApplicationName(applicationKey, cfg['value']))
             .filter((val) => !!val);
+    }
 
+    private getAllowedContentPaths(inputConfig: { [element: string]: { [name: string]: string }[]; }): string[] {
         const allowContentPathConfig = inputConfig['allowPath'] || [];
-        this.allowedContentPaths =
-            allowContentPathConfig.length > 0 ? allowContentPathConfig.map((cfg) => cfg['value']).filter((val) => !!val) :
-            (!StringHelper.isBlank(this.getDefaultAllowPath())
-             ? [this.getDefaultAllowPath()]
-             : []);
+        if (allowContentPathConfig.length > 0) {
+            return allowContentPathConfig
+                    .map((cfg) => cfg['value'])
+                    .filter((val) => !!val);
+        }
+        if (!StringHelper.isBlank(this.getDefaultAllowPath())) {
+            return [this.getDefaultAllowPath()];
+        }
+
+        return [];
+    }
+
+    protected readConfig(): void {
+        const inputConfig: { [element: string]: { [name: string]: string }[]; } = this.config.inputConfig;
+
+        this.relationshipType = this.getRelationShipType(inputConfig);
+        this.allowedContentTypes = this.getAllowedContentTypes(inputConfig);
+        this.allowedContentPaths = this.getAllowedContentPaths(inputConfig);
     }
 
     protected getDefaultAllowPath(): string {
