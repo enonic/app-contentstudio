@@ -133,6 +133,7 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             //3. Confirm the deleting:
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();
+            await confirmationDialog.waitForDialogClosed();
 
             let result = await commentsTab.isCommentPresent(newText);
             studioUtils.saveScreenshot("task_comment_deleted");
