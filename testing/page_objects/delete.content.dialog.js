@@ -41,6 +41,14 @@ class DeleteContentDialog extends Page {
         return XPATH.container + XPATH.deleteMenu + lib.DROP_DOWN_HANDLE;
     }
 
+    get hideDependantItemsLink() {
+        return XPATH.container + XPATH.hideDependantItemsLink;
+    }
+
+    get showDependantItemsLink() {
+        return XPATH.container + XPATH.showDependantItemsLink;
+    }
+
     waitForDialogOpened() {
         return this.waitForElementDisplayed(this.deleteNowButton, appConst.shortTimeout);
     }
@@ -154,6 +162,44 @@ class DeleteContentDialog extends Page {
         let locator = XPATH.container + XPATH.dependantList + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
+    }
+
+    waitForHideDependantItemsLinkDisplayed() {
+        return this.waitForElementDisplayed(this.hideDependantItemsLink, appConst.mediumTimeout);
+    }
+
+    waitForShowDependantItemsLinkDisplayed() {
+        let locator = XPATH.container + XPATH.showDependantItemsLink;
+        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    async clickOnHideDependantItemsLink() {
+        await this.waitForHideDependantItemsLinkDisplayed();
+        return await this.clickOnElement(this.hideDependantItemsLink);
+    }
+
+    async clickShowDependantItemsLink() {
+        await this.waitForShowDependantItemsLinkDisplayed();
+        return await this.clickOnElement(this.showDependantItemsLink, appConst.mediumTimeout);
+    }
+
+    async getNumberInHideDependantItemsLink() {
+        let text = await this.getText(this.hideDependantItemsLink);
+        let startIndex = text.indexOf('(');
+        let endIndex = text.indexOf(')');
+        return text.substring(startIndex + 1, endIndex);
+    }
+
+    async getNumberInShowDependantItemsLink() {
+        let text = await this.getText(this.showDependantItemsLink);
+        let startIndex = text.indexOf('(');
+        let endIndex = text.indexOf(')');
+        return text.substring(startIndex + 1, endIndex);
+    }
+
+    getDependantNames() {
+        let locator = XPATH.container + XPATH.dependantList + "//div[contains(@id,'DependantItemViewer')]" + lib.H6_DISPLAY_NAME;
+        return this.getTextInDisplayedElements(locator);
     }
 }
 
