@@ -7,6 +7,7 @@ import {DescriptorName} from './DescriptorName';
 import {RegionDescriptor} from './RegionDescriptor';
 import {DescriptorJson} from './DescriptorJson';
 import {ComponentType} from './region/ComponentType';
+import {DescriptorForm} from './DescriptorForm';
 
 export class Descriptor
     implements Cloneable, Equitable {
@@ -139,14 +140,14 @@ export class DescriptorBuilder {
     }
 
     static fromJson(json: DescriptorJson): DescriptorBuilder {
-
+        const descriptorKey: DescriptorKey = DescriptorKey.fromString(json.key);
         return new DescriptorBuilder()
             .setName(new DescriptorName(json.name))
             .setDisplayName(json.displayName)
             .setDescription(json.description)
-            .setConfig(json.config != null ? Form.fromJson(json.config) : null)
+            .setConfig(json.config != null ? DescriptorForm.fromDescriptorJson(json.config, descriptorKey.getApplicationKey()) : null)
             .setIcon(json.icon)
-            .setKey(DescriptorKey.fromString(json.key))
+            .setKey(descriptorKey)
             .setRegions(json.regions?.map(regionJson => RegionDescriptor.fromJson(regionJson)));
     }
 

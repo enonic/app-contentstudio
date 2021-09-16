@@ -45,7 +45,6 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     constructor(config: DescriptorBasedComponentInspectionPanelConfig) {
         super(config);
 
-        //this.componentType = config.componentType;
         this.initElements(config.componentType);
         this.initListeners();
     }
