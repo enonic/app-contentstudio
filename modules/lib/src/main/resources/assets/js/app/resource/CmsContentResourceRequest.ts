@@ -17,6 +17,7 @@ export abstract class CmsContentResourceRequest<PARSED_TYPE>
     constructor() {
         super();
         this.addRequestPathElements('content');
+        this.setContentRootPath('content');
     }
 
     fromJsonToContentSummary(json: ContentSummaryJson): ContentSummary {

@@ -8,14 +8,14 @@ export class UrlHelper {
         return UriHelper.getAdminUri(UriHelper.joinPath('rest-v2', 'cs', UriHelper.relativePath(path)));
     }
 
-    static getCMSPath(): string {
+    static getCMSPath(contentRootPath?: string): string {
         const requestProject: Project = ProjectContext.get().getProject();
-        return `cms/${requestProject.getName()}/base`;
+        return `cms/${requestProject.getName()}${!!contentRootPath ? '/' + contentRootPath : ''}`;
     }
 
-    static getCMSPathWithProject(projectName: string): string {
+    static getCMSPathWithProject(projectName: string, contentRootPath?: string): string {
         const requestProject: string = !!projectName ? projectName : ProjectContext.get().getProject().getName();
-        return `cms/${requestProject}/base`;
+        return `cms/${requestProject}${!!contentRootPath ? '/' + contentRootPath : ''}`;
     }
 
 }

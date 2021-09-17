@@ -8,8 +8,10 @@ export abstract class CmsProjectBasedResourceRequest<PARSED_TYPE>
 
     private projectName: string;
 
+    private contentRootPath: string;
+
     getRestPath(): Path {
-        return Path.fromParent(super.getRestPath(), UrlHelper.getCMSPathWithProject(this.projectName));
+        return Path.fromParent(super.getRestPath(), UrlHelper.getCMSPathWithProject(this.projectName, this.contentRootPath));
     }
 
     setRequestProject(value: Project): CmsProjectBasedResourceRequest<PARSED_TYPE> {
@@ -19,6 +21,11 @@ export abstract class CmsProjectBasedResourceRequest<PARSED_TYPE>
 
     setRequestProjectName(value: string): CmsProjectBasedResourceRequest<PARSED_TYPE> {
         this.projectName = value;
+        return this;
+    }
+
+    setContentRootPath(value: string) {
+        this.contentRootPath = value;
         return this;
     }
 

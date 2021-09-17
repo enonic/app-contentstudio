@@ -1,12 +1,68 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.security.RolesAllowed;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
+import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.io.ByteSource;
+
 import com.enonic.xp.app.ApplicationWildcardMatcher;
-import com.enonic.xp.app.contentstudio.json.content.*;
+import com.enonic.xp.app.contentstudio.json.content.CompareContentResultsJson;
+import com.enonic.xp.app.contentstudio.json.content.ContentIdJson;
+import com.enonic.xp.app.contentstudio.json.content.ContentJson;
+import com.enonic.xp.app.contentstudio.json.content.ContentListJson;
+import com.enonic.xp.app.contentstudio.json.content.ContentPermissionsJson;
+import com.enonic.xp.app.contentstudio.json.content.ContentSummaryJson;
+import com.enonic.xp.app.contentstudio.json.content.ContentTreeSelectorListJson;
+import com.enonic.xp.app.contentstudio.json.content.ContentVersionJson;
+import com.enonic.xp.app.contentstudio.json.content.ContentsExistByPathJson;
+import com.enonic.xp.app.contentstudio.json.content.ContentsExistJson;
+import com.enonic.xp.app.contentstudio.json.content.DependenciesAggregationJson;
+import com.enonic.xp.app.contentstudio.json.content.DependenciesJson;
+import com.enonic.xp.app.contentstudio.json.content.GetActiveContentVersionsResultJson;
+import com.enonic.xp.app.contentstudio.json.content.GetContentVersionsForViewResultJson;
+import com.enonic.xp.app.contentstudio.json.content.GetContentVersionsResultJson;
+import com.enonic.xp.app.contentstudio.json.content.ReorderChildrenResultJson;
+import com.enonic.xp.app.contentstudio.json.content.RootPermissionsJson;
 import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentJson;
 import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentListJson;
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.LimitingInputStream;
-import com.enonic.xp.app.contentstudio.rest.resource.content.json.*;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.AbstractContentQueryResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ApplyContentPermissionsJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.BatchContentJson;
@@ -48,12 +104,20 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.UndoPendingDel
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UnpublishContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.UpdateContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.query.ContentQueryWithChildren;
-import com.enonic.xp.app.contentstudio.rest.resource.content.task.*;
+import com.enonic.xp.app.contentstudio.rest.resource.content.task.ApplyPermissionsRunnableTask;
+import com.enonic.xp.app.contentstudio.rest.resource.content.task.DeleteRunnableTask;
+import com.enonic.xp.app.contentstudio.rest.resource.content.task.DuplicateRunnableTask;
+import com.enonic.xp.app.contentstudio.rest.resource.content.task.MoveRunnableTask;
+import com.enonic.xp.app.contentstudio.rest.resource.content.task.PublishRunnableTask;
+import com.enonic.xp.app.contentstudio.rest.resource.content.task.UnpublishRunnableTask;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
-import com.enonic.xp.attachment.*;
+import com.enonic.xp.attachment.Attachment;
+import com.enonic.xp.attachment.AttachmentNames;
+import com.enonic.xp.attachment.Attachments;
+import com.enonic.xp.attachment.CreateAttachment;
+import com.enonic.xp.attachment.CreateAttachments;
 import com.enonic.xp.branch.Branches;
-import com.enonic.xp.content.*;
 import com.enonic.xp.content.CompareContentResult;
 import com.enonic.xp.content.CompareContentResults;
 import com.enonic.xp.content.CompareContentsParams;
@@ -116,7 +180,13 @@ import com.enonic.xp.query.parser.QueryParser;
 import com.enonic.xp.repository.IndexException;
 import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.relationship.RelationshipTypeService;
-import com.enonic.xp.security.*;
+import com.enonic.xp.security.Principal;
+import com.enonic.xp.security.PrincipalKey;
+import com.enonic.xp.security.PrincipalKeys;
+import com.enonic.xp.security.PrincipalQuery;
+import com.enonic.xp.security.PrincipalQueryResult;
+import com.enonic.xp.security.RoleKeys;
+import com.enonic.xp.security.SecurityService;
 import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
 import com.enonic.xp.security.acl.Permission;
@@ -129,29 +199,9 @@ import com.enonic.xp.util.Exceptions;
 import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.multipart.MultipartForm;
 import com.enonic.xp.web.multipart.MultipartItem;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.io.ByteSource;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Modified;
-import org.osgi.service.component.annotations.Reference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.InputStream;
-import java.net.URL;
-import java.time.Instant;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CMS_PATH;
+import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
@@ -159,7 +209,7 @@ import static java.lang.Math.toIntExact;
 import static java.util.Optional.ofNullable;
 
 @SuppressWarnings("UnusedDeclaration")
-@Path(REST_ROOT + "{content:(content|" + CMS_PATH + "/content)}")
+@Path(REST_ROOT + "{content:(content|" + CONTENT_CMS_PATH + "/content)}")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs", configurationPid = "com.enonic.app.contentstudio")
@@ -969,27 +1019,14 @@ public final class ContentResource
                                         @QueryParam("size") @DefaultValue(DEFAULT_SIZE_PARAM) final Integer sizeParam,
                                         @QueryParam("childOrder") @DefaultValue("") final String childOrder )
     {
-        final ContentPath parentContentPath;
-
-        if ( isNullOrEmpty( parentIdParam ) )
-        {
-            parentContentPath = null;
-        }
-        else
-        {
-            final Content parentContent = contentService.getById( ContentId.from( parentIdParam ) );
-
-            parentContentPath = parentContent.getPath();
-        }
-
         final FindContentByParentParams params = FindContentByParentParams.create()
             .from( fromParam )
             .size( sizeParam )
-            .parentPath( parentContentPath )
+            .parentId( isNullOrEmpty( parentIdParam ) ? null : ContentId.from( parentIdParam ) )
             .childOrder( ChildOrder.from( childOrder ) )
             .build();
 
-        return doGetByParentPath( expandParam, params, parentContentPath );
+        return doGetByParent( expandParam, params );
     }
 
     @POST
@@ -1006,8 +1043,7 @@ public final class ContentResource
         return new ContentListJson<>( contents, metaData, jsonObjectsFactory::createContentSummaryJson );
     }
 
-    private ContentListJson<?> doGetByParentPath( final String expandParam, final FindContentByParentParams params,
-                                                  final ContentPath parentContentPath )
+    private ContentListJson<?> doGetByParent( final String expandParam, final FindContentByParentParams params )
     {
         final FindContentByParentResult result = contentService.findByParent( params );
 
