@@ -21,8 +21,9 @@ import {ContentPath} from '../content/ContentPath';
 
 export class ContentSummaryAndCompareStatusFetcher {
 
-    static fetchRoot(from: number = 0, size: number = -1): Q.Promise<ContentResponse<ContentSummaryAndCompareStatus>> {
-        return ContentSummaryAndCompareStatusFetcher.fetchChildren(null, from, size, this.createRootChildOrder());
+    static fetchRoot(from: number = 0, size: number = -1,
+                     contentRootPath: string = 'content'): Q.Promise<ContentResponse<ContentSummaryAndCompareStatus>> {
+        return ContentSummaryAndCompareStatusFetcher.fetchChildren(null, from, size, contentRootPath, this.createRootChildOrder());
     }
 
     static createRootChildOrder(): ChildOrder {
@@ -36,10 +37,11 @@ export class ContentSummaryAndCompareStatusFetcher {
         return childOrder;
     }
 
-    static fetchChildren(parentContentId: ContentId, from: number = 0, size: number = -1,
+    static fetchChildren(parentContentId: ContentId, from: number = 0, size: number = -1, contentRootPath: string = 'content',
                          childOrder?: ChildOrder): Q.Promise<ContentResponse<ContentSummaryAndCompareStatus>> {
 
-        return new ListContentByIdRequest(parentContentId).setFrom(from).setSize(size).setOrder(childOrder).sendAndParse().then(
+        return new ListContentByIdRequest(parentContentId).setFrom(from).setSize(size).setOrder(childOrder).setContentRootPath(
+            contentRootPath).sendAndParse().then(
             (response: ContentResponse<ContentSummary>) => {
 
                 return CompareContentRequest.fromContentSummaries(response.getContents()).sendAndParse().then(

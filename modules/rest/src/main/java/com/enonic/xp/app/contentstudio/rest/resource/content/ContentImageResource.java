@@ -45,9 +45,10 @@ import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.WebException;
 
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CMS_PATH;
+import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
 
-@Path(REST_ROOT + "{content:(content|" + CMS_PATH + "/content)}/image")
+@Path(REST_ROOT + "{content:(content|" + CONTENT_CMS_PATH + "/content)}/image")
 @Produces("image/*")
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs")

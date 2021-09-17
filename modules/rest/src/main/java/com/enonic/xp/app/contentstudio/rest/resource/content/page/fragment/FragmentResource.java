@@ -23,7 +23,7 @@ import com.enonic.xp.region.FragmentService;
 import com.enonic.xp.security.RoleKeys;
 
 
-@Path(ResourceConstants.REST_ROOT + "{content:(content|" + ResourceConstants.CMS_PATH + "/content)}/page/fragment")
+@Path(ResourceConstants.REST_ROOT + "{content:(content|" + ResourceConstants.CONTENT_CMS_PATH + "/content)}/page/fragment")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs")

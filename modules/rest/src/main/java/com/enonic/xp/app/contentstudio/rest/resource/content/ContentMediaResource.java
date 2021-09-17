@@ -35,13 +35,14 @@ import com.enonic.xp.schema.content.ContentTypeNames;
 import com.enonic.xp.security.RoleKeys;
 
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CMS_PATH;
+import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
 import static com.enonic.xp.web.servlet.ServletRequestUrlHelper.contentDispositionAttachment;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
 
 @SuppressWarnings("UnusedDeclaration")
-@Path(REST_ROOT + "{content:(content|" + CMS_PATH + "/content)}/media")
+@Path(REST_ROOT + "{content:(content|" + CONTENT_CMS_PATH + "/content)}/media")
 @Produces(MediaType.APPLICATION_OCTET_STREAM)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs")
