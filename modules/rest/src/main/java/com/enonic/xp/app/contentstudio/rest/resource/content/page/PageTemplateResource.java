@@ -41,10 +41,11 @@ import com.enonic.xp.site.Site;
 import com.enonic.xp.site.SiteService;
 
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CMS_PATH;
+import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
 
 
-@Path(REST_ROOT + "{content:(content|" + CMS_PATH + "/content)}/page/template")
+@Path(REST_ROOT + "{content:(content|" + CONTENT_CMS_PATH + "/content)}/page/template")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs")
