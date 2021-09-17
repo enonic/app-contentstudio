@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CMS_PATH;
+import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.base.Strings.nullToEmpty;
@@ -70,7 +71,7 @@ import static java.lang.Math.toIntExact;
 import static java.util.Optional.ofNullable;
 
 @SuppressWarnings("UnusedDeclaration")
-@Path(REST_ROOT + "{content:(content|" + CMS_PATH + "/content)}")
+@Path(REST_ROOT + "{content:(content|" + CONTENT_CMS_PATH + "/content)}")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs", configurationPid = "com.enonic.app.contentstudio")
@@ -886,27 +887,14 @@ public final class ContentResource
                                         @QueryParam("size") @DefaultValue(DEFAULT_SIZE_PARAM) final Integer sizeParam,
                                         @QueryParam("childOrder") @DefaultValue("") final String childOrder )
     {
-        final ContentPath parentContentPath;
-
-        if ( isNullOrEmpty( parentIdParam ) )
-        {
-            parentContentPath = null;
-        }
-        else
-        {
-            final Content parentContent = contentService.getById( ContentId.from( parentIdParam ) );
-
-            parentContentPath = parentContent.getPath();
-        }
-
         final FindContentByParentParams params = FindContentByParentParams.create()
             .from( fromParam )
             .size( sizeParam )
-            .parentPath( parentContentPath )
+            .parentId( isNullOrEmpty( parentIdParam ) ? null : ContentId.from( parentIdParam ) )
             .childOrder( ChildOrder.from( childOrder ) )
             .build();
 
-        return doGetByParentPath( expandParam, params, parentContentPath );
+        return doGetByParent( expandParam, params );
     }
 
     @POST
@@ -923,8 +911,7 @@ public final class ContentResource
         return new ContentListJson<>( contents, metaData, jsonObjectsFactory::createContentSummaryJson );
     }
 
-    private ContentListJson<?> doGetByParentPath( final String expandParam, final FindContentByParentParams params,
-                                                  final ContentPath parentContentPath )
+    private ContentListJson<?> doGetByParent( final String expandParam, final FindContentByParentParams params )
     {
         final FindContentByParentResult result = contentService.findByParent( params );
 

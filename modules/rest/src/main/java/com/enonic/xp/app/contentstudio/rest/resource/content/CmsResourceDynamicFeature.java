@@ -34,6 +34,7 @@ public final class CmsResourceDynamicFeature
         if ( supportedResources.contains( resourceInfo.getResourceClass() ) )
         {
             context.register( new CmsResourceFilter() );
+            context.register( new CmsContentResourceFilter() );
         }
     }
 }

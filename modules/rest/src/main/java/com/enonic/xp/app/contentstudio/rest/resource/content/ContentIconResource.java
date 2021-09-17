@@ -34,11 +34,11 @@ import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.util.BinaryReference;
 import com.enonic.xp.util.Exceptions;
 
-import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CMS_PATH;
+import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-@Path(REST_ROOT + "{content:(content|" + CMS_PATH + "/content)}/icon")
+@Path(REST_ROOT + "{content:(content|" + CONTENT_CMS_PATH + "/content)}/icon")
 @Produces("image/*")
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs")
