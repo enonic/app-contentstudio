@@ -6,20 +6,15 @@ import {PEl} from 'lib-admin-ui/dom/PEl';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {GetContentRootPermissionsRequest} from '../resource/GetContentRootPermissionsRequest';
 import {ApplyContentPermissionsRequest} from '../resource/ApplyContentPermissionsRequest';
-import {AccessControlComboBox} from './AccessControlComboBox';
+import {AccessControlComboBox, AccessControlComboBoxBuilder} from './AccessControlComboBox';
 import {GetContentByPathRequest} from '../resource/GetContentByPathRequest';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
 import {Content} from '../content/Content';
 import {AccessControlList} from '../access/AccessControlList';
 import {AccessControlEntry} from '../access/AccessControlEntry';
-import {
-    ModalDialogWithConfirmation,
-    ModalDialogWithConfirmationConfig
-} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
-import {TaskProgressInterface} from 'lib-admin-ui/ui/dialog/TaskProgressInterface';
+import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
-import {ProgressBarManager} from 'lib-admin-ui/ui/dialog/ProgressBarManager';
 import {Checkbox} from 'lib-admin-ui/ui/Checkbox';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {SectionEl} from 'lib-admin-ui/dom/SectionEl';
@@ -27,6 +22,8 @@ import {Form} from 'lib-admin-ui/ui/form/Form';
 import {applyMixins, DefaultModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
+import {TaskProgressInterface} from '../dialog/TaskProgressInterface';
+import {ProgressBarManager} from '../dialog/ProgressBarManager';
 
 export class EditPermissionsDialog
     extends ModalDialogWithConfirmation
@@ -97,7 +94,7 @@ export class EditPermissionsDialog
         this.subTitle = new H6El('sub-title').setHtml(`${i18n('dialog.permissions.applying')}...`);
         this.inheritPermissionsCheck = Checkbox.create().setLabelText(i18n('dialog.permissions.inherit')).build();
         this.inheritPermissionsCheck.addClass('inherit-perm-check');
-        this.comboBox = new AccessControlComboBox();
+        this.comboBox = new AccessControlComboBoxBuilder().build();
         this.comboBox.addClass('principal-combobox');
         this.overwriteChildPermissionsCheck = Checkbox.create().setLabelText(i18n('dialog.permissions.overwrite')).build();
         this.overwriteChildPermissionsCheck.addClass('overwrite-child-check');

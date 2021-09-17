@@ -68,6 +68,7 @@
         display: flex;
         position: relative;
         margin: 10px 0;
+        align-items: flex-start;
 
         &:first-child {
           margin-top: 0;
@@ -111,20 +112,76 @@
           }
 
           .version-action-button {
-            width: 80%;
             text-align: center;
-            margin: 17px auto 5px auto;
+            margin: 10px 0 10px 47px;
             padding-top: 5px;
             padding-bottom: 5px;
             display: none;
           }
+        }
+
+        &.publish-action {
+          padding: 5px 7px 5px 12px;
+          flex-direction: column-reverse;
+          pointer-events: none;
+
+          .publish-message {
+            color: @admin-font-gray2;
+            margin: 5px 0 0 0;
+            font-style: italic;
+          }
+        }
+
+        .wrapper {
+          display: flex;
+          align-self: flex-start;
+          width: 100%;
+
+          .names-and-icon-view {
+            flex: 1;
+            display: flex;
+
+            .@{_COMMON_PREFIX}wrapper {
+              height: 100%;
+
+              .font-icon-default {
+                &:before {
+                  font-size: 26px;
+                  color: @admin-dark-gray;
+                }
+
+                &.icon-version-published::before {
+                  color: @admin-green;
+                }
+
+                &.icon-version-unpublished::before {
+                  font-size: 34px;
+                }
+              }
+            }
+
+            .@{_COMMON_PREFIX}names-view {
+              margin: 0;
+
+              .@{_COMMON_PREFIX}main-name {
+                height: inherit;
+                line-height: inherit;
+              }
+
+              .@{_COMMON_PREFIX}sub-name {
+                white-space: normal;
+              }
+
+              &.small .@{_COMMON_PREFIX}main-name {
+                font-size: 13px;
+              }
+            }
+          }
 
           button.compare {
-            position: absolute;
-            top: 11px;
-            right: 7px;
             padding: 0;
-            z-index: 1;
+            order: 1;
+            margin-left: 5px;
 
             &:before {
               color: @admin-font-gray2;
@@ -141,59 +198,6 @@
 
             + .names-and-icon-view {
               padding-right: 30px;
-            }
-          }
-        }
-
-        &.publish-action {
-          padding: 5px 7px 5px 12px;
-          flex-direction: column-reverse;
-          pointer-events: none;
-
-          .publish-message {
-            color: @admin-font-gray2;
-            margin: 5px 0 0 0;
-            font-style: italic;
-          }
-        }
-
-        .names-and-icon-view {
-          flex: 1;
-          display: flex;
-
-          .@{_COMMON_PREFIX}wrapper {
-            height: 100%;
-
-            .font-icon-default {
-              &:before {
-                font-size: 26px;
-                color: @admin-dark-gray;
-              }
-
-              &.icon-version-published::before {
-                color: @admin-green;
-              }
-
-              &.icon-version-unpublished::before {
-                font-size: 34px;
-              }
-            }
-          }
-
-          .@{_COMMON_PREFIX}names-view {
-            margin: 0;
-
-            .@{_COMMON_PREFIX}main-name {
-              height: inherit;
-              line-height: inherit;
-            }
-
-            .@{_COMMON_PREFIX}sub-name {
-              white-space: normal;
-            }
-
-            &.small .@{_COMMON_PREFIX}main-name {
-              font-size: 13px;
             }
           }
         }

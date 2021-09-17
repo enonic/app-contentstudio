@@ -23,7 +23,7 @@ describe('Text Component with CKE - insert link and table specification', functi
     let SITE;
     let NOT_VALID_URL = 'test';
     let CONTROLLER_NAME = 'main region';
-    let EXPECTED_URL = '<p><a href="https://enonic.com">test</a></p>';
+    let EXPECTED_URL = '<p><a href="http://google.com">test</a></p>';
 
     it(`Precondition: new site should be added`,
         async () => {
@@ -94,7 +94,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await textComponentCke.switchToLiveEditFrame();
             //2. Open Insert Link dialog and add the link:
             await textComponentCke.clickOnInsertLinkButton();
-            await studioUtils.insertUrlLinkInCke("test", 'https://enonic.com');
+            await studioUtils.insertUrlLinkInCke("test", 'http://google.com');
             await textComponentCke.switchToLiveEditFrame();
             studioUtils.saveScreenshot('url_link_inserted');
             //3. Get and check the text in CKE:
@@ -116,7 +116,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await contentBrowsePanel.pause(2000);
             let title = await studioUtils.getTitle();
             studioUtils.saveScreenshot('site_preview_button_clicked');
-            assert.equal(title, 'Headless CMS without limitations', 'expected title should be loaded');
+            assert.equal(title, 'Google', 'expected title should be loaded');
         });
 
     it("WHEN site is selected THEN the link should appear in Preview Panel",
@@ -139,7 +139,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await contentItemPreviewPanel.pause(2000);
             studioUtils.saveScreenshot("link_clicked_in_preview_panel");
             //Web page should not be loaded as well, because disallowed loading of the resource in an iframe outside of their domain:
-            result = await contentItemPreviewPanel.waitForElementNotDisplayedInFrame("//h1[text()='Better customer journeys']");
+            result = await contentItemPreviewPanel.waitForElementNotDisplayedInFrame("//input[name='q']");
             assert.isTrue(result, "Web page should not be loaded");
         });
 

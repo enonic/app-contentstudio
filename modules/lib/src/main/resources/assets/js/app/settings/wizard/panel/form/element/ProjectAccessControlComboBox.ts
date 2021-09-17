@@ -4,11 +4,12 @@ import {Principal} from 'lib-admin-ui/security/Principal';
 import {PrincipalContainerSelectedOptionsView} from 'lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {ProjectAccessControlEntryView} from './ProjectAccessControlEntryView';
+import {PrincipalLoader} from '../../../../../security/PrincipalLoader';
 
 export class ProjectAccessControlComboBox
     extends PrincipalContainerCombobox<ProjectAccessControlEntry> {
 
-    constructor(builder: ProjectAccessControlComboBoxBuilder = new ProjectAccessControlComboBoxBuilder()) {
+    constructor(builder: ProjectAccessControlComboBoxBuilder) {
         super(builder);
         this.addClass('project-access-combobox');
     }
@@ -32,4 +33,9 @@ export class ProjectAccessControlComboBoxBuilder
 
     selectedOptionsView: ProjectACESelectedOptionsView = new ProjectACESelectedOptionsView();
 
+    loader: PrincipalLoader = new PrincipalLoader();
+
+    build(): ProjectAccessControlComboBox {
+        return new ProjectAccessControlComboBox(this);
+    }
 }

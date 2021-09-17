@@ -22,10 +22,7 @@ import {PublishRequestItem} from '../PublishRequestItem';
 import {IssueDetailsDialogButtonRow} from './IssueDetailsDialogDropdownButtonRow';
 import {IssueDetailsDialogSubTitle} from './IssueDetailsDialogSubTitle';
 import {PublishProcessor} from '../../publish/PublishProcessor';
-import {
-    DependantItemsWithProgressDialog,
-    DependantItemsWithProgressDialogConfig
-} from '../../dialog/DependantItemsWithProgressDialog';
+import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../../dialog/DependantItemsWithProgressDialog';
 import {IssueCommentsList} from './IssueCommentsList';
 import {IssueCommentTextArea} from './IssueCommentTextArea';
 import {CreateIssueCommentRequest} from '../resource/CreateIssueCommentRequest';
@@ -50,7 +47,6 @@ import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 import {ComboBox} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
 import {PropertySet} from 'lib-admin-ui/data/PropertySet';
 import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
@@ -61,6 +57,7 @@ import {LocalDateTime} from 'lib-admin-ui/util/LocalDateTime';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {IssueComment} from '../IssueComment';
 import {ContentId} from '../../content/ContentId';
+import {PrincipalLoader} from '../../security/PrincipalLoader';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -194,8 +191,9 @@ export class IssueDetailsDialog
     }
 
     protected initTabs() {
-        const userLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER]).skipPrincipals(
-            [PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
+        const userLoader = new PrincipalLoader()
+            .setAllowedTypes([PrincipalType.USER])
+            .skipPrincipals([PrincipalKey.ofAnonymous(), PrincipalKey.ofSU()]);
         this.assigneesCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(userLoader).build();
         this.commentsList = new IssueCommentsList();
 

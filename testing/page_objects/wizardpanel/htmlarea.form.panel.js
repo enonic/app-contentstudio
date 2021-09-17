@@ -10,33 +10,10 @@ const XPATH = {
     ckeTextArea: "//div[contains(@id,'cke_TextArea')]",
     ckeToolbox: "//span[contains(@class,'cke_toolbox')]",
     insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
-    insertAnchorButton: `//a[contains(@class,'cke_button') and @title='Anchor']`,
-    insertLinkButton: `//a[contains(@class,'cke_button__link')]`,
-    insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
-    insertMacroButton: `//a[contains(@class,'cke_button') and @title='Insert macro']`,
-    boldButton: `//a[contains(@class,'cke_button') and contains(@title,'Bold')]`,
-    italicButton: `//a[contains(@class,'cke_button') and contains(@title,'Italic')]`,
-    underlineButton: `//a[contains(@class,'cke_button') and contains(@title,'Underline')]`,
-    subscriptButton: `//a[contains(@class,'cke_button') and contains(@title,'Subscript')]`,
-    superScriptButton: `//a[contains(@class,'cke_button') and contains(@title,'Superscript')]`,
-    wrapCodeButton: `//a[contains(@class,'cke_button') and contains(@title,'Wrap code')]`,
-    blockQuoteButton: `//a[contains(@class,'cke_button') and contains(@title,'Block Quote')]`,
-    alignLeftButton: `//a[contains(@class,'cke_button') and contains(@title,'Align Left')]`,
-    alignRightButton: `//a[contains(@class,'cke_button') and contains(@title,'Align Right')]`,
-    centerButton: `//a[contains(@class,'cke_button') and contains(@title,'Center')]`,
-    justifyButton: `//a[contains(@class,'cke_button') and contains(@title,'Justify')]`,
-    bulletedButton: `//a[contains(@class,'cke_button') and contains(@title,'Bulleted List')]`,
-    numberedButton: `//a[contains(@class,'cke_button') and contains(@title,'Numbered List')]`,
-    sourceButton: `//a[contains(@class,'cke_button__sourcedialog') and contains(@href,'Source')]`,
-    fullScreen: `//a[contains(@class,'cke_button__fullscreen')  and contains(@href,'Fullscreen')]`,
-    tableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
-    strikethroughButton: `//a[contains(@class,'cke_button') and contains(@title,'Strikethrough')]`,
-    increaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Increase Indent')]`,
-    decreaseIndentButton: `//a[contains(@class,'cke_button') and contains(@title,'Decrease Indent')]`,
     formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
     addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
     removeAreaButton: "//div[contains(@id,'HtmlArea')]//button[@class='remove-button']",
-    maximizeButton: `//a[contains(@class,'cke_button') and contains(@class,'maximize')]`,
+
     typeText: function (id, text) {
         return `CKEDITOR.instances['${id}'].setData('${text}')`;
     },
@@ -51,7 +28,7 @@ const XPATH = {
 class HtmlAreaForm extends OccurrencesFormView {
 
     get fullScreenButton() {
-        return lib.FORM_VIEW + XPATH.fullScreen;
+        return lib.FORM_VIEW + lib.CKE.fullScreen;
     }
 
     get addButton() {
@@ -188,17 +165,17 @@ class HtmlAreaForm extends OccurrencesFormView {
 
     async showToolbarAndClickOnInsertAnchorButton() {
         await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
-        await this.clickOnElement(XPATH.ckeTextArea)
-        await this.waitForElementDisplayed(XPATH.insertAnchorButton, appConst.mediumTimeout);
-        await this.clickOnElement(XPATH.insertAnchorButton);
+        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.waitForElementDisplayed(lib.CKE.insertAnchorButton, appConst.mediumTimeout);
+        await this.clickOnElement(lib.CKE.insertAnchorButton);
         return await this.pause(300);
     }
 
     async showToolbarAndClickOnTableButton() {
         await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
         await this.clickOnElement(XPATH.ckeTextArea);
-        await this.waitForElementDisplayed(XPATH.tableButton, appConst.mediumTimeout);
-        await this.clickOnElement(XPATH.tableButton);
+        await this.waitForElementDisplayed(lib.CKE.tableButton, appConst.mediumTimeout);
+        await this.clickOnElement(lib.CKE.tableButton);
         return await this.pause(400);
     }
 
@@ -210,16 +187,15 @@ class HtmlAreaForm extends OccurrencesFormView {
 
     async showToolbarAndClickOnInsertSpecialCharactersButton() {
         await this.clickOnElement(XPATH.ckeTextArea);
-        let locator = "//a[contains(@class,'cke_button') and @title='Insert Special Character']";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(`//a[contains(@class,'cke_button') and @title='Insert Special Character']`);
+        await this.waitForElementDisplayed(lib.CKE.insertSpecialCharacter, appConst.mediumTimeout);
+        await this.clickOnElement(lib.CKE.insertSpecialCharacter);
         return await this.pause(300);
     }
 
     async showToolbarAndClickOnInsertMacroButton() {
         await this.clickOnElement(XPATH.ckeTextArea);
-        await this.waitForElementDisplayed(XPATH.insertMacroButton, appConst.mediumTimeout);
-        return await this.clickOnElement(XPATH.insertMacroButton);
+        await this.waitForElementDisplayed(lib.CKE.insertMacroButton, appConst.mediumTimeout);
+        return await this.clickOnElement(lib.CKE.insertMacroButton);
     }
 
     async showToolbarAndClickOnInsertLinkButton() {
@@ -227,13 +203,12 @@ class HtmlAreaForm extends OccurrencesFormView {
         await this.clickOnElement(XPATH.ckeTextArea);
         //click on `Insert Link` button and wait for modal dialog is loaded
         return await this.clickOnInsertLinkButton();
-
     }
 
     async clickOnInsertLinkButton() {
-        let results = await this.getDisplayedElements(XPATH.insertLinkButton);
+        let results = await this.getDisplayedElements(lib.CKE.insertLinkButton);
         //await this.waitForElementDisplayed(XPATH.insertLinkButton, appConst.mediumTimeout);
-        await this.clickOnElement(XPATH.insertLinkButton);
+        await this.clickOnElement(lib.CKE.insertLinkButton);
         let insertLinkDialog = new InsertLinkDialog();
         await insertLinkDialog.waitForDialogLoaded();
         await this.pause(300);
@@ -242,8 +217,8 @@ class HtmlAreaForm extends OccurrencesFormView {
 
     async clickOnSourceButton() {
         await this.clickOnElement(XPATH.ckeTextArea);
-        await this.waitForElementDisplayed(XPATH.sourceButton, appConst.mediumTimeout);
-        return await this.clickOnElement(XPATH.sourceButton);
+        await this.waitForElementDisplayed(lib.CKE.sourceButton, appConst.mediumTimeout);
+        return await this.clickOnElement(lib.CKE.sourceButton);
     }
 
     async clickOnFullScreenButton() {
@@ -253,106 +228,97 @@ class HtmlAreaForm extends OccurrencesFormView {
         return await this.pause(200);
     }
 
-    isBoldButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.boldButton, appConst.mediumTimeout).catch(err => {
-            console.log('Bold button is not visible! ' + err);
-            return false;
-        })
+    waitForBoldButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(lib.CKE.boldButton, appConst.mediumTimeout);
     }
 
-    isItalicButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.italicButton, appConst.mediumTimeout).catch(err => {
-            console.log('Italic button is not visible! ' + err);
-            return false;
-        })
+    waitForItalicButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(lib.CKE.italicButton, appConst.mediumTimeout);
     }
 
-    isUnderlineButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.underlineButton, appConst.mediumTimeout).catch(err => {
-            console.log('Underline button is not visible! ' + err);
-            return false;
-        })
+    waitForUnderlineButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(lib.CKE.underlineButton, appConst.mediumTimeout);
     }
 
     isSuperscriptButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.superScriptButton, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(lib.CKE.superScriptButton, appConst.shortTimeout).catch(err => {
             console.log('Superscript button is not visible! ' + err);
             return false;
         })
     }
 
     isSubscriptButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.subscriptButton, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(lib.CKE.subscriptButton, appConst.shortTimeout).catch(err => {
             console.log('Subscript button is not visible! ' + err);
             return false;
         })
     }
 
     isBulletedListButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.bulletedButton, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(lib.CKE.bulletedButton, appConst.shortTimeout).catch(err => {
             console.log('Bulleted List button is not visible! ' + err);
             return false;
         })
     }
 
     isNumberedListButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.numberedButton, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(lib.CKE.numberedButton, appConst.shortTimeout).catch(err => {
             console.log('Numbered List button is not visible! ' + err);
             return false;
         })
     }
 
     isAlignLeftButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.alignLeftButton, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(lib.CKE.alignLeftButton, appConst.shortTimeout).catch(err => {
             console.log('Align Left  button is not visible! ' + err);
             return false;
         })
     }
 
     isAlignRightButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.alignRightButton, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(lib.CKE.alignRightButton, appConst.shortTimeout).catch(err => {
             console.log('Align Right  button is not visible! ' + err);
             return false;
         })
     }
 
     isCenterButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.centerButton, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(lib.CKE.centerButton, appConst.shortTimeout).catch(err => {
             console.log('Center  button is not visible! ' + err);
             return false;
         })
     }
 
     isIncreaseIndentDisplayed() {
-        return this.waitForElementDisplayed(XPATH.increaseIndentButton).catch(err => {
+        return this.waitForElementDisplayed(lib.CKE.increaseIndentButton).catch(err => {
             console.log('Increase Indent  button is not visible! ' + err);
             return false;
         })
     }
 
     isDecreaseIndentDisplayed() {
-        return this.waitForElementDisplayed(XPATH.decreaseIndentButton, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(lib.CKE.decreaseIndentButton, appConst.mediumTimeout).catch(err => {
             console.log('Increase Indent  button is not visible! ' + err);
             return false;
         })
     }
 
     isBlockQuoteButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.blockQuoteButton, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(lib.CKE.blockQuoteButton, appConst.mediumTimeout).catch(err => {
             console.log('Block Quote  button is not visible! ' + err);
             return false;
         })
     }
 
     isTableButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.tableButton, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(lib.CKE.tableButton, appConst.mediumTimeout).catch(err => {
             console.log('Table  button is not visible! ' + err);
             return false;
         })
     }
 
     isIncreaseIndentButtonDisplayed() {
-        return this.waitForElementDisplayed(XPATH.increaseIndentButton, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(lib.CKE.increaseIndentButton, appConst.mediumTimeout).catch(err => {
             console.log('Increase Indent  button is not visible! ' + err);
             return false;
         })

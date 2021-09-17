@@ -31,6 +31,11 @@ class CityFormPanel extends Page {
         await this.typeTextInInput(this.populationInput, population);
         return await this.pause(200);
     }
+
+    async getPopulation() {
+        await this.waitForElementDisplayed(this.populationInput, appConst.mediumTimeout);
+        return await this.getTextInInput(this.populationInput);
+    }
 }
 
 module.exports = CityFormPanel;

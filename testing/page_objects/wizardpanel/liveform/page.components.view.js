@@ -129,7 +129,7 @@ class PageComponentView extends Page {
             let selector = xpath.contextMenuItemByName(menuItem);
             await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
             await this.clickOnElement(selector);
-            return await this.pause(300);
+            return await this.pause(500);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_menu_item"));
             throw new Error("Page Component View: Menu Item still not visible - " + menuItem + " " + err);

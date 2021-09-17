@@ -30,12 +30,6 @@ class BaseBrowsePanel extends Page {
         return this.getBrowser().keys(['Alt', 'n']);
     }
 
-    //returns array that contains display names of items in the grid:
-    getDisplayNames() {
-        let selector = this.treeGrid + lib.H6_DISPLAY_NAME;
-        return this.getTextInElements(selector);
-    }
-
     hotKeyDelete() {
         return this.getBrowser().status().then(status => {
             if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {

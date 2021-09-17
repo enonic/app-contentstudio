@@ -12,6 +12,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const DefaultPageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/default.page.inspection.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -34,16 +35,20 @@ describe('template.config.spec: template config should be displayed in the Inspe
             let templateName = contentBuilder.generateRandomName('template');
             TEMPLATE = contentBuilder.buildPageTemplate(templateName, SUPPORT, CONTROLLER_NAME);
             await studioUtils.doAddPageTemplate(SITE.displayName, TEMPLATE);
+            await studioUtils.saveScreenshot("article_template");
         });
 
     //verifies https://github.com/enonic/xp/issues/7396 and https://github.com/enonic/app-contentstudio/issues/947
     it(`WHEN new wizard for article has been opened THEN input from template-config should be displayed in the Inspection Panel`,
         async () => {
             let defaultPageInspectionPanel = new DefaultPageInspectionPanel();
-            let siteWizard = new ContentWizard();
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            let contentWizard = new ContentWizard();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
-            await siteWizard.doUnlockLiveEditor();
-            await siteWizard.switchToMainFrame();
+            await contentWizard.doUnlockLiveEditor();
+            await contentWizard.switchToMainFrame();
+            await wizardDetailsPanel.waitForDetailsPanelLoaded();
+            await studioUtils.saveScreenshot("article_details_panel");
             //Inspection Panel should be automatically opened:
             await defaultPageInspectionPanel.waitForTitleInputDisplayed();
             await defaultPageInspectionPanel.typeTitle(TITLE_TEXT);

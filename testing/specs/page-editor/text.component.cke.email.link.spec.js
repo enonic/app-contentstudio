@@ -69,6 +69,27 @@ describe('Text Component with CKE - insert email link  specification', function 
             assert.isTrue(isDisplayed, 'email link should be present in the page');
         });
 
+    //Verifies https://github.com/enonic/app-contentstudio/issues/3476
+    //B/I/U disappeared from Text component's toolbar #3476
+    it(`GIVEN Text component is inserted THEN B/I/U buttons should be present in the cke-toolbar`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let textComponentCke = new TextComponentCke();
+            let pageComponentView = new PageComponentView();
+            //1. Open existing site:
+            await studioUtils.selectContentAndOpenWizard(SITE.displayName);
+            await contentWizard.clickOnShowComponentViewToggler();
+            //2. Insert new text-component
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            await textComponentCke.switchToLiveEditFrame();
+            //3. Verify B/I/U buttons
+            await studioUtils.saveScreenshot("bold_italic_buttons_text_component");
+            await textComponentCke.waitForBoldButtonDisplayed();
+            await textComponentCke.waitForItalicButtonDisplayed();
+            await textComponentCke.waitForUnderlineButtonDisplayed();
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

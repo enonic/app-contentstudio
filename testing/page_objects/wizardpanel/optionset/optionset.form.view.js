@@ -17,18 +17,27 @@ class OptionSetFormView extends Page {
     }
 
     async selectOptionInSingleSelection(option) {
-        let dropDownHandlerLocator = this.dropDownHandleInSingleSelection;
-        await this.waitForElementDisplayed(dropDownHandlerLocator, appConst.mediumTimeout);
-        await this.clickOnElement(dropDownHandlerLocator);
-        let optionLocator = xpath.singleSelectionView + lib.itemByDisplayName(option);
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        return await this.clickOnElement(optionLocator);
+        try {
+            await this.waitForElementDisplayed(this.dropDownHandleInSingleSelection, appConst.mediumTimeout);
+            await this.clickOnElement(this.dropDownHandleInSingleSelection);
+            let optionLocator = xpath.singleSelectionView + lib.itemByDisplayName(option);
+            await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
+            return await this.clickOnElement(optionLocator);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_optionset"));
+            throw new Error(err);
+        }
     }
 
     async expandFormByLabel(formName) {
-        let locator = `//div[contains(@id,'FormOccurrenceDraggableLabel') and text()=${formName}]`;
-        let elements = await this.findElements(locator).click();
-        return await elements[0].click();
+        try {
+            let locator = `//div[contains(@id,'FormOccurrenceDraggableLabel') and text()=${formName}]`;
+            let elements = await this.findElements(locator).click();
+            return await elements[0].click();
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_optionset_expand"));
+            throw new Error(err);
+        }
     }
 }
 

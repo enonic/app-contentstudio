@@ -89,6 +89,10 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             let htmlAreaForm = new HtmlAreaForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.showToolbar();
+            //Verify that B/U/I are not displayed in the htmlArea toolbar(they are present only in Full screen dialog)
+            await htmlAreaForm.waitForBoldButtonNotDisplayed();
+            await htmlAreaForm.waitForItalicButtonNotDisplayed();
+            await htmlAreaForm.waitForUnderlineButtonNotDisplayed();
 
             let result = await htmlAreaForm.isBulletedListButtonDisplayed();
             assert.isTrue(result, 'Bulleted List button should be present');

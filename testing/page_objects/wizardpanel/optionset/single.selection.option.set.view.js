@@ -50,8 +50,14 @@ class SingleSelectionOptionSet extends Page {
     }
 
     async clickOnAddItemSetButton() {
-        await this.clickOnElement(this.addItemSetButton);
-        return await this.pause(400);
+        try {
+            await this.waitForElementEnabled(this.addItemSetButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.addItemSetButton);
+            return await this.pause(400);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_add_button"));
+            throw new Error(err);
+        }
     }
 
     async expandMenuClickOnDelete(index) {

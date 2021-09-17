@@ -26,5 +26,6 @@ class HomePage extends Page {
         return this.isElementDisplayed(XPATH.container);
     }
 
-};
+}
+
 module.exports = HomePage;

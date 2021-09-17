@@ -2,12 +2,18 @@ import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {VersionHistoryItem} from './VersionHistoryItem';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Element} from 'lib-admin-ui/dom/Element';
 
 export class VersionHistoryListItemViewer
     extends NamesAndIconViewer<VersionHistoryItem> {
 
+    private namesAndIconViewWrapperDiv: DivEl;
+
     constructor() {
         super('version-viewer');
+
+        this.namesAndIconViewWrapperDiv = new DivEl('wrapper');
     }
 
     resolveIconClass(version: VersionHistoryItem): string {
@@ -23,7 +29,7 @@ export class VersionHistoryListItemViewer
     resolveSubName(version: VersionHistoryItem): string {
         let publishedFrom = '';
         if (version.isPublishAction() && !version.isRepublished() && !version.isInstantlyPublished()) {
-            publishedFrom = i18n('tooltip.from',DateHelper.formatDateTime(version.getActiveFrom(), false)) + ' ';
+            publishedFrom = i18n('tooltip.from', DateHelper.formatDateTime(version.getActiveFrom(), false)) + ' ';
         }
         return publishedFrom + i18n('widget.versionhistory.byUser', version.getUser());
     }
@@ -32,5 +38,15 @@ export class VersionHistoryListItemViewer
         this.toggleClass('publish-action', version.isPublishAction());
         this.toggleClass('active', version.isActive());
         return super.setObject(version);
+    }
+
+    doLayout(version: VersionHistoryItem): void {
+        super.doLayout(version);
+
+        this.namesAndIconView.wrapWithElement(this.namesAndIconViewWrapperDiv);
+    }
+
+    appendToNamesAndIconViewWrapper(el: Element) {
+        this.namesAndIconViewWrapperDiv.appendChild(el);
     }
 }

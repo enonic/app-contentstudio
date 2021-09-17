@@ -8,6 +8,7 @@ const XPATH = {
     container: `//div[contains(@id,'ConfirmationDialog')]`,
     yesButton: `//button[contains(@id,'DialogButton') and descendant::u[text()='Y'] and child::span[text()='es']]`,
     noButton: `//button[contains(@id,'DialogButton') and descendant::u[text()='N'] and child::span[text()='o']]`,
+    question: "//h6[@class='question']",
 };
 
 class ConfirmationDialog extends Page {
@@ -51,8 +52,9 @@ class ConfirmationDialog extends Page {
         return this.isElementDisplayed(XPATH.container);
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
+    async waitForDialogClosed() {
+        await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
+        return this.pause(300);
     }
 
     isWarningMessageVisible() {
@@ -66,5 +68,11 @@ class ConfirmationDialog extends Page {
     clickOnNoButton() {
         return this.clickOnElement(this.noButton);
     }
+
+    async getQuestion() {
+        await this.waitForElementDisplayed(XPATH.container + XPATH.question);
+        return await this.getText(XPATH.container + XPATH.question)
+    }
 }
+
 module.exports = ConfirmationDialog;

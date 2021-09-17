@@ -61,7 +61,7 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
                 await studioUtils.doSwitchToNextTab();
                 //5. 'Dependencies Section' should be present, in the filter panel'
                 await contentFilterPanel.waitForDependenciesSectionVisible();
-                studioUtils.saveScreenshot('text_component_outbound');
+                    await studioUtils.saveScreenshot('text_component_outbound');
                 let result = await contentBrowsePanel.getDisplayNamesInGrid();
 
                 assert.equal(result[0], IMAGE_DISPLAY_NAME, 'expected display name of dependency');

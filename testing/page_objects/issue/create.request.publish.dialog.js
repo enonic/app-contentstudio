@@ -127,11 +127,10 @@ class CreateRequestPublishDialog extends Page {
 
     async waitForDialogClosed() {
         let message = "Request publish Dialog is not closed! timeout is " + appConst.mediumTimeout;
-        return await this.getBrowser().waitUntil(async () => {
+        await this.getBrowser().waitUntil(async () => {
             return await this.isElementNotDisplayed(xpath.container);
         }, {timeout: appConst.mediumTimeout, timeoutMsg: message});
         return await this.pause(400);
-
     }
 
     waitForCreateRequestButtonDisabled() {

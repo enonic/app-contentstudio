@@ -4,7 +4,6 @@ import {ProjectViewItem} from '../../../view/ProjectViewItem';
 import {RadioGroup} from 'lib-admin-ui/ui/RadioGroup';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Validators} from 'lib-admin-ui/ui/form/Validators';
-import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
@@ -12,7 +11,7 @@ import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
 import {ProjectReadAccess, ProjectReadAccessType} from '../../../data/project/ProjectReadAccess';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {Principal} from 'lib-admin-ui/security/Principal';
-import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import {GetPrincipalsByKeysRequest} from '../../../../security/GetPrincipalsByKeysRequest';
 import {ProjectPermissions} from '../../../data/project/ProjectPermissions';
 import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 import {Locale} from 'lib-admin-ui/locale/Locale';
@@ -26,6 +25,8 @@ import {Project} from '../../../data/project/Project';
 import {ProjectHelper} from '../../../data/project/ProjectHelper';
 import {LocaleComboBox} from '../../../../locale/LocaleComboBox';
 import {LocaleLoader} from '../../../../locale/LocaleLoader';
+import {PrincipalLoader} from '../../../../security/PrincipalLoader';
+import {PrincipalLoader as BasePrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 
 export class ProjectReadAccessWizardStepForm
     extends ProjectWizardStepForm {
@@ -93,7 +94,8 @@ export class ProjectReadAccessWizardStepForm
         }
 
         this.copyParentLanguageButton.setEnabled(this.parentProject &&
-            !ObjectHelper.stringEquals(this.parentProject.getLanguage(), this.localeCombobox.getValue()));
+                                                 !ObjectHelper.stringEquals(this.parentProject.getLanguage(),
+                                                     this.localeCombobox.getValue()));
     }
 
     private getLocales(): Q.Promise<Locale[]> {
@@ -268,7 +270,8 @@ export class ProjectReadAccessWizardStepForm
     }
 
     private createPrincipalsCombobox(): PrincipalComboBox {
-        const loader: PrincipalLoader = new PrincipalLoader().setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
+        const loader: BasePrincipalLoader = new PrincipalLoader()
+            .setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);
         const principalsCombobox = <PrincipalComboBox>PrincipalComboBox.create().setLoader(loader).build();
 
         return principalsCombobox;

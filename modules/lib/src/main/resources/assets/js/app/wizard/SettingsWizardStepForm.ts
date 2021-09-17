@@ -1,7 +1,6 @@
 import {ContentSettingsModel} from './ContentSettingsModel';
 import {Content, ContentBuilder} from '../content/Content';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
-import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
 import {FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
 import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
 import {i18n} from 'lib-admin-ui/util/Messages';
@@ -14,6 +13,7 @@ import {assertNotNull} from 'lib-admin-ui/util/Assert';
 import {ProjectContext} from '../project/ProjectContext';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {LocaleComboBox} from '../locale/LocaleComboBox';
+import {PrincipalLoader} from '../security/PrincipalLoader';
 
 export class SettingsWizardStepForm
     extends WizardStepForm {

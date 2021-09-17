@@ -149,7 +149,7 @@ class InsertImageDialog extends Page {
 
     async waitForImageRangeValue() {
         try {
-            await this.waitForElementDisplayed(XPATH.imageRangeValue, appConst.shortTimeout);
+            await this.waitForElementDisplayed(XPATH.imageRangeValue, appConst.mediumTimeout);
             return await this.getText(XPATH.imageRangeValue);
         } catch (err) {
             throw new Error("Error when getting text in element with image range " + err);
@@ -157,18 +157,18 @@ class InsertImageDialog extends Page {
     }
 
     waitForImageRangeNotVisible() {
-        return this.waitForElementNotDisplayed(XPATH.imageRangeValue, appConst.shortTimeout);
+        return this.waitForElementNotDisplayed(XPATH.imageRangeValue, appConst.mediumTimeout);
     }
 
     async filterAndSelectImage(imageDisplayName) {
         let comboBox = new ComboBox();
-        await this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.shortTimeout);
+        await this.waitForElementDisplayed(this.imageOptionsFilterInput, appConst.mediumTimeout);
         await comboBox.typeTextAndSelectOption(imageDisplayName, XPATH.container);
-        return await this.waitForSpinnerNotVisible(appConst.shortTimeout);
+        return await this.waitForSpinnerNotVisible(appConst.mediumTimeout);
     }
 
     waitForStyleSelectorVisible() {
-        return this.waitForElementDisplayed(this.styleSelector, appConst.shortTimeout);
+        return this.waitForElementDisplayed(this.styleSelector, appConst.mediumTimeout);
     }
 
     async getStyleSelectorOptions() {

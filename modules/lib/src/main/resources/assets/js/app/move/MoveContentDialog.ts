@@ -10,7 +10,6 @@ import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {GetNearestSiteRequest} from '../resource/GetNearestSiteRequest';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {ProgressBarManager} from 'lib-admin-ui/ui/dialog/ProgressBarManager';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
@@ -20,6 +19,7 @@ import {H6El} from 'lib-admin-ui/dom/H6El';
 import {ContentTreeGrid} from '../browse/ContentTreeGrid';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentPath} from '../content/ContentPath';
+import {ProgressBarManager} from '../dialog/ProgressBarManager';
 
 export class MoveContentDialog
     extends ModalDialogWithConfirmation

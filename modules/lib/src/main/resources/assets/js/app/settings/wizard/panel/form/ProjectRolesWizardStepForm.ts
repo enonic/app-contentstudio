@@ -1,7 +1,7 @@
 import {ProjectViewItem} from '../../../view/ProjectViewItem';
 import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ProjectAccessControlComboBox, ProjectACESelectedOptionsView} from './element/ProjectAccessControlComboBox';
+import {ProjectAccessControlComboBox, ProjectAccessControlComboBoxBuilder} from './element/ProjectAccessControlComboBox';
 import * as Q from 'q';
 import {ProjectItemPermissionsBuilder, ProjectPermissions} from '../../../data/project/ProjectPermissions';
 import {ProjectAccessControlEntry} from '../../../access/ProjectAccessControlEntry';
@@ -10,7 +10,7 @@ import {Principal} from 'lib-admin-ui/security/Principal';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
 import {PrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
-import {GetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import {GetPrincipalsByKeysRequest} from '../../../../security/GetPrincipalsByKeysRequest';
 import {ProjectFormItemBuilder} from './element/ProjectFormItem';
 import {Button} from 'lib-admin-ui/ui/button/Button';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
@@ -18,7 +18,6 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ProjectWizardStepForm} from './ProjectWizardStepForm';
 import {Project} from '../../../data/project/Project';
-import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
 
 export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
 
@@ -29,7 +28,7 @@ export class ProjectRolesWizardStepForm extends ProjectWizardStepForm {
     private copyParentRolesButton?: Button;
 
     protected createFormItems(): FormItem[] {
-        this.accessCombobox = new ProjectAccessControlComboBox();
+        this.accessCombobox = new ProjectAccessControlComboBoxBuilder().build();
 
         const loader: PrincipalLoader = <PrincipalLoader>this.accessCombobox.getLoader();
         loader.setAllowedTypes([PrincipalType.USER, PrincipalType.GROUP]);

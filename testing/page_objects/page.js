@@ -137,7 +137,7 @@ class Page {
     saveScreenshot(name) {
         let screenshotsDir = path.join(__dirname, '/../build/mochawesome-report/screenshots/');
         if (!fs.existsSync(screenshotsDir)) {
-            fs.mkdirSync(screenshotsDir, { recursive: true });
+            fs.mkdirSync(screenshotsDir, {recursive: true});
         }
         return this.browser.saveScreenshot(screenshotsDir + name + '.png').then(() => {
             console.log('screenshot is saved ' + name);
@@ -251,9 +251,14 @@ class Page {
     }
 
     async removeNotificationMessage() {
-        let selector = "//div[contains(@id,'NotificationContainer')]//span[@class='notification-remove']";
-        await this.clickOnElement(selector);
-        return await this.pause(300);
+        try {
+            let selector = "//div[contains(@id,'NotificationContainer')]//span[@class='notification-remove']";
+            await this.clickOnElement(selector);
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_remove_notif_msg"));
+            throw new Error(err);
+        }
     }
 
     async waitForNotificationMessage() {
@@ -389,6 +394,11 @@ class Page {
     async pressEscKey() {
         await this.keys('Escape');
         return await this.pause(500);
+    }
+
+    async pressEnterKey() {
+        await this.keys('Enter');
+        return await this.pause(400);
     }
 
     async switchToFrame(selector) {

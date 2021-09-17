@@ -42,9 +42,14 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     async clickOnFragmentDropdownHandle() {
-        await this.waitForElementDisplayed(this.fragmentDropdownHandle, appConst.mediumTimeout);
-        await this.clickOnElement(this.fragmentDropdownHandle);
-        return await this.pause(300);
+        try {
+            await this.waitForElementDisplayed(this.fragmentDropdownHandle, appConst.mediumTimeout);
+            await this.clickOnElement(this.fragmentDropdownHandle);
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_fragment_inspect"));
+            throw new Error(err);
+        }
     }
 
     async getFragmentDropdownOptions() {
@@ -68,7 +73,7 @@ class FragmentInspectionPanel extends BaseComponentInspectionPanel {
     }
 
     waitForOpened() {
-        return this.waitForElementDisplayed(xpath.container, appConst.shortTimeout).catch(err => {
+        return this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_load_inspect_panel');
             throw new Error('Live Edit, Fragment Inspection Panel is not loaded' + err);
         });

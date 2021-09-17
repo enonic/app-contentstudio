@@ -30,6 +30,7 @@ import {NamesAndIconView} from 'lib-admin-ui/app/NamesAndIconView';
 import {DialogDependantList} from '../dialog/DependantItemsDialog';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {DeleteDialogDependantList} from './DeleteDialogDependantList';
+import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDeleteResult';
 import {ArchiveContentRequest} from '../resource/ArchiveContentRequest';
 import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 
@@ -54,7 +55,7 @@ export class ContentDeleteDialog
 
     private statusLine: StatusLine;
 
-    private resolveDependenciesResult: ResolveDependenciesResult;
+    private resolveDependenciesResult: ResolveContentForDeleteResult;
 
     constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
@@ -177,7 +178,7 @@ export class ContentDeleteDialog
     }
 
     private hasInboundRef(id: string): boolean {
-        return this.resolveDependenciesResult?.hasIncomingDependency(id);
+        return this.resolveDependenciesResult?.hasInboundDependency(id);
     }
 
     private updateItemViewWithInboundDependencies(itemView: StatusSelectionItem) {
@@ -201,47 +202,46 @@ export class ContentDeleteDialog
         this.lockControls();
 
         this.loadDescendantIds().then(() => {
-            return this.resolveItemsWithInboundRefs().then(() => {
-                return this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
-                    this.setDependantItems(descendants);
-                    return Q(null);
-                }).finally(() => {
-                    this.notifyResize();
-                    this.hideLoadMask();
-                    this.unlockControls();
-                    this.countItemsToDeleteAndUpdateButtonCounter();
-                    this.updateTabbable();
-                    this.actionButton.giveFocus();
-                });
+            this.resolveItemsWithInboundRefs();
+
+            return this.loadDescendants(0, 20).then((descendants: ContentSummaryAndCompareStatus[]) => {
+                this.setDependantItems(descendants);
+                return Q(null);
+            }).finally(() => {
+                this.notifyResize();
+                this.hideLoadMask();
+                this.unlockControls();
+                this.countItemsToDeleteAndUpdateButtonCounter();
+                this.updateTabbable();
+                this.actionButton.giveFocus();
             });
+
         }).catch((reason: any) => {
             DefaultErrorHandler.handle(reason);
         });
     }
 
-    private resolveItemsWithInboundRefs(): Q.Promise<void> {
-        return new ResolveDependenciesRequest(this.resolvedIds).sendAndParse().then((result: ResolveDependenciesResult) => {
-            this.resolveDependenciesResult = result;
-            (<DeleteDialogDependantList>this.getDependantList()).setResolveDependenciesResult(result);
+    private resolveItemsWithInboundRefs() {
+        (<DeleteDialogDependantList>this.getDependantList()).setResolveDependenciesResult(this.resolveDependenciesResult);
 
-            const itemsWithInboundRefs: ContentId[] =
-                this.dependantIds.filter((id: ContentId) => this.hasInboundRef(id.toString()));
-            this.dependantIds = this.dependantIds.filter((contentId: ContentId) => !this.hasInboundRef(contentId.toString()));
-            this.dependantIds.unshift(...itemsWithInboundRefs);
+        const itemsWithInboundRefs: ContentId[] =
+            this.dependantIds.filter((id: ContentId) => this.hasInboundRef(id.toString()));
+        this.dependantIds = this.dependantIds.filter((contentId: ContentId) => !this.hasInboundRef(contentId.toString()));
+        this.dependantIds.unshift(...itemsWithInboundRefs);
 
-            if (result.getIncomingDependenciesCount().size !== 0) {
-                this.statusLine.show();
-                this.updateItemViewsWithInboundDependencies(
-                    this.getItemList().getItemViews().concat(this.getDependantList().getItemViews()));
-            }
-
-            return Q(null);
-        });
+        if (this.resolveDependenciesResult.hasInboundDependencies()) {
+            this.statusLine.show();
+            this.updateItemViewsWithInboundDependencies(
+                this.getItemList().getItemViews().concat(this.getDependantList().getItemViews()));
+        }
     }
 
     protected resolveDescendants(): Q.Promise<ContentId[]> {
         const ids: ContentId[] = this.getItemList().getItems().map(content => content.getContentId());
-        return new ResolveDeleteRequest(ids).sendAndParse().then(result => result.getContentIds());
+        return new ResolveDeleteRequest(ids).sendAndParse().then((result: ResolveContentForDeleteResult) => {
+            this.resolveDependenciesResult = result;
+            return result.getContentIds();
+        });
     }
 
     manageContentToDelete(contents: ContentSummaryAndCompareStatus[]): ContentDeleteDialog {
