@@ -215,7 +215,7 @@ function preLoadApplication() {
 
                     });
             } else {
-                new GetContentTypeByNameRequest(wizardParams.contentTypeName).setRequestProjectName(projectName).sendAndParse().then(
+                new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then(
                     (contentType) => {
                         updateTabTitle(NamePrettyfier.prettifyUnnamed(contentType.getDisplayName()));
                     });
