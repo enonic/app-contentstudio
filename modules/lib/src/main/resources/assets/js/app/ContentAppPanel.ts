@@ -26,4 +26,8 @@ export class ContentAppPanel
         const actions = super.resolveActions(panel);
         return [...actions, ...this.getBrowsePanel().getNonToolbarActions()];
     }
+
+    calculateOffset() {
+        this.getEl().setTopPx(44); // static header height
+    }
 }
