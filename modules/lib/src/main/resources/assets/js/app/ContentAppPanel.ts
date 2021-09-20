@@ -40,4 +40,8 @@ export class ContentAppPanel
             ProjectContext.get().onProjectChanged(projectSetHandler);
         }
     }
+
+    calculateOffset() {
+        this.getEl().setTopPx(44); // static header height
+    }
 }
