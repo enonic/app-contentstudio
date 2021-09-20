@@ -29,7 +29,7 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             assert.equal(message, 'New task created successfully.', 'expected notification message should appear');
         });
 
-    it(`GIVEN issues list dialog is opened WHEN existing task has been clicked THEN Task Details dialog should be loaded`,
+    it(`GIVEN issues list dialog is opened WHEN existing task has been clicked THEN 'Task Details dialog' should be loaded`,
         async () => {
             let issueListDialog = new IssueListDialog();
             let taskDetailsDialog = new TaskDetailsDialog();
@@ -37,15 +37,15 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
+            //1. Verify that Comments tab is active by default
             let isActive = await taskDetailsDialog.isCommentsTabBarItemActive();
             assert.isTrue(isActive, 'Comments Tab should be active');
-
+            //2. Verify that status of the task is 'Open'
             let actualStatus = await taskDetailsDialog.getCurrentStatusInStatusSelector();
             assert.equal(actualStatus, "Open", "'Open' status should be displayed in status selector button");
-            //Comment button should be disabled, because it is empty.
+            //3. Comment button should be disabled, because the textarea is empty.
             let isCommentButtonDisabled = await commentsTab.isCommentButtonEnabled();
             assert.isFalse(isCommentButtonDisabled, 'Comment button should be disabled');
-
             let isTextAreaDisplayed = await commentsTab.isCommentTextAreaDisplayed();
             assert.isTrue(isTextAreaDisplayed, 'Text area for comments should be displayed');
         });
@@ -58,9 +58,10 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             await studioUtils.openIssuesListDialog();
             await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
+            //1. Fill in the comment textarea
             await commentsTab.typeComment(MY_COMMENT);
-            studioUtils.saveScreenshot("issue_comment_typed");
-            //'Comment' button gets enabled
+            await studioUtils.saveScreenshot("issue_comment_typed");
+            //2. Verify that 'Comment' button gets enabled
             await commentsTab.waitForCommentButtonEnabled();
         });
 
@@ -70,19 +71,19 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             let taskDetailsDialog = new TaskDetailsDialog();
             let commentsTab = new IssueDetailsDialogCommentsTab();
             await studioUtils.openIssuesListDialog();
-            //Open Issue Details dialog:
+            //1. Open Issue Details dialog:
             await issueListDialog.clickOnIssue(TASK_TITLE);
-
             await taskDetailsDialog.waitForDialogOpened();
-            //Type text in comment and click on the button:
+            //2. Type text in comment and click on 'Comment' button:
             await commentsTab.typeComment(MY_COMMENT);
             await commentsTab.clickOnCommentButton();
+            //3. Verify the notification message:
             let message = await taskDetailsDialog.waitForNotificationMessage();
-            studioUtils.saveScreenshot("issue_comment_added");
+            await studioUtils.saveScreenshot("issue_comment_added");
             assert.equal(message, appConstant.YOUR_COMMENT_ADDED,
                 'Expected notification message should be shown when the comment has been added');
-            studioUtils.saveScreenshot("issue_comment_button_disabled");
-            //'Comment' button gets disabled:
+            await studioUtils.saveScreenshot("issue_comment_button_disabled");
+            //4. Verify that 'Comment' button gets disabled:
             await commentsTab.waitForCommentButtonDisabled();
         });
 
@@ -110,11 +111,14 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             //1. Open Task Details Dialog:
             await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
+            //2. Update the text in comment
             await commentsTab.clickOnEditCommentMenuItem(MY_COMMENT);
             await commentsTab.updateComment(MY_COMMENT, newText);
+            //3. Click on Save Comment button
             await commentsTab.clickOnSaveCommentButton(MY_COMMENT);
+            //4. Verify that new text is displayed in the comment
             let result = await commentsTab.isCommentPresent(newText);
-            studioUtils.saveScreenshot("task_comment_updated");
+            await studioUtils.saveScreenshot("task_comment_updated");
             assert.isTrue(result, 'The comment should be updated');
         });
 
@@ -134,7 +138,7 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             await confirmationDialog.waitForDialogOpened();
             await confirmationDialog.clickOnYesButton();
             await confirmationDialog.waitForDialogClosed();
-
+            //4. Verify that comment is not displayed
             let result = await commentsTab.isCommentPresent(newText);
             studioUtils.saveScreenshot("task_comment_deleted");
             assert.isFalse(result, 'Comment with the text should be deleted');

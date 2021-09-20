@@ -54,7 +54,7 @@ class ConfirmationDialog extends Page {
 
     async waitForDialogClosed() {
         await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
-        return this.pause(300);
+        return this.pause(400);
     }
 
     isWarningMessageVisible() {

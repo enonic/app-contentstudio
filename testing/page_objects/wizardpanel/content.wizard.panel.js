@@ -64,6 +64,7 @@ const XPATH = {
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     buttonModifyPath: "//button[contains(@class,'icon-pencil')]",
     shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
+    goToGridButton: "//div[contains(@class,'font-icon-default icon-tree-2')]",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -159,6 +160,10 @@ class ContentWizardPanel extends Page {
 
     get modifyPathButton() {
         return XPATH.wizardHeader + XPATH.buttonModifyPath;
+    }
+
+    get goToGridButton() {
+        return XPATH.toolbar + XPATH.goToGridButton;
     }
 
     waitForContextWindowVisible() {
@@ -1104,6 +1109,13 @@ class ContentWizardPanel extends Page {
         let shaderElement = await this.findElement(XPATH.shaderPage);
         let style = await shaderElement.getAttribute("style");
         return !style.includes("display: none");
+    }
+
+    async clickOnGoToGridButton() {
+        await this.waitForElementDisplayed(this.goToGridButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.goToGridButton);
+        return await this.pause(300);
+
     }
 }
 

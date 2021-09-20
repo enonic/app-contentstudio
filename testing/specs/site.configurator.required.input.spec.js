@@ -101,7 +101,7 @@ describe('site.configurator.required.input.spec: verifies wizard validation when
             await studioUtils.findAndSelectItem(SITE.displayName);
             let isDisplayed = await contentBrowsePanel.isRedIconDisplayed(SITE.displayName);
             studioUtils.saveScreenshot('site_conf_required_input_filled');
-            assert.isFalse(isDisplayed, 'red icon should be present near the content!');
+            assert.isFalse(isDisplayed, 'red icon should not be present near the content!');
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -92,7 +92,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             //Site wizard should be updated:
             let isDisplayed = await contentWizard.waitForControllerOptionFilterInputVisible();
-            studioUtils.saveScreenshot("template_support_removed");
+            await studioUtils.saveScreenshot("template_support_removed");
             assert.isTrue(isDisplayed, 'Options filter input must be visible, because the `support` option has been removed');
         });
 
@@ -109,7 +109,7 @@ describe('page.template.controller: select a controller in a template-wizard', f
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             //4. Controller selector should appear in the wizard:
             let isVisible = await contentWizard.waitForControllerOptionFilterInputVisible();
-            studioUtils.saveScreenshot(SITE.displayName + '_reset');
+            await studioUtils.saveScreenshot(SITE.displayName + '_reset');
             assert.isTrue(isVisible, 'Options filter input should appear in the site, because the template was deleted');
         });
 
