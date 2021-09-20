@@ -22,7 +22,7 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.security.RoleKeys;
 
-@Path(ResourceConstants.REST_ROOT + "{content:(" + ResourceConstants.CMS_PATH + "/schema)}/filter")
+@Path(ResourceConstants.REST_ROOT +"schema/filter")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs")
