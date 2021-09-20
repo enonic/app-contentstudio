@@ -23,6 +23,10 @@ class PageTemplateForm extends Page {
         return this.filterOptionsAndSelectSupport(templateData.supports);
     }
 
+    get formValidationRecording() {
+        return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
+    }
+
     async filterOptionsAndSelectSupport(contentTypeDisplayName) {
         await this.typeTextInInput(this.supportOptionsFilterInput, contentTypeDisplayName);
         let loaderComboBox = new LoaderComboBox();
@@ -30,20 +34,35 @@ class PageTemplateForm extends Page {
         return this.pause(500);
     }
 
-    clickOnRemoveSupportIcon() {
-        let selector = XPATH.contentTypeSelectedOptionsView + lib.REMOVE_ICON;
-        return this.clickOnElement(selector).catch(err => {
-            this.saveScreenshot('err_remove_support');
+    async clickOnRemoveSupportIcon() {
+        try {
+            let selector = XPATH.contentTypeSelectedOptionsView + lib.REMOVE_ICON;
+            await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+            await this.clickOnElement(selector);
+            return await this.pause(500);
+        } catch (err) {
+            await this.saveScreenshot('err_remove_support');
             throw new Error('error when clicking on remove-support icon ' + err);
-        }).then(() => {
-            return this.pause(1000);
-        });
+        }
     }
 
     async getSupportSelectedOptions() {
         let locator = XPATH.supportsCombobox + "//div[contains(@id,'ContentTypeSelectedOptionsView')]" + lib.H6_DISPLAY_NAME;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
+    }
+
+    async waitForFormValidationRecordingDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            let elements = await this.getDisplayedElements(this.formValidationRecording);
+            return elements.length > 0;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Form Validation recording should be displayed"});
+    }
+
+    async getFormValidationRecording() {
+        await this.waitForFormValidationRecordingDisplayed();
+        let recordingElements = await this.getDisplayedElements(this.formValidationRecording);
+        return await recordingElements[0].getText();
     }
 }
 
