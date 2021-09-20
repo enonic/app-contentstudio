@@ -1,9 +1,9 @@
 import {XData} from '../content/XData';
 import {XDataJson} from './json/XDataJson';
-import {CmsProjectBasedResourceRequest} from '../wizard/CmsProjectBasedResourceRequest';
+import {CmsResourceRequest} from './CmsResourceRequest';
 
 export abstract class XDataResourceRequest<PARSED_TYPE>
-    extends CmsProjectBasedResourceRequest<PARSED_TYPE> {
+    extends CmsResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();

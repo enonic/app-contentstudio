@@ -50,7 +50,7 @@ import com.enonic.xp.site.XDataMappings;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.stream.Collectors.toList;
 
-@Path(ResourceConstants.REST_ROOT + "{content:(schema|" + ResourceConstants.CMS_PATH + "/schema)}/xdata")
+@Path(ResourceConstants.REST_ROOT + "schema/xdata")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs", configurationPid = "com.enonic.app.contentstudio")
