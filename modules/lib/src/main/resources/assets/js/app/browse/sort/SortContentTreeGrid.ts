@@ -86,7 +86,7 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
             from--;
         }
 
-        return ContentSummaryAndCompareStatusFetcher.fetchChildren(this.contentId, from, SortContentTreeGrid.MAX_FETCH_SIZE, null,
+        return ContentSummaryAndCompareStatusFetcher.fetchChildren(this.contentId, from, SortContentTreeGrid.MAX_FETCH_SIZE, 'content',
             this.curChildOrder).then((data: ContentResponse<ContentSummaryAndCompareStatus>) => {
             let contents = parentNode.getChildren().map((el) => {
                 return el.getData();
