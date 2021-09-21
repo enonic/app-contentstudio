@@ -59,9 +59,9 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             //2. Open Delete Dialog in the wizard:
             await contentWizard.clickOnDelete();
             await deleteContentDialog.waitForDialogOpened();
-            //3. Verify the number ot items:
-            let result = await deleteContentDialog.getNumberInHideDependantItemsLink();
-            assert.equal(result, DEPENDANT_ITEMS_11, "Expected number should be displayed in the link");
+            //3. Verify the number ot items: should be 11
+            await studioUtils.saveScreenshot("wizard_folder_11_shown_dependant");
+            await deleteContentDialog.waitForNumberInHideDependantItemsLink(DEPENDANT_ITEMS_11);
             let names = await deleteContentDialog.getDependantItemsName();
             assert.equal(names.length, DEPENDANT_ITEMS_11, "Expected number of items should be present in the list");
         });

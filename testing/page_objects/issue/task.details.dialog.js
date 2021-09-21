@@ -35,11 +35,14 @@ class TaskDetailsDialog extends BaseDetailsDialog {
         return XPATH.container + XPATH.itemsTabBarItem;
     }
 
-    waitForDialogOpened() {
-        return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_load_issue_details_dialog');
+    async waitForDialogOpened() {
+        try {
+            await this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot('err_load_issue_details_dialog');
             throw new Error('Issue Details dialog is not loaded ' + err)
-        });
+        }
     }
 
     waitForDialogClosed() {
@@ -110,5 +113,5 @@ class TaskDetailsDialog extends BaseDetailsDialog {
         }
         return await this.pause(500);
     }
-};
+}
 module.exports = TaskDetailsDialog;
