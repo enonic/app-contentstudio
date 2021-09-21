@@ -137,7 +137,7 @@ export class AppWrapper
             .forEach((remoteAdminTool: AdminTool) => {
                 const adminToolApp: string = remoteAdminTool.getKey().getApplicationKey().toString();
                 const assetUrl = CONFIG.assetsUri.replace(new RegExp(studioApp, 'g'), adminToolApp);
-                const mainJsUrl = `${assetUrl}/js/main.js`;
+                const mainJsUrl = `${assetUrl}/js/inject.js`;
                 const mainCssUrl = `${assetUrl}/styles/main.css`;
 
                 document.querySelector('head').innerHTML += `<link rel="stylesheet" href="${mainCssUrl}" type="text/css"/>`;
