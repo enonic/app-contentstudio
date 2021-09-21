@@ -19,7 +19,7 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
     let SITE;
     const TEMPLATE_NAME = contentBuilder.generateRandomName('template');
 
-    it("GIVEN 'page template' wizard is opened WHEN a display name has been typed AND 'Save' button pressed THEN red icon should be displayed ib the wizard",
+    it("GIVEN 'page template' wizard is opened WHEN a display name has been typed AND 'Save' button pressed THEN red icon should be displayed in the wizard",
         async () => {
             let pageTemplateForm = new PageTemplateForm();
             let contentWizard = new ContentWizard();

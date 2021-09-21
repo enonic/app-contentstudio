@@ -139,6 +139,7 @@ module.exports = Object.freeze({
         SPUMANS: 'spumans',
         BOOK: 'book',
         POP_03: 'Pop_03',
+        POP_02: 'Pop_02',
         KOTEY: 'kotey',
         SHIP: 'cat',
         FOSS: 'foss',
@@ -148,7 +149,11 @@ module.exports = Object.freeze({
         CAPE: 'cape',
         BRO: 'bro',
         MAN2: 'man2',
-        SEVEROMOR: 'severomor'
+        SEVEROMOR: 'severomor',
+        ELEPHANT: 'elephant',
+        ENTERPRISE: 'enterprise',
+        GEEK: 'geek',
+        TELK: "telk"
     },
     COMPONENT_VIEW_MENU_ITEMS: {
         INSERT: 'Insert',
