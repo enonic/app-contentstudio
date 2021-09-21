@@ -49,8 +49,14 @@ class DeleteContentDialog extends Page {
         return XPATH.container + XPATH.showDependantItemsLink;
     }
 
-    waitForDialogOpened() {
-        return this.waitForElementDisplayed(this.deleteNowButton, appConst.shortTimeout);
+    async waitForDialogOpened() {
+        try {
+            await this.waitForElementDisplayed(this.deleteNowButton, appConst.mediumTimeout);
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot('err_load_issue_details_dialog');
+            throw new Error('Issue Details dialog is not loaded ' + err)
+        }
     }
 
     waitForDialogClosed() {
@@ -188,6 +194,14 @@ class DeleteContentDialog extends Page {
         let startIndex = text.indexOf('(');
         let endIndex = text.indexOf(')');
         return text.substring(startIndex + 1, endIndex);
+    }
+
+    async waitForNumberInHideDependantItemsLink(number) {
+        await this.waitForHideDependantItemsLinkDisplayed();
+        await this.getBrowser().waitUntil(async () => {
+            let text = await this.getText(this.hideDependantItemsLink);
+            return text.includes(number);
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Error getting a number in dependant items link: "});
     }
 
     async getNumberInShowDependantItemsLink() {
