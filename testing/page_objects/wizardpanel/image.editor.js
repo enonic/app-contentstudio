@@ -22,7 +22,7 @@ const xpath = {
     buttonApply: "//button/span[text()='Apply']",
     resetMaskButton: "//button[contains(@id,'Button')]/span[text()='Reset Mask']",
     cropHandle: "//*[name()='svg' and contains(@id,'ImageEditor-dragHandle')]",
-    //cropHandle: "//*[name()='g' and @class='edit-group crop-group']//circle",
+    focusCircle: "//*[name()='svg']/*[name()='g' and contains(@class,'focus-group')]",
 
 };
 
@@ -72,6 +72,10 @@ class ImageEditor extends Page {
         return xpath.imageEditor + xpath.cropHandle;
     }
 
+    get focusCircle() {
+        return xpath.imageEditor + xpath.focusCircle;
+    }
+
     waitForZoomKnobDisplayed() {
         return this.waitForElementDisplayed(this.zoomKnob, appConst.mediumTimeout);
     }
@@ -89,7 +93,7 @@ class ImageEditor extends Page {
             await this.waitForSpinnerNotVisible(appConst.longTimeout);
             return await this.pause(700);
         } catch (err) {
-            this.saveScreenshot('err_click_on_flip_button');
+            await this.saveScreenshot('err_click_on_flip_button');
             throw new Error('Image Editor, button flip  ' + err);
         }
     }
@@ -108,7 +112,7 @@ class ImageEditor extends Page {
         }
     }
 
-    async clickOnResetButton() {
+    async clickOnResetFiltersButton() {
         try {
             await this.waitForElementEnabled(this.buttonResetFilters, appConst.mediumTimeout);
             await this.clickOnElement(this.buttonResetFilters);
@@ -120,11 +124,9 @@ class ImageEditor extends Page {
         }
     }
 
-
     waitForResetFilterNotDisplayed() {
         return this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.shortTimeout);
     }
-
 
     async waitForResetFiltersDisplayed() {
         try {
@@ -166,6 +168,14 @@ class ImageEditor extends Page {
         return await this.clickOnElement(this.buttonFocus);
     }
 
+    waitForFocusCircleDisplayed() {
+        return this.waitForElementDisplayed(this.focusCircle, appConst.mediumTimeout);
+    }
+
+    waitForFocusCircleNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.focusCircle, appConst.mediumTimeout);
+    }
+
     waitForApplyButtonDisplayed() {
         return this.waitForElementDisplayed(this.buttonApply, appConst.mediumTimeout);
     }
@@ -194,6 +204,16 @@ class ImageEditor extends Page {
         return this.waitForElementDisplayed(this.resetMaskButton, appConst.mediumTimeout);
     }
 
+    waitForResetAutofocusButtonDisplayed() {
+        return this.waitForElementDisplayed(this.resetAutofocusButton, appConst.mediumTimeout);
+    }
+
+    async clickOnResetAutofocusButton() {
+        await this.waitForResetAutofocusButtonDisplayed();
+        await this.clickOnElement(this.resetAutofocusButton);
+        return this.pause(300);
+    }
+
     async doZoomImage(offset) {
         let el = await this.findElement(this.zoomKnob);
         let yValue = await el.getLocation('y');
@@ -211,6 +231,19 @@ class ImageEditor extends Page {
         let y1 = parseInt(yValue) + offset;
         let x1 = parseInt(xValue);
         await el.dragAndDrop({x: x1, y: -200});
+        return await this.pause(500);
+    }
+
+    async doDragFocus(offset1, offset2) {
+        let xOffset = offset1 === undefined ? 0 : offset1;
+        let yOffset = offset1 === undefined ? 0 : offset2;
+        await this.waitForFocusCircleDisplayed();
+        let el = await this.findElement(this.focusCircle + "/*[name()='circle']");
+        let yValue = await el.getAttribute('cy');
+        let xValue = await el.getAttribute('cx');
+        let y1 = parseInt(yValue) + yOffset;
+        let x1 = parseInt(xValue) + xOffset;
+        await el.dragAndDrop({x: x1, y: y1});
         return await this.pause(500);
     }
 

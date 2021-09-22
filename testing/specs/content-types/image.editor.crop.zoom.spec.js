@@ -125,8 +125,7 @@ describe("image.content.crop.spec: tests for crop button", function () {
             await contentWizard.waitAndClickOnSave();
         });
 
-
-    it(`GIVEN existing image is opened WHEN the image has been cropped THEN the image returns to the initial state`,
+    it(`GIVEN existing image is opened WHEN the image has been cropped THEN 'Reset filters' gets visible`,
         async () => {
             let imageEditor = new ImageEditor();
             let imageFormPanel = new ImageFormPanel();
@@ -146,6 +145,26 @@ describe("image.content.crop.spec: tests for crop button", function () {
             await contentWizard.waitAndClickOnSave();
         });
 
+    it(`GIVEN existing cropped image is opened WHEN 'Reset Mask' and 'Apply' buttons have been pressed THEN the image returns to the initial state`,
+        async () => {
+            let imageEditor = new ImageEditor();
+            let imageFormPanel = new ImageFormPanel();
+            let contentWizard = new ContentWizard();
+            //1. Open the zoomed image:
+            await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.TELK);
+            await imageFormPanel.waitForImageLoaded(appConstant.mediumTimeout);
+            //2. Click on Crop button, 'Reset Mask' button gets visible in the edit mode.
+            await imageEditor.clickOnCropButton();
+            //3. Crop the image:
+            await imageEditor.clickOnResetMaskButton();
+            await studioUtils.saveScreenshot("image_cropped_to_initial");
+            //4. Click on 'Apply' button
+            await imageEditor.clickOnApplyButton();
+            //5. Verify that 'Reset filters' button gets not visible
+            await imageEditor.waitForResetFiltersNotDisplayed();
+            //6. Save button gets enabled
+            await contentWizard.waitAndClickOnSave();
+        });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
