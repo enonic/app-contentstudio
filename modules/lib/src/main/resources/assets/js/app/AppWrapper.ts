@@ -125,9 +125,30 @@ export class AppWrapper
     private updateAdminTools() {
         new GetAdminToolsRequest().sendAndParse().then((adminTools: AdminTool[]) => {
             this.sidebar.reset();
+            this.removeStaleAdminTools(adminTools);
             this.sidebar.setAdminTools(this.apps);
             this.injectMissingAdminTools(adminTools);
         }).catch(DefaultErrorHandler.handle);
+    }
+
+    private removeStaleAdminTools(adminTools: AdminTool[]) {
+        const apps: App[] = [];
+
+        this.apps.forEach((app: App) => {
+            if (adminTools.some((adminTool: AdminTool) => adminTool.getKey().equals(app.getAppId()))) {
+                apps.push(app);
+            } else {
+                const toolId: string = app.getAppId().toString();
+                const cssElem: HTMLElement = document.getElementById(`${toolId}CSS`);
+                const jsElem: HTMLElement = document.getElementById(`${toolId}JS`);
+
+                cssElem?.setAttribute('disabled', 'true');
+                cssElem?.parentNode.removeChild(cssElem);
+                jsElem?.parentNode.removeChild(jsElem);
+            }
+        });
+
+        this.apps = apps;
     }
 
     private injectMissingAdminTools(adminTools: AdminTool[]) {
@@ -136,13 +157,16 @@ export class AppWrapper
             .filter((adminTool: AdminTool) => !this.hasAdminTool(adminTool))
             .forEach((remoteAdminTool: AdminTool) => {
                 const adminToolApp: string = remoteAdminTool.getKey().getApplicationKey().toString();
+                const adminToolId: string = remoteAdminTool.getKey().toString();
                 const assetUrl = CONFIG.assetsUri.replace(new RegExp(studioApp, 'g'), adminToolApp);
                 const mainJsUrl = `${assetUrl}/js/inject.js`;
                 const mainCssUrl = `${assetUrl}/styles/main.css`;
 
-                document.querySelector('head').innerHTML += `<link rel="stylesheet" href="${mainCssUrl}" type="text/css"/>`;
+                document.querySelector('head').innerHTML +=
+                    `<link id="${adminToolId}CSS" rel="stylesheet" href="${mainCssUrl}" type="text/css"/>`;
 
                 const s = document.createElement('script');
+                s.id = `${adminToolId}JS`;
                 s.type = 'text/javascript';
                 s.src = mainJsUrl;
                 document.head.appendChild(s);
@@ -154,15 +178,11 @@ export class AppWrapper
     }
 
     private listenAppEvents() {
-        const debouncedAdminToolUpdate = AppHelper.debounce(() => {
+        const debouncedAdminToolUpdate: Function = AppHelper.debounce(() => {
             this.updateAdminTools();
         }, 500);
 
         ApplicationEvent.on((event: ApplicationEvent) => {
-            // if (this.isAdminToolApp(event.getApplicationKey())) {
-            //
-            // }
-
             if (ApplicationEventType.STOPPED === event.getEventType() || ApplicationEventType.UNINSTALLED === event.getEventType()
                 || ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED) {
                 if (this.isAdminToolApp(event.getApplicationKey())) {
