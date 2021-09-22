@@ -139,11 +139,11 @@ export class AppWrapper
                 apps.push(app);
             } else {
                 const toolId: string = app.getAppId().toString();
-                const cssElem: HTMLElement = document.getElementById(`${toolId}CSS`);
+                const cssElem: HTMLElement = document.getElementById('externalCSS');
                 const jsElem: HTMLElement = document.getElementById(`${toolId}JS`);
 
-                cssElem?.setAttribute('disabled', 'true');
-                cssElem?.parentNode.removeChild(cssElem);
+                cssElem?.setAttribute('href', '');
+                // cssElem?.parentNode.removeChild(cssElem);
                 jsElem?.parentNode.removeChild(jsElem);
             }
         });
@@ -162,8 +162,10 @@ export class AppWrapper
                 const mainJsUrl = `${assetUrl}/js/inject.js`;
                 const mainCssUrl = `${assetUrl}/styles/main.css`;
 
-                document.querySelector('head').innerHTML +=
-                    `<link id="${adminToolId}CSS" rel="stylesheet" href="${mainCssUrl}" type="text/css"/>`;
+                document.getElementById('externalCSS')?.setAttribute('href', mainCssUrl);
+
+                // document.querySelector('head').innerHTML +=
+                //     `<link id="${adminToolId}CSS" rel="stylesheet" href="${mainCssUrl}" type="text/css"/>`;
 
                 const s = document.createElement('script');
                 s.id = `${adminToolId}JS`;
