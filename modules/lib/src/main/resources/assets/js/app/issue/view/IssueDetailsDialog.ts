@@ -132,6 +132,8 @@ export class IssueDetailsDialog
 
     private isUpdatePending: boolean;
 
+    private contentFetcher: ContentSummaryAndCompareStatusFetcher;
+
     protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
                 title: i18n('dialog.issue'),
@@ -145,6 +147,8 @@ export class IssueDetailsDialog
                 confirmation: {}
             }
         );
+
+        this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
     }
 
     public static get(): IssueDetailsDialog {
@@ -309,7 +313,7 @@ export class IssueDetailsDialog
             this.saveOnLoaded = true;
             this.isUpdatePending = true;
             const ids = [option.getSelectedOption().getOption().getDisplayValue().getContentId()];
-            ContentSummaryAndCompareStatusFetcher.fetchByIds(ids).then(result => {
+            this.contentFetcher.fetchByIds(ids).then(result => {
                 this.addListItems(result);
             });
         });
@@ -525,7 +529,7 @@ export class IssueDetailsDialog
     }
 
     public reloadItemList() {
-        ContentSummaryAndCompareStatusFetcher.fetchByIds(this.getItemList().getItemsIds()).then(items => {
+        this.contentFetcher.fetchByIds(this.getItemList().getItemsIds()).then(items => {
             this.getItemList().replaceItems(items);
             this.getItemList().refreshList();
 
@@ -668,7 +672,7 @@ export class IssueDetailsDialog
         const ids = issue.getPublishRequest().getItemsIds();
         if (ids.length > 0) {
             this.itemSelector.setValue(ids.map(id => id.toString()).join(';'));
-            ContentSummaryAndCompareStatusFetcher.fetchByIds(ids).then(items => {
+            this.contentFetcher.fetchByIds(ids).then(items => {
                 this.clearListItems(true);
                 this.setListItems(items);
             });

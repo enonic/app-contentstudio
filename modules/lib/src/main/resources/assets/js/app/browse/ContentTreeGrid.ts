@@ -53,6 +53,8 @@ export class ContentTreeGrid
 
     private state: State;
 
+    private contentFetcher: ContentSummaryAndCompareStatusFetcher;
+
     constructor() {
         const builder: TreeGridBuilder<ContentSummaryAndCompareStatus> =
             new TreeGridBuilder<ContentSummaryAndCompareStatus>()
@@ -63,6 +65,7 @@ export class ContentTreeGrid
 
         super(builder);
 
+        this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
         this.state = State.ENABLED;
         this.setContextMenu(new TreeGridContextMenu(new ContentTreeGridActions(this)));
 
@@ -163,13 +166,14 @@ export class ContentTreeGrid
         const compareRequest: CompareContentRequest = CompareContentRequest.fromContentSummaries(contentSummaries);
         this.filterQuery = event.getData().getContentQuery();
         compareRequest.sendAndParse().then((compareResults: CompareContentResults) => {
-            const contents: ContentSummaryAndCompareStatus[] = ContentSummaryAndCompareStatusFetcher.updateCompareStatus(contentSummaries,
-                compareResults);
-            ContentSummaryAndCompareStatusFetcher.updateReadOnly(contents).then(() => {
+            const contents: ContentSummaryAndCompareStatus[] = this.contentFetcher.updateCompareStatus(contentSummaries, compareResults);
+            this.contentFetcher.updateReadOnly(contents).then(() => {
                 const metadata: ContentMetadata = contentQueryResult.getMetadata();
+
                 if (this.isEmptyNodeNeeded(metadata)) {
                     contents.push(new ContentSummaryAndCompareStatus());
                 }
+
                 this.filter(contents);
                 this.getRoot().getCurrentRoot().setMaxChildren(metadata.getTotalHits());
                 this.notifyLoaded();
@@ -228,7 +232,7 @@ export class ContentTreeGrid
     }
 
     private fetchById(id: ContentId): Q.Promise<ContentSummaryAndCompareStatus> {
-        return ContentSummaryAndCompareStatusFetcher.fetch(id);
+        return this.contentFetcher.fetch(id);
     }
 
     fetchChildren(parentNode?: TreeNode<ContentSummaryAndCompareStatus>): Q.Promise<ContentSummaryAndCompareStatus[]> {
@@ -264,7 +268,7 @@ export class ContentTreeGrid
     private fetchRootContents(root: TreeNode<ContentSummaryAndCompareStatus>): Q.Promise<ContentSummaryAndCompareStatus[]> {
         const from: number = root.getChildren().length;
 
-        return ContentSummaryAndCompareStatusFetcher.fetchRoot(from, ContentTreeGrid.MAX_FETCH_SIZE).then(
+        return this.contentFetcher.fetchRoot(from, ContentTreeGrid.MAX_FETCH_SIZE).then(
             (data: ContentResponse<ContentSummaryAndCompareStatus>) => {
                 return this.processContentResponse(root, data, from);
             });
@@ -313,10 +317,10 @@ export class ContentTreeGrid
         return compareRequest.sendAndParse().then((compareResults: CompareContentResults) => {
             const contents: ContentSummaryAndCompareStatus[] = node.getChildren().map((el) => {
                 return el.getData();
-            }).slice(0, from).concat(ContentSummaryAndCompareStatusFetcher.updateCompareStatus(contentSummaries,
+            }).slice(0, from).concat(this.contentFetcher.updateCompareStatus(contentSummaries,
                 compareResults));
 
-            return ContentSummaryAndCompareStatusFetcher.updateReadOnly(contents).then(() => {
+            return this.contentFetcher.updateReadOnly(contents).then(() => {
                 const meta: ContentMetadata = data.getMetadata();
                 if (this.isEmptyNodeNeeded(meta, from)) {
                     contents.push(new ContentSummaryAndCompareStatus());
@@ -338,7 +342,7 @@ export class ContentTreeGrid
         const parentContentId: ContentId = parentNode.getData().getContentId();
         const from: number = parentNode.getChildren().length;
 
-        return ContentSummaryAndCompareStatusFetcher.fetchChildren(parentContentId, from, ContentTreeGrid.MAX_FETCH_SIZE).then(
+        return this.contentFetcher.fetchChildren(parentContentId, from, ContentTreeGrid.MAX_FETCH_SIZE).then(
             (data: ContentResponse<ContentSummaryAndCompareStatus>) => {
                 return this.processContentResponse(parentNode, data, from);
             });
@@ -611,8 +615,8 @@ export class ContentTreeGrid
         }
 
         const parentId: ContentId = parentNode.hasData() ? parentNode.getData().getContentId() : null;
-        const order: ChildOrder = !!parentId ? null : ContentSummaryAndCompareStatusFetcher.createRootChildOrder();
-        ContentSummaryAndCompareStatusFetcher.fetchChildrenIds(parentId, order)
+        const order: ChildOrder = !!parentId ? null : this.contentFetcher.createRootChildOrder();
+        this.contentFetcher.fetchChildrenIds(parentId, order)
             .then((childrenIds: ContentId[]) => {
                 items.forEach((item: ContentSummaryAndCompareStatus) => {
                     const contentId: ContentId = item.getContentId();
@@ -715,8 +719,7 @@ export class ContentTreeGrid
                 const parentNode: TreeNode<ContentSummaryAndCompareStatus> = this.getParentNodeByPath(parentPath, allNodes);
 
                 if (parentNode && !parentNode.hasChildren()) {
-                    ContentSummaryAndCompareStatusFetcher.fetchChildrenIds(parentNode.getData().getContentId()).then(
-                        (ids: ContentId[]) => {
+                    this.contentFetcher.fetchChildrenIds(parentNode.getData().getContentId()).then((ids: ContentId[]) => {
                             if (ids.length === 0) {
                                 this.updateNodeHasChildren(parentNode, false);
                             }

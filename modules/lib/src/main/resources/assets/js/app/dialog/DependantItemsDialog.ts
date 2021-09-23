@@ -301,7 +301,7 @@ export abstract class DependantItemsDialog
                               size: number): Q.Promise<ContentSummaryAndCompareStatus[]> {
 
         let ids = this.getDependantIds().slice(from, from + size);
-        return ContentSummaryAndCompareStatusFetcher.fetchByIds(ids);
+        return new ContentSummaryAndCompareStatusFetcher().fetchByIds(ids);
     }
 
     protected countTotal(): number {

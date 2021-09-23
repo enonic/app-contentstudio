@@ -120,7 +120,7 @@ export class ContentAppContainer
         case UrlAction.LOCALIZE:
         case UrlAction.EDIT:
             if (id) {
-                ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
+                new ContentSummaryAndCompareStatusFetcher().fetch(new ContentId(id)).done(
                     (content: ContentSummaryAndCompareStatus) => {
                         new EditContentEvent([content]).fire();
                     });
@@ -172,7 +172,7 @@ export class ContentAppContainer
     }
 
     private toggleSearchPanelWithDependencies(id: string, inbound: boolean, type?: string) {
-        ContentSummaryAndCompareStatusFetcher.fetch(new ContentId(id)).done(
+        new ContentSummaryAndCompareStatusFetcher().fetch(new ContentId(id)).done(
             (content: ContentSummaryAndCompareStatus) => {
                 new ToggleSearchPanelWithDependenciesEvent(content.getContentSummary(), inbound, type).fire();
 
