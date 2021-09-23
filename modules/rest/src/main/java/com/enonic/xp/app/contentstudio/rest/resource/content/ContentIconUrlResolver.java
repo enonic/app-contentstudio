@@ -79,6 +79,6 @@ public final class ContentIconUrlResolver
 
     private String getLayer()
     {
-        return "base";
+        return ContentHelper.getContentRoot().toString();
     }
 }
