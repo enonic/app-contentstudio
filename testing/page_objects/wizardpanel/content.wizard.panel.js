@@ -275,7 +275,7 @@ class ContentWizardPanel extends Page {
     async clickOnWizardStep(title) {
         let stepXpath = XPATH.wizardStepByTitle(title);
         await this.clickOnElement(stepXpath);
-        return await this.pause(300);
+        return await this.pause(1000);
     }
 
     waitForWizardStepByTitleNotVisible(title) {

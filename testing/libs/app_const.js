@@ -86,7 +86,8 @@ module.exports = Object.freeze({
     },
 
     VALIDATION_MESSAGE: {
-        TEXT_IS_TOO_LONG: "Text is too long"
+        TEXT_IS_TOO_LONG: "Text is too long",
+        INVALID_VALUE_ENTERED: "Invalid value entered",
     },
 
     PROJECT_ACCESS_MODE: {
