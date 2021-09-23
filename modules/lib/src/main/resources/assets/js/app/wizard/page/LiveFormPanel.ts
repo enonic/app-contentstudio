@@ -317,7 +317,7 @@ export class LiveFormPanel
             return;
         }
 
-        ContentSummaryAndCompareStatusFetcher.fetch(thisContentId)
+        new ContentSummaryAndCompareStatusFetcher().fetch(thisContentId)
             .then((contentSummary: ContentSummaryAndCompareStatus) => this.saveAsTemplateAction.setContentSummary(
                 contentSummary.getContentSummary()))
             .catch(DefaultErrorHandler.handle);

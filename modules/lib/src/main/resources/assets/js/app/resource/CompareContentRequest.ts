@@ -8,7 +8,7 @@ import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 export class CompareContentRequest
     extends CmsContentResourceRequest<CompareContentResults> {
 
-    private ids: string[];
+    private readonly ids: string[];
 
     constructor(ids: string[]) {
         super();
@@ -17,16 +17,16 @@ export class CompareContentRequest
         this.addRequestPathElements('compare');
     }
 
-    static fromContentSummaries(contentSummaries: ContentSummary[], projectName?: string): CompareContentRequest {
-
-        let ids: string[] = [];
+    static fromContentSummaries(contentSummaries: ContentSummary[], projectName?: string,
+                                contentRootPath: string = 'content'): CompareContentRequest {
+        const ids: string[] = [];
 
         contentSummaries.forEach((contentSummary: ContentSummary) => {
-
             ids.push(contentSummary.getContentId().toString());
         });
 
-        return <CompareContentRequest>(new CompareContentRequest(ids).setRequestProjectName(projectName));
+        return <CompareContentRequest>(new CompareContentRequest(ids).setContentRootPath(contentRootPath).setRequestProjectName(
+            projectName));
     }
 
     getParams(): Object {

@@ -8,12 +8,15 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 import {ContentId} from '../../content/ContentId';
 import {ChildOrder} from '../../resource/order/ChildOrder';
+import {ContentMetadata} from '../../content/ContentMetadata';
 
 export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus> {
 
     private contentId: ContentId;
 
     private curChildOrder: ChildOrder;
+
+    private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     static MAX_FETCH_SIZE: number = 30;
 
@@ -45,6 +48,7 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
             .setSelectedCellCssClass('selected-sort-row')
         );
 
+        this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
         this.getOptions().setHeight('100%');
     }
 
@@ -86,19 +90,18 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
             from--;
         }
 
-        return ContentSummaryAndCompareStatusFetcher.fetchChildren(this.contentId, from, SortContentTreeGrid.MAX_FETCH_SIZE, 'content',
-            this.curChildOrder).then((data: ContentResponse<ContentSummaryAndCompareStatus>) => {
-            let contents = parentNode.getChildren().map((el) => {
-                return el.getData();
-            }).slice(0, from).concat(data.getContents());
-            let meta = data.getMetadata();
-            parentNode.setMaxChildren(meta.getTotalHits());
-            if (from + meta.getHits() < meta.getTotalHits()) {
-                contents.push(new ContentSummaryAndCompareStatus());
-            }
-            return contents;
-        });
-
+        return this.contentFetcher.fetchChildren(this.contentId, from, SortContentTreeGrid.MAX_FETCH_SIZE, this.curChildOrder).then(
+            (data: ContentResponse<ContentSummaryAndCompareStatus>) => {
+                const contents: ContentSummaryAndCompareStatus[] = parentNode.getChildren().map((el) => {
+                    return el.getData();
+                }).slice(0, from).concat(data.getContents());
+                const meta: ContentMetadata = data.getMetadata();
+                parentNode.setMaxChildren(meta.getTotalHits());
+                if (from + meta.getHits() < meta.getTotalHits()) {
+                    contents.push(new ContentSummaryAndCompareStatus());
+                }
+                return contents;
+            });
     }
 
     hasChildren(data: ContentSummaryAndCompareStatus): boolean {

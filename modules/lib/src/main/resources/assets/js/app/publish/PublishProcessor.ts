@@ -190,7 +190,7 @@ export class PublishProcessor {
         }
 
         const slicedIds = this.dependantIds.slice(0, 0 + GetDescendantsOfContentsRequest.LOAD_SIZE);
-        return ContentSummaryAndCompareStatusFetcher.fetchByIds(slicedIds);
+        return new ContentSummaryAndCompareStatusFetcher().fetchByIds(slicedIds);
     }
 
     private handleExclusionResult() {

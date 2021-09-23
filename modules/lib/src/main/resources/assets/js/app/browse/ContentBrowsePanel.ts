@@ -53,6 +53,7 @@ export class ContentBrowsePanel
     private debouncedBrowseActionsAndPreviewRefreshOnDemand: () => void;
     private browseActionsAndPreviewUpdateRequired: boolean = false;
     private contextPanelToggler: NonMobileContextPanelToggleButton;
+    private contentFetcher: ContentSummaryAndCompareStatusFetcher;
 
     constructor() {
         super();
@@ -61,6 +62,7 @@ export class ContentBrowsePanel
     protected initElements() {
         super.initElements();
 
+        this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
         this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
         this.debouncedBrowseActionsAndPreviewRefreshOnDemand = AppHelper.debounce(() => {
             if (this.browseActionsAndPreviewUpdateRequired) {
@@ -393,7 +395,7 @@ export class ContentBrowsePanel
             return;
         }
 
-        ContentSummaryAndCompareStatusFetcher.fetchByIds(contentsToUpdateIds)
+        this.contentFetcher.fetchByIds(contentsToUpdateIds)
             .then(this.handleContentUpdated.bind(this))
             .catch(DefaultErrorHandler.handle);
     }
@@ -557,7 +559,7 @@ export class ContentBrowsePanel
     protected updateActionsAndPreview(): void {
         this.browseActionsAndPreviewUpdateRequired = false;
 
-        ContentSummaryAndCompareStatusFetcher.updateRenderableContents(this.treeGrid.getSelectedDataList()).then(() => {
+        this.contentFetcher.updateRenderableContents(this.treeGrid.getSelectedDataList()).then(() => {
             super.updateActionsAndPreview();
         }).catch(DefaultErrorHandler.handle);
     }

@@ -51,6 +51,8 @@ export class ContentServerEventsHandler {
 
     private contentPermissionsUpdatedListeners: { (contentIds: ContentIds): void }[] = [];
 
+    private contentFetcher: ContentSummaryAndCompareStatusFetcher = new ContentSummaryAndCompareStatusFetcher();
+
     private static debug: boolean = false;
 
     constructor() {
@@ -467,21 +469,21 @@ export class ContentServerEventsHandler {
                     d.getContentId())));
 
             if (unpublishedItems.length) {
-                ContentSummaryAndCompareStatusFetcher.fetchByPaths(unpublishedItems.map(item => item.getContentPath()))
+                this.contentFetcher.fetchByPaths(unpublishedItems.map(item => item.getContentPath()))
                     .then((summaries) => {
                         this.handleContentUnpublished(summaries);
                     });
             }
 
         } else if (type === NodeServerChangeType.MOVE) {
-            ContentSummaryAndCompareStatusFetcher.fetchByPaths(this.extractNewContentPaths(currentRepoChanges))
+            this.contentFetcher.fetchByPaths(this.extractNewContentPaths(currentRepoChanges))
                 .then((summaries) => {
                     this.handleContentMoved(summaries, this.extractContentPaths(currentRepoChanges));
                 });
         } else if (type === NodeServerChangeType.UPDATE_PERMISSIONS) {
             this.handleContentPermissionsUpdated(this.extractContentIds(currentRepoChanges));
         } else {
-            ContentSummaryAndCompareStatusFetcher.fetchByIds(this.extractContentIds(currentRepoChanges))
+            this.contentFetcher.fetchByIds(this.extractContentIds(currentRepoChanges))
                 .then((summaries) => {
                     if (ContentServerEventsHandler.debug) {
                         console.debug('ContentServerEventsHandler: fetched summaries', summaries);
