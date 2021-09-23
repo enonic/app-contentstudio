@@ -17,6 +17,8 @@ export class CompareContentGrid
 
     private content: Content;
 
+    private contentFetcher: ContentSummaryAndCompareStatusFetcher;
+
     constructor(content: Content) {
         const nameFormatter = (row: number, cell: number, value: any, columnDef: any, node: TreeNode<ContentSummaryAndCompareStatus>) => {
 
@@ -41,6 +43,7 @@ export class CompareContentGrid
         );
 
         this.content = content;
+        this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
 
         this.onLoaded(() => {
             this.selectAll();
@@ -49,7 +52,7 @@ export class CompareContentGrid
 
     fetchChildren(parentNode?: TreeNode<ContentSummaryAndCompareStatus>): Q.Promise<ContentSummaryAndCompareStatus[]> {
         let parentContentId = parentNode && parentNode.getData() ? parentNode.getData().getContentId() : null;
-        return ContentSummaryAndCompareStatusFetcher.fetchChildren(parentContentId).then(
+        return this.contentFetcher.fetchChildren(parentContentId).then(
             (data: ContentResponse<ContentSummaryAndCompareStatus>) => {
                 return data.getContents();
             });

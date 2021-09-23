@@ -34,7 +34,7 @@ export class MediaUploaderEl
     constructor(config: MediaUploaderElConfig) {
 
         if (config.url == null) {
-            config.url = `content/${MediaUploaderElOperation[config.operation]}Media`;
+            config.url = `content/content/${MediaUploaderElOperation[config.operation]}Media`;
         }
 
         super(config);

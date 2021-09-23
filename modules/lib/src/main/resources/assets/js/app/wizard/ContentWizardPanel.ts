@@ -256,6 +256,8 @@ export class ContentWizardPanel
 
     private formContext: ContentFormContext;
 
+    private contentFetcher: ContentSummaryAndCompareStatusFetcher;
+
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
 
@@ -384,6 +386,8 @@ export class ContentWizardPanel
             }
             this.handleAppChange();
         };
+
+        this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
     }
 
     private initBindings() {
@@ -1379,7 +1383,7 @@ export class ContentWizardPanel
                 return;
             }
 
-            ContentSummaryAndCompareStatusFetcher.fetch(thisContentId)
+            this.contentFetcher.fetch(thisContentId)
                 .then(updatePermissionsHandler)
                 .catch(DefaultErrorHandler.handle);
         };
@@ -1397,7 +1401,7 @@ export class ContentWizardPanel
 
                     this.handlePersistedContentUpdate(renamedContent);
                 } else if (this.getPersistedItem().getPath().isDescendantOf(oldPaths[index])) {
-                    ContentSummaryAndCompareStatusFetcher.fetchByContent(this.getPersistedItem()).then((summaryAndStatus) => {
+                    this.contentFetcher.fetchByContent(this.getPersistedItem()).then((summaryAndStatus) => {
                         this.handlePersistedContentUpdate(summaryAndStatus);
                     });
                 }
@@ -1697,7 +1701,7 @@ export class ContentWizardPanel
     }
 
     private updatePersistedContent(persistedContent: Content) {
-        return ContentSummaryAndCompareStatusFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
+        return this.contentFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
             this.currentContent = summaryAndStatus;
             this.setPersistedContent(summaryAndStatus);
             this.getMainToolbar().setItem(summaryAndStatus);
