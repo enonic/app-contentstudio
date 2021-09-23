@@ -166,6 +166,34 @@ describe("image.content.crop.spec: tests for crop button", function () {
             await contentWizard.waitAndClickOnSave();
         });
 
+        //verifies XP-4167 Impossible to save changes and close the Wizard after an image was cropped
+        it(`GIVEN the image has been cropped and saved WHEN try to close the browser tab THEN Alert dialog should not appear after closing the wizard`,
+            async () => {
+                    let imageEditor = new ImageEditor();
+                    let imageFormPanel = new ImageFormPanel();
+                    let contentWizard = new ContentWizard();
+                    //1. Open the existing image:
+                    await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.TELK);
+                    await imageFormPanel.waitForImageLoaded(appConstant.mediumTimeout);
+                    //2. Click on Crop button, 'Reset Mask' button gets visible in the edit mode.
+                    await imageEditor.clickOnCropButton();
+                    //3. Crop the image:
+                    await imageEditor.doCropImage(-100);
+                    await studioUtils.saveScreenshot("image_cropped_2");
+                    await imageEditor.clickOnApplyButton();
+                    await imageEditor.waitForResetFiltersDisplayed();
+                    //4. Save the content:
+                    await contentWizard.waitAndClickOnSave();
+                    await contentWizard.waitForNotificationMessage();
+                    await contentWizard.clickOnCloseBrowserTab();
+                    //Check the alert:
+                    let result = await contentWizard.isAlertOpen();
+                    if (result) {
+                            await contentWizard.dismissAlert();
+                    }
+                    assert.isFalse(result, "Alert should not appear");
+            });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {
