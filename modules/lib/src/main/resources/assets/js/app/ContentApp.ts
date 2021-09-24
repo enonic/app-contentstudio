@@ -17,7 +17,7 @@ export class ContentApp extends App {
     }
 
     getIconClass(): string {
-        return 'icon-tree-2';
+        return 'icon-version-modified';
     }
 
     getDisplayName(): string {
