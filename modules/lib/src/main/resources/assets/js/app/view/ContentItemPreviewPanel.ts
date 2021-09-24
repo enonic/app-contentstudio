@@ -40,10 +40,12 @@ export class ContentItemPreviewPanel
     private previewMessage: DivEl;
     private noSelectionMessage: DivEl;
     private debouncedSetItem: (item: ContentSummaryAndCompareStatus) => void;
+    private readonly contentRootPath: string;
 
-    constructor() {
+    constructor(contentRootPath: string = 'content') {
         super('content-item-preview-panel');
 
+        this.contentRootPath = contentRootPath;
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
 
         this.initElements();
@@ -229,7 +231,7 @@ export class ContentItemPreviewPanel
         const imgSize = Math.max(imgWidth, imgHeight);
         const content = item.getContentSummary();
 
-        const imgUrlResolver = new ImageUrlResolver()
+        const imgUrlResolver = new ImageUrlResolver(this.contentRootPath)
             .setContentId(content.getContentId())
             .setTimestamp(content.getModifiedTime())
             .setSize(imgSize);
@@ -326,7 +328,7 @@ export class ContentItemPreviewPanel
                 this.setPreviewType(PREVIEW_TYPE.MEDIA);
                 if (this.isVisible()) {
                     this.frame.setSrc(UrlHelper.getCmsRestUri(
-                        `${UrlHelper.getCMSPath()}/content/media/${contentSummary.getId()}?download=false#view=fit`));
+                        `${UrlHelper.getCMSPath(this.contentRootPath)}/content/media/${contentSummary.getId()}?download=false#view=fit`));
                 }
             } else {
                 this.setPreviewType(PREVIEW_TYPE.EMPTY);
@@ -341,7 +343,7 @@ export class ContentItemPreviewPanel
             if (contentSummary.getType().isVectorMedia()) {
                 this.setPreviewType(PREVIEW_TYPE.SVG);
 
-                const imgUrl = new ImageUrlResolver()
+                const imgUrl = new ImageUrlResolver(this.contentRootPath)
                     .setContentId(contentSummary.getContentId())
                     .setTimestamp(contentSummary.getModifiedTime())
                     .resolveForPreview();
