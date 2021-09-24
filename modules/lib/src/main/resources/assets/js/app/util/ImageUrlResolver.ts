@@ -27,6 +27,14 @@ export class ImageUrlResolver
 
     private filter: string;
 
+    private readonly contentRootPath: string;
+
+    constructor(contentRootPath: string = 'content') {
+        super();
+
+        this.contentRootPath = contentRootPath;
+    }
+
     setContentId(value: ContentId): ImageUrlResolver {
         this.contentId = value;
         return this;
@@ -86,7 +94,8 @@ export class ImageUrlResolver
     }
 
     resolveForPreview(): string {
-        let url = this.getBaseUrl(UrlHelper.getCmsRestUri(`/${ImageUrlResolver.URL_PREFIX_PREVIEW}`));
+        let url: string = this.getBaseUrl(
+            UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(this.contentRootPath)}/${ImageUrlResolver.URL_PREFIX_PREVIEW}`));
 
         if (this.timeStamp) {
             url = this.appendParam('ts', '' + this.timeStamp.getTime(), url);
