@@ -39,6 +39,7 @@ import {ChildOrder} from '../resource/order/ChildOrder';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {ContentPath} from '../content/ContentPath';
+import {ContentTreeGridRefreshRequiredEvent} from './ContentTreeGridRefreshRequiredEvent';
 
 export enum State {
     ENABLED, DISABLED
@@ -124,6 +125,12 @@ export class ContentTreeGrid
 
         this.onLoaded(() => {
             new ContentTreeGridLoadedEvent().fire();
+        });
+
+        ContentTreeGridRefreshRequiredEvent.on(() => {
+           this.whenShown(() => {
+               this.reload();
+           });
         });
     }
 
