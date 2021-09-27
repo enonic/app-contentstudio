@@ -36,14 +36,14 @@ class ArchiveTaskMessageGenerator
         final List<ContentPath> archived = result.getSucceeded();
         if ( archived != null && archived.size() == 1 )
         {
-            builder.append( String.format( "Item \"%s\" is archived.", archived.get( 0 ).getName() ) );
+            builder.append( "The item is archived." );
         }
     }
 
     @Override
     void appendMessageForMultipleSuccess( final StringBuilder builder, final ArchiveRunnableTaskResult result )
     {
-        builder.append( result.getSuccessCount() ).append( " items were archived." );
+        builder.append( result.getSuccessCount() ).append( " items are archived." );
     }
 
 }
