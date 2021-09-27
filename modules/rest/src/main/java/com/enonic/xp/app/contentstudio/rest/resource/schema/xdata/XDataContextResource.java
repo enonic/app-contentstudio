@@ -47,14 +47,16 @@ import com.enonic.xp.site.SiteDescriptor;
 import com.enonic.xp.site.SiteService;
 import com.enonic.xp.site.XDataMappings;
 
+import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
+import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.stream.Collectors.toList;
 
-@Path(ResourceConstants.REST_ROOT + "schema/xdata")
+@Path(REST_ROOT + "{content:(" + CONTENT_CMS_PATH + ")}/schema/xdata")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs", configurationPid = "com.enonic.app.contentstudio")
-public final class XDataResource
+public final class XDataContextResource
     implements JaxRsComponent
 {
     private XDataService xDataService;
@@ -81,18 +83,21 @@ public final class XDataResource
     }
 
     @GET
-    @Path("getApplicationXDataForContentType")
-    public XDataListJson getApplicationXDataForContentType( @QueryParam("contentTypeName") final String contentTypeName,
-                                                            @QueryParam("applicationKey") final String key )
+    @Path("getContentXData")
+    public XDataListJson getContentXData( @QueryParam("contentId") final String id )
     {
+        final ContentId contentId = ContentId.from( id );
+        final Content content = this.contentService.getById( contentId );
+
         final XDataListJson result = new XDataListJson();
 
-        final SiteDescriptor siteDescriptor = siteService.getDescriptor( ApplicationKey.from( key ) );
+        final Map<XData, Boolean> resultXData = new LinkedHashMap<>();
 
-        final Map<XData, Boolean> siteXData =
-            this.getXDatasByContentType( siteDescriptor.getXDataMappings(), ContentTypeName.from( contentTypeName ) );
+        getContentTypeXData( content ).forEach( xData -> resultXData.putIfAbsent( xData, false ) );
 
-        result.addXDatas( createXDataListJson( siteXData ) );
+        getSiteXData( content ).forEach( resultXData::putIfAbsent );
+
+        result.addXDatas( createXDataListJson( resultXData ) );
 
         return result;
     }
@@ -110,6 +115,29 @@ public final class XDataResource
                 .build() )
             .distinct()
             .collect( toList() );
+    }
+
+    private Map<XData, Boolean> getSiteXData( final Content content )
+    {
+        final Map<XData, Boolean> result = new LinkedHashMap<>();
+
+        final Site nearestSite = this.contentService.getNearestSite( content.getId() );
+
+        if ( nearestSite != null )
+        {
+            final List<ApplicationKey> applicationKeys =
+                nearestSite.getSiteConfigs().stream().map( SiteConfig::getApplicationKey ).collect( toList() );
+
+            final List<SiteDescriptor> siteDescriptors = applicationKeys.stream()
+                .map( applicationKey -> siteService.getDescriptor( applicationKey ) )
+                .filter( Objects::nonNull )
+                .collect( toList() );
+
+            siteDescriptors.forEach(
+                siteDescriptor -> result.putAll( this.getXDatasByContentType( siteDescriptor.getXDataMappings(), content.getType() ) ) );
+
+        }
+        return result;
     }
 
     private Map<XData, Boolean> getXDatasByContentType( final XDataMappings xDataMappings, final ContentTypeName contentTypeName )
@@ -132,6 +160,13 @@ public final class XDataResource
         } );
 
         return result;
+    }
+
+    private XDatas getContentTypeXData( final Content content )
+    {
+        final ContentType contentType = this.contentTypeService.getByName( GetContentTypeParams.from( content.getType() ) );
+
+        return this.xDataService.getByNames( contentType.getXData() );
     }
 
     @Reference
