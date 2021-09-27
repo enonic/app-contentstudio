@@ -31,6 +31,7 @@ import {DeleteDialogDependantList} from './DeleteDialogDependantList';
 import {ArchiveContentRequest} from '../resource/ArchiveContentRequest';
 import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDeleteResult';
+import {ContentTreeGridDeselectAllEvent} from '../browse/ContentTreeGridDeselectAllEvent';
 
 enum ActionType {
     DELETE, ARCHIVE
@@ -322,8 +323,11 @@ export class ContentDeleteDialog
 
         this.lockControls();
 
-        this.createExecutionRequest(type)
-            .sendAndParse()
+        const request: ResourceRequest<TaskId> = this.createExecutionRequest(type);
+
+        new ContentTreeGridDeselectAllEvent().fire();
+
+        request.sendAndParse()
             .then((taskId: TaskId) => {
                 this.pollTask(taskId);
             })
