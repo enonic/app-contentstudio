@@ -10,7 +10,6 @@ export class ContentServerChangeItem
 
     protected path: ContentPath;
 
-
     constructor(builder: ContentServerChangeItemBuilder) {
         super(builder);
 
