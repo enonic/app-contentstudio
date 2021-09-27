@@ -1,12 +1,12 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {XDataResourceRequest} from './XDataResourceRequest';
 import {XDataListJson} from './json/XDataListJson';
 import {XData} from '../content/XData';
 import {XDataJson} from './json/XDataJson';
 import {ContentId} from '../content/ContentId';
+import {XDataContextResourceRequest} from './XDataContextResourceRequest';
 
 export class GetContentXDataRequest
-    extends XDataResourceRequest<XData[]> {
+    extends XDataContextResourceRequest<XData[]> {
 
     private contentId: ContentId;
 
