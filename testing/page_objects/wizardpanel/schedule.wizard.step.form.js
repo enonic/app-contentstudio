@@ -4,11 +4,16 @@
 const Page = require('../page');
 const DateTimeRange = require('../components/datetime.range');
 const appConst = require('../../libs/app_const');
+const lib = require('../../libs/elements');
 const XPATH = {
     container: `//div[contains(@id,'ScheduleWizardStepForm')]`,
 };
 
 class ScheduleForm extends Page {
+
+    get validationRecord() {
+        return lib.FORM_VIEW + lib.OCCURRENCE_ERROR_BLOCK;
+    }
 
     typeOnlineFrom(value) {
         let dateTimeRange = new DateTimeRange();
@@ -31,15 +36,11 @@ class ScheduleForm extends Page {
     }
 
 
-    waitForValidationRecording(ms) {
+    waitForValidationRecording() {
         let dateTimeRange = new DateTimeRange();
-        return this.waitForElementDisplayed(this.validationRecord, ms);
+        return this.waitForElementDisplayed(this.validationRecord, appConst.shortTimeout);
     }
 
-    isValidationRecordingDisplayed() {
-        let dateTimeRange = new DateTimeRange();
-        return this.isElementDisplayed(this.validationRecord);
-    }
 
     getValidationRecord() {
         let dateTimeRange = new DateTimeRange();
@@ -53,5 +54,16 @@ class ScheduleForm extends Page {
     waitForNotDisplayed() {
         return this.waitUntilElementNotVisible(XPATH.container, appConst.shortTimeout);
     }
-};
+
+    waitForOnlineToInputDisplayed() {
+        let dateTimeRange = new DateTimeRange();
+        return dateTimeRange.waitForOnlineToInputDisplayed(XPATH.container);
+    }
+
+    waitForOnlineFromInputDisplayed() {
+        let dateTimeRange = new DateTimeRange();
+        return dateTimeRange.waitForOnlineFromInputDisplayed(XPATH.container);
+    }
+}
+
 module.exports = ScheduleForm;

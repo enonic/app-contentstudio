@@ -79,6 +79,11 @@ class Page {
         return Promise.all(strings);
     }
 
+    async clearTextInput(locator) {
+        let inputElement = await this.findElement(locator);
+        return await inputElement.setValue("");
+    }
+
     async typeTextInInput(selector, text) {
         try {
             let inputElement = await this.findElement(selector);

@@ -2,6 +2,7 @@
  * Created on 02.08.2019.
  */
 const appConst = require('../../libs/app_const');
+const lib = require('../../libs/elements');
 const Page = require('../page');
 const XPATH = {
     container: "//div[contains(@id,'DateTimeRange')]",
@@ -24,7 +25,14 @@ class DateTimeRange extends Page {
     }
 
     get validationRecord() {
-        return XPATH.container + XPATH.validationRecording;
+        return lib.FORM_VIEW + lib.OCCURRENCE_ERROR_BLOCK;
+    }
+
+    clearOnlineFrom(xpath) {
+        if (xpath === undefined) {
+            xpath = '';
+        }
+        return this.clearTextInput(xpath + this.onlineFromDateTimeInput);
     }
 
     typeOnlineFrom(value, xpath) {
@@ -34,11 +42,25 @@ class DateTimeRange extends Page {
         return this.typeTextInInput(xpath + this.onlineFromDateTimeInput, value);
     }
 
+    waitForOnlineToInputDisplayed(xpath) {
+        if (xpath === undefined) {
+            xpath = '';
+        }
+        return this.waitForElementDisplayed(xpath + this.onlineToDateTimeInput, appConst.mediumTimeout);
+    }
+
+    waitForOnlineFromInputDisplayed(xpath) {
+        if (xpath === undefined) {
+            xpath = '';
+        }
+        return this.waitForElementDisplayed(xpath + this.onlineFromDateTimeInput, appConst.mediumTimeout);
+    }
+
     async getOnlineFrom(xpath) {
         if (xpath === undefined) {
             xpath = '';
         }
-        await this.waitForElementDisplayed(xpath + this.onlineFromDateTimeInput, appConst.mediumTimeout);
+        await this.waitForOnlineFromInputDisplayed();
         await this.pause(300);
         return await this.getTextInInput(xpath + this.onlineFromDateTimeInput);
     }
@@ -115,6 +137,7 @@ class DateTimeRange extends Page {
         await elems[0].click();
         return await this.pause(300);
     }
+
 }
 
 module.exports = DateTimeRange;
