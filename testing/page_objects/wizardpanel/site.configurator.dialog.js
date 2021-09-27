@@ -61,13 +61,14 @@ class SiteConfiguratorDialog extends Page {
         return this.clickOnElement(this.cancelButton);
     }
 
-    clickOnApplyButton() {
-        return this.clickOnElement(this.applyButton).catch(err => {
-            this.saveScreenshot('err_click_on_apply_dialog');
+    async clickOnApplyButton() {
+        try {
+            await this.clickOnElement(this.applyButton);
+            return await this.waitForDialogClosed();
+        } catch (err) {
+            await this.saveScreenshot('err_click_on_apply_dialog');
             throw new Error('Site Configurator Dialog, error when click on the Apply button  ' + err);
-        }).then(() => {
-            return this.waitForDialogClosed();
-        })
+        }
     }
 
     waitForApplyButtonDisabled() {
@@ -82,4 +83,5 @@ class SiteConfiguratorDialog extends Page {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
     }
 }
+
 module.exports = SiteConfiguratorDialog;
