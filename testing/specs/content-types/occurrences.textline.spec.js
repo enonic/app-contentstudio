@@ -208,7 +208,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             await contentWizard.waitForNotificationMessage();
         });
 
-    it(`GIVEN existing TextLine-content (1:1) is opened WHEN text has been saved  in the required textline input THEN the content gets valid`,
+    it(`GIVEN existing TextLine-content (1:1) is opened WHEN text has been saved in the required textline input THEN the content gets valid`,
         async () => {
             let contentWizard = new ContentWizard();
             let textLine = new TextLine();

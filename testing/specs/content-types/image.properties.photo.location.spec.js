@@ -11,6 +11,8 @@ const ImagePropertiesForm = require('../../page_objects/wizardpanel/image/image.
 const ImagePhotoForm = require('../../page_objects/wizardpanel/image/photo.info.form.view');
 const ImageLocationForm = require('../../page_objects/wizardpanel/image/image.location.form.view');
 const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
+const ContentFilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe("image.properties.photo.spec: tests for focus button", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -19,7 +21,48 @@ describe("image.properties.photo.spec: tests for focus button", function () {
     const DIRECTION = 'direction';
     const GEO_POINT = '37.785146,-122.39758';
     const GEO_POINT_NOT_VALID = '1234567';
+    const ARTIST_TEXT = appConst.generateRandomName("art");
+    const TAGS_TEXT = appConst.generateRandomName("tag");
 
+    it("GIVEN image content is opened WHEN search tags have been added THEN the image should be searchable with the tags",
+        async () => {
+            let contentFilterPanel = new ContentFilterPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let imageFormPanel = new ImageFormPanel();
+            let contentWizard = new ContentWizard();
+            //1. Open an existing image:
+            await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
+            await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
+            await imageFormPanel.waitForCaptionTextAreaDisplayed();
+            await imageFormPanel.waitForCopyrightInputDisplayed();
+            //2. Add tags in Artist and tags inputs
+            await imageFormPanel.addArtistsTag(ARTIST_TEXT);
+            await imageFormPanel.addTag(TAGS_TEXT);
+            await contentWizard.waitAndClickOnSave();
+            //3. close the wizard
+            await studioUtils.doCloseWizardAndSwitchToGrid();
+            //4. type the tag's text in Filter Panel
+            await contentFilterPanel.typeSearchText(ARTIST_TEXT);
+            await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
+            //5. Verify that the expected image is filtered:
+            await studioUtils.saveScreenshot("image_tagged");
+            let result = await contentBrowsePanel.getDisplayNamesInGrid();
+            assert.equal(result.length, 1, "Single image file should be filtered in the grid");
+            assert.equal(result[0], appConst.TEST_IMAGES.POP_02, "Expected pdf content should be filtered");
+        });
+
+    it("WHEN image content with tags is opened THEN expected tags should be present",
+        async () => {
+            let imageFormPanel = new ImageFormPanel();
+            //1. Open an existing image:
+            await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.POP_02);
+            await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
+            //2. Verify that expected tags should be displayed in the wizard form:
+            let artists = await imageFormPanel.getArtistsTagsText();
+            let tags = await imageFormPanel.getTagsText();
+            assert.isTrue(artists.includes(ARTIST_TEXT), "Expected artists tags should be displayed");
+            assert.isTrue(tags.includes(TAGS_TEXT), "Expected tags should be displayed");
+        });
 
     it("WHEN image content is opened THEN expected inputs should be present in Properties form",
         async () => {

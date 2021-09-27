@@ -88,6 +88,8 @@ module.exports = Object.freeze({
     VALIDATION_MESSAGE: {
         TEXT_IS_TOO_LONG: "Text is too long",
         INVALID_VALUE_ENTERED: "Invalid value entered",
+        SCHEDULE_FORM_ONLINE_PAST: "Online to cannot be in the past",
+        SCHEDULE_FORM_ONLINE_FROM_EMPTY: "Online to cannot be set without Online from",
     },
 
     PROJECT_ACCESS_MODE: {
@@ -99,7 +101,7 @@ module.exports = Object.freeze({
     mediumTimeout: 4000,
     TIMEOUT_4: 4000,
     TIMEOUT_5: 5000,
-    longTimeout: 9000,
+    longTimeout: 10000,
     saveProjectTimeout: 15000,
     shortTimeout: 2000,
     TIMEOUT_1: 1000,

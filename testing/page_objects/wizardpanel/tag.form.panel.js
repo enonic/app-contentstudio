@@ -22,14 +22,15 @@ class TagForm extends Page {
         return await this.getBrowser().keys(text);
     }
 
-    doAddTag(text) {
-        return this.typeInTagInput(text).catch(err => {
+    async doAddTag(text) {
+        try {
+            await this.typeInTagInput(text)
+            await this.pause(200);
+            await utils.doPressEnter();
+            return await this.pause(200);
+        } catch (err) {
             throw new Error("Error when typing the tag:  " + err);
-        }).then(() => {
-            return this.pause(300);
-        }).then(() => {
-            return utils.doPressEnter();
-        })
+        }
     }
 
     waitForTagSuggestions() {
@@ -47,5 +48,6 @@ class TagForm extends Page {
             }
         })
     }
-};
+}
+
 module.exports = TagForm;
