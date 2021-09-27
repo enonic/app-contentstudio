@@ -103,7 +103,7 @@ export class XDataBuilder
         if (xDataJson.form && xDataJson.form.formItems) {
             const applicationKey: ApplicationKey = new XDataName(this.name).getApplicationKey();
             xDataJson.form.formItems.forEach((formItemJson) => {
-                const formItem: FormItem = FormItemFactoryImpl.get().createFormItem(formItemJson).setApplicationKey(applicationKey);
+                const formItem: FormItem = FormItemFactoryImpl.get().createFormItem(formItemJson, applicationKey);
                 if (formItem) {
                     this.formItems.push(formItem);
                 }
