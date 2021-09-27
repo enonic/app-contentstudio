@@ -12,7 +12,6 @@ export class ContentServerChangeItem
 
     private readonly contentPath: ContentPath;
 
-
     constructor(builder: ContentServerChangeItemBuilder) {
         super(builder);
 

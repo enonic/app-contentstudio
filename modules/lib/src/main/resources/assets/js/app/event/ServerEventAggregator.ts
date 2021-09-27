@@ -1,5 +1,5 @@
 import {NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
-import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {NodeServerChange, NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 
 export class ServerEventAggregator {
@@ -47,7 +47,7 @@ export class ServerEventAggregator {
     }
 
     private isTheSameTypeEvent(event: NodeServerEvent) {
-        let change = event.getNodeChange();
+        const change: NodeServerChange = event.getNodeChange();
 
         if (this.type !== change.getChangeType()) {
             return false;

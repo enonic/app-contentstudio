@@ -40,6 +40,7 @@ import {ContentId} from '../content/ContentId';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {ContentPath} from '../content/ContentPath';
 import {ContentTreeGridRefreshRequiredEvent} from './ContentTreeGridRefreshRequiredEvent';
+import {ContentTreeGridDeselectAllEvent} from './ContentTreeGridDeselectAllEvent';
 
 export enum State {
     ENABLED, DISABLED
@@ -131,6 +132,10 @@ export class ContentTreeGrid
            this.whenShown(() => {
                this.reload();
            });
+        });
+
+        ContentTreeGridDeselectAllEvent.on(() => {
+            this.deselectAll();
         });
     }
 
