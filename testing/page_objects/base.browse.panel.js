@@ -124,11 +124,13 @@ class BaseBrowsePanel extends Page {
         });
     }
 
-    waitForNewButtonDisabled() {
-        return this.waitForElementDisabled(this.newButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_new_disabled_button');
+    async waitForNewButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.newButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_new_disabled_button');
             throw Error('New... button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
-        })
+        }
     }
 
     //Wait for `New` button is visible
