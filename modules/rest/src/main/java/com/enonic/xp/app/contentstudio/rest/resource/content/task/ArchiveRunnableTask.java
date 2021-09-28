@@ -1,14 +1,16 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 
+import java.util.stream.Collectors;
+
 import com.enonic.xp.app.contentstudio.rest.resource.archive.ArchiveContentProgressListener;
 import com.enonic.xp.app.contentstudio.rest.resource.archive.json.ArchiveContentJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.query.ContentQueryWithChildren;
 import com.enonic.xp.archive.ArchiveContentException;
 import com.enonic.xp.archive.ArchiveContentParams;
 import com.enonic.xp.archive.ArchiveContentsResult;
-import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentService;
+import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.task.AbstractRunnableTask;
 import com.enonic.xp.task.ProgressReporter;
@@ -26,32 +28,30 @@ public class ArchiveRunnableTask
         this.params = builder.params;
     }
 
+    public static Builder create()
+    {
+        return new Builder();
+    }
+
     @Override
     public void run( final TaskId id, final ProgressReporter progressReporter )
     {
-        final ContentIds contentToArchiveList = ContentIds.from( params.getContentIds() );
+        final ContentIds contentToArchiveIds = ContentIds.from( params.getContentIds() );
         progressReporter.info( "Archiving content" );
 
         final ArchiveContentProgressListener listener = new ArchiveContentProgressListener( progressReporter );
+        listener.setTotal( contentToArchiveIds.getSize() );
 
-        final long childrenIds = ContentQueryWithChildren.create().
-            contentService( this.contentService ).
-            contentsPaths( contentService.getByIds( new GetContentByIdsParams( contentToArchiveList ) ).getPaths() ).
-            build().
-            find().
-            getTotalHits();
-        final int contentIds = contentToArchiveList.getSize();
-
-        listener.setTotal( Math.toIntExact( childrenIds + contentIds ) );
+        final Contents contentsToArchive = contentService.getByIds( new GetContentByIdsParams( contentToArchiveIds ) );
 
         ArchiveRunnableTaskResult.Builder result = ArchiveRunnableTaskResult.create();
 
-        for ( ContentId contentId : contentToArchiveList )
+        for ( Content content : contentsToArchive.stream()
+            .sorted( ( a, b ) -> b.getPath().elementCount() - a.getPath().elementCount() )
+            .collect( Collectors.toList() ) )
         {
-            final ArchiveContentParams archiveContentParams = ArchiveContentParams.create().
-                contentId( contentId ).
-                archiveContentListener( listener ).
-                build();
+            final ArchiveContentParams archiveContentParams =
+                ArchiveContentParams.create().contentId( content.getId() ).archiveContentListener( listener ).build();
             try
             {
                 final ArchiveContentsResult archiveResult = contentService.archive( archiveContentParams );
@@ -64,11 +64,6 @@ public class ArchiveRunnableTask
         }
 
         progressReporter.info( result.build().toJson() );
-    }
-
-    public static Builder create()
-    {
-        return new Builder();
     }
 
     public static class Builder
