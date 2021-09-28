@@ -110,7 +110,7 @@ export class SettingsAppPanel
         if (tabMenuItem != null) {
             this.selectPanel(tabMenuItem);
         } else {
-            const isLayer = event.getProjectType().equals(SettingsTypes.LAYER);
+            const isLayer = event.getProjectType().equals(SettingsTypes.get().getLayer());
             const unnamedTabMenuText: string = NamePrettyfier.prettifyUnnamed(
                 isLayer ? i18n('settings.items.type.layer') : i18n('settings.items.type.project')
             );
