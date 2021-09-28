@@ -75,19 +75,19 @@ export class ContentSummaryAndCompareStatusFetcher {
             .setContentRootPath(this.contentRootPath)
             .sendAndParse()
             .then((content: Content) => {
-            return CompareContentRequest.fromContentSummaries([content], projectName, this.contentRootPath).sendAndParse()
-                .then((compareResults: CompareContentResults) => {
-                    const result: ContentSummaryAndCompareStatus = this.updateCompareStatus([content],
-                        compareResults)[0];
+                return CompareContentRequest.fromContentSummaries([content], projectName, this.contentRootPath).sendAndParse()
+                    .then((compareResults: CompareContentResults) => {
+                        const result: ContentSummaryAndCompareStatus = this.updateCompareStatus([content],
+                            compareResults)[0];
 
-                    const promises: Q.Promise<any>[] = [];
-                    promises.push(this.updateReadOnly([result], projectName));
+                        const promises: Q.Promise<any>[] = [];
+                        promises.push(this.updateReadOnly([result], projectName));
 
-                    return Q.all(promises).then(() => {
-                        return result;
+                        return Q.all(promises).then(() => {
+                            return result;
+                        });
                     });
-                });
-        });
+            });
 
     }
 
@@ -123,7 +123,7 @@ export class ContentSummaryAndCompareStatusFetcher {
         return new GetContentSummaryByIds(ids).setContentRootPath(this.contentRootPath).sendAndParse().then(
             (contentSummaries: ContentSummary[]) => {
 
-                return CompareContentRequest.fromContentSummaries(contentSummaries).sendAndParse().then(
+                return CompareContentRequest.fromContentSummaries(contentSummaries, null, this.contentRootPath).sendAndParse().then(
                     (compareResults: CompareContentResults) => {
                         const contents: ContentSummaryAndCompareStatus[] = this.updateCompareStatus(contentSummaries, compareResults);
                         const promises: Q.Promise<any>[] = [];
@@ -149,9 +149,9 @@ export class ContentSummaryAndCompareStatusFetcher {
             .setParentId(parentContentId)
             .setOrder(order)
             .sendAndParse().then(
-            (response: ContentId[]) => {
-                return response;
-            });
+                (response: ContentId[]) => {
+                    return response;
+                });
     }
 
     updateCompareStatus(contentSummaries: ContentSummary[], compareResults: CompareContentResults): ContentSummaryAndCompareStatus[] {
