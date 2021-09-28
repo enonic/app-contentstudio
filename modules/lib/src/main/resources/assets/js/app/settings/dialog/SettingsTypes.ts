@@ -4,8 +4,14 @@ import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
 
 export class SettingsTypes {
 
-    public static PROJECT: SettingsType =
-        SettingsType.create()
+    private static INSTANCE: SettingsTypes;
+
+    private readonly project: SettingsType;
+
+    private readonly layer: SettingsType;
+
+    protected constructor() {
+        this.project = SettingsType.create()
             .setName('Project')
             .setDescription(i18n('settings.items.type.projectDescription'))
             .setDisplayName(i18n('settings.items.type.project'))
@@ -13,22 +19,36 @@ export class SettingsTypes {
             .setIconClass(ProjectIconUrlResolver.getDefaultProjectIcon())
             .build();
 
-    public static LAYER: SettingsType =
-        SettingsType.create()
+        this.layer = SettingsType.create()
             .setName('Layer')
             .setDescription(i18n('settings.items.type.layerDescription'))
             .setDisplayName(i18n('settings.items.type.layer'))
             .setDisplayNamePlaceholder(i18n('settings.layers.displayName'))
             .setIconClass(ProjectIconUrlResolver.getDefaultLayerIcon())
             .build();
-
-    private static TYPES: SettingsType[] = [SettingsTypes.PROJECT, SettingsTypes.LAYER];
-
-    static getType(name: string): SettingsType {
-        return SettingsTypes.TYPES.find(type => type.getName() === name);
     }
 
-    static getInstantiable(): SettingsType[] {
-        return SettingsTypes.TYPES.filter(type => type.getInstantiable());
+    static get(): SettingsTypes {
+        if (!SettingsTypes.INSTANCE) {
+            SettingsTypes.INSTANCE = new SettingsTypes();
+        }
+
+        return SettingsTypes.INSTANCE;
+    }
+
+    getProject(): SettingsType {
+        return this.project;
+    }
+
+    getLayer(): SettingsType {
+        return this.layer;
+    }
+
+    getType(name: string): SettingsType {
+        return [this.project, this.layer].find(type => type.getName() === name);
+    }
+
+    getInstantiable(): SettingsType[] {
+        return [this.project, this.layer].filter(type => type.getInstantiable());
     }
 }
