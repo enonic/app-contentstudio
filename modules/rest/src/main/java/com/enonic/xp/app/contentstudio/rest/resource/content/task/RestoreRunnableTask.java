@@ -1,16 +1,19 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content.task;
 
+import java.util.Comparator;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Strings;
 
 import com.enonic.xp.app.contentstudio.rest.resource.archive.json.RestoreContentJson;
-import com.enonic.xp.app.contentstudio.rest.resource.content.query.ContentQueryWithChildren;
 import com.enonic.xp.archive.RestoreContentException;
 import com.enonic.xp.archive.RestoreContentParams;
 import com.enonic.xp.archive.RestoreContentsResult;
-import com.enonic.xp.content.ContentId;
+import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentIds;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
+import com.enonic.xp.content.Contents;
 import com.enonic.xp.content.GetContentByIdsParams;
 import com.enonic.xp.task.AbstractRunnableTask;
 import com.enonic.xp.task.ProgressReporter;
@@ -28,35 +31,33 @@ public class RestoreRunnableTask
         this.params = builder.params;
     }
 
+    public static Builder create()
+    {
+        return new Builder();
+    }
+
     @Override
     public void run( final TaskId id, final ProgressReporter progressReporter )
     {
-        final ContentIds contentToRestoreList = ContentIds.from( params.getContentIds() );
+        final ContentIds contentToRestoreIds = ContentIds.from( params.getContentIds() );
         progressReporter.info( "Restoring content" );
 
         final RestoreContentProgressListener listener = new RestoreContentProgressListener( progressReporter );
+        listener.setTotal( contentToRestoreIds.getSize() );
 
-        final long childrenIds = ContentQueryWithChildren.create().
-            contentService( this.contentService ).
-            contentsPaths( contentService.getByIds( new GetContentByIdsParams( contentToRestoreList ) ).getPaths() ).
-            build().
-            find().
-            getTotalHits();
-        final int contentIds = contentToRestoreList.getSize();
-
-        listener.setTotal( Math.toIntExact( childrenIds + contentIds ) );
+        final Contents contentsToRestore = contentService.getByIds( new GetContentByIdsParams( contentToRestoreIds ) );
 
         RestoreRunnableTaskResult.Builder result = RestoreRunnableTaskResult.create();
 
         final ContentPath path = Strings.nullToEmpty( params.getPath() ).isBlank() ? null : ContentPath.from( params.getPath() );
 
-        for ( ContentId contentId : contentToRestoreList )
+        for ( Content content : contentsToRestore.stream()
+            .sorted( Comparator.comparingInt(
+                a -> a.getOriginalParentPath() != null ? a.getOriginalParentPath().elementCount() : a.getPath().elementCount() ) )
+            .collect( Collectors.toList() ) )
         {
-            final RestoreContentParams restoreContentParams = RestoreContentParams.create().
-                contentId( contentId ).
-                path( path ).
-                restoreContentListener( listener ).
-                build();
+            final RestoreContentParams restoreContentParams =
+                RestoreContentParams.create().contentId( content.getId() ).path( path ).restoreContentListener( listener ).build();
             try
             {
                 final RestoreContentsResult restoreResult = contentService.restore( restoreContentParams );
@@ -69,11 +70,6 @@ public class RestoreRunnableTask
         }
 
         progressReporter.info( result.build().toJson() );
-    }
-
-    public static Builder create()
-    {
-        return new Builder();
     }
 
     public static class Builder
