@@ -57,7 +57,7 @@ export class NewSettingsItemDialog
     protected postInitElements() {
         super.postInitElements();
 
-        this.itemsList.addItems(SettingsTypes.getInstantiable());
+        this.itemsList.addItems(SettingsTypes.get().getInstantiable());
     }
 
     doRender(): Q.Promise<boolean> {
