@@ -9,5 +9,7 @@ export interface ContentVersionPublishInfoJson {
 
     timestamp: string;
 
+    type: string;
+
     contentPublishInfo: ContentPublishInfoJson;
 }

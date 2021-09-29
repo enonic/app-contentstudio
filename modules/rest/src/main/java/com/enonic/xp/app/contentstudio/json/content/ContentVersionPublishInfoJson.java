@@ -16,6 +16,8 @@ public class ContentVersionPublishInfoJson
 
     private final String publisherDisplayName;
 
+    private final String type;
+
     private final ContentPublishInfoJson contentPublishInfo;
 
     public ContentVersionPublishInfoJson( final ContentVersionPublishInfo versionPublishInfo,
@@ -28,6 +30,7 @@ public class ContentVersionPublishInfoJson
 
         this.publisher = versionPublishInfo.getPublisher().toString();
         this.publisherDisplayName = publisher != null ? publisher.getDisplayName() : "";
+        this.type = versionPublishInfo.getType() != null ? versionPublishInfo.getType().toString() : null;
 
         this.contentPublishInfo = versionPublishInfo.getContentPublishInfo() != null
             ? new ContentPublishInfoJson( versionPublishInfo.getContentPublishInfo() )
@@ -52,6 +55,11 @@ public class ContentVersionPublishInfoJson
     public String getPublisherDisplayName()
     {
         return publisherDisplayName;
+    }
+
+    public String getType()
+    {
+        return type;
     }
 
     public ContentPublishInfoJson getContentPublishInfo()
