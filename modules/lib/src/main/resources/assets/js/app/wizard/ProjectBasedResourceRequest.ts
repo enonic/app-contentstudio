@@ -9,7 +9,7 @@ export abstract class ProjectBasedResourceRequest<PARSED_TYPE>
     private projectName: string;
 
     getRestPath(): Path {
-        return Path.fromParent(super.getRestPath(), UrlHelper.getCMSPathWithProject(this.projectName));
+        return Path.create().fromParent(super.getRestPath(), UrlHelper.getCMSPathWithProject(this.projectName)).build();
     }
 
     setRequestProject(value: Project): ProjectBasedResourceRequest<PARSED_TYPE> {

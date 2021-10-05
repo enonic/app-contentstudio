@@ -18,6 +18,7 @@ import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {UrlHelper} from '../util/UrlHelper';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -42,10 +43,10 @@ export class ContentItemPreviewPanel
     private debouncedSetItem: (item: ContentSummaryAndCompareStatus) => void;
     private readonly contentRootPath: string;
 
-    constructor(contentRootPath: string = 'content') {
+    constructor(contentRootPath?: string) {
         super('content-item-preview-panel');
 
-        this.contentRootPath = contentRootPath;
+        this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
 
         this.initElements();

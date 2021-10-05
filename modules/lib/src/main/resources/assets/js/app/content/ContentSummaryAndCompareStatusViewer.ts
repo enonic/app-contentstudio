@@ -60,8 +60,8 @@ export class ContentSummaryAndCompareStatusViewer
         }
 
         return !contentName.isUnnamed() ? contentSummary.getPath().toString() :
-               ContentPath.fromParent(contentSummary.getPath().getParentPath(),
-                   NamePrettyfier.prettifyUnnamed()).toString();
+               ContentPath.create().fromParent(contentSummary.getPath().getParentPath(),
+                   NamePrettyfier.prettifyUnnamed()).build().toString();
     }
 
     private toggleState(object: ContentSummaryAndCompareStatus) {

@@ -33,7 +33,7 @@ export class ContentTreeSelectorItemViewer
             subName = !contentName.isUnnamed() ? contentName.toString() : NamePrettyfier.prettifyUnnamed();
         } else {
             subName = !contentName.isUnnamed() ? object.getPath().toString() :
-                   ContentPath.fromParent(object.getPath().getParentPath(), NamePrettyfier.prettifyUnnamed()).toString();
+                   ContentPath.create().fromParent(object.getPath().getParentPath(), NamePrettyfier.prettifyUnnamed()).build().toString();
         }
 
         this.setTitle(subName);

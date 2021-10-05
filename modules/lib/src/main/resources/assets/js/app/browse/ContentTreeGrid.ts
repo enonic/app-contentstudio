@@ -1,7 +1,6 @@
 import * as Q from 'q';
 import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {Body} from 'lib-admin-ui/dom/Body';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {SortContentEvent} from './sort/SortContentEvent';
 import {ContentTreeGridActions} from './action/ContentTreeGridActions';
@@ -25,7 +24,6 @@ import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
 import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {TreeGridContextMenu} from 'lib-admin-ui/ui/treegrid/TreeGridContextMenu';
-import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {BrowseFilterResetEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterResetEvent';
 import {BrowseFilterRefreshEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterRefreshEvent';
 import {BrowseFilterSearchEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterSearchEvent';
@@ -39,7 +37,6 @@ import {ChildOrder} from '../resource/order/ChildOrder';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {ContentPath} from '../content/ContentPath';
-import {ContentTreeGridRefreshRequiredEvent} from './ContentTreeGridRefreshRequiredEvent';
 import {ContentTreeGridDeselectAllEvent} from './ContentTreeGridDeselectAllEvent';
 
 export enum State {
@@ -126,12 +123,6 @@ export class ContentTreeGrid
 
         this.onLoaded(() => {
             new ContentTreeGridLoadedEvent().fire();
-        });
-
-        ContentTreeGridRefreshRequiredEvent.on(() => {
-           this.whenShown(() => {
-               this.reload();
-           });
         });
 
         ContentTreeGridDeselectAllEvent.on(() => {
@@ -535,7 +526,7 @@ export class ContentTreeGrid
         const childSummary: ContentSummary = child.getData() ? child.getData().getContentSummary() : null;
 
         if (nodeSummary && childSummary) {
-            const path: ContentPath = ContentPath.fromParent(nodeSummary.getPath(), childSummary.getPath().getName());
+            const path: ContentPath = ContentPath.create().fromParent(nodeSummary.getPath(), childSummary.getPath().getName()).build();
             const newData: ContentSummaryAndCompareStatus = child.getData();
             newData.setContentSummary(new ContentSummaryBuilder(childSummary).setPath(path).build());
             this.doUpdateNodeByData(child, newData);

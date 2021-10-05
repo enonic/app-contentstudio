@@ -206,7 +206,7 @@ export class MoveContentDialog
 
     private doMove() {
         const parentContent: ContentTreeSelectorItem = this.getParentContentItem();
-        const parentPath: ContentPath = parentContent ? parentContent.getPath() : ContentPath.ROOT;
+        const parentPath: ContentPath = parentContent ? parentContent.getPath() : ContentPath.getRoot();
         const contentIds: ContentIds =
             ContentIds.create().fromContentIds(this.movedContentSummaries.map(summary => summary.getContentId())).build();
 
@@ -230,7 +230,7 @@ export class MoveContentDialog
 
     private getParentPath(): ContentPath {
         const parentContent: ContentTreeSelectorItem = this.getParentContentItem();
-        return parentContent ? parentContent.getPath() : ContentPath.ROOT;
+        return parentContent ? parentContent.getPath() : ContentPath.getRoot();
     }
 
     private isProgressBarEnabled(): boolean {

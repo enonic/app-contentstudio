@@ -4,14 +4,8 @@ import {NodeServerChangeItem, NodeServerChangeItemBuilder} from 'lib-admin-ui/ev
 export class IssueServerChangeItem
     extends NodeServerChangeItem {
 
-    public static pathPrefix: string = '/issues';
-
     constructor(builder: IssueServerChangeItemBuilder) {
         super(builder);
-    }
-
-    protected processPath(path: string): string {
-        return path.substr(IssueServerChangeItem.pathPrefix.length);
     }
 
     static fromJson(json: NodeEventNodeJson): IssueServerChangeItem {

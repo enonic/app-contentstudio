@@ -52,7 +52,7 @@ export class CustomSelectorRequest
     }
 
     getRequestPath(): Path {
-        return Path.fromString(this.requestPath);
+        return Path.create().fromString(this.requestPath).build();
     }
 
     private validateResponse(result: CustomSelectorResponse) {

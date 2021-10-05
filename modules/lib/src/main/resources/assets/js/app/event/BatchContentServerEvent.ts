@@ -1,23 +1,23 @@
 import {Event} from 'lib-admin-ui/event/Event';
 import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
-import {ContentServerEvent} from './ContentServerEvent';
+import {ContentServerChangeItem} from './ContentServerChangeItem';
 
 export class BatchContentServerEvent
     extends Event {
 
-    private events: ContentServerEvent[];
+    private readonly items: ContentServerChangeItem[];
 
-    private type: NodeServerChangeType;
+    private readonly type: NodeServerChangeType;
 
-    constructor(events: ContentServerEvent[], type: NodeServerChangeType) {
+    constructor(items: ContentServerChangeItem[], type: NodeServerChangeType) {
         super();
-        this.events = events || [];
+        this.items = items || [];
         this.type = type;
     }
 
-    getEvents(): ContentServerEvent[] {
-        return this.events;
+    getItems(): ContentServerChangeItem[] {
+        return this.items;
     }
 
     getType(): NodeServerChangeType {
@@ -25,8 +25,8 @@ export class BatchContentServerEvent
     }
 
     toString(): string {
-        return 'BatchContentServerEvent: [' +
-               this.events.map((event) => event.toString()).join(', ') +
+        return 'BatchContentServerChangeItem: [' +
+               this.items.map((event) => event.toString()).join(', ') +
                ']';
     }
 

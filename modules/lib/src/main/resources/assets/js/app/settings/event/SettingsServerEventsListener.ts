@@ -3,12 +3,13 @@ import {ServerEventsListener} from 'lib-admin-ui/event/ServerEventsListener';
 import {NodeEventJson, NodeEventNodeJson, NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
 import {SettingsServerEvent} from './SettingsServerEvent';
 import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
-import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {RepositoryId} from '../../repository/RepositoryId';
 import {SettingsEventAggregator} from './SettingsEventAggregator';
 import {PrincipalServerEvent} from '../../event/PrincipalServerEvent';
 import {ContentServerEvent} from '../../event/ContentServerEvent';
 import {NodeServerChangeItem} from 'lib-admin-ui/event/NodeServerChangeItem';
+import {ContentPath} from '../../content/ContentPath';
+import {Event} from 'lib-admin-ui/event/Event';
 
 export class SettingsServerEventsListener
     extends ServerEventsListener {
@@ -16,6 +17,10 @@ export class SettingsServerEventsListener
     private static PROJECT_ROLE_PATH_PREFIX: string = '/roles/cms.project.';
 
     private eventsAggregator: SettingsEventAggregator = new SettingsEventAggregator();
+
+    protected onServerEvent(event: Event): void {
+        //
+    }
 
     protected onUnknownServerEvent(eventJson: EventJson) {
         const eventType: string = eventJson.type;
@@ -65,7 +70,7 @@ export class SettingsServerEventsListener
     }
 
     private isRootContentEvent(nodeEventJson: NodeEventJson) {
-        return nodeEventJson.data.nodes.some((node: NodeEventNodeJson) => node.path === ContentServerChangeItem.pathPrefix);
+        return nodeEventJson.data.nodes.some((node: NodeEventNodeJson) => node.path === `/${ContentPath.CONTENT_ROOT}`);
     }
 
     private handleRootContentUpdate(event: ContentServerEvent) {
@@ -95,7 +100,7 @@ export class SettingsServerEventsListener
     }
 
     private isRootNodeEventItem(nodeEventItem: NodeServerChangeItem): boolean {
-        return nodeEventItem.getPath() === '';
+        return nodeEventItem.getPath().getLevel() === 1;
     }
 
     private extractProjectNameFromRootNodeEventItem(nodeEventNodeJson: NodeServerChangeItem): string {
@@ -115,10 +120,10 @@ export class SettingsServerEventsListener
     }
 
     private isProjectRoleEventItem(nodeEventItem: NodeServerChangeItem): boolean {
-        return nodeEventItem.getPath().indexOf(SettingsServerEventsListener.PROJECT_ROLE_PATH_PREFIX) === 0;
+        return nodeEventItem.getPath().toString().indexOf(SettingsServerEventsListener.PROJECT_ROLE_PATH_PREFIX) === 0;
     }
 
     private extractProjectNameFromProjectRoleNodeEventItem(nodeEventItem: NodeServerChangeItem): string {
-        return nodeEventItem.getPath().replace(SettingsServerEventsListener.PROJECT_ROLE_PATH_PREFIX, '').split('.')[0];
+        return nodeEventItem.getPath().toString().replace(SettingsServerEventsListener.PROJECT_ROLE_PATH_PREFIX, '').split('.')[0];
     }
 }

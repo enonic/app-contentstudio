@@ -2,6 +2,7 @@ import {IconUrlResolver} from 'lib-admin-ui/icon/IconUrlResolver';
 import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
 import {UrlHelper} from './UrlHelper';
 import {ContentId} from '../content/ContentId';
+import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 
 export class ImageUrlResolver
     extends IconUrlResolver {
@@ -29,10 +30,10 @@ export class ImageUrlResolver
 
     private readonly contentRootPath: string;
 
-    constructor(contentRootPath: string = 'content') {
+    constructor(contentRootPath?: string) {
         super();
 
-        this.contentRootPath = contentRootPath;
+        this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
     }
 
     setContentId(value: ContentId): ImageUrlResolver {
