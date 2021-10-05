@@ -456,16 +456,20 @@ export class ContentServerEventsHandler {
     }
 
     private handleCurrentRepoChanges(changeItems: ContentServerChangeItem[], type: NodeServerChangeType) {
-        if (type === NodeServerChangeType.DELETE && this.hasDraftBranchChanges(changeItems)) {
+        if (this.isDeleteChange(changeItems, type)) {
             // content has already been deleted so no need to fetch summaries
             this.handleDeleteAndUnPublish(changeItems);
         } else if (type === NodeServerChangeType.MOVE) {
-            this.handleMovedAndArchived(changeItems)
+            this.handleMovedAndArchived(changeItems);
         } else if (type === NodeServerChangeType.UPDATE_PERMISSIONS) {
             this.handleContentPermissionsUpdated(this.extractContentIds(changeItems));
         } else {
             this.handleEventByType(changeItems, type);
         }
+    }
+
+    private isDeleteChange(changeItems: ContentServerChangeItem[], type: NodeServerChangeType): boolean {
+        return type === NodeServerChangeType.DELETE && this.hasDraftBranchChanges(changeItems);
     }
 
     private handleDeleteAndUnPublish(changeItems: ContentServerChangeItem[]) {
