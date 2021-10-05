@@ -458,82 +458,90 @@ export class ContentServerEventsHandler {
     private handleCurrentRepoChanges(changeItems: ContentServerChangeItem[], type: NodeServerChangeType) {
         if (type === NodeServerChangeType.DELETE && this.hasDraftBranchChanges(changeItems)) {
             // content has already been deleted so no need to fetch summaries
-
-            const deletedItems: ContentServerChangeItem[] = changeItems.filter(d => d.getBranch() === Branch.DRAFT);
-            if (deletedItems.length) {
-                this.handleContentDeleted(deletedItems);
-            }
-
-            const unpublishedItems: ContentServerChangeItem[] = changeItems.filter(
-                d => deletedItems.every(deleted => !ObjectHelper.equals(deleted.getContentId(),
-                    d.getContentId())));
-
-            if (unpublishedItems.length) {
-                this.contentFetcher.fetchByPaths(unpublishedItems.map(item => item.getPath()))
-                    .then((summaries) => {
-                        this.handleContentUnpublished(summaries);
-                    });
-            }
+            this.handleDeleteAndUnPublish(changeItems);
         } else if (type === NodeServerChangeType.MOVE) {
-            const archivedItems: ContentServerChangeItem[] =
-                changeItems.filter((item: ContentServerChangeItem) => item.getNewPath().isInArchiveRoot());
-            const movedItems: ContentServerChangeItem[] =
-                changeItems.filter((item: ContentServerChangeItem) => item.getNewPath().isInContentRoot());
-
-            if (archivedItems.length > 0) {
-                this.notifyContentDeleted(archivedItems);
-                this.notifyContentArchived(archivedItems);
-            }
-
-            if (movedItems.length > 0) {
-                this.contentFetcher.fetchByPaths(this.extractNewContentPaths(movedItems))
-                    .then((summaries: ContentSummaryAndCompareStatus[]) => {
-                        this.handleContentMoved(summaries, this.extractContentPaths(movedItems));
-                    });
-            }
+            this.handleMovedAndArchived(changeItems)
         } else if (type === NodeServerChangeType.UPDATE_PERMISSIONS) {
             this.handleContentPermissionsUpdated(this.extractContentIds(changeItems));
         } else {
-            this.contentFetcher.fetchByIds(this.extractContentIds(changeItems))
-                .then((summaries) => {
-                    if (ContentServerEventsHandler.debug) {
-                        console.debug('ContentServerEventsHandler: fetched summaries', summaries);
-                    }
-                    switch (type) {
-                    case NodeServerChangeType.CREATE:
-                        this.handleContentCreated(summaries);
-                        break;
-                    case NodeServerChangeType.UPDATE:
-                        this.handleContentUpdated(summaries);
-                        break;
-                    case NodeServerChangeType.RENAME:
-                        // also supply old paths in case of rename
-                        this.handleContentRenamed(summaries, this.extractContentPaths(changeItems));
-                        break;
-                    case NodeServerChangeType.DELETE:
-                        // delete from draft has been handled without fetching summaries,
-                        // deleting from master is unpublish
-                        this.handleContentUnpublished(summaries);
-                        break;
-                    case NodeServerChangeType.PENDING:
-                        this.handleContentPending(summaries);
-                        break;
-                    case NodeServerChangeType.DUPLICATE:
-                        this.handleContentDuplicated(summaries);
-                        break;
-                    case NodeServerChangeType.PUBLISH:
-                        this.handleContentPublished(summaries);
-                        break;
-                    case NodeServerChangeType.SORT:
-                        this.handleContentSorted(summaries);
-                        break;
-                    case NodeServerChangeType.UNKNOWN:
-                        break;
-                    default:
-                        //
-                    }
-                }).catch(DefaultErrorHandler.handle);
+            this.handleEventByType(changeItems, type);
         }
+    }
+
+    private handleDeleteAndUnPublish(changeItems: ContentServerChangeItem[]) {
+        const deletedItems: ContentServerChangeItem[] = changeItems.filter(d => d.getBranch() === Branch.DRAFT);
+        if (deletedItems.length) {
+            this.handleContentDeleted(deletedItems);
+        }
+
+        const unpublishedItems: ContentServerChangeItem[] = changeItems.filter(
+            d => deletedItems.every(deleted => !ObjectHelper.equals(deleted.getContentId(),
+                d.getContentId())));
+
+        if (unpublishedItems.length) {
+            this.contentFetcher.fetchByPaths(unpublishedItems.map(item => item.getPath()))
+                .then((summaries) => {
+                    this.handleContentUnpublished(summaries);
+                });
+        }
+    }
+
+    private handleMovedAndArchived(changeItems: ContentServerChangeItem[]) {
+        const archivedItems: ContentServerChangeItem[] =
+            changeItems.filter((item: ContentServerChangeItem) => item.getNewPath().isInArchiveRoot());
+        const movedItems: ContentServerChangeItem[] =
+            changeItems.filter((item: ContentServerChangeItem) => item.getNewPath().isInContentRoot());
+
+        if (archivedItems.length > 0) {
+            this.notifyContentDeleted(archivedItems);
+            this.notifyContentArchived(archivedItems);
+        }
+
+        if (movedItems.length > 0) {
+            this.contentFetcher.fetchByPaths(this.extractNewContentPaths(movedItems))
+                .then((summaries: ContentSummaryAndCompareStatus[]) => {
+                    this.handleContentMoved(summaries, this.extractContentPaths(movedItems));
+                });
+        }
+    }
+
+    private handleEventByType(changeItems: ContentServerChangeItem[], type: NodeServerChangeType) {
+        this.contentFetcher.fetchByIds(this.extractContentIds(changeItems))
+            .then((summaries: ContentSummaryAndCompareStatus[]) => {
+                switch (type) {
+                case NodeServerChangeType.CREATE:
+                    this.handleContentCreated(summaries);
+                    break;
+                case NodeServerChangeType.UPDATE:
+                    this.handleContentUpdated(summaries);
+                    break;
+                case NodeServerChangeType.RENAME:
+                    // also supply old paths in case of rename
+                    this.handleContentRenamed(summaries, this.extractContentPaths(changeItems));
+                    break;
+                case NodeServerChangeType.DELETE:
+                    // delete from draft has been handled without fetching summaries,
+                    // deleting from master is unpublish
+                    this.handleContentUnpublished(summaries);
+                    break;
+                case NodeServerChangeType.PENDING:
+                    this.handleContentPending(summaries);
+                    break;
+                case NodeServerChangeType.DUPLICATE:
+                    this.handleContentDuplicated(summaries);
+                    break;
+                case NodeServerChangeType.PUBLISH:
+                    this.handleContentPublished(summaries);
+                    break;
+                case NodeServerChangeType.SORT:
+                    this.handleContentSorted(summaries);
+                    break;
+                case NodeServerChangeType.UNKNOWN:
+                    break;
+                default:
+                    //
+                }
+            }).catch(DefaultErrorHandler.handle);
     }
 
     private handleContentPermissionsUpdated(contentIds: ContentId[]) {

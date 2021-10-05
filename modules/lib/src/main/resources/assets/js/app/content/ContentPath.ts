@@ -23,7 +23,7 @@ export class ContentPath
         let result: string = '';
 
         for (let index = 0; index < this.getElements().length; index++) {
-            result = result + NodePath.NODE_PATH_DIVIDER + this.getElements()[index];
+            result = result + NodePath.NODE_PATH_DIVIDER + this.getElements()[+index];
             if (index === (level - 1)) {
                 return new ContentPathBuilder().fromString(result).build();
             }
