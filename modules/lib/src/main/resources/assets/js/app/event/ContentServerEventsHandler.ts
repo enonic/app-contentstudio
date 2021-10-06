@@ -447,17 +447,13 @@ export class ContentServerEventsHandler {
         }
     }
 
-    private handleContentEvent(type: NodeServerChangeType, summaries: ContentSummaryAndCompareStatus[], changedItems: ContentServerChangeItem[]) {
+    private handleContentEvent(type: NodeServerChangeType, summaries: ContentSummaryAndCompareStatus[]) {
         switch (type) {
             case NodeServerChangeType.CREATE:
                 this.handleContentCreated(summaries);
                 break;
             case NodeServerChangeType.UPDATE:
                 this.handleContentUpdated(summaries);
-                break;
-            case NodeServerChangeType.RENAME:
-                // also supply old paths in case of rename
-                this.handleContentRenamed(summaries, this.extractContentPaths(changedItems));
                 break;
             case NodeServerChangeType.DELETE:
                 // delete from draft has been handled without fetching summaries,
@@ -515,7 +511,12 @@ export class ContentServerEventsHandler {
                     if (ContentServerEventsHandler.debug) {
                         console.debug('ContentServerEventsHandler: fetched summaries', summaries);
                     }
-                    this.handleContentEvent(type, summaries, changedItems);
+                    if (type === NodeServerChangeType.RENAME) {
+                        // also supply old paths in case of rename
+                        this.handleContentRenamed(summaries, this.extractContentPaths(changedItems));
+                    } else {
+                        this.handleContentEvent(type, summaries);
+                    }
                 }).catch(DefaultErrorHandler.handle);
         }
     }
