@@ -4,6 +4,8 @@ import {CompareContentResultsJson} from './json/CompareContentResultsJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {ContentResourceRequest} from './ContentResourceRequest';
+import {ContentPath} from '../content/ContentPath';
 
 export class CompareContentRequest
     extends CmsContentResourceRequest<CompareContentResults> {
@@ -18,7 +20,7 @@ export class CompareContentRequest
     }
 
     static fromContentSummaries(contentSummaries: ContentSummary[], projectName?: string,
-                                contentRootPath: string = 'content'): CompareContentRequest {
+                                contentRootPath: string = ContentPath.CONTENT_ROOT): CompareContentRequest {
         const ids: string[] = [];
 
         contentSummaries.forEach((contentSummary: ContentSummary) => {

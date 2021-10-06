@@ -33,12 +33,7 @@ export class ServerEventAggregator {
         if (this.isEmpty()) {
             this.init(event);
         } else {
-            if (this.isTheSameTypeEvent(event)) {
-                this.items.push(...event.getNodeChange().getChangeItems());
-            } else {
-                this.notifyBatchIsReady();
-                this.init(event);
-            }
+            this.processAppendedEvent(event);
         }
 
         this.debouncedNotification();
@@ -46,6 +41,25 @@ export class ServerEventAggregator {
 
     private isEmpty(): boolean {
         return this.items == null || this.items.length === 0;
+    }
+
+    private processAppendedEvent(event: NodeServerEvent) {
+        if (this.isTheSameTypeEvent(event)) {
+            this.items.push(...event.getNodeChange().getChangeItems());
+            return;
+        }
+
+        if (this.isEventItemMovedToOtherRoot(event)) {
+            if (this.type === NodeServerChangeType.UPDATE) {
+                this.processBatchedUpdateEvents(event);
+            }
+
+            this.init(event);
+            return;
+        }
+
+        this.notifyBatchIsReady();
+        this.init(event);
     }
 
     getType(): NodeServerChangeType {
@@ -64,7 +78,24 @@ export class ServerEventAggregator {
 
     private init(event: NodeServerEvent) {
         this.items = event.getNodeChange().getChangeItems();
-        this.type = event.getNodeChange() ? event.getNodeChange().getChangeType() : null;
+        this.type = !!event.getNodeChange() ? event.getNodeChange().getChangeType() : null;
+    }
+
+    private isEventItemMovedToOtherRoot(event: NodeServerEvent): boolean {
+        return event.getNodeChange()?.getChangeItems().some((item: NodeServerChangeItem) => {
+            return item.getNewPath()?.toString().indexOf('/archive') === 0;
+        });
+    }
+
+    private processBatchedUpdateEvents(event: NodeServerEvent) {
+        const archivedItems: NodeServerChangeItem[] = event.getNodeChange().getChangeItems();
+        const nonArchivedItems: NodeServerChangeItem[] =
+            this.items.filter((item: NodeServerChangeItem) => !archivedItems.some(
+                (archivedItem: NodeServerChangeItem) => archivedItem.getId() === item.getId()));
+
+        if (nonArchivedItems.length > 0) {
+            this.notifyBatchIsReady();
+        }
     }
 
     onBatchIsReady(listener: (event: any) => void) {

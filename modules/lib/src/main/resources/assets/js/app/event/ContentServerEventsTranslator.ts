@@ -4,6 +4,7 @@ import {NodeEventJson} from 'lib-admin-ui/event/NodeServerEvent';
 import {ServerEventsTranslator} from 'lib-admin-ui/event/ServerEventsTranslator';
 import {IssueServerEvent} from './IssueServerEvent';
 import {ContentServerEvent} from './ContentServerEvent';
+import {ArchiveServerEvent} from './ArchiveServerEvent';
 
 export class ContentServerEventsTranslator
     extends ServerEventsTranslator {
@@ -12,6 +13,10 @@ export class ContentServerEventsTranslator
         const eventType: string = eventJson.type;
 
         if (eventType.indexOf('node.') === 0) {
+            if (ArchiveServerEvent.is(<NodeEventJson>eventJson)) {
+                return ArchiveServerEvent.fromJson(<NodeEventJson>eventJson);
+            }
+
             if (ContentServerEvent.is(<NodeEventJson>eventJson)) {
                 return ContentServerEvent.fromJson(<NodeEventJson>eventJson);
             }
