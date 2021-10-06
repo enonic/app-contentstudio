@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
 import {ContentDeletedEvent} from './ContentDeletedEvent';
