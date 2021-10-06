@@ -18,13 +18,14 @@ import {ChildOrder} from './order/ChildOrder';
 import {ContentId} from '../content/ContentId';
 import {FieldOrderExpr, FieldOrderExprBuilder} from './order/FieldOrderExpr';
 import {ContentPath} from '../content/ContentPath';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class ContentSummaryAndCompareStatusFetcher {
 
     private readonly contentRootPath: string;
 
-    constructor(contentRootPath: string = 'content') {
-        this.contentRootPath = contentRootPath;
+    constructor(contentRootPath?: string) {
+        this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
     }
 
     fetchRoot(from: number = 0, size: number = -1): Q.Promise<ContentResponse<ContentSummaryAndCompareStatus>> {
