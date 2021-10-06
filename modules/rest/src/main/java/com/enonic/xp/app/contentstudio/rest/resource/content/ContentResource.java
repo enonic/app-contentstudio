@@ -172,6 +172,7 @@ import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.context.ContextBuilder;
 import com.enonic.xp.extractor.BinaryExtractor;
 import com.enonic.xp.extractor.ExtractedData;
+import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.index.ChildOrder;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.query.filter.BooleanFilter;
@@ -250,6 +251,8 @@ public final class ContentResource
     private TaskService taskService;
 
     private ContentTypeService contentTypeService;
+
+    private LocaleService localeService;
 
     private SyncContentService syncContentService;
 
@@ -1814,5 +1817,11 @@ public final class ContentResource
     public void setJsonObjectsFactory( final JsonObjectsFactory jsonObjectsFactory )
     {
         this.jsonObjectsFactory = jsonObjectsFactory;
+    }
+
+    @Reference
+    public void setLocaleService( final LocaleService localeService )
+    {
+        this.localeService = localeService;
     }
 }

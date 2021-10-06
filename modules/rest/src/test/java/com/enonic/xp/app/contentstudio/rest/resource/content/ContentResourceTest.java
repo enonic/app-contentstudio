@@ -89,6 +89,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.task.DuplicateRunna
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.MoveRunnableTask;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.PublishRunnableTask;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.UnpublishRunnableTask;
+import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.attachment.Attachment;
 import com.enonic.xp.attachment.Attachments;
 import com.enonic.xp.attachment.CreateAttachment;
@@ -222,6 +223,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 
 public class ContentResourceTest
     extends AdminResourceTestSupport
@@ -271,7 +273,7 @@ public class ContentResourceTest
         knownContentTypes = new HashSet<>( BuiltinContentTypesAccessor.getAll() );
 
         lenient().when( contentTypeService.getByName(
-            argThat( argument -> knownContentTypes.stream().anyMatch( ct -> ct.getName().equals( argument.getContentTypeName() ) ) ) ) )
+                argThat( argument -> knownContentTypes.stream().anyMatch( ct -> ct.getName().equals( argument.getContentTypeName() ) ) ) ) )
             .thenAnswer( (Answer<ContentType>) invocation -> knownContentTypes.stream()
                 .filter( ct -> ct.getName().equals( invocation.<GetContentTypeParams>getArgument( 0 ).getContentTypeName() ) )
                 .findAny()
@@ -1167,10 +1169,10 @@ public class ContentResourceTest
         ContentResource contentResource = getResourceInstance();
 
         Mockito.when(
-            contentService.hasUnpublishedChildren( new HasUnpublishedChildrenParams( contentA.getId(), ContentConstants.BRANCH_MASTER ) ) )
+                contentService.hasUnpublishedChildren( new HasUnpublishedChildrenParams( contentA.getId(), ContentConstants.BRANCH_MASTER ) ) )
             .thenReturn( true );
         Mockito.when(
-            contentService.hasUnpublishedChildren( new HasUnpublishedChildrenParams( contentB.getId(), ContentConstants.BRANCH_MASTER ) ) )
+                contentService.hasUnpublishedChildren( new HasUnpublishedChildrenParams( contentB.getId(), ContentConstants.BRANCH_MASTER ) ) )
             .thenReturn( false );
 
         final HasUnpublishedChildrenResultJson result = contentResource.hasUnpublishedChildren(
@@ -1816,9 +1818,10 @@ public class ContentResourceTest
         componentNameResolver.setLayoutDescriptorService( layoutDescriptorService );
         componentNameResolver.setPartDescriptorService( partDescriptorService );
 
+        LocaleMessageResolver messageResolver = mock( LocaleMessageResolver.class );
         assertEquals(
             new ContentJson( site, new ContentIconUrlResolver( contentTypeService ), new ContentPrincipalsResolver( securityService ),
-                             componentNameResolver, new ContentListTitleResolver( contentTypeService ) ), result );
+                             componentNameResolver, new ContentListTitleResolver( contentTypeService ), messageResolver ), result );
     }
 
     @Test
@@ -1881,7 +1884,7 @@ public class ContentResourceTest
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) ).thenReturn( findResult );
 
         Mockito.when( contentService.compare(
-            new CompareContentsParams( ContentIds.from( content1.getId(), content2.getId() ), ContentConstants.BRANCH_MASTER ) ) )
+                new CompareContentsParams( ContentIds.from( content1.getId(), content2.getId() ), ContentConstants.BRANCH_MASTER ) ) )
             .thenReturn( CompareContentResults.create().add( new CompareContentResult( CompareStatus.NEW, content1.getId() ) ).build() );
 
         List<ContentIdJson> result = contentResource.getDescendantsOfContents( params );
@@ -1956,8 +1959,10 @@ public class ContentResourceTest
             .build();
 
         Mockito.when( contentService.find( Mockito.isA( ContentQuery.class ) ) ).thenReturn( idsToRemove ).thenReturn( inbound );
-        Mockito.when( contentService.getOutboundDependencies( ContentId.from( "content-id3" ) ) ).thenReturn( ContentIds.from( "content-id1", "content-id2" ) );
-        Mockito.when( contentService.getOutboundDependencies( ContentId.from( "content-id4" ) ) ).thenReturn( ContentIds.from( "content-id1" ) );
+        Mockito.when( contentService.getOutboundDependencies( ContentId.from( "content-id3" ) ) )
+            .thenReturn( ContentIds.from( "content-id1", "content-id2" ) );
+        Mockito.when( contentService.getOutboundDependencies( ContentId.from( "content-id4" ) ) )
+            .thenReturn( ContentIds.from( "content-id1" ) );
 
         final ResolveContentForDeleteResultJson result =
             contentResource.resolveForDelete( new ContentIdsJson( List.of( "content-id1", "content-id2" ) ) );
@@ -2076,7 +2081,7 @@ public class ContentResourceTest
         GetPublishStatusResult getPublishStatusResult = new GetPublishStatusResult( content.getId(), PublishStatus.ONLINE );
 
         Mockito.when( contentService.getPublishStatuses(
-            new GetPublishStatusesParams( ContentIds.from( params.ids ), ContentConstants.BRANCH_DRAFT ) ) )
+                new GetPublishStatusesParams( ContentIds.from( params.ids ), ContentConstants.BRANCH_DRAFT ) ) )
             .thenReturn( GetPublishStatusesResult.create().add( getPublishStatusResult ).build() );
 
         CompareContentResultsJson result = contentResource.compare( params );
