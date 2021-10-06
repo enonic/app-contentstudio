@@ -2,6 +2,9 @@ package com.enonic.xp.app.contentstudio.json.content;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentJson;
 import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentListJson;
@@ -12,8 +15,10 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.ContentListTitleRes
 import com.enonic.xp.app.contentstudio.rest.resource.content.ContentPrincipalsResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.AccessControlEntriesJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.AccessControlEntryJson;
+import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ExtraData;
+import com.enonic.xp.content.ValidationErrors;
 import com.enonic.xp.data.PropertyArrayJson;
 import com.enonic.xp.data.PropertyTreeJson;
 import com.enonic.xp.security.Principals;
@@ -28,6 +33,8 @@ public final class ContentJson
 
     private final List<ExtraDataJson> extraData;
 
+    private final List<ValidationErrorJson> validationErrors;
+
     private final PageJson pageJson;
 
     private final AccessControlEntriesJson accessControlList;
@@ -36,7 +43,7 @@ public final class ContentJson
 
     public ContentJson( final Content content, final ContentIconUrlResolver iconUrlResolver,
                         final ContentPrincipalsResolver contentPrincipalsResolver, final ComponentNameResolver componentNameResolver,
-                        final ContentListTitleResolver contentListTitleResolver )
+                        final ContentListTitleResolver contentListTitleResolver, final LocaleMessageResolver localeMessageResolver )
     {
         super( content, iconUrlResolver, contentListTitleResolver );
         this.data = PropertyTreeJson.toJson( content.getData() );
@@ -53,6 +60,11 @@ public final class ContentJson
         final Principals principals = contentPrincipalsResolver.resolveAccessControlListPrincipals( content.getPermissions() );
         this.accessControlList = AccessControlEntriesJson.from( content.getPermissions(), principals );
         this.inheritPermissions = content.inheritsPermissions();
+        this.validationErrors = Optional.ofNullable( content.getValidationErrors() )
+            .map( ValidationErrors::stream )
+            .orElse( Stream.empty() )
+            .map( ve -> new ValidationErrorJson( ve, localeMessageResolver ) )
+            .collect( Collectors.toList() );
     }
 
     public List<PropertyArrayJson> getData()
@@ -83,5 +95,10 @@ public final class ContentJson
     public boolean isInheritPermissions()
     {
         return inheritPermissions;
+    }
+
+    public List<ValidationErrorJson> getValidationErrors()
+    {
+        return validationErrors;
     }
 }

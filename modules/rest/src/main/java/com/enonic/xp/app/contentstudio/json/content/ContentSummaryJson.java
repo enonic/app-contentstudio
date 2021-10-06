@@ -18,7 +18,7 @@ public class ContentSummaryJson
     extends ContentIdJson
     implements ChangeTraceableJson, ItemJson
 {
-    private final Content content;
+    protected final Content content;
 
     private final String iconUrl;
 

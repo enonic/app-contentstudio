@@ -71,7 +71,10 @@ public class JsonObjectsFactory
 
     public ContentJson createContentJson( final Content content )
     {
-        return new ContentJson( content, contentIconUrlResolver, principalsResolver, componentNameResolver, contentListTitleResolver );
+        final LocaleMessageResolver localeMessageResolver = new LocaleMessageResolver( this.localeService );
+
+        return new ContentJson( content, contentIconUrlResolver, principalsResolver, componentNameResolver, contentListTitleResolver,
+                                localeMessageResolver );
     }
 
     public ContentSummaryJson createContentSummaryJson( final Content content )

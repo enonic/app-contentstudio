@@ -3,6 +3,7 @@ package com.enonic.xp.app.contentstudio.rest.resource.schema.content;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,9 +15,10 @@ import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.i18n.MessageBundle;
 import com.enonic.xp.web.servlet.ServletRequestHolder;
 
+import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.stream.Collectors.toList;
 
-public final class LocaleMessageResolver
+public class LocaleMessageResolver
 {
     private static final Logger LOG = LoggerFactory.getLogger( LocaleMessageResolver.class );
 
@@ -33,6 +35,28 @@ public final class LocaleMessageResolver
     {
         this( localeService );
         this.applicationKey = applicationKey;
+    }
+
+    public String localizeMessage( ApplicationKey applicationKey, final String key, final Object... args )
+    {
+        final MessageBundle bundle = this.localeService.getBundle( applicationKey, getLocale() );
+
+        if ( bundle == null )
+        {
+            return null;
+        }
+        final String localizedValue;
+        try
+        {
+            localizedValue = bundle.localize( key, args );
+        }
+        catch ( IllegalArgumentException e )
+        {
+            LOG.error( "Error on localization of message with key [{}].", key, e );
+            return bundle.getMessage( key );
+        }
+
+        return localizedValue;
     }
 
     public String localizeMessage( final String key, final String defaultValue )
