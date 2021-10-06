@@ -11,7 +11,8 @@ export abstract class CmsProjectBasedResourceRequest<PARSED_TYPE>
     private contentRootPath: string;
 
     getRestPath(): Path {
-        return Path.create().fromParent(super.getRestPath(), UrlHelper.getCMSPathWithProject(this.projectName, this.contentRootPath)).build();
+        return Path.create().fromParent(super.getRestPath(),
+            UrlHelper.getCMSPathWithProject(this.projectName, this.contentRootPath)).build();
     }
 
     setRequestProject(value: Project): CmsProjectBasedResourceRequest<PARSED_TYPE> {
