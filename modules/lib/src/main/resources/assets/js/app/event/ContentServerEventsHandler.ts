@@ -81,7 +81,7 @@ export class ContentServerEventsHandler {
 
         ArchiveServerEvent.on((event: ArchiveServerEvent) => {
             if (event.getNodeChange().getChangeType() === NodeServerChangeType.MOVE) {
-                this.handleContentRestored(<ContentServerChangeItem[]>event.getNodeChange().getChangeItems());
+                this.handleContentRestored(event.getNodeChange().getChangeItems());
             }
         });
     }
