@@ -1,12 +1,13 @@
 import {NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
 import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {NodeServerChangeItem} from 'lib-admin-ui/event/NodeServerChangeItem';
 
 export class ServerEventAggregator {
 
     private static AGGREGATION_TIMEOUT: number = 500;
 
-    private events: NodeServerEvent[];
+    private items: NodeServerChangeItem[];
 
     private type: NodeServerChangeType;
 
@@ -20,26 +21,31 @@ export class ServerEventAggregator {
         }, ServerEventAggregator.AGGREGATION_TIMEOUT, false);
     }
 
-    getEvents(): NodeServerEvent[] {
-        return this.events;
+    getItems(): NodeServerChangeItem[] {
+        return this.items;
     }
 
-    resetEvents() {
-        this.events = [];
+    resetItems() {
+        this.items = [];
     }
 
     appendEvent(event: NodeServerEvent) {
-        if (this.events == null || this.events.length === 0) {
+        if (this.isEmpty()) {
             this.init(event);
         } else {
             if (this.isTheSameTypeEvent(event)) {
-                this.events.push(event);
+                this.items.push(...event.getNodeChange().getChangeItems());
             } else {
                 this.notifyBatchIsReady();
                 this.init(event);
             }
         }
+
         this.debouncedNotification();
+    }
+
+    private isEmpty(): boolean {
+        return this.items == null || this.items.length === 0;
     }
 
     getType(): NodeServerChangeType {
@@ -57,7 +63,7 @@ export class ServerEventAggregator {
     }
 
     private init(event: NodeServerEvent) {
-        this.events = [event];
+        this.items = event.getNodeChange().getChangeItems();
         this.type = !!event.getNodeChange() ? event.getNodeChange().getChangeType() : null;
     }
 

@@ -130,6 +130,7 @@ import {ActivatedEvent} from 'lib-admin-ui/ui/ActivatedEvent';
 import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
 import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
 import {GetApplicationRequest} from '../resource/GetApplicationRequest';
+import {ContentPathPrettifier} from '../content/ContentPathPrettifier';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -559,7 +560,7 @@ export class ContentWizardPanel
 
     private getWizardHeaderPath(): string {
         if (this.parentContent) {
-            return this.parentContent.getPath().prettifyUnnamedPathElements().toString() + '/';
+            return ContentPathPrettifier.prettifyUnnamedPathElements(this.parentContent.getPath()).toString() + '/';
         }
 
         return '/';
@@ -2130,7 +2131,7 @@ export class ContentWizardPanel
     }
 
     private doCreateContentRequest(): Q.Promise<CreateContentRequest> {
-        const parentPath: ContentPath = this.parentContent != null ? this.parentContent.getPath() : ContentPath.ROOT;
+        const parentPath: ContentPath = this.parentContent != null ? this.parentContent.getPath() : ContentPath.getRoot();
 
         return Q(new CreateContentRequest()
             .setRequireValid(this.requireValid)

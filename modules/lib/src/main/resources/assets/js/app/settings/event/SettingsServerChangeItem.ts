@@ -9,10 +9,6 @@ export class SettingsServerChangeItem
         super(builder);
     }
 
-    protected processPath(path: string): string {
-        return path.substr('/repository'.length);
-    }
-
     static fromJson(json: NodeEventNodeJson): SettingsServerChangeItem {
         return new SettingsServerChangeItemBuilder().fromJson(json).build();
     }

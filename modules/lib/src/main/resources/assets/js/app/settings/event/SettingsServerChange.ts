@@ -21,10 +21,6 @@ export class SettingsServerChangeBuilder
         return new SettingsServerChange(this);
     }
 
-    getPathPrefix(): string {
-        return '/repository';
-    }
-
     nodeJsonToChangeItem(node: NodeEventNodeJson): SettingsServerChangeItem {
         return SettingsServerChangeItem.fromJson(node);
     }

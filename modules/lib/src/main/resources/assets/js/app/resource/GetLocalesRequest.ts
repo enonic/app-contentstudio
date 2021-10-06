@@ -3,6 +3,7 @@ import {LocaleJson} from 'lib-admin-ui/locale/json/LocaleJson';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {Locale} from 'lib-admin-ui/locale/Locale';
 import {CmsResourceRequest} from './CmsResourceRequest';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class GetLocalesRequest
     extends CmsResourceRequest<Locale[]> {
@@ -12,7 +13,7 @@ export class GetLocalesRequest
     constructor() {
         super();
 
-        this.addRequestPathElements('content', 'locales');
+        this.addRequestPathElements(ContentResourceRequest.CONTENT_PATH, 'locales');
     }
 
     getParams(): Object {

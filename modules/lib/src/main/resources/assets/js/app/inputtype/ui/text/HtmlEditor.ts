@@ -20,6 +20,7 @@ import {UrlHelper} from '../../../util/UrlHelper';
 import {ContentPath} from '../../../content/ContentPath';
 import eventInfo = CKEDITOR.eventInfo;
 import widget = CKEDITOR.plugins.widget;
+import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
 
 export interface HtmlEditorCursorPosition {
     selectionIndexes: number[];
@@ -303,7 +304,8 @@ export class HtmlEditor {
     }
 
     private fileExists(fileName: string): Q.Promise<boolean> {
-        const contentPathAsString: string = new ContentPath([this.editorParams.getContent().getPath().toString(), fileName]).toString();
+        const contentPathAsString: string =
+            ContentPath.create().setElements([this.editorParams.getContent().getPath().toString(), fileName]).build().toString();
 
         return new ContentsExistByPathRequest([contentPathAsString]).sendAndParse().then((result: ContentsExistByPathResult) => {
             return result.getContentsExistMap()[contentPathAsString];
@@ -1043,7 +1045,7 @@ class HtmlEditorConfigBuilder {
                 StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS,
                 StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS],
             disallowedContent: 'img[width,height]',
-            uploadUrl: UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/content/createMedia`),
+            uploadUrl: UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/${ContentResourceRequest.CONTENT_PATH}/createMedia`),
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
             disableNativeSpellChecker: false
         };

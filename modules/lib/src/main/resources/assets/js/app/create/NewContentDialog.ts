@@ -133,7 +133,7 @@ export class NewContentDialog
         this.dropzoneContainer.hide();
 
         this.newContentUploader = new NewContentUploader()
-            .setUploaderParams({parent: ContentPath.ROOT.toString()})
+            .setUploaderParams({parent: ContentPath.getRoot().toString()})
             .setDropzoneId(this.dropzoneContainer.getDropzone().getId());
     }
 
@@ -214,7 +214,7 @@ export class NewContentDialog
         this.parentContent = parent;
 
         const params: { [key: string]: any } = {
-            parent: parent ? parent.getPath().toString() : ContentPath.ROOT.toString()
+            parent: parent ? parent.getPath().toString() : ContentPath.getRoot().toString()
         };
 
         this.newContentUploader.setUploaderParams(params);
@@ -309,7 +309,7 @@ export class NewContentDialog
             )
         );
 
-        requests.push(new AggregateContentTypesByPathRequest(this.parentContent?.getPath() || ContentPath.ROOT).sendAndParse());
+        requests.push(new AggregateContentTypesByPathRequest(this.parentContent?.getPath() || ContentPath.getRoot()).sendAndParse());
 
         return requests;
     }

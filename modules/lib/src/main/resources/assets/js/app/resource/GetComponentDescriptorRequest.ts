@@ -5,6 +5,7 @@ import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ComponentType} from '../page/region/ComponentType';
 import {PageComponentType} from '../page/region/PageComponentType';
 import {CmsResourceRequest} from './CmsResourceRequest';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export class GetComponentDescriptorRequest
     extends CmsResourceRequest<Descriptor> {
@@ -18,7 +19,7 @@ export class GetComponentDescriptorRequest
         const isPage = ObjectHelper.iFrameSafeInstanceOf(componentType, PageComponentType);
         this.descriptorKey = descriptorKey;
         this.componentType = componentType;
-        this.addRequestPathElements('content', 'page', isPage ? '' : componentType.getShortName(), 'descriptor');
+        this.addRequestPathElements(ContentResourceRequest.CONTENT_PATH, 'page', isPage ? '' : componentType.getShortName(), 'descriptor');
     }
 
     getParams(): Object {

@@ -107,7 +107,7 @@ export class ContentWizardHeader
     }
 
     private getNewPath(): ContentPath {
-        return ContentPath.fromParent(this.persistedContent.getPath().getParentPath(), this.getName());
+        return ContentPath.create().fromParent(this.persistedContent.getPath().getParentPath(), this.getName()).build();
     }
 
     setPersistedPath(value: Content) {

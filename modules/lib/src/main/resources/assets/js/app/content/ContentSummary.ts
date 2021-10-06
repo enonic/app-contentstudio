@@ -458,7 +458,7 @@ export class ContentSummaryBuilder {
     fromContentSummaryJson(json: ContentSummaryJson): ContentSummaryBuilder {
         this.name = ContentSummaryBuilder.createName(json.name);
         this.displayName = json.displayName;
-        this.path = ContentPath.fromString(json.path);
+        this.path = ContentPath.create().fromString(json.path).build();
         this.children = json.hasChildren;
         this.type = new ContentTypeName(json.type);
         this.iconUrl = json.iconUrl;

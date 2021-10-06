@@ -7,10 +7,11 @@ import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl'
 import {CreateMediaFromUrlRequest} from '../../../resource/CreateMediaFromUrlRequest';
 import {Content, ContentBuilder} from '../../../content/Content';
 import {ContentJson} from '../../../content/ContentJson';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {Value} from 'lib-admin-ui/data/Value';
 import {UrlHelper} from '../../../util/UrlHelper';
+import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
+import {ContentPath} from '../../../content/ContentPath';
 
 export enum MediaUploaderElOperation {
     create,
@@ -162,7 +163,8 @@ export class MediaUploaderEl
     }
 
     createResultItem(value: string): Element {
-        this.link = new AEl().setUrl(UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/content/media/${value}`), '_blank');
+        const path: string = `${UrlHelper.getCMSPath()}/${ContentResourceRequest.CONTENT_PATH}/media/${value}`;
+        this.link = new AEl().setUrl(UrlHelper.getCmsRestUri(path), '_blank');
         this.link.setHtml(this.fileName != null && this.fileName !== '' ? this.fileName : value);
 
         return this.link;

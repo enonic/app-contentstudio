@@ -10,10 +10,6 @@ export class IssueServerChangeItem
         super(builder);
     }
 
-    protected processPath(path: string): string {
-        return path.substr(IssueServerChangeItem.pathPrefix.length);
-    }
-
     static fromJson(json: NodeEventNodeJson): IssueServerChangeItem {
         return new IssueServerChangeItemBuilder().fromJson(json).build();
     }
