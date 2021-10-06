@@ -12,6 +12,7 @@ import {RepositoryId} from '../repository/RepositoryId';
 import {IssueServerEvent} from './IssueServerEvent';
 import {NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
+import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
 
 export class AggregatedServerEventsListener
     extends ServerEventsListener {
@@ -23,12 +24,9 @@ export class AggregatedServerEventsListener
 
         this.aggregator = new ServerEventAggregator();
 
-        this.aggregator.onBatchIsReady(() => {
-            const event: BatchContentServerEvent =
-                new BatchContentServerEvent(<ContentServerChangeItem[]>this.aggregator.getItems(), this.aggregator.getType());
+        this.aggregator.onBatchIsReady((items: ContentServerChangeItem[], type: NodeServerChangeType) => {
+            const event: BatchContentServerEvent = new BatchContentServerEvent(items, type);
             this.fireEvent(event);
-
-            this.aggregator.resetItems();
         });
 
         this.setServerEventsTranslator(new ContentServerEventsTranslator());
