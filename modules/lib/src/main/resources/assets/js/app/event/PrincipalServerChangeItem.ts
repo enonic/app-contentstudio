@@ -14,11 +14,6 @@ export class PrincipalServerChangeItem
     static fromJson(json: NodeEventNodeJson): PrincipalServerChangeItem {
         return new PrincipalServerChangeItemBuilder().fromJson(json).build();
     }
-
-    protected processPath(path: string): string {
-        return path.substr(PrincipalServerChangeItem.pathPrefix.length);
-    }
-
 }
 
 export class PrincipalServerChangeItemBuilder

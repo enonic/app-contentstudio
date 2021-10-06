@@ -21,10 +21,6 @@ export class IssueServerChangeBuilder
         return new IssueServerChange(this);
     }
 
-    getPathPrefix(): string {
-        return IssueServerChangeItem.pathPrefix;
-    }
-
     nodeJsonToChangeItem(node: NodeEventNodeJson): IssueServerChangeItem {
         return IssueServerChangeItem.fromJson(node);
     }

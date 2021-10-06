@@ -12,11 +12,11 @@ export class ContentTypeIconUrlResolver
     }
 
     public static getResourcePath(): Path {
-        return Path.fromString('schema/icon');
+        return Path.create().fromString('schema/icon').build();
     }
 
     static default(): string {
-        return UrlHelper.getCmsRestUri(Path.fromParent(ContentTypeIconUrlResolver.getResourcePath(),
-            'base:structured').toString());
+        return UrlHelper.getCmsRestUri(Path.create().fromParent(ContentTypeIconUrlResolver.getResourcePath(),
+            'base:structured').build().toString());
     }
 }

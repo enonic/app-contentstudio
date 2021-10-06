@@ -107,7 +107,7 @@ class ImageRequest
         super(HttpMethod.GET);
 
         this.url = url;
-        this.setPath(Path.fromString(url));
+        this.setPath(Path.create().fromString(url).build());
     }
 
     protected createRequestURI(): string {

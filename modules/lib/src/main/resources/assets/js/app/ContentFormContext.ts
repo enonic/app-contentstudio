@@ -50,7 +50,7 @@ export class ContentFormContext
     getParentContentPath(): ContentPath {
 
         if (this.parentContent == null) {
-            return ContentPath.ROOT;
+            return ContentPath.getRoot();
         }
 
         return this.parentContent.getPath();

@@ -11,6 +11,8 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {Value} from 'lib-admin-ui/data/Value';
 import {UrlHelper} from '../../../util/UrlHelper';
+import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
+import {ContentPath} from '../../../content/ContentPath';
 
 export enum MediaUploaderElOperation {
     create,
@@ -162,7 +164,8 @@ export class MediaUploaderEl
     }
 
     createResultItem(value: string): Element {
-        this.link = new AEl().setUrl(UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath('content')}/content/media/${value}`), '_blank');
+        const path: string = `${UrlHelper.getCMSPath(ContentPath.CONTENT_ROOT)}/${ContentResourceRequest.CONTENT_PATH}/media/${value}`;
+        this.link = new AEl().setUrl(UrlHelper.getCmsRestUri(path), '_blank');
         this.link.setHtml(this.fileName != null && this.fileName !== '' ? this.fileName : value);
 
         return this.link;

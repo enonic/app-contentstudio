@@ -11,6 +11,7 @@ import {ContentServerChangeItem} from './ContentServerChangeItem';
 import {RepositoryId} from '../repository/RepositoryId';
 import {IssueServerEvent} from './IssueServerEvent';
 import {NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
+import {ArchiveServerEvent} from './ArchiveServerEvent';
 
 export class AggregatedServerEventsListener
     extends ServerEventsListener {
@@ -24,16 +25,21 @@ export class AggregatedServerEventsListener
 
         this.aggregator.onBatchIsReady(() => {
             const event: BatchContentServerEvent =
-                new BatchContentServerEvent(<ContentServerEvent[]>this.aggregator.getEvents(), this.aggregator.getType());
+                new BatchContentServerEvent(<ContentServerChangeItem[]>this.aggregator.getItems(), this.aggregator.getType());
             this.fireEvent(event);
 
-            this.aggregator.resetEvents();
+            this.aggregator.resetItems();
         });
 
         this.setServerEventsTranslator(new ContentServerEventsTranslator());
     }
 
     protected onServerEvent(event: Event) {
+        if (this.isArchiveEvent(event)) {
+            this.handleArchiveEvent(<ArchiveServerEvent>event);
+            return;
+        }
+
         if (this.isContentEvent(event)) {
             this.handleContentServerEvent(<ContentServerEvent>event);
             return;
@@ -45,6 +51,16 @@ export class AggregatedServerEventsListener
         }
 
         this.fireEvent(event);
+    }
+
+    private isArchiveEvent(event: Event): boolean {
+        return ObjectHelper.iFrameSafeInstanceOf(event, ArchiveServerEvent);
+    }
+
+    private handleArchiveEvent(archiveEvent: ArchiveServerEvent) {
+        if (this.isInCurrentProject(archiveEvent)) {
+            this.fireEvent(archiveEvent);
+        }
     }
 
     private isContentEvent(event: Event): boolean {

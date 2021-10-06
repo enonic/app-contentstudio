@@ -299,7 +299,7 @@ export class ContentBrowsePanel
         const path: string = this.getPathFromInlinePath(contentInlinePath);
 
         if (path) {
-            this.treeGrid.selectInlinedContentInGrid(ContentPath.fromString(path));
+            this.treeGrid.selectInlinedContentInGrid(ContentPath.create().fromString(path).build());
         }
     }
 
@@ -322,7 +322,7 @@ export class ContentBrowsePanel
 
         handler.onContentDeleted((data: ContentServerChangeItem[]) => {
             this.handleContentDeleted(
-                data.map((item: ContentServerChangeItem) => new DeletedContentItem(item.getContentId(), item.getContentPath())));
+                data.map((item: ContentServerChangeItem) => new DeletedContentItem(item.getContentId(), item.getPath())));
         });
 
         handler.onContentPending((data: ContentSummaryAndCompareStatus[]) => this.handleContentPending(data));
