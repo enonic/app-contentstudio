@@ -88,7 +88,6 @@ public class ContentTypeResourceTest
         mixinService = Mockito.mock( MixinService.class );
 
         this.resource.setContentTypeService( contentTypeService );
-        this.resource.setContentService( contentService );
         this.resource.setLocaleService( localeService );
         this.resource.setMixinService( mixinService );
 

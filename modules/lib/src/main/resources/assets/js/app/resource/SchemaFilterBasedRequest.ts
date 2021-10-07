@@ -1,14 +1,15 @@
 import {ContentId} from '../content/ContentId';
 import {CmsProjectBasedResourceRequest} from '../wizard/CmsProjectBasedResourceRequest';
-import {CmsResourceRequest} from './CmsResourceRequest';
+import {ContentPath} from '../content/ContentPath';
 
 export abstract class SchemaFilterBasedRequest<T>
-    extends CmsResourceRequest<T[]> {
+    extends CmsProjectBasedResourceRequest<T[]> {
 
     private contentId: ContentId;
 
     constructor() {
         super();
+        this.setContentRootPath(ContentPath.CONTENT_ROOT);
         this.addRequestPathElements('schema', 'filter');
     }
 
