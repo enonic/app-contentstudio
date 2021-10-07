@@ -2,14 +2,16 @@ import {ContentType} from '../inputtype/schema/ContentType';
 import {ContentTypeJson} from './json/ContentTypeJson';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeSummaryJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryJson';
-import {CmsResourceRequest} from './CmsResourceRequest';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {CmsProjectBasedResourceRequest} from '../wizard/CmsProjectBasedResourceRequest';
+import {ContentPath} from '../content/ContentPath';
 
-export abstract class ContentTypeResourceRequest<PARSED_TYPE>
-    extends CmsResourceRequest<PARSED_TYPE> {
+export abstract class ContentTypeContextResourceRequest<PARSED_TYPE>
+    extends CmsProjectBasedResourceRequest<PARSED_TYPE> {
 
     protected constructor() {
         super();
+        this.setContentRootPath(ContentPath.CONTENT_ROOT);
         this.addRequestPathElements('schema', ContentResourceRequest.CONTENT_PATH);
     }
 

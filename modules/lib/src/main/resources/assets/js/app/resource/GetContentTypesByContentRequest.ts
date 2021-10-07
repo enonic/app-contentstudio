@@ -4,9 +4,10 @@ import {ContentTypeSummaryJson} from 'lib-admin-ui/schema/content/ContentTypeSum
 import {ContentTypeResourceRequest} from './ContentTypeResourceRequest';
 import {ContentId} from '../content/ContentId';
 import {ContentTypeSummaryListJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryListJson';
+import {ContentTypeContextResourceRequest} from './ContentTypeContextResourceRequest';
 
 export class GetContentTypesByContentRequest
-    extends ContentTypeResourceRequest<ContentTypeSummary[]> {
+    extends ContentTypeContextResourceRequest<ContentTypeSummary[]> {
 
     private contentId: ContentId;
 
