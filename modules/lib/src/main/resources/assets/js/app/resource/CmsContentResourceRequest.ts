@@ -6,6 +6,8 @@ import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {CmsProjectBasedResourceRequest} from '../wizard/CmsProjectBasedResourceRequest';
+import {ContentResourceRequest} from './ContentResourceRequest';
+import {ContentPath} from '../content/ContentPath';
 
 export abstract class CmsContentResourceRequest<PARSED_TYPE>
     extends CmsProjectBasedResourceRequest<PARSED_TYPE> {
@@ -14,9 +16,9 @@ export abstract class CmsContentResourceRequest<PARSED_TYPE>
     public static EXPAND_SUMMARY: string = 'summary';
     public static EXPAND_FULL: string = 'full';
 
-    constructor() {
+    protected constructor() {
         super();
-        this.addRequestPathElements('content');
+        this.addRequestPathElements(ContentResourceRequest.CONTENT_PATH);
     }
 
     fromJsonToContentSummary(json: ContentSummaryJson): ContentSummary {

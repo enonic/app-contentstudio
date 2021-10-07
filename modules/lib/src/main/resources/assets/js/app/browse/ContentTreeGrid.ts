@@ -519,7 +519,7 @@ export class ContentTreeGrid
         const childSummary: ContentSummary = child.getData() ? child.getData().getContentSummary() : null;
 
         if (nodeSummary && childSummary) {
-            const path: ContentPath = ContentPath.fromParent(nodeSummary.getPath(), childSummary.getPath().getName());
+            const path: ContentPath = ContentPath.create().fromParent(nodeSummary.getPath(), childSummary.getPath().getName()).build();
             const newData: ContentSummaryAndCompareStatus = child.getData();
             newData.setContentSummary(new ContentSummaryBuilder(childSummary).setPath(path).build());
             this.doUpdateNodeByData(child, newData);

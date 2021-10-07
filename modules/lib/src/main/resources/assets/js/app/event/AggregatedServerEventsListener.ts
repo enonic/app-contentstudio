@@ -24,10 +24,10 @@ export class AggregatedServerEventsListener
 
         this.aggregator.onBatchIsReady(() => {
             const event: BatchContentServerEvent =
-                new BatchContentServerEvent(<ContentServerEvent[]>this.aggregator.getEvents(), this.aggregator.getType());
+                new BatchContentServerEvent(<ContentServerChangeItem[]>this.aggregator.getItems(), this.aggregator.getType());
             this.fireEvent(event);
 
-            this.aggregator.resetEvents();
+            this.aggregator.resetItems();
         });
 
         this.setServerEventsTranslator(new ContentServerEventsTranslator());

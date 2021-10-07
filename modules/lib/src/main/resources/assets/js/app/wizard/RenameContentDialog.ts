@@ -90,7 +90,7 @@ export class RenameContentDialog extends ModalDialog {
     }
 
     private getNewPath(): ContentPath {
-        return ContentPath.fromParent(this.initialPath.getParentPath(), this.getNameInputValue());
+        return ContentPath.create().fromParent(this.initialPath.getParentPath(), this.getNameInputValue()).build();
     }
 
     onRenamed(handler: (newName: string) => void) {

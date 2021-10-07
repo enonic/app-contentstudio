@@ -46,7 +46,7 @@ export class Router {
 
     static getPath(): Path {
         const pathAsString = window.location.hash ? window.location.hash.substr(1) : '/';
-        return Path.fromString(pathAsString);
+        return Path.create().fromString(pathAsString).build();
     }
 
     back() {

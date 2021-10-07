@@ -6,22 +6,15 @@ import {ContentPath} from '../content/ContentPath';
 export class ContentServerChangeItem
     extends NodeServerChangeItem {
 
-    public static pathPrefix: string = '/content';
-
     private readonly contentId: ContentId;
 
-    private readonly contentPath: ContentPath;
+    protected path: ContentPath;
 
 
     constructor(builder: ContentServerChangeItemBuilder) {
         super(builder);
 
         this.contentId = new ContentId(this.getId());
-        this.contentPath = ContentPath.fromString(this.getPath());
-    }
-
-    protected processPath(path: string): string {
-        return path.substr(ContentServerChangeItem.pathPrefix.length);
     }
 
     static fromJson(json: NodeEventNodeJson): ContentServerChangeItem {
@@ -32,8 +25,27 @@ export class ContentServerChangeItem
         return this.contentId;
     }
 
-    getContentPath(): ContentPath {
-        return this.contentPath;
+    getNewPath(): ContentPath {
+        return <ContentPath>super.getNewPath();
+    }
+
+    getPath(): ContentPath {
+        return <ContentPath>super.getPath();
+    }
+
+    protected processPath(path: string): ContentPath {
+        if (!path) {
+            return null;
+        }
+
+        const fullPathWithRoot: ContentPath = ContentPath.create().fromString(path).build();
+        const pathNoRoot: ContentPath = fullPathWithRoot
+            .newBuilder()
+            .setElements(fullPathWithRoot.getElements().slice(1))
+            .setRoot(fullPathWithRoot.getRootElement())
+            .build();
+
+        return pathNoRoot;
     }
 }
 

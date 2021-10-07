@@ -107,7 +107,7 @@ export class MediaSelectorDisplayValue {
     }
 
     getPath(): ContentPath {
-        return this.content ? this.content.getPath() : this.uploadItem ? new ContentPath([]) : null;
+        return this.content ? this.content.getPath() : this.uploadItem ? ContentPath.create().setElements([]).build() : null;
     }
 
     equals(o: Equitable): boolean {

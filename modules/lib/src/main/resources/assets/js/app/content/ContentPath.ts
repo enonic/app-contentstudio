@@ -1,137 +1,116 @@
 import {Equitable} from 'lib-admin-ui/Equitable';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ContentUnnamed} from './ContentUnnamed';
-import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
+import {NodePath, NodePathBuilder} from 'lib-admin-ui/NodePath';
 
 export class ContentPath
-    implements Equitable {
+    extends NodePath {
 
-    public static ELEMENT_DIVIDER: string = '/';
+    public static CONTENT_ROOT: string = 'content';
 
-    public static ROOT: ContentPath = ContentPath.fromString('/');
+    public static ARCHIVE_ROOT: string = 'archive';
 
-    private readonly elements: string[];
+    private static ROOT: ContentPath;
 
-    private readonly refString: string;
+    private readonly root: string;
 
-    constructor(elements: string[]) {
-        this.elements = elements;
-        if (elements.length === 0) {
-            this.refString = ContentPath.ELEMENT_DIVIDER;
-        } else {
-            this.refString = (ContentPath.ELEMENT_DIVIDER + this.elements.join(ContentPath.ELEMENT_DIVIDER)).replace(/\/\//g, '/');
-        }
-    }
+    constructor(builder: ContentPathBuilder) {
+        super(builder);
 
-    public static fromParent(parent: ContentPath, name: string): ContentPath {
-        const elements: string[] = [].concat(parent.getElements(), name);
-        return new ContentPath(elements);
-    }
-
-    public static fromString(path: string): ContentPath {
-        let elements: string[] = [];
-
-        if (path.indexOf('/') === 0 && path.length > 1) {
-            path = path.substr(1);
-            elements = path.split(ContentPath.ELEMENT_DIVIDER);
-        }
-
-        return new ContentPath(elements);
+        this.root = builder.root || ContentPath.CONTENT_ROOT;
     }
 
     getPathAtLevel(level: number): ContentPath {
-        let result = '';
+        let result: string = '';
+
         for (let index = 0; index < this.getElements().length; index++) {
-            result = result + ContentPath.ELEMENT_DIVIDER + this.getElements()[index];
+            result = result + NodePath.NODE_PATH_DIVIDER + this.getElements()[+index];
             if (index === (level - 1)) {
-                return ContentPath.fromString(result);
+                return new ContentPathBuilder().fromString(result).build();
             }
         }
-        return null;
-    }
 
-    getElements(): string[] {
-        return this.elements;
+        return null;
     }
 
     getName(): string {
         return this.elements[this.elements.length - 1];
     }
 
-    getLevel(): number {
-        return this.elements.length;
-    }
-
     hasParentContent(): boolean {
         return this.elements.length > 1;
     }
 
-    getFirstElement(): string {
-        return (this.elements[0] || '');
+    equals(o: Equitable): boolean {
+        return ObjectHelper.iFrameSafeInstanceOf(o, ContentPath) && super.equals(o);
     }
 
     getParentPath(): ContentPath {
+        return <ContentPath>super.getParentPath();
+    }
 
-        if (this.elements.length < 1) {
-            return null;
-        }
-        let parentElements: string[] = [];
-        this.elements.forEach((element: string, index: number) => {
-            if (index < this.elements.length - 1) {
-                parentElements.push(element);
-            }
-        });
-        return new ContentPath(parentElements);
+    isInContentRoot(): boolean {
+        return this.getRoot() === ContentPath.CONTENT_ROOT;
+    }
+
+    isInArchiveRoot(): boolean {
+        return this.getRoot() === ContentPath.ARCHIVE_ROOT;
+    }
+
+    getRoot(): string {
+        return this.root;
     }
 
     isRoot(): boolean {
-        return this.equals(ContentPath.ROOT);
+        return this.getLevel() === 0;
     }
 
-    isNotRoot(): boolean {
-        return !this.equals(ContentPath.ROOT);
+    newBuilder(): ContentPathBuilder {
+        return new ContentPathBuilder(this);
     }
 
-    equals(o: Equitable): boolean {
+    public static create(): ContentPathBuilder {
+        return new ContentPathBuilder();
+    }
 
-        if (!ObjectHelper.iFrameSafeInstanceOf(o, ContentPath)) {
-            return false;
+    public static getRoot(): ContentPath {
+        if (!ContentPath.ROOT) {
+            ContentPath.ROOT = ContentPath.create().fromString('/').build();
         }
 
-        let other = <ContentPath>o;
+        return ContentPath.ROOT;
+    }
+}
 
-        if (!ObjectHelper.stringEquals(this.refString, other.refString)) {
-            return false;
-        }
+export class ContentPathBuilder extends NodePathBuilder {
 
-        return true;
+    root: string = ContentPath.CONTENT_ROOT;
+
+    setRoot(value: string): ContentPathBuilder {
+        this.root = value;
+        return this;
     }
 
-    isDescendantOf(path: ContentPath): boolean {
-        return (path.isRoot() || this.refString.indexOf(path.toString() + ContentPath.ELEMENT_DIVIDER) === 0) &&
-               (this.getLevel() > path.getLevel());
+    setElements(value: string[]): ContentPathBuilder {
+        return <ContentPathBuilder>super.setElements(value);
     }
 
-    isChildOf(path: ContentPath): boolean {
-        return (path.isRoot() || this.refString.indexOf(path.toString() + ContentPath.ELEMENT_DIVIDER) === 0) &&
-               (this.getLevel() === path.getLevel() + 1);
+    setAbsolute(value: boolean): ContentPathBuilder {
+        return <ContentPathBuilder>super.setAbsolute(value);
     }
 
-    prettifyUnnamedPathElements(): ContentPath {
-
-        let prettyElements: string[] = [];
-        this.elements.forEach((element: string) => {
-            if (element.indexOf(ContentUnnamed.UNNAMED_PREFIX) === 0) {
-                prettyElements.push('<' + NamePrettyfier.getPrettyUnnamed() + '>');
-            } else {
-                prettyElements.push(element);
-            }
-        });
-
-        return new ContentPath(prettyElements);
+    setElementDivider(value: string): ContentPathBuilder {
+        return <ContentPathBuilder>super.setElementDivider(value);
     }
 
-    toString(): string {
-        return this.refString;
+    fromParent(parent: ContentPath, ...childElements): ContentPathBuilder {
+        return <ContentPathBuilder>super.fromParent(parent, ...childElements);
+    }
+
+    fromString(s: string, elementDivider: string = NodePath.NODE_PATH_DIVIDER): ContentPathBuilder {
+        return <ContentPathBuilder>super.fromString(s, elementDivider);
+    }
+
+    build(): ContentPath {
+        return new ContentPath(this);
     }
 }

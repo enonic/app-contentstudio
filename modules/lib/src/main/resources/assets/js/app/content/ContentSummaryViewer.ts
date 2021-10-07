@@ -32,8 +32,8 @@ export class ContentSummaryViewer
                 NamePrettyfier.prettifyUnnamed();
         } else {
             return !contentName.isUnnamed() ? object.getPath().toString() :
-                   ContentPath.fromParent(object.getPath().getParentPath(),
-                       NamePrettyfier.prettifyUnnamed()).toString();
+                   ContentPath.create().fromParent(object.getPath().getParentPath(),
+                       NamePrettyfier.prettifyUnnamed()).build().toString();
         }
     }
 

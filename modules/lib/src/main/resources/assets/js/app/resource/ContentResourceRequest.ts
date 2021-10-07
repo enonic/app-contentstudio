@@ -13,10 +13,11 @@ export abstract class ContentResourceRequest<PARSED_TYPE>
     public static EXPAND_NONE: string = 'none';
     public static EXPAND_SUMMARY: string = 'summary';
     public static EXPAND_FULL: string = 'full';
+    public static CONTENT_PATH: string = 'content';
 
-    constructor() {
+    protected constructor() {
         super();
-        this.addRequestPathElements('content');
+        this.addRequestPathElements(ContentResourceRequest.CONTENT_PATH);
     }
 
     fromJsonToContentSummary(json: ContentSummaryJson): ContentSummary {

@@ -22,10 +22,6 @@ export class PrincipalServerChangeBuilder
         return new PrincipalServerChange(this);
     }
 
-    getPathPrefix(): string {
-        return PrincipalServerChangeItem.pathPrefix;
-    }
-
     nodeJsonToChangeItem(node: NodeEventNodeJson): PrincipalServerChangeItem {
         return PrincipalServerChangeItem.fromJson(node);
     }

@@ -3,13 +3,14 @@ import {ContentTypeJson} from './json/ContentTypeJson';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeSummaryJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryJson';
 import {CmsProjectBasedResourceRequest} from '../wizard/CmsProjectBasedResourceRequest';
+import {ContentResourceRequest} from './ContentResourceRequest';
 
 export abstract class ContentTypeResourceRequest<PARSED_TYPE>
     extends CmsProjectBasedResourceRequest<PARSED_TYPE> {
 
     constructor() {
         super();
-        this.addRequestPathElements('schema', 'content');
+        this.addRequestPathElements('schema', ContentResourceRequest.CONTENT_PATH);
     }
 
     fromJsonToContentType(json: ContentTypeJson): ContentType {
