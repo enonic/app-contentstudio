@@ -12,6 +12,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.page.PageResource;
 import com.enonic.xp.app.contentstudio.rest.resource.content.page.PageTemplateResource;
 import com.enonic.xp.app.contentstudio.rest.resource.content.page.fragment.FragmentResource;
 import com.enonic.xp.app.contentstudio.rest.resource.issue.IssueResource;
+import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeContextResource;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeResource;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.FilterByContentResource;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.xdata.XDataContextResource;
@@ -27,7 +28,7 @@ public final class CmsResourceDynamicFeature
         Set.of( ContentResource.class, ContentImageResource.class, ContentIconResource.class, ContentMediaResource.class,
                 IssueResource.class, FilterByContentResource.class, ContentTypeResource.class, PageResource.class,
                 PageTemplateResource.class, FragmentResource.class, XDataResource.class, XDataContextResource.class,
-                ArchiveResource.class );
+                ArchiveResource.class, ContentTypeContextResource.class );
 
 
     @Override
