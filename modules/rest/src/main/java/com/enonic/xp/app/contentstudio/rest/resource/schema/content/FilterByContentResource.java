@@ -16,13 +16,15 @@ import com.enonic.xp.app.contentstudio.json.content.page.PageDescriptorListJson;
 import com.enonic.xp.app.contentstudio.json.content.page.region.LayoutDescriptorsJson;
 import com.enonic.xp.app.contentstudio.json.content.page.region.PartDescriptorsJson;
 import com.enonic.xp.app.contentstudio.json.schema.content.ContentTypeSummaryListJson;
-import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
 import com.enonic.xp.app.contentstudio.rest.resource.content.JsonObjectsFactory;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.security.RoleKeys;
 
-@Path(ResourceConstants.REST_ROOT +"schema/filter")
+import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
+import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
+
+@Path(REST_ROOT + "{content:(" + CONTENT_CMS_PATH + ")}/schema/filter")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs")
