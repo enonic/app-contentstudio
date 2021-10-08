@@ -1,5 +1,5 @@
 import * as Q from 'q';
-import {showError} from 'lib-admin-ui/notify/MessageBus';
+import {showError, showSuccess} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Action} from 'lib-admin-ui/ui/Action';
@@ -327,9 +327,16 @@ export class ContentDeleteDialog
 
         new ContentTreeGridDeselectAllEvent().fire();
 
+        this.progressManager.setSuppressNotifications(type === ActionType.ARCHIVE);
+
         request.sendAndParse()
             .then((taskId: TaskId) => {
                 this.pollTask(taskId);
+            })
+            .then(() => {
+                if (type === ActionType.ARCHIVE) {
+                    showSuccess(i18n('dialog.archive.success', this.totalItemsToDelete));
+                }
             })
             .catch((reason) => {
                 this.close();
@@ -340,7 +347,7 @@ export class ContentDeleteDialog
     }
 
     private countItemsToDeleteAndUpdateButtonCounter() {
-        this.actionButton.setLabel(i18n('dialog.archive'));
+        this.actionButton.getAction().setLabel(i18n('dialog.archive'));
         this.deleteNowAction.setLabel(i18n('dialog.deleteNow'));
 
         this.totalItemsToDelete = this.countTotal();
