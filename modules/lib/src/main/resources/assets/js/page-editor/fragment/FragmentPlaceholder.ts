@@ -25,6 +25,8 @@ export class FragmentPlaceholder
 
     constructor(fragmentView: FragmentComponentView) {
         super();
+
+        this.addClass('icon-pie');
         this.addClassEx('fragment-placeholder');
         this.fragmentComponentView = fragmentView;
 

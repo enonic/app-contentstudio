@@ -273,7 +273,6 @@
         }
 
         .minimize-edit {
-          .icon-arrow-right;
           font-weight: bold;
           position: absolute;
           left: 5px;
@@ -284,7 +283,6 @@
   }
 
   .minimize-edit {
-    .icon-arrow-left;
     font-size: 30px;
     font-weight: 800;
     display: none;
@@ -353,17 +351,6 @@
       width: 100%;
       opacity: 0.9;
       z-index: @z-index-docked-panel;
-
-      &.spinner {
-        .icon-spinner;
-
-        &:before {
-          .animation(rotate360, .5s, .0s, linear);
-          color: white;
-          display: inline-block;
-          margin-left: 5px;
-        }
-      }
     }
 
     .mobile-edit-publish-controls {

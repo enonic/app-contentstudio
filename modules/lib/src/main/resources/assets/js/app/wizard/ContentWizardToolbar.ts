@@ -208,6 +208,8 @@ export class ContentWizardToolbar
     private addMobileItemStatisticsButton() {
         this.mobileItemStatisticsButton = new TogglerButton();
         this.mobileItemStatisticsButton.setEnabled(true).addClass('icon-cog details-toggle');
+        this.mobileItemStatisticsButton.onActiveChanged(
+            (isActive: boolean) => this.mobileItemStatisticsButton.toggleClass('icon-close', isActive));
         super.addElement(this.mobileItemStatisticsButton);
     }
 }
