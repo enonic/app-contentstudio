@@ -13,8 +13,8 @@ export class MobileContextPanelToggleButton
 
         this.detailsPanel = detailsPanel;
 
-        this.detailsPanel.onSlidedIn(() => this.addClass(MobileContextPanelToggleButton.EXPANDED_CLASS));
-        this.detailsPanel.onSlidedOut(() => this.removeClass(MobileContextPanelToggleButton.EXPANDED_CLASS));
+        this.detailsPanel.onSlidedIn(() => this.addClass(`${MobileContextPanelToggleButton.EXPANDED_CLASS} icon-close`));
+        this.detailsPanel.onSlidedOut(() => this.removeClass(`${MobileContextPanelToggleButton.EXPANDED_CLASS} icon-close`));
 
         this.onClicked((event) => {
             if (!this.hasClass(MobileContextPanelToggleButton.EXPANDED_CLASS)) {

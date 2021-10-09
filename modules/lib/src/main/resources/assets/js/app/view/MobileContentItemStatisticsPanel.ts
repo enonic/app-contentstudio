@@ -83,7 +83,7 @@ export class MobileContentItemStatisticsPanel
     private initHeader(actions: Action[]) {
         const titleDiv = new DivEl();
         const icon = new IEl('icon-more_vert');
-        const backButton = new DivEl('mobile-context-panel-back-button');
+        const backButton = new DivEl('mobile-context-panel-back-button icon-arrow-left2');
         backButton.onClicked((event) => {
             this.foldButton.collapse();
             this.slideAllOut();

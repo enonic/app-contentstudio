@@ -44,7 +44,7 @@ export class PublishScheduleForm
         const scheduleForm = new FormBuilder().addFormItem(this.createRangeFormItem()).build();
         this.scheduleFormView = new FormView(FormContext.create().build(), scheduleForm, propertySet);
 
-        const removeButton = new AEl('remove-button');
+        const removeButton = new AEl('remove-button icon-close');
         removeButton.onClicked((event: MouseEvent) => {
             event.preventDefault();
             event.stopImmediatePropagation();
