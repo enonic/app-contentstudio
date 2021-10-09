@@ -5,6 +5,7 @@ export class TextPlaceholder
 
     constructor() {
         super();
+        this.addClass('icon-font-size');
         this.addClassEx('text-placeholder');
     }
 

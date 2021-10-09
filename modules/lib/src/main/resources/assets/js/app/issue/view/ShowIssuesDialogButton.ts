@@ -20,7 +20,7 @@ export class ShowIssuesDialogButton extends ActionButton {
     constructor() {
         super(new ShowIssuesDialogAction());
 
-        this.addClass('show-issues-dialog-button');
+        this.addClass('show-issues-dialog-button icon-signup');
 
         this.updateHandler = AppHelper.debounce(() => {
             this.fetchIssuesAndCreateLink();

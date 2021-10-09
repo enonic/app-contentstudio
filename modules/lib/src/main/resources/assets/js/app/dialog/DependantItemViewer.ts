@@ -18,7 +18,7 @@ export class DependantItemViewer
 
     resolveIconClass(object: ContentSummaryAndCompareStatus): string {
         if (object.getType().isImage()) {
-            return 'image';
+            return 'icon-image';
         }
     }
 

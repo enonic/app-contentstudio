@@ -252,11 +252,11 @@ export class SortContentDialog
     }
 
     private showLoadingSpinner() {
-        this.saveButton.addClass('spinner');
+        this.saveButton.addClass('icon-spinner');
     }
 
     private hideLoadingSpinner() {
-        this.saveButton.removeClass('spinner');
+        this.saveButton.removeClass('icon-spinner');
     }
 
     private saveContentChildOrder(): Q.Promise<Content> {

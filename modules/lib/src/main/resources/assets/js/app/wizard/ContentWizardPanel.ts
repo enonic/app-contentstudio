@@ -420,6 +420,8 @@ export class ContentWizardPanel
 
         this.stepNavigator.unNavigationItemActivated(this.toggleMinimizeListener);
         this.formPanel.toggleClass('minimized');
+        this.minimizeEditButton.toggleClass('icon-arrow-right', this.minimized);
+        this.minimizeEditButton.toggleClass('icon-arrow-left', !this.minimized);
 
         new MinimizeWizardPanelEvent().fire();
 
@@ -510,7 +512,7 @@ export class ContentWizardPanel
                         this.toggleMinimize(event.getIndex());
                     };
 
-                    this.minimizeEditButton = new DivEl('minimize-edit');
+                    this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
                     this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
                     this.liveMask = new LoadMask(this.livePanel);
 
