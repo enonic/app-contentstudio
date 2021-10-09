@@ -46,7 +46,7 @@ export class Tag
 
         this.removable = builder.removable;
         if (this.removable) {
-            this.removeButtonEl = new AEl('remove-button');
+            this.removeButtonEl = new AEl('remove-button icon-close');
             this.appendChild(this.removeButtonEl);
             this.removeButtonEl.onClicked((event: MouseEvent) => {
                 this.notifyRemoveClicked();

@@ -10,7 +10,7 @@ export class LayoutPlaceholder
     constructor(layoutView: LayoutComponentView) {
         super(layoutView);
 
-        this.addClassEx('layout-placeholder');
+        this.addClassEx('layout-placeholder icon-layout');
     }
 
     getType(): ComponentType {

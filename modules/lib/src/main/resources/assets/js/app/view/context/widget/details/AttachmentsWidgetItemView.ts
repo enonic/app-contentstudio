@@ -73,7 +73,7 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
 
                     let contentId = this.content.getContentId();
                     attachments.forEach((attachment: Attachment) => {
-                        let attachmentContainer = new LiEl('attachment-container');
+                        let attachmentContainer = new LiEl('attachment-container icon-attachment');
                         let link = this.createLinkEl(contentId, attachment.getName());
                         attachmentContainer.appendChild(link);
                         this.list.appendChild(attachmentContainer);
