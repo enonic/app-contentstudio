@@ -76,7 +76,7 @@ export class ContentDeleteDialog
     protected initElements() {
         super.initElements();
 
-        this.archiveAction = new Action(i18n('dialog.archive'));
+        this.archiveAction = new Action(i18n('dialog.archive.action'));
         this.archiveAction.onExecuted(this.archive.bind(this));
 
         this.deleteNowAction = new ContentDeleteDialogAction();
@@ -335,7 +335,9 @@ export class ContentDeleteDialog
             })
             .then(() => {
                 if (type === ActionType.ARCHIVE) {
-                    showSuccess(i18n('dialog.archive.success', this.totalItemsToDelete));
+                    const msg: string = this.totalItemsToDelete > 1 ? i18n('dialog.archive.success.multiple', this.totalItemsToDelete) :
+                                        i18n('dialog.archive.success.single', this.getItemList().getItems()[0].getDisplayName());
+                    showSuccess(msg);
                 }
             })
             .catch((reason) => {
@@ -347,11 +349,11 @@ export class ContentDeleteDialog
     }
 
     private countItemsToDeleteAndUpdateButtonCounter() {
-        this.actionButton.getAction().setLabel(i18n('dialog.archive'));
+        this.actionButton.getAction().setLabel(i18n('dialog.archive.action'));
         this.deleteNowAction.setLabel(i18n('dialog.deleteNow'));
 
         this.totalItemsToDelete = this.countTotal();
-        this.updateButtonCount(i18n('dialog.archive'), this.totalItemsToDelete);
+        this.updateButtonCount(i18n('dialog.archive.action'), this.totalItemsToDelete);
         this.deleteNowAction.setLabel(this.totalItemsToDelete > 1 ?
                                       i18n('dialog.deleteNow') + ' (' + this.totalItemsToDelete + ')' :
                                       i18n('dialog.deleteNow'));
