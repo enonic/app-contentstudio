@@ -29,10 +29,9 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             //1. Type number in the allowed range:
             await longForm.typeLong(1);
             await longForm.pause(1000);
-            studioUtils.saveScreenshot('long_min_max_1');
+            await studioUtils.saveScreenshot('long_min_max_1');
             //2. Verify that validation message is not displayed:
             let recording = await longForm.getOccurrenceValidationRecording(0);
-            studioUtils.saveScreenshot('double_default_value_1');
             assert.equal(recording, "", 'Validation recording should not be displayed');
         });
 
@@ -43,7 +42,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             //1. Type a value less than min:
             await longForm.typeLong(0);
             //2. Verify that validation message gets visible:
-            studioUtils.saveScreenshot('long_min_max_2');
+            await studioUtils.saveScreenshot('long_min_max_2');
             let actualText = await longForm.getOccurrenceValidationRecording(0);
             assert.equal(actualText, 'The value cannot be less than 1', 'expected validation recording should appear');
         });
@@ -55,7 +54,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             //1. Type a value value more than max:
             await longForm.typeLong(11);
             //2. Verify the validation message:
-            studioUtils.saveScreenshot('long_min_max_3');
+            await studioUtils.saveScreenshot('long_min_max_3');
             let actualText = await longForm.getOccurrenceValidationRecording(0);
             assert.equal(actualText,'The value cannot be greater than 10', 'Validation recording should appear');
         });
@@ -67,7 +66,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             //1. Max value has been typed:
             await longForm.typeLong(10);
             await longForm.pause(700);
-            studioUtils.saveScreenshot('long_min_max_4');
+            await studioUtils.saveScreenshot('long_min_max_4');
             //2. Verify the validation message is not displayed:
             let actualText = await longForm.getOccurrenceValidationRecording(0);
             assert.equal(actualText,"", 'Input Validation recording should not be displayed');
@@ -80,7 +79,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             //1. Min value has been typed:
             await longForm.typeLong(1);
             await longForm.pause(700);
-            studioUtils.saveScreenshot('long_min_max_5');
+            await studioUtils.saveScreenshot('long_min_max_5');
             //2. Verify the validation message is not present:
             let actualText = await longForm.getOccurrenceValidationRecording(0);
             assert.equal(actualText,"", 'Input Validation recording should not be displayed');
@@ -93,7 +92,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             //1. not valid value has been typed:
             await longForm.typeLong("aa");
             //2. Verify that validation message gets visible:
-            studioUtils.saveScreenshot('long_min_max_6');
+            await studioUtils.saveScreenshot('long_min_max_6');
             let actualText = await longForm.getOccurrenceValidationRecording(0);
             assert.equal(actualText, 'Invalid value entered', 'expected input validation recording should appear');
         });
@@ -107,7 +106,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             //2. Verify that validation message gets visible:
             let actualText = await longForm.getOccurrenceValidationRecording(0);
             assert.equal(actualText, 'Invalid value entered', 'expected validation recording should appear');
-            studioUtils.saveScreenshot('long_min_max_7');
+            await studioUtils.saveScreenshot('long_min_max_7');
             //3. Type the correct value:
             await longForm.typeLong(7);
             await longForm.pause(700);
