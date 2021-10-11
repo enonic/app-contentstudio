@@ -26,6 +26,7 @@ const XPATH = {
     wizardHeader: "//div[contains(@id,'ContentWizardHeader')]",
     pageEditorTogglerButton: "//button[contains(@id, 'CycleButton') ]",
     hidePageEditorTogglerButton: "//button[contains(@id,'CycleButton') and @title='Hide Page Editor']",
+    showPageEditorTogglerButton: "//button[contains(@id,'CycleButton') and @title='Show Page Editor']",
     displayNameInput: "//input[@name='displayName']",
     pathInput: "//input[@name='name']",
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
@@ -394,8 +395,17 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(XPATH.hidePageEditorTogglerButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_hide_show_page_editor_button_not_displayed');
+            await this.saveScreenshot('err_hide_page_editor_button_not_displayed');
             throw new Error("'Hide Page Editor !' button should be displayed : " + err);
+        }
+    }
+
+    async waitForShowPageEditorTogglerButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(XPATH.showPageEditorTogglerButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_show_page_editor_button_not_displayed');
+            throw new Error("'Show Page Editor !' button should be displayed : " + err);
         }
     }
 

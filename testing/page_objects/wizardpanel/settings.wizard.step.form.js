@@ -13,7 +13,8 @@ const xpath = {
     selectedOwner: `//div[contains(@class,'selected-options principal-selected-options-view')]`,
     selectedLocale: `//div[contains(@id,'LocaleSelectedOptionView')]`,
     languageSelectedOption: "//div[contains(@id,'LocaleSelectedOptionView')]",
-    ownerSelectedOption: "//div[contains(@id,'PrincipalSelectedOptionView')]"
+    ownerSelectedOption: "//div[contains(@id,'PrincipalSelectedOptionView')]",
+    removedPrincipal: "//div[contains(@id,'RemovedPrincipalSelectedOptionView')]",
 };
 
 class SettingsStepForm extends Page {
@@ -74,6 +75,11 @@ class SettingsStepForm extends Page {
     getSelectedOwner() {
         let selector = xpath.container + xpath.selectedOwner + lib.H6_DISPLAY_NAME;
         return this.getText(selector);
+    }
+
+    async waitForOwnerRemoved() {
+        await this.waitForElementDisplayed(xpath.removedPrincipal, appConst.mediumTimeout);
+        return await this.getText(xpath.removedPrincipal + lib.P_SUB_NAME);
     }
 
     async clickOnRemoveLanguage() {

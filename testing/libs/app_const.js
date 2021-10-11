@@ -214,6 +214,10 @@ module.exports = Object.freeze({
         TEXTLINE_0_1: 'textline0_1',
         TEXTLINE_1_0: 'textline1_0',
         TEXTLINE_1_1: 'textline1_1',
+        GEOPOINT_0_0: 'geopoint0_0',
+        GEOPOINT_1_1: 'geopoint1_1',
+        DATE_TIME_NOW_CONFIG: 'datetime now',
+        DATE_TIME_1_1: 'datetime1_1',
     },
     permissions: {
         FULL_ACCESS: `Full Access`,

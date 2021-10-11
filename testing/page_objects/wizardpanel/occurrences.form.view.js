@@ -6,7 +6,7 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
     addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
-    removeButton: "//div[contains(@id,'TextLine')]//button[@class='remove-button']",
+    removeButton: "//button[@class='remove-button']",
 };
 
 class OccurrencesFormView extends Page {
