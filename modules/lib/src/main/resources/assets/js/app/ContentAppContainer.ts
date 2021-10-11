@@ -39,6 +39,29 @@ export class ContentAppContainer
 
         new ContentEventsListener().start();
         this.initListeners();
+        if (!ProjectContext.get().isInitialized()) {
+            this.handleProjectNotSet();
+        } else {
+            new ContentEventsListener().start();
+            this.initListeners();
+        }
+
+        this.onShown(() => {
+            history.pushState(null, null, `main#/${ProjectContext.get().getProject().getName()}/${UrlAction.BROWSE}`);
+        });
+    }
+
+    private handleProjectNotSet() {
+        this.appBar.disable();
+
+        const projectSetHandler = () => {
+            this.appBar.enable();
+            new ContentEventsListener().start();
+            this.initListeners();
+            ProjectContext.get().unProjectChanged(projectSetHandler);
+        };
+
+        ProjectContext.get().onProjectChanged(projectSetHandler);
     }
 
     protected createAppBar(application: Application): ContentAppBar {
