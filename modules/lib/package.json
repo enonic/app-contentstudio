@@ -18,7 +18,7 @@
   "dependencies": {
     "hasher": "^1.2.0",
     "jquery-simulate": "^1.0.2",
-    "jquery-ui": "^1.12.1",
+    "jquery-ui": "^1.13.0",
     "jsondiffpatch": "^0.4.1",
     "lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
     "lodash": "^4.17.21",
