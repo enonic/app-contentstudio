@@ -1,8 +1,6 @@
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {App} from './App';
 import {AppContainer} from './AppContainer';
-import {ProjectContext} from './project/ProjectContext';
-import {UrlAction} from './UrlAction';
 import {ContentAppContainer} from './ContentAppContainer';
 import {DescriptorKey} from './page/DescriptorKey';
 
