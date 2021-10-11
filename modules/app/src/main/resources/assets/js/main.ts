@@ -403,13 +403,20 @@ function getTheme(): string {
 }
 
 async function startContentBrowser() {
-
     await import ('lib-contentstudio/app/ContentAppPanel');
     const AppWrapper = (await import ('lib-contentstudio/app/AppWrapper')).AppWrapper;
     const apps = [new ContentApp(), new SettingsApp()];
-    const activeApp = window.location.href.indexOf('settings') > -1 ? apps[1] : apps[0];
+    const url: string = window.location.href;
+    const activeApp = url   .indexOf('settings') > -1 ? apps[1] : apps[0];
     const commonWrapper = new AppWrapper(apps, getTheme());
     commonWrapper.selectApp(activeApp);
+
+    if (url.endsWith('/archive')) {
+        commonWrapper.onAppAdded((app) => {
+            commonWrapper.selectApp(app);
+        });
+    }
+
     body.appendChild(commonWrapper);
 
     const NewContentDialog = (await import ('lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;

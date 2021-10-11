@@ -3,7 +3,6 @@ import * as Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {Button} from 'lib-admin-ui/ui/button/Button';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {Application} from 'lib-admin-ui/app/Application';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {AppContext} from './AppContext';
@@ -31,6 +30,8 @@ export class AppWrapper
     private toggleSidebarButton: Button;
 
     private touchListener: (event: MouseEvent) => void;
+
+    private appAddedListeners: { (app: App): void }[] = [];
 
     constructor(apps: App[], className?: string) {
         super(`main-app-wrapper ${(className || '')}`.trim());
@@ -76,6 +77,7 @@ export class AppWrapper
         this.currentApp?.hide();
         app.show();
         this.currentApp = app;
+        this.sidebar.toggleButtonByApp(app);
     }
 
     private collapseSidebarOnMouseEvent(event: MouseEvent) {
@@ -201,6 +203,7 @@ export class AppWrapper
     addApp(app: App, index: number = -1) {
         this.apps.push(app);
         this.sidebar.addAdminTool(app, index);
+        this.notifyAppAdded(app);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -208,6 +211,22 @@ export class AppWrapper
             this.appendChildren(this.toggleSidebarButton, <Element>this.sidebar);
 
             return rendered;
+        });
+    }
+
+    onAppAdded(handler: (app: App) => void) {
+        this.appAddedListeners.push(handler);
+    }
+
+    unAppAdded(handler: (app: App) => void) {
+        this.appAddedListeners = this.appAddedListeners.filter((curr: { (app: App): void }) => {
+            return handler !== curr;
+        });
+    }
+
+    private notifyAppAdded(addedApp: App) {
+        this.appAddedListeners.forEach((handler: { (app: App): void }) => {
+            handler(addedApp);
         });
     }
 }
@@ -252,6 +271,12 @@ class AppModeSwitcher
 
     addAdminTool(app: App, index: number = -1) {
         this.createButton(app, index);
+    }
+
+    toggleButtonByApp(app: App) {
+        this.buttons.forEach((b: AppModeButton) => {
+            b.toggleSelected(b.getApp().getAppId().equals(app.getAppId()));
+        });
     }
 
     private cleanButtons() {
@@ -382,6 +407,10 @@ class Sidebar
 
     addAdminTool(app: App, index: number = -1) {
         this.appModeSwitcher.addAdminTool(app, index);
+    }
+
+    toggleButtonByApp(app: App) {
+        this.appModeSwitcher.toggleButtonByApp(app);
     }
 
     private createAppNameBlock(): Element {
