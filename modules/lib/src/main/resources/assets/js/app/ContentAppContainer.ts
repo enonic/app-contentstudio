@@ -43,6 +43,10 @@ export class ContentAppContainer
             new ContentEventsListener().start();
             this.initListeners();
         }
+
+        this.onShown(() => {
+            history.pushState(null, null, `main#/${ProjectContext.get().getProject().getName()}/${UrlAction.BROWSE}`);
+        });
     }
 
     private handleProjectNotSet() {
