@@ -202,14 +202,17 @@ function initToolTip() {
     };
 
     const setTitle = (e: JQuery.MouseEventBase, target: HTMLElement) => {
-        const oldTitle: string = $(target).data(DATA);
         const newTitle = $(target).attr('title');
 
-        if (newTitle || oldTitle) {
-            $(target).attr('title', newTitle || oldTitle);
-            if (newTitle) {
-                addTooltip(e, target);
-            }
+        if (newTitle) {
+            $(target).attr('title', newTitle);
+            addTooltip(e, target);
+        }
+
+        const oldTitle: string = $(target).data(DATA);
+
+        if (oldTitle) {
+            $(target).attr('title', oldTitle);
         }
     };
 
