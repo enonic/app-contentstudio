@@ -211,18 +211,17 @@ function initToolTip() {
 
         const oldTitle: string = $(target).data(DATA);
         const newTitle = $(target).attr('title');
-        if (newTitle) {
-            $(target).attr('title', newTitle);
-        } else if (oldTitle) {
-            $(target).attr('title', oldTitle);
-        }
 
         $(target).removeClass(CLS_ON);
         tooltip.remove();
         unRemovedOrHidden();
         clearInterval(isVisibleCheckInterval);
-        if (newTitle) {
-            addTooltip(e, target);
+
+        if (newTitle || oldTitle) {
+            $(target).attr('title', newTitle || oldTitle);
+            if (newTitle) {
+                addTooltip(e, target);
+            }
         }
     };
 

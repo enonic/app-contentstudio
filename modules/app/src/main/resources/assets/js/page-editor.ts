@@ -42,17 +42,17 @@ const init = () => {
         }
     });
 
+    function shouldBubble(event: JQuery.TriggeredEvent): boolean {
+        return (event.metaKey || event.ctrlKey || event.altKey) && !!event.keyCode;
+    }
+
     function shouldBubbleEvent(event: JQuery.TriggeredEvent): boolean {
-        let shouldBubble: boolean;
         switch (event.keyCode) {
         case 113:  // F2 global help shortcut
-            shouldBubble = true;
-            break;
+            return true;
         default:
-            shouldBubble = (event.metaKey || event.ctrlKey || event.altKey) && !!event.keyCode;
-            break;
+            return shouldBubble(event);
         }
-        return shouldBubble;
     }
 
     function stopBrowserShortcuts(event: JQuery.TriggeredEvent) {
