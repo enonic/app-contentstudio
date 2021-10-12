@@ -49,6 +49,12 @@ export class VersionHistoryItem {
         } else if (publishInfo.isUnpublished()) {
             item.iconCls = 'icon-version-unpublished';
             item.status = i18n('status.unpublished');
+        } else if (publishInfo.isArchived()) {
+            item.iconCls = 'icon-archive';
+            item.status = i18n('status.archived');
+        } else if (publishInfo.isRestored()) {
+            item.iconCls = 'icon-restore';
+            item.status = i18n('status.restored');
         }
 
         item.message = publishInfo.getMessage();
