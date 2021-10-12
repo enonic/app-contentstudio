@@ -407,7 +407,7 @@ async function startContentBrowser() {
     const AppWrapper = (await import ('lib-contentstudio/app/AppWrapper')).AppWrapper;
     const apps = [new ContentApp(), new SettingsApp()];
     const url: string = window.location.href;
-    const activeApp = url   .indexOf('settings') > -1 ? apps[1] : apps[0];
+    const activeApp = url.indexOf('settings') > -1 ? apps[1] : apps[0];
     const commonWrapper = new AppWrapper(apps, getTheme());
     commonWrapper.selectApp(activeApp);
 
