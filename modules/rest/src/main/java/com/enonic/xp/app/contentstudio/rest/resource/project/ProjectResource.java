@@ -56,6 +56,9 @@ import com.enonic.xp.project.ProjectPermissions;
 import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.security.PrincipalKeys;
 import com.enonic.xp.security.RoleKeys;
+import com.enonic.xp.security.acl.AccessControlEntry;
+import com.enonic.xp.security.acl.AccessControlList;
+import com.enonic.xp.security.acl.Permission;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskResultJson;
 import com.enonic.xp.task.TaskService;
@@ -226,13 +229,23 @@ public final class ProjectResource
 
     private CreateProjectParams createParams( final CreateProjectParamsJson json )
     {
-        return CreateProjectParams.create().
+        final CreateProjectParams.Builder paramsBuilder = CreateProjectParams.create().
             name( json.getName() ).
             displayName( json.getDisplayName() ).
             description( json.getDescription() ).
             parent( json.getParent() ).
-            forceInitialization( true ).
-            build();
+            forceInitialization( true );
+
+        if ( json.getReadAccess() != null && ProjectReadAccessType.PUBLIC.equals( json.getReadAccess().getType() ) )
+        {
+            paramsBuilder.permissions( AccessControlList.create().
+                add( AccessControlEntry.create().
+                    principal( RoleKeys.EVERYONE ).
+                    allow( Permission.READ ).
+                    build() ).build() );
+        }
+
+        return paramsBuilder.build();
     }
 
     private ModifyProjectParams createParams( final ModifyProjectParamsJson json )
