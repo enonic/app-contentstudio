@@ -8,6 +8,7 @@ const LoaderComboBox = require('../components/loader.combobox');
 const xpath = {
     stepForm: `//div[contains(@id,'ContentWizardStepForm')]`,
     parametersSet: "//div[contains(@id,'FormItemSetView') and descendant::h5[contains(.,'Parameters')]]",
+    targetFormView: `//div[contains(@id,'FormView') and descendant::div[text()='Target']]`,
     parametersFormOccurrence: `//div[contains(@id,'FormItemSetOccurrenceView')]`,
     parameterNameInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Name']]//input`,
     parameterValueInput: `//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Value']]//input`,
@@ -30,6 +31,14 @@ class ShortcutForm extends Page {
 
     get addParametersButton() {
         return xpath.stepForm + xpath.parametersSet + "/div[@class='bottom-button-row']" + xpath.addParametersButton;
+    }
+
+    get formValidationRecording() {
+        return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
+    }
+
+    get targetValidationRecording() {
+        return xpath.targetFormView + lib.INPUT_VALIDATION_VIEW;
     }
 
     waitForParametersFormVisible() {
@@ -115,12 +124,13 @@ class ShortcutForm extends Page {
 
     async expandParameterMenuAndClickOnDelete(index) {
         let locator = xpath.parameterOccurrenceMenuButton;
+        let deleteMenuItem = "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//li[contains(@id,'MenuItem') and text()='Delete']";
         let menuButtons = await this.findElements(locator);
         await menuButtons[index].click();
         await this.pause(400);
-        let res = await this.getDisplayedElements(
-            "//div[contains(@id,'FormItemSetOccurrenceView')]" + "//li[contains(@id,'MenuItem') and text()='Delete']");
-        await res[0].waitForEnabled(appConst.shortTimeout, "Shortcut Parameters - Delete menu item should be enabled!");
+        let res = await this.getDisplayedElements(deleteMenuItem);
+        await res[0].waitForEnabled(
+            {timeout: appConst.shortTimeout, timeoutMsg: "Shortcut Parameters - Delete menu item should be enabled!"});
         await res[0].click();
         return await this.pause(300);
     }
@@ -161,6 +171,19 @@ class ShortcutForm extends Page {
         await this.waitForElementDisplayed(this.removeTargetIcon, appConst.mediumTimeout);
         await this.clickOnElement(this.removeTargetIcon);
         return await this.pause(200);
+    }
+
+    async getFormValidationRecording() {
+        await this.waitForFormValidationRecordingDisplayed();
+        let recordingElements = await this.getDisplayedElements(this.targetValidationRecording);
+        return await recordingElements[0].getText();
+    }
+
+    async waitForFormValidationRecordingDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            let elements = await this.getDisplayedElements(this.targetValidationRecording);
+            return elements.length > 0;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Target Form Validation recording should be displayed"});
     }
 }
 
