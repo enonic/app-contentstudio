@@ -21,7 +21,7 @@ const init = () => {
 
     // Notify parent frame if any modifier except shift is pressed
     // For the parent shortcuts to work if the inner iframe has focus
-    $(document).on('keypress keydown keyup', (event) => {
+    $(document).on('keypress keydown keyup', (event: JQuery.TriggeredEvent) => {
 
         if (shouldBubbleEvent(event)) {
 
@@ -41,7 +41,7 @@ const init = () => {
         }
     });
 
-    function shouldBubbleEvent(event: any): boolean {
+    function shouldBubbleEvent(event: JQuery.TriggeredEvent): boolean {
         let shouldBubble: boolean;
         switch (event.keyCode) {
         case 113:  // F2 global help shortcut
@@ -54,11 +54,11 @@ const init = () => {
         return shouldBubble;
     }
 
-    function stopBrowserShortcuts(event: any) {
+    function stopBrowserShortcuts(event: JQuery.TriggeredEvent) {
         // get the parent's frame bindings
         const hasKeyBindings = Store.parentInstance().has(KEY_BINDINGS_KEY);
         const keyBindings = Store.parentInstance().get(KEY_BINDINGS_KEY);
-        const activeBindings = hasKeyBindings ? keyBindings.getActiveBindings() : [];
+        const activeBindings: KeyBinding[] = hasKeyBindings ? keyBindings.getActiveBindings() : [];
 
         let hasMatch = hasMatchingBinding(activeBindings, event);
 
@@ -68,7 +68,7 @@ const init = () => {
         }
     }
 
-    function hasMatchingBinding(keys: KeyBinding[], event: KeyboardEvent) {
+    function hasMatchingBinding(keys: KeyBinding[], event: JQuery.TriggeredEvent) {
         let isMod = event.ctrlKey || event.metaKey;
         let isAlt = event.altKey;
         let key = event.keyCode || event.which;
