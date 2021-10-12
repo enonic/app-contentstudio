@@ -201,6 +201,18 @@ function initToolTip() {
         setTimeout(() => removeTooltip(e), 100);
     };
 
+    const setTitle = (e: JQuery.MouseEventBase, target: HTMLElement) => {
+        const oldTitle: string = $(target).data(DATA);
+        const newTitle = $(target).attr('title');
+
+        if (newTitle || oldTitle) {
+            $(target).attr('title', newTitle || oldTitle);
+            if (newTitle) {
+                addTooltip(e, target);
+            }
+        }
+    };
+
     const removeTooltip = (e: JQuery.MouseEventBase) => {
         const tooltip = $('#' + ID);
         if (!tooltip.length) {
@@ -209,20 +221,12 @@ function initToolTip() {
         const target: HTMLElement = e.currentTarget || e.target;
         $(target).off('click', removeTooltipOnClick);
 
-        const oldTitle: string = $(target).data(DATA);
-        const newTitle = $(target).attr('title');
-
         $(target).removeClass(CLS_ON);
         tooltip.remove();
         unRemovedOrHidden();
         clearInterval(isVisibleCheckInterval);
 
-        if (newTitle || oldTitle) {
-            $(target).attr('title', newTitle || oldTitle);
-            if (newTitle) {
-                addTooltip(e, target);
-            }
-        }
+        setTitle(e, target);
     };
 
     $(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', addTooltip);

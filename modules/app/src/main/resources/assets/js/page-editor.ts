@@ -69,6 +69,7 @@ const init = () => {
         }
     }
 
+    // eslint-disable-next-line complexity
     function hasMatchingBinding(keys: KeyBinding[], event: JQuery.TriggeredEvent) {
         let isMod = event.ctrlKey || event.metaKey;
         let isAlt = event.altKey;
