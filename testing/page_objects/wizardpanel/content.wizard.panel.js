@@ -816,12 +816,6 @@ class ContentWizardPanel extends Page {
         }
     }
 
-
-    waitForPublishButtonVisible() {
-        let selector = XPATH.container + XPATH.publishButton;
-        return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-    }
-
     async getContentStatus() {
         let result = await this.getDisplayedElements(XPATH.container + XPATH.status);
         return await result[0].getText();

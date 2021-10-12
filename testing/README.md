@@ -10,8 +10,8 @@ Before trying to run tests, you need to verify that the following software are i
 * Git installed on system;
 * Chrome browser installed on system.
 
-Run tests for app-admin-home.
-go to 'app-contentstudio' directory and run:
+
+ Go to 'app-contentstudio' directory and run tests:
   1. gradlew testContentStudioApp
   2. gradlew testContentStudioAppLocally  ( --project-cache-dir d:/cache)
   3. gradlew runSeparateTestLocally -Pt_name=overwrite.permissions.spec  --project-cache-dir d:/cache

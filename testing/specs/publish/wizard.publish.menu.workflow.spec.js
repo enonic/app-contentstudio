@@ -136,7 +136,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             //AND: Status should be 'Deleted'
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.MARKED_FOR_DELETION);
             //AND: 'Publish...' button should be present on the toolbar:
-            await contentWizard.waitForPublishButtonVisible();
+            await contentWizard.waitForPublishButtonDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
