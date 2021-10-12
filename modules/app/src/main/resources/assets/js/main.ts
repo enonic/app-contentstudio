@@ -1,3 +1,5 @@
+/*global Q, JQuery */
+
 import * as $ from 'jquery';
 import * as Q from 'q';
 // Polyfills added for compatibility with IE11
