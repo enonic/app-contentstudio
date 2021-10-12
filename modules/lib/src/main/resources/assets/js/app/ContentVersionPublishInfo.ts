@@ -2,6 +2,10 @@ import {ContentVersionPublishInfoJson} from './resource/json/ContentVersionPubli
 import {Cloneable} from 'lib-admin-ui/Cloneable';
 import {ContentPublishInfo} from './ContentPublishInfo';
 
+enum COMMIT_TYPE {
+    PUBLISHED, UNPUBLISHED, ARCHIVED, RESTORED, CUSTOM
+}
+
 export class ContentVersionPublishInfo
 implements Cloneable {
 
@@ -97,6 +101,14 @@ implements Cloneable {
         }
 
         return !this.getPublishedFrom() && !this.getPublishedTo();
+    }
+
+    isArchived(): boolean {
+        return this.getType() === COMMIT_TYPE[COMMIT_TYPE.ARCHIVED].toString();
+    }
+
+    isRestored(): boolean {
+        return this.getType() === COMMIT_TYPE[COMMIT_TYPE.RESTORED].toString();
     }
 
     isScheduled(): boolean {
