@@ -1,3 +1,5 @@
+/*global Q, JQuery */
+
 import * as $ from 'jquery';
 import * as Q from 'q';
 // Polyfills added for compatibility with IE11
@@ -116,8 +118,8 @@ function startLostConnectionDetector(): ConnectionDetector {
 
 function initApplicationEventListener() {
 
-    let messageId;
-    let appStatusCheckInterval;
+    let messageId: string;
+    let appStatusCheckInterval: number;
 
     ApplicationEvent.on((event: ApplicationEvent) => {
         if (ApplicationEventType.STOPPED === event.getEventType() ||
@@ -152,7 +154,7 @@ function initToolTip() {
 
     let pageX = 0;
     let pageY = 0;
-    let isVisibleCheckInterval;
+    let isVisibleCheckInterval: number;
 
     const showAt = function (e: JQuery.MouseEventBase, forceTarget?: HTMLElement) {
         let top = e.clientY + OFFSET_Y;
@@ -160,7 +162,7 @@ function initToolTip() {
         const tooltipHeight = 30;
 
         const target = forceTarget || e.currentTarget || e.target;
-        const tooltipText = $(target).data(DATA);
+        const tooltipText: string = $(target).data(DATA);
         if (!tooltipText) { //if no text then probably hovering over children of original element that has title attr
             return;
         }
@@ -181,7 +183,7 @@ function initToolTip() {
     };
 
     const addTooltip = (e: JQuery.MouseEventBase, forceTarget?: HTMLElement) => {
-        const target = forceTarget || e.currentTarget || e.target;
+        const target: HTMLElement = forceTarget || e.currentTarget || e.target;
         $(target).data(DATA, $(target).attr('title'));
         $(target).removeAttr('title').addClass(CLS_ON);
         if (e.clientX) {
@@ -191,7 +193,7 @@ function initToolTip() {
             pageY = e.clientY;
         }
         showAt(e, target);
-        onRemovedOrHidden(<HTMLElement>target);
+        onRemovedOrHidden(target);
         $(target).on('click', removeTooltipOnClick);
     };
 
@@ -199,29 +201,35 @@ function initToolTip() {
         setTimeout(() => removeTooltip(e), 100);
     };
 
-    const removeTooltip = (e: any) => {
+    const setTitle = (e: JQuery.MouseEventBase, target: HTMLElement) => {
+        const newTitle = $(target).attr('title');
+
+        if (newTitle) {
+            $(target).attr('title', newTitle);
+            addTooltip(e, target);
+        }
+
+        const oldTitle: string = $(target).data(DATA);
+
+        if (oldTitle) {
+            $(target).attr('title', oldTitle);
+        }
+    };
+
+    const removeTooltip = (e: JQuery.MouseEventBase) => {
         const tooltip = $('#' + ID);
         if (!tooltip.length) {
             return;
         }
-        const target = e.currentTarget || e.target;
+        const target: HTMLElement = e.currentTarget || e.target;
         $(target).off('click', removeTooltipOnClick);
-
-        const oldTitle = $(target).data(DATA);
-        const newTitle = $(target).attr('title');
-        if (newTitle) {
-            $(target).attr('title', newTitle);
-        } else if (oldTitle) {
-            $(target).attr('title', oldTitle);
-        }
 
         $(target).removeClass(CLS_ON);
         tooltip.remove();
         unRemovedOrHidden();
         clearInterval(isVisibleCheckInterval);
-        if (newTitle) {
-            addTooltip(e, target);
-        }
+
+        setTitle(e, target);
     };
 
     $(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', addTooltip);
@@ -233,7 +241,7 @@ function initToolTip() {
     let element: Element;
     const removeHandler = (event: ElementRemovedEvent) => {
         const target = event.getElement().getHTMLElement();
-        removeTooltip({target});
+        removeTooltip(<JQuery.MouseEventBase>{target});
     };
 
     const onRemovedOrHidden = (target: HTMLElement) => {
@@ -244,7 +252,7 @@ function initToolTip() {
         } else { // seems to be an element without id, thus special handling needed
             isVisibleCheckInterval = setInterval(() => {
                 if (!isVisible(target)) {
-                    removeTooltip({target});
+                    removeTooltip(<JQuery.MouseEventBase>{target});
                     clearInterval(isVisibleCheckInterval);
                 }
             }, 500);
