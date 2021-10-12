@@ -165,7 +165,7 @@ export class ProjectWizardPanel
 
     private doPersistNewItem(): Q.Promise<Project> {
         return this.produceCreateItemRequest().sendAndParse().then((project: Project) => {
-            return this.updateLanguageAndPermissionsIfNeeded(project);
+            return this.updateLanguageAndPermissionsIfNeeded(project, true);
         });
     }
 
@@ -284,7 +284,7 @@ export class ProjectWizardPanel
         (<ProjectDataItemFormIcon>this.formIcon).updateLanguage(this.readAccessWizardStepForm.getLanguage());
     }
 
-    private updateLanguageAndPermissionsIfNeeded(project: Project): Q.Promise<Project> {
+    private updateLanguageAndPermissionsIfNeeded(project: Project, isCreation: boolean): Q.Promise<Project> {
         const projectBuilder: ProjectBuilder = new ProjectBuilder(project);
 
         const languagePromise: Q.Promise<string> = this.isLanguageChanged() ?
@@ -297,44 +297,49 @@ export class ProjectWizardPanel
             const permissions: ProjectPermissions = this.rolesWizardStepForm ? this.rolesWizardStepForm.getPermissions() : null;
             const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
 
-            if (this.isPermissionsChanged()) {
-                this.updateProjectPermissions(project.getName(), this.rolesWizardStepForm.getPermissions(), readAccess);
-            }
+            const updateProjectPermissionsPromise: Q.Promise<ProjectPermissions> = this.isPermissionsChanged()
+                                                                                   ? this.updateProjectPermissions(project.getName(),
+                    this.rolesWizardStepForm.getPermissions(), readAccess)
 
-            const readAccessPromise: Q.Promise<TaskId> = this.isReadAccessChanged() ?
-                                                         this.updateProjectReadAccess(project.getName(), readAccess) : Q(
-                    null);
+                                                                                   : Q(project.getPermissions());
 
-            return readAccessPromise.then((taskId: TaskId) => {
+            if (!isCreation) {
+                return updateProjectPermissionsPromise.then((projectPermissions: ProjectPermissions) => {
+                    const readAccessPromise: Q.Promise<TaskId> = this.isReadAccessChanged() ?
+                                                                 this.updateProjectReadAccess(project.getName(), readAccess) : Q(null);
 
-                const result = Q.defer<Project>();
-                if (taskId) {
-                    let taskState;
+                    return readAccessPromise.then((taskId: TaskId) => {
+                        const result = Q.defer<Project>();
+                        if (taskId) {
+                            let taskState;
 
-                    if (!this.getPersistedItem()) {
-                        this.editProjectAccessDialog.setSuppressNotifications(true);
-                    }
-                    this.editProjectAccessDialog.setPath('/' + project.getName());
-                    this.editProjectAccessDialog.onProgressComplete((state) => {
-                        taskState = state;
-                        result.resolve(projectBuilder.setPermissions(permissions).setReadAccess(readAccess).build());
-                        this.editProjectAccessDialog.setSuppressNotifications(false);
-                    });
-                    this.editProjectAccessDialog.pollTask(taskId);
+                            if (!this.getPersistedItem()) {
+                                this.editProjectAccessDialog.setSuppressNotifications(true);
+                            }
+                            this.editProjectAccessDialog.setPath('/' + project.getName());
+                            this.editProjectAccessDialog.onProgressComplete((state) => {
+                                taskState = state;
+                                result.resolve(projectBuilder.setPermissions(permissions).setReadAccess(readAccess).build());
+                                this.editProjectAccessDialog.setSuppressNotifications(false);
+                            });
+                            this.editProjectAccessDialog.pollTask(taskId);
 
-                    setTimeout(() => {
-                        if (TaskState.FINISHED !== taskState && TaskState.FAILED !== taskState) {
-                            this.editProjectAccessDialog.open();
+                            setTimeout(() => {
+                                if (TaskState.FINISHED !== taskState && TaskState.FAILED !== taskState) {
+                                    this.editProjectAccessDialog.open();
+                                }
+                            }, 1000);
+                        } else {
+                            result.resolve(projectBuilder.setPermissions(permissions).setReadAccess(readAccess).build());
                         }
-                    }, 1000);
-
-                } else {
-                    result.resolve(projectBuilder.setPermissions(permissions).setReadAccess(readAccess).build());
-                }
-
-
+                        return result.promise;
+                    });
+                });
+            } else {
+                const result = Q.defer<Project>();
+                result.resolve(projectBuilder.setPermissions(permissions).setReadAccess(readAccess).build());
                 return result.promise;
-            });
+            }
         });
     }
 
@@ -343,7 +348,7 @@ export class ProjectWizardPanel
                                                    this.produceUpdateItemRequest().sendAndParse() : Q(this.getPersistedItem().getData());
 
         return projectPromise.then((project: Project) => {
-            return this.updateLanguageAndPermissionsIfNeeded(project).then();
+            return this.updateLanguageAndPermissionsIfNeeded(project, false).then();
         });
     }
 
@@ -352,6 +357,7 @@ export class ProjectWizardPanel
 
         return <ProjectCreateRequest>new ProjectCreateRequest()
             .setParent(this.projectWizardStepForm.getParentProject())
+            .setReadAccess(this.readAccessWizardStepForm.getReadAccess())
             .setDescription(this.projectWizardStepForm.getDescription())
             .setName(this.projectWizardStepForm.getProjectName())
             .setDisplayName(displayName);
