@@ -90,6 +90,7 @@ module.exports = Object.freeze({
         INVALID_VALUE_ENTERED: "Invalid value entered",
         SCHEDULE_FORM_ONLINE_PAST: "Online to cannot be in the past",
         SCHEDULE_FORM_ONLINE_FROM_EMPTY: "Online to cannot be set without Online from",
+        THIS_FIELD_IS_REQUIRED: 'This field is required',
     },
 
     PROJECT_ACCESS_MODE: {
@@ -216,6 +217,7 @@ module.exports = Object.freeze({
         TEXTLINE_1_1: 'textline1_1',
         GEOPOINT_0_0: 'geopoint0_0',
         GEOPOINT_1_1: 'geopoint1_1',
+        TIME_0_1: "time0_1",
         DATE_TIME_NOW_CONFIG: 'datetime now',
         DATE_TIME_1_1: 'datetime1_1',
     },
