@@ -324,17 +324,19 @@ export class ContentItemPreviewPanel
     private setMediaPreviewMode(item: ContentSummaryAndCompareStatus) {
         const contentSummary = item.getContentSummary();
 
-        new MediaAllowsPreviewRequest(contentSummary.getContentId()).sendAndParse().then((allows: boolean) => {
-            if (allows) {
-                this.setPreviewType(PREVIEW_TYPE.MEDIA);
-                if (this.isVisible()) {
-                    this.frame.setSrc(UrlHelper.getCmsRestUri(
-                        `${UrlHelper.getCMSPath(this.contentRootPath)}/content/media/${contentSummary.getId()}?download=false#view=fit`));
+        new MediaAllowsPreviewRequest(contentSummary.getContentId()).setContentRootPath(this.contentRootPath).sendAndParse().then(
+            (allows: boolean) => {
+                if (allows) {
+                    this.setPreviewType(PREVIEW_TYPE.MEDIA);
+                    if (this.isVisible()) {
+                        this.frame.setSrc(UrlHelper.getCmsRestUri(
+                            `${UrlHelper.getCMSPath(
+                                this.contentRootPath)}/content/media/${contentSummary.getId()}?download=false#view=fit`));
+                    }
+                } else {
+                    this.setPreviewType(PREVIEW_TYPE.EMPTY);
                 }
-            } else {
-                this.setPreviewType(PREVIEW_TYPE.EMPTY);
-            }
-        });
+            });
     }
 
     private setImagePreviewMode(item: ContentSummaryAndCompareStatus) {
