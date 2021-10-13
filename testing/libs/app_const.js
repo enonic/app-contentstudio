@@ -222,6 +222,7 @@ module.exports = Object.freeze({
         DATE_TIME_1_1: 'datetime1_1',
         DATE_1_1: 'date1_1',
         ATTACHMENTS_1_1: 'attachment1_1',
+        ATTACHMENTS_0_0: 'attachment0_0',
         LONG_0_1: "long0_1",
         LONG_1_1: "long1_1",
         LONG_2_4: "long2_4",

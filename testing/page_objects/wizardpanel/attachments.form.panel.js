@@ -7,16 +7,17 @@ const appConst = require('../../libs/app_const');
 
 const XPATH = {
     attachmentUploaderDiv: "//div[contains(@id,'AttachmentUploader')]",
+    uploadButton: "//button[contains(@class,'upload-button')]",
 };
 
 class AttachmentsForm extends OccurrencesFormView {
 
     get attachmentUploader() {
-        return lib.FORM_VIEW + XPATH.attachmentUploaderDiv;
+        return XPATH.attachmentUploaderDiv + XPATH.uploadButton;
     }
 
     waitForUploaderDisplayed() {
-        return this.waitForElementDisplayed(this.bodyTextArea, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.attachmentUploader, appConst.mediumTimeout);
     }
 }
 
