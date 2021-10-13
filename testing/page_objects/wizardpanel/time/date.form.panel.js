@@ -1,6 +1,7 @@
 /**
- * Created on 12.10.2021
+ * Created on 13.10.2021
  */
+
 const OccurrencesFormView = require('../../wizardpanel/occurrences.form.view');
 const lib = require('../../../libs/elements');
 const appConst = require('../../../libs/app_const');
@@ -8,42 +9,33 @@ const XPATH = {
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
 };
 
-class TimeForm extends OccurrencesFormView {
+class DateForm extends OccurrencesFormView {
 
-    get timeInput() {
-        return lib.FORM_VIEW + lib.TIME_PICKER_INPUT;
+    get dateInput() {
+        return lib.FORM_VIEW + lib.DATE_PICKER_INPUT;
     }
 
     get validationRecord() {
         return lib.FORM_VIEW + XPATH.validationRecording;
     }
 
-    async typeTime(index, value) {
-        let timeElements = await this.getDisplayedElements(this.timeInput);
-        await timeElements[index].setValue(value);
+    async typeDate(index, value) {
+        let dateElements = await this.getDisplayedElements(this.dateInput);
+        await dateElements[index].setValue(value);
         return await this.pause(300);
     }
 
-    async waitForRedBorderDisplayedInTimeInput(index) {
-        return await this.waitForRedBorderInInput(index, this.timeInput);
+    async waitForRedBorderInDateInput(index) {
+        return await this.waitForRedBorderInInput(index, this.dateInput);
     }
 
-    async getTimes() {
-        let values = [];
-        let dateTimeElements = await this.getDisplayedElements(this.timeInput);
-        await Promise.all(dateTimeElements.map(async (el) => {
-            const value = await el.getValue();
-            values.push(value);
-        }));
-        return values;
-    }
-
-    async getValueInTimeInput(index) {
-        let timeElements = await this.getDisplayedElements(this.timeInput);
-        if (timeElements.length === 0) {
-            throw new Error("Time inputs were not found:")
+    async getValueInDateInput(index) {
+        let dateElements = await this.getDisplayedElements(this.dateInput);
+        if (dateElements.length === 0) {
+            throw new Error("Date inputs were not found:")
         }
-        return await timeElements[index].getValue();
+        return await dateElements[index].getValue();
+
     }
 
     waitForValidationRecording() {
@@ -62,7 +54,7 @@ class TimeForm extends OccurrencesFormView {
     }
 
     async isInvalidValue(index) {
-        let inputs = await this.getDisplayedElements(this.dateTimeInput);
+        let inputs = await this.getDisplayedElements(this.dateInput);
         if (inputs.length === 0) {
             throw new Error("Date time Form - Time inputs were not found!");
         }
@@ -71,9 +63,9 @@ class TimeForm extends OccurrencesFormView {
     }
 
     async showPicker() {
-        await this.clickOnElement(this.timeInput);
+        await this.clickOnElement(this.dateInput);
         return this.pause(300);
     }
 }
 
-module.exports = TimeForm;
+module.exports = DateForm;

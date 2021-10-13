@@ -61,7 +61,7 @@ class OccurrencesFormView extends Page {
             }
             return await elements[index].getText();
         } catch (err) {
-            this.saveScreenshot('err_long_validation_recording');
+            await this.saveScreenshot('err_long_validation_recording');
             throw new Error('getting Validation text: ' + err);
         }
     }
@@ -86,6 +86,22 @@ class OccurrencesFormView extends Page {
         await this.waitForAddButtonDisplayed();
         let result = await this.getDisplayedElements(this.addButton);
         return await result[0].click();
+    }
+
+    async waitForRedBorderInInput(index, inputLocator) {
+        let inputs = await this.getDisplayedElements(inputLocator);
+        await this.getBrowser().waitUntil(async () => {
+            let result = await inputs[index].getAttribute('class');
+            return result.includes("invalid");
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Attribute class  does not contain the value:invalid"});
+    }
+
+    async waitForRedBorderNotDisplayedInInput(index, inputLocator) {
+        let inputs = await this.getDisplayedElements(inputLocator);
+        await this.getBrowser().waitUntil(async () => {
+            let result = await inputs[index].getAttribute('class');
+            return !result.includes("invalid");
+        }, {timeout: appConst.shortTimeout, timeoutMsg: "Attribute class still contain the value:invalid"});
     }
 }
 

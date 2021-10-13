@@ -220,6 +220,11 @@ module.exports = Object.freeze({
         TIME_0_1: "time0_1",
         DATE_TIME_NOW_CONFIG: 'datetime now',
         DATE_TIME_1_1: 'datetime1_1',
+        DATE_1_1: 'date1_1',
+        ATTACHMENTS_1_1: 'attachment1_1',
+        LONG_0_1: "long0_1",
+        LONG_1_1: "long1_1",
+        LONG_2_4: "long2_4",
     },
     permissions: {
         FULL_ACCESS: `Full Access`,
