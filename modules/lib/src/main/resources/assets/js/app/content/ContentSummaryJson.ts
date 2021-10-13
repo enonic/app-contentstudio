@@ -46,4 +46,8 @@ export interface ContentSummaryJson
     originProject: string;
 
     listTitle: string;
+
+    originalParentPath: string;
+
+    originalName: string;
 }
