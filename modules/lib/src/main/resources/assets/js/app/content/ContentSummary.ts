@@ -73,6 +73,10 @@ export class ContentSummary {
 
     private readonly listTitle: string;
 
+    private readonly originalParentPath: string;
+
+    private readonly originalName: string;
+
     constructor(builder: ContentSummaryBuilder) {
         this.name = builder.name;
         this.displayName = builder.displayName;
@@ -103,6 +107,8 @@ export class ContentSummary {
         this.inherit = builder.inherit;
         this.originProject = builder.originProject;
         this.listTitle = builder.listTitle;
+        this.originalParentPath = builder.originalParentPath;
+        this.originalName = builder.originalName;
     }
 
     static fromJson(json: ContentSummaryJson): ContentSummary {
@@ -273,6 +279,14 @@ export class ContentSummary {
         return this.listTitle;
     }
 
+    getOriginalParentPath(): string {
+        return this.originalParentPath;
+    }
+
+    getOriginalName(): string {
+        return this.originalName;
+    }
+
     private isInheritedByType(type: ContentInheritType): boolean {
         return this.isInherited() && this.inherit.some((inheritType: ContentInheritType) => inheritType === type);
     }
@@ -360,6 +374,13 @@ export class ContentSummary {
         if (!ObjectHelper.equals(this.workflow, other.getWorkflow())) {
             return false;
         }
+        if (!ObjectHelper.stringEquals(this.originalParentPath, other.getOriginalParentPath())) {
+            return false;
+        }
+        if (!ObjectHelper.stringEquals(this.getOriginalName(), other.getOriginalName())) {
+            return false;
+        }
+
         return true;
     }
 }
@@ -422,6 +443,10 @@ export class ContentSummaryBuilder {
 
     listTitle: string;
 
+    originalParentPath: string;
+
+    originalName: string;
+
     constructor(source?: ContentSummary) {
         if (source) {
             this.id = source.getId();
@@ -452,6 +477,8 @@ export class ContentSummaryBuilder {
             this.inherit = source.getInherit();
             this.originProject = source.getOriginProject();
             this.listTitle = source.getListTitle();
+            this.originalParentPath = source.getOriginalParentPath();
+            this.originalName = source.getOriginalParentPath();
         }
     }
 
@@ -488,6 +515,9 @@ export class ContentSummaryBuilder {
         this.inherit = json.inherit && json.inherit.length > 0 ? json.inherit.map((type: string) => ContentInheritType[type])  : [];
         this.originProject = json.originProject;
         this.listTitle = ObjectHelper.isDefined(json.listTitle) ? json.listTitle : json.displayName;
+
+        this.originalParentPath = json.originalParentPath;
+        this.originalName = json.originalName;
 
         return this;
     }
@@ -588,6 +618,16 @@ export class ContentSummaryBuilder {
 
     setOriginProject(value: string): ContentSummaryBuilder {
         this.originProject = value;
+        return this;
+    }
+
+    setOriginalParentPath(value: string): ContentSummaryBuilder {
+        this.originalParentPath = value;
+        return this;
+    }
+
+    setOriginalName(value: string): ContentSummaryBuilder {
+        this.originalName = value;
         return this;
     }
 
