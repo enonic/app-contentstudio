@@ -478,7 +478,7 @@ export class ContentSummaryBuilder {
             this.originProject = source.getOriginProject();
             this.listTitle = source.getListTitle();
             this.originalParentPath = source.getOriginalParentPath();
-            this.originalName = source.getOriginalParentPath();
+            this.originalName = source.getOriginalName();
         }
     }
 
