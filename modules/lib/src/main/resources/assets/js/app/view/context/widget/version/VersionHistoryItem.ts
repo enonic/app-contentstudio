@@ -34,7 +34,7 @@ export class VersionHistoryItem {
 
         item.revertable = false;
         item.dateTime = publishInfo.getTimestamp();
-        item.user = publishInfo.getPublisherDisplayName();
+        item.user = publishInfo.getPublisherDisplayName() || publishInfo.getPublisher();
 
         if (publishInfo.isPublished()) {
             if (publishInfo.isScheduled()) {
@@ -62,7 +62,7 @@ export class VersionHistoryItem {
         item.id = contentVersion.getId();
         item.revertable = !contentVersion.isActive();
         item.dateTime = contentVersion.getModified();
-        item.user = contentVersion.getModifierDisplayName();
+        item.user = contentVersion.getModifierDisplayName() || contentVersion.getModifier();
 
         if (isFirst) {
             item.iconCls = 'icon-wand';
