@@ -12,6 +12,7 @@ const TimeForm = require('../../page_objects/wizardpanel/time/time.form.panel');
 const DateForm = require('../../page_objects/wizardpanel/time/date.form.panel');
 const DateTimePickerPopup = require('../../page_objects/wizardpanel/time/date.time.picker.popup');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('datetime.config.spec: tests for datetime content ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -27,6 +28,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
     const DATE_NAME_1 = contentBuilder.generateRandomName('date');
     const INCORRECT_TIME = "191:01";
     const DATE_IN_DECEMBER = "1999-12-31";
+    const DATE_IN_DECEMBER_2 = "1999-12-30";
     const INCORRECT_DAY_DATE = "2015-15-32";
 
     it(`Preconditions: new site should be created`,
@@ -71,6 +73,28 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             assert.equal(actualDAte, DATE_IN_DECEMBER, "Expected and actual dates should be equal");
             let result = await contentWizard.isContentInvalid();
             assert.isFalse(result, "The date content should be valid");
+        });
+
+    it("GIVEN existing Date(1:1) content is opened AND the date has been updated WHEN the previous version has been reverted THEN expected date should appear",
+        async () => {
+            let dateForm = new DateForm();
+            let contentWizard = new ContentWizard();
+            let versionsWidget = new VersionsWidget();
+            //1. existing Date(1:1) content is opened
+            await studioUtils.selectAndOpenContentInWizard(DATE_NAME);
+            //2. Update the date:
+            await dateForm.typeDate(0, DATE_IN_DECEMBER_2);
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+            await studioUtils.saveScreenshot('date_updated');
+            await contentWizard.openVersionsHistoryPanel();
+            //3. Revert the previous version:
+            await versionsWidget.clickAndExpandVersion(1);
+            await versionsWidget.clickOnRevertButton();
+            await contentWizard.waitForNotificationMessage();
+            //4. Verify the reverted date:
+            let result = await dateForm.getValueInDateInput(0);
+            assert.equal(result, DATE_IN_DECEMBER, "the previous date should be reverted");
         });
 
     it("GIVEN wizard for new Date(1:1) is opened WHEN incorrect date has been typed THEN date content should be not valid",
