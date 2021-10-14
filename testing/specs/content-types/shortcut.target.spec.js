@@ -23,7 +23,7 @@ describe("Shortcut's target specification", function () {
     it(`GIVEN wizard for new shortcut is opened WHEN name input has been filled in THEN the content should be not valid`,
         async () => {
             let contentWizard = new ContentWizard();
-            let shortcutForm = new ShortcutForm()
+            let shortcutForm = new ShortcutForm();
             await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
             //1. Fill in the name input:
             await contentWizard.typeDisplayName(SHORTCUT_NAME1);

@@ -9,6 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const DateTimeForm = require('../../page_objects/wizardpanel/datetime.form.panel');
 const TimeForm = require('../../page_objects/wizardpanel/time/time.form.panel');
+const DateForm = require('../../page_objects/wizardpanel/time/date.form.panel');
 const DateTimePickerPopup = require('../../page_objects/wizardpanel/time/date.time.picker.popup');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
@@ -22,7 +23,11 @@ describe('datetime.config.spec: tests for datetime content ', function () {
     const DATE_TIME_NAME_2 = contentBuilder.generateRandomName('datetime');
     const DATE_TIME_NAME_3 = contentBuilder.generateRandomName('datetime');
     const TIME_NAME_1 = contentBuilder.generateRandomName('time');
+    const DATE_NAME = contentBuilder.generateRandomName('date');
+    const DATE_NAME_1 = contentBuilder.generateRandomName('date');
     const INCORRECT_TIME = "191:01";
+    const DATE_IN_DECEMBER = "1999-12-31";
+    const INCORRECT_DAY_DATE = "2015-15-32";
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -44,6 +49,46 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             assert.isTrue(values.length === 2, "Two dateTime values should be present in the wizard page");
             assert.equal(values[0], values[1], "Both values must be the same");
             assert.isTrue(values[0].includes(expectedDate), "Expected date time should be displayed");
+        });
+
+    it("GIVEN wizard for new Date(1:1) is opened AND date in december has been saved WHEN the content has been reopened THEN expected date should be present",
+        async () => {
+            let dateForm = new DateForm();
+            let contentWizard = new ContentWizard();
+            //1. Open wizard for new date 1:1
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DATE_1_1);
+            //2. Save a date:
+            await contentWizard.typeDisplayName(DATE_NAME);
+            await dateForm.typeDate(0, DATE_IN_DECEMBER);
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+            await studioUtils.saveScreenshot('date_saved');
+            //3. Reopen te content
+            await studioUtils.doCloseWizardAndSwitchToGrid();
+            //3. Verify the saved date:
+            await studioUtils.selectAndOpenContentInWizard(DATE_NAME);
+            let actualDAte = await dateForm.getValueInDateInput(0);
+            assert.equal(actualDAte, DATE_IN_DECEMBER, "Expected and actual dates should be equal");
+            let result = await contentWizard.isContentInvalid();
+            assert.isFalse(result, "The date content should be valid");
+        });
+
+    it("GIVEN wizard for new Date(1:1) is opened WHEN incorrect date has been typed THEN date content should be not valid",
+        async () => {
+            let dateForm = new DateForm();
+            let contentWizard = new ContentWizard();
+            //1. Open wizard for new date 1:1
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.DATE_1_1);
+            //2. Type a name and incorrect date:
+            await dateForm.typeDate(0, INCORRECT_DAY_DATE);
+            await contentWizard.typeDisplayName(DATE_NAME_1);
+            await studioUtils.saveScreenshot('date_incorrect');
+            //3. Verify the red border in the date input
+            await dateForm.waitForRedBorderInDateInput(0);
+            let result = await contentWizard.isContentInvalid();
+            assert.isTrue(result, "The date content should be not valid");
+            let validationMessage = await dateForm.getOccurrenceValidationRecording(0);
+            assert.equal(validationMessage, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED, 'validation recording should appear');
         });
 
     it("GIVEN wizard for new DateTime(1:1) with timezone is opened WHEN date time input has been clicked THEN date time picker popup dialog with timezone gets visible",
@@ -114,7 +159,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             let isNotValid = await contentWizard.isContentInvalid();
             assert.isTrue(isNotValid, 'the content should be not valid, because not valid value inserted in the required input');
             //5. Verify that datetime input has red border(the value is not valid)
-            await dateTimeForm.waitForRedBorderInInputDisplayed(0);
+            await dateTimeForm.waitForRedBorderDisplayedInDateTimeInput(0);
         });
 
     it("GIVEN wizard for not required 'Time 0:1' is opened WHEN time in incorrect format has been typed THEN 'Publish' menu item should be enabled, because the input is not required",
@@ -133,7 +178,7 @@ describe('datetime.config.spec: tests for datetime content ', function () {
             let isNotValid = await contentWizard.isContentInvalid();
             assert.isFalse(isNotValid, 'the content should be valid, because not correct value is inserted in the not required input');
             //5. Verify that the time input has red border(the value is not valid)
-            await timeForm.waitForRedBorderInInputDisplayed(0);
+            await timeForm.waitForRedBorderDisplayedInTimeInput(0);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

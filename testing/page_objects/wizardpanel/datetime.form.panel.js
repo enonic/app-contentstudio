@@ -25,12 +25,8 @@ class DateTimeForm extends OccurrencesFormView {
         return await this.pause(300);
     }
 
-    async waitForRedBorderInInputDisplayed(index) {
-        let dateTimeInputs = await this.getDisplayedElements(this.dateTimeInput);
-        await this.getBrowser().waitUntil(async () => {
-            let result = await dateTimeInputs[index].getAttribute('class');
-            return result.includes("invalid");
-        }, {timeout: appConst.shortTimeout, timeoutMsg: "Attribute class  does not contain the value:invalid"});
+    async waitForRedBorderDisplayedInDateTimeInput(index) {
+        return await this.waitForRedBorderInInput(index, this.dateTimeInput);
     }
 
     async getDateTimes() {
