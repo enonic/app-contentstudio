@@ -6,18 +6,24 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {
-    container_Div: "//div[contains(@id,'InputView')]//div[contains(@id,'Checkbox') and contains(@class,'checkbox')]",
+    checkboxDiv: "//div[contains(@id,'InputView')]//div[contains(@id,'Checkbox') and contains(@class,'checkbox')]",
     titleInput: `//input[contains(@name,'title')]`,
 };
 
 class CheckBoxForm extends Page {
 
-    get checkboxInput() {
-        return XPATH.container_Div + lib.CHECKBOX_INPUT;
+    get checkbox() {
+        return XPATH.checkboxDiv;
     }
 
-    clickOnCheckbox() {
+    async clickOnCheckbox() {
+        await this.waitForElementDisplayed(this.checkbox, appConst.mediumTimeout);
+        return await this.clickOnElement(this.checkbox + "//label");
+    }
 
+    async isCheckBoxSelected() {
+        await this.waitForElementDisplayed(this.checkbox + lib.CHECKBOX_INPUT, appConst.mediumTimeout);
+        return await this.isSelected(this.checkbox + lib.CHECKBOX_INPUT);
     }
 
 }

@@ -226,6 +226,10 @@ module.exports = Object.freeze({
         LONG_0_1: "long0_1",
         LONG_1_1: "long1_1",
         LONG_2_4: "long2_4",
+        TEXT_AREA_1_1: "textarea1_1",
+        TEXT_AREA_0_1: "textarea0_1",
+        TEXT_AREA_2_4: "textarea2_4",
+        CHECKBOX_0_1: "checkbox",
     },
     permissions: {
         FULL_ACCESS: `Full Access`,

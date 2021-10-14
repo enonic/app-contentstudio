@@ -121,7 +121,7 @@ describe('occurrences.long.spec:  tests for content validation for Long(0:1,1:1,
             await longForm.waitForRedBorderInLongInput(0);
         });
 
-    it(`GIVEN wizard for 'long 2:4' content is opened WHEN values in both inputs have been typed THEN red border should be present in the second long input`,
+    it(`GIVEN wizard for 'long 2:4' content is opened WHEN values in both inputs have been typed and one is invalid THEN red border should be present in the second long input`,
         async () => {
             let longForm = new LongForm();
             let contentWizard = new ContentWizard();
@@ -137,7 +137,7 @@ describe('occurrences.long.spec:  tests for content validation for Long(0:1,1:1,
             //3. Verify that the content is not valid, because Min 2 valid occurrence(s) required
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isTrue(isInvalid, "Content should be not valid");
-            //4. Verify thar red border appears in the long input:
+            //4. Verify thar red border appears in the second long input:
             await longForm.waitForRedBorderInLongInput(1);
         });
 
