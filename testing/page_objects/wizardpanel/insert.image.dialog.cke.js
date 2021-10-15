@@ -8,6 +8,10 @@ const XPATH = {
     insertButton: `//button[contains(@id,'DialogButton') and child::span[text()='Insert']]`,
     updateButton: `//button[contains(@id,'DialogButton') and child::span[text()='Update']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
+    alignRightButton: "//button[contains(@class,'icon-paragraph-right')]",
+    justifyButton: "//button[contains(@class,'icon-paragraph-justify')]",
+    alignLeftButton: "//button[contains(@class,'icon-paragraph-left')]",
+    alignCenterButton: "//button[contains(@class,'icon-paragraph-center')]",
     styleSelector: `//div[contains(@id,'ImageStyleSelector')]`,
     styleOptionFilterInput: "//input[contains(@id,'DropdownOptionFilterInput')]",
     customWidthCheckbox: "//div[contains(@class,'custom-width-checkbox')]",
@@ -181,6 +185,22 @@ class InsertImageDialog extends Page {
     getSelectedStyleName() {
         let selectedOption = XPATH.container + XPATH.selectedOptionView + "//h6[contains(@class,'main-name')]";
         return this.getText(selectedOption);
+    }
+
+    waitForAlignRightButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.container + XPATH.alignRightButton);
+    }
+
+    waitForAlignLeftButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.container + XPATH.alignLeftButton);
+    }
+
+    waitForAlignCenterButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.container + XPATH.alignCenterButton);
+    }
+
+    waitForJustifyButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.container + XPATH.justifyButton);
     }
 }
 

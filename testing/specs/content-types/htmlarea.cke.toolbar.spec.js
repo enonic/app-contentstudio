@@ -35,7 +35,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             let insertImageDialog = new InsertImageDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
-            studioUtils.saveScreenshot('cke_insert_image_dialog1');
+            await studioUtils.saveScreenshot('cke_insert_image_dialog1');
             //'Insert Image Dialog should appear:
             await insertImageDialog.waitForDialogVisible();
         });

@@ -42,8 +42,13 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             await insertImageDialog.waitForStyleSelectorVisible();
 
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
-            studioUtils.saveScreenshot('image_dialog_custom_width_default_value');
+            await studioUtils.saveScreenshot('image_dialog_custom_width_default_value');
             assert.isFalse(isChecked, "'Custom width' checkbox should be unchecked by default");
+            //4. Verify the alignment buttons:
+            await insertImageDialog.waitForAlignRightButtonDisplayed();
+            await insertImageDialog.waitForAlignLeftButtonDisplayed();
+            await insertImageDialog.waitForAlignCenterButtonDisplayed();
+            await insertImageDialog.waitForJustifyButtonDisplayed();
         });
 
     it(`GIVEN htmlarea-content, 'Insert Image' dialog is opened AND an image is selected WHEN 'Custom width' checkbox has been clicked THEN default range(100%) for custom width should appear`,
