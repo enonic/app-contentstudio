@@ -40,6 +40,8 @@ import {ContentPath} from '../content/ContentPath';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
+import {DockedContextPanel} from '../view/context/DockedContextPanel';
+import {ContextView} from '../view/context/ContextView';
 
 export class ContentBrowsePanel
     extends BrowsePanel {
@@ -149,7 +151,11 @@ export class ContentBrowsePanel
             browseActions.getAction(ActionName.SHOW_NEW_DIALOG)
         ];
 
-        this.contextSplitPanel = new ContextSplitPanel(this.getBrowseItemPanel(), mobileActions);
+        const contextView: ContextView = new ContextView();
+        const leftPanel: ContentBrowseItemPanel = this.getBrowseItemPanel();
+        const rightPanel: DockedContextPanel = new DockedContextPanel(contextView);
+        this.contextSplitPanel =
+            ContextSplitPanel.create(leftPanel, rightPanel).setContextView(contextView).setActions(mobileActions).build();
 
         return this.contextSplitPanel;
     }

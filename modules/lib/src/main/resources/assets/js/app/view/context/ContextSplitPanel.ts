@@ -35,26 +35,18 @@ export class ContextSplitPanel
     private wizardFormPanel?: Panel;
     private mobileContextPanel: MobileContextPanel;
 
-    constructor(leftPanel: Panel, actions: Action[], data?: PageEditorData, wizardFormPanel?: Panel) {
-        const contextView = new ContextView(data);
-        const dockedContextPanel = new DockedContextPanel(contextView);
+    constructor(splitPanelBuilder: ContextSplitPanelBuilder) {
+        super(splitPanelBuilder);
 
-        const builder = new SplitPanelBuilder(leftPanel, dockedContextPanel)
-            .setAlignment(SplitPanelAlignment.VERTICAL)
-            .setSecondPanelMinSize(SplitPanelSize.Pixels(280))
-            .setAnimationDelay(600)
-            .setSecondPanelShouldSlideRight(true);
-
-        super(builder);
         this.addClass('context-split-panel');
         this.setSecondPanelSize(SplitPanelSize.Percents(38));
 
-        this.data = data;
-        this.wizardFormPanel = wizardFormPanel;
-        this.leftPanel = leftPanel;
-        this.contextView = contextView;
-        this.dockedContextPanel = dockedContextPanel;
-        this.actions = actions;
+        this.data = splitPanelBuilder.data;
+        this.wizardFormPanel = splitPanelBuilder.wizardFormPanel;
+        this.leftPanel = splitPanelBuilder.getFirstPanel();
+        this.contextView = splitPanelBuilder.contextView;
+        this.dockedContextPanel = splitPanelBuilder.getSecondPanel();
+        this.actions = splitPanelBuilder.actions;
         this.dockedModeChangedListeners = [];
         this.mobilePanelSlideListeners = [];
 
@@ -258,4 +250,56 @@ export class ContextSplitPanel
         return this.mobileMode;
     }
 
+    static create(firstPanel: Panel, secondPanel: DockedContextPanel): ContextSplitPanelBuilder {
+        return new ContextSplitPanelBuilder(firstPanel, secondPanel);
+    }
+
+}
+
+export class ContextSplitPanelBuilder extends SplitPanelBuilder {
+
+    contextView: ContextView;
+
+    actions: Action[];
+
+    data: PageEditorData;
+
+    wizardFormPanel: Panel;
+
+    constructor(firstPanel: Panel, secondPanel: DockedContextPanel) {
+        super(firstPanel, secondPanel);
+
+        this.setAlignment(SplitPanelAlignment.VERTICAL);
+        this.setSecondPanelMinSize(SplitPanelSize.Pixels(280));
+        this.setAnimationDelay(600);
+        this.setSecondPanelShouldSlideRight(true);
+    }
+
+    setContextView(value: ContextView): ContextSplitPanelBuilder {
+        this.contextView = value;
+        return this;
+    }
+
+    setActions(value: Action[]): ContextSplitPanelBuilder {
+        this.actions = value;
+        return this;
+    }
+
+    setData(value: PageEditorData): ContextSplitPanelBuilder {
+        this.data = value;
+        return this;
+    }
+
+    setWizardFormPanel(value: Panel): ContextSplitPanelBuilder {
+        this.wizardFormPanel = value;
+        return this;
+    }
+
+    getSecondPanel(): DockedContextPanel {
+        return <DockedContextPanel>super.getSecondPanel();
+    }
+
+    build(): ContextSplitPanel {
+        return new ContextSplitPanel(this);
+    }
 }
