@@ -131,6 +131,8 @@ import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPa
 import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
 import {GetApplicationRequest} from '../resource/GetApplicationRequest';
 import {ContentPathPrettifier} from '../content/ContentPathPrettifier';
+import {ContextView} from '../view/context/ContextView';
+import {DockedContextPanel} from '../view/context/DockedContextPanel';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -593,7 +595,15 @@ export class ContentWizardPanel
         const data: PageEditorData = this.getLivePanel()
                                      ? this.getLivePanel().getPageEditorData()
                                      : LiveFormPanel.createEmptyPageEditorData();
-        this.contextSplitPanel = new ContextSplitPanel(leftPanel, contextActions, data, this.formPanel);
+        const contextView: ContextView = new ContextView(data);
+        const rightPanel: DockedContextPanel = new DockedContextPanel(contextView);
+
+        this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel)
+            .setContextView(contextView)
+            .setActions(contextActions)
+            .setData(data)
+            .setWizardFormPanel(this.formPanel)
+            .build();
         this.contextSplitPanel.hideSecondPanel();
 
         this.onRendered(() => {
