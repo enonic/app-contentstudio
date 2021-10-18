@@ -1,4 +1,3 @@
-/*eslint new-cap: ["error", { "newIsCapExceptions": ["SplitPanelSize, SplitPanelAlignment"] }]*/
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
