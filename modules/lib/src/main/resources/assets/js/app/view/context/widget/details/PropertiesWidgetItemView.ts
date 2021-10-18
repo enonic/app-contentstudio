@@ -133,57 +133,57 @@ export class PropertiesWidgetItemView
         this.list.insertChild(keyEl, index);
     }
 
-    private setPropsType(propsMap: Map<string, string>) {
+    protected setPropsType(propsMap: Map<string, string>) {
         propsMap.set(i18n('field.type'), this.content.getType().getLocalName()
                                          ? this.content.getType().getLocalName() : this.content.getType().toString());
     }
 
-    private setPropsApp(propsMap: Map<string, string>, application?: Application) {
+    protected setPropsApp(propsMap: Map<string, string>, application?: Application) {
         propsMap.set(i18n('field.app'),
             application ? application.getDisplayName() : this.content.getType().getApplicationKey().getName());
     }
 
-    private setPropsLang(propsMap: Map<string, string>) {
+    protected setPropsLang(propsMap: Map<string, string>) {
         if (this.content.getLanguage()) {
             propsMap.set(i18n('field.lang'), this.content.getLanguage());
         }
     }
 
-    private setPropsOwner(propsMap: Map<string, string>) {
+    protected setPropsOwner(propsMap: Map<string, string>) {
         if (this.content.getOwner()) {
             propsMap.set(i18n('field.owner'), this.content.getOwner().getId());
         }
     }
 
-    private setPropsCreated(propsMap: Map<string, string>) {
+    protected setPropsCreated(propsMap: Map<string, string>) {
         propsMap.set(i18n('field.created'), DateTimeFormatter.createHtml(this.content.getCreatedTime()));
     }
 
-    private setPropsModified(propsMap: Map<string, string>) {
+    protected setPropsModified(propsMap: Map<string, string>) {
         if (this.content.getModifiedTime()) {
             propsMap.set(i18n('field.modified'), DateTimeFormatter.createHtml(this.content.getModifiedTime()));
         }
     }
 
-    private setPropsPublishFirstTime(propsMap: Map<string, string>) {
+    protected setPropsPublishFirstTime(propsMap: Map<string, string>) {
         if (this.content.getPublishFirstTime()) {
             propsMap.set(i18n('field.firstPublished'), DateTimeFormatter.createHtml(this.content.getPublishFirstTime()));
         }
     }
 
-    private setPropsPublishFromTime(propsMap: Map<string, string>) {
+    protected setPropsPublishFromTime(propsMap: Map<string, string>) {
         if (this.content.getPublishFromTime()) {
             propsMap.set(i18n('field.publishFrom'), DateTimeFormatter.createHtml(this.content.getPublishFromTime()));
         }
     }
 
-    private setPropsPublishToTime(propsMap: Map<string, string>) {
+    protected setPropsPublishToTime(propsMap: Map<string, string>) {
         if (this.content.getPublishToTime()) {
             propsMap.set(i18n('field.publishTo'), DateTimeFormatter.createHtml(this.content.getPublishToTime()));
         }
     }
 
-    private setPropsFieldId(propsMap: Map<string, string>) {
+    protected setPropsFieldId(propsMap: Map<string, string>) {
         propsMap.set(i18n('field.id'), this.content.getId());
     }
 }
