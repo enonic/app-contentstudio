@@ -19,6 +19,10 @@ export class ContentWidgetItemView
         this.appendChild(this.viewer);
     }
 
+    getViewer(): ContentSummaryAndCompareStatusViewer {
+        return this.viewer;
+    }
+
     public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
         if (item) {
             this.viewer.setObject(item);
