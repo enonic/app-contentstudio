@@ -1,3 +1,5 @@
+/*global CKEDITOR*/
+
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';

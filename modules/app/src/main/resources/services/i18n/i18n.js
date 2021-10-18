@@ -21,10 +21,14 @@ const getPhrases = function(customBundles) {
         bundles = bundles.concat(customBundles);
     }
 
-    for (const bundleIndex in bundles) {
-        const bundlePhrases = i18n.getPhrases(locales, [bundles[bundleIndex]]);
-        for (const key in bundlePhrases) { phrases[key] = bundlePhrases[key] }
-    }
+    bundles.forEach(function (bundle) {
+        const bundlePhrases = i18n.getPhrases(locales, [bundle]);
+        for (const key in bundlePhrases) {
+            if (bundlePhrases.hasOwnProperty(key)) {
+                phrases[key] = bundlePhrases[key];
+            }
+        }
+    });
 
     return phrases;
 };

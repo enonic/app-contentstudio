@@ -1,3 +1,5 @@
+/*global Q*/
+
 import {Issue} from '../issue/Issue';
 import {IssueType} from '../issue/IssueType';
 import {ContentPublishMenuAction, ContentPublishMenuButton, ContentPublishMenuButtonConfig} from './ContentPublishMenuButton';
