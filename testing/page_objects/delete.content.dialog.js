@@ -76,6 +76,7 @@ class DeleteContentDialog extends Page {
 
     async clickOnDeleteNowButton() {
         try {
+            await this.waitForElementDisplayed(this.deleteNowButton, appConst.mediumTimeout);
             await this.clickOnElement(this.deleteNowButton);
             return await this.pause(500);
         } catch (err) {
@@ -86,6 +87,7 @@ class DeleteContentDialog extends Page {
 
     async clickOnDeleteNowButtonAndClose() {
         try {
+            await this.waitForElementDisplayed(this.deleteNowButton, appConst.mediumTimeout);
             await this.clickOnElement(this.deleteNowButton);
             return await this.waitForDialogClosed();
         } catch (err) {

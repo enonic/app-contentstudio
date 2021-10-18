@@ -13,6 +13,7 @@ const appConst = require('../libs/app_const');
 describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
+    const DISPLAY_NAME = appConst.generateRandomName("folder");
 
     it(`WHEN folder-wizard is opened THEN 'Save' button should be disabled`,
         async () => {
@@ -22,7 +23,7 @@ describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
             await contentWizard.waitForSaveButtonDisabled();
         });
 
-    it(`WHEN folder-wizard is opened WHEN a name has been typed THEN Save button is getting enabled `,
+    it(`WHEN folder-wizard is opened WHEN a name has been typed THEN 'Save' button is getting enabled`,
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
@@ -37,21 +38,22 @@ describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
             let contentWizard = new ContentWizard();
             //1. Open new wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await contentWizard.typeDisplayName('test999');
-            await contentWizard.pause(2000);
+            await contentWizard.typeDisplayName(DISPLAY_NAME);
+            await contentWizard.pause(1000);
+            await contentWizard.waitForSaveButtonEnabled();
             //2. Display name input has been cleared:
             await contentWizard.clearDisplayNameInput();
-            studioUtils.saveScreenshot('save_button_clear_name');
-            //Save button gets disabled again:
+            await studioUtils.saveScreenshot('save_button_clear_name');
+            //3. Verify that 'Save' button gets disabled again:
             await contentWizard.waitForSaveButtonVisible();
             await contentWizard.waitForSaveButtonDisabled();
         });
 
-    it(`WHEN folder-wizard is opened AND name was typed WHEN 'Save' button has been pressed THEN 'Saved' button should be visible`,
+    it(`WHEN folder-wizard is opened AND name input is filled in WHEN 'Save' button has been pressed THEN 'Saved' button should be visible`,
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await contentWizard.typeDisplayName('test999');
+            await contentWizard.typeDisplayName(DISPLAY_NAME);
             await contentWizard.pause(1000);
             await contentWizard.waitAndClickOnSave();
             //'Saved` button gets visible and disabled

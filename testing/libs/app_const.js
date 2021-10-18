@@ -231,6 +231,7 @@ module.exports = Object.freeze({
         TEXT_AREA_2_4: "textarea2_4",
         CHECKBOX_0_1: "checkbox",
         FIELDSET: "fieldset",
+        COMBOBOX_0_0: "combobox0_0",
     },
     permissions: {
         FULL_ACCESS: `Full Access`,
