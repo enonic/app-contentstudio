@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
-import com.enonic.xp.app.contentstudio.widget.WidgetIconUrlResolver;
+import com.enonic.xp.app.contentstudio.rest.resource.widget.WidgetIconUrlResolver;
 import com.enonic.xp.admin.widget.WidgetDescriptor;
 
 public final class WidgetDescriptorJson
