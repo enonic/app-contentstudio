@@ -1,4 +1,4 @@
-package com.enonic.xp.app.contentstudio.widget;
+package com.enonic.xp.app.contentstudio.rest.resource.widget;
 
 import com.enonic.xp.admin.widget.WidgetDescriptor;
 import com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants;
