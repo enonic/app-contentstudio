@@ -10,12 +10,14 @@ import {DlEl} from 'lib-admin-ui/dom/DlEl';
 import {DdDtEl} from 'lib-admin-ui/dom/DdDtEl';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {GetApplicationRequest} from '../../../../resource/GetApplicationRequest';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 
-export class PropertiesWidgetItemView extends WidgetItemView {
+export class PropertiesWidgetItemView
+    extends WidgetItemView {
 
-    private content: ContentSummary;
+    protected content: ContentSummary;
 
-    private list: DlEl;
+    protected list: DlEl;
 
     public static debug: boolean = false;
 
@@ -24,12 +26,15 @@ export class PropertiesWidgetItemView extends WidgetItemView {
     }
 
     public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
-        let content = item.getContentSummary();
+        const content: ContentSummary = item.getContentSummary();
+
         if (!content.equals(this.content)) {
             if (!this.content) {
                 this.initListeners();
             }
+
             this.content = content;
+
             return this.layout();
         }
 
@@ -37,11 +42,10 @@ export class PropertiesWidgetItemView extends WidgetItemView {
     }
 
     private initListeners() {
+        const layoutOnPublishStateChange = (contents: ContentSummaryAndCompareStatus[]) => {
+            const thisContentId: string = this.content.getId();
 
-        let layoutOnPublishStateChange = (contents: ContentSummaryAndCompareStatus[]) => {
-            let thisContentId = this.content.getId();
-
-            let contentSummary: ContentSummaryAndCompareStatus = contents.filter((content) => {
+            const contentSummary: ContentSummaryAndCompareStatus = contents.filter((content: ContentSummaryAndCompareStatus) => {
                 return thisContentId === content.getId();
             })[0];
 
@@ -50,9 +54,7 @@ export class PropertiesWidgetItemView extends WidgetItemView {
             }
         };
 
-        let serverEvents = ContentServerEventsHandler.getInstance();
-
-        serverEvents.onContentPublished(layoutOnPublishStateChange);
+        ContentServerEventsHandler.getInstance().onContentPublished(layoutOnPublishStateChange);
 
         //Uncomment the line below if we need to redo the layout on unpublish
         //serverEvents.onContentUnpublished(layoutOnPublishStateChange);
@@ -65,7 +67,7 @@ export class PropertiesWidgetItemView extends WidgetItemView {
 
         return super.layout().then(() => {
             if (this.content != null) {
-                let applicationKey = this.content.getType().getApplicationKey();
+                const applicationKey: ApplicationKey = this.content.getType().getApplicationKey();
                 if (!applicationKey.isSystemReserved()) {
                     return new GetApplicationRequest(applicationKey).sendAndParse().then((application: Application) => {
                         this.layoutApplication(application);
@@ -79,73 +81,78 @@ export class PropertiesWidgetItemView extends WidgetItemView {
         });
     }
 
-    private layoutApplication(application?: Application) {
-
+    protected layoutApplication(application?: Application) {
         if (this.hasChild(this.list)) {
             this.removeChild(this.list);
         }
+
         this.list = new DlEl();
 
-        let strings: FieldString[];
-
-        strings = [
-            new FieldString().setName(i18n('field.type')).setValue(this.content.getType().getLocalName()
-                ? this.content.getType().getLocalName() : this.content.getType().toString()),
-
-            new FieldString().setName(i18n('field.app')).setValue(
-                application ? application.getDisplayName() : this.content.getType().getApplicationKey().getName()),
-
-            this.content.getLanguage() ? new FieldString().setName(i18n('field.lang')).setValue(this.content.getLanguage()) : null,
-
-            this.content.getOwner() ? new FieldString().setName(i18n('field.owner')).setValue(this.content.getOwner().getId()) : null,
-
-            new FieldString().setName(i18n('field.created')).setValue(DateTimeFormatter.createHtml(this.content.getCreatedTime())),
-
-            this.content.getModifiedTime() ? new FieldString().setName(i18n('field.modified')).setValue(
-                DateTimeFormatter.createHtml(this.content.getModifiedTime())) : null,
-
-            this.content.getPublishFirstTime() ? new FieldString().setName(i18n('field.firstPublished')).setValue(
-                DateTimeFormatter.createHtml(this.content.getPublishFirstTime())) : null,
-
-            this.content.getPublishFromTime() ? new FieldString().setName(i18n('field.publishFrom')).setValue(
-                DateTimeFormatter.createHtml(this.content.getPublishFromTime())) : null,
-
-            this.content.getPublishToTime() ? new FieldString().setName(i18n('field.publishTo')).setValue(
-                DateTimeFormatter.createHtml(this.content.getPublishToTime())) : null,
-
-            new FieldString().setName(i18n('field.id')).setValue(this.content.getId())
-        ];
-
-        strings.forEach((stringItem: FieldString) => {
-            if (stringItem) {
-                stringItem.layout(this.list);
-            }
+        this.generateProps().forEach((value: string, key: string) => {
+            this.appendKeyValue(key, value);
         });
+
         this.removeChildren();
         this.appendChild(this.list);
     }
-}
 
-class FieldString {
-
-    private fieldName: string;
-
-    private value: string;
-
-    public setName(name: string): FieldString {
-        this.fieldName = name;
-        return this;
+    protected createKeyEl(key: string): Element {
+        return new DdDtEl('dd').setHtml(key + ': ');
     }
 
-    public setValue(value: string): FieldString {
-        this.value = value;
-        return this;
+    protected createValueEl(value: string): Element {
+        return new DdDtEl('dt').setHtml(value);
     }
 
-    public layout(parentEl: Element) {
-        let valueEl = new DdDtEl('dt').setHtml(this.value);
-        let spanEl = new DdDtEl('dd').setHtml(this.fieldName + ': ');
-        parentEl.appendChildren(spanEl, valueEl);
+    protected generateProps(application?: Application): Map<string, string> {
+        const propsMap: Map<string, string> = new Map<string, string>();
+
+        propsMap.set(i18n('field.type'), this.content.getType().getLocalName()
+                                         ? this.content.getType().getLocalName() : this.content.getType().toString());
+
+        propsMap.set(i18n('field.app'),
+            application ? application.getDisplayName() : this.content.getType().getApplicationKey().getName());
+
+        if (this.content.getLanguage()) {
+            propsMap.set(i18n('field.lang'), this.content.getLanguage());
+        }
+
+        if (this.content.getOwner()) {
+            propsMap.set(i18n('field.owner'), this.content.getOwner().getId());
+        }
+
+        propsMap.set(i18n('field.created'), DateTimeFormatter.createHtml(this.content.getCreatedTime()));
+
+        if (this.content.getModifiedTime()) {
+            propsMap.set(i18n('field.modified'), DateTimeFormatter.createHtml(this.content.getModifiedTime()));
+        }
+
+        if (this.content.getPublishFirstTime()) {
+            propsMap.set(i18n('field.firstPublished'), DateTimeFormatter.createHtml(this.content.getPublishFirstTime()));
+        }
+
+        if (this.content.getPublishFromTime()) {
+            propsMap.set(i18n('field.publishFrom'), DateTimeFormatter.createHtml(this.content.getPublishFromTime()));
+        }
+
+        if (this.content.getPublishToTime()) {
+            propsMap.set(i18n('field.publishTo'), DateTimeFormatter.createHtml(this.content.getPublishToTime()));
+        }
+
+        propsMap.set(i18n('field.id'), this.content.getId());
+
+        return propsMap;
     }
 
+    protected appendKeyValue(key: string, value: string) {
+        this.list.appendChildren(this.createKeyEl(key), this.createValueEl(value));
+    }
+
+    protected insertKeyValue(key: string, value: string, index: number) {
+        const keyEl: Element = this.createKeyEl(key);
+        const valueEl: Element = this.createValueEl(value);
+
+        this.list.insertChild(valueEl, index);
+        this.list.insertChild(keyEl, index);
+    }
 }
