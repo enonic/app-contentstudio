@@ -7,6 +7,7 @@ const appConst = require('../../libs/app_const');
 
 const XPATH = {
     container: "//div[contains(@id,'ComboBox')]",
+    InputViewValidationDiv: "//div[contains(@id,'InputViewValidationViewer')]",
     optionByName: option => {
         return `//div[contains(@class,'slick-viewport')]//div[contains(@id,'ComboBoxDisplayValueViewer') and text()='${option}']`
 
@@ -16,7 +17,11 @@ const XPATH = {
 class ComboBoxFormPanel extends Page {
 
     get optionFilterInput() {
-        return XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+        return lib.CONTENT_WIZARD_STEP_FORM + XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
+    }
+
+    get removeOptionIcon() {
+        return lib.CONTENT_WIZARD_STEP_FORM + XPATH.container + lib.BASE_SELECTED_OPTION + lib.REMOVE_ICON;
     }
 
     async typeInFilterAndClickOnOption(option) {
@@ -27,9 +32,33 @@ class ComboBoxFormPanel extends Page {
         return await this.pause(200);
     }
 
-    async clickOnRemoveButton(index) {
-        await this.waitForElementDisplayed(this.populationInput, appConst.mediumTimeout);
-        return await this.getTextInInput(this.populationInput);
+    async clickOnRemoveSelectedOptionButton(index) {
+        let removeButtons = await this.getDisplayedElements(this.removeOptionIcon);
+        if (removeButtons.length === 0) {
+            throw new Error("ComboBox Form - Remove buttons were not found!");
+        }
+        await removeButtons[index].click();
+        return await this.pause(500);
+    }
+
+    waitForOptionFilterInputEnabled() {
+        return this.waitForElementEnabled(this.optionFilterInput, appConst.mediumTimeout);
+    }
+
+    waitForOptionFilterInputDisabled() {
+        return this.waitForElementDisabled(this.optionFilterInput, appConst.mediumTimeout);
+    }
+
+    async getComboBoxValidationMessage() {
+        let locator = lib.CONTENT_WIZARD_STEP_FORM + lib.FORM_VIEW + XPATH.InputViewValidationDiv;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
+    async getSelectedOptionValues() {
+        let locator = lib.FORM_VIEW + "//div[@class='selected-option']//div[@class='option-value']";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(locator);
     }
 }
 
