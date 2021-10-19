@@ -232,6 +232,8 @@ module.exports = Object.freeze({
         CHECKBOX_0_1: "checkbox",
         FIELDSET: "fieldset",
         COMBOBOX_0_0: "combobox0_0",
+        COMBOBOX_1_1: "combobox1_1",
+        COMBOBOX_2_4: "combobox2_4"
     },
     permissions: {
         FULL_ACCESS: `Full Access`,

@@ -36,7 +36,7 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
 
             //3. click on the folder-name in the modal dialog and switches to new wizard-tab:
             await contentPublishDialog.clickOnItemToPublishAndSwitchToWizard(FOLDER.displayName);
-            //4. Select a language in the wizard. The folder get Work in Progress
+            //4. Select a language in the wizard. The folder gets Work in Progress
             let settingsForm = new SettingsStepForm();
             await settingsForm.filterOptionsAndSelectLanguage('English (en)');
             await contentWizard.waitAndClickOnSave();
