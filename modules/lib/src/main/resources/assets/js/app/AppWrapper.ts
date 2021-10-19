@@ -296,7 +296,6 @@ class AppModeSwitcher
     }
 
     private createButton(app: App, index: number = -1) {
-        console.log(index);
         const contentButton: AppModeButton = new AppModeButton(app);
         this.listenButtonClicked(contentButton);
         this.buttons.push(contentButton);
