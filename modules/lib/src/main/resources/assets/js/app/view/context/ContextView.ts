@@ -363,7 +363,6 @@ export class ContextView
     }
 
     private initCommonWidgetViews() {
-
         if (this.isPageEditorPresent()) {
             this.pageEditorWidgetView = WidgetView.create()
                 .setName(i18n('field.contextPanel.pageEditor'))
@@ -391,6 +390,15 @@ export class ContextView
             .setContextView(this)
             .setWidgetItemViews(this.getDetailsWidgetItemViews()).build();
 
+        this.emulatorWidgetView = WidgetView.create()
+            .setName(i18n('field.contextPanel.emulator'))
+            .setDescription(i18n('field.contextPanel.emulator.description'))
+            .setWidgetClass('emulator-widget')
+            .setIconClass(`${StyleHelper.getCurrentPrefix()}icon-mobile`)
+            .setType(InternalWidgetType.EMULATOR)
+            .setContextView(this)
+            .addWidgetItemView(new EmulatorWidgetItemView({})).build();
+
         this.defaultWidgetView = this.propertiesWidgetView;
 
         this.addWidgets(this.getInitialWidgets());
@@ -410,15 +418,6 @@ export class ContextView
         const widgets: WidgetView[] = [this.propertiesWidgetView, this.createVersionsWidgetView(), this.createDependenciesWidgetView()];
 
         if (!this.isInsideWizard()) {
-            this.emulatorWidgetView = WidgetView.create()
-                .setName(i18n('field.contextPanel.emulator'))
-                .setDescription(i18n('field.contextPanel.emulator.description'))
-                .setWidgetClass('emulator-widget')
-                .setIconClass(`${StyleHelper.getCurrentPrefix()}icon-mobile`)
-                .setType(InternalWidgetType.EMULATOR)
-                .setContextView(this)
-                .addWidgetItemView(new EmulatorWidgetItemView({})).build();
-
             widgets.push(this.emulatorWidgetView);
         }
 
