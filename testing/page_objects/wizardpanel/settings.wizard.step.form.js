@@ -106,6 +106,10 @@ class SettingsStepForm extends Page {
         return this.isElementDisplayed(this.languageFilterInput);
     }
 
+    waitForLanguageOptionsFilterDisplayed() {
+        return this.waitForElementDisplayed(this.languageFilterInput, appConst.mediumTimeout);
+    }
+
     isOwnerOptionsFilterVisible() {
         return this.isElementDisplayed(this.ownerFilterInput);
     }

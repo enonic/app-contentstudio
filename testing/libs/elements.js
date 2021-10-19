@@ -66,6 +66,7 @@ module.exports = Object.freeze({
     CANCEL_BUTTON_TOP: `//div[@class='cancel-button-top']`,
     CANCEL_BUTTON_DIALOG: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     COMBO_BOX_OPTION_FILTER_INPUT: "//input[contains(@id,'ComboBoxOptionFilterInput')]",
+    BASE_SELECTED_OPTION: "//div[contains(@id,'BaseSelectedOptionView')]",
     PRINCIPAL_SELECTED_OPTIONS: `//div[contains(@id,'PrincipalSelectedOptionsView')]`,
     PRINCIPAL_SELECTED_OPTION: `//div[contains(@id,'PrincipalSelectedOptionView')]`,
     PRINCIPAL_COMBOBOX: "//div[contains(@id,'PrincipalComboBox')]",

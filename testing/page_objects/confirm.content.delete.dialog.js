@@ -8,6 +8,7 @@ const XPATH = {
     container: `//div[contains(@id,'ConfirmValueDialog')]`,
     confirmButton: `//button[contains(@id,'DialogButton') and child::span[text()='Confirm']]`,
     cancelButton: `//div[@class='dialog-buttons']//button/span[text()='Cancel']`,
+    suggestedNumberToDelete: "//span[contains(@class,'confirm-value-data')]",
 };
 
 class ConfirmValueDialog extends Page {
@@ -48,6 +49,12 @@ class ConfirmValueDialog extends Page {
         })
     }
 
+    waitForConfirmButtonEnabled() {
+        return this.waitForElementEnabled(this.confirmButton, appConst.mediumTimeout).catch(err => {
+            throw new Error("Confirm button should be enabled " + err);
+        })
+    }
+
     waitForCancelButtonEnabled() {
         return this.waitForElementEnabled(this.cancelButton, appConst.mediumTimeout).catch(err => {
             throw new Error("Confirm Delete Dialog - Cancel button is not enabled in " + err);
@@ -81,6 +88,11 @@ class ConfirmValueDialog extends Page {
 
     typeNumberOrName(number) {
         return this.typeTextInInput(this.numberInput, number);
+    }
+
+    getSuggestedNumberToDelete() {
+        let locator = XPATH.container + XPATH.suggestedNumberToDelete;
+        return this.getText(locator);
     }
 }
 
