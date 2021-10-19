@@ -284,62 +284,80 @@ export class ProjectWizardPanel
         (<ProjectDataItemFormIcon>this.formIcon).updateLanguage(this.readAccessWizardStepForm.getLanguage());
     }
 
-    private updateLanguageAndPermissionsIfNeeded(project: Project, isCreation: boolean): Q.Promise<Project> {
-        const projectBuilder: ProjectBuilder = new ProjectBuilder(project);
+    private getNewProjectInstance(projectPrototype: Project, language: string): Project {
+        const permissions: ProjectPermissions = this.rolesWizardStepForm?.getPermissions();
+        const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
+        return new ProjectBuilder(projectPrototype)
+            .setLanguage(language)
+            .setPermissions(permissions)
+            .setReadAccess(readAccess)
+            .build();
+    }
 
-        const languagePromise: Q.Promise<string> = this.isLanguageChanged() ?
-                                                   this.updateProjectLanguage(project.getName(),
-                                                       this.readAccessWizardStepForm.getLanguage()) : Q(project.getLanguage());
+    private updateAccessAndPermissionsForNewProject(project: Project, language: string): Q.Promise<Project> {
+        this.updatePermissionsIfNeeded(project);
+
+        const result = Q.defer<Project>();
+        result.resolve(this.getNewProjectInstance(project, language));
+        return result.promise;
+    }
+
+    private updateAccessAndPermissionsForExistingProject(project: Project, language: string): Q.Promise<Project> {
+        return this.updatePermissionsIfNeeded(project).then(() => {
+            const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
+            const readAccessPromise: Q.Promise<TaskId> = this.isReadAccessChanged() ?
+                this.updateProjectReadAccess(project.getName(), readAccess) : Q(null);
+
+            return readAccessPromise.then((taskId: TaskId) => {
+                const result = Q.defer<Project>();
+                if (taskId) {
+                    let taskState;
+
+                    if (!this.getPersistedItem()) {
+                        this.editProjectAccessDialog.setSuppressNotifications(true);
+                    }
+                    this.editProjectAccessDialog.setPath('/' + project.getName());
+                    this.editProjectAccessDialog.onProgressComplete((state) => {
+                        taskState = state;
+                        result.resolve(this.getNewProjectInstance(project, language));
+                        this.editProjectAccessDialog.setSuppressNotifications(false);
+                    });
+                    this.editProjectAccessDialog.pollTask(taskId);
+
+                    setTimeout(() => {
+                        if (TaskState.FINISHED !== taskState && TaskState.FAILED !== taskState) {
+                            this.editProjectAccessDialog.open();
+                        }
+                    }, 1000);
+                } else {
+                    result.resolve(this.getNewProjectInstance(project, language));
+                }
+                return result.promise;
+            });
+        });
+    }
+
+    private updatePermissionsIfNeeded(project: Project): Q.Promise<ProjectPermissions> {
+        if (!this.isPermissionsChanged()) {
+            return Q(project.getPermissions());
+        }
+
+        const permissions: ProjectPermissions = this.rolesWizardStepForm?.getPermissions();
+        const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
+        return this.updateProjectPermissions(project.getName(), permissions, readAccess);
+    }
+
+    private updateLanguageAndPermissionsIfNeeded(project: Project, isCreation: boolean): Q.Promise<Project> {
+        const languagePromise: Q.Promise<string> =
+            this.isLanguageChanged() ?
+                this.updateProjectLanguage(project.getName(), this.readAccessWizardStepForm.getLanguage()) : Q(project.getLanguage());
 
         return languagePromise.then((language: string) => {
-            projectBuilder.setLanguage(language);
-
-            const permissions: ProjectPermissions = this.rolesWizardStepForm ? this.rolesWizardStepForm.getPermissions() : null;
-            const readAccess: ProjectReadAccess = this.readAccessWizardStepForm.getReadAccess();
-
-            const updateProjectPermissionsPromise: Q.Promise<ProjectPermissions> = this.isPermissionsChanged()
-                                                                                   ? this.updateProjectPermissions(project.getName(),
-                    this.rolesWizardStepForm.getPermissions(), readAccess)
-
-                                                                                   : Q(project.getPermissions());
-
-            if (!isCreation) {
-                return updateProjectPermissionsPromise.then((projectPermissions: ProjectPermissions) => {
-                    const readAccessPromise: Q.Promise<TaskId> = this.isReadAccessChanged() ?
-                                                                 this.updateProjectReadAccess(project.getName(), readAccess) : Q(null);
-
-                    return readAccessPromise.then((taskId: TaskId) => {
-                        const result = Q.defer<Project>();
-                        if (taskId) {
-                            let taskState;
-
-                            if (!this.getPersistedItem()) {
-                                this.editProjectAccessDialog.setSuppressNotifications(true);
-                            }
-                            this.editProjectAccessDialog.setPath('/' + project.getName());
-                            this.editProjectAccessDialog.onProgressComplete((state) => {
-                                taskState = state;
-                                result.resolve(projectBuilder.setPermissions(permissions).setReadAccess(readAccess).build());
-                                this.editProjectAccessDialog.setSuppressNotifications(false);
-                            });
-                            this.editProjectAccessDialog.pollTask(taskId);
-
-                            setTimeout(() => {
-                                if (TaskState.FINISHED !== taskState && TaskState.FAILED !== taskState) {
-                                    this.editProjectAccessDialog.open();
-                                }
-                            }, 1000);
-                        } else {
-                            result.resolve(projectBuilder.setPermissions(permissions).setReadAccess(readAccess).build());
-                        }
-                        return result.promise;
-                    });
-                });
-            } else {
-                const result = Q.defer<Project>();
-                result.resolve(projectBuilder.setPermissions(permissions).setReadAccess(readAccess).build());
-                return result.promise;
+            if (isCreation) {
+                return this.updateAccessAndPermissionsForNewProject(project, language);
             }
+
+            return this.updateAccessAndPermissionsForExistingProject(project, language);
         });
     }
 
