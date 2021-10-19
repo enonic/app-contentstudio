@@ -201,7 +201,12 @@ export class AppWrapper
     }
 
     addApp(app: App, index: number = -1) {
-        this.apps.push(app);
+        if (index > -1) {
+            this.apps.splice(index, 0, app);
+        } else {
+            this.apps.push(app);
+        }
+
         this.sidebar.addAdminTool(app, index);
         this.notifyAppAdded(app);
     }
@@ -291,6 +296,7 @@ class AppModeSwitcher
     }
 
     private createButton(app: App, index: number = -1) {
+        console.log(index);
         const contentButton: AppModeButton = new AppModeButton(app);
         this.listenButtonClicked(contentButton);
         this.buttons.push(contentButton);
