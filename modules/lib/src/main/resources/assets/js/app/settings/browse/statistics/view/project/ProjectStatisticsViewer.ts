@@ -60,7 +60,7 @@ export class ProjectStatisticsViewer extends NamesAndIconViewer<ProjectViewItem>
         }
 
         const language: string = project.getLanguage();
-        return !!language ? new Flag(language) : null;
+        return language ? new Flag(language) : null;
     }
 
     resolveIconUrl(project: ProjectViewItem): string {

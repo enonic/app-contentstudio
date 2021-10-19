@@ -1,3 +1,5 @@
+/*global app, resolve*/
+
 var admin = require('/lib/xp/admin');
 var mustache = require('/lib/mustache');
 var portal = require('/lib/xp/portal');
@@ -12,7 +14,7 @@ function handleGet() {
     var allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
     var allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
 
-    var params = {
+    const params = {
         adminUrl: admin.getBaseUri(),
         adminAssetsUri: admin.getAssetsUri(),
         assetsUri: replaceSettingsInPath(portal.assetUrl({
@@ -21,7 +23,7 @@ function handleGet() {
         appName: 'Content Studio',
         appId: app.name,
         appVersion: app.version,
-        branch: branch,
+        branch,
         locale: admin.getLocale(),
         launcherPath: replaceSettingsInPath(admin.getLauncherPath()),
         launcherUrl: admin.getLauncherUrl(),
@@ -30,9 +32,9 @@ function handleGet() {
             i18nUrl: portal.serviceUrl({service: 'i18n'}),
             contentServiceUrl: portal.serviceUrl({service: 'content'})
         },
-        allowScriptsInEditor: allowScriptsInEditor,
-        allowContentUpdate: allowContentUpdate,
-        allowPathTransliteration: allowPathTransliteration,
+        allowScriptsInEditor,
+        allowContentUpdate,
+        allowPathTransliteration,
         mainUrl: portal.pageUrl().replace('/settings', '')
     };
 

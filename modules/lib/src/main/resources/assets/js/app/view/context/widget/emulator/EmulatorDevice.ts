@@ -106,20 +106,35 @@ export class EmulatorDevice
         return this.width > 0 && this.height > 0 && !StringHelper.isBlank(this.units);
     }
 
+
+
     equals(o: Equitable): boolean {
+        function allEquals(tupleList: Array<String[] | DeviceType[] | number[] | boolean[]>): boolean {
+            tupleList.forEach(function (tuple) {
+                if (tuple[0] !== tuple[1]) {
+                    return false;
+                }
+            });
+            return true;
+        }
+
         if (!ObjectHelper.iFrameSafeInstanceOf(o, EmulatorDevice)) {
             return false;
         }
 
-        let other = <EmulatorDevice> o;
+        const other = <EmulatorDevice> o;
 
-        return this.name === other.getName() &&
-               this.deviceType === other.getDeviceType() &&
-               this.width === other.getWidth() &&
-               this.height === other.getHeight() &&
-               this.units === other.getUnits() &&
-               this.displayUnits === other.getDisplayUnits() &&
-               this.rotatable === other.getRotatable();
+        const allValid = allEquals([
+            [this.name, other.getName()],
+            [this.deviceType, other.getDeviceType()],
+            [this.width, other.getWidth()],
+            [this.height, other.getHeight()],
+            [this.units, other.getUnits()],
+            [this.displayUnits, other.getDisplayUnits()],
+            [this.rotatable, other.getRotatable()]
+        ]);
+
+        return allValid;
     }
 
     equalsBySize(width: number, height: number, units: string) {

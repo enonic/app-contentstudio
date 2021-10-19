@@ -64,7 +64,7 @@ export class ServerEventAggregator {
 
     private init(event: NodeServerEvent) {
         this.items = event.getNodeChange().getChangeItems();
-        this.type = !!event.getNodeChange() ? event.getNodeChange().getChangeType() : null;
+        this.type = event.getNodeChange() ? event.getNodeChange().getChangeType() : null;
     }
 
     onBatchIsReady(listener: (event: any) => void) {

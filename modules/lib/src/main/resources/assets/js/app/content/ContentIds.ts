@@ -79,7 +79,7 @@ export class ContentIdsBuilder {
     array: ContentId[] = [];
 
     fromStrings(values: string[]): ContentIdsBuilder {
-        if (!!values) {
+        if (values) {
             values.forEach((value: string) => {
                 this.addContentId(new ContentId(value));
             });

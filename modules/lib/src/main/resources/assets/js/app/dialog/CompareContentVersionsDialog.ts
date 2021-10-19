@@ -511,17 +511,32 @@ export class CompareContentVersionsDialog
     }
 
     private optionSorter(a: Option<ContentVersion>, b: Option<ContentVersion>): number {
+        function isFirstValid(a: boolean, b: boolean) {
+            return a && !b ? true : false;
+        }
+
+        function isSecondValid(a: boolean, b: boolean) {
+            return !a && b ? true : false;
+        }
+
+        function areBothValid(a: boolean, b: boolean) {
+            return a && b ? true : false;
+        }
+
         const aVal = a.getDisplayValue();
         const bVal = b.getDisplayValue();
-        if (!aVal.isAlias() && bVal.isAlias()) {
+        const aAlias = aVal.isAlias();
+        const bAlisas = bVal.isAlias();
+
+        if (isSecondValid(aAlias, bAlisas)) {
             return 1;
         }
 
-        if (aVal.isAlias() && !bVal.isAlias()) {
+        if (isFirstValid(aAlias, bAlisas)) {
             return -1;
         }
 
-        if (aVal.isAlias() && bVal.isAlias()) {
+        if (areBothValid(aAlias, bAlisas)) {
             // Bubble AliasType.Newest to the top
             return aVal.getAliasType() - bVal.getAliasType();
         }

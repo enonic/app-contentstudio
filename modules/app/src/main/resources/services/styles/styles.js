@@ -1,3 +1,5 @@
+/*global __*/
+
 var portalLib = require('/lib/xp/portal');
 
 exports.get = function (req) {
@@ -8,7 +10,7 @@ exports.get = function (req) {
             status: 400,
             contentType: 'text/plain',
             body: 'Missing required parameter: contentId'
-        }
+        };
     }
 
     var styles = getStyles(contentId, project);
@@ -28,7 +30,7 @@ exports.get = function (req) {
         status: 200,
         contentType: 'application/json',
         body: styles
-    }
+    };
 };
 
 var getStyles = function (contentId, project) {

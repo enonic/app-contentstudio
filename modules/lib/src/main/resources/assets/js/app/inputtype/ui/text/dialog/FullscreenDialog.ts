@@ -1,3 +1,5 @@
+/*global Q*/
+
 import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';

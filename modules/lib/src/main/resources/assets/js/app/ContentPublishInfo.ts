@@ -12,9 +12,9 @@ implements Cloneable {
 
     private constructor(source?: ContentPublishInfo) {
         if (source) {
-            this.first = !!source.getFirst() ? new Date(source.getFirst().getTime()) : null;
-            this.from = !!source.getFrom() ? new Date(source.getFrom().getTime()) : null;
-            this.to = !!source.getTo() ? new Date(source.getTo().getTime()) : null;
+            this.first = source.getFirst() ? new Date(source.getFirst().getTime()) : null;
+            this.from = source.getFrom() ? new Date(source.getFrom().getTime()) : null;
+            this.to = source.getTo() ? new Date(source.getTo().getTime()) : null;
         }
     }
 
