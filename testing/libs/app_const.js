@@ -193,6 +193,11 @@ module.exports = Object.freeze({
         NORSK_NORGE: 'norsk (Norge) (no-NO)',
         NORSK_NO: 'norsk (no)'
     },
+    RADIO_OPTION: {
+        OPTION_A: "option A",
+        OPTION_B: "option B",
+        OPTION_C: "option C",
+    },
     contentTypes: {
         SHORTCUT: 'Shortcut',
         FOLDER: `Folder`,
@@ -233,7 +238,9 @@ module.exports = Object.freeze({
         FIELDSET: "fieldset",
         COMBOBOX_0_0: "combobox0_0",
         COMBOBOX_1_1: "combobox1_1",
-        COMBOBOX_2_4: "combobox2_4"
+        COMBOBOX_2_4: "combobox2_4",
+        RADIOBUTTON_1_1: "radiobutton1_1",
+        RADIOBUTTON_0_1: "radiobutton0_1",
     },
     permissions: {
         FULL_ACCESS: `Full Access`,

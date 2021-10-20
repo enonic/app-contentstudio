@@ -10,8 +10,6 @@ const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
-const ContentBrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
-const BrowseVersionsWidget = require('../page_objects/browsepanel/detailspanel/browse.versions.widget');
 
 describe('content.workflow.state.spec: creates a folder and changes and checks the workflow state of this content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);

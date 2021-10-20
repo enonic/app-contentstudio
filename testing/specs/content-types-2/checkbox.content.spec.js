@@ -23,7 +23,7 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
             await studioUtils.doAddSite(SITE);
         });
 
-    it("GIVEN wizard for new 'checkbox' content  is opened WHEN the checkbox has been clicked THEN checkbox should be selected",
+    it("GIVEN wizard for new 'checkbox(0:1)' content is opened WHEN the checkbox has been clicked THEN checkbox should be selected",
         async () => {
             let checkBoxForm = new CheckBoxForm();
             let contentWizard = new ContentWizard();
