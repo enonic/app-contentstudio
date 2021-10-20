@@ -21,6 +21,7 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {ItemPreviewToolbar} from 'lib-admin-ui/app/view/ItemPreviewToolbar';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -107,23 +108,27 @@ export class ContentItemPreviewPanel
         this.item = item;
     }
 
-    protected updatePreview(item: ContentSummaryAndCompareStatus, force: boolean) {
-        if (item && !this.skipNextSetItemCall && (!item.equals(this.item) || force)) {
-            if (typeof item.isRenderable() === 'undefined') {
-                return;
-            }
+    private updatePreview(item: ContentSummaryAndCompareStatus, force: boolean) {
+        if (this.isPreviewUpdateNeeded(item, force)) {
+            this.update(item);
+        }
+    }
 
-            const contentSummary = item.getContentSummary();
+    protected isPreviewUpdateNeeded(item: ContentSummaryAndCompareStatus, force: boolean): boolean {
+        return item && !this.skipNextSetItemCall && (!item.equals(this.item) || force) && typeof item.isRenderable() !== 'undefined';
+    }
 
-            if (this.isMediaForPreview(contentSummary)) {
-                this.setMediaPreviewMode(item);
-            } else if (this.isImageForPreview(contentSummary)) {
-                this.setImagePreviewMode(item);
-            } else if (this.isNonBinaryItemRenderable(item)) {
-                this.setPagePreviewMode(item);
-            } else {
-                this.setPreviewType(PREVIEW_TYPE.EMPTY);
-            }
+    protected update(item: ContentSummaryAndCompareStatus) {
+        const contentSummary: ContentSummary = item.getContentSummary();
+
+        if (this.isMediaForPreview(contentSummary)) {
+            this.setMediaPreviewMode(item);
+        } else if (this.isImageForPreview(contentSummary)) {
+            this.setImagePreviewMode(item);
+        } else if (this.isNonBinaryItemRenderable(item)) {
+            this.setPagePreviewMode(item);
+        } else {
+            this.setPreviewType(PREVIEW_TYPE.EMPTY);
         }
     }
 
@@ -318,10 +323,7 @@ export class ContentItemPreviewPanel
     }
 
     protected isMediaForPreview(content: ContentSummary) {
-        if (!content) {
-            return false;
-        }
-        const type = content.getType();
+        const type: ContentTypeName = content.getType();
 
         return type.isAudioMedia() ||
                type.isDocumentMedia() ||
