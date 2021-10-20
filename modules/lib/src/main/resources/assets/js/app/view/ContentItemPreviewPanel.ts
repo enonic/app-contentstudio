@@ -100,7 +100,11 @@ export class ContentItemPreviewPanel
     }
 
     protected isPreviewUpdateNeeded(item: ContentSummaryAndCompareStatus, force: boolean): boolean {
-        return item && !this.skipNextSetItemCall && (!item.equals(this.item) || force) && typeof item.isRenderable() !== 'undefined';
+        return !this.skipNextSetItemCall && this.isItemAllowsUpdate(item, force);
+    }
+
+    private isItemAllowsUpdate(item: ContentSummaryAndCompareStatus, force: boolean): boolean {
+        return item && (!item.equals(this.item) || force) && typeof item.isRenderable() !== 'undefined';
     }
 
     protected update(item: ContentSummaryAndCompareStatus) {
