@@ -20,7 +20,7 @@ const XPATH = {
     getText: function (id) {
         return `return CKEDITOR.instances['${id}'].getData()`
     },
-    formatOptionByName: function (optionName) {
+    formatOptionByName: optionName => {
         return `//div[@title='Formatting Styles']//li[@class='cke_panel_listItem']//a[@title='${optionName}']`
     }
 };

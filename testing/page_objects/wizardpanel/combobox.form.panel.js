@@ -60,6 +60,11 @@ class ComboBoxFormPanel extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
+
+    waitForNoOptionsSelected() {
+        let locator = lib.FORM_VIEW + "//div[@class='selected-option']//div[@class='option-value']";
+        return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+    }
 }
 
 module.exports = ComboBoxFormPanel;
