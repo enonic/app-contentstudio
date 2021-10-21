@@ -241,6 +241,8 @@ module.exports = Object.freeze({
         COMBOBOX_2_4: "combobox2_4",
         RADIOBUTTON_1_1: "radiobutton1_1",
         RADIOBUTTON_0_1: "radiobutton0_1",
+        TAG_2_5: "tag2_5",
+        TAG_0_5: "tag0_5",
     },
     permissions: {
         FULL_ACCESS: `Full Access`,
