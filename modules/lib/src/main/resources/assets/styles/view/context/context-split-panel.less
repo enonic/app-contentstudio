@@ -24,4 +24,19 @@
     }
   }
 
+  .hide-mobile-preview-button {
+    display: none;
+    z-index: 1;
+    position: absolute;
+    height: 40px;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+  }
+
+  &.mobile-mode {
+    .hide-mobile-preview-button {
+      display: block;
+    }
+  }
 }
