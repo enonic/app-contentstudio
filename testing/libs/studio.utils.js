@@ -208,6 +208,20 @@ module.exports = {
         return contentWizardPanel;
     },
 
+    async selectByDisplayNameAndOpenContent(displayName, checkFocused) {
+        let contentWizardPanel = new ContentWizardPanel();
+        let browsePanel = new BrowsePanel();
+        await this.findAndSelectItemByDisplayName(displayName);
+        await browsePanel.clickOnEditButton();
+        await this.doSwitchToNewWizard();
+        await contentWizardPanel.waitForOpened();
+        //timeout = ms === undefined ? appConst.longTimeout : ms;
+        let waitForFocused = checkFocused === undefined ? true : checkFocused;
+        if (waitForFocused) {
+            await contentWizardPanel.waitForDisplayNameInputFocused();
+        }
+        return contentWizardPanel;
+    },
     async selectContentAndClickOnLocalize(contentName) {
         let contentWizardPanel = new ContentWizardPanel();
         let browsePanel = new BrowsePanel();
@@ -376,10 +390,19 @@ module.exports = {
         let browsePanel = new BrowsePanel();
         await this.typeNameInFilterPanel(name);
         await browsePanel.waitForRowByNameVisible(name);
-        await browsePanel.pause(500);
+        await browsePanel.pause(300);
         await browsePanel.clickOnRowByName(name);
         return await browsePanel.pause(400);
     },
+    async findAndSelectItemByDisplayName(displayName) {
+        let browsePanel = new BrowsePanel();
+        await this.typeNameInFilterPanel(displayName);
+        await browsePanel.waitForRowByDisplayNameVisible(displayName);
+        await browsePanel.pause(300);
+        await browsePanel.clickOnRowByDisplayName(displayName);
+        return await browsePanel.pause(400);
+    },
+
     async findAndSelectContentByDisplayName(displayName) {
         let browsePanel = new BrowsePanel();
         await this.typeNameInFilterPanel(displayName);
@@ -507,7 +530,7 @@ module.exports = {
         if (isDisplayed) {
             await launcherPanel.clickOnLogoutLink();
         }
-        return await loginPage.waitForPageLoaded(appConst.mediumTimeout);
+        return await loginPage.waitForPageLoaded();
     },
     async navigateToContentStudioApp(userName, password) {
         try {

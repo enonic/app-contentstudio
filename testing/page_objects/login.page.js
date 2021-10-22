@@ -1,4 +1,5 @@
 const Page = require('./page');
+const appConst = require('../libs/app_const');
 
 class LoginPage extends Page {
 
@@ -24,10 +25,8 @@ class LoginPage extends Page {
         return await this.pause(200);
     }
 
-    waitForPageLoaded(ms) {
-        return this.browser.$(`//input[contains(@id,'username-input')]`).then(element => {
-            return element.waitForDisplayed(ms);
-        });
+    waitForPageLoaded() {
+        return this.waitForElementDisplayed(this.usernameInput, appConst.mediumTimeout)
     }
 
     getTitle() {
