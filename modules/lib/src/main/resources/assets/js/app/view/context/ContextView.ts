@@ -322,7 +322,7 @@ export class ContextView
         this.item = item;
 
         const activeContextPanel = ActiveContextPanelManager.getActiveContextPanel();
-        const activeWidgetVisible = this.activeWidget != null && activeContextPanel.isVisibleOrAboutToBeVisible();
+        const activeWidgetVisible = this.activeWidget != null && activeContextPanel?.isVisibleOrAboutToBeVisible();
 
         this.layout(!itemSelected);
         if (activeWidgetVisible && selectionChanged && (this.activeWidget.isExternal() || itemSelected)) {

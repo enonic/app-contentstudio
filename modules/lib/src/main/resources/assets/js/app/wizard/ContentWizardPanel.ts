@@ -139,6 +139,8 @@ export class ContentWizardPanel
 
     private contextSplitPanel: ContextSplitPanel;
 
+    private contextView: ContextView;
+
     private livePanel?: LiveFormPanel;
 
     protected wizardActions: ContentWizardActions;
@@ -595,40 +597,17 @@ export class ContentWizardPanel
         const data: PageEditorData = this.getLivePanel()
                                      ? this.getLivePanel().getPageEditorData()
                                      : LiveFormPanel.createEmptyPageEditorData();
-        const contextView: ContextView = new ContextView(data);
-        const rightPanel: DockedContextPanel = new DockedContextPanel(contextView);
+        this.contextView = new ContextView(data);
+        this.contextView.setItem(this.persistedContent);
+        const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
 
         this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel)
-            .setContextView(contextView)
+            .setContextView(this.contextView)
             .setActions(contextActions)
             .setData(data)
             .setWizardFormPanel(this.formPanel)
             .build();
         this.contextSplitPanel.hideSecondPanel();
-
-        this.onRendered(() => {
-            const mainToolbar: ContentWizardToolbar = this.getMainToolbar();
-            const toggler: TogglerButton = mainToolbar.getMobileItemStatisticsToggler();
-
-            this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {
-                if (!isMobile) {
-                    if (toggler.isActive()) {
-                        toggler.setActive(false);
-                    }
-                }
-            });
-
-            toggler.onActiveChanged((isActive) => {
-                if (this.contextSplitPanel.isMobileMode()) {
-                    if (isActive) {
-                        this.contextSplitPanel.setContent(this.persistedContent);
-                        this.contextSplitPanel.showMobilePanel();
-                    } else {
-                        this.contextSplitPanel.hideMobilePanel();
-                    }
-                }
-            });
-        });
 
         return this.contextSplitPanel;
     }
@@ -702,8 +681,6 @@ export class ContentWizardPanel
 
             thumbnailUploader.setEnabled(!this.contentType.isImage());
             thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
-
-            this.contextSplitPanel.onRendered(() => this.contextSplitPanel.setContent(this.persistedContent));
 
             this.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
                 this.wizardActions.setContentCanBeMarkedAsReady(status.inProgress).refreshState();
@@ -1519,7 +1496,6 @@ export class ContentWizardPanel
             this.isFirstUpdateAndRenameEventSkiped = false;
             this.workflowStateIconsManager.updateIcons();
         }
-        this.contextSplitPanel.setContent(updatedContent);
     }
 
     private isContentUpdatedAndRenamed(updatedContent: ContentSummaryAndCompareStatus): boolean {
@@ -2560,22 +2536,13 @@ export class ContentWizardPanel
     }
 
     private openLiveEdit() {
-        let livePanel = this.getLivePanel();
-
-        if (this.contextSplitPanel.isMobileMode()) {
-            this.getMainToolbar().getMobileItemStatisticsToggler().setActive(false);
-        }
-
         this.splitPanel.showSecondPanel();
         const showInspectionPanel = ResponsiveRanges._1920_UP.isFitOrBigger(this.getEl().getWidthWithBorder());
-        livePanel.clearPageViewSelectionAndOpenInspectPage(showInspectionPanel);
+        this.getLivePanel().clearPageViewSelectionAndOpenInspectPage(showInspectionPanel);
         this.showMinimizeEditButton();
     }
 
     private closeLiveEdit() {
-        if (this.contextSplitPanel.isMobileMode()) {
-            this.getMainToolbar().getMobileItemStatisticsToggler().setActive(false);
-        }
         this.splitPanel.hideSecondPanel();
         this.hideMinimizeEditButton();
 
@@ -2771,6 +2738,7 @@ export class ContentWizardPanel
         this.persistedContent = content;
 
         this.wizardHeader?.setOnline(this.persistedContent.isOnline());
+        this.contextView?.setItem(content);
     }
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {
