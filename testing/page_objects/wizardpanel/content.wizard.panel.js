@@ -424,6 +424,7 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(this.editPermissionsButton, appConst.mediumTimeout);
     }
 
+    //clicks on 'Access' button in WizardStepNavigatorAndToolbar
     async clickOnEditPermissionsButton() {
         try {
             await this.waitForEditPermissionsButtonVisible();

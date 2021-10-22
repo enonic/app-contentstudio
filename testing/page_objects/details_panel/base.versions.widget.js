@@ -8,6 +8,7 @@ const lib = require('../../libs/elements');
 const xpath = {
     versionsList: "//ul[contains(@id,'VersionHistoryList')]",
     versionItemExpanded: "//li[contains(@class,'version-list-item expanded')]",
+    versionItem: "//li[contains(@class,'version-list-item') and not(contains(@class,'publish-action'))]",
     versionItemByDisplayName: displayName => `${lib.itemByDisplayName(displayName)}`,
 };
 
@@ -15,6 +16,11 @@ class BaseVersionsWidget extends Page {
 
     get compareWithCurrentVersionButton() {
         return this.versionsWidget + lib.COMPARE_WITH_CURRENT_VERSION;
+    }
+
+    async countVersionItems() {
+        let items = await this.findElements(xpath.versionItem);
+        return items.length;
     }
 
     //click on a version and expand the content-version-item
@@ -123,8 +129,6 @@ class BaseVersionsWidget extends Page {
             throw new Error("Version Widget -  'Active version' button should not be displayed " + err);
         }
     }
-
-
 }
 
 module.exports = BaseVersionsWidget;

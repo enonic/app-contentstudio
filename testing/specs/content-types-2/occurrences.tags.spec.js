@@ -9,6 +9,7 @@ const contentBuilder = require("../../libs/content.builder");
 const studioUtils = require('../../libs/studio.utils.js');
 const TagForm = require('../../page_objects/wizardpanel/tag.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('occurrences.tag.spec: tests for content with tag input', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -93,6 +94,30 @@ describe('occurrences.tag.spec: tests for content with tag input', function () {
             //4. Verify that 'Min 2 valid occurrence(s) required' gets visible:
             let actualRecording = await tagForm.getTagValidationMessage();
             assert.equal(actualRecording, 'Min 2 valid occurrence(s) required', "Expected validation recording gets visible");
+        });
+
+    it("GIVEN existing Tag-content with added tags is opened WHEN the previous version has been reverted THEN tag input gets empty",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let versionsWidget = new VersionsWidget();
+            let tagForm = new TagForm();
+            //1. open the existing tag 2:5 content:
+            await studioUtils.selectAndOpenContentInWizard(TAGS_NAME_2);
+            //2. Revert the previous version:
+            await contentWizard.openVersionsHistoryPanel();
+            await versionsWidget.clickAndExpandVersion(1);
+            await versionsWidget.clickOnRevertButton();
+            await contentWizard.waitForNotificationMessage();
+            await studioUtils.saveScreenshot('req_tag_reverted');
+            //3. Verify that the content gets invalid even before clicking on the 'Save' button
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.isTrue(isInvalid, 'the content should be valid, because 2 required tags are added');
+            //4. Verify that 'Min 2 valid occurrence(s) required' gets visible:
+            let actualRecording = await tagForm.getTagValidationMessage();
+            assert.equal(actualRecording, 'Min 2 valid occurrence(s) required', "Expected validation recording gets visible");
+            //5. Verify that Tags input is cleared
+            let actualNumber = await tagForm.getTagsCount();
+            assert.equal(actualNumber, 0, "Tags input should be empty after the reverting");
         });
 
     it("GIVEN wizard for new Tag-content 2:5 is opened WHEN 5 tags has been added THEN the tag input gets not displayed/disabled",
