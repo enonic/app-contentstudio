@@ -55,6 +55,7 @@ export class ContentBrowsePanel
     private browseActionsAndPreviewUpdateRequired: boolean = false;
     private contextPanelToggler: NonMobileContextPanelToggleButton;
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
+    protected contextView: ContextView;
 
     constructor() {
         super();
@@ -98,6 +99,15 @@ export class ContentBrowsePanel
 
         this.onShown(() => {
             Router.get().setHash(UrlAction.BROWSE);
+        });
+
+        this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {
+            if (isMobile) {
+                this.gridAndItemsSplitPanel.hideSecondPanel();
+            } else {
+                this.gridAndItemsSplitPanel.showFirstPanel();
+                this.gridAndItemsSplitPanel.showSecondPanel();
+            }
         });
 
         this.handleGlobalEvents();
@@ -151,11 +161,16 @@ export class ContentBrowsePanel
             browseActions.getAction(ActionName.SHOW_NEW_DIALOG)
         ];
 
-        const contextView: ContextView = new ContextView();
+        this.contextView = new ContextView();
         const leftPanel: ContentBrowseItemPanel = this.getBrowseItemPanel();
-        const rightPanel: DockedContextPanel = new DockedContextPanel(contextView);
+        const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
         this.contextSplitPanel =
-            ContextSplitPanel.create(leftPanel, rightPanel).setContextView(contextView).setActions(mobileActions).build();
+            ContextSplitPanel.create(leftPanel, rightPanel).setContextView(this.contextView).setActions(mobileActions).build();
+        this.contextSplitPanel.onFoldClicked(() => {
+            this.gridAndItemsSplitPanel.showFirstPanel();
+            this.gridAndItemsSplitPanel.showFirstPanel();
+            this.gridAndItemsSplitPanel.hideSecondPanel();
+        });
 
         return this.contextSplitPanel;
     }
@@ -178,7 +193,6 @@ export class ContentBrowsePanel
         return super.doRender().then((rendered) => {
             this.appendChild(this.getFilterAndGridSplitPanel());
 
-            this.subscribeMobilePanelOnEvents();
             this.subscribeContextPanelsOnEvents();
             this.createContentPublishMenuButton();
 
@@ -192,16 +206,7 @@ export class ContentBrowsePanel
     }
 
     private updateContextPanelOnItemChange() {
-        if (this.contextSplitPanel.isMobileMode()) {
-            if (this.treeGrid.hasHighlightedNode()) {
-                this.contextSplitPanel.setContent(this.treeGrid.getHighlightedItem());
-                this.contextSplitPanel.showMobilePanel();
-            }
-
-            return; // no need to update on selection change in mobile mode as it opens in a separate screen
-        }
-
-        if (this.treeGrid.isAnySelected()) {
+        if (this.treeGrid.isAnySelected() && !this.contextSplitPanel.isMobileMode()) {
             this.doUpdateContextPanel(this.treeGrid.getCurrentSelection().pop());
 
             return;
@@ -209,6 +214,11 @@ export class ContentBrowsePanel
 
         if (this.treeGrid.hasHighlightedNode()) {
             this.doUpdateContextPanel(this.treeGrid.getHighlightedItem());
+
+            if (this.contextSplitPanel.isMobileMode()) {
+                this.contextSplitPanel.setContent(this.treeGrid.getHighlightedItem());
+                this.contextSplitPanel.showMobilePanel();
+            }
 
             return;
         }
@@ -491,10 +501,7 @@ export class ContentBrowsePanel
     }
 
     private doUpdateContextPanel(item: ContentSummaryAndCompareStatus) {
-        const contextPanel: ContextPanel = ActiveContextPanelManager.getActiveContextPanel();
-        if (contextPanel) {
-            contextPanel.setItem(item);
-        }
+        this.contextView.setItem(item);
     }
 
     getBrowseItemPanel(): ContentBrowseItemPanel {
@@ -558,6 +565,10 @@ export class ContentBrowsePanel
         this.contentFetcher.updateRenderableContents(this.treeGrid.getSelectedDataList()).then(() => {
             super.updateActionsAndPreview();
         }).catch(DefaultErrorHandler.handle);
+    }
+
+    protected togglePreviewPanelDependingOnScreenSize(item: ResponsiveItem): void {
+    //
     }
 
 }
