@@ -23,7 +23,6 @@ import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {TreeGridItemClickedEvent} from 'lib-admin-ui/ui/treegrid/TreeGridItemClickedEvent';
 import {RepositoryEvent} from 'lib-admin-ui/content/event/RepositoryEvent';
 import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
@@ -56,6 +55,7 @@ export class ContentBrowsePanel
     private browseActionsAndPreviewUpdateRequired: boolean = false;
     private contextPanelToggler: NonMobileContextPanelToggleButton;
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
+    protected contextView: ContextView;
 
     constructor() {
         super();
@@ -105,6 +105,15 @@ export class ContentBrowsePanel
         this.onShown(() => {
             if (ProjectContext.get().isInitialized()) {
                 Router.get().setHash(UrlAction.BROWSE);
+            }
+        });
+
+        this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {
+            if (isMobile) {
+                this.gridAndItemsSplitPanel.hideSecondPanel();
+            } else {
+                this.gridAndItemsSplitPanel.showFirstPanel();
+                this.gridAndItemsSplitPanel.showSecondPanel();
             }
         });
 
@@ -159,11 +168,16 @@ export class ContentBrowsePanel
             browseActions.getAction(ActionName.SHOW_NEW_DIALOG)
         ];
 
-        const contextView: ContextView = new ContextView();
+        this.contextView = new ContextView();
         const leftPanel: ContentBrowseItemPanel = this.getBrowseItemPanel();
-        const rightPanel: DockedContextPanel = new DockedContextPanel(contextView);
+        const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
         this.contextSplitPanel =
-            ContextSplitPanel.create(leftPanel, rightPanel).setContextView(contextView).setActions(mobileActions).build();
+            ContextSplitPanel.create(leftPanel, rightPanel).setContextView(this.contextView).setActions(mobileActions).build();
+        this.contextSplitPanel.onFoldClicked(() => {
+            this.gridAndItemsSplitPanel.showFirstPanel();
+            this.gridAndItemsSplitPanel.showFirstPanel();
+            this.gridAndItemsSplitPanel.hideSecondPanel();
+        });
 
         return this.contextSplitPanel;
     }
@@ -186,7 +200,6 @@ export class ContentBrowsePanel
         return super.doRender().then((rendered) => {
             this.appendChild(this.getFilterAndGridSplitPanel());
 
-            this.subscribeMobilePanelOnEvents();
             this.subscribeContextPanelsOnEvents();
             this.createContentPublishMenuButton();
 
@@ -200,11 +213,7 @@ export class ContentBrowsePanel
     }
 
     private updateContextPanelOnItemChange() {
-        if (this.contextSplitPanel.isMobileMode()) {
-            return; // no need to update on selection change in mobile mode as it opens in a separate screen
-        }
-
-        if (this.treeGrid.isAnySelected()) {
+        if (this.treeGrid.isAnySelected() && !this.contextSplitPanel.isMobileMode()) {
             this.doUpdateContextPanel(this.treeGrid.getCurrentSelection().pop());
 
             return;
@@ -213,6 +222,10 @@ export class ContentBrowsePanel
         if (this.treeGrid.hasHighlightedNode()) {
             this.doUpdateContextPanel(this.treeGrid.getHighlightedItem());
 
+            if (this.contextSplitPanel.isMobileMode()) {
+                this.gridAndItemsSplitPanel.hideFirstPanel();
+                this.gridAndItemsSplitPanel.showSecondPanel();
+            }
             return;
         }
 
@@ -229,23 +242,6 @@ export class ContentBrowsePanel
         }, 500);
 
         this.getTreeGrid().onHighlightingChanged(onHighlightingChanged);
-    }
-
-    private subscribeMobilePanelOnEvents() {
-        // selection opens detail panel in mobile mode, so deselect it when returning back to grid
-        this.contextSplitPanel.onMobilePanelSlide((out: boolean) => {
-            if (out) {
-                this.treeGrid.deselectAll();
-                this.getBrowseActions().updateActionsEnabledState([]);
-            }
-        });
-
-        TreeGridItemClickedEvent.on((event: TreeGridItemClickedEvent) => {
-            if (this.contextSplitPanel.isMobileMode()) {
-                this.contextSplitPanel.setContent(event.getTreeNode().getData());
-                this.contextSplitPanel.showMobilePanel();
-            }
-        });
     }
 
     private handleGlobalEvents() {
@@ -501,10 +497,7 @@ export class ContentBrowsePanel
     }
 
     private doUpdateContextPanel(item: ContentSummaryAndCompareStatus) {
-        const contextPanel: ContextPanel = ActiveContextPanelManager.getActiveContextPanel();
-        if (contextPanel) {
-            contextPanel.setItem(item);
-        }
+        this.contextView.setItem(item);
     }
 
     getBrowseItemPanel(): ContentBrowseItemPanel {
@@ -568,6 +561,10 @@ export class ContentBrowsePanel
         this.contentFetcher.updateRenderableContents(this.treeGrid.getSelectedDataList()).then(() => {
             super.updateActionsAndPreview();
         }).catch(DefaultErrorHandler.handle);
+    }
+
+    protected togglePreviewPanelDependingOnScreenSize(item: ResponsiveItem): void {
+    //
     }
 
 }
