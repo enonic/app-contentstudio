@@ -112,6 +112,8 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             await contentWizard.doMarkAsDeleted();
             //5. Verify that 'Undo delete' button gets visible in the wizard-toolbar:
             await contentWizard.waitForUndoDeleteButtonDisplayed();
+            //but Delete, Save, Duplicate buttons should not be displayed:
+            await contentWizard.waitForDeleteButtonNotDisplayed();
             //6. Go to Browse Panel
             await contentWizard.doSwitchToContentBrowsePanel();
             //7. Workflow state icon should not be displayed!
