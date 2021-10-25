@@ -23,7 +23,6 @@ import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
 import {ContextPanel} from '../view/context/ContextPanel';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {TreeGridItemClickedEvent} from 'lib-admin-ui/ui/treegrid/TreeGridItemClickedEvent';
 import {RepositoryEvent} from 'lib-admin-ui/content/event/RepositoryEvent';
 import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
@@ -191,6 +190,11 @@ export class ContentBrowsePanel
 
     private updateContextPanelOnItemChange() {
         if (this.contextSplitPanel.isMobileMode()) {
+            if (this.treeGrid.hasHighlightedNode()) {
+                this.contextSplitPanel.setContent(this.treeGrid.getHighlightedItem());
+                this.contextSplitPanel.showMobilePanel();
+            }
+
             return; // no need to update on selection change in mobile mode as it opens in a separate screen
         }
 
@@ -227,13 +231,6 @@ export class ContentBrowsePanel
             if (out) {
                 this.treeGrid.deselectAll();
                 this.getBrowseActions().updateActionsEnabledState([]);
-            }
-        });
-
-        TreeGridItemClickedEvent.on((event: TreeGridItemClickedEvent) => {
-            if (this.contextSplitPanel.isMobileMode()) {
-                this.contextSplitPanel.setContent(event.getTreeNode().getData());
-                this.contextSplitPanel.showMobilePanel();
             }
         });
     }
