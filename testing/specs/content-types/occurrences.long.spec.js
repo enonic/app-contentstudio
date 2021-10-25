@@ -10,13 +10,13 @@ const contentBuilder = require("../../libs/content.builder");
 const LongForm = require('../../page_objects/wizardpanel/long.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
-describe('occurrences.long.spec:  tests for content validation for Long(0:1,1:1,1)', function () {
+describe('occurrences.long.spec:  tests for content with Long inputs', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
-    const NOT_VALID_LONG1 = "123.4";
-    const MAX_SAFE_LONG = "9007199254740991";
-    const MORE_MAX_SAFE_LONG = "9007199254740992";
+    const INVALID_LONG = "123.4";
+    const MAX_SAFE_LONG = Number.MAX_SAFE_INTEGER;
+    const MORE_MAX_SAFE_LONG = Number.MAX_SAFE_INTEGER + 1;
     const MIN_SAFE_LONG = "-9007199254740991";
     const LESS_MIN_SAFE_LONG = "-9007199254740992";
     const CONTENT_1 = contentBuilder.generateRandomName('long');
@@ -108,7 +108,7 @@ describe('occurrences.long.spec:  tests for content validation for Long(0:1,1:1,
             let contentWizard = new ContentWizard();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_0_1);
             //1. Type max safe value:
-            await longForm.typeLong(NOT_VALID_LONG1);
+            await longForm.typeLong(INVALID_LONG);
             await contentWizard.typeDisplayName(CONTENT_1);
             await studioUtils.saveScreenshot('long_invalid_value');
             //2. Verify that input validation message(Invalid value entered) is displayed:
@@ -128,7 +128,7 @@ describe('occurrences.long.spec:  tests for content validation for Long(0:1,1:1,
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.LONG_2_4);
             //1. Type max safe value:
             await longForm.typeLong(MAX_SAFE_LONG);
-            await longForm.typeLong(NOT_VALID_LONG1, 1);
+            await longForm.typeLong(INVALID_LONG, 1);
             await contentWizard.typeDisplayName(CONTENT_1);
             await studioUtils.saveScreenshot('long_invalid_second_value');
             //2. Verify that input validation message(Invalid value entered) is displayed:

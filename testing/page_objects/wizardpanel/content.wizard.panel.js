@@ -37,6 +37,7 @@ const XPATH = {
     savedButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saved']]`,
     savingButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saving...']]`,
     deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete...']]`,
+    undoDelete: "/*[contains(@id, 'ActionButton') and child::span[text()='Undo delete']]",
     duplicateButton: `//button[contains(@id,'ActionButton') and child::span[text()='Duplicate...']]`,
     previewButton: `//button[contains(@id,'ActionButton') and child::span[text()='Preview']]`,
     resetButton: "//button[contains(@id,'ActionButton') and child::span[text()='Reset']]",
@@ -97,6 +98,10 @@ class ContentWizardPanel extends Page {
 
     get saveButton() {
         return XPATH.container + XPATH.saveButton;
+    }
+
+    get undoDeleteButton() {
+        return XPATH.container + XPATH.undoDelete;
     }
 
     get resetButton() {
@@ -1121,6 +1126,10 @@ class ContentWizardPanel extends Page {
         await this.clickOnElement(this.goToGridButton);
         return await this.pause(300);
 
+    }
+
+    waitForUndoDeleteButtonDisplayed() {
+        return this.waitForElementDisplayed(this.undoDeleteButton, appConst.mediumTimeout);
     }
 }
 

@@ -82,7 +82,7 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             //2. Open Request Publishing dialog and create new request:
             await contentWizard.openPublishMenuAndCreateRequestPublish("my changes");
 
-            //3. Verify taht 'Open Request' -  action gets default in the wizard's toolbar.
+            //3. Verify that 'Open Request' -  action gets default in the wizard's toolbar.
             await contentWizard.waitForOpenRequestButtonVisible();
             let toolbarState = await contentWizard.getToolbarWorkflowState();
             studioUtils.saveScreenshot("wizard_workflow_state_3");
@@ -101,18 +101,22 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             let contentWizard = new ContentWizard();
             let contentBrowsePanel = new ContentBrowsePanel();
             let settingsForm = new SettingsStepForm();
+            //1. Open the folder:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            //folder has been published
+            //2. folder has been published
             await contentWizard.openPublishMenuAndPublish();
+            //3. Select a language
             await settingsForm.filterOptionsAndSelectLanguage('English (en)');
             await contentWizard.waitAndClickOnSave();
-            //WHEN: the folder has been marked as deleted:
+            //4. Open Delete Content Dialog and click on 'Mark as Deleted' menu item
             await contentWizard.doMarkAsDeleted();
+            //5. Verify that 'Undo delete' button gets visible in the wizard-toolbar:
+            await contentWizard.waitForUndoDeleteButtonDisplayed();
+            //6. Go to Browse Panel
             await contentWizard.doSwitchToContentBrowsePanel();
-
-            //Workflow state icon should not be displayed!
+            //7. Workflow state icon should not be displayed!
             await contentBrowsePanel.waitForStateIconNotDisplayed(TEST_FOLDER.displayName);
-            //AND: 'Publish...' should be default on the browse-toolbar:
+            //8. AND: 'Publish...' should be default on the browse-toolbar:
             await contentBrowsePanel.waitForPublishButtonVisible();
         });
 
