@@ -13,29 +13,35 @@ interface ProjectAccessSelectorOption {
 export class ProjectAccessSelector
     extends TabMenu {
 
-    private static OPTIONS: ProjectAccessSelectorOption[] = [
-        {value: ProjectAccess.CONTRIBUTOR, label: i18n('settings.projects.access.contributor')},
-        {value: ProjectAccess.AUTHOR, label: i18n('settings.projects.access.author')},
-        {value: ProjectAccess.EDITOR, label: i18n('settings.projects.access.editor')},
-        {value: ProjectAccess.OWNER, label: i18n('settings.projects.access.owner')}
-    ];
-
+    private options: ProjectAccessSelectorOption[] = [];
     private value: ProjectAccess;
     private valueChangedListeners: { (event: ProjectAccessValueChangedEvent): void }[] = [];
 
     constructor() {
         super('access-selector');
 
-        ProjectAccessSelector.OPTIONS.forEach((option: ProjectAccessSelectorOption) => {
+        this.initOptions();
+
+        this.options.forEach((option: ProjectAccessSelectorOption) => {
             const menuItem: TabMenuItem = new TabMenuItemBuilder().setLabel(option.label).build();
             this.addNavigationItem(menuItem);
         });
 
         this.onNavigationItemSelected((event: NavigatorEvent) => {
-            let item: TabMenuItem = <TabMenuItem> event.getItem();
-            this.setValue(ProjectAccessSelector.OPTIONS[item.getIndex()].value);
+            const item: TabMenuItem = <TabMenuItem> event.getItem();
+            this.setValue(this.options[item.getIndex()].value);
         });
 
+    }
+
+    private initOptions() {
+        this.options =
+            [
+                {value: ProjectAccess.CONTRIBUTOR, label: i18n('settings.projects.access.contributor')},
+                {value: ProjectAccess.AUTHOR, label: i18n('settings.projects.access.author')},
+                {value: ProjectAccess.EDITOR, label: i18n('settings.projects.access.editor')},
+                {value: ProjectAccess.OWNER, label: i18n('settings.projects.access.owner')}
+            ];
     }
 
     getValue(): ProjectAccess {
@@ -43,20 +49,22 @@ export class ProjectAccessSelector
     }
 
     setValue(value: ProjectAccess, silent?: boolean): ProjectAccessSelector {
-        let option = this.findOptionByValue(value);
+        let option: ProjectAccessSelectorOption = this.findOptionByValue(value);
+
         if (option) {
-            this.selectNavigationItem(ProjectAccessSelector.OPTIONS.indexOf(option));
+            this.selectNavigationItem(this.options.indexOf(option));
             if (!silent) {
                 this.notifyValueChanged(new ProjectAccessValueChangedEvent(this.value, value));
             }
             this.value = value;
         }
+
         return this;
     }
 
     private findOptionByValue(value: ProjectAccess): ProjectAccessSelectorOption {
-        for (let i = 0; i < ProjectAccessSelector.OPTIONS.length; i++) {
-            let option = ProjectAccessSelector.OPTIONS[i];
+        for (let i = 0; i < this.options.length; i++) {
+            let option = this.options[i];
             if (option.value === value) {
                 return option;
             }
