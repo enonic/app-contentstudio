@@ -20,7 +20,7 @@
     "lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
     "lib-contentstudio": "file:./.xp/dev/lib-contentstudio",
     "mutation-observer": "^1.0.3",
-    "promise-polyfill": "8.2.0",
+    "promise-polyfill": "8.2.1",
     "q": "^1.5.1",
     "whatwg-fetch": "^3.6.2"
   },
