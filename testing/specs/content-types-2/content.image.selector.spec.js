@@ -5,20 +5,19 @@
  */
 const chai = require('chai');
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const studioUtils = require('../libs/studio.utils.js');
-const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
-const contentBuilder = require("../libs/content.builder");
-const ImageSelectorForm = require('../page_objects/wizardpanel/imageselector.form.panel');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConstant = require('../../libs/app_const');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const studioUtils = require('../../libs/studio.utils.js');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const contentBuilder = require("../../libs/content.builder");
+const ImageSelectorForm = require('../../page_objects/wizardpanel/imageselector.form.panel');
 
 describe('content.image.selector: Image content specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
     let SITE;
-    let imageSelectorContent;
     let FOLDER_WITH_FILES = 'selenium-tests-folder';
 
     it(`Preconditions: new site should be added`,
@@ -37,7 +36,7 @@ describe('content.image.selector: Image content specification', function () {
             await imageSelectorForm.doFilterOptions('zzzzzz');
             //3. Wait for the message:
             let isDisplayed = await imageSelectorForm.waitForEmptyOptionsMessage();
-            studioUtils.saveScreenshot('img_empty_options1');
+            await studioUtils.saveScreenshot('img_empty_options1');
             assert.isTrue(isDisplayed, "No matching items - this message should appear");
         });
 
@@ -113,26 +112,6 @@ describe('content.image.selector: Image content specification', function () {
             assert.isTrue(optionsName[1].includes('.svg'), 'pdf and text- files should be filtered in drop down list');
         });
 
-    it(`GIVEN new content(image-selector 2:4) is saved WHEN one image was selected THEN that content should be not valid(in grid)`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let images = [appConstant.TEST_IMAGES.RENAULT];
-            let displayName = contentBuilder.generateRandomName('imgselector');
-            imageSelectorContent =
-                contentBuilder.buildContentWithImageSelector(displayName, appConstant.contentTypes.IMG_SELECTOR_2_4, images);
-            //1. New wizard is opened:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, imageSelectorContent.contentType);
-            //2. one image has been selected:
-            await contentWizard.typeData(imageSelectorContent);
-            //3. The content is saved:
-            await contentWizard.waitAndClickOnSave();
-            await studioUtils.doCloseWizardAndSwitchToGrid();
-            await studioUtils.typeNameInFilterPanel(imageSelectorContent.displayName);
-            //4. Verify that the content should be with red-icon in the grid, because 2 images are required:
-            await contentBrowsePanel.waitForContentDisplayed(imageSelectorContent.displayName);
-            await contentBrowsePanel.isRedIconDisplayed(imageSelectorContent.displayName);
-        });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

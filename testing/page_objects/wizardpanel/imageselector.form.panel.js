@@ -1,7 +1,7 @@
 /**
  * Created on 18.12.2017.
  */
-const OccurrencesFormView = require('./occurrences.form.view');
+const BaseSelectorForm = require('./base.selector.form');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const LoaderComboBox = require('../components/loader.combobox');
@@ -25,7 +25,7 @@ const XPATH = {
     },
 };
 
-class ImageSelectorForm extends OccurrencesFormView {
+class ImageSelectorForm extends BaseSelectorForm {
 
     get imageComboBoxDrppdownHandle() {
         return XPATH.imageContentComboBox + lib.DROP_DOWN_HANDLE;

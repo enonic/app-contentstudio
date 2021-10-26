@@ -9,6 +9,22 @@ const LoaderComboBox = require('../components/loader.combobox');
 
 class BaseSelectorForm extends Page {
 
+    get selectorValidationRecording() {
+        return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
+    }
+
+    async getSelectorValidationMessage() {
+        let locator = lib.CONTENT_WIZARD_STEP_FORM + this.selectorValidationRecording;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
+    async waitForSelectorValidationMessageNotDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            let elements = await this.getDisplayedElements(this.selectorValidationRecording);
+            return elements.length === 0;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Selector Validation recording should not be displayed"});
+    }
     //Selects an option by the display name
     async selectOption(optionDisplayName) {
         let loaderComboBox = new LoaderComboBox();

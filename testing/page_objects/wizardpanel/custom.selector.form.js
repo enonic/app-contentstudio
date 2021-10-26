@@ -8,6 +8,10 @@ const appConst = require('../../libs/app_const');
 const LoaderComboBox = require('../components/loader.combobox');
 const XPATH = {
     container: lib.FORM_VIEW + "//div[contains(@id,'CustomSelector')]",
+    selectedOptionByName: option => {
+        return `//div[contains(@id,'CustomSelectorSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
+    },
+
 };
 
 class CustomSelectorForm extends BaseSelectorForm {
@@ -40,6 +44,13 @@ class CustomSelectorForm extends BaseSelectorForm {
             await this.saveScreenshot(appConst.generateRandomName("err_empty_opt"));
             throw new Error("Empty options text is not visible " + err);
         }
+    }
+
+    async removeSelectedOption(option) {
+        let locator = XPATH.selectedOptionByName(option) + lib.REMOVE_ICON;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        return this.pause(300);
     }
 
 }
