@@ -1,27 +1,27 @@
 figure.editor-width-actual img {
-    width: auto;
+  width: auto;
 }
 
 figure.editor-align-left {
-    float: left;
-    margin: 15px;
-    width: 40%;
+  float: left;
+  margin: 15px;
+  width: 40%;
 }
 
 figure.editor-align-right {
-    float: right;
-    margin: 15px;
-    width: 40%;
+  float: right;
+  margin: 15px;
+  width: 40%;
 }
 
 figure.editor-align-center {
-    margin: auto;
-    width: 60%;
+  margin: auto;
+  width: 60%;
 }
 
 figure.editor-align-left img,
 figure.editor-align-right img,
 figure.editor-align-center img,
 figure.editor-align-justify img {
-    width: 100%;
+  width: 100%;
 }

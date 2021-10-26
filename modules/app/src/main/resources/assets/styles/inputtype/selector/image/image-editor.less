@@ -1,5 +1,6 @@
 .image-editor {
   .notSelectable();
+
   display: block;
   position: relative; // required for the sticky-toolbar positioning
 
@@ -15,11 +16,8 @@
   }
 
   &.edit-mode {
-
     .image-frame {
-
       .image-canvas {
-
         > svg {
           pointer-events: all;
 
@@ -27,7 +25,6 @@
             cursor: move;
           }
         }
-
       }
     }
 
@@ -35,6 +32,7 @@
       .standby-container {
         display: none;
       }
+
       .edit-container {
         display: block;
       }
@@ -49,7 +47,6 @@
 
       .image-frame {
         .image-canvas {
-
           .image-bg-mask {
             position: absolute;
             width: 100%;
@@ -82,6 +79,7 @@
           .focus-group {
             display: none;
           }
+
           .image-bg {
             opacity: .5;
           }
@@ -91,7 +89,6 @@
   }
 
   &.selected:not(.edit-mode) {
-
     .image-frame {
       border: 1px solid @admin-input-blue;
       box-shadow: 0 0 10px darken(@admin-input-blue, 10%);
@@ -100,7 +97,6 @@
   }
 
   &.autofocused:not(.edit-mode) {
-
     .focus-group {
       display: none;
     }
@@ -118,7 +114,8 @@
       box-shadow: none;
 
       // to show upscaled image same way both in html and svg
-      img, image {
+      img,
+      image {
         image-rendering: pixelated;
       }
 
@@ -143,7 +140,6 @@
         }
 
         .focus-group {
-
           .stroke-circle {
             stroke: red;
             fill: none;
@@ -175,9 +171,7 @@
           }
         }
       }
-
     }
-
   }
 
   .sticky-toolbar {
@@ -187,13 +181,13 @@
     z-index: @z-index-scroll-stick - 1; // because wizard-toolbar has z-index: @z-index-mask-2 and should be on top
     left: 1px; // account for image editor border
     width: 100%;
-
     box-sizing: border-box;
     .clearfix();
 
     .standby-container {
       display: block;
     }
+
     .edit-container {
       display: none;
     }
@@ -231,7 +225,7 @@
         background-size: 20px;
         background-position: 9px;
 
-        &:before {
+        &::before {
           color: transparent;
         }
       }
@@ -287,7 +281,7 @@
       display: none;
       margin: 10px 12px;
       padding: 10px;
-      background-color: rgba(255, 255, 255, .8);
+      background-color: rgba(255, 255, 255, 0.8);
 
       &:hover,
       &.active {
@@ -326,8 +320,6 @@
           border-radius: 10px;
         }
       }
-
     }
   }
-
 }
