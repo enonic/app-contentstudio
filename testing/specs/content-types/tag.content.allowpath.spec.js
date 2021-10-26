@@ -40,7 +40,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
             await tagForm.doAddTag(TAG_TEXT1);
             await contentWizard.waitAndClickOnSave();
             //3. Verify that new content is saved:
-            studioUtils.saveScreenshot('tag1_added');
+            await studioUtils.saveScreenshot('tag1_added');
             await contentWizard.waitForNotificationMessage();
         });
 
@@ -54,7 +54,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
             //type 'test-enonic' in the input and save this tag:
             await tagForm.doAddTag(TAG_TEXT2);
             await contentWizard.waitAndClickOnSave();
-            studioUtils.saveScreenshot('tag2_added');
+            await studioUtils.saveScreenshot('tag2_added');
             //verify that new content is saved:
             await contentWizard.waitForNotificationMessage();
         });
@@ -72,7 +72,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
             await tagForm.typeInTagInput("enon");
             //Verify that the suggestion is not visible because tag is not in 'allowPath'
             let actualSuggestion = await tagForm.getTagSuggestions();
-            studioUtils.saveScreenshot('no_tag_suggestion');
+            await studioUtils.saveScreenshot('no_tag_suggestion');
             assert.equal(actualSuggestion, "", "Tag Suggestion should not be visible");
         });
 
@@ -88,7 +88,7 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
             await tagForm.typeInTagInput("test");
             //Verify : suggestion should be visible because allowPath is "${site}/mytags"
             let actualSuggestion = await tagForm.getTagSuggestions();
-            studioUtils.saveScreenshot('tag_suggestion');
+            await studioUtils.saveScreenshot('tag_suggestion');
             assert.equal(actualSuggestion, TAG_TEXT2, "Expected tag-suggestion should appear")
         });
 

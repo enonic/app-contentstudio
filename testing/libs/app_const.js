@@ -86,7 +86,11 @@ module.exports = Object.freeze({
     },
 
     VALIDATION_MESSAGE: {
-        TEXT_IS_TOO_LONG: "Text is too long"
+        TEXT_IS_TOO_LONG: "Text is too long",
+        INVALID_VALUE_ENTERED: "Invalid value entered",
+        SCHEDULE_FORM_ONLINE_PAST: "Online to cannot be in the past",
+        SCHEDULE_FORM_ONLINE_FROM_EMPTY: "Online to cannot be set without Online from",
+        THIS_FIELD_IS_REQUIRED: 'This field is required',
     },
 
     PROJECT_ACCESS_MODE: {
@@ -98,7 +102,7 @@ module.exports = Object.freeze({
     mediumTimeout: 4000,
     TIMEOUT_4: 4000,
     TIMEOUT_5: 5000,
-    longTimeout: 9000,
+    longTimeout: 10000,
     saveProjectTimeout: 15000,
     shortTimeout: 2000,
     TIMEOUT_1: 1000,
@@ -139,6 +143,7 @@ module.exports = Object.freeze({
         SPUMANS: 'spumans',
         BOOK: 'book',
         POP_03: 'Pop_03',
+        POP_02: 'Pop_02',
         KOTEY: 'kotey',
         SHIP: 'cat',
         FOSS: 'foss',
@@ -148,7 +153,11 @@ module.exports = Object.freeze({
         CAPE: 'cape',
         BRO: 'bro',
         MAN2: 'man2',
-        SEVEROMOR: 'severomor'
+        SEVEROMOR: 'severomor',
+        ELEPHANT: 'elephant',
+        ENTERPRISE: 'enterprise',
+        GEEK: 'geek',
+        TELK: "telk"
     },
     COMPONENT_VIEW_MENU_ITEMS: {
         INSERT: 'Insert',
@@ -184,6 +193,11 @@ module.exports = Object.freeze({
         NORSK_NORGE: 'norsk (Norge) (no-NO)',
         NORSK_NO: 'norsk (no)'
     },
+    RADIO_OPTION: {
+        OPTION_A: "option A",
+        OPTION_B: "option B",
+        OPTION_C: "option C",
+    },
     contentTypes: {
         SHORTCUT: 'Shortcut',
         FOLDER: `Folder`,
@@ -199,6 +213,9 @@ module.exports = Object.freeze({
         CUSTOM_RELATIONSHIP: 'custom-relationship2_4',
         DOUBLE_MIN_MAX: 'double_max',
         DOUBLE_DEFAULT_2_4: 'double2_4_def',
+        DOUBLE_0_1: "double0_1",
+        DOUBLE_1_1: "double1_1",
+        DOUBLE_2_4: "double2_4",
         LONG_MIN_MAX: 'long_max',
         TEXTAREA_MAX_LENGTH: 'textarea_conf',
         TEXTLINE_MAX_LENGTH: 'textline_conf',
@@ -206,6 +223,29 @@ module.exports = Object.freeze({
         TEXTLINE_0_1: 'textline0_1',
         TEXTLINE_1_0: 'textline1_0',
         TEXTLINE_1_1: 'textline1_1',
+        GEOPOINT_0_0: 'geopoint0_0',
+        GEOPOINT_1_1: 'geopoint1_1',
+        TIME_0_1: "time0_1",
+        DATE_TIME_NOW_CONFIG: 'datetime now',
+        DATE_TIME_1_1: 'datetime1_1',
+        DATE_1_1: 'date1_1',
+        ATTACHMENTS_1_1: 'attachment1_1',
+        ATTACHMENTS_0_0: 'attachment0_0',
+        LONG_0_1: "long0_1",
+        LONG_1_1: "long1_1",
+        LONG_2_4: "long2_4",
+        TEXT_AREA_1_1: "textarea1_1",
+        TEXT_AREA_0_1: "textarea0_1",
+        TEXT_AREA_2_4: "textarea2_4",
+        CHECKBOX_0_1: "checkbox",
+        FIELDSET: "fieldset",
+        COMBOBOX_0_0: "combobox0_0",
+        COMBOBOX_1_1: "combobox1_1",
+        COMBOBOX_2_4: "combobox2_4",
+        RADIOBUTTON_1_1: "radiobutton1_1",
+        RADIOBUTTON_0_1: "radiobutton0_1",
+        TAG_2_5: "tag2_5",
+        TAG_0_5: "tag0_5",
     },
     permissions: {
         FULL_ACCESS: `Full Access`,

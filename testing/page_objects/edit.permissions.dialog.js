@@ -139,7 +139,7 @@ class EditPermissionsDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.inheritPermissionsCheckbox, appConst.mediumTimeout);
             await this.clickOnElement(this.inheritPermissionsCheckbox + '/label');
-            return await this.pause(300);
+            return await this.pause(500);
         } catch (err) {
             this.saveScreenshot('err_click_on_inherit_permis_dialog');
             throw new Error('Error when clicking on Inherit permissions ' + err);

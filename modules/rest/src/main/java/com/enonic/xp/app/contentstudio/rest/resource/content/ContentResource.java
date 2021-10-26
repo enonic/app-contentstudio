@@ -733,7 +733,11 @@ public final class ContentResource
     @Path("rootPermissions")
     public RootPermissionsJson getRootPermissions()
     {
-        final AccessControlList rootPermissions = contentService.getRootPermissions();
+        final AccessControlList rootPermissions = ContextBuilder.from( ContextAccessor.current() )
+            .authInfo( AuthenticationInfo.copyOf( ContextAccessor.current().getAuthInfo() ).principals( RoleKeys.ADMIN ).build() )
+            .build()
+            .callWith( contentService::getRootPermissions );
+
         return new RootPermissionsJson( rootPermissions, principalsResolver );
     }
 

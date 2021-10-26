@@ -7,7 +7,7 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
 const appConst = require('../../libs/app_const');
 const ContentBrowsePanel = require("../../page_objects/browsepanel/content.browse.panel");
-const PdfForm = require('../../page_objects/wizardpanel/pdf.form.view.panel');
+const PdfForm = require('../../page_objects/wizardpanel/pdf.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentFilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 

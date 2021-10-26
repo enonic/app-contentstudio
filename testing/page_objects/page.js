@@ -79,6 +79,11 @@ class Page {
         return Promise.all(strings);
     }
 
+    async clearTextInput(locator) {
+        let inputElement = await this.findElement(locator);
+        return await inputElement.setValue("");
+    }
+
     async typeTextInInput(selector, text) {
         try {
             let inputElement = await this.findElement(selector);
@@ -413,7 +418,7 @@ class Page {
         }
     }
 
-    clickOnCloseIconInBrowser() {
+    clickOnCloseBrowserTab() {
         return this.getBrowser().execute("window.close();");
     }
 
@@ -485,6 +490,19 @@ class Page {
         let elems = await this.findElements(locator);
         return await elems[0].getCSSProperty(property);
 
+    }
+
+    async isAlertOpen() {
+        try {
+            return await this.getBrowser().isAlertOpen();
+        } catch (err) {
+            await this.saveScreenshot("err_alert");
+            return false;
+        }
+    }
+
+    dismissAlert() {
+        return this.getBrowser().dismissAlert();
     }
 }
 

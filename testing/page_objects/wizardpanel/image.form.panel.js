@@ -8,89 +8,45 @@ const xpath = {
     captionTextArea: "//textarea[contains(@name,'caption')]",
     alternativeText: `//input[contains(@name,'altText')]`,
     imageEditor: "//div[contains(@id,'ImageEditor')]",
-    buttonReset: "//button[contains(@class,'button-reset') and child::span[text()='Reset filters']]",
-    buttonRotate: "//button[contains(@class,'button-rotate')]",
-    buttonFlip: "//button[contains(@title,'Flip')]",
+    copyrightInput: "//input[contains(@name,'copyright')]",
+    artistsTagInput: "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Artist']]//input[@type='text']",
+    tagsInput: "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Tags']]//input[@type='text']",
+    addedArtistTag: "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Artist']]//ul/li[contains(@id,'Tag')]/span",
+    addedTags: "//div[contains(@id,'InputView') and descendant::div[@class='label' and text()='Tags']]//ul/li[contains(@id,'Tag')]/span"
 };
 
 class ImageFormPanel extends Page {
-
-    get buttonResetFilters() {
-        return xpath.imageEditor + xpath.buttonReset;
-    }
 
     get photoWizardStep() {
         return "//ul[contains(@id,'WizardStepNavigator')]" + lib.tabBarItemByName("Photo");
     }
 
-    get buttonRotate() {
-        return xpath.imageEditor + xpath.buttonRotate;
+    get artistsTagInput() {
+        return lib.FORM_VIEW + xpath.artistsTagInput;
     }
 
-    get buttonFlip() {
-        return xpath.imageEditor + xpath.buttonFlip;
+    get tagsInput() {
+        return lib.FORM_VIEW + xpath.tagsInput;
     }
 
     get captionTextArea() {
         return lib.FORM_VIEW + xpath.captionTextArea;
     }
 
+    get copyrightInput() {
+        return lib.FORM_VIEW + xpath.copyrightInput;
+    }
+
     get alternativeText() {
         return lib.FORM_VIEW + xpath.alternativeText;
     }
 
+    get resetAutofocusButton() {
+        return xpath.imageEditor + xpath.resetAutofocusButton;
+    }
+
     clickOnPhotoWizardStep() {
         return this.clickOnElement(this.photoWizardStep);
-    }
-
-    async clickOnFlipButton() {
-        try {
-            await this.waitForElementDisplayed(this.buttonFlip, appConst.mediumTimeout);
-            await this.waitForElementEnabled(this.buttonFlip, appConst.longTimeout);
-            await this.pause(1200);
-            await this.clickOnElement(this.buttonFlip);
-            await this.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await this.pause(700);
-        } catch (err) {
-            this.saveScreenshot('err_click_on_flip_button');
-            throw new Error('Image Editor, button flip  ' + err);
-        }
-    }
-
-    async clickOnRotateButton() {
-        try {
-            await this.waitForElementDisplayed(this.buttonRotate, appConst.mediumTimeout);
-            await this.waitForElementEnabled(this.buttonRotate, appConst.longTimeout);
-            await this.pause(1000);
-            await this.clickOnElement(this.buttonRotate);
-            await this.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await this.pause(700);
-        } catch (err) {
-            await this.saveScreenshot('err_click_on_rotate_button');
-            throw new Error('Image Editor, button rotate  ' + err);
-        }
-    }
-
-    async clickOnResetButton() {
-        try {
-            await this.waitForElementEnabled(this.buttonResetFilters, appConst.mediumTimeout);
-            await this.clickOnElement(this.buttonResetFilters);
-            await this.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await this.pause(500);
-        } catch (err) {
-            await this.saveScreenshot('err_click_on_reset_button');
-            throw new Error('Image Editor, button reset  ' + err);
-        }
-    }
-
-    waitForResetFilterDisplayed() {
-        return this.waitForElementDisplayed(this.buttonResetFilters, appConst.shortTimeout).catch(err => {
-            throw new Error("Image Wizard - Reset Filter button, " + err);
-        });
-    }
-
-    waitForResetFilterNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.shortTimeout);
     }
 
     //TODO type all data
@@ -102,8 +58,24 @@ class ImageFormPanel extends Page {
         return this.typeTextInInput(this.captionTextArea, caption);
     }
 
-    waitForCaptionDisplayed() {
+    waitForCaptionTextAreaDisplayed() {
         return this.waitForElementDisplayed(this.captionTextArea, appConst.shortTimeout);
+    }
+
+    waitForCopyrightInputDisplayed() {
+        return this.waitForElementDisplayed(this.copyrightInput, appConst.shortTimeout);
+    }
+
+    waitForAlternativeTextInputDisplayed() {
+        return this.waitForElementDisplayed(this.alternativeText, appConst.shortTimeout);
+    }
+
+    waitForArtistsTagInputDisplayed() {
+        return this.waitForElementDisplayed(this.artistsTagInput, appConst.shortTimeout);
+    }
+
+    waitForTagsInputDisplayed() {
+        return this.waitForElementDisplayed(this.tagsInput, appConst.shortTimeout);
     }
 
     getCaption() {
@@ -112,26 +84,30 @@ class ImageFormPanel extends Page {
         })
     }
 
-    async waitForResetFiltersDisplayed() {
-        try {
-            await this.waitForElementDisplayed(this.buttonResetFilters, appConst.shortTimeout);
-        } catch (err) {
-            throw new Error("Button 'Reset filters' is not displayed in 2 seconds " + err);
-        }
+    async addArtistsTag(text) {
+        await this.waitForArtistsTagInputDisplayed();
+        await this.typeTextInInput(this.artistsTagInput, text);
+        return await this.pressEnterKey();
     }
 
-    async waitForResetFiltersNotDisplayed() {
-        try {
-            await this.waitForElementNotDisplayed(this.buttonResetFilters, appConst.shortTimeout);
-        } catch (err) {
-            throw new Error("Button 'Reset filters' is still displayed in 2 seconds " + err);
-        }
+    async addTag(text) {
+        await this.waitForTagsInputDisplayed();
+        await this.typeTextInInput(this.tagsInput, text);
+        return await this.pressEnterKey();
     }
 
     async waitForImageLoaded(ms) {
         let timeout = ms === undefined ? appConst.longTimeout : ms;
         let locator = xpath.imageEditor + "//div[@class='image-canvas']";
         return await this.waitForElementDisplayed(locator, appConst, timeout);
+    }
+
+    getArtistsTagsText() {
+        return this.getTextInDisplayedElements(xpath.addedArtistTag);
+    }
+
+    getTagsText() {
+        return this.getTextInDisplayedElements(xpath.addedTags);
     }
 }
 

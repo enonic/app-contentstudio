@@ -1,6 +1,8 @@
 const Page = require('./page');
 const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
+const DateTimeRange = require('../page_objects/components/datetime.range');
+
 const XPATH = {
     container: `//div[contains(@id,'ContentPublishDialog')]`,
     logMessageLink: `//div[contains(@id,'ContentPublishDialogSubTitle')]/a`,
@@ -275,6 +277,12 @@ class ContentPublishDialog extends Page {
 
     clickOnCancelTopButton() {
         return this.clickOnElement(this.cancelButtonTop);
+    }
+
+    async typeInOnlineFrom(dateTime) {
+        let dateTimeRange = new DateTimeRange();
+        await dateTimeRange.typeOnlineFrom(dateTime, XPATH.container);
+        return await this.pause(300);
     }
 
     async getNumberItemsToPublish() {

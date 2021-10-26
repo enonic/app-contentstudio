@@ -7,13 +7,22 @@ const appConst = require('../../libs/app_const');
 const utils = require('../../libs/studio.utils');
 
 const xpath = {
-    suggestions: "//ul[contains(@id,'TagSuggestions')]/li"
+    suggestions: "//ul[contains(@id,'TagSuggestions')]/li",
+    removeTagIcon: "//ul/li[contains(@id,'Tag')]/a",
 };
 
 class TagForm extends Page {
 
+    get tagValidationRecording() {
+        return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
+    }
+
     get tagInput() {
         return lib.FORM_VIEW + lib.TEXT_INPUT;
+    }
+
+    get removeTagIcon() {
+        return lib.FORM_VIEW + xpath.removeTagIcon;
     }
 
     async typeInTagInput(text) {
@@ -22,14 +31,25 @@ class TagForm extends Page {
         return await this.getBrowser().keys(text);
     }
 
-    doAddTag(text) {
-        return this.typeInTagInput(text).catch(err => {
+    waitForTagInputNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.tagInput, appConst.mediumTimeout);
+    }
+
+    waitForTagInputDisplayed() {
+        return this.waitForElementDisplayed(this.tagInput, appConst.mediumTimeout);
+    }
+
+
+    async doAddTag(text) {
+        try {
+            await this.waitForTagInputDisplayed();
+            await this.typeInTagInput(text)
+            await this.pause(200);
+            await utils.doPressEnter();
+            return await this.pause(200);
+        } catch (err) {
             throw new Error("Error when typing the tag:  " + err);
-        }).then(() => {
-            return this.pause(300);
-        }).then(() => {
-            return utils.doPressEnter();
-        })
+        }
     }
 
     waitForTagSuggestions() {
@@ -47,5 +67,37 @@ class TagForm extends Page {
             }
         })
     }
-};
+
+    async getTagValidationMessage() {
+        let locator = lib.CONTENT_WIZARD_STEP_FORM + this.tagValidationRecording;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
+    async waitForTagValidationMessageNotDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            let elements = await this.getDisplayedElements(this.tagValidationRecording);
+            return elements.length === 0;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Tag Validation recording should not be displayed"});
+    }
+
+    async removeTag(index) {
+        try {
+            let elements = await this.findElements(this.removeTagIcon);
+            if (elements.length === 0) {
+                throw new Error("Remove a tag icon was not found:");
+            }
+            return await elements[index].click();
+        } catch (err) {
+            await this.saveScreenshot('err_remove_tag_icon');
+            throw new Error('Remove tag icon: ' + err);
+        }
+    }
+
+    async getTagsCount() {
+        let elements = await this.findElements(this.removeTagIcon);
+        return elements.length;
+    }
+}
+
 module.exports = TagForm;

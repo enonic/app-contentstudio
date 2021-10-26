@@ -1,3 +1,5 @@
+/*global Q, JQuery */
+
 import * as $ from 'jquery';
 import * as Q from 'q';
 // Polyfills added for compatibility with IE11
@@ -115,8 +117,8 @@ function startLostConnectionDetector(): ConnectionDetector {
 
 function initApplicationEventListener() {
 
-    let messageId;
-    let appStatusCheckInterval;
+    let messageId: string;
+    let appStatusCheckInterval: number;
 
     ApplicationEvent.on((event: ApplicationEvent) => {
         if (ApplicationEventType.STOPPED === event.getEventType() ||

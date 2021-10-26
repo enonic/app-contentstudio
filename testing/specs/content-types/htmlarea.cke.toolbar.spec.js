@@ -35,7 +35,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             let insertImageDialog = new InsertImageDialog();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await htmlAreaForm.showToolbarAndClickOnInsertImageButton();
-            studioUtils.saveScreenshot('cke_insert_image_dialog1');
+            await studioUtils.saveScreenshot('cke_insert_image_dialog1');
             //'Insert Image Dialog should appear:
             await insertImageDialog.waitForDialogVisible();
         });
@@ -49,6 +49,10 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             studioUtils.saveScreenshot('cke_insert_anchor_dialog1');
             //'Insert Anchor' Dialog should appear:
             await insertAnchorDialog.waitForDialogLoaded();
+            await insertAnchorDialog.pause(1000);
+            //verifies XP-4949 HTML Area - Modal dialogs must handle close on Esc
+            await insertAnchorDialog.pressEscKey();
+            await insertAnchorDialog.waitForDialogClosed();
         });
 
     it(`GIVEN 'htmlArea' content is opened WHEN 'insert special characters' icon has been clicked THEN 'Insert Special Characters Dialog' should appear`,

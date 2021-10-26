@@ -13,7 +13,8 @@ const xpath = {
     selectedOwner: `//div[contains(@class,'selected-options principal-selected-options-view')]`,
     selectedLocale: `//div[contains(@id,'LocaleSelectedOptionView')]`,
     languageSelectedOption: "//div[contains(@id,'LocaleSelectedOptionView')]",
-    ownerSelectedOption: "//div[contains(@id,'PrincipalSelectedOptionView')]"
+    ownerSelectedOption: "//div[contains(@id,'PrincipalSelectedOptionView')]",
+    removedPrincipal: "//div[contains(@id,'RemovedPrincipalSelectedOptionView')]",
 };
 
 class SettingsStepForm extends Page {
@@ -76,6 +77,11 @@ class SettingsStepForm extends Page {
         return this.getText(selector);
     }
 
+    async waitForOwnerRemoved() {
+        await this.waitForElementDisplayed(xpath.removedPrincipal, appConst.mediumTimeout);
+        return await this.getText(xpath.removedPrincipal + lib.P_SUB_NAME);
+    }
+
     async clickOnRemoveLanguage() {
         try {
             await this.clickOnElement(this.removeLanguageButton);
@@ -98,6 +104,10 @@ class SettingsStepForm extends Page {
 
     isLanguageOptionsFilterVisible() {
         return this.isElementDisplayed(this.languageFilterInput);
+    }
+
+    waitForLanguageOptionsFilterDisplayed() {
+        return this.waitForElementDisplayed(this.languageFilterInput, appConst.mediumTimeout);
     }
 
     isOwnerOptionsFilterVisible() {

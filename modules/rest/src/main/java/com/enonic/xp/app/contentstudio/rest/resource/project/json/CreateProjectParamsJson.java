@@ -3,6 +3,7 @@ package com.enonic.xp.app.contentstudio.rest.resource.project.json;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.enonic.xp.app.contentstudio.rest.resource.project.ProjectReadAccess;
 import com.enonic.xp.project.ProjectName;
 
 public final class CreateProjectParamsJson
@@ -15,14 +16,18 @@ public final class CreateProjectParamsJson
 
     private final ProjectName parent;
 
+    private final ProjectReadAccess readAccess;
+
     @JsonCreator
     CreateProjectParamsJson( @JsonProperty("name") final String name, @JsonProperty("displayName") final String displayName,
-                             @JsonProperty("description") final String description, @JsonProperty("parent") final String parent )
+                             @JsonProperty("description") final String description, @JsonProperty("parent") final String parent,
+                             @JsonProperty("readAccess") final ProjectReadAccessJson readAccess )
     {
         this.name = ProjectName.from( name );
         this.displayName = displayName;
         this.description = description;
         this.parent = parent == null || parent.isBlank() ? null : ProjectName.from( parent );
+        this.readAccess = readAccess != null ? readAccess.getProjectReadAccess() : null;
     }
 
     public ProjectName getName()
@@ -43,5 +48,10 @@ public final class CreateProjectParamsJson
     public ProjectName getParent()
     {
         return parent;
+    }
+
+    public ProjectReadAccess getReadAccess()
+    {
+        return readAccess;
     }
 }

@@ -1,14 +1,28 @@
 import {NodeServerChangeItem, NodeServerChangeItemBuilder} from 'lib-admin-ui/event/NodeServerChangeItem';
 import {NodeEventNodeJson} from 'lib-admin-ui/event/NodeServerEvent';
+import {NodePath} from 'lib-admin-ui/NodePath';
 
 //TODO: should be replaced by lib class in #1221
 export class PrincipalServerChangeItem
     extends NodeServerChangeItem {
 
-    public static pathPrefix: string = '/identity';
-
     constructor(builder: PrincipalServerChangeItemBuilder) {
         super(builder);
+    }
+
+    protected processPath(path: string): NodePath {
+        if (!path) {
+            return null;
+        }
+
+        const fullPathWithRoot: NodePath = NodePath.create().fromString(path).build();
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        const pathNoRoot: NodePath = <NodePath>fullPathWithRoot
+            .newBuilder()
+            .setElements(fullPathWithRoot.getElements().slice(1))
+            .build();
+
+        return pathNoRoot;
     }
 
     static fromJson(json: NodeEventNodeJson): PrincipalServerChangeItem {

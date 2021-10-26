@@ -7,7 +7,6 @@ import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl'
 import {CreateMediaFromUrlRequest} from '../../../resource/CreateMediaFromUrlRequest';
 import {Content, ContentBuilder} from '../../../content/Content';
 import {ContentJson} from '../../../content/ContentJson';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {Value} from 'lib-admin-ui/data/Value';
 import {UrlHelper} from '../../../util/UrlHelper';

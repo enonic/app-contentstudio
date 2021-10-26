@@ -26,6 +26,7 @@ const XPATH = {
     wizardHeader: "//div[contains(@id,'ContentWizardHeader')]",
     pageEditorTogglerButton: "//button[contains(@id, 'CycleButton') ]",
     hidePageEditorTogglerButton: "//button[contains(@id,'CycleButton') and @title='Hide Page Editor']",
+    showPageEditorTogglerButton: "//button[contains(@id,'CycleButton') and @title='Show Page Editor']",
     displayNameInput: "//input[@name='displayName']",
     pathInput: "//input[@name='name']",
     toolbar: `//div[contains(@id,'ContentWizardToolbar')]`,
@@ -36,6 +37,7 @@ const XPATH = {
     savedButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saved']]`,
     savingButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saving...']]`,
     deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete...']]`,
+    undoDelete: "//button[contains(@id, 'ActionButton') and child::span[text()='Undo delete']]",
     duplicateButton: `//button[contains(@id,'ActionButton') and child::span[text()='Duplicate...']]`,
     previewButton: `//button[contains(@id,'ActionButton') and child::span[text()='Preview']]`,
     resetButton: "//button[contains(@id,'ActionButton') and child::span[text()='Reset']]",
@@ -64,6 +66,7 @@ const XPATH = {
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     buttonModifyPath: "//button[contains(@class,'icon-pencil')]",
     shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
+    goToGridButton: "//div[contains(@class,'font-icon-default icon-tree-2')]",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -95,6 +98,10 @@ class ContentWizardPanel extends Page {
 
     get saveButton() {
         return XPATH.container + XPATH.saveButton;
+    }
+
+    get undoDeleteButton() {
+        return XPATH.container + XPATH.undoDelete;
     }
 
     get resetButton() {
@@ -159,6 +166,10 @@ class ContentWizardPanel extends Page {
 
     get modifyPathButton() {
         return XPATH.wizardHeader + XPATH.buttonModifyPath;
+    }
+
+    get goToGridButton() {
+        return XPATH.toolbar + XPATH.goToGridButton;
     }
 
     waitForContextWindowVisible() {
@@ -270,7 +281,7 @@ class ContentWizardPanel extends Page {
     async clickOnWizardStep(title) {
         let stepXpath = XPATH.wizardStepByTitle(title);
         await this.clickOnElement(stepXpath);
-        return await this.pause(300);
+        return await this.pause(1000);
     }
 
     waitForWizardStepByTitleNotVisible(title) {
@@ -389,8 +400,17 @@ class ContentWizardPanel extends Page {
         try {
             return await this.waitForElementDisplayed(XPATH.hidePageEditorTogglerButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_hide_show_page_editor_button_not_displayed');
+            await this.saveScreenshot('err_hide_page_editor_button_not_displayed');
             throw new Error("'Hide Page Editor !' button should be displayed : " + err);
+        }
+    }
+
+    async waitForShowPageEditorTogglerButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(XPATH.showPageEditorTogglerButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_show_page_editor_button_not_displayed');
+            throw new Error("'Show Page Editor !' button should be displayed : " + err);
         }
     }
 
@@ -409,6 +429,7 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(this.editPermissionsButton, appConst.mediumTimeout);
     }
 
+    //clicks on 'Access' button in WizardStepNavigatorAndToolbar
     async clickOnEditPermissionsButton() {
         try {
             await this.waitForEditPermissionsButtonVisible();
@@ -801,12 +822,6 @@ class ContentWizardPanel extends Page {
         }
     }
 
-
-    waitForPublishButtonVisible() {
-        let selector = XPATH.container + XPATH.publishButton;
-        return this.waitForElementDisplayed(selector, appConst.mediumTimeout);
-    }
-
     async getContentStatus() {
         let result = await this.getDisplayedElements(XPATH.container + XPATH.status);
         return await result[0].getText();
@@ -1007,6 +1022,10 @@ class ContentWizardPanel extends Page {
         return this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout);
     }
 
+    waitForDeleteButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.deleteButton, appConst.mediumTimeout);
+    }
+
     async clickOnPreviewButton() {
         try {
             await this.waitForElementEnabled(this.previewButton, appConst.mediumTimeout);
@@ -1104,6 +1123,17 @@ class ContentWizardPanel extends Page {
         let shaderElement = await this.findElement(XPATH.shaderPage);
         let style = await shaderElement.getAttribute("style");
         return !style.includes("display: none");
+    }
+
+    async clickOnGoToGridButton() {
+        await this.waitForElementDisplayed(this.goToGridButton, appConst.mediumTimeout);
+        await this.clickOnElement(this.goToGridButton);
+        return await this.pause(300);
+
+    }
+
+    waitForUndoDeleteButtonDisplayed() {
+        return this.waitForElementDisplayed(this.undoDeleteButton, appConst.mediumTimeout);
     }
 }
 

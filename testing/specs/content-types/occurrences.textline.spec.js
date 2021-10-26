@@ -46,7 +46,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             await textLine.waitForRemoveButtonNotDisplayed();
             //5. Verify that the content is valid:
             let result = await contentWizard.isContentInvalid();
-            studioUtils.saveScreenshot('textline_wizard_1');
+            await studioUtils.saveScreenshot('textline_wizard_1');
             assert.isFalse(result, "Textline content should be valid because the single input is not required");
             await contentWizard.waitAndClickOnSave();
             await contentWizard.waitForNotificationMessage();
@@ -208,7 +208,7 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
             await contentWizard.waitForNotificationMessage();
         });
 
-    it(`GIVEN existing TextLine-content (1:1) is opened WHEN text has been saved  in the required textline input THEN the content gets valid`,
+    it(`GIVEN existing TextLine-content (1:1) is opened WHEN text has been saved in the required textline input THEN the content gets valid`,
         async () => {
             let contentWizard = new ContentWizard();
             let textLine = new TextLine();

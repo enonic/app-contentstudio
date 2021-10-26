@@ -41,24 +41,29 @@ class NewContentDialog extends Page {
         })
     }
 
-    waitForOpened() {
-        return this.waitForElementDisplayed(XPATH.typesList, appConst.longTimeout).catch(err => {
-            this.saveScreenshot('err_load_new_content_dialog');
+    async waitForOpened() {
+        try {
+            await this.waitForElementDisplayed(XPATH.typesList, appConst.mediumTimeout)
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_new_content'));
             throw new Error('New Content dialog was not loaded! ' + err);
-        });
+        }
     }
 
-    waitForClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(error => {
-            this.saveScreenshot('err_new_content_dialog_close');
+    async waitForClosed() {
+        try {
+            await this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout)
+        } catch (error) {
+            await this.saveScreenshot(appConst.generateRandomName('err_new_content_close'));
             throw new Error('New Content Dialog was not closed');
-        });
+        }
     }
 
     waitForMostPopularBlockDisplayed() {
         let locator = XPATH.container + XPATH.mostPopularBlock;
         return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
+
     getHeaderText() {
         return this.getText(this.header);
     }

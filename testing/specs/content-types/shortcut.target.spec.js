@@ -18,6 +18,25 @@ describe("Shortcut's target specification", function () {
     const TARGET_1 = "whale";
     const TARGET_2 = "server";
     const SHORTCUT_NAME = contentBuilder.generateRandomName('shortcut');
+    const SHORTCUT_NAME1 = contentBuilder.generateRandomName('shortcut');
+
+    it(`GIVEN wizard for new shortcut is opened WHEN name input has been filled in THEN the content should be not valid`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let shortcutForm = new ShortcutForm();
+            await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
+            //1. Fill in the name input:
+            await contentWizard.typeDisplayName(SHORTCUT_NAME1);
+            //2. save the shortcut:
+            await contentWizard.waitAndClickOnSave();
+            await studioUtils.saveScreenshot("shortcut_target_not_selected");
+            //3. Verify that the content is not valid:
+            let actualResult = await contentWizard.isContentInvalid();
+            assert.isTrue(actualResult, "shortcut content should be not valid, because a target is not selected");
+            //4. Verify the validation recording:
+            let recording = await shortcutForm.getFormValidationRecording();
+            assert.equal(recording, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "Expected validation message should appear");
+        });
 
     it(`GIVEN required data is typed in the wizard AND 'Add Parameters' button has been clicked WHEN 'Save' button has been pressed THEN the shortcut gets not valid because parameter's inputs are empty`,
         async () => {

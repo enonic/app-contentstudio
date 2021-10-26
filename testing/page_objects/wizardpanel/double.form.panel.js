@@ -50,6 +50,24 @@ class DoubleForm extends OccurrencesFormView {
         await removeButtons[index].click();
         return await this.pause(500);
     }
+
+    async waitForRedBorderInDoubleInput(index) {
+        try {
+            return await this.waitForRedBorderInInput(index, this.doubleInput);
+        } catch (err) {
+            await this.saveScreenshot("err_red_border_double");
+            throw new Error(err);
+        }
+    }
+
+    async waitForRedBorderNotDisplayedInDoubleInput(index) {
+        try {
+            return await this.waitForRedBorderNotDisplayedInInput(index, this.doubleInput);
+        } catch (err) {
+            await this.saveScreenshot("err_red_border_double_displayed");
+            throw new Error(err);
+        }
+    }
 }
 
 module.exports = DoubleForm;

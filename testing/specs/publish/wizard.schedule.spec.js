@@ -9,13 +9,17 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ScheduleForm = require('../../page_objects/wizardpanel/schedule.wizard.step.form');
+const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
+const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('Wizard page - verify schedule form', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SCHEDULE_STEP_TITLE = 'Schedule';
-
+    const DATE_TIME_IN_PAST = "2020-09-10 00:00";
+    const DATE_TIME_IN_FUTURE = "2029-09-10 00:00";
     let TEST_FOLDER;
+
     it(`WHEN new folder has been created THEN schedule form should not be present AND schedule menu item is not visible on the step-navigator`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -63,6 +67,39 @@ describe('Wizard page - verify schedule form', function () {
             assert.isTrue(from.includes(expectedDate), "Expected date time should be displayed");
         });
 
+    it("GIVEN existing published folder is opened WHEN 'Online to' is earlier than 'Online from' THEN expected validation message appears",
+        async () => {
+            let scheduleForm = new ScheduleForm();
+            //1. Open the 'published' folder
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await scheduleForm.typeOnlineTo(DATE_TIME_IN_PAST);
+            await studioUtils.saveScreenshot("online_to_in_past");
+            await scheduleForm.waitForValidationRecording();
+            let recordingActual = await scheduleForm.getValidationRecord();
+            assert.equal(recordingActual, appConst.VALIDATION_MESSAGE.SCHEDULE_FORM_ONLINE_PAST);
+        });
+
+    it("GIVEN existing published folder is opened WHEN 'Online from' has been cleared and 'Online to' has been set THEN expected notification message appears",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let scheduleForm = new ScheduleForm();
+            //1. Open the 'published' folder
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            //2. 'Online from' has been cleared and 'Online to' has been set in future
+            await scheduleForm.typeOnlineFrom('  ');
+            await scheduleForm.typeOnlineTo(DATE_TIME_IN_FUTURE);
+            //3. Click on Save button
+            await contentWizard.waitAndClickOnSave();
+            await studioUtils.saveScreenshot("online_to_cleared");
+            //4. Verify that expected validation recording is displayed:
+            await scheduleForm.waitForValidationRecording();
+            let recordingActual = await scheduleForm.getValidationRecord();
+            assert.equal(recordingActual, appConst.VALIDATION_MESSAGE.INVALID_VALUE_ENTERED);
+            //5. Verify that expected notification message appears:
+            let message = await contentWizard.waitForNotificationMessage();
+            assert.equal(message, "[Online to] date/time cannot be set without [Online from]");
+        });
+
     it(`GIVEN existing published content is opened WHEN content has been unpublished THEN 'Schedule' form gets not visible`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -83,6 +120,35 @@ describe('Wizard page - verify schedule form', function () {
             let status = await contentWizard.getContentStatus();
             assert.equal(status, 'Unpublished', "'Unpublished' status should be displayed in the toolbar");
         });
+
+    //Verifies https://github.com/enonic/app-contentstudio/issues/941
+    //Incorrect status in version history for content with scheduled publishing #941
+    it("WHEN 'Online from' has been set in the future AND Publish button pressed THEN folder gets 'Publishing Scheduling'",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let contentPublishDialog = new ContentPublishDialog();
+            let wizardVersionsWidget = new WizardVersionsWidget();
+            //1. Select and open the unpublished folder:
+            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            //2. Expand the publish menu then click on 'Publish...'
+            await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+            await contentPublishDialog.waitForDialogOpened();
+            //3. Click on Add Schedule (calendar icon):
+            await contentPublishDialog.clickOnAddScheduleIcon();
+            //4. Type dateTime in future
+            await contentPublishDialog.typeInOnlineFrom(DATE_TIME_IN_FUTURE);
+            //5. Press the Schedule button
+            await contentPublishDialog.clickOnScheduleButton();
+            //6. Verift that status is ''Publishing Scheduled''
+            await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED);
+            //7. Open  'Versions Panel':
+            await contentWizard.openVersionsHistoryPanel();
+            //8. Verify the status in versions widget
+            let status = await wizardVersionsWidget.getContentStatus();
+            assert.isTrue(status.includes("Will be published"), "Will be published should be present in the versions widget");
+            assert.isTrue(status.includes(DATE_TIME_IN_FUTURE), "Expected date time in future should be displayed");
+        });
+
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

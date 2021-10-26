@@ -43,7 +43,10 @@ import com.enonic.xp.project.ProjectPermissions;
 import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.project.Projects;
 import com.enonic.xp.security.PrincipalKey;
+import com.enonic.xp.security.RoleKeys;
+import com.enonic.xp.security.acl.AccessControlEntry;
 import com.enonic.xp.security.acl.AccessControlList;
+import com.enonic.xp.security.acl.Permission;
 import com.enonic.xp.task.TaskId;
 import com.enonic.xp.task.TaskService;
 import com.enonic.xp.web.multipart.MultipartForm;
@@ -251,6 +254,43 @@ public class ProjectResourceTest
             post().getAsString();
 
         assertJson( "create_project_success.json", jsonString );
+    }
+
+    @Test
+    public void create_project_with_publicReadAccess()
+        throws Exception
+    {
+        final Project project = createProject( "project1", "project name 1", "project description 1", Attachment.create().
+            name( "logo.png" ).
+            mimeType( "image/png" ).
+            label( "small" ).
+            build() );
+
+        final Content contentRoot = Content.create().id( ContentId.from( "123" ) ).
+            name( ContentName.from( "root" ) ).
+            parentPath( ContentPath.ROOT ).
+            permissions( AccessControlList.create().add(
+                AccessControlEntry.create().principal( RoleKeys.ADMIN ).allowAll().build() ).add(
+                AccessControlEntry.create().principal( RoleKeys.EVERYONE ).allow( Permission.READ ).build() ).build() ).
+            language( Locale.ENGLISH ).
+            data( new PropertyTree() ).
+            extraDatas( ExtraDatas.empty() ).
+            build();
+
+        Mockito.when( contentService.getByPath( ContentPath.ROOT ) ).thenReturn( contentRoot );
+        Mockito.when( contentService.update( Mockito.isA( UpdateContentParams.class ) ) ).thenReturn( contentRoot );
+
+        Mockito.when( projectService.create( Mockito.isA( CreateProjectParams.class ) ) ).thenReturn( project );
+        Mockito.when( projectService.modifyPermissions( Mockito.eq( project.getName() ), Mockito.isA( ProjectPermissions.class ) ) ).
+            thenAnswer( i -> i.getArguments()[1] );
+
+        mockProjectPermissions( project.getName() );
+
+        String jsonString = request().path( "project/create" ).
+            entity( readFromFile( "create_public_project_params.json" ), MediaType.APPLICATION_JSON_TYPE ).
+            post().getAsString();
+
+        assertJson( "create_public_project_success.json", jsonString );
     }
 
     @Test

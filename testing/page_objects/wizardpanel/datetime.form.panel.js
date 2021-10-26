@@ -2,14 +2,14 @@
  * Created on 30.03.2021.
  */
 
-const Page = require('../page');
+const OccurrencesFormView = require('../wizardpanel/occurrences.form.view');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
     validationRecording: `//div[contains(@id,'ValidationRecordingViewer')]//li`,
 };
 
-class DateTimeForm extends Page {
+class DateTimeForm extends OccurrencesFormView {
 
     get dateTimeInput() {
         return lib.FORM_VIEW + lib.DATE_TIME_PICKER_INPUT;
@@ -25,6 +25,10 @@ class DateTimeForm extends Page {
         return await this.pause(300);
     }
 
+    async waitForRedBorderDisplayedInDateTimeInput(index) {
+        return await this.waitForRedBorderInInput(index, this.dateTimeInput);
+    }
+
     async getDateTimes() {
         let values = [];
         let dateTimeElements = await this.getDisplayedElements(this.dateTimeInput);
@@ -33,6 +37,11 @@ class DateTimeForm extends Page {
             values.push(value);
         }));
         return values;
+    }
+
+    async getValueInDateTime(index) {
+        let dateTimeElements = await this.getDisplayedElements(this.dateTimeInput);
+        const value = await dateTimeElements[index].getValue();
     }
 
     waitForValidationRecording() {
@@ -57,6 +66,11 @@ class DateTimeForm extends Page {
         }
         let attr = await inputs[index].getAttribute("class");
         return attr.includes("invalid");
+    }
+
+    async showPicker() {
+        await this.clickOnElement(this.dateTimeInput);
+        return this.pause(300);
     }
 }
 

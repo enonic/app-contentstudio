@@ -34,6 +34,24 @@ class LongForm extends OccurrencesFormView {
         await longElements[index].setValue(value);
         return await this.pause(300);
     }
+
+    async waitForRedBorderInLongInput(index) {
+        try {
+            return await this.waitForRedBorderInInput(index, this.longInput)
+        } catch (err) {
+            await this.saveScreenshot("err_red_border_long");
+            throw new Error(err);
+        }
+    }
+
+    async waitForRedBorderNotDisplayedInLongInput(index) {
+        try {
+            return await this.waitForRedBorderNotDisplayedInInput(index, this.longInput)
+        } catch (err) {
+            await this.saveScreenshot("err_red_border_long");
+            throw new Error(err);
+        }
+    }
 }
 
 module.exports = LongForm;
