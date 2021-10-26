@@ -1,15 +1,9 @@
 package com.enonic.xp.app.contentstudio.rest.resource.archive;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.osgi.service.component.annotations.Component;
@@ -18,25 +12,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.enonic.xp.app.contentstudio.rest.resource.archive.json.ArchiveContentJson;
-import com.enonic.xp.app.contentstudio.rest.resource.archive.json.ArchivedContainerJson;
-import com.enonic.xp.app.contentstudio.rest.resource.archive.json.ArchivedContainerLayerJson;
-import com.enonic.xp.app.contentstudio.rest.resource.archive.json.ResolveArchivedJson;
 import com.enonic.xp.app.contentstudio.rest.resource.archive.json.RestoreContentJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.ArchiveRunnableTask;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.RestoreRunnableTask;
-import com.enonic.xp.archive.ListContentsParams;
-import com.enonic.xp.archive.ResolveArchivedParams;
-import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.security.RoleKeys;
 import com.enonic.xp.task.TaskResultJson;
 import com.enonic.xp.task.TaskService;
 
-import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
-import static com.google.common.base.Strings.isNullOrEmpty;
 
 @SuppressWarnings("UnusedDeclaration")
 @Path(REST_ROOT + "{content:(content|" + CONTENT_CMS_PATH + "/content)}/archive")
@@ -76,32 +62,6 @@ public final class ArchiveResource
             .contentService( contentService )
             .build()
             .createTaskResult();
-    }
-
-    @GET
-    @Path("list")
-    public List<ArchivedContainerLayerJson> list( @QueryParam("parentId") @DefaultValue("") final String parentId )
-    {
-        final ContentId parentContentId = isNullOrEmpty( parentId ) ? null : ContentId.from( parentId );
-
-        return contentService.listArchived( ListContentsParams.create().parent( parentContentId ).build() )
-            .stream()
-            .map( ArchivedContainerLayerJson::new )
-            .collect( Collectors.toList() );
-    }
-
-    @POST
-    @Path("resolve")
-    public List<ArchivedContainerJson> resolve( final ResolveArchivedJson params )
-    {
-        final List<ContentId> contentIds = params.getContentIds() != null
-            ? params.getContentIds().stream().map( ContentId::from ).collect( Collectors.toList() )
-            : List.of();
-
-        return contentService.resolveArchivedByContents( ResolveArchivedParams.create().contents( contentIds ).build() )
-            .stream()
-            .map( ArchivedContainerJson::new )
-            .collect( Collectors.toList() );
     }
 
     @Reference
