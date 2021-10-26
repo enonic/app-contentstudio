@@ -1,5 +1,4 @@
 .mobile-content-item-statistics-panel {
-
   @app-header-height: 44px;
   @mark-size: 20px;
 
@@ -28,7 +27,7 @@
     .mobile-header-title {
       padding-left: 26px;
 
-      &:before {
+      &::before {
         position: absolute;
         top: 50%;
         left: @mark-size/2;
@@ -97,6 +96,21 @@
     }
   }
 
+  .mobile-details-panel-toggle-button,
+  .mobile-context-panel-back-button {
+    z-index: 3;
+    width: @app-header-height;
+    height: @app-header-height;
+    line-height: @app-header-height;
+    position: absolute;
+    top: 0;
+    cursor: pointer;
+
+    &::before {
+      color: @admin-white;
+    }
+  }
+
   .mobile-details-panel-toggle-button {
     right: -2px;
     box-sizing: border-box;
@@ -109,42 +123,26 @@
 
     &.expanded {
       .icon-close();
+
       line-height: @app-header-height;
     }
-
   }
 
   .mobile-context-panel-back-button {
-
     left: 0;
     font-size: 20px;
 
     .icon-arrow-left2();
   }
 
-  .mobile-details-panel-toggle-button,
-  .mobile-context-panel-back-button {
-    z-index: 3;
-    width: @app-header-height;
-    height: @app-header-height;
-    line-height: @app-header-height;
-    position: absolute;
-    top: 0;
-    cursor: pointer;
-
-    &:before {
-      color: @admin-white;
-    }
-  }
-
   .mobile-preview-fold-button {
     position: absolute;
     top: @app-header-height;
     width: 200px;
-    left: calc( 50% - 100px);
+    left: calc(50% - 100px);
     border: none;
 
-    &:after {
+    &::after {
       display: none;
     }
 
@@ -157,19 +155,21 @@
         padding: 5px 0 10px 0;
         width: auto;
         display: block;
+
         span {
           color: @admin-white;
           margin: 0 10px;
         }
+
         &.publish span {
           color: @admin-green;
         }
+
         &:hover span {
           color: @admin-font-gray2;
         }
       }
     }
-
   }
 
   .content-item-preview-panel {
@@ -181,7 +181,6 @@
   }
 
   .context-panel {
-
     background-color: rgba(255, 255, 255, 0.95);
     display: inherit;
     width: 100%;
@@ -192,7 +191,6 @@
     }
 
     .widgets-selection-row {
-
       .widget-selector {
         max-width: none;
 
@@ -211,9 +209,7 @@
     transition: all 0.5s ease-in-out;
 
     .widget-view {
-
       margin: 0 0 2px 0;
-
       overflow: hidden;
       transition: all 0.1s ease-in-out;
 
@@ -228,18 +224,18 @@
       &.expanded {
         padding: 5px 0 5px 0;
       }
-
     }
   }
-
 }
 
 // Transition when opeining content preview on a mobile
 body {
-  .appbar, .context-split-panel {
+  .appbar,
+  .context-split-panel {
     right: 0;
     transition: right 0.3s linear;
   }
+
   &.mobile-statistics-panel {
     .appbar, .context-split-panel {
       right: 110px;

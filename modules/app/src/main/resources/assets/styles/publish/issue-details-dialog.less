@@ -9,7 +9,6 @@
     position: relative; // to be able to position empty text message absolutely
 
     .deck-panel {
-
       & > .panel {
         min-height: 200px;
 
@@ -43,7 +42,6 @@
     }
 
     .inplace-text-input {
-
       .inplace-text {
         line-height: 38px;
 
@@ -59,9 +57,7 @@
             color: @admin-font-gray1;
             margin-left: 10px;
           }
-
         }
-
       }
     }
 
@@ -144,7 +140,6 @@
   }
 
   &:not(.publish-request) {
-
     .publish-schedule-form, .icon-calendar {
       display: none;
     }
@@ -172,7 +167,7 @@
   }
 
   .required {
-    &:after {
+    &::after {
       display: none;
     }
   }
@@ -180,6 +175,43 @@
   .browse-selection-item {
     .remove {
       display: none;
+    }
+  }
+
+  .button-container {
+    flex-direction: row-reverse;
+
+    .dialog-button,
+    .menu-button {
+      display: none !important; // need important here because dialog sets display style inline
+    }
+
+    .dialog-button {
+      &.close-issue {
+        background-color: @form-button-bg;
+
+        &:hover:not(:disabled) {
+          background-color: @form-button-bg-hover;
+        }
+      }
+
+      &.publish-issue,
+      &.schedule-issue {
+        background-color: @admin-green;
+
+        &:hover:not(:disabled) {
+          background-color: @admin-green;
+        }
+      }
+    }
+
+    + .no-action-message {
+      display: none;
+      padding-left: 10px;
+      line-height: 36px;
+      font-size: 15px;
+      white-space: nowrap;
+      order: 0;
     }
   }
 
@@ -230,43 +262,6 @@
     }
   }
 
-  .button-container {
-    flex-direction: row-reverse;
-
-    .dialog-button,
-    .menu-button {
-      display: none !important; // need important here because dialog sets display style inline
-    }
-
-    .dialog-button {
-
-      &.close-issue {
-        background-color: @form-button-bg;
-
-        &:hover:not(:disabled) {
-          background-color: @form-button-bg-hover;
-        }
-      }
-
-      &.publish-issue, &.schedule-issue {
-        background-color: @admin-green;
-
-        &:hover:not(:disabled) {
-          background-color: @admin-green;
-        }
-      }
-    }
-
-    + .no-action-message {
-      display: none;
-      padding-left: 10px;
-      line-height: 36px;
-      font-size: 15px;
-      white-space: nowrap;
-      order: 0;
-    }
-  }
-
   .modal-dialog-footer {
     .issue-comment-textarea {
       display: none;
@@ -281,7 +276,6 @@
   }
 
   &.is-processing {
-
     .modal-dialog-header {
       h6 {
         display: block;
@@ -321,7 +315,6 @@
 
   &.tab-comments {
     &:not(.closed):not(.is-processing) {
-
       .dialog-content {
         .deck-panel > .panel {
           min-height: 128px;  // subtract textarea height to keep overall dialog height
@@ -413,13 +406,13 @@
     justify-content: flex-end;
     min-height: 36px;
   }
-
 }
 
-._0-240, &._240-360, &._360-540, &._540-720 {
-
+._0-240,
+&._240-360,
+&._360-540,
+&._540-720 {
   .issue-details-dialog {
-
     .modal-dialog-header .inplace-text-input .inplace-toggle {
       margin-right: 10px;
     }
