@@ -59,7 +59,7 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             await deleteContentDialog.clickOnDeleteNowButton();
             await confirmValueDialog.waitForDialogOpened();
             //3. Type not correct number to delete:
-            await confirmValueDialog.typeNumberOrName(200);
+            await confirmValueDialog.typeNumberOrName(7);
             await confirmValueDialog.pause(1000);
             await studioUtils.saveScreenshot("number_to_delete_incorrect");
             //5. Verify that 'Confirm' button is disabled
