@@ -4,6 +4,8 @@ import {ProjectsTreeItem} from '../data/project/ProjectsTreeItem';
 import {ProjectHelper} from '../data/project/ProjectHelper';
 import * as Q from 'q';
 
+declare const CONFIG;
+
 export class ProjectsTreeBuilder {
 
     private readonly availableProjects: Project[];
@@ -104,6 +106,6 @@ export class ProjectsTreeBuilder {
     }
 
     private getParent(project: Project): Project {
-        return this.projectsTree.find((p: Project) => p.getName() == project.getParent());
+        return this.projectsTree.find((p: Project) => p.getName() === project.getParent());
     }
 }
