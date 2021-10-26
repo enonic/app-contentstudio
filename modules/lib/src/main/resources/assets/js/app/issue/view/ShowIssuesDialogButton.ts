@@ -11,7 +11,8 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ProjectContext} from '../../project/ProjectContext';
 
-export class ShowIssuesDialogButton extends ActionButton {
+export class ShowIssuesDialogButton
+    extends ActionButton {
 
     private countSpan: SpanEl;
 
@@ -26,9 +27,7 @@ export class ShowIssuesDialogButton extends ActionButton {
             this.fetchIssuesAndCreateLink();
         }, 200);
 
-        if (ProjectContext.get().isInitialized()) {
-            this.updateHandler();
-        }
+        this.updateHandler();
 
         this.initEventsListeners();
     }
@@ -64,19 +63,6 @@ export class ShowIssuesDialogButton extends ActionButton {
     }
 
     private fetchIssuesAndCreateLink() {
-        if (ProjectContext.get().isInitialized()) {
-            this.doFetchIssuesAndCreateLink();
-        } else {
-            const projectSetHandler = () => {
-                ProjectContext.get().unProjectChanged(projectSetHandler);
-                this.doFetchIssuesAndCreateLink();
-            };
-
-            ProjectContext.get().onProjectChanged(projectSetHandler);
-        }
-    }
-
-    private doFetchIssuesAndCreateLink() {
         this.resetButton();
 
         this.fetchNumberOfOpenIssuesAssignedToMe().then((totalAssignedToMe: number) => {

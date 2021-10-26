@@ -65,16 +65,7 @@ export class ContentBrowseFilterPanel
     constructor() {
         super();
 
-        if (ProjectContext.get().isInitialized()) {
-            this.initElementsAndListeners();
-        } else {
-            const projectSetHandler = () => {
-                ProjectContext.get().unProjectChanged(projectSetHandler);
-                this.initElementsAndListeners();
-            };
-
-            ProjectContext.get().onProjectChanged(projectSetHandler);
-        }
+        this.initElementsAndListeners();
     }
 
     private initElementsAndListeners() {

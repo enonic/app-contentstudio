@@ -17,6 +17,8 @@ import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/A
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {Store} from 'lib-admin-ui/store/Store';
+import {ProjectContext} from './project/ProjectContext';
+import {ContentEventsListener} from './ContentEventsListener';
 
 export class AppWrapper
     extends DivEl {

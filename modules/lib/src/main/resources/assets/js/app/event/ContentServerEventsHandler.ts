@@ -431,10 +431,6 @@ export class ContentServerEventsHandler {
             console.debug('ContentServerEventsHandler: received server event', event);
         }
 
-        if (!ProjectContext.get().isInitialized()) {
-            return;
-        }
-
         const currentRepo: string = RepositoryId.fromCurrentProject().toString();
         const currentRepoChanges: ContentServerChangeItem[] = [];
         const otherReposChanges: ContentServerChangeItem[] = [];

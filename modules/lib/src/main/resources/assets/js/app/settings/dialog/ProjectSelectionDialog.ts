@@ -5,11 +5,12 @@ import {ProjectList} from '../../project/list/ProjectList';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {ProjectListItem} from '../../project/list/ProjectListItem';
 import {ProjectContext} from '../../project/ProjectContext';
-import {ProjectListRequest} from '../resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import * as Q from 'q';
 import {ProjectListWithMissingRequest} from '../resource/ProjectListWithMissingRequest';
 import {ProjectHelper} from '../data/project/ProjectHelper';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 
 export class ProjectSelectionDialog
     extends ModalDialog {
@@ -76,6 +77,10 @@ export class ProjectSelectionDialog
 
             if (project) {
                 ProjectContext.get().setProject(project);
+            } else {
+                Body.get().addClass('no-projects');
+                const noProjectsBlock: DivEl = new DivEl('no-projects-text').setHtml(i18n('notify.settings.project.notInitialized'));
+                Body.get().appendChild(noProjectsBlock);
             }
         }
     }
@@ -125,8 +130,8 @@ export class ProjectSelectionDialog
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-                this.appendChildToContentPanel(this.projectsList);
-                this.appendChildToContentPanel(this.noItemsInfoBlock);
+            this.appendChildToContentPanel(this.projectsList);
+            this.appendChildToContentPanel(this.noItemsInfoBlock);
 
             return rendered;
         });

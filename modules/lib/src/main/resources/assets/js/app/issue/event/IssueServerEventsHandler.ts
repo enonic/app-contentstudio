@@ -45,10 +45,6 @@ export class IssueServerEventsHandler {
             console.debug('IssueServerEventsHandler: received server event', event);
         }
 
-        if (!ProjectContext.get().isInitialized()) {
-            return;
-        }
-
         const issueIds: string[] = this.getCurrentRepoIssueIds(event);
 
         if (issueIds.length > 0) {

@@ -16,7 +16,6 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ItemPreviewPanel} from 'lib-admin-ui/app/view/ItemPreviewPanel';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {UrlHelper} from '../util/UrlHelper';
-import {ProjectContext} from '../project/ProjectContext';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
@@ -54,21 +53,6 @@ export class ContentItemPreviewPanel
 
         this.initElements();
         this.setupListeners();
-
-        if (!ProjectContext.get().isInitialized()) {
-            this.handleProjectNotSet();
-        }
-    }
-
-    private handleProjectNotSet() {
-        this.noSelectionMessage.getFirstChild().setHtml(i18n('settings.projects.nopermissions'));
-
-        const projectSetHandler = () => {
-            this.noSelectionMessage.getFirstChild().setHtml(i18n('panel.noselection'));
-            ProjectContext.get().unProjectChanged(projectSetHandler);
-        };
-
-        ProjectContext.get().onProjectChanged(projectSetHandler);
     }
 
     doRender(): Q.Promise<boolean> {

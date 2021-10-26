@@ -29,18 +29,6 @@ export class ContentAppPanel
         return [...actions, ...this.getBrowsePanel().getNonToolbarActions()];
     }
 
-    protected activateCurrentKeyBindings(): void {
-        if (ProjectContext.get().isInitialized()) {
-            super.activateCurrentKeyBindings();
-        } else {
-            const projectSetHandler = () => {
-                super.activateCurrentKeyBindings();
-                ProjectContext.get().unProjectChanged(projectSetHandler);
-            };
-            ProjectContext.get().onProjectChanged(projectSetHandler);
-        }
-    }
-
     calculateOffset() {
         this.getEl().setTopPx(44); // static header height
     }

@@ -4,7 +4,6 @@ import {ServerEventAggregator} from './ServerEventAggregator';
 import {ServerEventsListener} from 'lib-admin-ui/event/ServerEventsListener';
 import {Application} from 'lib-admin-ui/app/Application';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerEventsTranslator} from './ContentServerEventsTranslator';
 import {ContentServerEvent} from './ContentServerEvent';
 import {ContentServerChangeItem} from './ContentServerChangeItem';
@@ -70,10 +69,6 @@ export class AggregatedServerEventsListener
     }
 
     private isInCurrentProject(event: NodeServerEvent): boolean {
-        if (!ProjectContext.get().isInitialized()) {
-            return false;
-        }
-
         const currentRepo: string = RepositoryId.fromCurrentProject().toString();
 
         return event.getNodeChange().getChangeItems().some((change: ContentServerChangeItem) => change.getRepo() === currentRepo);

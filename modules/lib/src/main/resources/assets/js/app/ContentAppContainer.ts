@@ -11,7 +11,6 @@ import {ProjectDeletedEvent} from './settings/event/ProjectDeletedEvent';
 import {Project} from './settings/data/project/Project';
 import {ProjectListRequest} from './settings/resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {AppContext} from './AppContext';
 import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentId} from './content/ContentId';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
@@ -37,29 +36,12 @@ export class ContentAppContainer
     constructor() {
         super();
 
-        if (!ProjectContext.get().isInitialized()) {
-            this.handleProjectNotSet();
-        } else {
-            new ContentEventsListener().start();
-            this.initListeners();
-        }
+        new ContentEventsListener().start();
+        this.initListeners();
 
         this.onShown(() => {
             history.pushState(null, null, `main#/${ProjectContext.get().getProject().getName()}/${UrlAction.BROWSE}`);
         });
-    }
-
-    private handleProjectNotSet() {
-        this.appBar.disable();
-
-        const projectSetHandler = () => {
-            this.appBar.enable();
-            new ContentEventsListener().start();
-            this.initListeners();
-            ProjectContext.get().unProjectChanged(projectSetHandler);
-        };
-
-        ProjectContext.get().onProjectChanged(projectSetHandler);
     }
 
     protected createAppBar(application: Application): ContentAppBar {

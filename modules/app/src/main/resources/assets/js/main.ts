@@ -268,11 +268,13 @@ async function startApplication() {
             NotifyManager.get().showWarning(i18n('notify.settings.project.initFailed'));
         })
         .finally(() => {
-            if (ContentAppHelper.isContentWizard(application)) {
-                startContentWizard(ContentAppHelper.createWizardParamsFromApp(application), connectionDetector);
-            } else {
-                startContentBrowser();
-            }
+            ProjectContext.get().whenInitialized(() => {
+                if (ContentAppHelper.isContentWizard(application)) {
+                    startContentWizard(ContentAppHelper.createWizardParamsFromApp(application), connectionDetector);
+                } else {
+                    startContentBrowser();
+                }
+            });
         });
 
     AppHelper.preventDragRedirect();

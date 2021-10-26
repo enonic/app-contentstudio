@@ -9,7 +9,6 @@ import {ProjectContext} from '../project/ProjectContext';
 import {ProjectSelectionDialog} from '../settings/dialog/ProjectSelectionDialog';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
-import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
 import {ProjectListWithMissingRequest} from '../settings/resource/ProjectListWithMissingRequest';
 
 export class ContentAppBar
@@ -24,10 +23,7 @@ export class ContentAppBar
 
         this.initElements();
         this.initListeners();
-
-        if (ProjectContext.get().isInitialized()) {
-            this.handleProjectUpdate();
-        }
+        this.handleProjectUpdate();
     }
 
     private initElements() {
@@ -47,10 +43,6 @@ export class ContentAppBar
     }
 
     private handleProjectUpdate() {
-        if (!ProjectContext.get().isInitialized()) {
-            return;
-        }
-
         const currentProjectName: string = ProjectContext.get().getProject().getName();
 
         new ProjectListWithMissingRequest().sendAndParse().then((projects: Project[]) => {

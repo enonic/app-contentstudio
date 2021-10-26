@@ -4,6 +4,7 @@ declare const CONFIG: {
     allowScriptsInEditor: string,
     allowContentUpdate: string,
     allowPathTransliteration: string,
+    hideDefaultProject: string,
     appIconUrl: string,
     appId: string,
     appVersion: string,

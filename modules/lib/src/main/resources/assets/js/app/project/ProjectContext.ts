@@ -50,6 +50,19 @@ export class ProjectContext {
         return this.state === State.INITIALIZED;
     }
 
+    whenInitialized(callback: () => void) {
+        if (this.isInitialized()) {
+            callback();
+        } else {
+            const projectInitializedHandler = () => {
+                callback();
+                this.unProjectChanged(projectInitializedHandler);
+            };
+
+            this.onProjectChanged(projectInitializedHandler);
+        }
+    }
+
     onProjectChanged(handler: (project: Project) => void) {
         this.projectChangedEventListeners.push(handler);
     }
