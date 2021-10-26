@@ -148,9 +148,10 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             let contentBrowsePanel = new ContentBrowsePanel();
             let folderName = appConst.generateRandomName('folder');
             //1. Open new folder wizard
-            await this.openContentWizard(appConst.contentTypes.FOLDER);
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(folderName);
             //2. publish this folder
+            await contentWizard.clickOnMarkAsReadyButton();
             await contentWizard.openPublishMenuAndPublish();
             //3. Click on Mark as Deleted menu item:
             await contentWizard.doMarkAsDeleted();
@@ -159,6 +160,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             let publishContentDialog = new PublishContentDialog();
             await publishContentDialog.waitForDialogOpened();
             await publishContentDialog.clickOnPublishNowButton();
+            await studioUtils.doSwitchToContentBrowsePanel();
             //5. Verify that the wizard closes abd the folder is deleted:
             await studioUtils.typeNameInFilterPanel(folderName);
             await contentBrowsePanel.waitForContentNotDisplayed(folderName);
