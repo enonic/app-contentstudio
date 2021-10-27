@@ -65,22 +65,6 @@ public final class LocaleMessageResolver
             return null;
         }
 
-        final List<Locale> preferredLocales = Collections.list( req.getLocales() ).
-            stream().
-            map( this::resolveLanguage ).
-            collect( toList() );
-
-        return localeService.getSupportedLocale( preferredLocales, applicationKey );
+        return localeService.getSupportedLocale( Collections.list( req.getLocales() ) , applicationKey );
     }
-
-    private Locale resolveLanguage( final Locale locale )
-    {
-        final String lang = locale.getLanguage();
-        if ( lang.equals( "nn" ) || lang.equals( "nb" ) )
-        {
-            return new Locale( "no" );
-        }
-        return locale;
-    }
-
 }
