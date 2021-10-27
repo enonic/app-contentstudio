@@ -9,24 +9,42 @@
     margin: 0 0 0 20px;
     vertical-align: middle;
 
+    .tab-menu-button {
+      display: inline-block;
+      padding: 2px 40px 3px 30px;
+      font-weight: bold;
+      line-height: 22px;
+      border-radius: 6px;
+
+      .label {
+        margin: 0;
+        color: white;
+      }
+    }
+
     &.open {
       .tab-menu-button {
         background-color: @admin-green;
       }
+
       &.standard .issue-icon::after {
         background-image: url("../../images/issue-open.svg");
       }
+
       &.publish-request .issue-icon::after {
         background-image: url("../../images/publish-request-open.svg");
       }
     }
+
     &.closed {
       .tab-menu-button {
         background-color: @admin-font-gray2;
       }
+
       &.standard .issue-icon::after {
         background-image: url("../../images/issue-closed.svg");
       }
+
       &.publish-request .issue-icon::after {
         background-image: url("../../images/publish-request-closed.svg");
       }
@@ -60,19 +78,6 @@
       &::after {
         width: 32px;
         height: 32px;
-      }
-    }
-
-    .tab-menu-button {
-      display: inline-block;
-      padding: 2px 40px 3px 30px;
-      font-weight: bold;
-      line-height: 22px;
-      border-radius: 6px;
-
-      .label {
-        margin: 0;
-        color: white;
       }
     }
 

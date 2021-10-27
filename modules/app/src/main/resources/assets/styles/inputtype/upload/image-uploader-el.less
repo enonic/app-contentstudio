@@ -1,10 +1,10 @@
 .image-uploader-input {
-
   .image-uploader-el {
     &:not(.uploading) {
       &.dz-dragover {
         &:after {
           .dropcircle(140px);
+
           z-index: @z-index-modal-dialog;
           margin-top: -111px; // -140 + 58/2 ( half of the sticky toolbar to be centered over image )
           font-size: 25px;
@@ -33,21 +33,17 @@
   .reset();
 
   .result-container {
-
     &.placeholder {
       background: url("../../../images/transparent-image-bg.png") repeat;
     }
 
     .image-editor {
-
       .image-frame {
-
         .image-canvas {
-
           img {
             background-color: @admin-bg-light-gray;
             background-image: linear-gradient(45deg, @admin-font-gray1 25%, transparent 25%, transparent 75%, @admin-font-gray1 75%, @admin-font-gray1),
-            linear-gradient(45deg, @admin-font-gray1 25%, transparent 25%, transparent 75%, @admin-font-gray1 75%, @admin-font-gray1);
+              linear-gradient(45deg, @admin-font-gray1 25%, transparent 25%, transparent 75%, @admin-font-gray1 75%, @admin-font-gray1);
             background-size: 20px 20px;
             background-position: 0 0, 10px 10px;
             image-rendering: -moz-crisp-edges;
@@ -60,7 +56,6 @@
       }
     }
   }
-
 }
 
 .image .image-uploader-el {
@@ -71,10 +66,13 @@
   .upload-dialog {
     .dialog-content {
       height: 70%;
+
       .image-uploader-el {
         height: 100%;
+
         .dropzone-container {
           height: 100%;
+
           .dropzone {
             height: 80%;
           }

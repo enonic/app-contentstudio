@@ -1,5 +1,4 @@
 .widget-view.internal-widget {
-
   .content-widget-item-view {
     display: flex;
     box-sizing: border-box;
@@ -31,7 +30,6 @@
   }
 
   .properties-widget-item-view {
-
     dl {
       overflow: hidden;
 
@@ -50,11 +48,9 @@
   }
 
   .attachments-widget-item-view {
-
     min-height: 35px;
 
     ul.attachment-list {
-
       li.attachment-container {
         margin: 5px 0;
         font-size: 12px;
@@ -62,7 +58,7 @@
         .icon-medium();
         .icon-attachment();
 
-        &:before {
+        &::before {
           font-size: 24px;
         }
 
@@ -99,22 +95,21 @@
 
       &.equal {
         color: @admin-green;
+
         &.pending {
           color: @admin-orange;
         }
+
         &.expired {
           color: @admin-red;
         }
       }
-
     }
   }
 
   .user-access-widget-item-view {
-
     text-align: center;
     .@{_COMMON_PREFIX}tooltip {
-
       z-index: 99999;
     }
 
@@ -123,17 +118,17 @@
     }
 
     .user-access-widget-header {
-
       text-align: center;
       .ellipsis();
 
       &.icon-lock, &.icon-unlock {
-        &:before {
+        &::before {
           display: inline-block;
           font-size: 18px;
           margin-right: 7px;
         }
       }
+
       .header-string {
         line-height: 30px;
       }
@@ -142,7 +137,6 @@
     .edit-permissions-link {
       display: inline-block;
       margin-top: 5px;
-
     }
 
     .empty + .edit-permissions-link {
@@ -150,18 +144,15 @@
     }
 
     .user-access-list-view {
-
       margin-top: 5px;
 
       .user-access-list-item-view {
-
         padding: 3px 0;
         position: relative;
 
         .clearfix();
 
         .user-line {
-
           position: relative;
           margin-right: 100px;
           height: 29px;
@@ -169,7 +160,7 @@
           padding-right: 30px;
           text-align: left;
 
-          &:after {
+          &::after {
             position: absolute;
             content: attr(extra-count);
             font-size: 14px;
@@ -237,6 +228,5 @@
         display: block;
       }
     }
-
   }
 }

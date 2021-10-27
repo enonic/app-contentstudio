@@ -208,8 +208,8 @@
 .icon-state-invalid {
   .icon();
 
-  &:before {
-    color: #CB0300;
+  &::before {
+    color: @admin-red;
     content: "\e905";
     background-color: @admin-white;
     border-radius: 20px;
@@ -219,8 +219,8 @@
 .icon-state-in-progress {
   .icon();
 
-  &:before {
-    color: #CBAD00;
+  &::before {
+    color: #cbad00;
     content: "\e904";
     background-color: @admin-white;
     border-radius: 20px;
@@ -230,7 +230,7 @@
 .icon-state-ready {
   .icon();
 
-  &:before {
+  &::before {
     content: "\e907";
     color: @admin-green;
     background-color: @admin-white;
@@ -241,7 +241,7 @@
 .icon-version-modified {
   .icon();
 
-  &:before {
+  &::before {
     content: "\e908";
   }
 }
@@ -249,7 +249,7 @@
 .icon-version-published {
   .icon();
 
-  &:before {
+  &::before {
     content: "\e909";
   }
 }
@@ -257,7 +257,7 @@
 .icon-version-unpublished {
   .icon();
 
-  &:before {
+  &::before {
     content: "\e2c1";
   }
 }
@@ -265,7 +265,7 @@
 .icon-publish-request {
   .icon();
 
-  &:before {
+  &::before {
     content: "\e9a0";
   }
 }
@@ -273,7 +273,7 @@
 .icon-issue {
   .icon();
 
-  &:before {
+  &::before {
     content: "\e9a1";
   }
 }
@@ -281,18 +281,18 @@
 .icon-publish-request,
 .icon-issue {
   &.closed {
-    color: #777777;
+    color: @admin-font-gray3;
   }
 
   &.opened {
-    color: #609E24;
+    color: @admin-green;
   }
 }
 
 .icon-compare {
   .icon();
 
-  &:before {
+  &::before {
     content: "\e915";
   }
 }
@@ -300,7 +300,7 @@
 .icon-tree-2 {
   .icon();
 
-  &:before {
+  &::before {
     content: "\e978";
   }
 }
@@ -308,7 +308,7 @@
 .icon-blocked {
   .icon();
 
-  &:before {
+  &::before {
     content: "\ea0e";
     color: @admin-red;
     background-color: @admin-white;
@@ -319,7 +319,7 @@
 .icon-layer {
   .icon();
 
-  &:before {
+  &::before {
     content: "\e932";
   }
 }

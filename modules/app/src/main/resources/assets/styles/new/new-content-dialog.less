@@ -2,7 +2,6 @@
 @file-input-margin-bottom: 20px;
 
 .new-content-dialog {
-
   .modal-dialog-header {
     .title-wrapper {
       display: flex;
@@ -77,9 +76,11 @@
       position: relative;
       cursor: pointer;
       padding: 5px;
+
       &:focus {
         background-color: @admin-blue !important;
         outline: none;
+
         h6, p {
           color: white;
         }
@@ -91,7 +92,6 @@
       }
 
       .names-and-icon-view {
-
         .@{_COMMON_PREFIX}icon-label {
           left: 23px;
           padding: 0 5px;
@@ -101,7 +101,6 @@
           color: white;
           font-size: 14px;
           font-family: @admin-font-family;
-
         }
       }
 
@@ -157,7 +156,7 @@
   .dialog-buttons {
     text-align: center;
 
-    &:before {
+    &::before {
       width: 100%;
       line-height: 34px;
       color: @admin-font-gray1;
@@ -167,12 +166,11 @@
     @media screen and (max-width: 720px) {
       display: none;
     }
-
   }
 
   &.no-uploader-el {
     .dialog-buttons {
-      &:before {
+      &::before {
         content: '';
       }
     }
