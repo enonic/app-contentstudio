@@ -9,6 +9,7 @@ const appConstant = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
+const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
 
 describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolbar`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -42,29 +43,55 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             //2. Click on Mark As Ready:
             await contentBrowsePanel.clickOnMarkAsReadyButton();
+            // open Publish Menu and verify status of all menu items:
+            await contentBrowsePanel.openPublishMenu();
+            await studioUtils.saveScreenshot("publish_menu_Folder_ready");
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH_TREE);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.MARK_AS_READY);
             //3.  do publish the folder:
             await studioUtils.doPublish();
             let status = await contentBrowsePanel.getContentStatus(FOLDER.displayName);
             assert.equal(status, appConstant.CONTENT_STATUS.PUBLISHED, "The folder should be Published");
         });
 
-    it(`GIVEN existing 'published' folder WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be disabled AND 'Create Task...' is enabled`,
+    it(`GIVEN existing 'published' folder WHEN publish menu has been expanded THEN 'Unpublish' and 'Create Task...' menu items should be enabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Select the folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            await contentBrowsePanel.waitForUnPublishButtonVisible();
-            // open Publish Menu:
+
+            //2. Open Publish Menu and verify status of all menu items:
             await contentBrowsePanel.openPublishMenu();
-            await studioUtils.saveScreenshot("publish_menu_items1");
+            await studioUtils.saveScreenshot("publish_menu_Folder_published");
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.UNPUBLISH);
             await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
-            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH_TREE);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.MARK_AS_READY);
         });
 
-    it(`WHEN existing published folder has been selected THEN 'UNPUBLISH...' button should appear on browse-toolbar`,
+    it(`WHEN existing folder has been unpublished THEN status of menu items should be updated`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Select the folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            await contentBrowsePanel.waitForUnPublishButtonVisible();
+            //2. Click on Mark As Ready:
+            await contentBrowsePanel.clickOnUnpublishButton();
+            let contentUnpublishDialog = new ContentUnpublishDialog();
+            await contentUnpublishDialog.waitForDialogOpened();
+            await contentUnpublishDialog.clickOnUnpublishButton();
+            await contentUnpublishDialog.waitForDialogClosed();
+            // open Publish Menu and verify status of all menu items:
+            await contentBrowsePanel.openPublishMenu();
+            await studioUtils.saveScreenshot("publish_menu_Folder_unpublished");
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.CREATE_TASK);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemEnabled(appConstant.PUBLISH_MENU.PUBLISH);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.PUBLISH_TREE);
+            await contentBrowsePanel.waitForPublishMenuItemDisabled(appConstant.PUBLISH_MENU.MARK_AS_READY);
         });
 
     it(`WHEN site(Ready to publish) has been published (children were not included) THEN 'PUBLISH TREE...' button should appear in the browse-toolbar`,
