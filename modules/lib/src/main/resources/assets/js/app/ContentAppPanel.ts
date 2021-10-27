@@ -131,16 +131,4 @@ export class ContentAppPanel
                 Router.get().setHash(hash);
             });
     }
-
-    protected activateCurrentKeyBindings(): void {
-        if (ProjectContext.get().isInitialized()) {
-            super.activateCurrentKeyBindings();
-        } else {
-            const projectSetHandler = () => {
-                super.activateCurrentKeyBindings();
-                ProjectContext.get().unProjectChanged(projectSetHandler);
-            };
-            ProjectContext.get().onProjectChanged(projectSetHandler);
-        }
-    }
 }
