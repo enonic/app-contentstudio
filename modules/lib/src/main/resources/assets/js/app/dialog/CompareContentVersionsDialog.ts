@@ -526,7 +526,7 @@ export class CompareContentVersionsDialog
         const aVal = a.getDisplayValue();
         const bVal = b.getDisplayValue();
         const aAlias = aVal.isAlias();
-        const bAlisas = bVal.isAlias();
+        const bAlias = bVal.isAlias();
 
         if (isSecondValid(aAlias, bAlisas)) {
             return 1;
