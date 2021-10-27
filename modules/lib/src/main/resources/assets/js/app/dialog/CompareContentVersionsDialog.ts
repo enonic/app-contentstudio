@@ -528,15 +528,15 @@ export class CompareContentVersionsDialog
         const aAlias = aVal.isAlias();
         const bAlias = bVal.isAlias();
 
-        if (isSecondValid(aAlias, bAlisas)) {
+        if (isSecondValid(aAlias, bAlias)) {
             return 1;
         }
 
-        if (isFirstValid(aAlias, bAlisas)) {
+        if (isFirstValid(aAlias, bAlias)) {
             return -1;
         }
 
-        if (areBothValid(aAlias, bAlisas)) {
+        if (areBothValid(aAlias, bAlias)) {
             // Bubble AliasType.Newest to the top
             return aVal.getAliasType() - bVal.getAliasType();
         }
