@@ -1,7 +1,6 @@
 package com.enonic.xp.app.contentstudio.style;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,8 +9,6 @@ import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.i18n.MessageBundle;
 import com.enonic.xp.web.servlet.ServletRequestHolder;
-
-import static java.util.stream.Collectors.toList;
 
 public final class LocaleMessageResolver
 {
@@ -45,22 +42,6 @@ public final class LocaleMessageResolver
             return null;
         }
 
-        final List<Locale> preferredLocales = Collections.list( req.getLocales() ).
-            stream().
-            map( this::resolveLanguage ).
-            collect( toList() );
-
-        return localeService.getSupportedLocale( preferredLocales, applicationKey );
+        return localeService.getSupportedLocale( Collections.list( req.getLocales() ) , applicationKey );
     }
-
-    private Locale resolveLanguage( final Locale locale )
-    {
-        final String lang = locale.getLanguage();
-        if ( lang.equals( "nn" ) || lang.equals( "nb" ) )
-        {
-            return new Locale( "no" );
-        }
-        return locale;
-    }
-
 }
