@@ -91,7 +91,7 @@ class ConfirmValueDialog extends Page {
     }
 
     getSuggestedNumberToDelete() {
-        let locator = XPATH.container + XPATH.suggestedNumberToDelete;
+        const locator = XPATH.container + XPATH.suggestedNumberToDelete;
         return this.getText(locator);
     }
 }

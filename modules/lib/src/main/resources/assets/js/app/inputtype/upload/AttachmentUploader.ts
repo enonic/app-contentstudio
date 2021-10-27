@@ -51,7 +51,7 @@ export class AttachmentUploader
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
         return super.update(propertyArray, unchangedOnly).then(() => {
             this.doRefresh();
-            return Q(null);
+            return Q(null); //new Promise(null);
         });
     }
 

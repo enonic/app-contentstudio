@@ -29,6 +29,7 @@ module.exports = {
         'semi': 'off',
         '@typescript-eslint/semi': ['error'],
         'no-control-regex': 'off',
+        'new-cap': ['warn', {'capIsNewExceptions': ['Q']}],
 
         // TODO: Remove rules, during the refactoring
 

@@ -30,6 +30,9 @@ module.exports = {
         '@typescript-eslint/semi': ['error'],
         'no-control-regex': 'off',
 
+        // Codacy linting
+        'complexity': ['warn', {'max': 4}],
+
         // TODO: Remove rules, during the refactoring
 
         // === DEFAULT RULES ===

@@ -10,7 +10,7 @@ export class ImageComponentViewer
     }
 
     resolveDisplayName(object: ImageComponent): string {
-        return !!object.getName() ? object.getName().toString() : '';
+        return object.getName() ? object.getName().toString() : '';
     }
 
     resolveSubName(object: ImageComponent, relativePath: boolean = false): string {
