@@ -5,7 +5,6 @@
       scroll-behavior: smooth;
 
       .grid-canvas {
-
         .slick-row.ui-widget-content {
           width: ~"calc(33.3% - 20px)";
           height: 178px;
@@ -15,13 +14,16 @@
           background-color: @admin-white;
           border: 1px solid @admin-bg-light-gray;
 
-          &.active, &:hover {
+          &.active,
+          &:hover {
             background-color: @admin-white;
             .image-selector-active-cell();
           }
 
           .slick-cell {
-            &:hover, &.selected, &.active {
+            &:hover,
+            &.selected,
+            &.active {
               background-color: transparent;
             }
 
@@ -69,10 +71,10 @@
                 }
               }
 
-              &:hover, &.selected {
+              &:hover,
+              &.selected {
                 .viewer {
                   .names-and-icon-view {
-
                     .@{_COMMON_PREFIX}names-view {
                       display: block;
 
@@ -84,7 +86,6 @@
                   }
                 }
               }
-
             }
 
             &.status {
@@ -140,12 +141,10 @@
 
 .image-grid-width(@width) {
   .grid:not(.tree-mode) {
-
     .slick-viewport {
       scroll-behavior: smooth;
 
       .grid-canvas {
-
         .slick-row.ui-widget-content {
           width: @width;
         }

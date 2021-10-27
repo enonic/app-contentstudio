@@ -2,7 +2,6 @@
   position: relative;
 
   .combobox-wrapper {
-
     .rich-combobox {
       .selected-options {
         .selected-option {
@@ -30,8 +29,10 @@
     .dropzone {
       overflow: visible;
       z-index: @z-index-mask !important;
-      &:before {
+
+      &::before {
         .dropcircle(60px);
+
         padding: 40px 5px 0;
         line-height: 20px;
       }
@@ -43,8 +44,8 @@
       font-size: 14px;
       background-color: @admin-white;
       border: 1px solid @admin-medium-gray-border;
-
       box-sizing: border-box;
+
       .input-border();
       .input-glow();
     }
@@ -65,7 +66,7 @@
         border: 1px solid #d3d3d3;
       }
 
-      &.placeholder:before {
+      &.placeholder::before {
         position: absolute;
         left: 0;
         width: 100%;
@@ -91,7 +92,7 @@
 
       // make selected-option square sized
       // http://spin.atomicobject.com/2015/07/14/css-responsive-square/
-      &:after {
+      &::after {
         content: "";
         display: block;
         padding-bottom: 100%;
@@ -136,7 +137,6 @@
         }
       }
 
-
       &.missing {
         .squared-content {
           .error {
@@ -144,9 +144,9 @@
           }
         }
       }
-
     }
   }
+
   .selection-toolbar {
     float: left;
     width: 100%;
@@ -173,11 +173,13 @@
     background: url("../../../images/folder-open.png") no-repeat center;
   }
 
-  &._0-240, &._240-360 {
+  &._0-240,
+  &._240-360 {
     .squared-content > .label {
       font-size: 8px;
     }
   }
+
   &._360-540 {
     .squared-content > .label {
       font-size: 10px;
