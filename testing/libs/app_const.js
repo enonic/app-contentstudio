@@ -205,7 +205,7 @@ module.exports = Object.freeze({
         PAGE_TEMPLATE: `Page Template`,
         HTML_AREA_0_1: `htmlarea0_1`,
         HTML_AREA_2_4: `htmlarea2_4`,
-        IMG_SELECTOR_0_0: 'contenttypes:imageselector0_0',
+        IMG_SELECTOR_0_0: 'imageselector0_0',
         IMG_SELECTOR_0_1: 'imageselector0_1',
         IMG_SELECTOR_1_1: 'imageselector1_1',
         IMG_SELECTOR_2_4: 'imageselector2_4',
@@ -246,6 +246,8 @@ module.exports = Object.freeze({
         RADIOBUTTON_0_1: "radiobutton0_1",
         TAG_2_5: "tag2_5",
         TAG_0_5: "tag0_5",
+        CUSTOM_SELECTOR_0_2: 'custom-selector0_2',
+        CUSTOM_SELECTOR_1_1: 'custom-selector1_1',
     },
     permissions: {
         FULL_ACCESS: `Full Access`,
