@@ -68,12 +68,7 @@ export class ContentBrowsePanel
         }, 300);
 
         this.contextPanelToggler = new NonMobileContextPanelToggleButton();
-
-        if (!ProjectContext.get().isInitialized()) {
-            this.handleProjectNotSet();
-        } else {
-            this.getBrowseActions().updateActionsEnabledState([]);
-        }
+        this.getBrowseActions().updateActionsEnabledState([]);
     }
 
     private handleProjectNotSet() {
@@ -98,9 +93,7 @@ export class ContentBrowsePanel
         super.initListeners();
 
         this.onShown(() => {
-            if (ProjectContext.get().isInitialized()) {
-                Router.get().setHash(UrlAction.BROWSE);
-            }
+            Router.get().setHash(UrlAction.BROWSE);
         });
 
         this.handleGlobalEvents();

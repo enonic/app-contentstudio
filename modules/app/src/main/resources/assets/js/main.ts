@@ -394,11 +394,13 @@ async function startApplication() {
             NotifyManager.get().showWarning(i18n('notify.settings.project.initFailed'));
         })
         .finally(() => {
-            if (ContentAppHelper.isContentWizard(application)) {
-                startContentWizard(ContentAppHelper.createWizardParamsFromApp(application), connectionDetector);
-            } else {
-                startContentBrowser(application);
-            }
+            ProjectContext.get().whenInitialized(() => {
+                if (ContentAppHelper.isContentWizard(application)) {
+                    startContentWizard(ContentAppHelper.createWizardParamsFromApp(application), connectionDetector);
+                } else {
+                    startContentBrowser(application);
+                }
+            });
         });
 
     initToolTip();

@@ -4,6 +4,8 @@ import {ProjectsTreeItem} from '../data/project/ProjectsTreeItem';
 import {ProjectHelper} from '../data/project/ProjectHelper';
 import * as Q from 'q';
 
+declare const CONFIG;
+
 export class ProjectsTreeBuilder {
 
     private readonly availableProjects: Project[];
@@ -20,7 +22,9 @@ export class ProjectsTreeBuilder {
     build(): Q.Promise<Project[]> {
         this.projectsWithoutParent = this.getProjectsWithoutParents();
 
-        return this.fetchTree(this.projectsWithoutParent.pop()).then(() => this.projectsTree.sort(ProjectHelper.sortProjects));
+        return this.fetchTree(this.projectsWithoutParent.pop()).then(() => {
+            return this.filterDefaultProjectIfNeeded(this.projectsTree).sort(ProjectHelper.sortProjects);
+        });
     }
 
     private fetchTree(project: Project): Q.Promise<void> {
@@ -71,5 +75,37 @@ export class ProjectsTreeBuilder {
     private getProjectsWithoutParents(): Project[] {
         return this.availableProjects.filter(
             (p1: Project) => !!p1.getParent() && !this.availableProjects.some((p2: Project) => p1.getParent() === p2.getName()));
+    }
+
+    private filterDefaultProjectIfNeeded(projects: Project[]): Project[] {
+        const hideDefault: boolean = CONFIG.hideDefaultProject === 'true';
+
+        if (!hideDefault) {
+            return projects;
+        }
+
+        return projects.filter((project: Project) => !this.isFromDefaultTree(project));
+    }
+
+    private isFromDefaultTree(project: Project): boolean {
+        return ProjectHelper.isDefault(project) || this.hasDefaultParent(project);
+    }
+
+    private hasDefaultParent(project: Project): boolean {
+        let parent: Project = this.getParent(project);
+
+        while (parent) {
+            if (ProjectHelper.isDefault(parent)) {
+                return true;
+            }
+
+            parent = this.getParent(parent);
+        }
+
+        return false;
+    }
+
+    private getParent(project: Project): Project {
+        return this.projectsTree.find((p: Project) => p.getName() === project.getParent());
     }
 }

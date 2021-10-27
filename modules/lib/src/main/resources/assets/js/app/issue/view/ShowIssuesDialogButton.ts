@@ -26,10 +26,7 @@ export class ShowIssuesDialogButton extends ActionButton {
             this.fetchIssuesAndCreateLink();
         }, 200);
 
-        if (ProjectContext.get().isInitialized()) {
-            this.updateHandler();
-        }
-
+        this.updateHandler();
         this.initEventsListeners();
     }
 
@@ -64,19 +61,6 @@ export class ShowIssuesDialogButton extends ActionButton {
     }
 
     private fetchIssuesAndCreateLink() {
-        if (ProjectContext.get().isInitialized()) {
-            this.doFetchIssuesAndCreateLink();
-        } else {
-            const projectSetHandler = () => {
-                ProjectContext.get().unProjectChanged(projectSetHandler);
-                this.doFetchIssuesAndCreateLink();
-            };
-
-            ProjectContext.get().onProjectChanged(projectSetHandler);
-        }
-    }
-
-    private doFetchIssuesAndCreateLink() {
         this.resetButton();
 
         this.fetchNumberOfOpenIssuesAssignedToMe().then((totalAssignedToMe: number) => {

@@ -56,10 +56,6 @@ export class AggregatedServerEventsListener
     }
 
     private isInCurrentProject(event: NodeServerEvent): boolean {
-        if (!ProjectContext.get().isInitialized()) {
-            return false;
-        }
-
         const currentRepo: string = RepositoryId.fromCurrentProject().toString();
 
         return event.getNodeChange().getChangeItems().some((change: ContentServerChangeItem) => change.getRepo() === currentRepo);

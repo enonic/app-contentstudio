@@ -6,13 +6,14 @@ var portal = require('/lib/xp/portal');
 var contextLib = require('/lib/xp/context');
 
 function handleGet() {
-    var view = resolve('./../main/main.html');
+    const view = resolve('./../main/main.html');
 
-    var context = contextLib.get();
-    var branch = context.branch;
-    var allowScriptsInEditor = app.config['htmlinput.allowScripts'] === 'true' || false;
-    var allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
-    var allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
+    const context = contextLib.get();
+    const branch = context.branch;
+    const allowScriptsInEditor = app.config['htmlinput.allowScripts'] === 'true' || false;
+    const allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
+    const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
+    const hideDefaultProject = app.config['settings.hideDefaultProject'] === 'true' || false;
 
     const params = {
         adminUrl: admin.getBaseUri(),
@@ -35,6 +36,7 @@ function handleGet() {
         allowScriptsInEditor,
         allowContentUpdate,
         allowPathTransliteration,
+        hideDefaultProject,
         mainUrl: portal.pageUrl().replace('/settings', '')
     };
 

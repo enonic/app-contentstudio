@@ -478,7 +478,7 @@ export class ContentServerEventsHandler {
             //
         }
     }
-    
+
     private handleCurrentRepoChanges(changedItems: ContentServerChangeItem[], type: NodeServerChangeType) {
         if (type === NodeServerChangeType.DELETE && this.hasDraftBranchChanges(changedItems)) {
             // content has already been deleted so no need to fetch summaries

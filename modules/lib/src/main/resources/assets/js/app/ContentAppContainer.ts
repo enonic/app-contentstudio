@@ -22,25 +22,8 @@ export class ContentAppContainer
     constructor() {
         super();
 
-        if (!ProjectContext.get().isInitialized()) {
-            this.handleProjectNotSet();
-        } else {
-            new ContentEventsListener().start();
-            this.initListeners();
-        }
-    }
-
-    private handleProjectNotSet() {
-        this.appBar.disable();
-
-        const projectSetHandler = () => {
-            this.appBar.enable();
-            new ContentEventsListener().start();
-            this.initListeners();
-            ProjectContext.get().unProjectChanged(projectSetHandler);
-        };
-
-        ProjectContext.get().onProjectChanged(projectSetHandler);
+        new ContentEventsListener().start();
+        this.initListeners();
     }
 
     protected createAppBar(application: Application): ContentAppBar {

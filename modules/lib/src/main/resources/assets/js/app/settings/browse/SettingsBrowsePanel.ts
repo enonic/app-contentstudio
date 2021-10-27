@@ -11,25 +11,6 @@ export class SettingsBrowsePanel
 
     protected treeGrid: SettingsItemsTreeGrid;
 
-    protected initElements(): void {
-        super.initElements();
-
-        if (!ProjectContext.get().isInitialized()) {
-            this.handleProjectNotSet();
-        }
-    }
-
-    private handleProjectNotSet() {
-        this.treeGrid.disableKeys();
-
-        const projectSetHandler = () => {
-            this.treeGrid.enableKeys();
-            ProjectContext.get().unProjectChanged(projectSetHandler);
-        };
-
-        ProjectContext.get().onProjectChanged(projectSetHandler);
-    }
-
     protected initListeners(): void {
         super.initListeners();
 

@@ -48,21 +48,6 @@ export class ContentItemPreviewPanel
 
         this.initElements();
         this.setupListeners();
-
-        if (!ProjectContext.get().isInitialized()) {
-            this.handleProjectNotSet();
-        }
-    }
-
-    private handleProjectNotSet() {
-        this.noSelectionMessage.getFirstChild().setHtml(i18n('settings.projects.nopermissions'));
-
-        const projectSetHandler = () => {
-            this.noSelectionMessage.getFirstChild().setHtml(i18n('panel.noselection'));
-            ProjectContext.get().unProjectChanged(projectSetHandler);
-        };
-
-        ProjectContext.get().onProjectChanged(projectSetHandler);
     }
 
     doRender(): Q.Promise<boolean> {
