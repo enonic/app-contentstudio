@@ -32,7 +32,7 @@ export class InspectionsPanel
     extends Panel {
 
     private deck: DeckPanel;
-    private buttons: DivEl;
+    private buttonContainer: DivEl;
 
     private noSelectionPanel: NoSelectionInspectionPanel;
     private imageInspectionPanel: ImageInspectionPanel;
@@ -71,11 +71,10 @@ export class InspectionsPanel
 
         this.deck.showPanel(this.pageInspectionPanel);
 
-        this.buttons = new DivEl('button-bar');
-        let saveButton = new ActionButton(config.saveAction);
-        this.buttons.appendChild(saveButton);
+        this.buttonContainer = new DivEl('button-bar');
+        this.buttonContainer.appendChild(new ActionButton(config.saveAction));
 
-        this.appendChildren(<Element>this.deck, this.buttons);
+        this.appendChildren(<Element>this.deck, this.buttonContainer);
 
         this.partInspectionPanel.onDescriptorLoaded(this.updateButtonsVisibility.bind(this));
         this.layoutInspectionPanel.onDescriptorLoaded(this.updateButtonsVisibility.bind(this));
@@ -93,12 +92,14 @@ export class InspectionsPanel
         this.deck.showPanel(panel);
 
         const descriptor = this.getPanelDescriptor(panel);
-        this.updateButtonsVisibility(descriptor);
+        if (!descriptor) {
+            this.buttonContainer.setVisible(false);
+        }
     }
 
     private updateButtonsVisibility(descriptor: Descriptor): void {
         const showButtons = descriptor ? descriptor.getConfig()?.getFormItems().length > 0 : false;
-        this.buttons.setVisible(showButtons);
+        this.buttonContainer.setVisible(showButtons);
     }
 
     public clearInspection() {
