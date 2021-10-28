@@ -7,6 +7,7 @@ import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSel
 import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
 import {ContentFormContext} from '../../ContentFormContext';
 import {ApplicationConfigProvider} from 'lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
+import {ApplicationConfig} from 'lib-admin-ui/application/ApplicationConfig';
 
 export class SiteConfiguratorSelectedOptionsView
     extends BaseSelectedOptionsView<Application> {
@@ -26,8 +27,9 @@ export class SiteConfiguratorSelectedOptionsView
 
         this.siteConfigProvider.onPropertyChanged(() => {
 
-            this.items.forEach((optionView) => {
-                let newConfig = this.siteConfigProvider.getConfig(optionView.getSiteConfig().getApplicationKey(), false);
+            this.items.forEach((optionView: SiteConfiguratorSelectedOptionView) => {
+                const newConfig: ApplicationConfig =
+                    this.siteConfigProvider.getConfig(optionView.getSiteConfig().getApplicationKey(), false);
                 if (newConfig) {
                     optionView.setSiteConfig(newConfig);
                 }
@@ -39,34 +41,35 @@ export class SiteConfiguratorSelectedOptionsView
     }
 
     makeEmptyOption(id: string): Option<Application> {
-
-        let key = ApplicationKey.fromString(id);
-        let emptyApp = new ApplicationBuilder();
+        const key: ApplicationKey = ApplicationKey.fromString(id);
+        const emptyApp: ApplicationBuilder = new ApplicationBuilder();
         emptyApp.applicationKey = key;
         emptyApp.displayName = id;
 
         return Option.create<Application>()
-                .setValue(id)
-                .setDisplayValue(emptyApp.build())
-                .setEmpty(true)
-                .build();
+            .setValue(id)
+            .setDisplayValue(emptyApp.build())
+            .setEmpty(true)
+            .build();
     }
 
     createSelectedOption(option: Option<Application>): SelectedOption<Application> {
+        const siteConfig: ApplicationConfig = this.siteConfigProvider.getConfig(option.getDisplayValue().getApplicationKey());
+        const optionView: SiteConfiguratorSelectedOptionView = new SiteConfiguratorSelectedOptionView(option, siteConfig, this.formContext);
 
-        let siteConfig = this.siteConfigProvider.getConfig(option.getDisplayValue().getApplicationKey());
-        let optionView = new SiteConfiguratorSelectedOptionView(option, siteConfig, this.formContext);
+        optionView.setReadonly(this.readonly);
 
         optionView.onSiteConfigFormDisplayed((applicationKey: ApplicationKey) => {
             this.notifySiteConfigFormDisplayed(applicationKey, optionView.getFormView());
         });
+
         this.items.push(optionView);
 
         return new SelectedOption<Application>(optionView, this.count());
     }
 
     removeOption(optionToRemove: Option<Application>, silent: boolean = false) {
-        this.items =  this.items
+        this.items = this.items
             .filter(item => !item.getSiteConfig().getApplicationKey().equals(optionToRemove.getDisplayValue().getApplicationKey()));
         super.removeOption(optionToRemove, silent);
     }
