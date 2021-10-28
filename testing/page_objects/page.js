@@ -337,6 +337,25 @@ class Page {
         }]);
     }
 
+    async doTouchAction(selector) {
+        let el = await this.findElement(selector);
+        await el.moveTo();
+        let x = await el.getLocation('x');
+        let y = await el.getLocation('y');
+        console.log("X:" + x + "Y " + y);
+        return await this.browser.performActions([{
+            type: 'pointer',
+            id: 'pointer1',
+            parameters: {
+                pointerType: 'touch'
+            },
+            actions: [
+                {type: "pointerMove", origin: "pointer", "x": Math.floor(x), "y": Math.floor(y)},
+                {type: 'pointerDown', button: 0}, {"type": "pause", "duration": 500},
+                {type: 'pointerUp', button: 0}]
+        }]);
+    }
+
     async doRightClickWithOffset(selector, offsetX, offsetY) {
         let el = await this.findElement(selector);
         await el.moveTo();

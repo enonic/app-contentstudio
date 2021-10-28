@@ -128,6 +128,10 @@ task testInputTypes_2( type: NpmTask, dependsOn: [npmInstall, startServer, copyA
     args = ['run-script', 'test_input_types_2']
     finalizedBy stopServer
 }
+
+task testInputTypes_2_Local( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_input_types_2']
+}
 task testInputTypesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['run-script', 'test_input_types']
     finalizedBy stopServer

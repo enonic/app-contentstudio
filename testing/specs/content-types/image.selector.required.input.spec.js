@@ -28,7 +28,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 await studioUtils.doAddSite(SITE);
             });
 
-        it("WHEN wizard for new Image Selector has been opened THEN options filter input should be displayed AND uploader button should be enabled AND the content is not valid",
+            it("WHEN wizard for new Image Selector(1:1) has been opened THEN options filter input should be displayed AND uploader button should be enabled AND the content is not valid",
             async () => {
                 let imageSelectorForm = new ImageSelectorForm();
                 let contentWizard = new ContentWizard();
@@ -76,7 +76,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 //1. Open existing not valid content:
                 await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
                 //2. select an image:
-                await imageSelectorForm.clickOnImage(IMAGE_DISPLAY_NAME1);
+                    await imageSelectorForm.clickOnSelectedImage(IMAGE_DISPLAY_NAME1);
                 //3. Verify that Edit and remove button get visible:
                 await imageSelectorForm.waitForEditButtonDisplayed();
                 await imageSelectorForm.waitForRemoveButtonDisplayed();
@@ -84,14 +84,14 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 await contentWizard.waitForMarkAsReadyButtonVisible();
             });
 
-        it("GIVEN existing content is opened WHEN selected image has been removed THEN the content gets not valid again",
+            it("GIVEN existing content is opened WHEN selected image has been removed THEN the content gets invalid again",
             async () => {
                 let imageSelectorForm = new ImageSelectorForm();
                 let contentWizard = new ContentWizard();
                 //1. Open existing valid content with selected image:
                 await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
                 //2. click on the image:
-                await imageSelectorForm.clickOnImage(IMAGE_DISPLAY_NAME1);
+                    await imageSelectorForm.clickOnSelectedImage(IMAGE_DISPLAY_NAME1);
                 //3. Click on 'Remove' button:
                 await imageSelectorForm.clickOnRemoveButton();
                 //4. Verify that the content gets not valid now:

@@ -35,7 +35,7 @@ class ImageSelectorForm extends BaseSelectorForm {
         return XPATH.imageContentComboBox + XPATH.modeTogglerButton;
     }
 
-    get imagesOptionsFilterInput() {
+    get optionsFilterInput() {
         return lib.FORM_VIEW + XPATH.container + lib.COMBO_BOX_OPTION_FILTER_INPUT;
     }
 
@@ -168,13 +168,13 @@ class ImageSelectorForm extends BaseSelectorForm {
 
     filterOptionsAndSelectImage(displayName) {
         let loaderComboBox = new LoaderComboBox();
-        return this.typeTextInInput(this.imagesOptionsFilterInput, displayName).then(() => {
+        return this.typeTextInInput(this.optionsFilterInput, displayName).then(() => {
             return loaderComboBox.selectOption(displayName);
         });
     }
 
     async doFilterOptions(displayName) {
-        await this.typeTextInInput(this.imagesOptionsFilterInput, displayName);
+        await this.typeTextInInput(this.optionsFilterInput, displayName);
         return await this.pause(600);
     }
 
@@ -190,11 +190,11 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     waitForOptionsFilterInputDisplayed() {
-        return this.waitForElementDisplayed(this.imagesOptionsFilterInput, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.optionsFilterInput, appConst.mediumTimeout);
     }
 
     waitForOptionsFilterInputNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.imagesOptionsFilterInput, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(this.optionsFilterInput, appConst.mediumTimeout);
     }
 
     async clickOnExpanderIconInOptions(name) {
@@ -203,10 +203,22 @@ class ImageSelectorForm extends BaseSelectorForm {
         return await this.pause(700);
     }
 
-    async clickOnImage(displayName) {
+    async clickOnSelectedImage(displayName) {
         let locator = XPATH.selectedImageByDisplayName(displayName);
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.clickOnElement(locator);
+    }
+
+    async clickOnCheckboxInSelectedImage(displayName) {
+        let locator = XPATH.selectedImageByDisplayName(displayName) + "//div[contains(@id,'Checkbox')]//label";
+        return await this.doTouchAction(locator);
+    }
+
+    async selectOptionByImagePath(imagePath, imageDisplayName) {
+        let loaderComboBox = new LoaderComboBox();
+        await this.typeTextInInput(this.optionsFilterInput, imagePath);
+        await loaderComboBox.selectOption(imageDisplayName);
+        return await loaderComboBox.pause(300);
     }
 
     //Remove image button:
@@ -230,7 +242,9 @@ class ImageSelectorForm extends BaseSelectorForm {
     }
 
     async getNumberItemInRemoveButton() {
-        return this.waitForElementDisplayed(this.removeButton, appConst.mediumTimeout);
+        await this.waitForRemoveButtonDisplayed();
+        let locator = this.removeButton + "/span";
+        return await this.getText(locator);
     }
 }
 

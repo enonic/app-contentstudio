@@ -115,7 +115,7 @@ describe('Text Component with CKE - insert link and table specification', functi
             await studioUtils.clickOnElement('a=test');
             await contentBrowsePanel.pause(2000);
             let title = await studioUtils.getTitle();
-            studioUtils.saveScreenshot('site_preview_button_clicked');
+            await studioUtils.saveScreenshot('site_preview_button_clicked');
             assert.equal(title, 'Google', 'expected title should be loaded');
         });
 
