@@ -76,8 +76,8 @@ export class HtmlArea
 
     private processInputConfig() {
         this.allowHeadingsConfig = this.getAllowedHeadingsConfig();
-        this.enabledTools = this.getTools('include');
-        this.disabledTools = this.getTools('exclude');
+        this.enabledTools = this.getTools(true);
+        this.disabledTools = this.getTools(false);
 
         if (!this.enabledTools.some((tool: string) => tool === 'Bold')) {
             this.addClass('hide-bold');
@@ -287,8 +287,8 @@ export class HtmlArea
         return HtmlEditor.create(htmlEditorParams);
     }
 
-    private getTools(toolsType: string): string[] {
-        const toolsObj: any = this.getContext().inputConfig[toolsType];
+    private getTools(enabled: boolean): string[] {
+        const toolsObj: any = this.getContext().inputConfig[enabled ? 'include' : 'exclude'];
         const result: string[] = [];
 
         if (toolsObj && toolsObj instanceof Array) {
