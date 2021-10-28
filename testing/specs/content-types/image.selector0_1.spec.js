@@ -80,7 +80,7 @@ describe('image.selector0_1.spec tests for not required image selector',
                 //1. Open existing valid content with selected image:
                 await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
                 //2. click on the image:
-                await imageSelectorForm.clickOnImage(IMAGE_DISPLAY_NAME1);
+                    await imageSelectorForm.clickOnSelectedImage(IMAGE_DISPLAY_NAME1);
                 //3. Click on 'Remove' button:
                 await imageSelectorForm.clickOnRemoveButton();
                 await studioUtils.saveScreenshot("test_workflow_icon_3");
