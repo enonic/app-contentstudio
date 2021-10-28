@@ -47,7 +47,10 @@ export class HtmlArea
 
     private authRequest: Q.Promise<void>;
     private editableSourceCode: boolean;
-    private inputConfig: any;
+
+    private enabledTools: string[];
+    private disabledTools: string[];
+    private allowHeadingsConfig: string;
 
     constructor(config: ContentInputTypeViewContext) {
         super(config);
@@ -57,8 +60,7 @@ export class HtmlArea
         this.contentPath = config.contentPath;
         this.content = config.content;
         this.applicationKeys = config.site ? config.site.getApplicationKeys() : [];
-
-        this.inputConfig = config.inputConfig;
+        this.processInputConfig();
 
         this.authRequest = HTMLAreaHelper.isSourceCodeEditable().then((value: boolean) => {
             this.editableSourceCode = value;
@@ -70,6 +72,24 @@ export class HtmlArea
         });
 
         this.setupEventListeners();
+    }
+
+    private processInputConfig() {
+        this.allowHeadingsConfig = this.getAllowedHeadingsConfig();
+        this.enabledTools = this.getTools('include');
+        this.disabledTools = this.getTools('exclude');
+
+        if (!this.enabledTools.some((tool: string) => tool === 'Bold')) {
+            this.addClass('hide-bold');
+        }
+
+        if (!this.enabledTools.some((tool: string) => tool === 'Italic')) {
+            this.addClass('hide-italic');
+        }
+
+        if (!this.enabledTools.some((tool: string) => tool === 'Underline')) {
+            this.addClass('hide-underline');
+        }
     }
 
     private setupEventListeners() {
@@ -101,7 +121,7 @@ export class HtmlArea
         const clazz = editorId.replace(/\./g, '_');
         textAreaEl.addClass(clazz);
 
-        const textAreaWrapper = new TextAreaWrapper();
+        const textAreaWrapper = new TextAreaWrapper('text-area-wrapper');
 
         textAreaEl.onRendered(() => {
             this.authRequest.then(() => {
@@ -256,11 +276,9 @@ export class HtmlArea
             .setContentPath(this.contentPath)
             .setContent(this.content)
             .setApplicationKeys(this.applicationKeys)
-            .setTools({
-                include: this.inputConfig['include'],
-                exclude: this.inputConfig['exclude']
-            })
-            .setAllowedHeadings(this.getAllowedHeadingsConfig())
+            .setEnabledTools(this.enabledTools)
+            .setDisabledTools(this.disabledTools)
+            .setAllowedHeadings(this.allowHeadingsConfig)
             .setEditableSourceCode(this.editableSourceCode)
             .setCustomStylesToBeUsed(true)
             .setAllowScripts(allowScripts)
@@ -269,8 +287,21 @@ export class HtmlArea
         return HtmlEditor.create(htmlEditorParams);
     }
 
+    private getTools(toolsType: string): string[] {
+        const toolsObj: any = this.getContext().inputConfig[toolsType];
+        const result: string[] = [];
+
+        if (toolsObj && toolsObj instanceof Array) {
+            toolsObj.forEach((tool: any) => {
+                result.push(...tool.value.trim().split(/\s+/).filter((v: string) => v));
+            });
+        }
+
+        return result;
+    }
+
     private getAllowedHeadingsConfig(): string {
-        const allowHeadingsConfig = this.inputConfig['allowHeadings'];
+        const allowHeadingsConfig = this.getContext().inputConfig['allowHeadings'];
         if (!allowHeadingsConfig || !(allowHeadingsConfig  instanceof Array)) {
             return null;
         }
@@ -522,6 +553,7 @@ export interface HtmlAreaOccurrenceInfo {
 }
 
 class TextAreaWrapper extends DivEl {
+
 
 }
 
