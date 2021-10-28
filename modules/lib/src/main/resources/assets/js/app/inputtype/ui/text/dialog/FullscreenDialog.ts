@@ -66,6 +66,8 @@ export class FullscreenDialog
     }
 
     private initEditor() {
+        this.updateBoldItalicUnderline();
+
         const editorParams: HtmlEditorParams = HtmlEditorParams.create()
             .setEditorContainerId(this.textArea.getId())
             .setAssetsUri(CONFIG.assetsUri)
@@ -76,7 +78,8 @@ export class FullscreenDialog
             .setContentPath(this.editorParams.getContentPath())
             .setContent(this.editorParams.getContent())
             .setApplicationKeys(this.editorParams.getApplicationKeys())
-            .setTools(this.editorParams.getTools())
+            .setEnabledTools(this.editorParams.getEnabledTools())
+            .setDisabledTools(this.editorParams.getDisabledTools())
             .setEditableSourceCode(this.editorParams.getEditableSourceCode())
             .setAllowedHeadings(this.editorParams.getAllowedHeadings())
             .setCustomStylesToBeUsed(true)
@@ -95,6 +98,25 @@ export class FullscreenDialog
                 });
             });
         });
+    }
+
+    private updateBoldItalicUnderline() {
+        const disabledTools: string[] = this.editorParams.getDisabledTools();
+        const enabledTools: string[] = this.editorParams.getEnabledTools();
+
+        if (disabledTools && disabledTools.length === 1 && disabledTools[0] === '*') {
+            if (!enabledTools.some((tool: string) => tool === 'Bold')) {
+                this.addClass('hide-bold');
+            }
+
+            if (!enabledTools.some((tool: string) => tool === 'Italic')) {
+                this.addClass('hide-italic');
+            }
+
+            if (!enabledTools.some((tool: string) => tool === 'Underline')) {
+                this.addClass('hide-underline');
+            }
+        }
     }
 
     private editorReadyHandler() {

@@ -698,7 +698,6 @@ export class HtmlEditor {
         const allowedTags = editor.config.format_tags.split(';');
         ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'div']
             .filter(tag => allowedTags.indexOf(tag) > -1)
-            .concat('strong', 'em', 'u')
             .forEach(tag => this.editor.addCommand(tag, commandDef));
 
         this.editor.addCommand('address', commandDef);
@@ -707,9 +706,6 @@ export class HtmlEditor {
             this.editor.setKeystroke(CKEDITOR.CTRL + 70, 'find'); // open find dialog on CTRL + F
             this.editor.setKeystroke(CKEDITOR.CTRL + 75, 'link'); // open link dialog on CTRL + K
             this.editor.setKeystroke(CKEDITOR.CTRL + 76, 'image'); // open link dialog on CTRL + L
-            this.editor.setKeystroke(CKEDITOR.CTRL + 66, 'strong'); // apply Bold styling if toolbar button is missing
-            this.editor.setKeystroke(CKEDITOR.CTRL + 73, 'em'); // apply Italic styling if toolbar button is missing
-            this.editor.setKeystroke(CKEDITOR.CTRL + 85, 'u'); // apply Underline styling if toolbar button is missing
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.ALT + 49, 'h1'); // apply Heading 1 format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.ALT + 50, 'h2'); // apply Heading 2 format
             this.editor.setKeystroke(CKEDITOR.CTRL + CKEDITOR.ALT + 51, 'h3'); // apply Heading 3 format
@@ -928,11 +924,11 @@ class HtmlEditorConfigBuilder {
 
     private editorParams: HtmlEditorParams;
 
-    private disabledTools: string = '';
+    private disabledTools: string[] = [];
     private enabledTools: string[] = [];
 
     private tools: any[] = [
-        ['Styles'],
+        ['Styles', 'Bold', 'Italic', 'Underline'],
         ['JustifyBlock', 'JustifyLeft', 'JustifyCenter', 'JustifyRight'],
         ['BulletedList', 'NumberedList', 'Outdent', 'Indent'],
         ['SpecialChar', 'Anchor', 'Image', 'Macro', 'Link', 'Unlink'],
@@ -957,29 +953,33 @@ class HtmlEditorConfigBuilder {
     }
 
     private processCustomToolConfig() {
-        const tools = this.editorParams.getTools();
+        this.processDisabledTools();
+        this.processEnabledTools();
+    }
 
-        if (!tools) {
-            return;
-        }
+    private processDisabledTools() {
+        this.disabledTools = this.editorParams.getDisabledTools() || [];
 
-        const enabledTools = tools['include'];
-        const disabledTools = tools['exclude'];
+        if (this.disabledTools.length > 0) {
+            this.disabledTools = this.disabledTools.map((tool: string) => tool.replace('Format', 'Styles'));
 
-        if (disabledTools && disabledTools instanceof Array) {
-            this.disabledTools = disabledTools.map(tool => tool.value).join().replace('Format', 'Styles').replace(/\s+/g, ',');
-            if (this.disabledTools === '*') {
-                this.tools = [[]];
+            if (this.isEverythingDisabled()) {
+                this.tools = [['Bold', 'Italic', 'Underline']];
             }
         }
+    }
 
-        if (enabledTools && enabledTools instanceof Array) {
-            this.includeTools(enabledTools.map(tool => tool.value)
-                .join()
-                .replace('Format', 'Styles') // Styles plugin is used instead of Format
-                .replace(/\|/g, '-')
-                .split(/\s+/)
-                .filter((tool: string) => !this.isDefaultTool(tool)));
+    private isEverythingDisabled(): boolean {
+        return this.disabledTools.length === 1 && this.disabledTools[0] === '*';
+    }
+
+    private processEnabledTools() {
+        this.enabledTools = this.editorParams.getEnabledTools() || [];
+
+        if (this.enabledTools.length > 0) {
+            this.enabledTools = this.enabledTools
+                .map((tool: string) => tool.replace('Format', 'Styles').replace(/\|/g, '-'))
+                .filter((tool: string) => !this.isDefaultTool(tool));
         }
     }
 
@@ -992,20 +992,10 @@ class HtmlEditorConfigBuilder {
             this.includeTool('Fullscreen');
         }
 
-        if (this.editorParams.isFullScreenMode() || this.editorParams.isInline()) {
-            ['Bold', 'Italic', 'Underline']
-                .filter((tool: string) => !this.isToolDisabled(tool))
-                .forEach((tool: string) => this.includeTool(tool));
-        }
-
         const toolsToAdd: string[] = [];
 
         this.enabledTools.forEach((tool: string) => {
-            if (tool === 'Bold' || tool === 'Italic' || tool === 'Underline') {
-                this.tools[0].push(tool);
-            } else {
-                toolsToAdd.push(tool);
-            }
+            toolsToAdd.push(tool);
         });
 
         if (this.editorParams.isInline()) {
@@ -1035,7 +1025,7 @@ class HtmlEditorConfigBuilder {
                 [CKEDITOR.CTRL + 76, null], // disabling default Link keystroke to remove it's wrong tooltip
             ],
             removePlugins: this.getPluginsToRemove(),
-            removeButtons: this.disabledTools,
+            removeButtons: this.disabledTools?.join(),
             extraPlugins: 'macro,image2,tableresize,pasteFromGoogleDoc,pasteModeSwitcher',
             extraAllowedContent: this.getExtraAllowedContent(),
             stylesSet: `custom-${this.editorParams.getEditorContainerId()}`,
@@ -1115,11 +1105,13 @@ class HtmlEditorConfigBuilder {
     }
 
     private includeTool(tool: string) {
-        this.enabledTools.push(tool);
+        if (this.enabledTools.indexOf(tool) < 0) {
+            this.enabledTools.push(tool);
+        }
     }
 
     private isToolDisabled(tool: string): boolean {
-        return this.disabledTools === '*' || this.disabledTools.indexOf(tool) > -1;
+        return this.isEverythingDisabled() || this.disabledTools.indexOf(tool) > -1;
     }
 
     private isDefaultTool(tool: string): boolean {
