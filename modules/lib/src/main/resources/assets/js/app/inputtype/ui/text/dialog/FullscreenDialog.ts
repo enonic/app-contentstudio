@@ -110,6 +110,10 @@ export class FullscreenDialog
             return;
         }
 
+        this.doUpdateBoldItalicUnderline(enabledTools);
+    }
+
+    private doUpdateBoldItalicUnderline(enabledTools: string[]) {
         if (!enabledTools.some((tool: string) => tool === 'Bold')) {
             this.addClass('hide-bold');
         }
