@@ -27,6 +27,21 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             await studioUtils.doAddSite(SITE);
         });
 
+    //verifies the "Path-search in selectors doesn't work #4786'
+    it("GIVEN wizard for Image Selector-content (0:0) is opened WHEN path to an image has been typed THEN the image should be filtered",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let imageSelectorForm = new ImageSelectorForm();
+            //1. Open wizard for new content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_0_0);
+            //2. Type a path to an existing image and select the image:
+            let pathToImage = "all-content-types-images/" + 'renault.jpg';
+            await imageSelectorForm.selectOptionByImagePath(pathToImage, appConst.TEST_IMAGES.RENAULT);
+            //3. Verify taht the image is selected:
+            let result = await imageSelectorForm.getSelectedImages();
+            assert.equal(result[0], appConst.TEST_IMAGES.RENAULT);
+        });
+
     it(`GIVEN wizard for content with not required image-selector(0:0) is opened WHEN only name input has been filled THEN the content gets valid`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -80,17 +95,38 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             let displayName = contentBuilder.generateRandomName('imgselector');
             IMG_SEL_2_4 =
                 contentBuilder.buildContentWithImageSelector(displayName, appConst.contentTypes.IMG_SELECTOR_2_4, images);
-            //1. New wizard is opened:
+            //1. New wizard for image-selector(2:4) is opened:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, IMG_SEL_2_4.contentType);
             //2. one image has been selected:
             await contentWizard.typeData(IMG_SEL_2_4);
-            //3. The content has been saved:
+            //3. Click on Save button:
             await contentWizard.waitAndClickOnSave();
             await studioUtils.doCloseWizardAndSwitchToGrid();
             await studioUtils.typeNameInFilterPanel(IMG_SEL_2_4.displayName);
             //4. Verify that the content should be with red-icon in the grid, because 2 images are required:
             await contentBrowsePanel.waitForContentDisplayed(IMG_SEL_2_4.displayName);
             await contentBrowsePanel.isRedIconDisplayed(IMG_SEL_2_4.displayName);
+        });
+
+    it(`WHEN existing image-selector(2:4) is opened THEN the second image has been selected THEN content gets valid`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let imageSelectorForm = new ImageSelectorForm();
+            //1. existing image-selector(2:4) is opened:
+            await studioUtils.selectAndOpenContentInWizard(IMG_SEL_2_4.displayName);
+            //2. One image is selected, so validation recording should be displayed:
+            let validationRecording = await imageSelectorForm.getSelectorValidationMessage();
+            assert.equal(validationRecording, "Min 2 valid occurrence(s) required", "Expected validation message should be displayed");
+            //3. The second image has been selected:
+            await imageSelectorForm.selectOption(appConst.TEST_IMAGES.SPUMANS);
+            //4. Validation recording gets not visible:
+            await imageSelectorForm.waitForSelectorValidationMessageNotDisplayed();
+            //5. Click on checkboxes and select both images:
+            await imageSelectorForm.clickOnCheckboxInSelectedImage(appConst.TEST_IMAGES.SPUMANS);
+            await imageSelectorForm.clickOnCheckboxInSelectedImage(appConst.TEST_IMAGES.RENAULT);
+            let numberItemsToRemove = await imageSelectorForm.getNumberItemInRemoveButton();
+            //6. Verify the "Remove (2)" label in the button
+            assert.equal(numberItemsToRemove, "Remove (2)", "2 should be displayed in Remove button")
         });
 
 
