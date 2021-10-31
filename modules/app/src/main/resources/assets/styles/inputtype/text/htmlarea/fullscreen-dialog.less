@@ -1,9 +1,7 @@
 .html-area-modal-dialog.fullscreen-modal-dialog {
-
   max-width: 900px;
 
   .modal-dialog-wrapper {
-
     .modal-dialog-header {
       display: none;
     }
@@ -43,7 +41,6 @@
           display: none;
         }
       }
-
     }
 
     .modal-dialog-footer {
@@ -52,14 +49,13 @@
   }
 
   &.masked {
-
     border: 1px solid;
 
     .cancel-button-top {
       opacity: 0.25;
     }
 
-    &:after {
+    &::after {
       top: 0;
       left: 0;
       height: 100%;
@@ -70,10 +66,12 @@
       position: absolute;
     }
   }
-
 }
 
-&._0-240, &._240-360, &._360-540, &._540-720 {
+&._0-240,
+&._240-360,
+&._360-540,
+&._540-720 {
   .html-area-modal-dialog.fullscreen-modal-dialog .modal-dialog-wrapper .modal-dialog-body {
     padding-bottom: 30px;
   }

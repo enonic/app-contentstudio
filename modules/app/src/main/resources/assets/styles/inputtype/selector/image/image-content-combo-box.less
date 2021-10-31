@@ -1,6 +1,14 @@
 .image-content-combo-box {
-  .grid:not(.tree-mode) {
+  &._0-240,
+  &._240-360 {
+    .image-grid-width(~"calc(100% - 20px)");
+  }
 
+  &._360-540 {
+    .image-grid-width(~"calc(50% - 20px)");
+  }
+
+  .grid:not(.tree-mode) {
     .slick-viewport {
       scroll-behavior: smooth;
 
@@ -61,7 +69,7 @@
                     box-sizing: border-box;
                     margin: 0;
                     padding: 8px;
-                    background-color: rgba(255, 255, 255, .7);
+                    background-color: rgba(255, 255, 255, 0.7);
                     text-align: center;
 
                     .@{_COMMON_PREFIX}sub-name {
@@ -79,7 +87,7 @@
                       display: block;
 
                       .@{_COMMON_PREFIX}main-name {
-                        color: #000;
+                        color: @admin-black;
                         font-size: 12px;
                       }
                     }
@@ -121,15 +129,6 @@
         }
       }
     }
-  }
-
-  &._0-240,
-  &._240-360 {
-    .image-grid-width(~"calc(100% - 20px)");
-  }
-
-  &._360-540 {
-    .image-grid-width(~"calc(50% - 20px)");
   }
 }
 

@@ -140,11 +140,11 @@
 
 .dropdown-toggler(@color) {
   .xp-admin-common-dropdown-handle {
-    &:after {
+    &::after {
       border-top-color: @color;
     }
 
-    &:not([disabled]):hover:after {
+    &:not([disabled]):hover::after {
       border-top-color: darken(@color, 10%);
     }
 
@@ -161,7 +161,9 @@
     cursor: default;
     pointer-events: none;
 
-    .@{_COMMON_PREFIX}dropdown-handle, .action-button, .action-button.create-issue-action-button {
+    .@{_COMMON_PREFIX}dropdown-handle,
+    .action-button,
+    .action-button.create-issue-action-button {
       display: none !important;
     }
   }

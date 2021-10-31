@@ -1,30 +1,21 @@
 .tags {
   position: relative;
-  border: 1px solid #cccccc;
+  border: 1px solid @admin-medium-gray-border;
   cursor: text;
 
   .clearfix();
 
   .tag {
     float: left;
-
     background-color: @admin-bg-light-blue;
     border: 1px solid @admin-medium-gray-border;
     border-radius: 6px;
     position: relative;
-
     padding: 2px 20px 2px 6px;
     margin: 3px;
     cursor: default;
 
     .remove-button {
-      &:extend(.icon);
-      .icon-close;
-
-      &:before {
-        font-size: 14px;
-      }
-
       width: 12px;
       text-decoration: none;
       cursor: pointer;
@@ -32,6 +23,13 @@
       right: 4px;
       top: 4px;
       color: @admin-font-gray2;
+
+      &:extend(.icon);
+      .icon-close;
+
+      &::before {
+        font-size: 14px;
+      }
     }
   }
 
@@ -60,6 +58,7 @@
     background: white;
     margin-left: -1px;
     .input-border();
+
     box-shadow: 2px 2px 2px @admin-medium-gray-border;
 
     li {

@@ -1,9 +1,18 @@
 .publish-dialog {
-
   .base-publish-dialog();
 
-  .modal-dialog-header {
+  &._0-240,
+  &._240-360,
+  &._360-540 {
+    .publish-dialog-sub-title {
+      a,
+      input {
+        font-size: 12px;
+      }
+    }
+  }
 
+  .modal-dialog-header {
     .publish-dialog-sub-title {
       margin-top: 6px;
 
@@ -30,15 +39,6 @@
   &.is-processing {
     .publish-schedule-form {
       display: none;
-    }
-  }
-
-  &._0-240, &._240-360, &._360-540 {
-
-    .publish-dialog-sub-title {
-      a, input {
-        font-size: 12px;
-      }
     }
   }
 }
