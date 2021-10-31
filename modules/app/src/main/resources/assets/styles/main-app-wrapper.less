@@ -1,5 +1,4 @@
 .main-app-wrapper {
-
   @sidebar-width: 55px;
   @sidebar-width-mobile: 260px;
   @sidebar-bg-color: #2C4A38;
@@ -11,7 +10,6 @@
     width: @app-header-height;
     position: absolute;
     top: 0;
-    left: 0;
     bottom: 0;
     color: @admin-white;
     left: -@app-header-height;
@@ -98,12 +96,11 @@
         padding: 0;
 
         .home-button {
-
           @media screen and (min-width: 720px) {
             margin-left: 14px;
           }
 
-          &:before {
+          &::before {
             display: none;
             line-height: @app-header-height;
             font-size: 16px;
@@ -118,7 +115,7 @@
 
         &.tabs-present {
           @media screen and (max-width: 720px) {
-            .home-button:before {
+            .home-button::before {
               display: block;
             }
           }
@@ -133,7 +130,6 @@
   }
 
   &.sidebar-expanded {
-
     .sidebar {
       left: 0;
     }
@@ -185,7 +181,8 @@
       position: relative;
       top: -3px;
 
-      &:before, &:after {
+      &::before,
+      &::after {
         .line;
         transition: top 0.3s;
         position: absolute;
@@ -194,21 +191,25 @@
         -webkit-transform-origin: 2rem/14 center;
         transform-origin: 2rem/14 center;
       }
-      &:before {
+
+      &::before {
         top: 6px;
       }
-      &:after {
+
+      &::after {
         top: -6px;
       }
     }
 
     &:hover {
       background-color: @admin-bg-dark-gray;
+
       .lines {
-        &:before {
+        &::before {
           top: 8px;
         }
-        &:after {
+
+        &::after {
           top: -8px;
         }
       }
@@ -222,19 +223,23 @@
 
       .lines {
         background: transparent !important;
-        &:before, &:after {
+
+        &::before,
+        &::after {
           -webkit-transform-origin: 50% 50%;
           transform-origin: 50% 50%;
           top: 2px;
           width: 1.3rem;
           left: -7px;
         }
-        &:before {
+
+        &::before {
           background-color: @admin-font-gray1;
           -webkit-transform: rotate3d(0, 0, 1, 45deg);
           transform: rotate3d(0, 0, 1, 45deg);
         }
-        &:after {
+
+        &::after {
           background-color: @admin-font-gray1;
           -webkit-transform: rotate3d(0, 0, 1, -45deg);
           transform: rotate3d(0, 0, 1, -45deg);
@@ -269,7 +274,7 @@
             font-size: 18px;
           }
 
-          &:before {
+          &::before {
             font-size: 18px;
             padding: 3px 15px;
           }
@@ -278,7 +283,6 @@
     }
 
     &.sidebar-expanded {
-
       .sidebar {
         left: 0;
       }

@@ -15,14 +15,6 @@
     position: absolute;
     top: 0;
     right: 0;
-
-    &:focus {
-      .dropzone {
-        box-shadow: 0 0 5px @admin-input-blue;
-        border: 1px solid @admin-input-blue;
-      }
-    }
-
     width: 100%;
     max-width: initial !important;
 
@@ -49,6 +41,13 @@
       .input-border();
       .input-glow();
     }
+
+    &:focus {
+      .dropzone {
+        box-shadow: 0 0 5px @admin-input-blue;
+        border: 1px solid @admin-input-blue;
+      }
+    }
   }
 
   .selected-options {
@@ -62,8 +61,8 @@
       margin: 10px 4.5% 20px 0;
 
       &:not(.placeholder) {
-        background-color: #ffffff;
-        border: 1px solid #d3d3d3;
+        background-color: @admin-white;
+        border: 1px solid @admin-medium-gray-border;
       }
 
       &.placeholder::before {
@@ -87,7 +86,7 @@
         opacity: 0.8;
         text-align: center;
         overflow: hidden;
-        background-color: #fff;
+        background-color: @admin-white;
       }
 
       // make selected-option square sized

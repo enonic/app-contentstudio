@@ -1,8 +1,6 @@
 .@{_CLS_PREFIX}image-placeholder {
-
   .rich-combobox-wrapper {
     display: none;
-
     width: auto;
     max-width: 540px;
     position: relative;
@@ -13,8 +11,9 @@
       display: block;
 
       &.dz-dragover {
-        &:before {
+        &::before {
           .dropcircle(70px);
+
           line-height: 25px;
           padding: 45px 20px 0 20px;
           text-align: center;
@@ -25,8 +24,10 @@
 
     .upload-button {
       .button(@admin-font-gray2, white, @admin-font-gray3, white);
+
       box-sizing: content-box;
       .input-glow();
+
       vertical-align: middle;
       margin: 0;
       padding: 0;
@@ -47,5 +48,4 @@
       right: -1px;
     }
   }
-
 }

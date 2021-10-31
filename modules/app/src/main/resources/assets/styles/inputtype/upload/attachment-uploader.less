@@ -1,11 +1,9 @@
 @attachment-uploader-height: 38px;
 
 .attachment-uploader {
-
   position: relative;
 
   .uploader-wrapper {
-
     position: relative;
 
     .upload-button {
@@ -23,6 +21,17 @@
 
       .attachment-item .remove {
         line-height: 15px;
+      }
+
+      .no-attachments-description {
+        position: absolute;
+        display: none;
+        top: 0;
+        width: calc(~'100%' - @attachment-uploader-height);
+        font-size: 1.25em;
+        color: @admin-font-gray2;
+        line-height: @attachment-uploader-height;
+        text-align: center;
       }
 
       &.uploading {
@@ -53,6 +62,7 @@
 
         .attachment-item {
           margin: 10px 0;
+
           a {
             padding-right: 2px;
             .ellipsis();
@@ -60,21 +70,9 @@
         }
       }
 
-      .no-attachments-description {
-        position: absolute;
-        display: none;
-        top: 0;
-        width: calc(~'100%' - @attachment-uploader-height);
-        font-size: 1.25em;
-        color: @admin-font-gray2;
-        line-height: @attachment-uploader-height;
-        text-align: center;
-      }
-
       .progress-bar {
         height: @attachment-uploader-height;
       }
     }
   }
-
 }
