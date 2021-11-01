@@ -19,6 +19,30 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
     let TEST_FOLDER;
     let NEW_DISPLAY_NAME = "new display name 1";
 
+    it(`GIVEN name input is filled in WHEN display name input is empty THEN only 'Create Task' menu item shoule be enabled`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            //1. Open wizard for new folder:
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
+            //2. Fill in the name(path) input
+            await contentWizard.typeInPathInput(appConst.generateRandomName("folder"));
+            //3. Save the content with empty displayName:
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+            //4. Click on dropdown handle and verify the menu items:
+            await contentWizard.openPublishMenu();
+            await studioUtils.saveScreenshot("publish_menu_items2");
+            //Only Create Task menu item should be enabled
+            await contentWizard.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_TASK);
+            await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.UNPUBLISH);
+            await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
+            await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
+            await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.MARK_AS_READY);
+            //5. The content should be invalid:
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.isTrue(isInvalid, "The content should be invalid");
+        });
+
     it(`GIVEN 'Marked as Ready' folder is opened WHEN 'Publish...' button has been pressed AND the folder has been published THEN 'UNPUBLISH' button gets visible on the toolbar`,
         async () => {
             let contentWizard = new ContentWizard();

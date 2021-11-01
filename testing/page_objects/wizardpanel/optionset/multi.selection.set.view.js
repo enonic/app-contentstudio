@@ -9,6 +9,7 @@ const xpath = {
     validationMessage: "//div[contains(@class,'selection-message')]",
     nameTextInput: "//div[contains(@id,'InputView') and descendant::div[text()='Name']]" + lib.TEXT_INPUT,
     optionSetOccurrenceLabel: "//div[contains(@id,'FormOccurrenceDraggableLabel')]",
+    multiOptionsView: "//div[contains(@id,'FormOptionSetOccurrenceViewMultiOptions')]",
     optionLabelLocator: option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::label[text()='${option}']]//label`,
     optionCheckboxLocator:
         option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::label[text()='${option}']]//input[@type='checkbox']`
@@ -63,6 +64,17 @@ class MultiSelectionOptionSet extends Page {
         await this.waitForElementEnabled(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
         return await this.pause(300);
+    }
+
+    async getValidationRecording() {
+        let locator = xpath.container + xpath.multiOptionsView + "//div[@class='selection-message']";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
+    waitForValidationRecordingNotDisplayed() {
+        let locator = xpath.container + xpath.multiOptionsView + "//div[@class='selection-message']";
+        return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 }
 

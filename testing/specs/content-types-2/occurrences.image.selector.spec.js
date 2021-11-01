@@ -108,7 +108,7 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
             await contentBrowsePanel.isRedIconDisplayed(IMG_SEL_2_4.displayName);
         });
 
-    it(`WHEN existing image-selector(2:4) is opened THEN the second image has been selected THEN content gets valid`,
+    it(`GIVEN existing image-selector(2:4) is opened WHEN the second image has been selected THEN the content gets valid`,
         async () => {
             let contentWizard = new ContentWizard();
             let imageSelectorForm = new ImageSelectorForm();

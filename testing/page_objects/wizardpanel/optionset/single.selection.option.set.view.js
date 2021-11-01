@@ -16,6 +16,7 @@ const xpath = {
     itemSetOccurrenceAddAboveMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Add above']",
     itemSetOccurrenceAddBelowMenuItem: "//div[contains(@id,'FormItemSetOccurrenceView')]//li[contains(@id,'MenuItem') and text()='Add below']",
     optionSetOccurrenceLabel: "//div[contains(@id,'FormOccurrenceDraggableLabel')]",
+    singleOptionView: "//div[contains(@id,'FormOptionSetOccurrenceViewSingleOption')]",
 };
 
 class SingleSelectionOptionSet extends Page {
@@ -33,7 +34,7 @@ class SingleSelectionOptionSet extends Page {
         return xpath.container + xpath.removeItemSetOccurrenceButton;
     }
 
-    async typeOptionName(name) {
+    async typeTextInOptionNameInput(name) {
         await this.typeTextInInput(this.nameTextInput, name);
         return await this.pause(300);
     }
@@ -138,6 +139,17 @@ class SingleSelectionOptionSet extends Page {
 
     collapseForm() {
         return this.clickOnElement(xpath.container + xpath.optionSetOccurrenceLabel);
+    }
+
+    async getValidationRecording() {
+        let locator = xpath.container + xpath.singleOptionView + "//div[@class='selection-message']";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
+    }
+
+    waitForValidationRecordingNotDisplayed() {
+        let locator = xpath.container + xpath.singleOptionView + "//div[@class='selection-message']";
+        return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 }
 

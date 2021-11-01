@@ -11,6 +11,7 @@ const contentBuilder = require("../../libs/content.builder");
 const OptionSetForm = require('../../page_objects/wizardpanel/optionset/optionset.form.view');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SingleSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/single.selection.option.set.view');
+const MultiSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/multi.selection.set.view');
 const ArticleForm = require('../../page_objects/wizardpanel/article.form.panel');
 const NotificationDialog = require('../../page_objects/notification.dialog');
 
@@ -18,6 +19,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
+    const CONTENT_NAME_1 = appConstant.generateRandomName("set");
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -26,24 +28,75 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await studioUtils.doAddSite(SITE);
         });
 
-        //Verifies: No confirmation given on deletion of a non-empty option-set occurrence #1655
+    it(`GIVEN wizard for new content with Option Set is opened WHEN name input has been filled AND Save button pressed THEN validation recording should appear`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let optionSetForm = new OptionSetForm();
+            let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            //1. Open the new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.OPTION_SET);
+            await contentWizard.typeDisplayName(CONTENT_NAME_1);
+            await contentWizard.pause(1000);
+            let result = await contentWizard.isContentInvalid();
+            assert.isTrue(result, "The Content should be invalid, because an option is not selected in the required 'single selection'");
+            await contentWizard.waitAndClickOnSave();
+            let recording = await singleSelectionOptionSet.getValidationRecording();
+            assert.equal(recording, appConstant.VALIDATION_MESSAGE.SINGLE_SELECTION_OPTION_SET, "Expected message gets visible");
+        });
+
+    it(`GIVEN existing invalid content with Option Set is opened WHEN an option in required selection has been selected AND Save button pressed THEN the content gets valid`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let optionSetForm = new OptionSetForm();
+            let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            //1. Open the new wizard:
+            await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_1);
+            //2. Select 'Option 2'
+            await optionSetForm.selectOptionInSingleSelection("Option 2");
+            await contentWizard.pause(1000);
+            //3. The content should be valid:
+            let result = await contentWizard.isContentInvalid();
+            assert.isFalse(result, "The Content should be valid, because an option is selected in the required 'single selection'");
+            await contentWizard.waitAndClickOnSave();
+            //4. Validation recording should not be displayed:
+            await singleSelectionOptionSet.waitForValidationRecordingNotDisplayed();
+        });
+
+    it(`GIVEN existing valid content with Option Set is opened WHEN the selected checkbox in multi selection has been unselected THEN the content gets invalid`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let optionSetForm = new OptionSetForm();
+            let multiSelectionOptionSet = new MultiSelectionOptionSet();
+            //1. Open the new wizard:
+            await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_1);
+            //2. Click on 'Option 2' and unselect the checkbox:
+            await multiSelectionOptionSet.clickOnOption("Option 2");
+            //3. Validation recording should appear:
+            let recording = await multiSelectionOptionSet.getValidationRecording();
+            assert.equal(recording, appConstant.VALIDATION_MESSAGE.SINGLE_SELECTION_OPTION_SET, "Expected message gets visible");
+            //4. The content should be invalid:
+            let result = await contentWizard.isContentInvalid();
+            assert.isTrue(result, "The content should be invalid, because an option must be selected in the Multi Selection");
+        });
+
+    //Verifies: No confirmation given on deletion of a non-empty option-set occurrence #1655
     it(`GIVEN option set with dirty fields WHEN 'Reset' menu item has been clicked THEN 'Notification Dialog' should be loaded`,
         async () => {
             let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             let notificationDialog = new NotificationDialog();
             //1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.OPTION_SET);
             //2. Select 'Option 1' and fill in the option name input :
             await optionSetForm.selectOptionInSingleSelection("Option 1");
-            await singleSelectionOptionSet.typeOptionName("test option");
+            await singleSelectionOptionSet.typeTextInOptionNameInput("test option");
             await singleSelectionOptionSet.expandOptionSetMenuAndClickOnMenuItem(0, "Reset");
             studioUtils.saveScreenshot('item_set_confirmation_dialog');
             //3. NotificationDialog dialog loads, because new item-set has dirty fields:
             await notificationDialog.waitForDialogLoaded();
-                //4. Click on Ok button:
+            //4. Click on Ok button:
             await notificationDialog.clickOnOkButton();
-                //5. Verify that notificationDialog closes:
+            //5. Verify that notificationDialog closes:
             await notificationDialog.waitForDialogClosed();
         });
 
@@ -81,7 +134,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await optionSetForm.selectOptionInSingleSelection("Option 1");
             await singleSelectionOptionSet.clickOnAddItemSetButton();
             await studioUtils.saveScreenshot('new_item_set_added_1');
-            await singleSelectionOptionSet.typeOptionName("test option");
+            await singleSelectionOptionSet.typeTextInOptionNameInput("test option");
             //3. Type a text in the second item-set:
             await singleSelectionOptionSet.typeInLabelInput("label1", 1);
             //3. Click on 'remove-icon' and try to close the second item-set:
@@ -103,7 +156,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             //2. Click on add new item-set:
             await singleSelectionOptionSet.clickOnAddItemSetButton();
             studioUtils.saveScreenshot('new_item_set_added_2');
-            await singleSelectionOptionSet.typeOptionName("test option");
+            await singleSelectionOptionSet.typeTextInOptionNameInput("test option");
             //click on remove-icon(remove the second item-set):
             await singleSelectionOptionSet.expandMenuClickOnDelete(1);
             studioUtils.saveScreenshot('item_set_no_confirmation_dialog');
@@ -121,7 +174,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             //2. Select 'Option 1' and click on add new item-set:
             await optionSetForm.selectOptionInSingleSelection("Option 1");
             await singleSelectionOptionSet.clickOnAddItemSetButton();
-            await singleSelectionOptionSet.typeOptionName("test option");
+            await singleSelectionOptionSet.typeTextInOptionNameInput("test option");
             //3. Type a text in the second item-set:
             await singleSelectionOptionSet.typeInLabelInput("label1", 1);
             //4. Click on 'Delete' menu item and try to delete the second item-set:
@@ -151,7 +204,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             //3. Click on the radio button and save new changes:
             await optionSetForm.selectOptionInSingleSelection("Option 1");
             //4. Fill in the required 'name' input:
-            await singleSelectionOptionSet.typeOptionName("test option");
+            await singleSelectionOptionSet.typeTextInOptionNameInput("test option");
             await contentWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot('item_set_validation1');
             //5. Verify - "Red icon" should not be displayed, because required inputs are filled in!
