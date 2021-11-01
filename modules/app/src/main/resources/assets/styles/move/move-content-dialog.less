@@ -1,0 +1,46 @@
+.move-content-dialog {
+  .modal-dialog-wrapper {
+    .modal-dialog-body {
+      overflow: visible;
+    }
+
+    .content-path {
+      font-family: @admin-font-family;
+      color: lightgray;
+      margin-top: 5px;
+      .ellipsis();
+    }
+
+    .content-selector {
+      margin-top: 10px;
+
+      .edit {
+        display: none;
+      }
+    }
+
+    &.is-processing {
+      .dialog-header {
+        margin-bottom: 0;
+      }
+
+      .content-selector,
+      .desc-message,
+      .dialog-content > .content-path {
+        display: none;
+      }
+
+      .progress-bar {
+        margin-top: 20px;
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  &.locked {
+    .content-selector,
+    .desc-message {
+      display: none;
+    }
+  }
+}
