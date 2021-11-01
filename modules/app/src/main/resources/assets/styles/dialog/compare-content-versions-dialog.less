@@ -18,13 +18,12 @@
       position: relative;
       display: flex;
       flex-direction: column;
-
       width: 350px;
 
       .font-icon-default {
         font-size: 24px;
 
-        &:before {
+        &::before {
           color: @admin-dark-gray;
         }
 
@@ -42,7 +41,6 @@
       }
 
       .@{_COMMON_PREFIX}dropdown {
-
         width: 300px;
 
         .grid .viewer.divider {
@@ -51,7 +49,6 @@
           margin-top: -8px;
         }
       }
-
     }
 
     .icon-compare {
@@ -68,11 +65,11 @@
       top: 17px;
       z-index: 1000;
 
-      &.expanded:before {
+      &.expanded::before {
         transform: rotate(90deg);
       }
 
-      &:before {
+      &::before {
         display: inline-block;
         transition-property: transform;
         transition-duration: 100ms;
@@ -91,7 +88,6 @@
   .modal-dialog-wrapper .modal-dialog-body {
     .dialog-content {
       .jsondiffpatch-delta {
-
         display: block;
 
         pre {
@@ -119,12 +115,10 @@
 }
 
 body {
-
   &._0-240,
   &._240-360,
   &._360-540,
   &._540-720 {
-
     .compare-content-versions-dialog {
       width: 100%;
       margin: 0;
@@ -134,16 +128,13 @@ body {
         font-size: inherit;
 
         .toolbar-container {
-
           padding: 10px 10px 10px 30px;
 
           .container {
             width: 100%;
 
             .@{_COMMON_PREFIX}dropdown {
-
               width: calc(100% - 50px);
-
             }
           }
 
@@ -158,8 +149,7 @@ body {
       }
 
       .modal-dialog-footer {
-
-        border-top: 1px solid #ccc;
+        border-top: 1px solid @admin-medium-gray-border;
 
         .container.bottom {
           bottom: 20px;
@@ -167,5 +157,4 @@ body {
       }
     }
   }
-
 }

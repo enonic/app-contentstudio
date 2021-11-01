@@ -1,11 +1,18 @@
 .image-content-combo-box {
-  .grid:not(.tree-mode) {
+  &._0-240,
+  &._240-360 {
+    .image-grid-width(~"calc(100% - 20px)");
+  }
 
+  &._360-540 {
+    .image-grid-width(~"calc(50% - 20px)");
+  }
+
+  .grid:not(.tree-mode) {
     .slick-viewport {
       scroll-behavior: smooth;
 
       .grid-canvas {
-
         .slick-row.ui-widget-content {
           width: ~"calc(33.3% - 20px)";
           height: 178px;
@@ -15,13 +22,16 @@
           background-color: @admin-white;
           border: 1px solid @admin-bg-light-gray;
 
-          &.active, &:hover {
+          &.active,
+          &:hover {
             background-color: @admin-white;
             .image-selector-active-cell();
           }
 
           .slick-cell {
-            &:hover, &.selected, &.active {
+            &:hover,
+            &.selected,
+            &.active {
               background-color: transparent;
             }
 
@@ -59,7 +69,7 @@
                     box-sizing: border-box;
                     margin: 0;
                     padding: 8px;
-                    background-color: rgba(255, 255, 255, .7);
+                    background-color: rgba(255, 255, 255, 0.7);
                     text-align: center;
 
                     .@{_COMMON_PREFIX}sub-name {
@@ -69,22 +79,21 @@
                 }
               }
 
-              &:hover, &.selected {
+              &:hover,
+              &.selected {
                 .viewer {
                   .names-and-icon-view {
-
                     .@{_COMMON_PREFIX}names-view {
                       display: block;
 
                       .@{_COMMON_PREFIX}main-name {
-                        color: #000;
+                        color: @admin-black;
                         font-size: 12px;
                       }
                     }
                   }
                 }
               }
-
             }
 
             &.status {
@@ -121,15 +130,6 @@
       }
     }
   }
-
-  &._0-240,
-  &._240-360 {
-    .image-grid-width(~"calc(100% - 20px)");
-  }
-
-  &._360-540 {
-    .image-grid-width(~"calc(50% - 20px)");
-  }
 }
 
 .image-selector-active-cell() {
@@ -140,12 +140,10 @@
 
 .image-grid-width(@width) {
   .grid:not(.tree-mode) {
-
     .slick-viewport {
       scroll-behavior: smooth;
 
       .grid-canvas {
-
         .slick-row.ui-widget-content {
           width: @width;
         }

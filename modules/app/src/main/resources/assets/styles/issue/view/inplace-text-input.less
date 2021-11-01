@@ -1,5 +1,4 @@
 .inplace-text-input {
-
   .@{_COMMON_PREFIX}text-input, h2 {
     font-size: 24px;
     line-height: 37px;
@@ -19,15 +18,8 @@
     background: transparent;
     border: 0 none;
 
-    &:before {
+    &::before {
       color: @admin-font-gray2;
-    }
-  }
-
-  &:not(.readonly) {
-    .inplace-toggle:hover:before {
-      color: @admin-bg-dark-gray;
-      cursor: pointer;
     }
   }
 
@@ -44,9 +36,16 @@
     .inplace-toggle {
       pointer-events: none;
 
-      &:before {
+      &::before {
         color: @admin-input-red;
       }
+    }
+  }
+
+  &:not(.readonly) {
+    .inplace-toggle:hover::before {
+      color: @admin-bg-dark-gray;
+      cursor: pointer;
     }
   }
 
@@ -62,6 +61,7 @@
     h2 {
       display: none;
     }
+
     .inplace-toggle {
       .icon-disk();
     }

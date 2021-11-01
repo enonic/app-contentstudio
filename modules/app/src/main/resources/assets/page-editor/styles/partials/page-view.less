@@ -1,7 +1,5 @@
 .@{_CLS_PREFIX}page-view {
-
   &.empty {
-
     .@{_CLS_PREFIX}item-view {
       display: none;
     }
@@ -22,8 +20,9 @@
         position: relative;
 
         &:not(.empty) {
-          .icon-page-template;
-          &:before {
+          .icon-page-template();
+
+          &::before {
             display: block;
             position: absolute;
             color: @placeholder-icon;
@@ -59,7 +58,7 @@
     }
   }
 
-  &:before {
+  &::before {
     display: none;
   }
 

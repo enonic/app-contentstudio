@@ -1,30 +1,32 @@
 .html-area-modal-dialog {
-
-  &._0-240, &._240-360, &._360-540 {
-    &.link-modal-dialog,
-    &.search-and-replace-modal-dialog {
-      .dialog-content .form-view .input-view {
-        .checkbox label::before {
-          margin-left: 0;
-        }
-        .checkbox label {
-          padding-left: 22px;
-        }
-      }
-    }
-  }
-
   .image-preview {
     label {
       display: none;
     }
+
     .input-wrapper {
       margin-left: 0 !important;
     }
   }
 
-  .dialog-content {
+  &._0-240,
+  &._240-360,
+  &._360-540 {
+    &.link-modal-dialog,
+    &.search-and-replace-modal-dialog {
+      .dialog-content .form-view .input-view {
+        .checkbox label {
+          padding-left: 22px;
+        }
 
+        .checkbox label::before {
+          margin-left: 0;
+        }
+      }
+    }
+  }
+
+  .dialog-content {
     transition: max-height 0.2s;
 
     .panel {
@@ -53,6 +55,7 @@
       fieldset:not(:last-child) {
         margin-bottom: 0;
       }
+
       fieldset:not(:first-child) {
         margin-top: 0;
       }
@@ -85,7 +88,6 @@
 }
 
 .showsSelectedOption(@displayIcon:false) {
-
   .selected-options .selected-option {
     margin: 0;
     width: 100%;

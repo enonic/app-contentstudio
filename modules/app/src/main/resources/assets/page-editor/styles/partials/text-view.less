@@ -1,5 +1,4 @@
 .figure-mixin {
-
   figure {
     margin: 0;
 
@@ -26,14 +25,14 @@
       margin-left: auto;
     }
   }
-
 }
-.@{_CLS_PREFIX}text-view {
 
+.@{_CLS_PREFIX}text-view {
   overflow: auto;
 
   // cke style enforcing
-  ul, ol {
+  ul,
+  ol {
     margin: 0 0 12px 40px;
   }
 
@@ -41,7 +40,8 @@
     list-style: inherit;
   }
 
-  strong, b {
+  strong,
+  b {
     font-weight: bold;
     font-style: inherit;
   }
@@ -50,7 +50,6 @@
     font-style: italic;
     font-weight: inherit;
   }
-
   // end of cke style enforcing
 
   &.empty .@{_CLS_PREFIX}text-placeholder {
@@ -77,18 +76,19 @@
       outline: none;
 
       > *:first-child {
-        margin-top: 0px;
+        margin-top: 0;
       }
 
       > *:last-child {
-        margin-bottom: 0px;
+        margin-bottom: 0;
       }
 
       a {
         pointer-events: auto;
         cursor: auto;
       }
-      .figure-mixin;
+
+      .figure-mixin();
     }
 
     &.editor-focused {
@@ -96,7 +96,7 @@
       .input-border(@admin-input-blue);
     }
 
-    .input-border(#cccccc);
+    .input-border(@admin-medium-gray-border);
 
     section {
       display: none !important;
@@ -122,13 +122,13 @@
     & > *:first-child {
       margin-top: 0;
     }
+
     & > *:last-child {
       margin-bottom: 0;
     }
 
-    .figure-mixin;
+    .figure-mixin();
   }
-
 }
 
 .@{_CLS_PREFIX}text-placeholder {
@@ -169,6 +169,7 @@
   > div {
     display: none;
   }
+
   &.visible {
     box-shadow: 0 8px 8px 0 @admin-toolbar-shadow;
 

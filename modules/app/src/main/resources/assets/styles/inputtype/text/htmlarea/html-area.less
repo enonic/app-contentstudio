@@ -1,7 +1,8 @@
 .html-area {
   // next is cke related styles
 
-  .cke_top, .cke_bottom {
+  .cke_top,
+  .cke_bottom {
     display: none;
   }
 
@@ -11,7 +12,6 @@
     padding: 6px 8px 0;
 
     .cke_toolbox {
-
       display: flex;
       flex-wrap: wrap;
 
@@ -50,7 +50,8 @@
   .cke_bottom {
     padding: 1px 8px 2px;
 
-    .cke_button__fullscreen, .cke_button__sourcedialog {
+    .cke_button__fullscreen,
+    .cke_button__sourcedialog {
       float: right;
     }
   }
@@ -60,7 +61,7 @@
   }
 
   .cke_focus {
-    box-shadow: 0px 0px 5px @admin-input-blue;
+    box-shadow: 0 0 5px @admin-input-blue;
     .input-border(@admin-input-blue);
 
     .cke_top, .cke_bottom {
@@ -71,7 +72,7 @@
   .sticky-toolbar {
     .cke_top {
       position: fixed;
-      box-shadow: 0px 3px 6px 0 @admin-toolbar-shadow;
+      box-shadow: 0 3px 6px 0 @admin-toolbar-shadow;
       z-index: 1000;
       border-top: 1px solid @admin-medium-gray-border;
     }
@@ -80,7 +81,6 @@
   .autosize-attendant {
     display: none;
   }
-
   // cke end
 }
 
@@ -116,7 +116,6 @@
   }
 
   .cke_top {
-
     text-align: center;
     width: 100% !important;
 

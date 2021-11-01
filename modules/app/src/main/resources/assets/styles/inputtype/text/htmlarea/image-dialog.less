@@ -14,7 +14,6 @@
 @track-radius: 5px;
 
 .html-area-modal-dialog.image-modal-dialog {
-
   .hasSelectedItemPreview();
 
   .image-selector {
@@ -41,14 +40,12 @@
         display: none;
         width: auto;
       }
+
       &.upload {
         margin-top: 10px;
 
         > .error {
           width: 100%;
-        }
-
-        > .error {
           margin-left: 0;
           text-align: center;
           color: @admin-white;
@@ -84,29 +81,6 @@
     }
   }
 
-  .form-view {
-    padding: 0;
-
-    .input-view {
-      .@{_COMMON_PREFIX}combobox, .content-combo-box {
-        .options-container {
-          position: absolute !important;
-          box-sizing: border-box;
-        }
-      }
-
-      &.caption {
-        margin: 15px 0;
-      }
-    }
-
-    @-moz-document url-prefix() { // FF Issue with fieldset width, fix for XP-4975
-      fieldset {
-        display: table-cell;
-      }
-    }
-  }
-
   .toolbar {
     &.image-toolbar {
       flex-direction: column;
@@ -126,14 +100,15 @@
           flex-direction: column;
           align-items: flex-start;
 
-          .alignment-container, .image-style-selector, .custom-width-checkbox {
+          .alignment-container,
+          .image-style-selector,
+          .custom-width-checkbox {
             margin-bottom: 10px;
           }
 
           .image-style-selector {
             width: 100%;
           }
-
         }
 
         .alignment-container {
@@ -144,18 +119,18 @@
             font-size: 18px;
             background-color: transparent;
 
-            &:before {
+            &::before {
               display: block;
             }
 
             &:not(.active) {
-              &:before {
+              &::before {
                 color: @admin-font-gray2;
               }
             }
 
             &:first-child {
-              padding-left: 0px;
+              padding-left: 0;
             }
           }
         }
@@ -184,7 +159,6 @@
         .fold-button {
           bottom: 3px;
         }
-
       }
 
       .custom-width-range-container {
@@ -220,6 +194,7 @@
 
           &::-webkit-slider-runnable-track {
             .track();
+
             background: @track-color;
             border-radius: @track-radius;
             border-top: @track-border-width solid @track-border-color;
@@ -228,23 +203,27 @@
 
           &::-webkit-slider-thumb {
             .thumb();
+
             -webkit-appearance: none;
             margin-top: ((-@track-border-width * 2 + @track-height) / 2) - (@thumb-height / 2);
           }
 
           &::-moz-range-track {
             .track();
+
             background: @track-color;
             border-radius: @track-radius;
             border-top: @track-border-width solid @track-border-color;
             border-bottom: @track-border-width solid @track-border-color;
           }
+
           &::-moz-range-thumb {
             .thumb();
           }
 
           &::-ms-track {
             .track();
+
             background: transparent;
             border-color: transparent;
             border-width: @thumb-width 0;
@@ -256,15 +235,18 @@
             border-bottom: @track-border-width solid @track-border-color;
             border-radius: @track-radius*2;
           }
+
           &::-ms-fill-upper {
             background: @track-color;
             border-top: @track-border-width solid @track-border-color;
             border-bottom: @track-border-width solid @track-border-color;
             border-radius: @track-radius*2;
           }
+
           &::-ms-thumb {
             .thumb();
           }
+
           &:focus::-ms-fill-lower {
             background: @track-color;
           }
@@ -302,7 +284,6 @@
       }
 
       .options-container {
-
         .slick-cell {
           padding-bottom: 4px;
           padding-top: 4px;
@@ -326,8 +307,30 @@
     }
   }
 
-  img {
+  .form-view {
+    padding: 0;
 
+    .input-view {
+      .@{_COMMON_PREFIX}combobox, .content-combo-box {
+        .options-container {
+          position: absolute !important;
+          box-sizing: border-box;
+        }
+      }
+
+      &.caption {
+        margin: 15px 0;
+      }
+    }
+
+    @-moz-document url-prefix() { // FF Issue with fieldset width, fix for XP-4975
+      fieldset {
+        display: table-cell;
+      }
+    }
+  }
+
+  img {
     &[style*="text-align: justify"] {
       &:not([data-src*="keepSize=true"]) {
         width: 100%;
@@ -335,7 +338,6 @@
     }
 
     &[style*="text-align: left"] {
-
       margin: 0;
       float: left;
 
@@ -345,7 +347,6 @@
     }
 
     &[style*="text-align: center"] {
-
       margin: auto;
 
       &:not([data-src*="keepSize=true"]) {
@@ -354,7 +355,6 @@
     }
 
     &[style*="text-align: right"] {
-
       margin: 0;
       float: right;
 
@@ -366,6 +366,7 @@
 
   > .dropzone-container {
     .dialog-dropzone-container(120px);
+
     .dropzone {
       font-size: 18px;
     }

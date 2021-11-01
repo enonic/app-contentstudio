@@ -2,6 +2,12 @@
   padding: 0;
   background: initial;
 
+  &:disabled {
+    span {
+      color: @admin-black;
+    }
+  }
+
   &:hover:not(:disabled) span,
   span {
     transition: none;
@@ -14,11 +20,5 @@
 
   &:focus {
     outline: none;
-  }
-
-  &:disabled {
-    span {
-      color: @admin-black;
-    }
   }
 }

@@ -73,7 +73,7 @@
         color: @admin-font-gray3;
         background-color: transparent;
 
-        &:before {
+        &::before {
           display: none;
         }
 
@@ -81,15 +81,14 @@
           margin: 0;
           color: @admin-bg-dark-gray;
         }
-
       }
 
       ul {
         padding: 36px 4px 4px;
         top: -8px;
       }
-
     }
+
     &:not(.readonly) .tab-menu:not(.expanded) .tab-menu-button .label {
       color: @admin-blue;
     }

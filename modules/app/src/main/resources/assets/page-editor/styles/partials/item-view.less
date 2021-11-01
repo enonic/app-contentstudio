@@ -1,5 +1,4 @@
 .@{_CLS_PREFIX}item-view {
-
   & > .@{_CLS_PREFIX}item-placeholder {
     display: none;
   }
@@ -7,6 +6,7 @@
   &.empty > .@{_CLS_PREFIX}item-placeholder,
   &[data-portal-placeholder=true] > .@{_CLS_PREFIX}item-placeholder {
     display: block;
+
     .tree-grid {
       height: auto;
     }
@@ -30,11 +30,10 @@
 
     .@{_CLS_PREFIX}item-placeholder {
       background-color: @admin-input-red;
-
       border: 0;
       border-top: 1px solid @admin-medium-gray-border;
 
-      &:before {
+      &::before {
         color: @admin-bg-dark-gray;
       }
 
@@ -64,6 +63,7 @@
       font-size: 14px;
       pointer-events: all;
       display: inline-block;
+
       &:hover {
         color: darken(white, 20%);
       }
@@ -71,7 +71,7 @@
 
     &[data-portal-component-type],
     &[data-portal-region] {
-      &:before {
+      &::before {
         content: '';
       }
     }
@@ -115,7 +115,7 @@
     }
   }
 
-  &:before {
+  &::before {
     position: absolute;
     color: @placeholder-icon;
     font-family: 'icomoon';
@@ -138,6 +138,7 @@
     .options-container {
       z-index: @z-index-empty-component-options;
     }
+
     .selected-options {
       display: none !important;
     }
@@ -151,8 +152,6 @@
         .placeholder(1em, italic);
         .input-glow(); // need to use glow explicitly because it is used out of the form
       }
-
     }
-
   }
 }

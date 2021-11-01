@@ -2,7 +2,6 @@
   position: relative;
 
   .combobox-wrapper {
-
     .rich-combobox {
       .selected-options {
         .selected-option {
@@ -16,22 +15,16 @@
     position: absolute;
     top: 0;
     right: 0;
-
-    &:focus {
-      .dropzone {
-        box-shadow: 0 0 5px @admin-input-blue;
-        border: 1px solid @admin-input-blue;
-      }
-    }
-
     width: 100%;
     max-width: initial !important;
 
     .dropzone {
       overflow: visible;
       z-index: @z-index-mask !important;
-      &:before {
+
+      &::before {
         .dropcircle(60px);
+
         padding: 40px 5px 0;
         line-height: 20px;
       }
@@ -43,10 +36,17 @@
       font-size: 14px;
       background-color: @admin-white;
       border: 1px solid @admin-medium-gray-border;
-
       box-sizing: border-box;
+
       .input-border();
       .input-glow();
+    }
+
+    &:focus {
+      .dropzone {
+        box-shadow: 0 0 5px @admin-input-blue;
+        border: 1px solid @admin-input-blue;
+      }
     }
   }
 
@@ -61,11 +61,11 @@
       margin: 10px 4.5% 20px 0;
 
       &:not(.placeholder) {
-        background-color: #ffffff;
-        border: 1px solid #d3d3d3;
+        background-color: @admin-white;
+        border: 1px solid @admin-medium-gray-border;
       }
 
-      &.placeholder:before {
+      &.placeholder::before {
         position: absolute;
         left: 0;
         width: 100%;
@@ -86,12 +86,12 @@
         opacity: 0.8;
         text-align: center;
         overflow: hidden;
-        background-color: #fff;
+        background-color: @admin-white;
       }
 
       // make selected-option square sized
       // http://spin.atomicobject.com/2015/07/14/css-responsive-square/
-      &:after {
+      &::after {
         content: "";
         display: block;
         padding-bottom: 100%;
@@ -136,7 +136,6 @@
         }
       }
 
-
       &.missing {
         .squared-content {
           .error {
@@ -144,9 +143,9 @@
           }
         }
       }
-
     }
   }
+
   .selection-toolbar {
     float: left;
     width: 100%;
@@ -173,11 +172,13 @@
     background: url("../../../images/folder-open.png") no-repeat center;
   }
 
-  &._0-240, &._240-360 {
+  &._0-240,
+  &._240-360 {
     .squared-content > .label {
       font-size: 8px;
     }
   }
+
   &._360-540 {
     .squared-content > .label {
       font-size: 10px;

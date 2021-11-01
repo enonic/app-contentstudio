@@ -1,5 +1,4 @@
 .sort-content-dialog {
-
   @media screen and (max-height: 360px) {
     .modal-dialog-header {
       > h6 {
@@ -9,7 +8,6 @@
 
     padding-top: 20px;
     padding-bottom: 10px;
-
   }
 
   @media screen and (max-height: 540px) {
@@ -18,10 +16,11 @@
   }
 
   .dialog-buttons .@{_COMMON_PREFIX}button.save-button.spinner {
-    .icon-spinner;
+    .icon-spinner();
 
-    &:before {
-      .animation(rotate360, .5s, .0s, linear);
+    &::before {
+      .animation(rotate360, 0.5s, 0s, linear);
+
       color: white;
       display: inline-block;
     }
@@ -54,7 +53,8 @@
     box-sizing: border-box;
     cursor: move;
 
-    .slick-cell, .slick-cell * {
+    .slick-cell,
+    .slick-cell * {
       cursor: move;
     }
 
@@ -85,7 +85,7 @@
     color: lightgray;
     text-align: center;
 
-    &:after {
+    &::after {
       content: attr(data-content) '  -  nothing to sort yet!';
       position: absolute;
       width: 100%;
@@ -129,10 +129,8 @@
   }
 
   .modal-dialog-body {
-
     .dialog-content {
       box-sizing: border-box;
-
       display: flex;
       flex-direction: column;
 
@@ -146,7 +144,6 @@
       }
     }
   }
-
 
   .sort-tab-menu {
     max-width: 300px;
@@ -176,7 +173,6 @@
     }
 
     .menu {
-
       .tab-menu-item {
         display: flex;
         align-items: center;
@@ -227,7 +223,7 @@
           padding-right: 35px;
 
           .label {
-            &:before {
+            &::before {
               position: absolute;
               right: 15px;
               font-size: 16px;
@@ -305,7 +301,8 @@
     display: none !important;
   }
 
-  &._0-240, &._240-360 {
+  &._0-240,
+  &._240-360 {
     .r1 {
       width: 82%;
     }
@@ -322,30 +319,29 @@
 
     @media screen and (max-height: 540px) {
       .modal-dialog-header {
-
         > h6 {
           display: none;
         }
       }
     }
-
   }
 
   &._360-540 {
     @media screen and (max-height: 540px) {
       .modal-dialog-header {
-
         > h6 {
           display: none;
         }
       }
-
     }
   }
 }
 
 body {
-  &._0-240, &._240-360, &._360-540, &._540-720 {
+  &._0-240,
+  &._240-360,
+  &._360-540,
+  &._540-720 {
     .sort-content-dialog .sort-tab-menu {
       float: left;
       width: 100%;

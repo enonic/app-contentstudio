@@ -10,6 +10,7 @@
   margin-top: @app-header-height;
   .notSelectable();
   .material-layer-shadow();
+
   display: flex;
   flex-flow: column nowrap;
   align-items: stretch;
@@ -32,71 +33,14 @@
     }
   }
 
-  &.locked, &.loading {
+  &.locked,
+  &.loading {
     .grid {
       pointer-events: none;
       opacity: 0.8;
 
       .menu-icon {
         display: none;
-      }
-    }
-  }
-
-  &.compact {
-    padding: 0 15px;
-    .tree-grid {
-      width: 100%;
-
-      .grid .slick-viewport {
-        width: 100% !important;
-
-        .slick-row {
-          height: 30px;
-
-          .toggle {
-            margin-right: 5px;
-          }
-
-          .slick-cell {
-            height: 30px;
-
-            &.menu-cell .menu-icon {
-              padding-left: 0;
-            }
-
-            .names-and-icon-view {
-
-              .xp-admin-common-wrapper {
-                line-height: 22px;
-                height: 22px;
-                width: 22px;
-                margin-right: 0;
-
-                .font-icon, .font-icon-default {
-                  font-size: 18px;
-                  display: block;
-
-                  &:before {
-                    font-size: 18px;
-                  }
-                }
-              }
-
-              .xp-admin-common-names-view {
-                margin-left: 35px;
-
-                .xp-admin-common-main-name {
-                  line-height: 22px;
-                  height: auto;
-                }
-                .xp-admin-common-sub-name {
-                  display: none;
-                }
-              }
-            }
-          }
-        }
       }
     }
   }
@@ -112,16 +56,15 @@
       height: initial !important;
 
       .slick-viewport {
-
         width: 340px !important;
 
         .slick-row {
-
           .slick-cell {
             width: 100%;
 
             .toggle {
               cursor: move;
+
               &.expand, &.collapse {
                 cursor: pointer;
               }
@@ -142,14 +85,14 @@
           }
 
           &:not(:hover) {
-            &, &.odd {
+            &,
+            &.odd {
               background-color: transparent;
             }
           }
 
           .slick-cell {
             &.menu-cell {
-
               .menu-icon {
                 padding-left: 10px;
                 position: absolute;
@@ -158,9 +101,9 @@
                 width: 37px;
                 height: 100%;
                 cursor: pointer;
-                transition-duration: .5s;
+                transition-duration: 0.5s;
 
-                &:before {
+                &::before {
                   position: absolute;
                   top: 50%;
                   left: 50%;
@@ -173,7 +116,7 @@
 
               &:hover {
                 .menu-icon {
-                  &:before {
+                  &::before {
                     color: @admin-dark-gray;
                   }
                 }
@@ -187,12 +130,11 @@
 
               &.selected {
                 .menu-icon {
-                  &:before {
-                    color: #ffffff;
+                  &::before {
+                    color: @admin-white;
                   }
                 }
               }
-
             }
 
             &.invalid {
@@ -216,7 +158,65 @@
         .slick-reorder-guide {
           display: none;
         }
+      }
+    }
+  }
 
+  &.compact {
+    padding: 0 15px;
+
+    .tree-grid {
+      width: 100%;
+
+      .grid .slick-viewport {
+        width: 100% !important;
+
+        .slick-row {
+          height: 30px;
+
+          .toggle {
+            margin-right: 5px;
+          }
+
+          .slick-cell {
+            height: 30px;
+
+            &.menu-cell .menu-icon {
+              padding-left: 0;
+            }
+
+            .names-and-icon-view {
+              .xp-admin-common-wrapper {
+                line-height: 22px;
+                height: 22px;
+                width: 22px;
+                margin-right: 0;
+
+                .font-icon, .font-icon-default {
+                  font-size: 18px;
+                  display: block;
+
+                  &::before {
+                    font-size: 18px;
+                  }
+                }
+              }
+
+              .xp-admin-common-names-view {
+                margin-left: 35px;
+
+                .xp-admin-common-main-name {
+                  line-height: 22px;
+                  height: auto;
+                }
+
+                .xp-admin-common-sub-name {
+                  display: none;
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -233,7 +233,7 @@
     right: 3px;
     padding: 0;
 
-    &:before {
+    &::before {
       font-size: 20px;
     }
   }
@@ -251,7 +251,7 @@
   width: 30px !important;
   border-radius: 30px;
 
-  &:before {
+  &::before {
     line-height: 30px;
     font-size: 20px;
   }
