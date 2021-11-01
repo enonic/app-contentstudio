@@ -1,4 +1,11 @@
 .move-content-dialog {
+  &.locked {
+    .content-selector,
+    .desc-message {
+      display: none;
+    }
+  }
+
   .modal-dialog-wrapper {
     .modal-dialog-body {
       overflow: visible;
@@ -34,13 +41,6 @@
         margin-top: 20px;
         margin-bottom: 0;
       }
-    }
-  }
-
-  &.locked {
-    .content-selector,
-    .desc-message {
-      display: none;
     }
   }
 }
