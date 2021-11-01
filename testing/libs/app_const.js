@@ -91,6 +91,7 @@ module.exports = Object.freeze({
         SCHEDULE_FORM_ONLINE_PAST: "Online to cannot be in the past",
         SCHEDULE_FORM_ONLINE_FROM_EMPTY: "Online to cannot be set without Online from",
         THIS_FIELD_IS_REQUIRED: 'This field is required',
+        SINGLE_SELECTION_OPTION_SET: "At least one option must be selected",
     },
 
     PROJECT_ACCESS_MODE: {
@@ -248,6 +249,7 @@ module.exports = Object.freeze({
         TAG_0_5: "tag0_5",
         CUSTOM_SELECTOR_0_2: 'custom-selector0_2',
         CUSTOM_SELECTOR_1_1: 'custom-selector1_1',
+        OPTION_SET: 'optionset',
     },
     permissions: {
         FULL_ACCESS: `Full Access`,

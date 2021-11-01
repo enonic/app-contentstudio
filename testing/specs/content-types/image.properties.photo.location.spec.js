@@ -39,16 +39,19 @@ describe("image.properties.photo.spec: tests for focus button", function () {
             await imageFormPanel.addArtistsTag(ARTIST_TEXT);
             await imageFormPanel.addTag(TAGS_TEXT);
             await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
             //3. close the wizard
             await studioUtils.doCloseWizardAndSwitchToGrid();
             //4. type the tag's text in Filter Panel
             await contentFilterPanel.typeSearchText(ARTIST_TEXT);
+            await contentFilterPanel.pause(2000);
             await contentBrowsePanel.waitForSpinnerNotVisible(appConst.mediumTimeout);
             //5. Verify that the expected image is filtered:
-            await studioUtils.saveScreenshot("image_tagged");
+            await studioUtils.saveScreenshot("image_tagged1");
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
+            await studioUtils.saveScreenshot("image_tagged2");
             assert.equal(result.length, 1, "Single image file should be filtered in the grid");
-            assert.equal(result[0], appConst.TEST_IMAGES.POP_02, "Expected pdf content should be filtered");
+            assert.equal(result[0], appConst.TEST_IMAGES.POP_02, "Expected image content should be filtered");
         });
 
     it("WHEN image content with tags is opened THEN expected tags should be present",

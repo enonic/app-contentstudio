@@ -158,13 +158,13 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             //2. Select 'Option 1' :
             await optionSetForm.selectOptionInSingleSelection("Option 1");
             //3. Verify that the title is equal to text in 'Name' input
-            await singleSelectionOptionSet.typeOptionName(SINGLE_SELECTION_NOTE1);
+            await singleSelectionOptionSet.typeTextInOptionNameInput(SINGLE_SELECTION_NOTE1);
             let title = await singleSelectionOptionSet.getSingleSelectionLabel();
             let subheader = await singleSelectionOptionSet.getSingleSelectionSubheader();
             studioUtils.saveScreenshot('item_set_confirmation_dialog');
             assert.equal(subheader, SINGLE_SELECTION_NOTE1, "Expected title should be displayed in the option set occurrence view");
             //4. Update the text in input:
-            await singleSelectionOptionSet.typeOptionName(SINGLE_SELECTION_NOTE2);
+            await singleSelectionOptionSet.typeTextInOptionNameInput(SINGLE_SELECTION_NOTE2);
             //5. Verify that subheader is updated dynamically:
             subheader = await singleSelectionOptionSet.getSingleSelectionSubheader();
             assert.equal(subheader, SINGLE_SELECTION_NOTE2, "Expected subheader should be displayed");
@@ -179,7 +179,7 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             //1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset');
             await optionSetForm.selectOptionInSingleSelection("Option 1");
-            await singleSelectionOptionSet.typeOptionName("test 1");
+            await singleSelectionOptionSet.typeTextInOptionNameInput("test 1");
             await singleSelectionOptionSet.collapseForm();
             await contentWizard.typeDisplayName(OPTION_SET_NAME);
             //2. Verify the title of multi select:
