@@ -35,7 +35,7 @@ describe('user.content.manager.expert.spec - ui-tests for content manager expert
         async () => {
             let projectSelectionDialog = new ProjectSelectionDialog();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //2. Verify that Project Selection dialog is loaded with expected warning message
             await projectSelectionDialog.getWarningMessage();
             let message = await projectSelectionDialog.getWarningMessage();

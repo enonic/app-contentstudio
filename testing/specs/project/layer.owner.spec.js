@@ -84,7 +84,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //Verify that Project Selection dialog is loaded, then close it
             await studioUtils.closeProjectSelectionDialog();
             //2. Select the site:
@@ -102,7 +102,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do log in with the user-owner and navigate to Content Browse Panel:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //user's context should be loaded by default now!
             //2. Select the site:
             await studioUtils.findAndSelectItem(SITE_NAME);
@@ -113,7 +113,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
     it("GIVEN user with 'Owner'-layer role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded",
         async () => {
             //1. Do Log in with the user:
-            await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await studioUtils.navigateToContentStudioWithProjects(USER.displayName, PASSWORD);
             //user's context should be loaded by default now!
             //2. load existing site from the current layer:
             let url = "http://localhost:8080/admin/site/preview" + `/${LAYER_DISPLAY_NAME}/draft/${SITE_NAME}`;
@@ -131,7 +131,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do Log in with 'SU':
-            await studioUtils.navigateToContentStudioApp();
+            await studioUtils.navigateToContentStudioWithProjects();
             //2. the  user's context should be loaded by default, so need to switch to Default project
             await contentBrowsePanel.selectContext(PROJECT_DISPLAY_NAME);
             await studioUtils.findAndSelectItem(SITE_NAME);

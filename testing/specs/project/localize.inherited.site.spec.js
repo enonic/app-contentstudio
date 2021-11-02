@@ -130,7 +130,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
         });
 
     beforeEach(async () => {
-        return await studioUtils.navigateToContentStudioApp();
+        return await studioUtils.navigateToContentStudioWithProjects();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {

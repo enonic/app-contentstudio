@@ -542,6 +542,19 @@ module.exports = {
             throw new Error('error when navigate to Content Studio app ' + err);
         }
     },
+    async navigateToContentStudioWithProjects(userName, password) {
+        try {
+            await this.clickOnContentStudioLink(userName, password);
+            console.log('testUtils:switching to Content Browse panel...');
+            let browsePanel = new BrowsePanel();
+            await webDriverHelper.browser.switchWindow("Content Studio - Enonic XP Admin");
+            return await browsePanel.pause(1500);
+        } catch (err) {
+            console.log('tried to navigate to Content Studio app, but: ' + err);
+            this.saveScreenshot(appConst.generateRandomName("err_navigate_to_studio"));
+            throw new Error('error when navigate to Content Studio app ' + err);
+        }
+    },
     async clickOnContentStudioLink(userName, password) {
         let launcherPanel = new LauncherPanel();
         let result = await launcherPanel.waitForPanelDisplayed(2000);
