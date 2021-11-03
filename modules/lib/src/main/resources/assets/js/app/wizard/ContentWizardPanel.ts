@@ -1438,6 +1438,17 @@ export class ContentWizardPanel
             }
         };
 
+        const archivedHandler = (items: ContentServerChangeItem[]) => {
+            if (!this.getPersistedItem()) {
+                return;
+            }
+
+            if (items.some((item: ContentServerChangeItem) => item.getContentId().equals(this.getPersistedItem().getContentId()))) {
+                this.contentDeleted = true;
+                this.close();
+            }
+        };
+
         ActiveContentVersionSetEvent.on(versionChangeHandler);
         ContentDeletedEvent.on(deleteHandler);
 
@@ -1450,6 +1461,7 @@ export class ContentWizardPanel
         serverEvents.onContentUnpublished(publishOrUnpublishHandler);
         serverEvents.onContentRenamed(contentRenamedHandler);
         serverEvents.onContentDeletedInOtherRepos(otherRepoDelete);
+        serverEvents.onContentArchived(archivedHandler);
 
         this.onClosed(() => {
             ActiveContentVersionSetEvent.un(versionChangeHandler);
@@ -1464,6 +1476,7 @@ export class ContentWizardPanel
             serverEvents.unContentUnpublished(publishOrUnpublishHandler);
             serverEvents.unContentRenamed(contentRenamedHandler);
             serverEvents.unContentDeletedInOtherRepos(otherRepoDelete);
+            serverEvents.unContentArchived(archivedHandler);
         });
 
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
