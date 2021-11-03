@@ -49,6 +49,8 @@ export class ContentSummary {
 
     private readonly modifiedTime: Date;
 
+    private readonly archivedTime: Date;
+
     private readonly publishFirstTime: Date;
 
     private readonly publishFromTime: Date;
@@ -95,6 +97,7 @@ export class ContentSummary {
         this.contentId = builder.contentId;
         this.createdTime = builder.createdTime;
         this.modifiedTime = builder.modifiedTime;
+        this.archivedTime = builder.archivedTime;
         this.publishFromTime = builder.publishFromTime;
         this.publishToTime = builder.publishToTime;
         this.publishFirstTime = builder.publishFirstTime;
@@ -201,6 +204,10 @@ export class ContentSummary {
 
     getModifiedTime(): Date {
         return this.modifiedTime;
+    }
+
+    getArchivedTime(): Date {
+        return this.archivedTime;
     }
 
     getPublishFirstTime(): Date {
@@ -350,6 +357,9 @@ export class ContentSummary {
         if (!ObjectHelper.dateEquals(this.modifiedTime, other.getModifiedTime())) {
             return false;
         }
+        if (!ObjectHelper.dateEquals(this.archivedTime, other.getArchivedTime())) {
+            return false;
+        }
         if (!ObjectHelper.dateEqualsUpToMinutes(this.publishFromTime, other.getPublishFromTime())) {
             return false;
         }
@@ -419,6 +429,8 @@ export class ContentSummaryBuilder {
 
     modifiedTime: Date;
 
+    archivedTime: Date;
+
     publishFirstTime: Date;
 
     publishFromTime: Date;
@@ -465,6 +477,7 @@ export class ContentSummaryBuilder {
             this.requireValid = source.isRequireValid();
             this.createdTime = source.getCreatedTime();
             this.modifiedTime = source.getModifiedTime();
+            this.archivedTime = source.getArchivedTime();
             this.publishFromTime = source.getPublishFromTime();
             this.publishToTime = source.getPublishToTime();
             this.publishFirstTime = source.getPublishFirstTime();
@@ -501,6 +514,7 @@ export class ContentSummaryBuilder {
         this.contentId = new ContentId(json.id);
         this.createdTime = json.createdTime ? new Date(Date.parse(json.createdTime)) : null;
         this.modifiedTime = json.modifiedTime ? new Date(Date.parse(json.modifiedTime)) : null;
+        this.archivedTime = json.archivedTime ? new Date(Date.parse(json.archivedTime)) : null;
         this.publishFirstTime = json.publish && json.publish.first ? new Date(Date.parse(json.publish.first)) : null;
         this.publishFromTime = json.publish && json.publish.from ? new Date(Date.parse(json.publish.from)) : null;
         this.publishToTime = json.publish && json.publish.to ? new Date(Date.parse(json.publish.to)) : null;

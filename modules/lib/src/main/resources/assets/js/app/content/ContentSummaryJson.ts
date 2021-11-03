@@ -23,6 +23,14 @@ export interface ContentSummaryJson
 
     modifier: string;
 
+    creator: string;
+
+    modifiedTime: string;
+
+    createdTime: string;
+
+    archivedTime: string;
+
     owner: string;
 
     isPage: boolean;
