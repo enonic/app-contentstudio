@@ -150,6 +150,11 @@ public class ContentSummaryJson
         return content.getModifier() != null ? content.getModifier().toString() : null;
     }
 
+    public Instant getArchivedTime()
+    {
+        return content.getArchivedTime();
+    }
+
     public boolean getHasChildren()
     {
         return content.hasChildren();
