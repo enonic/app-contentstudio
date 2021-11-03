@@ -216,8 +216,8 @@ export class ContentBrowsePanel
             this.doUpdateContextPanel(this.treeGrid.getHighlightedItem());
 
             if (this.contextSplitPanel.isMobileMode()) {
-                this.contextSplitPanel.setContent(this.treeGrid.getHighlightedItem());
-                this.contextSplitPanel.showMobilePanel();
+                this.gridAndItemsSplitPanel.hideFirstPanel();
+                this.gridAndItemsSplitPanel.showSecondPanel();
             }
 
             return;
@@ -236,16 +236,6 @@ export class ContentBrowsePanel
         }, 500);
 
         this.getTreeGrid().onHighlightingChanged(onHighlightingChanged);
-    }
-
-    private subscribeMobilePanelOnEvents() {
-        // selection opens detail panel in mobile mode, so deselect it when returning back to grid
-        this.contextSplitPanel.onMobilePanelSlide((out: boolean) => {
-            if (out) {
-                this.treeGrid.deselectAll();
-                this.getBrowseActions().updateActionsEnabledState([]);
-            }
-        });
     }
 
     private handleGlobalEvents() {

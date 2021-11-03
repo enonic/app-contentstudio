@@ -32,6 +32,8 @@ node {
     version = '16.0.0'
 }
 
+def resourcesDir = file( 'src/main/resources' )
+
 task lint( type: NpmTask, dependsOn: npmInstall ) {
     args = [ 'run', 'lint:quiet' ]
     inputs.files fileTree( dir: 'modules', include: 'src/main/**.*' )
