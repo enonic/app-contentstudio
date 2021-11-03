@@ -22,7 +22,7 @@ Editors will commonly use the <<navigator#,navigator panel>> to browse, search a
 
 == Browser support
 
-Content Studio supports all modern browsers.  We are explicitly testing it and supporting it for the latest versions of
+Content Studio works in all modern browsers.  We are explicitly testing it and supporting it for the latest versions of
 Google Chrome, Apple Safari, Mozilla Firefox and Microsoft Edge.
 
 == Content Studio+
