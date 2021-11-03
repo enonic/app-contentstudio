@@ -282,13 +282,13 @@ class Page {
     //returns array of messages
     async waitForNotificationMessages() {
         try {
-            await this.waitForElementDisplayed("//div[@class='notification-content']", appConst.mediumTimeout);
+            await this.waitForElementDisplayed("//div[@class='notification-text']", appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot('err_notification_messages');
             throw new Error('Error when wait for notification message: ' + err);
         }
         await this.pause(300);
-        return await this.getTextInDisplayedElements(`//div[@class='notification-content']`);
+        return await this.getTextInDisplayedElements(`//div[@class='notification-text']`);
     }
 
     waitForExpectedNotificationMessage(expectedMessage) {
@@ -300,7 +300,7 @@ class Page {
     }
 
     waitForErrorNotificationMessage() {
-        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']//div[contains(@class,'notification-content')]`;
+        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']//div[contains(@class,'notification-text')]`;
         return this.waitForElementDisplayed(selector, appConst.mediumTimeout).then(() => {
             return this.getText(selector);
         })
