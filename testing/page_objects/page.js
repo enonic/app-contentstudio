@@ -268,7 +268,7 @@ class Page {
 
     async waitForNotificationMessage() {
         try {
-            let notificationXpath = "//div[@class='notification-content']";
+            let notificationXpath = "//div[@class='notification-text']";
             await this.getBrowser().waitUntil(async () => {
                 return await this.isElementDisplayed(notificationXpath);
             }, {timeout: appConst.longTimeout, timeoutMsg: 'Error when wait for notification message'});
@@ -292,7 +292,7 @@ class Page {
     }
 
     waitForExpectedNotificationMessage(expectedMessage) {
-        let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-content') and contains(.,'${expectedMessage}')]`;
+        let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-text') and contains(.,'${expectedMessage}')]`;
         return this.waitForElementDisplayed(selector, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_notification_mess');
             throw new Error('expected notification message was not shown! ' + err);
@@ -307,7 +307,7 @@ class Page {
     }
 
     async waitForNotificationWarning() {
-        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-content')]`;
+        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-text')]`;
         await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         await this.pause(500);
         return await this.getText(selector);
