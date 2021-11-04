@@ -69,13 +69,27 @@
       display: none;
     }
 
-    .wrapper {
-      > iframe {
-        display: block;
+    &.page-preview,
+    &.media-preview {
+      .wrapper {
+        > iframe {
+          display: block;
+        }
+        > img {
+          display: none;
+        }
       }
+    }
 
-      > img {
-        display: none;
+    &.image-preview,
+    &.svg-preview {
+      .wrapper {
+        > iframe {
+          display: none;
+        }
+        > img {
+          display: block;
+        }
       }
     }
   }
