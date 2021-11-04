@@ -880,8 +880,8 @@ module.exports = {
         let wizardPanel = new UserWizard();
         let browsePanel = new UserBrowsePanel();
         await wizardPanel.waitAndClickOnSave();
-        await wizardPanel.waitForNotificationMessage();
-        await wizardPanel.pause(700);
+        //await wizardPanel.waitForNotificationMessage();
+        await wizardPanel.pause(2000);
         //Click on Close icon and close the wizard:
         return await browsePanel.doClickOnCloseTabAndWaitGrid(displayName);
     },
@@ -983,14 +983,5 @@ module.exports = {
     },
     loadUrl(url) {
         return webDriverHelper.browser.url(url);
-    },
-    async getIdOfHtmlAreas() {
-        let selector = lib.FORM_VIEW + lib.TEXT_AREA;
-        let elems = await webDriverHelper.browser.$$(selector);
-        let ids = [];
-        elems.forEach(el => {
-            ids.push(el.getAttribute("id"));
-        });
-        return Promise.all(ids);
     }
 };
