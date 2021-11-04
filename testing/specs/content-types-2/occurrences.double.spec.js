@@ -10,7 +10,6 @@ const contentBuilder = require("../../libs/content.builder");
 const DoubleForm = require('../../page_objects/wizardpanel/double.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
-
 describe('occurrences.double.spec: tests for content with Double inputs', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
@@ -126,7 +125,6 @@ describe('occurrences.double.spec: tests for content with Double inputs', functi
             let formRecording = await doubleForm.getFormValidationRecording();
             assert.equal(formRecording, "Min 2 valid occurrence(s) required", 'Form validation recording should be displayed');
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
