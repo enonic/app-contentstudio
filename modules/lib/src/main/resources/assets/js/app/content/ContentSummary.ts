@@ -79,6 +79,9 @@ export class ContentSummary {
 
     private readonly originalName: string;
 
+    private readonly archivedBy: PrincipalKey;
+
+
     constructor(builder: ContentSummaryBuilder) {
         this.name = builder.name;
         this.displayName = builder.displayName;
@@ -98,6 +101,7 @@ export class ContentSummary {
         this.createdTime = builder.createdTime;
         this.modifiedTime = builder.modifiedTime;
         this.archivedTime = builder.archivedTime;
+        this.archivedBy = builder.archivedBy;
         this.publishFromTime = builder.publishFromTime;
         this.publishToTime = builder.publishToTime;
         this.publishFirstTime = builder.publishFirstTime;
@@ -208,6 +212,10 @@ export class ContentSummary {
 
     getArchivedTime(): Date {
         return this.archivedTime;
+    }
+
+    getArchivedBy(): PrincipalKey {
+        return this.archivedBy;
     }
 
     getPublishFirstTime(): Date {
@@ -360,6 +368,9 @@ export class ContentSummary {
         if (!ObjectHelper.dateEquals(this.archivedTime, other.getArchivedTime())) {
             return false;
         }
+        if (!ObjectHelper.objectEquals(this.archivedBy, other.getArchivedBy())) {
+            return false;
+        }
         if (!ObjectHelper.dateEqualsUpToMinutes(this.publishFromTime, other.getPublishFromTime())) {
             return false;
         }
@@ -459,6 +470,8 @@ export class ContentSummaryBuilder {
 
     originalName: string;
 
+    archivedBy: PrincipalKey;
+
     constructor(source?: ContentSummary) {
         if (source) {
             this.id = source.getId();
@@ -478,6 +491,7 @@ export class ContentSummaryBuilder {
             this.createdTime = source.getCreatedTime();
             this.modifiedTime = source.getModifiedTime();
             this.archivedTime = source.getArchivedTime();
+            this.archivedBy = source.getArchivedBy();
             this.publishFromTime = source.getPublishFromTime();
             this.publishToTime = source.getPublishToTime();
             this.publishFirstTime = source.getPublishFirstTime();
@@ -509,12 +523,13 @@ export class ContentSummaryBuilder {
         this.valid = json.isValid;
         this.requireValid = json.requireValid;
         this.language = json.language;
-
         this.id = json.id;
+
         this.contentId = new ContentId(json.id);
         this.createdTime = json.createdTime ? new Date(Date.parse(json.createdTime)) : null;
         this.modifiedTime = json.modifiedTime ? new Date(Date.parse(json.modifiedTime)) : null;
         this.archivedTime = json.archivedTime ? new Date(Date.parse(json.archivedTime)) : null;
+        this.archivedBy = json.archivedBy ? PrincipalKey.fromString(json.archivedBy) : null;
         this.publishFirstTime = json.publish && json.publish.first ? new Date(Date.parse(json.publish.first)) : null;
         this.publishFromTime = json.publish && json.publish.from ? new Date(Date.parse(json.publish.from)) : null;
         this.publishToTime = json.publish && json.publish.to ? new Date(Date.parse(json.publish.to)) : null;
