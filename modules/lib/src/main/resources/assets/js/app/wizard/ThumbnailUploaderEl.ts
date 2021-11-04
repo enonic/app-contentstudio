@@ -6,6 +6,7 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {UrlHelper} from '../util/UrlHelper';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';
+import {ContentPath} from '../content/ContentPath';
 
 export class ThumbnailUploaderEl
     extends UploaderEl<Content> {
@@ -15,7 +16,7 @@ export class ThumbnailUploaderEl
     constructor(config?: UploaderElConfig) {
 
         if (config.url == null) {
-            config.url = UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/content/updateThumbnail`);
+            config.url = UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(ContentPath.CONTENT_ROOT)}/content/updateThumbnail`);
         }
 
         if (config.showCancel == null) {
