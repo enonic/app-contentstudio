@@ -983,5 +983,14 @@ module.exports = {
     },
     loadUrl(url) {
         return webDriverHelper.browser.url(url);
+    },
+    async getIdOfHtmlAreas() {
+        let selector = lib.FORM_VIEW + lib.TEXT_AREA;
+        let elems = await webDriverHelper.browser.$$(selector);
+        let ids = [];
+        elems.forEach(el => {
+            ids.push(el.getAttribute("id"));
+        });
+        return Promise.all(ids);
     }
 };
