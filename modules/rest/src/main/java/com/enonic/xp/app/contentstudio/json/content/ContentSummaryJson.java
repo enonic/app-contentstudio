@@ -12,6 +12,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.ContentListTitleRes
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ChildOrderJson;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentInheritType;
+import com.enonic.xp.security.PrincipalKey;
 
 @SuppressWarnings("UnusedDeclaration")
 public class ContentSummaryJson
@@ -153,6 +154,11 @@ public class ContentSummaryJson
     public Instant getArchivedTime()
     {
         return content.getArchivedTime();
+    }
+
+    public String getArchivedBy()
+    {
+        return content.getArchivedBy() != null ? content.getArchivedBy().toString() : null;
     }
 
     public boolean getHasChildren()
