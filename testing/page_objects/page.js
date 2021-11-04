@@ -1,5 +1,6 @@
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
+const lib = require('../libs/elements');
 const path = require('path');
 const fs = require('fs');
 
@@ -257,7 +258,7 @@ class Page {
 
     async removeNotificationMessage() {
         try {
-            let selector = "//div[contains(@id,'NotificationContainer')]//span[@class='notification-remove']";
+            let selector = "//div[contains(@id,'NotificationContainer')]//span[contains(@class,'notification-remove')]";
             await this.clickOnElement(selector);
             return await this.pause(300);
         } catch (err) {
@@ -268,10 +269,10 @@ class Page {
 
     async waitForNotificationMessage() {
         try {
-            let notificationXpath = "//div[@class='notification-text']";
+            let notificationXpath = lib.NOTIFICATION_TEXT;
             await this.getBrowser().waitUntil(async () => {
                 return await this.isElementDisplayed(notificationXpath);
-            }, {timeout: appConst.longTimeout, timeoutMsg: 'Error when wait for notification message'});
+            }, {timeout: appConst.longTimeout, timeoutMsg: 'Error when wait for the notification message'});
             await this.pause(400);
             return await this.getText(notificationXpath);
         } catch (err) {
@@ -282,13 +283,13 @@ class Page {
     //returns array of messages
     async waitForNotificationMessages() {
         try {
-            await this.waitForElementDisplayed("//div[@class='notification-text']", appConst.mediumTimeout);
+            await this.waitForElementDisplayed(lib.NOTIFICATION_TEXT, appConst.mediumTimeout);
         } catch (err) {
             this.saveScreenshot('err_notification_messages');
             throw new Error('Error when wait for notification message: ' + err);
         }
         await this.pause(300);
-        return await this.getTextInDisplayedElements(`//div[@class='notification-text']`);
+        return await this.getTextInDisplayedElements(lib.NOTIFICATION_TEXT);
     }
 
     waitForExpectedNotificationMessage(expectedMessage) {
@@ -300,14 +301,14 @@ class Page {
     }
 
     waitForErrorNotificationMessage() {
-        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']//div[contains(@class,'notification-text')]`;
+        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification error']` + lib.NOTIFICATION_TEXT;
         return this.waitForElementDisplayed(selector, appConst.mediumTimeout).then(() => {
             return this.getText(selector);
         })
     }
 
     async waitForNotificationWarning() {
-        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']//div[contains(@class,'notification-text')]`;
+        let selector = `//div[contains(@id,'NotificationMessage') and @class='notification warning']` + lib.NOTIFICATION_TEXT;
         await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         await this.pause(500);
         return await this.getText(selector);
