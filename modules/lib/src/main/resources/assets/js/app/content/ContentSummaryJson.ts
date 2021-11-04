@@ -31,6 +31,8 @@ export interface ContentSummaryJson
 
     archivedTime: string;
 
+    archivedBy: string;
+
     owner: string;
 
     isPage: boolean;
