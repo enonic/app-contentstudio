@@ -1,11 +1,12 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
 import {TaskId} from 'lib-admin-ui/task/TaskId';
-import {ContentResourceRequest} from './ContentResourceRequest';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentPath} from '../content/ContentPath';
+import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
-export class DeleteContentRequest extends ContentResourceRequest<TaskId> {
+export class DeleteContentRequest
+    extends CmsContentResourceRequest<TaskId> {
 
     private contentPaths: ContentPath[] = [];
 
