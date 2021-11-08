@@ -8,7 +8,6 @@ const XPATH = {
     longInput: "//div[contains(@id,'Long') and contains(@class,'input-type-view')]",
     occurrenceErrorBlock: `//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]`,
     inputValidationView: "//div[contains(@id,'InputViewValidationViewer')]",
-    addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
 };
 
 class LongForm extends OccurrencesFormView {

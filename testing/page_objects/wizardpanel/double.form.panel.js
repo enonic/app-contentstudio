@@ -8,7 +8,6 @@ const appConst = require('../../libs/app_const');
 const XPATH = {
     doubleInput: `//div[contains(@id,'Double')]`,
     occurrenceErrorBlock: `//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]`,
-    addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
     occurrenceView: "//div[contains(@id,'InputOccurrenceView')]",
 };
 

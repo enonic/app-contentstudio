@@ -11,7 +11,6 @@ const XPATH = {
     ckeToolbox: "//span[contains(@class,'cke_toolbox')]",
     insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
     formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
-    addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
     removeAreaButton: "//div[contains(@id,'HtmlArea')]//button[@class='remove-button']",
 
     typeText: function (id, text) {
@@ -32,7 +31,7 @@ class HtmlAreaForm extends OccurrencesFormView {
     }
 
     get addButton() {
-        return lib.FORM_VIEW + XPATH.addButton;
+        return lib.FORM_VIEW + lib.ADD_BUTTON;
     }
 
     waitForAddButtonDisplayed() {

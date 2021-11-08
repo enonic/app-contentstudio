@@ -9,7 +9,6 @@ const XPATH = {
     container: "//div[contains(@id,'GeoPoint')]",
     locationInput: "//input[contains(@id,'GeoPoint') and @placeholder='latitude,longitude']",
     occurrenceErrorBlock: `//div[contains(@id,'InputOccurrenceView')]//div[contains(@class,'error-block')]`,
-    addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
     occurrenceView: "//div[contains(@id,'InputOccurrenceView')]",
 };
 
