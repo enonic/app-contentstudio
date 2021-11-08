@@ -1,6 +1,8 @@
 {
     "contents": [
         {
+            "archivedBy": null,
+            "archivedTime": null,
             "attachments": [],
             "childOrder": null,
             "contentState": "DEFAULT",
@@ -40,6 +42,8 @@
             "modifier": "user:system:admin",
             "name": "my_a_content",
             "originProject": null,
+            "originalName": null,
+            "originalParentPath": null,
             "owner": "user:myStore:me",
             "page": null,
             "path": "/my_a_content",
@@ -58,6 +62,8 @@
             }
         },
         {
+            "archivedBy": null,
+            "archivedTime": null,
             "attachments": [],
             "childOrder": null,
             "contentState": "DEFAULT",
@@ -97,6 +103,8 @@
             "modifier": "user:system:admin",
             "name": "my_b_content",
             "originProject": null,
+            "originalName": null,
+            "originalParentPath": null,
             "owner": "user:myStore:me",
             "page": null,
             "path": "/my_b_content",

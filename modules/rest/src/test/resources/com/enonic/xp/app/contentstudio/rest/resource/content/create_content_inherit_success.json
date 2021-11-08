@@ -1,4 +1,6 @@
 {
+    "archivedBy": null,
+    "archivedTime": null,
     "attachments": [],
     "childOrder": null,
     "contentState": "DEFAULT",
@@ -43,6 +45,8 @@
     "modifier": "user:system:admin",
     "name": "content-path",
     "originProject": "origin",
+    "originalName": null,
+    "originalParentPath": null,
     "owner": "user:myStore:me",
     "page": null,
     "path": "/content-path",
