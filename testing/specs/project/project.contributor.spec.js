@@ -216,7 +216,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
             await contentBrowsePanel.doubleClickOnRowByDisplayName(FOLDER_READY_TO_PUBLISH.displayName);
             await studioUtils.doSwitchToNewWizard();
             //3. Verify that Delete..., Duplicate.. buttons are disabled:
-            await contentWizardPanel.waitForDeleteButtonDisabled();
+            await contentWizardPanel.waitForArchiveButtonDisabled();
             await contentWizardPanel.waitForDuplicateButtonDisabled();
             //4. Verify that display name input is not clickable:
             await contentWizardPanel.isDisplayNameInputClickable();

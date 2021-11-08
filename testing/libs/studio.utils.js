@@ -473,10 +473,10 @@ module.exports = {
         let deleteContentDialog = new DeleteContentDialog();
         let confirmValueDialog = new ConfirmValueDialog();
         //1. Open Delete Content dialog:
-        await browsePanel.clickOnDeleteButton();
+        await browsePanel.clickOnArchiveButton();
         await deleteContentDialog.waitForDialogOpened();
         //2. Click on Delete Now button
-        await deleteContentDialog.clickOnDeleteNowButton();
+        await deleteContentDialog.clickOnDeleteNowMenuItem();
         //3. wait for Confirm dialog is loaded:
         await confirmValueDialog.waitForDialogOpened();
         //4. Type required number:

@@ -18,12 +18,15 @@ const XPATH = {
 
 class BaseBrowsePanel extends Page {
 
-    waitForGridLoaded(ms) {
-        return this.waitForElementDisplayed(this.treeGrid, ms).then(() => {
-            return this.waitForSpinnerNotVisible(ms);
-        }).catch(err => {
-            throw new Error('Browse panel was not loaded in ' + ms + " " + err);
-        });
+    async waitForGridLoaded(ms) {
+        try {
+            let timeout = typeof ms !== 'undefined' ? ms : appConst.mediumTimeout;
+            console.log("timeout##############: " + timeout);
+            await this.waitForElementDisplayed(this.treeGrid, timeout);
+            await this.waitForSpinnerNotVisible(timeout);
+        } catch (err) {
+            throw new Error('Browse panel was not loaded in ' + timeout + " " + err);
+        }
     }
 
     hotKeyNew() {
@@ -148,28 +151,6 @@ class BaseBrowsePanel extends Page {
         })
     }
 
-    isNewButtonEnabled() {
-        return this.isElementEnabled(this.newButton);
-    }
-
-    waitForDeleteButtonDisabled() {
-        return this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_delete_disabled_button');
-            throw Error('Browse toolbar - Delete button should be disabled, timeout: ' + 3000 + 'ms')
-        })
-    }
-
-    waitForDeleteButtonEnabled() {
-        return this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_delete_button');
-            throw Error('Delete button is not enabled after ' + appConst.mediumTimeout + 'ms')
-        })
-    }
-
-    isDeleteButtonEnabled() {
-        return this.isElementEnabled(this.deleteButton);
-    }
-
     waitForEditButtonDisabled() {
         return this.waitForElementDisabled(this.editButton, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_edit_disabled_button');
@@ -276,16 +257,6 @@ class BaseBrowsePanel extends Page {
         } catch (err) {
             this.saveScreenshot('err_find_item');
             throw Error(`Row with the displayName ${displayName} was not found.` + err);
-        }
-    }
-
-    async clickOnDeleteButton() {
-        try {
-            await this.waitForElementEnabled(this.deleteButton, appConst.shortTimeout);
-            return await this.clickOnElement(this.deleteButton);
-        } catch (err) {
-            this.saveScreenshot('err_browsepanel_delete_button');
-            throw new Error('Delete button is not enabled! ' + err);
         }
     }
 

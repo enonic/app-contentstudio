@@ -294,7 +294,7 @@ class Page {
 
     waitForExpectedNotificationMessage(expectedMessage) {
         let selector = `//div[contains(@id,'NotificationMessage')]//div[contains(@class,'notification-text') and contains(.,'${expectedMessage}')]`;
-        return this.waitForElementDisplayed(selector, appConst.mediumTimeout).catch(err => {
+        return this.waitForElementDisplayed(selector, appConst.longTimeout).catch(err => {
             this.saveScreenshot('err_notification_mess');
             throw new Error('expected notification message was not shown! ' + err);
         })

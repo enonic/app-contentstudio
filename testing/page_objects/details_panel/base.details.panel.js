@@ -10,12 +10,22 @@ class BaseDetailsPanel extends Page {
     //drop down menu for switch to Details, Version History, Dependencies
     async clickOnWidgetSelectorDropdownHandle() {
         try {
-            await this.waitForElementDisplayed(this.widgetSelectorDropdownHandle, appConst.mediumTimeout);
+            await this.waitForWidgetSelectorDropDownHandleDisplayed();
             await this.pause(300);
             return await this.clickOnElement(this.widgetSelectorDropdownHandle);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_widget_dropdown'));
             throw new Error('Error when clicking on Widget Selector dropdown handle  ' + err);
+        }
+    }
+
+    async waitForWidgetSelectorDropDownHandleDisplayed() {
+        try {
+            await this.waitForElementDisplayed(this.widgetSelectorDropdownHandle, appConst.mediumTimeout);
+        } catch (err) {
+            await this.refresh();
+            await this.pause(2000);
+            await this.waitForElementDisplayed(this.widgetSelectorDropdownHandle, appConst.shortTimeout);
         }
     }
 
@@ -38,6 +48,7 @@ class BaseDetailsPanel extends Page {
             throw new Error("Error when opening Version History: " + err);
         }
     }
+
 
     getWidgetSelectorDropdownOptions() {
         let locator = this.widgetSelectorDropdown + lib.H6_DISPLAY_NAME;
