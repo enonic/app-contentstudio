@@ -1,4 +1,6 @@
 {
+    "archivedBy": null,
+    "archivedTime": null,
     "attachments": [],
     "childOrder": null,
     "contentState": "DEFAULT",
@@ -33,6 +35,8 @@
     "modifier": null,
     "name": "template-myapplication-2",
     "originProject": null,
+    "originalName": null,
+    "originalParentPath": null,
     "owner": "user:myStore:me",
     "page": {
         "config": [],

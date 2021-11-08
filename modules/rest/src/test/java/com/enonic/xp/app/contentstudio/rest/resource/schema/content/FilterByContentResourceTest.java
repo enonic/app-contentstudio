@@ -66,7 +66,7 @@ class FilterByContentResourceTest
 
         when( filterByContentResolver.contentTypes( ContentId.from( "test" ) ) ).thenReturn( Stream.of( contentTypeToMap ) );
         String jsonString =
-            request().path( "schema/filter/contentTypes" ).queryParam( "contentId", "test" ).get().getAsString();
+            request().path( "cms/default/content/schema/filter/contentTypes" ).queryParam( "contentId", "test" ).get().getAsString();
 
         assertJson( "filter_content_types.json", jsonString );
     }
@@ -83,7 +83,7 @@ class FilterByContentResourceTest
             .build();
 
         when( filterByContentResolver.contentTypes( isNull() ) ).thenReturn( Stream.of( contentTypeToMap ) );
-        String jsonString = request().path( "schema/filter/contentTypes" ).get().getAsString();
+        String jsonString = request().path( "cms/default/content/schema/filter/contentTypes" ).get().getAsString();
 
         assertJson( "filter_content_types.json", jsonString );
     }
@@ -105,7 +105,7 @@ class FilterByContentResourceTest
 
         when( filterByContentResolver.layouts( ContentId.from( "test" ) ) ).thenReturn( Stream.of( layoutDescriptor ) );
         String jsonString =
-            request().path( "schema/filter/layouts" ).queryParam( "contentId", "test" ).get().getAsString();
+            request().path( "cms/default/content/schema/filter/layouts" ).queryParam( "contentId", "test" ).get().getAsString();
 
         assertJson( "filter_layouts.json", jsonString );
     }
@@ -122,7 +122,7 @@ class FilterByContentResourceTest
             PartDescriptor.create().displayName( "Fancy part" ).config( form ).key( DescriptorKey.from( "module:fancy-part" ) ).build();
 
         when( filterByContentResolver.parts( ContentId.from( "test" ) ) ).thenReturn( Stream.of( layoutDescriptor ) );
-        String jsonString = request().path( "schema/filter/parts" ).queryParam( "contentId", "test" ).get().getAsString();
+        String jsonString = request().path( "cms/default/content/schema/filter/parts" ).queryParam( "contentId", "test" ).get().getAsString();
 
         assertJson( "filter_parts.json", jsonString );
     }
@@ -143,7 +143,7 @@ class FilterByContentResourceTest
             .build();
 
         when( filterByContentResolver.pages( ContentId.from( "test" ) ) ).thenReturn( Stream.of( layoutDescriptor ) );
-        String jsonString = request().path( "schema/filter/pages" ).queryParam( "contentId", "test" ).get().getAsString();
+        String jsonString = request().path( "cms/default/content/schema/filter/pages" ).queryParam( "contentId", "test" ).get().getAsString();
 
         assertJson( "filter_pages.json", jsonString );
     }
