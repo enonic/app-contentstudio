@@ -5,7 +5,6 @@ const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
-    addButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add']]",
     removeButton: "//button[@class='remove-button']",
 };
 
@@ -20,7 +19,7 @@ class OccurrencesFormView extends Page {
     }
 
     get addButton() {
-        return lib.FORM_VIEW + XPATH.addButton;
+        return lib.FORM_VIEW + lib.ADD_BUTTON;
     }
 
     get removeButton() {

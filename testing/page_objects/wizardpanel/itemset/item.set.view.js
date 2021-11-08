@@ -9,7 +9,7 @@ const studioUtils = require('../../../libs/studio.utils.js');
 const xpath = {
     itemSet: "//div[contains(@id,'FormItemSetView')]",
     occurrenceView: "//div[contains(@id,'FormItemSetOccurrenceView')]",
-    addItemSetButton: "//div[@class='bottom-button-row']//button[child::span[text()='Add'] and @title='Add ItemSet']",
+    addItemSetButton: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add'] and @title='Add ItemSet']",
     itemSetMenuButton: "//button[contains(@id,'MoreButton')]",
     typeTextInHtmlArea: (id, text) => {
         return `CKEDITOR.instances['${id}'].setData('${text}')`;
