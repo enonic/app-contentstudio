@@ -32,14 +32,14 @@ class MultiSelectionOptionSet extends Page {
         return this.pause(300);
     }
 
-    async getMultiSelectionLabel() {
+    async getMultiSelectionTitle() {
         let locator = xpath.container + xpath.optionSetOccurrenceLabel;
         let result = await this.getText(locator);
         let tittle = result.split("\n");
         return tittle[0].trim();
     }
 
-    async getMultiSelectionSubHeader() {
+    async getMultiSelectionSubtitle() {
         let locator = xpath.container + xpath.optionSetOccurrenceLabel + "//p[@class='note']";
         return await this.getText(locator);
     }

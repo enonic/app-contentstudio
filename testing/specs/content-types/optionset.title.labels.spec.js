@@ -159,15 +159,16 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             await optionSetForm.selectOptionInSingleSelection("Option 1");
             //3. Verify that the title is equal to text in 'Name' input
             await singleSelectionOptionSet.typeTextInOptionNameInput(SINGLE_SELECTION_NOTE1);
-            let title = await singleSelectionOptionSet.getSingleSelectionLabel();
-            let subheader = await singleSelectionOptionSet.getSingleSelectionSubheader();
-            studioUtils.saveScreenshot('item_set_confirmation_dialog');
-            assert.equal(subheader, SINGLE_SELECTION_NOTE1, "Expected title should be displayed in the option set occurrence view");
+            let subtitle = await singleSelectionOptionSet.getSingleSelectionSubtitle();
+            assert.equal(subtitle, "Option 1", "Expected label should be displayed");
+            let title = await singleSelectionOptionSet.getSingleSelectionTitle();
+            await studioUtils.saveScreenshot('item_set_title_dynamic');
+            assert.equal(title, SINGLE_SELECTION_NOTE1, "Expected title should be displayed in the option set occurrence view");
             //4. Update the text in input:
             await singleSelectionOptionSet.typeTextInOptionNameInput(SINGLE_SELECTION_NOTE2);
-            //5. Verify that subheader is updated dynamically:
-            subheader = await singleSelectionOptionSet.getSingleSelectionSubheader();
-            assert.equal(subheader, SINGLE_SELECTION_NOTE2, "Expected subheader should be displayed");
+            //5. Verify that title is updated dynamically:
+            title = await singleSelectionOptionSet.getSingleSelectionTitle();
+            assert.equal(title, SINGLE_SELECTION_NOTE2, "Expected subheader should be displayed");
         });
 
     it(`GIVEN wizard for new option set is opened WHEN options in multi select have been updated THEN title of 'multi select' should be updated dynamically`,
@@ -182,15 +183,15 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             await singleSelectionOptionSet.typeTextInOptionNameInput("test 1");
             await singleSelectionOptionSet.collapseForm();
             await contentWizard.typeDisplayName(OPTION_SET_NAME);
-            //2. Verify the title of multi select:
-            let title = await multiSelectionOptionSet.getMultiSelectionLabel();
-            assert.equal(title, MULTI_SELECTION_TITLE1, "Expected title should be displayed in 'multi selection'");
+            //2. Verify the title in multi selection form:
+            let title = await multiSelectionOptionSet.getMultiSelectionTitle();
+            assert.equal(title, "Option 2", "Expected title should be in 'multi selection' form");
             //3. Click on the second option:
             await multiSelectionOptionSet.clickOnOption("Option 1");
-            //4. Verify that title of the multi select is updated dynamically:
-            title = await multiSelectionOptionSet.getMultiSelectionLabel();
+            //4. Verify that title is updated dynamically in the multi selection form:
+            title = await multiSelectionOptionSet.getMultiSelectionTitle();
             await contentWizard.waitAndClickOnSave();
-            assert.equal(title, MULTI_SELECTION_TITLE2, "Expected title should be displayed in 'multi selection'");
+            assert.equal(title, MULTI_SELECTION_TITLE2, "'Option 1 Option 2' should be displayed in multi selection subtitle");
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isFalse(isInvalid, "Option Set content should be valid because required input are filled");
         });
@@ -237,11 +238,11 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             await singleSelectionOptionSet.collapseForm();
             //2. Click on 'Option 3' checkbox:
             await multiSelectionOptionSet.clickOnOption("Option 3");
-            //3. Type the test text in HtmlArea
+            //3. Type the text in HtmlArea
             await htmlAreaForm.typeTextInHtmlArea("Hello World!");
-            //4. Verify that the subheader is dynamically updated:
-            let subheader = await multiSelectionOptionSet.getMultiSelectionSubHeader();
-            assert.equal(subheader, "Hello World!", "Expected subheader should be displayed");
+            //4. Verify that the title is dynamically updated:
+            let title = await multiSelectionOptionSet.getMultiSelectionTitle();
+            assert.equal(title, "Hello World!", "Expected title should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
