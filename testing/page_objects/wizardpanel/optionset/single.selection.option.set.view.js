@@ -116,7 +116,7 @@ class SingleSelectionOptionSet extends Page {
         return res.includes("disabled");
     }
 
-    async getSingleSelectionLabel() {
+    async getSingleSelectionTitle() {
         let locator = xpath.container + xpath.optionSetOccurrenceLabel;
         let elems = this.findElements(locator);
         let result = await this.getText(locator);
@@ -124,7 +124,7 @@ class SingleSelectionOptionSet extends Page {
         return tittle[0].trim();
     }
 
-    async getSingleSelectionSubheader() {
+    async getSingleSelectionSubtitle() {
         let locator = xpath.container + xpath.optionSetOccurrenceLabel + "//p[@class='note']";
         return await this.getText(locator);
     }
