@@ -94,33 +94,6 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             await contentWizard.waitForShowPublishMenuButtonVisible();
         });
 
-    //verifies - https://github.com/enonic/app-contentstudio/issues/891 Workflow state should not be displayed for Deleted content
-    //verifies https://github.com/enonic/app-contentstudio/issues/692   'Publish...' should be the default action for content in Deleted state
-    it(`GIVEN existing folder (Ready for publishing)is opened ADN it has been published then modified WHEN this folder has been 'Deleted' THEN default action gets PUBLISH...`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let settingsForm = new SettingsStepForm();
-            //1. Open the folder:
-            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            //2. folder has been published
-            await contentWizard.openPublishMenuAndPublish();
-            //3. Select a language
-            await settingsForm.filterOptionsAndSelectLanguage('English (en)');
-            await contentWizard.waitAndClickOnSave();
-            //4. Open Delete Content Dialog and click on 'Mark as Deleted' menu item
-            await contentWizard.doMarkAsDeleted();
-            //5. Verify that 'Undo delete' button gets visible in the wizard-toolbar:
-            await contentWizard.waitForUndoDeleteButtonDisplayed();
-            //but Delete, Save, Duplicate buttons should not be displayed:
-            await contentWizard.waitForDeleteButtonNotDisplayed();
-            //6. Go to Browse Panel
-            await contentWizard.doSwitchToContentBrowsePanel();
-            //7. Workflow state icon should not be displayed!
-            await contentBrowsePanel.waitForStateIconNotDisplayed(TEST_FOLDER.displayName);
-            //8. AND: 'Publish...' should be default on the browse-toolbar:
-            await contentBrowsePanel.waitForPublishButtonVisible();
-        });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

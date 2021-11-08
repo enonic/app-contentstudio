@@ -62,8 +62,8 @@ const XPATH = {
 
 class ContentBrowsePanel extends BaseBrowsePanel {
 
-    get deleteButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Delete...']]`;
+    get archiveButton() {
+        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Archive...']]`;
     }
 
     get moveButton() {
@@ -136,10 +136,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get editButton() {
         return `${XPATH.toolbar}/*[contains(@id, 'ActionButton') and child::span[text()='Edit']]`;
-    }
-
-    get undoDeleteButton() {
-        return XPATH.toolbar + "/*[contains(@id, 'ActionButton') and child::span[text()='Undo delete']]";
     }
 
     get numberInToggler() {
@@ -263,11 +259,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await this.clickOnElement(this.publishTreeButton);
     }
 
-    async clickOnUndoDeleteButton() {
-        await this.waitForElementDisplayed(this.undoDeleteButton, appConst.shortTimeout);
-        return await this.clickOnElement(this.undoDeleteButton);
-    }
-
     //waits for button MARK AS READY appears on the toolbar, then click on it and confirm.
     async clickOnMarkAsReadyButtonAndConfirm() {
         await this.waitForMarkAsReadyButtonVisible();
@@ -275,16 +266,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         let confirmationDialog = new ConfirmationDialog();
         await confirmationDialog.waitForDialogOpened();
         return await confirmationDialog.clickOnYesButton();
-    }
-
-    //Opens 'Delete Content Dialog' and clicks on 'Mark as deleted' menu item:
-    async doSelectedContentMarkAsDeleted() {
-        let contentDeleteDialog = new ContentDeleteDialog();
-        await this.clickOnDeleteButton();
-        await contentDeleteDialog.waitForDialogOpened();
-        await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
-        await contentDeleteDialog.waitForDialogClosed();
-        return await this.pause(1000);
     }
 
     //When single content is selected, confirmation is no needed
@@ -762,19 +743,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async clickOnDeleteAndMarkAsDeletedAndConfirm(numberItems) {
-        let contentDeleteDialog = new ContentDeleteDialog();
-        let confirmValueDialog = new ConfirmValueDialog();
-        await this.clickOnDeleteButton();
-        await contentDeleteDialog.waitForDialogOpened();
-
-        await contentDeleteDialog.clickOnMarkAsDeletedMenuItem();
-        await confirmValueDialog.waitForDialogOpened();
-        await confirmValueDialog.typeNumberOrName(numberItems);
-        await confirmValueDialog.clickOnConfirmButton();
-        return await confirmValueDialog.waitForDialogClosed();
-    }
-
     async openDetailsPanel() {
         let browseDetailsPanel = new BrowseDetailsPanel();
         let result = await browseDetailsPanel.isPanelVisible();
@@ -796,12 +764,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         let locator = XPATH.projectViewerButton + lib.H6_DISPLAY_NAME + "//span[@class='display-name-postfix']";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return await this.getText(locator);
-    }
-
-
-    async waitForDeleteButtonDisabled() {
-        await this.waitForElementDisplayed(this.deleteButton, appConst.mediumTimeout);
-        return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
     }
 
     //Wait for 'Show Issues' button has 'Assigned to Me' label
@@ -836,6 +798,31 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }).catch(err => {
             throw Error(`Error when do right click on the row:` + err);
         })
+    }
+
+    waitForArchiveButtonDisplayed() {
+        return this.waitForElementDisplayed(this.archiveButton, appConst.mediumTimeout);
+    }
+
+    async waitForArchiveButtonEnabled() {
+        try {
+            await this.waitForArchiveButtonDisplayed();
+            await this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_delete_button');
+            throw Error("Archive button should be enabled " + err);
+        }
+    }
+
+    async waitForArchiveButtonDisabled() {
+        await this.waitForArchiveButtonDisplayed();
+        return await this.waitForElementDisabled(this.archiveButton, appConst.mediumTimeout)
+    }
+
+    async clickOnArchiveButton() {
+        await this.waitForArchiveButtonEnabled();
+        await this.clickOnElement(this.archiveButton);
+        return await this.pause(500);
     }
 }
 

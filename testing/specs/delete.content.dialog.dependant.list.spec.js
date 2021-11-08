@@ -22,7 +22,7 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             //1. Select existing folder with 11 child content
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_2_NAME);
             //2. Open Delete content Dialog
-            await contentBrowsePanel.clickOnDeleteButton();
+            await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             //3. Verify the number in 'Hide Dependant Items' link
             let result = await deleteContentDialog.getNumberInHideDependantItemsLink();
@@ -40,7 +40,8 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             let deleteContentDialog = new DeleteContentDialog();
             await studioUtils.findContentAndClickCheckBox(appConst.TEST_FOLDER_2_DISPLAY_NAME);
             await studioUtils.findContentAndClickCheckBox(appConst.TEST_FOLDER_WITH_IMAGES_2);
-            await contentBrowsePanel.clickOnDeleteButton();
+            //Click on 'Archive...' button:
+            await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot("2_folders_dependant");
             let result = await deleteContentDialog.getNumberInHideDependantItemsLink();
@@ -57,7 +58,7 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             //1. Open existing folder
             await studioUtils.selectAndOpenContentInWizard(appConst.TEST_FOLDER_2_NAME);
             //2. Open Delete Dialog in the wizard:
-            await contentWizard.clickOnDelete();
+            await contentWizard.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             //3. Verify the number ot items: should be 11
             await studioUtils.saveScreenshot("wizard_folder_11_shown_dependant");
@@ -73,7 +74,7 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             //1. Open existing folder
             await studioUtils.selectAndOpenContentInWizard(appConst.TEST_FOLDER_2_NAME);
             //2. Open Delete Dialog in the wizard:
-            await contentWizard.clickOnDelete();
+            await contentWizard.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             //4. Click on 'Hide Dependant Items'
             await deleteContentDialog.clickOnHideDependantItemsLink();

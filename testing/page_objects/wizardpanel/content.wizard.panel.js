@@ -36,8 +36,7 @@ const XPATH = {
     saveButton: `//button[contains(@id,'ActionButton') and child::span[text()='Save']]`,
     savedButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saved']]`,
     savingButton: `//button[contains(@id,'ActionButton') and child::span[text()='Saving...']]`,
-    deleteButton: `//button[contains(@id,'ActionButton') and child::span[text()='Delete...']]`,
-    undoDelete: "//button[contains(@id, 'ActionButton') and child::span[text()='Undo delete']]",
+    archiveButton: `//button[contains(@id,'ActionButton') and child::span[text()='Archive...']]`,
     duplicateButton: `//button[contains(@id,'ActionButton') and child::span[text()='Duplicate...']]`,
     previewButton: `//button[contains(@id,'ActionButton') and child::span[text()='Preview']]`,
     resetButton: "//button[contains(@id,'ActionButton') and child::span[text()='Reset']]",
@@ -100,10 +99,6 @@ class ContentWizardPanel extends Page {
         return XPATH.container + XPATH.saveButton;
     }
 
-    get undoDeleteButton() {
-        return XPATH.container + XPATH.undoDelete;
-    }
-
     get resetButton() {
         return XPATH.container + XPATH.resetButton;
     }
@@ -132,8 +127,8 @@ class ContentWizardPanel extends Page {
         return XPATH.container + XPATH.thumbnailUploader;
     }
 
-    get deleteButton() {
-        return XPATH.container + XPATH.toolbar + XPATH.deleteButton;
+    get archiveButton() {
+        return XPATH.container + XPATH.toolbar + XPATH.archiveButton;
     }
 
     get duplicateButton() {
@@ -532,21 +527,21 @@ class ContentWizardPanel extends Page {
         return this.waitForElementNotDisplayed(this.savingButton, appConst.longTimeout);
     }
 
-    async clickOnDelete() {
+    async clickOnArchiveButton() {
         try {
-            await this.waitForDeleteButtonEnabled();
-            return await this.clickOnElement(this.deleteButton);
+            await this.waitForArchiveButtonEnabled();
+            return await this.clickOnElement(this.archiveButton);
         } catch (err) {
             this.saveScreenshot('err_delete_wizard');
             throw new Error('Error when clicking on Delete button ' + err);
         }
     }
 
-    async clickOnDeleteAndDeleteNow() {
+    async clickOnArchiveAndDeleteNow() {
         let contentDeleteDialog = new ContentDeleteDialog();
-        await this.clickOnDelete(this.deleteButton);
+        await this.clickOnArchiveButton();
         await contentDeleteDialog.waitForDialogOpened();
-        await contentDeleteDialog.clickOnDeleteNowButton();
+        await contentDeleteDialog.clickOnDeleteNowMenuItem();
         return await contentDeleteDialog.waitForDialogClosed();
     }
 
@@ -1013,17 +1008,17 @@ class ContentWizardPanel extends Page {
         }
     }
 
-    async waitForDeleteButtonDisabled() {
-        await this.waitForElementDisplayed(this.deleteButton, appConst.mediumTimeout);
-        return await this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout);
+    async waitForArchiveButtonDisabled() {
+        await this.waitForElementDisplayed(this.archiveButton, appConst.mediumTimeout);
+        return await this.waitForElementDisabled(this.archiveButton, appConst.mediumTimeout);
     }
 
-    waitForDeleteButtonEnabled() {
-        return this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout);
+    waitForArchiveButtonEnabled() {
+        return this.waitForElementEnabled(this.archiveButton, appConst.mediumTimeout);
     }
 
-    waitForDeleteButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.deleteButton, appConst.mediumTimeout);
+    waitForArchiveButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.archiveButton, appConst.mediumTimeout);
     }
 
     async clickOnPreviewButton() {
@@ -1130,10 +1125,6 @@ class ContentWizardPanel extends Page {
         await this.clickOnElement(this.goToGridButton);
         return await this.pause(300);
 
-    }
-
-    waitForUndoDeleteButtonDisplayed() {
-        return this.waitForElementDisplayed(this.undoDeleteButton, appConst.mediumTimeout);
     }
 }
 

@@ -1,7 +1,6 @@
 /**
  * Created on 5/03/2020.
  */
-const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const BaseBrowsePanel = require('../../page_objects/base.browse.panel');
@@ -331,6 +330,30 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     async clickOnSyncButton() {
         await this.waitForSyncButtonEnabled();
         return await this.clickOnElement(this.syncButton);
+    }
+
+    async clickOnDeleteButton() {
+        try {
+            await this.waitForElementEnabled(this.deleteButton, appConst.shortTimeout);
+            return await this.clickOnElement(this.deleteButton);
+        } catch (err) {
+            await this.saveScreenshot('err_browsepanel_delete_button');
+            throw new Error('Delete button is not enabled! ' + err);
+        }
+    }
+
+    waitForDeleteButtonDisabled() {
+        return this.waitForElementDisabled(this.deleteButton, appConst.mediumTimeout).catch(err => {
+            this.saveScreenshot('err_delete_disabled_button');
+            throw Error('Browse toolbar - Delete button should be disabled, timeout: ' + 3000 + 'ms')
+        })
+    }
+
+    waitForDeleteButtonEnabled() {
+        return this.waitForElementEnabled(this.deleteButton, appConst.mediumTimeout).catch(err => {
+            this.saveScreenshot('err_delete_button');
+            throw Error('Delete button is not enabled after ' + appConst.mediumTimeout + 'ms')
+        })
     }
 }
 

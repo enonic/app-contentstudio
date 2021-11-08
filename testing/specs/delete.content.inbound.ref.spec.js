@@ -24,8 +24,8 @@ describe('Delete a content that has inbound references.', function () {
             //1. new Shortcut-content has been added and selected:
             await studioUtils.doAddShortcut(SHORTCUT);
             await studioUtils.findAndSelectItem(appConstant.TEST_IMAGES.WHALE);
-            //2. Delete button has been clicked:
-            await contentBrowsePanel.clickOnDeleteButton();
+            //2. Archive button has been clicked:
+            await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             //3. Verify that expected warning is displayed in the dialog:
             await studioUtils.saveScreenshot("delete_dialog_inbound_ref");
@@ -40,7 +40,7 @@ describe('Delete a content that has inbound references.', function () {
             //1.Click on the image, that was selected in the shortcut
             await studioUtils.findAndSelectItem(appConstant.TEST_IMAGES.WHALE);
             //2. Delete button has been clicked:
-            await contentBrowsePanel.clickOnDeleteButton();
+            await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             //3. Click on 'Show Inbound' link:
             await deleteContentDialog.clickOnShowInboundLink(appConstant.TEST_IMAGES.WHALE);

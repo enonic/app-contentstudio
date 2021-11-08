@@ -9,13 +9,13 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 
-describe('delete.folder.spec:  verifies `xp-apps#398`', function () {
+describe('delete.folder.spec: multiselect deleting content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
     let folder1;
     let folder2;
-    it(`Precondition: WHEN two folders has been added THEN folders should be present in the grid`,
+    it(`Precondition:two folders has been added`,
         async () => {
             let displayName1 = contentBuilder.generateRandomName('folder');
             let displayName2 = contentBuilder.generateRandomName('folder');
@@ -28,7 +28,7 @@ describe('delete.folder.spec:  verifies `xp-apps#398`', function () {
     //verifies :
     // 1) xp-apps#398 Buttons remain enabled in the grid toolbar after deleting 2 content.
     // 2) https://github.com/enonic/lib-admin-ui/issues/1273  Browse toolbar is not updated after deleting filtered content
-    it(`GIVEN two folders(New) in the root directory WHEN both folders has been selected and deleted THEN 'Delete'(toolbar) button gets disabled`,
+    it(`GIVEN two folders(New) in the root directory WHEN both folders has been selected and deleted THEN 'Archive...' button gets disabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.typeNameInFilterPanel(folder1.displayName);
@@ -41,8 +41,7 @@ describe('delete.folder.spec:  verifies `xp-apps#398`', function () {
             //3. Delete folders:
             await studioUtils.doDeleteNowAndConfirm(2);
             //4. Delete button should be disabled now:
-            let result = await contentBrowsePanel.isDeleteButtonEnabled();
-            assert.isFalse(result, 'Delete button gets disabled');
+            await contentBrowsePanel.waitForArchiveButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

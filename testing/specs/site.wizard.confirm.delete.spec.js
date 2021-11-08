@@ -33,13 +33,13 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             await siteFormPanel.addApplications([appConstant.APP_CONTENT_TYPES]);
             //the site should be automatically saved:
             await contentWizard.waitForNotificationMessage();
-            //Click on Delete... button and open Delete Content Dialog:
-            await contentWizard.clickOnDelete();
+            //Click on Archive... button and open Delete Content Dialog:
+            await contentWizard.clickOnArchiveButton();
             //Verify that the dialog is loaded:
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.waitForSpinnerNotVisible();
             //Click on 'Delete Now' button:
-            await deleteContentDialog.clickOnDeleteNowButton();
+            await deleteContentDialog.clickOnDeleteNowMenuItem();
             await confirmValueDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot("site_wizard_confirm_delete_dialog");
 
@@ -58,10 +58,10 @@ describe('site.wizard.confirm.delete.spec: opens a site and delete it', function
             //1. Open the site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             //2. Open 'Confirm Content Delete' dialog:
-            await contentWizard.clickOnDelete();
+            await contentWizard.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.waitForSpinnerNotVisible();
-            await deleteContentDialog.clickOnDeleteNowButton();
+            await deleteContentDialog.clickOnDeleteNowMenuItem();
             await confirmValueDialog.waitForDialogOpened();
             //3. Type the required number to delete:
             await confirmValueDialog.typeNumberOrName(2);

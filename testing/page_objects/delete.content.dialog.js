@@ -3,9 +3,9 @@ const appConst = require('../libs/app_const');
 const lib = require('../libs/elements');
 const XPATH = {
     container: `//div[contains(@id,'ContentDeleteDialog')]`,
-    deleteMenu: `//div[contains(@id,'MenuButton')]`,
-    deleteNowButton: `//button/span[contains(.,'Delete Now')]`,
-    markAsDeletedMenuItem: `//li[contains(@id,'MenuItem') and text()='Mark As Deleted']`,
+    archiveOrDeleteMenu: `//div[contains(@id,'MenuButton')]`,
+    archiveButton: `//button/span[contains(.,'Archive')]`,
+    deleteNowMenuItem: `//li[contains(@id,'MenuItem') and contains(.,'Delete Now')]`,
     cancelButton: `//button/span[text()='Cancel']`,
     itemToDeleteList: `//ul[contains(@id,'DeleteDialogItemList')]`,
     itemViewer: `//div[contains(@id,'DeleteItemViewer']`,
@@ -33,12 +33,12 @@ class DeleteContentDialog extends Page {
         return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
 
-    get deleteNowButton() {
-        return XPATH.container + XPATH.deleteMenu + XPATH.deleteNowButton;
+    get archiveButton() {
+        return XPATH.container + XPATH.archiveOrDeleteMenu + XPATH.archiveButton;
     }
 
-    get deleteMenuDropDownHandle() {
-        return XPATH.container + XPATH.deleteMenu + lib.DROP_DOWN_HANDLE;
+    get archiveMenuDropDownHandle() {
+        return XPATH.container + XPATH.archiveOrDeleteMenu + lib.DROP_DOWN_HANDLE;
     }
 
     get hideDependantItemsLink() {
@@ -51,11 +51,11 @@ class DeleteContentDialog extends Page {
 
     async waitForDialogOpened() {
         try {
-            await this.waitForElementDisplayed(this.deleteNowButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.archiveButton, appConst.mediumTimeout);
             return await this.pause(300);
         } catch (err) {
-            await this.saveScreenshot('err_load_issue_details_dialog');
-            throw new Error('Issue Details dialog is not loaded ' + err)
+            await this.saveScreenshot(appConst.generateRandomName('err_archive_dialog'));
+            throw new Error('Archive or delete dialog is not loaded ' + err)
         }
     }
 
@@ -74,10 +74,11 @@ class DeleteContentDialog extends Page {
         return await this.clickOnElement(this.cancelTopButton);
     }
 
-    async clickOnDeleteNowButton() {
+    //Clicks on 'Archive' button.(Confirm Archive dialog can appear)
+    async clickOnArchiveButton() {
         try {
-            await this.waitForElementDisplayed(this.deleteNowButton, appConst.mediumTimeout);
-            await this.clickOnElement(this.deleteNowButton);
+            await this.waitForElementDisplayed(this.archiveButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.archiveButton);
             return await this.pause(500);
         } catch (err) {
             await this.saveScreenshot('err_click_on_delete_now_dialog');
@@ -85,10 +86,18 @@ class DeleteContentDialog extends Page {
         }
     }
 
-    async clickOnDeleteNowButtonAndClose() {
+    async clickOnDeleteNowMenuItem() {
+        await this.clickOnArchiveMenuDropDownHandle();
+        let menuItem = XPATH.container + XPATH.archiveOrDeleteMenu + XPATH.deleteNowMenuItem;
+        await this.waitForElementDisplayed(menuItem, appConst.mediumTimeout);
+        await this.clickOnElement(menuItem);
+        return await this.pause(300);
+    }
+
+    //Call the method for deleting single content, Delete Content should be closed after clicking on the menu item
+    async clickOnDeleteNowMenuItemAndWaitForClosed() {
         try {
-            await this.waitForElementDisplayed(this.deleteNowButton, appConst.mediumTimeout);
-            await this.clickOnElement(this.deleteNowButton);
+            await this.clickOnDeleteNowMenuItem();
             return await this.waitForDialogClosed();
         } catch (err) {
             await this.saveScreenshot('err_click_on_delete_now_dialog');
@@ -96,15 +105,10 @@ class DeleteContentDialog extends Page {
         }
     }
 
-    async clickOnDeleteMenuDropDownHandle() {
-        await this.clickOnElement(this.deleteMenuDropDownHandle);
-        return await this.pause(300);
-    }
-
-    async clickOnMarkAsDeletedMenuItem() {
-        await this.clickOnDeleteMenuDropDownHandle();
-        let selector = XPATH.container + XPATH.deleteMenu + XPATH.markAsDeletedMenuItem;
-        await this.clickOnElement(selector);
+    //Expands the menu in 'Archive' button
+    async clickOnArchiveMenuDropDownHandle() {
+        await this.waitForElementDisplayed(this.archiveMenuDropDownHandle, appConst.mediumTimeout);
+        await this.clickOnElement(this.archiveMenuDropDownHandle);
         return await this.pause(300);
     }
 
@@ -121,18 +125,18 @@ class DeleteContentDialog extends Page {
         return await this.pause(2000);
     }
 
-    async getTotalNumberItemsToDelete() {
+    async getTotalNumberItemsToArchive() {
         try {
             await this.getBrowser().waitUntil(async () => {
-                let text = await this.getText(this.deleteNowButton);
+                let text = await this.getText(this.archiveButton);
                 return text.includes('(');
             }, {timeout: appConst.mediumTimeout});
-            let result = await this.getText(this.deleteNowButton);
+            let result = await this.getText(this.archiveButton);
             let startIndex = result.indexOf('(');
             let endIndex = result.indexOf(')');
             return result.substring(startIndex + 1, endIndex);
         } catch (err) {
-            throw new Error("Error when getting number in Delete button " + err);
+            throw new Error("Error when getting number in Archive button " + err);
         }
     }
 
@@ -149,19 +153,15 @@ class DeleteContentDialog extends Page {
         return this.isElementDisplayed(this.cancelTopButton);
     }
 
-    async isDeleteNowButtonDisplayed() {
-        return this.isElementDisplayed(this.deleteNowButton);
+    async isArchiveButtonDisplayed() {
+        return this.isElementDisplayed(this.archiveButton);
     }
 
-    async isDeleteMenuDropDownHandleDisplayed() {
-        return await this.isElementDisplayed(this.deleteMenuDropDownHandle);
+    async isArchiveMenuDropDownHandleDisplayed() {
+        return await this.isElementDisplayed(this.archiveMenuDropDownHandle);
     }
 
-    waitForDeleteMenuDropDownHandleNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.deleteMenuDropDownHandle, appConst.mediumTimeout);
-    }
-
-    async getDisplayNamesToDelete() {
+    async getDisplayNamesToArchiveOrDelete() {
         let selector = XPATH.container + XPATH.itemToDeleteList + lib.H6_DISPLAY_NAME;
         return await this.getTextInElements(selector);
     }
