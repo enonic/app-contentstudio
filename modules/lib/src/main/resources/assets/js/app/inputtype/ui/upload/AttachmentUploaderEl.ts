@@ -7,6 +7,7 @@ import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl'
 import * as Q from 'q';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {ContentPath} from '../../../content/ContentPath';
 
 export interface AttachmentUploaderElConfig
     extends UploaderElConfig {
@@ -45,7 +46,7 @@ export class AttachmentUploaderEl
     }
 
     protected beforeSubmit() {
-        this.uploader.setEndpoint(UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/${this.config.url}`));
+        this.uploader.setEndpoint(UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(ContentPath.CONTENT_ROOT)}/${this.config.url}`));
     }
 
     protected doSetValue(value: string): AttachmentUploaderEl {

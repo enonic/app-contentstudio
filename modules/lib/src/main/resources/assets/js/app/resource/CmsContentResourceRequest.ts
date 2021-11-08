@@ -7,7 +7,6 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {CmsProjectBasedResourceRequest} from '../wizard/CmsProjectBasedResourceRequest';
 import {ContentResourceRequest} from './ContentResourceRequest';
-import {ContentPath} from '../content/ContentPath';
 
 export abstract class CmsContentResourceRequest<PARSED_TYPE>
     extends CmsProjectBasedResourceRequest<PARSED_TYPE> {
@@ -19,6 +18,7 @@ export abstract class CmsContentResourceRequest<PARSED_TYPE>
     protected constructor() {
         super();
         this.addRequestPathElements(ContentResourceRequest.CONTENT_PATH);
+        this.setContentRootPath(ContentResourceRequest.CONTENT_PATH);
     }
 
     fromJsonToContentSummary(json: ContentSummaryJson): ContentSummary {

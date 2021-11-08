@@ -1,0 +1,350 @@
+.sort-content-dialog {
+  @media screen and (max-height: 360px) {
+    .modal-dialog-header {
+      > h6 {
+        display: none;
+      }
+    }
+
+    padding-top: 20px;
+    padding-bottom: 10px;
+  }
+
+  @media screen and (max-height: 540px) {
+    padding-top: 20px;
+    padding-bottom: 10px;
+  }
+
+  .dialog-buttons .@{_COMMON_PREFIX}button.save-button.spinner {
+
+    &::before {
+      .animation(rotate360, 0.5s, 0s, linear);
+
+      color: white;
+      display: inline-block;
+    }
+  }
+
+  .slick-viewport {
+    position: relative;
+  }
+
+  .slick-pane-top {
+    height: auto !important;
+  }
+
+  .drag-icon {
+    cursor: move;
+    min-width: 30px;
+    padding-left: 10px;
+  }
+
+  .slick-reorder-proxy {
+    opacity: 0;
+  }
+
+  .slick-reorder-guide {
+    display: none;
+  }
+
+  .slick-row {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    cursor: move;
+
+    .slick-cell,
+    .slick-cell * {
+      cursor: move;
+    }
+
+    .modified {
+      text-align: right;
+    }
+  }
+
+  h6 {
+    font-size: 12.5px;
+    margin-top: 15px;
+    width: 100%;
+    .ellipsis();
+  }
+
+  .grid-canvas {
+    position: static;
+    min-height: 45px;
+
+    .selected {
+      z-index: 2;
+    }
+  }
+
+  .no-content {
+    font-size: 21px;
+    font-family: @admin-font-family;
+    color: lightgray;
+    text-align: center;
+
+    &::after {
+      content: attr(data-content) '  -  nothing to sort yet!';
+      position: absolute;
+      width: 100%;
+      height: 40px;
+      line-height: 40px;
+      top: 70%;
+      left: 0;
+      margin-top: -20px;
+      z-index: 2;
+    }
+  }
+
+  .modal-dialog-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    &::before,
+    &::after {
+      display: none;
+    }
+
+    h2 {
+      float: left;
+      line-height: 38px;
+
+      @media screen and (max-height: 360px) {
+        margin-bottom: 10px;
+      }
+    }
+
+    @media screen and (max-height: 360px) {
+      margin-bottom: 5px;
+    }
+
+    @media screen and (max-width: 720px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  .modal-dialog-body {
+    .dialog-content {
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+
+      .sort-content-grid {
+        flex: 1 0 auto;
+
+        &.inherited {
+          opacity: 0.5;
+          pointer-events: none;
+        }
+      }
+    }
+  }
+
+  .sort-tab-menu {
+    max-width: 300px;
+    float: right;
+    margin: 0;
+
+    .tab-menu-button {
+      padding: 7px 5px;
+      background-color: @admin-white;
+      border: 1px solid @admin-medium-gray-border;
+
+      .label {
+        display: block;
+        margin: 0 35px;
+        overflow: hidden;
+        white-space: pre;
+        line-height: 20px;
+        .ellipsis();
+
+        &::before {
+          display: inline-block;
+          float: right;
+          margin: 0 10px;
+          font-size: 16px;
+        }
+      }
+    }
+
+    .menu {
+      .tab-menu-item {
+        display: flex;
+        align-items: center;
+        height: 32px;
+        padding: 2px 3px 2px 5px;
+        line-height: 32px;
+
+        .label {
+          display: block;
+          flex: 1 0;
+          overflow: hidden;
+          white-space: pre;
+          .ellipsis();
+        }
+
+        .sorting-order {
+          width: 32px;
+          height: 32px;
+          padding: 0;
+          background-color: transparent;
+
+          &::before {
+            display: block;
+            width: 100%;
+            height: 100%;
+            font-size: 16px;
+            line-height: 32px;
+            text-align: center;
+            color: @admin-button-blue2;
+          }
+
+          &:hover,
+          &:focus {
+            background-color: @admin-bg-light-gray;
+            outline: none;
+          }
+
+          &:not(:last-of-type) {
+            margin-right: 2px;
+          }
+
+          span {
+            display: none;
+          }
+        }
+
+        &.inherited {
+          padding-right: 35px;
+
+          .label {
+            &::before {
+              position: absolute;
+              right: 15px;
+              font-size: 16px;
+            }
+          }
+
+          &.active {
+            outline: 1px solid @admin-button-blue2;
+          }
+
+          &:hover {
+            cursor: pointer;
+          }
+        }
+
+        &.single {
+          flex-grow: 1;
+
+          .label {
+            &:focus {
+              background-color: @admin-bg-light-gray;
+            }
+          }
+
+          &:focus-within {
+            background-color: @admin-bg-light-gray;
+          }
+
+          &.manual {
+            .label {
+              color: @admin-button-blue2;
+            }
+          }
+        }
+
+        &:not(.single) {
+          background-color: transparent;
+          cursor: default;
+
+          &:nth-child(odd) {
+            flex-grow: 1;
+          }
+
+          &:nth-child(even) {
+            .label {
+              display: none;
+            }
+          }
+        }
+
+        &.active {
+          .sorting-order::before {
+            outline: 1px solid @admin-button-blue2;
+          }
+        }
+      }
+    }
+
+    &.expanded {
+      .menu {
+        display: flex !important;
+        flex-wrap: wrap;
+      }
+    }
+
+    .@{_COMMON_PREFIX}dropdown-handle {
+      z-index: 3;
+    }
+  }
+
+  .sort-content-grid {
+    width: 100%;
+  }
+  .toggle.icon {
+    display: none !important;
+  }
+
+  &._0-240,
+  &._240-360 {
+    .r1 {
+      width: 82%;
+    }
+
+    .r2 {
+      display: none;
+    }
+
+    .modal-dialog-header {
+      h2 {
+        margin-right: 0;
+      }
+    }
+
+    @media screen and (max-height: 540px) {
+      .modal-dialog-header {
+        > h6 {
+          display: none;
+        }
+      }
+    }
+  }
+
+  &._360-540 {
+    @media screen and (max-height: 540px) {
+      .modal-dialog-header {
+        > h6 {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+body {
+  &._0-240,
+  &._240-360,
+  &._360-540,
+  &._540-720 {
+    .sort-content-dialog .sort-tab-menu {
+      float: left;
+      width: 100%;
+      margin-top: 10px;
+    }
+  }
+}

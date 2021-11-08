@@ -131,11 +131,15 @@ import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPa
 import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
 import {GetApplicationRequest} from '../resource/GetApplicationRequest';
 import {ContentPathPrettifier} from '../content/ContentPathPrettifier';
+import {ContextView} from '../view/context/ContextView';
+import {DockedContextPanel} from '../view/context/DockedContextPanel';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
 
     private contextSplitPanel: ContextSplitPanel;
+
+    private contextView: ContextView;
 
     private livePanel?: LiveFormPanel;
 
@@ -256,6 +260,8 @@ export class ContentWizardPanel
 
     private formContext: ContentFormContext;
 
+    private contentFetcher: ContentSummaryAndCompareStatusFetcher;
+
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
 
@@ -293,6 +299,7 @@ export class ContentWizardPanel
             if (!this.isRendered()) {
                 return;
             }
+
             this.updatePublishStatusOnDataChange();
             this.notifyDataChanged();
         }, 100);
@@ -383,6 +390,8 @@ export class ContentWizardPanel
             }
             this.handleAppChange();
         };
+
+        this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
     }
 
     private initBindings() {
@@ -415,6 +424,8 @@ export class ContentWizardPanel
 
         this.stepNavigator.unNavigationItemActivated(this.toggleMinimizeListener);
         this.formPanel.toggleClass('minimized');
+        this.minimizeEditButton.toggleClass('icon-arrow-right', this.minimized);
+        this.minimizeEditButton.toggleClass('icon-arrow-left', !this.minimized);
 
         new MinimizeWizardPanelEvent().fire();
 
@@ -505,7 +516,7 @@ export class ContentWizardPanel
                         this.toggleMinimize(event.getIndex());
                     };
 
-                    this.minimizeEditButton = new DivEl('minimize-edit');
+                    this.minimizeEditButton = new DivEl('minimize-edit icon-arrow-left');
                     this.minimizeEditButton.onClicked(this.toggleMinimize.bind(this, -1));
                     this.liveMask = new LoadMask(this.livePanel);
 
@@ -579,39 +590,24 @@ export class ContentWizardPanel
         const contextActions = [
             wizardActions.getUnpublishAction(),
             wizardActions.getPublishAction(),
-            wizardActions.getDeleteAction(),
+            wizardActions.getArchiveAction(),
             wizardActions.getDuplicateAction()
         ];
 
         const data: PageEditorData = this.getLivePanel()
                                      ? this.getLivePanel().getPageEditorData()
                                      : LiveFormPanel.createEmptyPageEditorData();
-        this.contextSplitPanel = new ContextSplitPanel(leftPanel, contextActions, data, this.formPanel);
+        this.contextView = new ContextView(data);
+        this.contextView.setItem(this.persistedContent);
+        const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
+
+        this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel)
+            .setContextView(this.contextView)
+            .setActions(contextActions)
+            .setData(data)
+            .setWizardFormPanel(this.formPanel)
+            .build();
         this.contextSplitPanel.hideSecondPanel();
-
-        this.onRendered(() => {
-            const mainToolbar: ContentWizardToolbar = this.getMainToolbar();
-            const toggler: TogglerButton = mainToolbar.getMobileItemStatisticsToggler();
-
-            this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {
-                if (!isMobile) {
-                    if (toggler.isActive()) {
-                        toggler.setActive(false);
-                    }
-                }
-            });
-
-            toggler.onActiveChanged((isActive) => {
-                if (this.contextSplitPanel.isMobileMode()) {
-                    if (isActive) {
-                        this.contextSplitPanel.setContent(this.persistedContent);
-                        this.contextSplitPanel.showMobilePanel();
-                    } else {
-                        this.contextSplitPanel.hideMobilePanel();
-                    }
-                }
-            });
-        });
 
         return this.contextSplitPanel;
     }
@@ -685,8 +681,6 @@ export class ContentWizardPanel
 
             thumbnailUploader.setEnabled(!this.contentType.isImage());
             thumbnailUploader.onFileUploaded(this.onFileUploaded.bind(this));
-
-            this.contextSplitPanel.onRendered(() => this.contextSplitPanel.setContent(this.persistedContent));
 
             this.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
                 this.wizardActions.setContentCanBeMarkedAsReady(status.inProgress).refreshState();
@@ -1378,7 +1372,7 @@ export class ContentWizardPanel
                 return;
             }
 
-            ContentSummaryAndCompareStatusFetcher.fetch(thisContentId)
+            this.contentFetcher.fetch(thisContentId)
                 .then(updatePermissionsHandler)
                 .catch(DefaultErrorHandler.handle);
         };
@@ -1396,7 +1390,7 @@ export class ContentWizardPanel
 
                     this.handlePersistedContentUpdate(renamedContent);
                 } else if (this.getPersistedItem().getPath().isDescendantOf(oldPaths[index])) {
-                    ContentSummaryAndCompareStatusFetcher.fetchByContent(this.getPersistedItem()).then((summaryAndStatus) => {
+                    this.contentFetcher.fetchByContent(this.getPersistedItem()).then((summaryAndStatus) => {
                         this.handlePersistedContentUpdate(summaryAndStatus);
                     });
                 }
@@ -1444,6 +1438,17 @@ export class ContentWizardPanel
             }
         };
 
+        const archivedHandler = (items: ContentServerChangeItem[]) => {
+            if (!this.getPersistedItem()) {
+                return;
+            }
+
+            if (items.some((item: ContentServerChangeItem) => item.getContentId().equals(this.getPersistedItem().getContentId()))) {
+                this.contentDeleted = true;
+                this.close();
+            }
+        };
+
         ActiveContentVersionSetEvent.on(versionChangeHandler);
         ContentDeletedEvent.on(deleteHandler);
 
@@ -1456,6 +1461,7 @@ export class ContentWizardPanel
         serverEvents.onContentUnpublished(publishOrUnpublishHandler);
         serverEvents.onContentRenamed(contentRenamedHandler);
         serverEvents.onContentDeletedInOtherRepos(otherRepoDelete);
+        serverEvents.onContentArchived(archivedHandler);
 
         this.onClosed(() => {
             ActiveContentVersionSetEvent.un(versionChangeHandler);
@@ -1470,6 +1476,7 @@ export class ContentWizardPanel
             serverEvents.unContentUnpublished(publishOrUnpublishHandler);
             serverEvents.unContentRenamed(contentRenamedHandler);
             serverEvents.unContentDeletedInOtherRepos(otherRepoDelete);
+            serverEvents.unContentArchived(archivedHandler);
         });
 
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
@@ -1502,7 +1509,6 @@ export class ContentWizardPanel
             this.isFirstUpdateAndRenameEventSkiped = false;
             this.workflowStateIconsManager.updateIcons();
         }
-        this.contextSplitPanel.setContent(updatedContent);
     }
 
     private isContentUpdatedAndRenamed(updatedContent: ContentSummaryAndCompareStatus): boolean {
@@ -1696,7 +1702,7 @@ export class ContentWizardPanel
     }
 
     private updatePersistedContent(persistedContent: Content) {
-        return ContentSummaryAndCompareStatusFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
+        return this.contentFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
             this.currentContent = summaryAndStatus;
             this.setPersistedContent(summaryAndStatus);
             this.getMainToolbar().setItem(summaryAndStatus);
@@ -2543,22 +2549,13 @@ export class ContentWizardPanel
     }
 
     private openLiveEdit() {
-        let livePanel = this.getLivePanel();
-
-        if (this.contextSplitPanel.isMobileMode()) {
-            this.getMainToolbar().getMobileItemStatisticsToggler().setActive(false);
-        }
-
         this.splitPanel.showSecondPanel();
         const showInspectionPanel = ResponsiveRanges._1920_UP.isFitOrBigger(this.getEl().getWidthWithBorder());
-        livePanel.clearPageViewSelectionAndOpenInspectPage(showInspectionPanel);
+        this.getLivePanel().clearPageViewSelectionAndOpenInspectPage(showInspectionPanel);
         this.showMinimizeEditButton();
     }
 
     private closeLiveEdit() {
-        if (this.contextSplitPanel.isMobileMode()) {
-            this.getMainToolbar().getMobileItemStatisticsToggler().setActive(false);
-        }
         this.splitPanel.hideSecondPanel();
         this.hideMinimizeEditButton();
 
@@ -2754,6 +2751,7 @@ export class ContentWizardPanel
         this.persistedContent = content;
 
         this.wizardHeader?.setOnline(this.persistedContent.isOnline());
+        this.contextView?.setItem(content);
     }
 
     protected checkIfEditIsAllowed(): Q.Promise<boolean> {

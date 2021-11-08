@@ -1,0 +1,231 @@
+.widget-view.internal-widget {
+  .content-widget-item-view {
+    display: flex;
+    box-sizing: border-box;
+    align-items: center;
+    padding: 11px 10px !important;
+
+    .content-summary-and-compare-status-viewer {
+      width: 100%;
+    }
+
+    .names-and-icon-view {
+      display: inline-flex;
+
+      .@{_COMMON_PREFIX}wrapper {
+        display: flex;
+        margin-right: 10px;
+        transform: scale(0.8);
+        flex-shrink: 0;
+      }
+      .@{_COMMON_PREFIX}names-view {
+        margin: 0;
+      }
+    }
+
+    .content-summary-viewer,
+    .names-and-icon-view {
+      width: 100%;
+    }
+  }
+
+  .properties-widget-item-view {
+    dl {
+      overflow: hidden;
+
+      dt {
+        .ellipsis();
+      }
+
+      dd, dt {
+        padding: 1px 0;
+        float: left;
+        width: 50%;
+      }
+    }
+
+    min-height: 115px;
+  }
+
+  .attachments-widget-item-view {
+    min-height: 35px;
+
+    ul.attachment-list {
+      li.attachment-container {
+        margin: 5px 0;
+        font-size: 12px;
+
+        .icon-medium();
+
+        &::before {
+          font-size: 24px;
+        }
+
+        a {
+          font-family: @admin-font-family !important;
+          display: inline-block;
+          line-height: 23px;
+          margin-left: 10px;
+          width: 80%;
+          text-decoration: none;
+          .ellipsis();
+        }
+      }
+    }
+
+    .att-placeholder {
+      display: block;
+      text-align: center;
+      margin: 9px auto;
+    }
+  }
+
+  .status-widget-item-view {
+    text-align: center;
+    height: 35px;
+
+    span {
+      display: inline-block;
+      width: 100%;
+      height: 100%;
+      font-size: 18px;
+      line-height: 35px;
+      background-color: @admin-white;
+
+      &.equal {
+        color: @admin-green;
+
+        &.pending {
+          color: @admin-orange;
+        }
+
+        &.expired {
+          color: @admin-red;
+        }
+      }
+    }
+  }
+
+  .user-access-widget-item-view {
+    text-align: center;
+    .@{_COMMON_PREFIX}tooltip {
+      z-index: 99999;
+    }
+
+    &.empty {
+      min-width: 57px;
+    }
+
+    .user-access-widget-header {
+      text-align: center;
+      .ellipsis();
+
+      &.icon-lock, &.icon-unlock {
+        &::before {
+          display: inline-block;
+          font-size: 18px;
+          margin-right: 7px;
+        }
+      }
+
+      .header-string {
+        line-height: 30px;
+      }
+    }
+
+    .edit-permissions-link {
+      display: inline-block;
+      margin-top: 5px;
+    }
+
+    .empty + .edit-permissions-link {
+      margin-top: 0;
+    }
+
+    .user-access-list-view {
+      margin-top: 5px;
+
+      .user-access-list-item-view {
+        padding: 3px 0;
+        position: relative;
+
+        .clearfix();
+
+        .user-line {
+          position: relative;
+          margin-right: 100px;
+          height: 29px;
+          overflow: hidden;
+          padding-right: 30px;
+          text-align: left;
+
+          &::after {
+            position: absolute;
+            content: attr(extra-count);
+            font-size: 14px;
+            line-height: 29px;
+            top: 0;
+            right: 0;
+          }
+
+          .principal-viewer-compact {
+            display: inline-block;
+          }
+        }
+
+        .access-line {
+          font-size: 14px;
+          position: absolute;
+          line-height: 29px;
+          top: 3px;
+          right: 10px;
+        }
+      }
+    }
+  }
+
+  .page-template-widget-item-view {
+    .@{_COMMON_PREFIX}wrapper {
+      transform: scale(0.8);
+      margin-right: 10px;
+    }
+
+    .@{_COMMON_PREFIX}names-view {
+      margin-left: 42px;
+    }
+
+    .@{_COMMON_PREFIX}sub-name {
+      margin-top: 3px;
+      line-height: 16px;
+
+      &:empty {
+        display: none;
+      }
+    }
+
+    .no-template {
+      text-align: center;
+      margin: 9px auto;
+    }
+
+    .icon-newspaper {
+      font-size: 36px;
+      margin-top: -2px;
+    }
+
+    .names-and-icon-view {
+      min-height: 32px;
+
+      .@{_COMMON_PREFIX}names-view {
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      a {
+        display: block;
+      }
+    }
+  }
+}

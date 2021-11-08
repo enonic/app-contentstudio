@@ -40,6 +40,8 @@ import {ContentPath} from '../content/ContentPath';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
+import {DockedContextPanel} from '../view/context/DockedContextPanel';
+import {ContextView} from '../view/context/ContextView';
 
 export class ContentBrowsePanel
     extends BrowsePanel {
@@ -52,6 +54,8 @@ export class ContentBrowsePanel
     private debouncedBrowseActionsAndPreviewRefreshOnDemand: () => void;
     private browseActionsAndPreviewUpdateRequired: boolean = false;
     private contextPanelToggler: NonMobileContextPanelToggleButton;
+    private contentFetcher: ContentSummaryAndCompareStatusFetcher;
+    protected contextView: ContextView;
 
     constructor() {
         super();
@@ -60,6 +64,7 @@ export class ContentBrowsePanel
     protected initElements() {
         super.initElements();
 
+        this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
         this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
         this.debouncedBrowseActionsAndPreviewRefreshOnDemand = AppHelper.debounce(() => {
             if (this.browseActionsAndPreviewUpdateRequired) {
@@ -94,6 +99,15 @@ export class ContentBrowsePanel
 
         this.onShown(() => {
             Router.get().setHash(UrlAction.BROWSE);
+        });
+
+        this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {
+            if (isMobile) {
+                this.gridAndItemsSplitPanel.hideSecondPanel();
+            } else {
+                this.gridAndItemsSplitPanel.showFirstPanel();
+                this.gridAndItemsSplitPanel.showSecondPanel();
+            }
         });
 
         this.handleGlobalEvents();
@@ -141,13 +155,22 @@ export class ContentBrowsePanel
             browseActions.getAction(ActionName.PUBLISH),
             browseActions.getAction(ActionName.MOVE),
             browseActions.getAction(ActionName.SORT),
-            browseActions.getAction(ActionName.DELETE),
+            browseActions.getAction(ActionName.ARCHIVE),
             browseActions.getAction(ActionName.DUPLICATE),
             browseActions.getAction(ActionName.EDIT),
             browseActions.getAction(ActionName.SHOW_NEW_DIALOG)
         ];
 
-        this.contextSplitPanel = new ContextSplitPanel(this.getBrowseItemPanel(), mobileActions);
+        this.contextView = new ContextView();
+        const leftPanel: ContentBrowseItemPanel = this.getBrowseItemPanel();
+        const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
+        this.contextSplitPanel =
+            ContextSplitPanel.create(leftPanel, rightPanel).setContextView(this.contextView).setActions(mobileActions).build();
+        this.contextSplitPanel.onFoldClicked(() => {
+            this.gridAndItemsSplitPanel.showFirstPanel();
+            this.gridAndItemsSplitPanel.showFirstPanel();
+            this.gridAndItemsSplitPanel.hideSecondPanel();
+        });
 
         return this.contextSplitPanel;
     }
@@ -170,9 +193,10 @@ export class ContentBrowsePanel
         return super.doRender().then((rendered) => {
             this.appendChild(this.getFilterAndGridSplitPanel());
 
-            this.subscribeMobilePanelOnEvents();
             this.subscribeContextPanelsOnEvents();
             this.createContentPublishMenuButton();
+
+            this.addClass('content-browse-panel');
 
             return rendered;
         }).catch((error) => {
@@ -182,16 +206,7 @@ export class ContentBrowsePanel
     }
 
     private updateContextPanelOnItemChange() {
-        if (this.contextSplitPanel.isMobileMode()) {
-            if (this.treeGrid.hasHighlightedNode()) {
-                this.contextSplitPanel.setContent(this.treeGrid.getHighlightedItem());
-                this.contextSplitPanel.showMobilePanel();
-            }
-
-            return; // no need to update on selection change in mobile mode as it opens in a separate screen
-        }
-
-        if (this.treeGrid.isAnySelected()) {
+        if (this.treeGrid.isAnySelected() && !this.contextSplitPanel.isMobileMode()) {
             this.doUpdateContextPanel(this.treeGrid.getCurrentSelection().pop());
 
             return;
@@ -199,6 +214,11 @@ export class ContentBrowsePanel
 
         if (this.treeGrid.hasHighlightedNode()) {
             this.doUpdateContextPanel(this.treeGrid.getHighlightedItem());
+
+            if (this.contextSplitPanel.isMobileMode()) {
+                this.gridAndItemsSplitPanel.hideFirstPanel();
+                this.gridAndItemsSplitPanel.showSecondPanel();
+            }
 
             return;
         }
@@ -216,16 +236,6 @@ export class ContentBrowsePanel
         }, 500);
 
         this.getTreeGrid().onHighlightingChanged(onHighlightingChanged);
-    }
-
-    private subscribeMobilePanelOnEvents() {
-        // selection opens detail panel in mobile mode, so deselect it when returning back to grid
-        this.contextSplitPanel.onMobilePanelSlide((out: boolean) => {
-            if (out) {
-                this.treeGrid.deselectAll();
-                this.getBrowseActions().updateActionsEnabledState([]);
-            }
-        });
     }
 
     private handleGlobalEvents() {
@@ -321,8 +331,10 @@ export class ContentBrowsePanel
 
         handler.onContentMoved((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
             // combination of delete and create
-            this.handleContentDeleted(data.map(
-                (item: ContentSummaryAndCompareStatus, index: number) => new DeletedContentItem(item.getContentId(), oldPaths[index])));
+            const items: DeletedContentItem[] = oldPaths.map(
+                (oldPath: ContentPath, index: number) => new DeletedContentItem(data[index]?.getContentId(), oldPath));
+
+            this.handleContentDeleted(items);
             this.handleContentCreated(data);
         });
 
@@ -334,9 +346,11 @@ export class ContentBrowsePanel
             console.debug('ContentBrowsePanel: created', data);
         }
 
-        this.handleCUD();
-        this.treeGrid.addContentNodes(data);
-        this.refreshFilterWithDelay();
+        if (data && data.length > 0) {
+            this.handleCUD();
+            this.treeGrid.addContentNodes(data);
+            this.refreshFilterWithDelay();
+        }
     }
 
     private handleContentRenamed(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) {
@@ -377,7 +391,7 @@ export class ContentBrowsePanel
             return;
         }
 
-        ContentSummaryAndCompareStatusFetcher.fetchByIds(contentsToUpdateIds)
+        this.contentFetcher.fetchByIds(contentsToUpdateIds)
             .then(this.handleContentUpdated.bind(this))
             .catch(DefaultErrorHandler.handle);
     }
@@ -401,9 +415,9 @@ export class ContentBrowsePanel
             return;
         }
 
-        const itemId: ContentId = itemInDetailPanel.getContentId();
+        const itemPath: ContentPath = itemInDetailPanel.getContentSummary().getPath();
 
-        if (items.some((item: DeletedContentItem) => item.id.equals(itemId))) {
+        if (items.some((item: DeletedContentItem) => item.path.equals(itemPath))) {
             this.doUpdateContextPanel(null);
         }
     }
@@ -477,10 +491,7 @@ export class ContentBrowsePanel
     }
 
     private doUpdateContextPanel(item: ContentSummaryAndCompareStatus) {
-        const contextPanel: ContextPanel = ActiveContextPanelManager.getActiveContextPanel();
-        if (contextPanel) {
-            contextPanel.setItem(item);
-        }
+        this.contextView.setItem(item);
     }
 
     getBrowseItemPanel(): ContentBrowseItemPanel {
@@ -541,9 +552,13 @@ export class ContentBrowsePanel
     protected updateActionsAndPreview(): void {
         this.browseActionsAndPreviewUpdateRequired = false;
 
-        ContentSummaryAndCompareStatusFetcher.updateRenderableContents(this.treeGrid.getSelectedDataList()).then(() => {
+        this.contentFetcher.updateRenderableContents(this.treeGrid.getSelectedDataList()).then(() => {
             super.updateActionsAndPreview();
         }).catch(DefaultErrorHandler.handle);
+    }
+
+    protected togglePreviewPanelDependingOnScreenSize(item: ResponsiveItem): void {
+    //
     }
 
 }

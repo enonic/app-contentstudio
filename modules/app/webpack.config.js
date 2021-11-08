@@ -12,14 +12,9 @@ module.exports = {
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
         'js/main': './js/main.ts',
-        'lib/vendors': './lib/index.js',
-        'styles/main': './styles/main.less',
-        'lib/ckeditor/plugins/pasteModeSwitcher/plugin': './lib/ckeditor/plugins/pasteModeSwitcher/plugin.raw.js',
         'page-editor/js/editor': './js/page-editor.ts',
         'page-editor/lib/vendors': './page-editor/lib/index.js',
-        'page-editor/styles/main': './page-editor/styles/main.less',
-        // html editor css imported separately in the HTMLAreaBuilder for legacy mode
-        'styles/html-editor': './styles/inputtype/text/htmlarea/html-editor.less'
+        'page-editor/styles/main': './page-editor/styles/main.less'
     },
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
@@ -53,7 +48,7 @@ module.exports = {
                 ]
             },
             {
-                test: /^((?!icomoon).)*\.(svg|png|jpg|gif)$/,
+                test: /^((?!icomoon-studio-app).)*\.(svg|png|jpg|gif)$/,
                 type: 'asset/resource',
                 generator: {
                     filename: 'img/[base]'
@@ -100,7 +95,7 @@ module.exports = {
         }),
         new CopyWebpackPlugin({
             patterns: [
-                {from: 'icons/fonts/icomoon.*', to: 'page-editor/[file]'}
+                {from: 'icons/fonts/icomoon-studio-app.*', to: 'page-editor/fonts/[file]'}
             ]
         }),
         new CircularDependencyPlugin({

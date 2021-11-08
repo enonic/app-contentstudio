@@ -7,11 +7,9 @@ import 'promise-polyfill/src/polyfill';
 import 'whatwg-fetch';
 import 'mutation-observer';
 // End of Polyfills
-import {Element} from 'lib-admin-ui/dom/Element';
 import {showError, showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {i18nInit} from 'lib-admin-ui/util/MessagesInitializer';
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {Router} from 'lib-contentstudio/app/Router';
 import {ContentDeletePromptEvent} from 'lib-contentstudio/app/browse/ContentDeletePromptEvent';
 import {ContentPublishPromptEvent} from 'lib-contentstudio/app/browse/ContentPublishPromptEvent';
@@ -40,8 +38,6 @@ import {Body} from 'lib-admin-ui/dom/Body';
 import {Application} from 'lib-admin-ui/app/Application';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
-import {ElementRemovedEvent} from 'lib-admin-ui/dom/ElementRemovedEvent';
-import {ElementRegistry} from 'lib-admin-ui/dom/ElementRegistry';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
@@ -60,6 +56,9 @@ import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/Project
 import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconUrlResolver';
 import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
 import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
+import {ContentApp} from 'lib-contentstudio/app/ContentApp';
+import {SettingsApp} from 'lib-contentstudio/app/settings/SettingsApp';
+import {Store} from 'lib-admin-ui/store/Store';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -144,132 +143,6 @@ function initApplicationEventListener() {
     });
 }
 
-function initToolTip() {
-    const ID = StyleHelper.getCls('tooltip', StyleHelper.COMMON_PREFIX);
-    const CLS_ON = 'tooltip_ON';
-    const FOLLOW = false;
-    const DATA = '_tooltip';
-    const OFFSET_X = 0;
-    const OFFSET_Y = 20;
-
-    let pageX = 0;
-    let pageY = 0;
-    let isVisibleCheckInterval: number;
-
-    const showAt = function (e: JQuery.MouseEventBase, forceTarget?: HTMLElement) {
-        let top = e.clientY + OFFSET_Y;
-        let left = e.clientX + OFFSET_X;
-        const tooltipHeight = 30;
-
-        const target = forceTarget || e.currentTarget || e.target;
-        const tooltipText: string = $(target).data(DATA);
-        if (!tooltipText) { //if no text then probably hovering over children of original element that has title attr
-            return;
-        }
-
-        const tooltipWidth = tooltipText.length * 7.5;
-        const windowWidth = $(window).width();
-        const windowHeight = $(window).height();
-        if (left + tooltipWidth >= windowWidth) {
-            left = windowWidth - tooltipWidth;
-        }
-        if (top + tooltipHeight >= windowHeight) {
-            top = windowHeight - tooltipHeight;
-        }
-        $(`#${ID}`).remove();
-        $(`<div id='${ID}' />`).text(tooltipText).css({
-            position: 'absolute', top, left, whiteSpace: 'nowrap'
-        }).appendTo('body').show();
-    };
-
-    const addTooltip = (e: JQuery.MouseEventBase, forceTarget?: HTMLElement) => {
-        const target: HTMLElement = forceTarget || e.currentTarget || e.target;
-        $(target).data(DATA, $(target).attr('title'));
-        $(target).removeAttr('title').addClass(CLS_ON);
-        if (e.clientX) {
-            pageX = e.clientX;
-        }
-        if (e.clientY) {
-            pageY = e.clientY;
-        }
-        showAt(e, target);
-        onRemovedOrHidden(target);
-        $(target).on('click', removeTooltipOnClick);
-    };
-
-    const removeTooltipOnClick = (e: JQuery.MouseEventBase) => {
-        setTimeout(() => removeTooltip(e), 100);
-    };
-
-    const setTitle = (e: JQuery.MouseEventBase, target: HTMLElement) => {
-        const newTitle = $(target).attr('title');
-
-        if (newTitle) {
-            $(target).attr('title', newTitle);
-            addTooltip(e, target);
-        }
-
-        const oldTitle: string = $(target).data(DATA);
-
-        if (oldTitle) {
-            $(target).attr('title', oldTitle);
-        }
-    };
-
-    const removeTooltip = (e: JQuery.MouseEventBase) => {
-        const tooltip = $('#' + ID);
-        if (!tooltip.length) {
-            return;
-        }
-        const target: HTMLElement = e.currentTarget || e.target;
-        $(target).off('click', removeTooltipOnClick);
-
-        $(target).removeClass(CLS_ON);
-        tooltip.remove();
-        unRemovedOrHidden();
-        clearInterval(isVisibleCheckInterval);
-
-        setTitle(e, target);
-    };
-
-    $(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', addTooltip);
-    $(document).on('mouseleave', `.${CLS_ON}`, removeTooltip);
-    if (FOLLOW) {
-        $(document).on('mousemove', `.${CLS_ON}`, showAt);
-    }
-
-    let element: Element;
-    const removeHandler = (event: ElementRemovedEvent) => {
-        const target = event.getElement().getHTMLElement();
-        removeTooltip(<JQuery.MouseEventBase>{target});
-    };
-
-    const onRemovedOrHidden = (target: HTMLElement) => {
-        element = ElementRegistry.getElementById(target.id);
-        if (element) {
-            element.onRemoved(removeHandler);
-            element.onHidden(removeHandler);
-        } else { // seems to be an element without id, thus special handling needed
-            isVisibleCheckInterval = setInterval(() => {
-                if (!isVisible(target)) {
-                    removeTooltip(<JQuery.MouseEventBase>{target});
-                    clearInterval(isVisibleCheckInterval);
-                }
-            }, 500);
-        }
-    };
-    const unRemovedOrHidden = () => {
-        if (element) {
-            element.unRemoved(removeHandler);
-            element.unHidden(removeHandler);
-        }
-    };
-}
-
-function isVisible(target: HTMLElement) {
-    return $(target).is(':visible');
-}
-
 function updateTabTitle(title: string) {
     $('title').text(`${title} / ${i18n('app.name')}`);
 }
@@ -342,7 +215,7 @@ function preLoadApplication() {
 
                     });
             } else {
-                new GetContentTypeByNameRequest(wizardParams.contentTypeName).setRequestProjectName(projectName).sendAndParse().then(
+                new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then(
                     (contentType) => {
                         updateTabTitle(NamePrettyfier.prettifyUnnamed(contentType.getDisplayName()));
                     });
@@ -384,6 +257,7 @@ function startServerEventListeners(application: Application) {
 async function startApplication() {
     const application: Application = getApplication();
     const connectionDetector = startLostConnectionDetector();
+    Store.instance().set('application', application);
 
     startServerEventListeners(application);
 
@@ -398,12 +272,10 @@ async function startApplication() {
                 if (ContentAppHelper.isContentWizard(application)) {
                     startContentWizard(ContentAppHelper.createWizardParamsFromApp(application), connectionDetector);
                 } else {
-                    startContentBrowser(application);
+                    startContentBrowser();
                 }
             });
         });
-
-    initToolTip();
 
     AppHelper.preventDragRedirect();
 
@@ -532,19 +404,28 @@ function getTheme(): string {
     return CONFIG.theme ? (`theme-${CONFIG.theme}` || '') : '';
 }
 
-async function startContentBrowser(application: Application) {
-
+async function startContentBrowser() {
     await import ('lib-contentstudio/app/ContentAppPanel');
     const AppWrapper = (await import ('lib-contentstudio/app/AppWrapper')).AppWrapper;
-    const commonWrapper = new AppWrapper(application, getTheme());
+    const apps = [new ContentApp(), new SettingsApp()];
+    const url: string = window.location.href;
+    const activeApp = url.indexOf('settings') > -1 ? apps[1] : apps[0];
+    const commonWrapper = new AppWrapper(apps, getTheme());
+    commonWrapper.selectApp(activeApp);
+
+    if (url.endsWith('/archive')) {
+        commonWrapper.onAppAdded((app) => {
+            commonWrapper.selectApp(app);
+        });
+    }
+
     body.appendChild(commonWrapper);
 
     const NewContentDialog = (await import ('lib-contentstudio/app/create/NewContentDialog')).NewContentDialog;
 
     const newContentDialog = new NewContentDialog();
     ShowNewContentDialogEvent.on((event) => {
-
-        let parentContent: ContentSummary = event.getParentContent()
+        const parentContent: ContentSummary = event.getParentContent()
                                             ? event.getParentContent().getContentSummary() : null;
 
         if (parentContent != null) {

@@ -31,12 +31,13 @@
 
     <!-- Styles -->
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/admin/common/styles/lib.css">
-    <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/main.css">
+    <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/contentlib.css">
     <script type="text/javascript">
         var CKEDITOR_BASEPATH = '{{assetsUri}}/lib/ckeditor/';
     </script>
     <script type="text/javascript" src="{{assetsUri}}/admin/common/js/lib.js"></script>
     <script type="text/javascript" src="{{assetsUri}}/lib/vendors.js"></script>
+    <link id="externalCSS" rel="stylesheet" href="" type="text/css">
 
 </head>
 <body>
@@ -55,6 +56,7 @@
             stylesUrl: '{{services.stylesUrl}}',
             i18nUrl: '{{services.i18nUrl}}',
             contentUrl: '{{services.contentServiceUrl}}',
+            adminToolsUrl: '{{services.adminToolsUrl}}'
         },
         allowScriptsInEditor: '{{allowScriptsInEditor}}',
         allowContentUpdate: '{{allowContentUpdate}}',

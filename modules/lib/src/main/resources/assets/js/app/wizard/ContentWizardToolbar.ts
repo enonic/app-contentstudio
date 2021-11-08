@@ -34,8 +34,6 @@ export class ContentWizardToolbar
 
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
 
-    private mobileItemStatisticsButton: TogglerButton;
-
     private stateIcon: DivEl;
 
     private projectViewer: ProjectViewer;
@@ -54,7 +52,6 @@ export class ContentWizardToolbar
         this.addHomeButton();
         this.addActionButtons();
         this.addPublishMenuButton();
-        this.addMobileItemStatisticsButton();
         this.addTogglerButtons();
 
         this.addStateIcon();
@@ -148,7 +145,7 @@ export class ContentWizardToolbar
         super.addActions([
             actions.getSaveAction(),
             actions.getResetAction(),
-            actions.getDeleteAction(),
+            actions.getArchiveAction(),
             actions.getDuplicateAction(),
             actions.getPreviewAction(),
             actions.getUndoPendingDeleteAction()
@@ -199,15 +196,5 @@ export class ContentWizardToolbar
 
     getContentWizardToolbarPublishControls() {
         return this.contentWizardToolbarPublishControls;
-    }
-
-    getMobileItemStatisticsToggler(): TogglerButton {
-        return this.mobileItemStatisticsButton;
-    }
-
-    private addMobileItemStatisticsButton() {
-        this.mobileItemStatisticsButton = new TogglerButton();
-        this.mobileItemStatisticsButton.setEnabled(true).addClass('icon-cog details-toggle');
-        super.addElement(this.mobileItemStatisticsButton);
     }
 }

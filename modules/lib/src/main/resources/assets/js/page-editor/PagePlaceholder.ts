@@ -78,6 +78,7 @@ export class PagePlaceholder
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addClassEx('page-placeholder');
+            this.addClass('icon-insert-template');
             this.controllerDropdown.addClassEx('page-descriptor-dropdown');
 
             this.pageDescriptorPlaceholder.appendChild(this.infoBlock);

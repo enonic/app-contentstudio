@@ -18,6 +18,10 @@ import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {UrlHelper} from '../util/UrlHelper';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentSummary} from '../content/ContentSummary';
+import {ContentResourceRequest} from '../resource/ContentResourceRequest';
+import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
+import {ItemPreviewToolbar} from 'lib-admin-ui/app/view/ItemPreviewToolbar';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -31,19 +35,21 @@ enum PREVIEW_TYPE {
 }
 
 export class ContentItemPreviewPanel
-    extends ItemPreviewPanel<ContentSummaryAndCompareStatus> {
+    extends ItemPreviewPanel<ViewItem> {
 
-    private image: ImgEl;
-    private item: ContentSummaryAndCompareStatus;
-    private skipNextSetItemCall: boolean = false;
-    private previewType: PREVIEW_TYPE;
-    private previewMessage: DivEl;
-    private noSelectionMessage: DivEl;
-    private debouncedSetItem: (item: ContentSummaryAndCompareStatus) => void;
+    protected image: ImgEl;
+    protected item: ViewItem;
+    protected skipNextSetItemCall: boolean = false;
+    protected previewType: PREVIEW_TYPE;
+    protected previewMessage: DivEl;
+    protected noSelectionMessage: DivEl;
+    protected debouncedSetItem: (item: ViewItem) => void;
+    protected readonly contentRootPath: string;
 
-    constructor() {
+    constructor(contentRootPath?: string) {
         super('content-item-preview-panel');
 
+        this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
         this.debouncedSetItem = AppHelper.runOnceAndDebounce(this.doSetItem.bind(this), 300);
 
         this.initElements();
@@ -73,32 +79,58 @@ export class ContentItemPreviewPanel
         this.previewMessage.appendChild(previewText);
     }
 
-    public setItem(item: ContentSummaryAndCompareStatus, force: boolean = false) {
+    public setItem(item: ViewItem, force: boolean = false) {
         this.debouncedSetItem(item);
     }
 
-    private doSetItem(item: ContentSummaryAndCompareStatus, force: boolean) {
-        if (item && !this.skipNextSetItemCall && (!item.equals(this.item) || force)) {
-            if (typeof item.isRenderable() === 'undefined') {
-                return;
-            }
+    protected viewItemToContent(item: ViewItem): ContentSummaryAndCompareStatus {
+        return <ContentSummaryAndCompareStatus>item;
+    }
 
-            const contentSummary = item.getContentSummary();
-
-            if (this.isMediaForPreview(contentSummary)) {
-                this.setMediaPreviewMode(item);
-            } else if (contentSummary.getType().isImage() || contentSummary.getType().isVectorMedia()) {
-                this.setImagePreviewMode(item);
-            } else {
-                this.setPagePreviewMode(item);
-            }
-        }
+    protected doSetItem(item: ViewItem, force: boolean) {
+        this.updatePreview(this.viewItemToContent(item), force);
         this.toolbar.setItem(item);
         this.item = item;
     }
 
+    private updatePreview(item: ContentSummaryAndCompareStatus, force: boolean) {
+        if (this.isPreviewUpdateNeeded(item, force)) {
+            this.update(item);
+        }
+    }
+
+    protected isPreviewUpdateNeeded(item: ContentSummaryAndCompareStatus, force: boolean): boolean {
+        return !this.skipNextSetItemCall && this.isItemAllowsUpdate(item, force);
+    }
+
+    private isItemAllowsUpdate(item: ContentSummaryAndCompareStatus, force: boolean): boolean {
+        return item && (!item.equals(this.item) || force) && typeof item.isRenderable() !== 'undefined';
+    }
+
+    protected update(item: ContentSummaryAndCompareStatus) {
+        const contentSummary: ContentSummary = item.getContentSummary();
+
+        if (this.isMediaForPreview(contentSummary)) {
+            this.setMediaPreviewMode(item);
+        } else if (this.isImageForPreview(contentSummary)) {
+            this.setImagePreviewMode(item);
+        } else if (this.isNonBinaryItemRenderable(item)) {
+            this.setPagePreviewMode(item);
+        } else {
+            this.setPreviewType(PREVIEW_TYPE.EMPTY);
+        }
+    }
+
+    protected isImageForPreview(content: ContentSummary): boolean {
+        return content.getType().isImage() || content.getType().isVectorMedia();
+    }
+
     public clearItem() {
         (<ContentItemPreviewToolbar>this.toolbar).clearItem();
+    }
+
+    protected isNonBinaryItemRenderable(item: ContentSummaryAndCompareStatus): boolean {
+        return item.isRenderable();
     }
 
     private setupListeners() {
@@ -112,7 +144,7 @@ export class ContentItemPreviewPanel
 
         this.onShown((event) => {
             if (this.item && this.hasClass('image-preview')) {
-                this.addImageSizeToUrl(this.item);
+                this.appendImageSizeToUrl(this.viewItemToContent(this.item));
             }
         });
 
@@ -154,7 +186,7 @@ export class ContentItemPreviewPanel
         });
     }
 
-    createToolbar(): ContentItemPreviewToolbar {
+    createToolbar(): ItemPreviewToolbar<ViewItem> {
         return new ContentItemPreviewToolbar();
     }
 
@@ -208,22 +240,21 @@ export class ContentItemPreviewPanel
         }
     }
 
-    private addImageSizeToUrl(item: ContentSummaryAndCompareStatus) {
-        const imgWidth = this.getEl().getWidth();
-        const imgHeight = this.getEl().getHeight() - this.toolbar.getEl().getHeight();
-        const imgSize = Math.max(imgWidth, imgHeight);
+    private appendImageSizeToUrl(item: ContentSummaryAndCompareStatus) {
         const content = item.getContentSummary();
 
-        const imgUrlResolver = new ImageUrlResolver()
+        const imgUrlResolver: ImageUrlResolver = new ImageUrlResolver(this.contentRootPath)
             .setContentId(content.getContentId())
             .setTimestamp(content.getModifiedTime())
-            .setSize(imgSize);
+            .setSize(this.getImageSize());
 
         this.image.setSrc(imgUrlResolver.resolveForPreview());
     }
 
-    public getItem(): ContentSummaryAndCompareStatus {
-        return this.item;
+    private getImageSize(): number {
+        const imgWidth: number = this.getEl().getWidth();
+        const imgHeight: number = this.getEl().getHeight() - this.toolbar.getEl().getHeight();
+        return Math.max(imgWidth, imgHeight);
     }
 
     public setBlank() {
@@ -280,11 +311,8 @@ export class ContentItemPreviewPanel
         }
     }
 
-    private isMediaForPreview(content: ContentSummary) {
-        if (!content) {
-            return false;
-        }
-        const type = content.getType();
+    protected isMediaForPreview(content: ContentSummary) {
+        const type: ContentTypeName = content.getType();
 
         return type.isAudioMedia() ||
                type.isDocumentMedia() ||
@@ -303,39 +331,40 @@ export class ContentItemPreviewPanel
         this.frame.setSrc('about:blank');
     }
 
-    private setMediaPreviewMode(item: ContentSummaryAndCompareStatus) {
+    protected setMediaPreviewMode(item: ContentSummaryAndCompareStatus) {
         const contentSummary = item.getContentSummary();
 
-        new MediaAllowsPreviewRequest(contentSummary.getContentId()).sendAndParse().then((allows: boolean) => {
-            if (allows) {
-                this.setPreviewType(PREVIEW_TYPE.MEDIA);
-                if (this.isVisible()) {
-                    this.frame.setSrc(UrlHelper.getCmsRestUri(
-                        `${UrlHelper.getCMSPath()}/content/media/${contentSummary.getId()}?download=false#view=fit`));
+        new MediaAllowsPreviewRequest(contentSummary.getContentId()).setContentRootPath(this.contentRootPath).sendAndParse().then(
+            (allows: boolean) => {
+                if (allows) {
+                    this.setPreviewType(PREVIEW_TYPE.MEDIA);
+                    if (this.isVisible()) {
+                        this.frame.setSrc(UrlHelper.getCmsRestUri(
+                            `${UrlHelper.getCMSPath(
+                                this.contentRootPath)}/content/media/${contentSummary.getId()}?download=false#view=fit`));
+                    }
+                } else {
+                    this.setPreviewType(PREVIEW_TYPE.EMPTY);
                 }
-            } else {
-                this.setPreviewType(PREVIEW_TYPE.EMPTY);
-            }
-        });
+            });
     }
 
-    private setImagePreviewMode(item: ContentSummaryAndCompareStatus) {
+    protected setImagePreviewMode(item: ContentSummaryAndCompareStatus) {
         const contentSummary: ContentSummary = item.getContentSummary();
 
         if (this.isVisible()) {
+            const imgUrlResolver: ImageUrlResolver = new ImageUrlResolver(this.contentRootPath)
+                .setContentId(contentSummary.getContentId())
+                .setTimestamp(contentSummary.getModifiedTime());
+
             if (contentSummary.getType().isVectorMedia()) {
                 this.setPreviewType(PREVIEW_TYPE.SVG);
-
-                const imgUrl = new ImageUrlResolver()
-                    .setContentId(contentSummary.getContentId())
-                    .setTimestamp(contentSummary.getModifiedTime())
-                    .resolveForPreview();
-
-                this.image.setSrc(imgUrl);
             } else {
-                this.addImageSizeToUrl(item);
+                imgUrlResolver.setSize(this.getImageSize());
                 this.setPreviewType(PREVIEW_TYPE.IMAGE);
             }
+
+            this.image.setSrc(imgUrlResolver.resolveForPreview());
         } else {
             this.setPreviewType(PREVIEW_TYPE.IMAGE);
         }
@@ -344,24 +373,20 @@ export class ContentItemPreviewPanel
         }
     }
 
-    private setPagePreviewMode(item: ContentSummaryAndCompareStatus) {
+    protected setPagePreviewMode(item: ContentSummaryAndCompareStatus) {
         this.showMask();
-        if (item.isRenderable()) {
-            this.setPreviewType(PREVIEW_TYPE.PAGE);
-            const src: string = RenderingUriHelper.getPortalUri(!!item.getPath() ? item.getPath().toString() : '', RenderingMode.INLINE);
-            // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
-            $.ajax({
-                type: 'HEAD',
-                async: true,
-                url: src
-            }).done(() => {
-                this.frame.setSrc(src);
-            }).fail((reason: any) =>  {
-                this.setPreviewType(reason.status === 404 ? PREVIEW_TYPE.MISSING : PREVIEW_TYPE.FAILED);
-            });
-        } else {
-            this.setPreviewType(PREVIEW_TYPE.EMPTY);
-        }
+        this.setPreviewType(PREVIEW_TYPE.PAGE);
+        const src: string = RenderingUriHelper.getPortalUri(!!item.getPath() ? item.getPath().toString() : '', RenderingMode.INLINE);
+        // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
+        $.ajax({
+            type: 'HEAD',
+            async: true,
+            url: src
+        }).done(() => {
+            this.frame.setSrc(src);
+        }).fail((reason: any) => {
+            this.setPreviewType(reason.status === 404 ? PREVIEW_TYPE.MISSING : PREVIEW_TYPE.FAILED);
+        });
     }
 
     public showMask() {

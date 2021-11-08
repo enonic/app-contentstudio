@@ -14,6 +14,10 @@ export class ContentServerChange
         return <ContentServerChange>new ContentServerChangeBuilder().fromJson(nodeEventJson).build();
     }
 
+    getChangeItems(): ContentServerChangeItem[] {
+        return <ContentServerChangeItem[]>super.getChangeItems();
+    }
+
 }
 
 export class ContentServerChangeBuilder

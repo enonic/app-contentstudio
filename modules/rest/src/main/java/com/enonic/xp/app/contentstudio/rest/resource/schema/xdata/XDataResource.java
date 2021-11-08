@@ -50,7 +50,7 @@ import com.enonic.xp.site.XDataMappings;
 import static com.google.common.base.Strings.nullToEmpty;
 import static java.util.stream.Collectors.toList;
 
-@Path(ResourceConstants.REST_ROOT + "{content:(schema|" + ResourceConstants.CMS_PATH + "/schema)}/xdata")
+@Path(ResourceConstants.REST_ROOT + "schema/xdata")
 @Produces(MediaType.APPLICATION_JSON)
 @RolesAllowed({RoleKeys.ADMIN_LOGIN_ID, RoleKeys.ADMIN_ID})
 @Component(immediate = true, property = "group=v2cs", configurationPid = "com.enonic.app.contentstudio")
@@ -78,26 +78,6 @@ public final class XDataResource
     public void activate( final AdminRestConfig config )
     {
         contentTypeParseMode = ApplicationWildcardMatcher.Mode.valueOf( config.contentTypePatternMode() );
-    }
-
-    @GET
-    @Path("getContentXData")
-    public XDataListJson getContentXData( @QueryParam("contentId") final String id )
-    {
-        final ContentId contentId = ContentId.from( id );
-        final Content content = this.contentService.getById( contentId );
-
-        final XDataListJson result = new XDataListJson();
-
-        final Map<XData, Boolean> resultXData = new LinkedHashMap<>();
-
-        getContentTypeXData( content ).forEach( xData -> resultXData.putIfAbsent( xData, false ) );
-
-        getSiteXData( content ).forEach( resultXData::putIfAbsent );
-
-        result.addXDatas( createXDataListJson( resultXData ) );
-
-        return result;
     }
 
     @GET
@@ -132,29 +112,6 @@ public final class XDataResource
             .collect( toList() );
     }
 
-    private Map<XData, Boolean> getSiteXData( final Content content )
-    {
-        final Map<XData, Boolean> result = new LinkedHashMap<>();
-
-        final Site nearestSite = this.contentService.getNearestSite( content.getId() );
-
-        if ( nearestSite != null )
-        {
-            final List<ApplicationKey> applicationKeys =
-                nearestSite.getSiteConfigs().stream().map( SiteConfig::getApplicationKey ).collect( toList() );
-
-            final List<SiteDescriptor> siteDescriptors = applicationKeys.stream()
-                .map( applicationKey -> siteService.getDescriptor( applicationKey ) )
-                .filter( Objects::nonNull )
-                .collect( toList() );
-
-            siteDescriptors.forEach(
-                siteDescriptor -> result.putAll( this.getXDatasByContentType( siteDescriptor.getXDataMappings(), content.getType() ) ) );
-
-        }
-        return result;
-    }
-
     private Map<XData, Boolean> getXDatasByContentType( final XDataMappings xDataMappings, final ContentTypeName contentTypeName )
     {
         final Map<XData, Boolean> result = new LinkedHashMap<>();
@@ -175,13 +132,6 @@ public final class XDataResource
         } );
 
         return result;
-    }
-
-    private XDatas getContentTypeXData( final Content content )
-    {
-        final ContentType contentType = this.contentTypeService.getByName( GetContentTypeParams.from( content.getType() ) );
-
-        return this.xDataService.getByNames( contentType.getXData() );
     }
 
     @Reference

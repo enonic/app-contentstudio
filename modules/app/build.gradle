@@ -25,6 +25,8 @@ configurations {
 }
 
 dependencies {
+    compileOnly "com.enonic.xp:admin-api:${xpVersion}"
+
     implementation "com.enonic.xp:core-api:${xpVersion}"
     implementation "com.enonic.xp:portal-api:${xpVersion}"
 
@@ -85,7 +87,7 @@ jar {
     exclude 'assets/page-editor/lib/_include.js'
     exclude 'assets/page-editor/lib/jquery*.js'
     exclude 'assets/icons/*.txt'
-    exclude 'assets/lib/ckeditor/**/plugin.raw.js'
+
     if (isProd()) {
         exclude 'assets/**/*.map'
     }

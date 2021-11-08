@@ -49,6 +49,8 @@ export class ContentSummary {
 
     private readonly modifiedTime: Date;
 
+    private readonly archivedTime: Date;
+
     private readonly publishFirstTime: Date;
 
     private readonly publishFromTime: Date;
@@ -73,6 +75,13 @@ export class ContentSummary {
 
     private readonly listTitle: string;
 
+    private readonly originalParentPath: string;
+
+    private readonly originalName: string;
+
+    private readonly archivedBy: PrincipalKey;
+
+
     constructor(builder: ContentSummaryBuilder) {
         this.name = builder.name;
         this.displayName = builder.displayName;
@@ -91,6 +100,8 @@ export class ContentSummary {
         this.contentId = builder.contentId;
         this.createdTime = builder.createdTime;
         this.modifiedTime = builder.modifiedTime;
+        this.archivedTime = builder.archivedTime;
+        this.archivedBy = builder.archivedBy;
         this.publishFromTime = builder.publishFromTime;
         this.publishToTime = builder.publishToTime;
         this.publishFirstTime = builder.publishFirstTime;
@@ -103,6 +114,8 @@ export class ContentSummary {
         this.inherit = builder.inherit;
         this.originProject = builder.originProject;
         this.listTitle = builder.listTitle;
+        this.originalParentPath = builder.originalParentPath;
+        this.originalName = builder.originalName;
     }
 
     static fromJson(json: ContentSummaryJson): ContentSummary {
@@ -197,6 +210,14 @@ export class ContentSummary {
         return this.modifiedTime;
     }
 
+    getArchivedTime(): Date {
+        return this.archivedTime;
+    }
+
+    getArchivedBy(): PrincipalKey {
+        return this.archivedBy;
+    }
+
     getPublishFirstTime(): Date {
         return this.publishFirstTime;
     }
@@ -273,6 +294,14 @@ export class ContentSummary {
         return this.listTitle;
     }
 
+    getOriginalParentPath(): string {
+        return this.originalParentPath;
+    }
+
+    getOriginalName(): string {
+        return this.originalName;
+    }
+
     private isInheritedByType(type: ContentInheritType): boolean {
         return this.isInherited() && this.inherit.some((inheritType: ContentInheritType) => inheritType === type);
     }
@@ -336,6 +365,12 @@ export class ContentSummary {
         if (!ObjectHelper.dateEquals(this.modifiedTime, other.getModifiedTime())) {
             return false;
         }
+        if (!ObjectHelper.dateEquals(this.archivedTime, other.getArchivedTime())) {
+            return false;
+        }
+        if (!ObjectHelper.objectEquals(this.archivedBy, other.getArchivedBy())) {
+            return false;
+        }
         if (!ObjectHelper.dateEqualsUpToMinutes(this.publishFromTime, other.getPublishFromTime())) {
             return false;
         }
@@ -360,6 +395,13 @@ export class ContentSummary {
         if (!ObjectHelper.equals(this.workflow, other.getWorkflow())) {
             return false;
         }
+        if (!ObjectHelper.stringEquals(this.originalParentPath, other.getOriginalParentPath())) {
+            return false;
+        }
+        if (!ObjectHelper.stringEquals(this.getOriginalName(), other.getOriginalName())) {
+            return false;
+        }
+
         return true;
     }
 }
@@ -398,6 +440,8 @@ export class ContentSummaryBuilder {
 
     modifiedTime: Date;
 
+    archivedTime: Date;
+
     publishFirstTime: Date;
 
     publishFromTime: Date;
@@ -422,6 +466,12 @@ export class ContentSummaryBuilder {
 
     listTitle: string;
 
+    originalParentPath: string;
+
+    originalName: string;
+
+    archivedBy: PrincipalKey;
+
     constructor(source?: ContentSummary) {
         if (source) {
             this.id = source.getId();
@@ -440,6 +490,8 @@ export class ContentSummaryBuilder {
             this.requireValid = source.isRequireValid();
             this.createdTime = source.getCreatedTime();
             this.modifiedTime = source.getModifiedTime();
+            this.archivedTime = source.getArchivedTime();
+            this.archivedBy = source.getArchivedBy();
             this.publishFromTime = source.getPublishFromTime();
             this.publishToTime = source.getPublishToTime();
             this.publishFirstTime = source.getPublishFirstTime();
@@ -452,6 +504,8 @@ export class ContentSummaryBuilder {
             this.inherit = source.getInherit();
             this.originProject = source.getOriginProject();
             this.listTitle = source.getListTitle();
+            this.originalParentPath = source.getOriginalParentPath();
+            this.originalName = source.getOriginalName();
         }
     }
 
@@ -469,11 +523,13 @@ export class ContentSummaryBuilder {
         this.valid = json.isValid;
         this.requireValid = json.requireValid;
         this.language = json.language;
-
         this.id = json.id;
+
         this.contentId = new ContentId(json.id);
         this.createdTime = json.createdTime ? new Date(Date.parse(json.createdTime)) : null;
         this.modifiedTime = json.modifiedTime ? new Date(Date.parse(json.modifiedTime)) : null;
+        this.archivedTime = json.archivedTime ? new Date(Date.parse(json.archivedTime)) : null;
+        this.archivedBy = json.archivedBy ? PrincipalKey.fromString(json.archivedBy) : null;
         this.publishFirstTime = json.publish && json.publish.first ? new Date(Date.parse(json.publish.first)) : null;
         this.publishFromTime = json.publish && json.publish.from ? new Date(Date.parse(json.publish.from)) : null;
         this.publishToTime = json.publish && json.publish.to ? new Date(Date.parse(json.publish.to)) : null;
@@ -488,6 +544,9 @@ export class ContentSummaryBuilder {
         this.inherit = json.inherit && json.inherit.length > 0 ? json.inherit.map((type: string) => ContentInheritType[type])  : [];
         this.originProject = json.originProject;
         this.listTitle = ObjectHelper.isDefined(json.listTitle) ? json.listTitle : json.displayName;
+
+        this.originalParentPath = json.originalParentPath;
+        this.originalName = json.originalName;
 
         return this;
     }
@@ -588,6 +647,16 @@ export class ContentSummaryBuilder {
 
     setOriginProject(value: string): ContentSummaryBuilder {
         this.originProject = value;
+        return this;
+    }
+
+    setOriginalParentPath(value: string): ContentSummaryBuilder {
+        this.originalParentPath = value;
+        return this;
+    }
+
+    setOriginalName(value: string): ContentSummaryBuilder {
+        this.originalName = value;
         return this;
     }
 

@@ -2,6 +2,10 @@ import {ContentVersionPublishInfoJson} from './resource/json/ContentVersionPubli
 import {Cloneable} from 'lib-admin-ui/Cloneable';
 import {ContentPublishInfo} from './ContentPublishInfo';
 
+enum COMMIT_TYPE {
+    PUBLISHED, UNPUBLISHED, ARCHIVED, RESTORED, CUSTOM
+}
+
 export class ContentVersionPublishInfo
 implements Cloneable {
 
@@ -13,6 +17,8 @@ implements Cloneable {
 
     private timestamp: Date;
 
+    private type: string;
+
     private contentPublishInfo: ContentPublishInfo;
 
     private constructor(source?: ContentVersionPublishInfo) {
@@ -20,6 +26,7 @@ implements Cloneable {
             this.message = source.getMessage();
             this.publisherDisplayName = source.getPublisherDisplayName();
             this.publisher = source.getPublisher();
+            this.type = source.getType();
             this.timestamp = !!source.getTimestamp() ? new Date(source.getTimestamp().getTime()) : null;
         }
     }
@@ -39,6 +46,7 @@ implements Cloneable {
         contentVersionPublishInfo.publisher = contentVersionPublishInfoJson.publisher;
         contentVersionPublishInfo.publisherDisplayName = contentVersionPublishInfoJson.publisherDisplayName;
         contentVersionPublishInfo.timestamp = new Date(contentVersionPublishInfoJson.timestamp);
+        contentVersionPublishInfo.type = contentVersionPublishInfoJson.type;
         contentVersionPublishInfo.contentPublishInfo = ContentPublishInfo.fromJson(contentVersionPublishInfoJson.contentPublishInfo);
 
         return contentVersionPublishInfo;
@@ -58,6 +66,10 @@ implements Cloneable {
 
     getTimestamp(): Date {
         return this.timestamp;
+    }
+
+    getType(): string {
+        return this.type;
     }
 
     getFirstPublished(): Date {
@@ -89,6 +101,14 @@ implements Cloneable {
         }
 
         return !this.getPublishedFrom() && !this.getPublishedTo();
+    }
+
+    isArchived(): boolean {
+        return this.getType() === COMMIT_TYPE[COMMIT_TYPE.ARCHIVED].toString();
+    }
+
+    isRestored(): boolean {
+        return this.getType() === COMMIT_TYPE[COMMIT_TYPE.RESTORED].toString();
     }
 
     isScheduled(): boolean {

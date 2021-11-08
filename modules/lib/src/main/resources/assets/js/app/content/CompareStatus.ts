@@ -8,7 +8,8 @@ export enum CompareStatus {
     PENDING_DELETE,
     EQUAL,
     MOVED,
-    UNKNOWN
+    UNKNOWN,
+    ARCHIVED
 }
 
 export class CompareStatusFormatter {
@@ -30,6 +31,9 @@ export class CompareStatusFormatter {
             break;
         case CompareStatus.MOVED:
             return 'moved';
+            break;
+        case CompareStatus.ARCHIVED:
+            return 'archived';
             break;
         default:
             return 'unknown';
@@ -58,6 +62,9 @@ export class CompareStatusFormatter {
             break;
         case CompareStatus.MOVED:
             status = i18n('status.moved');
+            break;
+        case CompareStatus.ARCHIVED:
+            status = i18n('status.archived');
             break;
         default:
             status = i18n('status.unknown');

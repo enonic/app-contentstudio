@@ -15,6 +15,7 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {UrlHelper} from '../../../../util/UrlHelper';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';
+import {ContentPath} from '../../../../content/ContentPath';
 
 export class AttachmentsWidgetItemView extends WidgetItemView {
 
@@ -24,10 +25,19 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
 
     private placeholder: SpanEl;
 
+    private contentRootPath: string;
+
     public static debug: boolean = false;
 
     constructor() {
         super('attachments-widget-item-view');
+
+        this.contentRootPath = ContentPath.CONTENT_ROOT;
+    }
+
+    setContentRootPath(value: string): AttachmentsWidgetItemView {
+        this.contentRootPath = value;
+        return this;
     }
 
     public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
@@ -57,7 +67,7 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
     }
 
     private layoutAttachments(): Q.Promise<Attachments> {
-        return new GetContentAttachmentsRequest(this.content.getContentId()).sendAndParse().then(
+        return new GetContentAttachmentsRequest(this.content.getContentId()).setContentRootPath(this.contentRootPath).sendAndParse().then(
             (attachments: Attachments) => {
 
                 if (this.hasChild(this.list)) {
@@ -73,7 +83,7 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
 
                     let contentId = this.content.getContentId();
                     attachments.forEach((attachment: Attachment) => {
-                        let attachmentContainer = new LiEl('attachment-container');
+                        let attachmentContainer = new LiEl('attachment-container icon-attachment');
                         let link = this.createLinkEl(contentId, attachment.getName());
                         attachmentContainer.appendChild(link);
                         this.list.appendChild(attachmentContainer);

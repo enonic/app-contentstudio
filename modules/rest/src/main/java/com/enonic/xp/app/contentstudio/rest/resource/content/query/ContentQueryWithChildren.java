@@ -2,6 +2,7 @@ package com.enonic.xp.app.contentstudio.rest.resource.content.query;
 
 import java.util.stream.Collectors;
 
+import com.enonic.xp.app.contentstudio.rest.resource.content.ContentHelper;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentPaths;
 import com.enonic.xp.content.ContentQuery;
@@ -38,6 +39,11 @@ public class ContentQueryWithChildren
         this.contentService = builder.contentService;
     }
 
+    public static Builder create()
+    {
+        return new Builder();
+    }
+
     private QueryExpr constructExprToFindChildren()
     {
         final FieldExpr fieldExpr = FieldExpr.from( "_path" );
@@ -46,12 +52,14 @@ public class ContentQueryWithChildren
 
         for ( ContentPath contentPath : contentsPaths )
         {
-            ConstraintExpr likeExpr = CompareExpr.like( fieldExpr, ValueExpr.string( "/content/" + contentPath.asRelative() + "/*" ) );
+            ConstraintExpr likeExpr =
+                CompareExpr.like( fieldExpr, ValueExpr.string( ContentHelper.getContentRoot() + "/" + contentPath.asRelative() + "/*" ) );
             expr = expr != null ? LogicalExpr.or( expr, likeExpr ) : likeExpr;
         }
 
-        expr = LogicalExpr.and( expr, CompareExpr.notIn( fieldExpr, contentsPaths.stream().
-            map( contentPath -> ValueExpr.string( "/content/" + contentPath.asRelative() ) ).collect( Collectors.toList() ) ) );
+        expr = LogicalExpr.and( expr, CompareExpr.notIn( fieldExpr, contentsPaths.stream()
+            .map( contentPath -> ValueExpr.string( ContentHelper.getContentRoot() + "/" + contentPath.asRelative() ) )
+            .collect( Collectors.toList() ) ) );
 
         return QueryExpr.from( expr, new FieldOrderExpr( fieldExpr, OrderExpr.Direction.ASC ) );
     }
@@ -60,8 +68,9 @@ public class ContentQueryWithChildren
     {
         final FieldExpr fieldExpr = FieldExpr.from( "_path" );
 
-        final CompareExpr compareExpr = CompareExpr.in( fieldExpr, contentsPaths.stream().
-            map( contentPath -> ValueExpr.string( "/content/" + contentPath.asRelative() ) ).collect( Collectors.toList() ) );
+        final CompareExpr compareExpr = CompareExpr.in( fieldExpr, contentsPaths.stream()
+            .map( contentPath -> ValueExpr.string( ContentHelper.getContentRoot() + "/" + contentPath.asRelative() ) )
+            .collect( Collectors.toList() ) );
 
         return QueryExpr.from( compareExpr, this.order != null ? this.order.getOrderExpressions() : null );
     }
@@ -73,7 +82,9 @@ public class ContentQueryWithChildren
             return FindContentIdsByQueryResult.empty();
         }
         final QueryExpr expr = constructExprToFindChildren();
+
         final ContentQuery query = ContentQuery.create().from( this.from ).size( this.size ).queryExpr( expr ).build();
+
         return this.contentService.find( query );
     }
 
@@ -85,12 +96,8 @@ public class ContentQueryWithChildren
         }
         final QueryExpr expr = constructExprToFindOrdered();
         final ContentQuery query = ContentQuery.create().from( this.from ).size( this.size ).queryExpr( expr ).build();
-        return this.contentService.find( query );
-    }
 
-    public static Builder create()
-    {
-        return new Builder();
+        return this.contentService.find( query );
     }
 
     public static class Builder

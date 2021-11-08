@@ -1,0 +1,199 @@
+@font-face {
+  font-family: 'icomoon-studio-lib';
+  src:
+    url('fonts/icomoon-studio-lib.woff2') format('woff2'),
+    url('fonts/icomoon-studio-lib.woff?d2dpl4') format('woff');
+}
+
+.icon-studio-lib {
+  .icon-mixin('icomoon-studio-lib');
+}
+
+.icon-plus {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e36c";
+  }
+}
+
+.icon-wrench {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e992";
+  }
+}
+
+.icon-disk {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e134";
+  }
+}
+
+.icon-history {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e94d";
+  }
+}
+
+.icon-link {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e9cb";
+  }
+}
+
+.icon-big-plus {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\ea0a";
+  }
+}
+
+.icon-state-invalid {
+  .icon-studio-lib();
+
+  &::before {
+    color: #cb0300;
+    content: "\e905";
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
+}
+
+.icon-state-in-progress {
+  .icon-studio-lib();
+
+  &::before {
+    color: #cbad00;
+    content: "\e904";
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
+}
+
+.icon-state-ready {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e907";
+    color: @admin-green;
+    background-color: @admin-white;
+    border-radius: 20px;
+  }
+}
+
+.icon-version-modified {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e908";
+  }
+}
+
+.icon-version-published {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e909";
+  }
+}
+
+.icon-version-unpublished {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e2c1";
+  }
+}
+
+.icon-publish-request {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e9a0";
+  }
+}
+
+.icon-issue {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e9a1";
+  }
+}
+
+.icon-publish-request,
+.icon-issue {
+  &.closed {
+    color: @admin-font-gray2;
+  }
+
+  &.opened {
+    color: #609e24;
+  }
+}
+
+.icon-compare {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e915";
+  }
+}
+
+.icon-tree-2 {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e978";
+  }
+}
+
+.icon-layer {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e932";
+  }
+}
+
+.icon-archive {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e95c";
+    top: -3px;
+    position: relative;
+  }
+}
+
+.icon-restore {
+  .icon-studio-lib();
+
+  &::before {
+    content: "\e95f";
+  }
+}
+
+.icon-cloud-download(@size: 18px, @bottom: -6px, @left:-4px) {
+  &::after {
+    background-image: url("../images/cloud-download.svg");
+    background-repeat: no-repeat;
+    background-size: @size;
+    display: block;
+    width: @size;
+    height: @size;
+    content: " ";
+    position: absolute;
+    bottom: @bottom;
+    left: @left;
+  }
+}

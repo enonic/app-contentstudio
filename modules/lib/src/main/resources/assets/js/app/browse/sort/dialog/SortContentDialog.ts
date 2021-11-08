@@ -198,7 +198,7 @@ export class SortContentDialog
             .sendAndParse()
             .then((result: ContentsExistResult) => {
                 if (!!result.getContentsExistMap()[this.selectedContent.getId()]) {
-                    return ContentSummaryAndCompareStatusFetcher.fetch(this.selectedContent.getContentId(), parentProject);
+                    return new ContentSummaryAndCompareStatusFetcher().fetch(this.selectedContent.getContentId(), parentProject);
                 } else {
                     return Q(null);
                 }
@@ -252,11 +252,11 @@ export class SortContentDialog
     }
 
     private showLoadingSpinner() {
-        this.saveButton.addClass('spinner');
+        this.saveButton.addClass('icon-spinner');
     }
 
     private hideLoadingSpinner() {
-        this.saveButton.removeClass('spinner');
+        this.saveButton.removeClass('icon-spinner');
     }
 
     private saveContentChildOrder(): Q.Promise<Content> {

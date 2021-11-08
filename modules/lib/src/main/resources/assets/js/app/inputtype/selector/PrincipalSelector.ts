@@ -18,4 +18,4 @@ export class PrincipalSelector
     }
 }
 
-InputTypeManager.register(new Class('ContentPrincipalSelector', PrincipalSelector));
+InputTypeManager.register(new Class('ContentPrincipalSelector', PrincipalSelector), true);

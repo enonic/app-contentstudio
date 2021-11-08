@@ -26,7 +26,7 @@ export class AttachmentItem
     }
 
     private initRemoveButton() {
-        this.removeEl = new DivEl('icon remove');
+        this.removeEl = new DivEl('icon remove icon-close');
 
         this.removeEl.onClicked(() => {
             this.remove();

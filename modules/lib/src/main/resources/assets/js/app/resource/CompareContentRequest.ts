@@ -4,11 +4,13 @@ import {CompareContentResultsJson} from './json/CompareContentResultsJson';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {ContentResourceRequest} from './ContentResourceRequest';
+import {ContentPath} from '../content/ContentPath';
 
 export class CompareContentRequest
     extends CmsContentResourceRequest<CompareContentResults> {
 
-    private ids: string[];
+    private readonly ids: string[];
 
     constructor(ids: string[]) {
         super();
@@ -17,16 +19,16 @@ export class CompareContentRequest
         this.addRequestPathElements('compare');
     }
 
-    static fromContentSummaries(contentSummaries: ContentSummary[], projectName?: string): CompareContentRequest {
-
-        let ids: string[] = [];
+    static fromContentSummaries(contentSummaries: ContentSummary[], projectName?: string,
+                                contentRootPath: string = ContentPath.CONTENT_ROOT): CompareContentRequest {
+        const ids: string[] = [];
 
         contentSummaries.forEach((contentSummary: ContentSummary) => {
-
             ids.push(contentSummary.getContentId().toString());
         });
 
-        return <CompareContentRequest>(new CompareContentRequest(ids).setRequestProjectName(projectName));
+        return <CompareContentRequest>(new CompareContentRequest(ids).setContentRootPath(contentRootPath).setRequestProjectName(
+            projectName));
     }
 
     getParams(): Object {

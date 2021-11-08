@@ -1,0 +1,114 @@
+.appbar-content {
+  padding: 0;
+  padding-left: 5px;
+  display: flex;
+  justify-content: space-between;
+  overflow: visible;
+
+  .home-button {
+    display: none;
+  }
+
+  .show-issues-button-wrapper {
+    width: auto;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    z-index: 1;
+    top: @app-header-height / 4;
+    height: @app-header-height / 2;
+    border-right: 1px solid @admin-font-gray2;
+  }
+
+  .project-viewer {
+    width: 250px;
+    display: flex;
+    pointer-events: none;
+
+    .viewer-selectable();
+
+    .names-and-icon-view {
+      display: flex;
+      align-items: center;
+
+      &::before {
+        color: @admin-white;
+      }
+
+      .@{_COMMON_PREFIX}wrapper {
+        margin-right: 0;
+        padding: 0 10px;
+
+        .font-icon-default {
+          &::before {
+            color: @admin-white;
+            font-size: 30px;
+          }
+        }
+      }
+
+      .@{_COMMON_PREFIX}names-view {
+        margin-left: 0;
+
+        .@{_COMMON_PREFIX}main-name {
+          color: @admin-white;
+          font-size: 16px;
+          height: 20px;
+          line-height: 20px;
+        }
+
+        .@{_COMMON_PREFIX}sub-name {
+          display: none;
+        }
+      }
+    }
+
+    &:hover {
+      .names-and-icon-view {
+        &::before {
+          color: darken(@admin-white, 10%);
+        }
+
+        .@{_COMMON_PREFIX}wrapper {
+          .font-icon-default::before {
+            color: darken(@admin-white, 10%);
+          }
+        }
+
+        .@{_COMMON_PREFIX}names-view {
+          .@{_COMMON_PREFIX}main-name {
+            color: darken(@admin-white, 10%);
+          }
+        }
+      }
+    }
+
+    &.no-project {
+      .@{_COMMON_PREFIX}wrapper {
+        display: none;
+      }
+    }
+
+    .project-selection-icon {
+      font-size: 22px;
+      margin-left: 8px;
+      order: 1;
+      display: none;
+    }
+
+    &.multi-projects {
+      pointer-events: auto;
+
+      .names-and-icon-view {
+        overflow: visible;
+      }
+
+      .project-selection-icon {
+        display: block;
+      }
+    }
+  }
+}

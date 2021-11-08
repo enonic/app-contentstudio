@@ -34,7 +34,7 @@ export class MediaUploaderEl
     constructor(config: MediaUploaderElConfig) {
 
         if (config.url == null) {
-            config.url = `content/${MediaUploaderElOperation[config.operation]}Media`;
+            config.url = `content/content/${MediaUploaderElOperation[config.operation]}Media`;
         }
 
         super(config);
@@ -163,7 +163,7 @@ export class MediaUploaderEl
     }
 
     createResultItem(value: string): Element {
-        const path: string = `${UrlHelper.getCMSPath()}/${ContentResourceRequest.CONTENT_PATH}/media/${value}`;
+        const path: string = `${UrlHelper.getCMSPath(ContentPath.CONTENT_ROOT)}/${ContentResourceRequest.CONTENT_PATH}/media/${value}`;
         this.link = new AEl().setUrl(UrlHelper.getCmsRestUri(path), '_blank');
         this.link.setHtml(this.fileName != null && this.fileName !== '' ? this.fileName : value);
 

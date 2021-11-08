@@ -12,6 +12,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.ContentListTitleRes
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ChildOrderJson;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentInheritType;
+import com.enonic.xp.security.PrincipalKey;
 
 @SuppressWarnings("UnusedDeclaration")
 public class ContentSummaryJson
@@ -42,6 +43,10 @@ public class ContentSummaryJson
 
     private final String originProject;
 
+    private final String originalParentPath;
+
+    private final String originalName;
+
     public ContentSummaryJson( final Content content, final ContentIconUrlResolver iconUrlResolver,
                                ContentListTitleResolver contentListTitleResolver )
     {
@@ -58,6 +63,8 @@ public class ContentSummaryJson
         this.publish = content.getPublishInfo() != null ? new ContentPublishInfoJson( content.getPublishInfo() ) : null;
         this.workflow = content.getWorkflowInfo() != null ? new ContentWorkflowInfoJson( content.getWorkflowInfo() ) : null;
         this.originProject = content.getOriginProject() != null ? content.getOriginProject().toString() : null;
+        this.originalParentPath = content.getOriginalParentPath() != null ? content.getOriginalParentPath().toString() : null;
+        this.originalName = content.getOriginalName() != null ? content.getOriginalName().toString() : null;
     }
 
     public String getIconUrl()
@@ -144,6 +151,16 @@ public class ContentSummaryJson
         return content.getModifier() != null ? content.getModifier().toString() : null;
     }
 
+    public Instant getArchivedTime()
+    {
+        return content.getArchivedTime();
+    }
+
+    public String getArchivedBy()
+    {
+        return content.getArchivedBy() != null ? content.getArchivedBy().toString() : null;
+    }
+
     public boolean getHasChildren()
     {
         return content.hasChildren();
@@ -177,6 +194,16 @@ public class ContentSummaryJson
     public String getOriginProject()
     {
         return this.originProject;
+    }
+
+    public String getOriginalParentPath()
+    {
+        return this.originalParentPath;
+    }
+
+    public String getOriginalName()
+    {
+        return originalName;
     }
 
     @Override

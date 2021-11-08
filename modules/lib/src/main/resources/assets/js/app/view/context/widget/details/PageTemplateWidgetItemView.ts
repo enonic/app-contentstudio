@@ -75,7 +75,7 @@ export class PageTemplateWidgetItemView
                 return;
             }
 
-            ContentSummaryAndCompareStatusFetcher.fetch(this.content.getContentId())
+            new ContentSummaryAndCompareStatusFetcher().fetch(this.content.getContentId())
                 .then(this.setContentAndUpdateView.bind(this))
                 .catch(DefaultErrorHandler.handle);
 

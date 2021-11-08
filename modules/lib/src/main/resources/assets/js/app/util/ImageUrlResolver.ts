@@ -2,6 +2,7 @@ import {IconUrlResolver} from 'lib-admin-ui/icon/IconUrlResolver';
 import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
 import {UrlHelper} from './UrlHelper';
 import {ContentId} from '../content/ContentId';
+import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 
 export class ImageUrlResolver
     extends IconUrlResolver {
@@ -26,6 +27,14 @@ export class ImageUrlResolver
     private aspectRatio: string; //scale params applied to image
 
     private filter: string;
+
+    private readonly contentRootPath: string;
+
+    constructor(contentRootPath?: string) {
+        super();
+
+        this.contentRootPath = contentRootPath || ContentResourceRequest.CONTENT_PATH;
+    }
 
     setContentId(value: ContentId): ImageUrlResolver {
         this.contentId = value;
@@ -86,7 +95,8 @@ export class ImageUrlResolver
     }
 
     resolveForPreview(): string {
-        let url = this.getBaseUrl(UrlHelper.getCmsRestUri(`/${ImageUrlResolver.URL_PREFIX_PREVIEW}`));
+        let url: string = this.getBaseUrl(
+            UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath(this.contentRootPath)}/${ImageUrlResolver.URL_PREFIX_PREVIEW}`));
 
         if (this.timeStamp) {
             url = this.appendParam('ts', '' + this.timeStamp.getTime(), url);

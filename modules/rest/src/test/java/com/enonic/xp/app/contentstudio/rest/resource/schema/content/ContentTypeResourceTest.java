@@ -21,12 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.AdditionalAnswers;
 import org.mockito.Mockito;
 
-import com.enonic.xp.app.ApplicationKey;
 import com.enonic.xp.app.contentstudio.rest.resource.AdminResourceTestSupport;
-import com.enonic.xp.content.ContentId;
-import com.enonic.xp.content.ContentPath;
-import com.enonic.xp.content.ContentService;
-import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.form.FieldSet;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.form.FormItemSet;
@@ -45,15 +40,11 @@ import com.enonic.xp.schema.content.ContentTypeService;
 import com.enonic.xp.schema.content.ContentTypes;
 import com.enonic.xp.schema.content.GetContentTypeParams;
 import com.enonic.xp.schema.mixin.MixinService;
-import com.enonic.xp.site.Site;
-import com.enonic.xp.site.SiteConfig;
-import com.enonic.xp.site.SiteConfigs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 
 public class ContentTypeResourceTest
@@ -64,8 +55,6 @@ public class ContentTypeResourceTest
     private static final ContentTypeName MY_CTY_QUALIFIED_NAME = ContentTypeName.from( "myapplication:my_cty" );
 
     private ContentTypeService contentTypeService;
-
-    private ContentService contentService;
 
     private LocaleService localeService;
 
@@ -83,12 +72,10 @@ public class ContentTypeResourceTest
     {
         this.resource = new ContentTypeResource();
         contentTypeService = Mockito.mock( ContentTypeService.class );
-        contentService = Mockito.mock( ContentService.class );
         localeService = Mockito.mock( LocaleService.class );
         mixinService = Mockito.mock( MixinService.class );
 
         this.resource.setContentTypeService( contentTypeService );
-        this.resource.setContentService( contentService );
         this.resource.setLocaleService( localeService );
         this.resource.setMixinService( mixinService );
 
@@ -451,38 +438,6 @@ public class ContentTypeResourceTest
     }
 
     @Test
-    public void getTypesByContentContext()
-        throws Exception
-    {
-        // setup
-        final ContentType contentType = ContentType.create().
-            createdTime( SOME_DATE ).
-            name( MY_CTY_QUALIFIED_NAME ).
-            icon( Icon.from( new byte[]{123}, "image/gif", SOME_DATE ) ).
-            superType( ContentTypeName.unstructured() ).
-            addFormItem( Input.create().
-                name( "myTextLine" ).
-                inputType( InputTypeName.TEXT_LINE ).
-                label( "My text line" ).
-                required( true ).
-                build() ).
-            build();
-
-        Mockito.when( contentTypeService.getByApplication( isA( ApplicationKey.class ) ) ).thenReturn( ContentTypes.from( contentType ) );
-        final Site site = newSite();
-        Mockito.when( contentService.getNearestSite( eq( ContentId.from( "1004242" ) ) ) ).thenReturn( site );
-
-        // execute
-        String jsonString = request().
-            path( "schema/content/byContent" ).
-            queryParam( "contentId", "1004242" ).
-            get().getAsString();
-
-        // verify
-        assertJson( "ContentTypeResourceTest-list_one_contentType_with_only_one_input-result.json", jsonString );
-    }
-
-    @Test
     public void testContentTypeIcon()
         throws Exception
     {
@@ -614,27 +569,5 @@ public class ContentTypeResourceTest
         list.add( contentType );
         final GetContentTypeParams params = new GetContentTypeParams().contentTypeName( contentType.getName() );
         Mockito.when( contentTypeService.getByName( params ) ).thenReturn( contentType );
-    }
-
-    public static Site newSite()
-    {
-        final PropertyTree siteConfigConfig = new PropertyTree();
-        final SiteConfig siteConfig = SiteConfig.create().
-            application( ApplicationKey.from( "myapp" ) ).
-            config( siteConfigConfig ).
-            build();
-
-        final Site.Builder site = Site.create();
-        site.id( ContentId.from( "1004242" ) );
-        site.siteConfigs( SiteConfigs.from( siteConfig ) );
-        site.name( "my-content" );
-        site.parentPath( ContentPath.ROOT );
-        return site.build();
-    }
-
-    private void assertImage( final BufferedImage image, final int size )
-    {
-        assertNotNull( image );
-        assertEquals( size, image.getWidth() );
     }
 }

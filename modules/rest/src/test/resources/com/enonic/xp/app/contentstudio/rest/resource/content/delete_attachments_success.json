@@ -1,4 +1,6 @@
 {
+    "archivedBy": null,
+    "archivedTime": null,
     "attachments": [],
     "childOrder": null,
     "contentState": "DEFAULT",
@@ -23,6 +25,8 @@
     "modifier": null,
     "name": "one",
     "originProject": null,
+    "originalName": null,
+    "originalParentPath": null,
     "owner": null,
     "page": null,
     "path": "/one",

@@ -94,7 +94,7 @@ export class ContentWizardDataLoader {
             const parentPromise: Q.Promise<Content> = this.loadParentContent(params, false);
             const typePromise: Q.Promise<ContentType> = this.loadContentType(this.content.getType());
             const statusPromise: Q.Promise<ContentSummaryAndCompareStatus> =
-                ContentSummaryAndCompareStatusFetcher.fetchByContent(this.content);
+                new ContentSummaryAndCompareStatusFetcher().fetchByContent(this.content);
             const parentProjectContentExistsPromise: Q.Promise<boolean> = this.loadParentProjectItemIfExists();
 
             return Q.all([parentPromise, typePromise, statusPromise, parentProjectContentExistsPromise]).spread(

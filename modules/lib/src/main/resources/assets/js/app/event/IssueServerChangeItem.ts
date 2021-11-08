@@ -4,8 +4,6 @@ import {NodeServerChangeItem, NodeServerChangeItemBuilder} from 'lib-admin-ui/ev
 export class IssueServerChangeItem
     extends NodeServerChangeItem {
 
-    public static pathPrefix: string = '/issue';
-
     constructor(builder: IssueServerChangeItemBuilder) {
         super(builder);
     }

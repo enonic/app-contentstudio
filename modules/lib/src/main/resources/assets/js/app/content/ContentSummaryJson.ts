@@ -23,6 +23,16 @@ export interface ContentSummaryJson
 
     modifier: string;
 
+    creator: string;
+
+    modifiedTime: string;
+
+    createdTime: string;
+
+    archivedTime: string;
+
+    archivedBy: string;
+
     owner: string;
 
     isPage: boolean;
@@ -46,4 +56,8 @@ export interface ContentSummaryJson
     originProject: string;
 
     listTitle: string;
+
+    originalParentPath: string;
+
+    originalName: string;
 }

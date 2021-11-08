@@ -3,52 +3,45 @@ import * as Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {Button} from 'lib-admin-ui/ui/button/Button';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {Application} from 'lib-admin-ui/app/Application';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {AppContext} from './AppContext';
-import {AppMode} from './AppMode';
-import {MainAppContainer} from './MainAppContainer';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {AppContainerFactory} from './AppContainerFactory';
+import {App} from './App';
+import {GetAdminToolsRequest} from './resource/GetAdminToolsRequest';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {AdminTool} from './AdminTool';
+import {DescriptorKey} from './page/DescriptorKey';
+import {TooltipHelper} from './TooltipHelper';
+import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {Store} from 'lib-admin-ui/store/Store';
 
 export class AppWrapper
     extends DivEl {
 
     private sidebar: Sidebar;
 
-    private appContainers: Map<AppMode, MainAppContainer> = new Map<AppMode, MainAppContainer>();
+    private apps: App[];
 
-    private currentAppContainer: MainAppContainer;
+    private currentApp: App;
 
     private toggleSidebarButton: Button;
 
     private touchListener: (event: MouseEvent) => void;
 
-    constructor(application: Application, className?: string) {
+    private appAddedListeners: { (app: App): void }[] = [];
+
+    constructor(apps: App[], className?: string) {
         super(`main-app-wrapper ${(className || '')}`.trim());
 
-        this.initAppContext(application);
+        this.apps = apps;
         this.initElements();
         this.initListeners();
-        this.startInitialAppContainer();
-    }
-
-    private initAppContext(application: Application) {
-        AppContext.get().setMode(this.getAppMode());
-        AppContext.get().setApplication(application);
-    }
-
-    private getAppMode(): AppMode {
-        if (this.isSettingsPage()) {
-            return AppMode.SETTINGS;
-        }
-
-        return AppMode.MAIN;
-    }
-
-    private isSettingsPage(): boolean {
-        return window.location.href.indexOf(`${CONFIG.mainUrl}/${AppMode.SETTINGS}`) > -1;
+        this.updateAdminTools();
+        this.toggleSidebar();
+        TooltipHelper.init();
     }
 
     private initElements() {
@@ -60,34 +53,31 @@ export class AppWrapper
         this.toggleSidebarButton.onClicked(this.toggleSidebar.bind(this));
         this.handleTouchOutsideSidebar();
 
-        this.sidebar.onAppModeSelected((mode: AppMode) => {
-            this.handleAppSelected(mode);
+        this.sidebar.onAdminToolSelected((app: App) => {
+            this.handleAppSelected(app);
         });
+
+        this.listenAppEvents();
     }
 
-    private handleAppSelected(mode: AppMode) {
-        const appToShow: MainAppContainer = this.getOrCreateAppContainerByMode(mode);
-        history.pushState(null, null, appToShow.generateAppUrl());
-        AppContext.get().setMode(mode);
-        this.currentAppContainer.hide();
-        appToShow.show();
-        this.currentAppContainer = appToShow;
+    private handleAppSelected(app: App) {
+        this.selectApp(this.getAppById(app.getAppId()));
     }
 
-    private getOrCreateAppContainerByMode(mode: AppMode): MainAppContainer {
-        if (this.appContainers.has(mode)) {
-            return this.appContainers.get(mode);
+    private getAppById(appId: DescriptorKey): App {
+        return this.apps.find((app: App) => app.getAppId().equals(appId));
+    }
+
+    selectApp(app: App) {
+        if (!this.hasChild(app.getAppContainer())) {
+            this.appendChild(app.getAppContainer());
         }
 
-        return this.createAppContainer(mode);
-    }
-
-    private createAppContainer(mode: AppMode): MainAppContainer {
-        const appContainer: MainAppContainer = AppContainerFactory.get().createApp(mode);
-        this.appContainers.set(mode, appContainer);
-        this.appendChild(appContainer);
-
-        return appContainer;
+        AppContext.get().setCurrentApp(app.getAppId());
+        this.currentApp?.hide();
+        app.show();
+        this.currentApp = app;
+        this.sidebar.toggleButtonByApp(app);
     }
 
     private collapseSidebarOnMouseEvent(event: MouseEvent) {
@@ -134,10 +124,91 @@ export class AppWrapper
         }
     }
 
-    private startInitialAppContainer() {
-        const appContainer: MainAppContainer = this.createAppContainer(AppContext.get().getMode());
-        appContainer.show();
-        this.currentAppContainer = appContainer;
+    private updateAdminTools() {
+        new GetAdminToolsRequest().sendAndParse().then((adminTools: AdminTool[]) => {
+            this.sidebar.reset();
+            this.removeStaleAdminTools(adminTools);
+            this.sidebar.setAdminTools(this.apps);
+            this.injectMissingAdminTools(adminTools);
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    private removeStaleAdminTools(adminTools: AdminTool[]) {
+        const apps: App[] = [];
+
+        this.apps.forEach((app: App) => {
+            if (adminTools.some((adminTool: AdminTool) => adminTool.getKey().equals(app.getAppId()))) {
+                apps.push(app);
+            } else {
+                const toolId: string = app.getAppId().toString();
+                const cssElem: HTMLElement = document.getElementById('externalCSS');
+                const jsElem: HTMLElement = document.getElementById(`${toolId}JS`);
+
+                cssElem?.setAttribute('href', '');
+                // cssElem?.parentNode.removeChild(cssElem);
+                jsElem?.parentNode.removeChild(jsElem);
+            }
+        });
+
+        this.apps = apps;
+    }
+
+    private injectMissingAdminTools(adminTools: AdminTool[]) {
+        const studioApp: string = CONFIG.appId;
+        adminTools
+            .filter((adminTool: AdminTool) => !this.hasAdminTool(adminTool))
+            .forEach((remoteAdminTool: AdminTool) => {
+                const adminToolApp: string = remoteAdminTool.getKey().getApplicationKey().toString();
+                const adminToolId: string = remoteAdminTool.getKey().toString();
+                const assetUrl = CONFIG.assetsUri.replace(new RegExp(studioApp, 'g'), adminToolApp);
+                const mainJsUrl = `${assetUrl}/js/inject.js`;
+                const mainCssUrl = `${assetUrl}/styles/main.css`;
+
+                document.getElementById('externalCSS')?.setAttribute('href', mainCssUrl);
+
+                // document.querySelector('head').innerHTML +=
+                //     `<link id="${adminToolId}CSS" rel="stylesheet" href="${mainCssUrl}" type="text/css"/>`;
+
+                const s = document.createElement('script');
+                s.id = `${adminToolId}JS`;
+                s.type = 'text/javascript';
+                s.src = mainJsUrl;
+                document.head.appendChild(s);
+            });
+    }
+
+    private hasAdminTool(adminTool: AdminTool): boolean {
+        return this.apps.some((app: App) => app.getAppId().equals(adminTool.getKey()));
+    }
+
+    private listenAppEvents() {
+        const debouncedAdminToolUpdate: Function = AppHelper.debounce(() => {
+            this.updateAdminTools();
+        }, 500);
+
+        ApplicationEvent.on((event: ApplicationEvent) => {
+            if (ApplicationEventType.STOPPED === event.getEventType() || ApplicationEventType.UNINSTALLED === event.getEventType()
+                || ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED) {
+                if (this.isAdminToolApp(event.getApplicationKey())) {
+                    debouncedAdminToolUpdate();
+                }
+            }
+        });
+    }
+
+    private isAdminToolApp(key: ApplicationKey): boolean {
+        return key.toString().indexOf('com.enonic.app.contentstudio') >= 0;
+    }
+
+    addApp(app: App, index: number = -1) {
+        if (index > -1) {
+            this.apps.splice(index, 0, app);
+        } else {
+            this.apps.push(app);
+        }
+
+        this.sidebar.addAdminTool(app, index);
+        this.notifyAppAdded(app);
     }
 
     doRender(): Q.Promise<boolean> {
@@ -148,6 +219,21 @@ export class AppWrapper
         });
     }
 
+    onAppAdded(handler: (app: App) => void) {
+        this.appAddedListeners.push(handler);
+    }
+
+    unAppAdded(handler: (app: App) => void) {
+        this.appAddedListeners = this.appAddedListeners.filter((curr: { (app: App): void }) => {
+            return handler !== curr;
+        });
+    }
+
+    private notifyAppAdded(addedApp: App) {
+        this.appAddedListeners.forEach((handler: { (app: App): void }) => {
+            handler(addedApp);
+        });
+    }
 }
 
 class ToggleIcon
@@ -174,36 +260,51 @@ class AppModeSwitcher
 
     private buttons: AppModeButton[] = [];
 
-    private appModeSelectedListeners: { (mode: AppMode): void } [] = [];
+    private appModeSelectedListeners: { (app: App): void } [] = [];
 
     constructor() {
         super('actions-block');
-
-        this.initElements();
-        this.initListeners();
     }
 
-    private initElements() {
-        this.createContentButton();
-        this.createSettingsButton();
+    setAdminTools(apps: App[]) {
+        this.initButtons(apps);
     }
 
-    private initListeners() {
-        this.buttons.forEach(this.listenButtonClicked.bind(this));
+    reset() {
+        this.cleanButtons();
     }
 
-    private createContentButton() {
-        const name: string = i18n('app.content');
-        const contentButton: AppModeButton = new AppModeButton(name, 'icon-version-modified', AppMode.MAIN);
+    addAdminTool(app: App, index: number = -1) {
+        this.createButton(app, index);
+    }
+
+    toggleButtonByApp(app: App) {
+        this.buttons.forEach((b: AppModeButton) => {
+            b.toggleSelected(b.getApp().getAppId().equals(app.getAppId()));
+        });
+    }
+
+    private cleanButtons() {
+        this.removeChildren();
+        this.buttons = [];
+    }
+
+    private initButtons(apps: App[]) {
+        apps.forEach((app: App) => {
+            this.createButton(app);
+        });
+    }
+
+    private createButton(app: App, index: number = -1) {
+        const contentButton: AppModeButton = new AppModeButton(app);
+        this.listenButtonClicked(contentButton);
         this.buttons.push(contentButton);
-    }
 
-    private createSettingsButton(): AppModeButton {
-        const name: string = i18n('app.settings');
-        const settingsButton: AppModeButton = new AppModeButton(name, 'icon-cog', AppMode.SETTINGS);
-        this.buttons.push(settingsButton);
-
-        return settingsButton;
+        if (index > -1) {
+            this.insertChild(contentButton, index);
+        } else {
+            this.appendChild(contentButton);
+        }
     }
 
     private onButtonClicked(button: AppModeButton) {
@@ -211,32 +312,30 @@ class AppModeSwitcher
             b.toggleSelected(b === button);
         });
 
-        if (button.getMode() !== AppContext.get().getMode()) {
-            this.notifyAppModeSelected(button.getMode());
+        if (!button.getAppId().equals(AppContext.get().getCurrentApp())) {
+            this.notifyAppModeSelected(button.getApp());
         }
     }
 
     private listenButtonClicked(button: AppModeButton) {
-        button.onTouchStart(() => this.onButtonClicked(button));
-        button.onClicked(() => this.onButtonClicked(button));
-    }
+        const clickListener: () => void = () => this.onButtonClicked(button);
+        button.onTouchStart(clickListener);
+        button.onClicked(clickListener);
 
-    private notifyAppModeSelected(mode: AppMode) {
-        this.appModeSelectedListeners.forEach((listener: (mode: AppMode) => void) => {
-            listener(mode);
+        button.onRemoved(() => {
+            button.unTouchStart(clickListener);
+            button.unClicked(clickListener);
         });
     }
 
-    onAppModeSelected(handler: (mode: AppMode) => void) {
+    private notifyAppModeSelected(app: App) {
+        this.appModeSelectedListeners.forEach((listener: (tool: App) => void) => {
+            listener(app);
+        });
+    }
+
+    onAppModeSelected(handler: (app: App) => void) {
         this.appModeSelectedListeners.push(handler);
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            this.appendChildren(...this.buttons);
-
-            return rendered;
-        });
     }
 
     getButtons(): AppModeButton[] {
@@ -247,21 +346,26 @@ class AppModeSwitcher
 class AppModeButton
     extends Button {
 
-    private mode: AppMode;
+    private readonly app: App;
 
     private static SELECTED_CLASS: string = 'selected';
 
-    constructor(name: string, iconClass: string, mode: AppMode) {
-        super(name);
+    constructor(app: App) {
+        super();
 
-        this.mode = mode;
-        this.setTitle(name);
-        this.addClass(iconClass);
-        this.toggleClass(AppModeButton.SELECTED_CLASS, mode === AppContext.get().getMode());
+        this.app = app;
+        this.setTitle(app.getDisplayName());
+        this.toggleClass(AppModeButton.SELECTED_CLASS, app.getAppId().equals(AppContext.get().getCurrentApp()));
+        this.addClass(app.getIconClass());
+        this.setLabel(app.getDisplayName());
     }
 
-    getMode(): AppMode {
-        return this.mode;
+    getAppId(): DescriptorKey {
+        return this.app.getAppId();
+    }
+
+    getApp(): App {
+        return this.app;
     }
 
     toggleSelected(condition: boolean) {
@@ -272,7 +376,7 @@ class AppModeButton
 class Sidebar
     extends DivEl {
 
-    private appModeSwitcher: AppModeSwitcher;
+    private readonly appModeSwitcher: AppModeSwitcher;
 
     constructor() {
         super('sidebar');
@@ -282,7 +386,6 @@ class Sidebar
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.hide();
             this.appendChild(this.createAppNameBlock());
             this.appendChildren(this.appModeSwitcher);
             this.appendChild(this.createAppVersionBlock());
@@ -291,7 +394,7 @@ class Sidebar
         });
     }
 
-    onAppModeSelected(handler: (mode: AppMode) => void) {
+    onAdminToolSelected(handler: (app: App) => void) {
         this.appModeSwitcher.onAppModeSelected(handler);
     }
 
@@ -299,21 +402,40 @@ class Sidebar
         return this.appModeSwitcher.getButtons();
     }
 
+    reset() {
+        this.appModeSwitcher.reset();
+    }
+
+    setAdminTools(apps: App[]) {
+        this.appModeSwitcher.setAdminTools(apps);
+    }
+
+    addAdminTool(app: App, index: number = -1) {
+        this.appModeSwitcher.addAdminTool(app, index);
+    }
+
+    toggleButtonByApp(app: App) {
+        this.appModeSwitcher.toggleButtonByApp(app);
+    }
+
     private createAppNameBlock(): Element {
         const appNameWrapper: DivEl = new DivEl('app-name-wrapper');
         const appName: SpanEl = new SpanEl('app-name');
-        appName.setHtml(AppContext.get().getApplication().getName());
+        appName.setHtml(Store.instance().get('application').getName());
         appNameWrapper.appendChild(appName);
 
         return appNameWrapper;
     }
 
-    private createAppVersionBlock(): SpanEl {
-        const cleanVersion = StringHelper.cleanVersion(CONFIG.appVersion);
-        const appVersionSpan = SpanEl.fromText(`v${cleanVersion}`, 'app-version');
+    private createAppVersionBlock(): DivEl {
+        const cleanVersion: string = StringHelper.cleanVersion(CONFIG.appVersion);
+        const appVersionSpan: DivEl = new DivEl('app-version');
+        appVersionSpan.setHtml(`v${cleanVersion}`);
+
         if (CONFIG.appVersion !== cleanVersion) {
             appVersionSpan.setTitle(`v${CONFIG.appVersion}`);
         }
+
         return appVersionSpan;
     }
 }

@@ -37,33 +37,34 @@ import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/A
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {ReloadActiveWidgetEvent} from './ReloadActiveWidgetEvent';
 import {ContentId} from '../../content/ContentId';
+import {WidgetItemView} from './WidgetItemView';
 
 export class ContextView
     extends DivEl {
 
-    private widgetViews: WidgetView[] = [];
-    private contextContainer: DivEl;
-    private widgetsSelectionRow: WidgetsSelectionRow;
+    protected widgetViews: WidgetView[] = [];
+    protected contextContainer: DivEl;
+    protected widgetsSelectionRow: WidgetsSelectionRow;
 
-    private loadMask: LoadMask;
-    private divForNoSelection: DivEl;
+    protected loadMask: LoadMask;
+    protected divForNoSelection: DivEl;
 
-    private item: ContentSummaryAndCompareStatus;
+    protected item: ContentSummaryAndCompareStatus;
 
-    private activeWidget: WidgetView;
+    protected activeWidget: WidgetView;
     private defaultWidgetView: WidgetView;
 
-    private pageEditorWidgetView: WidgetView;
-    private propertiesWidgetView: WidgetView;
-    private emulatorWidgetView: WidgetView;
+    protected pageEditorWidgetView: WidgetView;
+    protected propertiesWidgetView: WidgetView;
+    protected emulatorWidgetView?: WidgetView;
 
-    private data: PageEditorData;
+    protected data: PageEditorData;
 
-    private alreadyFetchedCustomWidgets: boolean;
+    protected alreadyFetchedCustomWidgets: boolean;
 
-    private contentRenderable: boolean;
+    protected contentRenderable: boolean;
 
-    private pageEditorVisible: boolean;
+    protected pageEditorVisible: boolean;
 
     private sizeChangedListeners: { (): void }[] = [];
 
@@ -321,7 +322,7 @@ export class ContextView
         this.item = item;
 
         const activeContextPanel = ActiveContextPanelManager.getActiveContextPanel();
-        const activeWidgetVisible = this.activeWidget != null && activeContextPanel.isVisibleOrAboutToBeVisible();
+        const activeWidgetVisible = this.activeWidget != null && activeContextPanel?.isVisibleOrAboutToBeVisible();
 
         this.layout(!itemSelected);
         if (activeWidgetVisible && selectionChanged && (this.activeWidget.isExternal() || itemSelected)) {
@@ -362,7 +363,6 @@ export class ContextView
     }
 
     private initCommonWidgetViews() {
-
         if (this.isPageEditorPresent()) {
             this.pageEditorWidgetView = WidgetView.create()
                 .setName(i18n('field.contextPanel.pageEditor'))
@@ -388,32 +388,7 @@ export class ContextView
             .setIconClass('icon-list')
             .setType(InternalWidgetType.INFO)
             .setContextView(this)
-            .setWidgetItemViews([
-                new ContentWidgetItemView(),
-                new StatusWidgetItemView(),
-                new UserAccessWidgetItemView(),
-                new PropertiesWidgetItemView(),
-                new PageTemplateWidgetItemView(),
-                new AttachmentsWidgetItemView()
-            ]).build();
-
-        const versionsWidgetView = WidgetView.create()
-            .setName(i18n('field.contextPanel.versionHistory'))
-            .setDescription(i18n('field.contextPanel.versionHistory.description'))
-            .setWidgetClass('versions-widget')
-            .setIconClass('icon-history')
-            .setType(InternalWidgetType.HISTORY)
-            .setContextView(this)
-            .addWidgetItemView(new VersionHistoryView()).build();
-
-        const dependenciesWidgetView = WidgetView.create()
-            .setName(i18n('field.contextPanel.dependencies'))
-            .setDescription(i18n('field.contextPanel.dependencies.description'))
-            .setWidgetClass('dependency-widget')
-            .setIconClass('icon-link')
-            .setType(InternalWidgetType.DEPENDENCIES)
-            .setContextView(this)
-            .addWidgetItemView(new DependenciesWidgetItemView()).build();
+            .setWidgetItemViews(this.getDetailsWidgetItemViews()).build();
 
         this.emulatorWidgetView = WidgetView.create()
             .setName(i18n('field.contextPanel.emulator'))
@@ -426,11 +401,7 @@ export class ContextView
 
         this.defaultWidgetView = this.propertiesWidgetView;
 
-        this.addWidgets([this.propertiesWidgetView, versionsWidgetView, dependenciesWidgetView]);
-
-        if (!this.isInsideWizard()) {
-            this.addWidget(this.emulatorWidgetView);
-        }
+        this.addWidgets(this.getInitialWidgets());
 
         this.setActiveWidget(this.defaultWidgetView);
     }
@@ -441,6 +412,49 @@ export class ContextView
 
     private isPageEditorPresent(): boolean {
         return this.isInsideWizard() && this.data.liveFormPanel != null;
+    }
+
+    protected getInitialWidgets(): WidgetView[] {
+        const widgets: WidgetView[] = [this.propertiesWidgetView, this.createVersionsWidgetView(), this.createDependenciesWidgetView()];
+
+        if (!this.isInsideWizard()) {
+            widgets.push(this.emulatorWidgetView);
+        }
+
+        return widgets;
+    }
+
+    protected createVersionsWidgetView(): WidgetView {
+        return WidgetView.create()
+            .setName(i18n('field.contextPanel.versionHistory'))
+            .setDescription(i18n('field.contextPanel.versionHistory.description'))
+            .setWidgetClass('versions-widget')
+            .setIconClass('icon-history')
+            .setType(InternalWidgetType.HISTORY)
+            .setContextView(this)
+            .addWidgetItemView(new VersionHistoryView()).build();
+    }
+
+    protected createDependenciesWidgetView(): WidgetView {
+        return WidgetView.create()
+            .setName(i18n('field.contextPanel.dependencies'))
+            .setDescription(i18n('field.contextPanel.dependencies.description'))
+            .setWidgetClass('dependency-widget')
+            .setIconClass('icon-link')
+            .setType(InternalWidgetType.DEPENDENCIES)
+            .setContextView(this)
+            .addWidgetItemView(new DependenciesWidgetItemView()).build();
+    }
+
+    protected getDetailsWidgetItemViews(): WidgetItemView[] {
+        return [
+            new ContentWidgetItemView(),
+            new StatusWidgetItemView(),
+            new UserAccessWidgetItemView(),
+            new PropertiesWidgetItemView(),
+            new PageTemplateWidgetItemView(),
+            new AttachmentsWidgetItemView()
+        ];
     }
 
     private fetchCustomWidgetViews(): Q.Promise<Widget[]> {
