@@ -307,7 +307,7 @@ export class AttachmentUploader
 
             this.toggleClass('invalid', hasError);
             if (hasError) {
-                recording.setCustomErrorText(i18n('attachment.uploader.invalid'));
+                recording.setErrorMessage(i18n('attachment.uploader.invalid'));
             }
 
         }
