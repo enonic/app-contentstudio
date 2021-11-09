@@ -17,24 +17,27 @@ import {assertNotNull} from 'lib-admin-ui/util/Assert';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
+import {ValidationError} from 'lib-admin-ui/ValidationError';
 
 export class Content
     extends ContentSummary
     implements Equitable, Cloneable {
 
-    private data: PropertyTree;
+    private readonly data: PropertyTree;
 
-    private attachments: Attachments;
+    private readonly attachments: Attachments;
 
-    private extraData: ExtraData[] = [];
+    private readonly extraData: ExtraData[] = [];
 
-    private pageObj: Page;
+    private readonly pageObj: Page;
 
-    private permissions: AccessControlList;
+    private readonly permissions: AccessControlList;
 
-    private inheritPermissions: boolean;
+    private readonly inheritPermissions: boolean;
 
-    private overwritePermissions: boolean;
+    private readonly overwritePermissions: boolean;
+
+    private readonly validationErrors: ValidationError[] = [];
 
     constructor(builder: ContentBuilder) {
         super(builder);
@@ -47,6 +50,7 @@ export class Content
         this.permissions = builder.permissions || new AccessControlList();
         this.inheritPermissions = builder.inheritPermissions;
         this.overwritePermissions = builder.overwritePermissions;
+        this.validationErrors = builder.validationErrors || [];
     }
 
     getContentData(): PropertyTree {
@@ -75,6 +79,10 @@ export class Content
 
     getPage(): Page {
         return this.pageObj;
+    }
+
+    getValidationErrors(): ValidationError[] {
+        return this.validationErrors;
     }
 
     getPermissions(): AccessControlList {
@@ -213,6 +221,8 @@ export class ContentBuilder
 
     overwritePermissions: boolean = false;
 
+    validationErrors: ValidationError[];
+
     constructor(source?: Content, cloneProperties: boolean = true) {
         super(source);
 
@@ -226,6 +236,7 @@ export class ContentBuilder
             this.permissions = source.getPermissions(); // TODO clone?
             this.inheritPermissions = source.isInheritPermissionsEnabled();
             this.overwritePermissions = source.isOverwritePermissionsEnabled();
+            this.validationErrors = source.getValidationErrors();
         }
     }
 
@@ -244,11 +255,17 @@ export class ContentBuilder
             this.pageObj = new PageBuilder().fromJson(json.page).build();
             this.page = true;
         }
+
         if (json.permissions) {
             this.permissions = AccessControlList.fromJson(json);
         }
+
         if (typeof json.inheritPermissions !== 'undefined') {
             this.inheritPermissions = json.inheritPermissions;
+        }
+
+        if (json.validationErrors) {
+            this.validationErrors = json.validationErrors.map(ValidationError.fromJson);
         }
 
         this.overwritePermissions = false;
@@ -289,6 +306,11 @@ export class ContentBuilder
 
     setOverwritePermissionsEnabled(value: boolean): ContentBuilder {
         this.overwritePermissions = value;
+        return this;
+    }
+
+    setValidationErrors(value: ValidationError[]): ContentBuilder {
+        this.validationErrors = value;
         return this;
     }
 

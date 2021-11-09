@@ -131,6 +131,7 @@ import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPa
 import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
 import {GetApplicationRequest} from '../resource/GetApplicationRequest';
 import {ContentPathPrettifier} from '../content/ContentPathPrettifier';
+import {ValidationErrorHelper} from 'lib-admin-ui/ValidationErrorHelper';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
 
@@ -2460,7 +2461,10 @@ export class ContentWizardPanel
 
         if (!this.formContext) {
             const type: ContentTypeName = this.contentType?.getContentTypeName() || content.getType();
-            this.formContext = ContentFormContext.create().setContentTypeName(type).build();
+            this.formContext = <ContentFormContext>ContentFormContext.create()
+                .setContentTypeName(type)
+                .setCustomValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
+                .build();
         }
 
         this.formContext
