@@ -79,6 +79,10 @@ export class AttachmentUploaderEl
         }
     }
 
+    getAttachedItems(): AttachmentItem[] {
+        return this.attachedItems.slice(0);
+    }
+
     createModel(serverResponse: AttachmentJson): Attachment {
         if (serverResponse) {
             return new AttachmentBuilder().fromJson(serverResponse).build();

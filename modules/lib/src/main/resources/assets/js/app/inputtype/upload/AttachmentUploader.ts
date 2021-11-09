@@ -22,6 +22,9 @@ import {ValueType} from 'lib-admin-ui/data/ValueType';
 import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Page} from '../../page/Page';
+import {ValidationError} from 'lib-admin-ui/ValidationError';
+import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
+import {AttachmentItem} from '../ui/upload/AttachmentItem';
 
 export class AttachmentUploader
     extends BaseInputTypeManagingAdd {
@@ -151,7 +154,7 @@ export class AttachmentUploader
             return true;
         }
 
-        if  (this.isAttachmentReferencedFromPage(attachmentName)) {
+        if (this.isAttachmentReferencedFromPage(attachmentName)) {
             return true;
         }
 
@@ -263,7 +266,53 @@ export class AttachmentUploader
     }
 
     protected getNumberOfValids(): number {
-        return this.getPropertyArray().getProperties().length;
+        const attachmentNamesWithErrors: string[] = this.getAttachmentNamesFromCustomErrors();
+
+        if (attachmentNamesWithErrors.length === 0) {
+            return this.getPropertyArray().getProperties().length;
+        }
+
+        return this.getFileNamesFromProperty().filter(
+            (attachedName: string) => !attachmentNamesWithErrors.some((e: string) => e === attachedName)).length;
+    }
+
+    private getCustomValidationErrors(): ValidationError[] {
+        return this.config.formContext.getPersistedContent().getValidationErrors();
+    }
+
+    private getAttachmentNamesFromCustomErrors(): string[] {
+        return this.getAttachmentErrors().map((attachmentError: ValidationError) => attachmentError.getAttachment());
+    }
+
+    private getAttachmentErrors(): ValidationError[] {
+        return this.getCustomValidationErrors().filter((error: ValidationError) => error.getAttachment());
+    }
+
+    protected doValidate(): InputValidationRecording {
+        const recording: InputValidationRecording = super.doValidate();
+
+        const attachmentErrors: ValidationError[] = this.getAttachmentErrors();
+
+        if (attachmentErrors.length > 0) {
+           let hasError: boolean = false;
+
+            attachmentErrors.forEach((attWithError: ValidationError) => {
+                this.uploaderEl.getAttachedItems().forEach((attachmentItem: AttachmentItem) => {
+                    if (attachmentItem.getValue() === attWithError.getAttachment()) {
+                        attachmentItem.setError(attWithError.getMessage());
+                        hasError = true;
+                    }
+                });
+            });
+
+            this.toggleClass('invalid', hasError);
+            if (hasError) {
+                recording.setCustomErrorText(i18n('attachment.uploader.invalid'));
+            }
+
+        }
+
+        return recording;
     }
 
     setEnabled(enable: boolean): void {
