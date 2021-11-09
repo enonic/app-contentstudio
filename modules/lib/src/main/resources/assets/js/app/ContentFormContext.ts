@@ -102,7 +102,7 @@ export class ContentFormContext
             .setContentTypeName(this.contentTypeName)
             .setFormState(this.getFormState())
             .setShowEmptyFormItemSetOccurrences(this.getShowEmptyFormItemSetOccurrences())
-            .setCustomValidationErrors(this.getCustomValidationErrors());
+            .setValidationErrors(this.getCustomValidationErrors());
     }
 
     static create(): ContentFormContextBuilder {
