@@ -63,9 +63,16 @@
         .attachment-item {
           margin: 10px 0;
 
-          a {
-            padding-right: 2px;
-            .ellipsis();
+          .data-block {
+            a {
+              padding-right: 2px;
+              .ellipsis();
+            }
+          }
+
+          .error-block {
+            color: @input-red-text;
+            padding: 5px 0 0px 25px;
           }
         }
       }
@@ -74,5 +81,9 @@
         height: @attachment-uploader-height;
       }
     }
+  }
+
+  &.invalid {
+    margin-bottom: 10px;
   }
 }

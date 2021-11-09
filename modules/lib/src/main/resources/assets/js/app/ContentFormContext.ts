@@ -101,7 +101,8 @@ export class ContentFormContext
             .setPersistedContent(this.persistedContent)
             .setContentTypeName(this.contentTypeName)
             .setFormState(this.getFormState())
-            .setShowEmptyFormItemSetOccurrences(this.getShowEmptyFormItemSetOccurrences());
+            .setShowEmptyFormItemSetOccurrences(this.getShowEmptyFormItemSetOccurrences())
+            .setCustomValidationErrors(this.getCustomValidationErrors());
     }
 
     static create(): ContentFormContextBuilder {

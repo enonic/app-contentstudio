@@ -13,10 +13,17 @@ export class AttachmentItem
 
     private value: string;
 
+    private dataBlock: DivEl;
+
+    private errorBlock: DivEl;
+
     constructor(contentId: string, value: string) {
         super('attachment-item');
 
         this.value = value;
+        this.dataBlock = new DivEl('data-block');
+        this.errorBlock = new DivEl('error-block');
+        this.errorBlock.hide();
 
         this.link = new AEl().setUrl(
             UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/content/media/${contentId}/${encodeURIComponent(value)}`));
@@ -43,11 +50,17 @@ export class AttachmentItem
         return this.value;
     }
 
+    setError(text: string) {
+        this.errorBlock.setHtml(text);
+        this.errorBlock.show();
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-
             this.removeChildren();
-            this.appendChildren(this.removeEl, this.link);
+
+            this.dataBlock.appendChildren(this.removeEl, this.link);
+            this.appendChildren(this.dataBlock, this.errorBlock);
 
             return rendered;
         });
