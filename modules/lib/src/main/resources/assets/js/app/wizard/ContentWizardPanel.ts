@@ -2463,7 +2463,7 @@ export class ContentWizardPanel
             const type: ContentTypeName = this.contentType?.getContentTypeName() || content.getType();
             this.formContext = <ContentFormContext>ContentFormContext.create()
                 .setContentTypeName(type)
-                .setCustomValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
+                .setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError))
                 .build();
         }
 
