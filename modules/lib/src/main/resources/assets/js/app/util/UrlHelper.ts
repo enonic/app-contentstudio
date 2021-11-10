@@ -13,6 +13,10 @@ export class UrlHelper {
         return `cms/${requestProject.getName()}${!!contentRootPath ? '/' + contentRootPath : ''}`;
     }
 
+    static getCMSPathForContentRoot(): string {
+        return UrlHelper.getCMSPath('content');
+    }
+
     static getCMSPathWithProject(projectName: string, contentRootPath?: string): string {
         const requestProject: string = !!projectName ? projectName : ProjectContext.get().getProject().getName();
         return `cms/${requestProject}${!!contentRootPath ? '/' + contentRootPath : ''}`;

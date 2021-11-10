@@ -1,8 +1,7 @@
 import * as Q from 'q';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {AEl} from 'lib-admin-ui/dom/AEl';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
-import {UrlHelper} from '../../../util/UrlHelper';
+import {Attachment} from '../../../attachment/Attachment';
 
 export class AttachmentItem
     extends DivEl {
@@ -23,10 +22,8 @@ export class AttachmentItem
         this.value = value;
         this.dataBlock = new DivEl('data-block');
         this.errorBlock = new DivEl('error-block');
-        this.errorBlock.hide();
 
-        this.link = new AEl().setUrl(
-            UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPath()}/content/media/${contentId}/${encodeURIComponent(value)}`));
+        this.link = new AEl().setUrl(Attachment.getUrl(contentId, value));
         this.link.setHtml(value);
 
         this.initRemoveButton();
@@ -52,7 +49,6 @@ export class AttachmentItem
 
     setError(text: string) {
         this.errorBlock.setHtml(text);
-        this.errorBlock.show();
     }
 
     doRender(): Q.Promise<boolean> {

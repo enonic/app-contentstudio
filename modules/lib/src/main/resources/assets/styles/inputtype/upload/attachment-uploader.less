@@ -14,7 +14,6 @@
 
     .uploader-el.attachment-uploader-el {
       width: 100%;
-      height: (@attachment-uploader-height + 4px);
       padding-right: @attachment-uploader-height;
       box-sizing: border-box;
       border: 2px solid transparent;
@@ -73,6 +72,7 @@
           .error-block {
             color: @input-red-text;
             padding: 5px 0 0 25px;
+            display: none;
           }
         }
       }
@@ -83,7 +83,23 @@
     }
   }
 
+  &:not(.error-details-visible) {
+    .result-container .attachment-item {
+      &.invalid {
+        .data-block a {
+          color: @input-red-text;
+        }
+      }
+    }
+  }
+
   &.invalid {
-    margin-bottom: 10px;
+    &.error-details-visible {
+      .uploader-el.attachment-uploader-el .result-container .attachment-item {
+        .error-block:not(:empty) {
+          display: block;
+        }
+      }
+    }
   }
 }
