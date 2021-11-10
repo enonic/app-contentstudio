@@ -28,7 +28,7 @@ export class EmulatedEvent
     }
 
     public isFullscreen(): boolean {
-        const fullscreen = this.device.equals(EmulatorDevice.FULLSCREEN);
+        const fullscreen = this.device.equals(EmulatorDevice.getFullscreen());
         const valid = this.device.isValid();
         return fullscreen || !valid;
     }

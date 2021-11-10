@@ -13,44 +13,35 @@ export class EmulatorDevice
     implements Equitable {
 
     /* eslint-disable max-len */
-    public static FULLSCREEN: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.fullsize'), DeviceType.MONITOR, 100, 100, '%',
-        true, false);
+    private static FULLSCREEN: EmulatorDevice;
 
-    public static SMALL_PHONE: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.smallphone'), DeviceType.MOBILE, 320, 480, 'px',
-        false, true);
+    private static SMALL_PHONE: EmulatorDevice;
 
-    public static MEDIUM_PHONE: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.mediumphone'), DeviceType.MOBILE, 375, 667, 'px',
-        false, true);
+    private static MEDIUM_PHONE: EmulatorDevice;
 
-    public static LARGE_PHONE: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.largephone'), DeviceType.MOBILE, 414, 736, 'px',
-        false, true);
+    private static LARGE_PHONE: EmulatorDevice;
 
-    public static TABLET: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.tablet'), DeviceType.TABLET, 768, 1024, 'px', false,
-        true);
+    private static TABLET: EmulatorDevice;
 
-    public static NOTEBOOK_13: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.notebook13'), DeviceType.MONITOR, 1280, 800, 'px',
-        false, false);
+    private static NOTEBOOK_13: EmulatorDevice;
 
-    public static NOTEBOOK_15: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.notebook15'), DeviceType.MONITOR, 1366, 768, 'px',
-        false, false);
+    private static NOTEBOOK_15: EmulatorDevice;
 
-    public static HDTV: EmulatorDevice = new EmulatorDevice(i18n('widget.emulator.device.highDefinitionTV'), DeviceType.MONITOR, 1920, 1080, 'px',
-        false, false);
-    /* eslint-enable max-len */
+    private static HDTV: EmulatorDevice;
 
-    private name: string;
+    private readonly name: string;
 
-    private deviceType: DeviceType;
+    private readonly deviceType: DeviceType;
 
-    private width: number;
+    private readonly width: number;
 
-    private height: number;
+    private readonly height: number;
 
-    private units: string;
+    private readonly units: string;
 
-    private displayUnits: boolean;
+    private readonly displayUnits: boolean;
 
-    private rotatable: boolean;
+    private readonly rotatable: boolean;
 
     constructor(name: string, type: DeviceType, width: number, height: number, units: string, displayUnits: boolean, rotatable: boolean) {
         this.name = name;
@@ -107,7 +98,6 @@ export class EmulatorDevice
     }
 
 
-
     equals(o: Equitable): boolean {
         function allEquals(tupleList: Array<String[] | DeviceType[] | number[] | boolean[]>): boolean {
             tupleList.forEach(function (tuple) {
@@ -122,7 +112,7 @@ export class EmulatorDevice
             return false;
         }
 
-        const other = <EmulatorDevice> o;
+        const other = <EmulatorDevice>o;
 
         const allValid = allEquals([
             [this.name, other.getName()],
@@ -141,5 +131,84 @@ export class EmulatorDevice
         return this.width === width &&
                this.height === height &&
                this.units === units;
+    }
+
+    static getFullscreen(): EmulatorDevice {
+        if (!EmulatorDevice.FULLSCREEN) {
+            EmulatorDevice.FULLSCREEN = new EmulatorDevice(i18n('widget.emulator.device.fullsize'), DeviceType.MONITOR, 100, 100, '%',
+                true, false);
+        }
+
+        return EmulatorDevice.FULLSCREEN;
+    }
+
+    static getSmallPhone(): EmulatorDevice {
+        if (!EmulatorDevice.SMALL_PHONE) {
+            EmulatorDevice.SMALL_PHONE = new EmulatorDevice(i18n('widget.emulator.device.smallphone'), DeviceType.MOBILE, 320, 480,
+                'px',
+                false, true);
+        }
+
+        return EmulatorDevice.SMALL_PHONE;
+    }
+
+    static getMediumPhone(): EmulatorDevice {
+        if (!EmulatorDevice.MEDIUM_PHONE) {
+            EmulatorDevice.MEDIUM_PHONE = new EmulatorDevice(i18n('widget.emulator.device.mediumphone'), DeviceType.MOBILE, 375, 667,
+                'px',
+                false, true);
+        }
+
+        return EmulatorDevice.MEDIUM_PHONE;
+    }
+
+    static getLargePhone(): EmulatorDevice {
+        if (!EmulatorDevice.LARGE_PHONE) {
+            EmulatorDevice.LARGE_PHONE = new EmulatorDevice(i18n('widget.emulator.device.largephone'), DeviceType.MOBILE, 414, 736,
+                'px',
+                false, true);
+        }
+
+        return EmulatorDevice.LARGE_PHONE;
+    }
+
+    static getTablet(): EmulatorDevice {
+        if (!EmulatorDevice.TABLET) {
+            EmulatorDevice.TABLET = new EmulatorDevice(i18n('widget.emulator.device.tablet'), DeviceType.TABLET, 768, 1024, 'px',
+                false,
+                true);
+        }
+
+        return EmulatorDevice.TABLET;
+    }
+
+    static getNotebook13(): EmulatorDevice {
+        if (!EmulatorDevice.NOTEBOOK_13) {
+            EmulatorDevice.NOTEBOOK_13 = new EmulatorDevice(i18n('widget.emulator.device.notebook13'), DeviceType.MONITOR, 1280, 800,
+                'px',
+                false, false);
+        }
+
+        return EmulatorDevice.NOTEBOOK_13;
+    }
+
+    static getNotebook15(): EmulatorDevice {
+        if (!EmulatorDevice.NOTEBOOK_15) {
+            EmulatorDevice.NOTEBOOK_15 = new EmulatorDevice(i18n('widget.emulator.device.notebook15'), DeviceType.MONITOR, 1366, 768,
+                'px',
+                false, false);
+        }
+
+        return EmulatorDevice.NOTEBOOK_15;
+    }
+
+    static getHDTV(): EmulatorDevice {
+        if (!EmulatorDevice.HDTV) {
+            EmulatorDevice.HDTV = new EmulatorDevice(i18n('widget.emulator.device.highDefinitionTV'), DeviceType.MONITOR, 1920, 1080,
+                'px',
+                false, false);
+        }
+
+        return EmulatorDevice.HDTV;
     }
 }
