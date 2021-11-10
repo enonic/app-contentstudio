@@ -47,14 +47,14 @@ export class EmulatorWidgetItemView
 
     private generateEmulatorDevicesRows() {
         this.devicesRows = [
-            EmulatorDevice.FULLSCREEN,
-            EmulatorDevice.SMALL_PHONE,
-            EmulatorDevice.MEDIUM_PHONE,
-            EmulatorDevice.LARGE_PHONE,
-            EmulatorDevice.TABLET,
-            EmulatorDevice.NOTEBOOK_13,
-            EmulatorDevice.NOTEBOOK_15,
-            EmulatorDevice.HDTV
+            EmulatorDevice.getFullscreen(),
+            EmulatorDevice.getSmallPhone(),
+            EmulatorDevice.getMediumPhone(),
+            EmulatorDevice.getLargePhone(),
+            EmulatorDevice.getTablet(),
+            EmulatorDevice.getNotebook13(),
+            EmulatorDevice.getNotebook15(),
+            EmulatorDevice.getHDTV()
         ].map((device: EmulatorDevice, id: number) => ({id, device}));
     }
 

@@ -613,7 +613,7 @@ export class ContextView
                     this.activateDefaultWidget();
                 }
                 this.removeWidget(this.emulatorWidgetView);
-                new EmulatedEvent(EmulatorDevice.FULLSCREEN, false).fire();
+                new EmulatedEvent(EmulatorDevice.getFullscreen(), false).fire();
                 widgetsUpdated = true;
             }
         }
