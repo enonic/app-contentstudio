@@ -1038,9 +1038,7 @@ class HtmlEditorConfigBuilder {
                 StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS],
             disallowedContent: 'img[width,height]',
             uploadUrl: UrlHelper.getCmsRestUri(`
-                ${UrlHelper.getCMSPath(ContentResourceRequest.CONTENT_PATH)}/
-                ${ContentResourceRequest.CONTENT_PATH}/
-                createMedia`
+                ${UrlHelper.getCMSPathForContentRoot()}/${ContentResourceRequest.CONTENT_PATH}/createMedia`
             ),
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
             disableNativeSpellChecker: false

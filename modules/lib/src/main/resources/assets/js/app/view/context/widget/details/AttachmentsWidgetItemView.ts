@@ -11,8 +11,6 @@ import {AttachmentName} from '../../../../attachment/AttachmentName';
 import {UlEl} from 'lib-admin-ui/dom/UlEl';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {LiEl} from 'lib-admin-ui/dom/LiEl';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
-import {UrlHelper} from '../../../../util/UrlHelper';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';
 import {ContentPath} from '../../../../content/ContentPath';
@@ -102,9 +100,8 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
     }
 
     private createLinkEl(contentId: ContentId, attachmentName: AttachmentName): AEl {
-        const name: string = encodeURIComponent(attachmentName.toString());
-        const url: string = `${UrlHelper.getCMSPath()}/content/media/${contentId.toString()}/${name}`;
-        const link: AEl = new AEl().setUrl(UrlHelper.getCmsRestUri(url), '_blank');
+        const url: string =  Attachment.getUrl(contentId.toString(), attachmentName.toString());
+        const link: AEl = new AEl().setUrl(url, '_blank');
         link.setHtml(attachmentName.toString());
         return link;
     }
