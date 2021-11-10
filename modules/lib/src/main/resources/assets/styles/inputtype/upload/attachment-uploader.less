@@ -3,6 +3,26 @@
 .attachment-uploader {
   position: relative;
 
+  &:not(.error-details-visible) {
+    .result-container .attachment-item {
+      &.invalid {
+        .data-block a {
+          color: @input-red-text;
+        }
+      }
+    }
+  }
+
+  &.invalid {
+    &.error-details-visible {
+      .uploader-el.attachment-uploader-el .result-container .attachment-item {
+        .error-block:not(:empty) {
+          display: block;
+        }
+      }
+    }
+  }
+
   .uploader-wrapper {
     position: relative;
 
@@ -79,26 +99,6 @@
 
       .progress-bar {
         height: @attachment-uploader-height;
-      }
-    }
-  }
-
-  &:not(.error-details-visible) {
-    .result-container .attachment-item {
-      &.invalid {
-        .data-block a {
-          color: @input-red-text;
-        }
-      }
-    }
-  }
-
-  &.invalid {
-    &.error-details-visible {
-      .uploader-el.attachment-uploader-el .result-container .attachment-item {
-        .error-block:not(:empty) {
-          display: block;
-        }
       }
     }
   }
