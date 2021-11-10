@@ -39,8 +39,8 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             await studioUtils.saveScreenshot("2_folders_to_delete");
-            //3. Verify the number of items in Delete button
-            let result = await deleteContentDialog.getTotalNumberItemsToDelete();
+            //3. Verify the number in Archive button
+            let result = await deleteContentDialog.getNumberInArchiveButton();
             assert.equal(result, '2', "Expected number of content (2) should be present in the Delete button");
         });
 
@@ -75,16 +75,16 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             let isCancelButtonDisplayed = await deleteContentDialog.isCancelButtonDisplayed();
             assert.isTrue(isCancelButtonDisplayed, 'Cancel button should be displayed');
 
-            let isDeleteNowButtonDisplayed = await deleteContentDialog.isDeleteNowButtonDisplayed();
-            assert.isTrue(isDeleteNowButtonDisplayed, 'Delete Now button should be displayed');
+            let isArchiveButtonDisplayed = await deleteContentDialog.isArchiveButtonDisplayed();
+            assert.isTrue(isArchiveButtonDisplayed, "'Archive...' button should be displayed");
 
             let isCancelTopButtonDisplayed = await deleteContentDialog.isCancelTopButtonDisplayed();
             assert.isTrue(isCancelTopButtonDisplayed, 'Cancel top button should be displayed');
-            //'Delete Menu should not be displayed, because the folder has 'New' status
-            await deleteContentDialog.waitForDeleteMenuDropDownHandleNotDisplayed();
+            //'Delete Menu should be displayed
+            await deleteContentDialog.waitForArchiveMenuDropDownHandleDisplayed();
 
-            let itemsToDelete = await deleteContentDialog.getDisplayNamesToDelete();
-            assert.equal(itemsToDelete[0], FOLDER1.displayName, "Expected item to delete should be present");
+            let itemsToArchiveOrDelete = await deleteContentDialog.getDisplayNamesToArchiveOrDelete();
+            assert.equal(itemsToArchiveOrDelete[0], FOLDER1.displayName, "Expected display names should be present");
         });
 
     it(`GIVEN 'Delete Content' dialog is opened WHEN 'Cancel' button has been pressed THEN dialog closes`,
@@ -106,7 +106,7 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             let deleteContentDialog = new DeleteContentDialog();
             //1. Open Delete Dialog
             await studioUtils.findAndSelectItem(FOLDER1.displayName);
-            await contentBrowsePanel.clickOnDeleteButton();
+            await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             //2. Click on Cancel Top button
             await deleteContentDialog.clickOnCancelTopButton();
@@ -133,7 +133,7 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             let status = await deleteContentDialog.getContentStatus(FOLDER1.displayName);
             assert.equal(status, "Published", 'Published status should be displayed');
         });
-    
+
 
     it(`GIVEN 'published' folder is selected AND 'Delete dialog' is opened WHEN 'Delete Now' button has been pressed THEN the folder should be deleted`,
         async () => {

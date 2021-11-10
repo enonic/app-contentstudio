@@ -107,9 +107,13 @@ class DeleteContentDialog extends Page {
 
     //Expands the menu in 'Archive' button
     async clickOnArchiveMenuDropDownHandle() {
-        await this.waitForElementDisplayed(this.archiveMenuDropDownHandle, appConst.mediumTimeout);
+        await this.waitForArchiveMenuDropDownHandleDisplayed();
         await this.clickOnElement(this.archiveMenuDropDownHandle);
         return await this.pause(300);
+    }
+
+    waitForArchiveMenuDropDownHandleDisplayed() {
+        return this.waitForElementDisplayed(this.archiveMenuDropDownHandle, appConst.mediumTimeout);
     }
 
     getInboundDependenciesWarning() {
@@ -125,7 +129,7 @@ class DeleteContentDialog extends Page {
         return await this.pause(2000);
     }
 
-    async getTotalNumberItemsToArchive() {
+    async getNumberInArchiveButton() {
         try {
             await this.getBrowser().waitUntil(async () => {
                 let text = await this.getText(this.archiveButton);
