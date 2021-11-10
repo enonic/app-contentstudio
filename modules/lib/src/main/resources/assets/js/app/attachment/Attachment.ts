@@ -3,6 +3,7 @@ import {Equitable} from 'lib-admin-ui/Equitable';
 import {AttachmentName} from './AttachmentName';
 import {AttachmentJson} from './AttachmentJson';
 import {BinaryReference} from 'lib-admin-ui/util/BinaryReference';
+import {UrlHelper} from '../util/UrlHelper';
 
 export class Attachment
     implements Equitable {
@@ -77,10 +78,15 @@ export class Attachment
         };
     }
 
-    public static create(): AttachmentBuilder {
+    static create(): AttachmentBuilder {
         return new AttachmentBuilder();
     }
 
+    static getUrl(contentId: string, attachmentName: string) {
+        return UrlHelper.getCmsRestUri(
+            `${UrlHelper.getCMSPathForContentRoot()}/content/media/${contentId}/${encodeURIComponent(attachmentName)}`
+        );
+    }
 }
 
 export class AttachmentBuilder {

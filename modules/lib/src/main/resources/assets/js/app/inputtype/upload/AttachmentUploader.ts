@@ -299,6 +299,7 @@ export class AttachmentUploader
             attachmentErrors.forEach((attWithError: ValidationError) => {
                 this.uploaderEl.getAttachedItems().forEach((attachmentItem: AttachmentItem) => {
                     if (attachmentItem.getValue() === attWithError.getAttachment()) {
+                        attachmentItem.addClass('invalid');
                         attachmentItem.setError(attWithError.getMessage());
                         hasError = true;
                     }
@@ -307,9 +308,11 @@ export class AttachmentUploader
 
             this.toggleClass('invalid', hasError);
             if (hasError) {
-                recording.setErrorMessage(i18n('attachment.uploader.invalid'));
+                recording.setErrorMessage(i18n('validation.attachment.invalid'));
+                recording.setToggleErrorDetailsCallback(
+                    () => this.toggleClass('error-details-visible', !this.hasClass('error-details-visible'))
+                );
             }
-
         }
 
         return recording;
@@ -317,7 +320,6 @@ export class AttachmentUploader
 
     setEnabled(enable: boolean): void {
         this.uploaderEl.setEnabled(enable);
-
     }
 
     onFocus(listener: (event: FocusEvent) => void) {
