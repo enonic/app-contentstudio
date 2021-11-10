@@ -144,52 +144,6 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 
-    //verifies - https://github.com/enonic/app-contentstudio/issues/891 Workflow state should not be displayed for 'Deleted' content
-    it(`GIVEN folder was modified and 'unpublished' then it has been published again WHEN 'Delete' button has been pressed and deleting confirmed THEN 'Deleted' status gets visible in the wizard`,
-        async () => {
-            let contentWizard = new ContentWizard();
-            let scheduleForm = new ScheduleForm();
-            //1. Open the existing folder:
-            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await contentWizard.clickOnMarkAsReadyButton();
-            //2. Publish the folder
-            await contentWizard.openPublishMenuAndPublish();
-            //3. Click on Mark as Deleted menu item:
-            await contentWizard.doMarkAsDeleted();
-            //4. Verify that Schedule form should be visible:
-            await scheduleForm.waitForDisplayed();
-            //5. Verify: Workflow state should not be displayed for the Deleted content
-            await contentWizard.waitForStateIconNotDisplayed();
-            //6. Verify: Status should be 'Deleted'
-            await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.MARKED_FOR_DELETION);
-            //AND: 'Publish...' button should be present on the toolbar:
-            await contentWizard.waitForPublishButtonDisplayed();
-        });
-
-    it("GIVEN existing folder has been marked as deleted in the wizard WHEN the folder has been 'published' THEN wizard closes AND the content should not be listed in the grid",
-        async () => {
-            let contentWizard = new ContentWizard();
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let folderName = appConst.generateRandomName('folder');
-            //1. Open new folder wizard
-            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
-            await contentWizard.typeDisplayName(folderName);
-            //2. publish this folder
-            await contentWizard.clickOnMarkAsReadyButton();
-            await contentWizard.openPublishMenuAndPublish();
-            //3. Click on Mark as Deleted menu item:
-            await contentWizard.doMarkAsDeleted();
-            //4. Publish the MARKED FOR DELETION content
-            await contentWizard.clickOnPublishButton();
-            let publishContentDialog = new PublishContentDialog();
-            await publishContentDialog.waitForDialogOpened();
-            await publishContentDialog.clickOnPublishNowButton();
-            await studioUtils.doSwitchToContentBrowsePanel();
-            //5. Verify that the wizard closes abd the folder is deleted:
-            await studioUtils.typeNameInFilterPanel(folderName);
-            await contentBrowsePanel.waitForContentNotDisplayed(folderName);
-        });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

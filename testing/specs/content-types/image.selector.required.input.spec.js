@@ -28,7 +28,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 await studioUtils.doAddSite(SITE);
             });
 
-            it("WHEN wizard for new Image Selector(1:1) has been opened THEN options filter input should be displayed AND uploader button should be enabled AND the content is not valid",
+        it("WHEN wizard for new Image Selector(1:1) has been opened THEN options filter input should be displayed AND uploader button should be enabled AND the content is not valid",
             async () => {
                 let imageSelectorForm = new ImageSelectorForm();
                 let contentWizard = new ContentWizard();
@@ -45,7 +45,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 assert.isTrue(result, "This content should be not valid, because the image selector is required input");
                 //6. Verify that validation recording appears after the saving:
                 await contentWizard.waitAndClickOnSave();
-                    let record = await imageSelectorForm.getSelectorValidationMessage();
+                let record = await imageSelectorForm.getSelectorValidationMessage();
                 assert.equal(record, "This field is required", "Expected validation record gets visible");
             });
 
@@ -76,7 +76,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 //1. Open existing not valid content:
                 await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
                 //2. select an image:
-                    await imageSelectorForm.clickOnSelectedImage(IMAGE_DISPLAY_NAME1);
+                await imageSelectorForm.clickOnSelectedImage(IMAGE_DISPLAY_NAME1);
                 //3. Verify that Edit and remove button get visible:
                 await imageSelectorForm.waitForEditButtonDisplayed();
                 await imageSelectorForm.waitForRemoveButtonDisplayed();
@@ -84,14 +84,14 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 await contentWizard.waitForMarkAsReadyButtonVisible();
             });
 
-            it("GIVEN existing content is opened WHEN selected image has been removed THEN the content gets invalid again",
+        it("GIVEN existing content is opened WHEN selected image has been removed THEN the content gets invalid again",
             async () => {
                 let imageSelectorForm = new ImageSelectorForm();
                 let contentWizard = new ContentWizard();
                 //1. Open existing valid content with selected image:
                 await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
                 //2. click on the image:
-                    await imageSelectorForm.clickOnSelectedImage(IMAGE_DISPLAY_NAME1);
+                await imageSelectorForm.clickOnSelectedImage(IMAGE_DISPLAY_NAME1);
                 //3. Click on 'Remove' button:
                 await imageSelectorForm.clickOnRemoveButton();
                 //4. Verify that the content gets not valid now:
@@ -99,7 +99,7 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 //5. Verify that default action is 'Create Task':
                 await contentWizard.waitForCreateTaskButtonDisplayed();
                 //6. Validation recording gets visible now:
-                    let record = await imageSelectorForm.getSelectorValidationMessage();
+                let record = await imageSelectorForm.getSelectorValidationMessage();
                 assert.equal(record, "This field is required", "Expected validation record gets visible");
                 //7. Remove button should be not visible:
                 await imageSelectorForm.waitForRemoveButtonNotDisplayed();
@@ -111,9 +111,9 @@ describe('image.selector.required.input.spec tests for validation of content wit
                 let deleteContentDialog = new DeleteContentDialog();
                 await studioUtils.findAndSelectItem(IMAGE_DISPLAY_NAME1);
                 //browse panel - select the image and delete it
-                await contentBrowsePanel.clickOnDeleteButton(IMAGE_DISPLAY_NAME1);
+                await contentBrowsePanel.clickOnArchiveButton();
                 await deleteContentDialog.waitForDialogOpened();
-                await deleteContentDialog.clickOnDeleteNowButton();
+                await deleteContentDialog.clickOnDeleteNowMenuItem();
                 await deleteContentDialog.waitForDialogClosed();
             });
 

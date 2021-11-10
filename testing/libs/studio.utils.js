@@ -333,7 +333,8 @@ module.exports = {
         await browsePanel.clickOnPublishButton();
         await contentPublishDialog.waitForDialogOpened();
         await contentPublishDialog.clickOnPublishNowButton();
-        return await contentPublishDialog.waitForDialogClosed();
+        await contentPublishDialog.waitForDialogClosed();
+        return await browsePanel.pause(1000);
     },
     async doPublishTree() {
         let browsePanel = new BrowsePanel();
@@ -415,10 +416,10 @@ module.exports = {
         let deleteContentDialog = new DeleteContentDialog();
         await this.findAndSelectItem(name);
         //Open modal dialog:
-        await browsePanel.clickOnDeleteButton();
+        await browsePanel.clickOnArchiveButton();
         await deleteContentDialog.waitForDialogOpened();
         //Click on 'Delete Now' button in the modal dialog:
-        await deleteContentDialog.clickOnDeleteNowButton();
+        await deleteContentDialog.clickOnDeleteNowMenuItem();
         return await deleteContentDialog.waitForDialogClosed();
     },
     async doDeleteContentByDisplayName(displayName) {
@@ -426,10 +427,10 @@ module.exports = {
         let deleteContentDialog = new DeleteContentDialog();
         await this.findAndSelectContentByDisplayName(displayName);
         //Open modal dialog:
-        await browsePanel.clickOnDeleteButton();
+        await browsePanel.clickOnArchiveButton();
         await deleteContentDialog.waitForDialogOpened();
         //Click on 'Delete Now' button in the modal dialog:
-        await deleteContentDialog.clickOnDeleteNowButton();
+        await deleteContentDialog.clickOnDeleteNowMenuItem();
         return await deleteContentDialog.waitForDialogClosed();
     },
     async selectContentAndOpenWizard(name) {

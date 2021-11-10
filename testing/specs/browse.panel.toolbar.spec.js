@@ -32,8 +32,8 @@ describe('Browse panel, toolbar spec. Check state of buttons after closing a wiz
             await contentBrowsePanel.waitForPublishButtonVisible();
             //'Edit' button should be enabled
             await contentBrowsePanel.waitForEditButtonEnabled();
-            //'Delete' button should be enabled
-            await contentBrowsePanel.waitForDeleteButtonEnabled();
+            //'Archive' button should be enabled
+            await contentBrowsePanel.waitForArchiveButtonEnabled();
             //'Move' button should be enabled
             await contentBrowsePanel.waitForMoveButtonEnabled();
         });
@@ -53,7 +53,7 @@ describe('Browse panel, toolbar spec. Check state of buttons after closing a wiz
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.waitForNewButtonEnabled();
             await contentBrowsePanel.waitForEditButtonDisabled();
-            await contentBrowsePanel.waitForDeleteButtonDisabled();
+            await contentBrowsePanel.waitForArchiveButtonDisabled();
             await contentBrowsePanel.waitForDuplicateButtonDisabled();
             await contentBrowsePanel.waitForMoveButtonDisabled();
             await contentBrowsePanel.waitForSortButtonDisabled();
