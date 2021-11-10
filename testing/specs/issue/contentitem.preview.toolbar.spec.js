@@ -30,7 +30,7 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
             //1. Add new folder and select it:
             await studioUtils.doAddFolder(TEST_FOLDER);
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            studioUtils.saveScreenshot("content_item_toolbar");
+            await studioUtils.saveScreenshot("content_item_toolbar");
             let status = await contentItemPreviewPanel.getContentStatus();
             assert.equal(status, "New", "New status should be displayed in the Preview Item toolbar");
             let by = await contentItemPreviewPanel.getContentAuthor();

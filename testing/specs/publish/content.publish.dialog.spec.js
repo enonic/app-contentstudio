@@ -29,7 +29,7 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentWizard.clickOnMarkAsReadyButton();
             //2. Open Publish Wizard:
             await contentWizard.clickOnPublishButton();
-            studioUtils.saveScreenshot("wizard_publish_dialog_single_folder");
+            await studioUtils.saveScreenshot("wizard_publish_dialog_single_folder");
             let status = await contentPublishDialog.getContentStatus(FOLDER1_NAME);
             //3. New status should be displayed in the modal dialog:
             assert.equal(status, "New", "'New' status should be displayed in the dialog");
