@@ -69,7 +69,9 @@ export class NonMobileContextPanelsManager {
         });
 
         this.splitPanelWithContext.whenShown(() => {
-            if (this.getActivePanel().getActiveWidget() && !this.requiresFloatingPanelDueToShortWidth()) {
+            if (!this.requiresCollapsedContextPanel() && this.getActivePanel().getActiveWidget() &&
+                !this.requiresFloatingPanelDueToShortWidth()) {
+                this.setActivePanel();
                 this.getActivePanel().getActiveWidget().slideIn();
                 this.setState(ContextPanelState.DOCKED);
             }
