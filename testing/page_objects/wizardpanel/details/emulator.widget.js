@@ -3,6 +3,7 @@
  */
 const Page = require('../../page');
 const appConst = require('../../../libs/app_const');
+const studioUtils = require('../../../libs/studio.utils.js');
 
 const xpath = {
     widget: "//div[contains(@id,'ContentWizardPanel')]//div[contains(@id,'EmulatorWidgetItemView')]",
@@ -26,10 +27,15 @@ class EmulatorWidget extends Page {
     }
 
     async clickOnResolution(resolution) {
-        let locator = xpath.widget + xpath.resolutionByName(resolution);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
-        return await this.pause(400);
+        try {
+            let locator = xpath.widget + xpath.resolutionByName(resolution);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
+            return await this.pause(400);
+        } catch (err) {
+            await studioUtils.saveScreenshot(appConst.generateRandomName("err_emulator"));
+            throw  new Error(`Error after clicking on the resolution: ${resolution} ` + err);
+        }
     }
 
     getResolutions() {

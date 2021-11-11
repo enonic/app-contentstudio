@@ -55,7 +55,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             let browseVersionsWidget = new BrowseVersionsWidget();
             let contentSettingsForm = new ContentSettingsForm();
             let contentWizard = new ContentWizard();
-            //1. open the folder and select the language:
+            //1. open the folder and select a language:
             await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
             await contentSettingsForm.filterOptionsAndSelectLanguage('English (en)');
             await contentWizard.hotKeySaveAndCloseWizard();
@@ -67,57 +67,41 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             assert.equal(status, appConstant.CONTENT_STATUS.MODIFIED, "'Modified' status should be in the top version item");
         });
 
-        //Verifies issue https://github.com/enonic/app-contentstudio/issues/1552  'This version is active' button should be shown for any active version
-        it(`GIVEN existing folder(Published) is selected WHEN Version Panel has been opened THEN 'This version is active' button should be in the top version only`,
-            async () => {
-                    let contentBrowsePanel = new ContentBrowsePanel();
-                    let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
-                    let browseVersionsWidget = new BrowseVersionsWidget();
-                    //1. open the folder and select the language:
-                    await studioUtils.findAndSelectItem(FOLDER.displayName);
-                    //2.Open version panel:
-                    await contentBrowsePanel.openDetailsPanel();
-                    await contentBrowseDetailsPanel.openVersionHistory();
-                    await browseVersionsWidget.waitForVersionsLoaded();
-                    //3. Click on latest version-item:
-                    await browseVersionsWidget.clickAndExpandVersion(0);
-                    await studioUtils.saveScreenshot("verify_active_button_in_versions_1");
-                    //4. Verify 'Active version' label should be present in the top item:
-                    await browseVersionsWidget.waitForActiveVersionButtonDisplayed();
-                    await browseVersionsWidget.clickAndExpandVersion(2);
-                    await studioUtils.saveScreenshot("verify_active_button_in_versions_2");
-                    //5. Verify 'Active version' button should not be present in the previous versions:
-                    await browseVersionsWidget.waitForActiveVersionButtonNotDisplayed();
-            });
-
-    it(`GIVEN existing folder(Modified) has been deleted WHEN Version Panel has been opened THEN 'Marked for deletion' status should be in Versions Widget`,
+    //Verifies issue https://github.com/enonic/app-contentstudio/issues/1552  'This version is active' button should be shown for any active version
+    it(`GIVEN existing folder(Published) is selected WHEN Version Panel has been opened THEN 'This version is active' button should be in the top version only`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
-            //1. Select the folder and click on 'Mark as Deleted'
+            //1. Select the folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            await contentBrowsePanel.doSelectedContentMarkAsDeleted();
-            //2. Open version panel and verify status in the top version-item:
+            //2.Open version panel:
             await contentBrowsePanel.openDetailsPanel();
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();
-            let status = await browseVersionsWidget.getContentStatus();
-            assert.equal(status, appConstant.CONTENT_STATUS.MARKED_FOR_DELETION, "'Deleted' status should be in the top version item");
+            //3. Click on latest version-item:
+            await browseVersionsWidget.clickAndExpandVersion(0);
+            await studioUtils.saveScreenshot("verify_active_button_in_versions_1");
+            //4. Verify 'Active version' label should be present in the top item:
+            await browseVersionsWidget.waitForActiveVersionButtonDisplayed();
+            await browseVersionsWidget.clickAndExpandVersion(2);
+            await studioUtils.saveScreenshot("verify_active_button_in_versions_2");
+            //5. Verify 'Active version' button should not be present in the previous versions:
+            await browseVersionsWidget.waitForActiveVersionButtonNotDisplayed();
         });
 
-    it(`GIVEN existing modified and 'Marked for deletion' folder is selected and 'Undo delete' button pressed WHEN Version Panel has been opened THEN 'Modified' status should be in the latest version`,
+    it(`GIVEN existing folder(Published) is opened WHEN language has been removed THEN 'Modified' status should be in Versions Widget`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentBrowseDetailsPanel = new ContentBrowseDetailsPanel();
             let browseVersionsWidget = new BrowseVersionsWidget();
-            //1. Select the folder and click on 'Undo delete'
-            await studioUtils.findAndSelectItem(FOLDER.displayName);
-            await contentBrowsePanel.clickOnUndoDeleteButton();
-            let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
-            let expectedMessage = appConstant.ITEM_IS_UNDELETED_MESSAGE;
-            assert.equal(actualMessage, expectedMessage, "'Item is undeleted' - message should appear.");
-            //2. Open version panel and verify status in the top version-item:
+            let contentSettingsForm = new ContentSettingsForm();
+            let contentWizard = new ContentWizard();
+            //1. open the folder and remove the language:
+            await studioUtils.selectAndOpenContentInWizard(FOLDER.displayName);
+            await contentSettingsForm.clickOnRemoveLanguage();
+            await contentWizard.hotKeySaveAndCloseWizard();
+            //2. Open version panel and verify status in the latest version-item:
             await contentBrowsePanel.openDetailsPanel();
             await contentBrowseDetailsPanel.openVersionHistory();
             await browseVersionsWidget.waitForVersionsLoaded();
@@ -125,7 +109,7 @@ describe('versions.widget.check.status.spec - check content status in Versions P
             assert.equal(status, appConstant.CONTENT_STATUS.MODIFIED, "'Modified' status should be in the top version item");
         });
 
-    it("GIVEN existing folder(Modified) has been published WHEN Version Panel has been opened THEN 'Published' status should be in Versions Widget",
+    it("GIVEN existing folder(Modified) is selected WHEN hot key to publish has been pressed AND the content hasbeen published THEN 'Published' status should be in Versions Widget",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();

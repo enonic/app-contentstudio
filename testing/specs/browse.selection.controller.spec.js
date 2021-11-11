@@ -68,7 +68,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             //3. Verify that 'Preview', Edit button are disabled:
             await contentBrowsePanel.waitForPreviewButtonDisabled();
             await contentBrowsePanel.waitForEditButtonDisabled();
-            await contentBrowsePanel.waitForDeleteButtonDisabled();
+            await contentBrowsePanel.waitForArchiveButtonDisabled();
             // New... button should be enabled
             await contentBrowsePanel.waitForNewButtonEnabled();
         });
