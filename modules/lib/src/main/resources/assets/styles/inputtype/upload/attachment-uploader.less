@@ -76,14 +76,18 @@
 
 .input-view.error-details-hidden {
   .attachment-uploader {
-    .result-container .attachment-item {
-      &.invalid {
-        .data-block a {
-          color: @input-red-text;
-        }
+    .uploader-wrapper {
+      .uploader-el.attachment-uploader-el {
+        .result-container .attachment-item {
+          &.invalid {
+            .data-block a {
+              color: @input-red-text;
+            }
 
-        .error-block {
-          display: none;
+            .error-block {
+              display: none;
+            }
+          }
         }
       }
     }
