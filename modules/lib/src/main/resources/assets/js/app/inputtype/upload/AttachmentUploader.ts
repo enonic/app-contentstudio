@@ -294,7 +294,7 @@ export class AttachmentUploader
         const attachmentErrors: ValidationError[] = this.getAttachmentErrors();
 
         if (attachmentErrors.length > 0) {
-           let hasError: boolean = false;
+            let hasError: boolean = false;
 
             attachmentErrors.forEach((attWithError: ValidationError) => {
                 this.uploaderEl.getAttachedItems().forEach((attachmentItem: AttachmentItem) => {
@@ -309,13 +309,14 @@ export class AttachmentUploader
             this.toggleClass('invalid', hasError);
             if (hasError) {
                 recording.setErrorMessage(i18n('validation.attachment.invalid'));
-                recording.setToggleErrorDetailsCallback(
-                    () => this.toggleClass('error-details-visible', !this.hasClass('error-details-visible'))
-                );
             }
         }
 
         return recording;
+    }
+
+    hideValidationDetailsByDefault(): boolean {
+        return true;
     }
 
     setEnabled(enable: boolean): void {
