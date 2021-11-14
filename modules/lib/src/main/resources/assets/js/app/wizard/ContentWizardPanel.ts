@@ -2474,6 +2474,7 @@ export class ContentWizardPanel
         this.formContext.setFormState(this.formState);
         this.formContext.setShowEmptyFormItemSetOccurrences(this.isItemPersisted());
         this.formContext.setLanguage(content.getLanguage());
+        this.formContext.setValidationErrors(content.getValidationErrors().filter(ValidationErrorHelper.isCustomError));
     }
 
     private setModifyPermissions(loginResult: LoginResult) {
