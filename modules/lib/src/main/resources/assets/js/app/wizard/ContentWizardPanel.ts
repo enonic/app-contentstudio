@@ -1506,9 +1506,10 @@ export class ContentWizardPanel
         this.setPersistedContent(updatedContent);
         this.getMainToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
+        this.workflowStateIconsManager.updateIcons();
+
         if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
             this.isFirstUpdateAndRenameEventSkiped = false;
-            this.workflowStateIconsManager.updateIcons();
         }
     }
 
