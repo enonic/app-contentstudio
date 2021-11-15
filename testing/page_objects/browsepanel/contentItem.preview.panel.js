@@ -171,7 +171,7 @@ class ContentItemPreviewPanel extends Page {
     //switches to iframe and gets text in the panel
     async getTextInAttachmentPreview() {
         try {
-            let attachmentFrame = "//iframe[contains(@src,'/admin/rest-v2/cs/cms/default/base/content/media')]";
+            let attachmentFrame = "//iframe[contains(@src,'/admin/rest-v2/cs/cms/default/content/content/media/')]";
             await this.switchToFrame(attachmentFrame);
             return await this.getText("//body/pre");
         } catch (err) {

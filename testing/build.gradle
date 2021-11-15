@@ -14,6 +14,7 @@ configurations {
 
 ext {
     unpackDir = "$buildDir/install"
+    csPlusVersion = '1.2.0-SNAPSHOT'
     distroDir = "$unpackDir/enonic-xp-generic-$xpVersion"
     deployDir = "$distroDir/home/deploy"
     appDir = "$projectDir/test-applications"
@@ -22,7 +23,9 @@ ext {
     configDir = "$xpHome/config"
     xpServer = new ServerInstance()
     contentStudioFile = "$deployDir/contentstudio-${version}.jar"
+    contentStudioPlusFile = "$deployDir/contentstudio.plus-${version}.jar"
     contentStudioAppUrl = project.hasProperty('contentStudioAppUrl') ? contentStudioAppUrl : "file:///$projectDir/../modules/app/build/libs/contentstudio.jar"
+    contentStudioPlusAppUrl= "https://repo.enonic.com/dev/com/enonic/app/contentstudio.plus/${csPlusVersion}/contentstudio.plus-${csPlusVersion}.jar"
 }
 
 dependencies {
@@ -80,7 +83,29 @@ task deployContentStudio( type: DefaultTask ) {
     mustRunAfter unpackDistro
 }
 
-task startServer( dependsOn: [unpackDistro, copyConfig, deployContentStudio] ) {
+task deployContentStudioPlus( type: DefaultTask ) {
+    outputs.files( contentStudioPlusFile )
+    doLast {
+        println 'Retrieving Content Studio Plus App from:'
+        println contentStudioPlusAppUrl
+        println 'Deploying to:'
+        println contentStudioPlusFile
+
+        def f = new File( contentStudioPlusFile )
+        if ( !f.exists() )
+        {
+            new URL( contentStudioPlusAppUrl ).withInputStream { i -> f.withOutputStream { it << i } }
+            println 'Content Studio Plus App is downloaded.'
+        }
+        else
+        {
+            println 'Content Studio Plus App already exists.'
+        }
+    }
+    mustRunAfter unpackDistro
+}
+
+task startServer( dependsOn: [unpackDistro, copyConfig, deployContentStudio, deployContentStudioPlus] ) {
     doLast {
         xpServer.installDir = file( distroDir )
         xpServer.start()

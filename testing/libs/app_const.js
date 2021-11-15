@@ -302,6 +302,17 @@ module.exports = Object.freeze({
         UNPUBLISH: "Unpublish...",
         CREATE_TASK: "Create Task..."
     },
+    GRID_CONTEXT_MENU: {
+        ARCHIVE: "Archive...",
+        RESTORE: "Restore...",
+        DELETE: "Delete...",
+        EDIT: "Edit",
+        PREVIEW: "Preview",
+        DUPLICATE: "Duplicate...",
+        PUBLISH:"Publish...",
+        MOVE:"Move...",
+        SORT:"Sort..."
+    },
     WORKFLOW_STATE: {
         WORK_IN_PROGRESS: 'Work in progress',
         READY_FOR_PUBLISHING: 'Ready for publishing',
