@@ -165,8 +165,8 @@ export class ContentItemPreviewPanel
         });
 
         EmulatedEvent.on((event: EmulatedEvent) => {
-            this.frame.getEl().setWidth(event.getWidthWithUnits());
-            this.frame.getEl().setHeight(event.getHeightWithUnits());
+            this.frame.getEl().setMaxWidth(event.getWidthWithUnits());
+            this.frame.getEl().setMaxHeight(event.getHeightWithUnits());
 
             this.image.getEl().setMaxWidth(event.getWidthWithUnits());
             this.image.getEl().setMaxHeight(event.getHeightWithUnits());
