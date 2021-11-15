@@ -130,21 +130,21 @@ export class Page
         if (this.fragment) {
             const json = this.fragment.toJson();
             switch (this.fragment.getType()) {
-                case ImageComponentType.get():
-                    componentJson = json.ImageComponent;
-                    break;
-                case TextComponentType.get():
-                    componentJson = json.TextComponent;
-                    break;
-                case PartComponentType.get():
-                    componentJson = json.PartComponent;
-                    break;
-                case LayoutComponentType.get():
-                    componentJson = json.LayoutComponent;
-                    break;
-                case FragmentComponentType.get():
-                    componentJson = json.FragmentComponent;
-                    break;
+            case ImageComponentType.get():
+                componentJson = json.ImageComponent;
+                break;
+            case TextComponentType.get():
+                componentJson = json.TextComponent;
+                break;
+            case PartComponentType.get():
+                componentJson = json.PartComponent;
+                break;
+            case LayoutComponentType.get():
+                componentJson = json.LayoutComponent;
+                break;
+            case FragmentComponentType.get():
+                componentJson = json.FragmentComponent;
+                break;
             }
         }
 
@@ -190,7 +190,10 @@ export class Page
         return regions.some((region: Region) => {
             return region.getComponents().some((component: Component) => {
                 if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), FragmentComponentType)) {
-                    fragments.push((<FragmentComponent>component).getFragment());
+                    const contentId = (<FragmentComponent>component).getFragment();
+                    if (contentId) {
+                        fragments.push(contentId);
+                    }
                 }
                 if (ObjectHelper.iFrameSafeInstanceOf(component.getType(), ImageComponentType)) {
                     return (<ImageComponent>component).getImage().equals(id);
