@@ -9,6 +9,7 @@ const XPATH = {
     confirmButton: `//button[contains(@id,'DialogButton') and child::span[text()='Confirm']]`,
     cancelButton: `//div[@class='dialog-buttons']//button/span[text()='Cancel']`,
     suggestedNumberToDelete: "//span[contains(@class,'confirm-value-data')]",
+    title: "//h2[@class='title']",
 };
 
 class ConfirmValueDialog extends Page {
@@ -28,6 +29,12 @@ class ConfirmValueDialog extends Page {
 
     get numberInput() {
         return XPATH.container + lib.TEXT_INPUT;
+    }
+
+    async getDialogTitle() {
+        let locator = XPATH.container + XPATH.title;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 
 
