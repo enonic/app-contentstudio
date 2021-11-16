@@ -30,6 +30,8 @@ export class ItemViewContextMenu
 
     private orientationListeners: { (orientation: ItemViewContextMenuOrientation): void }[] = [];
 
+    private outsideClickListener: (event: MouseEvent) => void;
+
     constructor(title: ItemViewContextMenuTitle, actions: Action[], showArrow: boolean = true) {
         super('menu item-view-context-menu');
 
@@ -124,10 +126,28 @@ export class ItemViewContextMenu
             e.stopPropagation();
             e.preventDefault();
         });
+
+        this.outsideClickListener = (event: MouseEvent) => {
+            if (!this.getEl().contains(<HTMLElement>event.target)) {
+                // click outside menu
+                this.hide();
+            }
+        };
     }
 
     showAt(x: number, y: number, notClicked: boolean = false, keepOrientation: boolean = false) {
         this.menu.showAt.call(this, this.restrainX(x), this.restrainY(y, notClicked, keepOrientation));
+        Body.get().onClicked(this.outsideClickListener);
+    }
+
+    show(): void {
+        super.show();
+        Body.get().onClicked(this.outsideClickListener);
+    }
+
+    hide(): void {
+        super.hide();
+        Body.get().unClicked(this.outsideClickListener);
     }
 
     moveBy(dx: number, dy: number) {
