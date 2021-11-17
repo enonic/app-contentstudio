@@ -39,7 +39,6 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
             await studioUtils.saveScreenshot("x-data_check_2");
             //3. Do enable the second form
             await contentWizard.clickOnXdataTogglerByName("X-data (image selector)");
-            await studioUtils.saveScreenshot("x-data_check_3");
             //4. Do enable the third form
             await contentWizard.clickOnXdataTogglerByName("Html Area x-data");
             await studioUtils.saveScreenshot("x-data_check_4");
@@ -49,6 +48,7 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
             await studioUtils.doCloseWizardAndSwitchToGrid();
             //7. Reopen the content
             await studioUtils.selectContentAndOpenWizard(contentName);
+            await studioUtils.saveScreenshot("x-data_check_5");
             //8. Click on the last x-data Wizard-Step:
             await contentWizard.clickOnWizardStep(X_DATA_STEP_WIZARD);
             //Verify that the last form (html-area) is visible:
