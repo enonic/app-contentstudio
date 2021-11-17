@@ -2323,6 +2323,19 @@ export class ContentWizardPanel
         this.isMarkedAsReady = value;
     }
 
+    showLiveEdit() {
+        if (!this.inMobileViewMode) {
+            this.showSplitEdit();
+            return;
+        }
+
+        this.splitPanel.addClass('toggle-live').removeClass('toggle-form toggle-split');
+        this.getMainToolbar().toggleClass('live', true);
+        this.toggleClass('form', false);
+
+        this.openLiveEdit();
+    }
+
     showSplitEdit() {
         this.splitPanel.addClass('toggle-split').removeClass('toggle-live toggle-form');
         this.getMainToolbar().toggleClass('live', true);
