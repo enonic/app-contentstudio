@@ -134,6 +134,9 @@ import {ContentPathPrettifier} from '../content/ContentPathPrettifier';
 import {ValidationErrorHelper} from 'lib-admin-ui/ValidationErrorHelper';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
+import {SplitPanelUnit} from 'lib-admin-ui/ui/panel/SplitPanelUnit';
+import {ToggleContextPanelEvent} from '../view/context/ToggleContextPanelEvent';
+import {ContextPanelState} from '../view/context/ContextPanelState';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -587,14 +590,6 @@ export class ContentWizardPanel
     }
 
     protected createWizardAndDetailsSplitPanel(leftPanel: Panel): SplitPanel {
-        const wizardActions: ContentWizardActions = this.getWizardActions();
-        const contextActions = [
-            wizardActions.getUnpublishAction(),
-            wizardActions.getPublishAction(),
-            wizardActions.getArchiveAction(),
-            wizardActions.getDuplicateAction()
-        ];
-
         const data: PageEditorData = this.getLivePanel()
                                      ? this.getLivePanel().getPageEditorData()
                                      : LiveFormPanel.createEmptyPageEditorData();
@@ -604,7 +599,6 @@ export class ContentWizardPanel
 
         this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel)
             .setContextView(this.contextView)
-            .setActions(contextActions)
             .setData(data)
             .setWizardFormPanel(this.formPanel)
             .build();
@@ -1817,9 +1811,9 @@ export class ContentWizardPanel
         }
     }
 
-    private isSplitEditModeActive() {
-        return (this.getEl().getWidth() > ResponsiveRanges._720_960.getMaximumRange() &&
-                this.isEditorEnabled() && this.shouldOpenEditorByDefault());
+    private isSplitEditModeActive(): boolean {
+        return ResponsiveRanges._960_1200.isFitOrBigger(this.getEl().getWidth()) &&
+                this.isEditorEnabled() && this.shouldOpenEditorByDefault();
     }
 
     private setupWizardLiveEdit() {
@@ -1832,7 +1826,7 @@ export class ContentWizardPanel
 
         this.getCycleViewModeButton().setVisible(editorEnabled);
 
-        if (this.isSplitEditModeActive()) {
+        if (this.isSplitEditModeActive() || ResponsiveRanges._1920_UP.isFitOrBigger(this.getEl().getWidth())) {
             this.wizardActions.getShowSplitEditAction().execute();
         } else if (this.splitPanel) {
             this.wizardActions.getShowFormAction().execute();
@@ -2329,19 +2323,6 @@ export class ContentWizardPanel
         this.isMarkedAsReady = value;
     }
 
-    showLiveEdit() {
-        if (!this.inMobileViewMode) {
-            this.showSplitEdit();
-            return;
-        }
-
-        this.splitPanel.addClass('toggle-live').removeClass('toggle-form toggle-split');
-        this.getMainToolbar().toggleClass('live', true);
-        this.toggleClass('form', false);
-
-        this.openLiveEdit();
-    }
-
     showSplitEdit() {
         this.splitPanel.addClass('toggle-split').removeClass('toggle-live toggle-form');
         this.getMainToolbar().toggleClass('live', true);
@@ -2588,14 +2569,13 @@ export class ContentWizardPanel
     }
 
     private shouldOpenEditorByDefault(): boolean {
-        let isTemplate = this.contentType.getContentTypeName().isPageTemplate();
-        let isSite = this.contentType.getContentTypeName().isSite();
+        const isTemplate: boolean = this.contentType.getContentTypeName().isPageTemplate();
+        const isSite: boolean = this.contentType.getContentTypeName().isSite();
 
         return this.renderable || isSite || isTemplate;
     }
 
     private isEditorEnabled(): boolean {
-
         return !!this.site || (this.shouldOpenEditorByDefault() && !ArrayHelper.contains(ContentWizardPanel.EDITOR_DISABLED_TYPES,
             this.contentType.getContentTypeName()));
     }
