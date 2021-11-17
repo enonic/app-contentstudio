@@ -164,8 +164,7 @@ export class ContentBrowsePanel
         this.contextView = new ContextView();
         const leftPanel: ContentBrowseItemPanel = this.getBrowseItemPanel();
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
-        this.contextSplitPanel =
-            ContextSplitPanel.create(leftPanel, rightPanel).setContextView(this.contextView).setActions(mobileActions).build();
+        this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel).setContextView(this.contextView).build();
         this.contextSplitPanel.onFoldClicked(() => {
             this.gridAndItemsSplitPanel.showFirstPanel();
             this.gridAndItemsSplitPanel.showFirstPanel();
@@ -558,7 +557,7 @@ export class ContentBrowsePanel
     }
 
     protected togglePreviewPanelDependingOnScreenSize(item: ResponsiveItem): void {
-    //
+        //
     }
 
 }

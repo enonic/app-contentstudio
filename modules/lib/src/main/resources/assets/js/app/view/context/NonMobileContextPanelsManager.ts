@@ -13,7 +13,6 @@ import {Body} from 'lib-admin-ui/dom/Body';
 import {ToggleContextPanelEvent} from './ToggleContextPanelEvent';
 import {ContextPanelStateEvent} from './ContextPanelStateEvent';
 import {ContextPanelState} from './ContextPanelState';
-import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 
 export class NonMobileContextPanelsManager {
 
@@ -41,10 +40,8 @@ export class NonMobileContextPanelsManager {
         this.pageEditor = builder.getPageEditor();
         this.wizardPanel = builder.getWizardPanel();
 
-        const isMobileMode = builder.getIsMobileMode() || (() => false);
-
         InspectEvent.on((event: InspectEvent) => {
-            if (event.isShowPanel() && !isMobileMode() && this.requiresAnimation() && !this.isExpanded()) {
+            if (event.isShowPanel() && this.requiresAnimation() && !this.isExpanded()) {
                 this.doPanelAnimation();
             }
         });
@@ -54,13 +51,6 @@ export class NonMobileContextPanelsManager {
                 this.hideActivePanel();
             } else {
                 this.doPanelAnimation();
-            }
-        });
-
-        ShowContentFormEvent.on(() => {
-            if (this.state === ContextPanelState.DOCKED) {
-                this.hideDockedContextPanel();
-                this.switchToFloatingMode();
             }
         });
 
@@ -118,8 +108,12 @@ export class NonMobileContextPanelsManager {
         return this.splitPanelWithContext.getParentElement().isVisible();
     }
 
-    private isFloatingContextPanelActive(): boolean {
+    isFloatingContextPanelActive(): boolean {
         return ActiveContextPanelManager.getActiveContextPanel() === this.floatingContextPanel;
+    }
+
+    isDockedContextPanelActive(): boolean {
+        return ActiveContextPanelManager.getActiveContextPanel() === this.dockedContextPanel;
     }
 
     private nonMobileContextPanelIsActive(): boolean {
@@ -222,7 +216,11 @@ export class NonMobileContextPanelsManager {
     }
 
     private isExpanded(): boolean {
-        return this.state !== ContextPanelState.COLLAPSED;
+        return !this.isCollapsed();
+    }
+
+    private isCollapsed(): boolean {
+        return this.state === ContextPanelState.COLLAPSED;
     }
 
     private dockedToFloatingSync() {
@@ -307,8 +305,6 @@ export class NonMobileContextPanelsManagerBuilder {
 
     private wizardPanel: Panel;
 
-    private isMobileMode: () => boolean;
-
     setSplitPanelWithContext(splitPanelWithContext: SplitPanel) {
         this.splitPanelWithContext = splitPanelWithContext;
     }
@@ -329,10 +325,6 @@ export class NonMobileContextPanelsManagerBuilder {
         this.wizardPanel = wizardPanel;
     }
 
-    setIsMobileMode(isMobileMode: () => boolean) {
-        this.isMobileMode = isMobileMode;
-    }
-
     getSplitPanelWithContext(): SplitPanel {
         return this.splitPanelWithContext;
     }
@@ -351,10 +343,6 @@ export class NonMobileContextPanelsManagerBuilder {
 
     getWizardPanel(): Panel {
         return this.wizardPanel;
-    }
-
-    getIsMobileMode(): () => boolean {
-        return this.isMobileMode;
     }
 
     build(): NonMobileContextPanelsManager {

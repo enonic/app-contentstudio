@@ -22,7 +22,6 @@ export class ContextSplitPanel
     private contextView: ContextView;
     private dockedContextPanel: DockedContextPanel;
     private floatingContextPanel: FloatingContextPanel;
-    private actions: Action[];
     private contextPanelsManager: NonMobileContextPanelsManager;
     private dockedModeChangedListeners: { (isDocked: boolean): void }[];
     private leftPanel: Panel;
@@ -40,7 +39,6 @@ export class ContextSplitPanel
         this.leftPanel = splitPanelBuilder.getFirstPanel();
         this.contextView = splitPanelBuilder.contextView;
         this.dockedContextPanel = splitPanelBuilder.getSecondPanel();
-        this.actions = splitPanelBuilder.actions;
         this.dockedModeChangedListeners = [];
 
         this.dockedContextPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
@@ -56,9 +54,6 @@ export class ContextSplitPanel
         if (this.isPageEditorPresent()) {
             nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
             nonMobileContextPanelsManagerBuilder.setWizardPanel(this.wizardFormPanel);
-            nonMobileContextPanelsManagerBuilder.setIsMobileMode(() => {
-                return this.isMobileMode();
-            });
         }
         nonMobileContextPanelsManagerBuilder.setSplitPanelWithContext(this);
         nonMobileContextPanelsManagerBuilder.setDefaultContextPanel(this.dockedContextPanel);
@@ -143,8 +138,6 @@ export class ContextSplitPanelBuilder
 
     contextView: ContextView;
 
-    actions: Action[];
-
     data: PageEditorData;
 
     wizardFormPanel: Panel;
@@ -160,11 +153,6 @@ export class ContextSplitPanelBuilder
 
     setContextView(value: ContextView): ContextSplitPanelBuilder {
         this.contextView = value;
-        return this;
-    }
-
-    setActions(value: Action[]): ContextSplitPanelBuilder {
-        this.actions = value;
         return this;
     }
 
