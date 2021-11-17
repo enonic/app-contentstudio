@@ -428,7 +428,7 @@ class Page {
 
     async switchToFrame(selector) {
         try {
-            await this.waitUntilDisplayed(selector, appConst.shortTimeout);
+            await this.waitUntilDisplayed(selector, appConst.mediumTimeout);
             let el = await this.findElement(selector);
             //return await this.browser.switchToFrame(el.elementId); // Fail! Firefox and Chrome
             return await this.getBrowser().switchToFrame(el);

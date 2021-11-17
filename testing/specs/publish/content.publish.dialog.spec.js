@@ -177,7 +177,8 @@ describe('content.publish.dialog.spec - opens publish modal dialog and checks co
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
             await studioUtils.doCloseWizardAndSwitchToGrid();
-
+            await contentBrowsePanel.pause(1000);
+            await studioUtils.saveScreenshot("status_in_browse_panel");
             let parentFolderStatus = await contentBrowsePanel.getContentStatus(PARENT_FOLDER.displayName);
             assert.equal(parentFolderStatus, appConst.CONTENT_STATUS.PUBLISHED, "Parent folder should be 'PUBLISHED'");
 

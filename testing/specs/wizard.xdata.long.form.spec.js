@@ -33,6 +33,7 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
             //1. Open new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'double0_1');
             await contentWizard.typeDisplayName(contentName);
+            await studioUtils.saveScreenshot("x-data_check");
             //2. Do enable the first form
             await contentWizard.clickOnXdataTogglerByName("Text Area x-data");
             //3. Do enable the second form
