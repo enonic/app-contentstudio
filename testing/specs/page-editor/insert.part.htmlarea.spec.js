@@ -43,6 +43,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             await contentWizard.typeDisplayName(CONTENT_NAME);
             await htmlAreaForm.typeTextInHtmlArea("test1");
+            await studioUtils.saveScreenshot("issue_1");
             //1 Click on the toggler and open 'Page Editor'
             await contentWizard.clickOnPageEditorToggler();
             //2 Select the page descriptor
@@ -62,7 +63,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
             await contentWizard.waitAndClickOnSave();
             await contentWizard.switchToLiveEditFrame();
             //9. wait for the text is updated in Page Editor:
-            studioUtils.saveScreenshot("text_in_part_updated");
+            await studioUtils.saveScreenshot("text_in_part_updated");
             let actualText = await liveFormPanel.getTextInPart();
             assert.equal(actualText, TEST_TEXT, "Text should be updated in 'Page Editor'");
         });
