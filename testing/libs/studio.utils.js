@@ -24,6 +24,7 @@ const CreateRequestPublishDialog = require('../page_objects/issue/create.request
 const ProjectSelectionDialog = require('../page_objects/project/project.selection.dialog');
 const ProjectWizard = require('../page_objects/project/project.wizard.panel');
 const SettingsBrowsePanel = require('../page_objects/project/settings.browse.panel');
+const ArchiveBrowsePanel = require('../page_objects/archive/archive.browse.panel');
 const UserBrowsePanel = require('../page_objects/users/userbrowse.panel');
 const UserWizard = require('../page_objects/users/user.wizard');
 const NewPrincipalDialog = require('../page_objects/users/new.principal.dialog');
@@ -764,6 +765,20 @@ module.exports = {
             await webDriverHelper.browser.pause(300);
             await settingsBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
             return settingsBrowsePanel;
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_open_settings"));
+            throw new Error(err);
+        }
+    },
+    async openArchivePanel() {
+        try {
+            let archiveBrowsePanel = new ArchiveBrowsePanel();
+            await this.openContentStudioMenu();
+            await this.waitForElementDisplayed(lib.SETTINGS_BUTTON, appConst.mediumTimeout);
+            await this.clickOnElement(lib.SETTINGS_BUTTON);
+            await webDriverHelper.browser.pause(300);
+            await archiveBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
+            return archiveBrowsePanel;
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_open_settings"));
             throw new Error(err);

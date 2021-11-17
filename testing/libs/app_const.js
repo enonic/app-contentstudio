@@ -8,6 +8,10 @@ module.exports = Object.freeze({
     itemMarkedAsReadyMessage(name) {
         return `Item \"${name}\" is marked as ready`
     },
+    itemIsArchived(name) {
+        return `Item \"${name}\" is archived`
+    },
+
     itemSavedNotificationMessage: function (name) {
         return `Item \"${name}\" is saved.`
     },
@@ -309,9 +313,9 @@ module.exports = Object.freeze({
         EDIT: "Edit",
         PREVIEW: "Preview",
         DUPLICATE: "Duplicate...",
-        PUBLISH:"Publish...",
-        MOVE:"Move...",
-        SORT:"Sort..."
+        PUBLISH: "Publish...",
+        MOVE: "Move...",
+        SORT: "Sort..."
     },
     WORKFLOW_STATE: {
         WORK_IN_PROGRESS: 'Work in progress',

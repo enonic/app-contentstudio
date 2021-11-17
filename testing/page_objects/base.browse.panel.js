@@ -25,7 +25,7 @@ class BaseBrowsePanel extends Page {
             await this.waitForElementDisplayed(this.treeGrid, timeout);
             await this.waitForSpinnerNotVisible(timeout);
         } catch (err) {
-            throw new Error('Browse panel was not loaded in ' + timeout + " " + err);
+            throw new Error('Browse panel was not loaded in ' + err);
         }
     }
 

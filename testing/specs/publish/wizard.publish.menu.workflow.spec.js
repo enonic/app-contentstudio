@@ -52,6 +52,8 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             //1. Publish the folder:
             await contentWizard.doPublish();
+            await contentWizard.pause(1000);
+            await studioUtils.saveScreenshot("check_default_action_unpublish");
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED);
             //2. Verify that Unpublish is default action now
