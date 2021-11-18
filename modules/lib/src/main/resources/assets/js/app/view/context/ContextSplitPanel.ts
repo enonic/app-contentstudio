@@ -131,6 +131,18 @@ export class ContextSplitPanel
     onFoldClicked(action: () => void) {
         this.foldButton.onClicked(action);
     }
+
+    setBeforeExpandHandler(handler: () => void) {
+        this.contextPanelsManager.setBeforeExpandHandler(handler);
+    }
+
+    setBeforeCollapseHandler(handler: () => void) {
+        this.contextPanelsManager.setBeforeCollapseHandler(handler);
+    }
+
+    getManager(): NonMobileContextPanelsManager {
+        return this.contextPanelsManager;
+    }
 }
 
 export class ContextSplitPanelBuilder
