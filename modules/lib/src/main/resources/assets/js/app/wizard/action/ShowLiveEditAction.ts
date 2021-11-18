@@ -12,7 +12,6 @@ export class ShowLiveEditAction
         this.setEnabled(false);
         this.onExecuted(() => {
             wizard.showLiveEdit();
-            new ShowLiveEditEvent().fire();
         });
     }
 
