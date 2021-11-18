@@ -1,5 +1,4 @@
 import {Element} from 'lib-admin-ui/dom/Element';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentInspectionPanel} from './ContentInspectionPanel';
@@ -14,6 +13,8 @@ import {NoSelectionInspectionPanel} from './NoSelectionInspectionPanel';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {DeckPanel} from 'lib-admin-ui/ui/panel/DeckPanel';
 import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {DescriptorBasedComponentInspectionPanel} from './region/DescriptorBasedComponentInspectionPanel';
+import {Descriptor} from '../../../../page/Descriptor';
 
 export interface InspectionsPanelConfig {
     contentInspectionPanel: ContentInspectionPanel;
@@ -75,12 +76,20 @@ export class InspectionsPanel
         this.buttons.appendChild(saveButton);
 
         this.appendChildren(<Element>this.deck, this.buttons);
+
+        this.partInspectionPanel.onDescriptorLoaded(this.updateButtonsVisibility.bind(this));
+        this.layoutInspectionPanel.onDescriptorLoaded(this.updateButtonsVisibility.bind(this));
     }
 
     public showInspectionPanel(panel: Panel) {
         this.deck.showPanel(panel);
-        let showButtons = !(ObjectHelper.iFrameSafeInstanceOf(panel, RegionInspectionPanel) ||
-                            ObjectHelper.iFrameSafeInstanceOf(panel, NoSelectionInspectionPanel));
+
+        const descriptor = panel instanceof DescriptorBasedComponentInspectionPanel && panel.getDescriptor();
+        this.updateButtonsVisibility(descriptor);
+    }
+
+    private updateButtonsVisibility(descriptor: Descriptor): void {
+        const showButtons = descriptor ? descriptor.getConfig()?.getFormItems().length > 0 : false;
         this.buttons.setVisible(showButtons);
     }
 
