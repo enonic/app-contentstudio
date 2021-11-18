@@ -40,6 +40,8 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
 
     private debouncedDescriptorsReload: () => void;
 
+    private descriptorLoadedListeners: { (descriptor: Descriptor): void }[] = [];
+
     private readonly componentType: ComponentType;
 
     constructor(config: DescriptorBasedComponentInspectionPanelConfig) {
@@ -159,6 +161,7 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
     private setSelectorValue(descriptor: Descriptor) {
         this.selector.setDescriptor(descriptor);
         this.setupComponentForm(descriptor);
+        this.notifyDescriptorLoaded(descriptor);
     }
 
     setDescriptorBasedComponent(component: COMPONENT) {
@@ -232,11 +235,27 @@ export abstract class DescriptorBasedComponentInspectionPanel<COMPONENT extends 
         this.component = null;
     }
 
+    getDescriptor(): Descriptor {
+        return this.selector.getSelectedOption()?.getDisplayValue();
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.appendChild(this.form);
 
             return rendered;
         });
+    }
+
+    public onDescriptorLoaded(listener: (descriptor: Descriptor) => void): void {
+        this.descriptorLoadedListeners.push(listener);
+    }
+
+    public unDescriptorLoaded(listener: (descriptor: Descriptor) => void): void {
+        this.descriptorLoadedListeners = this.descriptorLoadedListeners.filter(curr => curr !== listener);
+    }
+
+    private notifyDescriptorLoaded(descriptor: Descriptor): void {
+        this.descriptorLoadedListeners.forEach(listener => listener(descriptor));
     }
 }
