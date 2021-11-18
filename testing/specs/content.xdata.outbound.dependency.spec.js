@@ -52,7 +52,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             //1. Existing content with x-data(image) is opened:
             await studioUtils.selectContentAndOpenWizard(CONTENT_WITH_XDATA);
             await contentWizard.openDetailsPanel();
-            await contentWizard.clickOnPageEditorToggler();
+            await contentWizard.pause(500);
             //2. Dependencies widget is opened:
             await wizardDetailsPanel.openDependencies();
             studioUtils.saveScreenshot('content_with_xdata_dependencies_widget');
