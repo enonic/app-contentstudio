@@ -160,14 +160,14 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             //3. Verify that the title is equal to text in 'Name' input
             await singleSelectionOptionSet.typeTextInOptionNameInput(SINGLE_SELECTION_NOTE1);
             let subtitle = await singleSelectionOptionSet.getSingleSelectionSubtitle();
-            assert.equal(subtitle, "Option 1", "Expected label should be displayed");
+            assert.equal(subtitle, SINGLE_SELECTION_NOTE1, "Expected label should be displayed");
             let title = await singleSelectionOptionSet.getSingleSelectionTitle();
             await studioUtils.saveScreenshot('item_set_title_dynamic');
-            assert.equal(title, SINGLE_SELECTION_NOTE1, "Expected title should be displayed in the option set occurrence view");
+            assert.equal(title, "Option 1", "Expected title should be displayed in the option set occurrence view");
             //4. Update the text in input:
             await singleSelectionOptionSet.typeTextInOptionNameInput(SINGLE_SELECTION_NOTE2);
             //5. Verify that title is updated dynamically:
-            title = await singleSelectionOptionSet.getSingleSelectionTitle();
+            title = await singleSelectionOptionSet.getSingleSelectionSubtitle();
             assert.equal(title, SINGLE_SELECTION_NOTE2, "Expected subheader should be displayed");
         });
 
@@ -241,8 +241,8 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             //3. Type the text in HtmlArea
             await htmlAreaForm.typeTextInHtmlArea("Hello World!");
             //4. Verify that the title is dynamically updated:
-            let title = await multiSelectionOptionSet.getMultiSelectionTitle();
-            assert.equal(title, "Hello World!", "Expected title should be displayed");
+            let subtitle = await multiSelectionOptionSet.getMultiSelectionSubtitle();
+            assert.equal(subtitle, "Hello World!", "Expected subtitle should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
