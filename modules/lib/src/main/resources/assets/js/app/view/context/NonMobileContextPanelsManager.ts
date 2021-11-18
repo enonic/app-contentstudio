@@ -32,6 +32,10 @@ export class NonMobileContextPanelsManager {
 
     private state: ContextPanelState = ContextPanelState.COLLAPSED;
 
+    private beforeExpandHandler?: () => void;
+
+    private beforeCollapseHandler?: () => void;
+
     constructor(builder: NonMobileContextPanelsManagerBuilder) {
         this.splitPanelWithContext = builder.getSplitPanelWithContext();
         this.dockedContextPanel = builder.getDefaultContextPanel();
@@ -47,9 +51,17 @@ export class NonMobileContextPanelsManager {
         });
 
         ToggleContextPanelEvent.on(() => {
-            if (this.state !== ContextPanelState.COLLAPSED) {
+            if (this.isExpanded()) {
+                if (this.beforeCollapseHandler) {
+                    this.beforeCollapseHandler();
+                }
+
                 this.hideActivePanel();
             } else {
+                if (this.beforeExpandHandler) {
+                    this.beforeExpandHandler();
+                }
+
                 this.doPanelAnimation();
             }
         });
@@ -76,6 +88,14 @@ export class NonMobileContextPanelsManager {
 
     handleResizeEvent() {
         this.debouncedResizeHandler();
+    }
+
+    setBeforeExpandHandler(handler: () => void) {
+        this.beforeExpandHandler = handler;
+    }
+
+    setBeforeCollapseHandler(handler: () => void) {
+        this.beforeCollapseHandler = handler;
     }
 
     private doHandleResizeEvent() {

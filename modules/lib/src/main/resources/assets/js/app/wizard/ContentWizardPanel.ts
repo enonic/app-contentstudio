@@ -135,8 +135,8 @@ import {ValidationErrorHelper} from 'lib-admin-ui/ValidationErrorHelper';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
 import {SplitPanelUnit} from 'lib-admin-ui/ui/panel/SplitPanelUnit';
-import {ToggleContextPanelEvent} from '../view/context/ToggleContextPanelEvent';
 import {ContextPanelState} from '../view/context/ContextPanelState';
+import {ContextPanelStateEvent} from '../view/context/ContextPanelStateEvent';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -697,6 +697,23 @@ export class ContentWizardPanel
                 this.livePanel.addClass('rendering');
                 ResponsiveManager.onAvailableSizeChanged(this.formPanel);
                 this.stepNavigatorAndToolbarContainer.appendChild(this.minimizeEditButton);
+                this.contextSplitPanel.setBeforeExpandHandler(() => {
+                    if (this.contextSplitPanel.getManager().isDockedContextPanelActive()) {
+                        this.splitPanel.showSecondPanel();
+                    }
+                });
+
+                ContextPanelStateEvent.on((event: ContextPanelStateEvent) => {
+                    if (event.getState() === ContextPanelState.COLLAPSED) {
+                        if (this.contextSplitPanel.isFirstPanelHidden()) {
+                            this.closeLiveEdit();
+                        }
+                    } else if (event.getState() === ContextPanelState.DOCKED) {
+                        if (this.splitPanel.isSecondPanelHidden()) {
+                            this.openLiveEdit();
+                        }
+                    }
+                });
             }
 
             if (this.params.createSite || this.getPersistedItem().isSite()) {
@@ -1826,8 +1843,12 @@ export class ContentWizardPanel
 
         this.getCycleViewModeButton().setVisible(editorEnabled);
 
-        if (this.isSplitEditModeActive() || ResponsiveRanges._1920_UP.isFitOrBigger(this.getEl().getWidth())) {
+        if (this.isSplitEditModeActive()) {
             this.wizardActions.getShowSplitEditAction().execute();
+        } else if (ResponsiveRanges._1920_UP.isFitOrBigger(this.getEl().getWidth())) {
+            this.wizardActions.getShowSplitEditAction().execute();
+            this.closeLiveEdit();
+            this.getCycleViewModeButton().selectActiveAction(this.wizardActions.getShowFormAction());
         } else if (this.splitPanel) {
             this.wizardActions.getShowFormAction().execute();
         }
@@ -2549,14 +2570,31 @@ export class ContentWizardPanel
     }
 
     private openLiveEdit() {
-        this.splitPanel.showSecondPanel();
         const showInspectionPanel = ResponsiveRanges._1920_UP.isFitOrBigger(this.getEl().getWidthWithBorder());
         this.getLivePanel().clearPageViewSelectionAndOpenInspectPage(showInspectionPanel);
         this.showMinimizeEditButton();
+
+        if (this.isDockedContextPanelOpen()) {
+            this.splitPanel.setFirstPanelSize(new SplitPanelSize(32, SplitPanelUnit.PERCENT));
+            this.splitPanel.distribute();
+            this.contextSplitPanel.showFirstPanel();
+        } else {
+            this.contextSplitPanel.showFirstPanel();
+            this.splitPanel.showSecondPanel();
+            this.splitPanel.setFirstPanelSize(new SplitPanelSize(32, SplitPanelUnit.PERCENT));
+            this.splitPanel.distribute();
+        }
     }
 
     private closeLiveEdit() {
-        this.splitPanel.hideSecondPanel();
+        if (this.isDockedContextPanelOpen()) {
+            this.splitPanel.setFirstPanelSize(new SplitPanelSize(68, SplitPanelUnit.PERCENT));
+            this.splitPanel.distribute();
+            this.contextSplitPanel.hideFirstPanel();
+        } else {
+            this.splitPanel.hideSecondPanel();
+        }
+
         this.hideMinimizeEditButton();
 
         if (this.liveMask && this.liveMask.isVisible()) {
@@ -2566,6 +2604,10 @@ export class ContentWizardPanel
         if (this.isMinimized()) {
             this.toggleMinimize();
         }
+    }
+
+    private isDockedContextPanelOpen(): boolean {
+        return !this.contextSplitPanel.isSecondPanelHidden();
     }
 
     private checkIfRenderable(): Q.Promise<Boolean> {
