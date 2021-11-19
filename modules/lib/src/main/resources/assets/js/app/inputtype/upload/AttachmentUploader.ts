@@ -307,11 +307,26 @@ export class AttachmentUploader
             });
 
             this.toggleClass('invalid', hasError);
+
             if (hasError) {
-                recording.setErrorMessage(i18n('validation.attachment.invalid'));
+                if (this.isSingleOccurrence()) {
+                    return this.createValidationRecordForSingleInvalidOccurrence();
+                } else {
+                    recording.setErrorMessage(i18n('validation.attachment.invalid'));
+                }
             }
         }
 
+        return recording;
+    }
+
+    private isSingleOccurrence(): boolean {
+        return this.input.getOccurrences().getMinimum() === 1 && this.input.getOccurrences().getMaximum() === 1;
+    }
+
+    private createValidationRecordForSingleInvalidOccurrence(): InputValidationRecording {
+        const recording = new InputValidationRecording(this.input.getOccurrences(), 1);
+        recording.setErrorMessage(i18n('validation.attachment.invalid'));
         return recording;
     }
 
