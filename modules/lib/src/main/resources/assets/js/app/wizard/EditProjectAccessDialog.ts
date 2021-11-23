@@ -27,6 +27,8 @@ export class EditProjectAccessDialog
 
     isExecuting: () => boolean;
 
+    setProcessingLabel: (processingLabel: string) => string;
+
     private projectPath: string;
 
     private subTitle: H6El;

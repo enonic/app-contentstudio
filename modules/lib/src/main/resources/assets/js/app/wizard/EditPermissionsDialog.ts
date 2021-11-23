@@ -71,6 +71,8 @@ export class EditPermissionsDialog
 
     isExecuting: () => boolean;
 
+    setProcessingLabel: (processingLabel: string) => string;
+
     private subTitle: H6El;
 
     constructor() {

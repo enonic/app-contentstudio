@@ -39,7 +39,7 @@ export class ProgressBarManager {
 
     readonly createProcessingMessage: () => Element;
 
-    readonly processingLabel: string;
+    processingLabel: string;
 
     readonly processHandler: () => void;
 
@@ -131,6 +131,10 @@ export class ProgressBarManager {
                 this.handleTaskEvent(taskInfo);
             }
         });
+    }
+
+    setProcessingLabel(processingLabel: string): void {
+        this.processingLabel = processingLabel;
     }
 
     private createProgressBar() {

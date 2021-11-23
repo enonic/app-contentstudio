@@ -35,4 +35,8 @@ export abstract class TaskProgressInterface {
     isExecuting(): boolean {
         return this.progressManager.isActive();
     }
+
+    setProcessingLabel(processingLabel: string): void {
+        this.progressManager.setProcessingLabel(processingLabel);
+    }
 }
