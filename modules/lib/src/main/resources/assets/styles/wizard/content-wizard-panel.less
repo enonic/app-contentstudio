@@ -103,8 +103,20 @@
   }
 
   .wizard-step-navigator-and-toolbar {
-    .edit-permissions-button {
+    .help-text-button {
       order: 1;
+      min-width: 22px;
+      padding: 0 10px;
+      margin: 0;
+    }
+
+    .fold-button,
+    .wizard-step-navigator {
+      order: 2;
+    }
+
+    .edit-permissions-button {
+      order: 3;
       padding: 15px;
       cursor: pointer;
       z-index: 1;
@@ -117,6 +129,10 @@
       &:hover {
         color: @admin-shadow-gray;
       }
+    }
+
+    .minimize-edit {
+      order: 4;
     }
 
     &:not(.folded) {
@@ -287,9 +303,11 @@
   }
 
   .minimize-edit {
+    display: none;
+    min-width: 30px;
+    margin: 0 0 0 auto;
     font-size: 30px;
     font-weight: 800;
-    display: none;
     text-align: center;
     line-height: 40px;
     overflow: hidden;
