@@ -81,10 +81,18 @@ export class InspectionsPanel
         this.layoutInspectionPanel.onDescriptorLoaded(this.updateButtonsVisibility.bind(this));
     }
 
+    private getPanelDescriptor(panel: Panel): Descriptor {
+        if (panel instanceof DescriptorBasedComponentInspectionPanel || panel instanceof PageInspectionPanel) {
+            return panel.getDescriptor();
+        }
+
+        return null;
+    }
+
     public showInspectionPanel(panel: Panel) {
         this.deck.showPanel(panel);
 
-        const descriptor = panel instanceof DescriptorBasedComponentInspectionPanel && panel.getDescriptor();
+        const descriptor = this.getPanelDescriptor(panel);
         this.updateButtonsVisibility(descriptor);
     }
 

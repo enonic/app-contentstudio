@@ -65,6 +65,10 @@ export class PageInspectionPanel
         return i18n('widget.components.insert.page');
     }
 
+    getDescriptor(): Descriptor {
+        return this.liveEditModel?.getPageModel()?.getDescriptor();
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.insertChild(this.pageTemplateAndControllerForm, 0);
