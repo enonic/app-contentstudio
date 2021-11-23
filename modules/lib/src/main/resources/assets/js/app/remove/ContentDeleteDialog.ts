@@ -268,6 +268,11 @@ export class ContentDeleteDialog
         return this;
     }
 
+    updateProgressLabel(type: ActionType): void {
+        const label = type === ActionType.DELETE ? `${i18n('field.progress.deleting')}...` : `${i18n('field.progress.archiving')}...`;
+        this.setProcessingLabel(label);
+    }
+
     private archive() {
         this.executeAction(ActionType.ARCHIVE);
     }
@@ -328,6 +333,8 @@ export class ContentDeleteDialog
         new ContentTreeGridDeselectAllEvent().fire();
 
         this.progressManager.setSuppressNotifications(type === ActionType.ARCHIVE);
+
+        this.updateProgressLabel(type);
 
         request.sendAndParse()
             .then((taskId: TaskId) => {
