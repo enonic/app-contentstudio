@@ -18,7 +18,7 @@ import {EditContentEvent} from '../event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
 import {ContentQuery} from '../content/ContentQuery';
-import {ContentMetadata} from '../content/ContentMetadata';
+import {ResultMetadata} from '../resource/ResultMetadata';
 import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
@@ -171,7 +171,7 @@ export class ContentTreeGrid
         compareRequest.sendAndParse().then((compareResults: CompareContentResults) => {
             const contents: ContentSummaryAndCompareStatus[] = this.contentFetcher.updateCompareStatus(contentSummaries, compareResults);
             this.contentFetcher.updateReadOnly(contents).then(() => {
-                const metadata: ContentMetadata = contentQueryResult.getMetadata();
+                const metadata: ResultMetadata = contentQueryResult.getMetadata();
 
                 if (this.isEmptyNodeNeeded(metadata)) {
                     contents.push(new ContentSummaryAndCompareStatus());
@@ -283,7 +283,7 @@ export class ContentTreeGrid
             return el.getData();
         }).slice(0, from).concat(data.getContents());
 
-        const meta: ContentMetadata = data.getMetadata();
+        const meta: ResultMetadata = data.getMetadata();
         node.setMaxChildren(meta.getTotalHits());
         if (this.isEmptyNodeNeeded(meta, from)) {
             contents.push(new ContentSummaryAndCompareStatus());
@@ -292,7 +292,7 @@ export class ContentTreeGrid
         return contents;
     }
 
-    private isEmptyNodeNeeded(meta: ContentMetadata, from: number = 0): boolean {
+    private isEmptyNodeNeeded(meta: ResultMetadata, from: number = 0): boolean {
         return from + meta.getHits() < meta.getTotalHits();
     }
 
@@ -324,7 +324,7 @@ export class ContentTreeGrid
                 compareResults));
 
             return this.contentFetcher.updateReadOnly(contents).then(() => {
-                const meta: ContentMetadata = data.getMetadata();
+                const meta: ResultMetadata = data.getMetadata();
                 if (this.isEmptyNodeNeeded(meta, from)) {
                     contents.push(new ContentSummaryAndCompareStatus());
                 }

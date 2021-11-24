@@ -1,7 +1,7 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResponse} from './ContentResponse';
 import {ListContentResult} from './ListContentResult';
-import {ContentMetadata} from '../content/ContentMetadata';
+import {ResultMetadata} from './ResultMetadata';
 import {Expand} from 'lib-admin-ui/rest/Expand';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentId} from '../content/ContentId';
@@ -61,7 +61,7 @@ export class ListContentByIdRequest
     protected parseResponse(response: JsonResponse<ListContentResult<ContentSummaryJson>>): ContentResponse<ContentSummary> {
         return new ContentResponse(
             ContentSummary.fromJsonArray(response.getResult().contents),
-            new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits'])
+            ResultMetadata.fromJson(response.getResult().metadata),
         );
     }
 }

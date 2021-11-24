@@ -1,7 +1,7 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentTreeSelectorListJson} from './ContentTreeSelectorListResult';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
-import {ContentMetadata} from '../content/ContentMetadata';
+import {ResultMetadata} from './ResultMetadata';
 import {ContentSelectorRequest} from './ContentSelectorRequest';
 import {ContentSummary} from '../content/ContentSummary';
 import {ChildOrder} from './order/ChildOrder';
@@ -12,7 +12,7 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
 
     protected size: number = 10;
 
-    private metadata: ContentMetadata;
+    private metadata: ResultMetadata;
 
     private parentPath: ContentPath;
 
@@ -42,17 +42,17 @@ export class ContentTreeSelectorQueryRequest<DATA extends ContentTreeSelectorIte
         });
     }
 
-    getMetadata(): ContentMetadata {
+    getMetadata(): ResultMetadata {
         return this.metadata;
     }
 
     protected parseResponse(response: JsonResponse<ContentTreeSelectorListJson>): DATA[] {
         if (response.getResult() && response.getResult().items.length > 0) {
-            this.metadata = new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits']);
+            this.metadata = ResultMetadata.fromJson(response.getResult().metadata);
             return response.getResult().items.map(json => <any>ContentTreeSelectorItem.fromJson(json));
         }
 
-        this.metadata = new ContentMetadata(0, 0);
+        this.metadata = new ResultMetadata(0, 0);
         return [];
     }
 }

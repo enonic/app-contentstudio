@@ -1,19 +1,20 @@
 import {ContentTreeSelectorItem, ContentTreeSelectorItemJson} from '../item/ContentTreeSelectorItem';
-import {ContentMetadata} from '../content/ContentMetadata';
+import {ResultMetadataJson} from './json/ResultMetadataJson';
+import {ResultMetadata} from './ResultMetadata';
 
 export interface ContentTreeSelectorListJson {
 
     items: ContentTreeSelectorItemJson[];
 
-    metadata: ContentMetadata;
+    metadata: ResultMetadataJson;
 }
 
 export class ContentTreeSelectorListResult<DATA extends ContentTreeSelectorItem> {
     items: DATA[] = [];
 
-    metadata: ContentMetadata;
+    metadata: ResultMetadata;
 
-    constructor(items: DATA[], metadata: ContentMetadata) {
+    constructor(items: DATA[], metadata: ResultMetadata) {
         this.items = items;
         this.metadata = metadata;
     }
@@ -23,7 +24,7 @@ export class ContentTreeSelectorListResult<DATA extends ContentTreeSelectorItem>
         return this;
     }
 
-    setMetadata(value: ContentMetadata): ContentTreeSelectorListResult<DATA> {
+    setMetadata(value: ResultMetadata): ContentTreeSelectorListResult<DATA> {
         this.metadata = value;
         return this;
     }

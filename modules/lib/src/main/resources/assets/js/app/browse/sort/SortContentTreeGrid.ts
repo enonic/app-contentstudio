@@ -8,7 +8,7 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 import {ContentId} from '../../content/ContentId';
 import {ChildOrder} from '../../resource/order/ChildOrder';
-import {ContentMetadata} from '../../content/ContentMetadata';
+import {ResultMetadata} from '../../resource/ResultMetadata';
 
 export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus> {
 
@@ -95,7 +95,7 @@ export class SortContentTreeGrid extends TreeGrid<ContentSummaryAndCompareStatus
                 const contents: ContentSummaryAndCompareStatus[] = parentNode.getChildren().map((el) => {
                     return el.getData();
                 }).slice(0, from).concat(data.getContents());
-                const meta: ContentMetadata = data.getMetadata();
+                const meta: ResultMetadata = data.getMetadata();
                 parentNode.setMaxChildren(meta.getTotalHits());
                 if (from + meta.getHits() < meta.getTotalHits()) {
                     contents.push(new ContentSummaryAndCompareStatus());

@@ -1,7 +1,7 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentResponse} from './ContentResponse';
 import {ListContentResult} from './ListContentResult';
-import {ContentMetadata} from '../content/ContentMetadata';
+import {ResultMetadata} from './ResultMetadata';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
@@ -44,7 +44,7 @@ export class BatchContentRequest
     protected parseResponse(response: JsonResponse<ListContentResult<ContentSummaryJson>>): ContentResponse<ContentSummary> {
         return new ContentResponse(
             ContentSummary.fromJsonArray(response.getResult().contents),
-            new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits'])
+            ResultMetadata.fromJson(response.getResult().metadata),
         );
     }
 }
