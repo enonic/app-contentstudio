@@ -1,8 +1,8 @@
-import {ContentMetadata} from '../content/ContentMetadata';
+import {ResultMetadataJson} from './json/ResultMetadataJson';
 
 export interface ListContentResult<T> {
 
     contents: T[];
 
-    metadata: ContentMetadata;
+    metadata: ResultMetadataJson;
 }

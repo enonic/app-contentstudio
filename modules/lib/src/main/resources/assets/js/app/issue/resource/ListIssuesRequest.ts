@@ -1,12 +1,12 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {IssueResponse} from './IssueResponse';
 import {ListIssuesResult} from './ListIssuesResult';
-import {IssueMetadata} from '../IssueMetadata';
 import {IssueStatus} from '../IssueStatus';
 import {IssueWithAssigneesJson} from '../json/IssueWithAssigneesJson';
 import {IssueWithAssignees} from '../IssueWithAssignees';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
+import {ResultMetadata} from '../../resource/ResultMetadata';
 
 export class ListIssuesRequest
     extends CmsIssueResourceRequest<IssueResponse> {
@@ -82,8 +82,7 @@ export class ListIssuesRequest
             return b.getIssue().getModifiedTime().getTime() - a.getIssue().getModifiedTime().getTime();
         });
 
-        const metadata: IssueMetadata = new IssueMetadata(response.getResult().metadata['hits'],
-            response.getResult().metadata['totalHits']);
+        const metadata = ResultMetadata.fromJson(response.getResult().metadata);
 
         return new IssueResponse(issuesWithAssignees, metadata);
     }

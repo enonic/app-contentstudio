@@ -1,12 +1,12 @@
-import {ContentMetadata} from '../content/ContentMetadata';
+import {ResultMetadata} from './ResultMetadata';
 
 export class ContentResponse<T> {
 
     private contents: T[];
 
-    private metadata: ContentMetadata;
+    private metadata: ResultMetadata;
 
-    constructor(contents: T[], metadata: ContentMetadata) {
+    constructor(contents: T[], metadata: ResultMetadata) {
         this.contents = contents;
         this.metadata = metadata;
     }
@@ -15,7 +15,7 @@ export class ContentResponse<T> {
         return this.contents;
     }
 
-    getMetadata(): ContentMetadata {
+    getMetadata(): ResultMetadata {
         return this.metadata;
     }
 
@@ -24,7 +24,7 @@ export class ContentResponse<T> {
         return this;
     }
 
-    setMetadata(metadata: ContentMetadata): ContentResponse<T> {
+    setMetadata(metadata: ResultMetadata): ContentResponse<T> {
         this.metadata = metadata;
         return this;
     }

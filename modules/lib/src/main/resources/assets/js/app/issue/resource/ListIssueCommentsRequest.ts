@@ -2,10 +2,10 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ListIssueCommentsResult} from './ListIssueCommentsResult';
 import {ListIssueCommentsResponse} from './ListIssueCommentsResponse';
 import {IssueComment} from '../IssueComment';
-import {IssueMetadata} from '../IssueMetadata';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
+import {ResultMetadata} from '../../resource/ResultMetadata';
 
 export class ListIssueCommentsRequest
     extends CmsIssueResourceRequest<ListIssueCommentsResponse> {
@@ -64,8 +64,7 @@ export class ListIssueCommentsRequest
             return a.getCreatedTime().getTime() - b.getCreatedTime().getTime();
         });
 
-        const metadata: IssueMetadata = new IssueMetadata(response.getResult().metadata['hits'],
-            response.getResult().metadata['totalHits']);
+        const metadata = ResultMetadata.fromJson(response.getResult().metadata);
 
         return new ListIssueCommentsResponse(issueComments, metadata);
     }

@@ -1,7 +1,8 @@
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {Equitable} from 'lib-admin-ui/Equitable';
+import {ResultMetadataJson} from './json/ResultMetadataJson';
 
-export class ContentMetadata
+export class ResultMetadata
     implements Equitable {
 
     private hits: number;
@@ -11,6 +12,10 @@ export class ContentMetadata
     constructor(hits: number, totalHits: number) {
         this.hits = hits;
         this.totalHits = totalHits;
+    }
+
+    static fromJson(json: ResultMetadataJson): ResultMetadata {
+        return new ResultMetadata(json.hits, json.totalHits);
     }
 
     getHits(): number {
@@ -30,11 +35,11 @@ export class ContentMetadata
     }
 
     equals(o: Equitable): boolean {
-        if (!ObjectHelper.iFrameSafeInstanceOf(o, ContentMetadata)) {
+        if (!ObjectHelper.iFrameSafeInstanceOf(o, ResultMetadata)) {
             return false;
         }
 
-        let other = <ContentMetadata>o;
+        let other = <ResultMetadata>o;
 
         if (this.hits !== other.hits ||
             this.totalHits !== other.totalHits) {

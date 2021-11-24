@@ -1,13 +1,13 @@
-import {IssueMetadata} from '../IssueMetadata';
 import {IssueWithAssignees} from '../IssueWithAssignees';
+import {ResultMetadata} from '../../resource/ResultMetadata';
 
 export class IssueResponse {
 
-    private issues: IssueWithAssignees[];
+    private readonly issues: IssueWithAssignees[];
 
-    private metadata: IssueMetadata;
+    private readonly metadata: ResultMetadata;
 
-    constructor(issues: IssueWithAssignees[], metadata: IssueMetadata) {
+    constructor(issues: IssueWithAssignees[], metadata: ResultMetadata) {
         this.issues = issues;
         this.metadata = metadata;
     }
@@ -16,7 +16,7 @@ export class IssueResponse {
         return this.issues;
     }
 
-    getMetadata(): IssueMetadata {
+    getMetadata(): ResultMetadata {
         return this.metadata;
     }
 }

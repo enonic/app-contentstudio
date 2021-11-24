@@ -20,6 +20,24 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
         this.addRequestPathElements('selectorQuery');
     }
 
+    static createEmptyResponse(): ContentQueryResultJson<ContentSummaryJson> {
+        return {
+            aggregations: [],
+            contents: [],
+            metadata: {
+                hits: 0,
+                totalHits: 0,
+            }
+        };
+    }
+
+    send(): Q.Promise<JsonResponse<ContentQueryResultJson<CONTENT_JSON>>> {
+        return super.send().catch(() => {
+            const data = JSON.stringify(ContentSelectorQueryRequest.createEmptyResponse());
+            return new JsonResponse<ContentQueryResultJson<CONTENT_JSON>>(data);
+        });
+    }
+
     sendAndParse(): Q.Promise<CONTENT[]> {
         if (this.isConcurrentLoad()) {
             return Q(this.results);
@@ -27,9 +45,7 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
 
         this.loadingFrom = this.from;
 
-        return super.sendAndParse().catch(() => {
-            return [];
-        });
+        return super.sendAndParse();
     }
 
     private isConcurrentLoad() {
@@ -53,8 +69,8 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
             this.results = [];
         }
         this.loadingFrom = undefined;
-        this.from += responseResult.metadata['hits'];
-        this.loaded = this.from >= responseResult.metadata['totalHits'];
+        this.from += responseResult.metadata.hits;
+        this.loaded = this.from >= responseResult.metadata.totalHits;
 
         this.results = this.results.concat(contents);
 

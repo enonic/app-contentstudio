@@ -2,7 +2,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {AggregationQueryTypeWrapperJson} from 'lib-admin-ui/query/aggregation/AggregationQueryTypeWrapperJson';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentQueryResult} from './ContentQueryResult';
-import {ContentMetadata} from '../content/ContentMetadata';
+import {ResultMetadata} from './ResultMetadata';
 import {ContentJson} from '../content/ContentJson';
 import {ContentQuery} from '../content/ContentQuery';
 import {Expand} from 'lib-admin-ui/rest/Expand';
@@ -72,7 +72,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         let responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
         let aggregations = BucketAggregation.fromJsonArray(responseResult.aggregations);
         let contentsAsJson: ContentSummaryJson[] = responseResult.contents;
-        let metadata = new ContentMetadata(response.getResult().metadata['hits'], response.getResult().metadata['totalHits']);
+        let metadata = new ResultMetadata(response.getResult().metadata.hits, response.getResult().metadata.totalHits);
         let contents: CONTENT[];
 
         if (this.expand === Expand.NONE) {
@@ -88,7 +88,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         return new ContentQueryResult<CONTENT, CONTENT_JSON>(this.results, aggregations, <CONTENT_JSON[]>contentsAsJson, metadata);
     }
 
-    private updateStateAfterLoad(contents: CONTENT[], metadata: ContentMetadata) {
+    private updateStateAfterLoad(contents: CONTENT[], metadata: ResultMetadata) {
         if (this.contentQuery.getFrom() === 0) {
             this.results = [];
         }
