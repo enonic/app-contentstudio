@@ -1,13 +1,10 @@
+import * as Q from 'q';
 import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
 import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {Body} from 'lib-admin-ui/dom/Body';
 import {TreeGridContextMenu} from 'lib-admin-ui/ui/treegrid/TreeGridContextMenu';
 import {SettingsTreeGridActions} from './SettingsTreeGridActions';
-import {SettingsItemRowFormatter} from './SettingsItemRowFormatter';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
-import * as Q from 'q';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {EditSettingsItemEvent} from '../event/EditSettingsItemEvent';
 import {Project} from '../data/project/Project';
@@ -77,7 +74,7 @@ export class SettingsItemsTreeGrid
 
     hasChildren(item: SettingsViewItem): boolean {
         return ObjectHelper.iFrameSafeInstanceOf(item, FolderViewItem) ||
-            this.projects.some((project: Project) => project.getParent() === item.getId());
+               this.projects.some((project: Project) => project.getParent() === item.getId());
     }
 
     getItemById(id: string): SettingsViewItem {

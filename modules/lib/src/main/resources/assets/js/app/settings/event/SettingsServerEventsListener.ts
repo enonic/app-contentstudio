@@ -80,7 +80,7 @@ export class SettingsServerEventsListener
         }
 
         this.getUpdatedRootContents(event)
-            .map(this.extractProjectNameFromRootNodeEventItem)
+            .map(SettingsServerEventsListener.extractProjectNameFromRootNodeEventItem)
             .forEach(this.appendUpdateEvent.bind(this));
     }
 
@@ -91,19 +91,19 @@ export class SettingsServerEventsListener
         }
 
         this.getUpdatedProjectRoles(event)
-            .map(this.extractProjectNameFromProjectRoleNodeEventItem)
+            .map(SettingsServerEventsListener.extractProjectNameFromProjectRoleNodeEventItem)
             .forEach(this.appendUpdateEvent.bind(this));
     }
 
     private getUpdatedRootContents(nodeEvent: NodeServerEvent): NodeServerChangeItem[] {
-        return nodeEvent.getNodeChange().getChangeItems().filter(this.isRootNodeEventItem);
+        return nodeEvent.getNodeChange().getChangeItems().filter(SettingsServerEventsListener.isRootNodeEventItem);
     }
 
-    private isRootNodeEventItem(nodeEventItem: NodeServerChangeItem): boolean {
-        return nodeEventItem.getPath().getLevel() === 1;
+    private static isRootNodeEventItem(nodeEventItem: NodeServerChangeItem): boolean {
+        return nodeEventItem.getPath().getLevel() === 0;
     }
 
-    private extractProjectNameFromRootNodeEventItem(nodeEventNodeJson: NodeServerChangeItem): string {
+    private static extractProjectNameFromRootNodeEventItem(nodeEventNodeJson: NodeServerChangeItem): string {
         return nodeEventNodeJson.getRepo().replace(RepositoryId.CONTENT_REPO_PREFIX, '');
     }
 
@@ -112,18 +112,18 @@ export class SettingsServerEventsListener
     }
 
     private getUpdatedProjectRoles(nodeEvent: NodeServerEvent): NodeServerChangeItem[] {
-        return nodeEvent.getNodeChange().getChangeItems().filter(this.isProjectRoleEventItem);
+        return nodeEvent.getNodeChange().getChangeItems().filter(SettingsServerEventsListener.isProjectRoleEventItem);
     }
 
     private getRemovedProjectRoles(nodeEvent: NodeServerEvent): NodeServerChangeItem[] {
-        return nodeEvent.getNodeChange().getChangeItems().filter(this.isProjectRoleEventItem);
+        return nodeEvent.getNodeChange().getChangeItems().filter(SettingsServerEventsListener.isProjectRoleEventItem);
     }
 
-    private isProjectRoleEventItem(nodeEventItem: NodeServerChangeItem): boolean {
+    private static isProjectRoleEventItem(nodeEventItem: NodeServerChangeItem): boolean {
         return nodeEventItem.getPath().toString().indexOf(SettingsServerEventsListener.PROJECT_ROLE_PATH_PREFIX) === 0;
     }
 
-    private extractProjectNameFromProjectRoleNodeEventItem(nodeEventItem: NodeServerChangeItem): string {
+    private static extractProjectNameFromProjectRoleNodeEventItem(nodeEventItem: NodeServerChangeItem): string {
         return nodeEventItem.getPath().toString().replace(SettingsServerEventsListener.PROJECT_ROLE_PATH_PREFIX, '').split('.')[0];
     }
 }
