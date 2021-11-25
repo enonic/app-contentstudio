@@ -5,7 +5,11 @@
 
   &.mobile-mode {
     .floating-context-panel {
+      transition: top 0.5s ease-in-out;
       height: 100%;
+      top: 100%;
+      right: 0 !important;
+      width: 100%;
     }
 
     .context-split-panel {
@@ -34,6 +38,12 @@
 
       .context-split-panel {
         width: 100% !important;
+      }
+
+      .floating-context-panel {
+        &.expanded {
+          top: 0;
+        }
       }
     }
   }
