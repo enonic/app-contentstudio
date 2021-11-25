@@ -42,6 +42,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
 import {ContextView} from '../view/context/ContextView';
+import {Body} from 'lib-admin-ui/dom/Body';
 
 export class ContentBrowsePanel
     extends BrowsePanel {
@@ -103,11 +104,22 @@ export class ContentBrowsePanel
 
         this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {
             if (isMobile) {
-                this.gridAndItemsSplitPanel.hideSecondPanel();
+                this.hidePreviewPanel();
             } else {
                 this.gridAndItemsSplitPanel.showFirstPanel();
-                this.gridAndItemsSplitPanel.showSecondPanel();
+                this.showPreviewPanel();
             }
+
+            this.toggleClass('mobile-mode', isMobile);
+        });
+
+        this.browseToolbar.onFoldClicked(() => {
+            this.contextSplitPanel.getManager().hideActivePanel();
+            Body.get().removeClass('mobile-preview-on');
+            this.removeClass('mobile-preview-on');
+            this.browseToolbar.removeClass('mobile-preview-on');
+            this.browseToolbar.disableMobileMode();
+            this.browseToolbar.updateFoldButtonLabel();
         });
 
         this.handleGlobalEvents();
@@ -149,27 +161,10 @@ export class ContentBrowsePanel
     }
 
     protected createBrowseWithItemsPanel(): SplitPanel {
-        const browseActions: ContentTreeGridActions = this.getBrowseActions();
-        const mobileActions: Action[] = [
-            browseActions.getAction(ActionName.UNPUBLISH),
-            browseActions.getAction(ActionName.PUBLISH),
-            browseActions.getAction(ActionName.MOVE),
-            browseActions.getAction(ActionName.SORT),
-            browseActions.getAction(ActionName.ARCHIVE),
-            browseActions.getAction(ActionName.DUPLICATE),
-            browseActions.getAction(ActionName.EDIT),
-            browseActions.getAction(ActionName.SHOW_NEW_DIALOG)
-        ];
-
         this.contextView = new ContextView();
         const leftPanel: ContentBrowseItemPanel = this.getBrowseItemPanel();
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
         this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel).setContextView(this.contextView).build();
-        this.contextSplitPanel.onFoldClicked(() => {
-            this.gridAndItemsSplitPanel.showFirstPanel();
-            this.gridAndItemsSplitPanel.showFirstPanel();
-            this.gridAndItemsSplitPanel.hideSecondPanel();
-        });
 
         return this.contextSplitPanel;
     }
@@ -212,11 +207,15 @@ export class ContentBrowsePanel
         }
 
         if (this.treeGrid.hasHighlightedNode()) {
-            this.doUpdateContextPanel(this.treeGrid.getHighlightedItem());
+            const item: ContentSummaryAndCompareStatus = this.treeGrid.getHighlightedItem();
+            this.doUpdateContextPanel(item);
 
             if (this.contextSplitPanel.isMobileMode()) {
-                this.gridAndItemsSplitPanel.hideFirstPanel();
-                this.gridAndItemsSplitPanel.showSecondPanel();
+                Body.get().addClass('mobile-preview-on');
+                this.addClass('mobile-preview-on');
+                this.browseToolbar.addClass('mobile-preview-on');
+                this.browseToolbar.enableMobileMode();
+                this.browseToolbar.setFoldButtonLabel(item.getDisplayName());
             }
 
             return;
@@ -560,4 +559,11 @@ export class ContentBrowsePanel
         //
     }
 
+    private hidePreviewPanel(): void {
+        this.gridAndItemsSplitPanel.hideSecondPanel();
+    }
+
+    private showPreviewPanel(): void {
+        this.gridAndItemsSplitPanel.showSecondPanel();
+    }
 }

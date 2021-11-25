@@ -1,6 +1,5 @@
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
-import {Action} from 'lib-admin-ui/ui/Action';
 import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
@@ -11,8 +10,6 @@ import {ContextView} from './ContextView';
 import {FloatingContextPanel} from './FloatingContextPanel';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {PageEditorData} from '../../wizard/page/LiveFormPanel';
-import {Button} from 'lib-admin-ui/ui/button/Button';
-import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class ContextSplitPanel
     extends SplitPanel {
@@ -26,7 +23,6 @@ export class ContextSplitPanel
     private dockedModeChangedListeners: { (isDocked: boolean): void }[];
     private leftPanel: Panel;
     private wizardFormPanel?: Panel;
-    private foldButton: Button;
 
     constructor(splitPanelBuilder: ContextSplitPanelBuilder) {
         super(splitPanelBuilder);
@@ -43,10 +39,6 @@ export class ContextSplitPanel
 
         this.dockedContextPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
         this.initPanels();
-
-        this.foldButton = new Button(i18n('action.fold'));
-        this.foldButton.addClass('hide-mobile-preview-button');
-        this.insertChild(this.foldButton, 0);
     }
 
     private initPanels() {
@@ -126,10 +118,6 @@ export class ContextSplitPanel
 
     static create(firstPanel: Panel, secondPanel: DockedContextPanel): ContextSplitPanelBuilder {
         return new ContextSplitPanelBuilder(firstPanel, secondPanel);
-    }
-
-    onFoldClicked(action: () => void) {
-        this.foldButton.onClicked(action);
     }
 
     setBeforeExpandHandler(handler: () => void) {
