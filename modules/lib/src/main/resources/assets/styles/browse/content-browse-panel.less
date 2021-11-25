@@ -2,4 +2,39 @@
   .content-grid-and-browse-split-panel {
     top: 40px !important;
   }
+
+  &.mobile-mode {
+    .floating-context-panel {
+      height: 100%;
+    }
+
+    .context-split-panel {
+      z-index: 1;
+      width: 0 !important;
+      display: block !important;
+      transition: width .5s ease-in-out;
+    }
+
+    .content-browse-toolbar {
+      .non-mobile-details-panel-toggle-button {
+        display: none;
+      }
+    }
+
+    &.mobile-preview-on {
+      .content-browse-toolbar {
+        .icon-search {
+          display: none;
+        }
+
+        .non-mobile-details-panel-toggle-button {
+          display: flex;
+        }
+      }
+
+      .context-split-panel {
+        width: 100% !important;
+      }
+    }
+  }
 }
