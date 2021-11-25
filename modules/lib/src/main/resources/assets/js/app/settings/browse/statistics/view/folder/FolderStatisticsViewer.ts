@@ -4,6 +4,10 @@ import {FolderViewItem} from '../../../../view/FolderViewItem';
 export class FolderStatisticsViewer
     extends NamesAndIconViewer<FolderViewItem> {
 
+    constructor() {
+        super('folder-statistics-viewer');
+    }
+
     resolveDisplayName(item: FolderViewItem): string {
         return item.getDisplayName();
     }
