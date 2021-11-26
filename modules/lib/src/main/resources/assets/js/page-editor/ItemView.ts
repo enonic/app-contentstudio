@@ -182,6 +182,8 @@ export class ItemView
     private mouseClickedListener: (event: MouseEvent) => void;
     private contextMenuListener: (event: MouseEvent) => void;
 
+    public static LIVE_EDIT_SELECTED = 'live-edit-selected';
+
     public static debug: boolean;
 
     constructor(builder: ItemViewBuilder) {
@@ -781,7 +783,7 @@ export class ItemView
             PageViewController.get().setTextEditMode(false);
         }
 
-        this.getEl().setData('live-edit-selected', 'true');
+        this.getEl().setData(ItemView.LIVE_EDIT_SELECTED, 'true');
 
         //this.shade();
         this.showCursor();
