@@ -118,7 +118,6 @@ class SingleSelectionOptionSet extends Page {
 
     async getSingleSelectionTitle() {
         let locator = xpath.container + xpath.optionSetOccurrenceLabel;
-        let elems = this.findElements(locator);
         let result = await this.getText(locator);
         let tittle = result.split("\n");
         return tittle[0].trim();

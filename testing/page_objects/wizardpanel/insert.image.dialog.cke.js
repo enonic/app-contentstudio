@@ -156,6 +156,7 @@ class InsertImageDialog extends Page {
             await this.waitForElementDisplayed(XPATH.imageRangeValue, appConst.mediumTimeout);
             return await this.getText(XPATH.imageRangeValue);
         } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_range'));
             throw new Error("Error when getting text in element with image range " + err);
         }
     }

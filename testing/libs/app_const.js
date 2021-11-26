@@ -254,7 +254,8 @@ module.exports = Object.freeze({
         CUSTOM_SELECTOR_0_2: 'custom-selector0_2',
         CUSTOM_SELECTOR_1_1: 'custom-selector1_1',
         OPTION_SET: 'optionset',
-        ITEM_SET_0_0: 'item-set0_0'
+        ITEM_SET_0_0: 'item-set0_0',
+        SET_IN_SET: "set-in-set",
     },
     permissions: {
         FULL_ACCESS: `Full Access`,

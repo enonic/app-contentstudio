@@ -497,7 +497,7 @@ module.exports = {
                 await filterPanel.waitForOpened();
             }
             await filterPanel.typeSearchText(name);
-            await browsePanel.waitForSpinnerNotVisible(appConst.TIMEOUT_5);
+            await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
             return await browsePanel.pause(300);
         } catch (err) {
             this.saveScreenshot(appConst.generateRandomName('err_spinner'));
