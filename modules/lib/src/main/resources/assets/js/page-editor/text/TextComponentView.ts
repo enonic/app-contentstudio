@@ -26,6 +26,8 @@ import {Action} from 'lib-admin-ui/ui/Action';
 import * as Q from 'q';
 import {ContentSummary} from '../../app/content/ContentSummary';
 import {ContentPath} from '../../app/content/ContentPath';
+import {ItemViewSelectedEvent} from '../ItemViewSelectedEvent';
+import {SelectedHighlighter} from '../SelectedHighlighter';
 
 declare let CONFIG;
 
@@ -108,6 +110,26 @@ export class TextComponentView
         this.bindWindowFocusEvents();
 
         LiveEditPageDialogCreatedEvent.on(handleDialogCreated.bind(this));
+    }
+
+    private selectWhileEditing(): void {
+        const selectedView = SelectedHighlighter.get().getSelectedView();
+
+        if (selectedView === this) {
+            return;
+        } else if (selectedView) {
+            selectedView.deselect(true);
+        }
+
+        this.getEl().setData(ItemView.LIVE_EDIT_SELECTED, 'true');
+
+        this.showCursor();
+
+        if (!PageViewController.get().isLocked()) {
+            this.highlightSelected();
+        }
+
+        new ItemViewSelectedEvent({itemView: this, position: null}).fire();
     }
 
     private bindWindowFocusEvents() {
@@ -280,22 +302,24 @@ export class TextComponentView
         return this.hasClass(TextComponentView.EDITOR_FOCUSED_CLASS);
     }
 
-    setEditMode(flag: boolean) {
+    setEditMode(edit: boolean) {
         if (!this.initOnAdd) {
             return;
         }
 
-        if (!flag) {
+        if (!edit) {
             if (this.isEditorReady()) {
                 this.processEditorValue();
             }
             this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
+
+            this.deselect();
         }
 
-        this.toggleClass('edit-mode', flag);
-        this.setDraggable(!flag);
+        this.toggleClass('edit-mode', edit);
+        this.setDraggable(!edit);
 
-        if (flag) {
+        if (edit) {
             if (!this.isEditorPresentOrInitializing()) {
                 this.initEditor();
             }
@@ -414,6 +438,10 @@ export class TextComponentView
 
         HtmlEditor.create(htmlEditorParams).then((htmlEditor: HtmlEditor) => {
             this.htmlAreaEditor = htmlEditor;
+
+            this.htmlAreaEditor.on('focus', () => {
+                this.selectWhileEditing();
+            });
         });
     }
 
@@ -490,10 +518,6 @@ export class TextComponentView
 
     private startPageTextEditMode() {
         let pageView = this.getPageView();
-
-        if (pageView.hasSelectedView()) {
-            pageView.getSelectedView().deselect();
-        }
 
         if (!pageView.isTextEditMode()) {
             PageViewController.get().setTextEditMode(true);
