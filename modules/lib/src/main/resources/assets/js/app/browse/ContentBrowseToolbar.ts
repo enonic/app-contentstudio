@@ -28,20 +28,16 @@ export class ContentBrowseToolbar
         this.hideMobilePreviewButton.onClicked(action);
     }
 
-    setFoldButtonLabel(value: string) {
-        this.fold.setLabel(value);
-    }
-
     enableMobileMode(): void {
         this.setLocked(true);
         this.addAction(this.allActions.getPublishActions()[0]).addClass('publish-action');
-        this.doFold(true);
+        this.fold(true);
     }
 
     disableMobileMode(): void {
         this.setLocked(false);
         this.removeAction(this.allActions.getPublishActions()[0]);
-        this.doExpand();
+        this.expand();
     }
 
     protected isItemAllowedToFold(elem: Element): boolean {
