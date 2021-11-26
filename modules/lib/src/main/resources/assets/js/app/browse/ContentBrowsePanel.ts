@@ -47,6 +47,9 @@ import {Body} from 'lib-admin-ui/dom/Body';
 export class ContentBrowsePanel
     extends BrowsePanel {
 
+    private static MOBILE_MODE_CLASS = 'mobile-mode';
+    private static MOBILE_PREVIEW_CLASS = 'mobile-preview-on';
+
     protected treeGrid: ContentTreeGrid;
     protected browseToolbar: ContentBrowseToolbar;
     protected filterPanel: ContentBrowseFilterPanel;
@@ -110,16 +113,18 @@ export class ContentBrowsePanel
                 this.showPreviewPanel();
             }
 
-            this.toggleClass('mobile-mode', isMobile);
+            this.toggleClass(ContentBrowsePanel.MOBILE_MODE_CLASS, isMobile);
+            this.treeGrid.toggleClass(ContentBrowsePanel.MOBILE_MODE_CLASS, isMobile);
         });
 
         this.browseToolbar.onFoldClicked(() => {
             this.contextSplitPanel.getManager().hideActivePanel();
-            Body.get().removeClass('mobile-preview-on');
-            this.removeClass('mobile-preview-on');
-            this.browseToolbar.removeClass('mobile-preview-on');
+            Body.get().removeClass(ContentBrowsePanel.MOBILE_PREVIEW_CLASS);
+            this.removeClass(ContentBrowsePanel.MOBILE_PREVIEW_CLASS);
+            this.browseToolbar.removeClass(ContentBrowsePanel.MOBILE_PREVIEW_CLASS);
             this.browseToolbar.disableMobileMode();
             this.browseToolbar.updateFoldButtonLabel();
+            this.treeGrid.removeHighlighting();
         });
 
         this.handleGlobalEvents();
@@ -211,9 +216,9 @@ export class ContentBrowsePanel
             this.doUpdateContextPanel(item);
 
             if (this.contextSplitPanel.isMobileMode()) {
-                Body.get().addClass('mobile-preview-on');
-                this.addClass('mobile-preview-on');
-                this.browseToolbar.addClass('mobile-preview-on');
+                Body.get().addClass(ContentBrowsePanel.MOBILE_PREVIEW_CLASS);
+                this.addClass(ContentBrowsePanel.MOBILE_PREVIEW_CLASS);
+                this.browseToolbar.addClass(ContentBrowsePanel.MOBILE_PREVIEW_CLASS);
                 this.browseToolbar.enableMobileMode();
                 this.browseToolbar.setFoldButtonLabel(item.getDisplayName());
             }
