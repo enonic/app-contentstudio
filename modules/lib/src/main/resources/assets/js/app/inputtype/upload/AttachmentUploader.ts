@@ -25,6 +25,7 @@ import {Page} from '../../page/Page';
 import {ValidationError} from 'lib-admin-ui/ValidationError';
 import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
 import {AttachmentItem} from '../ui/upload/AttachmentItem';
+import {ValueChangedEvent} from 'lib-admin-ui/form/inputtype/ValueChangedEvent';
 
 export class AttachmentUploader
     extends BaseInputTypeManagingAdd {
@@ -36,6 +37,8 @@ export class AttachmentUploader
     private uploaderEl: AttachmentUploaderEl;
 
     private config: ContentInputTypeViewContext;
+
+    private hasAttachmentErrors: boolean;
 
     constructor(config: ContentInputTypeViewContext) {
         super('file-uploader');
@@ -54,6 +57,7 @@ export class AttachmentUploader
     update(propertyArray: PropertyArray, unchangedOnly?: boolean): Q.Promise<void> {
         return super.update(propertyArray, unchangedOnly).then(() => {
             this.doRefresh();
+            this.notifyValueChanged(new ValueChangedEvent(null, -1));
             return Q(null); //new Promise(null);
         });
     }
@@ -292,6 +296,7 @@ export class AttachmentUploader
         const recording: InputValidationRecording = super.doValidate();
 
         const attachmentErrors: ValidationError[] = this.getAttachmentErrors();
+        this.hasAttachmentErrors = false;
 
         if (attachmentErrors.length > 0) {
             let hasError: boolean = false;
@@ -307,6 +312,7 @@ export class AttachmentUploader
             });
 
             this.toggleClass('invalid', hasError);
+            this.hasAttachmentErrors = hasError;
 
             if (hasError) {
                 if (this.isSingleOccurrence()) {
@@ -328,6 +334,10 @@ export class AttachmentUploader
         const recording = new InputValidationRecording(this.input.getOccurrences(), 1);
         recording.setErrorMessage(i18n('validation.attachment.invalid'));
         return recording;
+    }
+
+    hasValidUserInput(): boolean {
+        return !this.hasAttachmentErrors;
     }
 
     hideValidationDetailsByDefault(): boolean {
