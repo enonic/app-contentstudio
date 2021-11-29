@@ -59,6 +59,7 @@ import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 import {ContentApp} from 'lib-contentstudio/app/ContentApp';
 import {SettingsApp} from 'lib-contentstudio/app/settings/SettingsApp';
 import {Store} from 'lib-admin-ui/store/Store';
+import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -398,6 +399,8 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams, connec
     EditContentEvent.on(ContentEventsProcessor.handleEdit);
 
     Body.get().addClass('wizard-page').appendChild(wizard);
+
+    TooltipHelper.init();
 }
 
 function getTheme(): string {
