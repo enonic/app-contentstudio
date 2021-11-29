@@ -16,77 +16,7 @@
     flex: 0 0 auto;
   }
 
-  .hide-mobile-preview-button {
-    display: none;
-  }
-
   &.mobile-preview-on {
-    background-color: @admin-black;
-
-    > *,
-    .non-mobile-details-panel-toggle-button {
-      border-color: @admin-black;
-      outline: none;
-    }
-
-    .non-mobile-details-panel-toggle-button.expanded::before {
-      content: "\e36b";
-    }
-
-    .hide-mobile-preview-button {
-      display: flex;
-    }
-
-    button,
-    button:hover:not(:disabled) {
-      &::before,
-      &::after {
-        color: @admin-white;
-      }
-    }
-
-    .fold-button {
-      margin-left: auto;
-      margin-right: auto;
-
-      .fold-label {
-        color: @admin-white;
-      }
-
-      &::after {
-        border-top-color: @admin-white;
-        border-bottom-color: @admin-white;
-      }
-
-      .@{_COMMON_PREFIX}dropdown {
-        background-color: @admin-black;
-        top: 39px;
-        width: 200px;
-        left: calc(50% - 100px);
-
-        button {
-          span {
-            color: @admin-white;
-          }
-
-          &.publish-action {
-            order: 1;
-
-            span {
-              color: @admin-green;
-            }
-          }
-        }
-      }
-
-      &.expanded {
-        .@{_COMMON_PREFIX}dropdown {
-          display: flex;
-          flex-direction: column;
-        }
-      }
-    }
-
     .content-publish-menu {
       display: none;
     }

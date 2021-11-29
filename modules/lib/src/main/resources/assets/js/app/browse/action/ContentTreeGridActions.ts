@@ -154,6 +154,10 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         ];
     }
 
+    getPublishAction(): Action {
+        return this.getAction(ActionName.PUBLISH);
+    }
+
     getPendingDeleteActions(): Action[] {
         return [
             this.getAction(ActionName.UNDO_PENDING_DELETE)
