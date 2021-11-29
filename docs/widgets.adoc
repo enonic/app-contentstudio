@@ -108,7 +108,7 @@ image::widgets-emulator.png[,515]
 
 === Components
 
-NOTE: The components widget is only available in the content wizard, just like the Emulator widget, won't be visible for the content that is not renderable.
+NOTE: The Components widget is only available inside a renderable content with Page Editor enabled.
 
 The components widget manipulates the page content and contains two tabs.
 
@@ -120,16 +120,14 @@ Insert tab allows to drag and drop components onto the page. There are five type
 
 * *Part.* Enables adding a part from one of the supported applications;
 
-* *Image.* Enables adding a new or existing image to the page;
-
-* *Text.* Enables adding a text using <<editor/rich-text-editor#,Rich Text Editor>> which provides ample opportunities for editing, such as creating links, placing videos, adding text headers etc;
+* *Text.* Enables adding a text section and embedding images using <<editor/rich-text-editor#,Rich Text Editor>> which provides ample opportunities for editing, such as creating links, embedding images, videos and macros, applying WYSIWYG formatting etc;
 
 * *Fragment.* Enables adding one of reusable fragments to the page.
 
 
 image::widgets-components-insert.png[,207]
 
-==== Component tab
+==== Components tab
 
 This tab enables configuration of the component selected on the page. The tab caption will change to reflect the type of the currently selected component.
 If nothing is selected, the tab caption will be `Page`.
