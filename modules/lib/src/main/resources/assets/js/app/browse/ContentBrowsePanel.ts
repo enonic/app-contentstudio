@@ -13,7 +13,6 @@ import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
 import {NewMediaUploadEvent} from '../create/NewMediaUploadEvent';
 import {ContentPreviewPathChangedEvent} from '../view/ContentPreviewPathChangedEvent';
-import {ContextSplitPanel} from '../view/context/ContextSplitPanel';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {UriHelper} from '../rendering/UriHelper';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
@@ -24,9 +23,7 @@ import {ContextPanel} from '../view/context/ContextPanel';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {RepositoryEvent} from 'lib-admin-ui/content/event/RepositoryEvent';
-import {SplitPanel} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
-import {BrowsePanel} from 'lib-admin-ui/app/browse/BrowsePanel';
 import {ContentIds} from '../content/ContentIds';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {UrlAction} from '../UrlAction';
@@ -40,26 +37,21 @@ import {ContentPath} from '../content/ContentPath';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
-import {DockedContextPanel} from '../view/context/DockedContextPanel';
 import {ContextView} from '../view/context/ContextView';
 import {Body} from 'lib-admin-ui/dom/Body';
+import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
 
 export class ContentBrowsePanel
-    extends BrowsePanel {
-
-    private static MOBILE_MODE_CLASS = 'mobile-mode';
-    private static MOBILE_PREVIEW_CLASS = 'mobile-preview-on';
+    extends ResponsiveBrowsePanel {
 
     protected treeGrid: ContentTreeGrid;
     protected browseToolbar: ContentBrowseToolbar;
     protected filterPanel: ContentBrowseFilterPanel;
-    private contextSplitPanel: ContextSplitPanel;
     private debouncedFilterRefresh: () => void;
     private debouncedBrowseActionsAndPreviewRefreshOnDemand: () => void;
     private browseActionsAndPreviewUpdateRequired: boolean = false;
     private contextPanelToggler: NonMobileContextPanelToggleButton;
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
-    protected contextView: ContextView;
 
     constructor() {
         super();
@@ -67,6 +59,8 @@ export class ContentBrowsePanel
 
     protected initElements() {
         super.initElements();
+
+        this.browseToolbar.addActions(this.getBrowseActions().getAllActionsNoPublish());
 
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
         this.debouncedFilterRefresh = AppHelper.debounce(this.refreshFilter.bind(this), 1000);
@@ -105,28 +99,6 @@ export class ContentBrowsePanel
             Router.get().setHash(UrlAction.BROWSE);
         });
 
-        this.contextSplitPanel.onMobileModeChanged((isMobile: boolean) => {
-            if (isMobile) {
-                this.hidePreviewPanel();
-            } else {
-                this.gridAndItemsSplitPanel.showFirstPanel();
-                this.showPreviewPanel();
-            }
-
-            this.toggleClass(ContentBrowsePanel.MOBILE_MODE_CLASS, isMobile);
-            this.treeGrid.toggleClass(ContentBrowsePanel.MOBILE_MODE_CLASS, isMobile);
-        });
-
-        this.browseToolbar.onFoldClicked(() => {
-            this.contextSplitPanel.getManager().hideActivePanel();
-            Body.get().removeClass(ContentBrowsePanel.MOBILE_PREVIEW_CLASS);
-            this.removeClass(ContentBrowsePanel.MOBILE_PREVIEW_CLASS);
-            this.browseToolbar.removeClass(ContentBrowsePanel.MOBILE_PREVIEW_CLASS);
-            this.browseToolbar.disableMobileMode();
-            this.browseToolbar.updateFoldButtonLabel();
-            this.treeGrid.removeHighlighting();
-        });
-
         this.handleGlobalEvents();
     }
 
@@ -139,7 +111,7 @@ export class ContentBrowsePanel
     }
 
     protected createToolbar(): ContentBrowseToolbar {
-        return new ContentBrowseToolbar(this.getBrowseActions());
+        return new ContentBrowseToolbar(this.getBrowseActions().getPublishAction());
     }
 
     protected createTreeGrid(): ContentTreeGrid {
@@ -165,15 +137,6 @@ export class ContentBrowsePanel
         return filterPanel;
     }
 
-    protected createBrowseWithItemsPanel(): SplitPanel {
-        this.contextView = new ContextView();
-        const leftPanel: ContentBrowseItemPanel = this.getBrowseItemPanel();
-        const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
-        this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel).setContextView(this.contextView).build();
-
-        return this.contextSplitPanel;
-    }
-
     protected updateFilterPanelOnSelectionChange() {
         this.filterPanel.setSelectedItems(this.treeGrid.getSelectedItems());
     }
@@ -188,11 +151,14 @@ export class ContentBrowsePanel
         super.disableSelectionMode();
     }
 
+    protected createContextView(): ContextView {
+        return new ContextView();
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             this.appendChild(this.getFilterAndGridSplitPanel());
 
-            this.subscribeContextPanelsOnEvents();
             this.createContentPublishMenuButton();
 
             this.addClass('content-browse-panel');
@@ -202,43 +168,6 @@ export class ContentBrowsePanel
             console.error('Couldn\'t render ContentBrowsePanel', error);
             return true;
         });
-    }
-
-    private updateContextPanelOnItemChange() {
-        if (this.treeGrid.isAnySelected() && !this.contextSplitPanel.isMobileMode()) {
-            this.doUpdateContextPanel(this.treeGrid.getCurrentSelection().pop());
-
-            return;
-        }
-
-        if (this.treeGrid.hasHighlightedNode()) {
-            const item: ContentSummaryAndCompareStatus = this.treeGrid.getHighlightedItem();
-            this.doUpdateContextPanel(item);
-
-            if (this.contextSplitPanel.isMobileMode()) {
-                Body.get().addClass(ContentBrowsePanel.MOBILE_PREVIEW_CLASS);
-                this.addClass(ContentBrowsePanel.MOBILE_PREVIEW_CLASS);
-                this.browseToolbar.addClass(ContentBrowsePanel.MOBILE_PREVIEW_CLASS);
-                this.browseToolbar.enableMobileMode();
-                this.browseToolbar.setFoldButtonLabel(item.getDisplayName());
-            }
-
-            return;
-        }
-
-        this.doUpdateContextPanel(null);
-    }
-
-    private subscribeContextPanelsOnEvents() {
-        this.treeGrid.onSelectionChanged(() => {
-            this.updateContextPanelOnItemChange();
-        });
-
-        const onHighlightingChanged = AppHelper.debounce(() => {
-            this.updateContextPanelOnItemChange();
-        }, 500);
-
-        this.getTreeGrid().onHighlightingChanged(onHighlightingChanged);
     }
 
     private handleGlobalEvents() {
@@ -273,7 +202,7 @@ export class ContentBrowsePanel
         RepositoryEvent.on(event => {
             if (event.isRestored()) {
                 this.treeGrid.reload().then(() => {
-                    this.updateContextPanelOnItemChange();
+                    this.updatePreviewItem();
                 });
             }
         });
@@ -564,11 +493,7 @@ export class ContentBrowsePanel
         //
     }
 
-    private hidePreviewPanel(): void {
-        this.gridAndItemsSplitPanel.hideSecondPanel();
-    }
-
-    private showPreviewPanel(): void {
-        this.gridAndItemsSplitPanel.showSecondPanel();
+    protected updateContextView(item: ContentSummaryAndCompareStatus) {
+        this.contextView.setItem(item);
     }
 }
