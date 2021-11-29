@@ -60,7 +60,6 @@ export class ContentBrowsePanel
     protected initElements() {
         super.initElements();
 
-        this.getBrowseActions().getAction(ActionName.UNDO_PENDING_DELETE).setVisible(false);
         this.browseToolbar.addActions(this.getBrowseActions().getAllActionsNoPublish());
 
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();

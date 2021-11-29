@@ -36,7 +36,7 @@ import {ContentId} from '../../content/ContentId';
 
 export enum ActionName {
     SHOW_NEW_DIALOG, PREVIEW, EDIT, ARCHIVE, DUPLICATE, MOVE, SORT, PUBLISH, PUBLISH_TREE, UNPUBLISH, MARK_AS_READY, REQUEST_PUBLISH,
-    CREATE_ISSUE, TOGGLE_SEARCH_PANEL, UNDO_PENDING_DELETE
+    CREATE_ISSUE, TOGGLE_SEARCH_PANEL
 }
 
 export enum State {
@@ -76,7 +76,6 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         this.actionsMap.set(ActionName.REQUEST_PUBLISH, new RequestPublishContentAction(this.grid));
         this.actionsMap.set(ActionName.CREATE_ISSUE, new CreateIssueAction(this.grid));
         this.actionsMap.set(ActionName.TOGGLE_SEARCH_PANEL, new ToggleSearchPanelAction(this.grid));
-        this.actionsMap.set(ActionName.UNDO_PENDING_DELETE, new UndoPendingDeleteContentAction(this.grid));
     }
 
     private initListeners() {
@@ -158,16 +157,9 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         return this.getAction(ActionName.PUBLISH);
     }
 
-    getPendingDeleteActions(): Action[] {
-        return [
-            this.getAction(ActionName.UNDO_PENDING_DELETE)
-        ];
-    }
-
     getAllActionsNoPublish(): Action[] {
         return [
-            ...this.getAllCommonActions(),
-            ...this.getPendingDeleteActions()
+            ...this.getAllCommonActions()
         ];
     }
 
@@ -259,13 +251,11 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
 
         this.getAction(ActionName.PUBLISH).setVisible(
             state.hasAllPendingDelete() || this.getAction(ActionName.PUBLISH).isEnabled());
-        this.getPendingDeleteActions().forEach((action) => action.setVisible(state.hasAllPendingDelete()));
         (<EditContentAction>this.getAction(ActionName.EDIT)).updateLabel(state);
     }
 
     private toggleVisibilityNoItemsSelected() {
         this.getAction(ActionName.UNPUBLISH).setVisible(false);
-        this.getAction(ActionName.UNDO_PENDING_DELETE).setVisible(false);
         (<EditContentAction>this.getAction(ActionName.EDIT)).resetLabel();
         this.showDefaultActions();
     }
@@ -278,7 +268,6 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         this.getAction(ActionName.CREATE_ISSUE).setEnabled(true);
 
         this.getAction(ActionName.UNPUBLISH).setVisible(false);
-        this.getAction(ActionName.UNDO_PENDING_DELETE).setVisible(false);
         (<EditContentAction>this.getAction(ActionName.EDIT)).resetLabel();
         this.showDefaultActions();
     }
