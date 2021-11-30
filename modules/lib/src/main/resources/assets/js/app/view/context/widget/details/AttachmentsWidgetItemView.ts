@@ -82,7 +82,7 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
                     let contentId = this.content.getContentId();
                     attachments.forEach((attachment: Attachment) => {
                         let attachmentContainer = new LiEl('attachment-container icon-attachment');
-                        let link = this.createLinkEl(contentId, attachment.getName());
+                        let link = AttachmentsWidgetItemView.createLinkEl(contentId, attachment.getName(), this.contentRootPath);
                         attachmentContainer.appendChild(link);
                         this.list.appendChild(attachmentContainer);
 
@@ -99,8 +99,8 @@ export class AttachmentsWidgetItemView extends WidgetItemView {
             });
     }
 
-    private createLinkEl(contentId: ContentId, attachmentName: AttachmentName): AEl {
-        const url: string =  Attachment.getUrl(contentId.toString(), attachmentName.toString());
+    private static createLinkEl(contentId: ContentId, attachmentName: AttachmentName, contentRootPath: string): AEl {
+        const url: string = Attachment.getUrl(contentId.toString(), attachmentName.toString(), contentRootPath);
         const link: AEl = new AEl().setUrl(url, '_blank');
         link.setHtml(attachmentName.toString());
         return link;
