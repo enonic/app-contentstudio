@@ -30,6 +30,8 @@ export class ConfirmValueDialog
 
     private yesCallback: () => void;
 
+    private noCallback: () => void;
+
     constructor(config: ConfirmValueDialogConfig = {}) {
         super(config);
     }
@@ -58,7 +60,15 @@ export class ConfirmValueDialog
 
         this.confirmAction.onExecuted(() => {
             this.close();
-            this.yesCallback();
+            if (this.yesCallback) {
+                this.yesCallback();
+            }
+        });
+
+        this.getCancelAction().onAfterExecute(() => {
+            if (this.noCallback) {
+                this.noCallback();
+            }
         });
 
         this.input.onValueChanged(this.handleInputValueChanged.bind(this));
@@ -154,6 +164,11 @@ export class ConfirmValueDialog
 
     setYesCallback(callback: () => void): ConfirmValueDialog {
         this.yesCallback = callback;
+        return this;
+    }
+
+    setNoCallback(callback: () => void): ConfirmValueDialog {
+        this.noCallback = callback;
         return this;
     }
 }
