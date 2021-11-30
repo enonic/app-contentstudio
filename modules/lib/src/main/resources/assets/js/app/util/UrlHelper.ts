@@ -10,7 +10,7 @@ export class UrlHelper {
 
     static getCMSPath(contentRootPath?: string): string {
         const requestProject: Project = ProjectContext.get().getProject();
-        return `cms/${requestProject.getName()}${!!contentRootPath ? '/' + contentRootPath : ''}`;
+        return `cms/${requestProject.getName()}${contentRootPath ? `/${contentRootPath}` : ''}`;
     }
 
     static getCMSPathForContentRoot(): string {
@@ -18,8 +18,8 @@ export class UrlHelper {
     }
 
     static getCMSPathWithProject(projectName: string, contentRootPath?: string): string {
-        const requestProject: string = !!projectName ? projectName : ProjectContext.get().getProject().getName();
-        return `cms/${requestProject}${!!contentRootPath ? '/' + contentRootPath : ''}`;
+        const requestProject: string = projectName ? projectName : ProjectContext.get().getProject().getName();
+        return `cms/${requestProject}${contentRootPath ? `/${contentRootPath}` : ''}`;
     }
 
 }

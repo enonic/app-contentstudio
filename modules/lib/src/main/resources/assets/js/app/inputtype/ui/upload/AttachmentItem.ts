@@ -16,14 +16,14 @@ export class AttachmentItem
 
     private errorBlock: DivEl;
 
-    constructor(contentId: string, value: string) {
+    constructor(contentId: string, value: string, contentRootPath?: string) {
         super('attachment-item');
 
         this.value = value;
         this.dataBlock = new DivEl('data-block');
         this.errorBlock = new DivEl('error-block');
 
-        this.link = new AEl().setUrl(Attachment.getUrl(contentId, value));
+        this.link = new AEl().setUrl(Attachment.getUrl(contentId, value, contentRootPath));
         this.link.setHtml(value);
 
         this.initRemoveButton();

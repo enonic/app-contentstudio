@@ -1,5 +1,4 @@
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
 
 export enum CompareStatus {
     NEW,
@@ -19,22 +18,16 @@ export class CompareStatusFormatter {
         switch (compareStatus) {
         case CompareStatus.NEW:
             return 'new';
-            break;
         case CompareStatus.NEWER:
             return 'modified';
-            break;
         case CompareStatus.PENDING_DELETE:
             return 'deleted';
-            break;
         case CompareStatus.EQUAL:
             return 'online';
-            break;
         case CompareStatus.MOVED:
             return 'moved';
-            break;
         case CompareStatus.ARCHIVED:
             return 'archived';
-            break;
         default:
             return 'unknown';
         }
