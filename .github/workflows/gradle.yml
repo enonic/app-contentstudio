@@ -12,7 +12,7 @@ jobs:
         runs-on: ubuntu-latest
 
         outputs:
-            publish: ${{ steps.publish_vars.outputs.release != 'true' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/3.')) }}
+            publish: ${{ steps.publish_vars.outputs.release != 'true' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/heads/3.') || startsWith(github.ref, 'refs/heads/4.')) }}
             repo: ${{ steps.publish_vars.outputs.repo }}
 
         steps:
