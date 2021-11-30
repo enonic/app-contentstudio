@@ -78,8 +78,8 @@ export class ContentSummaryAndCompareStatusViewer
         this.toggleClass('data-inherited', object.isDataInherited());
 
         if (!invalid && !object.isOnline() && !object.isPendingDelete()) {
-            const status: string = contentSummary.getWorkflow().getStateAsString();
-            this.getNamesAndIconView().setIconToolTip(i18n(`status.workflow.${status}`));
+            const workflowState = this.resolveWorkflowState(object);
+            this.getNamesAndIconView().setIconToolTip(workflowState);
             this.toggleClass('ready', !isPendingDelete && contentSummary.isReady());
             this.toggleClass('in-progress', !isPendingDelete && contentSummary.isInProgress());
         } else {
@@ -88,7 +88,12 @@ export class ContentSummaryAndCompareStatusViewer
         }
     }
 
-    private resolveSubNameForUploadItem(object: ContentSummaryAndCompareStatus): string {
+    protected resolveWorkflowState(object: ContentSummaryAndCompareStatus): string {
+        const state = object.getContentSummary().getWorkflow().getStateAsString();
+        return state ? i18n(`status.workflow.${state}`) : '';
+    }
+
+    protected resolveSubNameForUploadItem(object: ContentSummaryAndCompareStatus): string {
         return object.getUploadItem().getName();
     }
 
