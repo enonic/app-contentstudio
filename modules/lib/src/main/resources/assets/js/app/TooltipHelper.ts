@@ -23,7 +23,9 @@ export class TooltipHelper {
         let pageY = 0;
         let isVisibleCheckInterval;
 
-        const showAt = function (e: JQuery.MouseEventBase, forceTarget?: HTMLElement) {
+        let lastTarget: HTMLElement | undefined;
+
+        function showAt(e: JQuery.MouseEventBase, forceTarget?: HTMLElement): void {
             let top = e.clientY + OFFSET_Y;
             let left = e.clientX + OFFSET_X;
             const tooltipHeight = 30;
@@ -47,10 +49,18 @@ export class TooltipHelper {
             $(`<div id='${ID}' />`).text(tooltipText).css({
                 position: 'absolute', top, left, whiteSpace: 'nowrap'
             }).appendTo('body').show();
-        };
+        }
 
-        const addTooltip = (e: JQuery.MouseEventBase, forceTarget?: HTMLElement) => {
+        function addTooltip(e: JQuery.MouseEventBase, forceTarget?: HTMLElement): void {
             const target = forceTarget || e.currentTarget || e.target;
+            if (!target) {
+                return;
+            }
+            if (lastTarget) {
+                removeTooltip({target: lastTarget});
+            }
+            lastTarget = target;
+
             $(target).data(DATA, $(target).attr('title'));
             $(target).removeAttr('title').addClass(CLS_ON);
             if (e.clientX) {
@@ -60,16 +70,22 @@ export class TooltipHelper {
                 pageY = e.clientY;
             }
             showAt(e, target);
-            onRemovedOrHidden(<HTMLElement>target);
+            onRemovedOrHidden(target);
             $(target).on('click', removeTooltipOnClick);
-        };
+        }
 
-        const removeTooltipOnClick = (e: JQuery.MouseEventBase) => {
-            setTimeout(() => removeTooltip(e), 100);
-        };
+        function removeTooltipOnClick(e: JQuery.MouseEventBase): void {
+            setTimeout(() => {
+                const target = e.target || e.currentTarget;
+                const canRemove = !lastTarget || lastTarget.isEqualNode(target) || lastTarget.contains(target);
+                if (canRemove) {
+                    removeTooltip(e);
+                }
+            }, 100);
+        }
 
-        const removeTooltip = (e: any) => {
-            const tooltip = $('#' + ID);
+        function removeTooltip(e: any): void {
+            const tooltip = $(`#${ID}`);
             if (!tooltip.length) {
                 return;
             }
@@ -91,7 +107,7 @@ export class TooltipHelper {
             if (newTitle) {
                 addTooltip(e, target);
             }
-        };
+        }
 
         $(document).on('mouseenter', '*[title]:not([title=""]):not([disabled]):visible', addTooltip);
         $(document).on('mouseleave', `.${CLS_ON}`, removeTooltip);
@@ -105,7 +121,7 @@ export class TooltipHelper {
             removeTooltip({target});
         };
 
-        const onRemovedOrHidden = (target: HTMLElement) => {
+        function onRemovedOrHidden(target: HTMLElement): void {
             element = ElementRegistry.getElementById(target.id);
             if (element) {
                 element.onRemoved(removeHandler);
@@ -118,13 +134,14 @@ export class TooltipHelper {
                     }
                 }, 500);
             }
-        };
-        const unRemovedOrHidden = () => {
+        }
+
+        function unRemovedOrHidden(): void {
             if (element) {
                 element.unRemoved(removeHandler);
                 element.unHidden(removeHandler);
             }
-        };
+        }
     }
 
     static init() {
