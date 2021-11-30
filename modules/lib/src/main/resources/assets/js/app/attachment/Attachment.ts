@@ -82,10 +82,10 @@ export class Attachment
         return new AttachmentBuilder();
     }
 
-    static getUrl(contentId: string, attachmentName: string) {
-        return UrlHelper.getCmsRestUri(
-            `${UrlHelper.getCMSPathForContentRoot()}/content/media/${contentId}/${encodeURIComponent(attachmentName)}`
-        );
+    static getUrl(contentId: string, attachmentName: string, contentRootPath?: string) {
+        const cmsPath = contentRootPath == null ? UrlHelper.getCMSPathForContentRoot() : UrlHelper.getCMSPath(contentRootPath);
+        const uri = `${cmsPath}/content/media/${contentId}/${encodeURIComponent(attachmentName)}`;
+        return UrlHelper.getCmsRestUri(uri);
     }
 }
 
