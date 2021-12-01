@@ -77,7 +77,7 @@ export class TooltipHelper {
         function removeTooltipOnClick(e: JQuery.MouseEventBase): void {
             setTimeout(() => {
                 const target = e.target || e.currentTarget;
-                const canRemove = !lastTarget || lastTarget.isEqualNode(target);
+                const canRemove = !lastTarget || lastTarget.isEqualNode(target) || lastTarget.contains(target);
                 if (canRemove) {
                     removeTooltip(e);
                 }
