@@ -199,12 +199,7 @@ class UserBrowsePanel extends Page {
 
     hotKeyNew() {
         return this.browser.status().then(status => {
-            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
-                return this.browser.keys(['Control', 'Alt', 'n']);
-            }
-            if (status.os.name.toLowerCase().includes('mac')) {
-                return this.browser.keys(['Command', 'Alt', 'n']);
-            }
+            return this.browser.keys(['Control', 'Alt', 'n']);
         })
     }
 
@@ -214,12 +209,7 @@ class UserBrowsePanel extends Page {
 
     hotKeyDelete() {
         return this.browser.status().then(status => {
-            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
-                return this.browser.keys(['Control', 'Delete']);
-            }
-            if (status.os.name.toLowerCase().includes('mac')) {
-                return this.browser.keys(['Command', 'Delete']);
-            }
+            return this.browser.keys(['Control', 'Delete']);
         })
     }
 

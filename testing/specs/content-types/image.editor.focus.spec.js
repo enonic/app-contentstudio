@@ -67,7 +67,6 @@ describe("image.editor.focus.spec: tests for focus button", function () {
         async () => {
             let imageEditor = new ImageEditor();
             let imageFormPanel = new ImageFormPanel();
-            let contentWizard = new ContentWizard();
             //1. Open the focused image:
             await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.POP_02);
             await imageFormPanel.waitForImageLoaded(appConstant.mediumTimeout);

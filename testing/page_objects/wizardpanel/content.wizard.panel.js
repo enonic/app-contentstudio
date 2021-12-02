@@ -327,16 +327,9 @@ class ContentWizardPanel extends Page {
     async hotKeySaveAndCloseWizard() {
         try {
             let status = await this.getBrowser().status();
-            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
-                await this.getBrowser().keys(['Control', 'Enter']);
-                await this.doSwitchToContentBrowsePanel();
-                return await this.pause(500);
-            }
-            if (status.os.name.toLowerCase().includes('mac')) {
-                await this.getBrowser().keys(['Command', 'Enter']);
-                await this.doSwitchToContentBrowsePanel();
-                return await this.pause(500);
-            }
+            await this.getBrowser().keys(['Control', 'Enter']);
+            await this.doSwitchToContentBrowsePanel();
+            return await this.pause(500);
         } catch (err) {
             console.log("Save and close the wizard " + err);
             await this.doSwitchToContentBrowsePanel();
@@ -770,23 +763,13 @@ class ContentWizardPanel extends Page {
 
     hotKeyDelete() {
         return this.getBrowser().status().then(status => {
-            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
-                return this.getBrowser().keys(['Control', 'Delete']);
-            }
-            if (status.value.os.name.toLowerCase().includes('mac')) {
-                return this.getBrowser().keys(['Command', 'Delete']);
-            }
+            return this.getBrowser().keys(['Control', 'Delete']);
         })
     }
 
     hotKeySave() {
         return this.getBrowser().status().then(status => {
-            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
-                return this.getBrowser().keys(['Control', 's']);
-            }
-            if (status.os.name.toLowerCase().includes('mac')) {
-                return this.getBrowser().keys(['Command', 's']);
-            }
+            return this.getBrowser().keys(['Control', 's']);
         }).then(() => {
             return this.pause(1000);
         })

@@ -35,25 +35,14 @@ class BaseBrowsePanel extends Page {
 
     hotKeyDelete() {
         return this.getBrowser().status().then(status => {
-            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
-                return this.getBrowser().keys(['Control', 'Delete']);
-            }
-            if (status.os.name.toLowerCase().includes('mac')) {
-                return this.getBrowser().keys(['Command', 'Delete']);
-            }
+            return this.getBrowser().keys(['Control', 'Delete']);
         })
     }
 
     async hotKeyEdit() {
         let status = await this.getBrowser().status();
-        if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
-            await this.getBrowser().keys(['Control', 'e']);
-            return await this.pause(500);
-        }
-        if (status.os.name.toLowerCase().includes('mac')) {
-            await this.getBrowser().keys(['Command', 'e']);
-            return await this.pause(500);
-        }
+        await this.getBrowser().keys(['Control', 'e']);
+        return await this.pause(500);
     }
 
     async clickOnSelectionControllerCheckbox() {
