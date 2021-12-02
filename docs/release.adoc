@@ -8,6 +8,14 @@ TIP: Release Notes for Content Studio 3.x can be found https://developer.enonic.
 
 IMPORTANT: Content Studio 4.0 requires XP 7.8.0 or higher.
 
+=== Support disabling of content path transliteration
+
+By default, content path in the <<editor/content-form#, Content Form>> will be auto-generated based on a value typed into the display name field
+and all the international letters will be automatically transliterated into their english equivalents (for example, "_/øåæ_" becomes "_/oaae_", "_/рыба_" becomes "_/ryba_" etc.)
+
+It's now possible to turn off automatic transliteration by setting `contentWizard.allowPathTransliteration` property to `false` in the
+Content Studio's <<configuration_file#, config file>>.
+
 === Image Component is deprecated
 
 Image Component has been deprecated in favour of <<editor/component-types#text_component, `Text Component`>> which can be used for embedding
