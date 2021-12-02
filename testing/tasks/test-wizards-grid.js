@@ -50,7 +50,8 @@ async function uiTests() {
         console.log("Download chrome driver");
         await selenium.install({
             version: seleniumVersion,
-            baseURL: 'https://selenium-release.storage.googleapis.com',
+            //baseURL: 'https://selenium-release.storage.googleapis.com',
+            fullURL: 'https://selenium-release.storage.googleapis.com/4.0-alpha-7/selenium-server-4.0.0-alpha-7.jar',
             drivers: {
                 chrome: {
                     version: driverVersion,

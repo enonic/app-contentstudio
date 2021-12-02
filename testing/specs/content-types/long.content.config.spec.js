@@ -72,7 +72,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             assert.equal(actualText,"", 'Input Validation recording should not be displayed');
         });
 
-    it(`GIVEN wizard for required 'Long(min 1,max 10)' is opened WHEN min value has been typed THEN input validation record should not be visible`,
+    it(`GIVEN wizard for required 'Long(min 1,max 10)' is opened WHEN min value has been typed THEN input validation recording should not be visible`,
         async () => {
             let longForm = new LongForm();
             return studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.LONG_MIN_MAX);
@@ -85,7 +85,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             assert.equal(actualText,"", 'Input Validation recording should not be displayed');
         });
 
-    it(`GIVEN wizard for required 'Long(min 1,max 10)' is opened WHEN invalid value has been typed THEN validation record gets visible`,
+    it(`GIVEN wizard for required 'Long(min 1,max 10)' is opened WHEN invalid value has been typed THEN validation recording gets visible`,
         async () => {
             let longForm = new LongForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.LONG_MIN_MAX);
@@ -97,7 +97,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             assert.equal(actualText, 'Invalid value entered', 'expected input validation recording should appear');
         });
 
-    it(`GIVEN invalid value is typed AND validation message is present WHEN valid value has been typed THEN validation record gets hidden`,
+    it(`GIVEN invalid value is typed AND validation message is present WHEN valid value has been typed THEN validation recording gets hidden`,
         async () => {
             let longForm = new LongForm();
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.LONG_MIN_MAX);
@@ -115,7 +115,7 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
             assert.equal(actualText,"", 'Validation recording should not be displayed');
         });
 
-    it(`GIVEN wizard for 'Long(min 1,max 10,required)' is opened WHEN not valid value has been typed THEN 'Save' button should be disabled`,
+    it(`GIVEN wizard for 'Long(min 1,max 10,required)' is opened WHEN invalid value has been typed THEN 'Save' button should be disabled`,
         async () => {
             let longForm = new LongForm();
             let contentWizardPanel = new ContentWizardPanel();

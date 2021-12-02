@@ -121,7 +121,7 @@ describe('occurrences.long.spec:  tests for content with Long inputs', function 
             await longForm.waitForRedBorderInLongInput(0);
         });
 
-    it(`GIVEN wizard for 'long 2:4' content is opened WHEN values in both inputs have been typed and one is invalid THEN red border should be present in the second long input`,
+    it(`GIVEN wizard for new 'long 2:4' content is opened WHEN values in both inputs have been typed and one is invalid THEN red border should be present in the second long input`,
         async () => {
             let longForm = new LongForm();
             let contentWizard = new ContentWizard();
