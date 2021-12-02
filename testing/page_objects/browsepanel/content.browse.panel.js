@@ -194,12 +194,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     hotKeyPublish() {
         return this.getBrowser().status().then(status => {
-            if (status.os.name.toLowerCase().includes('wind') || status.os.name.toLowerCase().includes('linux')) {
-                return this.getBrowser().keys(['Control', 'Alt', 'p']);
-            }
-            if (status.os.name.toLowerCase().includes('mac')) {
-                return this.getBrowser().keys(['Command', 'Alt', 'p']);
-            }
+            return this.getBrowser().keys(['Control', 'Alt', 'p']);
         })
     }
 
