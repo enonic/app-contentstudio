@@ -13,7 +13,7 @@ export abstract class AppContainer
     protected appPanel: AppPanel;
 
     protected constructor(className?: string) {
-        super('app-container ' + (className ? className : ''));
+        super(`app-container ${className || ''}`);
 
         this.initElements();
     }
@@ -36,8 +36,7 @@ export abstract class AppContainer
     }
 
     protected appendElements(): void {
-        this.appendChild(this.appBar);
-        this.appendChild(this.appPanel);
+        this.appendChildren(...[this.appBar, this.appPanel]);
     }
 
     hide() {
