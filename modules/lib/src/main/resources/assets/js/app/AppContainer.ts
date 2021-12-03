@@ -12,13 +12,13 @@ export abstract class AppContainer
 
     protected appPanel: AppPanel;
 
-    constructor() {
-        super('app-container');
+    protected constructor(className?: string) {
+        super(`app-container ${className || ''}`);
 
         this.initElements();
     }
 
-    private initElements() {
+    protected initElements() {
         this.appBar = this.createAppBar(Store.instance().get('application'));
         this.appPanel = this.createAppPanel();
     }
@@ -29,27 +29,29 @@ export abstract class AppContainer
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.addClass('app-container');
-            this.appendChild(this.appBar);
-            this.appendChild(this.appPanel);
+            this.appendElements();
 
             return rendered;
         });
     }
 
+    protected appendElements(): void {
+        this.appendChildren(...[this.appBar, this.appPanel]);
+    }
+
     hide() {
         super.hide();
-        this.appPanel.unbindKeys();
+        this.appPanel?.unbindKeys();
     }
 
     show() {
         super.show();
 
-        if (!this.appPanel.getPanelShown()) {
+        if (this.appPanel && !this.appPanel.getPanelShown()) {
             this.appPanel.handleBrowse();
         }
 
-        this.appPanel.bindKeys();
+        this.appPanel?.bindKeys();
     }
 }
 
