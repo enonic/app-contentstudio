@@ -8,6 +8,16 @@ TIP: Release Notes for Content Studio 3.x can be found https://developer.enonic.
 
 IMPORTANT: Content Studio 4.0 requires XP 7.8.0 or higher.
 
+=== Visualisation of inbound references in the Archive dialog
+
+When deleting or archiving content it's important to visualise if the content about to be deleted/archived has any inbound references as
+the delete/archive operation may potentially break rendering of the content structure. Previously, inbound references were displayed only for the items
+selected for deletion (but not for their descendants). Starting from version 4.0 visualisation of inbound references in the Delete/Archive dialog
+has been improved: a special icon will be displayed for all items that have inbound references, and if at least one of the items is referenced
+then there will be a separate warning about that at the top of the dialog.
+
+image::cs40-inbound-references.png[Inbound references in the Archive dialog, 600]
+
 === Support disabling of content path transliteration
 
 By default, content path in the <<editor/content-form#, Content Form>> will be auto-generated based on a value typed into the display name field
