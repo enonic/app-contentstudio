@@ -21,7 +21,7 @@
     "mocha": "^9.1.3",
     "mochawesome": "7.0.1",
     "properties-reader": "^2.2.0",
-    "selenium-standalone": "^8.0.6",
+    "selenium-standalone": "^8.0.8",
     "webdriverio": "^7.16.10"
   }
 }
