@@ -13,9 +13,7 @@ const getLicenseDetails = function (license) {
 }
 
 const isCurrentLicenseValid = function () {
-    const licenseDetails = getLicenseDetails();
-
-    return licenseDetails && !licenseDetails.expired;
+    return isLicenseValid();
 }
 
 const isLicenseValid = function (license) {
@@ -25,7 +23,6 @@ const isLicenseValid = function (license) {
 }
 
 exports.isCurrentLicenseValid = isCurrentLicenseValid;
-exports.isLicenseValid = isLicenseValid;
 
 exports.installLicense = function (license) {
     if (!isLicenseValid(license)) {
