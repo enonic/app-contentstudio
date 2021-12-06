@@ -27,14 +27,6 @@ const isLicenseValid = function (license) {
 exports.isCurrentLicenseValid = isCurrentLicenseValid;
 exports.isLicenseValid = isLicenseValid;
 
-exports.getIssuedTo = function () {
-    if (!isCurrentLicenseValid()) {
-        return "Invalid license";
-    }
-
-    return "Issued to " + getLicenseDetails().issuedTo;
-}
-
 exports.installLicense = function (license) {
     if (!isLicenseValid(license)) {
         return false;
