@@ -37,6 +37,8 @@ dependencies {
     include "com.enonic.xp:lib-content:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
     include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
+    include "com.enonic.xp:lib-io:${xpVersion}"
+    include "com.enonic.lib:lib-license:3.0.0"
     include project( ':lib-contentstudio' )
     include project( ':rest' )
     devResources project(path: ':lib-contentstudio', configuration: 'devResources' )
