@@ -32,7 +32,8 @@ function handleGet() {
             stylesUrl: portal.serviceUrl({service: 'styles'}),
             i18nUrl: portal.serviceUrl({service: 'i18n'}),
             contentServiceUrl: portal.serviceUrl({service: 'content'}),
-            adminToolsUrl: portal.serviceUrl({service: 'admintools'})
+            adminToolsUrl: portal.serviceUrl({service: 'admintools'}),
+            licenseUrl: portal.serviceUrl({service: 'license'})
         },
         allowScriptsInEditor,
         allowContentUpdate,
