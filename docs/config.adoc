@@ -41,3 +41,13 @@ Used for setting size limit on attachments, media content and both project and c
 ----
 uploadMaxFileSize = 100mb
 ----
+
+=== Turn off content path transliteration
+
+Turn off automatic transliteration of content path when generating it based on a value typed into the display name field in the Content form.
+
+.com.enonic.app.contentstudio.cfg
+[source,properties]
+----
+contentWizard.allowPathTransliteration=false
+----
