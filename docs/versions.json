@@ -1,17 +1,8 @@
-
 {
   "versions": [
     {
       "label": "2.x",
       "checkout": "a24d80d3eeef3439ff9f4f192bc3a567da2493f1"
-    },
-    {
-      "label": "3.x",
-      "checkout": "aa436bce3e13156cb4c09fcdabe900ee7da584f3"
-    },
-    {
-      "label": "next",
-      "checkout": "f6d472455976b210ae4d7c7c1adfff974cc90da6"
     },
     {
       "label": "stable",
