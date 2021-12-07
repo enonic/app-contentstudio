@@ -1,5 +1,5 @@
 <service>
     <allow>
-        <principal>role:system.admin</principal>
+        <principal>role:system.authenticated</principal>
     </allow>
 </service>
