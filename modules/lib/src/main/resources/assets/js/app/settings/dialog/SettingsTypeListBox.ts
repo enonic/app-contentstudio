@@ -2,6 +2,7 @@ import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {SettingsType} from './SettingsType';
 import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {SettingsTypeViewer} from './SettingsTypeViewer';
+import {AccessibilityHelper} from '../../util/AccessibilityHelper';
 
 export class SettingsTypeListBox
     extends ListBox<SettingsType> {
@@ -11,9 +12,12 @@ export class SettingsTypeListBox
     createItemView(item: SettingsType): NamesAndIconViewer<SettingsType> {
         const itemView: SettingsTypeViewer = new SettingsTypeViewer(item.getName().toLowerCase());
 
+        AccessibilityHelper.tabIndex(itemView);
+
         itemView.onClicked(() => {
             this.notifyItemClicked(item);
         });
+
         itemView.setObject(item);
 
         return itemView;
@@ -38,5 +42,4 @@ export class SettingsTypeListBox
             listener(item);
         });
     }
-
 }
