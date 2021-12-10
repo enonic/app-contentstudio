@@ -11,6 +11,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
 import {ProjectListWithMissingRequest} from '../settings/resource/ProjectListWithMissingRequest';
+import {AccessibilityHelper} from '../util/AccessibilityHelper';
 
 export class ContentAppBar
     extends AppBar {
@@ -68,6 +69,7 @@ export class ContentAppBar
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             const iconEl: DivEl = new DivEl('project-selection-icon icon-compare');
+            AccessibilityHelper.tabIndex(iconEl);
             this.selectedProjectViewer.appendChild(iconEl);
             this.selectedProjectViewer.setTitle(i18n('text.selectContext'));
             this.addClass('appbar-content');
