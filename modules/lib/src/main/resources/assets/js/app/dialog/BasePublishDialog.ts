@@ -23,6 +23,8 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {ContentId} from '../content/ContentId';
+import {Menu} from 'lib-admin-ui/ui/menu/Menu';
+import {AccessibilityHelper} from '../util/AccessibilityHelper';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
@@ -331,5 +333,13 @@ export class PublishDialogButtonRow
     setTotalInProgress(totalInProgress: number) {
         this.toggleClass('has-items-in-progress', totalInProgress > 0);
         this.getMenuActions()[0].setLabel(i18n('action.markAsReadyTotal', totalInProgress));
+        this.addAccessibilityToMarkAsReadyTotalElement();
+    }
+
+    private addAccessibilityToMarkAsReadyTotalElement(): void{
+        const menu = this.actionMenu.getChildren()
+            .find((el) => el instanceof Menu) || {} as Menu;
+        const markAsReadyTotalElement = menu.getFirstChild();
+        markAsReadyTotalElement && AccessibilityHelper.tabIndex(markAsReadyTotalElement);
     }
 }
