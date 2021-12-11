@@ -606,7 +606,7 @@ export class ContentWizardPanel
         if (this.livePanel) {
             this.contextSplitPanel.onModeChanged((mode: ContextPanelMode) => {
                 const formPanelSizePercents: number = mode === ContextPanelMode.DOCKED ? 50 : 38;
-                this.splitPanel.setFirstPanelSize( SplitPanelSize.Percents(formPanelSizePercents));
+                this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(formPanelSizePercents));
                 this.splitPanel.distribute();
 
                 const contextPanelSizePercents: number = mode === ContextPanelMode.DOCKED ? 24 : 38;
