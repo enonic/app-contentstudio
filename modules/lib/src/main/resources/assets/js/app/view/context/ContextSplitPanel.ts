@@ -26,7 +26,7 @@ export class ContextSplitPanel
 
     private contextPanelMode: ContextPanelMode;
     private contextPanelState: ContextPanelState = ContextPanelState.COLLAPSED;
-    private debouncedResizeHandler: () => void = AppHelper.debounce(this.doHandleResizeEvent, 300, false);
+    private debouncedResizeHandler: () => void = AppHelper.debounce(this.doHandleResizeEvent, 650, false);
     private mobileMode: boolean;
     private contextView: ContextView;
     private dockedContextPanel: DockedContextPanel;

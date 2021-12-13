@@ -24,7 +24,7 @@ export class ContentWizardContextSplitPanel
     }
 
     protected getLeftPanelResponsiveRangeToSwitchToFloatingMode(): ResponsiveRange {
-        if (!this.data || !this.data.liveFormPanel || this.isPageEditorShown()) {
+        if (!this.data || !this.data.liveFormPanel || !this.isPageEditorShown()) {
             return ResponsiveRanges._720_960;
         }
 
@@ -41,6 +41,14 @@ export class ContentWizardContextSplitPanel
 
     private isWizardPanelMaximized(): boolean {
         return this.wizardFormPanel && !this.wizardFormPanel.hasClass('minimized');
+    }
+
+    getActiveWidthPxOfSecondPanel(): number {
+        if (this.isPageEditorShown() && this.isWizardPanelMaximized() && this.isFloatingMode()) {
+            return this.getEl().getWidthWithBorder() / 100 * 24;
+        }
+
+        return super.getActiveWidthPxOfSecondPanel();
     }
 
     static create(firstPanel: Panel, secondPanel: DockedContextPanel): ContentWizardContextSplitPanelBuilder {
