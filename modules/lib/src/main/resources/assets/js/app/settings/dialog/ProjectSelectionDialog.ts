@@ -42,9 +42,7 @@ export class ProjectSelectionDialog
         this.updateOnOpen = false;
         this.projectsList.setItems(projects);
 
-        this.projectsList.getItemViews().forEach((itemView: ProjectListItem, index: number) => {
-            index === 0 && itemView.getEl().focus();
-
+        this.projectsList.getItemViews().forEach((itemView: ProjectListItem) => {
             itemView.onClicked((event: MouseEvent) => {
                 if (!event.ctrlKey && !event.shiftKey) {
                     if (itemView.isSelectable()) {
