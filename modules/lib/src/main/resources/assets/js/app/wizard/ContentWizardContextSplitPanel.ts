@@ -10,9 +10,9 @@ import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
 export class ContentWizardContextSplitPanel
     extends ContextSplitPanel {
 
-    private data: PageEditorData;
+    private readonly data: PageEditorData;
 
-    private wizardFormPanel: Panel;
+    private readonly wizardFormPanel: Panel;
 
     constructor(splitPanelBuilder: ContentWizardContextSplitPanelBuilder) {
         super(splitPanelBuilder);
@@ -24,7 +24,7 @@ export class ContentWizardContextSplitPanel
     }
 
     protected getLeftPanelResponsiveRangeToSwitchToFloatingMode(): ResponsiveRange {
-        if (!this.isPageEditorShown()) {
+        if (!this.data || !this.data.liveFormPanel || this.isPageEditorShown()) {
             return ResponsiveRanges._720_960;
         }
 

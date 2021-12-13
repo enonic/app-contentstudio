@@ -135,6 +135,7 @@ import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
 import {ContentWizardContextSplitPanel} from './ContentWizardContextSplitPanel';
 import {ContextPanelMode} from '../view/context/ContextSplitPanel';
+import {ContextPanelState} from '../view/context/ContextPanelState';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -596,7 +597,7 @@ export class ContentWizardPanel
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
 
         this.contextSplitPanel = ContentWizardContextSplitPanel.create(leftPanel, rightPanel)
-            .setSecondPanelSize(SplitPanelSize.Percents(38))
+            .setSecondPanelSize(SplitPanelSize.Percents(this.livePanel ? 24 : 38))
             .setContextView(this.contextView)
             .setData(data)
             .setWizardFormPanel(this.formPanel)
@@ -605,13 +606,22 @@ export class ContentWizardPanel
 
         if (this.livePanel) {
             this.contextSplitPanel.onModeChanged((mode: ContextPanelMode) => {
-                const formPanelSizePercents: number = mode === ContextPanelMode.DOCKED ? 50 : 38;
-                this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(formPanelSizePercents));
-                this.splitPanel.distribute();
+                if (!this.isMinimized()) {
+                    const formPanelSizePercents: number = mode === ContextPanelMode.DOCKED ? 50 : 38;
+                    this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(formPanelSizePercents));
+                    this.splitPanel.distribute();
+                }
 
-                const contextPanelSizePercents: number = mode === ContextPanelMode.DOCKED ? 24 : 38;
+                const contextPanelSizePercents: number = (mode === ContextPanelMode.DOCKED && !this.isMinimized()) ? 24 : 38;
                 this.contextSplitPanel.setActiveWidthPxOfSecondPanel(SplitPanelSize.Percents(contextPanelSizePercents));
                 this.contextSplitPanel.distribute();
+            });
+
+            this.contextSplitPanel.onStateChanged((state: ContextPanelState) => {
+                if (state === ContextPanelState.COLLAPSED && !this.isMinimized()) {
+                    this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(38));
+                    this.splitPanel.distribute();
+                }
             });
         }
 
