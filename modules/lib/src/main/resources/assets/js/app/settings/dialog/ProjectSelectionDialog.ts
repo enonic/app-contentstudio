@@ -42,7 +42,9 @@ export class ProjectSelectionDialog
         this.updateOnOpen = false;
         this.projectsList.setItems(projects);
 
-        this.projectsList.getItemViews().forEach((itemView: ProjectListItem) => {
+        this.projectsList.getItemViews().forEach((itemView: ProjectListItem, index: number) => {
+            index === 0 && itemView.getEl().focus();
+
             itemView.onClicked((event: MouseEvent) => {
                 if (!event.ctrlKey && !event.shiftKey) {
                     if (itemView.isSelectable()) {
@@ -92,6 +94,7 @@ export class ProjectSelectionDialog
     open() {
         if (!this.updateOnOpen) {
             this.showItems();
+            this.addFocusToFirstProjectListElement();
         } else {
             this.loadProjects();
         }
@@ -135,6 +138,11 @@ export class ProjectSelectionDialog
 
             return rendered;
         });
+    }
+
+    private addFocusToFirstProjectListElement(): void{
+        this.projectsList.getItems().length > 0
+            && this.setElementToFocusOnShow(this.projectsList.getItemViews()[0]);
     }
 
 }
