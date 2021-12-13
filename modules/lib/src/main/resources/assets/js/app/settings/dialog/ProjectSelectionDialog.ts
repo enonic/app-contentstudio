@@ -139,7 +139,7 @@ export class ProjectSelectionDialog
     }
 
     private addFocusToFirstProjectListElement(): void{
-        this.projectsList.getItems().length > 0
+        this.projectsList.getItemViews().length > 0
             && this.setElementToFocusOnShow(this.projectsList.getItemViews()[0]);
     }
 
