@@ -23,6 +23,9 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {ContentId} from '../content/ContentId';
+import {MenuItem} from 'lib-admin-ui/ui/menu/MenuItem';
+import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
+import {AccessibilityHelper} from '../util/AccessibilityHelper';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
@@ -328,8 +331,19 @@ export abstract class BasePublishDialog
 export class PublishDialogButtonRow
     extends DropdownButtonRow {
 
+    makeActionMenu(mainAction: Action, menuActions: Action[], useDefault?: boolean): MenuButton {
+        const menuButton: MenuButton = super.makeActionMenu(mainAction, menuActions, useDefault);
+        this.addAccessibilityToMarkAsReadyTotalElement();
+        return menuButton;
+    }
+
     setTotalInProgress(totalInProgress: number) {
         this.toggleClass('has-items-in-progress', totalInProgress > 0);
         this.getMenuActions()[0].setLabel(i18n('action.markAsReadyTotal', totalInProgress));
+    }
+
+    private addAccessibilityToMarkAsReadyTotalElement(): void{
+        const markAsReadyMenuItem: MenuItem = this.actionMenu.getMenuItem(this.getMenuActions()[0]);
+        AccessibilityHelper.tabIndex(markAsReadyMenuItem);
     }
 }
