@@ -8,7 +8,7 @@ export class AccessibilityHelper {
 
        // Enter event will execute a click
        element.onKeyPressed((event: KeyboardEvent) => {
-           event.keyCode === 13 && element.getHTMLElement().click();
+           event.key === 'Enter' && element.getHTMLElement().click();
        });
     }
 }
