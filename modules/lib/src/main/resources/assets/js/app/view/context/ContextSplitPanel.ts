@@ -83,7 +83,7 @@ export class ContextSplitPanel
 
     protected getExpectedContextPanelMode(): ContextPanelMode {
         const parentWidth: number = this.getParentElement().getEl().getWidthWithBorder();
-        const letPanelFloatingModeResponsiveRange: ResponsiveRange = this.getLeftPanelResponsiveRangeToSwitchToFloatingMode();
+        const leftPanelFloatingModeResponsiveRange: ResponsiveRange = this.getLeftPanelResponsiveRangeToSwitchToFloatingMode();
 
         // Calculate context panel with half width of the splitter, since context panel in floating mode
         // is bigger on that value.
@@ -91,7 +91,7 @@ export class ContextSplitPanel
         const halfSplitter: number = this.getSplitterThickness() / 2;
         const leftPanelExpectedWidth: number = parentWidth - (contextPanelWidth + halfSplitter);
 
-        return letPanelFloatingModeResponsiveRange.isFitOrSmaller(leftPanelExpectedWidth)
+        return leftPanelFloatingModeResponsiveRange.isFitOrSmaller(leftPanelExpectedWidth)
                ? ContextPanelMode.FLOATING
                : ContextPanelMode.DOCKED;
     }
@@ -140,8 +140,7 @@ export class ContextSplitPanel
 
     private requiresCollapsedContextPanel(): boolean {
         const totalWidth: number = Body.get().getEl().getWidthWithBorder();
-        return this.getExpectedContextPanelMode() === ContextPanelMode.FLOATING ||
-               ResponsiveRanges._1620_1920.isFitOrSmaller(totalWidth);
+        return ResponsiveRanges._1620_1920.isFitOrSmaller(totalWidth) || this.getExpectedContextPanelMode() === ContextPanelMode.FLOATING;
     }
 
     private subscribeContextPanelsOnEvents(): void {
