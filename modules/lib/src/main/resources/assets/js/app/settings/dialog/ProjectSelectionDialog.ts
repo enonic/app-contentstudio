@@ -55,6 +55,8 @@ export class ProjectSelectionDialog
                 }
             });
         });
+
+        this.setLastProjectCycleOnTabEvent();
     }
 
     setUpdateOnOpen(value: boolean) {
@@ -134,6 +136,23 @@ export class ProjectSelectionDialog
             this.appendChildToContentPanel(this.noItemsInfoBlock);
 
             return rendered;
+        });
+    }
+
+    // Cycle to the first project element when tabbing in the last element
+    private setLastProjectCycleOnTabEvent(): void {
+        if (this.projectsList.getItemViews().length === 0) {
+            return;
+        }
+
+        const firstProject: ProjectListItem =
+            <ProjectListItem>this.projectsList.getItemViews()[0];
+
+        const lastProject: ProjectListItem =
+            <ProjectListItem>this.projectsList.getItemViews()[this.projectsList.getItemViews().length - 1];
+
+        lastProject.onKeyDown((event: KeyboardEvent) => {
+            setTimeout(() => event.key === 'Tab' && firstProject.getHTMLElement().focus(), 1);
         });
     }
 

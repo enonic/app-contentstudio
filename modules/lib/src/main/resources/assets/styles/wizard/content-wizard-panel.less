@@ -177,10 +177,6 @@
       .form-panel {
         width: 100% !important;
       }
-
-      & > .splitter, .live-form-panel {
-        display: none !important;
-      }
     }
 
     &.toggle-live {
@@ -323,11 +319,6 @@
     overflow: visible;
     height: calc(100vh - @app-header-height);
 
-    &.floating-context-panel {
-      top: @app-header-height + 1;
-      z-index: @z-index-tab-menu - 1;
-    }
-
     .non-mobile-details-panel-toggle-button {
       top: 0;
       border: none;
@@ -351,7 +342,7 @@
     }
   }
 
-  .split-panel .context-panel.floating-context-panel {
+  .split-panel.floating .context-panel {
     top: 0;
   }
 

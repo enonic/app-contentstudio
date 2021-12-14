@@ -1,3 +1,3 @@
 export enum ContextPanelState {
-    FLOATING, DOCKED, COLLAPSED
+    EXPANDED = 'expanded', COLLAPSED = 'collapsed'
 }

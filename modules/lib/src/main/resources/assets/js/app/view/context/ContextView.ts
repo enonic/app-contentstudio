@@ -13,7 +13,6 @@ import {StatusWidgetItemView} from './widget/details/StatusWidgetItemView';
 import {PropertiesWidgetItemView} from './widget/details/PropertiesWidgetItemView';
 import {AttachmentsWidgetItemView} from './widget/details/AttachmentsWidgetItemView';
 import {PageTemplateWidgetItemView} from './widget/details/PageTemplateWidgetItemView';
-import {ActiveContextPanelManager} from './ActiveContextPanelManager';
 import {ActiveContentVersionSetEvent} from '../../event/ActiveContentVersionSetEvent';
 import {GetWidgetsByInterfaceRequest} from '../../resource/GetWidgetsByInterfaceRequest';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
@@ -106,8 +105,7 @@ export class ContextView
         this.onRemoved(() => ApplicationEvent.un(handleApplicationEvents));
 
         ActiveContentVersionSetEvent.on(() => {
-            if (ActiveContextPanelManager.getActiveContextPanel().isVisibleOrAboutToBeVisible() && !!this.activeWidget &&
-                this.activeWidget.getWidgetName() === i18n('field.widget.versionHistory')) {
+            if (this.isVisible() && !!this.activeWidget && this.activeWidget.getWidgetName() === i18n('field.widget.versionHistory')) {
                 this.updateActiveWidget();
             }
         });
@@ -125,8 +123,7 @@ export class ContextView
 
         contentServerEventsHandler.onContentPermissionsUpdated((contentIds: ContentIds) => {
             const itemSelected: boolean = this.item != null;
-            const activeContextPanel: ContextPanel = ActiveContextPanelManager.getActiveContextPanel();
-            const activeWidgetVisible: boolean = this.activeWidget != null && activeContextPanel.isVisibleOrAboutToBeVisible();
+            const activeWidgetVisible: boolean = this.activeWidget != null && this.isVisible();
 
             if (activeWidgetVisible && this.activeWidget.isInternal() && itemSelected) {
                 const selectedItemContentId: ContentId = this.item.getContentId();
@@ -321,8 +318,7 @@ export class ContextView
 
         this.item = item;
 
-        const activeContextPanel = ActiveContextPanelManager.getActiveContextPanel();
-        const activeWidgetVisible = this.activeWidget != null && activeContextPanel?.isVisibleOrAboutToBeVisible();
+        const activeWidgetVisible = this.activeWidget != null && this.isVisible();
 
         this.layout(!itemSelected);
         if (activeWidgetVisible && selectionChanged && (this.activeWidget.isExternal() || itemSelected)) {
@@ -490,18 +486,8 @@ export class ContextView
         });
     }
 
-    updateContextContainerHeight() {
-        const activeContextPanelEl = ActiveContextPanelManager.getActiveContextPanel().getEl();
-        if (activeContextPanelEl) {
-            const panelHeight = ActiveContextPanelManager.getActiveContextPanel().getEl().getHeight();
-            const panelOffset = ActiveContextPanelManager.getActiveContextPanel().getEl().getOffsetToParent();
-            const containerHeight = this.contextContainer.getEl().getHeight();
-            const containerOffset = this.contextContainer.getEl().getOffsetToParent();
-
-            if (containerOffset.top > 0 && containerHeight !== (panelHeight - panelOffset.top - containerOffset.top)) {
-                this.contextContainer.getEl().setHeightPx(panelHeight - panelOffset.top - containerOffset.top);
-            }
-        }
+    getContextContainer(): DivEl {
+        return this.contextContainer;
     }
 
     private getWidgetByKey(key: string): WidgetView {
