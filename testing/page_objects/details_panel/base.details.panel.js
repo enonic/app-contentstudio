@@ -61,7 +61,8 @@ class BaseDetailsPanel extends Page {
         let dependenciesOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.DEPENDENCIES);
         await this.waitForElementDisplayed(dependenciesOption, appConst.mediumTimeout);
         let result = await this.getDisplayedElements(dependenciesOption);
-        return await this.getBrowser().elementClick(result[0].elementId);
+        await this.getBrowser().elementClick(result[0].elementId);
+        return await this.pause(500);
     }
 
     async openLayers() {

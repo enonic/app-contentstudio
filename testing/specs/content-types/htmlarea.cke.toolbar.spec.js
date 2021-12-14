@@ -73,7 +73,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             //Insert Macro dialog has been opened:
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
-            await insertMacroDialog.waitForDialogVisible();
+            await insertMacroDialog.waitForDialogLoaded();
             await insertMacroDialog.clickOnCancelButton();
             // 'Insert Macro' dialog should be closed, after clicking on 'Cancel' button:
             await insertMacroDialog.waitForDialogClosed();
