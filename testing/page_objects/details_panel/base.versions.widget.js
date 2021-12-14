@@ -72,11 +72,10 @@ class BaseVersionsWidget extends Page {
 
     async waitForRevertButtonDisabled() {
         try {
-
             let selector = xpath.versionItemExpanded + "//button[child::span[text()='Revert']]";
             let res = await this.getDisplayedElements(selector);
             await res[0].waitForEnabled({timeout: 2000, reverse: true});
-            await this.pause(appConst.mediumTimeout);
+            return await this.pause(appConst.mediumTimeout);
         } catch (err) {
             throw new Error("Version Widget -  'Revert' button is not disabled " + err);
         }
@@ -121,7 +120,6 @@ class BaseVersionsWidget extends Page {
 
     async waitForActiveVersionButtonNotDisplayed() {
         try {
-
             let locator = xpath.versionItemExpanded + "//button[child::span[text()='Active version']]";
             await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {

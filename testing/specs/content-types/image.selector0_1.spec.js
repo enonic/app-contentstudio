@@ -10,6 +10,8 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ImageSelectorForm = require('../../page_objects/wizardpanel/imageselector.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe('image.selector0_1.spec tests for not required image selector',
     function () {
@@ -92,7 +94,28 @@ describe('image.selector0_1.spec tests for not required image selector',
                 //7. Remove button should be not visible:
                 await imageSelectorForm.waitForRemoveButtonNotDisplayed();
                 //7. Verify that Save button gets enabled:
-                await contentWizard.waitForSaveButtonEnabled();
+                await contentWizard.waitAndClickOnSave();
+                await contentWizard.waitForNotificationMessage();
+            });
+
+        it("GIVEN existing image content(0:1) is opened(image is not selected) WHEN the previous version has been reverted THEN image should appear in the selected options",
+            async () => {
+                let imageSelectorForm = new ImageSelectorForm();
+                let contentWizard = new ContentWizard();
+                let wizardDetailsPanel = new WizardDetailsPanel();
+                let versionsWidget = new VersionsWidget();
+                //1. Open existing image content(no selected images):
+                await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
+                //2. Open Version widget
+                await wizardDetailsPanel.openVersionHistory();
+                await versionsWidget.waitForVersionsLoaded();
+                await versionsWidget.clickAndExpandVersion(1);
+                //3. revert the version with single selected image:
+                await versionsWidget.clickOnRevertButton();
+                //4. Verify the selected image:
+                let result = await imageSelectorForm.getSelectedImages();
+                assert.equal(result.length, 1, "One image should be present in the selected options");
+
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
