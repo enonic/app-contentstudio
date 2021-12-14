@@ -94,6 +94,7 @@ export class ContentBrowsePanel
 
         this.onShown(() => {
             Router.get().setHash(UrlAction.BROWSE);
+            this.treeGrid.resizeCanvas();
         });
 
         this.handleGlobalEvents();

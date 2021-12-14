@@ -10,10 +10,6 @@ export class ContentAppPanel
         super('content-app-panel');
     }
 
-    handleBrowse() {
-        super.handleBrowse();
-    }
-
     protected createBrowsePanel() {
         return new ContentBrowsePanel();
     }
