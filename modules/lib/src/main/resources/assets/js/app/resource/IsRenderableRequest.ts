@@ -31,6 +31,10 @@ export class IsRenderableRequest
     }
 
     sendAndParse(): Q.Promise<boolean> {
+        if (!this.contentId) {
+            return Q(false);
+        }
+
         const id: string = this.contentId.toString();
 
         if (IsRenderableRequest.cache.has(id)) {
