@@ -7,6 +7,7 @@ import {DockedContextPanel} from '../view/context/DockedContextPanel';
 import {BrowseItemPanel} from 'lib-admin-ui/app/browse/BrowseItemPanel';
 import * as Q from 'q';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
+import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
 
 export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
@@ -33,7 +34,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         });
 
         this.browseToolbar.onFoldClicked(() => {
-            this.contextSplitPanel.getManager().hideActivePanel();
+            this.contextSplitPanel.hideContextPanel();
             Body.get().removeClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS);
             this.removeClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS);
             this.browseToolbar.removeClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS);
@@ -47,7 +48,11 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
         this.contextView = this.createContextView();
         const leftPanel: BrowseItemPanel = this.getBrowseItemPanel();
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
-        this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel).setContextView(this.contextView).build();
+
+        this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel)
+            .setSecondPanelSize(SplitPanelSize.Percents(38))
+            .setContextView(this.contextView)
+            .build();
 
         return this.contextSplitPanel;
     }

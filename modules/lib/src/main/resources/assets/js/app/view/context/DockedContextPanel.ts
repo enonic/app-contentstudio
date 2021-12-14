@@ -1,5 +1,8 @@
-import {CONTEXT_PANEL_TYPE, ContextPanel} from './ContextPanel';
+import {ContextPanel} from './ContextPanel';
 import {ContextView} from './ContextView';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {ContextPanelState} from './ContextPanelState';
+import {ContextPanelStateEvent} from './ContextPanelStateEvent';
 
 export class DockedContextPanel
     extends ContextPanel {
@@ -11,7 +14,17 @@ export class DockedContextPanel
     }
 
     protected subscribeOnEvents() {
-        this.onPanelSizeChanged(() => this.contextView.updateContextContainerHeight());
+        this.onPanelSizeChanged(() => {
+            const contextContainer: DivEl = this.contextView.getContextContainer();
+            const panelHeight = this.getEl().getHeight();
+            const panelOffset = this.getEl().getOffsetToParent();
+            const containerHeight = contextContainer.getEl().getHeight();
+            const containerOffset = contextContainer.getEl().getOffsetToParent();
+
+            if (containerOffset.top > 0 && containerHeight !== (panelHeight - panelOffset.top - containerOffset.top)) {
+                contextContainer.getEl().setHeightPx(panelHeight - panelOffset.top - containerOffset.top);
+            }
+        });
 
         this.onShown(() => {
             if (this.getItem()) {
@@ -23,9 +36,5 @@ export class DockedContextPanel
 
     public isVisibleOrAboutToBeVisible(): boolean {
         return this.getHTMLElement().clientWidth > 0;
-    }
-
-    public getType(): CONTEXT_PANEL_TYPE {
-        return CONTEXT_PANEL_TYPE.DOCKED;
     }
 }

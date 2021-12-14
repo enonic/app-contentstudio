@@ -4,19 +4,23 @@
   }
 
   &.mobile-mode {
-    .floating-context-panel {
-      transition: top 0.5s ease-in-out;
-      height: 100%;
-      top: 100%;
-      right: 0 !important;
-      width: 100%;
-    }
-
     .context-split-panel {
       z-index: 1;
       width: 0 !important;
       display: block !important;
       transition: width 0.5s ease-in-out;
+
+      .browse-item-panel {
+        width: 100% !important;
+      }
+
+      .docked-context-panel {
+        transition: top 0.5s ease-in-out;
+        height: 100%;
+        top: 100%;
+        right: 0 !important;
+        width: 100% !important;
+      }
     }
 
     .responsive-toolbar {
@@ -40,7 +44,7 @@
         width: 100% !important;
       }
 
-      .floating-context-panel {
+      .docked-context-panel {
         &.expanded {
           top: 0;
         }

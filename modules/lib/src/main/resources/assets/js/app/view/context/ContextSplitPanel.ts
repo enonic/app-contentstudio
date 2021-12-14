@@ -2,89 +2,159 @@ import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
 import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from 'lib-admin-ui/ui/panel/SplitPanel';
 import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
-import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {Panel} from 'lib-admin-ui/ui/panel/Panel';
 import {DockedContextPanel} from './DockedContextPanel';
-import {NonMobileContextPanelsManager} from './NonMobileContextPanelsManager';
 import {ContextView} from './ContextView';
-import {FloatingContextPanel} from './FloatingContextPanel';
-import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {PageEditorData} from '../../wizard/page/LiveFormPanel';
+import {InspectEvent} from '../../event/InspectEvent';
+import {ToggleContextPanelEvent} from './ToggleContextPanelEvent';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {ContextPanelState} from './ContextPanelState';
+import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {ResponsiveRange} from 'lib-admin-ui/ui/responsive/ResponsiveRange';
+import {Body} from 'lib-admin-ui/dom/Body';
+import {ContextPanelStateEvent} from './ContextPanelStateEvent';
+
+export enum ContextPanelMode {
+    DOCKED = 'docked',
+    FLOATING = 'floating'
+}
 
 export class ContextSplitPanel
     extends SplitPanel {
 
-    private data: PageEditorData;
+    public static CONTEXT_MIN_WIDTH: number = 280;
+
+    private contextPanelMode: ContextPanelMode;
+    private contextPanelState: ContextPanelState = ContextPanelState.COLLAPSED;
+    private debouncedResizeHandler: () => void = AppHelper.debounce(this.doHandleResizeEvent, 650, false);
     private mobileMode: boolean;
     private contextView: ContextView;
     private dockedContextPanel: DockedContextPanel;
-    private floatingContextPanel: FloatingContextPanel;
-    private contextPanelsManager: NonMobileContextPanelsManager;
-    private dockedModeChangedListeners: { (isDocked: boolean): void }[];
-    private leftPanel: Panel;
-    private wizardFormPanel?: Panel;
+    private mobileModeChangedListeners: { (isMobile: boolean): void }[] = [];
+    private modeChangedListeners: { (mode: ContextPanelMode): void }[] = [];
+    private stateChangedListeners: { (state: ContextPanelState): void }[] = [];
 
     constructor(splitPanelBuilder: ContextSplitPanelBuilder) {
         super(splitPanelBuilder);
 
-        this.addClass('context-split-panel');
-        this.setSecondPanelSize(SplitPanelSize.Percents(38));
+        this.addClass(`context-split-panel ${this.contextPanelState}`);
 
-        this.data = splitPanelBuilder.data;
-        this.wizardFormPanel = splitPanelBuilder.wizardFormPanel;
-        this.leftPanel = splitPanelBuilder.getFirstPanel();
         this.contextView = splitPanelBuilder.contextView;
         this.dockedContextPanel = splitPanelBuilder.getSecondPanel();
-        this.dockedModeChangedListeners = [];
 
+        this.initListeners();
+    }
+
+    protected initListeners(): void {
         this.dockedContextPanel.onAdded(this.renderAfterDockedPanelReady.bind(this));
-        this.initPanels();
+
+        InspectEvent.on((event: InspectEvent) => {
+            if (event.isShowPanel() && this.isRendered() && !this.isExpanded()) {
+                this.showContextPanel();
+            }
+        });
+
+        ToggleContextPanelEvent.on(() => {
+            if (this.isExpanded()) {
+                this.hideContextPanel();
+            } else {
+                this.showContextPanel();
+            }
+        });
+
+        this.whenRendered(() => {
+            if (!this.requiresCollapsedContextPanel() && this.dockedContextPanel.getActiveWidget()) {
+                this.showContextPanel();
+            }
+        });
     }
 
-    private initPanels() {
-        const nonMobileContextPanelsManagerBuilder = NonMobileContextPanelsManager.create();
-        if (this.isPageEditorPresent()) {
-            nonMobileContextPanelsManagerBuilder.setPageEditor(this.data.liveFormPanel);
-            nonMobileContextPanelsManagerBuilder.setWizardPanel(this.wizardFormPanel);
+    private switchPanelModeIfNeeded(): void {
+        const expectedMode: ContextPanelMode = this.getExpectedContextPanelMode();
+
+        if (this.getMode() !== expectedMode) {
+            if (expectedMode === ContextPanelMode.DOCKED) {
+                this.setDockedMode();
+            } else {
+                this.setFloatingMode();
+            }
         }
-        nonMobileContextPanelsManagerBuilder.setSplitPanelWithContext(this);
-        nonMobileContextPanelsManagerBuilder.setDefaultContextPanel(this.dockedContextPanel);
-        this.floatingContextPanel = new FloatingContextPanel(this.contextView);
-        nonMobileContextPanelsManagerBuilder.setFloatingContextPanel(this.floatingContextPanel);
-
-        this.contextPanelsManager = nonMobileContextPanelsManagerBuilder.build();
     }
 
-    private isInsideWizard(): boolean {
-        return this.data != null;
+    protected getExpectedContextPanelMode(): ContextPanelMode {
+        const parentWidth: number = this.getParentElement().getEl().getWidthWithBorder();
+        const leftPanelFloatingModeResponsiveRange: ResponsiveRange = this.getLeftPanelResponsiveRangeToSwitchToFloatingMode();
+
+        // Calculate context panel with half width of the splitter, since context panel in floating mode
+        // is bigger on that value.
+        const contextPanelWidth: number = this.getActiveWidthPxOfSecondPanel();
+        const halfSplitter: number = this.getSplitterThickness() / 2;
+        const leftPanelExpectedWidth: number = parentWidth - (contextPanelWidth + halfSplitter);
+
+        return leftPanelFloatingModeResponsiveRange.isFitOrSmaller(leftPanelExpectedWidth)
+               ? ContextPanelMode.FLOATING
+               : ContextPanelMode.DOCKED;
     }
 
-    private isPageEditorPresent(): boolean {
-        return this.isInsideWizard() && this.data.liveFormPanel != null;
+    protected getLeftPanelResponsiveRangeToSwitchToFloatingMode(): ResponsiveRange {
+        return ResponsiveRanges._720_960;
     }
 
-    private renderAfterDockedPanelReady() {
-        this.floatingContextPanel.insertAfterEl(this);
+    private isContextPanelLessThanMin(): boolean {
+        return this.getActiveWidthPxOfSecondPanel() < ContextSplitPanel.CONTEXT_MIN_WIDTH;
+    }
 
-        if (this.contextPanelsManager.requiresCollapsedContextPanel()) {
-            this.contextPanelsManager.hideDockedContextPanel();
+    hideContextPanel(): void {
+        this.foldSecondPanel();
+        this.setState(ContextPanelState.COLLAPSED);
+    }
+
+    showContextPanel(): void {
+        this.switchPanelModeIfNeeded();
+
+        if (this.isContextPanelLessThanMin()) {
+            this.setActiveWidthPxOfSecondPanel(SplitPanelSize.Pixels(ContextSplitPanel.CONTEXT_MIN_WIDTH));
         }
 
-        this.subscribeContextPanelsOnEvents(this.contextPanelsManager);
+        this.showSecondPanel();
+        this.setState(ContextPanelState.EXPANDED);
     }
 
-    private subscribeContextPanelsOnEvents(nonMobileContextPanelsManager: NonMobileContextPanelsManager) {
-        const debouncedResponsiveHandler = (item: ResponsiveItem) => {
-            nonMobileContextPanelsManager.handleResizeEvent();
+    private doHandleResizeEvent(): void {
+        if (this.isCollapsed()) {
+            return;
+        }
+
+        this.switchPanelModeIfNeeded();
+
+        if (this.isContextPanelLessThanMin()) {
+            this.setActiveWidthPxOfSecondPanel(SplitPanelSize.Pixels(ContextSplitPanel.CONTEXT_MIN_WIDTH + this.getSplitterThickness()));
+            this.distribute();
+        }
+    }
+
+    private renderAfterDockedPanelReady(): void {
+        this.hideContextPanel();
+        this.subscribeContextPanelsOnEvents();
+    }
+
+    private requiresCollapsedContextPanel(): boolean {
+        const totalWidth: number = Body.get().getEl().getWidthWithBorder();
+        return ResponsiveRanges._1620_1920.isFitOrSmaller(totalWidth) || this.getExpectedContextPanelMode() === ContextPanelMode.FLOATING;
+    }
+
+    private subscribeContextPanelsOnEvents(): void {
+        const responsiveHandler = (item: ResponsiveItem) => {
+            this.debouncedResizeHandler();
             this.toggleMobileMode(item.isInRangeOrSmaller(ResponsiveRanges._540_720));
         };
-        ResponsiveManager.onAvailableSizeChanged(this.getParentElement(), debouncedResponsiveHandler);
+        ResponsiveManager.onAvailableSizeChanged(this.getParentElement(), responsiveHandler);
         this.onRemoved(() => {
             ResponsiveManager.unAvailableSizeChanged(this.getParentElement());
         });
     }
 
-    private toggleMobileMode(value: boolean) {
+    private toggleMobileMode(value: boolean): void {
         if (value !== this.mobileMode) {
             this.mobileMode = value;
             this.toggleClass('mobile-mode', value);
@@ -92,44 +162,101 @@ export class ContextSplitPanel
         }
     }
 
-    onMobileModeChanged(listener: (isMobile: boolean) => void) {
-        this.dockedModeChangedListeners.push(listener);
+    setDockedMode(): void {
+        this.setMode(ContextPanelMode.DOCKED);
     }
 
-    unMobileModeChanged(listener: (isMobile: boolean) => void) {
-        this.dockedModeChangedListeners = this.dockedModeChangedListeners.filter(curr => curr !== listener);
+    setFloatingMode(): void {
+        this.setMode(ContextPanelMode.FLOATING);
     }
 
-    private notifyMobileModeChanged(isMobile: boolean) {
-        this.dockedModeChangedListeners.forEach(curr => curr(isMobile));
+    setMode(value: ContextPanelMode): void {
+        if (value === this.contextPanelMode) {
+            return;
+        }
+
+        if (this.contextPanelMode) {
+            this.removeClass(this.contextPanelMode);
+        }
+
+        this.contextPanelMode = value;
+        this.addClass(this.contextPanelMode);
+        this.notifyModeChanged();
     }
 
-    setContent(content: ContentSummaryAndCompareStatus) {
-        this.contextView.setItem(content);
+    public isDockedMode(): boolean {
+        return this.contextPanelMode === ContextPanelMode.DOCKED;
     }
 
-    updateRenderableStatus(renderable: boolean) {
-        this.contextView.updateRenderableStatus(renderable);
+    public isFloatingMode(): boolean {
+        return this.contextPanelMode === ContextPanelMode.FLOATING;
+    }
+
+    public getMode(): ContextPanelMode {
+        return this.contextPanelMode;
+    }
+
+    setState(state: ContextPanelState): void {
+        if (state !== this.contextPanelState) {
+            this.removeClass(this.contextPanelState);
+            this.contextPanelState = state;
+            this.addClass(state);
+
+            new ContextPanelStateEvent(state).fire();
+            this.notifyStateChanged();
+        }
+    }
+
+    isExpanded(): boolean {
+        return !this.isCollapsed();
+    }
+
+    isCollapsed(): boolean {
+        return this.contextPanelState === ContextPanelState.COLLAPSED;
+    }
+
+    onMobileModeChanged(listener: (isMobile: boolean) => void): void {
+        this.mobileModeChangedListeners.push(listener);
+    }
+
+    unMobileModeChanged(listener: (isMobile: boolean) => void): void {
+        this.mobileModeChangedListeners = this.mobileModeChangedListeners.filter(curr => curr !== listener);
+    }
+
+    private notifyMobileModeChanged(isMobile: boolean): void {
+        this.mobileModeChangedListeners.forEach(curr => curr(isMobile));
     }
 
     isMobileMode(): boolean {
         return this.mobileMode;
     }
 
+    onModeChanged(listener: (mode: ContextPanelMode) => void): void {
+        this.modeChangedListeners.push(listener);
+    }
+
+    unModeChanged(listener: (mode: ContextPanelMode) => void): void {
+        this.modeChangedListeners = this.modeChangedListeners.filter(curr => curr !== listener);
+    }
+
+    private notifyModeChanged(): void {
+        this.modeChangedListeners.forEach((listener: { (mode: ContextPanelMode): void }) => listener(this.contextPanelMode));
+    }
+
+    onStateChanged(listener: (state: ContextPanelState) => void): void {
+        this.stateChangedListeners.push(listener);
+    }
+
+    unStateChanged(listener: (state: ContextPanelState) => void): void {
+        this.stateChangedListeners = this.stateChangedListeners.filter(curr => curr !== listener);
+    }
+
+    private notifyStateChanged(): void {
+        this.stateChangedListeners.forEach((curr: { (state: ContextPanelState): void }) => curr(this.contextPanelState));
+    }
+
     static create(firstPanel: Panel, secondPanel: DockedContextPanel): ContextSplitPanelBuilder {
         return new ContextSplitPanelBuilder(firstPanel, secondPanel);
-    }
-
-    setBeforeExpandHandler(handler: () => void) {
-        this.contextPanelsManager.setBeforeExpandHandler(handler);
-    }
-
-    setBeforeCollapseHandler(handler: () => void) {
-        this.contextPanelsManager.setBeforeCollapseHandler(handler);
-    }
-
-    getManager(): NonMobileContextPanelsManager {
-        return this.contextPanelsManager;
     }
 }
 
@@ -138,15 +265,11 @@ export class ContextSplitPanelBuilder
 
     contextView: ContextView;
 
-    data: PageEditorData;
-
-    wizardFormPanel: Panel;
-
     constructor(firstPanel: Panel, secondPanel: DockedContextPanel) {
         super(firstPanel, secondPanel);
 
         this.setAlignment(SplitPanelAlignment.VERTICAL);
-        this.setSecondPanelMinSize(SplitPanelSize.Pixels(280));
+        this.setSecondPanelMinSize(SplitPanelSize.Pixels(ContextSplitPanel.CONTEXT_MIN_WIDTH));
         this.setAnimationDelay(600);
         this.setSecondPanelShouldSlideRight(true);
     }
@@ -156,14 +279,12 @@ export class ContextSplitPanelBuilder
         return this;
     }
 
-    setData(value: PageEditorData): ContextSplitPanelBuilder {
-        this.data = value;
-        return this;
+    setFirstPanelMinSize(size: SplitPanelSize): ContextSplitPanelBuilder {
+        return <ContextSplitPanelBuilder>super.setFirstPanelMinSize(size);
     }
 
-    setWizardFormPanel(value: Panel): ContextSplitPanelBuilder {
-        this.wizardFormPanel = value;
-        return this;
+    setSecondPanelSize(size: SplitPanelSize): ContextSplitPanelBuilder {
+        return <ContextSplitPanelBuilder>super.setSecondPanelSize(size);
     }
 
     getSecondPanel(): DockedContextPanel {
