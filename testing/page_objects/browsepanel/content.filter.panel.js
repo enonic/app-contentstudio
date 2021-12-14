@@ -63,5 +63,6 @@ class BrowseFilterPanel extends Page {
         await this.clickOnElement(selector);
         return await this.pause(400);
     }
-};
+}
+
 module.exports = BrowseFilterPanel;

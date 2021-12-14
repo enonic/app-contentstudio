@@ -65,8 +65,31 @@ describe('Check Outbound dependencies after rollback a version of content with i
                 await studioUtils.doSwitchToNextTab();
                 //Verify that one image should be present in the grid:
                 let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
-                studioUtils.saveScreenshot("outbound_should_be_updated");
+                await studioUtils.saveScreenshot("outbound_should_be_updated");
                 assert.equal(displayNames.length, 1, "One image should be present in browse grid, after rollback the required version");
+            });
+
+        it("GIVEN existing image content(2:4) is opened(single image is selected) WHEN the version with 2 selected images has been reverted THEN the content gets valid",
+            async () => {
+                let imageSelectorForm = new ImageSelectorForm();
+                let contentWizard = new ContentWizard();
+                let wizardDetailsPanel = new WizardDetailsPanel();
+                let wizardVersionsWidget = new WizardVersionsWidget();
+                //1. Open existing image content(no selected images):
+                await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
+                //2. Open Version widget
+                await wizardDetailsPanel.openVersionHistory();
+                await wizardVersionsWidget.waitForVersionsLoaded();
+                await wizardVersionsWidget.clickAndExpandVersion(1);
+                //3. revert the version with 2 selected image:
+                await wizardVersionsWidget.clickOnRevertButton();
+                await contentWizard.waitForNotificationMessage();
+                await contentWizard.waitForSpinnerNotVisible();
+                //4. Verify that 2 selected images are present in the selector:
+                let result = await imageSelectorForm.getSelectedImages();
+                assert.equal(result.length, 2, "two images should be present in the selected options");
+                let isInvalid = await contentWizard.isContentInvalid();
+                assert.isFalse(isInvalid, "The content should be valid after the reverting");
             });
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());

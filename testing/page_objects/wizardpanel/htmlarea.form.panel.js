@@ -10,6 +10,7 @@ const XPATH = {
     ckeTextArea: "//div[contains(@id,'cke_TextArea')]",
     ckeToolbox: "//span[contains(@class,'cke_toolbox')]",
     insertImageButton: `//a[contains(@class,'cke_button') and contains(@title,'Image')]`,
+    insertMacroButton: "//a[contains(@class,'cke_button') and @title='Insert macro']",
     formatDropDownHandle: `//span[contains(@class,'cke_combo__styles') and descendant::a[@class='cke_combo_button']]`,
     removeAreaButton: "//div[contains(@id,'HtmlArea')]//button[@class='remove-button']",
 
@@ -97,6 +98,11 @@ class HtmlAreaForm extends OccurrencesFormView {
         return await this.pause(300);
     }
 
+    async getTextInHtmlArea(index) {
+        let ids = await this.getIdOfHtmlAreas();
+        return await this.execute(XPATH.getText(ids[index]));
+    }
+
     getTextFromHtmlArea() {
         let strings = [];
         return this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout).then(() => {
@@ -129,6 +135,14 @@ class HtmlAreaForm extends OccurrencesFormView {
         await this.clickOnElement(XPATH.ckeTextArea);
         await this.waitForElementDisplayed(XPATH.insertImageButton, appConst.mediumTimeout);
         await this.clickOnElement(XPATH.insertImageButton);
+        return await this.pause(300);
+    }
+
+    async showToolbarAndClickOnInsertMacroButton() {
+        await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
+        await this.clickOnElement(XPATH.ckeTextArea);
+        await this.waitForElementDisplayed(XPATH.insertMacroButton, appConst.mediumTimeout);
+        await this.clickOnElement(XPATH.insertMacroButton);
         return await this.pause(300);
     }
 

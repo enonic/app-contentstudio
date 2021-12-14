@@ -12,7 +12,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
 const InsertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor.dialog.cke');
 const InsertSpecialDialog = require('../../page_objects/wizardpanel/insert.special.character.dialog.cke');
-const InsertMacroDialog = require('../../page_objects/wizardpanel/insert.macro.dialog.cke');
+const InsertMacroDialog = require('../../page_objects/wizardpanel/macro/insert.macro.dialog.cke');
 const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
 
 describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)', function () {
@@ -73,7 +73,7 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'htmlarea0_1');
             //Insert Macro dialog has been opened:
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
-            await insertMacroDialog.waitForDialogVisible();
+            await insertMacroDialog.waitForDialogLoaded();
             await insertMacroDialog.clickOnCancelButton();
             // 'Insert Macro' dialog should be closed, after clicking on 'Cancel' button:
             await insertMacroDialog.waitForDialogClosed();
