@@ -1,5 +1,5 @@
 import * as Q from 'q';
-import {showError, showSuccess} from 'lib-admin-ui/notify/MessageBus';
+import {showError} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Action} from 'lib-admin-ui/ui/Action';
@@ -32,6 +32,8 @@ import {ArchiveContentRequest} from '../resource/ArchiveContentRequest';
 import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDeleteResult';
 import {ContentTreeGridDeselectAllEvent} from '../browse/ContentTreeGridDeselectAllEvent';
+import {TaskState} from 'lib-admin-ui/task/TaskState';
+import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 
 enum ActionType {
     DELETE, ARCHIVE
@@ -55,6 +57,8 @@ export class ContentDeleteDialog
     private statusLine: StatusLine;
 
     private resolveDependenciesResult: ResolveContentForDeleteResult;
+
+    private actionInProgressType: ActionType;
 
     constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
@@ -117,6 +121,14 @@ export class ContentDeleteDialog
         this.getItemList().onItemsAdded((items: ContentSummaryAndCompareStatus[]) => itemsAddedHandler(items, this.getItemList()));
         this.getDependantList().onItemsAdded(
             (items: ContentSummaryAndCompareStatus[]) => itemsAddedHandler(items, this.getDependantList()));
+
+        this.progressManager.onProgressComplete((task: TaskState) => {
+            if (this.actionInProgressType === ActionType.ARCHIVE && task === TaskState.FINISHED) {
+                const msg: string = this.totalItemsToDelete > 1 ? i18n('dialog.archive.success.multiple', this.totalItemsToDelete) :
+                                    i18n('dialog.archive.success.single', this.getItemList().getItems()[0].getDisplayName());
+                NotifyManager.get().showSuccess(msg);
+            }
+        });
     }
 
     doRender(): Q.Promise<boolean> {
@@ -268,8 +280,9 @@ export class ContentDeleteDialog
         return this;
     }
 
-    updateProgressLabel(type: ActionType): void {
-        const label = type === ActionType.DELETE ? `${i18n('field.progress.deleting')}...` : `${i18n('field.progress.archiving')}...`;
+    updateProgressLabel(): void {
+        const label = this.actionInProgressType === ActionType.DELETE ? `${i18n('field.progress.deleting')}...` : `${i18n(
+            'field.progress.archiving')}...`;
         this.setProcessingLabel(label);
     }
 
@@ -282,16 +295,18 @@ export class ContentDeleteDialog
     }
 
     private executeAction(type: ActionType) {
+        this.actionInProgressType = type;
+
         if (this.totalItemsToDelete > 1 || this.isAnySiteToBeDeleted()) {
-            this.confirmAndExecute(type);
+            this.confirmAndExecute();
         } else {
-            this.executeNow(type);
+            this.executeNow();
         }
     }
 
-    private confirmAndExecute(type: ActionType) {
+    private confirmAndExecute() {
         const totalItemsToProcess: number = this.totalItemsToDelete;
-        const yesCallback: () => void = this.createConfirmExecutionCallback(type);
+        const yesCallback: () => void = this.createConfirmExecutionCallback();
 
         this.close();
 
@@ -300,14 +315,15 @@ export class ContentDeleteDialog
         }
 
         this.confirmExecutionDialog
-            .setHeaderText(type === ActionType.DELETE ? i18n('dialog.confirmDelete') : i18n('dialog.confirmArchive'))
-            .setSubheaderText(type === ActionType.DELETE ? i18n('dialog.confirmDelete.subname') : i18n('dialog.confirmArchive.subname'))
+            .setHeaderText(this.actionInProgressType === ActionType.DELETE ? i18n('dialog.confirmDelete') : i18n('dialog.confirmArchive'))
+            .setSubheaderText(this.actionInProgressType === ActionType.DELETE ? i18n('dialog.confirmDelete.subname') : i18n(
+                'dialog.confirmArchive.subname'))
             .setValueToCheck('' + totalItemsToProcess)
             .setYesCallback(yesCallback)
             .open();
     }
 
-    private createConfirmExecutionCallback(type: ActionType): () => void {
+    private createConfirmExecutionCallback(): () => void {
         const content = this.getItemList().getItems().slice(0);
         const descendants = this.getDependantList().getItems().slice(0);
 
@@ -317,35 +333,28 @@ export class ContentDeleteDialog
             this.setDependantItems(descendants);
             this.countItemsToDeleteAndUpdateButtonCounter();
             this.open();
-            this.executeNow(type);
+            this.executeNow();
         };
     }
 
-    private executeNow(type: ActionType) {
+    private executeNow() {
         if (this.yesCallback) {
             this.yesCallback();
         }
 
         this.lockControls();
 
-        const request: ResourceRequest<TaskId> = this.createExecutionRequest(type);
+        const request: ResourceRequest<TaskId> = this.createExecutionRequest();
 
         new ContentTreeGridDeselectAllEvent().fire();
 
-        this.progressManager.setSuppressNotifications(type === ActionType.ARCHIVE);
+        this.progressManager.setSuppressNotifications(this.actionInProgressType === ActionType.ARCHIVE);
 
-        this.updateProgressLabel(type);
+        this.updateProgressLabel();
 
         request.sendAndParse()
             .then((taskId: TaskId) => {
                 this.pollTask(taskId);
-            })
-            .then(() => {
-                if (type === ActionType.ARCHIVE) {
-                    const msg: string = this.totalItemsToDelete > 1 ? i18n('dialog.archive.success.multiple', this.totalItemsToDelete) :
-                                        i18n('dialog.archive.success.single', this.getItemList().getItems()[0].getDisplayName());
-                    showSuccess(msg);
-                }
             })
             .catch((reason) => {
                 this.close();
@@ -366,8 +375,8 @@ export class ContentDeleteDialog
                                       i18n('dialog.deleteNow'));
     }
 
-    private createExecutionRequest(type: ActionType): ResourceRequest<TaskId> {
-        return type === ActionType.DELETE ? this.createDeleteRequest() : this.createArchiveRequest();
+    private createExecutionRequest(): ResourceRequest<TaskId> {
+        return this.actionInProgressType === ActionType.DELETE ? this.createDeleteRequest() : this.createArchiveRequest();
     }
 
     private createDeleteRequest(): DeleteContentRequest {
