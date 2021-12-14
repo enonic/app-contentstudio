@@ -141,7 +141,7 @@ export class ProjectSelectionDialog
 
     // Cycle to the first project element when tabbing in the last element
     private setLastProjectCycleOnTabEvent(): void {
-        if(this.projectsList.getItemViews().length === 0) {
+        if (this.projectsList.getItemViews().length === 0) {
             return;
         }
 
