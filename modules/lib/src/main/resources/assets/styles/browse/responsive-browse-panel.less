@@ -10,6 +10,10 @@
       display: block !important;
       transition: width 0.5s ease-in-out;
 
+      .splitter {
+        display: none !important;
+      }
+
       .browse-item-panel {
         width: 100% !important;
       }
@@ -20,6 +24,12 @@
         top: 100%;
         right: 0 !important;
         width: 100% !important;
+      }
+
+      &.expanded {
+        .docked-context-panel {
+          top: 0;
+        }
       }
     }
 
@@ -42,12 +52,6 @@
 
       .context-split-panel {
         width: 100% !important;
-      }
-
-      .docked-context-panel {
-        &.expanded {
-          top: 0;
-        }
       }
     }
   }

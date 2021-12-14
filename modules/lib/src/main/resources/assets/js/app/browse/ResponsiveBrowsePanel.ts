@@ -27,6 +27,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
             } else {
                 this.gridAndItemsSplitPanel.showFirstPanel();
                 this.showPreviewPanel();
+                this.toggleMobilePreviewMode(false);
             }
 
             this.toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
@@ -35,11 +36,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
         this.browseToolbar.onFoldClicked(() => {
             this.contextSplitPanel.hideContextPanel();
-            Body.get().removeClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS);
-            this.removeClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS);
-            this.browseToolbar.removeClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS);
-            this.browseToolbar.disableMobileMode();
-            this.browseToolbar.updateFoldButtonLabel();
+            this.toggleMobilePreviewMode(false);
             this.treeGrid.removeHighlighting();
         });
     }
@@ -79,12 +76,22 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 
         if (this.treeGrid.hasHighlightedNode()) {
             if (this.contextSplitPanel.isMobileMode()) {
-                Body.get().addClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS);
-                this.addClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS);
-                this.browseToolbar.addClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS);
-                this.browseToolbar.enableMobileMode();
-                this.browseToolbar.setFoldButtonLabel(item.getDisplayName());
+                this.toggleMobilePreviewMode(true);
             }
+        }
+    }
+
+    private toggleMobilePreviewMode(isMobile: boolean): void {
+        Body.get().toggleClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS, isMobile);
+        this.toggleClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS, isMobile);
+        this.browseToolbar.toggleClass(ResponsiveBrowsePanel.MOBILE_PREVIEW_CLASS, isMobile);
+
+        if (isMobile) {
+            this.browseToolbar.enableMobileMode();
+            this.browseToolbar.setFoldButtonLabel(this.treeGrid.getLastSelectedOrHighlightedItem().getDisplayName());
+        } else {
+            this.browseToolbar.disableMobileMode();
+            this.browseToolbar.updateFoldButtonLabel();
         }
     }
 
