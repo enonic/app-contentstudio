@@ -7,8 +7,9 @@ export class ShowLiveEditAction
     extends Action {
 
     constructor(wizard: ContentWizardPanel) {
-        super(i18n('tooltip.showEditor'));
+        super('live');
 
+        this.setTitle(i18n('tooltip.showEditor'));
         this.setEnabled(false);
         this.onExecuted(() => {
             wizard.showLiveEdit();

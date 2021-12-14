@@ -8,7 +8,6 @@ import {ContentTreeGrid, State} from './ContentTreeGrid';
 import {ContentBrowseFilterPanel} from './filter/ContentBrowseFilterPanel';
 import {ContentBrowseItemPanel} from './ContentBrowseItemPanel';
 import {Router} from '../Router';
-import {ActiveContextPanelManager} from '../view/context/ActiveContextPanelManager';
 import {ToggleSearchPanelEvent} from './ToggleSearchPanelEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './ToggleSearchPanelWithDependenciesEvent';
 import {NewMediaUploadEvent} from '../create/NewMediaUploadEvent';
@@ -19,7 +18,6 @@ import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryA
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentBrowsePublishMenuButton} from './ContentBrowsePublishMenuButton';
-import {ContextPanel} from '../view/context/ContextPanel';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 import {RepositoryEvent} from 'lib-admin-ui/content/event/RepositoryEvent';
@@ -38,7 +36,6 @@ import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContextView} from '../view/context/ContextView';
-import {Body} from 'lib-admin-ui/dom/Body';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
 
 export class ContentBrowsePanel
@@ -340,8 +337,7 @@ export class ContentBrowsePanel
     }
 
     private updateContextPanelOnNodesDelete(items: DeletedContentItem[]) {
-        const contextPanel: ContextPanel = ActiveContextPanelManager.getActiveContextPanel();
-        const itemInDetailPanel: ContentSummaryAndCompareStatus = contextPanel ? contextPanel.getItem() : null;
+        const itemInDetailPanel: ContentSummaryAndCompareStatus = this.contextView.getItem();
 
         if (!itemInDetailPanel) {
             return;
@@ -402,8 +398,7 @@ export class ContentBrowsePanel
     }
 
     private updateContextPanel(data: ContentSummaryAndCompareStatus[]) {
-        const contextPanel: ContextPanel = ActiveContextPanelManager.getActiveContextPanel();
-        const itemInDetailPanel: ContentSummaryAndCompareStatus = contextPanel ? contextPanel.getItem() : null;
+        const itemInDetailPanel: ContentSummaryAndCompareStatus = this.contextView.getItem();
 
         if (!itemInDetailPanel) {
             return;

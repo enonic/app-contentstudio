@@ -32,7 +32,6 @@ import {ApplicationRemovedEvent} from '../site/ApplicationRemovedEvent';
 import {ApplicationAddedEvent} from '../site/ApplicationAddedEvent';
 import {ContentNamedEvent} from '../event/ContentNamedEvent';
 import {CreateContentRequest} from '../resource/CreateContentRequest';
-import {ContextSplitPanel} from '../view/context/ContextSplitPanel';
 import {GetContentXDataRequest} from '../resource/GetContentXDataRequest';
 import {GetApplicationXDataRequest} from '../resource/GetApplicationXDataRequest';
 import {BeforeContentSavedEvent} from '../event/BeforeContentSavedEvent';
@@ -134,14 +133,14 @@ import {ContentPathPrettifier} from '../content/ContentPathPrettifier';
 import {ValidationErrorHelper} from 'lib-admin-ui/ValidationErrorHelper';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
-import {SplitPanelUnit} from 'lib-admin-ui/ui/panel/SplitPanelUnit';
+import {ContentWizardContextSplitPanel} from './ContentWizardContextSplitPanel';
+import {ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextPanelState} from '../view/context/ContextPanelState';
-import {ContextPanelStateEvent} from '../view/context/ContextPanelStateEvent';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
 
-    private contextSplitPanel: ContextSplitPanel;
+    private contextSplitPanel: ContentWizardContextSplitPanel;
 
     private contextView: ContextView;
 
@@ -317,7 +316,7 @@ export class ContentWizardPanel
             (force ? Q.resolve(true) : this.checkIfAppsHaveDescriptors(applicationKeys))
                 .then((appsHaveDescriptors: boolean) => appsHaveDescriptors ? this.saveChanges() : Q.resolve())
                 .then(this.handleAppChange)
-                .finally(() => applicationKeys=[]);
+                .finally(() => applicationKeys = []);
         };
         const debouncedSaveOnAppChange = AppHelper.debounce(saveOnAppChange, 300);
 
@@ -547,7 +546,7 @@ export class ContentWizardPanel
     }
 
     protected createFormIcon(): ThumbnailUploaderEl {
-        return  new ThumbnailUploaderEl({
+        return new ThumbnailUploaderEl({
             name: 'thumbnail-uploader',
             deferred: true
         });
@@ -597,12 +596,42 @@ export class ContentWizardPanel
         this.contextView.setItem(this.persistedContent);
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
 
-        this.contextSplitPanel = ContextSplitPanel.create(leftPanel, rightPanel)
+        this.contextSplitPanel = ContentWizardContextSplitPanel.create(leftPanel, rightPanel)
+            .setSecondPanelSize(SplitPanelSize.Percents(this.livePanel ? 24 : 38))
             .setContextView(this.contextView)
             .setData(data)
             .setWizardFormPanel(this.formPanel)
             .build();
         this.contextSplitPanel.hideSecondPanel();
+
+        if (this.livePanel) {
+            this.contextSplitPanel.onModeChanged((mode: ContextPanelMode) => {
+                if (!this.isMinimized()) {
+                    const formPanelSizePercents: number = this.contextSplitPanel.isDockedMode() ? 50 : 38;
+                    this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(formPanelSizePercents));
+                    this.splitPanel.distribute();
+                }
+
+                const contextPanelSizePercents: number = (mode === ContextPanelMode.DOCKED && !this.isMinimized()) ? 24 : 38;
+                this.contextSplitPanel.setActiveWidthPxOfSecondPanel(SplitPanelSize.Percents(contextPanelSizePercents));
+                this.contextSplitPanel.distribute();
+            });
+
+            this.contextSplitPanel.onStateChanged((state: ContextPanelState) => {
+                if (this.isMinimized()) {
+                    return;
+                }
+
+                if (state === ContextPanelState.COLLAPSED) {
+                    this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(38));
+                    this.splitPanel.distribute();
+                } else {
+                    const formPanelSizePercents: number = this.contextSplitPanel.isDockedMode() ? 50 : 38;
+                    this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(formPanelSizePercents));
+                    this.splitPanel.distribute();
+                }
+            });
+        }
 
         return this.contextSplitPanel;
     }
@@ -697,23 +726,6 @@ export class ContentWizardPanel
                 this.livePanel.addClass('rendering');
                 ResponsiveManager.onAvailableSizeChanged(this.formPanel);
                 this.stepNavigatorAndToolbarContainer.appendChild(this.minimizeEditButton);
-                this.contextSplitPanel.setBeforeExpandHandler(() => {
-                    if (this.contextSplitPanel.getManager().isDockedContextPanelActive()) {
-                        this.splitPanel.showSecondPanel();
-                    }
-                });
-
-                ContextPanelStateEvent.on((event: ContextPanelStateEvent) => {
-                    if (event.getState() === ContextPanelState.COLLAPSED) {
-                        if (this.contextSplitPanel.isFirstPanelHidden()) {
-                            this.closeLiveEdit();
-                        }
-                    } else if (event.getState() === ContextPanelState.DOCKED) {
-                        if (this.splitPanel.isSecondPanelHidden()) {
-                            this.openLiveEdit();
-                        }
-                    }
-                });
             }
 
             if (this.params.createSite || this.getPersistedItem().isSite()) {
@@ -725,27 +737,23 @@ export class ContentWizardPanel
     }
 
     protected prepareMainPanel(): Panel {
-        if (this.livePanel) {
-            this.splitPanel = this.createSplitPanel(this.formPanel, this.createWizardAndDetailsSplitPanel(this.livePanel));
-            return this.splitPanel;
-        }
-
-        return this.createWizardAndDetailsSplitPanel(this.formPanel);
+        const leftPanel: Panel = this.livePanel ? this.createSplitFormAndLivePanel(this.formPanel, this.livePanel) : this.formPanel;
+        return this.createWizardAndDetailsSplitPanel(leftPanel);
     }
 
-    private createSplitPanel(firstPanel: Panel, secondPanel: Panel): SplitPanel {
-        const builder = new SplitPanelBuilder(firstPanel, secondPanel)
+    private createSplitFormAndLivePanel(firstPanel: Panel, secondPanel: Panel): SplitPanel {
+        const builder: SplitPanelBuilder = new SplitPanelBuilder(firstPanel, secondPanel)
             .setFirstPanelMinSize(SplitPanelSize.Pixels(280))
             .setAlignment(SplitPanelAlignment.VERTICAL);
 
         if ($(window).width() > this.splitPanelThreshold) {
-            builder.setFirstPanelSize(SplitPanelSize.Percents(32));
+            builder.setFirstPanelSize(SplitPanelSize.Percents(38));
         }
 
-        const splitPanel = builder.build();
-        splitPanel.addClass('wizard-and-preview');
+        this.splitPanel = builder.build();
+        this.splitPanel.addClass('wizard-and-preview');
 
-        return splitPanel;
+        return this.splitPanel;
     }
 
     private handleEditPermissionsButtonClicked() {
@@ -1067,7 +1075,7 @@ export class ContentWizardPanel
     }
 
     private isAppUsedByContent(applicationKey: ApplicationKey): boolean {
-       return this.siteModel.getApplicationKeys().some((appKey: ApplicationKey) => applicationKey.equals(appKey));
+        return this.siteModel.getApplicationKeys().some((appKey: ApplicationKey) => applicationKey.equals(appKey));
     }
 
     private initListeners() {
@@ -1830,7 +1838,7 @@ export class ContentWizardPanel
 
     private isSplitEditModeActive(): boolean {
         return ResponsiveRanges._960_1200.isFitOrBigger(this.getEl().getWidth()) &&
-                this.isEditorEnabled() && this.shouldOpenEditorByDefault();
+               this.isEditorEnabled() && this.shouldOpenEditorByDefault();
     }
 
     private setupWizardLiveEdit() {
@@ -2570,31 +2578,14 @@ export class ContentWizardPanel
     }
 
     private openLiveEdit() {
+        this.splitPanel.showSecondPanel();
         const showInspectionPanel = ResponsiveRanges._1920_UP.isFitOrBigger(this.getEl().getWidthWithBorder());
         this.getLivePanel().clearPageViewSelectionAndOpenInspectPage(showInspectionPanel);
         this.showMinimizeEditButton();
-
-        if (this.isDockedContextPanelOpen()) {
-            this.splitPanel.setFirstPanelSize(new SplitPanelSize(32, SplitPanelUnit.PERCENT));
-            this.splitPanel.distribute();
-            this.contextSplitPanel.showFirstPanel();
-        } else {
-            this.contextSplitPanel.showFirstPanel();
-            this.splitPanel.showSecondPanel();
-            this.splitPanel.setFirstPanelSize(new SplitPanelSize(32, SplitPanelUnit.PERCENT));
-            this.splitPanel.distribute();
-        }
     }
 
     private closeLiveEdit() {
-        if (this.isDockedContextPanelOpen()) {
-            this.splitPanel.setFirstPanelSize(new SplitPanelSize(68, SplitPanelUnit.PERCENT));
-            this.splitPanel.distribute();
-            this.contextSplitPanel.hideFirstPanel();
-        } else {
-            this.splitPanel.hideSecondPanel();
-        }
-
+        this.splitPanel.hideSecondPanel();
         this.hideMinimizeEditButton();
 
         if (this.liveMask && this.liveMask.isVisible()) {
@@ -2642,7 +2633,7 @@ export class ContentWizardPanel
             return this.wizardActions.refreshPendingDeleteDecorations().then(() => {
                 this.getComponentsViewToggler().setEnabled(this.renderable);
                 this.getComponentsViewToggler().setVisible(this.renderable);
-                this.contextSplitPanel.updateRenderableStatus(this.renderable);
+                this.contextView.updateRenderableStatus(this.renderable);
             });
         });
     }

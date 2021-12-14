@@ -7,20 +7,44 @@
 
   > .splitter {
     z-index: 1;
+    transition: all 0.5s ease-in-out;
+  }
+
+  @media screen and (max-width: 720px) {
+    > .splitter {
+      display: none !important;
+    }
+
+    &.expanded {
+      > .context-panel {
+        width: 100% !important;
+
+        .context-view-container {
+          padding-left: 0;
+        }
+      }
+    }
   }
 
   > .context-panel {
     box-shadow: none;
-    z-index: auto;
+    z-index: 1;
     display: inherit;
-
-    &.left-bordered {
-      border-left: 5px #eeeeee solid;
-      box-sizing: content-box;
-    }
 
     > .context-container {
       left: 0;
+    }
+  }
+
+  &.floating {
+    > .panel:first-child {
+      width: 100% !important;
+    }
+
+    &.expanded {
+      > .context-panel {
+        box-shadow: 0 12px 20px -8px @admin-black, 0 8px 12px -4px rgba(0, 0, 0, 0.1);
+      }
     }
   }
 }

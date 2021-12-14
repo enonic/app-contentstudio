@@ -17,20 +17,6 @@
     background-color: rgba(255, 255, 255, 0.95);
   }
 
-  @media screen and (max-width: 720px) {
-    &.floating-context-panel.expanded {
-      width: 100% !important;
-
-      .context-view-container {
-        padding-left: 0;
-      }
-
-      .splitter {
-        display: none;
-      }
-    }
-  }
-
   .context-view-container {
     height: 100%;
   }
@@ -182,37 +168,6 @@
     cursor: ew-resize;
     width: 5px;
     .notSelectable();
-  }
-
-  &.floating-context-panel {
-    position: fixed;
-    top: @app-header-height + @toolbar-with-border-height;
-    outline: 1px solid @admin-bg-light-gray;
-    background-color: rgba(255, 255, 255, 0.95);
-
-    &.expanded.active {
-      box-shadow: 0 12px 20px -8px @admin-black, 0 8px 12px -4px rgba(0, 0, 0, 0.1);
-    }
-
-    .context-view-container {
-      padding-left: 5px;
-    }
-
-    .splitter {
-      position: absolute;
-      top: 0;
-    }
-
-    .ghost-dragger {
-      top: 0;
-      opacity: 1;
-    }
-  }
-}
-
-.blurred .context-panel {
-  &.floating-context-panel {
-    top: @toolbar-with-border-height;
   }
 }
 

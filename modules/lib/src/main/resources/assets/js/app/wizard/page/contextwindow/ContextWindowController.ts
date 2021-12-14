@@ -23,9 +23,6 @@ export class ContextWindowController {
 
         this.componentsViewToggler.onActiveChanged((isActive: boolean) => {
             if (!componentsView.getParentElement() && isActive) {
-                //append it on click only to be sure that content wizard panel is ready
-                let offset = contentWizardPanel.getLivePanel().getEl().getOffsetToParent();
-                componentsView.getEl().setOffset(offset);
                 contentWizardPanel.appendChild(componentsView);
             }
 
