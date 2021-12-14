@@ -732,4 +732,8 @@ export class ContentTreeGrid
             }
         });
     }
+
+    resizeCanvas(): void {
+        this.getGrid().resizeCanvas();
+    }
 }
