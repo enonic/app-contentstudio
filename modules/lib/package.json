@@ -33,7 +33,7 @@
     "@types/jqueryui": "^1.12.15",
     "@types/q": "^1.5.4",
     "@typescript-eslint/eslint-plugin": "^5.7.0",
-    "@typescript-eslint/parser": "^5.6.0",
+    "@typescript-eslint/parser": "^5.7.0",
     "eslint": "^8.4.1",
     "minimist": "^1.2.5",
     "terser": "^5.10.0",
