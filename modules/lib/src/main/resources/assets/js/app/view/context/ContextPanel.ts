@@ -21,9 +21,6 @@ export class ContextPanel
         this.subscribeOnEvents();
         this.contextViewContainer = new DivEl('context-view-container');
         this.appendChild(this.contextViewContainer);
-    }
-
-    public setActive() {
         this.contextViewContainer.appendChild(this.contextView);
     }
 
@@ -55,19 +52,4 @@ export class ContextPanel
     public onPanelSizeChanged(listener: () => void) {
         this.sizeChangedListeners.push(listener);
     }
-
-    public getType(): CONTEXT_PANEL_TYPE {
-        throw new Error('Must be implemented by inheritors');
-    }
-
-    public isMobile(): boolean {
-        return this.getType() === CONTEXT_PANEL_TYPE.MOBILE;
-    }
-}
-
-export enum CONTEXT_PANEL_TYPE {
-
-    DOCKED,
-    FLOATING,
-    MOBILE
 }
