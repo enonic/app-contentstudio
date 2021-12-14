@@ -6,6 +6,7 @@ import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentId} from '../content/ContentId';
+import {AccessibilityHelper} from '../util/AccessibilityHelper';
 
 export class PublishDialogItemList
     extends DialogTogglableItemList {
@@ -41,6 +42,8 @@ export class PublishDialogItemList
             serverEvents.unContentUpdated(updatedHandler);
             serverEvents.unContentDeleted(deletedHandler);
         });
+
+        setTimeout(() => this.addAccessibilityToViewChildren(view), 1);
 
         return view;
     }
@@ -96,5 +99,16 @@ export class PublishDialogItemList
                 this.removeItem(item, true);
             }
         });
+    }
+
+    private addAccessibilityToViewChildren(view: TogglableStatusSelectionItem): void {
+        // remove icon appears as the last element, but its the first element in DOM,
+        // therefore, since its a div (not tabbable), its order needs to be changed in DOM:
+        const removeElement = view.getFirstChild();
+        view.removeChild(removeElement);
+        view.appendChild(removeElement);
+
+        // then add tab index to all the childs of the view.
+        view.getChildren().forEach((el) => AccessibilityHelper.tabIndex(el));
     }
 }
