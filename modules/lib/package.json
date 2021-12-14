@@ -29,7 +29,7 @@
     "@types/ckeditor": "^4.9.10",
     "@types/core-js": "^2.5.5",
     "@types/hasher": "0.0.32",
-    "@types/jquery": "^3.5.9",
+    "@types/jquery": "^3.5.10",
     "@types/jqueryui": "^1.12.15",
     "@types/q": "^1.5.4",
     "@typescript-eslint/eslint-plugin": "^5.7.0",
