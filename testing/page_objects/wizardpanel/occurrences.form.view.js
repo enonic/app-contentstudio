@@ -6,12 +6,23 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
     removeButton: "//button[@class='remove-button']",
+    hideDetailsButton: "//button[contains(@id,'TogglerButton') and child::span[text()='Hide details']]",
+    showDetailsButton: "//button[contains(@id,'TogglerButton') and child::span[text()='Show details']]",
+    validationBlock: "//div[contains(@class,'validation-block')]",
 };
 
 class OccurrencesFormView extends Page {
 
     get formValidationRecording() {
         return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
+    }
+
+    get hideDetailsButton() {
+        return lib.FORM_VIEW + XPATH.validationBlock + XPATH.hideDetailsButton;
+    }
+
+    get showDetailsButton() {
+        return lib.FORM_VIEW + XPATH.validationBlock + XPATH.showDetailsButton;
     }
 
     get inputOccurrenceErrorRecording() {
@@ -24,6 +35,32 @@ class OccurrencesFormView extends Page {
 
     get removeButton() {
         return lib.FORM_VIEW + XPATH.removeButton;
+    }
+
+    waitForShowDetailsButtonDisplayed() {
+        return this.waitUntilDisplayed(this.showDetailsButton, appConst.mediumTimeout);
+    }
+
+    waitForShowDetailsButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.showDetailsButton, appConst.mediumTimeout);
+    }
+
+    waitForHideDetailsButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.hideDetailsButton, appConst.mediumTimeout);
+    }
+
+    waitForHideDetailsButtonDisplayed() {
+        return this.waitUntilDisplayed(this.hideDetailsButton, appConst.mediumTimeout);
+    }
+
+    async clickOnShowDetailsButton() {
+        await this.waitForShowDetailsButtonDisplayed();
+        return await this.clickOnElement(this.showDetailsButton);
+    }
+
+    async clickOnHideDetailsButton() {
+        await this.waitForHideDetailsButtonDisplayed();
+        return await this.clickOnElement(this.hideDetailsButton);
     }
 
     async clickOnLastRemoveButton() {

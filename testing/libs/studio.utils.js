@@ -392,7 +392,7 @@ module.exports = {
         let browsePanel = new BrowsePanel();
         await this.typeNameInFilterPanel(name);
         await browsePanel.waitForRowByNameVisible(name);
-        await browsePanel.pause(300);
+        await browsePanel.pause(400);
         await browsePanel.clickOnRowByName(name);
         return await browsePanel.pause(400);
     },

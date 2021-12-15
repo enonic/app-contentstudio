@@ -49,7 +49,6 @@ class BaseDetailsPanel extends Page {
         }
     }
 
-
     getWidgetSelectorDropdownOptions() {
         let locator = this.widgetSelectorDropdown + lib.H6_DISPLAY_NAME;
         return this.getTextInDisplayedElements(locator);
