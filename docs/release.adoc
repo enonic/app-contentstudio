@@ -37,6 +37,14 @@ In docked mode Context panel will responsively change its width based on availab
 
 image::cs40-context-panel.png[Responsive Context panel, 600]
 
+=== Bigger dropdowns in selectors
+
+Height of all selector dropdowns has been increased to allow for more visible items
+(9 instead of 4 in Content selectors and 3 in Image selectors).
+
+image:cs40-content-selector.png[Content selector, 400]
+image:cs40-image-selector.png[Image selector, 400]
+
 == Upgrade notes for Content Studio 4.x
 
 === Admin API
