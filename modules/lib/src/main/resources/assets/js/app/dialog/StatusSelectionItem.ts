@@ -47,9 +47,7 @@ export class StatusSelectionItem
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
-
-            const removeButton = this.getRemoveButton();
-            this.clickTooltip = new Tooltip(removeButton, this.removeClickTooltip);
+            this.clickTooltip = new Tooltip(this.removeEl, this.removeClickTooltip);
             this.clickTooltip.setTrigger(Tooltip.TRIGGER_NONE);
 
             let onRemoveClicked = AppHelper.debounce(() => {
@@ -63,7 +61,7 @@ export class StatusSelectionItem
 
             this.onRemoveClicked(onRemoveClicked);
 
-            removeButton.onMouseMove(e => { // stop propagating move event to parents, otherwise parent's tooltip shown
+            this.removeEl.onMouseMove(e => { // stop propagating move event to parents, otherwise parent's tooltip shown
                 e.stopPropagation();
             });
 

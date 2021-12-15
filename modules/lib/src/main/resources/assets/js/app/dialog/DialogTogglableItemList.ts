@@ -248,11 +248,9 @@ export class TogglableStatusSelectionItem
     }
 
     public doRender(): Q.Promise<boolean> {
-
         return super.doRender().then((rendered) => {
-
             if (this.toggler) {
-                this.toggler.insertAfterEl(this.removeEl);
+                this.prependChild(this.toggler);
             }
 
             return rendered;
