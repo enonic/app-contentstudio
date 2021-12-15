@@ -88,6 +88,7 @@ describe('content.image.selector: Image content specification', function () {
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4);
             //2. Click on dropdown handle in the selector:
             await imageSelectorForm.clickOnDropdownHandle();
+            await imageSelectorForm.pause(800);
             //3. Verify expanded options:
             await studioUtils.saveScreenshot("selector_flat_mode");
             let nameImages = await imageSelectorForm.getFlatModeOptionImageNames();
