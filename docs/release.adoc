@@ -18,6 +18,14 @@ then there will be a separate warning about that at the top of the dialog.
 
 image::cs40-inbound-references.png[Inbound references in the Archive dialog, 600]
 
+=== Spell check in TextLine and TextArea input types
+
+TextLine and TextArea inputs are now automatically checked for spelling errors.
+
+image::cs40-spellcheck.png[Spell checking in TextLine, 400]
+
+Read more about spell checking https://developer.enonic.com/docs/xp/stable/cms/input-types#spell_checking[here]
+
 === Support disabling of content path transliteration
 
 By default, content path in the <<editor/content-form#, Content Form>> will be auto-generated based on a value typed into the display name field
