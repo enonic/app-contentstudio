@@ -102,13 +102,6 @@ export class PublishDialogItemList
     }
 
     private addAccessibilityToViewChildren(view: TogglableStatusSelectionItem): void {
-        // remove icon appears as the last element, but its the first element in DOM,
-        // therefore, since its a div (not tabbable), its order needs to be changed in DOM:
-        const removeElement = view.getFirstChild();
-        view.removeChild(removeElement);
-        view.appendChild(removeElement);
-
-        // then add tab index to all the childs of the view.
         view.getChildren().forEach((el) => AccessibilityHelper.tabIndex(el));
     }
 }
