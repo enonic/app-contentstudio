@@ -24,12 +24,18 @@ By default, content path in the <<editor/content-form#, Content Form>> will be a
 and all the international letters will be automatically transliterated into their english equivalents (for example, "_/øåæ_" becomes "_/oaae_", "_/рыба_" becomes "_/ryba_" etc.)
 
 It's now possible to turn off automatic transliteration by setting `contentWizard.allowPathTransliteration` property to `false` in the
-Content Studio's <<configuration_file#, config file>>.
+Content Studio's <<config#, config file>>.
 
 === Image Component is deprecated
 
 Image Component has been deprecated in favour of <<editor/component-types#text_component, `Text Component`>> which can be used for embedding
 images and has a richer UI than Image Component used to have. Existing image components on your page will continue working, but you won't be able to add a new one.
+
+=== Responsive Context panel
+
+In docked mode Context panel will responsively change its width based on available space with 38/62 ratio relative to the Page Editor panel.
+
+image::cs40-context-panel.png[Responsive Context panel, 600]
 
 == Upgrade notes for Content Studio 4.x
 
