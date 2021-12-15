@@ -5,6 +5,14 @@
       "checkout": "a24d80d3eeef3439ff9f4f192bc3a567da2493f1"
     },
     {
+      "label": "3.x",
+      "checkout": "aa436bce3e13156cb4c09fcdabe900ee7da584f3"
+    },
+    {
+      "label": "next",
+      "checkout": "4ab1d9b2a4b5051f067983cdd3d1957c36b6215f"
+    },
+    {
       "label": "stable",
       "checkout": "master",
       "latest": true
