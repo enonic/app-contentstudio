@@ -94,12 +94,13 @@ export class ProjectSelectionDialog
     open() {
         if (!this.updateOnOpen) {
             this.showItems();
-            this.addFocusToFirstProjectListElement();
         } else {
             this.loadProjects();
         }
 
         super.open();
+
+        this.addFocusToFirstProjectListElement();
     }
 
     private loadProjects(): Q.Promise<void> {
@@ -140,6 +141,17 @@ export class ProjectSelectionDialog
         });
     }
 
+    private addFocusToFirstProjectListElement(): void{
+        if (this.projectsList.getItemViews().length === 0) {
+            return;
+        }
+
+        const firstProject: ProjectListItem =
+            <ProjectListItem>this.projectsList.getItemViews()[0];
+
+        firstProject.whenShown(() => firstProject.getHTMLElement().focus());
+    }
+
     // Cycle to the first project element when tabbing in the last element
     private setLastProjectCycleOnTabEvent(): void {
         if (this.projectsList.getItemViews().length === 0) {
@@ -155,11 +167,6 @@ export class ProjectSelectionDialog
         lastProject.onKeyDown((event: KeyboardEvent) => {
             setTimeout(() => event.key === 'Tab' && firstProject.getHTMLElement().focus(), 1);
         });
-    }
-
-    private addFocusToFirstProjectListElement(): void{
-        this.projectsList.getItemViews().length > 0
-            && this.setElementToFocusOnShow(this.projectsList.getItemViews()[0]);
     }
 
 }
