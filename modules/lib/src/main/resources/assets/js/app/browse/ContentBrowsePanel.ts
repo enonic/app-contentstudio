@@ -37,7 +37,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContextView} from '../view/context/ContextView';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
-import { Body } from 'lib-admin-ui/dom/Body';
+import {Body} from 'lib-admin-ui/dom/Body';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -99,7 +99,7 @@ export class ContentBrowsePanel
                 event.preventDefault();
                 event.stopImmediatePropagation();
             }
-        }
+        };
 
         this.onShown(() => {
 
