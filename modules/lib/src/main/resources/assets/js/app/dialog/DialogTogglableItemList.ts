@@ -13,6 +13,7 @@ import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {ContentIds} from '../content/ContentIds';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentId} from '../content/ContentId';
+import {AccessibilityHelper} from '../util/AccessibilityHelper';
 
 export class DialogTogglableItemList
     extends DialogItemList {
@@ -245,6 +246,8 @@ export class TogglableStatusSelectionItem
         }
 
         this.id = item.getContentSummary().getContentId();
+
+        this.whenRendered(() => this.addTabIndexToTogglerAndRemoveElements());
     }
 
     public doRender(): Q.Promise<boolean> {
@@ -293,6 +296,11 @@ export class TogglableStatusSelectionItem
         this.itemStateChangedListeners.forEach((listener) => {
             listener(item, enabled);
         });
+    }
+
+    private addTabIndexToTogglerAndRemoveElements() {
+        this.toggler && AccessibilityHelper.tabIndex(this.toggler);
+        this.removeEl && AccessibilityHelper.tabIndex(this.removeEl);
     }
 }
 
