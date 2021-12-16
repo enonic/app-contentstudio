@@ -99,6 +99,8 @@ export class ProjectSelectionDialog
         }
 
         super.open();
+
+        this.addFocusToFirstProjectListElement();
     }
 
     private loadProjects(): Q.Promise<void> {
@@ -137,6 +139,17 @@ export class ProjectSelectionDialog
 
             return rendered;
         });
+    }
+
+    private addFocusToFirstProjectListElement(): void{
+        if (this.projectsList.getItemViews().length === 0) {
+            return;
+        }
+
+        const firstProject: ProjectListItem =
+            <ProjectListItem>this.projectsList.getItemViews()[0];
+
+        firstProject.whenShown(() => firstProject.getHTMLElement().focus());
     }
 
     // Cycle to the first project element when tabbing in the last element
