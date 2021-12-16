@@ -99,8 +99,6 @@ export class ProjectSelectionDialog
         }
 
         super.open();
-
-        this.addFocusToFirstProjectListElement();
     }
 
     private loadProjects(): Q.Promise<void> {
@@ -120,6 +118,8 @@ export class ProjectSelectionDialog
         const hasItems: boolean = this.projectsList.getItemCount() > 0;
         this.projectsList.setVisible(hasItems);
         this.noItemsInfoBlock.setVisible(!hasItems);
+
+        this.addFocusToFirstProjectListElement();
     }
 
     private selectCurrentProject() {
