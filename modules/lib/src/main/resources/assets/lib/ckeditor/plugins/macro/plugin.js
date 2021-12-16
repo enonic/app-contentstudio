@@ -80,9 +80,9 @@ CKEDITOR.plugins.add('macro', {
         }
 
         function makeMakroObject(regexResult) {
-            var regexMacroAttributes = /(\w+(?:-?\w+)*)(?:\s*=\s*")([^"]+)(?:")/g;
+            var regexMacroAttributes = /\s([^=]+)="([^"]+)"/g;
             var attributes = [];
-            var attributesString = regexResult[0].match(/\[(.*?)\]/)[1];
+            var attributesString = regexResult[0].match(/\[([^\/][^\]]*)\]/)[1];
 
             var attrs;
             while (attrs = regexMacroAttributes.exec(attributesString)) {
@@ -100,7 +100,7 @@ CKEDITOR.plugins.add('macro', {
         }
 
         function checkMacroWithBodySelected() {
-            var regexMacroWithBody = /\[(\w+(?:-?\w+)*)\s?.*?\](.+?)\[\/(\w+(?:-?\w+)*)\]/g;
+            var regexMacroWithBody = /\[(\w+[\w-]*)[^\]]*\]([^\[]*)\[\/(\w+[\w-]*)\]/g;
 
             var result;
             while (result = regexMacroWithBody.exec(selectedElement.getText())) {
@@ -113,7 +113,7 @@ CKEDITOR.plugins.add('macro', {
         }
 
         function checkMacroNoBodySelected() {
-            var regexMacroNoBody = /\[(\w+(?:-?\w+)*)(?:\s.+)?\/\]/g;
+            var regexMacroNoBody = /\[(\w+[\w-]*)[^\]]*\/\]/g;
 
             var result;
             while (result = regexMacroNoBody.exec(selectedElement.getText())) {
