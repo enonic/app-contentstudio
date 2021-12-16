@@ -15,15 +15,15 @@ export class WidgetItemView
         super('widget-item-view' + (className ? ' ' + className : ''));
     }
 
-    public layout(): Q.Promise<any> {
+    public layout(): Q.Promise<void> {
         if (WidgetItemView.debug) {
             console.debug('WidgetItemView.layout: ', this);
         }
-        return Q<any>(null);
+        return Q();
     }
 
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
-        return Q<any>(null);
+    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<void> {
+        return Q();
     }
 
     private static getFullWidgetUrl(url: string, contentId: string) {
