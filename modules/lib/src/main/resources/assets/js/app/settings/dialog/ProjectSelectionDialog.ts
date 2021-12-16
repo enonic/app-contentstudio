@@ -94,6 +94,7 @@ export class ProjectSelectionDialog
     open() {
         if (!this.updateOnOpen) {
             this.showItems();
+            this.addFocusToFirstProjectListElement();
         } else {
             this.loadProjects();
         }
@@ -154,6 +155,11 @@ export class ProjectSelectionDialog
         lastProject.onKeyDown((event: KeyboardEvent) => {
             setTimeout(() => event.key === 'Tab' && firstProject.getHTMLElement().focus(), 1);
         });
+    }
+
+    private addFocusToFirstProjectListElement(): void{
+        this.projectsList.getItemViews().length > 0
+            && this.setElementToFocusOnShow(this.projectsList.getItemViews()[0]);
     }
 
 }
