@@ -37,6 +37,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContextView} from '../view/context/ContextView';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
+import { Body } from 'lib-admin-ui/dom/Body';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -92,8 +93,20 @@ export class ContentBrowsePanel
     protected initListeners() {
         super.initListeners();
 
+        const toggleBrowsePanelHandler = (event: KeyboardEvent) => {
+            if (event.shiftKey && event.key === 'F') {
+                this.toggleFilterPanelButton.getHTMLElement().click();
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }
+        }
+
         this.onShown(() => {
+
+            Body.get().onKeyDown(toggleBrowsePanelHandler);
+
             Router.get().setHash(UrlAction.BROWSE);
+
             this.treeGrid.resizeCanvas();
         });
 
