@@ -767,8 +767,13 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     //Wait for 'Show Issues' button has 'Assigned to Me' label
-    hasAssignedIssues() {
-        return this.waitForAttributeHasValue(this.showIssuesListButton, "class", "has-assigned-issues");
+    async hasAssignedIssues() {
+        try {
+            return await this.waitForAttributeHasValue(this.showIssuesListButton, "class", "has-assigned-issues");
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_issues"));
+            throw new Error("'Assigned to Me' button should be displayed  " + err);
+        }
     }
 
     async isContentInherited(contentName) {
