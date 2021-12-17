@@ -153,24 +153,20 @@ export class ProjectSelectionDialog
     }
 
     private handleTabCycle(): void {
-        const projects = this.projectsList.getItemViews();
+        const projects: ProjectListItem[] = <ProjectListItem[]>this.projectsList.getItemViews();
 
         if (projects.length === 0) {
             return;
         }
 
-        const firstProject: ProjectListItem = <ProjectListItem>projects[0];
+        const firstProject: ProjectListItem = projects[0];
+        const lastProject: ProjectListItem = projects[projects.length - 1];
+        const secondLastProject: ProjectListItem = projects.length > 1 ? projects[projects.length - 2] : firstProject;
 
-        const lastProject: ProjectListItem = <ProjectListItem>projects[projects.length - 1];
-
-        const secondLastProject: ProjectListItem = projects.length > 1
-            ? <ProjectListItem>projects[projects.length - 2]
-            : firstProject;
-
-        const handleTab = (event: KeyboardEvent) =>
+        const handleTab: Function = (event: KeyboardEvent) =>
             setTimeout(() => event.key === 'Tab' && firstProject.getHTMLElement().focus(), 1);
 
-        const handleShiftTab = (event: KeyboardEvent) =>
+        const handleShiftTab: Function = (event: KeyboardEvent) =>
             setTimeout(() => event.shiftKey && event.key === 'Tab' && secondLastProject.getHTMLElement().focus(), 1);
 
         lastProject.onKeyDown((event: KeyboardEvent) => {
