@@ -59,7 +59,7 @@ export class DialogTogglableItemList
     }
 
     private itemChangedHandler() {
-        const isTogglable = this.getItemViews().some(item => {
+        const isTogglable: boolean = this.getItemViews().some(item => {
             return (<ContentSummaryAndCompareStatus>item.getBrowseItem()).getContentSummary().hasChildren();
         });
         this.toggleClass('contains-toggleable', isTogglable);
@@ -70,7 +70,7 @@ export class DialogTogglableItemList
     }
 
     createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): TogglableStatusSelectionItem {
-        const itemView = <TogglableStatusSelectionItem>super.createItemView(item, readOnly);
+        const itemView: TogglableStatusSelectionItem = <TogglableStatusSelectionItem>super.createItemView(item, readOnly);
 
         if (this.canBeEmpty) {
             itemView.setIsRemovableFn(() => true);
@@ -89,14 +89,19 @@ export class DialogTogglableItemList
     }
 
     protected updateItemView(itemView: Element, item: ContentSummaryAndCompareStatus) {
-        const view = <TogglableStatusSelectionItem>itemView;
+        const view: TogglableStatusSelectionItem = <TogglableStatusSelectionItem>itemView;
         view.setObject(item);
     }
 
     protected createSelectionItem(viewer: ContentSummaryAndCompareStatusViewer,
                                   browseItem: ContentSummaryAndCompareStatus): TogglableStatusSelectionItem {
 
-        const item = new TogglableStatusSelectionItem(viewer, browseItem, this.togglerEnabled);
+        const item: TogglableStatusSelectionItem = new TogglableStatusSelectionItem(viewer, browseItem);
+
+        if (item.hasChildrenItems()) {
+            item.toggleIncludeChildren(this.togglerEnabled, true);
+        }
+
         item.onItemStateChanged(() => {
             this.debounceNotifyListChanged();
         });
@@ -104,16 +109,8 @@ export class DialogTogglableItemList
         return item;
     }
 
-    public childTogglersAvailable(): boolean {
-        return this.getItemViews().some(
-            itemView => !!itemView.getIncludeChildrenToggler()
-        );
-    }
-
     public hasActiveTogglers(): boolean {
-        return this.getItemViews().some(
-            itemView => !!itemView.includesChildren()
-        );
+        return this.getItemViews().some((itemView: TogglableStatusSelectionItem) => !!itemView.includesChildren());
     }
 
     public refreshList() {
@@ -123,7 +120,8 @@ export class DialogTogglableItemList
 
     public setReadOnly(value: boolean) {
         super.setReadOnly(value);
-        this.getItemViews().forEach((item) => {
+
+        this.getItemViews().forEach((item: TogglableStatusSelectionItem) => {
             item.setReadOnly(value);
         });
     }
@@ -199,6 +197,7 @@ export class DialogTogglableItemList
         const updatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
             permissionsUpdatedHandler(ContentIds.from(data.map((updated: ContentSummaryAndCompareStatus) => updated.getContentId())));
         };
+
         const deletedHandler = (changedItems: ContentServerChangeItem[], pending?: boolean) => {
             if (changedItems.some(changedItem => changedItem.getContentId().equals(item.getContentId()))) {
                 this.notifyListItemsDataChanged();
@@ -229,31 +228,37 @@ export class TogglableStatusSelectionItem
 
     private id: ContentId;
 
-    private toggler: IncludeChildrenToggler;
+    private toggler?: IncludeChildrenToggler;
 
     constructor(viewer: Viewer<ContentSummaryAndCompareStatus>,
-                item: ContentSummaryAndCompareStatus,
-                toggleEnabled: boolean) {
+                item: ContentSummaryAndCompareStatus) {
         super(viewer, item);
 
-        if (item.getContentSummary().hasChildren()) {
-            this.toggler = new IncludeChildrenToggler(toggleEnabled);
-            this.addClass('toggleable');
+        this.initElements();
+        this.initListeners();
+    }
 
-            this.toggler.onStateChanged((enabled: boolean) => {
-                this.notifyItemStateChanged((<ContentSummaryAndCompareStatus>this.getBrowseItem()).getContentId(), enabled);
-            });
+    protected initElements(): void {
+        if (this.item.getContentSummary().hasChildren()) {
+            this.toggler = new IncludeChildrenToggler();
         }
 
-        this.id = item.getContentSummary().getContentId();
+        this.id = this.item.getContentSummary().getContentId();
+    }
 
+    protected initListeners(): void {
         this.whenRendered(() => this.addTabIndexToTogglerAndRemoveElements());
+
+        this.toggler?.onStateChanged((enabled: boolean) => {
+            this.notifyItemStateChanged((<ContentSummaryAndCompareStatus>this.getBrowseItem()).getContentId(), enabled);
+        });
     }
 
     public doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered) => {
             if (this.toggler) {
                 this.prependChild(this.toggler);
+                this.addClass('toggleable');
             }
 
             return rendered;
@@ -266,8 +271,12 @@ export class TogglableStatusSelectionItem
         }
     }
 
-    getIncludeChildrenToggler(): IncludeChildrenToggler {
-        return this.toggler;
+    hasChildrenItems(): boolean {
+        return this.item.getContentSummary()?.hasChildren();
+    }
+
+    toggleIncludeChildren(condition?: boolean, silent?: boolean): boolean {
+        return this.toggler?.toggle(condition, silent);
     }
 
     getContentId(): ContentId {
@@ -313,17 +322,14 @@ class IncludeChildrenToggler
 
     private readOnly: boolean;
 
-    constructor(enabled: boolean) {
-        super('icon icon-tree');
-        this.addClass('include-children-toggler');
+    constructor() {
+        super('icon icon-tree include-children-toggler');
 
         this.tooltip = new Tooltip(this, i18n('dialog.includeChildren'), 1000);
 
         this.onClicked(() => {
             this.toggle();
         });
-
-        this.toggle(enabled, true);
     }
 
     toggle(condition?: boolean, silent?: boolean): boolean {

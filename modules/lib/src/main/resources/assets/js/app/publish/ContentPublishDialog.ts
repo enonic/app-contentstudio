@@ -144,14 +144,14 @@ export class ContentPublishDialog
     setIncludeChildItems(include: boolean, exceptedIds?: ContentId[]): ContentPublishDialog {
         const hasExceptedIds = exceptedIds != null && exceptedIds.length > 0;
         const idExcepted = (id: ContentId) => exceptedIds.some(exceptedId => exceptedId.equals(id));
-
         let noIdsIncluded: boolean = true;
+
         this.getItemList().getItemViews().forEach(itemView => {
-            const toggler = itemView.getIncludeChildrenToggler();
-            if (toggler) {
-                const idIncluded = (hasExceptedIds && idExcepted(itemView.getContentId())) ? !include : include;
-                toggler.toggle(idIncluded);
-                if (idIncluded && noIdsIncluded) {
+            if (itemView.hasChildrenItems()) {
+                const isIdIncluded: boolean = (hasExceptedIds && idExcepted(itemView.getContentId())) ? !include : include;
+                itemView.toggleIncludeChildren(isIdIncluded);
+
+                if (isIdIncluded && noIdsIncluded) {
                     noIdsIncluded = false;
                 }
             }
