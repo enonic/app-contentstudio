@@ -58,6 +58,7 @@ import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticated
 import {IssueComment} from '../IssueComment';
 import {ContentId} from '../../content/ContentId';
 import {PrincipalLoader} from '../../security/PrincipalLoader';
+import {TogglableStatusSelectionItem} from '../../dialog/DialogTogglableItemList';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -746,9 +747,8 @@ export class IssueDetailsDialog
 
     private initItemListTogglers(itemList: PublishDialogItemList): boolean {
         // ignore event if there're changes as we're just setting loaded values on list
-        return itemList.getItemViews().reduce((alreadyMade, itemView) => {
-            const toggler = itemView.getIncludeChildrenToggler();
-            return (toggler && toggler.toggle(this.areChildrenIncludedInIssue(itemView.getContentId()))) || alreadyMade;
+        return itemList.getItemViews().reduce((alreadyMade: boolean, itemView: TogglableStatusSelectionItem) => {
+            return itemView.toggleIncludeChildren(this.areChildrenIncludedInIssue(itemView.getContentId())) || alreadyMade;
         }, false);
     }
 

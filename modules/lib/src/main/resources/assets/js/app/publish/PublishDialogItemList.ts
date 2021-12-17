@@ -72,8 +72,8 @@ export class PublishDialogItemList
         this.excludeChildrenIds = ids;
 
         this.getItemViews().forEach(itemView => {
-            if (itemView.getIncludeChildrenToggler()) {
-                itemView.getIncludeChildrenToggler().toggle(!ArrayHelper.contains(this.excludeChildrenIds, itemView.getContentId()), true);
+            if (itemView.hasChildrenItems()) {
+                itemView.toggleIncludeChildren(!ArrayHelper.contains(this.excludeChildrenIds, itemView.getContentId()), true);
             }
         });
 
