@@ -56,7 +56,7 @@ export class ProjectSelectionDialog
             });
         });
 
-        this.setLastProjectCycleOnTabEvent();
+        this.handleTabCycle();
     }
 
     setUpdateOnOpen(value: boolean) {
@@ -152,20 +152,30 @@ export class ProjectSelectionDialog
         firstProject.whenShown(() => firstProject.getHTMLElement().focus());
     }
 
-    // Cycle to the first project element when tabbing in the last element
-    private setLastProjectCycleOnTabEvent(): void {
-        if (this.projectsList.getItemViews().length === 0) {
+    private handleTabCycle(): void {
+        const projects = this.projectsList.getItemViews();
+
+        if (projects.length === 0) {
             return;
         }
 
-        const firstProject: ProjectListItem =
-            <ProjectListItem>this.projectsList.getItemViews()[0];
+        const firstProject: ProjectListItem = <ProjectListItem>projects[0];
 
-        const lastProject: ProjectListItem =
-            <ProjectListItem>this.projectsList.getItemViews()[this.projectsList.getItemViews().length - 1];
+        const lastProject: ProjectListItem = <ProjectListItem>projects[projects.length - 1];
+
+        const secondLastProject: ProjectListItem = projects.length > 1
+            ? <ProjectListItem>projects[projects.length - 2]
+            : firstProject;
+
+        const handleTab = (event: KeyboardEvent) =>
+            setTimeout(() => event.key === 'Tab' && firstProject.getHTMLElement().focus(), 1);
+
+        const handleShiftTab = (event: KeyboardEvent) =>
+            setTimeout(() => event.shiftKey && event.key === 'Tab' && secondLastProject.getHTMLElement().focus(), 1);
 
         lastProject.onKeyDown((event: KeyboardEvent) => {
-            setTimeout(() => event.key === 'Tab' && firstProject.getHTMLElement().focus(), 1);
+            handleTab(event);
+            handleShiftTab(event);
         });
     }
 
