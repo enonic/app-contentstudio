@@ -10,7 +10,7 @@ export class MoveContentAction
     extends ContentTreeGridAction {
 
     constructor(grid: ContentTreeGrid) {
-        super(grid, i18n('action.moveMore'));
+        super(grid, i18n('action.moveMore'), 'alt+m');
         this.setEnabled(false);
     }
 
