@@ -25,6 +25,7 @@ import {Form, FormBuilder} from 'lib-admin-ui/form/Form';
 import {InputBuilder} from 'lib-admin-ui/form/Input';
 import {OccurrencesBuilder} from 'lib-admin-ui/form/Occurrences';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {TogglableStatusSelectionItem} from '../dialog/DialogTogglableItemList';
 
 /**
  * ContentPublishDialog manages list of initially checked (initially requested) items resolved via ResolvePublishDependencies command.
@@ -239,9 +240,9 @@ export class RequestContentPublishDialog
 
     setIncludeChildItems(include: boolean, silent?: boolean) {
         this.getItemList().getItemViews()
-            .filter(itemView => itemView.getIncludeChildrenToggler())
-            .forEach(itemView => itemView.getIncludeChildrenToggler().toggle(include, silent)
-            );
+            .filter((itemView: TogglableStatusSelectionItem) => itemView.hasChildrenItems())
+            .forEach((itemView: TogglableStatusSelectionItem) => itemView.toggleIncludeChildren(include, silent));
+
         return this;
     }
 
