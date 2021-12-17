@@ -1,4 +1,21 @@
 .content-wizard-panel {
+  .mobile-mode {
+    .split-panel.wizard-and-preview {
+      &.toggle-live {
+        .live-form-panel {
+          z-index: 1;
+          width: 100% !important;
+        }
+      }
+    }
+
+    &.context-split-panel.expanded {
+      .context-panel {
+        width: 100% !important;
+      }
+    }
+  }
+
   .wizard-header {
     .path-error {
       color: @admin-level-3;

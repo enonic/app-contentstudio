@@ -33,6 +33,8 @@ export class ContextSplitPanel
     private mobileModeChangedListeners: { (isMobile: boolean): void }[] = [];
     private modeChangedListeners: { (mode: ContextPanelMode): void }[] = [];
     private stateChangedListeners: { (state: ContextPanelState): void }[] = [];
+    protected floatModeSize: SplitPanelSize;
+    protected dockedModeSize: SplitPanelSize;
 
     constructor(splitPanelBuilder: ContextSplitPanelBuilder) {
         super(splitPanelBuilder);
@@ -41,6 +43,8 @@ export class ContextSplitPanel
 
         this.contextView = splitPanelBuilder.contextView;
         this.dockedContextPanel = splitPanelBuilder.getSecondPanel();
+        this.dockedModeSize = splitPanelBuilder.getSecondPanelSize();
+        this.floatModeSize = SplitPanelSize.Pixels(ContextSplitPanel.CONTEXT_MIN_WIDTH + this.getSplitterThickness() / 2);
 
         this.initListeners();
     }
@@ -126,11 +130,6 @@ export class ContextSplitPanel
         }
 
         this.switchPanelModeIfNeeded();
-
-        if (this.isContextPanelLessThanMin()) {
-            this.setActiveWidthPxOfSecondPanel(SplitPanelSize.Pixels(ContextSplitPanel.CONTEXT_MIN_WIDTH + this.getSplitterThickness()));
-            this.distribute();
-        }
     }
 
     private renderAfterDockedPanelReady(): void {
@@ -164,10 +163,14 @@ export class ContextSplitPanel
 
     setDockedMode(): void {
         this.setMode(ContextPanelMode.DOCKED);
+        this.setActiveWidthPxOfSecondPanel(this.dockedModeSize);
+        this.distribute(true);
     }
 
     setFloatingMode(): void {
         this.setMode(ContextPanelMode.FLOATING);
+        this.setActiveWidthPxOfSecondPanel(this.floatModeSize);
+        this.distribute(true);
     }
 
     setMode(value: ContextPanelMode): void {

@@ -609,12 +609,8 @@ export class ContentWizardPanel
                 if (!this.isMinimized()) {
                     const formPanelSizePercents: number = this.contextSplitPanel.isDockedMode() ? 50 : 38;
                     this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(formPanelSizePercents));
-                    this.splitPanel.distribute();
+                    this.splitPanel.distribute(true);
                 }
-
-                const contextPanelSizePercents: number = (mode === ContextPanelMode.DOCKED && !this.isMinimized()) ? 24 : 38;
-                this.contextSplitPanel.setActiveWidthPxOfSecondPanel(SplitPanelSize.Percents(contextPanelSizePercents));
-                this.contextSplitPanel.distribute();
             });
 
             this.contextSplitPanel.onStateChanged((state: ContextPanelState) => {
@@ -624,11 +620,11 @@ export class ContentWizardPanel
 
                 if (state === ContextPanelState.COLLAPSED) {
                     this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(38));
-                    this.splitPanel.distribute();
+                    this.splitPanel.distribute(true);
                 } else {
                     const formPanelSizePercents: number = this.contextSplitPanel.isDockedMode() ? 50 : 38;
                     this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(formPanelSizePercents));
-                    this.splitPanel.distribute();
+                    this.splitPanel.distribute(true);
                 }
             });
         }
@@ -2595,10 +2591,6 @@ export class ContentWizardPanel
         if (this.isMinimized()) {
             this.toggleMinimize();
         }
-    }
-
-    private isDockedContextPanelOpen(): boolean {
-        return !this.contextSplitPanel.isSecondPanelHidden();
     }
 
     private checkIfRenderable(): Q.Promise<Boolean> {
