@@ -93,18 +93,7 @@ export class ContentBrowsePanel
     protected initListeners() {
         super.initListeners();
 
-        const toggleBrowsePanelHandler = (event: KeyboardEvent) => {
-            if (event.shiftKey && event.key === 'F') {
-                this.toggleFilterPanelButton.getHTMLElement().click();
-                event.preventDefault();
-                event.stopImmediatePropagation();
-            }
-        };
-
         this.onShown(() => {
-
-            Body.get().onKeyDown(toggleBrowsePanelHandler);
-
             Router.get().setHash(UrlAction.BROWSE);
 
             this.treeGrid.resizeCanvas();
@@ -119,6 +108,10 @@ export class ContentBrowsePanel
 
     getNonToolbarActions(): Action[] {
         return this.getBrowseActions().getPublishActions();
+    }
+
+    getToggleSearchAction(): Action {
+        return this.getBrowseActions().getToggleSearchPanelAction();
     }
 
     protected createToolbar(): ContentBrowseToolbar {
@@ -183,7 +176,7 @@ export class ContentBrowsePanel
 
     private handleGlobalEvents() {
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
-            this.getBrowseActions().getAction(ActionName.TOGGLE_SEARCH_PANEL).setVisible(
+            this.getBrowseActions().getToggleSearchPanelAction().setVisible(
                 item.isInRangeOrSmaller(ResponsiveRanges._540_720));
         });
 

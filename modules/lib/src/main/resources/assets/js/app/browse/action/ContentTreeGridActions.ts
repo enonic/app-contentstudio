@@ -157,6 +157,10 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
         return this.getAction(ActionName.PUBLISH);
     }
 
+    getToggleSearchPanelAction(): Action {
+        return this.getAction(ActionName.TOGGLE_SEARCH_PANEL);
+    }
+
     getAllActionsNoPublish(): Action[] {
         return [
             ...this.getAllCommonActions()
