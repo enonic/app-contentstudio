@@ -1,6 +1,4 @@
 import {ToggleSearchPanelEvent} from '../ToggleSearchPanelEvent';
-
-import {Action} from 'lib-admin-ui/ui/Action';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
@@ -8,7 +6,7 @@ import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 export class ToggleSearchPanelAction extends ContentTreeGridAction {
 
     constructor(grid: ContentTreeGrid) {
-        super(grid);
+        super(grid, '', 'shift+f', true);
 
         this.setIconClass('icon-search3');
     }
