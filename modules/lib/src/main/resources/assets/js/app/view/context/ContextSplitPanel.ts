@@ -141,7 +141,6 @@ export class ContextSplitPanel
 
     private requiresCollapsedContextPanel(): boolean {
         const totalWidth: number = Body.get().getEl().getWidthWithBorder();
-        debugger;
         return ResponsiveRanges._1620_1920.isFitOrSmaller(totalWidth) || this.getExpectedContextPanelMode() === ContextPanelMode.FLOATING;
     }
 
