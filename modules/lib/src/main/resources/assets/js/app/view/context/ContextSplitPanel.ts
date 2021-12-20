@@ -101,7 +101,7 @@ export class ContextSplitPanel
     }
 
     protected getLeftPanelResponsiveRangeToSwitchToFloatingMode(): ResponsiveRange {
-        return ResponsiveRanges._720_960;
+        return ResponsiveRanges._960_1200;
     }
 
     private isContextPanelLessThanMin(): boolean {
