@@ -9,18 +9,6 @@ Licenses used by Content Studio for Enonic XP (full license texts are provided a
     GNU GPL 3.0
     https://ckeditor.com/legal/ckeditor-oss-license/
 
-    Mutation Observer Polyfill
-    MIT License
-    https://github.com/megawac/MutationObserver.js/blob/master/license
-
-    Promise Polyfill
-    MIT License
-    https://github.com/taylorhakes/promise-polyfill/blob/master/LICENSE
-
-    Fetch Polyfill
-    MIT License
-    https://github.com/github/fetch/blob/master/LICENSE
-
 ---------------------------------------------------------------------------
 
 LICENSE TEXTS

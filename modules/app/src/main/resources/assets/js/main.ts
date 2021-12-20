@@ -2,11 +2,6 @@
 
 import * as $ from 'jquery';
 import * as Q from 'q';
-// Polyfills added for compatibility with IE11
-import 'promise-polyfill/src/polyfill';
-import 'whatwg-fetch';
-import 'mutation-observer';
-// End of Polyfills
 import {showError, showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {i18nInit} from 'lib-admin-ui/util/MessagesInitializer';
