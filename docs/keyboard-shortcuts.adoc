@@ -17,6 +17,9 @@ NOTE: Press F2 to reveal all available shortcuts for a view.
 |Select / Unselect content
 2+^|`Space`
 
+|Move selected content
+2+^|`Alt + M`
+
 |Edit selected content
 ^|`⌘ + E` / `Enter`
 ^|`Ctrl + E` / `Enter`
