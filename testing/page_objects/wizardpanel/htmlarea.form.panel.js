@@ -100,7 +100,27 @@ class HtmlAreaForm extends OccurrencesFormView {
 
     async getTextInHtmlArea(index) {
         let ids = await this.getIdOfHtmlAreas();
-        return await this.execute(XPATH.getText(ids[index]));
+        let text = await this.execute(XPATH.getText(ids[index]));
+        return text;
+    }
+
+    async doubleClickOnMacroTextInHtmlArea(text) {
+        try {
+            await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
+            await this.clickOnElement(XPATH.ckeTextArea);
+            await this.pause(500);
+            let frameLocator = XPATH.ckeTextArea + "//iframe";
+            await this.switchToFrame(frameLocator);
+            await this.pause(500);
+            await this.doDoubleClick(`//body//p[contains(.,'${text}')]`);
+            //await this.doDoubleClick(`//body`);
+            await this.switchToParentFrame();
+            return await this.pause(1000);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_macro"));
+            await this.switchToParentFrame();
+            throw new Error("Error after double click on macro text  " + err);
+        }
     }
 
     getTextFromHtmlArea() {

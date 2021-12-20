@@ -106,6 +106,7 @@ describe('image.selector0_1.spec tests for not required image selector',
                 let versionsWidget = new VersionsWidget();
                 //1. Open existing image content(no selected images):
                 await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME);
+                await contentWizard.pause(1000);
                 //2. Open Version widget
                 await wizardDetailsPanel.openVersionHistory();
                 await versionsWidget.waitForVersionsLoaded();

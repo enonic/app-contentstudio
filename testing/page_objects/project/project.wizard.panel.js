@@ -247,6 +247,7 @@ class ProjectWizardPanel extends Page {
         let menuItem = XPATH.container + XPATH.projectAccessControlComboBox + XPATH.accessItemByName(userDisplayName) +
                        lib.tabMenuItem(newRole);
         await this.waitForElementDisplayed(menuItem, appConst.shortTimeout);
+        await this.pause(300);
         await this.clickOnElement(menuItem);
         return await this.pause(500);
     }
