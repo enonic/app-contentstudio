@@ -6,22 +6,6 @@ This section describes how to configure Content Studio via the config file.
 
 The file should be called `com.enonic.app.contentstudio.cfg` and placed into the `$XP_HOME/config` folder of your XP installation.
 
-=== Html Editor XSS
-
-Content Studio's Rich Editor automatically removes any `<script>` and `<iframe>` tags from the source code.
-This measurement effectively reduces potential for XSS injections.
-This also removes any scripts from documents migrated from XP 6 on first save.
-
-Iframes can still be added through the use of the built-in `embed` https://developer.enonic.com/docs/xp/stable/cms/macros#built_in_macros[macro].
-
-You can allow `<script>` tag in html fields at your own risk by adding the following to the config file:
-
-.com.enonic.app.contentstudio.cfg
-[source,properties]
-----
-htmlinput.allowScripts = true
-----
-
 === Disable "Mark as Ready" in the Publishing Wizard
 
 Whenever the Publishing Wizard contains at least one item that is "_Work in progress_", publishing will be disabled. The editor can
@@ -32,7 +16,7 @@ image::publishing-mark-as-ready.png[Mark as ready action in the Publishing Wizar
 To add another level of restriction and prevent accidental publishing of items that are not ready for publishing, the "*Mark as ready*" bulk action
 can be disabled by adding the following parameter to the config file:
 
-.com.enonic.app.contentstudio.cfg
+.Enable Mark as Ready button in the Publishing Wizard
 [source,properties]
 ----
 publishingWizard.allowContentUpdate = false
@@ -42,7 +26,7 @@ publishingWizard.allowContentUpdate = false
 
 Defines matching mode for content type patterns. Can be `MATCH` or `LEGACY`. Default: `MATCH`. See https://developer.enonic.com/docs/xp/stable/cms/input-types#allowContentType[description].
 
-.com.enonic.app.contentstudio.cfg
+.Set matching mode
 [source,properties]
 ----
 contentTypePatternMode = MATCH
@@ -52,7 +36,7 @@ contentTypePatternMode = MATCH
 
 Used for setting size limit on attachments, media content and both project and content thumbnail uploads
 
-.com.enonic.app.contentstudio.cfg
+.Limit file size
 [source,properties]
 ----
 uploadMaxFileSize = 100mb

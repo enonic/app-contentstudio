@@ -174,7 +174,6 @@ export class HtmlArea
 
     private initEditor(id: string, property: Property, textAreaWrapper: Element): Q.Promise<HtmlEditor> {
         const assetsUri = CONFIG.assetsUri;
-        const allowScripts: boolean = CONFIG.allowScriptsInEditor === 'true';
 
         const focusHandler = (e) => {
             this.resetInputHeight();
@@ -281,7 +280,6 @@ export class HtmlArea
             .setAllowedHeadings(this.allowHeadingsConfig)
             .setEditableSourceCode(this.editableSourceCode)
             .setCustomStylesToBeUsed(true)
-            .setAllowScripts(allowScripts)
             .build();
 
         return HtmlEditor.create(htmlEditorParams);

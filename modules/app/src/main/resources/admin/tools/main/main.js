@@ -10,7 +10,6 @@ function handleGet() {
 
     const context = contextLib.get();
     const branch = context.branch;
-    const allowScriptsInEditor = app.config['htmlinput.allowScripts'] === 'true' || false;
     const allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
     const hideDefaultProject = app.config['settings.hideDefaultProject'] === 'true' || false;
@@ -35,7 +34,6 @@ function handleGet() {
             adminToolsUrl: portal.serviceUrl({service: 'admintools'}),
             licenseUrl: portal.serviceUrl({service: 'license'})
         },
-        allowScriptsInEditor,
         allowContentUpdate,
         allowPathTransliteration,
         hideDefaultProject,

@@ -402,7 +402,6 @@ export class TextComponentView
     private doInitEditor() {
         this.isInitializingEditor = true;
         const assetsUri = CONFIG.assetsUri;
-        const allowScripts: boolean = CONFIG.allowScriptsInEditor === 'true';
         const id = this.getId().replace(/\./g, '_');
 
         this.addClass(id);
@@ -433,7 +432,6 @@ export class TextComponentView
             .setEditableSourceCode(this.editableSourceCode)
             .setContentPath(this.getContentPath())
             .setApplicationKeys(this.getApplicationKeys())
-            .setAllowScripts(allowScripts)
             .build();
 
         HtmlEditor.create(htmlEditorParams).then((htmlEditor: HtmlEditor) => {
