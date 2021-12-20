@@ -1097,15 +1097,7 @@ class HtmlEditorConfigBuilder {
     }
 
     private getExtraAllowedContent(): string {
-        const scriptTag: string = this.editorParams.isScriptAllowed() ? 'script' : '';
-
-        return `strong em u code address dl dt dd blockquote ${scriptTag};*(*);td{*};*[data-*]`;
-    }
-
-    private includeTools(tools: any[]) {
-        tools.forEach((tool: any) => {
-            this.includeTool(tool);
-        });
+        return 'strong em u code address dl dt dd blockquote;*(*);td{*};*[data-*]';
     }
 
     private includeTool(tool: string) {
