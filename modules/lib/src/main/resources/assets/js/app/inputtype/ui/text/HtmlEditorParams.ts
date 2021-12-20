@@ -27,7 +27,6 @@ export class HtmlEditorParams {
     private customStylesToBeUsed: boolean = false;
     private enabledTools: string[];
     private disabledTools: string[];
-    private allowScripts: boolean = false;
     private allowedHeadings: string;
 
     constructor(builder: HtmlEditorParamsBuilder) {
@@ -55,7 +54,6 @@ export class HtmlEditorParams {
         this.customStylesToBeUsed = builder.customStylesToBeUsed;
         this.enabledTools = builder.enabledTools;
         this.disabledTools = builder.disabledTools;
-        this.allowScripts = builder.allowScripts;
         this.allowedHeadings = builder.allowedHeadings;
     }
 
@@ -177,10 +175,6 @@ export class HtmlEditorParams {
         return this.disabledTools;
     }
 
-    isScriptAllowed(): boolean {
-        return this.allowScripts;
-    }
-
     getAllowedHeadings(): string {
         return this.allowedHeadings;
     }
@@ -231,8 +225,6 @@ export class HtmlEditorParamsBuilder {
     enabledTools: string[];
 
     disabledTools: string[];
-
-    allowScripts: boolean = false;
 
     allowedHeadings: string;
 
@@ -336,11 +328,6 @@ export class HtmlEditorParamsBuilder {
 
     setDisabledTools(tools: string[]): HtmlEditorParamsBuilder {
         this.disabledTools = tools;
-        return this;
-    }
-
-    setAllowScripts(value: boolean): HtmlEditorParamsBuilder {
-        this.allowScripts = value;
         return this;
     }
 
