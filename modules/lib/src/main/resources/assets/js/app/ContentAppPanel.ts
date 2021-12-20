@@ -20,7 +20,7 @@ export class ContentAppPanel
 
     protected resolveActions(panel: Panel): Action[] {
         const actions = super.resolveActions(panel);
-        return [...actions, ...this.getBrowsePanel().getNonToolbarActions()];
+        return [...actions, ...this.getBrowsePanel().getNonToolbarActions(), this.getBrowsePanel().getToggleSearchAction()];
     }
 
     calculateOffset() {

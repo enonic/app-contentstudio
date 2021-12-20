@@ -37,6 +37,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContextView} from '../view/context/ContextView';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
+import {Body} from 'lib-admin-ui/dom/Body';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -94,6 +95,7 @@ export class ContentBrowsePanel
 
         this.onShown(() => {
             Router.get().setHash(UrlAction.BROWSE);
+
             this.treeGrid.resizeCanvas();
         });
 
@@ -106,6 +108,10 @@ export class ContentBrowsePanel
 
     getNonToolbarActions(): Action[] {
         return this.getBrowseActions().getPublishActions();
+    }
+
+    getToggleSearchAction(): Action {
+        return this.getBrowseActions().getToggleSearchPanelAction();
     }
 
     protected createToolbar(): ContentBrowseToolbar {
@@ -170,7 +176,7 @@ export class ContentBrowsePanel
 
     private handleGlobalEvents() {
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
-            this.getBrowseActions().getAction(ActionName.TOGGLE_SEARCH_PANEL).setVisible(
+            this.getBrowseActions().getToggleSearchPanelAction().setVisible(
                 item.isInRangeOrSmaller(ResponsiveRanges._540_720));
         });
 
