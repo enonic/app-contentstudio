@@ -13,7 +13,6 @@ const XPATH = {
     warningInPreviewTab: "//div[contains(@class,'preview-message')]",
     previewTabItem: "//li[contains(@id,'TabBarItem') and child::a[text()='Preview']]",
     configurationTabItem: "//li[contains(@id,'TabBarItem') and @title='Configuration']",
-
 };
 
 class InsertMacroModalDialog extends Page {
@@ -46,7 +45,12 @@ class InsertMacroModalDialog extends Page {
         return XPATH.container + lib.TEXT_INPUT;
     }
 
-    typeTextInoptionFilterInput(text) {
+    async typeTextInConfigurationTextArea(text) {
+        await this.waitForElementDisplayed(this.configTextArea, appConst.mediumTimeout);
+        return await this.typeTextInInput(this.configTextArea, text);
+    }
+
+    typeTextInOptionFilterInput(text) {
         return this.typeTextInInput(this.optionFilterInput, text).catch(err => {
             this.saveScreenshot('err_insert_macro');
             throw new Error(err);
@@ -75,12 +79,13 @@ class InsertMacroModalDialog extends Page {
     waitForDialogLoaded() {
         return this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_open_insert_macro_dialog');
-            throw new Error('Insert Image Dialog should be opened!' + err);
+            throw new Error('Insert Macro Dialog should be opened!' + err);
         });
     }
 
-    waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
+    async waitForDialogClosed() {
+        await this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
+        return this.pause(1000);
     }
 
     async typeTextInConfigurationTextArea(text) {
