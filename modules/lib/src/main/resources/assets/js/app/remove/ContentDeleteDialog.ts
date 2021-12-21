@@ -366,13 +366,12 @@ export class ContentDeleteDialog
 
     private countItemsToDeleteAndUpdateButtonCounter() {
         this.actionButton.getAction().setLabel(i18n('dialog.archive.action'));
-        this.deleteNowAction.setLabel(i18n('dialog.deleteNow'));
 
         this.totalItemsToDelete = this.countTotal();
         this.updateButtonCount(i18n('dialog.archive.action'), this.totalItemsToDelete);
         this.deleteNowAction.setLabel(this.totalItemsToDelete > 1 ?
-                                      i18n('dialog.deleteNow') + ' (' + this.totalItemsToDelete + ')' :
-                                      i18n('dialog.deleteNow'));
+                                      i18n('dialog.delete') + ' (' + this.totalItemsToDelete + ')' :
+                                      i18n('dialog.delete'));
     }
 
     private createExecutionRequest(): ResourceRequest<TaskId> {
