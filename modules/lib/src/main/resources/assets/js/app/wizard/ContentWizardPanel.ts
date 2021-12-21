@@ -597,7 +597,7 @@ export class ContentWizardPanel
         const rightPanel: DockedContextPanel = new DockedContextPanel(this.contextView);
 
         this.contextSplitPanel = ContentWizardContextSplitPanel.create(leftPanel, rightPanel)
-            .setSecondPanelSize(SplitPanelSize.Percents(this.livePanel ? 24 : 38))
+            .setSecondPanelSize(SplitPanelSize.Percents(this.livePanel ? 16 : 38))
             .setContextView(this.contextView)
             .setData(data)
             .setWizardFormPanel(this.formPanel)
@@ -607,7 +607,7 @@ export class ContentWizardPanel
         if (this.livePanel) {
             this.contextSplitPanel.onModeChanged((mode: ContextPanelMode) => {
                 if (!this.isMinimized()) {
-                    const formPanelSizePercents: number = this.contextSplitPanel.isDockedMode() ? 50 : 38;
+                    const formPanelSizePercents: number = this.contextSplitPanel.isDockedMode() ? 46 : 38;
                     this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(formPanelSizePercents));
                     this.splitPanel.distribute(true);
                 }
@@ -622,7 +622,7 @@ export class ContentWizardPanel
                     this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(38));
                     this.splitPanel.distribute(true);
                 } else {
-                    const formPanelSizePercents: number = this.contextSplitPanel.isDockedMode() ? 50 : 38;
+                    const formPanelSizePercents: number = this.contextSplitPanel.isDockedMode() ? 46 : 38;
                     this.splitPanel.setFirstPanelSize(SplitPanelSize.Percents(formPanelSizePercents));
                     this.splitPanel.distribute(true);
                 }
