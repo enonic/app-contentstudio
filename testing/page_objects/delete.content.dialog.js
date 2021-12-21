@@ -5,7 +5,7 @@ const XPATH = {
     container: `//div[contains(@id,'ContentDeleteDialog')]`,
     archiveOrDeleteMenu: `//div[contains(@id,'MenuButton')]`,
     archiveButton: `//button/span[contains(.,'Archive')]`,
-    deleteNowMenuItem: `//li[contains(@id,'MenuItem') and contains(.,'Delete Now')]`,
+    deleteMenuItem: `//li[contains(@id,'MenuItem') and contains(.,'Delete')]`,
     cancelButton: `//button/span[text()='Cancel']`,
     itemToDeleteList: `//ul[contains(@id,'DeleteDialogItemList')]`,
     itemViewer: `//div[contains(@id,'DeleteItemViewer']`,
@@ -81,26 +81,26 @@ class DeleteContentDialog extends Page {
             await this.clickOnElement(this.archiveButton);
             return await this.pause(500);
         } catch (err) {
-            await this.saveScreenshot('err_click_on_delete_now_dialog');
+            await this.saveScreenshot('err_click_on_delete_dialog');
             throw new Error(err);
         }
     }
 
-    async clickOnDeleteNowMenuItem() {
+    async clickOnDeleteMenuItem() {
         await this.clickOnArchiveMenuDropDownHandle();
-        let menuItem = XPATH.container + XPATH.archiveOrDeleteMenu + XPATH.deleteNowMenuItem;
+        let menuItem = XPATH.container + XPATH.archiveOrDeleteMenu + XPATH.deleteMenuItem;
         await this.waitForElementDisplayed(menuItem, appConst.mediumTimeout);
         await this.clickOnElement(menuItem);
         return await this.pause(300);
     }
 
     //Call the method for deleting single content, Delete Content should be closed after clicking on the menu item
-    async clickOnDeleteNowMenuItemAndWaitForClosed() {
+    async clickOnDeleteMenuItemAndWaitForClosed() {
         try {
-            await this.clickOnDeleteNowMenuItem();
+            await this.clickOnDeleteMenuItem();
             return await this.waitForDialogClosed();
         } catch (err) {
-            await this.saveScreenshot('err_click_on_delete_now_dialog');
+            await this.saveScreenshot('err_click_on_delete_dialog');
             throw new Error(err);
         }
     }
