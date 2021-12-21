@@ -411,7 +411,7 @@ module.exports = {
         await browsePanel.waitForContentByDisplayNameVisible(displayName);
         return await browsePanel.clickOnRowByDisplayName(displayName);
     },
-    //find the content, select it and 'Delete Now'
+    //find the content, select it and 'Delete'
     async doDeleteContent(name) {
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
@@ -419,8 +419,8 @@ module.exports = {
         //Open modal dialog:
         await browsePanel.clickOnArchiveButton();
         await deleteContentDialog.waitForDialogOpened();
-        //Click on 'Delete Now' button in the modal dialog:
-        await deleteContentDialog.clickOnDeleteNowMenuItem();
+        //Click on 'Delete' menu item in the modal dialog:
+        await deleteContentDialog.clickOnDeleteMenuItem();
         return await deleteContentDialog.waitForDialogClosed();
     },
     async doDeleteContentByDisplayName(displayName) {
@@ -430,8 +430,8 @@ module.exports = {
         //Open modal dialog:
         await browsePanel.clickOnArchiveButton();
         await deleteContentDialog.waitForDialogOpened();
-        //Click on 'Delete Now' button in the modal dialog:
-        await deleteContentDialog.clickOnDeleteNowMenuItem();
+        //Click on 'Delete' menu item in the modal dialog:
+        await deleteContentDialog.clickOnDeleteMenuItem();
         return await deleteContentDialog.waitForDialogClosed();
     },
     async selectContentAndOpenWizard(name) {
@@ -469,7 +469,7 @@ module.exports = {
         await contentWizardPanel.waitForOpened();
         return await contentWizardPanel.waitForDisplayNameInputFocused();
     },
-    //Open delete dialog, click on 'Delete Now' button then type a number to delete
+    //Open delete dialog, click on 'Delete' button then type a number to delete
     async doDeleteNowAndConfirm(numberOfContents) {
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
@@ -477,8 +477,8 @@ module.exports = {
         //1. Open Delete Content dialog:
         await browsePanel.clickOnArchiveButton();
         await deleteContentDialog.waitForDialogOpened();
-        //2. Click on Delete Now button
-        await deleteContentDialog.clickOnDeleteNowMenuItem();
+        //2. Click on Delete button
+        await deleteContentDialog.clickOnDeleteMenuItem();
         //3. wait for Confirm dialog is loaded:
         await confirmValueDialog.waitForDialogOpened();
         //4. Type required number:

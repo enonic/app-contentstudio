@@ -546,7 +546,7 @@ class ContentWizardPanel extends Page {
         let contentDeleteDialog = new ContentDeleteDialog();
         await this.clickOnArchiveButton();
         await contentDeleteDialog.waitForDialogOpened();
-        await contentDeleteDialog.clickOnDeleteNowMenuItem();
+        await contentDeleteDialog.clickOnDeleteMenuItem();
         return await contentDeleteDialog.waitForDialogClosed();
     }
 
