@@ -1,4 +1,4 @@
-import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
+import {MenuButton, MenuButtonDropdownPos} from 'lib-admin-ui/ui/button/MenuButton';
 import {IssuePanelFilterAction} from './IssuePanelFilterAction';
 import {FilterType} from './FilterType';
 import {IssueStatus} from '../IssueStatus';
@@ -13,7 +13,7 @@ export class TypeFilter
 
     private currentSelection: IssuePanelFilterAction;
 
-    private menuActions: IssuePanelFilterAction[];
+    protected menuActions: IssuePanelFilterAction[];
 
     private selectionListeners: { (type: FilterType): void }[];
 
@@ -110,5 +110,9 @@ export class TypeFilter
         this.selectionListeners.forEach((listener) => {
             listener(type);
         });
+    }
+
+    protected getDropdownPosition(): MenuButtonDropdownPos {
+        return MenuButtonDropdownPos.RIGHT;
     }
 }
