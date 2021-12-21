@@ -34,8 +34,8 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.waitForSpinnerNotVisible();
-            //2. Click on 'Delete Now' button:
-            await deleteContentDialog.clickOnDeleteNowMenuItem();
+            //2. Click on 'Delete' menu item:
+            await deleteContentDialog.clickOnDeleteMenuItem();
             //3. Verify that Confirm Value dialog appears:
             await confirmValueDialog.waitForDialogOpened();
             //4. Verify that Message "Enter 2 in the field and click Confirm:" is displayed in the dialog
@@ -55,8 +55,8 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.waitForSpinnerNotVisible();
-            //2. Click on 'Delete Now' button:
-            await deleteContentDialog.clickOnDeleteNowMenuItem();
+            //2. Click on 'Delete' menu item:
+            await deleteContentDialog.clickOnDeleteMenuItem();
             await confirmValueDialog.waitForDialogOpened();
             //3. Type not correct number to delete:
             await confirmValueDialog.typeNumberOrName(7);
@@ -127,8 +127,8 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
             await deleteContentDialog.waitForSpinnerNotVisible();
-            //2. Click on 'Delete Now' button:
-            await deleteContentDialog.clickOnDeleteNowMenuItem();
+            //2. Click on 'Delete' menu item:
+            await deleteContentDialog.clickOnDeleteMenuItem();
             await confirmValueDialog.waitForDialogOpened();
             //3. Insert the required number of content:
             await confirmValueDialog.typeNumberOrName(3);

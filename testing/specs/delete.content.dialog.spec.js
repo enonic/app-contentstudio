@@ -135,7 +135,7 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
         });
 
 
-    it(`GIVEN 'published' folder is selected AND 'Delete dialog' is opened WHEN 'Delete Now' button has been pressed THEN the folder should be deleted`,
+    it(`GIVEN 'published' folder is selected AND 'Delete dialog' is opened WHEN 'Delete' menu item has been pressed THEN the folder should be deleted`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
@@ -144,8 +144,8 @@ describe('delete.content.dialog.spec:  tests for Delete Content Dialog', functio
             //2. Open Delete Dialog:
             await contentBrowsePanel.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
-            //3. Click on 'Delete Now' menu item
-            await deleteContentDialog.clickOnDeleteNowMenuItem();
+            //3. Click on 'Delete' menu item
+            await deleteContentDialog.clickOnDeleteMenuItem();
             await contentBrowsePanel.waitForContentNotDisplayed(FOLDER1.displayName);
         });
 
