@@ -30,6 +30,7 @@ export abstract class ResponsiveBrowsePanel extends BrowsePanel {
                 this.toggleMobilePreviewMode(false);
             }
 
+            Body.get().toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
             this.toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
             this.treeGrid.toggleClass(ResponsiveBrowsePanel.MOBILE_MODE_CLASS, isMobile);
         });
