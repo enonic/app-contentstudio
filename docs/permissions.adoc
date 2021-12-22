@@ -17,8 +17,8 @@ Permissions are granted to principals on a per-content basis. This means that ch
 * *Read:* The principal can see this content;
 * *Create:* The principal can create child items under this content. For example, if a user has this permission on a folder then the user can create new content in the folder;
 * *Modify:* The principal can edit this content and save changes in the draft branch;
-* *Delete:* The principal can delete this content from the draft branch. If the content is published then its status can be changed to `Pending delete`;
-* *Publish:* The principal can publish this content to the master branch. Can also remove content that is `Pending delete`;
+* *Delete:* The principal can delete this content from the draft branch;
+* *Publish:* The principal can publish this content to the master branch;
 * *Read permissions:* The principal can see this content’s permissions;
 * *Write permissions:* The principal can change this content’s permissions.
 

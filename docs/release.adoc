@@ -8,10 +8,25 @@ TIP: Release Notes for Content Studio 3.x can be found https://developer.enonic.
 
 IMPORTANT: Content Studio 4.0 requires XP 7.8.0 or higher.
 
+=== Content Archive
+
+*Archive* now effectively replaces *Delete* as default action for removing content that is no longer needed. When archived, content will
+be moved to a separate storage where it can safely be restored from, rather than physically deleted. It's still possible to immediately delete
+content using the dropdown menu in the Archive dialog.
+
+Full documentation of the Content Archive feature can be found <<_content_archive#, here>>.
+
+image::cs40-archive-dialog.png[Archive dialog, 600]
+
+NOTE: Access to archived contents and restore operation is provided by <<#content_studio, *Content Studio+*>> application which requires Enonic license.
+
+image::cs40-archived-content.png[Archive section, 600]
+image::cs40-restore-content.png[Restore content, 600]
+
 === Visualisation of inbound references in the Archive dialog
 
-When deleting or archiving content it's important to visualise if the content about to be deleted/archived has any inbound references as
-the delete/archive operation may potentially break rendering of the content structure. Previously, inbound references were displayed only for the items
+When archiving/deleting content it's important to visualise if the content about to be archived/deleted has any inbound references as
+the archive/delete operation may potentially break rendering of the content structure. Previously, inbound references were displayed only for the items
 selected for deletion (but not for their descendants). Starting from version 4.0 visualisation of inbound references in the Delete/Archive dialog
 has been improved: a special icon will be displayed for all items that have inbound references, and if at least one of the items is referenced
 then there will be a separate warning about that at the top of the dialog.
