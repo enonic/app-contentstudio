@@ -10,15 +10,21 @@ body {
     }
   }
 
-  &.mobile-preview-on {
+  &.mobile-mode {
     .content-app-panel {
-      top: 0 !important;
-      z-index: 1;
+      transition: top 0.5s ease-in-out;
     }
 
-    .sidebar-toggler,
-    .launcher-button {
-      display: none;
+    &.mobile-preview-on {
+      .content-app-panel {
+        top: 0 !important;
+        z-index: 1;
+      }
+
+      .sidebar-toggler,
+      .launcher-button {
+        display: none;
+      }
     }
   }
 }

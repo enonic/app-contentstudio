@@ -8,6 +8,8 @@ export class ContentAppPanel
 
     constructor() {
         super('content-app-panel');
+
+        this.setDoOffset(false); // will set in css since a toolbar has a static height
     }
 
     protected createBrowsePanel() {
@@ -21,9 +23,5 @@ export class ContentAppPanel
     protected resolveActions(panel: Panel): Action[] {
         const actions = super.resolveActions(panel);
         return [...actions, ...this.getBrowsePanel().getNonToolbarActions()];
-    }
-
-    calculateOffset() {
-        this.getEl().setTopPx(44); // static header height
     }
 }
