@@ -41,7 +41,8 @@ images and has a richer UI than Image Component used to have. Existing image com
 
 === Responsive Context panel
 
-In docked mode Context panel will responsively change its width based on available space with 38/62 ratio relative to the Page Editor panel.
+When docked, Context panel will responsively change its width based on available space with 25/75 ratio relative to the Preview panel
+(in the Content Browse view) or Page Editor panel (in the Content Wizard view).
 
 image::cs40-context-panel.png[Responsive Context panel, 600]
 
@@ -61,3 +62,13 @@ Admin API has been moved from XP core to Content Studio and starting from versio
 help us release Content Studio without having to change XP and release a new version of the platform. URLs of Admin API have been changed as well.
 Admin API was never intended for external use, but beware of that if you had any custom integration with Content Studio's Admin API then
 this will stop working from version 4.0. As this migration affected XP as well, Content Studio 4.x requires XP 7.8.0 or higher.
+
+=== Config allowing <script> tag in the Rich Editor
+
+Due to security concerns, we have removed the https://developer.enonic.com/docs/content-studio/3.x/config#html_editor_xss[configuration setting]
+allowing `<script>` tag in the Rich Editor. If you are using inline scripts in your HtmlArea inputs or Text components, those will be stripped out
+the next time you save the content.
+
+=== Dropped support of Internet Explorer
+
+Internet Explorer is no longer supported by Content Studio.
