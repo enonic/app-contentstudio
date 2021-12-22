@@ -11,7 +11,6 @@ const XPATH = {
     selectedOptionByName: option => {
         return `//div[contains(@id,'CustomSelectorSelectedOptionView') and descendant::h6[contains(@class,'main-name') and text()='${option}']]`
     },
-
 };
 
 class CustomSelectorForm extends BaseSelectorForm {

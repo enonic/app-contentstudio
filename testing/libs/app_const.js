@@ -215,7 +215,6 @@ module.exports = Object.freeze({
         IMG_SELECTOR_1_1: 'imageselector1_1',
         IMG_SELECTOR_2_4: 'imageselector2_4',
         ARTICLE: `article`,
-        CUSTOM_RELATIONSHIP: 'custom-relationship2_4',
         DOUBLE_MIN_MAX: 'double_max',
         DOUBLE_DEFAULT_2_4: 'double2_4_def',
         DOUBLE_0_1: "double0_1",
@@ -256,6 +255,9 @@ module.exports = Object.freeze({
         OPTION_SET: 'optionset',
         ITEM_SET_0_0: 'item-set0_0',
         SET_IN_SET: "set-in-set",
+        ARTICLE: 'article',
+        CUSTOM_REL_0_1: "custom-relationship0_1",
+        CUSTOM_RELATIONSHIP: 'custom-relationship2_4',
     },
     permissions: {
         FULL_ACCESS: `Full Access`,

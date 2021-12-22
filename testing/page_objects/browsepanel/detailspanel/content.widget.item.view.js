@@ -8,7 +8,8 @@ const lib = require('../../../libs/elements');
 const xpath = {
     container: `//div[contains(@id,'WidgetView')]//div[contains(@id,'ContentWidgetItemView')]`,
     contentSummary: "//div[contains(@id,'ContentSummaryAndCompareStatusViewer')]",
-    languageProperty: `//dd[contains(.,'Language:')]/following-sibling::dt[1]`
+    languageProperty: `//dd[contains(.,'Language:')]/following-sibling::dt[1]`,
+    workInProgressIcon: "//div[@class='xp-admin-common-wrapper' and @title='Work in progress']"
 };
 
 class ContentWidgetItemView extends Page {
@@ -41,7 +42,14 @@ class ContentWidgetItemView extends Page {
             throw new Error("Widget Item should not be displayed " + err);
         }
     }
-};
+
+    async waitForWorkInProgressIconNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(xpath.workInProgressIcon, appConst.mediumTimeout);
+        } catch (err) {
+            this.saveScreenshot("err_widget_item_workflow");
+            throw new Error("Workflow state should not be displayed in the widget item " + err);
+        }
+    }
+}
 module.exports = ContentWidgetItemView;
-
-

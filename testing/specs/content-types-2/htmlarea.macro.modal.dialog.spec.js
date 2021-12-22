@@ -146,13 +146,11 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
             await insertMacroModalDialog.selectOption("Disable macros");
             //4. insert a macro with parameters:
             await insertMacroModalDialog.typeTextInConfigurationTextArea(MACRO_WIT_ATTRIBUTE);
-            await studioUtils.saveScreenshot("macro_is_completed");
+            await studioUtils.saveScreenshot("macro_attributes_is_completed");
             //5.Click on 'Insert' button
             await insertMacroModalDialog.clickOnInsertButton();
             await insertMacroModalDialog.waitForDialogClosed();
 
-            //await htmlAreaForm.doubleClickOnMacroTextInHtmlArea(MACRO_WIT_ATTRIBUTE);
-            //await insertMacroModalDialog.waitForDialogLoaded();
             //2. Verify the html code in the htmlArea:
             let htmlCode = await htmlAreaForm.getTextInHtmlArea(0);
             assert.equal(htmlCode.trim(), MACRO_HTML_2, "Expected html code should be present in the htmlarea");
