@@ -115,9 +115,7 @@ export class TextComponentView
     private selectWhileEditing(): void {
         const selectedView = SelectedHighlighter.get().getSelectedView();
 
-        if (selectedView === this) {
-            return;
-        } else if (selectedView) {
+        if (selectedView) {
             selectedView.deselect(true);
         }
 
