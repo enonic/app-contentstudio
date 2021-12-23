@@ -22,4 +22,7 @@ export class ContentApp extends App {
         return i18n('app.content');
     }
 
+    getUrlPath(): string {
+        return 'browse';
+    }
 }

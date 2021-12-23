@@ -21,4 +21,8 @@ export class SettingsApp extends App {
     getDisplayName(): string {
         return i18n('app.settings');
     }
+
+    getUrlPath(): string {
+        return 'settings';
+    }
 }
