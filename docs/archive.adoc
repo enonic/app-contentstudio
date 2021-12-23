@@ -23,7 +23,13 @@ Both for *Archive* and *Delete* operations user will be asked to confirm the act
 
 IMPORTANT: Online content will instantly go offline after archiving or deleting. Deleted content will be physically removed and can only be restored via snapshot restore.
 
-NOTE: A content item will always be automatically archived in all child layers of current project/layer except for those where it's localised.
+== Archive/restore in layers
+
+* A content item will always be automatically archived in all child layers of current project/layer except for those where it's localised.
+* When a new layer is created, it automatically inherits archive of its parent project/layer
+* When an inherited (non-localised) content is moved to archive directly in a layer, it will not be recreated in the "main" storage even though it's there
+in the parent project/layer. It's an effective way to "clean up" a layer of unwanted content items inherited from the parent project/layer.
+* If content is deleted from a layer's archive, it will be recreated in the layer's "main" storage (as long as it still exists in the parent), unless it was originally localised in the layer.
 
 == View archived content
 
