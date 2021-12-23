@@ -232,7 +232,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let contentWizard = new ContentWizard();
             let articleForm = new ArticleForm();
             //1. Open new wizard for article-content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'article');
+                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
             let displayName = contentBuilder.generateRandomName('article');
             //2. Fill in the first required input:
             await articleForm.typeArticleTitle("test");
@@ -251,7 +251,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let contentWizard = new ContentWizard();
             let articleForm = new ArticleForm();
             //1. Open new wizard for article-content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'article');
+                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
             let displayName = contentBuilder.generateRandomName('article');
             //2. Fill in the first required input:
             await articleForm.typeArticleTitle("test");
@@ -272,7 +272,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let contentWizard = new ContentWizard();
             let articleForm = new ArticleForm();
             //1. Open new wizard for article-content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'article');
+                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
             let displayName = contentBuilder.generateRandomName('article');
             //2. Fill in the first required input:
             await articleForm.typeArticleTitle("test");
