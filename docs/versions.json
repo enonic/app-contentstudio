@@ -9,12 +9,8 @@
       "checkout": "aa436bce3e13156cb4c09fcdabe900ee7da584f3"
     },
     {
-      "label": "next",
-      "checkout": "4ab1d9b2a4b5051f067983cdd3d1957c36b6215f"
-    },
-    {
       "label": "stable",
-      "checkout": "master",
+      "checkout": "8e2df5f34c6d9811b40bbd7ab1974257e33e73fb",
       "latest": true
     }
   ]
