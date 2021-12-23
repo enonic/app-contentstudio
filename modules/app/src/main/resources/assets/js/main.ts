@@ -405,16 +405,25 @@ function getTheme(): string {
 async function startContentBrowser() {
     await import ('lib-contentstudio/app/ContentAppPanel');
     const AppWrapper = (await import ('lib-contentstudio/app/AppWrapper')).AppWrapper;
-    const apps = [new ContentApp(), new SettingsApp()];
+    const baseApps = [new ContentApp(), new SettingsApp()];
     const url: string = window.location.href;
-    const activeApp = url.indexOf('settings') > -1 ? apps[1] : apps[0];
-    const commonWrapper = new AppWrapper(apps, getTheme());
-    commonWrapper.selectApp(activeApp);
+    const commonWrapper = new AppWrapper(baseApps, getTheme());
+    const baseAppToBeOpened = baseApps.find((baseApp) => url.endsWith(`/${baseApp.getUrlPath()}`));
 
-    if (url.endsWith('/archive')) {
+    if (baseAppToBeOpened) {
+        commonWrapper.selectApp(baseAppToBeOpened);
+    } else {
         commonWrapper.onAppAdded((app) => {
-            commonWrapper.selectApp(app);
+            if (!commonWrapper.hasAppSelected() && url.endsWith(`/${app.getUrlPath()}`)) {
+                commonWrapper.selectApp(app);
+            }
         });
+
+        setTimeout(() => { // if no external app is loaded then switch to a studio
+            if (!commonWrapper.hasAppSelected()) {
+                commonWrapper.selectApp(baseApps[0]);
+            }
+        }, 1000);
     }
 
     body.appendChild(commonWrapper);

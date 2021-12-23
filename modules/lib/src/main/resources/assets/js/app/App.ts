@@ -36,4 +36,6 @@ export abstract class App {
     abstract getIconClass(): string;
 
     abstract getDisplayName(): string;
+
+    abstract getUrlPath(): string;
 }

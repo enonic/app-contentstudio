@@ -219,6 +219,10 @@ export class AppWrapper
         });
     }
 
+    hasAppSelected(): boolean {
+        return !!this.currentApp;
+    }
+
     onAppAdded(handler: (app: App) => void) {
         this.appAddedListeners.push(handler);
     }
