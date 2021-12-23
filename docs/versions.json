@@ -10,7 +10,7 @@
     },
     {
       "label": "stable",
-      "checkout": "8e2df5f34c6d9811b40bbd7ab1974257e33e73fb",
+      "checkout": "91a0db1370836ba2cf2cab2e8246871fa2c3443e",
       "latest": true
     }
   ]
