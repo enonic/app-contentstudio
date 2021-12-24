@@ -33,8 +33,7 @@
   }
 
   .browse-selection-item {
-    padding: 4px;
-    padding-right: 0;
+    padding: 0px;
     margin: 0;
     display: flex;
     line-height: 26px;
@@ -63,6 +62,14 @@
       order: 1;
       margin: 0;
       margin-left: 20px;
+    }
+  }
+
+  .item-list {
+    .browse-selection-item {
+      &:not(:last-child) {
+        margin-bottom: 4px;
+      }
     }
   }
 
@@ -103,7 +110,7 @@
     }
 
     .browse-selection-item {
-      padding: 6px 0 6px 5px;
+      padding: 2px 0 6px 5px;
 
       .remove {
         height: 16px;
@@ -135,9 +142,7 @@
   .dialog-togglable-item-list + .dependants .dependants-body {
     .browse-selection-item:hover {
       background-color: @admin-bg-light-gray;
-      margin: 0 -5px;
-      padding-left: 10px;
-      padding-right: 5px;
+      outline: 2px solid @admin-bg-light-gray;
     }
   }
 
@@ -172,7 +177,6 @@
 
         .browse-selection-item {
           padding: 0;
-          padding-left: 5px;
 
           .@{_COMMON_PREFIX}names-view .@{_COMMON_PREFIX}main-name, .status {
             font-size: 12px;
