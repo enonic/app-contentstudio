@@ -71,8 +71,9 @@ class InsertMacroModalDialog extends Page {
         return await this.waitForElementDisplayed(XPATH.previewTab, appConst.mediumTimeout);
     }
 
-    clickOnInsertButton() {
-        return this.clickOnElement(this.insertButton);
+    async clickOnInsertButton() {
+        await this.clickOnElement(this.insertButton);
+        return await this.pause(1000);
     }
 
 
@@ -96,6 +97,11 @@ class InsertMacroModalDialog extends Page {
         let locator = XPATH.previewTab + XPATH.textInPreviewTab;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return this.getText(locator);
+    }
+
+    async waitForIframeDisplayed(url) {
+        let locator = XPATH.previewTab + `//iframe[@src='${url}']`;
+        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
     async getWarningInPreviewTab() {

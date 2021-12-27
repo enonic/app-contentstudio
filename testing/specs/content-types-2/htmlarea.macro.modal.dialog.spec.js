@@ -32,7 +32,6 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
             await studioUtils.doAddSite(SITE);
         });
 
-
     it(`GIVEN MacroModalDialog is opened WHEN 'Disable macros' option has been selected AND text inserted THEN expected text should be present in htmlArea`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
