@@ -65,6 +65,7 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
             let insertMacroModalDialog = new InsertMacroModalDialog();
             //1. Open existing content with inserted 'Embed IFrame':
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_1);
+            await htmlAreaForm.pause(3000);
             //2. Double click on
             await htmlAreaForm.doubleClickOnMacroTextInHtmlArea(ENONIC_URL);
             await studioUtils.saveScreenshot("embed_iframe_is_completed");
