@@ -10,7 +10,7 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SetInSetFormView = require('../../page_objects/wizardpanel/itemset/set.in.set.form.view');
 
-describe("optionset.title.labels.spec: checks option set's title and labels", function () {
+describe("itemset.title.labels.spec: checks item set's title and labels", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
@@ -83,7 +83,6 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
             //4. Verify that the content gets valid now
             assert.isFalse(result, "content should be valid");
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
