@@ -62,14 +62,25 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
     it(`GIVEN existing content with inserted 'Embed IFrame' is opened WHEN double click on the 'embed iframe' text in htmlArea THEN Insert Macro modal dialog should be loaded`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
+            let contentWizard = new ContentWizard();
             let insertMacroModalDialog = new InsertMacroModalDialog();
-            //1. Open existing content with inserted 'Embed IFrame':
-            await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_1);
-            await htmlAreaForm.pause(3000);
-            //2. Double click on
+            //1. Open wizard for new htmlArea content:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.HTML_AREA_0_1);
+            await contentWizard.typeDisplayName(CONTENT_NAME_1);
+            //2. Click on 'Insert Macro' button
+            await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
+            await insertMacroModalDialog.waitForDialogLoaded();
+            //3. Select the 'Embed IFrame' option:
+            await insertMacroModalDialog.selectOption("Embed IFrame");
+            //4. Insert a text in the Configuration Text Area:
+            await insertMacroModalDialog.typeTextInConfigurationTextArea(ENONIC_IFRAME);
+            //5. Click on Insert button:
+            await insertMacroModalDialog.clickOnInsertButton();
+            await htmlAreaForm.pause(1000);
+            //6. Double click on text in htmlArea
             await htmlAreaForm.doubleClickOnMacroTextInHtmlArea(ENONIC_URL);
-            await studioUtils.saveScreenshot("embed_iframe_is_completed");
-            //3. Verify that 'Insert Macro' dialog is loaded:
+            await studioUtils.saveScreenshot("embed_iframe_double_click");
+            //7. Verify that 'Insert Macro' dialog is loaded:
             await insertMacroModalDialog.waitForDialogLoaded();
             await insertMacroModalDialog.clickOnInsertButton();
             await insertMacroModalDialog.waitForDialogClosed();
