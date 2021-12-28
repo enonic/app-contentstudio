@@ -15,6 +15,9 @@ import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
 import {H6El} from 'lib-admin-ui/dom/H6El';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {ContentId} from '../content/ContentId';
+import {LazyListBox} from 'lib-admin-ui/ui/selector/list/LazyListBox';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 
 export interface DependantItemsDialogConfig
     extends ModalDialogWithConfirmationConfig {
@@ -43,15 +46,9 @@ export abstract class DependantItemsDialog
 
     private dependantContainerBody: DivEl;
 
-    private dependantList: ListBox<ContentSummaryAndCompareStatus>;
+    private dependantList: DialogDependantList;
 
     private dependantsHeaderText: string;
-
-    protected loading: boolean;
-
-    protected loadingRequested: boolean;
-
-    protected previousScrollTop: number;
 
     protected resolvedIds: ContentId[];
 
@@ -61,7 +58,7 @@ export abstract class DependantItemsDialog
 
     protected config: DependantItemsDialogConfig;
 
-    constructor(config: DependantItemsDialogConfig) {
+    protected constructor(config: DependantItemsDialogConfig) {
         super(config);
     }
 
@@ -71,8 +68,6 @@ export abstract class DependantItemsDialog
         this.showDependantList = false;
         this.dependantIds = [];
         this.resolvedIds = [];
-        this.loading = false;
-        this.loadingRequested = false;
         this.subTitle = new H6El('sub-title').setHtml(this.config.dialogSubName);
 
         this.itemList = this.createItemList();
@@ -80,6 +75,19 @@ export abstract class DependantItemsDialog
         this.dependantContainerHeader = new H6El('dependants-header').setHtml(this.dependantsHeaderText);
         this.dependantContainerBody = new DivEl('dependants-body');
         this.dependantList = this.createDependantList();
+        this.dependantList.setLazyLoadHandler(AppHelper.debounce(() => {
+            const size: number = this.getDependantList().getItemCount();
+            this.showLoadMask();
+
+            this.loadDescendants(size, GetDescendantsOfContentsRequest.LOAD_SIZE).then((newItems: ContentSummaryAndCompareStatus[]) => {
+                if (newItems.length > 0) {
+                    this.addDependantItems(newItems);
+                }
+            }).catch(DefaultErrorHandler.handle)
+                .finally(() => {
+                    this.hideLoadMask();
+                });
+        }, 300));
 
         if (this.config.showDependantList !== undefined) {
             this.showDependantList = this.config.showDependantList;
@@ -108,17 +116,7 @@ export abstract class DependantItemsDialog
         this.dependantList.onItemsRemoved(() => this.onDependantsChanged());
         this.dependantList.onItemsAdded(() => this.onDependantsChanged());
 
-        this.getBody().onScrolled(() => this.doPostLoad());
-        this.getBody().onScroll(() => this.doPostLoad());
-
         this.onRendered(() => this.setDependantListVisible(this.showDependantList));
-    }
-
-    protected toggleFullscreen(value: boolean) {
-        super.toggleFullscreen(value);
-        if (value) {
-            this.doPostLoad();
-        }
     }
 
     doRender(): Q.Promise<boolean> {
@@ -145,7 +143,8 @@ export abstract class DependantItemsDialog
 
     protected onDependantsChanged() {
         const doShow: boolean = this.countDependantItems() > 0;
-        const wasVisible = this.dependantsContainer.isVisible();
+        const wasVisible: boolean = this.dependantsContainer.isVisible();
+
         if (doShow !== wasVisible) {
             this.setDependantsContainerVisible(doShow);
         }
@@ -164,7 +163,6 @@ export abstract class DependantItemsDialog
     private setDependantsContainerVisible(visible: boolean) {
         this.dependantsContainer.setVisible(visible);
 
-        this.previousScrollTop = undefined;
         this.getBody().getEl().setScrollTop(0);
     }
 
@@ -182,7 +180,7 @@ export abstract class DependantItemsDialog
     }
 
     protected createDependantList(): DialogDependantList {
-        return new DialogDependantList();
+        return new DialogDependantList(this.getBody());
     }
 
     protected getItemList(): ListBox<ContentSummaryAndCompareStatus> {
@@ -300,7 +298,7 @@ export abstract class DependantItemsDialog
     protected loadDescendants(from: number,
                               size: number): Q.Promise<ContentSummaryAndCompareStatus[]> {
 
-        let ids = this.getDependantIds().slice(from, from + size);
+        const ids: ContentId[] = this.getDependantIds().slice(from, from + size);
         return new ContentSummaryAndCompareStatusFetcher().fetchByIds(ids);
     }
 
@@ -314,58 +312,6 @@ export abstract class DependantItemsDialog
 
     protected getDependantIds(): ContentId[] {
         return this.dependantIds;
-    }
-
-    private doPostLoad() {
-        if (this.previousScrollTop !== this.getBody().getEl().getScrollTop()) {
-            setTimeout(this.postLoad.bind(this), 150);
-        }
-    }
-
-    protected postLoad() {
-        let lastVisible;
-
-        const dialogBodyEl = this.getBody().getEl();
-        this.previousScrollTop = dialogBodyEl.getScrollTop();
-
-        let start = dialogBodyEl.getOffsetTop();
-        let end = dialogBodyEl.getHeight() + start;
-
-        let items = this.getDependantList().getItemViews();
-
-        let visibleItems = [];
-
-        items.forEach((item) => {
-            let position = item.getEl().getOffsetTop();
-            if (position >= start && position <= end) {
-                visibleItems.push(item);
-            }
-        });
-
-        lastVisible = items.indexOf(visibleItems[visibleItems.length - 1]);
-
-        let size = this.getDependantList().getItemCount();
-
-        if (!this.loading) {
-            if (lastVisible + GetDescendantsOfContentsRequest.LOAD_SIZE / 2 >= size && size < this.getDependantIds().length) {
-
-                this.showLoadMask();
-                this.loading = true;
-
-                this.loadDescendants(size, GetDescendantsOfContentsRequest.LOAD_SIZE).then((newItems) => {
-
-                    this.addDependantItems(newItems);
-                    this.loading = false;
-                    this.hideLoadMask();
-                    if (this.loadingRequested) {
-                        this.loadingRequested = false;
-                        this.postLoad();
-                    }
-                });
-            }
-        } else {
-            this.loadingRequested = true;
-        }
     }
 
     protected lockControls() {
@@ -459,13 +405,11 @@ export class DialogItemList
 }
 
 export class DialogDependantList
-    extends ListBox<ContentSummaryAndCompareStatus> {
+    extends LazyListBox<ContentSummaryAndCompareStatus> {
 
     private itemClickListeners: { (item: ContentSummaryAndCompareStatus): void }[] = [];
 
-    constructor(className?: string) {
-        super(className);
-    }
+    private lazyLoadHandler: Function;
 
     createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): StatusSelectionItem {
 
@@ -493,6 +437,16 @@ export class DialogDependantList
 
     protected sortItems(items: ContentSummaryAndCompareStatus[]): ContentSummaryAndCompareStatus[] {
         return items.sort(DialogDependantList.invalidAndReadOnlyOnTop);
+    }
+
+    setLazyLoadHandler(handler: Function): void {
+        this.lazyLoadHandler = handler;
+    }
+
+    protected handleLazyLoad(): void {
+        if (this.lazyLoadHandler) {
+            this.lazyLoadHandler();
+        }
     }
 
     onItemClicked(listener: (item: ContentSummaryAndCompareStatus) => void) {

@@ -56,7 +56,7 @@ export abstract class BasePublishDialog
     }
 
     protected createDependantList(): PublishDialogDependantList {
-        return new PublishDialogDependantList();
+        return new PublishDialogDependantList(this.getBody());
     }
 
     protected getDependantList(): PublishDialogDependantList {
