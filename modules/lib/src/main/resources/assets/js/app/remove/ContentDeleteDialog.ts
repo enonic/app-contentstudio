@@ -159,7 +159,7 @@ export class ContentDeleteDialog
     }
 
     protected createDependantList(): DialogDependantList {
-        return new DeleteDialogDependantList();
+        return new DeleteDialogDependantList(this.getBody());
     }
 
     protected getDependantList(): DialogDependantList {
