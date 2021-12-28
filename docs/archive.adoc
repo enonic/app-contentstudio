@@ -11,7 +11,7 @@ TIP: It's still possible to delete content by selecting *Delete* action from the
 
 :imagesdir: archive/images
 
-== Archiving content
+== Archive content
 
 Archiving is done from the "Archive" dialog. A content item will always be archived along with all of its descendant items to preserve content structure.
 If any of the content items to be archived/deleted are referenced by another content (which isn't going to be archived/deleted as well), this will be
