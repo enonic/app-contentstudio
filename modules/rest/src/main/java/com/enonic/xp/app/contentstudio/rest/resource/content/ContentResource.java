@@ -6,11 +6,13 @@ import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentJson;
 import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentListJson;
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.LimitingInputStream;
+import com.enonic.xp.app.contentstudio.rest.resource.auth.json.UserJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.*;
 import com.enonic.xp.app.contentstudio.rest.resource.content.query.ContentQueryWithChildren;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.*;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
+import com.enonic.xp.app.contentstudio.service.ContentVisitorService;
 import com.enonic.xp.attachment.*;
 import com.enonic.xp.branch.Branches;
 import com.enonic.xp.content.*;
@@ -40,9 +42,11 @@ import com.enonic.xp.util.Exceptions;
 import com.enonic.xp.web.HttpStatus;
 import com.enonic.xp.web.multipart.MultipartForm;
 import com.enonic.xp.web.multipart.MultipartItem;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.ByteSource;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
@@ -54,6 +58,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
@@ -123,6 +128,8 @@ public final class ContentResource
     private volatile long uploadMaxFileSize;
 
     private ApplicationWildcardMatcher.Mode contentTypeParseMode;
+
+    private ContentVisitorService contentVisitorService;
 
     @Activate
     @Modified
@@ -1433,6 +1440,27 @@ public final class ContentResource
         this.syncContentService.resetInheritance( paramsJson.toParams() );
     }
 
+    @POST
+    @Path("open")
+    public Set<UserJson> openToEdit( final ContentVisitorJson params )
+    {
+        return this.contentVisitorService.open( new ContentVisitorParams( ContentId.from( params.getContentId() ) ) );
+    }
+
+    @POST
+    @Path("close")
+    public Set<UserJson> closeEdit( final ContentVisitorJson params )
+    {
+        return this.contentVisitorService.close( new ContentVisitorParams( ContentId.from( params.getContentId() ) ) );
+    }
+
+    @GET
+    @Path("{id}/visitors")
+    public Set<UserJson> getContentEditors( @PathParam("id") final String contentId )
+    {
+        return this.contentVisitorService.getUsers( ContentId.from( contentId ) );
+    }
+
     private UpdateContentParams prepareUpdateContentParams( final Content versionedContent, final ContentVersionId contentVersionId )
     {
         final UpdateContentParams updateParams = new UpdateContentParams().contentId( versionedContent.getId() ).editor( edit -> {
@@ -1670,5 +1698,11 @@ public final class ContentResource
     public void setLocaleService( final LocaleService localeService )
     {
         this.localeService = localeService;
+    }
+
+    @Reference
+    public void setContentVisitorService( final ContentVisitorService contentVisitorService )
+    {
+        this.contentVisitorService = contentVisitorService;
     }
 }
