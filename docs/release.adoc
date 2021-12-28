@@ -18,7 +18,7 @@ Full documentation of the Content Archive feature can be found <<archive#, here>
 
 image::cs40-archive-dialog.png[Archive dialog, 600]
 
-NOTE: Access to archived contents and restore operation is provided by <<index#_content_studio, *Content Studio+*>> application which requires Enonic license.
+NOTE: Access to archived contents and restore operation is provided by <<../#content_studio,Content Studio+>> application which requires Enonic license.
 
 image::cs40-archived-content.png[Archive section, 600]
 image::cs40-restore-content.png[Restore content, 600]
