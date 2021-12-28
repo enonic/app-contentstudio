@@ -2,29 +2,35 @@
 :toc: right
 :imagesdir: navigator/images
 
-The navigator is the default page of the *Content Studio*. It consists of a menu bar on top and two or three panels below it. On the left is the *Content tree grid* where all the sites and content can be found. To the right of the tree grid is the <<#_preview-panel,Preview panel>> which displays a preview of the selected content. On the far right is the <<widgets#,Widgets>> panel that may be toggled on and off with the **cog** icon in the top right corner, next to the `Publish` button on the Toolbar.
+The navigator is the default page of the *Content Studio*. It consists of Menu Toolbar on top and two or three panels underneath.
+On the left is the *Content tree grid* where all the sites and content can be found. To the right of the tree grid is the
+<<#_preview-panel,Preview panel>> which displays a preview of the selected content. On the far right is the <<widgets#,Widgets>> panel
+that may be toggled on and off with the **burger** icon in the top right corner, next to the `Publish` button inside the Toolbar.
 
-image::navigator.png[]
+image::navigator.png[Content Navigator, 975]
 
 
 == Toolbar
 
-The toolbar in the content navigator has buttons for the following actions:
+The Menu Toolbar in the Content Navigator has buttons for the following actions:
 
 * *New:* Opens the <<actions#new,New content>> dialog for creating new content;
 * *Edit:* Opens the content for <<editor#,editing>> in a new browser tab;
-* *Delete:* Opens the <<actions#delete,Delete item(s)>> dialog for the selected content.
+* *Archive:* Opens the <<actions#archive,Archive item(s)>> dialog for the selected content.
 * *Duplicate:* Makes a <<actions#duplicate,copy>> of the selected content;
 * *Move:* Opens the <<actions#move,Move item(s) with children>> dialog;
 * *Sort:* Opens the <<actions#sort,Sort items>> dialog where child items of the selected content can be sorted;
 * *Preview:* Opens the selected content in preview mode, in a new browser tab. If more than one content is selected, each will open in its own tab. Only content that has a supporting <<content-types#page-templates,page template>> can be previewed;
-* *Publish:* Opens the <<actions#publishing-wizard,Publishing wizard>> dialog.
 
-A few more actions are hidden under the menu, that is displayed after clicking on the triangle icon next to the `Publish` button:
+Action button on the right of the Toolbar is context-dependent and will have different main action depending on if content is selected, what state content has, permissions etc.:
 
-* *Publish Tree:* Opens the <<actions#publishing-wizard,Publishing wizard>> dialog with selected content and all descendants;
-* *Unpublish:* Opens the <<actions#unpublish,Unpublish Wizard>> dialog for taking the item offline;
-* *Create Issue:* Opens the <<issues#new-issue,New Issue>> dialog.
+ * If selected content is not published: *Publish*, opens the <<actions#publishing-wizard,Publishing wizard>> dialog
+ * If selected content is published: *Unpublish*, <<actions#unpublish,Unpublish Wizard>> dialog for taking the content offline
+ * If selected content is published but has child items that are not published: *Publish Tree, opens the <<actions#publishing-wizard,Publishing wizard>>
+dialog with selected content and all descendants
+ * If selected content has workflow state "In progress": *Mark as Ready*, to mark selected content as ready for publishing
+ * If selected content is not published and current user doesn't have publishing permissions: *Request Publishing:*, opens the <<actions#unpublish,Unpublish Wizard>> dialog for taking the item offline;
+ * If no content is selected: *Create Task*, opens the <<issues#create_a_task,New Task>> dialog
 
 image::navigator-toolbar.png[]
 

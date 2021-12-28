@@ -21,7 +21,7 @@ NOTE: Press F2 to reveal all available shortcuts for a view.
 ^|`⌘ + E` / `Enter`
 ^|`Ctrl + E` / `Enter`
 
-|Delete selected content
+|Archive selected content
 ^|`⌘ + Delete`
 ^|`Ctrl + Delete`
 
@@ -52,7 +52,7 @@ NOTE: Press F2 to reveal all available shortcuts for a view.
 |Close wizard tab
 2+^|`Alt + W`
 
-|Delete content
+|Archive content
 ^|`⌘ + Delete`
 ^|`Ctrl + Delete`
 

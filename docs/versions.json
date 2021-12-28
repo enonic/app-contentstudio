@@ -10,7 +10,7 @@
     },
     {
       "label": "stable",
-      "checkout": "91a0db1370836ba2cf2cab2e8246871fa2c3443e",
+      "checkout": "master",
       "latest": true
     }
   ]

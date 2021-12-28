@@ -2,7 +2,7 @@
 :toc: right
 :imagesdir: actions/images
 
-Content can be created, edited, deleted, duplicated, moved, sorted and published. Depending on permissions, users may perform those actions on selected content items.
+Content can be created, edited, archived, deleted, duplicated, moved, sorted and published. Depending on permissions, users may perform those actions on selected content items.
 
 
 == New
@@ -17,12 +17,12 @@ There are three ways to open the *New Content* dialog in the Content Studio:
 
 image::dialog-new.png[]
 
-NOTE: The content dialog will use the context of the selected content to create the new item. If no context is set, the item will be created on the root level.
+NOTE: The *New Content* dialog will use the context of the selected content to create the new item. If no context is set, the item will be created on the root level.
 
 
 === New by Type
 
-The dialog lets you choose from available content types, based on the context of the selected item.
+The *New Content* dialog lets you choose from available content types, based on the context of the selected item.
 
 * Select from the list of all content types;
 * Select from the "Most Popular" list (most used content types in your current context);
@@ -50,7 +50,7 @@ NOTE: When uploading files, the underlying content type is automatically detecte
 
 == Edit
 
-The `Edit` action will open the *Content Wizard* for editing selected content items in a new tab.
+`Edit` action will open the *Content Wizard* for editing selected content items in a new tab.
 If multiple items are selected, then the action will open a browser tab for each one.
 
 There are four ways to open content for edit in the Content Studio:
@@ -61,48 +61,25 @@ There are four ways to open content for edit in the Content Studio:
 * By clicking `Edit` in the context menu, which is accessible by right-clicking an item.
 
 
-== Delete
+== Archive
 
-The `Delete` action will open the *Delete item(s)* dialog for the selected content.
+:imagesdir: images
+image:cs-400.svg[CS 4.0.0,opts=inline]
 
-There are three ways to open the *Delete item(s)* dialog in the Content Studio:
+`Archive` action will open the *Archive item(s)* dialog for selected content to move it to the "Archive".
+
+There are three ways to open the *Archive item(s)* dialog in the Content Studio:
 
 * The first method is with the shortcut — `⌘ + del` (`ctrl + del` for Windows);
-* By clicking the `Delete` button in the toolbar;
-* By clicking `Delete` in the context menu, which is accessible by right-clicking an item.
+* By clicking the `Archive` button in the toolbar;
+* By selecting `Archive` from the context menu, which is accessible by right-clicking an item.
 
+TIP: If you want to delete content rather than move it to archive, you can do that by selecting *Delete" from the
+button dropdown in the *Archive item(s)* dialog.
 
-=== Deleting offline items
+IMPORTANT: Online content will instantly go offline after archiving or deleting.
 
-If selected content is offline (status "New" or "Unpublished"), it will be deleted instantly right after you confirm your action.
-
-image::dialog-delete-new.png[]
-
-If you are about to delete a site or more than one item, the "Delete Now" button will show the total number of items to be deleted, including children.
-
-NOTE: Before the content is deleted, you will be asked to confirm your action by entering the total number of items to delete.
-
-image::dialog-delete-confirm.png[]
-
-
-=== Deleting online items
-
-If you try to delete content that is currently online (status "Published" or "Modified"), "Delete Now" button will turn into a menu button with "Mark as Deleted" action in the dropdown.
-
-image::dialog-delete-published.png[Delete published content, 700]
-
-When "Mark as Deleted" is clicked, all offline content will be instantly deleted, but online content will change the status to "Marked for deletion".
-To remove such items completely, they must be <<#_publish,published>>.
-
-To restore items marked as deleted to their previous status, select them and click the `Undo delete` button in the toolbar.
-
-image::dialog-delete-undo.png[]
-
-Standard content management actions (like editing, moving, duplicating etc.) are not available for items marked as deleted, you have to undelete them first.
-
-=== Deleting from the wizard
-
-When the `Delete` button is clicked from inside the Content Wizard, only the current item will be selected in the dialog.
+image::dialog-archive.png[Archive item(s) dialog, 600]
 
 
 == Duplicate

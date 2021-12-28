@@ -31,6 +31,10 @@
       ]
     },
     {
+      "title": "Content Archive",
+      "document": "archive"
+    },
+    {
       "title": "Projects",
       "document": "projects"
     },

@@ -32,7 +32,11 @@ Defines matching mode for content type patterns. Can be `MATCH` or `LEGACY`. Def
 contentTypePatternMode = MATCH
 ----
 
+:imagesdir: images
+
 === Max file upload size
+
+image:cs-400.svg[CS 4.0.0,opts=inline]
 
 Used for setting size limit on attachments, media content and both project and content thumbnail uploads
 
@@ -40,4 +44,16 @@ Used for setting size limit on attachments, media content and both project and c
 [source,properties]
 ----
 uploadMaxFileSize = 100mb
+----
+
+=== Turn off content path transliteration
+
+image:cs-400.svg[CS 4.0.0,opts=inline]
+
+Turn off automatic transliteration of content path when generating it based on a value typed into the display name field in the Content form.
+
+.com.enonic.app.contentstudio.cfg
+[source,properties]
+----
+contentWizard.allowPathTransliteration=false
 ----

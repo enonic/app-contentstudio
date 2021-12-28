@@ -4,22 +4,6 @@
 
 Enonic XP has five types of components that can be added to regions on a page. These component types are listed under the <<../widgets#insert-tab,Insert tab>> of the components widget in the <<page-editor#,Page Editor>>. This section covers each type of component in detail.
 
-
-== Image component
-
-The Image component allows content editors to place an image into any region on a page without writing any code.
-
-In the Page Editor, drag an Image component placeholder from the components widget to the desired region on the page. Once placed, the empty image placeholder contains an image selector that can be used to find and select any previously uploaded image content. If the name of the image is known, simply start typing it in the box to filter the list of images. If the name is not known, use the down arrow to open a list of images to choose from. Note that the list will contain all image content items in the XP installation, including images that were created in a different site of a multi-site environment.
-
-If the desired image does not already exist as a content, simply upload it with the button on the right side of the image selector dropdown. The new image content will be created as a child of the page being edited, but it could be moved later if needed.
-
-image::component-types-image-insert.png[]
-
-The components widget will also show the dropdown image selector. After the image is added and selected, a text area for writing an image caption will be shown as well. If a caption is entered, it will appear below the image.
-
-image::component-types-image-edit.png[]
-
-
 == Part component
 
 Part components are reusable, configurable components that can be placed into any region of a page. This allows content editors to build and customize pages without writing any code. There are no built-in part components. Each one is custom made in the application code. Parts are typically created to render custom content, lists of content, forms, etc.
@@ -113,6 +97,8 @@ This layout will only be allowed on a site, but not for example on a page templa
 The Text component allows content editors to place and format text into any region on a page without writing any code. Images, videos, and links can also be added inside text components. Macros allow YouTube videos, embedded code, and no-format text to be added as well. The formatting and macro options are the same as those for the HtmlArea inputs that can be found in content types and other configuration forms in the Content Studio. The only difference is that the formatting toolbar is at the top of the page for text components.
 
 In the <<page-editor#,Page Editor>>, drag a Text component from the <<../widgets#insert-tab,Insert tab>> of the components widget to the desired region on the page. A cursor will appear inside the text component and editing can begin. If another component is selected, the text component will need to be double-clicked to resume editing.
+
+TIP: Documentation on Rich Text Editor used by Text component can be found <<editor/rich-text-editor#,here>>
 
 image::component-types-text-insert.png[]
 

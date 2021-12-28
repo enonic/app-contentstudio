@@ -18,7 +18,7 @@ image::page-editor-no-controller.png[]
 
 == Editing page
 
-The page with the automatic template is disabled for editing. Clicking on it, or inside the <<#_components-view,Components View>> will show the menu with the option to enable the editing.
+The page with the automatic template is disabled for editing. Clicking on it, or inside the <<#components-view,Components View>> will show the menu with the option to enable the editing.
 
 image::page-editor-lock.png[]
 
@@ -32,7 +32,7 @@ image::page-editor-menu.png[]
 
 This tool opens in a draggable internal window activated by the clipboard icon in the toolbar. It displays a hierarchical tree representation of all the components and regions on the page, including the page itself. This tool is extremely valuable in situations when an unconfigured component does not render or content structure is complex or device resolution is very small.
 
-Selecting a component in the tree will highlight the component in the page editor and display its configuration in the <<../widgets#insert-tab,Components>> widget. The triangle on the right of each component will open a menu of options that can be selected for the component. This menu completely replicates the menu, described in the <<#_editing-page,previous>> section.
+Selecting a component in the tree will highlight the component in the page editor and display its configuration in the <<../widgets#insert-tab,Components>> widget. The triangle on the right of each component will open a menu of options that can be selected for the component. This menu completely replicates the menu, described in the <<#editing-page,previous>> section.
 
 Components can be rearranged directly in the tree with drag’n’drop function.
 

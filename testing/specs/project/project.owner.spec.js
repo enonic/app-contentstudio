@@ -109,6 +109,8 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Do Log in with the user-owner and navigate to 'Content Studio':
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
+            await contentBrowsePanel.pause(1000);
+            await studioUtils.saveScreenshot("has_assigned_issues_icon");
             //4. Verify that the user has assigned task('Assigned to Me' and red circle should be displayed on the toolbar):
             await contentBrowsePanel.hasAssignedIssues();
         });
