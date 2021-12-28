@@ -1,11 +1,15 @@
 = Content Archive
 :toc: right
-:imagesdir: archive/images
+:imagesdir: images
+
+image:cs-400.svg[CS 4.0.0,opts=inline]
 
 Starting from version 4.0, *Archive* has replaced *Delete* as a default action for removing content that is no longer needed. When content is
 archived, it will not be physically deleted but moved to a separate storage where it can be restored from.
 
 TIP: It's still possible to delete content by selecting *Delete* action from the button dropdown in the "Archive" dialog.
+
+:imagesdir: archive/images
 
 == Archiving content
 

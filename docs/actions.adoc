@@ -63,6 +63,9 @@ There are four ways to open content for edit in the Content Studio:
 
 == Archive
 
+:imagesdir: images
+image:cs-400.svg[CS 4.0.0,opts=inline]
+
 `Archive` action will open the *Archive item(s)* dialog for selected content to move it to the "Archive".
 
 There are three ways to open the *Archive item(s)* dialog in the Content Studio:
