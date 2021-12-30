@@ -14,6 +14,8 @@ const xpath = {
     typeTextInHtmlArea: (id, text) => {
         return `CKEDITOR.instances['${id}'].setData('${text}')`;
     },
+
+    occurrenceByText: (text) => `//div[contains(@id,'FormOccurrenceDraggableLabel') and contains(.,'${text}')]//div[contains(@class, 'drag-control')]`
 };
 
 class ItemSetFormView extends Page {
@@ -72,6 +74,23 @@ class ItemSetFormView extends Page {
     async expandMenuClickOnDelete(index) {
         let menuButtons = this.findElements(this.itemSetMenuButton);
 
+    }
+
+    async swapItems(sourceName, destinationName) {
+        let sourceElem = xpath.occurrenceByText(sourceName);
+        let destinationElem = xpath.occurrenceByText(destinationName);
+        let source = await this.findElement(sourceElem);
+        let destination = await this.findElement(destinationElem);
+        await source.dragAndDrop(destination);
+        return await this.pause(1000);
+    }
+
+    async getItemSetTitle(index) {
+        let locator = xpath.itemSet + "//div[contains(@id,'FormOccurrenceDraggableLabel')]";
+        let elements = await this.findElements(locator);
+        let result = await elements[index].getText(locator);
+        let tittle = result.split("\n");
+        return tittle[0].trim();
     }
 }
 

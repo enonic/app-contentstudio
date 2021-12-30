@@ -15,6 +15,8 @@ describe('item.set.spec: tests for content with Item Set', function () {
     webDriverHelper.setupBrowser();
     let SITE;
     const CONTENT_1 = contentBuilder.generateRandomName('itemset');
+    const TEXT_LINE_TEXT_1 = "text 1";
+    const TEXT_LINE_TEXT_2 = "text 2";
 
     it(`Preconditions: new site should be added`,
         async () => {
@@ -101,17 +103,38 @@ describe('item.set.spec: tests for content with Item Set', function () {
             await studioUtils.selectContentAndOpenWizard(CONTENT_1);
             //2. Add the second form:
             await itemSetForm.clickOnAddButton();
-            await contentWizard.typeDisplayName(CONTENT_1);
             //3. Fill in required inputs in both forms:
             await itemSetForm.typeTextInHtmlArea(0, "hello htmlarea");
-            await itemSetForm.typeTextInTextLine(0, "hello text line");
+            await itemSetForm.typeTextInTextLine(0, TEXT_LINE_TEXT_1);
             await itemSetForm.typeTextInHtmlArea(1, "hello htmlarea 2");
-            await itemSetForm.typeTextInTextLine(1, "hello text line 2");
-
+            await itemSetForm.typeTextInTextLine(1, TEXT_LINE_TEXT_2);
             await studioUtils.saveScreenshot('itemset_0_0_filled_3');
+
             //4. Verify that the content gets valid:
             let isInvalid = await contentWizard.isContentInvalid();
             assert.isFalse(isInvalid, "the content with Item Set should be valid now");
+
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+        });
+
+    it("GIVEN existing item set content with 2 filled forms is opened WHEN two items have been swapped THEN form items should be swapped",
+        async () => {
+            let itemSetForm = new ItemSetForm();
+            let contentWizard = new ContentWizard();
+            //1. Open existing content with two filled items:
+            await studioUtils.selectContentAndOpenWizard(CONTENT_1);
+            await studioUtils.saveScreenshot('itemset_before_swap');
+            //2. swap the items:
+            await itemSetForm.swapItems(TEXT_LINE_TEXT_1, TEXT_LINE_TEXT_2);
+            await studioUtils.saveScreenshot('itemset_swapped');
+            //3. Verify the items swapped places with each other:
+            let title1 = await itemSetForm.getItemSetTitle(0);
+            let title2 = await itemSetForm.getItemSetTitle(1);
+            assert.equal(title1, TEXT_LINE_TEXT_2, "form items should be swapped");
+            assert.equal(title2, TEXT_LINE_TEXT_1, "form items should be swapped");
+            //4. Verify that 'Save' button is enabled now:
+            await contentWizard.waitForSaveButtonEnabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
