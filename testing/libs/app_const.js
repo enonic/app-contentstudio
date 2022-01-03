@@ -310,15 +310,16 @@ module.exports = Object.freeze({
         CREATE_TASK: "Create Task..."
     },
     GRID_CONTEXT_MENU: {
-        ARCHIVE: "Archive...",
-        RESTORE: "Restore...",
-        DELETE: "Delete...",
+        NEW: "New",
         EDIT: "Edit",
-        PREVIEW: "Preview",
+        ARCHIVE: "Archive...",
         DUPLICATE: "Duplicate...",
-        PUBLISH: "Publish...",
         MOVE: "Move...",
-        SORT: "Sort..."
+        SORT: "Sort...",
+        RESTORE: "Restore...",
+        PREVIEW: "Preview",
+        PUBLISH: "Publish...",
+        UNPUBLISH: "Unpublish..."
     },
     WORKFLOW_STATE: {
         WORK_IN_PROGRESS: 'Work in progress',

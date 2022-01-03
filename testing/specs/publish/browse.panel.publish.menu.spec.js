@@ -4,12 +4,12 @@
  */
 const chai = require('chai');
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const ContentUnpublishDialog = require('../page_objects/content.unpublish.dialog');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConstant = require('../../libs/app_const');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
 
 describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolbar`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -62,7 +62,6 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Select the folder:
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-
             //2. Open Publish Menu and verify status of all menu items:
             await contentBrowsePanel.openPublishMenu();
             await studioUtils.saveScreenshot("publish_menu_Folder_published");
