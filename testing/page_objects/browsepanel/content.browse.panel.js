@@ -791,13 +791,16 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await this.pause(1000);
     }
 
-    rightClickOnItemByDisplayName(displayName) {
-        const nameXpath = XPATH.container + XPATH.rowByDisplayName(displayName);
-        return this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout).then(() => {
-            return this.doRightClick(nameXpath);
-        }).catch(err => {
+    async rightClickOnItemByDisplayName(displayName) {
+        try {
+            const nameXpath = XPATH.container + XPATH.rowByDisplayName(displayName);
+            await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
+            await this.doRightClick(nameXpath);
+            return await this.waitForContextMenuDisplayed();
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_context_menu'));
             throw Error(`Error when do right click on the row:` + err);
-        })
+        }
     }
 
     waitForArchiveButtonDisplayed() {

@@ -194,6 +194,11 @@ class BaseBrowsePanel extends Page {
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Context menu was not loaded"});
     }
 
+    async waitForContextMenuItemNotDisplayed(menuItem) {
+        let menuItemSelector = XPATH.contextMenuItemByName(menuItem);
+        return await this.waitForElementNotDisplayed(menuItemSelector, appConst.mediumTimeout);
+    }
+
     async waitForContextMenuItemEnabled(menuItem) {
         let menuItemSelector = XPATH.contextMenuItemByName(menuItem);
         let el = await this.getDisplayedElements(menuItemSelector);
@@ -222,7 +227,8 @@ class BaseBrowsePanel extends Page {
         let menuItemSelector = XPATH.contextMenuItemByName(menuItem);
         await this.waitForContextMenuItemEnabled(menuItem);
         let el = await this.getDisplayedElements(menuItemSelector);
-        return await el[0].click();
+        await el[0].click();
+        return await this.pause(1000);
     }
 
     async doubleClickOnRowByDisplayName(displayName) {

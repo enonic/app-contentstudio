@@ -226,7 +226,7 @@ class ProjectWizardPanel extends Page {
         let comboBox = new ComboBox();
         await comboBox.typeTextAndSelectOption(principalDisplayName, XPATH.container + XPATH.projectAccessControlComboBox);
         console.log("Project Wizard, principal is selected: " + principalDisplayName);
-        return await this.pause(400);
+        return await this.pause(1000);
     }
 
     //selects an project(parent) :
