@@ -19,8 +19,8 @@ export class PublishDialogDependantList
 
     private listChangedListeners: { (): void }[] = [];
 
-    constructor(scrollContainer: Element) {
-        super(scrollContainer, 'publish-dialog-dependant-list');
+    constructor() {
+        super('publish-dialog-dependant-list');
 
         this.requiredIds = ContentIds.empty();
     }

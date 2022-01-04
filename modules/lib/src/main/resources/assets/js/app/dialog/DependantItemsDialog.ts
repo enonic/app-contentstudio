@@ -75,6 +75,7 @@ export abstract class DependantItemsDialog
         this.dependantContainerHeader = new H6El('dependants-header').setHtml(this.dependantsHeaderText);
         this.dependantContainerBody = new DivEl('dependants-body');
         this.dependantList = this.createDependantList();
+        this.dependantList.setScrollElement(this.getBody());
         this.dependantList.setLazyLoadHandler(AppHelper.debounce(this.lazyLoadDependants.bind(this), 300));
 
         if (this.config.showDependantList !== undefined) {
@@ -180,7 +181,7 @@ export abstract class DependantItemsDialog
     }
 
     protected createDependantList(): DialogDependantList {
-        return new DialogDependantList(this.getBody());
+        return new DialogDependantList();
     }
 
     protected getItemList(): ListBox<ContentSummaryAndCompareStatus> {
@@ -411,6 +412,8 @@ export class DialogDependantList
 
     private lazyLoadHandler: Function;
 
+    private scrollElement: Element;
+
     createItemView(item: ContentSummaryAndCompareStatus, readOnly: boolean): StatusSelectionItem {
 
         const dependantViewer = new DependantItemViewer();
@@ -425,6 +428,14 @@ export class DialogDependantList
         });
 
         return new StatusSelectionItem(dependantViewer, item);
+    }
+
+    setScrollElement(element: Element): void {
+        this.scrollElement = element;
+    }
+
+    protected getScrollContainer(): Element {
+        return this.scrollElement || super.getScrollContainer();
     }
 
     getItemId(item: ContentSummaryAndCompareStatus): string {
