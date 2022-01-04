@@ -75,19 +75,7 @@ export abstract class DependantItemsDialog
         this.dependantContainerHeader = new H6El('dependants-header').setHtml(this.dependantsHeaderText);
         this.dependantContainerBody = new DivEl('dependants-body');
         this.dependantList = this.createDependantList();
-        this.dependantList.setLazyLoadHandler(AppHelper.debounce(() => {
-            const size: number = this.getDependantList().getItemCount();
-            this.showLoadMask();
-
-            this.loadDescendants(size, GetDescendantsOfContentsRequest.LOAD_SIZE).then((newItems: ContentSummaryAndCompareStatus[]) => {
-                if (newItems.length > 0) {
-                    this.addDependantItems(newItems);
-                }
-            }).catch(DefaultErrorHandler.handle)
-                .finally(() => {
-                    this.hideLoadMask();
-                });
-        }, 300));
+        this.dependantList.setLazyLoadHandler(AppHelper.debounce(this.lazyLoadDependants.bind(this), 300));
 
         if (this.config.showDependantList !== undefined) {
             this.showDependantList = this.config.showDependantList;
@@ -117,6 +105,18 @@ export abstract class DependantItemsDialog
         this.dependantList.onItemsAdded(() => this.onDependantsChanged());
 
         this.onRendered(() => this.setDependantListVisible(this.showDependantList));
+    }
+
+    protected lazyLoadDependants(): void {
+        const size: number = this.getDependantList().getItemCount();
+        this.showLoadMask();
+
+        this.loadDescendants(size, GetDescendantsOfContentsRequest.LOAD_SIZE).then((newItems: ContentSummaryAndCompareStatus[]) => {
+            if (newItems.length > 0) {
+                this.addDependantItems(newItems);
+            }
+        }).catch(DefaultErrorHandler.handle)
+            .finally(() => this.hideLoadMask());
     }
 
     doRender(): Q.Promise<boolean> {
