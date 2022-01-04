@@ -1022,7 +1022,7 @@ export class IssueDetailsDialog
     }
 
     protected createDependantList(): PublishDialogDependantList {
-        return new PublishDialogDependantList(this.getBody());
+        return new PublishDialogDependantList();
     }
 
     protected getItemList(): PublishDialogItemList {
