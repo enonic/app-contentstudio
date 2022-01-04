@@ -11,6 +11,7 @@ const xpath = {
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     issueMenuButton: `//div[contains(@id,'MenuButton')]`,
+    previewNotAvailableSpan: "//span[text()='Preview not available']",
     issueMenuItemByName:
         name => `//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and contains(.,'${name}')]`,
     issueMenuButtonByName:
@@ -27,8 +28,21 @@ class ContentItemPreviewPanel extends Page {
         return xpath.toolbar + xpath.status;
     }
 
+    get previewNotAvailableMessage() {
+        return xpath.container + xpath.previewNotAvailableSpan;
+    }
+
     get author() {
         return xpath.toolbar + xpath.author;
+    }
+
+    waitForPreviewNotAvailAbleMessageDisplayed() {
+        return this.waitForElementDisplayed(this.previewNotAvailableMessage, appConst.mediumTimeout);
+    }
+
+    waitForImageDisplayed() {
+        let locator = xpath.container + "//img";
+        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
     waitForPanelVisible() {
