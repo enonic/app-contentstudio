@@ -648,18 +648,20 @@ export class ContentTreeGrid
         const allNodes: TreeNode<ContentSummaryAndCompareStatus>[] = this.getRoot().getAllDefaultRootNodes();
 
 
-        itemsToAdd.forEach((itemToAdd: ContentSummaryAndCompareStatus) => {
-            const parentPathOfItemToAdd: ContentPath = itemToAdd.getPath().getParentPath();
-            const parentNode: TreeNode<ContentSummaryAndCompareStatus> = this.getParentNodeByPath(parentPathOfItemToAdd, allNodes);
+        itemsToAdd
+            .filter((item: ContentSummaryAndCompareStatus) => !this.hasItemWithDataId(item.getId()))
+            .forEach((itemToAdd: ContentSummaryAndCompareStatus) => {
+                const parentPathOfItemToAdd: ContentPath = itemToAdd.getPath().getParentPath();
+                const parentNode: TreeNode<ContentSummaryAndCompareStatus> = this.getParentNodeByPath(parentPathOfItemToAdd, allNodes);
 
-            if (parentNode) {
-                if (parentsOfChildrenToAdd.has(parentNode)) {
-                    parentsOfChildrenToAdd.get(parentNode).push(itemToAdd);
-                } else {
-                    parentsOfChildrenToAdd.set(parentNode, [itemToAdd]);
+                if (parentNode) {
+                    if (parentsOfChildrenToAdd.has(parentNode)) {
+                        parentsOfChildrenToAdd.get(parentNode).push(itemToAdd);
+                    } else {
+                        parentsOfChildrenToAdd.set(parentNode, [itemToAdd]);
+                    }
                 }
-            }
-        });
+            });
 
         return parentsOfChildrenToAdd;
     }
@@ -711,7 +713,7 @@ export class ContentTreeGrid
         items.forEach((item: DeletedContentItem) => {
             const nodeToDelete: TreeNode<ContentSummaryAndCompareStatus> = allNodes.find(
                 (node: TreeNode<ContentSummaryAndCompareStatus>) => node.getData()?.getPath()?.equals(item.path) ||
-                                                                    node.getData()?.getContentId().equals(item.id));
+                                                                    node.getData()?.getContentId()?.equals(item.id));
 
             if (nodeToDelete) {
                 this.deleteNode(nodeToDelete);
