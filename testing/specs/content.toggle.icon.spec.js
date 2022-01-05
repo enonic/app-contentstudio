@@ -57,7 +57,7 @@ describe('content.toggle.icon.spec: tests for expand/collapse icon', function ()
             await studioUtils.saveScreenshot("parent_should_be_expanded");
             //3. Verify that the parent folder remains expanded:
             let isExpanded = await contentBrowsePanel.isContentExpanded(PARENT_FOLDER.displayName);
-            assert.isTrue(isExpanded, "Parent folder should be collapsed");
+            assert.isTrue(isExpanded, "Parent folder should be expanded");
             //4. Verify that the child folder is visible
             await contentBrowsePanel.waitForContentDisplayed(CHILD_FOLDER_2.displayName);
         });
