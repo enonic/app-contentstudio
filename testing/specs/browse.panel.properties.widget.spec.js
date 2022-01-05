@@ -4,7 +4,7 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
+const appConst = require('../libs/app_const');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
@@ -12,11 +12,14 @@ const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/prope
 const WidgetItemView = require('../page_objects/browsepanel/detailspanel/content.widget.item.view');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const SettingsForm = require('../page_objects/wizardpanel/settings.wizard.step.form');
+const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
+
 
 describe('Browse panel, properties widget, language spec`', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
+
     it(`GIVEN existing folder(English (en)) WHEN the folder has been selected and 'Details Panel' opened THEN expected language should be displayed in the widget`,
         async () => {
             let displayName = contentBuilder.generateRandomName('folder');
@@ -29,6 +32,31 @@ describe('Browse panel, properties widget, language spec`', function () {
             //Verify that expected language should be displayed in Details Panel
             let actualLanguage = await propertiesWidget.getLanguage();
             assert.equal(actualLanguage, 'en', "expected language should be present in the widget");
+        });
+
+    it(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,
+        async () => {
+            let browseDetailsPanel = new BrowseDetailsPanel();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await contentBrowsePanel.clickOnDetailsPanelToggleButton();
+            await studioUtils.saveScreenshot("details_panel_widget_options");
+            let isVisible = await browseDetailsPanel.isPanelVisible();
+            assert.isFalse(isVisible, "Details panel should be hidden");
+        });
+
+    it(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,
+        async () => {
+            let browseDetailsPanel = new BrowseDetailsPanel();
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await browseDetailsPanel.clickOnWidgetSelectorDropdownHandle();
+            let actualOptions = await browseDetailsPanel.getWidgetSelectorDropdownOptions();
+            await studioUtils.saveScreenshot("details_panel_widget_options");
+            assert.isTrue(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.EMULATOR));
+            assert.isTrue(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DEPENDENCIES));
+            assert.isTrue(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY));
+            assert.isTrue(actualOptions.includes(appConst.WIDGET_SELECTOR_OPTIONS.DETAILS));
+            assert.equal(actualOptions.length, 4, "Four options should be in the selector");
         });
 
     it(`GIVEN existing folder with language is opened WHEN the language has been removed and 'Details Panel' opened THEN language should not be displayed in the widget`,
@@ -55,16 +83,14 @@ describe('Browse panel, properties widget, language spec`', function () {
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let widgetItemView = new WidgetItemView();
-            //1. Click on row with the folder:
+            //1. Click on row and select a folder:
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await studioUtils.saveScreenshot("details_panel_folder_selected");
             let actualDisplayName = await widgetItemView.getContentName();
             assert.equal(actualDisplayName, TEST_FOLDER.displayName, "Expected displayName should be in the widget");
-            //2. Open browse details panel:
-            await studioUtils.openBrowseDetailsPanel();
-            //3. click on the row in the second time:
-            await studioUtils.saveScreenshot("details_panel_cleared_1");
+            //2. click on the row and unselect the folder:
             await contentBrowsePanel.clickOnRowByDisplayName(TEST_FOLDER.displayName);
+            await studioUtils.saveScreenshot("details_panel_cleared_1");
             //4. Verify that Details Panel is cleared:
             await widgetItemView.waitForNotDisplayed();
         });
@@ -80,12 +106,10 @@ describe('Browse panel, properties widget, language spec`', function () {
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(TEST_FOLDER.displayName);
             let actualDisplayName = await widgetItemView.getContentName();
             assert.equal(actualDisplayName, TEST_FOLDER.displayName, "Expected displayName should be in the widget");
-            //2. Open browse details panel:
-            await studioUtils.openBrowseDetailsPanel();
-            //3. uncheck the row :
+            //2. Click on thr checkbox and unselect the row :
             await studioUtils.saveScreenshot("details_panel_cleared_2");
             await contentBrowsePanel.clickOnCheckbox(TEST_FOLDER.displayName);
-            //4. Verify that Details Panel is cleared:
+            //3. Verify that Details Panel is cleared:
             await widgetItemView.waitForNotDisplayed();
         });
 

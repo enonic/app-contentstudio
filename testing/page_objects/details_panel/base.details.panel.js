@@ -12,7 +12,8 @@ class BaseDetailsPanel extends Page {
         try {
             await this.waitForWidgetSelectorDropDownHandleDisplayed();
             await this.pause(300);
-            return await this.clickOnElement(this.widgetSelectorDropdownHandle);
+            await this.clickOnElement(this.widgetSelectorDropdownHandle);
+            await this.pause(1000);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_widget_dropdown'));
             throw new Error('Error when clicking on Widget Selector dropdown handle  ' + err);
@@ -38,7 +39,8 @@ class BaseDetailsPanel extends Page {
     async openVersionHistory() {
         try {
             await this.clickOnWidgetSelectorDropdownHandle();
-            let versionHistoryOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.VERSION_HISTORY);
+            let versionHistoryOption = this.widgetSelectorDropdown +
+                                       lib.itemByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.VERSION_HISTORY);
             await this.waitForElementDisplayed(versionHistoryOption, appConst.mediumTimeout);
             let elements = await this.getDisplayedElements(versionHistoryOption);
             await elements[0].click();
@@ -57,7 +59,7 @@ class BaseDetailsPanel extends Page {
     //clicks on dropdown handle and select the 'Dependencies' menu item
     async openDependencies() {
         await this.clickOnWidgetSelectorDropdownHandle();
-        let dependenciesOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.DEPENDENCIES);
+        let dependenciesOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.DEPENDENCIES);
         await this.waitForElementDisplayed(dependenciesOption, appConst.mediumTimeout);
         let result = await this.getDisplayedElements(dependenciesOption);
         await this.getBrowser().elementClick(result[0].elementId);
@@ -67,7 +69,7 @@ class BaseDetailsPanel extends Page {
     async openLayers() {
         try {
             await this.clickOnWidgetSelectorDropdownHandle();
-            let layersOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.LAYERS);
+            let layersOption = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.LAYERS);
             await this.waitForElementDisplayed(layersOption, appConst.mediumTimeout);
             let result = await this.getDisplayedElements(layersOption);
             await result[0].click();
@@ -80,7 +82,7 @@ class BaseDetailsPanel extends Page {
     async openEmulatorWidget() {
         try {
             await this.clickOnWidgetSelectorDropdownHandle();
-            let emulatorOptionLocator = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_TITLE.EMULATOR);
+            let emulatorOptionLocator = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.EMULATOR);
             await this.waitForElementDisplayed(emulatorOptionLocator, appConst.mediumTimeout);
             let result = await this.getDisplayedElements(emulatorOptionLocator);
             await result[0].click();

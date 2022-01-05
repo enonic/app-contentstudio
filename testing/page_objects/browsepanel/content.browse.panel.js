@@ -295,11 +295,18 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         })
     }
 
-    clickOnDetailsPanelToggleButton() {
-        return this.clickOnElement(this.detailsPanelToggleButton).catch(err => {
-            this.saveScreenshot('err_click_on_details_panel_toggle');
+    async clickOnDetailsPanelToggleButton() {
+        try {
+            await this.clickOnElement(this.detailsPanelToggleButton);
+            return await this.pause(400);
+        } catch (err) {
+            await this.saveScreenshot('err_click_on_details_panel_toggle');
             throw new Error(`Error when clicking on Details Panel toggler` + err);
-        });
+        }
+    }
+
+    waitForShowContextPanelButtonDisplayed() {
+        return this.waitForElementDisplayed(XPATH.container + lib.SHOW_CONTEXT_PANEL_BUTTON, appConst.mediumTimeout);
     }
 
     async clickOnExpanderIcon(name) {
@@ -826,6 +833,28 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.waitForArchiveButtonEnabled();
         await this.clickOnElement(this.archiveButton);
         return await this.pause(500);
+    }
+
+    async isContentExpanded(contentName) {
+        try {
+            let locator = XPATH.expanderIconByName(contentName);
+            await this.waitForExpanderIconDisplayed(contentName);
+            let attr = await this.getAttribute(locator, "class");
+            return attr.includes("collapse");
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_expander_icon'));
+            throw new Error("Toggle icon: " + err);
+        }
+    }
+
+    waitForExpanderIconDisplayed(contentName) {
+        let locator = XPATH.expanderIconByName(contentName);
+        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    waitForExpanderIconNotDisplayed(contentName) {
+        let locator = XPATH.expanderIconByName(contentName);
+        return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 }
 

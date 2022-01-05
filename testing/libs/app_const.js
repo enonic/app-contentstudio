@@ -115,11 +115,12 @@ module.exports = Object.freeze({
     DELETE_INBOUND_MESSAGE: 'One or more items are referenced from another content',
 
     IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
-    WIDGET_TITLE: {
+    WIDGET_SELECTOR_OPTIONS: {
         VERSION_HISTORY: 'Version history',
         DEPENDENCIES: 'Dependencies',
         LAYERS: 'Layers',
-        EMULATOR: 'Emulator'
+        EMULATOR: 'Emulator',
+        DETAILS: "Details"
     },
     EMULATOR_RESOLUTION: {
         MEDIUM_PHONE: 'Medium Phone',
