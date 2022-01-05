@@ -703,8 +703,8 @@ export class ContentTreeGrid
         return false;
     }
 
-    getDefaultFullTotal(): number {
-        return this.getRoot().getDefaultRoot().treeToList(false, false).length;
+    getRootItemsIds(): string[] {
+        return this.getRoot().getDefaultRoot().getChildren().map((item: TreeNode<ContentSummaryAndCompareStatus>) => item.getDataId());
     }
 
     deleteItems(items: DeletedContentItem[]) {
