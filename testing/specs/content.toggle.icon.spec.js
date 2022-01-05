@@ -27,7 +27,7 @@ describe('content.toggle.icon.spec: tests for expand/collapse icon', function ()
             await studioUtils.doAddFolder(PARENT_FOLDER);
         });
 
-    it(`GIVEN existing folder is selected WHEN child folder has been created THEN the paren folder should be collapsed`,
+    it(`GIVEN existing folder is selected WHEN child folder has been created THEN the parent folder should be collapsed`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             CHILD_FOLDER_1 = contentBuilder.buildFolder(CHILD_FOLDER_NAME_1);
