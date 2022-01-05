@@ -66,7 +66,6 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
 
     it("Precondition 2: 'work in progress' folder should be added in the site",
         async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
             let folderName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(folderName);
             await studioUtils.findAndSelectItem(SITE.displayName);
