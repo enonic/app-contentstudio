@@ -34,13 +34,15 @@ describe('Browse panel, properties widget, language spec`', function () {
             assert.equal(actualLanguage, 'en', "expected language should be present in the widget");
         });
 
-    it(`GIVEN existing folder is selected WHEN widget dropdown selector has been clicked THEN expected 4 options should be displayed in the dropdown list`,
+    it(`GIVEN existing folder is selected WHEN 'Hide Context Panel' button has been clicked THEN Context panel should be hidden`,
         async () => {
             let browseDetailsPanel = new BrowseDetailsPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            //1. Click on Hide Context Panel button:
             await contentBrowsePanel.clickOnDetailsPanelToggleButton();
-            await studioUtils.saveScreenshot("details_panel_widget_options");
+            await studioUtils.saveScreenshot("details_panel_hidden");
+            //2. Verify that the panel is not visible now:
             let isVisible = await browseDetailsPanel.isPanelVisible();
             assert.isFalse(isVisible, "Details panel should be hidden");
         });
