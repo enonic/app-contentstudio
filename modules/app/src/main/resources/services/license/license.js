@@ -2,9 +2,14 @@ const portalLib = require("/lib/xp/portal");
 const ioLib = require("/lib/xp/io");
 const licenseManager = require("/lib/license-manager");
 
-exports.post = function () {
+exports.post = function (req) {
     const licenseStream = portalLib.getMultipartStream("license");
-    const license = ioLib.readText(licenseStream);
+    let license;
+    if (licenseStream) {
+        license = ioLib.readText(licenseStream);
+    } else {
+        license = req.body;
+    }
     const licenseInstalled = licenseManager.installLicense(license);
 
     if (licenseInstalled) {
