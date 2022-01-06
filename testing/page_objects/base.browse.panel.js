@@ -18,6 +18,16 @@ const XPATH = {
 
 class BaseBrowsePanel extends Page {
 
+    get refreshButton() {
+        return this.treeGridToolbar + lib.REFRESH_BUTTON;
+    }
+
+    //refresh the grid:
+    async clickOnRefreshButton() {
+        await this.clickOnElement(this.refreshButton);
+        return await this.pause(1000);
+    }
+
     async waitForGridLoaded(ms) {
         try {
             let timeout = typeof ms !== 'undefined' ? ms : appConst.mediumTimeout;
