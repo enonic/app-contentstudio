@@ -426,6 +426,36 @@ class Page {
         return await this.pause(400);
     }
 
+    async pressArrowDown() {
+        await this.keys('ArrowDown');
+        return await this.pause(400);
+    }
+
+    async pressArrowUp() {
+        await this.keys('ArrowUp');
+        return await this.pause(400);
+    }
+
+    async pressBackspace() {
+        await this.keys('\uE003');
+        return await this.pause(200);
+    }
+
+    async pressWhiteSpace() {
+        await this.keys('\ue00D');
+        return await this.pause(200);
+    }
+
+    async pressArrowLeft() {
+        await this.keys('\ue012');
+        return await this.pause(1000);
+    }
+
+    async pressArrowRight() {
+        await this.keys('\ue014');
+        return await this.pause(1000);
+    }
+
     async switchToFrame(selector) {
         try {
             await this.waitUntilDisplayed(selector, appConst.mediumTimeout);

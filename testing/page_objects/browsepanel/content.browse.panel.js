@@ -23,6 +23,7 @@ const XPATH = {
     projectViewerButton: "//div[contains(@id,'ProjectViewer')]",
     highlightedRow: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'highlight')]]`,
     checkedRows: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-cell-checkboxsel selected')]`,
+    checkedRows2: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'slick-cell-checkboxsel selected')]]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
     createTaskMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Task...']",
@@ -62,6 +63,9 @@ const XPATH = {
 
 class ContentBrowsePanel extends BaseBrowsePanel {
 
+    get treeGridToolbar() {
+        return XPATH.treeGridToolbar;
+    }
     get archiveButton() {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Archive...']]`;
     }
@@ -419,6 +423,16 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
+    async waitForDuplicateButtonEnabled() {
+        try {
+            await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(this.duplicateButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_duplicate_should_be_enabled');
+            throw Error('Duplicate button should be enabled, timeout: ' + 3000 + 'ms')
+        }
+    }
+
     async waitForLocalizeButtonEnabled() {
         try {
             await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
@@ -572,6 +586,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }).catch(err => {
             throw new Error(`Error when getting checked rows ` + err);
         });
+    }
+
+    getDisplayNameInCheckedRows() {
+        let locator = XPATH.checkedRows2 + lib.H6_DISPLAY_NAME;
+        return this.getTextInDisplayedElements(locator);
     }
 
     isExpanderIconPresent(name) {
@@ -855,6 +874,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     waitForExpanderIconNotDisplayed(contentName) {
         let locator = XPATH.expanderIconByName(contentName);
         return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    getDisplayNameInHighlightedRow() {
+        let locator = XPATH.highlightedRow + lib.H6_DISPLAY_NAME;
+        return this.getText(locator);
     }
 }
 
