@@ -17,10 +17,6 @@ import {TaskId} from 'lib-admin-ui/task/TaskId';
 import {ResolveDeleteRequest} from '../resource/ResolveDeleteRequest';
 import {ContentId} from '../content/ContentId';
 import {StatusLine} from './StatusLine';
-import {ContentAppBarTabId} from '../ContentAppBarTabId';
-import {ContentWizardPanelParams} from '../wizard/ContentWizardPanelParams';
-import {ContentEventsProcessor} from '../ContentEventsProcessor';
-import {ToggleSearchPanelWithDependenciesGlobalEvent} from '../browse/ToggleSearchPanelWithDependenciesGlobalEvent';
 import {StatusSelectionItem} from '../dialog/StatusSelectionItem';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
@@ -34,6 +30,7 @@ import {ResolveContentForDeleteResult} from '../resource/ResolveContentForDelete
 import {ContentTreeGridDeselectAllEvent} from '../browse/ContentTreeGridDeselectAllEvent';
 import {TaskState} from 'lib-admin-ui/task/TaskState';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {ShowDependenciesEvent} from '../browse/ShowDependenciesEvent';
 
 enum ActionType {
     DELETE, ARCHIVE
@@ -167,18 +164,7 @@ export class ContentDeleteDialog
     }
 
     private handleItemClick(contentSummary: ContentSummary) {
-        const tabId: ContentAppBarTabId = ContentAppBarTabId.forBrowse(contentSummary.getId());
-
-        const wizardParams: ContentWizardPanelParams = new ContentWizardPanelParams()
-            .setTabId(tabId)
-            .setContentTypeName(contentSummary.getType())
-            .setContentId(contentSummary.getContentId());
-
-        const win: Window = ContentEventsProcessor.openWizardTab(wizardParams);
-
-        setTimeout(() => {
-            new ToggleSearchPanelWithDependenciesGlobalEvent(contentSummary, true).fire(win);
-        }, 1000);
+        new ShowDependenciesEvent(contentSummary.getContentId(), true).fire();
     }
 
     private updateItemViewsWithInboundDependencies(itemViews: StatusSelectionItem[]) {
