@@ -202,8 +202,8 @@ export class MacroModalDialog
     }
 
     private insertUpdatedMacroIntoTextArea(macroString: string) {
-        this.selectedMacro.element.setText(
-            this.selectedMacro.element.getText().replace(this.selectedMacro.macroText, macroString));
+        this.selectedMacro.element.$.innerText =
+            this.selectedMacro.element.$.innerText.replace(this.selectedMacro.macroText, macroString);
         this.getEditor().fire('saveSnapshot'); // to trigger change event
     }
 
