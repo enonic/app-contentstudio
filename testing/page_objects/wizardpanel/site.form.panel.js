@@ -61,9 +61,9 @@ class SiteForm extends Page {
         return this.getTextInElements(selector);
     }
 
-    removeApplication() {
-        let selector = XPATH.selectedAppByDisplayName() + lib.REMOVE_ICON;
-        return this.clickOnElement(selector);
+    removeApplication(displayName) {
+        let locator = XPATH.selectedAppByDisplayName(displayName) + lib.REMOVE_ICON;
+        return this.clickOnElement(locator);
     }
 
     openSiteConfiguratorDialog(displayName) {
@@ -92,6 +92,15 @@ class SiteForm extends Page {
                 return !result.includes('invalid');
             })
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Site configurator should be valid"});
+    }
+
+    async swapApplications(sourceAppName, destinationAppName) {
+        let sourceLocator = XPATH.selectedAppByDisplayName(sourceAppName);
+        let destinationLocator = XPATH.selectedAppByDisplayName(destinationAppName);
+        let source = await this.findElement(sourceLocator);
+        let destination = await this.findElement(destinationLocator);
+        await source.dragAndDrop(destination);
+        return await this.pause(1000);
     }
 }
 

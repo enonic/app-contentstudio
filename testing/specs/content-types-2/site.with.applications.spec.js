@@ -1,0 +1,66 @@
+/**
+ * Created on 10.01.2022
+ */
+const chai = require('chai');
+const assert = chai.assert;
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const studioUtils = require('../../libs/studio.utils.js');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const contentBuilder = require("../../libs/content.builder");
+const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
+const appConst = require('../../libs/app_const');
+
+describe('site.with.applications.spec: swaps applications in the site-form', function () {
+    this.timeout(appConst.SUITE_TIMEOUT);
+    webDriverHelper.setupBrowser();
+
+    let SITE;
+
+    it(`GIVEN wizard for new site is opened AND two applications have been selected WHEN the applications have been swapped THEN new order of applications should be displayed`,
+        async () => {
+            let siteFormPanel = new SiteFormPanel();
+            let contentWizard = new ContentWizard();
+            let applications = [appConst.FIRST_SELENIUM_APP, appConst.MY_FIRST_APP];
+            let displayName = contentBuilder.generateRandomName('site');
+            SITE = contentBuilder.buildSite(displayName, 'test site', applications);
+            //1. New site-wizard is opened:
+            await studioUtils.openContentWizard(appConst.contentTypes.SITE);
+            await contentWizard.typeDisplayName(SITE.displayName);
+            //2. two applications have been selected:
+            await siteFormPanel.addApplications(applications);
+            //3. the site should be automatically saved:
+            await contentWizard.waitForSaveButtonDisabled();
+            let apps = await siteFormPanel.getAppDisplayNames();
+            assert.equal(apps[0], appConst.FIRST_SELENIUM_APP, "Expected application be first from the top");
+            //4. two applications have been selected
+            await siteFormPanel.swapApplications(appConst.FIRST_SELENIUM_APP, appConst.MY_FIRST_APP);
+            //5. Verify that the applications are swapped
+            apps = await siteFormPanel.getAppDisplayNames();
+            assert.equal(apps[0], appConst.MY_FIRST_APP, "Applications should be swapped");
+            //6. Verify that 'Save' button gets enabled:
+            await contentWizard.waitAndClickOnSave();
+        });
+
+    it(`GIVEN existing site with 2 apps is opened WHEN one application has been removed THEN single application remains in the form`,
+        async () => {
+            let siteFormPanel = new SiteFormPanel();
+            let contentWizard = new ContentWizard();
+            //1. Existing site is opened:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            //2. One application has been removed:
+            await siteFormPanel.removeApplication(appConst.FIRST_SELENIUM_APP);
+            //3. the site should be automatically saved after removing the selected options:
+            await contentWizard.waitForNotificationMessage();
+            await contentWizard.waitForSaveButtonDisabled();
+            //4. Verify the selected option in applications selector:
+            let apps = await siteFormPanel.getAppDisplayNames();
+            assert.equal(apps[0], appConst.MY_FIRST_APP, "Expected application should be in the selected options");
+        });
+
+    beforeEach(() => studioUtils.navigateToContentStudioApp());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(() => {
+        return console.log('specification is starting: ' + this.title);
+    });
+});

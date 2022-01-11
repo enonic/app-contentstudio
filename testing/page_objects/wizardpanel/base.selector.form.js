@@ -47,10 +47,10 @@ class BaseSelectorForm extends Page {
     }
 
     async swapOptions(sourceName, destinationName) {
-        let sourceElem = this.selectedOptionByDisplayName(sourceName);
-        let destinationElem = this.selectedOptionByDisplayName(destinationName);
-        let source = await this.findElement(sourceElem);
-        let destination = await this.findElement(destinationElem);
+        let sourceLocator = this.selectedOptionByDisplayName(sourceName);
+        let destinationLocator = this.selectedOptionByDisplayName(destinationName);
+        let source = await this.findElement(sourceLocator);
+        let destination = await this.findElement(destinationLocator);
         await source.dragAndDrop(destination);
         return await this.pause(1000);
     }
