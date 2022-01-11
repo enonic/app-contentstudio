@@ -67,6 +67,7 @@ module.exports = Object.freeze({
     APP_CONTENT_TYPES: 'All Content Types App',
     SIMPLE_SITE_APP: 'Simple Site App',
     MY_FIRST_APP: "My First App",
+    FIRST_SELENIUM_APP: "First Selenium App",
     APP_WITH_CONFIGURATOR: 'Second Selenium App',
     APP_WITH_METADATA_MIXIN: 'Third Selenium App',
     THIS_FIELD_IS_REQUIRED: 'This field is required',

@@ -6,7 +6,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
@@ -16,7 +15,7 @@ const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const appConst = require('../libs/app_const');
 
 describe('site.with.meta.fields.spec: verifies application-metadata in a site-wizard', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
     let SITE;
@@ -24,7 +23,7 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site-meta');
-            SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConstant.APP_WITH_METADATA_MIXIN]);
+            SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConst.APP_WITH_METADATA_MIXIN]);
             //1. New site is added:
             await studioUtils.doAddSite(SITE);
             //2. Type the name in the filter-panel:
@@ -73,12 +72,12 @@ describe('site.with.meta.fields.spec: verifies application-metadata in a site-wi
             let siteFormPanel = new SiteFormPanel();
             let contentWizard = new ContentWizard();
             let displayName = contentBuilder.generateRandomName('site-meta');
-            let testSite = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConstant.APP_WITH_METADATA_MIXIN]);
+            let testSite = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConst.APP_WITH_METADATA_MIXIN]);
             //1. New site-wizard is opened:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizard.typeDisplayName(testSite.displayName);
             //2. Application with controllers has been selected:
-            await siteFormPanel.addApplications([appConstant.APP_WITH_METADATA_MIXIN]);
+            await siteFormPanel.addApplications([appConst.APP_WITH_METADATA_MIXIN]);
             //the site automatically saved:
             //3. Description has been typed:
             await metadataStepForm.typeDescription('test description');
