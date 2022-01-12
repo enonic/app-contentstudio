@@ -160,6 +160,7 @@
         overflow: hidden;
         white-space: pre;
         line-height: 20px;
+        color: @admin-dark-gray;
         .ellipsis();
 
         &::before {
@@ -252,8 +253,8 @@
           }
 
           &.manual {
-            .label {
-              color: @admin-button-blue2;
+            &.active {
+              outline: 1px solid @admin-button-blue2;
             }
           }
         }

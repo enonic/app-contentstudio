@@ -147,13 +147,15 @@ export class SortContentDialog
     private saveSortOrder(): Q.Promise<any> {
         this.showLoadingSpinner();
 
+        if (this.sortContentMenu.isInheritedItemSelected()) {
+            return this.saveInheritedOrder();
+        }
+
         if (this.getSelectedOrder().isManual()) {
             return this.saveManualOrder();
-        } else if (this.sortContentMenu.isInheritedItemSelected()) {
-            return this.saveInheritedOrder();
-        } else {
-            return this.saveContentChildOrder();
         }
+
+        return this.saveContentChildOrder();
     }
 
     private handleOpenSortDialogEvent(event: OpenSortDialogEvent) {
