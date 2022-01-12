@@ -12,6 +12,10 @@ import {FormContext} from 'lib-admin-ui/form/FormContext';
 import {InputBuilder} from 'lib-admin-ui/form/Input';
 import {OccurrencesBuilder} from 'lib-admin-ui/form/Occurrences';
 import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
+import {Button} from 'lib-admin-ui/ui/button/Button';
+import {DateTime} from 'lib-admin-ui/util/DateTime';
+import {Value} from 'lib-admin-ui/data/Value';
+import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
 
 export class PublishScheduleForm
     extends DivEl {
@@ -20,6 +24,8 @@ export class PublishScheduleForm
     private scheduleFormWrapper: DivEl;
     private formVisibilityListeners: { (flag: boolean): void }[] = [];
     private externalToggles: ButtonEl[] = [];
+    private rangeFormItem;
+    private isNow: boolean = false;
 
     createExternalToggle(): ButtonEl {
         const b = new ButtonEl();
@@ -41,7 +47,8 @@ export class PublishScheduleForm
             this.toggleClass('invalid', !record.isValid());
         });
 
-        const scheduleForm = new FormBuilder().addFormItem(this.createRangeFormItem()).build();
+        this.rangeFormItem = this.createRangeFormItem();
+        const scheduleForm = new FormBuilder().addFormItem(this.rangeFormItem).build();
         this.scheduleFormView = new FormView(FormContext.create().build(), scheduleForm, propertySet);
 
         const removeButton = new AEl('remove-button icon-close');
@@ -51,8 +58,28 @@ export class PublishScheduleForm
             this.setFormVisible(false);
         });
 
+        const nowButton = new Button('Now');
+        nowButton.onClicked(() => {
+            if (!this.isNow) {
+                this.setNow();
+                const dateset = propertySet.getProperty('publish')?.getPropertySet();
+                if (dateset.getProperty('from', 0)) {
+                    dateset.removeProperty('from', 0);
+                }
+                dateset.setProperty('from', 0,
+                    new Value(
+                        DateTime.fromDate(new Date(Date.now())),
+                        ValueTypes.DATE_TIME
+                    ));
+                this.scheduleFormView.update(propertySet);
+            }
+        });
+
         this.scheduleFormWrapper = new DivEl('form-wrapper');
-        this.scheduleFormWrapper.appendChildren<Element>(this.scheduleFormView, removeButton);
+        this.scheduleFormWrapper.appendChildren<Element>(
+            this.scheduleFormView,
+            nowButton,
+            removeButton);
     }
 
     private createRangeFormItem(): FormItem {
@@ -70,6 +97,20 @@ export class PublishScheduleForm
             .build();
     }
 
+    public getNow(): boolean {
+        return this.isNow;
+    }
+
+    private setNow(): void {
+        this.isNow = true;
+        this.addClass('set-now');
+    }
+
+    private removeNow(): void {
+        this.isNow = true;
+        this.removeClass('set-now');
+    }
+
     public layout(validate: boolean) {
         this.scheduleFormView.displayValidationErrors(false);
         this.scheduleFormView.layout(validate);
@@ -78,6 +119,7 @@ export class PublishScheduleForm
     }
 
     public update(propertySet: PropertySet): Q.Promise<void> {
+        this.removeNow();
         return this.scheduleFormView.update(propertySet);
     }
 
@@ -94,6 +136,7 @@ export class PublishScheduleForm
             }
 
             this.removeClass('invalid');
+            this.removeNow();
         }
 
         if (!silent) {
@@ -110,9 +153,11 @@ export class PublishScheduleForm
     public isFormValid() {
         const isScheduleValid = this.scheduleFormView.isValid();
         const dateSet = this.scheduleFormView.getData().getProperty('publish').getPropertySet();
+
         if (!isScheduleValid || !dateSet) {
             return false;
         }
+
         const from = dateSet.getProperty('from', 0);
         const to = dateSet.getProperty('to', 0);
         return from && from.hasNonNullValue() || to && to.hasNonNullValue();
