@@ -141,6 +141,7 @@ import {MovedContentItem} from '../browse/MovedContentItem';
 import {ContentAppHelper} from './ContentAppHelper';
 import {UrlHelper} from '../util/UrlHelper';
 import {RenderingMode} from '../rendering/RenderingMode';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
