@@ -16,6 +16,7 @@ import {MacroDescriptor} from 'lib-admin-ui/macro/MacroDescriptor';
 import {MacrosLoader} from '../../../../macro/resource/MacrosLoader';
 import {GetMacrosRequest} from '../../../../macro/resource/GetMacrosRequest';
 import {MacroComboBox} from '../../../../macro/MacroComboBox';
+import * as DOMPurify from 'dompurify';
 
 export interface MacroModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -173,14 +174,29 @@ export class MacroModalDialog
         return request.sendAndParse();
     }
 
+    private sanitize(value: string): string {
+        const macroName = (<MacroComboBox>this.macroFormItem.getInput()).getValue().toUpperCase();
+
+        if (macroName === 'SYSTEM:DISABLE') {
+            return value;
+        }
+
+        if (macroName === 'SYSTEM:EMBED') {
+            return DOMPurify.sanitize(value, {ADD_TAGS: ['iframe']});
+        }
+
+        return DOMPurify.sanitize(value);
+    }
+
     private makeData(): PropertySet {
         const data: PropertySet = new PropertySet();
 
         this.selectedMacro.attributes.forEach(item => {
-            data.addString(item[0], item[1]);
+            data.addString(item[0], DOMPurify.sanitize(item[1]));
         });
+
         if (this.selectedMacro.body) {
-            data.addString('body', this.selectedMacro.body);
+            data.addString('body', this.sanitize(this.selectedMacro.body));
         }
 
         return data;
@@ -191,7 +207,7 @@ export class MacroModalDialog
             if (this.selectedMacro) {
                 this.insertUpdatedMacroIntoTextArea(macroString);
             } else {
-                this.getEditor().insertText(macroString);
+                this.getEditor().insertText(this.sanitize(macroString));
             }
 
             this.close();
@@ -202,8 +218,8 @@ export class MacroModalDialog
     }
 
     private insertUpdatedMacroIntoTextArea(macroString: string) {
-        this.selectedMacro.element.setText(
-            this.selectedMacro.element.getText().replace(this.selectedMacro.macroText, macroString));
+        this.selectedMacro.element.$.innerText = this.sanitize(macroString);
+
         this.getEditor().fire('saveSnapshot'); // to trigger change event
     }
 
