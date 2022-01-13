@@ -31,16 +31,11 @@
     background-color: white; //override liveFormPanels background color to get default browser background color for iframe
     -webkit-backface-visibility: hidden;
     margin: 0 auto;
-    display: none;
     width: 100%;
     height: 100%;
     border: 0 none;
     padding: 0;
     overflow: auto;
-
-    &.shown {
-      display: block;
-    }
   }
 
   .no-preview-message {
@@ -58,6 +53,33 @@
       display: none;
     }
     background-color: @admin-white;
+  }
+
+  .page-placeholder {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #e6f1fe;
+
+    &-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      &-line1 {
+        font-size: 22px;
+        color: @admin-dark-gray;
+        margin-bottom: 10px;
+      }
+
+      &-line2 {
+        font-size: 14px;
+        color: @admin-font-gray1;
+      }
+    }
   }
 }
 

@@ -438,7 +438,7 @@ export class LiveFormPanel
 
             this.frameContainer = new Panel('frame-container');
             this.frameContainer.appendChildren<Element>(this.liveEditPageProxy.getIFrame(),
-                this.liveEditPageProxy.getPlaceholderIFrame(), this.liveEditPageProxy.getDragMask());
+                this.liveEditPageProxy.getPlaceholderEl(), this.liveEditPageProxy.getDragMask());
 
             this.previewMessageEl = new PEl('no-preview-message');
 

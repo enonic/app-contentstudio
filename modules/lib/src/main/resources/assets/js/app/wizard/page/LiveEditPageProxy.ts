@@ -54,6 +54,8 @@ import {IEObjectHolder} from './IEObjectHolder';
 import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
 import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
 import {Descriptor} from '../../page/Descriptor';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {LiveEditPagePlaceholder} from './LiveEditPagePlaceholder';
 
 declare let CONFIG;
 
@@ -65,7 +67,7 @@ export class LiveEditPageProxy {
 
     private liveEditIFrame: IFrameEl;
 
-    private placeholderIFrame: IFrameEl;
+    private placeholderEl: LiveEditPagePlaceholder;
 
     private liveEditWindow: any;
 
@@ -140,7 +142,7 @@ export class LiveEditPageProxy {
     constructor() {
 
         this.liveEditIFrame = this.createLiveEditIFrame();
-        this.placeholderIFrame = this.createPlaceholderIFrame();
+        this.placeholderEl = this.createPlaceholderEl();
 
         this.dragMask = new DragMask(this.liveEditIFrame);
 
@@ -170,13 +172,10 @@ export class LiveEditPageProxy {
         return liveEditIFrame;
     }
 
-    private createPlaceholderIFrame(): IFrameEl {
-        const placeholderIFrame = new IFrameEl('live-edit-frame-blank');
-        placeholderIFrame.setSrc(CONFIG.assetsUri + '/page-editor/_blank.html');
+    private createPlaceholderEl(): DivEl {
+        const placeholderEl = new LiveEditPagePlaceholder();
 
-        placeholderIFrame.onLoaded(() => this.handlePlaceholderIFrameLoadedEvent(placeholderIFrame));
-
-        placeholderIFrame.onAdded(() => {
+        placeholderEl.onAdded(() => {
             if (this.liveEditModel && this.liveEditModel.getSiteModel()) {
                 this.liveEditModel.getSiteModel().onApplicationAdded(() => {
                     this.hidePlaceholderAndShowEditor();
@@ -184,7 +183,7 @@ export class LiveEditPageProxy {
             }
         });
 
-        return placeholderIFrame;
+        return placeholderEl;
     }
 
     // this helps to put horizontal scrollbar in the bottom of live edit frame
@@ -272,8 +271,8 @@ export class LiveEditPageProxy {
         return this.liveEditIFrame;
     }
 
-    public getPlaceholderIFrame(): IFrameEl {
-        return this.placeholderIFrame;
+    public getPlaceholderEl(): DivEl {
+        return this.placeholderEl;
     }
 
     public getJQuery(): JQueryStatic {
@@ -360,17 +359,17 @@ export class LiveEditPageProxy {
     }
 
     public isPlaceholderVisible(): boolean {
-        return this.placeholderIFrame.hasClass('shown');
+        return this.placeholderEl.isVisible();
     }
 
     private hideEditorAndShowPlaceholder() {
-        this.liveEditIFrame.removeClass('shown');
-        this.placeholderIFrame.addClass('shown');
+        this.liveEditIFrame.hide();
+        this.placeholderEl.show();
     }
 
     private hidePlaceholderAndShowEditor() {
-        this.placeholderIFrame.removeClass('shown');
-        this.liveEditIFrame.addClass('shown');
+        this.placeholderEl.hide();
+        this.liveEditIFrame.show();
     }
 
     public skipNextReloadConfirmation(skip: boolean) {
