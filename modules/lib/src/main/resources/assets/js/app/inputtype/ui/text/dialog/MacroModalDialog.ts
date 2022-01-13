@@ -16,6 +16,7 @@ import {MacroDescriptor} from 'lib-admin-ui/macro/MacroDescriptor';
 import {MacrosLoader} from '../../../../macro/resource/MacrosLoader';
 import {GetMacrosRequest} from '../../../../macro/resource/GetMacrosRequest';
 import {MacroComboBox} from '../../../../macro/MacroComboBox';
+import * as DOMPurify from 'dompurify';
 
 export interface MacroModalDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -173,6 +174,14 @@ export class MacroModalDialog
         return request.sendAndParse();
     }
 
+    private getSanitizedMacroBody(): string {
+        const macroBody = this.selectedMacro.element.$.innerText
+            .replace(/\[(.*?)\]/, '')
+            .replace(`[/${this.selectedMacro.name}]`, '');
+
+        return DOMPurify.sanitize(macroBody);
+    }
+
     private makeData(): PropertySet {
         const data: PropertySet = new PropertySet();
 
@@ -180,7 +189,7 @@ export class MacroModalDialog
             data.addString(item[0], item[1]);
         });
         if (this.selectedMacro.body) {
-            data.addString('body', this.selectedMacro.body);
+            data.addString('body', this.getSanitizedMacroBody());
         }
 
         return data;
@@ -191,7 +200,7 @@ export class MacroModalDialog
             if (this.selectedMacro) {
                 this.insertUpdatedMacroIntoTextArea(macroString);
             } else {
-                this.getEditor().insertText(macroString);
+                this.getEditor().insertText(DOMPurify.sanitize(macroString));
             }
 
             this.close();
@@ -202,8 +211,8 @@ export class MacroModalDialog
     }
 
     private insertUpdatedMacroIntoTextArea(macroString: string) {
-        this.selectedMacro.element.setText(
-            this.selectedMacro.element.getText().replace(this.selectedMacro.macroText, macroString));
+        this.selectedMacro.element.$.innerText = DOMPurify.sanitize(macroString);
+
         this.getEditor().fire('saveSnapshot'); // to trigger change event
     }
 
