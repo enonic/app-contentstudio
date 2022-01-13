@@ -32,7 +32,8 @@ function handleGet() {
             i18nUrl: portal.serviceUrl({service: 'i18n'}),
             contentServiceUrl: portal.serviceUrl({service: 'content'}),
             adminToolsUrl: portal.serviceUrl({service: 'admintools'}),
-            licenseUrl: portal.serviceUrl({service: 'license'})
+            licenseUrl: portal.serviceUrl({service: 'license'}),
+            collaborationUrl: portal.serviceUrl({service: 'collaboration'})
         },
         allowContentUpdate,
         allowPathTransliteration,
