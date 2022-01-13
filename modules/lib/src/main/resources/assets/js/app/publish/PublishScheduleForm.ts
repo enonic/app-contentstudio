@@ -13,9 +13,10 @@ import {InputBuilder} from 'lib-admin-ui/form/Input';
 import {OccurrencesBuilder} from 'lib-admin-ui/form/Occurrences';
 import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
 import {Button} from 'lib-admin-ui/ui/button/Button';
-import {DateTime} from 'lib-admin-ui/util/DateTime';
+import {LocalDateTime} from 'lib-admin-ui/util/LocalDateTime';
 import {Value} from 'lib-admin-ui/data/Value';
 import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
+
 
 export class PublishScheduleForm
     extends DivEl {
@@ -25,7 +26,7 @@ export class PublishScheduleForm
     private formVisibilityListeners: { (flag: boolean): void }[] = [];
     private externalToggles: ButtonEl[] = [];
     private rangeFormItem;
-    private isNow: boolean = false;
+    private hasFromNowValue: boolean = false;
 
     createExternalToggle(): ButtonEl {
         const b = new ButtonEl();
@@ -60,18 +61,12 @@ export class PublishScheduleForm
 
         const nowButton = new Button('Now');
         nowButton.onClicked(() => {
-            if (!this.isNow) {
+            if (!this.hasFromNowValue) {
                 this.setNow();
-                const dateset = propertySet.getProperty('publish')?.getPropertySet();
-                if (dateset.getProperty('from', 0)) {
-                    dateset.removeProperty('from', 0);
-                }
-                dateset.setProperty('from', 0,
-                    new Value(
-                        DateTime.fromDate(new Date(Date.now())),
-                        ValueTypes.DATE_TIME
-                    ));
-                this.scheduleFormView.update(propertySet);
+
+                const formPropertyData =  this.scheduleFormView.getData();
+
+                this.update(formPropertyData);
             }
         });
 
@@ -98,16 +93,16 @@ export class PublishScheduleForm
     }
 
     public getNow(): boolean {
-        return this.isNow;
+        return this.hasFromNowValue;
     }
 
     private setNow(): void {
-        this.isNow = true;
+        this.hasFromNowValue = true;
         this.addClass('set-now');
     }
 
     private removeNow(): void {
-        this.isNow = true;
+        this.hasFromNowValue = false;
         this.removeClass('set-now');
     }
 
@@ -119,7 +114,19 @@ export class PublishScheduleForm
     }
 
     public update(propertySet: PropertySet): Q.Promise<void> {
-        this.removeNow();
+        if (this.hasFromNowValue) {
+            const formViewPublishProperty =  this.scheduleFormView.getData().getProperty('publish');
+            const publishProperty = propertySet.getProperty('publish');
+            let pSet;
+            if (publishProperty.hasNonNullValue()) {
+                pSet = publishProperty.getPropertySet();
+            } else {
+                pSet = new PropertySet();
+                propertySet.setProperty('publish', 0, new Value(pSet, ValueTypes.DATA));
+            }
+            pSet.setLocalDateTimeByPath('from', LocalDateTime.fromDate(new Date(Date.now())));
+        }
+        console.log(propertySet);
         return this.scheduleFormView.update(propertySet);
     }
 
