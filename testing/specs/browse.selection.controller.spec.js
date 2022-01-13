@@ -84,7 +84,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("book");
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("cape");
             //"Selection Controller checkbox shows that the selection is partial"
-           await contentBrowsePanel.waitForSelectionControllerPartial();
+            await contentBrowsePanel.waitForSelectionControllerPartial();
             //3. Click on Selection Toggle (circle, Show Selection):
             await contentBrowsePanel.clickOnSelectionToggler();
             await contentBrowsePanel.pause(1000);
@@ -92,6 +92,12 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             await studioUtils.saveScreenshot("selection_toggle_clicked_checkbox_selected");
             let result = await contentBrowsePanel.isSelectionControllerSelected();
             assert.isTrue(result, "Selection Controller checkBox should be selected");
+            //5. Verify that two items should be present in the filtered grid;
+            let items = await contentBrowsePanel.getDisplayNamesInGrid();
+            assert.equal(items.length, 2, "Two items should be in the filtered grid");
+            //6. Number 2  should be displayed in the selection toggler circle:
+            let number = await contentBrowsePanel.getNumberInSelectionToggler();
+            assert.equal(number, 2, "2 should be displayed in the circle");
         });
 
     it("WHEN 'Show Selection' and 'Hide Selection' sequentially clicked in filtered grid THEN 'Selection Controller' checkbox gets partial AND initial state of the grid is restored",

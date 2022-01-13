@@ -123,6 +123,8 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
             let htmlAreaForm = new HtmlAreaForm();
             //1. Open the existing htmlarea content with an inserted macro:
             await studioUtils.selectAndOpenContentInWizard(CONTENT_NAME_1);
+            await htmlAreaForm.pause(1000);
+            await studioUtils.saveScreenshot("macro_content_reopened");
             //2. Verify the html code in the htmlArea:
             let htmlCode = await htmlAreaForm.getTextInHtmlArea(0);
             assert.equal(htmlCode.trim(), MACRO_HTML, "Expected html code should be present in the htmlarea");

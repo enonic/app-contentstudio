@@ -61,7 +61,16 @@ class BrowseFilterPanel extends Page {
         let selector = XPATH.aggregationLabelByName(contentType);
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         await this.clickOnElement(selector);
-        return await this.pause(400);
+        return await this.pause(1000);
+    }
+
+    async getNumberOfItemsInAggregationView(contentType) {
+        let locator = XPATH.aggregationLabelByName(contentType);
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+        let label = await this.getText(locator);
+        let startIndex = label.indexOf('(');
+        let endIndex = label.indexOf(')');
+        return label.substring(startIndex + 1, endIndex);
     }
 }
 

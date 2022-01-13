@@ -123,7 +123,7 @@ describe('Text Component with CKE - insert link and table specification', functi
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem(SITE.displayName);
-            studioUtils.saveScreenshot('enonic_loaded_in_preview_panel');
+            await studioUtils.saveScreenshot('link_loaded_in_preview_panel');
             await contentItemPreviewPanel.waitForElementDisplayedInFrame('a=test');
         });
 
