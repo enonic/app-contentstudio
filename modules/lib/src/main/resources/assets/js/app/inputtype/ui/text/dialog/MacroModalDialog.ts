@@ -174,12 +174,26 @@ export class MacroModalDialog
         return request.sendAndParse();
     }
 
+    private sanitize(value: string): string {
+        const macroName = (<MacroComboBox>this.macroFormItem.getInput()).getValue().toUpperCase();
+
+        if (macroName === 'SYSTEM:DISABLE') {
+            return value;
+        }
+
+        if (macroName === 'SYSTEM:EMBED') {
+            return DOMPurify.sanitize(value, {ADD_TAGS: ['iframe']});
+        }
+
+        return DOMPurify.sanitize(value);
+    }
+
     private getSanitizedMacroBody(): string {
         const macroBody = this.selectedMacro.element.$.innerText
             .replace(/\[(.*?)\]/, '')
             .replace(`[/${this.selectedMacro.name}]`, '');
 
-        return DOMPurify.sanitize(macroBody);
+        return this.sanitize(macroBody);
     }
 
     private makeData(): PropertySet {
@@ -200,7 +214,7 @@ export class MacroModalDialog
             if (this.selectedMacro) {
                 this.insertUpdatedMacroIntoTextArea(macroString);
             } else {
-                this.getEditor().insertText(DOMPurify.sanitize(macroString));
+                this.getEditor().insertText(this.sanitize(macroString));
             }
 
             this.close();
@@ -211,7 +225,7 @@ export class MacroModalDialog
     }
 
     private insertUpdatedMacroIntoTextArea(macroString: string) {
-        this.selectedMacro.element.$.innerText = DOMPurify.sanitize(macroString);
+        this.selectedMacro.element.$.innerText = this.sanitize(macroString);
 
         this.getEditor().fire('saveSnapshot'); // to trigger change event
     }
