@@ -8,12 +8,15 @@
     & > .@{_CLS_PREFIX}page-placeholder {
       height: 100%;
       margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
       .@{_CLS_PREFIX}page-descriptor-placeholder {
-        position: absolute;
-        top: 50%;
-        margin-top: -58px;
-        width: calc(~'100% - 30px');
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
       }
 
       .page-placeholder-info {
