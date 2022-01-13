@@ -136,6 +136,7 @@ import {DockedContextPanel} from '../view/context/DockedContextPanel';
 import {ContentWizardContextSplitPanel} from './ContentWizardContextSplitPanel';
 import {ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextPanelState} from '../view/context/ContextPanelState';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -728,8 +729,30 @@ export class ContentWizardPanel
                 thumbnailUploader.addClass('site');
             }
 
+            const wsUrl = UriHelper.joinPath(this.getWebSocketUriPrefix(), CONFIG.services.collaborationUrl);
+            const ws = new WebSocket(`${wsUrl}?contentId=${this.getPersistedItem().getId()}`);
+            ws.addEventListener('close', function (event){
+                console.log(`Close... ${JSON.stringify(event)}`);
+            });
+            ws.addEventListener('open', function (event){
+                console.log(`Open... ${JSON.stringify(event)}`);
+            });
+            ws.addEventListener('error', function (event){
+                console.log(`Error... ${JSON.stringify(event)}`);
+            });
+            ws.addEventListener('message', function (event){
+                console.log(`Message... ${JSON.stringify(event)}`);
+            });
+
             return rendered;
         });
+    }
+
+    private getWebSocketUriPrefix(): string {
+        const loc: Location = window.location;
+        const prefix: string = loc.protocol === 'https:' ? 'wss:' : 'ws:';
+
+        return `${prefix}//${loc.host}`;
     }
 
     protected prepareMainPanel(): Panel {
