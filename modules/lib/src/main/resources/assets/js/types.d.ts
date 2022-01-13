@@ -20,7 +20,8 @@ declare const CONFIG: {
         contentUrl: string,
         i18nUrl: string,
         stylesUrl: string,
-        adminToolsUrl: string
+        adminToolsUrl: string,
+        collaborationUrl: string
     }
     theme: string
 };
