@@ -66,6 +66,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     get treeGridToolbar() {
         return XPATH.treeGridToolbar;
     }
+
     get archiveButton() {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Archive...']]`;
     }
@@ -142,7 +143,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return `${XPATH.toolbar}/*[contains(@id, 'ActionButton') and child::span[text()='Edit']]`;
     }
 
-    get numberInToggler() {
+    get numberInSelectionToggler() {
         return XPATH.treeGridToolbar + XPATH.numberInSelectionToggler;
     }
 
@@ -879,6 +880,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     getDisplayNameInHighlightedRow() {
         let locator = XPATH.highlightedRow + lib.H6_DISPLAY_NAME;
         return this.getText(locator);
+    }
+
+    async getNumberInSelectionToggler() {
+        await this.waitForElementDisplayed(this.numberInSelectionToggler, appConst.mediumTimeout);
+        return await this.getText(this.numberInSelectionToggler);
     }
 }
 
