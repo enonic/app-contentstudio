@@ -101,9 +101,10 @@ CKEDITOR.plugins.add('macro', {
 
         function checkMacroWithBodySelected() {
             var regexMacroWithBody = /\[(\w+[\w-]*)[^\]]*\]([^\[]*)\[\/(\w+[\w-]*)\]/g;
-
             var result;
-            while (result = regexMacroWithBody.exec(selectedElement.getText())) {
+
+            // using innerText instead of getText() to preserve line breaks and spaces
+            while (result = regexMacroWithBody.exec(selectedElement.$.innerText)) {
                 if (result[1] === result[3] && isSelectionWithinMacro(result)) {
                     selectedMacro = makeMakroObject(result);
                     selectedMacro.body = result[2];
@@ -114,9 +115,10 @@ CKEDITOR.plugins.add('macro', {
 
         function checkMacroNoBodySelected() {
             var regexMacroNoBody = /\[(\w+[\w-]*)[^\]]*\/\]/g;
-
             var result;
-            while (result = regexMacroNoBody.exec(selectedElement.getText())) {
+
+            // using innerText instead of getText() to preserve line breaks and spaces
+            while (result = regexMacroNoBody.exec(selectedElement.$.innerText)) {
                 if (isSelectionWithinMacro(result)) {
                     selectedMacro = makeMakroObject(result);
                     break;
