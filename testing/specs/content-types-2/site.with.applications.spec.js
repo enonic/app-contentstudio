@@ -31,6 +31,7 @@ describe('site.with.applications.spec: swaps applications in the site-form', fun
             await siteFormPanel.addApplications(applications);
             //3. the site should be automatically saved:
             await contentWizard.waitForSaveButtonDisabled();
+            await contentWizard.pause(2000);
             let apps = await siteFormPanel.getAppDisplayNames();
             assert.equal(apps[0], appConst.FIRST_SELENIUM_APP, "Expected application be first from the top");
             //4. two applications have been selected

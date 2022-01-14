@@ -6,7 +6,13 @@ const XPATH = {
     applyButton: `//button[contains(@id,'DialogButton') and child::span[text()='Apply']]`,
     cancelButton: `//button[contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
     imageSelectorOptionFilterInput: `//div[contains(@id,'ImageContentComboBox')]//input[contains(@id,'ComboBoxOptionFilterInput')]`,
-    trackingIdTextInput: "//input[contains(@name,'trackingId')]"
+    trackingIdTextInput: "//input[contains(@name,'trackingId')]",
+    getTextInHtmlArea: function (id) {
+        return `return CKEDITOR.instances['${id}'].getData()`
+    },
+    typeText: function (id, text) {
+        return `CKEDITOR.instances['${id}'].setData('${text}')`;
+    },
 };
 
 class SiteConfiguratorDialog extends Page {
@@ -16,7 +22,7 @@ class SiteConfiguratorDialog extends Page {
     }
 
     get cancelButtonTop() {
-        return XPATH.container + XPATH.cancelButton;
+        return XPATH.container + lib.CANCEL_BUTTON_TOP;
     }
 
     get applyButton() {
@@ -45,16 +51,24 @@ class SiteConfiguratorDialog extends Page {
         }
     }
 
-    showToolbarAndClickOnInsertImageButton() {
+    async showToolbarAndClickOnInsertImageButton() {
         let areaSelector = `//div[contains(@id,'cke_TextArea')]`;
         let insertImageButton = `//a[contains(@class,'cke_button') and contains(@title,'Image')]`;
-        return this.waitForElementDisplayed(areaSelector, appConst.mediumTimeout).then(() => {
-            return this.clickOnElement(areaSelector);
-        }).then(() => {
-            return this.waitForElementDisplayed(insertImageButton, appConst.mediumTimeout);
-        }).then(() => {
-            return this.clickOnElement(insertImageButton);
-        })
+        await this.waitForElementDisplayed(areaSelector, appConst.mediumTimeout);
+        await this.clickOnElement(areaSelector);
+        await this.waitForElementDisplayed(insertImageButton, appConst.mediumTimeout);
+        await this.clickOnElement(insertImageButton);
+        return await this.pause(300);
+    }
+
+    async showToolbarAndClickOnInsertLinkButton() {
+        let areaSelector = `//div[contains(@id,'cke_TextArea')]`;
+        let insertLinkButton = "//a[contains(@class,'cke_button') and contains(@title,'Link')]";
+        await this.waitForElementDisplayed(areaSelector, appConst.mediumTimeout);
+        await this.clickOnElement(areaSelector);
+        await this.waitForElementDisplayed(insertLinkButton, appConst.mediumTimeout);
+        await this.clickOnElement(insertLinkButton);
+        return await this.pause(300);
     }
 
     clickOnCancelButton() {
@@ -81,6 +95,32 @@ class SiteConfiguratorDialog extends Page {
 
     waitForDialogClosed() {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.shortTimeout);
+    }
+
+    async getIdOfHtmlAreas() {
+        let locator = XPATH.container + lib.FORM_VIEW + lib.TEXT_AREA;
+        let elements = await this.findElements(locator);
+        let ids = [];
+        elements.forEach(el => {
+            ids.push(el.getAttribute("id"));
+        });
+        return Promise.all(ids);
+    }
+
+    async getTextInHtmlArea(index) {
+        let ids = await this.getIdOfHtmlAreas();
+        let text = await this.execute(XPATH.getTextInHtmlArea(ids[index]));
+        return text;
+    }
+
+    async insertTextInHtmlArea(index, text) {
+        let ids = await this.getIdOfHtmlAreas();
+        await this.execute(XPATH.typeText(ids[index], text));
+        return await this.pause(300);
+    }
+
+    clickOnCancelTopButton() {
+        return this.clickOnElement(this.cancelButtonTop);
     }
 }
 

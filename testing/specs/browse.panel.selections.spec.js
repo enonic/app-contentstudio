@@ -101,9 +101,11 @@ describe('Browse panel selections spec', function () {
             //3. Click on 'Selection Controller' checkbox:
             await contentBrowsePanel.clickOnSelectionControllerCheckbox();
             await studioUtils.saveScreenshot("after_sel_controller");
-            //2. Verify that no selected rows now: (the row gets unselected)
+            //4. Verify that no selected rows now: (the row gets unselected)
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(number2, 0, "There should be no selected rows");
+            //5. Verify that Selection toggle(circle) gets not visible:
+            await contentBrowsePanel.waitForSelectionTogglerNotVisible();
         });
 
     it("GIVEN a content is highlighted WHEN the content unhighlighted THEN grid toolbar returns to the initial state",
@@ -125,7 +127,7 @@ describe('Browse panel selections spec', function () {
             await contentBrowsePanel.waitForEditButtonDisabled();
         });
 
-    it("WHEN 'Selection Controller' has been checked THEN 'New' button should be disabled and 'Archive', 'Duplicate' are enabled",
+    it("WHEN 'Selection Controller' checkbox has been clicked THEN 'New' button should be disabled and 'Archive', 'Duplicate' are enabled",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.pause(2000);
@@ -154,7 +156,7 @@ describe('Browse panel selections spec', function () {
             let number2 = await contentBrowsePanel.getNumberOfCheckedRows();
             assert.equal(number2, 0, "the number of checked rows is 0");
             let isVisible = await contentBrowsePanel.waitForSelectionTogglerVisible();
-            assert.isFalse(isVisible, "'Selection Toggler' should not be visible on the toolbar");
+            assert.isFalse(isVisible, "'Selection Toggler' should not be visible in the toolbar");
         });
 
     it("WHEN one row with content has been checked THEN the row gets checked AND 'Selection Toggler' gets visible",

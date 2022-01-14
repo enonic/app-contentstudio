@@ -50,6 +50,7 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
             await insertMacroModalDialog.waitForIframeDisplayed(ENONIC_URL);
             //7. Click on Insert button:
             await insertMacroModalDialog.clickOnInsertButton();
+            await insertMacroModalDialog.pause(500);
             //8. Verify the text in htmlArea:
             let actualHtmlCode = await htmlAreaForm.getTextInHtmlArea(0);
             assert.isTrue(actualHtmlCode.includes(ENONIC_URL), "Expected URL should be present in htmlArea");
