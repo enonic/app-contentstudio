@@ -196,7 +196,7 @@ export class MacroModalDialog
         });
 
         if (this.selectedMacro.body) {
-            data.addString('body', DOMPurify.sanitize(this.selectedMacro.body));
+            data.addString('body', this.sanitize(this.selectedMacro.body));
         }
 
         return data;
