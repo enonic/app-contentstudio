@@ -89,7 +89,7 @@ module.exports = Object.freeze({
     ADD_BUTTON: "//div[contains(@class,'bottom-button-row')]//button[child::span[text()='Add']]",
     SHOW_DEPENDENT_ITEM_LINK: `//h6[@class='dependants-header' and contains(.,'Show dependent items')]`,
     COMPARE_WITH_CURRENT_VERSION: `//button[contains(@id,'ActionButton') and @title='Compare with current version']`,
-    LIVE_EDIT_FRAME: "//iframe[contains(@class,'live-edit-frame shown')]",
+    LIVE_EDIT_FRAME: "//iframe[contains(@class,'live-edit-frame')]",
     APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
     SETTINGS_BUTTON: "//button[contains(@id,AppModeButton) and child::span[text()='Settings']]",
     MODE_CONTENT_BUTTON: "//button[contains(@id,AppModeButton) and @title='Content']",
