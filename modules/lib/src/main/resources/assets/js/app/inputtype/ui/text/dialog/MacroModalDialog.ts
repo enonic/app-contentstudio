@@ -188,22 +188,15 @@ export class MacroModalDialog
         return DOMPurify.sanitize(value);
     }
 
-    private getSanitizedMacroBody(): string {
-        const macroBody = this.selectedMacro.element.$.innerText
-            .replace(/\[(.*?)\]/, '')
-            .replace(`[/${this.selectedMacro.name}]`, '');
-
-        return this.sanitize(macroBody);
-    }
-
     private makeData(): PropertySet {
         const data: PropertySet = new PropertySet();
 
         this.selectedMacro.attributes.forEach(item => {
-            data.addString(item[0], item[1]);
+            data.addString(item[0], DOMPurify.sanitize(item[1]));
         });
+
         if (this.selectedMacro.body) {
-            data.addString('body', this.getSanitizedMacroBody());
+            data.addString('body', DOMPurify.sanitize(this.selectedMacro.body));
         }
 
         return data;
