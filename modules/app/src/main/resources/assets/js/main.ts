@@ -55,6 +55,7 @@ import {ContentApp} from 'lib-contentstudio/app/ContentApp';
 import {SettingsApp} from 'lib-contentstudio/app/settings/SettingsApp';
 import {Store} from 'lib-admin-ui/store/Store';
 import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -123,7 +124,7 @@ function initApplicationEventListener() {
                 return;
             }
             appStatusCheckInterval = setInterval(() => {
-                if (!messageId && CONFIG.appId === event.getApplicationKey().toString()) {
+                if (!messageId && CONFIG.get('appId') === event.getApplicationKey().toString()) {
                     NotifyManager.get().hide(messageId);
                     messageId = showError(i18n('notify.application.notAvailable'), false);
                 }
@@ -399,7 +400,8 @@ async function startContentWizard(wizardParams: ContentWizardPanelParams, connec
 }
 
 function getTheme(): string {
-    return CONFIG.theme ? (`theme-${CONFIG.theme}` || '') : '';
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    return CONFIG.has('theme') ? (`theme-${CONFIG.get('theme')}` || '') : '';
 }
 
 async function startContentBrowser() {
@@ -505,7 +507,15 @@ function initProjectContext(application: Application): Q.Promise<void> {
 }
 
 (async () => {
-    await i18nInit(CONFIG.services.i18nUrl);
+    const configServiceUrl = document.currentScript?.getAttribute('data-config-service-url');
+    if (!configServiceUrl) {
+        throw 'Unable to fetch app config';
+    }
+
+    await CONFIG.init(configServiceUrl);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    await i18nInit(CONFIG.get('services.i18nUrl'));
 
     preLoadApplication();
 

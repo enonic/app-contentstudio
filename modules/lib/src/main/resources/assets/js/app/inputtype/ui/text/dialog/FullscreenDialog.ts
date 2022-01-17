@@ -5,6 +5,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
 import {HtmlEditorParams} from '../HtmlEditorParams';
 import {HtmlEditor, HtmlEditorCursorPosition} from '../HtmlEditor';
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export interface FullscreenDialogConfig
     extends HtmlAreaModalDialogConfig {
@@ -72,7 +73,7 @@ export class FullscreenDialog
 
         const editorParams: HtmlEditorParams = HtmlEditorParams.create()
             .setEditorContainerId(this.textArea.getId())
-            .setAssetsUri(CONFIG.assetsUri)
+            .setAssetsUri(CONFIG.get('assetsUri'))
             .setInline(false)
             .setCreateDialogHandler(this.editorParams.getCreateDialogListener())
             .setKeydownHandler(this.editorParams.getKeydownHandler())

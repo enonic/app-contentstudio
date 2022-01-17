@@ -136,6 +136,7 @@ import {DockedContextPanel} from '../view/context/DockedContextPanel';
 import {ContentWizardContextSplitPanel} from './ContentWizardContextSplitPanel';
 import {ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextPanelState} from '../view/context/ContextPanelState';
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -917,7 +918,7 @@ export class ContentWizardPanel
             this.updateThumbnailWithContent(persistedContent);
 
             this.getWizardHeader().setSimplifiedNameGeneration(
-                persistedContent.getType().isDescendantOfMedia() || CONFIG.allowPathTransliteration !== 'true');
+                persistedContent.getType().isDescendantOfMedia() || !CONFIG.isTrue('allowPathTransliteration'));
 
             if (this.isRendered()) {
 

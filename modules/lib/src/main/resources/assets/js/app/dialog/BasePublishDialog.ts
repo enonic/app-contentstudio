@@ -26,6 +26,7 @@ import {ContentId} from '../content/ContentId';
 import {MenuItem} from 'lib-admin-ui/ui/menu/MenuItem';
 import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
 import {AccessibilityHelper} from '../util/AccessibilityHelper';
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {
@@ -212,7 +213,7 @@ export abstract class BasePublishDialog
     }
 
     protected initActions() {
-        const allow = CONFIG.allowContentUpdate === 'true';
+        const allow = CONFIG.isTrue('allowContentUpdate');
         this.markAllAsReadyAction = new Action(i18n('action.markAsReady')).onExecuted(this.markAllAsReady.bind(this)).setEnabled(allow);
     }
 

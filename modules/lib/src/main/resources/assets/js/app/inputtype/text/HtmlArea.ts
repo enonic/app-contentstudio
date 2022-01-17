@@ -32,6 +32,7 @@ import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentPath} from '../../content/ContentPath';
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export class HtmlArea
     extends BaseInputTypeNotManagingAdd {
@@ -173,7 +174,7 @@ export class HtmlArea
     }
 
     private initEditor(id: string, property: Property, textAreaWrapper: Element): Q.Promise<HtmlEditor> {
-        const assetsUri = CONFIG.assetsUri;
+        const assetsUri = CONFIG.get('assetsUri');
 
         const focusHandler = (e) => {
             this.resetInputHeight();

@@ -17,6 +17,7 @@ import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/A
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {Store} from 'lib-admin-ui/store/Store';
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export class AppWrapper
     extends DivEl {
@@ -154,13 +155,13 @@ export class AppWrapper
     }
 
     private injectMissingAdminTools(adminTools: AdminTool[]) {
-        const studioApp: string = CONFIG.appId;
+        const studioApp: string = CONFIG.get('appId');
         adminTools
             .filter((adminTool: AdminTool) => !this.hasAdminTool(adminTool))
             .forEach((remoteAdminTool: AdminTool) => {
                 const adminToolApp: string = remoteAdminTool.getKey().getApplicationKey().toString();
                 const adminToolId: string = remoteAdminTool.getKey().toString();
-                const assetUrl = CONFIG.assetsUri.replace(new RegExp(studioApp, 'g'), adminToolApp);
+                const assetUrl = CONFIG.get('assetsUri').replace(new RegExp(studioApp, 'g'), adminToolApp);
                 const mainJsUrl = `${assetUrl}/js/inject.js`;
                 const mainCssUrl = `${assetUrl}/styles/main.css`;
 
@@ -432,12 +433,13 @@ class Sidebar
     }
 
     private createAppVersionBlock(): DivEl {
-        const cleanVersion: string = StringHelper.cleanVersion(CONFIG.appVersion);
+        const appVersion: string = CONFIG.get('appVersion');
+        const cleanVersion: string = StringHelper.cleanVersion(appVersion);
         const appVersionSpan: DivEl = new DivEl('app-version');
         appVersionSpan.setHtml(`v${cleanVersion}`);
 
-        if (CONFIG.appVersion !== cleanVersion) {
-            appVersionSpan.setTitle(`v${CONFIG.appVersion}`);
+        if (appVersion !== cleanVersion) {
+            appVersionSpan.setTitle(`v${appVersion}`);
         }
 
         return appVersionSpan;
