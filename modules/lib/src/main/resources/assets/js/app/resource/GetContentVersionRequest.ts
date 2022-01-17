@@ -6,8 +6,7 @@ import {ContentJson} from '../content/ContentJson';
 import {RepositoryId} from '../repository/RepositoryId';
 import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-
-declare let CONFIG;
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export class GetContentVersionRequest
     extends CmsContentResourceRequest<Content> {
@@ -35,7 +34,7 @@ export class GetContentVersionRequest
     }
 
     getRequestPath(): Path {
-        return CONFIG.services.contentUrl;
+        return Path.fromString(CONFIG.get('services.contentUrl'));
     }
 
     sendRequest(): Q.Promise<ContentJson> {

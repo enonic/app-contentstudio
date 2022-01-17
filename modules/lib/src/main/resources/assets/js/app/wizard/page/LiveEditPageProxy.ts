@@ -57,8 +57,6 @@ import {Descriptor} from '../../page/Descriptor';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {LiveEditPagePlaceholder} from './LiveEditPagePlaceholder';
 
-declare let CONFIG;
-
 export class LiveEditPageProxy {
 
     private liveEditModel: LiveEditModel;
@@ -398,11 +396,6 @@ export class LiveEditPageProxy {
             const liveEditStore: Store = liveEditGlobal ? liveEditGlobal.store : null;
             const livejq = (liveEditStore && liveEditStore.has('$')) ? liveEditStore.get('$') : liveEditWindow['$'];
             if (livejq) {
-                if (LiveEditPageProxy.debug) {
-                    console.debug('LiveEditPageProxy.setting config for', liveEditWindow.document, CONFIG);
-                }
-                // Give loaded page same CONFIG as in admin
-                liveEditWindow['CONFIG'] = JSON.parse(JSON.stringify(CONFIG));
 
                 this.livejq = <JQueryStatic>livejq;
 

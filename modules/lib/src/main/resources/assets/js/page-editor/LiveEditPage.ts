@@ -23,8 +23,7 @@ import {Exception} from 'lib-admin-ui/Exception';
 import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 import {ProjectContext} from '../app/project/ProjectContext';
-
-declare const CONFIG;
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export class LiveEditPage {
 
@@ -68,8 +67,9 @@ export class LiveEditPage {
             console.debug('LiveEditPage: starting live edit initialization');
         }
 
+        CONFIG.setConfig(event.getConfig());
         ProjectContext.get().setProject(event.getProject());
-        i18nInit(CONFIG.services.i18nUrl, ['i18n/page-editor']).then(() => {
+        i18nInit(CONFIG.get('services.i18nUrl'), ['i18n/page-editor']).then(() => {
             const liveEditModel = event.getLiveEditModel();
             const modifyPermissions = event.hasModifyPermissions();
 

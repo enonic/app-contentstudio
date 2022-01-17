@@ -3,11 +3,12 @@ import {App} from './App';
 import {AppContainer} from './AppContainer';
 import {ContentAppContainer} from './ContentAppContainer';
 import {DescriptorKey} from './page/DescriptorKey';
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export class ContentApp extends App {
 
     constructor() {
-        super(DescriptorKey.fromString(`${CONFIG.appId}:main`));
+        super(DescriptorKey.fromString(`${CONFIG.get('appId')}:main`));
     }
 
     protected createAppContainer(): AppContainer {

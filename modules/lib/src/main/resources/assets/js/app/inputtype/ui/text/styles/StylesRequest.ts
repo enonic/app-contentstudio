@@ -5,8 +5,7 @@ import {StyleJson} from './StylesDescriptor';
 import {Styles} from './Styles';
 import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {ProjectContext} from '../../../../project/ProjectContext';
-
-declare let CONFIG;
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export interface GetStylesResponse {
     css: string[];
@@ -42,7 +41,7 @@ export class StylesRequest
     }
 
     getRequestPath(): Path {
-        return CONFIG.services.stylesUrl;
+        return Path.fromString(CONFIG.get('services.stylesUrl'));
     }
 
     getParams(): Object {
