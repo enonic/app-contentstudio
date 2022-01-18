@@ -31,7 +31,6 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             let siteConfiguratorDialog = new SiteConfiguratorDialog();
             let displayName = contentBuilder.generateRandomName('site');
             SITE = contentBuilder.buildSite(displayName, 'test site', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
-
             //Add a site with 'page'-controller
             await studioUtils.doAddSite(SITE);
             //1. Open the site:
@@ -68,7 +67,6 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             await contentItemPreviewPanel.waitForElementDisplayedInFrame(`a=${LINK_TEXT}`);
         });
 
-
     it("GIVEN site configurator dialog is opened AND new text has been inserted WHEN Cancel button has been pressed in the dialog THEN changes should not be applied",
         async () => {
             let siteFormPanel = new SiteFormPanel();
@@ -89,7 +87,6 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             assert.isFalse(text.includes(TEST_TEXT), "Text should not be updated in the htmlarea");
         });
 
-
     it("GIVEN site configurator dialog is opened WHEN 'Cancel top' button has been pressed THEN dialog should be closed",
         async () => {
             let siteFormPanel = new SiteFormPanel();
@@ -98,6 +95,7 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             await studioUtils.selectContentAndOpenWizard(SITE.displayName);
             //2. Click on 'Edit' icon and open 'Site Configurator' Dialog:
             await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_CONTENT_TYPES);
+            await studioUtils.saveScreenshot("site_config_loaded");
             //3. Click on Cancel top button in the modal dialog:
             await siteConfiguratorDialog.clickOnCancelTopButton();
             //4. Dialog should be closed:

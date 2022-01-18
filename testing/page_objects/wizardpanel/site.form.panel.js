@@ -66,14 +66,13 @@ class SiteForm extends Page {
         return this.clickOnElement(locator);
     }
 
-    openSiteConfiguratorDialog(displayName) {
+    async openSiteConfiguratorDialog(displayName) {
         let selector = XPATH.selectedAppByDisplayName(displayName) + `//a[@class='edit']`;
-        return this.waitForElementDisplayed(selector, 2000).then(() => {
-            return this.clickOnElement(selector);
-        }).then(() => {
-            let siteConfigDialog = new SiteConfigDialog();
-            return siteConfigDialog.waitForDialogOpened();
-        })
+        await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+        await this.clickOnElement(selector);
+        let siteConfigDialog = new SiteConfigDialog();
+        await siteConfigDialog.waitForDialogOpened();
+        return await siteConfigDialog.pause(1000);
     }
 
     isSiteConfiguratorViewInvalid(displayName) {

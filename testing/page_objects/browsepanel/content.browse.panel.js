@@ -25,6 +25,7 @@ const XPATH = {
     checkedRows: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-cell-checkboxsel selected')]`,
     checkedRows2: `//div[contains(@class,'slick-viewport')]//div[contains(@class,'slick-row') and descendant::div[contains(@class,'slick-cell') and contains(@class,'slick-cell-checkboxsel selected')]]`,
     searchButton: "//button[contains(@class, 'icon-search')]",
+    hideSearchPanelButton: "//span[contains(@class, 'hide-filter-panel-button')]",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]",
     createTaskMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Create Task...']",
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
@@ -97,6 +98,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get searchButton() {
         return XPATH.toolbar + XPATH.searchButton;
+    }
+
+    get hideSearchPanelButton() {
+        return "//div[contains(@id,'ContentBrowseFilterPanel')]" + XPATH.hideSearchPanelButton;
     }
 
     get detailsPanelToggleButton() {
@@ -334,8 +339,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
+    //Opens Filter Panel:
     clickOnSearchButton() {
         return this.clickOnElement(this.searchButton);
+    }
+
+    async clickOnHideSearchPanelButton() {
+        await this.waitForElementDisplayed(this.hideSearchPanelButton, appConst.mediumTimeout);
+        return await this.clickOnElement(this.hideSearchPanelButton);
     }
 
     // clicks on 'Duplicate button' and waits until modal dialog appears

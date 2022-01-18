@@ -89,6 +89,11 @@ module.exports = Object.freeze({
         STRONG: "password123=",
         WEAK: "password"
     },
+    LAST_MODIFIED_ENTRY: {
+        WEEK: "week",
+        DAY: "day",
+        HOUR: "hour"
+    },
 
     VALIDATION_MESSAGE: {
         TEXT_IS_TOO_LONG: "Text is too long",
