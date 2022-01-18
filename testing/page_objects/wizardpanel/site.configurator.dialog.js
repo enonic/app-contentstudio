@@ -119,8 +119,9 @@ class SiteConfiguratorDialog extends Page {
         return await this.pause(300);
     }
 
-    clickOnCancelTopButton() {
-        return this.clickOnElement(this.cancelButtonTop);
+    async clickOnCancelTopButton() {
+        await this.waitForElementDisplayed(this.cancelButtonTop, appConst.mediumTimeout);
+        return await this.clickOnElement(this.cancelButtonTop);
     }
 }
 
