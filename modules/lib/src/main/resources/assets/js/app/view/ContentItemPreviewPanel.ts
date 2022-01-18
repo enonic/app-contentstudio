@@ -16,12 +16,12 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ItemPreviewPanel} from 'lib-admin-ui/app/view/ItemPreviewPanel';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {UrlHelper} from '../util/UrlHelper';
-import {ProjectContext} from '../project/ProjectContext';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {ItemPreviewToolbar} from 'lib-admin-ui/app/view/ItemPreviewToolbar';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 
 enum PREVIEW_TYPE {
     IMAGE,
@@ -257,15 +257,8 @@ export class ContentItemPreviewPanel
         return Math.max(imgWidth, imgHeight);
     }
 
-    public setBlank() {
-        this.setPreviewType(PREVIEW_TYPE.BLANK);
-        this.frame.setSrc('about:blank');
-    }
-
     private setPreviewType(previewType: PREVIEW_TYPE) {
-
         if (this.previewType !== previewType) {
-
             this.getEl().removeClass('image-preview page-preview svg-preview media-preview no-preview');
 
             switch (previewType) {
@@ -305,10 +298,6 @@ export class ContentItemPreviewPanel
         }
 
         this.previewType = previewType;
-
-        if (PREVIEW_TYPE.FAILED === previewType || PREVIEW_TYPE.EMPTY === previewType || PREVIEW_TYPE.MISSING) {
-            this.hideMask();
-        }
     }
 
     protected isMediaForPreview(content: ContentSummary) {
@@ -332,21 +321,34 @@ export class ContentItemPreviewPanel
     }
 
     protected setMediaPreviewMode(item: ContentSummaryAndCompareStatus) {
-        const contentSummary = item.getContentSummary();
+        const contentSummary: ContentSummary = item.getContentSummary();
+        this.showMask();
 
         new MediaAllowsPreviewRequest(contentSummary.getContentId()).setContentRootPath(this.contentRootPath).sendAndParse().then(
             (allows: boolean) => {
-                if (allows) {
-                    this.setPreviewType(PREVIEW_TYPE.MEDIA);
-                    if (this.isVisible()) {
-                        this.frame.setSrc(UrlHelper.getCmsRestUri(
-                            `${UrlHelper.getCMSPath(
-                                this.contentRootPath)}/content/media/${contentSummary.getId()}?download=false#view=fit`));
-                    }
-                } else {
-                    this.setPreviewType(PREVIEW_TYPE.EMPTY);
-                }
-            });
+                this.handleMediaPreviewAllowed(allows, contentSummary);
+                return Q(null);
+            }).catch((e) => {
+            this.hideMask();
+            DefaultErrorHandler.handle(e);
+        });
+    }
+
+    private handleMediaPreviewAllowed(allowed: boolean, contentSummary: ContentSummary): void {
+        if (allowed) {
+            this.setPreviewType(PREVIEW_TYPE.MEDIA);
+
+            if (this.isVisible()) {
+                this.frame.setSrc(UrlHelper.getCmsRestUri(
+                    `${UrlHelper.getCMSPath(
+                        this.contentRootPath)}/content/media/${contentSummary.getId()}?download=false#view=fit`));
+            } else {
+                this.hideMask();
+            }
+        } else {
+            this.setPreviewType(PREVIEW_TYPE.EMPTY);
+            this.hideMask();
+        }
     }
 
     protected setImagePreviewMode(item: ContentSummaryAndCompareStatus) {
@@ -364,12 +366,10 @@ export class ContentItemPreviewPanel
                 this.setPreviewType(PREVIEW_TYPE.IMAGE);
             }
 
+            this.showMask();
             this.image.setSrc(imgUrlResolver.resolveForPreview());
         } else {
             this.setPreviewType(PREVIEW_TYPE.IMAGE);
-        }
-        if (!this.image.isLoaded()) {
-            this.showMask();
         }
     }
 
@@ -386,6 +386,7 @@ export class ContentItemPreviewPanel
             this.frame.setSrc(src);
         }).fail((reason: any) => {
             this.setPreviewType(reason.status === 404 ? PREVIEW_TYPE.MISSING : PREVIEW_TYPE.FAILED);
+            this.hideMask();
         });
     }
 
