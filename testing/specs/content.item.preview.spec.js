@@ -17,6 +17,7 @@ describe('content.item.preview.spec - Select a content file and check expected i
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
             await studioUtils.findAndSelectItem("test-text.txt");
             await contentItemPreviewPanel.pause(500);
+            studioUtils.saveScreenshot("text_attachment_preview");
             let result = await contentItemPreviewPanel.getTextInAttachmentPreview();
             assert.isTrue(result.includes('Belarus'), "expected text should be present in the Preview Panel");
         });
@@ -27,6 +28,7 @@ describe('content.item.preview.spec - Select a content file and check expected i
             //1. Select an existing folder:
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_2_NAME);
             //2. Verify that 'Preview not available' is displayed
+            studioUtils.saveScreenshot("preview_not_available");
             await contentItemPreviewPanel.waitForPreviewNotAvailAbleMessageDisplayed();
         });
 
