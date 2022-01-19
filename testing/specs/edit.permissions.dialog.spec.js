@@ -1,6 +1,5 @@
 /**
  * Created on 16.01.2018.
- * verifies : https://github.com/enonic/app-contentstudio/issues/277
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -11,20 +10,21 @@ const contentBuilder = require("../libs/content.builder");
 const UserAccessWidget = require('../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 const EditPermissionsDialog = require('../page_objects/edit.permissions.dialog');
 
-describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', function () {
+describe('edit.permissions.dialog.spec: tests for Edit Permissions dialog that is opened from user access widget', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-    let folder;
+    let FOLDER;
+
     it(`GIVEN existing folder is selected WHEN Edit Permissions dialog has been opened THEN Inherit permissions checkbox should be selected by default`,
         async () => {
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
             let displayName = contentBuilder.generateRandomName('folder');
-            folder = contentBuilder.buildFolder(displayName);
+            FOLDER = contentBuilder.buildFolder(displayName);
             //1. Select the folder and open Details Panel:
-            await studioUtils.doAddFolder(folder);
-            await studioUtils.findAndSelectItem(folder.displayName);
+            await studioUtils.doAddFolder(FOLDER);
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
             await studioUtils.openBrowseDetailsPanel();
             //2. Click on Edit Permissions link:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
@@ -41,7 +41,7 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
             //1. Select the folder and open Details Panel:
-            await studioUtils.findAndSelectItem(folder.displayName);
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
             await studioUtils.openBrowseDetailsPanel();
             //2. Open 'Edit Permissions' dialog and uncheck 'Inherit Permissions' checkbox:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
@@ -49,8 +49,8 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
             let isChecked = await editPermissionsDialog.isInheritPermissionsCheckBoxSelected();
             assert.isFalse(isChecked, "the checkbox gets unchecked");
 
-            studioUtils.saveScreenshot("inherit_perm_is_unchecked");
-            //3. Apply and close the modal dialog:
+            await studioUtils.saveScreenshot("inherit_perm_is_unchecked");
+            //3. Click on Apply and close the modal dialog:
             await editPermissionsDialog.clickOnApplyButton();
             await editPermissionsDialog.waitForDialogClosed();
 
@@ -66,7 +66,7 @@ describe('edit.permissions.dialog.spec:  verifies `app-contentstudio#277`', func
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
             //1. Select the folder and open Details Panel:
-            await studioUtils.findAndSelectItem(folder.displayName);
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
             await studioUtils.openBrowseDetailsPanel();
             //2. Open 'Edit Permissions' dialog and click on 'Overwrite Child Permissions' checkbox:
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();

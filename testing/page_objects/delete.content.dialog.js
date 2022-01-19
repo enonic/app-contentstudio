@@ -52,7 +52,7 @@ class DeleteContentDialog extends Page {
     async waitForDialogOpened() {
         try {
             await this.waitForElementDisplayed(this.archiveButton, appConst.mediumTimeout);
-            return await this.pause(300);
+            return await this.pause(500);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_archive_dialog'));
             throw new Error('Archive or delete dialog is not loaded ' + err)
@@ -180,9 +180,14 @@ class DeleteContentDialog extends Page {
         return this.waitForElementDisplayed(this.hideDependantItemsLink, appConst.mediumTimeout);
     }
 
-    waitForShowDependantItemsLinkDisplayed() {
-        let locator = XPATH.container + XPATH.showDependantItemsLink;
-        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    async waitForShowDependantItemsLinkDisplayed() {
+        try {
+            let locator = XPATH.container + XPATH.showDependantItemsLink;
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_show_dependant_items_link"));
+            throw new Error(err);
+        }
     }
 
     async clickOnHideDependantItemsLink() {

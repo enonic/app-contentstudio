@@ -49,7 +49,7 @@ class UserAccessWidgetItemView extends Page {
             await editPermissionsDialog.waitForDialogLoaded();
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot("edit_perm_dlg_not_loaded");
+            await this.saveScreenshot("edit_perm_dlg_not_loaded");
             throw new Error("Edit permissions dialog was not loaded!  " + err);
         }
     }
@@ -59,7 +59,8 @@ class UserAccessWidgetItemView extends Page {
             throw new Error('Access widget was not loaded! ' + err);
         });
     }
-};
+}
+
 module.exports = UserAccessWidgetItemView;
 
 
