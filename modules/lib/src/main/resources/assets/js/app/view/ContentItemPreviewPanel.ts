@@ -30,7 +30,8 @@ enum PREVIEW_TYPE {
     EMPTY,
     FAILED,
     BLANK,
-    MISSING
+    MISSING,
+    NOT_CONFIGURED,
 }
 
 export class ContentItemPreviewPanel
@@ -291,6 +292,10 @@ export class ContentItemPreviewPanel
                 this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
                 break;
             }
+            case PREVIEW_TYPE.NOT_CONFIGURED: {
+                this.showPreviewMessages([i18n('field.preview.notConfigured'), i18n('field.preview.notConfigured.description')]);
+                break;
+            }
             case PREVIEW_TYPE.BLANK: {
                 this.getEl().addClass('no-preview');
                 break;
@@ -379,7 +384,17 @@ export class ContentItemPreviewPanel
         }).done(() => {
             this.frame.setSrc(src);
         }).fail((reason: any) => {
-            this.setPreviewType(reason.status === 404 ? PREVIEW_TYPE.MISSING : PREVIEW_TYPE.FAILED);
+            switch (reason.status) {
+            case 404:
+                this.setPreviewType(PREVIEW_TYPE.MISSING);
+                break;
+            case 418:
+                this.setPreviewType(PREVIEW_TYPE.NOT_CONFIGURED);
+                break;
+            default:
+                this.setPreviewType(PREVIEW_TYPE.FAILED);
+                break;
+            }
         });
     }
 
