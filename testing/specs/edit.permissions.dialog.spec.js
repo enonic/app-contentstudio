@@ -21,7 +21,7 @@ describe('edit.permissions.dialog.spec: tests for Edit Permissions dialog that i
             let userAccessWidget = new UserAccessWidget();
             let editPermissionsDialog = new EditPermissionsDialog();
             let displayName = contentBuilder.generateRandomName('folder');
-            folder = contentBuilder.buildFolder(displayName);
+            FOLDER = contentBuilder.buildFolder(displayName);
             //1. Select the folder and open Details Panel:
             await studioUtils.doAddFolder(FOLDER);
             await studioUtils.findAndSelectItem(FOLDER.displayName);
