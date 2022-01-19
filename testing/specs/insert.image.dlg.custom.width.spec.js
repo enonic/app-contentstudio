@@ -129,9 +129,11 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             // just save the changes and create new version
             await insertImageDialog.clickOnUpdateButton();
             await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
+            await contentWizard.pause(1000);
         });
 
-    it(`GIVEN existing htmlarea-content with inserted image is opened WHEN rollback version with 'Custom Width' THEN image-range is getting visible again`,
+    it(`GIVEN existing htmlarea-content with an inserted image is opened WHEN rollback version with 'Custom Width' THEN image-range is getting visible again`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
             let insertImageDialog = new InsertImageDialog();

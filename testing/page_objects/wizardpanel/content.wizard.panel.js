@@ -427,7 +427,7 @@ class ContentWizardPanel extends Page {
         try {
             await this.waitForEditPermissionsButtonVisible();
             await this.clickOnElement(this.editPermissionsButton);
-            return await this.pause(200);
+            return await this.pause(400);
         } catch (err) {
             this.saveScreenshot(appConst.generateRandomName("err_edit_perm_button"));
             throw new Error(err);
