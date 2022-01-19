@@ -16,7 +16,6 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ItemPreviewPanel} from 'lib-admin-ui/app/view/ItemPreviewPanel';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {UrlHelper} from '../util/UrlHelper';
-import {ProjectContext} from '../project/ProjectContext';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
@@ -104,7 +103,7 @@ export class ContentItemPreviewPanel
     }
 
     private isItemAllowsUpdate(item: ContentSummaryAndCompareStatus, force: boolean): boolean {
-        return item && (!item.equals(this.item) || force) && typeof item.isRenderable() !== 'undefined';
+        return item && (!item.equals(this.item) || force);
     }
 
     protected update(item: ContentSummaryAndCompareStatus) {
@@ -114,10 +113,9 @@ export class ContentItemPreviewPanel
             this.setMediaPreviewMode(item);
         } else if (this.isImageForPreview(contentSummary)) {
             this.setImagePreviewMode(item);
-        } else if (this.isNonBinaryItemRenderable(item)) {
-            this.setPagePreviewMode(item);
         } else {
-            this.setPreviewType(PREVIEW_TYPE.EMPTY);
+            // fire the request anyway, if it's not renderable 418 will be returned
+            this.setPagePreviewMode(item);
         }
     }
 
@@ -127,10 +125,6 @@ export class ContentItemPreviewPanel
 
     public clearItem() {
         (<ContentItemPreviewToolbar>this.toolbar).clearItem();
-    }
-
-    protected isNonBinaryItemRenderable(item: ContentSummaryAndCompareStatus): boolean {
-        return item.isRenderable();
     }
 
     private setupListeners() {
