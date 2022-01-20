@@ -96,8 +96,10 @@ describe('site.configurator.htmlarea.spec: tests for site configurator with html
             //2. Click on 'Edit' icon and open 'Site Configurator' Dialog:
             await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_CONTENT_TYPES);
             await studioUtils.saveScreenshot("site_config_loaded");
+            await siteConfiguratorDialog.pause(2000);
             //3. Click on Cancel top button in the modal dialog:
             await siteConfiguratorDialog.clickOnCancelTopButton();
+            await studioUtils.saveScreenshot("site_config_closed");
             //4. Dialog should be closed:
             await siteConfiguratorDialog.waitForDialogClosed();
         });
