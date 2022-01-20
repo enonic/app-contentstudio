@@ -29,7 +29,6 @@ enum PREVIEW_TYPE {
     MEDIA,
     EMPTY,
     FAILED,
-    BLANK,
     MISSING,
     NOT_CONFIGURED,
 }
@@ -108,16 +107,8 @@ export class ContentItemPreviewPanel
     }
 
     protected update(item: ContentSummaryAndCompareStatus) {
-        const contentSummary: ContentSummary = item.getContentSummary();
-
-        if (this.isMediaForPreview(contentSummary)) {
-            this.setMediaPreviewMode(item);
-        } else if (this.isImageForPreview(contentSummary)) {
-            this.setImagePreviewMode(item);
-        } else {
-            // fire the request anyway, if it's not renderable 418 will be returned
-            this.setPagePreviewMode(item);
-        }
+        // fire the request anyway, if it's not renderable 418 will be returned
+        this.setPagePreviewMode(item);
     }
 
     protected isImageForPreview(content: ContentSummary): boolean {
@@ -252,11 +243,6 @@ export class ContentItemPreviewPanel
         return Math.max(imgWidth, imgHeight);
     }
 
-    public setBlank() {
-        this.setPreviewType(PREVIEW_TYPE.BLANK);
-        this.frame.setSrc('about:blank');
-    }
-
     private setPreviewType(previewType: PREVIEW_TYPE) {
 
         if (this.previewType !== previewType) {
@@ -294,10 +280,6 @@ export class ContentItemPreviewPanel
             }
             case PREVIEW_TYPE.NOT_CONFIGURED: {
                 this.showPreviewMessages([i18n('field.preview.notConfigured'), i18n('field.preview.notConfigured.description')]);
-                break;
-            }
-            case PREVIEW_TYPE.BLANK: {
-                this.getEl().addClass('no-preview');
                 break;
             }
             }
@@ -372,9 +354,17 @@ export class ContentItemPreviewPanel
         }
     }
 
+    private isPreviewUnavailable(item: ContentSummaryAndCompareStatus): boolean {
+        if (item.isRenderable()) {
+            return false;
+        }
+
+        const contentType: ContentTypeName = item.getContentSummary().getType();
+        return contentType.isFolder() || contentType.isShortcut();
+    }
+
     protected setPagePreviewMode(item: ContentSummaryAndCompareStatus) {
         this.showMask();
-        this.setPreviewType(PREVIEW_TYPE.PAGE);
         const src: string = RenderingUriHelper.getPortalUri(!!item.getPath() ? item.getPath().toString() : '', RenderingMode.INLINE);
         // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
         $.ajax({
@@ -383,17 +373,27 @@ export class ContentItemPreviewPanel
             url: src
         }).done(() => {
             this.frame.setSrc(src);
+            this.setPreviewType(PREVIEW_TYPE.PAGE);
         }).fail((reason: any) => {
-            switch (reason.status) {
-            case 404:
-                this.setPreviewType(PREVIEW_TYPE.MISSING);
-                break;
-            case 418:
-                this.setPreviewType(PREVIEW_TYPE.NOT_CONFIGURED);
-                break;
-            default:
-                this.setPreviewType(PREVIEW_TYPE.FAILED);
-                break;
+            const contentSummary: ContentSummary = item.getContentSummary();
+            if (this.isPreviewUnavailable(item)) {
+                this.setPreviewType(PREVIEW_TYPE.EMPTY);
+            } else if (this.isMediaForPreview(contentSummary)) {
+                this.setMediaPreviewMode(item);
+            } else if (this.isImageForPreview(contentSummary)) {
+                this.setImagePreviewMode(item);
+            } else {
+                switch (reason.status) {
+                case 404:
+                    this.setPreviewType(PREVIEW_TYPE.EMPTY);
+                    break;
+                case 418:
+                    this.setPreviewType(PREVIEW_TYPE.NOT_CONFIGURED);
+                    break;
+                default:
+                    this.setPreviewType(PREVIEW_TYPE.FAILED);
+                    break;
+                }
             }
         });
     }
