@@ -62,7 +62,7 @@ class DeleteContentDialog extends Page {
     waitForDialogClosed() {
         return this.waitForElementNotDisplayed(XPATH.container, appConst.mediumTimeout).catch(err => {
             this.saveScreenshot('err_close_delete_content_dialog');
-            throw new Error('Delete content dialog must be closed');
+            throw new Error('Delete content dialog must be closed ' + err);
         })
     }
 
@@ -91,7 +91,7 @@ class DeleteContentDialog extends Page {
         let menuItem = XPATH.container + XPATH.archiveOrDeleteMenu + XPATH.deleteMenuItem;
         await this.waitForElementDisplayed(menuItem, appConst.mediumTimeout);
         await this.clickOnElement(menuItem);
-        return await this.pause(300);
+        return await this.pause(500);
     }
 
     //Call the method for deleting single content, Delete Content should be closed after clicking on the menu item

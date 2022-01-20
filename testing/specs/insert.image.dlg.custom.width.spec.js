@@ -101,11 +101,11 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             await insertImageDialog.waitForDialogVisible();
             //2. Get and verify the range value:
             let rangeValue = await insertImageDialog.waitForImageRangeValue();
-            studioUtils.saveScreenshot('image_dialog_custom_width_clicked_saved');
+            await studioUtils.saveScreenshot('image_dialog_custom_width_clicked_saved');
             assert.equal(rangeValue, '100%', "Expected range should be in the dialog");
             //3. 'Custom Width' checkbox should be checked:
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();
-            assert.isTrue(isChecked, "`Custom Width` Checkbox should be selected");
+            assert.isTrue(isChecked, "'Custom Width' Checkbox should be selected");
         });
 
     it(`GIVEN existing htmlarea-content with inserted image(custom width) is opened WHEN 'Custom Width' has been unselected THEN image-range gets hidden`,
@@ -149,12 +149,14 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
             await versionsWidget.clickAndExpandVersion(1);
             //revert the version with 'Custom Width'
             await versionsWidget.clickOnRevertButton();
+            await contentWizard.waitForNotificationMessage();
+            await studioUtils.saveScreenshot("image_range_version_reverted");
             //3. Open 'Insert Image Dialog'
             await htmlAreaForm.doubleClickOnHtmlArea();
             await insertImageDialog.waitForDialogVisible();
+            await studioUtils.saveScreenshot('image_dialog_custom_width_reverted');
             //4. Verify that image-range is visible again(default value)
             let rangeValue = await insertImageDialog.waitForImageRangeValue();
-            studioUtils.saveScreenshot('image_dialog_custom_width_rollback');
             assert.equal(rangeValue, '100%', "Range should be reverted");
             //Verify that`Custom Width` checkbox gets checked:
             let isChecked = await insertImageDialog.isCustomWidthCheckBoxSelected();

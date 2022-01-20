@@ -95,13 +95,13 @@ class ContentPublishDialog extends Page {
     async clickOnExcludeInvalidItemsButton() {
         await this.waitForElementDisplayed(this.excludeInvalidItemsButton, appConst.mediumTimeout);
         await this.clickOnElement(this.excludeInvalidItemsButton);
-        return await this.pause(300);
+        return await this.pause(500);
     }
 
     async clickOnExcludeWorkInProgressItemsButton() {
         await this.waitForElementDisplayed(this.excludeWorkInProgressItemsButton, appConst.mediumTimeout);
         await this.clickOnElement(this.excludeWorkInProgressItemsButton);
-        return await this.pause(300);
+        return await this.pause(500);
     }
 
     async clickOnMarkAsReadyDropdownHandle() {
@@ -184,10 +184,15 @@ class ContentPublishDialog extends Page {
         }
     }
 
-    clickOnIncludeChildrenToogler() {
-        return this.clickOnElement(this.includeChildrenToogler).catch(err => {
+    async clickOnIncludeChildrenToogler() {
+        try {
+            await this.waitForElementDisplayed(this.includeChildrenToogler, appConst.mediumTimeout);
+            await this.clickOnElement(this.includeChildrenToogler);
+            return await this.pause(500);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_include_children"));
             throw new Error('Error when clicking on Include Children toggler ' + err);
-        })
+        }
     }
 
     waitForShowDependentButtonDisplayed() {
