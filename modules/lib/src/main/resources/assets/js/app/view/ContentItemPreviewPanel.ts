@@ -367,6 +367,15 @@ export class ContentItemPreviewPanel
         }
     }
 
+    private isPreviewUnavailable(item: ContentSummaryAndCompareStatus): boolean {
+        if (item.isRenderable()) {
+            return false;
+        }
+
+        const contentType: ContentTypeName = item.getContentSummary().getType();
+        return contentType.isFolder() || contentType.isShortcut();
+    }
+
     protected setPagePreviewMode(item: ContentSummaryAndCompareStatus) {
         this.showMask();
         const src: string = RenderingUriHelper.getPortalUri(!!item.getPath() ? item.getPath().toString() : '', RenderingMode.INLINE);
@@ -379,6 +388,10 @@ export class ContentItemPreviewPanel
             this.frame.setSrc(src);
             this.setPreviewType(PREVIEW_TYPE.PAGE);
         }).fail((reason: any) => {
+            if (this.isPreviewUnavailable(item)) {
+                this.setPreviewType(PREVIEW_TYPE.BLANK);
+                return;
+            }
             switch (reason.status) {
             case 404:
                 this.setPreviewType(PREVIEW_TYPE.MISSING);
@@ -387,11 +400,7 @@ export class ContentItemPreviewPanel
                 this.setPreviewType(PREVIEW_TYPE.NOT_CONFIGURED);
                 break;
             default:
-                if (item.isRenderable()) {
-                    this.setPreviewType(PREVIEW_TYPE.FAILED);
-                } else {
-                    this.setPreviewType(PREVIEW_TYPE.BLANK);
-                }
+                this.setPreviewType(PREVIEW_TYPE.FAILED);
                 break;
             }
         });
