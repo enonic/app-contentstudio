@@ -546,6 +546,7 @@ class Page {
         try {
             return await this.getBrowser().isAlertOpen();
         } catch (err) {
+            console.log(err);
             await this.saveScreenshot("err_alert");
             return false;
         }
@@ -553,6 +554,10 @@ class Page {
 
     dismissAlert() {
         return this.getBrowser().dismissAlert();
+    }
+
+    acceptAlert() {
+        return this.getBrowser().acceptAlert();
     }
 }
 
