@@ -6,6 +6,7 @@ const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConst = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const contentBuilder = require("../libs/content.builder");
 const studioUtils = require('../libs/studio.utils.js');
 const ContentFilterPanel = require('../page_objects/browsepanel/content.filter.panel');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
