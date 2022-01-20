@@ -252,11 +252,6 @@ export class ContentItemPreviewPanel
         return Math.max(imgWidth, imgHeight);
     }
 
-    public setBlank() {
-        this.setPreviewType(PREVIEW_TYPE.BLANK);
-        this.frame.setSrc('about:blank');
-    }
-
     private setPreviewType(previewType: PREVIEW_TYPE) {
 
         if (this.previewType !== previewType) {
@@ -374,7 +369,6 @@ export class ContentItemPreviewPanel
 
     protected setPagePreviewMode(item: ContentSummaryAndCompareStatus) {
         this.showMask();
-        this.setPreviewType(PREVIEW_TYPE.PAGE);
         const src: string = RenderingUriHelper.getPortalUri(!!item.getPath() ? item.getPath().toString() : '', RenderingMode.INLINE);
         // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
         $.ajax({
@@ -383,6 +377,7 @@ export class ContentItemPreviewPanel
             url: src
         }).done(() => {
             this.frame.setSrc(src);
+            this.setPreviewType(PREVIEW_TYPE.PAGE);
         }).fail((reason: any) => {
             switch (reason.status) {
             case 404:
@@ -392,7 +387,11 @@ export class ContentItemPreviewPanel
                 this.setPreviewType(PREVIEW_TYPE.NOT_CONFIGURED);
                 break;
             default:
-                this.setPreviewType(PREVIEW_TYPE.FAILED);
+                if (item.isRenderable()) {
+                    this.setPreviewType(PREVIEW_TYPE.FAILED);
+                } else {
+                    this.setPreviewType(PREVIEW_TYPE.BLANK);
+                }
                 break;
             }
         });
