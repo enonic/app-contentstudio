@@ -53,6 +53,30 @@ class WizardDetailsPanel extends BaseDetailsPanel {
             return false;
         });
     }
+
+    async openVersionHistory() {
+        try {
+            return await super.openVersionHistory();
+        } catch (err) {
+            //Workaround for issue with the empty selector:
+            await this.saveScreenshot(appConst.generateRandomName("err_versions"));
+            await this.refresh();
+            await this.pause(4000);
+            await super.openVersionHistory();
+        }
+    }
+
+    async openDependencies() {
+        try {
+            return await super.openDependencies();
+        } catch (err) {
+            //Workaround for issue with the empty selector:
+            await this.saveScreenshot(appConst.generateRandomName("err_dependencies"));
+            await this.refresh();
+            await this.pause(4000);
+            await super.openDependencies();
+        }
+    }
 }
 
 function getPanelWidth(width) {

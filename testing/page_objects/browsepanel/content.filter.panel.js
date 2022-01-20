@@ -33,7 +33,8 @@ class BrowseFilterPanel extends Page {
 
     async typeSearchText(text) {
         try {
-            return await this.typeTextInInput(this.searchTextInput, text);
+            await this.typeTextInInput(this.searchTextInput, text);
+            return await this.pause(500);
         } catch (err) {
             throw new Error("Error when type text in Search Input " + err);
         }

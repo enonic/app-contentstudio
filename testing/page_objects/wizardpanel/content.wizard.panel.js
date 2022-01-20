@@ -243,11 +243,21 @@ class ContentWizardPanel extends Page {
     }
 
     async openVersionsHistoryPanel() {
-        let wizardDetailsPanel = new DetailsPanel();
-        let versionPanel = new VersionsWidget();
-        await this.openDetailsPanel();
-        await wizardDetailsPanel.openVersionHistory();
-        return await versionPanel.waitForVersionsLoaded();
+        try {
+            let wizardDetailsPanel = new DetailsPanel();
+            let versionPanel = new VersionsWidget();
+            await this.openDetailsPanel();
+            await wizardDetailsPanel.openVersionHistory();
+            return await versionPanel.waitForVersionsLoaded();
+        } catch (err) {
+            //Workaround for issue with empty selector:
+            await this.refresh();
+            await this.pause(4000);
+            let wizardDetailsPanel = new DetailsPanel();
+            await wizardDetailsPanel.openVersionHistory();
+            let versionPanel = new VersionsWidget();
+            return await versionPanel.waitForVersionsLoaded();
+        }
     }
 
     waitForXdataTogglerVisible() {
@@ -699,6 +709,7 @@ class ContentWizardPanel extends Page {
             return result;
         } catch (err) {
             await this.switchToMainFrame();
+            await this.saveScreenshot("err_controller_filter_input");
             throw new Error(err);
         }
     }

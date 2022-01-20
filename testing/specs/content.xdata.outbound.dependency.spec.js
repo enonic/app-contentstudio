@@ -55,7 +55,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             await contentWizard.pause(500);
             //2. Dependencies widget is opened:
             await wizardDetailsPanel.openDependencies();
-            studioUtils.saveScreenshot('content_with_xdata_dependencies_widget');
+            await studioUtils.saveScreenshot('content_with_xdata_dependencies_widget');
             //'Show outbound' button should be present in the widget, because the x-data contains an image:
             await wizardDependenciesWidget.waitForOutboundButtonVisible();
             let isVisible = await wizardDependenciesWidget.isInboundButtonVisible();

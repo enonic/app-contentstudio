@@ -80,7 +80,7 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
             await htmlAreaForm.clearHtmlArea(0);
             //3. Save the changes!
             await contentWizard.waitAndClickOnSave();
-            studioUtils.saveScreenshot('htmlarea_image_removed');
+            await studioUtils.saveScreenshot('htmlarea_image_removed');
             // 'Show outbound' button gets not visible in the widget, because the image was removed:
             await wizardDependenciesWidget.waitForOutboundButtonNotVisible();
             let isVisible = await wizardDependenciesWidget.isInboundButtonVisible();
