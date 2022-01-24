@@ -270,10 +270,6 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
         return !!this.readOnly;
     }
 
-    isPendingDelete(): boolean {
-        return CompareStatusChecker.isPendingDelete(this.getCompareStatus());
-    }
-
     isPublished(): boolean {
         return !!this.getCompareStatus() && CompareStatusChecker.isPublished(this.getCompareStatus());
     }
@@ -305,7 +301,7 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
     canBeMarkedAsReady(): boolean {
         const contentSummary = this.getContentSummary();
 
-        return !this.isOnline() && !this.isPendingDelete() && contentSummary.isValid() && !contentSummary.isReady();
+        return !this.isOnline() && contentSummary.isValid() && !contentSummary.isReady();
     }
 
     clone(): ContentSummaryAndCompareStatus {

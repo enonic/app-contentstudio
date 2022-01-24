@@ -140,14 +140,12 @@ export class ContentTreeGrid
     private handleGridDoubleClick(event: any, data: any) {
         if (this.isActive() && this.isEditAllowed(event, data)) {
             const node: TreeNode<ContentSummaryAndCompareStatus> = this.getGrid().getDataView().getItem(data.row);
-            if (!node.getData().isPendingDelete()) {
-                /*
-                 * Empty node double-clicked. Additional %MAX_FETCH_SIZE%
-                 * nodes will be loaded and displayed. If the any other
-                 * node is clicked, edit event will be triggered by default.
-                 */
-                this.editItem(node);
-            }
+            /*
+             * Empty node double-clicked. Additional %MAX_FETCH_SIZE%
+             * nodes will be loaded and displayed. If the any other
+             * node is clicked, edit event will be triggered by default.
+             */
+            this.editItem(node);
         }
     }
 

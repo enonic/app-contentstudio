@@ -187,10 +187,6 @@ export class ContentPublishMenuButton
         }));
     }
 
-    protected isItemPendingDelete(): boolean {
-        return this.item != null && this.item.isPendingDelete();
-    }
-
     updateActiveClass() {
         if (this.markAsReadyAction.isEnabled()) {
             this.setActiveClass(this.markAsReadyAction.getActionClass());

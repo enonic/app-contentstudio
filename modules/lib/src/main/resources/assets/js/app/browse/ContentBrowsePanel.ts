@@ -257,8 +257,6 @@ export class ContentBrowsePanel
                 data.map((item: ContentServerChangeItem) => new DeletedContentItem(item.getContentId(), item.getPath())));
         });
 
-        handler.onContentPending((data: ContentSummaryAndCompareStatus[]) => this.handleContentPending(data));
-
         handler.onContentPublished((data: ContentSummaryAndCompareStatus[]) => this.handleContentPublished(data));
 
         handler.onContentUnpublished((data: ContentSummaryAndCompareStatus[]) => this.handleContentUnpublished(data));
@@ -355,13 +353,6 @@ export class ContentBrowsePanel
         if (items.some((item: DeletedContentItem) => item.path.equals(itemPath))) {
             this.doUpdateContextPanel(null);
         }
-    }
-
-    private handleContentPending(data: ContentSummaryAndCompareStatus[]) {
-        if (ContentBrowsePanel.debug) {
-            console.debug('ContentBrowsePanel: pending', data);
-        }
-        this.doHandleContentUpdate(data);
     }
 
     private handleContentPublished(data: ContentSummaryAndCompareStatus[]) {

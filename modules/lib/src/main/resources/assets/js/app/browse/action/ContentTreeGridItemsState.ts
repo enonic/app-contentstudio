@@ -20,10 +20,6 @@ export class ContentTreeGridItemsState {
 
     private allOnline: boolean = false;
 
-    private allPendingDelete: boolean = false;
-
-    private anyPendingDelete: boolean = false;
-
     private anyPublished: boolean = false;
 
     private allLeafs: boolean = false;
@@ -70,8 +66,6 @@ export class ContentTreeGridItemsState {
         this.anyEditable = false;
         this.allValid = true;
         this.allOnline = this.items.length > 0;
-        this.allPendingDelete = this.items.length > 0;
-        this.anyPendingDelete = false;
         this.anyPublished = false;
         this.allLeafs = this.items.length > 0;
         this.oneNonLeaf = this.items.length === 1 && this.items[0].hasChildren();
@@ -98,9 +92,7 @@ export class ContentTreeGridItemsState {
                     this.anyValidNonOnline = true;
                 }
 
-                if (!content.isPendingDelete()) {
-                    this.anyCanBeRequestedToPublish = true;
-                }
+                this.anyCanBeRequestedToPublish = true;
             }
 
             if (!content.isValid()) {
@@ -109,14 +101,6 @@ export class ContentTreeGridItemsState {
 
             if (content.isEditable()) {
                 this.anyEditable = true;
-            }
-
-            if (!content.isPendingDelete()) {
-                this.allPendingDelete = false;
-            }
-
-            if (content.isPendingDelete()) {
-                this.anyPendingDelete = true;
             }
 
             if (content.isPublished()) {
@@ -201,14 +185,6 @@ export class ContentTreeGridItemsState {
 
     hasValidNonOnline(): boolean {
         return this.anyValidNonOnline;
-    }
-
-    hasAnyPendingDelete(): boolean {
-        return this.anyPendingDelete;
-    }
-
-    hasAllPendingDelete(): boolean {
-        return this.allPendingDelete;
     }
 
     hasAnyEditable(): boolean {

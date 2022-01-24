@@ -1038,11 +1038,6 @@ export class ContentWizardPanel
     }
 
     public checkContentCanBePublished(): boolean {
-        if (this.wizardActions.isPendingDelete()) {
-            // allow deleting published content without validity check
-            return true;
-        }
-
         if (!this.isContentFormValid) {
             return false;
         }

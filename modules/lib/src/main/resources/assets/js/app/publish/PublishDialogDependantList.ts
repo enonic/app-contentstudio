@@ -50,11 +50,6 @@ export class PublishDialogDependantList
     }
 
     private isRemovable(item: ContentSummaryAndCompareStatus): boolean {
-        const isPendingDelete: boolean = CompareStatusChecker.isPendingDelete(item.getCompareStatus());
-        if (isPendingDelete) {
-            return false;
-        }
-
         return !this.requiredIds.contains(item.getContentId());
     }
 

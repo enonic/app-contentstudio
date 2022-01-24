@@ -88,9 +88,7 @@ export class ContentWizardPublishMenuButton
     }
 
     updateActiveClass() {
-        if (this.isItemPendingDelete() && this.publishAction.isEnabled()) {
-            this.setActiveClass(this.publishAction.getActionClass());
-        } else if (this.openRequestAction.isEnabled()) {
+        if (this.openRequestAction.isEnabled()) {
             this.setActiveClass(this.openRequestAction.getActionClass());
         } else {
             super.updateActiveClass();

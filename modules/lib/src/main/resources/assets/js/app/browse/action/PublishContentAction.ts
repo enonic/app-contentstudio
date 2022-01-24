@@ -22,7 +22,7 @@ export class PublishContentAction extends ContentTreeGridAction {
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
         return !state.isEmpty() && !state.isManagedActionExecuting() && state.canPublish() &&
-               ((!state.hasAllOnline() && state.hasValidNonOnline()) || state.hasAllPendingDelete()) &&
+               ((!state.hasAllOnline() && state.hasValidNonOnline())) &&
                (state.canModify() || !state.hasAnyInProgress());
     }
 }

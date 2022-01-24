@@ -12,7 +12,6 @@ import {PreviewAction} from './PreviewAction';
 import {ShowLiveEditAction} from './ShowLiveEditAction';
 import {ShowFormAction} from './ShowFormAction';
 import {ShowSplitEditAction} from './ShowSplitEditAction';
-import {UndoPendingDeleteAction} from './UndoPendingDeleteAction';
 import {ContentSaveAction} from './ContentSaveAction';
 import {GetContentRootPermissionsRequest} from '../../resource/GetContentRootPermissionsRequest';
 import {GetContentPermissionsByIdRequest} from '../../resource/GetContentPermissionsByIdRequest';
@@ -20,7 +19,6 @@ import {PermissionHelper} from '../PermissionHelper';
 import {SaveAndCloseAction} from './SaveAndCloseAction';
 import {GetContentByPathRequest} from '../../resource/GetContentByPathRequest';
 import {Content} from '../../content/Content';
-import {CompareStatusChecker} from '../../content/CompareStatus';
 import {AccessControlList} from '../../access/AccessControlList';
 import {Permission} from '../../access/Permission';
 import {MarkAsReadyAction} from './MarkAsReadyAction';
@@ -76,7 +74,6 @@ type ActionsMap = {
     SHOW_FORM?: Action,
     SHOW_SPLIT_EDIT?: Action,
     SAVE_AND_CLOSE?: Action,
-    UNDO_PENDING_DELETE?: Action,
 };
 
 type ActionsState = {
@@ -152,8 +149,7 @@ export class ContentWizardActions
             new ShowLiveEditAction(wizardPanel),
             new ShowFormAction(wizardPanel),
             new ShowSplitEditAction(wizardPanel),
-            new SaveAndCloseAction(wizardPanel),
-            new UndoPendingDeleteAction(wizardPanel)
+            new SaveAndCloseAction(wizardPanel)
         );
 
         this.wizardPanel = wizardPanel;
@@ -177,8 +173,7 @@ export class ContentWizardActions
             SHOW_LIVE_EDIT: actions[13],
             SHOW_FORM: actions[14],
             SHOW_SPLIT_EDIT: actions[15],
-            SAVE_AND_CLOSE: actions[16],
-            UNDO_PENDING_DELETE: actions[17],
+            SAVE_AND_CLOSE: actions[16]
         };
 
         const stashableActionsMap: ActionsMap = {
@@ -239,10 +234,7 @@ export class ContentWizardActions
                                  (this.isUnnamedContent() || this.wizardPanel.isHeaderValidForSaving());
 
         if (this.persistedContent) {
-            isEnabled = isEnabled &&
-                        this.persistedContent.isEditable() &&
-                        !this.isPendingDelete() &&
-                        this.userCanModify;
+            isEnabled = isEnabled && this.persistedContent.isEditable() && this.userCanModify;
         }
         this.enableActions({SAVE: isEnabled});
 
@@ -265,36 +257,19 @@ export class ContentWizardActions
     }
 
     refreshPendingDeleteDecorations(): Q.Promise<any> {
-        const isPendingDelete = this.isPendingDelete();
+        this.actionsMap.SAVE.setVisible(true);
+        this.actionsMap.ARCHIVE.setVisible(true);
+        this.actionsMap.DUPLICATE.setVisible(true);
+        this.actionsMap.UNPUBLISH.setVisible(true);
+        this.actionsMap.PREVIEW.setVisible(this.isActionEnabled('PREVIEW'));
 
-        this.actionsMap.UNDO_PENDING_DELETE.setVisible(isPendingDelete);
-        this.actionsMap.SAVE.setVisible(!isPendingDelete);
-        this.actionsMap.ARCHIVE.setVisible(!isPendingDelete);
-        this.actionsMap.DUPLICATE.setVisible(!isPendingDelete);
-        this.actionsMap.UNPUBLISH.setVisible(!isPendingDelete);
-        this.actionsMap.PREVIEW.setVisible(this.isActionEnabled('PREVIEW') && !isPendingDelete);
-
-        if (isPendingDelete) {
-            this.enableActions({
-                SAVE: false,
-                RESET: false,
-                ARCHIVE: false,
-                DUPLICATE: false
-            });
+        if (this.wizardPanel.isNew()) {
+            this.enableActionsForNew();
         } else {
-            if (this.wizardPanel.isNew()) {
-                this.enableActionsForNew();
-            } else {
-                return this.enableActionsForExisting(this.wizardPanel.getPersistedItem());
-            }
+            return this.enableActionsForExisting(this.wizardPanel.getPersistedItem());
         }
 
         return Q(null);
-    }
-
-    isPendingDelete(): boolean {
-        const compareStatus = this.wizardPanel.getCompareStatus();
-        return CompareStatusChecker.isPendingDelete(compareStatus);
     }
 
     enableActionsForNew() {
@@ -316,7 +291,7 @@ export class ContentWizardActions
 
         return this.enableActionsForExistingByPermissions(existing).then(() => {
             this.enableActions({
-                SAVE: existing.isEditable() && this.wizardPanel.hasUnsavedChanges() && !this.isPendingDelete()
+                SAVE: existing.isEditable() && this.wizardPanel.hasUnsavedChanges()
             });
         });
     }
@@ -453,7 +428,7 @@ export class ContentWizardActions
         const canBePublished: boolean = this.canBePublished();
         const canBeUnpublished: boolean = this.content.isPublished() && this.userCanPublish;
         const canBeMarkedAsReady: boolean = this.contentCanBeMarkedAsReady && this.userCanModify;
-        const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline() && !this.content.isPendingDelete();
+        const canBeRequestedPublish: boolean = this.isContentValid && !this.content.isOnline();
         const canBeReset: boolean = this.wizardPanel.isContentExistsInParentProject() && this.userCanModify &&
                                     this.content.hasOriginProject() &&
                                     !this.content.isFullyInherited();
@@ -579,9 +554,5 @@ export class ContentWizardActions
 
     getShowSplitEditAction(): Action {
         return this.actionsMap.SHOW_SPLIT_EDIT;
-    }
-
-    getUndoPendingDeleteAction(): Action {
-        return this.actionsMap.UNDO_PENDING_DELETE;
     }
 }

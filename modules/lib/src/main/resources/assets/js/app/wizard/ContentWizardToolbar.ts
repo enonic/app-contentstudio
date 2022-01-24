@@ -147,8 +147,7 @@ export class ContentWizardToolbar
             actions.getResetAction(),
             actions.getArchiveAction(),
             actions.getDuplicateAction(),
-            actions.getPreviewAction(),
-            actions.getUndoPendingDeleteAction()
+            actions.getPreviewAction()
         ]);
         super.addGreedySpacer();
     }

@@ -19,7 +19,6 @@ export class UnpublishContentAction extends ContentTreeGridAction {
     }
 
     isToBeEnabled(state: ContentTreeGridItemsState): boolean {
-        return !state.isEmpty() && !state.isManagedActionExecuting() && state.canPublish() &&
-               (state.hasAnyPublished() || state.hasAllPendingDelete());
+        return !state.isEmpty() && !state.isManagedActionExecuting() && state.canPublish() && state.hasAnyPublished();
     }
 }

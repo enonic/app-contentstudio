@@ -392,18 +392,6 @@ export class ContentDeleteDialog
         });
     }
 
-    private isEveryOffline(items: ContentSummaryAndCompareStatus[]): boolean {
-        return items.every((item: ContentSummaryAndCompareStatus) => {
-            return item.getCompareStatus() === CompareStatus.NEW;
-        });
-    }
-
-    private isEveryPendingDelete(items: ContentSummaryAndCompareStatus[]): boolean {
-        return items.every((item: ContentSummaryAndCompareStatus) => {
-            return item.getCompareStatus() === CompareStatus.PENDING_DELETE;
-        });
-    }
-
     private updateSubTitle() {
         const items: ContentSummaryAndCompareStatus[] = this.getItemList().getItems();
 

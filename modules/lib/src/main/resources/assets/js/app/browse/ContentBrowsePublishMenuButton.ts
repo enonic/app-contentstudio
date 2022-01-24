@@ -59,18 +59,13 @@ export class ContentBrowsePublishMenuButton
     }
 
     updateActiveClass() {
-        const isSingleItemToDelete = this.isItemPendingDelete() && this.publishAction.isEnabled();
+        const anyItemsActiveClass: string = this.getActiveClassForAnyItems();
 
-        if (isSingleItemToDelete) {
-            this.setActiveClass(this.publishAction.getActionClass());
+        if (anyItemsActiveClass != null) {
+            this.setActiveClass(anyItemsActiveClass);
         } else {
-            const anyItemsActiveClass = this.getActiveClassForAnyItems();
-            if (anyItemsActiveClass != null) {
-                this.setActiveClass(anyItemsActiveClass);
-            } else {
-                const activeClass = this.item != null ? this.createIssueAction.getActionClass() : 'no-item';
-                this.setActiveClass(activeClass);
-            }
+            const activeClass = this.item != null ? this.createIssueAction.getActionClass() : 'no-item';
+            this.setActiveClass(activeClass);
         }
     }
 

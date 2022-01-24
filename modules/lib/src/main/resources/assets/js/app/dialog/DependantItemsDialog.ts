@@ -357,9 +357,6 @@ export class DialogItemList
         statusItem.setRemoveHandlerFn(() => this.removeItem(item));
 
         itemViewer.onClicked((event) => {
-            if (item.isPendingDelete()) {
-                return;
-            }
             const el = new ElementHelper(<HTMLElement>event.target);
             if (!(el.hasClass('remove') || el.hasClass('include-children-toggler'))) {
                 this.notifyItemClicked(item);

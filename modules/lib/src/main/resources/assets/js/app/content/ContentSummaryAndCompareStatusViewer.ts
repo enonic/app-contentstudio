@@ -77,7 +77,7 @@ export class ContentSummaryAndCompareStatusViewer
         this.toggleClass('has-origin-project', object.hasOriginProject());
         this.toggleClass('data-inherited', object.isDataInherited());
 
-        if (!invalid && !object.isOnline() && !object.isPendingDelete()) {
+        if (!invalid && !object.isOnline()) {
             const workflowState = this.resolveWorkflowState(object);
             this.getNamesAndIconView().setIconToolTip(workflowState);
             this.toggleClass('ready', !isPendingDelete && contentSummary.isReady());

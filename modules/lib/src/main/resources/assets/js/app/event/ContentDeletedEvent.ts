@@ -21,16 +21,6 @@ export class ContentDeletedEvent
         return this;
     }
 
-    addPendingItem(contentSummary: ContentSummaryAndCompareStatus): ContentDeletedEvent {
-        this.contentDeletedItems.push(new ContentPendingDeleteItem(contentSummary, true));
-        return this;
-    }
-
-    addUndeletedItem(contentSummary: ContentSummaryAndCompareStatus): ContentDeletedEvent {
-        this.undeletedItems.push(new ContentPendingDeleteItem(contentSummary));
-        return this;
-    }
-
     getDeletedItems(): ContentDeletedItem[] {
         return this.contentDeletedItems;
     }
@@ -90,28 +80,5 @@ export class ContentDeletedItem {
 
     public getCompareStatus(): CompareStatus {
         throw new Error('Must be overridden by inheritors');
-    }
-}
-
-export class ContentPendingDeleteItem
-    extends ContentDeletedItem {
-
-    private pending: boolean;
-
-    private compareStatus: CompareStatus;
-
-    constructor(contentSummary: ContentSummaryAndCompareStatus, pending: boolean = false) {
-        super(contentSummary.getContentId(), contentSummary.getPath(), Branch.MASTER);
-
-        this.compareStatus = contentSummary.getCompareStatus();
-        this.pending = pending;
-    }
-
-    public isPending(): boolean {
-        return this.pending;
-    }
-
-    public getCompareStatus(): CompareStatus {
-        return this.compareStatus;
     }
 }

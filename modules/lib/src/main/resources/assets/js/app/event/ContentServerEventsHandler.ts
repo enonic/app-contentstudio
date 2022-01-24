@@ -45,8 +45,6 @@ export class ContentServerEventsHandler {
 
     private contentUnpublishListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
 
-    private contentPendingListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
-
     private contentDuplicateListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
 
     private contentSortListeners: { (data: ContentSummaryAndCompareStatus[]): void }[] = [];
@@ -153,27 +151,6 @@ export class ContentServerEventsHandler {
         contentDeletedEvent.fire();
 
         this.notifyContentDeleted(changeItems);
-    }
-
-    private handleContentPending(data: ContentSummaryAndCompareStatus[]) {
-        if (ContentServerEventsHandler.debug) {
-            console.debug('ContentServerEventsHandler: pending', data);
-        }
-        let contentDeletedEvent = new ContentDeletedEvent();
-
-        data.filter((el) => {
-            return !!el;        // not sure if this check is necessary
-        }).forEach((el) => {
-
-            if (CompareStatusChecker.isPendingDelete(el.getCompareStatus())) {
-                contentDeletedEvent.addPendingItem(el);
-            } else {
-                contentDeletedEvent.addUndeletedItem(el);
-            }
-        });
-        contentDeletedEvent.fire();
-
-        this.notifyContentPending(data);
     }
 
     private handleContentDuplicated(data: ContentSummaryAndCompareStatus[]) {
@@ -392,23 +369,6 @@ export class ContentServerEventsHandler {
         });
     }
 
-    onContentPending(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
-        this.contentPendingListeners.push(listener);
-    }
-
-    unContentPending(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
-        this.contentPendingListeners =
-            this.contentPendingListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[]) => void) => {
-                return currentListener !== listener;
-            });
-    }
-
-    private notifyContentPending(data: ContentSummaryAndCompareStatus[]) {
-        this.contentPendingListeners.forEach((listener: (data: ContentSummaryAndCompareStatus[]) => void) => {
-            listener(data);
-        });
-    }
-
     onContentSorted(listener: (data: ContentSummaryAndCompareStatus[]) => void) {
         this.contentSortListeners.push(listener);
     }
@@ -528,9 +488,6 @@ export class ContentServerEventsHandler {
                     // delete from draft has been handled without fetching summaries,
                     // deleting from master is unpublish
                     this.handleContentUnpublished(summaries);
-                    break;
-                case NodeServerChangeType.PENDING:
-                    this.handleContentPending(summaries);
                     break;
                 case NodeServerChangeType.DUPLICATE:
                     this.handleContentDuplicated(summaries);

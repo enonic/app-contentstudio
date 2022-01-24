@@ -4,11 +4,9 @@ export enum CompareStatus {
     NEW,
     NEWER,
     OLDER,
-    PENDING_DELETE,
     EQUAL,
     MOVED,
-    UNKNOWN,
-    ARCHIVED
+    UNKNOWN
 }
 
 export class CompareStatusFormatter {
@@ -20,14 +18,10 @@ export class CompareStatusFormatter {
             return 'new';
         case CompareStatus.NEWER:
             return 'modified';
-        case CompareStatus.PENDING_DELETE:
-            return 'deleted';
         case CompareStatus.EQUAL:
             return 'online';
         case CompareStatus.MOVED:
             return 'moved';
-        case CompareStatus.ARCHIVED:
-            return 'archived';
         default:
             return 'unknown';
         }
@@ -47,17 +41,11 @@ export class CompareStatusFormatter {
         case CompareStatus.OLDER:
             status = i18n('status.outofdate');
             break;
-        case CompareStatus.PENDING_DELETE:
-            status = i18n('status.deleted');
-            break;
         case CompareStatus.EQUAL:
             status = i18n('status.published');
             break;
         case CompareStatus.MOVED:
             status = i18n('status.moved');
-            break;
-        case CompareStatus.ARCHIVED:
-            status = i18n('status.archived');
             break;
         default:
             status = i18n('status.unknown');
@@ -68,10 +56,6 @@ export class CompareStatusFormatter {
 }
 
 export class CompareStatusChecker {
-
-    public static isPendingDelete(compareStatus: CompareStatus): boolean {
-        return compareStatus === CompareStatus.PENDING_DELETE;
-    }
 
     public static isPublished(compareStatus: CompareStatus): boolean {
         return compareStatus !== CompareStatus.NEW && compareStatus !== CompareStatus.UNKNOWN;

@@ -13,7 +13,6 @@ import {SortContentAction} from './SortContentAction';
 import {PublishContentAction} from './PublishContentAction';
 import {PublishTreeContentAction} from './PublishTreeContentAction';
 import {UnpublishContentAction} from './UnpublishContentAction';
-import {UndoPendingDeleteContentAction} from './UndoPendingDeleteContentAction';
 import {CreateIssueAction} from './CreateIssueAction';
 import {GetPermittedActionsRequest} from '../../resource/GetPermittedActionsRequest';
 import {GetContentTypeByNameRequest} from '../../resource/GetContentTypeByNameRequest';
@@ -243,18 +242,10 @@ export class ContentTreeGridActions implements TreeGridActions<ContentSummaryAnd
     }
 
     private toggleVisibility(state: ContentTreeGridItemsState) {
-        if (state.hasAnyPendingDelete()) {
-            const invisibleActions: Action[] = state.hasAllPendingDelete()
-                                               ? this.getAllActionsNoPendingDelete()
-                                               : this.getAllActions();
-            invisibleActions.forEach(action => action.setVisible(false));
-        } else {
-            this.getAllCommonActions().forEach(action => action.setVisible(true));
-            this.getAction(ActionName.UNPUBLISH).setVisible(this.getAction(ActionName.UNPUBLISH).isEnabled());
-        }
+        this.getAllCommonActions().forEach(action => action.setVisible(true));
+        this.getAction(ActionName.UNPUBLISH).setVisible(this.getAction(ActionName.UNPUBLISH).isEnabled());
 
-        this.getAction(ActionName.PUBLISH).setVisible(
-            state.hasAllPendingDelete() || this.getAction(ActionName.PUBLISH).isEnabled());
+        this.getAction(ActionName.PUBLISH).setVisible(this.getAction(ActionName.PUBLISH).isEnabled());
         (<EditContentAction>this.getAction(ActionName.EDIT)).updateLabel(state);
     }
 
