@@ -10,9 +10,10 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 
-describe('Browse panel, toolbar spec. Check state of buttons after closing a wizard', function () {
+describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar after closing a wizard page', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
+    let FOLDER_NAME;
 
     let SITE;
     //verifies https://github.com/enonic/app-contentstudio/issues/645
@@ -24,8 +25,8 @@ describe('Browse panel, toolbar spec. Check state of buttons after closing a wiz
             SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConstant.APP_CONTENT_TYPES]);
             await studioUtils.doAddReadySite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
-            let folderName = contentBuilder.generateRandomName('folder');
-            let folder = contentBuilder.buildFolder(folderName);
+            FOLDER_NAME = contentBuilder.generateRandomName('folder');
+            let folder = contentBuilder.buildFolder(FOLDER_NAME);
             // opens folder-wizard, types a name and saves it then closes the wizard.
             await studioUtils.doAddFolder(folder);
             //'Publish' button should be displayed on the toolbar after closing a wizard with child content
@@ -36,6 +37,26 @@ describe('Browse panel, toolbar spec. Check state of buttons after closing a wiz
             await contentBrowsePanel.waitForArchiveButtonEnabled();
             //'Move' button should be enabled
             await contentBrowsePanel.waitForMoveButtonEnabled();
+        });
+
+    //Verify "Move" action is disabled in the search view #4035
+    it(`search for some content WHEN the content has been selected THEN Move button should be enabled`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+
+            await studioUtils.findAndSelectItem(FOLDER_NAME);
+            await studioUtils.saveScreenshot("content_in_filtered_grid");
+            //'Publish' button should be displayed on the toolbar after closing a wizard with child content
+            await contentBrowsePanel.waitForMarkAsReadyButtonVisible();
+            //'Edit' button should be enabled
+            await contentBrowsePanel.waitForEditButtonEnabled();
+            //'Archive' button should be enabled
+            await contentBrowsePanel.waitForArchiveButtonEnabled();
+            //'Move' button should be enabled
+            await contentBrowsePanel.waitForMoveButtonEnabled();
+            await contentBrowsePanel.waitForDuplicateButtonEnabled();
+            await contentBrowsePanel.waitForPreviewButtonDisabled();
+            await contentBrowsePanel.waitForSortButtonDisabled();
         });
 
     it(`GIVEN existing site is selected WHEN the site (children are not included) has been published THEN 'Publish Tree' button should appear on the toolbar`,

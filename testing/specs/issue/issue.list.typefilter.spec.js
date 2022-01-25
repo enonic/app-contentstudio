@@ -179,7 +179,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             await studioUtils.openIssuesListDialog();
             //2. Select 'Publish Requests' in the filter:
             await issueListDialog.selectTypeFilterOption(csConst.ISSUE_LIST_TYPE_FILTER.PUBLISH_REQUESTS);
-            studioUtils.saveScreenshot("typefilter_requests");
+            await studioUtils.saveScreenshot("typefilter_requests");
             //Publish request should be present:
             await issueListDialog.waitForIssuePresent(PUBLISH_REQUEST_TITLE);
             // But the task should not be present:

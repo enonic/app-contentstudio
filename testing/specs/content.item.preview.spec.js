@@ -28,7 +28,7 @@ describe('content.item.preview.spec - Select a content file and check expected i
             //1. Select an existing folder:
             await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_2_NAME);
             //2. Verify that 'Preview not available' is displayed
-            studioUtils.saveScreenshot("preview_not_available");
+            await studioUtils.saveScreenshot("preview_not_available");
             await contentItemPreviewPanel.waitForPreviewNotAvailAbleMessageDisplayed();
         });
 

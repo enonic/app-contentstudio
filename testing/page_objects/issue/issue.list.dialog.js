@@ -151,11 +151,17 @@ class IssuesListDialog extends Page {
 
     //clicks on dropdown handle and selects option in the Type Filter
     async selectTypeFilterOption(option) {
-        await this.clickOnElement(this.typeFilterDropDownHandle);
-        let optionXpath = xpath.typeFilterOption(option);
-        await this.waitForElementDisplayed(optionXpath, appConst.shortTimeout);
-        await this.clickOnElement(optionXpath);
-        return this.pause(300);
+        try {
+            await this.waitForElementEnabled(this.typeFilterDropDownHandle, appConst.mediumTimeout);
+            await this.clickOnElement(this.typeFilterDropDownHandle);
+            let optionXpath = xpath.typeFilterOption(option);
+            await this.waitForElementDisplayed(optionXpath, appConst.shortTimeout);
+            await this.clickOnElement(optionXpath);
+            return this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("issue_list"));
+            throw new Error("Issue list dialog  " + err);
+        }
     }
 
     async isTypeFilterOptionDisabled(option) {

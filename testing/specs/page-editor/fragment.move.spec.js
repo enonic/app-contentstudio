@@ -64,7 +64,7 @@ describe('Move Fragment specification', function () {
             let moveContentDialog = new MoveContentDialog();
             let confirmationDialog = new ConfirmationDialog();
             //1. Select the fragment and click on Move button:
-            await studioUtils.findAndSelectContentByDisplayName('text_component_1');
+            await studioUtils.findAndSelectItemByDisplayName('text_component_1');
             await contentBrowsePanel.clickOnMoveButton();
             //2. Verify -  modal dialog is loaded then click on 'Move' button:
             await moveContentDialog.waitForOpened();

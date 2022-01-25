@@ -4,6 +4,7 @@
 const Page = require('../page');
 const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
+const {XPATH} = require('../users/wizard.panel');
 
 const xpath = {
     container: "//div[contains(@id,'ContentItemPreviewPanel')]",
@@ -11,7 +12,7 @@ const xpath = {
     status: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status')]`,
     author: `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'author')]`,
     issueMenuButton: `//div[contains(@id,'MenuButton')]`,
-    previewNotAvailableSpan: "//span[text()='Preview not available']",
+    previewNotAvailableSpan: "//div[@class='no-preview-message']//span[text()='Preview not available']",
     issueMenuItemByName:
         name => `//ul[contains(@id,'Menu')]/li[contains(@id,'MenuItem') and contains(.,'${name}')]`,
     issueMenuButtonByName:
@@ -191,6 +192,12 @@ class ContentItemPreviewPanel extends Page {
         } catch (err) {
             throw new Error("Content Item Preview Panel - " + err);
         }
+    }
+
+    async getNoPreviewMessage() {
+        let locator = xpath.container + "//div[@class='no-preview-message']//span";
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 }
 
