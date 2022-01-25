@@ -33,6 +33,6 @@ export class PageEditorWidgetItemView
     }
 
     private static isPreviewAvailable(item: ContentSummaryAndCompareStatus): Q.Promise<boolean> {
-        return item.hasContentSummary() ? new IsRenderableRequest(item.getContentId()).sendAndParse() : Q(false);
+        return item.hasContentSummary() ? new IsRenderableRequest(item.getContentSummary()).sendAndParse() : Q(false);
     }
 }

@@ -2594,7 +2594,7 @@ export class ContentWizardPanel
     }
 
     private checkIfRenderable(): Q.Promise<Boolean> {
-        return new IsRenderableRequest(this.getPersistedItem().getContentId()).sendAndParse().then((renderable: boolean) => {
+        return new IsRenderableRequest(this.getPersistedItem()).sendAndParse().then((renderable: boolean) => {
             this.renderableChanged = this.renderable !== renderable;
             this.renderable = renderable;
 
