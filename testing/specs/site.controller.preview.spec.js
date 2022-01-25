@@ -14,6 +14,7 @@ const PageInspectionPanel = require('../page_objects/wizardpanel/liveform/inspec
 const ContextWindow = require('../page_objects/wizardpanel/liveform/liveform.context.window');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const PageComponentView = require("../page_objects/wizardpanel/liveform/page.components.view");
+const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
 
 describe('site.controller.preview.spec: checks Preview button and options in selector for Page Templates and Controllers', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -35,13 +36,19 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             await contentWizard.waitForPreviewButtonNotDisplayed();
         });
 
-    it(`WHEN existing site(controller is not selected) has been selected THEN 'Preview' button should be disabled in the browse toolbar`,
+    it(`WHEN existing site has been selected(application is not added to this site) THEN 'Preview' button should be disabled in the browse toolbar`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            let contentItemPreviewPanel = new ContentItemPreviewPanel();
             //1. Select the site
             await studioUtils.findAndSelectItem(SITE.displayName);
             //3. Verify that 'Preview' button is disabled in the browse toolbar:
             await contentBrowsePanel.waitForPreviewButtonDisabled();
+            //4. Verify that 'Failed to render content preview' is displayed in Content Item Preview panel:
+            await studioUtils.saveScreenshot("site_preview_not_available");
+            let text = await contentItemPreviewPanel.getNoPreviewMessage();
+            assert.isTrue(text.includes("Failed to render content preview"),
+                "Expected text should be displayed in Content Item Preview panel");
         });
 
     it(`GIVEN existing site is opened WHEN page controller has been selected THEN required options should be present in Inspection Panel`,

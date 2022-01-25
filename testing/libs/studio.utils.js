@@ -405,12 +405,6 @@ module.exports = {
         return await browsePanel.pause(400);
     },
 
-    async findAndSelectContentByDisplayName(displayName) {
-        let browsePanel = new BrowsePanel();
-        await this.typeNameInFilterPanel(displayName);
-        await browsePanel.waitForContentByDisplayNameVisible(displayName);
-        return await browsePanel.clickOnRowByDisplayName(displayName);
-    },
     //find the content, select it and 'Delete'
     async doDeleteContent(name) {
         let browsePanel = new BrowsePanel();
@@ -426,7 +420,7 @@ module.exports = {
     async doDeleteContentByDisplayName(displayName) {
         let browsePanel = new BrowsePanel();
         let deleteContentDialog = new DeleteContentDialog();
-        await this.findAndSelectContentByDisplayName(displayName);
+        await this.findAndSelectItemByDisplayName(displayName);
         //Open modal dialog:
         await browsePanel.clickOnArchiveButton();
         await deleteContentDialog.waitForDialogOpened();
@@ -498,9 +492,9 @@ module.exports = {
             }
             await filterPanel.typeSearchText(name);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
-            return await browsePanel.pause(300);
+            return await browsePanel.pause(500);
         } catch (err) {
-            this.saveScreenshot(appConst.generateRandomName('err_spinner'));
+            await this.saveScreenshot(appConst.generateRandomName('err_spinner'));
             throw new Error("Filter Panel-  error : " + err);
         }
     },

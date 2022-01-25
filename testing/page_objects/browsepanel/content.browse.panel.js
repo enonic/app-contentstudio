@@ -280,10 +280,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await this.pause(500);
     }
 
-    clickOnMoveButton() {
-        return this.clickOnElement(this.moveButton).catch(err => {
+    async clickOnMoveButton() {
+        try {
+            await this.waitForMoveButtonEnabled();
+            return await this.clickOnElement(this.moveButton);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_move"));
             throw new Error('error when clicking on the Move button ' + err);
-        })
+        }
     }
 
     async clickOnPublishButton() {
