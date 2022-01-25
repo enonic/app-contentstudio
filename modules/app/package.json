@@ -16,7 +16,7 @@
   "dependencies": {
     "enonic-admin-artifacts": "^1.8.0",
     "jquery-simulate": "^1.0.2",
-    "jquery-ui": "^1.13.0",
+    "jquery-ui": "^1.13.1",
     "lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
     "lib-contentstudio": "file:./.xp/dev/lib-contentstudio",
     "q": "^1.5.1"
