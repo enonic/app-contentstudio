@@ -82,8 +82,10 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await contentPublishDialog.waitForDialogOpened();
             //2. Click on Include children button
             await contentPublishDialog.clickOnIncludeChildrenToogler();
+            await studioUtils.saveScreenshot("include_children_clicked");
             //3. Exclude all invalid items:
             await contentPublishDialog.clickOnExcludeInvalidItemsButton();
+            await studioUtils.saveScreenshot("exclude_work_in_pr");
             //4. Exclude all 'work in progress' items:
             await contentPublishDialog.clickOnExcludeWorkInProgressItemsButton();
             //5. Verify that 'Exclude all' buttons get not visible:

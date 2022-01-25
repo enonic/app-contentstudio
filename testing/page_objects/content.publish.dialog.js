@@ -188,7 +188,7 @@ class ContentPublishDialog extends Page {
         try {
             await this.waitForElementDisplayed(this.includeChildrenToogler, appConst.mediumTimeout);
             await this.clickOnElement(this.includeChildrenToogler);
-            return await this.pause(500);
+            return await this.pause(700);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_include_children"));
             throw new Error('Error when clicking on Include Children toggler ' + err);
