@@ -151,7 +151,10 @@ task testPublishIssues( type: NpmTask, dependsOn: [npmInstall, startServer, copy
     args = ['run-script', 'test_publish_issues']
     finalizedBy stopServer
 }
-
+task testModalDialog( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_modal_dialog']
+    finalizedBy stopServer
+}
 task testPublishIssuesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['run-script', 'test_publish_issues']
     finalizedBy stopServer
@@ -160,15 +163,6 @@ task testPublishIssuesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
 task baseContentStudioTests( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
     args = ['run-script', 'base_tests']
     finalizedBy stopServer
-}
-
-task runSeparateTestLocally( type: Exec, dependsOn: [npmInstall] ) {
-    if ( project.hasProperty( "t_name" ) )
-    {
-        println( "N_A_M_E: " + t_name );
-        environment = ['t_name': t_name]
-        commandLine 'node', './tasks/test-by-name.js'
-    }
 }
 
 task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall] ) {

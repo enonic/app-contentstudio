@@ -984,6 +984,13 @@ module.exports = {
         await this.loadUrl(url);
         return await webDriverHelper.browser.pause(2000);
     },
+    async loadServiceURL(serviceName, appName) {
+        let currentUrl = await webDriverHelper.browser.getUrl();
+        let base = currentUrl.substring(0, currentUrl.indexOf('admin'));
+        let url = base + `/site/default/draft/_/service/${appName}/${serviceName}`;
+        await this.loadUrl(url);
+        return await webDriverHelper.browser.pause(2000);
+    },
     async openResourceInMaster(res) {
         let currentUrl = await webDriverHelper.browser.getUrl();
         let base = currentUrl.substring(0, currentUrl.indexOf('admin'));

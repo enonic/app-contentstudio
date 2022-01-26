@@ -16,6 +16,10 @@ class CheckBoxForm extends Page {
         return XPATH.checkboxDiv;
     }
 
+    get formValidationRecording() {
+        return lib.FORM_VIEW + lib.INPUT_VALIDATION_VIEW;
+    }
+
     async clickOnCheckbox() {
         await this.waitForElementDisplayed(this.checkbox, appConst.mediumTimeout);
         return await this.clickOnElement(this.checkbox + "//label");
@@ -25,6 +29,27 @@ class CheckBoxForm extends Page {
         await this.waitForElementDisplayed(this.checkbox + lib.CHECKBOX_INPUT, appConst.mediumTimeout);
         return await this.isSelected(this.checkbox + lib.CHECKBOX_INPUT);
     }
+
+    async waitForFormValidationRecordingDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            let elements = await this.getDisplayedElements(this.formValidationRecording);
+            return elements.length > 0;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Form Validation recording should be displayed"});
+    }
+
+    async getFormValidationRecording() {
+        await this.waitForFormValidationRecordingDisplayed();
+        let recordingElements = await this.getDisplayedElements(this.formValidationRecording);
+        return await recordingElements[0].getText();
+    }
+
+    async waitForFormValidationRecordingNotDisplayed() {
+        await this.getBrowser().waitUntil(async () => {
+            let elements = await this.getDisplayedElements(this.formValidationRecording);
+            return elements.length === 0;
+        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Form Validation recording should not be displayed"});
+    }
+
 
 }
 
