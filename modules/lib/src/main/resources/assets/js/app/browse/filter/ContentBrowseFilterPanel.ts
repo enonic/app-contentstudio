@@ -50,6 +50,11 @@ import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentSummaryJson} from '../../content/ContentSummaryJson';
 import {ContentId} from '../../content/ContentId';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {H2El} from 'lib-admin-ui/dom/H2El';
+import {Checkbox, CheckboxBuilder} from 'lib-admin-ui/ui/Checkbox';
+import {CompareStatus, CompareStatusFormatter} from '../../content/CompareStatus';
+import {CompareStatusCheckbox, CompareStatusCheckboxBuilder} from './CompareStatusCheckbox';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
@@ -59,6 +64,7 @@ export class ContentBrowseFilterPanel
 
     private contentTypeAggregation: ContentTypeAggregationGroupView;
     private lastModifiedAggregation: AggregationGroupView;
+    private statusFilterSection: StatusFilterSection;
 
     private dependenciesSection: DependenciesSection;
 
@@ -70,6 +76,7 @@ export class ContentBrowseFilterPanel
 
     private initElementsAndListeners() {
         this.initAggregationGroupView([this.contentTypeAggregation, this.lastModifiedAggregation]);
+        this.statusFilterSection = new StatusFilterSection();
         this.handleEvents();
     }
 
@@ -114,6 +121,14 @@ export class ContentBrowseFilterPanel
             if (this.dependenciesSection.isActive()) {
                 this.removeDependencyItem();
             }
+        });
+
+        this.whenRendered(() => {
+            this.appendChild(this.statusFilterSection);
+        });
+
+        this.statusFilterSection.onStatusSelectionChanged(() => {
+            this.search();
         });
     }
 
@@ -178,7 +193,8 @@ export class ContentBrowseFilterPanel
     }
 
     protected isFilteredOrConstrained() {
-        return super.isFilteredOrConstrained() || this.dependenciesSection.isActive();
+        return super.isFilteredOrConstrained() || this.dependenciesSection.isActive() ||
+               this.statusFilterSection.getCheckedStatuses().length > 0;
     }
 
     private handleEmptyFilterInput(isRefresh?: boolean): Q.Promise<void> {
@@ -206,6 +222,7 @@ export class ContentBrowseFilterPanel
         }
 
         contentQuery.setSize(ContentQuery.POSTLOAD_SIZE);
+        contentQuery.setCompareStatuses(this.statusFilterSection.getCheckedStatuses());
 
         this.appendContentTypesAggregationQuery(contentQuery);
         this.appendLastModifiedAggregationQuery(contentQuery);
@@ -273,7 +290,7 @@ export class ContentBrowseFilterPanel
         let newContentQuery: ContentQuery = new ContentQuery().setContentTypeNames([]).setFrom(contentQuery.getFrom()).setQueryExpr(
             contentQuery.getQueryExpr()).setSize(contentQuery.getSize()).setAggregationQueries(
             contentQuery.getAggregationQueries()).setQueryFilters(contentQuery.getQueryFilters()).setMustBeReferencedById(
-            contentQuery.getMustBeReferencedById());
+            contentQuery.getMustBeReferencedById()).setCompareStatuses(contentQuery.getCompareStatuses());
 
         return newContentQuery;
     }
@@ -332,8 +349,7 @@ export class ContentBrowseFilterPanel
     }
 
     protected resetFacets(suppressEvent?: boolean, doResetAll?: boolean): Q.Promise<void> {
-
-        let contentQuery: ContentQuery = this.buildAggregationsQuery();
+        const contentQuery: ContentQuery = this.buildAggregationsQuery();
 
         return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(contentQuery).sendAndParse().then(
             (contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
@@ -584,5 +600,67 @@ export class DependenciesSection
 
     setDependencyItem(item: ContentSummary) {
         this.viewer.setObject(item);
+    }
+}
+
+class StatusFilterSection extends DivEl {
+
+    private statuses: CompareStatus[] = [];
+    private checkboxes: CompareStatusCheckbox[] = [];
+    private statusSelectionChangedListeners: { (): void; }[] = [];
+
+    constructor() {
+        super('aggregation-group-view');
+
+        this.initElements();
+        this.initListeners();
+    }
+
+    private initElements(): void {
+        this.statuses.push(CompareStatus.NEW, CompareStatus.NEWER, CompareStatus.EQUAL, CompareStatus.MOVED);
+
+        this.statuses.forEach((status: CompareStatus) => {
+            this.checkboxes.push(<CompareStatusCheckbox>new CompareStatusCheckboxBuilder().setStatus(status).setLabelText(
+                CompareStatusFormatter.formatStatusText(status)).build());
+        });
+    }
+
+    private initListeners(): void {
+        const selectionChangedHandler: () => void = this.notifyStatusSelectionChanged.bind(this);
+
+        this.checkboxes.forEach((checkbox: Checkbox) => {
+            checkbox.onValueChanged(selectionChangedHandler);
+        });
+    }
+
+    getCheckedStatuses(): CompareStatus[] {
+        return this.checkboxes.filter((checkbox: CompareStatusCheckbox) => checkbox.isChecked()).map(
+            (checkbox: CompareStatusCheckbox) => checkbox.getStatus());
+    }
+
+    onStatusSelectionChanged(handler: () => void): void {
+        this.statusSelectionChangedListeners.push(handler);
+    }
+
+    unStatusSelectionChanged(listener: { (): void; }): void {
+        this.statusSelectionChangedListeners = this.statusSelectionChangedListeners.filter(function (curr: { (): void; }) {
+            return curr !== listener;
+        });
+    }
+
+    notifyStatusSelectionChanged(): void {
+        this.statusSelectionChangedListeners.forEach((handler: { (): void; }) => handler());
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.appendChild(new H2El().setHtml(i18n('field.status')));
+
+            this.checkboxes.forEach((checkbox: Checkbox) => {
+                this.appendChild(new DivEl('aggregation-bucket-view').appendChild(checkbox));
+            });
+
+            return rendered;
+        });
     }
 }

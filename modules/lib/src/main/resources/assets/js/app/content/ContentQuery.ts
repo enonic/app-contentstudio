@@ -5,6 +5,7 @@ import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {AggregationQuery} from 'lib-admin-ui/query/aggregation/AggregationQuery';
 import {Filter} from 'lib-admin-ui/query/filter/Filter';
 import {ContentId} from './ContentId';
+import {CompareStatus} from './CompareStatus';
 
 export class ContentQuery
     implements Equitable {
@@ -22,6 +23,8 @@ export class ContentQuery
     private aggregationQueries: AggregationQuery[] = [];
 
     private queryFilters: Filter[] = [];
+
+    private compareStatuses: CompareStatus[] = [];
 
     private from: number = 0;
 
@@ -70,6 +73,15 @@ export class ContentQuery
 
     getSize(): number {
         return this.size;
+    }
+
+    setCompareStatuses(statuses: CompareStatus[]): ContentQuery {
+        this.compareStatuses = statuses;
+        return this;
+    }
+
+    getCompareStatuses(): CompareStatus[] {
+        return this.compareStatuses;
     }
 
     addAggregationQuery(aggregationQuery: AggregationQuery): ContentQuery {
@@ -127,6 +139,10 @@ export class ContentQuery
             return false;
         }
         if (!ObjectHelper.equals(this.mustBeReferencedById, other.mustBeReferencedById)) {
+            return false;
+        }
+
+        if (!ObjectHelper.anyArrayEquals(this.compareStatuses, other.compareStatuses)) {
             return false;
         }
 
