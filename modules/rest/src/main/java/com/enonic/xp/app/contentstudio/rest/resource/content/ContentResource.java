@@ -1062,10 +1062,9 @@ public final class ContentResource
     @Consumes(MediaType.APPLICATION_JSON)
     public AbstractContentQueryResultJson query( final ContentQueryJson contentQueryJson )
     {
-        final ContentQueryJsonToContentQueryConverter selectorQueryProcessor = ContentQueryJsonToContentQueryConverter.create()
-            .contentQueryJson( contentQueryJson )
-            .contentService( this.contentService )
-            .build();
+        final ContentQueryJsonToContentQueryConverter selectorQueryProcessor =
+            ContentQueryJsonToContentQueryConverter.create().contentQueryJson( contentQueryJson ).contentService(
+                this.contentService ).build();
 
         final ContentQuery contentQuery = selectorQueryProcessor.createQuery();
 
@@ -1076,6 +1075,22 @@ public final class ContentResource
 
         final FindContentIdsByQueryResult findResult = contentService.find( contentQuery );
 
+        final CompareContentResults compareResults =
+            contentService.compare( new CompareContentsParams( findResult.getContentIds(), ContentConstants.BRANCH_MASTER ) );
+
+        Map<CompareStatus, Set<ContentId>> contentIdGroupedByStatus = new HashMap<>();
+
+        compareResults.getCompareContentResultsMap().forEach( ( contentId, status ) -> {
+            if ( !contentIdGroupedByStatus.containsKey( status.getCompareStatus() ) )
+            {
+                contentIdGroupedByStatus.put( status.getCompareStatus(), new HashSet<>() );
+            }
+            contentIdGroupedByStatus.get( status.getCompareStatus() ).add( contentId );
+        } );
+
+        Map<CompareStatus, Integer> statuses = new HashMap<>();
+        contentIdGroupedByStatus.keySet().forEach( e -> statuses.put( e, contentIdGroupedByStatus.get( e ).size() ) );
+
         return FindContentByQuertResultJsonFactory.create()
             .contents( this.contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) )
             .aggregations( findResult.getAggregations() )
@@ -1083,6 +1098,7 @@ public final class ContentResource
             .expand( contentQueryJson.getExpand() )
             .hits( findResult.getHits() )
             .totalHits( findResult.getTotalHits() )
+            .statuses( statuses )
             .build()
             .execute();
     }

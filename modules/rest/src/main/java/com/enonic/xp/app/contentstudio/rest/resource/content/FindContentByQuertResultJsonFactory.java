@@ -1,5 +1,7 @@
 package com.enonic.xp.app.contentstudio.rest.resource.content;
 
+import java.util.Map;
+
 import com.enonic.xp.aggregation.Aggregation;
 import com.enonic.xp.aggregation.Aggregations;
 import com.enonic.xp.aggregation.BucketAggregation;
@@ -8,6 +10,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.AbstractConten
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentIdQueryResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentQueryResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentSummaryQueryResultJson;
+import com.enonic.xp.content.CompareStatus;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentListMetaData;
 import com.enonic.xp.content.Contents;
@@ -26,6 +29,8 @@ public class FindContentByQuertResultJsonFactory
 
     private final String expand;
 
+    private final Map<CompareStatus, Integer> statuses;
+
     private FindContentByQuertResultJsonFactory( final Builder builder )
     {
         totalHits = builder.totalHits;
@@ -34,6 +39,7 @@ public class FindContentByQuertResultJsonFactory
         aggregations = builder.aggregations;
         jsonObjectsFactory = builder.jsonObjectsFactory;
         expand = builder.expand;
+        statuses = builder.statuses;
     }
 
     private static void addContents( final Contents contents, final AbstractContentQueryResultJson.Builder builder )
@@ -85,7 +91,7 @@ public class FindContentByQuertResultJsonFactory
         }
         else if ( Expand.SUMMARY.matches( expand ) )
         {
-            builder = ContentSummaryQueryResultJson.newBuilder( jsonObjectsFactory );
+            builder = ContentSummaryQueryResultJson.newBuilder( jsonObjectsFactory ).statuses( statuses );
         }
         else
         {
@@ -112,6 +118,8 @@ public class FindContentByQuertResultJsonFactory
         private JsonObjectsFactory jsonObjectsFactory;
 
         private String expand;
+
+        private Map<CompareStatus, Integer> statuses;
 
         private Builder()
         {
@@ -150,6 +158,12 @@ public class FindContentByQuertResultJsonFactory
         public Builder expand( final String val )
         {
             expand = val;
+            return this;
+        }
+
+        public Builder statuses( final Map<CompareStatus, Integer> statuses )
+        {
+            this.statuses = statuses;
             return this;
         }
 
