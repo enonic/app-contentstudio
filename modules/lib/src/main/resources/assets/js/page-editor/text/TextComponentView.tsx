@@ -28,6 +28,9 @@ import {ContentSummary} from '../../app/content/ContentSummary';
 import {ContentPath} from '../../app/content/ContentPath';
 import {ItemViewSelectedEvent} from '../ItemViewSelectedEvent';
 import {SelectedHighlighter} from '../SelectedHighlighter';
+import RichEditor from '../../app/inputtype/ui/text/RichEditor';
+import * as React from "react";
+import * as ReactDOM from "react-dom";
 
 declare let CONFIG;
 
@@ -45,6 +48,8 @@ export class TextComponentView
     private rootElement: Element;
 
     private htmlAreaEditor: HtmlEditor;
+
+    private richEditor: RichEditor;
 
     private isInitializingEditor: boolean;
 
@@ -413,7 +418,7 @@ export class TextComponentView
         const createDialogHandler = event => {
             this.currentDialogConfig = event.getConfig();
         };
-
+/*
         const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
             .setEditorContainerId(this.getId() + '_editor')
             .setAssetsUri(assetsUri)
@@ -439,6 +444,23 @@ export class TextComponentView
                 this.selectWhileEditing();
             });
         });
+        */
+
+        //this.editorContainer.appendChild(RichEditor.create());
+        const domContainer = document.getElementById(this.getId() + '_editor');
+        const setValue = (value: string) => {
+            console.log('setValue: ', value);
+            this.component.setText(HTMLAreaHelper.convertPreviewSrcToRenderSrc(value));
+        };
+        ReactDOM.render(<RichEditor value={this.getComponentText()} callback={setValue}/>, domContainer);
+    }
+
+    private getComponentText(): string {
+        if (this.component.getText()) {
+            return HTMLAreaHelper.convertRenderSrcToPreviewSrc(this.component.getText(), this.getContent().getId());
+        } else {
+            return TextComponentView.DEFAULT_TEXT;
+        }
     }
 
     private handleEditorCreated() {

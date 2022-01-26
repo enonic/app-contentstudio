@@ -27,7 +27,8 @@
             "es2015",
             "es2015.promise",
             "dom"
-        ]
+        ],
+      "jsx": "react"
     },
     "include": [
         "./src/main/resources/assets/js/types.d.ts",
