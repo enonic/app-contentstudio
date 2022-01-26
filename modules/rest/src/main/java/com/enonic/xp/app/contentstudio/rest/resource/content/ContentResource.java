@@ -7,6 +7,7 @@ import com.enonic.xp.app.contentstudio.json.content.attachment.AttachmentListJso
 import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.app.contentstudio.rest.LimitingInputStream;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.*;
+import com.enonic.xp.app.contentstudio.rest.resource.content.json.filter.FilterJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.query.ContentQueryWithChildren;
 import com.enonic.xp.app.contentstudio.rest.resource.content.task.*;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconResolver;
@@ -1073,34 +1074,70 @@ public final class ContentResource
             return FindContentByQuertResultJsonFactory.create().expand( contentQueryJson.getExpand() ).build().execute();
         }
 
-        final FindContentIdsByQueryResult findResult = contentService.find( contentQuery );
+        FindContentIdsByQueryResult findResult = contentService.find( contentQuery );
 
         final CompareContentResults compareResults =
             contentService.compare( new CompareContentsParams( findResult.getContentIds(), ContentConstants.BRANCH_MASTER ) );
 
-        Map<CompareStatus, Set<ContentId>> contentIdGroupedByStatus = new HashMap<>();
+        Map<String, Set<ContentId>> contentIdGroupedByStatus = new HashMap<>();
 
         compareResults.getCompareContentResultsMap().forEach( ( contentId, status ) -> {
-            if ( !contentIdGroupedByStatus.containsKey( status.getCompareStatus() ) )
+            final String statusType = status.getCompareStatus().name();
+            if ( !contentIdGroupedByStatus.containsKey( statusType ) )
             {
-                contentIdGroupedByStatus.put( status.getCompareStatus(), new HashSet<>() );
+                contentIdGroupedByStatus.put( statusType, new HashSet<>() );
             }
-            contentIdGroupedByStatus.get( status.getCompareStatus() ).add( contentId );
+            contentIdGroupedByStatus.get( statusType ).add( contentId );
         } );
 
-        Map<CompareStatus, Integer> statuses = new HashMap<>();
-        contentIdGroupedByStatus.keySet().forEach( e -> statuses.put( e, contentIdGroupedByStatus.get( e ).size() ) );
+        Map<String, Integer> statuses = new HashMap<>();
 
-        return FindContentByQuertResultJsonFactory.create()
-            .contents( this.contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) )
-            .aggregations( findResult.getAggregations() )
-            .jsonObjectsFactory( jsonObjectsFactory )
-            .expand( contentQueryJson.getExpand() )
-            .hits( findResult.getHits() )
-            .totalHits( findResult.getTotalHits() )
-            .statuses( statuses )
-            .build()
-            .execute();
+        if ( contentQueryJson.getStatuses() != null && !contentQueryJson.getStatuses().isEmpty() )
+        {
+            Set<ContentId> contentIds = new HashSet<>();
+            for ( String status : contentQueryJson.getStatuses() )
+            {
+                contentIds.addAll( contentIdGroupedByStatus.get( status ) );
+            }
+
+            final ContentQuery.Builder builder = ContentQuery.create();
+
+            if ( contentQueryJson.getAggregationQueries() != null )
+            {
+                for ( final AggregationQueryJson aggregationQueryJson : contentQueryJson.getAggregationQueries() )
+                {
+                    builder.aggregationQuery( aggregationQueryJson.getAggregationQuery() );
+                }
+            }
+            if ( contentQueryJson.getQueryFilters() != null )
+            {
+                for ( final FilterJson queryFilterJson : contentQueryJson.getQueryFilters() )
+                {
+                    builder.queryFilter( queryFilterJson.getFilter() );
+                }
+            }
+
+            findResult = contentService.find( builder.filterContentIds( ContentIds.from( contentIds ) ).build() );
+
+            contentIdGroupedByStatus.keySet().stream().
+                filter( s -> contentQueryJson.getStatuses().contains( s ) ).
+                forEach( e -> statuses.put( e, contentIdGroupedByStatus.get( e ).size() ) );
+        }
+        else
+        {
+            contentIdGroupedByStatus.keySet().forEach( e -> statuses.put( e, contentIdGroupedByStatus.get( e ).size() ) );
+        }
+
+        return FindContentByQuertResultJsonFactory.create().
+            contents(this.contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) ).
+            aggregations(findResult.getAggregations() ).
+            jsonObjectsFactory( jsonObjectsFactory ).
+            expand( contentQueryJson.getExpand() ).
+            hits(findResult.getHits() ).
+            totalHits( findResult.getTotalHits() ).
+            statuses( statuses ).
+            build().
+            execute();
     }
 
 

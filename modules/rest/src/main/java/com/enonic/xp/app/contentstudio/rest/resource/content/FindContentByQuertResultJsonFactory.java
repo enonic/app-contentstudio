@@ -10,7 +10,6 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.json.AbstractConten
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentIdQueryResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentQueryResultJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.json.ContentSummaryQueryResultJson;
-import com.enonic.xp.content.CompareStatus;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentListMetaData;
 import com.enonic.xp.content.Contents;
@@ -29,7 +28,7 @@ public class FindContentByQuertResultJsonFactory
 
     private final String expand;
 
-    private final Map<CompareStatus, Integer> statuses;
+    private final Map<String, Integer> statuses;
 
     private FindContentByQuertResultJsonFactory( final Builder builder )
     {
@@ -119,7 +118,7 @@ public class FindContentByQuertResultJsonFactory
 
         private String expand;
 
-        private Map<CompareStatus, Integer> statuses;
+        private Map<String, Integer> statuses;
 
         private Builder()
         {
@@ -161,7 +160,7 @@ public class FindContentByQuertResultJsonFactory
             return this;
         }
 
-        public Builder statuses( final Map<CompareStatus, Integer> statuses )
+        public Builder statuses( final Map<String, Integer> statuses )
         {
             this.statuses = statuses;
             return this;

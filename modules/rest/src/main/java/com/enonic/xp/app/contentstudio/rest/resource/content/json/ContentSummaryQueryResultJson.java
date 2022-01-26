@@ -9,13 +9,12 @@ import com.google.common.collect.ImmutableSet;
 
 import com.enonic.xp.app.contentstudio.json.content.ContentSummaryJson;
 import com.enonic.xp.app.contentstudio.rest.resource.content.JsonObjectsFactory;
-import com.enonic.xp.content.CompareStatus;
 import com.enonic.xp.content.Content;
 
 public class ContentSummaryQueryResultJson
     extends AbstractContentQueryResultJson<ContentSummaryJson>
 {
-    private final Map<CompareStatus, Integer> statuses;
+    private final Map<String, Integer> statuses;
 
     public ContentSummaryQueryResultJson( final Builder builder )
     {
@@ -29,7 +28,7 @@ public class ContentSummaryQueryResultJson
         return new Builder( jsonObjectsFactory );
     }
 
-    public Map<CompareStatus, Integer> getStatuses()
+    public Map<String, Integer> getStatuses()
     {
         return statuses;
     }
@@ -41,7 +40,7 @@ public class ContentSummaryQueryResultJson
 
         private final List<ContentSummaryJson> contents = new ArrayList<>();
 
-        private Map<CompareStatus, Integer> statuses;
+        private Map<String, Integer> statuses;
 
         public Builder( final JsonObjectsFactory jsonObjectsFactory )
         {
@@ -55,7 +54,7 @@ public class ContentSummaryQueryResultJson
             return this;
         }
 
-        public Builder statuses( final Map<CompareStatus, Integer> statuses )
+        public Builder statuses( final Map<String, Integer> statuses )
         {
             this.statuses = statuses;
             return this;
