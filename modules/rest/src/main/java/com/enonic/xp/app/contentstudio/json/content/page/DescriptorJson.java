@@ -6,6 +6,7 @@ import com.enonic.xp.app.contentstudio.json.ItemJson;
 import com.enonic.xp.app.contentstudio.json.form.FormJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.region.ComponentDescriptor;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -25,7 +26,7 @@ public abstract class DescriptorJson
     private final boolean deletable;
 
     public DescriptorJson( final ComponentDescriptor descriptor, final LocaleMessageResolver localeMessageResolver,
-                           final InlineMixinResolver inlineMixinResolver )
+                           final InlineMixinResolver inlineMixinResolver, final InputTypeResolver inputTypeResolver )
     {
         Preconditions.checkNotNull( descriptor );
         Preconditions.checkNotNull( localeMessageResolver );
@@ -36,7 +37,7 @@ public abstract class DescriptorJson
         this.localeMessageResolver = localeMessageResolver;
         this.descriptor = descriptor;
 
-        this.configJson = new FormJson( descriptor.getConfig(), localeMessageResolver, inlineMixinResolver );
+        this.configJson = new FormJson( descriptor.getConfig(), localeMessageResolver, inlineMixinResolver, inputTypeResolver );
     }
 
     public String getKey()

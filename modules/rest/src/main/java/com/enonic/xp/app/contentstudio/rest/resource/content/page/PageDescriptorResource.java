@@ -24,6 +24,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.content.page.part.GetByAppl
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.i18n.LocaleService;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.page.DescriptorKey;
 import com.enonic.xp.page.PageDescriptor;
@@ -45,6 +46,8 @@ public final class PageDescriptorResource
 
     private MixinService mixinService;
 
+    private InputTypeResolver inputTypeResolver;
+
     @GET
     public PageDescriptorJson getByKey( @QueryParam("key") final String pageDescriptorKey )
     {
@@ -53,7 +56,7 @@ public final class PageDescriptorResource
 
         final LocaleMessageResolver localeMessageResolver = new LocaleMessageResolver( this.localeService, key.getApplicationKey() );
         final InlineMixinResolver inlineMixinResolver = new InlineMixinResolver( this.mixinService );
-        final PageDescriptorJson json = new PageDescriptorJson( descriptor, localeMessageResolver, inlineMixinResolver );
+        final PageDescriptorJson json = new PageDescriptorJson( descriptor, localeMessageResolver, inlineMixinResolver, inputTypeResolver );
         return json;
     }
 
@@ -66,7 +69,7 @@ public final class PageDescriptorResource
         final LocaleMessageResolver localeMessageResolver =
             new LocaleMessageResolver( this.localeService, ApplicationKey.from( applicationKey ) );
         return new PageDescriptorListJson( PageDescriptors.from( pageDescriptors ), localeMessageResolver,
-                                           new InlineMixinResolver( mixinService ) );
+                                           new InlineMixinResolver( mixinService ), inputTypeResolver );
     }
 
     @POST
@@ -80,7 +83,7 @@ public final class PageDescriptorResource
             pageDescriptorsJsonBuilder.addAll( this.pageDescriptorService.getByApplication( applicationKey ).
                 stream().
                 map( pageDescriptor -> new PageDescriptorJson( pageDescriptor, new LocaleMessageResolver( localeService, applicationKey ),
-                                                               new InlineMixinResolver( mixinService ) ) ).
+                                                               new InlineMixinResolver( mixinService ), inputTypeResolver ) ).
                 collect( Collectors.toList() ) );
         } );
 
@@ -103,5 +106,11 @@ public final class PageDescriptorResource
     public void setMixinService( final MixinService mixinService )
     {
         this.mixinService = mixinService;
+    }
+
+    @Reference
+    public void setInputTypeResolver( final InputTypeResolver inputTypeResolver )
+    {
+        this.inputTypeResolver = inputTypeResolver;
     }
 }

@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.page.PageDescriptors;
 
 @SuppressWarnings("UnusedDeclaration")
@@ -18,10 +19,10 @@ public class PageDescriptorListJson
     }
 
     public PageDescriptorListJson( final PageDescriptors pageDescriptors, final LocaleMessageResolver localeMessageResolver,
-                                   final InlineMixinResolver inlineMixinResolver )
+                                   final InlineMixinResolver inlineMixinResolver, final InputTypeResolver inputTypeResolver )
     {
         this.pageDescriptors = pageDescriptors.stream()
-            .map( pageDescriptor -> new PageDescriptorJson( pageDescriptor, localeMessageResolver, inlineMixinResolver ) )
+            .map( pageDescriptor -> new PageDescriptorJson( pageDescriptor, localeMessageResolver, inlineMixinResolver, inputTypeResolver ) )
             .collect( Collectors.toUnmodifiableList() );
     }
 

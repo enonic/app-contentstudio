@@ -27,6 +27,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.schema.SchemaImageHelper;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.icon.Icon;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
@@ -58,6 +59,8 @@ public final class ContentTypeResource
 
     private MixinService mixinService;
 
+    private InputTypeResolver inputTypeResolver;
+
     @GET
     public ContentTypeJson get( @QueryParam("name") final String nameAsString )
     {
@@ -77,6 +80,7 @@ public final class ContentTypeResource
             setContentType( contentType ).
             setContentTypeIconUrlResolver( this.contentTypeIconUrlResolver ).
             setInlineMixinResolver( new InlineMixinResolver( this.mixinService ) ).
+            setInputTypeResolver( inputTypeResolver ).
             setLocaleMessageResolver( localeMessageResolver ).
             build();
     }
@@ -173,5 +177,11 @@ public final class ContentTypeResource
     public void setMixinService( final MixinService mixinService )
     {
         this.mixinService = mixinService;
+    }
+
+    @Reference
+    public void setInputTypeResolver( final InputTypeResolver inputTypeResolver )
+    {
+        this.inputTypeResolver = inputTypeResolver;
     }
 }

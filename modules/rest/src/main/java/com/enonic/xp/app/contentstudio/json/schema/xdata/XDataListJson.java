@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.MixinIconUrlResolver;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.schema.xdata.XDatas;
 
 public class XDataListJson
@@ -28,6 +29,7 @@ public class XDataListJson
             setIconUrlResolver( builder.iconUrlResolver ).
             setLocaleMessageResolver( builder.localeMessageResolver ).
             setInlineMixinResolver( builder.inlineMixinResolver ).
+            setInputTypeResolver( builder.inputTypeResolver ).
             build() ).collect( Collectors.toList() );
     }
 
@@ -55,6 +57,8 @@ public class XDataListJson
         private LocaleMessageResolver localeMessageResolver;
 
         private InlineMixinResolver inlineMixinResolver;
+
+        private InputTypeResolver inputTypeResolver;
 
         private Builder()
         {
@@ -84,11 +88,18 @@ public class XDataListJson
             return this;
         }
 
+        public Builder setInputTypeResolver( final InputTypeResolver inputTypeResolver )
+        {
+            this.inputTypeResolver = inputTypeResolver;
+            return this;
+        }
+
         private void validate()
         {
             Preconditions.checkNotNull( localeMessageResolver );
             Preconditions.checkNotNull( iconUrlResolver );
             Preconditions.checkNotNull( inlineMixinResolver );
+            Preconditions.checkNotNull( inputTypeResolver );
         }
 
         public XDataListJson build()

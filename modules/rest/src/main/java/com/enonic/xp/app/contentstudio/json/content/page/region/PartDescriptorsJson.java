@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.region.PartDescriptors;
 
 
@@ -19,10 +20,10 @@ public class PartDescriptorsJson
     }
 
     public PartDescriptorsJson( final PartDescriptors descriptors, final LocaleMessageResolver localeMessageResolver,
-                                final InlineMixinResolver inlineMixinResolver )
+                                final InlineMixinResolver inlineMixinResolver, final InputTypeResolver inputTypeResolver )
     {
         this.descriptorJsonList = descriptors.stream()
-            .map( descriptor -> new PartDescriptorJson( descriptor, localeMessageResolver, inlineMixinResolver ) )
+            .map( descriptor -> new PartDescriptorJson( descriptor, localeMessageResolver, inlineMixinResolver, inputTypeResolver ) )
             .collect( Collectors.toUnmodifiableList() );
     }
 

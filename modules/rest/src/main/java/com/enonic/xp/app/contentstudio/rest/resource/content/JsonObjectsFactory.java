@@ -15,6 +15,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessag
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.i18n.LocaleService;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.PartDescriptor;
@@ -40,6 +41,8 @@ public class JsonObjectsFactory
 
     private ContentListTitleResolver contentListTitleResolver;
 
+    private InputTypeResolver inputTypeResolver;
+
     public JsonObjectsFactory()
     {
         int i = 0;
@@ -48,19 +51,19 @@ public class JsonObjectsFactory
     public PartDescriptorJson createPartDescriptorJson( final PartDescriptor descriptor )
     {
         return new PartDescriptorJson( descriptor, new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey() ),
-                                       new InlineMixinResolver( mixinService ) );
+                                       new InlineMixinResolver( mixinService ),inputTypeResolver );
     }
 
     public PageDescriptorJson createPageDescriptorJson( final PageDescriptor descriptor )
     {
         return new PageDescriptorJson( descriptor, new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey() ),
-                                       new InlineMixinResolver( mixinService ) );
+                                       new InlineMixinResolver( mixinService ),inputTypeResolver );
     }
 
     public LayoutDescriptorJson createLayoutDescriptorJson( final LayoutDescriptor descriptor )
     {
         return new LayoutDescriptorJson( descriptor, new LocaleMessageResolver( this.localeService, descriptor.getApplicationKey() ),
-                                         new InlineMixinResolver( mixinService ) );
+                                         new InlineMixinResolver( mixinService ),inputTypeResolver );
     }
 
     public ContentTypeSummaryJson createContentTypeSummaryJson( final ContentType contentType )
@@ -112,5 +115,11 @@ public class JsonObjectsFactory
     public void setComponentNameResolver( final ComponentNameResolver componentNameResolver )
     {
         this.componentNameResolver = componentNameResolver;
+    }
+
+    @Reference
+    public void setInputTypeResolver( final InputTypeResolver inputTypeResolver )
+    {
+        this.inputTypeResolver = inputTypeResolver;
     }
 }

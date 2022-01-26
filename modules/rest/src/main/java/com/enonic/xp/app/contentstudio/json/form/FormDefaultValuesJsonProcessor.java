@@ -8,7 +8,7 @@ import com.enonic.xp.form.Form;
 import com.enonic.xp.form.FormItem;
 import com.enonic.xp.form.FormOptionSetOption;
 import com.enonic.xp.form.Input;
-import com.enonic.xp.inputtype.InputTypes;
+import com.enonic.xp.inputtype.InputTypeResolver;
 
 import static com.enonic.xp.form.FormItemType.FORM_ITEM_SET;
 import static com.enonic.xp.form.FormItemType.FORM_OPTION_SET;
@@ -18,12 +18,13 @@ import static com.enonic.xp.form.FormItemType.LAYOUT;
 final class FormDefaultValuesJsonProcessor
 {
 
-    static void setDefaultValues( final Form form, final FormJson formJson )
+    static void setDefaultValues( final Form form, final FormJson formJson, final InputTypeResolver inputTypeResolver )
     {
-        processFormItems( form.getFormItems(), formJson.getFormItems() );
+        processFormItems( form.getFormItems(), formJson.getFormItems(), inputTypeResolver );
     }
 
-    private static void processFormItems( final Iterable<FormItem> formItems, final Iterable<FormItemJson> formItemsJson )
+    private static void processFormItems( final Iterable<FormItem> formItems, final Iterable<FormItemJson> formItemsJson,
+                                          final InputTypeResolver inputTypeResolver )
     {
         final Iterator<FormItem> formItemsIt = formItems.iterator();
         final Iterator<FormItemJson> formItemsJsonIt = formItemsJson.iterator();
@@ -40,8 +41,7 @@ final class FormDefaultValuesJsonProcessor
                 {
                     try
                     {
-                        final Value defaultValue = InputTypes.BUILTIN.resolve( input.getInputType() ).
-                            createDefaultValue( input );
+                        final Value defaultValue = inputTypeResolver.resolve( input.getInputType() ).createDefaultValue( input );
                         if ( defaultValue != null )
                         {
                             inputJson.setDefaultValue( defaultValue );
@@ -55,11 +55,12 @@ final class FormDefaultValuesJsonProcessor
             }
             else if ( formItem.getType() == FORM_ITEM_SET )
             {
-                processFormItems( formItem.toFormItemSet().getFormItems(), ( (FormItemSetJson) formItemJson ).getItems() );
+                processFormItems( formItem.toFormItemSet().getFormItems(), ( (FormItemSetJson) formItemJson ).getItems(),
+                                  inputTypeResolver );
             }
             else if ( formItem.getType() == LAYOUT && formItem.toLayout() instanceof FieldSet )
             {
-                processFormItems( (FieldSet) formItem, ( (FieldSetJson) formItemJson ).getItems() );
+                processFormItems( (FieldSet) formItem, ( (FieldSetJson) formItemJson ).getItems(), inputTypeResolver );
             }
             else if ( formItem.getType() == FORM_OPTION_SET )
             {
@@ -72,7 +73,7 @@ final class FormDefaultValuesJsonProcessor
                     final FormOptionSetOption formOptionSetOption = formOptionSetOptionIt.next();
                     final FormOptionSetOptionJson formOptionSetOptionJson = formOptionSetOptionJsonIt.next();
 
-                    processFormItems( formOptionSetOption.getFormItems(), formOptionSetOptionJson.getItems() );
+                    processFormItems( formOptionSetOption.getFormItems(), formOptionSetOptionJson.getItems(), inputTypeResolver );
                 }
             }
         }

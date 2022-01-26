@@ -9,6 +9,7 @@ import com.enonic.xp.app.contentstudio.json.form.FormJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.MixinIconUrlResolver;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.schema.mixin.Mixin;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -24,6 +25,8 @@ public class MixinJson
 
     private final InlineMixinResolver inlineMixinResolver;
 
+    private final InputTypeResolver inputTypeResolver;
+
     public MixinJson( final Builder builder )
     {
         Preconditions.checkNotNull( builder.localeMessageResolver );
@@ -32,6 +35,7 @@ public class MixinJson
         this.iconUrl = builder.iconUrlResolver.resolve( mixin );
         this.localeMessageResolver = builder.localeMessageResolver;
         this.inlineMixinResolver = builder.inlineMixinResolver;
+        this.inputTypeResolver = builder.inputTypeResolver;
     }
 
     public static Builder create()
@@ -85,7 +89,7 @@ public class MixinJson
 
     public FormJson getForm()
     {
-        return new FormJson( mixin.getForm(), this.localeMessageResolver, this.inlineMixinResolver );
+        return new FormJson( mixin.getForm(), this.localeMessageResolver, this.inlineMixinResolver, this.inputTypeResolver );
     }
 
     public String getCreator()
@@ -120,6 +124,8 @@ public class MixinJson
 
         private InlineMixinResolver inlineMixinResolver;
 
+        private InputTypeResolver inputTypeResolver;
+
         private Builder()
         {
         }
@@ -148,10 +154,17 @@ public class MixinJson
             return this;
         }
 
+        public Builder setInputTypeResolver( final InputTypeResolver inputTypeResolver )
+        {
+            this.inputTypeResolver = inputTypeResolver;
+            return this;
+        }
+
         private void validate()
         {
             Preconditions.checkNotNull( localeMessageResolver );
             Preconditions.checkNotNull( inlineMixinResolver );
+            Preconditions.checkNotNull( inputTypeResolver );
             Preconditions.checkNotNull( iconUrlResolver );
         }
 

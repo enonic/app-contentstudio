@@ -14,6 +14,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.application.ApplicationIcon
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.idprovider.IdProviderDescriptor;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.site.SiteDescriptor;
 
 public class ApplicationJson
@@ -33,19 +34,22 @@ public class ApplicationJson
 
     private final String iconUrl;
 
+    private final InputTypeResolver inputTypeResolver;
+
     public ApplicationJson( final Builder builder )
     {
         this.application = builder.application;
         this.applicationDescriptor = builder.applicationDescriptor;
         this.local = builder.local;
+        this.inputTypeResolver = builder.inputTypeResolver;
 
         this.config =
             builder.siteDescriptor != null && builder.siteDescriptor.getForm() != null ? new FormJson( builder.siteDescriptor.getForm(),
                                                                                                        builder.localeMessageResolver,
-                                                                                                       builder.inlineMixinResolver ) : null;
+                                                                                                       builder.inlineMixinResolver, builder.inputTypeResolver ) : null;
 
         this.idProviderConfig = builder.idProviderDescriptor != null && builder.idProviderDescriptor.getConfig() != null ? new FormJson(
-            builder.idProviderDescriptor.getConfig(), builder.localeMessageResolver, builder.inlineMixinResolver ) : null;
+            builder.idProviderDescriptor.getConfig(), builder.localeMessageResolver, builder.inlineMixinResolver, builder.inputTypeResolver ) : null;
 
         if ( builder.siteDescriptor != null && builder.siteDescriptor.getXDataMappings() != null )
         {
@@ -175,6 +179,8 @@ public class ApplicationJson
 
         private InlineMixinResolver inlineMixinResolver;
 
+        private InputTypeResolver inputTypeResolver;
+
         private boolean local;
 
         public ApplicationJson build()
@@ -227,6 +233,12 @@ public class ApplicationJson
         public Builder setLocal( final boolean local )
         {
             this.local = local;
+            return this;
+        }
+
+        public Builder setInputTypeResolver( final InputTypeResolver inputTypeResolver )
+        {
+            this.inputTypeResolver = inputTypeResolver;
             return this;
         }
     }

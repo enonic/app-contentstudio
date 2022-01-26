@@ -10,6 +10,7 @@ import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessag
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.form.Form;
 import com.enonic.xp.form.FormItem;
+import com.enonic.xp.inputtype.InputTypeResolver;
 
 @SuppressWarnings("UnusedDeclaration")
 public class FormJson
@@ -18,7 +19,8 @@ public class FormJson
 
     private final List<FormItemJson> items;
 
-    public FormJson( final Form form, final LocaleMessageResolver localeMessageResolver, final InlineMixinResolver inlineMixinResolver )
+    public FormJson( final Form form, final LocaleMessageResolver localeMessageResolver, final InlineMixinResolver inlineMixinResolver, final
+                     InputTypeResolver inputTypeResolver )
     {
         this.form = inlineMixinResolver.inlineForm( form );
 
@@ -27,7 +29,7 @@ public class FormJson
         {
             items.add( FormItemJsonFactory.create( formItem, localeMessageResolver ) );
         }
-        FormDefaultValuesJsonProcessor.setDefaultValues( this.form, this );
+        FormDefaultValuesJsonProcessor.setDefaultValues( this.form, this, inputTypeResolver );
     }
 
     public List<FormItemJson> getFormItems()

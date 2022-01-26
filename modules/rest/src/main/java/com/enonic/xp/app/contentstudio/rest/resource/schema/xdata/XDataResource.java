@@ -31,6 +31,7 @@ import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
 import com.enonic.xp.i18n.LocaleService;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.schema.content.ContentType;
 import com.enonic.xp.schema.content.ContentTypeName;
@@ -73,6 +74,8 @@ public final class XDataResource
 
     private ApplicationWildcardMatcher.Mode contentTypeParseMode;
 
+    private InputTypeResolver inputTypeResolver;
+
     @Activate
     @Modified
     public void activate( final AdminRestConfig config )
@@ -106,6 +109,7 @@ public final class XDataResource
                 .setIconUrlResolver( this.mixinIconUrlResolver )
                 .setLocaleMessageResolver( new LocaleMessageResolver( localeService, xData.getName().getApplicationKey() ) )
                 .setInlineMixinResolver( new InlineMixinResolver( mixinService ) )
+                .setInputTypeResolver( inputTypeResolver )
                 .setOptional( xDatas.get( xData ) )
                 .build() )
             .distinct()
@@ -171,6 +175,12 @@ public final class XDataResource
     {
         this.mixinService = mixinService;
         this.mixinIconUrlResolver = new MixinIconUrlResolver( new MixinIconResolver( mixinService ) );
+    }
+
+    @Reference
+    public void setInputTypeResolver( final InputTypeResolver inputTypeResolver )
+    {
+        this.inputTypeResolver = inputTypeResolver;
     }
 }
 

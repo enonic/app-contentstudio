@@ -6,6 +6,7 @@ import com.enonic.xp.app.contentstudio.json.form.FormJson;
 import com.enonic.xp.app.contentstudio.rest.resource.macro.MacroIconUrlResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.macro.MacroDescriptor;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -44,7 +45,7 @@ public class MacroDescriptorJson
         this.displayNameI18nKey = builder.macroDescriptor.getDisplayNameI18nKey();
         this.descriptionI18nKey = builder.macroDescriptor.getDescriptionI18nKey();
         this.description = builder.macroDescriptor.getDescription();
-        this.form = new FormJson( builder.macroDescriptor.getForm(), builder.localeMessageResolver, builder.inlineMixinResolver );
+        this.form = new FormJson( builder.macroDescriptor.getForm(), builder.localeMessageResolver, builder.inlineMixinResolver, builder.inputTypeResolver );
         this.iconUrl = builder.macroIconUrlResolver.resolve( builder.macroDescriptor );
     }
 
@@ -107,6 +108,8 @@ public class MacroDescriptorJson
 
         private InlineMixinResolver inlineMixinResolver;
 
+        private InputTypeResolver inputTypeResolver;
+
         public Builder setMacroDescriptor( final MacroDescriptor macroDescriptor )
         {
             this.macroDescriptor = macroDescriptor;
@@ -128,6 +131,12 @@ public class MacroDescriptorJson
         public Builder setInlineMixinResolver( final InlineMixinResolver inlineMixinResolver )
         {
             this.inlineMixinResolver = inlineMixinResolver;
+            return this;
+        }
+
+        public Builder setInputTypeResolver( final InputTypeResolver inputTypeResolver )
+        {
+            this.inputTypeResolver = inputTypeResolver;
             return this;
         }
 

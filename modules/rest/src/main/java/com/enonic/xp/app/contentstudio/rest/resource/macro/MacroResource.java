@@ -48,6 +48,7 @@ import com.enonic.xp.data.Property;
 import com.enonic.xp.data.PropertyTree;
 import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.icon.Icon;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.macro.Macro;
 import com.enonic.xp.macro.MacroDescriptor;
@@ -95,6 +96,8 @@ public final class MacroResource
 
     private MixinService mixinService;
 
+    private InputTypeResolver inputTypeResolver;
+
     private static final MacroImageHelper HELPER = new MacroImageHelper();
 
     private static final String DEFAULT_MIME_TYPE = "image/svg+xml";
@@ -116,6 +119,7 @@ public final class MacroResource
                     setMacroIconUrlResolver( macroIconUrlResolver ).
                     setLocaleMessageResolver( new LocaleMessageResolver( localeService, applicationKey ) ).
                     setInlineMixinResolver( new InlineMixinResolver( mixinService ) ).
+                    setInputTypeResolver( inputTypeResolver).
                     build() ).
                 collect( Collectors.toList() ) );
         } );
@@ -358,5 +362,11 @@ public final class MacroResource
     public void setMixinService( final MixinService mixinService )
     {
         this.mixinService = mixinService;
+    }
+
+    @Reference
+    public void setInputTypeResolver( final InputTypeResolver inputTypeResolver )
+    {
+        this.inputTypeResolver = inputTypeResolver;
     }
 }

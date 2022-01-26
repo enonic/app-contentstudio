@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import com.enonic.xp.app.contentstudio.rest.resource.macro.MacroIconUrlResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.macro.MacroDescriptor;
 import com.enonic.xp.macro.MacroDescriptors;
 
@@ -28,6 +29,7 @@ public class MacrosJson
                     setMacroIconUrlResolver( builder.macroIconUrlResolver ).
                     setLocaleMessageResolver( builder.localeMessageResolver ).
                     setInlineMixinResolver( builder.inlineMixinResolver ).
+                    setInputTypeResolver( builder.inputTypeResolver ).
                     build() );
             }
         }
@@ -67,6 +69,8 @@ public class MacrosJson
 
         private InlineMixinResolver inlineMixinResolver;
 
+        private InputTypeResolver inputTypeResolver;
+
         public Builder setMacroDescriptors( final MacroDescriptors macroDescriptors )
         {
             this.macroDescriptors = macroDescriptors;
@@ -88,6 +92,12 @@ public class MacrosJson
         public Builder setInlineMixinResolver( final InlineMixinResolver inlineMixinResolver )
         {
             this.inlineMixinResolver = inlineMixinResolver;
+            return this;
+        }
+
+        public Builder setInputTypeResolver( final InputTypeResolver inputTypeResolver )
+        {
+            this.inputTypeResolver = inputTypeResolver;
             return this;
         }
 

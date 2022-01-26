@@ -9,6 +9,7 @@ import com.enonic.xp.app.contentstudio.json.form.FormJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.MixinIconUrlResolver;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.schema.xdata.XData;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -24,6 +25,8 @@ public class XDataJson
 
     private final InlineMixinResolver inlineMixinResolver;
 
+    private final InputTypeResolver inputTypeResolver;
+
     public XDataJson( final Builder builder )
     {
         Preconditions.checkNotNull( builder.localeMessageResolver );
@@ -33,6 +36,7 @@ public class XDataJson
         this.isOptional = builder.isOptional;
         this.localeMessageResolver = builder.localeMessageResolver;
         this.inlineMixinResolver = builder.inlineMixinResolver;
+        this.inputTypeResolver = builder.inputTypeResolver;
     }
 
     public static Builder create()
@@ -81,7 +85,7 @@ public class XDataJson
 
     public FormJson getForm()
     {
-        return new FormJson( xData.getForm(), this.localeMessageResolver, this.inlineMixinResolver );
+        return new FormJson( xData.getForm(), this.localeMessageResolver, this.inlineMixinResolver, this.inputTypeResolver );
     }
 
     public String getCreator()
@@ -123,6 +127,8 @@ public class XDataJson
 
         private InlineMixinResolver inlineMixinResolver;
 
+        private InputTypeResolver inputTypeResolver;
+
         private Builder()
         {
         }
@@ -157,11 +163,18 @@ public class XDataJson
             return this;
         }
 
+        public Builder setInputTypeResolver( final InputTypeResolver inputTypeResolver )
+        {
+            this.inputTypeResolver = inputTypeResolver;
+            return this;
+        }
+
         private void validate()
         {
             Preconditions.checkNotNull( localeMessageResolver );
             Preconditions.checkNotNull( iconUrlResolver );
             Preconditions.checkNotNull( inlineMixinResolver );
+            Preconditions.checkNotNull( inputTypeResolver );
         }
 
         public XDataJson build()

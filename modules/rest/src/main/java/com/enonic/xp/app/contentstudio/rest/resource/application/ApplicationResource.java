@@ -32,6 +32,7 @@ import com.enonic.xp.i18n.LocaleService;
 import com.enonic.xp.icon.Icon;
 import com.enonic.xp.idprovider.IdProviderDescriptor;
 import com.enonic.xp.idprovider.IdProviderDescriptorService;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.jaxrs.JaxRsComponent;
 import com.enonic.xp.schema.mixin.MixinService;
 import com.enonic.xp.security.RoleKeys;
@@ -62,6 +63,8 @@ public final class ApplicationResource
 
     private final ApplicationIconUrlResolver iconUrlResolver;
 
+    private InputTypeResolver inputTypeResolver;
+
     private static final ApplicationImageHelper HELPER = new ApplicationImageHelper();
 
     public ApplicationResource()
@@ -88,6 +91,7 @@ public final class ApplicationResource
         return ApplicationJson.create().
             setApplication( application ).
             setLocal( local ).
+            setInputTypeResolver( inputTypeResolver ).
             setApplicationDescriptor( appDescriptor ).
             setSiteDescriptor( siteDescriptor ).
             setIdProviderDescriptor( idProviderDescriptor ).
@@ -122,6 +126,7 @@ public final class ApplicationResource
                 json.add( ApplicationJson.create().
                     setApplication( application ).
                     setLocal( localApplication ).
+                    setInputTypeResolver( inputTypeResolver ).
                     setApplicationDescriptor( appDescriptor ).
                     setSiteDescriptor( siteDescriptor ).
                     setIdProviderDescriptor( idProviderDescriptor ).
@@ -230,6 +235,12 @@ public final class ApplicationResource
     public void setMixinService( final MixinService mixinService )
     {
         this.mixinService = mixinService;
+    }
+
+    @Reference
+    public void setInputTypeResolver( final InputTypeResolver inputTypeResolver )
+    {
+        this.inputTypeResolver = inputTypeResolver;
     }
 }
 

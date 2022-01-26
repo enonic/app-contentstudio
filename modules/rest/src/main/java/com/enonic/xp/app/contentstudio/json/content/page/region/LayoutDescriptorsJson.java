@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.LayoutDescriptors;
 
@@ -21,14 +22,14 @@ public class LayoutDescriptorsJson
     }
 
     public LayoutDescriptorsJson( final LayoutDescriptors descriptors, final LocaleMessageResolver localeMessageResolver,
-                                  final InlineMixinResolver inlineMixinResolver )
+                                  final InlineMixinResolver inlineMixinResolver, final InputTypeResolver inputTypeResolver )
     {
         ImmutableList.Builder<LayoutDescriptorJson> builder = new ImmutableList.Builder<>();
         if ( descriptors != null )
         {
             for ( LayoutDescriptor descriptor : descriptors )
             {
-                builder.add( new LayoutDescriptorJson( descriptor, localeMessageResolver, inlineMixinResolver ) );
+                builder.add( new LayoutDescriptorJson( descriptor, localeMessageResolver, inlineMixinResolver, inputTypeResolver ) );
             }
         }
         this.descriptorJsonList = builder.build();

@@ -6,6 +6,7 @@ import com.enonic.xp.app.contentstudio.json.form.FormJson;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.ContentTypeIconUrlResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.content.LocaleMessageResolver;
 import com.enonic.xp.app.contentstudio.rest.resource.schema.mixin.InlineMixinResolver;
+import com.enonic.xp.inputtype.InputTypeResolver;
 import com.enonic.xp.schema.content.ContentType;
 
 @SuppressWarnings("UnusedDeclaration")
@@ -17,7 +18,7 @@ public class ContentTypeJson
     public ContentTypeJson( final Builder builder )
     {
         super( builder.contentType, builder.contentTypeIconUrlResolver, builder.localeMessageResolver );
-        this.form = new FormJson( builder.contentType.getForm(), builder.localeMessageResolver, builder.inlineMixinResolver );
+        this.form = new FormJson( builder.contentType.getForm(), builder.localeMessageResolver, builder.inlineMixinResolver, builder.inputTypeResolver );
     }
 
     public FormJson getForm()
@@ -39,6 +40,8 @@ public class ContentTypeJson
         private LocaleMessageResolver localeMessageResolver;
 
         private InlineMixinResolver inlineMixinResolver;
+
+        private InputTypeResolver inputTypeResolver;
 
         private Builder()
         {
@@ -69,12 +72,19 @@ public class ContentTypeJson
             return this;
         }
 
+        public Builder setInputTypeResolver( final InputTypeResolver inputTypeResolver )
+        {
+            this.inputTypeResolver = inputTypeResolver;
+            return this;
+        }
+
         private void validate()
         {
             Preconditions.checkNotNull( contentType );
             Preconditions.checkNotNull( localeMessageResolver );
             Preconditions.checkNotNull( contentTypeIconUrlResolver );
             Preconditions.checkNotNull( inlineMixinResolver );
+            Preconditions.checkNotNull( inputTypeResolver );
         }
 
         public ContentTypeJson build()

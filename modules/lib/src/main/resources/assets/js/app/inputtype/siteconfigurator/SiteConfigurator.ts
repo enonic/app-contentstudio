@@ -297,4 +297,4 @@ export class SiteConfigurator
 
 }
 
-InputTypeManager.register(new Class('SiteConfigurator', SiteConfigurator));
+InputTypeManager.register(new Class('base:SiteConfigurator', SiteConfigurator));

@@ -35,9 +35,9 @@ export class ResetContentAction
             result.push(ContentInheritType.CONTENT);
         }
 
-        if (!content.isSortInherited()) {
+        // if (!content.isSortInherited()) {
             result.push(ContentInheritType.SORT);
-        }
+        // }
 
         if (!content.isParentInherited()) {
             result.push(ContentInheritType.PARENT);
