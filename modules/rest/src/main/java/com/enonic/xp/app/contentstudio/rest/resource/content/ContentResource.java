@@ -1092,7 +1092,7 @@ public final class ContentResource
 
         Map<String, Integer> statuses = new HashMap<>();
 
-        if ( contentQueryJson.getStatuses() != null && !contentQueryJson.getStatuses().isEmpty() )
+        if ( !contentIdGroupedByStatus.isEmpty() && contentQueryJson.getStatuses() != null && !contentQueryJson.getStatuses().isEmpty() )
         {
             Set<ContentId> contentIds = new HashSet<>();
             for ( String status : contentQueryJson.getStatuses() )
@@ -1107,13 +1107,6 @@ public final class ContentResource
                 for ( final AggregationQueryJson aggregationQueryJson : contentQueryJson.getAggregationQueries() )
                 {
                     builder.aggregationQuery( aggregationQueryJson.getAggregationQuery() );
-                }
-            }
-            if ( contentQueryJson.getQueryFilters() != null )
-            {
-                for ( final FilterJson queryFilterJson : contentQueryJson.getQueryFilters() )
-                {
-                    builder.queryFilter( queryFilterJson.getFilter() );
                 }
             }
 
