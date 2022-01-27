@@ -249,6 +249,7 @@ module.exports = Object.freeze({
         TEXT_AREA_0_1: "textarea0_1",
         TEXT_AREA_2_4: "textarea2_4",
         CHECKBOX_0_1: "checkbox",
+        CHECKBOX_1_1: "checkbox_req",
         FIELDSET: "fieldset",
         COMBOBOX_0_0: "combobox0_0",
         COMBOBOX_1_1: "combobox1_1",

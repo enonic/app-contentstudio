@@ -91,6 +91,7 @@ class SortContentDialog extends Page {
         //await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         return await this.getAttribute(selector, "title");
     }
-};
+}
+
 module.exports = SortContentDialog;
 

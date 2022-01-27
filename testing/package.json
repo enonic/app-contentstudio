@@ -11,7 +11,7 @@
     "test_input_types": "node ./tasks/test-input-types.js",
     "test_input_types_2": "node ./tasks/test-input-types-2.js",
     "test_wizards_grid": "node ./tasks/test-wizards-grid.js",
-    "test_by_name": "node ./tasks/test-by-name.js",
+    "test_modal_dialog": "node tasks/test-modal-dialog.js",
     "base_tests": "node ./tasks/base-tests.js"
   },
   "devDependencies": {
