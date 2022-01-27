@@ -1092,6 +1092,8 @@ public final class ContentResource
 
         Map<String, Integer> statuses = new HashMap<>();
 
+        FindContentIdsByQueryResult resultByStatus = null;
+
         if ( !contentIdGroupedByStatus.isEmpty() && contentQueryJson.getStatuses() != null && !contentQueryJson.getStatuses().isEmpty() )
         {
             Set<ContentId> contentIds = new HashSet<>();
@@ -1113,7 +1115,7 @@ public final class ContentResource
                 }
             }
 
-            findResult = contentService.find( builder.filterContentIds( ContentIds.from( contentIds ) ).build() );
+            resultByStatus = contentService.find( builder.filterContentIds( ContentIds.from( contentIds ) ).build() );
 
             contentIdGroupedByStatus.keySet().stream().
                 filter( s -> contentQueryJson.getStatuses().contains( s ) ).
@@ -1125,7 +1127,7 @@ public final class ContentResource
         }
 
         return FindContentByQuertResultJsonFactory.create().
-            contents(this.contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) ).
+            contents(this.contentService.getByIds( new GetContentByIdsParams( resultByStatus != null ? resultByStatus.getContentIds() : findResult.getContentIds() ) ) ).
             aggregations(findResult.getAggregations() ).
             jsonObjectsFactory( jsonObjectsFactory ).
             expand( contentQueryJson.getExpand() ).
