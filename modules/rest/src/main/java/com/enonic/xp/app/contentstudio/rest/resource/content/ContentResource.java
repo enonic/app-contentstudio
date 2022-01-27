@@ -1097,7 +1097,10 @@ public final class ContentResource
             Set<ContentId> contentIds = new HashSet<>();
             for ( String status : contentQueryJson.getStatuses() )
             {
-                contentIds.addAll( contentIdGroupedByStatus.get( status ) );
+                if (contentIdGroupedByStatus.containsKey( status ))
+                {
+                    contentIds.addAll( contentIdGroupedByStatus.get( status ) );
+                }
             }
 
             final ContentQuery.Builder builder = ContentQuery.create();

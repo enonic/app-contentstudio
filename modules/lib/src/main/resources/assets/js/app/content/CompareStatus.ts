@@ -1,15 +1,32 @@
 import {i18n} from 'lib-admin-ui/util/Messages';
 
 export enum CompareStatus {
-    NEW = 'new',
-    NEWER = 'modified',
-    OLDER = 'out-of-date',
-    EQUAL = 'online',
-    MOVED = 'moved',
-    UNKNOWN = 'unknown'
+    NEW,
+    NEWER,
+    OLDER,
+    EQUAL,
+    MOVED,
+    UNKNOWN
 }
 
 export class CompareStatusFormatter {
+
+    public static formatStatusClass(compareStatus: CompareStatus): string {
+
+        switch (compareStatus) {
+        case CompareStatus.NEW:
+            return 'new';
+        case CompareStatus.NEWER:
+            return 'modified';
+        case CompareStatus.EQUAL:
+            return 'online';
+        case CompareStatus.MOVED:
+            return 'moved';
+        default:
+            return 'unknown';
+        }
+    }
+
     public static formatStatusText(compareStatus: CompareStatus): string {
 
         let status;

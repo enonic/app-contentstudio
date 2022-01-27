@@ -15,6 +15,7 @@ import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {CompareStatus} from '../content/CompareStatus';
 
 export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends CmsContentResourceRequest<ContentQueryResult<CONTENT, CONTENT_JSON>> {
@@ -62,7 +63,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
             contentTypeNames: this.contentTypeNamesAsString(this.contentQuery.getContentTypes()),
             mustBeReferencedById: this.getMustBereferencedById(),
             expand: this.expandAsString(),
-            compareStatuses: this.contentQuery.getCompareStatuses(),
+            statuses: this.contentQuery.getCompareStatuses().map((status: CompareStatus) => CompareStatus[status]),
             aggregationQueries: this.aggregationQueriesToJson(this.contentQuery.getAggregationQueries()),
             queryFilters: this.queryFiltersToJson(this.contentQuery.getQueryFilters())
         };

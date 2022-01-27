@@ -230,7 +230,9 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
             return publishStatus;
         }
 
-        return this.getCompareStatus();
+        const statusClass: string = CompareStatusFormatter.formatStatusClass(this.getCompareStatus());
+
+        return statusClass.replace('_', '-').replace(' ', '_') || 'unknown';
     }
 
     equals(o: Equitable): boolean {
