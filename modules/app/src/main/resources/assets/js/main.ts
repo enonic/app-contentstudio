@@ -62,6 +62,32 @@ declare const require: { context: (directory: string, useSubdirectories: boolean
 const importAll = r => r.keys().forEach(r);
 importAll(require.context('lib-contentstudio/app/inputtype', true, /^(?!\.[\/\\](ui)).*(\.js)$/));
 
+function injectCustomInputTypes(): void {
+    const inputtypesUrl = 'http://localhost:8080/admin/input-type/com.enonic.app.appcustominputtypes/MyCheckbox';
+    // const inputtypesUrl = `${CONFIG.assetsUri}/inputtypes/MyCheckbox`;
+    injectScripts(`${inputtypesUrl}/MyCheckbox.js`);
+    injectStyles(`${inputtypesUrl}/ui/MyCheckbox.css`);
+}
+
+function injectStyles(url: string): void {
+    const link = document.createElement('link');
+    link.type = 'text/css';
+    link.rel = 'stylesheet';
+
+    document.head.appendChild(link);
+
+    link.href = url;
+}
+
+function injectScripts(url: string): void {
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+
+    document.head.appendChild(script);
+
+    script.src = url;
+}
+
 const body = Body.get();
 
 function getApplication(): Application {
@@ -333,6 +359,8 @@ async function startApplication() {
 
     ContentServerEventsHandler.getInstance().start();
     IssueServerEventsHandler.getInstance().start();
+
+    injectCustomInputTypes();
 }
 
 const refreshTabOnContentUpdate = (content: Content) => {
