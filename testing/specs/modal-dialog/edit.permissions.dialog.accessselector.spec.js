@@ -18,18 +18,6 @@ describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions 
 
     let FOLDER;
 
-    const COOKIES_SERVICE = "cookies";
-
-
-    const COOKIE_NAME = "JSESSIONID";
-
-    it(`Preconditions: a folder should be added`,
-        async () => {
-            await studioUtils.loadServiceURL(COOKIES_SERVICE, "com.enonic.xp.ui_testing.contenttypes");
-            let cookie = await webDriverHelper.browser.getCookies(COOKIE_NAME);
-            cookie[0].name == COOKIE_NAME;
-        });
-
     it(`Preconditions: a folder should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('folder');

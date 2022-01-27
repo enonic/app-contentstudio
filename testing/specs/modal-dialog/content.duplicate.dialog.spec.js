@@ -3,11 +3,11 @@
  */
 const chai = require('chai');
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
-const studioUtils = require('../libs/studio.utils.js');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const ContentDuplicateDialog = require('../page_objects/content.duplicate.dialog');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConstant = require('../../libs/app_const');
+const studioUtils = require('../../libs/studio.utils.js');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const ContentDuplicateDialog = require('../../page_objects/content.duplicate.dialog');
 
 describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);

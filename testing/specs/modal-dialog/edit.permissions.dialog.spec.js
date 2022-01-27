@@ -3,12 +3,12 @@
  */
 const chai = require('chai');
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const UserAccessWidget = require('../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
-const EditPermissionsDialog = require('../page_objects/edit.permissions.dialog');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConstant = require('../../libs/app_const');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
 
 describe('edit.permissions.dialog.spec: tests for Edit Permissions dialog that is opened from user access widget', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);

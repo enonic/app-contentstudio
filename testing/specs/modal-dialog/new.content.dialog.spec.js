@@ -3,11 +3,11 @@
  */
 const chai = require('chai');
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
-const studioUtils = require('../libs/studio.utils.js');
-const NewContentDialog = require('../page_objects/browsepanel/new.content.dialog');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConstant = require('../../libs/app_const');
+const studioUtils = require('../../libs/studio.utils.js');
+const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('new.content.dialog.spec:  test for New Content Dialog', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);

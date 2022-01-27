@@ -3,14 +3,14 @@
  */
 const chai = require('chai');
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConst = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const UserAccessWidget = require('../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
-const EditPermissionsDialog = require('../page_objects/edit.permissions.dialog');
-const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConst = require('../../libs/app_const');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('overwrite.permissions.spec: tests for permissions in parent and child content',
     function () {

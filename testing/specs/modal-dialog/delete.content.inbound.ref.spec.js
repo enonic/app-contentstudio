@@ -3,12 +3,12 @@
  */
 const chai = require('chai');
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const studioUtils = require('../libs/studio.utils.js');
-const contentBuilder = require("../libs/content.builder");
-const DeleteContentDialog = require('../page_objects/delete.content.dialog');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConstant = require('../../libs/app_const');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
 
 describe('Delete a content that has inbound references.', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);

@@ -3,12 +3,12 @@
  */
 const chai = require('chai');
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConst = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const studioUtils = require('../libs/studio.utils.js');
-const DeleteContentDialog = require('../page_objects/delete.content.dialog');
-const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConst = require('../../libs/app_const');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const studioUtils = require('../../libs/studio.utils.js');
+const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 
 describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content Dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);

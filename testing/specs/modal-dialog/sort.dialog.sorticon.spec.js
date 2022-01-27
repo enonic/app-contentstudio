@@ -4,13 +4,13 @@
  */
 const chai = require('chai');
 const assert = chai.assert;
-const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
-const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
-const SortContentDialog = require('../page_objects/browsepanel/sort.content.dialog');
-const studioUtils = require('../libs/studio.utils.js');
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConstant = require('../../libs/app_const');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
+const studioUtils = require('../../libs/studio.utils.js');
 
-describe('browse.panel.sorticon.spec, do sort a folder and check a sort-icon in the grid`', function () {
+describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks the sort-icon in the grid`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
