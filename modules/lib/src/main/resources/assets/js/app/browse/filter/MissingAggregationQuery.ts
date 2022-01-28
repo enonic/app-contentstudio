@@ -7,8 +7,7 @@ export class MissingAggregationQuery extends AggregationQuery {
     private fieldName: string;
 
     toJson(): MissingAggregationQueryTypeWrapperJson {
-
-        let json: MissingAggregationQueryJson = <MissingAggregationQueryJson>super.toAggregationQueryJson();
+        const json: MissingAggregationQueryJson = <MissingAggregationQueryJson>super.toAggregationQueryJson();
         json.fieldName = this.getFieldName();
 
         return <MissingAggregationQueryTypeWrapperJson> {

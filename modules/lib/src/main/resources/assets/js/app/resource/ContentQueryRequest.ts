@@ -76,7 +76,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         let contentsAsJson: ContentSummaryJson[] = responseResult.contents;
         let metadata = new ResultMetadata(response.getResult().metadata.hits, response.getResult().metadata.totalHits);
         let contents: CONTENT[];
-        let statuses:  StatusesJson = response.getResult().statuses;
+        let statuses: StatusesJson = response.getResult().statuses;
         let statusesMap: Map<CompareStatus, number> = new Map<CompareStatus, number>();
         statusesMap.set(CompareStatus.NEW, statuses.NEW || 0);
         statusesMap.set(CompareStatus.NEWER, statuses.NEWER || 0);
@@ -84,7 +84,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         statusesMap.set(CompareStatus.MOVED, statuses.MOVED || 0);
 
         if (this.expand === Expand.NONE) {
-            contents = <any[]> this.fromJsonToContentIdBaseItemArray(contentsAsJson);
+            contents = <any[]>this.fromJsonToContentIdBaseItemArray(contentsAsJson);
         } else if (this.expand === Expand.SUMMARY) {
             contents = <any[]>this.fromJsonToContentSummaryArray(contentsAsJson);
         } else {
@@ -93,7 +93,8 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
 
         this.updateStateAfterLoad(contents, metadata);
 
-        return new ContentQueryResult<CONTENT, CONTENT_JSON>(this.results, aggregations, <CONTENT_JSON[]>contentsAsJson, metadata, statusesMap);
+        return new ContentQueryResult<CONTENT, CONTENT_JSON>(this.results, aggregations, <CONTENT_JSON[]>contentsAsJson, metadata,
+            statusesMap);
     }
 
     private updateStateAfterLoad(contents: CONTENT[], metadata: ResultMetadata) {

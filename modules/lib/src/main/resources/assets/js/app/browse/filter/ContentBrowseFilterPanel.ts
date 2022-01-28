@@ -62,11 +62,9 @@ export class ContentBrowseFilterPanel
 
     static CONTENT_TYPE_AGGREGATION_NAME: string = 'contentTypes';
     static LAST_MODIFIED_AGGREGATION_NAME: string = 'lastModified';
-    static MISSING_AGGREGATION_NAME: string = 'newContents';
+    static STATUS_NEW_AGGREGATION_NAME: string = 'new';
 
-    private contentTypeAggregation: ContentTypeAggregationGroupView;
-    private lastModifiedAggregation: AggregationGroupView;
-    private statusFilterSection: StatusFilterSection;
+    private aggregationsGroupViews: Map<string, AggregationGroupView>;
 
     private dependenciesSection: DependenciesSection;
 
@@ -77,8 +75,7 @@ export class ContentBrowseFilterPanel
     }
 
     private initElementsAndListeners() {
-        this.initAggregationGroupView([this.contentTypeAggregation, this.lastModifiedAggregation]);
-        this.statusFilterSection = new StatusFilterSection();
+        this.initAggregationGroupView();
         this.handleEvents();
     }
 
@@ -124,26 +121,28 @@ export class ContentBrowseFilterPanel
                 this.removeDependencyItem();
             }
         });
-
-        this.whenRendered(() => {
-            this.appendChild(this.statusFilterSection);
-        });
-
-        this.statusFilterSection.onStatusSelectionChanged(() => {
-            this.search();
-        });
     }
 
     protected getGroupViews(): AggregationGroupView[] {
-        this.contentTypeAggregation = new ContentTypeAggregationGroupView(
+        this.aggregationsGroupViews = new Map<string, AggregationGroupView>();
+
+        const contentTypeAggregation: AggregationGroupView = new ContentTypeAggregationGroupView(
             ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME,
             i18n('field.contentTypes'));
 
-        this.lastModifiedAggregation = new AggregationGroupView(
+        const lastModifiedAggregation: AggregationGroupView = new AggregationGroupView(
             ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME,
             i18n('field.lastModified'));
 
-        return [this.contentTypeAggregation, this.lastModifiedAggregation];
+        const statusesAggregation: AggregationGroupView = new AggregationGroupView(
+            ContentBrowseFilterPanel.STATUS_NEW_AGGREGATION_NAME,
+            i18n('field.status'));
+
+        this.aggregationsGroupViews.set(ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME, contentTypeAggregation);
+        this.aggregationsGroupViews.set(ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME, lastModifiedAggregation);
+        this.aggregationsGroupViews.set(ContentBrowseFilterPanel.STATUS_NEW_AGGREGATION_NAME, statusesAggregation);
+
+        return [contentTypeAggregation, lastModifiedAggregation, statusesAggregation];
     }
 
     protected appendExtraSections() {
@@ -171,7 +170,8 @@ export class ContentBrowseFilterPanel
             return;
         }
 
-        (<BucketAggregationView>this.contentTypeAggregation.getAggregationViews()[0]).selectBucketViewByKey(key);
+        (<BucketAggregationView>this.aggregationsGroupViews.get(
+            ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME).getAggregationViews()[0]).selectBucketViewByKey(key);
     }
 
     doRefresh(): Q.Promise<void> {
@@ -192,11 +192,6 @@ export class ContentBrowseFilterPanel
         this.dependenciesSection.reset();
 
         super.setSelectedItems(itemsIds);
-    }
-
-    protected isFilteredOrConstrained() {
-        return super.isFilteredOrConstrained() || this.dependenciesSection.isActive() ||
-               this.statusFilterSection.getCheckedStatuses().length > 0;
     }
 
     private handleEmptyFilterInput(isRefresh?: boolean): Q.Promise<void> {
@@ -224,7 +219,6 @@ export class ContentBrowseFilterPanel
         }
 
         contentQuery.setSize(ContentQuery.POSTLOAD_SIZE);
-        contentQuery.setCompareStatuses(this.statusFilterSection.getCheckedStatuses());
 
         this.appendContentTypesAggregationQuery(contentQuery);
         this.appendLastModifiedAggregationQuery(contentQuery);
@@ -267,7 +261,6 @@ export class ContentBrowseFilterPanel
             this.updateAggregations(aggregations, true);
             this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits());
             this.toggleAggregationsVisibility(contentQueryResult.getAggregations());
-            this.toggleStatuses(contentQueryResult.getStatuses());
             new BrowseFilterSearchEvent(new ContentBrowseSearchData(contentQueryResult, contentQuery)).fire();
         });
     }
@@ -333,9 +326,8 @@ export class ContentBrowseFilterPanel
         return aggregations;
     }
 
-    private initAggregationGroupView(aggregationGroupViews: AggregationGroupView[]) {
-
-        let contentQuery: ContentQuery = this.buildAggregationsQuery();
+    private initAggregationGroupView() {
+        const contentQuery: ContentQuery = this.buildAggregationsQuery();
 
         new ContentQueryRequest<ContentSummaryJson,ContentSummary>(contentQuery).sendAndParse().then(
             (contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
@@ -343,9 +335,8 @@ export class ContentBrowseFilterPanel
                 this.updateAggregations(contentQueryResult.getAggregations(), false);
                 this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits(), true);
                 this.toggleAggregationsVisibility(contentQueryResult.getAggregations());
-                this.toggleStatuses(contentQueryResult.getStatuses());
 
-                aggregationGroupViews.forEach((aggregationGroupView: AggregationGroupView) => {
+                Array.from(this.aggregationsGroupViews.values()).forEach((aggregationGroupView: AggregationGroupView) => {
                     aggregationGroupView.initialize();
                 });
             }).catch((reason: any) => {
@@ -362,7 +353,6 @@ export class ContentBrowseFilterPanel
                 this.updateAggregations(contentQueryResult.getAggregations(), doResetAll);
                 this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits(), true);
                 this.toggleAggregationsVisibility(contentQueryResult.getAggregations());
-                this.toggleStatuses(contentQueryResult.getStatuses());
 
                 if (!suppressEvent) { // then fire usual reset event with content grid reloading
                     if (!!this.dependenciesSection && this.dependenciesSection.isActive()) {
@@ -543,7 +533,7 @@ export class ContentBrowseFilterPanel
     }
 
     private appendMissingAggregationQuery(contentQuery: ContentQuery) {
-        const missingAgg = new MissingAggregationQuery((ContentBrowseFilterPanel.MISSING_AGGREGATION_NAME));
+        const missingAgg: MissingAggregationQuery = new MissingAggregationQuery((ContentBrowseFilterPanel.STATUS_NEW_AGGREGATION_NAME));
         missingAgg.setFieldName(QueryField.PUBLISH_FIRST);
 
 
@@ -552,26 +542,24 @@ export class ContentBrowseFilterPanel
 
     private toggleAggregationsVisibility(aggregations: Aggregation[]) {
         aggregations.forEach((aggregation: BucketAggregation) => {
-            let aggregationIsEmpty = !aggregation.getBuckets().some((bucket: Bucket) => {
+            const aggregationGroupView: AggregationGroupView = this.aggregationsGroupViews.get(aggregation.getName());
+
+            if (!aggregationGroupView) {
+                return;
+            }
+
+            const isEmptyAggregation: boolean = !aggregation.getBuckets().some((bucket: Bucket) => {
                 if (bucket.docCount > 0) {
                     return true;
                 }
             });
 
-            let aggregationGroupView = aggregation.getName() === ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME
-                                       ? this.contentTypeAggregation
-                                       : this.lastModifiedAggregation;
-
-            if (aggregationIsEmpty) {
+            if (isEmptyAggregation) {
                 aggregationGroupView.hide();
             } else {
                 aggregationGroupView.show();
             }
         });
-    }
-
-    private toggleStatuses(statuses: Map<CompareStatus, number>) {
-        this.statusFilterSection.setStats(statuses);
     }
 }
 
@@ -620,80 +608,5 @@ export class DependenciesSection
 
     setDependencyItem(item: ContentSummary) {
         this.viewer.setObject(item);
-    }
-}
-
-class StatusFilterSection extends DivEl {
-
-    private statuses: CompareStatus[] = [];
-    private checkboxes: CompareStatusCheckbox[] = [];
-    private statusSelectionChangedListeners: { (): void; }[] = [];
-
-    constructor() {
-        super('aggregation-group-view');
-
-        this.initElements();
-        this.initListeners();
-    }
-
-    private initElements(): void {
-        this.statuses.push(CompareStatus.NEW, CompareStatus.NEWER, CompareStatus.EQUAL, CompareStatus.MOVED);
-
-        this.statuses.forEach((status: CompareStatus) => {
-            this.checkboxes.push(<CompareStatusCheckbox>new CompareStatusCheckboxBuilder().setStatus(status).setLabelText(
-                CompareStatusFormatter.formatStatusText(status)).build());
-        });
-    }
-
-    private initListeners(): void {
-        const selectionChangedHandler: () => void = this.notifyStatusSelectionChanged.bind(this);
-
-        this.checkboxes.forEach((checkbox: Checkbox) => {
-            checkbox.onValueChanged(selectionChangedHandler);
-        });
-    }
-
-    setStats(statuses: Map<CompareStatus, number>): void {
-        this.checkboxes.forEach((checkbox: CompareStatusCheckbox) => {
-           const total: number = statuses.get(checkbox.getStatus());
-
-           if (total > 0) {
-               checkbox.setLabel(`${ CompareStatusFormatter.formatStatusText(checkbox.getStatus())} (${total})`);
-               checkbox.setVisible(true);
-           } else {
-               checkbox.setVisible(false);
-           }
-        });
-    }
-
-    getCheckedStatuses(): CompareStatus[] {
-        return this.checkboxes.filter((checkbox: CompareStatusCheckbox) => checkbox.isChecked()).map(
-            (checkbox: CompareStatusCheckbox) => checkbox.getStatus());
-    }
-
-    onStatusSelectionChanged(handler: () => void): void {
-        this.statusSelectionChangedListeners.push(handler);
-    }
-
-    unStatusSelectionChanged(listener: { (): void; }): void {
-        this.statusSelectionChangedListeners = this.statusSelectionChangedListeners.filter(function (curr: { (): void; }) {
-            return curr !== listener;
-        });
-    }
-
-    notifyStatusSelectionChanged(): void {
-        this.statusSelectionChangedListeners.forEach((handler: { (): void; }) => handler());
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            this.appendChild(new H2El().setHtml(i18n('field.status')));
-
-            this.checkboxes.forEach((checkbox: Checkbox) => {
-                this.appendChild(new DivEl('aggregation-bucket-view').appendChild(checkbox));
-            });
-
-            return rendered;
-        });
     }
 }
