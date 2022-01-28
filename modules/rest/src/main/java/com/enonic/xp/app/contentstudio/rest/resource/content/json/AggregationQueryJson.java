@@ -11,7 +11,8 @@ import com.enonic.xp.query.aggregation.AggregationQuery;
     @JsonSubTypes.Type(value = TermsAggregationQueryJson.class, name = "TermsAggregationQuery"),    //
     @JsonSubTypes.Type(value = DateHistogramAggregationQueryJson.class, name = "DateHistogramAggregationQuery"),    //
     @JsonSubTypes.Type(value = DateRangeAggregationQueryJson.class, name = "DateRangeAggregationQuery"), //
-    @JsonSubTypes.Type(value = HistogramAggregationQueryJson.class, name = "HistogramAggregationQuery") //
+    @JsonSubTypes.Type(value = HistogramAggregationQueryJson.class, name = "HistogramAggregationQuery"), //
+    @JsonSubTypes.Type(value = MissingAggregationQueryJson.class, name = "MissingAggregationQuery") //
 })
 public abstract class AggregationQueryJson
 {

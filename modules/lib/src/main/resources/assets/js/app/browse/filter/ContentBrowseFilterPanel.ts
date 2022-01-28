@@ -55,12 +55,14 @@ import {H2El} from 'lib-admin-ui/dom/H2El';
 import {Checkbox, CheckboxBuilder} from 'lib-admin-ui/ui/Checkbox';
 import {CompareStatus, CompareStatusFormatter} from '../../content/CompareStatus';
 import {CompareStatusCheckbox, CompareStatusCheckboxBuilder} from './CompareStatusCheckbox';
+import {MissingAggregationQuery} from './MissingAggregationQuery';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
 
     static CONTENT_TYPE_AGGREGATION_NAME: string = 'contentTypes';
     static LAST_MODIFIED_AGGREGATION_NAME: string = 'lastModified';
+    static MISSING_AGGREGATION_NAME: string = 'newContents';
 
     private contentTypeAggregation: ContentTypeAggregationGroupView;
     private lastModifiedAggregation: AggregationGroupView;
@@ -226,6 +228,7 @@ export class ContentBrowseFilterPanel
 
         this.appendContentTypesAggregationQuery(contentQuery);
         this.appendLastModifiedAggregationQuery(contentQuery);
+        this.appendMissingAggregationQuery(contentQuery);
 
         return contentQuery;
     }
@@ -264,6 +267,7 @@ export class ContentBrowseFilterPanel
             this.updateAggregations(aggregations, true);
             this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits());
             this.toggleAggregationsVisibility(contentQueryResult.getAggregations());
+            this.toggleStatuses(contentQueryResult.getStatuses());
             new BrowseFilterSearchEvent(new ContentBrowseSearchData(contentQueryResult, contentQuery)).fire();
         });
     }
@@ -339,6 +343,7 @@ export class ContentBrowseFilterPanel
                 this.updateAggregations(contentQueryResult.getAggregations(), false);
                 this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits(), true);
                 this.toggleAggregationsVisibility(contentQueryResult.getAggregations());
+                this.toggleStatuses(contentQueryResult.getStatuses());
 
                 aggregationGroupViews.forEach((aggregationGroupView: AggregationGroupView) => {
                     aggregationGroupView.initialize();
@@ -357,6 +362,7 @@ export class ContentBrowseFilterPanel
                 this.updateAggregations(contentQueryResult.getAggregations(), doResetAll);
                 this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits(), true);
                 this.toggleAggregationsVisibility(contentQueryResult.getAggregations());
+                this.toggleStatuses(contentQueryResult.getStatuses());
 
                 if (!suppressEvent) { // then fire usual reset event with content grid reloading
                     if (!!this.dependenciesSection && this.dependenciesSection.isActive()) {
@@ -374,11 +380,13 @@ export class ContentBrowseFilterPanel
     private buildAggregationsQuery(): ContentQuery {
         let contentQuery: ContentQuery = new ContentQuery();
         contentQuery.setQueryExpr(new QueryExpr(null));
-        contentQuery.setSize(0);
+        contentQuery.setSize(-1);
 
         this.appendFilterByItems(contentQuery);
         this.appendContentTypesAggregationQuery(contentQuery);
         this.appendLastModifiedAggregationQuery(contentQuery);
+        this.appendMissingAggregationQuery(contentQuery);
+
         if (!!this.dependenciesSection && this.dependenciesSection.isOutbound()) {
             this.appendOutboundReferencesFilter(contentQuery);
         }
@@ -523,14 +531,23 @@ export class ContentBrowseFilterPanel
     }
 
     private appendLastModifiedAggregationQuery(contentQuery: ContentQuery) {
+        const dateRangeAgg: DateRangeAggregationQuery = new DateRangeAggregationQuery(
+            (ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME));
 
-        let dateRangeAgg = new DateRangeAggregationQuery((ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME));
         dateRangeAgg.setFieldName(QueryField.MODIFIED_TIME);
         dateRangeAgg.addRange(new DateRange('now-1h', null, i18n('field.lastModified.lessHour')));
         dateRangeAgg.addRange(new DateRange('now-1d', null, i18n('field.lastModified.lessDay')));
         dateRangeAgg.addRange(new DateRange('now-1w', null, i18n('field.lastModified.lessWeek')));
 
         contentQuery.addAggregationQuery(dateRangeAgg);
+    }
+
+    private appendMissingAggregationQuery(contentQuery: ContentQuery) {
+        const missingAgg = new MissingAggregationQuery((ContentBrowseFilterPanel.MISSING_AGGREGATION_NAME));
+        missingAgg.setFieldName(QueryField.PUBLISH_FIRST);
+
+
+        contentQuery.addAggregationQuery(missingAgg);
     }
 
     private toggleAggregationsVisibility(aggregations: Aggregation[]) {
@@ -553,6 +570,9 @@ export class ContentBrowseFilterPanel
         });
     }
 
+    private toggleStatuses(statuses: Map<CompareStatus, number>) {
+        this.statusFilterSection.setStats(statuses);
+    }
 }
 
 export class DependenciesSection
@@ -630,6 +650,19 @@ class StatusFilterSection extends DivEl {
 
         this.checkboxes.forEach((checkbox: Checkbox) => {
             checkbox.onValueChanged(selectionChangedHandler);
+        });
+    }
+
+    setStats(statuses: Map<CompareStatus, number>): void {
+        this.checkboxes.forEach((checkbox: CompareStatusCheckbox) => {
+           const total: number = statuses.get(checkbox.getStatus());
+
+           if (total > 0) {
+               checkbox.setLabel(`${ CompareStatusFormatter.formatStatusText(checkbox.getStatus())} (${total})`);
+               checkbox.setVisible(true);
+           } else {
+               checkbox.setVisible(false);
+           }
         });
     }
 

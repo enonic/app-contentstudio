@@ -16,6 +16,7 @@ import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 import {CompareStatus} from '../content/CompareStatus';
+import {StatusesJson} from './json/StatusesJson';
 
 export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
     extends CmsContentResourceRequest<ContentQueryResult<CONTENT, CONTENT_JSON>> {
@@ -75,6 +76,12 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         let contentsAsJson: ContentSummaryJson[] = responseResult.contents;
         let metadata = new ResultMetadata(response.getResult().metadata.hits, response.getResult().metadata.totalHits);
         let contents: CONTENT[];
+        let statuses:  StatusesJson = response.getResult().statuses;
+        let statusesMap: Map<CompareStatus, number> = new Map<CompareStatus, number>();
+        statusesMap.set(CompareStatus.NEW, statuses.NEW || 0);
+        statusesMap.set(CompareStatus.NEWER, statuses.NEWER || 0);
+        statusesMap.set(CompareStatus.EQUAL, statuses.EQUAL || 0);
+        statusesMap.set(CompareStatus.MOVED, statuses.MOVED || 0);
 
         if (this.expand === Expand.NONE) {
             contents = <any[]> this.fromJsonToContentIdBaseItemArray(contentsAsJson);
@@ -86,7 +93,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
 
         this.updateStateAfterLoad(contents, metadata);
 
-        return new ContentQueryResult<CONTENT, CONTENT_JSON>(this.results, aggregations, <CONTENT_JSON[]>contentsAsJson, metadata);
+        return new ContentQueryResult<CONTENT, CONTENT_JSON>(this.results, aggregations, <CONTENT_JSON[]>contentsAsJson, metadata, statusesMap);
     }
 
     private updateStateAfterLoad(contents: CONTENT[], metadata: ResultMetadata) {

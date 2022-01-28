@@ -27,7 +27,8 @@ export class ContentSelectorQueryRequest<CONTENT_JSON extends ContentSummaryJson
             metadata: {
                 hits: 0,
                 totalHits: 0,
-            }
+            },
+            statuses: {}
         };
     }
 
