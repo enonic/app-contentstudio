@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.enonic.xp.query.aggregation.AggregationQuery;
+import com.enonic.xp.query.aggregation.StatusesAggregationQuery;
 
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
@@ -12,7 +13,8 @@ import com.enonic.xp.query.aggregation.AggregationQuery;
     @JsonSubTypes.Type(value = DateHistogramAggregationQueryJson.class, name = "DateHistogramAggregationQuery"),    //
     @JsonSubTypes.Type(value = DateRangeAggregationQueryJson.class, name = "DateRangeAggregationQuery"), //
     @JsonSubTypes.Type(value = HistogramAggregationQueryJson.class, name = "HistogramAggregationQuery"), //
-    @JsonSubTypes.Type(value = MissingAggregationQueryJson.class, name = "MissingAggregationQuery") //
+    @JsonSubTypes.Type(value = MissingAggregationQueryJson.class, name = "MissingAggregationQuery"), //
+    @JsonSubTypes.Type(value = StatusesAggregationQuery.class, name = "StatusesAggregationQuery") //
 })
 public abstract class AggregationQueryJson
 {
