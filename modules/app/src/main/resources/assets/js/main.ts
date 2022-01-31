@@ -63,10 +63,13 @@ const importAll = r => r.keys().forEach(r);
 importAll(require.context('lib-contentstudio/app/inputtype', true, /^(?!\.[\/\\](ui)).*(\.js)$/));
 
 function injectCustomInputTypes(): void {
-    const inputtypesUrl = 'http://localhost:8080/admin/input-type/com.enonic.app.appcustominputtypes/MyCheckbox';
-    // const inputtypesUrl = `${CONFIG.assetsUri}/inputtypes/MyCheckbox`;
-    injectScripts(`${inputtypesUrl}/MyCheckbox.js`);
-    injectStyles(`${inputtypesUrl}/ui/MyCheckbox.css`);
+    const MyCheckboxUrl = 'http://localhost:8080/admin/input-type/com.enonic.app.appcustominputtypes/MyCheckbox';
+    injectScripts(`${MyCheckboxUrl}/MyCheckbox.js`);
+    injectStyles(`${MyCheckboxUrl}/ui/MyCheckbox.css`);
+
+    const ColorerUrl = 'http://localhost:8080/admin/input-type/com.enonic.app.appcustominputtypes/Colorer';
+    injectScripts(`${ColorerUrl}/Colorer.js`);
+    injectStyles(`${ColorerUrl}/ui/Colorer.css`);
 }
 
 function injectStyles(url: string): void {
