@@ -50,9 +50,9 @@ import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentSummaryJson} from '../../content/ContentSummaryJson';
 import {ContentId} from '../../content/ContentId';
-import {CompareStatus} from '../../content/CompareStatus';
 import {MissingAggregationQuery} from './MissingAggregationQuery';
 import {StatusesFilter} from './StatusesFilter';
+import {StatusesAggregationQuery} from './StatusesAggregationQuery';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
@@ -60,6 +60,8 @@ export class ContentBrowseFilterPanel
     static CONTENT_TYPE_AGGREGATION_NAME: string = 'contentTypes';
     static LAST_MODIFIED_AGGREGATION_NAME: string = 'lastModified';
     static STATUS_NEW_AGGREGATION_NAME: string = 'New';
+    static STATUS_UNPUBLISHED_AGGREGATION_NAME: string = 'Unpublished';
+    static STATUSES_AGGREGATION_NAME: string = 'statuses';
 
     private aggregationsGroupViews: Map<string, AggregationGroupView>;
 
@@ -131,15 +133,26 @@ export class ContentBrowseFilterPanel
             ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME,
             i18n('field.lastModified'));
 
-        const statusesAggregation: AggregationGroupView = new AggregationGroupView(
+        const statusesNewAggregation: AggregationGroupView = new AggregationGroupView(
             ContentBrowseFilterPanel.STATUS_NEW_AGGREGATION_NAME,
+            i18n('field.status'));
+
+        const statusesUnpublishedAggregation: AggregationGroupView = new AggregationGroupView(
+            ContentBrowseFilterPanel.STATUS_UNPUBLISHED_AGGREGATION_NAME,
+            i18n('field.status'));
+
+        const statusesAggregation: AggregationGroupView = new AggregationGroupView(
+            ContentBrowseFilterPanel.STATUSES_AGGREGATION_NAME,
             i18n('field.status'));
 
         this.aggregationsGroupViews.set(ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME, contentTypeAggregation);
         this.aggregationsGroupViews.set(ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME, lastModifiedAggregation);
-        this.aggregationsGroupViews.set(ContentBrowseFilterPanel.STATUS_NEW_AGGREGATION_NAME, statusesAggregation);
+        this.aggregationsGroupViews.set(ContentBrowseFilterPanel.STATUS_NEW_AGGREGATION_NAME, statusesNewAggregation);
+        this.aggregationsGroupViews.set(ContentBrowseFilterPanel.STATUS_UNPUBLISHED_AGGREGATION_NAME, statusesUnpublishedAggregation);
+        this.aggregationsGroupViews.set(ContentBrowseFilterPanel.STATUSES_AGGREGATION_NAME, statusesAggregation);
 
-        return [contentTypeAggregation, lastModifiedAggregation, statusesAggregation];
+        return [contentTypeAggregation, lastModifiedAggregation, statusesNewAggregation, statusesUnpublishedAggregation,
+            statusesAggregation];
     }
 
     protected appendExtraSections() {
@@ -217,16 +230,25 @@ export class ContentBrowseFilterPanel
 
         contentQuery.setSize(ContentQuery.POSTLOAD_SIZE);
 
-        const statusBuckets: Bucket[] = values.getSelectedValuesForAggregationName(
+        const statusNewBuckets: Bucket[] = values.getSelectedValuesForAggregationName(
             ContentBrowseFilterPanel.STATUS_NEW_AGGREGATION_NAME);
 
-        if (statusBuckets && statusBuckets.length > 0) {
+        if (statusNewBuckets && statusNewBuckets.length > 0) {
             contentQuery.addQueryFilter(new StatusesFilter(['NEW']));
+        }
+
+        const statusUnpublishedBuckets: Bucket[] = values.getSelectedValuesForAggregationName(
+            ContentBrowseFilterPanel.STATUS_UNPUBLISHED_AGGREGATION_NAME);
+
+        if (statusUnpublishedBuckets && statusUnpublishedBuckets.length > 0) {
+            contentQuery.addQueryFilter(new StatusesFilter(['UNPUBLISHED']));
         }
 
         this.appendContentTypesAggregationQuery(contentQuery);
         this.appendLastModifiedAggregationQuery(contentQuery);
-        this.appendMissingAggregationQuery(contentQuery);
+        this.appendStatusNewAggregationQuery(contentQuery);
+        this.appendStatusUnpublishedAggregationQuery(contentQuery);
+        this.appendStatusAggregationQuery(contentQuery);
 
         return contentQuery;
     }
@@ -326,11 +348,20 @@ export class ContentBrowseFilterPanel
             return aggregation.getName() === ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME;
         });
 
-        const statusAggr: Aggregation[] = contentQueryResult.getAggregations().filter((aggregation: Aggregation) => {
+        const statusNewAggr: Aggregation[] = contentQueryResult.getAggregations().filter((aggregation: Aggregation) => {
             return aggregation.getName() === ContentBrowseFilterPanel.STATUS_NEW_AGGREGATION_NAME;
         });
 
-        const aggregations: Aggregation[] = [contentTypesAggr[0], dateModifiedAggr[0], statusAggr[0]];
+        const statusUnpublishedAggr: Aggregation[] = contentQueryResult.getAggregations().filter((aggregation: Aggregation) => {
+            return aggregation.getName() === ContentBrowseFilterPanel.STATUS_UNPUBLISHED_AGGREGATION_NAME;
+        });
+
+        const statusAggr: Aggregation[] = contentQueryResult.getAggregations().filter((aggregation: Aggregation) => {
+            return aggregation.getName() === ContentBrowseFilterPanel.STATUSES_AGGREGATION_NAME;
+        });
+
+        const aggregations: Aggregation[] = [contentTypesAggr[0], dateModifiedAggr[0], statusNewAggr[0], statusUnpublishedAggr[0],
+            statusAggr[0]];
 
         return aggregations;
     }
@@ -384,7 +415,9 @@ export class ContentBrowseFilterPanel
         this.appendFilterByItems(contentQuery);
         this.appendContentTypesAggregationQuery(contentQuery);
         this.appendLastModifiedAggregationQuery(contentQuery);
-        this.appendMissingAggregationQuery(contentQuery);
+        this.appendStatusNewAggregationQuery(contentQuery);
+        this.appendStatusUnpublishedAggregationQuery(contentQuery);
+        this.appendStatusAggregationQuery(contentQuery);
 
         if (!!this.dependenciesSection && this.dependenciesSection.isOutbound()) {
             this.appendOutboundReferencesFilter(contentQuery);
@@ -541,12 +574,25 @@ export class ContentBrowseFilterPanel
         contentQuery.addAggregationQuery(dateRangeAgg);
     }
 
-    private appendMissingAggregationQuery(contentQuery: ContentQuery) {
+    private appendStatusNewAggregationQuery(contentQuery: ContentQuery) {
         const missingAgg: MissingAggregationQuery = new MissingAggregationQuery((ContentBrowseFilterPanel.STATUS_NEW_AGGREGATION_NAME));
         missingAgg.setFieldName(QueryField.PUBLISH_FIRST);
 
 
         contentQuery.addAggregationQuery(missingAgg);
+    }
+
+    private appendStatusUnpublishedAggregationQuery(contentQuery: ContentQuery) {
+        const missingAgg: MissingAggregationQuery = new MissingAggregationQuery((ContentBrowseFilterPanel.STATUS_UNPUBLISHED_AGGREGATION_NAME));
+        missingAgg.setFieldName('publish.from');
+
+
+        contentQuery.addAggregationQuery(missingAgg);
+    }
+
+    private appendStatusAggregationQuery(contentQuery: ContentQuery) {
+        const statusesAggregationQuery: StatusesAggregationQuery = new StatusesAggregationQuery();
+        contentQuery.addAggregationQuery(statusesAggregationQuery);
     }
 
     private toggleAggregationsVisibility(aggregations: Aggregation[]) {
