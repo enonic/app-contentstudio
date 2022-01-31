@@ -44,7 +44,7 @@ public class ContentQueryJsonToContentQueryConverterTest
         contentTypeNames.add( "myApplication:comment" );
         contentTypeNames.add( "myApplication:site" );
 
-        final ContentQueryJson contentQueryJson = new ContentQueryJson( "", 0, 100, contentTypeNames, null, "summary", null, null, new ArrayList<>() );
+        final ContentQueryJson contentQueryJson = new ContentQueryJson( "", 0, 100, contentTypeNames, null, "summary", null, null );
         final ContentQueryJsonToContentQueryConverter processor = ContentQueryJsonToContentQueryConverter.create().
             contentQueryJson( contentQueryJson ).
             contentService( contentService ).
@@ -76,7 +76,7 @@ public class ContentQueryJsonToContentQueryConverterTest
             .thenReturn( ContentIds.from( folderRefContent1.getId(), folderRefContent2.getId() ) );
 
         final ContentQueryJson contentQueryJson =
-            new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null, new ArrayList<>() );
+            new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null );
 
         ContentQueryJsonToContentQueryConverter processor = ContentQueryJsonToContentQueryConverter.create().
             contentQueryJson( contentQueryJson ).
@@ -98,7 +98,7 @@ public class ContentQueryJsonToContentQueryConverterTest
         Mockito.when( contentService.getOutboundDependencies( content.getId() ) ).thenReturn( ContentIds.empty() );
 
         final ContentQueryJson contentQueryJson =
-            new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null, new ArrayList<>() );
+            new ContentQueryJson( "", 0, 100, new ArrayList(), content.getId().toString(), "summary", null, null );
 
         Mockito.when( contentService.getById( content.getId() ) ).thenReturn( content );
         Mockito.when( contentService.getByIds( new GetContentByIdsParams( ContentIds.empty() ) ) ).thenReturn( Contents.empty() );
@@ -118,7 +118,7 @@ public class ContentQueryJsonToContentQueryConverterTest
     {
         final ContentQueryJson contentQueryJson = new ContentQueryJson(
             "((fulltext('displayName^5,_name^3,_alltext', '', 'AND') OR ngram('displayName^5,_name^3,_alltext', '', 'AND')) AND inboundDependencies('_references', 'test-content-id'))",
-            0, 100, new ArrayList(), null, "summary", null, null, new ArrayList<>() );
+            0, 100, new ArrayList(), null, "summary", null, null );
 
         final ContentQueryJsonToContentQueryConverter processor = getProcessor( contentQueryJson );
 
@@ -147,7 +147,7 @@ public class ContentQueryJsonToContentQueryConverterTest
 
         ContentQueryJson contentQueryJson = new ContentQueryJson(
             "(fulltext('displayName^5,_name^3,_alltext', 'check', 'AND') OR ngram('displayName^5,_name^3,_alltext', 'check', 'AND')) " +
-                "ORDER BY _modifiedTime DESC", 0, 100, contentTypeNames, null, "summary", null, null, new ArrayList<>() );
+                "ORDER BY _modifiedTime DESC", 0, 100, contentTypeNames, null, "summary", null, null );
 
         ContentQueryJsonToContentQueryConverter processor = ContentQueryJsonToContentQueryConverter.create().
             contentQueryJson( contentQueryJson ).

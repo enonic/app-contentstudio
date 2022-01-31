@@ -28,7 +28,7 @@ public class ContentQueryJson
 
     private final List<FilterJson> queryFilters;
 
-    private final List<String> statuses;
+//    private final List<String> statuses;
 
     @JsonCreator
     public ContentQueryJson( @JsonProperty("queryExpr") final String queryExprString, //
@@ -38,8 +38,8 @@ public class ContentQueryJson
                              @JsonProperty("mustBeReferencedById") final String mustBeReferencedById,
                              @JsonProperty("expand") final String expand,
                              @JsonProperty("aggregationQueries") final List<AggregationQueryJson> aggregationQueries, //
-                             @JsonProperty("queryFilters") final List<FilterJson> queryFilters,
-                             @JsonProperty("statuses") final List<String> statuses )
+                             @JsonProperty("queryFilters") final List<FilterJson> queryFilters/*,
+                             @JsonProperty("statuses") final List<String> statuses*/ )
     {
 
         this.queryExprString = queryExprString;
@@ -49,7 +49,7 @@ public class ContentQueryJson
         this.mustBeReferencedById = mustBeReferencedById != null ? ContentId.from( mustBeReferencedById ) : null;
         this.aggregationQueries = aggregationQueries;
         this.queryFilters = queryFilters;
-        this.statuses = statuses;
+//        this.statuses = statuses;
 
         this.expand = expand != null ? expand : "none";
     }
@@ -102,9 +102,9 @@ public class ContentQueryJson
         return expand;
     }
 
-    @JsonIgnore
-    public List<String> getStatuses()
-    {
-        return statuses;
-    }
+//    @JsonIgnore
+//    public List<String> getStatuses()
+//    {
+//        return statuses;
+//    }
 }

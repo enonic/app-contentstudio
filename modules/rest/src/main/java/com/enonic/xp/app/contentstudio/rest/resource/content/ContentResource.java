@@ -1076,66 +1076,76 @@ public final class ContentResource
 
         FindContentIdsByQueryResult findResult = contentService.find( contentQuery );
 
-        final CompareContentResults compareResults =
-            contentService.compare( new CompareContentsParams( findResult.getContentIds(), ContentConstants.BRANCH_MASTER ) );
-
-        Map<String, Set<ContentId>> contentIdGroupedByStatus = new HashMap<>();
-
-        compareResults.getCompareContentResultsMap().forEach( ( contentId, status ) -> {
-            final String statusType = status.getCompareStatus().name();
-            if ( !contentIdGroupedByStatus.containsKey( statusType ) )
-            {
-                contentIdGroupedByStatus.put( statusType, new HashSet<>() );
-            }
-            contentIdGroupedByStatus.get( statusType ).add( contentId );
-        } );
-
-        Map<String, Integer> statuses = new HashMap<>();
-
-        FindContentIdsByQueryResult resultByStatus = null;
-
-        if ( !contentIdGroupedByStatus.isEmpty() && contentQueryJson.getStatuses() != null && !contentQueryJson.getStatuses().isEmpty() )
-        {
-            Set<ContentId> contentIds = new HashSet<>();
-            for ( String status : contentQueryJson.getStatuses() )
-            {
-                if (contentIdGroupedByStatus.containsKey( status ))
-                {
-                    contentIds.addAll( contentIdGroupedByStatus.get( status ) );
-                }
-            }
-
-            final ContentQuery.Builder builder = ContentQuery.create();
-
-            if ( contentQueryJson.getAggregationQueries() != null )
-            {
-                for ( final AggregationQueryJson aggregationQueryJson : contentQueryJson.getAggregationQueries() )
-                {
-                    builder.aggregationQuery( aggregationQueryJson.getAggregationQuery() );
-                }
-            }
-
-            resultByStatus = contentService.find( builder.filterContentIds( ContentIds.from( contentIds ) ).build() );
-
-            contentIdGroupedByStatus.keySet().stream().
-                filter( s -> contentQueryJson.getStatuses().contains( s ) ).
-                forEach( e -> statuses.put( e, contentIdGroupedByStatus.get( e ).size() ) );
-        }
-        else
-        {
-            contentIdGroupedByStatus.keySet().forEach( e -> statuses.put( e, contentIdGroupedByStatus.get( e ).size() ) );
-        }
-
         return FindContentByQuertResultJsonFactory.create().
-            contents(this.contentService.getByIds( new GetContentByIdsParams( resultByStatus != null ? resultByStatus.getContentIds() : findResult.getContentIds() ) ) ).
-            aggregations(findResult.getAggregations() ).
+            contents( this.contentService.getByIds( new GetContentByIdsParams( findResult.getContentIds() ) ) ).
+            aggregations( findResult.getAggregations() ).
             jsonObjectsFactory( jsonObjectsFactory ).
             expand( contentQueryJson.getExpand() ).
-            hits(findResult.getHits() ).
+            hits( findResult.getHits() ).
             totalHits( findResult.getTotalHits() ).
-            statuses( statuses ).
             build().
             execute();
+
+//        final CompareContentResults compareResults =
+//            contentService.compare( new CompareContentsParams( findResult.getContentIds(), ContentConstants.BRANCH_MASTER ) );
+//
+//        Map<String, Set<ContentId>> contentIdGroupedByStatus = new HashMap<>();
+//
+//        compareResults.getCompareContentResultsMap().forEach( ( contentId, status ) -> {
+//            final String statusType = status.getCompareStatus().name();
+//            if ( !contentIdGroupedByStatus.containsKey( statusType ) )
+//            {
+//                contentIdGroupedByStatus.put( statusType, new HashSet<>() );
+//            }
+//            contentIdGroupedByStatus.get( statusType ).add( contentId );
+//        } );
+//
+//        Map<String, Integer> statuses = new HashMap<>();
+//
+//        FindContentIdsByQueryResult resultByStatus = null;
+//
+//        if ( !contentIdGroupedByStatus.isEmpty() && contentQueryJson.getStatuses() != null && !contentQueryJson.getStatuses().isEmpty() )
+//        {
+//            Set<ContentId> contentIds = new HashSet<>();
+//            for ( String status : contentQueryJson.getStatuses() )
+//            {
+//                if (contentIdGroupedByStatus.containsKey( status ))
+//                {
+//                    contentIds.addAll( contentIdGroupedByStatus.get( status ) );
+//                }
+//            }
+//
+//            final ContentQuery.Builder builder = ContentQuery.create();
+//
+//            if ( contentQueryJson.getAggregationQueries() != null )
+//            {
+//                for ( final AggregationQueryJson aggregationQueryJson : contentQueryJson.getAggregationQueries() )
+//                {
+//                    builder.aggregationQuery( aggregationQueryJson.getAggregationQuery() );
+//                }
+//            }
+//
+//            resultByStatus = contentService.find( builder.filterContentIds( ContentIds.from( contentIds ) ).build() );
+//
+//            contentIdGroupedByStatus.keySet().stream().
+//                filter( s -> contentQueryJson.getStatuses().contains( s ) ).
+//                forEach( e -> statuses.put( e, contentIdGroupedByStatus.get( e ).size() ) );
+//        }
+//        else
+//        {
+//            contentIdGroupedByStatus.keySet().forEach( e -> statuses.put( e, contentIdGroupedByStatus.get( e ).size() ) );
+//        }
+//
+//        return FindContentByQuertResultJsonFactory.create().
+//            contents(this.contentService.getByIds( new GetContentByIdsParams( resultByStatus != null ? resultByStatus.getContentIds() : findResult.getContentIds() ) ) ).
+//            aggregations(findResult.getAggregations() ).
+//            jsonObjectsFactory( jsonObjectsFactory ).
+//            expand( contentQueryJson.getExpand() ).
+//            hits(findResult.getHits() ).
+//            totalHits( findResult.getTotalHits() ).
+//            statuses( statuses ).
+//            build().
+//            execute();
     }
 
 

@@ -90,7 +90,7 @@ public class FindContentByQuertResultJsonFactory
         }
         else if ( Expand.SUMMARY.matches( expand ) )
         {
-            builder = ContentSummaryQueryResultJson.newBuilder( jsonObjectsFactory ).statuses( statuses );
+            builder = ContentSummaryQueryResultJson.newBuilder( jsonObjectsFactory )/*.statuses( statuses )*/;
         }
         else
         {
