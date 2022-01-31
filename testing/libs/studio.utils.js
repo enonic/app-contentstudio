@@ -509,6 +509,15 @@ module.exports = {
             throw new Error("Error when opening Filter Panel! " + err);
         }
     },
+    async clickOnClearSelection() {
+        try {
+            let filterPanel = new FilterPanel();
+
+            return await filterPanel.clickOnClearLink();
+        } catch (err) {
+            throw new Error("Error when clicking on Clear in Filter Panel! " + err);
+        }
+    },
 
     async openProjectSelectionDialogAndSelectContext(context) {
         try {
