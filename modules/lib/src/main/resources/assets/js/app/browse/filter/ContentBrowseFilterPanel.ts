@@ -50,19 +50,16 @@ import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentSummaryJson} from '../../content/ContentSummaryJson';
 import {ContentId} from '../../content/ContentId';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {H2El} from 'lib-admin-ui/dom/H2El';
-import {Checkbox, CheckboxBuilder} from 'lib-admin-ui/ui/Checkbox';
-import {CompareStatus, CompareStatusFormatter} from '../../content/CompareStatus';
-import {CompareStatusCheckbox, CompareStatusCheckboxBuilder} from './CompareStatusCheckbox';
+import {CompareStatus} from '../../content/CompareStatus';
 import {MissingAggregationQuery} from './MissingAggregationQuery';
+import {StatusesFilter} from './StatusesFilter';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
 
     static CONTENT_TYPE_AGGREGATION_NAME: string = 'contentTypes';
     static LAST_MODIFIED_AGGREGATION_NAME: string = 'lastModified';
-    static STATUS_NEW_AGGREGATION_NAME: string = 'new';
+    static STATUS_NEW_AGGREGATION_NAME: string = 'New';
 
     private aggregationsGroupViews: Map<string, AggregationGroupView>;
 
@@ -205,8 +202,8 @@ export class ContentBrowseFilterPanel
     }
 
     private createContentQuery(): ContentQuery {
-        let contentQuery: ContentQuery = new ContentQuery();
-        let values = this.getSearchInputValues();
+        const contentQuery: ContentQuery = new ContentQuery();
+        const values: SearchInputValues = this.getSearchInputValues();
         this.appendQueryExpression(values, contentQuery);
         this.appendContentTypeFilter(values, contentQuery);
         if (!!this.dependenciesSection && this.dependenciesSection.isOutbound()) {
@@ -219,6 +216,13 @@ export class ContentBrowseFilterPanel
         }
 
         contentQuery.setSize(ContentQuery.POSTLOAD_SIZE);
+
+        const statusBuckets: Bucket[] = values.getSelectedValuesForAggregationName(
+            ContentBrowseFilterPanel.STATUS_NEW_AGGREGATION_NAME);
+
+        if (statusBuckets && statusBuckets.length > 0) {
+            contentQuery.addQueryFilter(new StatusesFilter(['NEW']));
+        }
 
         this.appendContentTypesAggregationQuery(contentQuery);
         this.appendLastModifiedAggregationQuery(contentQuery);
@@ -287,7 +291,7 @@ export class ContentBrowseFilterPanel
         let newContentQuery: ContentQuery = new ContentQuery().setContentTypeNames([]).setFrom(contentQuery.getFrom()).setQueryExpr(
             contentQuery.getQueryExpr()).setSize(contentQuery.getSize()).setAggregationQueries(
             contentQuery.getAggregationQueries()).setQueryFilters(contentQuery.getQueryFilters()).setMustBeReferencedById(
-            contentQuery.getMustBeReferencedById()).setCompareStatuses(contentQuery.getCompareStatuses());
+            contentQuery.getMustBeReferencedById());
 
         return newContentQuery;
     }
@@ -314,14 +318,19 @@ export class ContentBrowseFilterPanel
 
     private combineAggregations(contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>,
                                 queryResultNoContentTypesSelected: ContentQueryResult<ContentSummary,ContentSummaryJson>): Aggregation[] {
-        let contentTypesAggr = queryResultNoContentTypesSelected.getAggregations().filter((aggregation) => {
+        const contentTypesAggr: Aggregation[] = queryResultNoContentTypesSelected.getAggregations().filter((aggregation: Aggregation) => {
             return aggregation.getName() === ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME;
         });
-        let dateModifiedAggr = contentQueryResult.getAggregations().filter((aggregation) => {
-            return aggregation.getName() !== ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME;
+
+        const dateModifiedAggr: Aggregation[] = contentQueryResult.getAggregations().filter((aggregation: Aggregation) => {
+            return aggregation.getName() === ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME;
         });
 
-        let aggregations = [contentTypesAggr[0], dateModifiedAggr[0]];
+        const statusAggr: Aggregation[] = contentQueryResult.getAggregations().filter((aggregation: Aggregation) => {
+            return aggregation.getName() === ContentBrowseFilterPanel.STATUS_NEW_AGGREGATION_NAME;
+        });
+
+        const aggregations: Aggregation[] = [contentTypesAggr[0], dateModifiedAggr[0], statusAggr[0]];
 
         return aggregations;
     }

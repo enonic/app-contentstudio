@@ -10,20 +10,17 @@ export class ContentQueryResult<CONTENT extends ContentSummary, CONTENT_JSON ext
     private aggregations: Aggregation[];
     private contentsAsJson: CONTENT_JSON[];
     private metadata: ResultMetadata;
-    private statuses: Map<CompareStatus, number>;
 
     constructor(
         contents: CONTENT[],
         aggreations: Aggregation[],
         contentsAsJson: CONTENT_JSON[],
-        metadata: ResultMetadata,
-        statuses: Map<CompareStatus, number>
+        metadata: ResultMetadata
     ) {
         this.contents = contents;
         this.aggregations = aggreations;
         this.contentsAsJson = contentsAsJson;
         this.metadata = metadata;
-        this.statuses = statuses;
     }
 
     getContents(): CONTENT[] {
@@ -40,9 +37,5 @@ export class ContentQueryResult<CONTENT extends ContentSummary, CONTENT_JSON ext
 
     getMetadata(): ResultMetadata {
         return this.metadata;
-    }
-
-    getStatuses(): Map<CompareStatus, number> {
-        return this.statuses;
     }
 }

@@ -24,8 +24,6 @@ export class ContentQuery
 
     private queryFilters: Filter[] = [];
 
-    private compareStatuses: CompareStatus[] = [];
-
     private from: number = 0;
 
     private size: number = ContentQuery.DEFAULT_SIZE;
@@ -73,15 +71,6 @@ export class ContentQuery
 
     getSize(): number {
         return this.size;
-    }
-
-    setCompareStatuses(statuses: CompareStatus[]): ContentQuery {
-        this.compareStatuses = statuses;
-        return this;
-    }
-
-    getCompareStatuses(): CompareStatus[] {
-        return this.compareStatuses;
     }
 
     addAggregationQuery(aggregationQuery: AggregationQuery): ContentQuery {
@@ -139,10 +128,6 @@ export class ContentQuery
             return false;
         }
         if (!ObjectHelper.equals(this.mustBeReferencedById, other.mustBeReferencedById)) {
-            return false;
-        }
-
-        if (!ObjectHelper.anyArrayEquals(this.compareStatuses, other.compareStatuses)) {
             return false;
         }
 
