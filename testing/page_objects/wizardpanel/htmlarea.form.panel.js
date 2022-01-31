@@ -249,9 +249,14 @@ class HtmlAreaForm extends OccurrencesFormView {
     }
 
     async clickOnSourceButton() {
-        await this.clickOnElement(XPATH.ckeTextArea);
-        await this.waitForElementDisplayed(lib.CKE.sourceButton, appConst.mediumTimeout);
-        return await this.clickOnElement(lib.CKE.sourceButton);
+        try {
+            await this.clickOnElement(XPATH.ckeTextArea);
+            await this.waitForElementDisplayed(lib.CKE.sourceButton, appConst.mediumTimeout);
+            return await this.clickOnElement(lib.CKE.sourceButton);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_source_button"));
+            throw new Error("Error after clicking on Source button: " + err);
+        }
     }
 
     async clickOnFullScreenButton() {

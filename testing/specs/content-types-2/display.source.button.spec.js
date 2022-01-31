@@ -1,0 +1,86 @@
+/**
+ * Created on 31.01.2022
+ */
+const chai = require('chai');
+const assert = chai.assert;
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const appConst = require('../../libs/app_const');
+const studioUtils = require('../../libs/studio.utils.js');
+const builder = require('../../libs/content.builder');
+const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
+const contentBuilder = require('../../libs/content.builder');
+const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
+const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
+const appConstant = require('../../libs/app_const');
+
+
+describe('display.source.button.spec - tests for Display Source button in html area', function () {
+    this.timeout(appConst.SUITE_TIMEOUT);
+    webDriverHelper.setupBrowser();
+
+    const FOLDER_NAME = studioUtils.generateRandomName("folder");
+    let USER;
+    let SITE;
+
+    it(`Precondition 1: new user with 'Content Manager Expert'  role should be created`,
+        async () => {
+            //Do Log in with 'SU', navigate to 'Users' and create new user:
+            await studioUtils.navigateToUsersApp();
+            let userName = builder.generateRandomName("user");
+            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE, appConst.SYSTEM_ROLES.CM_APP_EXPERT, appConst.SYSTEM_ROLES.CM_APP];
+            USER = builder.buildUser(userName, appConst.PASSWORD.MEDIUM, builder.generateEmail(userName), roles);
+            await studioUtils.addSystemUser(USER);
+        });
+
+    it("Precondition 2: new site should be created by SU",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let editPermissionsDialog = new EditPermissionsDialog();
+            //1. Do Log in with 'SU':
+            await studioUtils.navigateToContentStudioApp();
+            //2. SU creates new site:
+            let siteName = appConst.generateRandomName("site");
+            SITE = contentBuilder.buildSite(siteName, 'description', [appConst.APP_CONTENT_TYPES]);
+            await studioUtils.openContentWizard(appConst.contentTypes.SITE);
+            await contentWizard.typeData(SITE);
+            //3. The site should be automatically saved
+            await contentWizard.waitForNotificationMessage();
+            await contentWizard.pause(1000);
+            //4. Add 'Full access' permissions for the just created user and click on Apply button:
+            await contentWizard.clickOnEditPermissionsButton();
+            await editPermissionsDialog.waitForDialogLoaded();
+            await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
+            await editPermissionsDialog.filterAndSelectPrincipal(USER.displayName);
+            await editPermissionsDialog.showAceMenuAndSelectItem(USER.displayName, appConstant.permissions.FULL_ACCESS);
+            await editPermissionsDialog.pause(500);
+            await editPermissionsDialog.clickOnApplyButton();
+            await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+            await studioUtils.doLogout();
+        });
+
+    it("GIVEN user with role 'Content Manager Expert' is logged in WHEN content with html area has been opened THEN 'Source' button should be displayed in the htmlArea toolbar",
+        async () => {
+            let htmlAreaForm = new HtmlAreaForm();
+            let sourceCodeDialog = new SourceCodeDialog();
+            await studioUtils.navigateToContentStudioApp(USER.displayName, appConst.PASSWORD.MEDIUM);
+            let contentWizard = new ContentWizard();
+            //1. Open wizard for new content with htmlArea:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
+            //2. Verify that 'Source' button is displayed in the htmlArea toolbar
+            await htmlAreaForm.clickOnSourceButton();
+            await studioUtils.saveScreenshot("cm_expert_source_button");
+            await sourceCodeDialog.waitForDialogLoaded();
+        });
+
+    afterEach(async () => {
+        let title = await webDriverHelper.browser.getTitle();
+        if (title.includes("Content Studio") || title.includes("Users")) {
+            return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+        }
+    });
+    before(() => {
+        return console.log('specification is starting: ' + this.title);
+    });
+
+});

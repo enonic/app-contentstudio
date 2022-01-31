@@ -33,7 +33,7 @@ describe('Custom error handling - specification. Verify that application error p
             await studioUtils.switchToContentTabWindow(SITE.displayName);
             //3. Verify that expected error-page is loaded:
             let pageSource = await studioUtils.getPageSource();
-            studioUtils.saveScreenshot('custom_error_handling');
+            await studioUtils.saveScreenshot('custom_error_handling');
             assert.include(pageSource, 'Oops, something went wrong!', "Expected message should be in the error page!");
             assert.include(pageSource, 'System got an error 500', "Expected response code should be displayed");
         });

@@ -523,19 +523,21 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         })
     }
 
-    waitForRowByNameVisible(name) {
-        let nameXpath = XPATH.treeGrid + lib.itemByName(name);
-        return this.waitForElementDisplayed(nameXpath, appConst.longTimeout).catch(err => {
-            this.saveScreenshot('err_find_' + name);
-            throw Error('Row with the name ' + name + ' is not visible after ' + 3000 + 'ms')
-        })
+    async waitForRowByNameVisible(name) {
+        try {
+            let nameXpath = XPATH.treeGrid + lib.itemByName(name);
+            await this.waitForElementDisplayed(nameXpath, appConst.longTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_content'));
+            throw Error("Content was not found: " + err);
+        }
     }
 
     waitForRowByDisplayNameVisible(name) {
         let nameXpath = XPATH.treeGrid + lib.itemByDisplayName(name);
         return this.waitForElementDisplayed(nameXpath, appConst.longTimeout).catch(err => {
-            this.saveScreenshot('err_find_' + name);
-            throw Error('Row with the name ' + name + ' is not visible after ' + 3000 + 'ms')
+            this.saveScreenshot(appConst.generateRandomName('err_not_found'));
+            throw Error("Content was not found: " + err);
         })
     }
 
