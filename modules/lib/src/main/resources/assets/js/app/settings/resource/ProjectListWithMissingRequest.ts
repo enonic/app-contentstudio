@@ -1,6 +1,6 @@
 import {ProjectListRequest} from './ProjectListRequest';
 import {Project} from '../data/project/Project';
-import * as Q from 'q';
+import Q from 'q';
 import {ProjectsTreeBuilder} from './ProjectsTreeBuilder';
 
 export class ProjectListWithMissingRequest extends ProjectListRequest {

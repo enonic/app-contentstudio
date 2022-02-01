@@ -2,7 +2,7 @@ import {Project, ProjectBuilder} from '../data/project/Project';
 import {ProjectsTreeRequest} from './ProjectsTreeRequest';
 import {ProjectsTreeItem} from '../data/project/ProjectsTreeItem';
 import {ProjectHelper} from '../data/project/ProjectHelper';
-import * as Q from 'q';
+import Q from 'q';
 
 declare const CONFIG;
 

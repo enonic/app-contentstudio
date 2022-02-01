@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentSelectorRequest} from './ContentSelectorRequest';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';

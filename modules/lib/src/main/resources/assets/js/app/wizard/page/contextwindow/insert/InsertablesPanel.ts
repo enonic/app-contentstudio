@@ -1,4 +1,4 @@
-import * as $ from 'jquery';
+import $ = require('jquery');
 import 'jquery-simulate/jquery.simulate.js';
 import 'jquery-ui/ui/widgets/draggable';
 import {i18n} from 'lib-admin-ui/util/Messages';

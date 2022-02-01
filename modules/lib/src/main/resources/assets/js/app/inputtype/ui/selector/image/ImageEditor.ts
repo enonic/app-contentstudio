@@ -1,4 +1,4 @@
-import * as $ from 'jquery';
+import $ = require('jquery');
 import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';

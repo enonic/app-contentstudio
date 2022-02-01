@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';

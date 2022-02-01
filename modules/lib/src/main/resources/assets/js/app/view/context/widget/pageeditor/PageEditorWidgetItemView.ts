@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';

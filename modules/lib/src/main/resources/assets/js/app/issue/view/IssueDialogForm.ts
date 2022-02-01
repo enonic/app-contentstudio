@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
 import {TextArea} from 'lib-admin-ui/ui/text/TextArea';

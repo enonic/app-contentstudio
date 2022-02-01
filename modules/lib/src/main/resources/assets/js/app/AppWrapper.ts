@@ -1,5 +1,5 @@
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import * as Q from 'q';
+import Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {Button} from 'lib-admin-ui/ui/button/Button';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';

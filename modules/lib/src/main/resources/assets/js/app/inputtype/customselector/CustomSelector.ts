@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
 import {Value} from 'lib-admin-ui/data/Value';

@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';

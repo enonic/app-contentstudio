@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {PageTemplateResourceRequest} from './PageTemplateResourceRequest';
 import {ContentId} from '../content/ContentId';
 

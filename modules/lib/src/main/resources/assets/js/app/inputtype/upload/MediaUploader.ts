@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {Input} from 'lib-admin-ui/form/Input';

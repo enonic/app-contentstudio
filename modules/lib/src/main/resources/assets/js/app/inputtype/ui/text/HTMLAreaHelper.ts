@@ -3,7 +3,7 @@ import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {Styles} from './styles/Styles';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
-import * as Q from 'q';
+import Q from 'q';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';

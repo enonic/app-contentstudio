@@ -3,7 +3,7 @@ import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {ProjectGetRequest} from '../../resource/ProjectGetRequest';
 import {ProjectContext} from '../../../project/ProjectContext';
-import * as Q from 'q';
+import Q from 'q';
 import {ProjectPermissions} from './ProjectPermissions';
 
 export class ProjectHelper {

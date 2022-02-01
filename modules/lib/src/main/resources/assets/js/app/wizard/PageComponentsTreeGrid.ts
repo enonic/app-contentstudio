@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {PageComponentsGridDragHandler} from './PageComponentsGridDragHandler';

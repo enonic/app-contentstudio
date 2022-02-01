@@ -67,8 +67,16 @@
     padding: 5px;
   }
 
+  > div[contenteditable="true"] {
+    display: none;
+  }
+
   &.edit-mode {
     min-height: 0;
+
+    > div[contenteditable="true"] {
+      display: block;
+    }
 
     .cke_editable {
       display: block;

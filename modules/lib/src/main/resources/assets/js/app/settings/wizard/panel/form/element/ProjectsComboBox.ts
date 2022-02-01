@@ -1,6 +1,6 @@
 import {Project} from '../../../../data/project/Project';
 import {ProjectViewer} from '../../../viewer/ProjectViewer';
-import * as Q from 'q';
+import Q from 'q';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {ProjectsChainBlock} from '../../../../dialog/ProjectsChainBlock';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';

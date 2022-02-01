@@ -1,5 +1,5 @@
-import * as $ from 'jquery';
-import * as Q from 'q';
+import $ = require('jquery');
+import Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {Event} from 'lib-admin-ui/event/Event';
 import {i18n} from 'lib-admin-ui/util/Messages';

@@ -4,7 +4,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {Validators} from 'lib-admin-ui/ui/form/Validators';
 import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
 import {ProjectViewItem} from '../../../view/ProjectViewItem';
-import * as Q from 'q';
+import Q from 'q';
 import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 import {ProjectFormItem, ProjectFormItemBuilder} from './element/ProjectFormItem';
 import {ProjectsComboBox} from './element/ProjectsComboBox';

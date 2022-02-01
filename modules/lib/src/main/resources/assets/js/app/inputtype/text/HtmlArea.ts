@@ -1,6 +1,6 @@
-import * as $ from 'jquery';
+import $ = require('jquery');
 import 'jquery-simulate/jquery.simulate.js';
-import * as Q from 'q';
+import Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';

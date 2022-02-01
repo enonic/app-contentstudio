@@ -1,7 +1,7 @@
 import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {InputEl} from 'lib-admin-ui/dom/InputEl';
-import * as Q from 'q';
+import Q from 'q';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';

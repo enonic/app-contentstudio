@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {Body} from 'lib-admin-ui/dom/Body';

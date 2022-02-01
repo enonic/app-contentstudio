@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {WizardPanel, WizardPanelParams} from 'lib-admin-ui/app/wizard/WizardPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {Toolbar} from 'lib-admin-ui/ui/toolbar/Toolbar';

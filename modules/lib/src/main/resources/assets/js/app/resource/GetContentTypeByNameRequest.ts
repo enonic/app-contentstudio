@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentTypeCache} from '../content/ContentTypeCache';

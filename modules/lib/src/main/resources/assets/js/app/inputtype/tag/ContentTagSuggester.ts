@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
 import {PropertyPath} from 'lib-admin-ui/data/PropertyPath';

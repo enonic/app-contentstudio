@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {Path} from 'lib-admin-ui/rest/Path';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {QueryField} from 'lib-admin-ui/query/QueryField';

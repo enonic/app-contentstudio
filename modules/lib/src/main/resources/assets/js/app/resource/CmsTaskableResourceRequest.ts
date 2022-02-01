@@ -1,6 +1,6 @@
 import {UrlHelper} from '../util/UrlHelper';
 import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
-import * as Q from 'q';
+import Q from 'q';
 import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {TaskId} from 'lib-admin-ui/task/TaskId';

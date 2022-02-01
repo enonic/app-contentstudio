@@ -1,4 +1,4 @@
-/*global Q, JQuery */
+/*global Q */
 
 import * as $ from 'jquery';
 import * as Q from 'q';
@@ -55,6 +55,7 @@ import {ContentApp} from 'lib-contentstudio/app/ContentApp';
 import {SettingsApp} from 'lib-contentstudio/app/settings/SettingsApp';
 import {Store} from 'lib-admin-ui/store/Store';
 import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
+import {ContentType} from 'lib-contentstudio/app/inputtype/schema/ContentType';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -212,7 +213,7 @@ function preLoadApplication() {
                     });
             } else {
                 new GetContentTypeByNameRequest(wizardParams.contentTypeName).sendAndParse().then(
-                    (contentType) => {
+                    (contentType: ContentType) => {
                         updateTabTitle(NamePrettyfier.prettifyUnnamed(contentType.getDisplayName()));
                     });
             }

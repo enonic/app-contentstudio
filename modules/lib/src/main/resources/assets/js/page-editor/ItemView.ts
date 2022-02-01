@@ -1,4 +1,4 @@
-import * as $ from 'jquery';
+import $ = require('jquery');
 import {Element, ElementBuilder, ElementFromElementBuilder, NewElementBuilder} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';

@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {showError, showSuccess, showWarning} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';

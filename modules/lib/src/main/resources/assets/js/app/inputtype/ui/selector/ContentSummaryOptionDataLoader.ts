@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {OptionDataLoader, OptionDataLoaderData} from 'lib-admin-ui/ui/selector/OptionDataLoader';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';

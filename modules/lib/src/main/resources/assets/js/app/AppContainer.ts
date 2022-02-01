@@ -2,7 +2,7 @@ import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {AppBar} from 'lib-admin-ui/app/bar/AppBar';
 import {AppPanel} from 'lib-admin-ui/app/AppPanel';
 import {Application} from 'lib-admin-ui/app/Application';
-import * as Q from 'q';
+import Q from 'q';
 import {Store} from 'lib-admin-ui/store/Store';
 
 export abstract class AppContainer

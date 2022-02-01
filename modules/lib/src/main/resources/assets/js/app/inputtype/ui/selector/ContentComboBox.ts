@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';

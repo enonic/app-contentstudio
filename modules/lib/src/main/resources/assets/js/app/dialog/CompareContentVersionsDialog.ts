@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {AliasType, ContentVersion} from '../ContentVersion';
 import {GetContentVersionRequest} from '../resource/GetContentVersionRequest';
 import {Delta, DiffPatcher, formatters} from 'jsondiffpatch';

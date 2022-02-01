@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
 import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';

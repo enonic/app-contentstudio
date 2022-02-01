@@ -3,7 +3,7 @@ import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
 import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
 import {Form} from 'lib-admin-ui/ui/form/Form';
 import {FormView} from 'lib-admin-ui/form/FormView';
-import * as Q from 'q';
+import Q from 'q';
 import {SettingsDataViewItem} from '../../../view/SettingsDataViewItem';
 import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
 import {SettingsType} from '../../../dialog/SettingsType';

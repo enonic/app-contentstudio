@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
 import {Option} from 'lib-admin-ui/ui/selector/Option';

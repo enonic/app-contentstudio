@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
 import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
 import {i18n} from 'lib-admin-ui/util/Messages';

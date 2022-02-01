@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "esModuleInterop": true,
         "module": "commonjs",
         "target": "es5",
         "outDir": "build/resources/main/dev/lib-contentstudio/",
@@ -7,7 +8,6 @@
         "declarationDir": "build/resources/main/dev/lib-contentstudio/",
         "sourceMap": false,
         "declarationMap": false,
-        "allowSyntheticDefaultImports": true,
         "suppressImplicitAnyIndexErrors": true,
         "forceConsistentCasingInFileNames": true,
         "allowJs": false,

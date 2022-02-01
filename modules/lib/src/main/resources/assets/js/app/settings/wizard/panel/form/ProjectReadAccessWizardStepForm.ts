@@ -1,5 +1,5 @@
 import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
-import * as Q from 'q';
+import Q from 'q';
 import {ProjectViewItem} from '../../../view/ProjectViewItem';
 import {RadioGroup} from 'lib-admin-ui/ui/RadioGroup';
 import {i18n} from 'lib-admin-ui/util/Messages';

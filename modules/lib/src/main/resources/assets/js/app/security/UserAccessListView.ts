@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
 import {UserAccessListItemView} from './UserAccessListItemView';
 import {AccessControlEntry} from '../access/AccessControlEntry';

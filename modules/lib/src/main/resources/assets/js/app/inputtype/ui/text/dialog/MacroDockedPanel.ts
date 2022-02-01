@@ -1,5 +1,5 @@
-import * as $ from 'jquery';
-import * as Q from 'q';
+import $ = require('jquery');
+import Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';

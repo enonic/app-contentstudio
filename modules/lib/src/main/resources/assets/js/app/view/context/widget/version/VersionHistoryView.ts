@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {WidgetItemView} from '../../WidgetItemView';
 import {VersionHistoryList} from './VersionHistoryList';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';

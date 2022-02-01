@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {StyleHelper} from 'lib-admin-ui/StyleHelper';
 import {NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';

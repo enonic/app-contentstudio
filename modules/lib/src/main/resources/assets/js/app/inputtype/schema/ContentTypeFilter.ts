@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {Input} from 'lib-admin-ui/form/Input';
 import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
 import {Value} from 'lib-admin-ui/data/Value';

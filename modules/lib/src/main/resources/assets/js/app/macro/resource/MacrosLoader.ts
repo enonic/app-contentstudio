@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';

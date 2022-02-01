@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
 import {DependantItemsDialog, DependantItemsDialogConfig} from '../../dialog/DependantItemsDialog';

@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {FindIssuesRequest} from '../issue/resource/FindIssuesRequest';

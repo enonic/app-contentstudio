@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {TextArea} from 'lib-admin-ui/ui/text/TextArea';

@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {CloseAction} from 'lib-admin-ui/app/wizard/CloseAction';
 import {SaveAction} from 'lib-admin-ui/app/wizard/SaveAction';
 import {WizardPanel} from 'lib-admin-ui/app/wizard/WizardPanel';

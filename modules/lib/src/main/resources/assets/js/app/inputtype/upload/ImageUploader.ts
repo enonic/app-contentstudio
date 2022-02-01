@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Input} from 'lib-admin-ui/form/Input';
 import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';

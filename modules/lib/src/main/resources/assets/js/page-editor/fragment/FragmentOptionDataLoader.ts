@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {FragmentOptionDataRequest} from './FragmentOptionDataRequest';
 import {FragmentContentSummaryRequest} from '../../app/resource/FragmentContentSummaryRequest';
 import {ContentSummaryOptionDataLoader} from '../../app/inputtype/ui/selector/ContentSummaryOptionDataLoader';

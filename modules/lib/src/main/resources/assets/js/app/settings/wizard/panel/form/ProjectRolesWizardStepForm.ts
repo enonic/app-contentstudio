@@ -2,7 +2,7 @@ import {ProjectViewItem} from '../../../view/ProjectViewItem';
 import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectAccessControlComboBox, ProjectAccessControlComboBoxBuilder} from './element/ProjectAccessControlComboBox';
-import * as Q from 'q';
+import Q from 'q';
 import {ProjectItemPermissionsBuilder, ProjectPermissions} from '../../../data/project/ProjectPermissions';
 import {ProjectAccessControlEntry} from '../../../access/ProjectAccessControlEntry';
 import {ProjectAccess} from '../../../access/ProjectAccess';

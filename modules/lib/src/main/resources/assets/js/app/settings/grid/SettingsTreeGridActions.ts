@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {TreeGridActions} from 'lib-admin-ui/ui/treegrid/actions/TreeGridActions';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {SettingsItemsTreeGrid} from './SettingsItemsTreeGrid';

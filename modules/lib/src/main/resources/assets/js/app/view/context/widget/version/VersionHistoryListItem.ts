@@ -7,7 +7,7 @@ import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummary
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
-import * as $ from 'jquery';
+import $ = require('jquery');
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';

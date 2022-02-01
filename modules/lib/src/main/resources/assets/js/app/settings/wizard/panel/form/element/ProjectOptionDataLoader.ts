@@ -2,7 +2,7 @@ import {Option} from 'lib-admin-ui/ui/selector/Option';
 import {OptionDataLoader, OptionDataLoaderData} from 'lib-admin-ui/ui/selector/OptionDataLoader';
 import {Project} from '../../../../data/project/Project';
 import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
-import * as Q from 'q';
+import Q from 'q';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ProjectListWithMissingRequest} from '../../../../resource/ProjectListWithMissingRequest';
 

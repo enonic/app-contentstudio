@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {XDataName} from '../content/XDataName';
 import {XData} from '../content/XData';

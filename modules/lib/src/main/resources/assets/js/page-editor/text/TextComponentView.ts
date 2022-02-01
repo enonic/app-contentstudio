@@ -1,4 +1,4 @@
-import * as $ from 'jquery';
+import $ = require('jquery');
 import 'jquery-simulate/jquery.simulate.js';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {i18n} from 'lib-admin-ui/util/Messages';
@@ -23,11 +23,16 @@ import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {SectionEl} from 'lib-admin-ui/dom/SectionEl';
 import {FormEl} from 'lib-admin-ui/dom/FormEl';
 import {Action} from 'lib-admin-ui/ui/Action';
-import * as Q from 'q';
+import Q from 'q';
 import {ContentSummary} from '../../app/content/ContentSummary';
 import {ContentPath} from '../../app/content/ContentPath';
 import {ItemViewSelectedEvent} from '../ItemViewSelectedEvent';
 import {SelectedHighlighter} from '../SelectedHighlighter';
+import EditorJS, {OutputData} from '@editorjs/editorjs';
+import Paragraph from '@editorjs/paragraph';
+import Header from '@editorjs/header';
+import {OutputBlockData} from '@editorjs/editorjs/types/data-formats/output-data';
+import edjsHTML = require('editorjs-html');
 
 declare let CONFIG;
 
@@ -45,6 +50,12 @@ export class TextComponentView
     private rootElement: Element;
 
     private htmlAreaEditor: HtmlEditor;
+
+    //private richEditor: RichEditor;
+
+    private editor: EditorJS;
+
+    private rawEditorData: OutputData;
 
     private isInitializingEditor: boolean;
 
@@ -307,7 +318,7 @@ export class TextComponentView
 
         if (!edit) {
             if (this.isEditorReady()) {
-                this.processEditorValue();
+                this.processEditorValue(this.rawEditorData);
             }
             this.removeClass(TextComponentView.EDITOR_FOCUSED_CLASS);
 
@@ -368,7 +379,7 @@ export class TextComponentView
         let saveShortcut = (e.keyCode === 83 && (e.ctrlKey || e.metaKey));
 
         if (saveShortcut) { //Cmd-S
-            this.processEditorValue();
+            this.processEditorValue(this.rawEditorData);
         }
 
         if (e.keyCode === 27 || saveShortcut) { // esc or Cmd-S
@@ -413,32 +424,99 @@ export class TextComponentView
         const createDialogHandler = event => {
             this.currentDialogConfig = event.getConfig();
         };
+        /*
+                const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
+                    .setEditorContainerId(this.getId() + '_editor')
+                    .setAssetsUri(assetsUri)
+                    .setInline(true)
+                    .setCreateDialogHandler(createDialogHandler)
+                    .setFocusHandler(this.onFocusHandler.bind(this))
+                    .setBlurHandler(this.onBlurHandler.bind(this))
+                    .setMouseLeaveHandler(this.onMouseLeftHandler.bind(this))
+                    .setKeydownHandler(this.onKeydownHandler.bind(this))
+                    .setNodeChangeHandler(this.processEditorValue.bind(this))
+                    .setEditorReadyHandler(this.handleEditorCreated.bind(this))
+                    .setFixedToolbarContainer(PageViewController.get().getEditorToolbarContainerId())
+                    .setContent(this.getContent())
+                    .setEditableSourceCode(this.editableSourceCode)
+                    .setContentPath(this.getContentPath())
+                    .setApplicationKeys(this.getApplicationKeys())
+                    .build();
 
-        const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
-            .setEditorContainerId(this.getId() + '_editor')
-            .setAssetsUri(assetsUri)
-            .setInline(true)
-            .setCreateDialogHandler(createDialogHandler)
-            .setFocusHandler(this.onFocusHandler.bind(this))
-            .setBlurHandler(this.onBlurHandler.bind(this))
-            .setMouseLeaveHandler(this.onMouseLeftHandler.bind(this))
-            .setKeydownHandler(this.onKeydownHandler.bind(this))
-            .setNodeChangeHandler(this.processEditorValue.bind(this))
-            .setEditorReadyHandler(this.handleEditorCreated.bind(this))
-            .setFixedToolbarContainer(PageViewController.get().getEditorToolbarContainerId())
-            .setContent(this.getContent())
-            .setEditableSourceCode(this.editableSourceCode)
-            .setContentPath(this.getContentPath())
-            .setApplicationKeys(this.getApplicationKeys())
-            .build();
+                HtmlEditor.create(htmlEditorParams).then((htmlEditor: HtmlEditor) => {
+                    this.htmlAreaEditor = htmlEditor;
 
-        HtmlEditor.create(htmlEditorParams).then((htmlEditor: HtmlEditor) => {
-            this.htmlAreaEditor = htmlEditor;
+                    this.htmlAreaEditor.on('focus', () => {
+                        this.selectWhileEditing();
+                    });
+                });
+                */
 
-            this.htmlAreaEditor.on('focus', () => {
+        //this.editorContainer.appendChild(RichEditor.create());
+        /*
+        const domContainer = document.getElementById(this.getId() + '_editor');
+        const setValue = (value: string) => {
+            console.log('setValue: ', value);
+            this.component.setText(HTMLAreaHelper.convertPreviewSrcToRenderSrc(value));
+        };
+        ReactDOM.render(<RichEditor value={this.getComponentText()} callback={setValue}/>, domContainer);
+
+         */
+
+        this.editor = new EditorJS({
+            autofocus: true,
+            holder: this.getId() + '_editor',
+
+            tools: {
+                paragraph: {
+                    class: Paragraph,
+                    inlineToolbar: true,
+                },
+                header: {
+                    class: Header,
+                    config: {
+                        levels: [1, 2, 3],
+                        defaultLevel: 3
+                    }
+                },
+            },
+
+            /**
+             * onReady callback
+             */
+            onReady: () => {
+                if (this.component.getText()) {
+                    const editorDataJson = JSON.parse(this.component.getText());
+                    this.editor.blocks.clear();
+                    for (let i = 0; i < editorDataJson.length; i++) {
+                        const block: OutputBlockData = editorDataJson[i];
+                        this.editor.blocks.insert(block.type, block.data, null, i, i===0);
+                    }
+                }
                 this.selectWhileEditing();
-            });
+            },
+
+            /**
+             * onChange callback
+             */
+            onChange: (api, event) => {
+                this.editor.save().then((outputData: OutputData) => {
+                    this.rawEditorData = outputData;
+                    this.processEditorValue(outputData);
+                    //this.component.setText(JSON.stringify(outputData.blocks));
+                }).catch((error) => {
+                    console.log('Saving failed: ', error);
+                });
+            }
         });
+    }
+
+    private getComponentText(): string {
+        if (this.component.getText()) {
+            return HTMLAreaHelper.convertRenderSrcToPreviewSrc(this.component.getText(), this.getContent().getId());
+        } else {
+            return TextComponentView.DEFAULT_TEXT;
+        }
     }
 
     private handleEditorCreated() {
@@ -478,7 +556,24 @@ export class TextComponentView
         return editorFocused || dialogVisible;
     }
 
-    private processEditorValue() {
+    private processEditorValue(value: OutputData) {
+        if (!this.editor) {
+            return;
+        }
+
+        if (this.isEditorEmpty()) {
+            this.component.setText(TextComponentView.DEFAULT_TEXT);
+            // copy editor content over to the root html element
+            this.rootElement.getHTMLElement().innerHTML = TextComponentView.DEFAULT_TEXT;
+        } else {
+            this.component.setText(JSON.stringify(value.blocks));
+            const edjsParser = edjsHTML();
+            this.rootElement.getHTMLElement().innerHTML = edjsParser.parse(value).join('');
+            //this.component.setText(HTMLAreaHelper.convertPreviewSrcToRenderSrc(this.htmlAreaEditor.getData()));
+        }
+    }
+
+    private processEditorValue2() {
         if (!this.htmlAreaEditor) {
             return;
         }
@@ -496,6 +591,10 @@ export class TextComponentView
     }
 
     private isEditorEmpty(): boolean {
+        return this.editor.blocks.getBlocksCount() === 0;
+    }
+
+    private isEditorEmpty2(): boolean {
         const editorContent = this.htmlAreaEditor.getData();
         return editorContent.trim() === '' || editorContent === '<h2>&nbsp;</h2>';
     }

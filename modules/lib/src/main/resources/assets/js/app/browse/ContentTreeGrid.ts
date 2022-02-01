@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';

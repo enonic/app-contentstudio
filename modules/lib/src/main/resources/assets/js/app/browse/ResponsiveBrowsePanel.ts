@@ -5,7 +5,7 @@ import {ContextSplitPanel} from '../view/context/ContextSplitPanel';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
 import {BrowseItemPanel} from 'lib-admin-ui/app/browse/BrowseItemPanel';
-import * as Q from 'q';
+import Q from 'q';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
 import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
 

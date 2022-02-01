@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {PageDescriptorResourceRequest} from '../../../../../resource/PageDescriptorResourceRequest';

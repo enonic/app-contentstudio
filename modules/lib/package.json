@@ -26,6 +26,9 @@
     "q": "^1.5.1"
   },
   "devDependencies": {
+    "@editorjs/editorjs": "^2.22.2",
+    "@editorjs/header": "^2.6.2",
+    "@editorjs/paragraph": "^2.8.0",
     "@types/ckeditor": "^4.9.10",
     "@types/core-js": "^2.5.5",
     "@types/hasher": "0.0.32",
@@ -34,6 +37,8 @@
     "@types/q": "^1.5.4",
     "@typescript-eslint/eslint-plugin": "^5.10.2",
     "@typescript-eslint/parser": "^5.10.2",
+    "codex-tooltip": "1.0.2",
+    "editorjs-html": "^3.4.2",
     "eslint": "^8.8.0",
     "minimist": "^1.2.5",
     "terser": "^5.10.0",

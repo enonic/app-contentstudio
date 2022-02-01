@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {WidgetItemView} from '../../WidgetItemView';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../../../../content/CompareStatus';

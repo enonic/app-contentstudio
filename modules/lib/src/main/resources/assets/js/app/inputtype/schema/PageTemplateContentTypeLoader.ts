@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';

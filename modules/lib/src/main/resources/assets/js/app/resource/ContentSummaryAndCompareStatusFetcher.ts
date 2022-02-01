@@ -1,4 +1,4 @@
-import * as Q from 'q';
+import Q from 'q';
 import {ContentResponse} from './ContentResponse';
 import {ListContentByIdRequest} from './ListContentByIdRequest';
 import {CompareContentRequest} from './CompareContentRequest';

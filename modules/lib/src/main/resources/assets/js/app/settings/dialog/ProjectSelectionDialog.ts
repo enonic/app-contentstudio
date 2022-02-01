@@ -6,7 +6,7 @@ import {H6El} from 'lib-admin-ui/dom/H6El';
 import {ProjectListItem} from '../../project/list/ProjectListItem';
 import {ProjectContext} from '../../project/ProjectContext';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import * as Q from 'q';
+import Q from 'q';
 import {ProjectListWithMissingRequest} from '../resource/ProjectListWithMissingRequest';
 import {ProjectHelper} from '../data/project/ProjectHelper';
 import {Body} from 'lib-admin-ui/dom/Body';

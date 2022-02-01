@@ -1,6 +1,6 @@
 import {SettingsDataItemWizardPanel} from './SettingsDataItemWizardPanel';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import * as Q from 'q';
+import Q from 'q';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {ProjectCreateRequest} from '../../resource/ProjectCreateRequest';

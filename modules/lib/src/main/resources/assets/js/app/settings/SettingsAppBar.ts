@@ -1,6 +1,6 @@
 import {TabbedAppBar} from 'lib-admin-ui/app/bar/TabbedAppBar';
 import {Application} from 'lib-admin-ui/app/Application';
-import * as Q from 'q';
+import Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class SettingsAppBar
