@@ -47,6 +47,14 @@ public class StatusesFilterJson
                         to(ValueFactory.newDateTime( Instant.now() ) ).build() ).build() );
                     break;
                 }
+                case "SCHEDULED":
+                {
+                    builder.should( RangeFilter.create()
+                                        .fieldName( ContentIndexPath.PUBLISH_FROM.getPath() )
+                                        .from(ValueFactory.newDateTime( Instant.now() ) )
+                                        .build() );
+                    break;
+                }
             }
         } );
 
