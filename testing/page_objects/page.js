@@ -284,12 +284,12 @@ class Page {
     async waitForNotificationMessages() {
         try {
             await this.waitForElementDisplayed(lib.NOTIFICATION_TEXT, appConst.mediumTimeout);
+            await this.pause(300);
+            return await this.getTextInDisplayedElements(lib.NOTIFICATION_TEXT);
         } catch (err) {
             this.saveScreenshot('err_notification_messages');
             throw new Error('Error when wait for notification message: ' + err);
         }
-        await this.pause(300);
-        return await this.getTextInDisplayedElements(lib.NOTIFICATION_TEXT);
     }
 
     waitForExpectedNotificationMessage(expectedMessage) {
@@ -539,7 +539,6 @@ class Page {
     async getCSSProperty(locator, property) {
         let elems = await this.findElements(locator);
         return await elems[0].getCSSProperty(property);
-
     }
 
     async isAlertOpen() {
