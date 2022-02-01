@@ -300,28 +300,52 @@ export class ContentBrowseFilterPanel
         return newContentQuery;
     }
 
+    private cloneContentQueryNoStatuses(contentQuery: ContentQuery): ContentQuery {
+        const newContentQuery: ContentQuery = new ContentQuery()
+            .setContentTypeNames(contentQuery.getContentTypes())
+            .setFrom(contentQuery.getFrom())
+            .setQueryExpr(contentQuery.getQueryExpr())
+            .setSize(contentQuery.getSize())
+            .setAggregationQueries(contentQuery.getAggregationQueries())
+            .setQueryFilters(contentQuery.getQueryFilters().filter((filter: Filter) => !(filter instanceof StatusesFilter)))
+            .setMustBeReferencedById(contentQuery.getMustBeReferencedById());
+
+        return newContentQuery;
+    }
+
     private cloneContentQueryNoAggregations(contentQuery: ContentQuery): ContentQuery {
         return this.cloneContentQueryNoContentTypes(contentQuery).setQueryFilters([]);
     }
 
     private getAggregations(contentQuery: ContentQuery,
                             contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>): Q.Promise<Aggregation[]> {
-
-        let clonedContentQueryNoContentTypes: ContentQuery = this.cloneContentQueryNoContentTypes(contentQuery);
+        const clonedContentQueryNoContentTypes: ContentQuery = this.cloneContentQueryNoContentTypes(contentQuery);
 
         if (ObjectHelper.objectEquals(contentQuery, clonedContentQueryNoContentTypes)) {
-            return Q(this.combineAggregations(contentQueryResult, contentQueryResult));
+            return Q(this.combineAggregations(contentQueryResult, contentQueryResult, contentQueryResult));
         }
 
-        return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(clonedContentQueryNoContentTypes).setExpand(
-            Expand.SUMMARY).sendAndParse().then(
-            (contentQueryResultNoContentTypesSelected: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
-                return this.combineAggregations(contentQueryResult, contentQueryResultNoContentTypesSelected);
+        clonedContentQueryNoContentTypes.setSize(0);
+
+        const clonedContentQueryNoStatuses: ContentQuery = this.cloneContentQueryNoStatuses(contentQuery);
+        clonedContentQueryNoStatuses.setSize(0);
+
+        return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(clonedContentQueryNoContentTypes)
+            .setExpand(Expand.NONE)
+            .sendAndParse()
+            .then((contentQueryResultNoContentTypesSelected: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
+                return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(clonedContentQueryNoStatuses)
+                    .setExpand(Expand.NONE)
+                    .sendAndParse()
+                    .then((result: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
+                        return this.combineAggregations(contentQueryResult, contentQueryResultNoContentTypesSelected, result);
+                    })
             });
     }
 
     private combineAggregations(contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>,
-                                queryResultNoContentTypesSelected: ContentQueryResult<ContentSummary,ContentSummaryJson>): Aggregation[] {
+                                queryResultNoContentTypesSelected: ContentQueryResult<ContentSummary,ContentSummaryJson>,
+                                queryResultNoStatusesSelected: ContentQueryResult<ContentSummary,ContentSummaryJson>): Aggregation[] {
         const contentTypesAggr: Aggregation[] = queryResultNoContentTypesSelected.getAggregations().filter((aggregation: Aggregation) => {
             return aggregation.getName() === ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME;
         });
@@ -330,7 +354,7 @@ export class ContentBrowseFilterPanel
             return aggregation.getName() === ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME;
         });
 
-        const statusAggr: Aggregation[] = contentQueryResult.getAggregations().filter((aggregation: Aggregation) => {
+        const statusAggr: Aggregation[] = queryResultNoStatusesSelected.getAggregations().filter((aggregation: Aggregation) => {
             return aggregation.getName() === ContentBrowseFilterPanel.STATUSES_AGGREGATION_NAME;
         });
 
