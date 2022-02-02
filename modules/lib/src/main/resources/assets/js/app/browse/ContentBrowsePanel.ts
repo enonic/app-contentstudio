@@ -387,7 +387,7 @@ export class ContentBrowsePanel
     private doHandleContentUpdate(data: ContentSummaryAndCompareStatus[]) {
         this.handleCUD();
         this.updateContextPanel(data);
-        this.treeGrid.updateNodesByData(data);
+        this.treeGrid.updateNodesWithSortChangedCheck(data);
     }
 
     private handleContentSorted(data: ContentSummaryAndCompareStatus[]) {
