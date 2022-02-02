@@ -536,17 +536,17 @@ export class ContentTreeGrid
 
     updateNodesWithSortChangedCheck(data: ContentSummaryAndCompareStatus[]): void {
         // when items sorting was changed from manual to inherited manual we have to trigger sort ourselves since no sort event coming
-        const itemWithSortChangedFromManualToInheritedManual: ContentSummaryAndCompareStatus = data.find(
-            (item: ContentSummaryAndCompareStatus) => this.isInheritanceChangedFromManualToInheritedManual(item));
+        const isSortingChangedToManualInheritance: ContentSummaryAndCompareStatus = data.find(
+            (item: ContentSummaryAndCompareStatus) => this.isSortingChangedToManualInheritance(item));
 
-        if (itemWithSortChangedFromManualToInheritedManual) {
-            this.sortNodesChildren([itemWithSortChangedFromManualToInheritedManual]);
+        if (isSortingChangedToManualInheritance) {
+            this.sortNodesChildren([isSortingChangedToManualInheritance]);
         } else {
             this.updateNodesByData(data);
         }
     }
 
-    private isInheritanceChangedFromManualToInheritedManual(item: ContentSummaryAndCompareStatus): boolean {
+    private isSortingChangedToManualInheritance(item: ContentSummaryAndCompareStatus): boolean {
         if (!item.getContentSummary()?.getChildOrder().isManual()) {
             return false;
         }
