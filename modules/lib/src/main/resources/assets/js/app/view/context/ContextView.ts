@@ -30,7 +30,6 @@ import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {CompareStatus} from '../../content/CompareStatus';
 import {ContentIds} from '../../content/ContentIds';
-import {ContextPanel} from './ContextPanel';
 import {Widget} from 'lib-admin-ui/content/Widget';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
@@ -229,7 +228,7 @@ export class ContextView
     }
 
     private isActiveWidget(key: string): boolean {
-       return this.activeWidget && this.activeWidget.getWidgetKey() === key;
+        return this.activeWidget && this.activeWidget.getWidgetKey() === key;
     }
 
     private handleWidgetUpdateEvent(key: string) {
@@ -566,7 +565,8 @@ export class ContextView
         if (canAddPageEditorWidget) {
             const pageEditorWidgetPresent = checkWidgetPresent(this.pageEditorWidgetView);
             const pageEditorWidgetActive = checkWidgetActive(this.pageEditorWidgetView);
-            const shouldPageEditorWidgetBePresent = this.contentRenderable && this.pageEditorVisible;
+            const contentType = this.item.getType();
+            const shouldPageEditorWidgetBePresent = contentType && !contentType.isFolder() && !contentType.isShortcut();
 
             if (shouldPageEditorWidgetBePresent && !pageEditorWidgetPresent) {
                 this.insertWidget(this.pageEditorWidgetView, 0);

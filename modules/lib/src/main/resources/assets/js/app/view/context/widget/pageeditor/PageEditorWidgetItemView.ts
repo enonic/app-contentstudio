@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {PEl} from 'lib-admin-ui/dom/PEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {IsRenderableRequest} from '../../../../resource/IsRenderableRequest';
 import {PageEditorData} from '../../../../wizard/page/LiveFormPanel';
 import {WidgetItemView} from '../../WidgetItemView';
 
@@ -33,6 +32,7 @@ export class PageEditorWidgetItemView
     }
 
     private static isPreviewAvailable(item: ContentSummaryAndCompareStatus): Q.Promise<boolean> {
-        return item.hasContentSummary() ? new IsRenderableRequest(item.getContentSummary()).sendAndParse() : Q(false);
+        const contentType = item.getType();
+        return Q(contentType && !contentType.isFolder() && !contentType.isShortcut());
     }
 }

@@ -150,7 +150,7 @@ export class LiveFormPanel
 
     private previewMessageEl: PEl;
 
-    private errorMessages: {type: ErrorType, message: string}[] = [];
+    private errorMessages: { type: ErrorType, message: string }[] = [];
 
     private contentEventListener: (event: any) => void;
 
@@ -374,7 +374,7 @@ export class LiveFormPanel
             if (this.pageView) {
                 const itemView = this.pageView.getSelectedView();
                 if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-                    this.saveAndReloadOnlyComponent(<ComponentView<Component>> itemView);
+                    this.saveAndReloadOnlyComponent(<ComponentView<Component>>itemView);
 
                     return;
                 }
@@ -697,6 +697,9 @@ export class LiveFormPanel
 
         this.liveEditPageProxy.onLiveEditPageViewReady((event: LiveEditPageViewReadyEvent) => {
             this.pageView = event.getPageView();
+
+            // disable insert tab if there is no page for some reason (i.e. error occurred)
+            this.contextWindow.setItemVisible(this.insertablesPanel, !!this.pageView);
 
             if (this.pageView) {
                 this.insertablesPanel.setPageView(this.pageView);
