@@ -354,15 +354,6 @@ export class ContentItemPreviewPanel
         }
     }
 
-    private isPreviewUnavailable(item: ContentSummaryAndCompareStatus): boolean {
-        if (item.isRenderable()) {
-            return false;
-        }
-
-        const contentType: ContentTypeName = item.getContentSummary().getType();
-        return contentType.isFolder() || contentType.isShortcut();
-    }
-
     protected setPagePreviewMode(item: ContentSummaryAndCompareStatus) {
         this.showMask();
         const src: string = RenderingUriHelper.getPortalUri(!!item.getPath() ? item.getPath().toString() : '', RenderingMode.INLINE);
@@ -376,9 +367,7 @@ export class ContentItemPreviewPanel
             this.setPreviewType(PREVIEW_TYPE.PAGE);
         }).fail((reason: any) => {
             const contentSummary: ContentSummary = item.getContentSummary();
-            if (this.isPreviewUnavailable(item)) {
-                this.setPreviewType(PREVIEW_TYPE.EMPTY);
-            } else if (this.isMediaForPreview(contentSummary)) {
+            if (this.isMediaForPreview(contentSummary)) {
                 this.setMediaPreviewMode(item);
             } else if (this.isImageForPreview(contentSummary)) {
                 this.setImagePreviewMode(item);

@@ -565,8 +565,8 @@ export class ContextView
         if (canAddPageEditorWidget) {
             const pageEditorWidgetPresent = checkWidgetPresent(this.pageEditorWidgetView);
             const pageEditorWidgetActive = checkWidgetActive(this.pageEditorWidgetView);
-            const contentType = this.item.getType();
-            const shouldPageEditorWidgetBePresent = contentType && !contentType.isFolder() && !contentType.isShortcut();
+            // editor open and there is a controller
+            const shouldPageEditorWidgetBePresent = this.pageEditorVisible && !!this.data.liveFormPanel.getPage()?.getController();
 
             if (shouldPageEditorWidgetBePresent && !pageEditorWidgetPresent) {
                 this.insertWidget(this.pageEditorWidgetView, 0);

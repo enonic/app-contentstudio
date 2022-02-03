@@ -699,7 +699,8 @@ export class LiveFormPanel
             this.pageView = event.getPageView();
 
             // disable insert tab if there is no page for some reason (i.e. error occurred)
-            this.contextWindow.setItemVisible(this.insertablesPanel, !!this.pageView);
+            // or there is no controller set
+            this.contextWindow.setItemVisible(this.insertablesPanel, !!this.pageView && this.pageModel.hasController());
 
             if (this.pageView) {
                 this.insertablesPanel.setPageView(this.pageView);
