@@ -47,6 +47,7 @@ export class DisplayNameResolver
         let result = value;
         result = result.replace(/(<([^>]+)>)/ig,'');    // Strip HTML tags
         result = result.replace(/(\r\n|\n|\r)/gm,'');   // Strip linebreaks
+        result = result.replace(/'/g, " \\'");   // Escape single quotes
 
         return result;
     }
