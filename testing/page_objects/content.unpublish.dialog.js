@@ -12,6 +12,7 @@ const XPATH = {
     hideDependentItemsLink: "//h6[@class='dependants-header' and contains(.,'Hide dependent items')]",
     dialogItemListUl: "//ul[contains(@id,'DialogItemList')]",
     dialogDependantListUl: "//ul[contains(@id,'DialogDependantList')]",
+    itemBlock: displayName => `//div[contains(@id,'StatusSelectionItem') and descendant::h6[contains(@class,'main-name') and contains(.,'${displayName}')]]/div[contains(@class,'status')][2]`,
 };
 
 class ContentUnpublishDialog extends Page {
@@ -99,6 +100,12 @@ class ContentUnpublishDialog extends Page {
         let startIndex = label.indexOf('(');
         let endIndex = label.indexOf(')');
         return label.substring(startIndex + 1, endIndex);
+    }
+
+    async getItemStatus(displayName) {
+        let locator = XPATH.container + XPATH.itemBlock(displayName);
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return await this.getText(locator);
     }
 }
 

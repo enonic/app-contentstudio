@@ -1,0 +1,73 @@
+/**
+ * Created on 02.02.2022
+ */
+const chai = require('chai');
+const assert = chai.assert;
+const webDriverHelper = require('../../libs/WebDriverHelper');
+const studioUtils = require('../../libs/studio.utils.js');
+const contentBuilder = require("../../libs/content.builder");
+const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
+const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const appConst = require('../../libs/app_const');
+const appConstant = require('../../libs/app_const');
+
+describe("user.access.widget.spec:  test for user access widget and Edit Permissions dialog", function () {
+    this.timeout(appConst.SUITE_TIMEOUT);
+    webDriverHelper.setupBrowser();
+
+    let FOLDER;
+
+    it(`Preconditions: new folder should be added`,
+        async () => {
+            let displayName = contentBuilder.generateRandomName('folder');
+            FOLDER = contentBuilder.buildFolder(displayName);
+            await studioUtils.doAddFolder(FOLDER);
+        });
+
+    it(`WHEN just created folder is selected THEN expected default principal should be displayed in the user access widget`,
+        async () => {
+            let userAccessWidget = new UserAccessWidget();
+            //1. Select the just created folder:
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            //2. 'Full Access' should be displayed for SU
+            let access = await userAccessWidget.getPrincipalAccess("SU");
+            assert.equal(access, "Full Access");
+            //3. SU compact name should be displayed in the widget:
+            let names = await userAccessWidget.getPrincipalsCompactName();
+            assert.equal(names.length, 1, "one acl entry should be displayed in the widget");
+            assert.equal(names[0], "SU", "SU user should be displayed in the access widget");
+
+            let actualHeader = await userAccessWidget.getHeader();
+            assert.equal(actualHeader, appConst.ACCESS_WIDGET_HEADER.RESTRICTED_ACCESS, "Restricted access should be displayed");
+        });
+
+    it(`WHEN new acl entry has been added in the folder THEN user access widget should be updated`,
+        async () => {
+            let editPermissionsDialog = new EditPermissionsDialog();
+            let userAccessWidget = new UserAccessWidget();
+            //1. Select the folder:
+            await studioUtils.findAndSelectItem(FOLDER.displayName);
+            //2. Open Edit Permissions dialog:
+            await userAccessWidget.clickOnEditPermissionsLink();
+            await editPermissionsDialog.waitForDialogLoaded();
+            await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
+            //3. Select 'Anonymous User' with the default operation:
+            await editPermissionsDialog.filterAndSelectPrincipal(appConst.systemUsersDisplayName.ANONYMOUS_USER);
+            //4. Click on Apply button and close the dialog:
+            await editPermissionsDialog.clickOnApplyButton();
+            //5. Verify that 'Can Read' access is displayed for Anonymous User :
+            let access = await userAccessWidget.getPrincipalAccess("AU");
+            assert.equal(access, "Can Read", "Expected access should be displayed for AU");
+            //6. Two entries should be displayed in the widget:
+            let names = await userAccessWidget.getPrincipalsCompactName();
+            assert.equal(names.length, 2, "Two principals should be present in the widget");
+        });
+
+    beforeEach(() => studioUtils.navigateToContentStudioApp());
+    afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(() => {
+        return console.log('specification is starting: ' + this.title);
+    });
+});

@@ -4,21 +4,21 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
 const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const appConst = require('../../libs/app_const');
 
-describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions and add 'Create' operation", function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+describe("edit.permissions.access.selector.spec:  Select 'Custom...' permissions and add 'Create' operation", function () {
+    this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
     let FOLDER;
 
-    it(`Preconditions: a folder should be added`,
+    it(`Preconditions: new folder should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('folder');
             FOLDER = contentBuilder.buildFolder(displayName);
@@ -37,16 +37,15 @@ describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions 
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
             //3. Go to 'Content Manager App' entry and open ACE-menu then select 'Custom...' menu item:
-            await editPermissionsDialog.showAceMenuAndSelectItem(appConstant.roleName.CONTENT_MANAGER_APP, appConstant.permissions.CUSTOM);
+            await editPermissionsDialog.showAceMenuAndSelectItem(appConst.roleName.CONTENT_MANAGER_APP, appConst.permissions.CUSTOM);
             await editPermissionsDialog.pause(500);
             //4. Click on 'Create' permission-toggle and allow the operation:
             studioUtils.saveScreenshot("edit_perm_dlg_custom_permissions");
-            await editPermissionsDialog.clickOnPermissionToggle(appConstant.roleName.CONTENT_MANAGER_APP,
-                appConstant.permissionOperation.CREATE);
+            await editPermissionsDialog.clickOnPermissionToggle(appConst.roleName.CONTENT_MANAGER_APP, appConst.permissionOperation.CREATE);
             //5. Click on 'Apply' button and close the modal dialog:
             await editPermissionsDialog.clickOnApplyButton();
             //6. Verify the notification message:
-            let expectedMessage = appConstant.permissionsAppliedNotificationMessage(FOLDER.displayName);
+            let expectedMessage = appConst.permissionsAppliedNotificationMessage(FOLDER.displayName);
             let actualMessage = await contentBrowsePanel.waitForNotificationMessage();
             assert.equal(actualMessage, expectedMessage, "'Permissions for 'name' are applied.' - Is expected message");
         });
@@ -60,9 +59,9 @@ describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions 
             //2. Click on Edit Permissions button:
             await contentWizardPanel.clickOnEditPermissionsButton();
             //3. Verify that operations are 'allowed':
-            let isAllowed = await editPermissionsDialog.isOperationAllowed(appConstant.roleName.CONTENT_MANAGER_APP, 'Read');
-            assert.isTrue(isAllowed, '`Read` operation should be allowed(green)');
-            isAllowed = await editPermissionsDialog.isOperationAllowed(appConstant.roleName.CONTENT_MANAGER_APP, 'Create');
+            let isAllowed = await editPermissionsDialog.isOperationAllowed(appConst.roleName.CONTENT_MANAGER_APP, 'Read');
+            assert.isTrue(isAllowed, "'Read' operation should be allowed(green)");
+            isAllowed = await editPermissionsDialog.isOperationAllowed(appConst.roleName.CONTENT_MANAGER_APP, 'Create');
             assert.isTrue(isAllowed, "'Create' operation should be allowed(green)");
         });
 
@@ -75,12 +74,11 @@ describe("edit.permissions.accessselector.spec:  Select 'Custom...' permissions 
             await studioUtils.openBrowseDetailsPanel();
             await userAccessWidget.clickOnEditPermissionsLinkAndWaitForDialog();
             //2. Click on permission-toggle:
-            await editPermissionsDialog.clickOnPermissionToggle(appConstant.roleName.CONTENT_MANAGER_APP,
-                appConstant.permissionOperation.CREATE);
-            studioUtils.saveScreenshot("create_operation_is_denied");
+            await editPermissionsDialog.clickOnPermissionToggle(appConst.roleName.CONTENT_MANAGER_APP, appConst.permissionOperation.CREATE);
+            await studioUtils.saveScreenshot("create_operation_is_denied");
             //3. Verify that this operation is denied now:
-            await editPermissionsDialog.isOperationDenied(appConstant.roleName.CONTENT_MANAGER_APP, 'Create');
-            await editPermissionsDialog.isOperationAllowed(appConstant.roleName.CONTENT_MANAGER_APP, 'Read');
+            await editPermissionsDialog.isOperationDenied(appConst.roleName.CONTENT_MANAGER_APP, 'Create');
+            await editPermissionsDialog.isOperationAllowed(appConst.roleName.CONTENT_MANAGER_APP, 'Read');
         });
 
     it(`WHEN folder with updated permissions is selected AND Edit Permissions dialog is opened THEN ACL-entries should be consistently sorted by name`,

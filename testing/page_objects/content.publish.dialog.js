@@ -195,7 +195,7 @@ class ContentPublishDialog extends Page {
         }
     }
 
-    waitForShowDependentButtonDisplayed() {
+    waitForShowDependentItemsButtonDisplayed() {
         return this.waitForElementDisplayed(this.showDependentItemsLink, appConst.shortTimeout).catch(err => {
             throw new Error("Show dependent items link should be visible!" + err)
         })
@@ -308,7 +308,7 @@ class ContentPublishDialog extends Page {
         let selector = XPATH.itemToPublish(displayName) + XPATH.removeItemIcon;
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         await this.clickOnElement(selector);
-        return await this.pause(300);
+        return await this.pause(400);
     }
 
     async getItemsToPublish() {

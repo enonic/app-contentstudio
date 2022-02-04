@@ -17,7 +17,7 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
     let SITE;
     let TEST_FOLDER;
 
-    it("Precondition: ready for publishing site with not valid child folder should be added",
+    it("Precondition: ready for publishing site with invalid child folder should be added",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site');
@@ -25,12 +25,12 @@ describe('publish.dialog.site.with.children.spec - Select a site with not valid 
             await studioUtils.doAddSite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
             await contentBrowsePanel.clickOnMarkAsReadyButton();
-            //Add not valid child folder
+            //Add invalid child folder
             await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
             await studioUtils.doCloseWizardAndSwitchToGrid();
         });
 
-    it("GIVEN existing site with not valid child is selected AND 'Publish wizard' is opened WHEN 'Include children' has been clicked THEN 'Exclude all' link should appear in the dialog",
+    it("GIVEN existing site with invalid child is selected AND 'Publish wizard' is opened WHEN 'Include children' has been clicked THEN 'Exclude all' link should appear in the dialog",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();

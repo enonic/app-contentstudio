@@ -9,9 +9,9 @@ const xpath = {
     container: "//div[contains(@id,'WidgetView')]//div[contains(@id,'UserAccessWidgetItemView')]",
     headerString: "//span[contains(@class,'header-string')]",
     editPermissionsLink: "//a[@class='edit-permissions-link']",
-    header: "//span[@class='header-string']",
     accessList: "//div[contains(@id,'UserAccessListItemView')]",
-    principalCompactViewer: "//div[contains(@id,'PrincipalViewerCompact')]"
+    principalCompactViewer: "//div[contains(@id,'PrincipalViewerCompact')]",
+    getOperation: userCompactName => `//div[contains(@id,'UserAccessListItemView') and descendant::span[contains(@class,'user-icon') and text()='${userCompactName}']]//span[contains(@class,'access-line')]`
 };
 
 class UserAccessWidgetItemView extends Page {
@@ -21,9 +21,14 @@ class UserAccessWidgetItemView extends Page {
     }
 
     async getHeader() {
-        let locator = xpath.container + xpath.header;
+        let locator = xpath.container + xpath.headerString;
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         return await this.getText(locator);
+    }
+
+    getPrincipalAccess(userCompactName) {
+        let locator = xpath.container + xpath.getOperation(userCompactName);
+        return this.getText(locator);
     }
 
     async getPrincipalsCompactName() {

@@ -1,7 +1,5 @@
 /**
  * Created on 23.09.2019.
- * verifies : https://github.com/enonic/app-contentstudio/issues/174
- *            Publish Tree action - implement a check for unpublished child items #174
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -12,18 +10,18 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
 
-describe('publish.tree.check.child.spec - Publish Tree action - check for unpublished child items`', function () {
+describe('publish.tree.check.child.spec - Publish Tree action - publish a content with child', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
     let PARENT_FOLDER;
     let CHILD_FOLDER;
-    it(`Precondition: parent and its child folders should be added`,
+    it(`Precondition: parent and child folders should be added`,
         async () => {
             let parentFolder = contentBuilder.generateRandomName('parent');
-            let childFolder = contentBuilder.generateRandomName('child');
+            let childFolderName = contentBuilder.generateRandomName('child');
             PARENT_FOLDER = contentBuilder.buildFolder(parentFolder);
-            CHILD_FOLDER = contentBuilder.buildFolder(childFolder);
+            CHILD_FOLDER = contentBuilder.buildFolder(childFolderName);
             await studioUtils.doAddReadyFolder(PARENT_FOLDER);
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
             await studioUtils.doAddReadyFolder(CHILD_FOLDER);
@@ -53,29 +51,45 @@ describe('publish.tree.check.child.spec - Publish Tree action - check for unpubl
             //7. Verify that dependent items are equal in both cases:
             assert.equal(items1.length, items2.length, "The numbers of dependant items should be the same");
             assert.equal(items1[0], items2[0], "Display name of items should be equal");
-
         });
 
     it(`GIVEN existing folder with child WHEN parent folder has been published THEN PUBLISH TREE...  should be default action for the parent folder`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Select the parent folder
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-            //Parent folder has been published:
+            //2. open 'Publish dialog' and click on 'Publish Now' button:(Children items are not included by default in Publish dialog)
             await studioUtils.doPublish();
-            //PUBLISH TREE... should be default action
+            //3. Verify - PUBLISH TREE... should be default action now:
             await contentBrowsePanel.waitForDefaultAction(appConst.PUBLISH_MENU.PUBLISH_TREE);
+            await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
+            let status = await contentBrowsePanel.getContentStatus(CHILD_FOLDER.displayName);
+            assert.equal(status, appConst.CONTENT_STATUS.NEW, "Content's status should be 'New'");
         });
 
-    it(`GIVEN existing folder(PUBLISHED) with child(NEW) WHEN child folder has been published THEN Default action  gets 'UNPUBLISH...'`,
+    it(`GIVEN existing folder(PUBLISHED) with child(NEW) WHEN 'Publish Tree' button has been pressed THEN Default action  gets 'UNPUBLISH...'`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
-            //Child folder has been published:
-            await studioUtils.doPublish();
-            //Select the parent folder:
+            let contentPublishDialog = new ContentPublishDialog();
+            //1. Select the parent folder(published)
             await studioUtils.findAndSelectItem(PARENT_FOLDER.displayName);
-            //UNPUBLISH... should be default action for the parent folder
+            //2. Verify that 'Publish Tree' is default action(click on it):
+            await contentBrowsePanel.clickOnPublishTreeButton();
+            await contentPublishDialog.waitForDialogOpened();
+            //3. Verify that 'Show dependent items' should be visible in the dialog:
+            await contentPublishDialog.waitForShowDependentItemsButtonDisplayed();
+            //4. Click on 'Publish Now' button:
+            await contentPublishDialog.clickOnPublishNowButton();
+            //5. Dialog should close
+            await contentPublishDialog.waitForDialogClosed();
+            //6. Notification message should appear:
+            await contentBrowsePanel.waitForNotificationMessage();
+            //7. Verify - UNPUBLISH... should be default action for the parent folder
             await contentBrowsePanel.waitForDefaultAction(appConst.PUBLISH_MENU.UNPUBLISH);
+
+            await studioUtils.findAndSelectItem(CHILD_FOLDER.displayName);
+            let status = await contentBrowsePanel.getContentStatus(CHILD_FOLDER.displayName);
+            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "Content's status should be 'published'");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
