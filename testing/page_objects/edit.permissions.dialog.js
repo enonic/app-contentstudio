@@ -118,11 +118,11 @@ class EditPermissionsDialog extends Page {
 
     async clickOnApplyButton() {
         try {
-            this.waitForApplyButtonEnabled();
+            await this.waitForApplyButtonEnabled();
             await this.clickOnElement(this.applyButton);
             return await this.pause(500);
         } catch (err) {
-            this.saveScreenshot('err_click_on_apply_button_permis_dialog');
+            await this.saveScreenshot('err_click_on_apply_button_permis_dialog');
             throw new Error('Error when clicking Apply dialog must be closed ' + err);
         }
     }

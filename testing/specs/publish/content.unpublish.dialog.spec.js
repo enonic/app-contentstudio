@@ -107,12 +107,15 @@ describe('content.unpublish.dialog.spec tests for unpublish modal dialog', funct
             //2. Verify that only one item should be present in the items list:
             let items = await contentUnpublishDialog.getItemDisplayName();
             assert.equal(items.length, 1, "One items should be present in the items list");
-            //3. Click on 'Show dependent items' link
+            //3. the site's status should be 'published'
+            let status = await contentUnpublishDialog.getItemStatus(SITE.displayName);
+            assert.equal(status, "Published", "Published status should be displayed");
+            //4. Click on 'Show dependent items' link
             await contentUnpublishDialog.clickOnShowDependentItemsLink();
             await studioUtils.saveScreenshot("unpublish_hide_dependent_items");
-            //4. Verify that 'Hide dependent items' link gets visible:
+            //5. Verify that 'Hide dependent items' link gets visible:
             await contentUnpublishDialog.waitForHideDependentItemsLinkDisplayed();
-            //5. Verify the child item in the dependent block:
+            //6. Verify the child item in the dependent block:
             let dependentItems = await contentUnpublishDialog.getDependentItemsPath();
             assert.equal(dependentItems.length, 1, "One item should be present in the dependent list");
             assert.isTrue(dependentItems[0].includes("_templates"), "Templates folder should be present in the dependent list");
