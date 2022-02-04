@@ -527,6 +527,10 @@ export class LiveFormPanel
         return this;
     }
 
+    public getPageModel(): PageModel {
+        return this.pageModel;
+    }
+
     public getPage(): Page {
         return this.pageModel ? this.pageModel.getPage() : null;
     }
@@ -699,8 +703,10 @@ export class LiveFormPanel
             this.pageView = event.getPageView();
 
             // disable insert tab if there is no page for some reason (i.e. error occurred)
-            // or there is no controller set
-            this.contextWindow.setItemVisible(this.insertablesPanel, !!this.pageView && this.pageModel.hasController());
+            // or there is no controller or template set
+            const model = this.pageModel;
+            const pageModelRenderable = !!model && (!!model.getDescriptor() || !!model.getTemplate() || model.getPage().isFragment());
+            this.contextWindow.setItemVisible(this.insertablesPanel, !!this.pageView && pageModelRenderable);
 
             if (this.pageView) {
                 this.insertablesPanel.setPageView(this.pageView);

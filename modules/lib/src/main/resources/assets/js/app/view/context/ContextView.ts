@@ -104,7 +104,8 @@ export class ContextView
         this.onRemoved(() => ApplicationEvent.un(handleApplicationEvents));
 
         ActiveContentVersionSetEvent.on(() => {
-            if (this.isVisible() && !!this.activeWidget && this.activeWidget.getWidgetName() === i18n('field.widget.versionHistory')) {
+            if (this.isVisible() && !!this.activeWidget && this.activeWidget.getWidgetName() ===
+                i18n('field.contextPanel.versionHistory')) {
                 this.updateActiveWidget();
             }
         });
@@ -553,6 +554,13 @@ export class ContextView
         this.updateWidgetsVisibility();
     }
 
+    shouldPageEditorWidgetBePresent(): boolean {
+        const model = this.data.liveFormPanel.getPageModel();
+        const pageModelRenderable = !!model && (!!model.getDescriptor() || !!model.getTemplate() || model.getPage().isFragment());
+
+        return this.pageEditorVisible && pageModelRenderable;
+    }
+
     updateWidgetsVisibility() {
         const checkWidgetPresent = (widget: WidgetView) => this.widgetViews.some(w => widget.compareByType(w));
         const checkWidgetActive = (widget: WidgetView) => widget.compareByType(this.activeWidget);
@@ -566,7 +574,7 @@ export class ContextView
             const pageEditorWidgetPresent = checkWidgetPresent(this.pageEditorWidgetView);
             const pageEditorWidgetActive = checkWidgetActive(this.pageEditorWidgetView);
             // editor open and there is a controller
-            const shouldPageEditorWidgetBePresent = this.pageEditorVisible && !!this.data.liveFormPanel.getPage()?.getController();
+            const shouldPageEditorWidgetBePresent = this.shouldPageEditorWidgetBePresent();
 
             if (shouldPageEditorWidgetBePresent && !pageEditorWidgetPresent) {
                 this.insertWidget(this.pageEditorWidgetView, 0);
