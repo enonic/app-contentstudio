@@ -88,6 +88,7 @@ export class ContentUnpublishDialog
         this.unPublishConfirmationDialog.setHeaderText(i18n('dialog.unpublish.confirm.title'));
         this.unPublishConfirmationDialog.setSubheaderText(i18n('dialog.unpublish.confirm.subtitle'));
         this.unPublishConfirmationDialog.setYesCallback(this.doUnPublish.bind(this));
+        this.unPublishConfirmationDialog.setNoCallback(this.close.bind(this));
     }
 
     private useDefaultSubTitle() {
