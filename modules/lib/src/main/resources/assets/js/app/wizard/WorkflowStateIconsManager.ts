@@ -1,5 +1,6 @@
 import {Element} from 'lib-admin-ui/dom/Element';
 import {ContentWizardPanel} from './ContentWizardPanel';
+import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 
 export interface WorkflowStateStatus {
     invalid: boolean;
@@ -32,12 +33,11 @@ export class WorkflowStateIconsManager {
         const isStatusChanged = this.isWorkflowStateStatusChanged(status);
 
         if (isStatusChanged) {
-            const toolbar = this.wizard.getMainToolbar();
-            const toolbarIcon = toolbar != null ? toolbar.getStateIcon() : toolbar;
-            const thumbnailUploader = this.wizard.getFormIcon();
-            const icons = [thumbnailUploader, toolbarIcon].filter(icon => icon != null);
+            const thumbnailUploader: ThumbnailUploaderEl = this.wizard.getFormIcon();
 
-            icons.forEach(icon => WorkflowStateIconsManager.toggleWorkflowStateClasses(icon, status));
+            if (thumbnailUploader) {
+                WorkflowStateIconsManager.toggleWorkflowStateClasses(thumbnailUploader, status);
+            }
 
             this.status = status;
 

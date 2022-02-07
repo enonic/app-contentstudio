@@ -1,0 +1,47 @@
+.collaboration {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+
+  @unit-size: 25px;
+  @border-width: 1px;
+  @space-between: 2px;
+  @min-width: @unit-size + @border-width + @space-between;
+
+  &.single {
+    min-width: @min-width;
+  }
+
+  &.multiple {
+    min-width: @min-width * 2;
+  }
+
+  .users {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    min-width: @min-width;
+
+    .principal-viewer-compact {
+      margin-right: @space-between;
+      position: relative;
+
+      .user-icon {
+        width: @unit-size;
+        height: @unit-size;
+        line-height: @unit-size;
+        background-color: @admin-bg-toolbar;
+        color: @admin-font-gray3;
+        border-width: @border-width;
+
+        &:not(.active) {
+          border-color: @admin-medium-gray-border;
+        }
+      }
+    }
+  }
+
+  .extra {
+    position: relative;
+  }
+}
