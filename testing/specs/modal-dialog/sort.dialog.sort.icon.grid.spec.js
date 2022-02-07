@@ -16,8 +16,7 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks th
 
     //verifies https://github.com/enonic/app-contentstudio/issues/608
     //Sort icon menu is not updated after a sorting-type has been changed in modal dialog
-    it.skip(
-        `GIVEN existing folder is selected AND 'Sort Content' dialog is opened WHEN 'Manually sorted' menu item has been selected THEN expected icon should appear in the grid`,
+    it(`GIVEN existing folder is selected AND 'Sort Content' dialog is opened WHEN 'Manually sorted' menu item has been selected THEN expected icon should appear in the grid`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let sortContentDialog = new SortContentDialog();
@@ -39,7 +38,8 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks th
                 "expected icon for Manually sorted folder should appear in grid");
         });
 
-    it(`GIVEN existing folder is selected AND 'Sort Content' dialog is opened WHEN 2 items have been swapped THEN Manually sorted icon should be displayed in grid`,
+    it.skip(
+        `GIVEN existing folder is selected AND 'Sort Content' dialog is opened WHEN 2 items have been swapped THEN Manually sorted icon should be displayed in grid`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let sortContentDialog = new SortContentDialog();
