@@ -14,6 +14,7 @@ const XPATH = {
     issueCommentTextArea: `//div[contains(@id,'IssueCommentTextArea')]`,
     issueCommentsListItem: `//div[contains(@id,'IssueCommentsListItem')]`,
     noActionLabel: `//div[@class='no-action-message']`,
+    closeTabMenuItem: "//li[contains(@id,'TabMenuItem') and child::a[text()='Closed']]",
     issueCommentsListItemByText:
         text => `//div[contains(@id,'IssueCommentsListItem') and descendant::p[@class='inplace-text' and text()='${text}']]`,
     issueStatusMenuItem:
@@ -113,5 +114,23 @@ class TaskDetailsDialog extends BaseDetailsDialog {
         }
         return await this.pause(500);
     }
+
+    async clickOnStatusSelectorMenu() {
+        await this.waitForElementDisplayed(this.issueStatusSelector, appConst.mediumTimeout);
+        await this.clickOnElement(this.issueStatusSelector);
+        return this.pause(200);
+    }
+
+    async clickOncloseTabMenuItem() {
+        await this.waitForElementDisplayed(XPATH.closeTabMenuItem, appConst.mediumTimeout);
+        await this.clickOnElement(XPATH.closeTabMenuItem);
+    }
+
+    async getStatusInfo() {
+        await this.waitForElementDisplayed(this.issueStatusSelector, appConst.mediumTimeout);
+        let titleAttr = this.getAttribute(this.issueStatusSelector, 'title');
+        return titleAttr;
+    }
 }
+
 module.exports = TaskDetailsDialog;

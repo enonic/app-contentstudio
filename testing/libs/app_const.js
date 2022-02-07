@@ -43,6 +43,9 @@ module.exports = Object.freeze({
     requiredValidationMessage: (occurrences) => {
         return `Min ${occurrences} valid occurrence(s) required`;
     },
+    issueClosedBy: userName => {
+        return `Closed by user:system:${userName}`
+    },
     projectCreatedMessage: name => `Project \"${name}\" is created.`,
     projectNameAlreadyExistsMessage: name => `Project with name [${name}] already exists`,
     projectDeletedMessage: name => `Project \"${name}\" is deleted.`,
@@ -103,7 +106,10 @@ module.exports = Object.freeze({
         THIS_FIELD_IS_REQUIRED: 'This field is required',
         SINGLE_SELECTION_OPTION_SET: "At least one option must be selected",
     },
-
+    ISSUES: {
+        TASK_CLOSED: "Task is closed",
+        COMMENT_ADDED: "Your comment is added to the task.",
+    },
     PROJECT_ACCESS_MODE: {
         PRIVATE: "Private",
         PUBLIC: "Public",

@@ -43,7 +43,7 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
             let result = await textAreaForm.getFormValidationRecording();
             await studioUtils.saveScreenshot('textarea_req_empty');
             assert.equal(result, appConstant.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, 'expected validation message should appear');
-            //5. Verify that the content is not valid:
+            //5. Verify that the content is invalid:
             let isNotValid = await contentWizard.isContentInvalid();
             assert.isTrue(isNotValid, 'the content should be not valid, because the input is required');
         });
@@ -88,16 +88,16 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
             await textAreaForm.waitForFormValidationRecordingNotDisplayed();
         });
 
-    it(`GIVEN wizard for not required 'TextArea(2:4)' is opened WHEN name input have been filled and text areas are empty THEN the content should be not valid`,
+    it(`GIVEN wizard for not required 'TextArea(2:4)' is opened WHEN name input have been filled and text areas are empty THEN the content should be invalid`,
         async () => {
             let textAreaForm = new TextAreaForm();
             let contentWizard = new ContentWizard();
             //1. open new wizard and fill in the name input:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.TEXT_AREA_2_4);
             await contentWizard.typeDisplayName(TEXT_AREA_NAME_4);
-            //2. Verify that the content is not valid, because 2 text area are required:
+            //2. Verify that the content is invalid, because 2 text area are required:
             let isNotValid = await contentWizard.isContentInvalid();
-            assert.isTrue(isNotValid, 'the content should be not valid, because inputs are empty');
+            assert.isTrue(isNotValid, 'the content should be invalid, because inputs are empty');
             //5. Save the content
             await contentWizard.waitAndClickOnSave();
             //6. Verify that validation message is displayed:

@@ -238,7 +238,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await articleForm.typeArticleTitle("test");
             await contentWizard.typeDisplayName(displayName);
             await contentWizard.pause(1000);
-            //3. Verify that content is not valid, because the second required input is empty:
+            //3. Verify that content is invalid, because the second required input is empty:
             let result = await contentWizard.isContentInvalid();
             await studioUtils.saveScreenshot('article_wizard_1');
             assert.isTrue(result, "Article content should be invalid because required body text area is empty");

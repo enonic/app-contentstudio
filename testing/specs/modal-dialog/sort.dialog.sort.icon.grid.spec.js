@@ -16,7 +16,8 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks th
 
     //verifies https://github.com/enonic/app-contentstudio/issues/608
     //Sort icon menu is not updated after a sorting-type has been changed in modal dialog
-    it(`GIVEN existing folder is selected AND 'Sort Content' dialog is opened WHEN 'Manually sorted' menu item has been selected THEN expected icon should appear in the grid`,
+    it.skip(
+        `GIVEN existing folder is selected AND 'Sort Content' dialog is opened WHEN 'Manually sorted' menu item has been selected THEN expected icon should appear in the grid`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let sortContentDialog = new SortContentDialog();
@@ -24,10 +25,33 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks th
             //1. Select the folder with children an open sort-dialog:
             await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
             await contentBrowsePanel.clickOnSortButton();
+            await sortContentDialog.waitForDialogVisible();
             await sortContentDialog.clickOnMenuButton();
             //2. 'Manually sorted' menu item has been clicked:
             await sortContentDialog.selectSortMenuItem(appConstant.sortMenuItem.MANUALLY_SORTED);
             await studioUtils.saveScreenshot('sort_menu_item_clicked');
+            //3. Save the sorting and close the dialog:
+            await sortContentDialog.clickOnSaveButton();
+            await studioUtils.saveScreenshot('manually_sorted');
+            //4. The folder is selected, get sorting-type in grid:
+            let sortingType = await contentBrowsePanel.getSortingIcon(appConstant.TEST_FOLDER_WITH_IMAGES);
+            assert.equal(sortingType, appConstant.sortMenuItem.MANUALLY_SORTED,
+                "expected icon for Manually sorted folder should appear in grid");
+        });
+
+    it(`GIVEN existing folder is selected AND 'Sort Content' dialog is opened WHEN 2 items have been swapped THEN Manually sorted icon should be displayed in grid`,
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let sortContentDialog = new SortContentDialog();
+            await contentBrowsePanel.waitForSpinnerNotVisible(appConstant.mediumTimeout);
+            //1. Select the folder with children an open sort-dialog:
+            await contentBrowsePanel.clickOnRowByDisplayName(appConstant.TEST_FOLDER_WITH_IMAGES);
+            await contentBrowsePanel.clickOnSortButton();
+            await sortContentDialog.waitForDialogVisible();
+            await sortContentDialog.pause(2000);
+            await sortContentDialog.swapItems("cape", "renault");
+            //2. 'Manually sorted' menu item has been clicked:
+            await studioUtils.saveScreenshot('sort_dialog_items_swapped');
             //3. Save the sorting and close the dialog:
             await sortContentDialog.clickOnSaveButton();
             await studioUtils.saveScreenshot('manually_sorted');
