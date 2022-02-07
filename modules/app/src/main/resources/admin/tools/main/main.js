@@ -7,7 +7,10 @@ exports.renderTemplate = function (params) {
 
     return {
         contentType: 'text/html',
-        body: mustache.render(view, params)
+        body: mustache.render(view, params),
+        headers: {
+            'Content-Security-Policy': 'default-src \'self\'; object-src \'none\'; style-src \'self\''
+        }
     };
 }
 
