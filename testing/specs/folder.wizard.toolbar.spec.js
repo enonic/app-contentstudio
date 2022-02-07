@@ -31,9 +31,9 @@ describe('folder.wizard.toolbar.spec: tests for toolbar in folder wizard', funct
         await contentWizard.waitForPublishMenuItemDisabled(appConst.PUBLISH_MENU.PUBLISH);
         //5. Duplicate button should be enabled
         await contentWizard.waitForDuplicateButtonEnabled();
-        //6. Verify that the content is not valid:
+        //6. Verify that the content is invalid:
         let result = await contentWizard.isContentInvalid();
-        assert.isTrue(result, "The folder should be not valid, because the name input is empty");
+        assert.isTrue(result, "The folder should be invalid, because the name input is empty");
     });
 
     it(`GIVEN folder-wizard is opened WHEN name has been typed THEN 'Save' button gets enabled`, async () => {

@@ -20,6 +20,10 @@ class SortContentDialog extends Page {
         return XPATH.container + XPATH.saveButton;
     }
 
+    get dropdownHandle() {
+        return XPATH.container + "//div[contains(@id,'SortContentTabMenu')]" + lib.DROP_DOWN_HANDLE;
+    }
+
     get menuButton() {
         return XPATH.container + XPATH.menuButton;
     }
@@ -57,7 +61,7 @@ class SortContentDialog extends Page {
     }
 
     clickOnCancelButton() {
-        return this.clickOnElement(this.cancelButtonBottom);
+        return this.clickOnElement(this.cancelButton);
     }
 
     //expand menu-options('Modified date', 'Display name'...)
@@ -83,13 +87,34 @@ class SortContentDialog extends Page {
     async getMenuItems() {
         let locator = XPATH.container + "//li[contains(@id,'SortContentTabMenuItem')]//a";
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
-        return await this.getTextInElements(locator);
+        return await this.getTextInDisplayedElements(locator);
     }
 
     async getSelectedOrder() {
         let selector = XPATH.container + XPATH.menuButton + "//a";
         //await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         return await this.getAttribute(selector, "title");
+    }
+
+    async swapItems(sourceContentName, destinationContentName) {
+        let sourceLocator = lib.slickRowByDisplayName(XPATH.container, sourceContentName) + "//div[contains(@class,'slick-cell l0')]";
+        let destLocator = lib.slickRowByDisplayName(XPATH.container, destinationContentName) + "//div[contains(@class,'slick-cell l0')]";
+        let source = await this.findElement(sourceLocator);
+        let destination = await this.findElement(destLocator);
+        await source.dragAndDrop(destination);
+        return await this.pause(1000);
+    }
+
+    getDialogTitle() {
+        let locator = XPATH.container + "//h2[@class='title']";
+        return this.getText(locator);
+    }
+
+    async clickOndropDownHandle() {
+        await this.waitForElementDisplayed(this.dropdownHandle, appConst.mediumTimeout);
+        await this.clickOnElement(this.dropdownHandle);
+        await this.pause(700);
+        return await this.waitForSpinnerNotVisible();
     }
 }
 
