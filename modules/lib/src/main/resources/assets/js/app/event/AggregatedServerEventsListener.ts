@@ -13,6 +13,7 @@ import {IssueServerEvent} from './IssueServerEvent';
 import {NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
 import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {CollaborationServerEvent} from './CollaborationServerEvent';
 
 export class AggregatedServerEventsListener
     extends ServerEventsListener {

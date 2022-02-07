@@ -5,6 +5,8 @@ import {ServerEventsTranslator} from 'lib-admin-ui/event/ServerEventsTranslator'
 import {IssueServerEvent} from './IssueServerEvent';
 import {ContentServerEvent} from './ContentServerEvent';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
+import {CollaborationServerEvent} from './CollaborationServerEvent';
+import {CollaborationEventJson} from './CollaborationEventJson';
 
 export class ContentServerEventsTranslator
     extends ServerEventsTranslator {
@@ -24,6 +26,10 @@ export class ContentServerEventsTranslator
             if (IssueServerEvent.is(<NodeEventJson>eventJson)) {
                 return IssueServerEvent.fromJson(<NodeEventJson>eventJson);
             }
+        }
+
+        if (eventType.indexOf(CollaborationServerEvent.TYPE_PREFIX) === 0) {
+            return CollaborationServerEvent.fromJson(<CollaborationEventJson>eventJson);
         }
 
         return super.translateServerEvent(eventJson);
