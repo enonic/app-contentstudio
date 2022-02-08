@@ -348,6 +348,10 @@ const refreshTabOnContentUpdate = (content: Content) => {
 async function startContentWizard(wizardParams: ContentWizardPanelParams, connectionDetector: ConnectionDetector) {
     const ContentWizardPanel = (await import('lib-contentstudio/app/wizard/ContentWizardPanel')).ContentWizardPanel;
 
+    window.CKEDITOR_BASEPATH = `${CONFIG.getString('assetsUri')}/lib/ckeditor/`;
+    window['ckeInit']();
+    window['CKEDITOR'].config.language = CONFIG.getString('locale');
+
     let wizard = new ContentWizardPanel(wizardParams, getTheme());
 
     wizard.onDataLoaded((content: Content) => {
