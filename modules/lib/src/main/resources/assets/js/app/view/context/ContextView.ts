@@ -556,8 +556,7 @@ export class ContextView
 
     shouldPageEditorWidgetBePresent(): boolean {
         const model = this.data.liveFormPanel.getPageModel();
-        const pageModelRenderable = !!model && (!!model.getDescriptor() || !!model.getTemplate() || model.getPage().isFragment());
-
+        const pageModelRenderable = model?.isRenderable();
         return this.pageEditorVisible && pageModelRenderable;
     }
 

@@ -704,8 +704,7 @@ export class LiveFormPanel
 
             // disable insert tab if there is no page for some reason (i.e. error occurred)
             // or there is no controller or template set
-            const model = this.pageModel;
-            const pageModelRenderable = !!model && (!!model.getDescriptor() || !!model.getTemplate() || model.getPage().isFragment());
+            const pageModelRenderable = this.pageModel?.isRenderable();
             this.contextWindow.setItemVisible(this.insertablesPanel, !!this.pageView && pageModelRenderable);
 
             if (this.pageView) {
