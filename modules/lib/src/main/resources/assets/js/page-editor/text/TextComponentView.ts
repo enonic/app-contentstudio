@@ -398,7 +398,6 @@ export class TextComponentView
 
     private doInitEditor() {
         this.isInitializingEditor = true;
-        const assetsUri = CONFIG.get('assetsUri');
         const id = this.getId().replace(/\./g, '_');
 
         this.addClass(id);
@@ -415,7 +414,7 @@ export class TextComponentView
 
         const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
             .setEditorContainerId(this.getId() + '_editor')
-            .setAssetsUri(assetsUri)
+            .setAssetsUri(CONFIG.getString('assetsUri'))
             .setInline(true)
             .setCreateDialogHandler(createDialogHandler)
             .setFocusHandler(this.onFocusHandler.bind(this))

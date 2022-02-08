@@ -174,8 +174,6 @@ export class HtmlArea
     }
 
     private initEditor(id: string, property: Property, textAreaWrapper: Element): Q.Promise<HtmlEditor> {
-        const assetsUri = CONFIG.get('assetsUri');
-
         const focusHandler = (e) => {
             this.resetInputHeight();
             this.notifyFocused(e);
@@ -264,7 +262,7 @@ export class HtmlArea
 
         const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
             .setEditorContainerId(id)
-            .setAssetsUri(assetsUri)
+            .setAssetsUri(CONFIG.getString('assetsUri'))
             .setInline(false)
             .setCreateDialogHandler(createDialogHandler)
             .setFocusHandler(focusHandler)

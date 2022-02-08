@@ -69,7 +69,7 @@ export class LiveEditPage {
 
         CONFIG.setConfig(event.getConfig());
         ProjectContext.get().setProject(event.getProject());
-        i18nInit(CONFIG.get('services.i18nUrl'), ['i18n/page-editor']).then(() => {
+        i18nInit(CONFIG.getString('services.i18nUrl'), ['i18n/page-editor']).then(() => {
             const liveEditModel = event.getLiveEditModel();
             const modifyPermissions = event.hasModifyPermissions();
 

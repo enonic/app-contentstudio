@@ -28,7 +28,7 @@ export class WidgetItemView
     }
 
     private static getFullWidgetUrl(url: string, contentId: string) {
-        const branch: string = CONFIG.get('branch');
+        const branch: string = CONFIG.getString('branch');
         const repository: string = `${RepositoryId.CONTENT_REPO_PREFIX}${ProjectContext.get().getProject().getName()}`;
         const repositoryParam = `repository=${repository}&`;
         const branchParam = branch ? `branch=${branch}&` : '';

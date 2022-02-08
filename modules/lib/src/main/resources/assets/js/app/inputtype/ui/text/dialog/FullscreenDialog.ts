@@ -73,7 +73,7 @@ export class FullscreenDialog
 
         const editorParams: HtmlEditorParams = HtmlEditorParams.create()
             .setEditorContainerId(this.textArea.getId())
-            .setAssetsUri(CONFIG.get('assetsUri'))
+            .setAssetsUri(CONFIG.getString('assetsUri'))
             .setInline(false)
             .setCreateDialogHandler(this.editorParams.getCreateDialogListener())
             .setKeydownHandler(this.editorParams.getKeydownHandler())

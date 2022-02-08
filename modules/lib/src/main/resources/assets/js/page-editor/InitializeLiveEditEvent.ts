@@ -4,6 +4,7 @@ import {LiveEditModel} from './LiveEditModel';
 import {ProjectContext} from '../app/project/ProjectContext';
 import {Project} from '../app/settings/data/project/Project';
 import {CONFIG} from 'lib-admin-ui/util/Config';
+import {JSONObject} from 'lib-admin-ui/types';
 
 export class InitializeLiveEditEvent
     extends Event {
@@ -14,7 +15,7 @@ export class InitializeLiveEditEvent
 
     private readonly project: Project;
 
-    private readonly config: Object;
+    private readonly config: JSONObject;
 
     constructor(liveEditModel: LiveEditModel, modifyPermissions: boolean = false) {
         super();
@@ -36,7 +37,7 @@ export class InitializeLiveEditEvent
         return this.project;
     }
 
-    getConfig(): Object {
+    getConfig(): JSONObject {
         return this.config;
     }
 
