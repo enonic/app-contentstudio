@@ -29,7 +29,7 @@ class PropertiesItemView extends Page {
         try {
             await this.waitForElementDisplayed(this.languageProperty, appConst.shortTimeout);
         } catch (err) {
-            //Workaround for the issue with empty details panel in Wizard
+            //Workaround for the issue with empty Details panel in Wizard
             await this.refresh();
             await this.pause(2000);
             await this.waitForElementDisplayed(this.languageProperty, appConst.shortTimeout);
@@ -67,6 +67,11 @@ class PropertiesItemView extends Page {
             await this.pause(2000);
             await this.waitForElementDisplayed(this.ownerProperty, appConst.shortTimeout);
         }
+    }
+
+    async getOwnerName() {
+        await this.waitForOwnerDisplayed();
+        return await this.getText(this.ownerProperty);
     }
 }
 
