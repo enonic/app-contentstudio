@@ -19,6 +19,13 @@ StyleHelper.setCurrentPrefix(ItemViewPlaceholder.PAGE_EDITOR_PREFIX);
 const liveEditPage = new LiveEditPage();
 
 const init = () => {
+    const assetUrl: string = document.currentScript?.getAttribute('data-asset-url');
+    if (!assetUrl) {
+        throw 'Unable to init wysiwyg editor';
+    }
+
+    window.CKEDITOR_BASEPATH = `${assetUrl}/lib/ckeditor/`;
+    window['ckeInit']();
 
     // Notify parent frame if any modifier except shift is pressed
     // For the parent shortcuts to work if the inner iframe has focus
