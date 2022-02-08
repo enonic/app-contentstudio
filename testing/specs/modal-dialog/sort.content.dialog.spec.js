@@ -56,11 +56,11 @@ describe('sort.dialog.spec, tests for sort content dialog', function () {
             await sortContentDialog.waitForDialogClosed();
         });
 
-    it("WHEN two folders in Root have been selected THEN Sort button should be disabled",
+    it("WHEN two folders in Root have been selected THEN 'Sort' button should be disabled",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             await contentBrowsePanel.waitForSpinnerNotVisible();
-            //1. Select the folder with children an open sort-dialog:
+            //1. Select 2 folders:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_FOLDER_WITH_IMAGES_NAME_2);
             await studioUtils.saveScreenshot("sort_button_2_items");
