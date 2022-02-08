@@ -507,7 +507,10 @@ function initProjectContext(application: Application): Q.Promise<void> {
 }
 
 (async () => {
-    const configServiceUrl = document.currentScript?.getAttribute('data-config-service-url');
+    if (!document.currentScript) {
+        throw 'Legacy browsers are not supported';
+    }
+    const configServiceUrl = document.currentScript.getAttribute('data-config-service-url');
     if (!configServiceUrl) {
         throw 'Unable to fetch app config';
     }

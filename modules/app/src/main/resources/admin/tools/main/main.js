@@ -18,7 +18,6 @@ exports.getParams = function () {
         assetsUri: portal.assetUrl({path: ''}),
         appName: 'Content Studio',
         launcherPath: admin.getLauncherPath(),
-        launcherUrl: admin.getLauncherUrl(),
         locale: admin.getLocale(),
         configServiceUrl: portal.serviceUrl({service: 'config'})
     }
