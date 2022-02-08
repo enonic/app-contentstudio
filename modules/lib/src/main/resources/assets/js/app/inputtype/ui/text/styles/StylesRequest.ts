@@ -41,7 +41,7 @@ export class StylesRequest
     }
 
     getRequestPath(): Path {
-        return Path.fromString(CONFIG.get('services.stylesUrl'));
+        return Path.fromString(CONFIG.getString('services.stylesUrl'));
     }
 
     getParams(): Object {

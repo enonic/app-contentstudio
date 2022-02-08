@@ -155,13 +155,13 @@ export class AppWrapper
     }
 
     private injectMissingAdminTools(adminTools: AdminTool[]) {
-        const studioApp: string = CONFIG.get('appId');
+        const studioApp: string = CONFIG.getString('appId');
         adminTools
             .filter((adminTool: AdminTool) => !this.hasAdminTool(adminTool))
             .forEach((remoteAdminTool: AdminTool) => {
                 const adminToolApp: string = remoteAdminTool.getKey().getApplicationKey().toString();
                 const adminToolId: string = remoteAdminTool.getKey().toString();
-                const assetUrl = CONFIG.get('assetsUri').replace(new RegExp(studioApp, 'g'), adminToolApp);
+                const assetUrl = CONFIG.getString('assetsUri').replace(new RegExp(studioApp, 'g'), adminToolApp);
                 const mainJsUrl = `${assetUrl}/js/inject.js`;
                 const mainCssUrl = `${assetUrl}/styles/main.css`;
 
@@ -433,7 +433,7 @@ class Sidebar
     }
 
     private createAppVersionBlock(): DivEl {
-        const appVersion: string = CONFIG.get('appVersion');
+        const appVersion: string = CONFIG.getString('appVersion');
         const cleanVersion: string = StringHelper.cleanVersion(appVersion);
         const appVersionSpan: DivEl = new DivEl('app-version');
         appVersionSpan.setHtml(`v${cleanVersion}`);

@@ -515,7 +515,7 @@ function initProjectContext(application: Application): Q.Promise<void> {
     await CONFIG.init(configServiceUrl);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    await i18nInit(CONFIG.get('services.i18nUrl'));
+    await i18nInit(CONFIG.getString('services.i18nUrl'));
 
     preLoadApplication();
 

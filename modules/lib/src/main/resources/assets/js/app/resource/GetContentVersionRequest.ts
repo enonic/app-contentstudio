@@ -34,7 +34,7 @@ export class GetContentVersionRequest
     }
 
     getRequestPath(): Path {
-        return Path.fromString(CONFIG.get('services.contentUrl'));
+        return Path.fromString(CONFIG.getString('services.contentUrl'));
     }
 
     sendRequest(): Q.Promise<ContentJson> {

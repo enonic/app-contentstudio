@@ -9,7 +9,7 @@ export class GetAdminToolsRequest
     extends ResourceRequest<AdminTool[]> {
 
     getRequestPath(): Path {
-        return Path.fromString(CONFIG.get('services.adminToolsUrl'));
+        return Path.fromString(CONFIG.getString('services.adminToolsUrl'));
     }
 
     protected parseResponse(response: JsonResponse<AdminToolJson[]>): AdminTool[] {
