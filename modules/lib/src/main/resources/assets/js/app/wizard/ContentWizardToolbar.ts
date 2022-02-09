@@ -16,6 +16,7 @@ import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
+import {CollaborationEl} from './CollaborationEl';
 
 export interface ContentWizardToolbarConfig {
     application: Application;
@@ -34,7 +35,7 @@ export class ContentWizardToolbar
 
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
 
-    private stateIcon: DivEl;
+    private collaborationBlock: DivEl;
 
     private projectViewer: ProjectViewer;
 
@@ -53,20 +54,11 @@ export class ContentWizardToolbar
         this.addActionButtons();
         this.addPublishMenuButton();
         this.addTogglerButtons();
-
-        this.addStateIcon();
+        this.addCollaborationBlock();
     }
 
     protected initListeners() {
         this.config.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
-            if (status.ready) {
-                this.stateIcon.getEl().setTitle(i18n('tooltip.state.ready'));
-            } else if (status.inProgress) {
-                this.stateIcon.getEl().setTitle(i18n('tooltip.state.in_progress'));
-            } else {
-                this.stateIcon.getEl().removeAttribute('title');
-            }
-
             this.toggleValid(!status.invalid);
         });
 
@@ -153,11 +145,6 @@ export class ContentWizardToolbar
         super.addGreedySpacer();
     }
 
-    private addStateIcon() {
-        this.stateIcon = new DivEl('toolbar-state-icon');
-        super.addElement(this.stateIcon);
-    }
-
     private addPublishMenuButton() {
         this.status.hide();
         this.author.hide();
@@ -178,8 +165,9 @@ export class ContentWizardToolbar
         super.addElement(this.contextPanelToggler);
     }
 
-    getStateIcon() {
-        return this.stateIcon;
+    private addCollaborationBlock(): void {
+        this.collaborationBlock = new CollaborationEl();
+        super.addElement(this.collaborationBlock);
     }
 
     getCycleViewModeButton(): CycleButton {
