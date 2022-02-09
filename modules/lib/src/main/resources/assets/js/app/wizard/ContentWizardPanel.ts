@@ -744,6 +744,10 @@ export class ContentWizardPanel
                 console.log(`Message... ${JSON.stringify(event)}`);
             });
 
+            setInterval(() => {
+                ws.send(`keeping websocket open...${this.getPersistedItem().getId()}`);
+            }, 60000);
+
             return rendered;
         });
     }
