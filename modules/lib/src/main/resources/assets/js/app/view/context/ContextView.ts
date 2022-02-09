@@ -30,7 +30,6 @@ import {ShowContentFormEvent} from '../../wizard/ShowContentFormEvent';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {CompareStatus} from '../../content/CompareStatus';
 import {ContentIds} from '../../content/ContentIds';
-import {ContextPanel} from './ContextPanel';
 import {Widget} from 'lib-admin-ui/content/Widget';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
@@ -55,6 +54,7 @@ export class ContextView
 
     protected pageEditorWidgetView: WidgetView;
     protected propertiesWidgetView: WidgetView;
+    protected versionsWidgetView: WidgetView;
     protected emulatorWidgetView?: WidgetView;
 
     protected data: PageEditorData;
@@ -105,7 +105,7 @@ export class ContextView
         this.onRemoved(() => ApplicationEvent.un(handleApplicationEvents));
 
         ActiveContentVersionSetEvent.on(() => {
-            if (this.isVisible() && !!this.activeWidget && this.activeWidget.getWidgetName() === i18n('field.widget.versionHistory')) {
+            if (this.isVisible() && this.activeWidget === this.versionsWidgetView) {
                 this.updateActiveWidget();
             }
         });
@@ -229,7 +229,7 @@ export class ContextView
     }
 
     private isActiveWidget(key: string): boolean {
-       return this.activeWidget && this.activeWidget.getWidgetKey() === key;
+        return this.activeWidget && this.activeWidget.getWidgetKey() === key;
     }
 
     private handleWidgetUpdateEvent(key: string) {
@@ -371,7 +371,8 @@ export class ContextView
                 .build();
 
             InspectEvent.on((event: InspectEvent) => {
-                if (event.isShowWidget() && this.pageEditorWidgetView.compareByType(this.defaultWidgetView)) {
+                if (event.isShowWidget() && this.activeWidget !== this.versionsWidgetView &&
+                    this.pageEditorWidgetView.compareByType(this.defaultWidgetView)) {
                     this.activateDefaultWidget();
                 }
             });
@@ -395,6 +396,8 @@ export class ContextView
             .setContextView(this)
             .addWidgetItemView(new EmulatorWidgetItemView({})).build();
 
+        this.versionsWidgetView = this.createVersionsWidgetView();
+
         this.defaultWidgetView = this.propertiesWidgetView;
 
         this.addWidgets(this.getInitialWidgets());
@@ -411,7 +414,7 @@ export class ContextView
     }
 
     protected getInitialWidgets(): WidgetView[] {
-        const widgets: WidgetView[] = [this.propertiesWidgetView, this.createVersionsWidgetView(), this.createDependenciesWidgetView()];
+        const widgets: WidgetView[] = [this.propertiesWidgetView, this.versionsWidgetView, this.createDependenciesWidgetView()];
 
         if (!this.isInsideWizard()) {
             widgets.push(this.emulatorWidgetView);
@@ -554,6 +557,12 @@ export class ContextView
         this.updateWidgetsVisibility();
     }
 
+    isPageEditable(): boolean {
+        const model = this.data.liveFormPanel.getPageModel();
+        const pageModelRenderable = model?.isRenderable();
+        return this.pageEditorVisible && pageModelRenderable;
+    }
+
     updateWidgetsVisibility() {
         const checkWidgetPresent = (widget: WidgetView) => this.widgetViews.some(w => widget.compareByType(w));
         const checkWidgetActive = (widget: WidgetView) => widget.compareByType(this.activeWidget);
@@ -562,16 +571,18 @@ export class ContextView
 
         const canAddPageEditorWidget = this.isPageEditorPresent() && this.pageEditorWidgetView != null;
         const canAddEmulatorWidget = this.isPageEditorPresent();
+        const versionsWidgetActive = checkWidgetActive(this.versionsWidgetView);
 
         if (canAddPageEditorWidget) {
             const pageEditorWidgetPresent = checkWidgetPresent(this.pageEditorWidgetView);
             const pageEditorWidgetActive = checkWidgetActive(this.pageEditorWidgetView);
-            const shouldPageEditorWidgetBePresent = this.contentRenderable && this.pageEditorVisible;
+            // editor open and there is a controller
+            const shouldPageEditorWidgetBePresent = this.isPageEditable();
 
             if (shouldPageEditorWidgetBePresent && !pageEditorWidgetPresent) {
                 this.insertWidget(this.pageEditorWidgetView, 0);
-                if (!pageEditorWidgetActive) {
-                    this.defaultWidgetView = this.pageEditorWidgetView;
+                this.defaultWidgetView = this.pageEditorWidgetView;
+                if (!pageEditorWidgetActive && !versionsWidgetActive) {
                     this.activateDefaultWidget();
                 }
                 widgetsUpdated = true;
@@ -588,7 +599,7 @@ export class ContextView
         if (canAddEmulatorWidget) {
             const emulatorWidgetPresent = checkWidgetPresent(this.emulatorWidgetView);
             const emulatorWidgetActive = checkWidgetActive(this.emulatorWidgetView);
-            const shouldEmulatorWidgetBePresent = this.contentRenderable && this.pageEditorVisible;
+            const shouldEmulatorWidgetBePresent = this.isPageEditable();
 
             if (shouldEmulatorWidgetBePresent && !emulatorWidgetPresent) {
                 const index = this.getIndexOfLastInternalWidget() + 1;

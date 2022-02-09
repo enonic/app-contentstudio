@@ -16,7 +16,6 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {ItemPreviewPanel} from 'lib-admin-ui/app/view/ItemPreviewPanel';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {UrlHelper} from '../util/UrlHelper';
-import {ProjectContext} from '../project/ProjectContext';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
 import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
@@ -30,8 +29,8 @@ enum PREVIEW_TYPE {
     MEDIA,
     EMPTY,
     FAILED,
-    BLANK,
-    MISSING
+    MISSING,
+    NOT_CONFIGURED,
 }
 
 export class ContentItemPreviewPanel
@@ -104,21 +103,12 @@ export class ContentItemPreviewPanel
     }
 
     private isItemAllowsUpdate(item: ContentSummaryAndCompareStatus, force: boolean): boolean {
-        return item && (!item.equals(this.item) || force) && typeof item.isRenderable() !== 'undefined';
+        return item && (!item.equals(this.item) || force);
     }
 
     protected update(item: ContentSummaryAndCompareStatus) {
-        const contentSummary: ContentSummary = item.getContentSummary();
-
-        if (this.isMediaForPreview(contentSummary)) {
-            this.setMediaPreviewMode(item);
-        } else if (this.isImageForPreview(contentSummary)) {
-            this.setImagePreviewMode(item);
-        } else if (this.isNonBinaryItemRenderable(item)) {
-            this.setPagePreviewMode(item);
-        } else {
-            this.setPreviewType(PREVIEW_TYPE.EMPTY);
-        }
+        // fire the request anyway, if it's not renderable 418 will be returned
+        this.setPagePreviewMode(item);
     }
 
     protected isImageForPreview(content: ContentSummary): boolean {
@@ -127,10 +117,6 @@ export class ContentItemPreviewPanel
 
     public clearItem() {
         (<ContentItemPreviewToolbar>this.toolbar).clearItem();
-    }
-
-    protected isNonBinaryItemRenderable(item: ContentSummaryAndCompareStatus): boolean {
-        return item.isRenderable();
     }
 
     private setupListeners() {
@@ -257,11 +243,6 @@ export class ContentItemPreviewPanel
         return Math.max(imgWidth, imgHeight);
     }
 
-    public setBlank() {
-        this.setPreviewType(PREVIEW_TYPE.BLANK);
-        this.frame.setSrc('about:blank');
-    }
-
     private setPreviewType(previewType: PREVIEW_TYPE) {
 
         if (this.previewType !== previewType) {
@@ -297,8 +278,8 @@ export class ContentItemPreviewPanel
                 this.showPreviewMessages([i18n('field.preview.failed'), i18n('field.preview.missing.description')]);
                 break;
             }
-            case PREVIEW_TYPE.BLANK: {
-                this.getEl().addClass('no-preview');
+            case PREVIEW_TYPE.NOT_CONFIGURED: {
+                this.showPreviewMessages([i18n('field.preview.notConfigured'), i18n('field.preview.notConfigured.description')]);
                 break;
             }
             }
@@ -375,7 +356,6 @@ export class ContentItemPreviewPanel
 
     protected setPagePreviewMode(item: ContentSummaryAndCompareStatus) {
         this.showMask();
-        this.setPreviewType(PREVIEW_TYPE.PAGE);
         const src: string = RenderingUriHelper.getPortalUri(!!item.getPath() ? item.getPath().toString() : '', RenderingMode.INLINE);
         // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
         $.ajax({
@@ -384,8 +364,26 @@ export class ContentItemPreviewPanel
             url: src
         }).done(() => {
             this.frame.setSrc(src);
+            this.setPreviewType(PREVIEW_TYPE.PAGE);
         }).fail((reason: any) => {
-            this.setPreviewType(reason.status === 404 ? PREVIEW_TYPE.MISSING : PREVIEW_TYPE.FAILED);
+            const contentSummary: ContentSummary = item.getContentSummary();
+            if (this.isMediaForPreview(contentSummary)) {
+                this.setMediaPreviewMode(item);
+            } else if (this.isImageForPreview(contentSummary)) {
+                this.setImagePreviewMode(item);
+            } else {
+                switch (reason.status) {
+                case 404:
+                    this.setPreviewType(PREVIEW_TYPE.EMPTY);
+                    break;
+                case 418:
+                    this.setPreviewType(PREVIEW_TYPE.NOT_CONFIGURED);
+                    break;
+                default:
+                    this.setPreviewType(PREVIEW_TYPE.FAILED);
+                    break;
+                }
+            }
         });
     }
 

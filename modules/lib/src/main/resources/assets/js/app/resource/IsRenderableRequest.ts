@@ -1,45 +1,53 @@
 import * as Q from 'q';
-import {PageTemplateResourceRequest} from './PageTemplateResourceRequest';
-import {ContentId} from '../content/ContentId';
+import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {Response} from 'lib-admin-ui/rest/Response';
+import {RequestError} from 'lib-admin-ui/rest/RequestError';
+import {Path} from 'lib-admin-ui/rest/Path';
+import {UriHelper as RenderingUriHelper} from '../rendering/UriHelper';
+import {RenderingMode} from '../rendering/RenderingMode';
+import {ContentSummary} from '../content/ContentSummary';
 
 export class IsRenderableRequest
-    extends PageTemplateResourceRequest<boolean> {
+    extends ResourceRequest<boolean> {
 
-    private contentId: ContentId;
+    private item: ContentSummary;
 
     private static cache: Map<string, boolean> = new Map<string, boolean>();
 
-    constructor(contentId: ContentId) {
+    constructor(summary: ContentSummary) {
         super();
-        this.contentId = contentId;
-        this.addRequestPathElements('isRenderable');
+        this.item = summary;
+        this.setMethod(HttpMethod.HEAD);
+        this.setIsJsonResponse(false);
     }
 
     static clearCache() {
         this.cache.clear();
     }
 
-    setContentId(value: ContentId): IsRenderableRequest {
-        this.contentId = value;
-        return this;
+    getRequestPath(): Path {
+        const url = RenderingUriHelper.getPortalUri(this.item.getPath()?.toString() || '', RenderingMode.INLINE);
+        return Path.create().fromString(url).build();
     }
 
-    getParams(): Object {
-        return {
-            contentId: this.contentId.toString()
-        };
+    protected parseResponse(response: Response): boolean {
+        return true;
     }
 
     sendAndParse(): Q.Promise<boolean> {
-        const id: string = this.contentId.toString();
+        const id: string = this.item?.getId();
 
-        if (IsRenderableRequest.cache.has(id)) {
+        if (id && IsRenderableRequest.cache.has(id)) {
             return Q(IsRenderableRequest.cache.get(id));
         }
 
         return super.sendAndParse().then((isRenderable: boolean) => {
             IsRenderableRequest.cache.set(id, isRenderable);
             return isRenderable;
+        }).catch((error: RequestError) => {
+            IsRenderableRequest.cache.set(id, false);
+            return false;
         });
     }
 }

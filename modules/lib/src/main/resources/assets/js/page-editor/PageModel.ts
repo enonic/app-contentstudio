@@ -503,6 +503,10 @@ export class PageModel {
         return this.customized;
     }
 
+    isRenderable(): boolean {
+        return !!this.getDescriptor() || !!this.getTemplate() || this.getPage()?.isFragment();
+    }
+
     private registerRegionsListeners(regions: Regions) {
         regions.onComponentPropertyChanged(this.componentPropertyChangedEventHandler);
         regions.onChanged(this.regionsChangedEventHandler);

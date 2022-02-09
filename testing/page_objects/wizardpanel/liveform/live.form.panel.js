@@ -14,6 +14,7 @@ const xpath = {
     itemViewContextMenu: "//div[contains(@id,'ItemViewContextMenu')]",
     layoutComponentView: "//div[contains(@id,'LayoutComponentView')]",
     textComponentView: "//div[contains(@id,'TextComponentView')]",
+    previewNotAvailableSpan: "//p[@class='no-preview-message']/span[1]",
     imageInTextComponentByDisplayName:
         displayName => `//figure[contains(@data-widget,'image')]//img[contains(@src,'${displayName}')]`,
     textComponentByText: text => `//div[contains(@id,'TextComponentView')]//p[contains(.,'${text}')]`,
@@ -199,6 +200,10 @@ class LiveFormPanel extends Page {
         let columns = await this.getDisplayedElements(xpath.layoutComponentView + "//div[contains(@id,'RegionView')]");
         await contentWizard.switchToMainFrame();
         return columns.length;
+    }
+    getErrorMessage(){
+        let locator = xpath.container+ xpath.previewNotAvailableSpan;
+        return this.getText(locator);
     }
 }
 
