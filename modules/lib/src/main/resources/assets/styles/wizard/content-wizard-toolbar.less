@@ -54,7 +54,9 @@
   .content-status-wrapper {
     display: none; // Is made visible in content-wizard-panel.less
     order: 1;
-    margin-left: auto;
+    margin: auto;
+    justify-content: center;
+    padding: 0 5px;
   }
 
   .toolbar-publish-controls {
@@ -93,44 +95,10 @@
     }
   }
 
-  .toolbar-state-icon {
-    align-items: center;
-    display: none;
-    height: 100%;
-    width: 20px;
-    order: 2;
-    padding: 0 10px;
-
-    &:before {
-      font-size: 20px;
-    }
-
-    &.invalid, &.ready, &.in-progress {
-      display: flex;
-
-      + .toggle-button {
-        margin-left: auto;
-      }
-    }
-
-    &.invalid {
-      .icon-state-invalid;
-    }
-
-    &.ready {
-      .icon-state-ready;
-    }
-
-    &.in-progress {
-      .icon-state-in-progress;
-    }
-  }
-
   .project-info {
     overflow: auto;
     padding-left: 10px;
-    padding-right: 25px;
-    margin-right: 10px;
+    padding-right: 15px;
     border-right: 1px solid @admin-font-gray;
 
     .@{_COMMON_PREFIX}wrapper {
@@ -156,15 +124,6 @@
     }
   }
 
-  &.publish-request .toolbar-state-icon.ready::before {
-    display: block;
-    width: 20px;
-    height: 20px;
-    content: "";
-    background-image: url("../../images/publish-request-open.svg");
-    background-size: contain;
-  }
-
   .project-viewer {
     .@{_COMMON_PREFIX}sub-name {
       display: none;
@@ -175,6 +134,15 @@
     order: 6;
   }
 
+  .collaboration {
+    order: 2;
+    height: 100%;
+    flex-shrink: 1;
+    flex-grow: 1;
+    justify-content: flex-end;
+    max-width: 120px;
+    margin-right: 5px;
+  }
 }
 
 @media screen and (min-width: 720px) {
@@ -205,18 +173,6 @@
       order: 20 !important;
     }
 
-    .toolbar-state-icon {
-      margin-left: auto;
-      padding-right: 0;
-
-      &.invalid, &.ready, &.in-progress {
-
-        + .cycle-button {
-          margin-left: 0;
-        }
-      }
-    }
-
     .project-info {
       padding: 0;
       margin-right: 0;
@@ -227,5 +183,20 @@
     }
 
   }
+}
+
+@media screen and (max-width: 1200px) {
+  .content-wizard-toolbar {
+    .content-status-wrapper {
+      .author {
+        display: none;
+      }
+    }
+
+    .collaboration {
+      max-width: 90px;
+    }
+  }
+
 }
 
