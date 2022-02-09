@@ -3,14 +3,13 @@ import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {AdminToolJson} from './json/AdminToolJson';
 import {AdminTool} from '../AdminTool';
-
-declare const CONFIG;
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export class GetAdminToolsRequest
     extends ResourceRequest<AdminTool[]> {
 
     getRequestPath(): Path {
-        return CONFIG.services.adminToolsUrl;
+        return Path.fromString(CONFIG.getString('services.adminToolsUrl'));
     }
 
     protected parseResponse(response: JsonResponse<AdminToolJson[]>): AdminTool[] {

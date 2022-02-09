@@ -2,9 +2,8 @@ import {Project, ProjectBuilder} from '../data/project/Project';
 import {ProjectsTreeRequest} from './ProjectsTreeRequest';
 import {ProjectsTreeItem} from '../data/project/ProjectsTreeItem';
 import {ProjectHelper} from '../data/project/ProjectHelper';
+import {CONFIG} from 'lib-admin-ui/util/Config';
 import * as Q from 'q';
-
-declare const CONFIG;
 
 export class ProjectsTreeBuilder {
 
@@ -78,7 +77,7 @@ export class ProjectsTreeBuilder {
     }
 
     private filterDefaultProjectIfNeeded(projects: Project[]): Project[] {
-        const hideDefault: boolean = CONFIG.hideDefaultProject === 'true';
+        const hideDefault: boolean = CONFIG.isTrue('hideDefaultProject');
 
         if (!hideDefault) {
             return projects;

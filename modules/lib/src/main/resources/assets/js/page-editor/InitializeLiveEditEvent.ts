@@ -3,21 +3,26 @@ import {ClassHelper} from 'lib-admin-ui/ClassHelper';
 import {LiveEditModel} from './LiveEditModel';
 import {ProjectContext} from '../app/project/ProjectContext';
 import {Project} from '../app/settings/data/project/Project';
+import {CONFIG} from 'lib-admin-ui/util/Config';
+import {JSONObject} from 'lib-admin-ui/types';
 
 export class InitializeLiveEditEvent
     extends Event {
 
-    private liveEditModel: LiveEditModel;
+    private readonly liveEditModel: LiveEditModel;
 
-    private modifyPermissions: boolean;
+    private readonly modifyPermissions: boolean;
 
-    private project: Project;
+    private readonly project: Project;
+
+    private readonly config: JSONObject;
 
     constructor(liveEditModel: LiveEditModel, modifyPermissions: boolean = false) {
         super();
         this.liveEditModel = liveEditModel;
         this.modifyPermissions = modifyPermissions;
         this.project = ProjectContext.get().getProject();
+        this.config = CONFIG.getConfig();
     }
 
     getLiveEditModel(): LiveEditModel {
@@ -30,6 +35,10 @@ export class InitializeLiveEditEvent
 
     getProject(): Project {
         return this.project;
+    }
+
+    getConfig(): JSONObject {
+        return this.config;
     }
 
     static on(handler: (event: InitializeLiveEditEvent) => void, contextWindow: Window = window) {

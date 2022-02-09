@@ -32,9 +32,6 @@
     <!-- Styles -->
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/admin/common/styles/lib.css">
     <link rel="stylesheet" type="text/css" href="{{assetsUri}}/styles/contentlib.css">
-    <script type="text/javascript">
-        var CKEDITOR_BASEPATH = '{{assetsUri}}/lib/ckeditor/';
-    </script>
     <script type="text/javascript" src="{{assetsUri}}/admin/common/js/lib.js"></script>
     <script type="text/javascript" src="{{assetsUri}}/lib/vendors.js"></script>
     <link id="externalCSS" rel="stylesheet" href="" type="text/css">
@@ -42,44 +39,12 @@
 </head>
 <body>
 
-<!-- Configuration -->
-<script type="text/javascript">
-    var CONFIG = {
-        appId: '{{appId}}',
-        appVersion: '{{appVersion}}',
-        branch: '{{branch}}',
-        assetsUri: '{{assetsUri}}',
-        adminUrl: '{{adminUrl}}',
-        adminAssetsUri: '{{adminAssetsUri}}',
-        launcherUrl: '{{launcherUrl}}',
-        services: {
-            stylesUrl: '{{services.stylesUrl}}',
-            i18nUrl: '{{services.i18nUrl}}',
-            contentUrl: '{{services.contentServiceUrl}}',
-            adminToolsUrl: '{{services.adminToolsUrl}}',
-            licenseUrl: '{{services.licenseUrl}}'
-        },
-        allowContentUpdate: '{{allowContentUpdate}}',
-        allowPathTransliteration: '{{allowPathTransliteration}}',
-        hideDefaultProject: '{{hideDefaultProject}}',
-        mainUrl: '{{mainUrl}}',
-        theme: 'light',
-        launcher: {
-            theme: 'light'
-        }
-    };
-
-    if (CKEDITOR) {
-        CKEDITOR.config.language = '{{locale}}';
-    }
-</script>
-
 <!-- App javascript -->
 <script type="text/javascript" src="{{assetsUri}}/js/vendors.main~editor.js"></script>
-<script type="text/javascript" src="{{assetsUri}}/js/main.js"></script>
+<script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-service-url="{{configServiceUrl}}"></script>
 
 <!-- Append the launcher -->
-<script type="text/javascript" src="{{launcherPath}}" async></script>
+<script type="text/javascript" src="{{launcherPath}}" data-config-theme="light" async></script>
 
 </body>
 </html>

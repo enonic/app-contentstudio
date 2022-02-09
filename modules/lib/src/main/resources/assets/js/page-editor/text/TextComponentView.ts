@@ -28,8 +28,7 @@ import {ContentSummary} from '../../app/content/ContentSummary';
 import {ContentPath} from '../../app/content/ContentPath';
 import {ItemViewSelectedEvent} from '../ItemViewSelectedEvent';
 import {SelectedHighlighter} from '../SelectedHighlighter';
-
-declare let CONFIG;
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export class TextComponentViewBuilder
     extends ComponentViewBuilder<TextComponent> {
@@ -399,7 +398,6 @@ export class TextComponentView
 
     private doInitEditor() {
         this.isInitializingEditor = true;
-        const assetsUri = CONFIG.assetsUri;
         const id = this.getId().replace(/\./g, '_');
 
         this.addClass(id);
@@ -416,7 +414,7 @@ export class TextComponentView
 
         const htmlEditorParams: HtmlEditorParams = HtmlEditorParams.create()
             .setEditorContainerId(this.getId() + '_editor')
-            .setAssetsUri(assetsUri)
+            .setAssetsUri(CONFIG.getString('assetsUri'))
             .setInline(true)
             .setCreateDialogHandler(createDialogHandler)
             .setFocusHandler(this.onFocusHandler.bind(this))
