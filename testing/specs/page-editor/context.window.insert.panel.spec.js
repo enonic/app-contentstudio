@@ -84,7 +84,7 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
             assert.include(actualMessage, appConstant.CONTENT_REVERTED_MESSAGE, "Expected notification message should appear");
             //5. Verify that widget is displayed :
             let isDisplayed = await wizardVersionsWidget.isWidgetLoaded();
-            assert.isTrue(isDisplayed, "Versions widget should be present in Details Panel")
+            assert.isTrue(isDisplayed, "Versions widget remains visible in Details Panel after reverting versions");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

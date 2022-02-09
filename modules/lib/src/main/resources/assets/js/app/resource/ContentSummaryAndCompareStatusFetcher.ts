@@ -196,9 +196,7 @@ export class ContentSummaryAndCompareStatusFetcher {
     }
 
     updateRenderableContent(content: ContentSummaryAndCompareStatus, projectName?: string): Q.Promise<void> {
-        return new IsRenderableRequest(content.getContentId())
-            .setRequestProjectName(projectName)
-            .setContentRootPath(this.contentRootPath)
+        return new IsRenderableRequest(content.getContentSummary())
             .sendAndParse()
             .then((isRenderable: boolean) => {
                 content.setRenderable(isRenderable);

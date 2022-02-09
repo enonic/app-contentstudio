@@ -1,8 +1,5 @@
-import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {PEl} from 'lib-admin-ui/dom/PEl';
-import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {IsRenderableRequest} from '../../../../resource/IsRenderableRequest';
 import {PageEditorData} from '../../../../wizard/page/LiveFormPanel';
 import {WidgetItemView} from '../../WidgetItemView';
 
@@ -24,15 +21,5 @@ export class PageEditorWidgetItemView
         const noPreviewContainer = new PEl('no-controller-message');
         noPreviewContainer.setHtml(i18n('text.nocontrollers'));
         this.appendChild(noPreviewContainer);
-    }
-
-    public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
-        return PageEditorWidgetItemView.isPreviewAvailable(item).then((available: boolean) => {
-            this.toggleClass('no-controller', !available);
-        });
-    }
-
-    private static isPreviewAvailable(item: ContentSummaryAndCompareStatus): Q.Promise<boolean> {
-        return item.hasContentSummary() ? new IsRenderableRequest(item.getContentId()).sendAndParse() : Q(false);
     }
 }
