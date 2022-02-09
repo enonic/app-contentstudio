@@ -37,11 +37,16 @@ class BaseVersionsWidget extends Page {
     }
 
     async clickAndExpandVersionByName(versionDislayName) {
-        await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
-        let locator = this.versionItemByDisplayName(versionDislayName);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.clickOnElement(locator);
-        return await this.pause(500);
+        try {
+            await this.waitForElementDisplayed(this.versionItems, appConst.mediumTimeout);
+            let locator = this.versionItemByDisplayName(versionDislayName);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
+            return await this.pause(500);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_expand_version"));
+            throw new Error("Error when expand the version: " + err);
+        }
     }
 
     //waits for Version Widget is loaded, Exception will be thrown after the timeout exceeded
@@ -109,7 +114,6 @@ class BaseVersionsWidget extends Page {
 
     async waitForActiveVersionButtonDisplayed() {
         try {
-
             let locator = xpath.versionItemExpanded + "//button[child::span[text()='Active version']]";
             await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {

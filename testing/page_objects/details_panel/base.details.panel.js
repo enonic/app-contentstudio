@@ -44,7 +44,7 @@ class BaseDetailsPanel extends Page {
             await this.waitForElementDisplayed(versionHistoryOption, appConst.mediumTimeout);
             let elements = await this.getDisplayedElements(versionHistoryOption);
             await elements[0].click();
-            return await this.pause(200);
+            return await this.pause(500);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_open_versions'));
             throw new Error("Error when opening Version History: " + err);

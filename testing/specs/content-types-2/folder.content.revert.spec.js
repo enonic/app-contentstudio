@@ -89,6 +89,31 @@ describe('folder.content.revert.spec: tests for reverting of folder content', fu
             assert.equal(result, 4, "the number of versions should not be changed");
         });
 
+    it(`GIVEN existing folder is opened WHEN the previous version has been reverted THEN acl entries should not be updated`,
+        async () => {
+            let wizardVersionsWidget = new WizardVersionsWidget();
+            let contentWizard = new ContentWizard();
+            let editPermissionsDialog = new EditPermissionsDialog();
+            //1. open the existing folder:
+            await studioUtils.selectByDisplayNameAndOpenContent(FOLDER_NAME_1);
+            //2. open Versions Widget and revert the previous version:
+            await contentWizard.openVersionsHistoryPanel();
+            await wizardVersionsWidget.clickAndExpandVersion(1);
+            await wizardVersionsWidget.clickOnRevertButton();
+            await contentWizard.waitForNotificationMessage();
+            //2. Open 'Edit Permissions' dialog
+            await contentWizard.clickOnEditPermissionsButton();
+            await studioUtils.saveScreenshot("acl_entries_after_reverting");
+            //3. 'Inherit Permissions' checkbox remains unselected:
+            let isSelected = await editPermissionsDialog.isInheritPermissionsCheckBoxSelected();
+            assert.isFalse(isSelected, "The checkbox remains unselected after the reverting");
+            //3. Verify that Anonymous user is present after reverting the previous version:
+            let principals = await editPermissionsDialog.getDisplayNameOfSelectedPrincipals();
+            assert.isTrue(principals.includes(appConst.systemUsersDisplayName.ANONYMOUS_USER),
+                "Permissions should not be updated after the reverting");
+
+        });
+
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(() => {
