@@ -110,12 +110,17 @@ class ContentPublishDialog extends Page {
     }
 
     async clickOnMarkAsReadyMenuItem() {
-        let locator = XPATH.container + "//li[contains(@id,'MenuItem') and contains(.,'Mark as ready')]";
-        await this.clickOnMarkAsReadyDropdownHandle();
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        await this.pause(200);
-        await this.clickOnElement(locator);
-        return await this.pause(1000);
+        try {
+            let locator = XPATH.container + "//li[contains(@id,'MenuItem') and contains(.,'Mark as ready')]";
+            await this.clickOnMarkAsReadyDropdownHandle();
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.pause(200);
+            await this.clickOnElement(locator);
+            return await this.pause(1000);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_mark_as_ready_menu"));
+            throw new Error("Mark as redy menu: " + err);
+        }
     }
 
     waitForDialogOpened() {

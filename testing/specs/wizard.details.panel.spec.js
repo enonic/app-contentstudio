@@ -26,7 +26,7 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check widg
             await contentWizard.openDetailsPanel();
             //2. Version history widget should not be displayed by default!
             let isLoaded = await wizardVersionsWidget.isWidgetLoaded();
-            assert.isFalse(isLoaded, "VersionsWidget should not be displayed");
+            assert.isFalse(isLoaded, "Versions Widget should not be displayed");
             //3. Click on dropdown handle and open Versions widget:
             await wizardDetailsPanel.openVersionHistory();
             studioUtils.saveScreenshot("wizard_versions_widget");

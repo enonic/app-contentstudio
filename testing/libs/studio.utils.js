@@ -928,16 +928,22 @@ module.exports = {
         let selector = "//button[contains(@class,'launcher-button') and child::span[contains(@class,'span-x')] ]";
         try {
             await this.waitUntilDisplayed(selector, 2000);
+            await webDriverHelper.browser.pause(100);
+            let el = await this.getDisplayedElements(selector);
+            await el[0].click();
+            return await launcherPanel.waitForPanelDisplayed(1000);
         } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_launcher_button"));
             await webDriverHelper.browser.refresh();
             await webDriverHelper.browser.pause(2000);
             await this.closeProjectSelectionDialog();
             await this.waitUntilDisplayed(selector, 2000);
+
+            let el = await this.getDisplayedElements(selector);
+            await el[0].click();
+            return await launcherPanel.waitForPanelDisplayed(1000);
         }
-        await webDriverHelper.browser.pause(100);
-        let el = await this.getDisplayedElements(selector);
-        await el[0].click();
-        return await launcherPanel.waitForPanelDisplayed(1000);
+
     },
     async getDisplayedElements(selector) {
         let elements = await webDriverHelper.browser.$$(selector);

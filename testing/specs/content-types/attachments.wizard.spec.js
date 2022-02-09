@@ -61,7 +61,6 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
 
     it("WHEN new wizard with not required 'attachment' is opened AND name input is filled in THEN the content gets valid",
         async () => {
-            let attachmentsForm = new AttachmentsForm();
             let contentWizard = new ContentWizard();
             //1. Open wizard for new attachment content (0:0 not required)
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ATTACHMENTS_0_0);
