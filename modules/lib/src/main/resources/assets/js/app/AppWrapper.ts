@@ -171,9 +171,11 @@ export class AppWrapper
                 //     `<link id="${adminToolId}CSS" rel="stylesheet" href="${mainCssUrl}" type="text/css"/>`;
 
                 const s = document.createElement('script');
-                s.id = `${adminToolId}JS`;
-                s.type = 'text/javascript';
-                s.src = mainJsUrl;
+                s.setAttribute('id', `${adminToolId}JS`);
+                s.setAttribute('type', 'text/javascript');
+                s.setAttribute('src', mainJsUrl);
+                s.setAttribute('data-tool-uri', remoteAdminTool.getUri());
+                s.setAttribute('data-tool-id', adminToolApp);
                 document.head.appendChild(s);
             });
     }
