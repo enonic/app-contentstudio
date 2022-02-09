@@ -737,6 +737,10 @@ export class ContentWizardPanel
 
             this.openCollaborationWebSocket();
 
+            setInterval(() => {
+                ws.send(`keeping websocket open...${this.getPersistedItem().getId()}`);
+            }, 60000);
+
             return rendered;
         });
     }
