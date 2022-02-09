@@ -35,7 +35,7 @@ public class CollaborationServiceImpl
         eventPublisher.publish( Event.create( "edit.content.new.collaborator" ).
             distributed( true ).
             value( "contentId", contentId ).
-            value( "newCollaborator", collaboratorAsMap( params.getSessionId(), params.getUserKey() ) ).
+            value( "newCollaborator", collaboratorAsMap( params.getUserKey() ) ).
             value( "collaborators", collaborators.stream().map( this::extractUserKey ).collect( Collectors.toSet() ) ).
             build() );
 
@@ -63,10 +63,9 @@ public class CollaborationServiceImpl
         return collaborators;
     }
 
-    private Map<String, Object> collaboratorAsMap( final String sessionId, final String userKey )
+    private Map<String, Object> collaboratorAsMap( final String userKey )
     {
         final Map<String, Object> result = new LinkedHashMap<>();
-        result.put( "sessionId", sessionId );
         result.put( "userKey", userKey );
         return result;
     }

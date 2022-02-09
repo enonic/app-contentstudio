@@ -25,12 +25,11 @@ exports.webSocketEvent = function (event) {
 
     switch (event.type) {
     case 'open': {
-        let collaborators = collaborationLib.join({
+        collaborationLib.join({
             contentId: event.data.contentId,
             sessionId: event.session.id,
             userKey: event.session.user.key
         });
-        log.info(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
         break;
     }
     case 'error': {
@@ -38,12 +37,11 @@ exports.webSocketEvent = function (event) {
         break;
     }
     case 'close': {
-        let collaborators = collaborationLib.left({
+        collaborationLib.left({
             contentId: event.data.contentId,
             sessionId: event.session.id,
             userKey: event.session.user.key
         });
-        log.info(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
         break
     }
     default:

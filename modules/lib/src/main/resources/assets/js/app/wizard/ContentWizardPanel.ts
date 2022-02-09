@@ -729,27 +729,22 @@ export class ContentWizardPanel
                 thumbnailUploader.addClass('site');
             }
 
-            this.openCollaborationWebSocket();
+            const wsUrl = UriHelper.joinPath(this.getWebSocketUriPrefix(), CONFIG.services.collaborationUrl);
+            const ws = new WebSocket(`${wsUrl}?contentId=${this.getPersistedItem().getId()}`);
+            ws.addEventListener('close', function (event){
+                console.log(`Close... ${JSON.stringify(event)}`);
+            });
+            ws.addEventListener('open', function (event){
+                console.log(`Open... ${JSON.stringify(event)}`);
+            });
+            ws.addEventListener('error', function (event){
+                console.log(`Error... ${JSON.stringify(event)}`);
+            });
+            ws.addEventListener('message', function (event){
+                console.log(`Message... ${JSON.stringify(event)}`);
+            });
 
             return rendered;
-        });
-    }
-
-    private openCollaborationWebSocket(): void {
-        const wsUrl: string = UriHelper.joinPath(this.getWebSocketUriPrefix(), CONFIG.services.collaborationUrl);
-        const ws: WebSocket = new WebSocket(`${wsUrl}?contentId=${this.getPersistedItem().getId()}`);
-
-        ws.addEventListener('close', function (event){
-            console.log(`Close... ${JSON.stringify(event)}`);
-        });
-        ws.addEventListener('open', function (event){
-            console.log(`Open... ${JSON.stringify(event)}`);
-        });
-        ws.addEventListener('error', function (event){
-            console.log(`Error... ${JSON.stringify(event)}`);
-        });
-        ws.addEventListener('message', function (event){
-            console.log(`Message... ${JSON.stringify(event)}`);
         });
     }
 
