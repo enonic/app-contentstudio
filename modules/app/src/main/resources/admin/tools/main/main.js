@@ -1,8 +1,6 @@
-/*global resolve*/
-
-var admin = require('/lib/xp/admin');
-var mustache = require('/lib/mustache');
-var portal = require('/lib/xp/portal');
+const admin = require('/lib/xp/admin');
+const mustache = require('/lib/mustache');
+const portal = require('/lib/xp/portal');
 
 exports.renderTemplate = function (params) {
     const view = resolve('./main.html');
@@ -18,7 +16,6 @@ exports.getParams = function () {
         assetsUri: portal.assetUrl({path: ''}),
         appName: 'Content Studio',
         launcherPath: admin.getLauncherPath(),
-        locale: admin.getLocale(),
         configServiceUrl: portal.serviceUrl({service: 'config'})
     }
 }

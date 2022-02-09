@@ -1,5 +1,3 @@
-/*global resolve*/
-
 const mainJs = require('./../main/main');
 
 function handleGet() {
