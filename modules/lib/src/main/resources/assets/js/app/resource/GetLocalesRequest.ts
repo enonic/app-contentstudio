@@ -4,6 +4,7 @@ import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {Locale} from 'lib-admin-ui/locale/Locale';
 import {CmsResourceRequest} from './CmsResourceRequest';
 import {ContentResourceRequest} from './ContentResourceRequest';
+import {LocaleComparatorByQuery} from '../locale/LocaleComparatorByQuery';
 
 export class GetLocalesRequest
     extends CmsResourceRequest<Locale[]> {
@@ -27,13 +28,24 @@ export class GetLocalesRequest
         return this;
     }
 
-    private sortFunction(a: Locale, b: Locale) {
+    protected parseResponse(response: JsonResponse<LocaleListJson>): Locale[] {
+        const result = response.getResult().locales.map((localeJson: LocaleJson) => {
+            return Locale.fromJson(localeJson);
+        });
+
+        if (this.searchQuery) {
+            return result.sort(this.sortByQuery.bind(this));
+        }
+
+        return result.sort(this.sortByDisplayName);
+    }
+
+    private sortByDisplayName(a: Locale, b: Locale) {
         return a.getDisplayName().localeCompare(b.getDisplayName());
     }
 
-    protected parseResponse(response: JsonResponse<LocaleListJson>): Locale[] {
-        return response.getResult().locales.map((localeJson: LocaleJson) => {
-            return Locale.fromJson(localeJson);
-        }).sort(this.sortFunction);
+    private sortByQuery(a: Locale, b: Locale): number {
+        return new LocaleComparatorByQuery(a, b, this.searchQuery).compare();
     }
+
 }
