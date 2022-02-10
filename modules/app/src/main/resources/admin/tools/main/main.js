@@ -9,7 +9,7 @@ exports.renderTemplate = function (params) {
         contentType: 'text/html',
         body: mustache.render(view, params),
         headers: {
-            'Content-Security-Policy': 'default-src \'self\'; object-src \'none\'; style-src \'self\''
+            'Content-Security-Policy': 'default-src \'self\'; script-src \'self\' \'unsafe-eval\'; object-src \'none\'; style-src \'self\' \'unsafe-inline\''
         }
     };
 }
