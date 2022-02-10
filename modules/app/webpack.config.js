@@ -104,6 +104,6 @@ module.exports = {
         }),
     ],
     mode: isProd ? 'production' : 'development',
-    devtool: isProd ? false : 'eval-source-map',
+    devtool: isProd ? false : 'source-map',
     performance: {hints: false}
 };
