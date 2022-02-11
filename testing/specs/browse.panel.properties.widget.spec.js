@@ -9,29 +9,74 @@ const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel'
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const PropertiesWidget = require('../page_objects/browsepanel/detailspanel/properties.widget.itemview');
+const StatusWidget = require('../page_objects/browsepanel/detailspanel/status.widget.itemview');
 const WidgetItemView = require('../page_objects/browsepanel/detailspanel/content.widget.item.view');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const SettingsForm = require('../page_objects/wizardpanel/settings.wizard.step.form');
 const BrowseDetailsPanel = require('../page_objects/browsepanel/detailspanel/browse.details.panel');
-
+const PublishContentDialog = require('../page_objects/content.publish.dialog');
 
 describe('Browse panel, properties widget, language spec`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
 
-    it(`GIVEN existing folder(English (en)) WHEN the folder has been selected and 'Details Panel' opened THEN expected language should be displayed in the widget`,
+    it(`GIVEN existing folder(English (en)) WHEN the folder has been selected THEN expected language should be displayed in Properties Widget`,
         async () => {
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName, null, 'English (en)');
-            await studioUtils.doAddFolder(TEST_FOLDER);
+            await studioUtils.doAddReadyFolder(TEST_FOLDER);
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await studioUtils.openBrowseDetailsPanel();
             await studioUtils.saveScreenshot("details_panel_language_en");
             let propertiesWidget = new PropertiesWidget();
-            //Verify that expected language should be displayed in Details Panel
+            //1. Verify that expected language should be displayed in Details Panel
             let actualLanguage = await propertiesWidget.getLanguage();
             assert.equal(actualLanguage, 'en', "expected language should be present in the widget");
+            //2. Application should be 'base':
+            let application = await propertiesWidget.getApplication();
+            assert.equal(application, "base", "Portal application should be displayed");
+            //3. Type is folder:
+            let type = await propertiesWidget.getType();
+            assert.equal(type, "folder", "folder type should be displayed");
+            //4. Modified date should be displayed:
+            await propertiesWidget.waitForModifiedDateDisplayed();
+
+            let statusWidget = new StatusWidget();
+            await statusWidget.waitForStatusDisplayed("NEW");
+        });
+
+    it(`WHEN existing folder has been published THEN 'First Published' date gets visible in in Properties Widget`,
+        async () => {
+            let propertiesWidget = new PropertiesWidget();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let publishContentDialog = new PublishContentDialog();
+            //1. Select and publish the folder:
+            await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            await contentBrowsePanel.clickOnPublishButton();
+            await publishContentDialog.waitForDialogOpened();
+            await publishContentDialog.clickOnPublishNowButton();
+            await publishContentDialog.waitForDialogClosed();
+            await studioUtils.saveScreenshot("prop_widget_content_published");
+            //2. 'First Published' date gets visible in the widget:
+            await propertiesWidget.waitForFirstPublishedDateDisplayed();
+
+            let statusWidget = new StatusWidget();
+            await statusWidget.waitForStatusDisplayed("PUBLISHED");
+        });
+
+    it(`WHEN existing image is selected THEN expected properties should be displayed in the Properties Widget`,
+        async () => {
+            let propertiesWidget = new PropertiesWidget();
+            //1. Select an image:
+            await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.WHALE);
+            await studioUtils.saveScreenshot("details_panel_media_content");
+            //2. Application should be 'media'
+            let application = await propertiesWidget.getApplication();
+            assert.equal(application, "media", "media application should be displayed");
+            //3. Type should be 'image'
+            let type = await propertiesWidget.getType();
+            assert.equal(type, "image", "image type should be displayed");
         });
 
     it(`GIVEN existing folder is selected WHEN 'Hide Context Panel' button has been clicked THEN Context panel should be hidden`,
@@ -77,6 +122,9 @@ describe('Browse panel, properties widget, language spec`', function () {
             //4. Language should not be present in the widget now :
             await studioUtils.saveScreenshot("details_panel_language_removed");
             await propertiesWidget.waitForLanguageNotVisible();
+            //5. Status gets modified:
+            let statusWidget = new StatusWidget();
+            await statusWidget.waitForStatusDisplayed("MODIFIED");
         });
 
     //Verifies https://github.com/enonic/app-contentstudio/issues/1744
