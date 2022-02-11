@@ -9,9 +9,30 @@ const xpath = {
     languageProperty: "//dd[contains(.,'Language:')]/following-sibling::dt[1]",
     ownerProperty: "//dd[contains(.,'Owner:')]/following-sibling::dt[1]",
     publishFromProperty: "//dd[contains(.,'Publish From:')]/following-sibling::dt[1]",
+    applicationProperty: "//dd[contains(.,'Application:')]/following-sibling::dt[1]",
+    type: "//dd[contains(.,'Type:')]/following-sibling::dt[1]",
+    firstPublished: "//dd[contains(.,'First Published:')]/following-sibling::dt[1]",
+    modified: "//dd[contains(.,'Modified:')]/following-sibling::dt[1]",
+    firstPublished: "//dd[contains(.,'First Published:')]/following-sibling::dt[1]"
 };
 
 class PropertiesItemView extends Page {
+
+    get applicationProperty() {
+        return xpath.container + xpath.applicationProperty;
+    }
+
+    get typeProperty() {
+        return xpath.container + xpath.type;
+    }
+
+    get modifiedProperty() {
+        return xpath.container + xpath.modified;
+    }
+
+    get firstPublishedProperty() {
+        return xpath.container + xpath.firstPublished;
+    }
 
     get languageProperty() {
         return xpath.container + xpath.languageProperty;
@@ -53,6 +74,16 @@ class PropertiesItemView extends Page {
         return await this.getText(this.languageProperty);
     }
 
+    async getApplication() {
+        await this.waitForElementDisplayed(this.applicationProperty, appConst.mediumTimeout);
+        return await this.getText(this.applicationProperty);
+    }
+
+    async getType() {
+        await this.waitForElementDisplayed(this.typeProperty, appConst.mediumTimeout);
+        return await this.getText(this.typeProperty);
+    }
+
     async getPublishFrom() {
         await this.waitForElementDisplayed(this.publishFromProperty, appConst.shortTimeout);
         return await this.getText(this.publishFromProperty);
@@ -72,6 +103,14 @@ class PropertiesItemView extends Page {
     async getOwnerName() {
         await this.waitForOwnerDisplayed();
         return await this.getText(this.ownerProperty);
+    }
+
+    waitForModifiedDateDisplayed() {
+        return this.waitForElementDisplayed(this.modifiedProperty, appConst.shortTimeout);
+    }
+
+    waitForFirstPublishedDateDisplayed() {
+        return this.waitForElementDisplayed(this.firstPublishedProperty, appConst.shortTimeout);
     }
 }
 
