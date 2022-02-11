@@ -34,7 +34,6 @@ import com.enonic.xp.schema.content.ContentTypeName;
 import com.enonic.xp.schema.content.ContentTypeNames;
 import com.enonic.xp.security.RoleKeys;
 
-import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.CONTENT_CMS_PATH;
 import static com.enonic.xp.app.contentstudio.rest.resource.ResourceConstants.REST_ROOT;
 import static com.enonic.xp.web.servlet.ServletRequestUrlHelper.contentDispositionAttachment;
@@ -118,6 +117,10 @@ public final class ContentMediaResource
             {
                 response = response.header( "Content-Disposition", contentDispositionAttachment( fileName ) );
             }
+        }
+        else
+        {
+            response = response.header( "X-Frame-Options", "SAMEORIGIN" );
         }
         return response.build();
     }
