@@ -27,6 +27,10 @@ class BrowseFilterPanel extends Page {
         return XPATH.container + XPATH.clearFilterLink;
     }
 
+    get closeDependenciesSectionButtonLocator() {
+        return XPATH.dependenciesSection + "//button[contains(@class,'btn-close')]";
+    }
+
     get searchTextInput() {
         return XPATH.container + XPATH.searchInput;
     }
@@ -42,6 +46,10 @@ class BrowseFilterPanel extends Page {
 
     waitForOpened() {
         return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+    }
+
+    waitForCloseDependenciesSectionButtonDisplayed() {
+        return this.waitForElementDisplayed(this.closeDependenciesSectionButtonLocator, appConst.mediumTimeout);
     }
 
     isPanelVisible() {

@@ -12,11 +12,11 @@ const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.d
 const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
 
-describe('wizard.details.panel.spec: Open details panel in wizard and check widgets', function () {
+describe('wizard.details.panel.spec: Open details panel in wizard and check the widgets', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
-    it(`GIVEN folder-wizard is opened WHEN 'Version history' menu item in Details panel has been selected THEN 'Version history' widget should be loaded`,
+    it(`GIVEN wizard for new folder is opened WHEN 'Version history' has been opened THEN one version item should be present in the widget`,
         async () => {
             let wizardDetailsPanel = new WizardDetailsPanel();
             let wizardVersionsWidget = new WizardVersionsWidget();
@@ -29,12 +29,15 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check widg
             assert.isFalse(isLoaded, "Versions Widget should not be displayed");
             //3. Click on dropdown handle and open Versions widget:
             await wizardDetailsPanel.openVersionHistory();
-            studioUtils.saveScreenshot("wizard_versions_widget");
+            await studioUtils.saveScreenshot("wizard_versions_widget");
             //4. Verify that "Versions Widget" should be loaded:
             await wizardVersionsWidget.waitForVersionsLoaded();
+
+            let result = await wizardVersionsWidget.countVersionItems();
+            assert.equal(result, 1, "One version item should be present in wizard for unnamed content");
         });
 
-    it(`GIVEN folder-wizard is opened WHEN 'Dependencies' menu item in Details panel has been selected THEN 'Dependencies' widget should be loaded`,
+    it(`GIVEN wizard for new folder is opened WHEN 'Dependencies' menu item in 'Details panel' has been selected THEN 'Dependencies' widget should be loaded`,
         async () => {
             let wizardDetailsPanel = new WizardDetailsPanel();
             let contentWizard = new ContentWizard();
@@ -44,9 +47,16 @@ describe('wizard.details.panel.spec: Open details panel in wizard and check widg
             await contentWizard.openDetailsPanel();
             //2. Click on dropdown handle and select Dependencies menu item:
             await wizardDetailsPanel.openDependencies();
-            studioUtils.saveScreenshot("wizard_dependencies_widget");
+            await studioUtils.saveScreenshot("wizard_dependencies_widget");
             //3. Verify that "Dependencies Widget" should be loaded:
             await wizardDependenciesWidget.waitForWidgetLoaded();
+            // 'No outgoing dependencies' should be displayed in the widget:
+            await wizardDependenciesWidget.waitForNoOutgoingDependenciesMessage();
+            // 'No incoming dependencies' should be displayed in the widget:
+            await wizardDependenciesWidget.waitForNoIncomingDependenciesMessage();
+
+            let result = await wizardDependenciesWidget.getContentName();
+            assert.isTrue(result.includes("_unnamed"), "'Unnamed' should be displayed in the dependency widget in new wizard");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
