@@ -287,7 +287,10 @@ export class ContentItemPreviewPanel
 
         this.previewType = previewType;
 
-        if (PREVIEW_TYPE.FAILED === previewType || PREVIEW_TYPE.EMPTY === previewType || PREVIEW_TYPE.MISSING === previewType) {
+        if (PREVIEW_TYPE.FAILED === previewType ||
+            PREVIEW_TYPE.EMPTY === previewType ||
+            PREVIEW_TYPE.MISSING === previewType ||
+            PREVIEW_TYPE.NOT_CONFIGURED === previewType) {
             this.hideMask();
         }
     }
