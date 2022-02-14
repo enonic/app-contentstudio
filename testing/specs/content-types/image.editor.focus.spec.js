@@ -9,6 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ImageEditor = require('../../page_objects/wizardpanel/image.editor');
 const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
+const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
 describe("image.editor.focus.spec: tests for focus button", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -96,6 +97,25 @@ describe("image.editor.focus.spec: tests for focus button", function () {
             await imageEditor.waitForFocusCircleNotDisplayed();
 
             await contentWizard.waitAndClickOnSave();
+        });
+
+    it(`GIVEN existing image is opened WHEN the focused version has been reverted THEN 'Reset filters' and focus circle get visible in Image Editor`,
+        async () => {
+            let imageEditor = new ImageEditor();
+            let imageFormPanel = new ImageFormPanel();
+            let contentWizard = new ContentWizard();
+            let wizardVersionsWidget = new WizardVersionsWidget();
+            //1. Open the image:
+            await studioUtils.selectContentAndOpenWizard(appConstant.TEST_IMAGES.POP_02);
+            await imageFormPanel.waitForImageLoaded(appConstant.mediumTimeout);
+            //2. Open Versions Panel
+            await contentWizard.openVersionsHistoryPanel();
+            //3. Revert the focused version:
+            await wizardVersionsWidget.clickAndExpandVersion(1);
+            await wizardVersionsWidget.clickOnRevertButton();
+            //4. Verify that 'Reset filters' button gets visible:
+            await imageEditor.waitForResetFiltersDisplayed();
+            await imageEditor.waitForFocusCircleDisplayed();
         });
 
 

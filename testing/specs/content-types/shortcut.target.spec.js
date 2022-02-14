@@ -20,7 +20,7 @@ describe("Shortcut's target specification", function () {
     const SHORTCUT_NAME = contentBuilder.generateRandomName('shortcut');
     const SHORTCUT_NAME1 = contentBuilder.generateRandomName('shortcut');
 
-    it(`GIVEN wizard for new shortcut is opened WHEN name input has been filled in THEN the content should be not valid`,
+    it(`GIVEN wizard for new shortcut is opened WHEN name input has been filled in THEN the content should be invalid`,
         async () => {
             let contentWizard = new ContentWizard();
             let shortcutForm = new ShortcutForm();
@@ -38,7 +38,7 @@ describe("Shortcut's target specification", function () {
             assert.equal(recording, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, "Expected validation message should appear");
         });
 
-    it(`GIVEN required data is typed in the wizard AND 'Add Parameters' button has been clicked WHEN 'Save' button has been pressed THEN the shortcut gets not valid because parameter's inputs are empty`,
+    it(`GIVEN required data is typed in the wizard AND 'Add Parameters' button has been clicked WHEN 'Save' button has been pressed THEN the shortcut gets invalid because parameter inputs are empty`,
         async () => {
             let shortcutForm = new ShortcutForm();
             let contentWizard = new ContentWizard();

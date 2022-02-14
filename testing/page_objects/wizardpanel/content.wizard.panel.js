@@ -19,6 +19,7 @@ const ConfirmContentDeleteDialog = require('../../page_objects/confirm.content.d
 const RenamePublishedContentDialog = require('./rename.content.dialog');
 const WizardLayersWidget = require('./details/wizard.layers.widget');
 const ContentUnpublishDialog = require('../content.unpublish.dialog');
+const WizardDependenciesWidget = require('./details/wizard.dependencies.widget');
 
 
 const XPATH = {
@@ -257,6 +258,24 @@ class ContentWizardPanel extends Page {
             await wizardDetailsPanel.openVersionHistory();
             let versionPanel = new VersionsWidget();
             return await versionPanel.waitForVersionsLoaded();
+        }
+    }
+
+    async openDependenciesWidget() {
+        try {
+            let wizardDetailsPanel = new DetailsPanel();
+            let wizardDependenciesWidget = new WizardDependenciesWidget();
+            await this.openDetailsPanel();
+            await wizardDetailsPanel.openDependencies();
+            return await wizardDependenciesWidget.waitForWidgetLoaded();
+        } catch (err) {
+            //Workaround for issue with empty selector:
+            await this.refresh();
+            await this.pause(4000);
+            let wizardDependenciesWidget = new WizardDependenciesWidget();
+            let wizardDetailsPanel = new DetailsPanel();
+            await wizardDetailsPanel.openDependencies();
+            return await wizardDependenciesWidget.waitForWidgetLoaded
         }
     }
 

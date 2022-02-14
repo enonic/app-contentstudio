@@ -23,17 +23,29 @@ class BaseDependenciesWidget extends Page {
     }
 
     waitForNoOutgoingDependenciesMessage() {
-        return this.waitForElementDisplayed("//div[@class='dependencies-container outbound no-dependencies']");
+        return this.waitForElementDisplayed("//div[@class='dependencies-container outbound no-dependencies']", appConst.mediumTimeout);
     }
 
-    getNumberOutboundItems() {
-        return this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout).then(() => {
-            return this.getText(this.showOutboundButton);
-        }).then(result => {
-            let startIndex = result.indexOf('(');
-            let endIndex = result.indexOf(')');
-            return result.substring(startIndex + 1, endIndex);
-        })
+    waitForNoIncomingDependenciesMessage() {
+        return this.waitForElementDisplayed("//div[contains(@class,'inbound no-dependencies')]", appConst.mediumTimeout);
+    }
+
+    getContentDisplayName() {
+        let locator = this.dependenciesWidget + "//div[contains(@id,'NamesView')]//h6[contains(@class,'main-name')]";
+        return this.getText(locator);
+    }
+
+    getContentName() {
+        let locator = this.dependenciesWidget + "//p[contains(@class,'sub-name')]";
+        return this.getText(locator);
+    }
+
+    async getNumberOutboundItems() {
+        await this.waitForElementDisplayed(this.showOutboundButton, appConst.shortTimeout);
+        let text = await this.getText(this.showOutboundButton);
+        let startIndex = text.indexOf('(');
+        let endIndex = text.indexOf(')');
+        return text.substring(startIndex + 1, endIndex);
     }
 
     waitForOutboundButtonNotVisible() {
