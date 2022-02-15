@@ -94,6 +94,7 @@ export class ContentItemPreviewPanel
 
     private updatePreview(item: ContentSummaryAndCompareStatus, force: boolean) {
         if (this.isPreviewUpdateNeeded(item, force)) {
+            this.showMask();
             this.update(item);
         }
     }
@@ -142,6 +143,7 @@ export class ContentItemPreviewPanel
 
         this.frame.onLoaded((event: UIEvent) => {
             const frameWindow = this.frame.getHTMLElement()['contentWindow'];
+            this.hideMask();
 
             try {
                 if (frameWindow) {
@@ -358,7 +360,6 @@ export class ContentItemPreviewPanel
     }
 
     protected setPagePreviewMode(item: ContentSummaryAndCompareStatus) {
-        this.showMask();
         const src: string = RenderingUriHelper.getPortalUri(!!item.getPath() ? item.getPath().toString() : '', RenderingMode.INLINE);
         // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
         $.ajax({
@@ -393,11 +394,13 @@ export class ContentItemPreviewPanel
     public showMask() {
         if (this.isVisible()) {
             this.mask.show();
+            this.addClass('loading');
         }
     }
 
     private hideMask() {
         this.mask.hide();
+        this.removeClass('loading');
     }
 
 }
