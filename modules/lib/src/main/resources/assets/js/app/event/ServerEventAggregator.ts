@@ -9,10 +9,10 @@ export class ServerEventAggregator {
 
     private batchReadyListeners: { (items: ContentServerChangeItem[], type: NodeServerChangeType): void }[] = [];
 
-    private typesAndDelayedFunctions: Map<NodeServerChangeType, Function> = new Map<NodeServerChangeType, Function>();
+    private typesAndDelayedFunctions: Map<string, Function> = new Map<string, Function>();
 
-    private typesAndChangeItems: Map<NodeServerChangeType, ContentServerChangeItem[]> =
-        new Map<NodeServerChangeType, ContentServerChangeItem[]>();
+    private typesAndChangeItems: Map<string, ContentServerChangeItem[]> =
+        new Map<string, ContentServerChangeItem[]>();
 
     constructor() {
     //
@@ -20,69 +20,31 @@ export class ServerEventAggregator {
 
     appendEvent(event: ContentServerEvent) {
         const type: NodeServerChangeType = event.getNodeChange().getChangeType();
-        this.processNewEvent(event);
 
-        if (this.typesAndDelayedFunctions.get(type)) {
-            this.typesAndDelayedFunctions.get(type)();
-            this.typesAndChangeItems.get(type).push(...event.getNodeChange().getChangeItems());
-        } else {
-            const debouncedFunc: Function = AppHelper.debounce(() => {
-                const items: ContentServerChangeItem[] = this.typesAndChangeItems.get(type);
+        event.getNodeChange().getChangeItems().forEach((changeItem: ContentServerChangeItem) => {
+            const typeAndRepo: string = `${NodeServerChangeType[type]}:${changeItem.getRepo()}`;
 
-                this.typesAndDelayedFunctions.delete(type);
-                this.typesAndChangeItems.delete(type);
+            if (this.typesAndDelayedFunctions.get(typeAndRepo)) {
+                this.typesAndChangeItems.get(typeAndRepo).push(changeItem);
+                this.typesAndDelayedFunctions.get(typeAndRepo)();
+            } else {
+                const debouncedFunc: Function = AppHelper.debounceWithInterrupt(() => {
+                    const items: ContentServerChangeItem[] = this.typesAndChangeItems.get(typeAndRepo);
 
-                if (items?.length > 0) {
-                    this.notifyBatchIsReady(items, type);
-                }
+                    this.typesAndDelayedFunctions.delete(typeAndRepo);
+                    this.typesAndChangeItems.delete(typeAndRepo);
 
-            }, ServerEventAggregator.AGGREGATION_TIMEOUT);
+                    if (items?.length > 0) {
+                        this.notifyBatchIsReady(items, type);
+                    }
+                }, ServerEventAggregator.AGGREGATION_TIMEOUT);
 
-            this.typesAndDelayedFunctions.set(type, debouncedFunc);
-            this.typesAndChangeItems.set(type, event.getNodeChange().getChangeItems());
+                this.typesAndDelayedFunctions.set(typeAndRepo, debouncedFunc);
+                this.typesAndChangeItems.set(typeAndRepo, event.getNodeChange().getChangeItems());
 
-            debouncedFunc();
-        }
-
-    }
-
-    private processNewEvent(event: ContentServerEvent) {
-        if (!this.isMoveEvent(event)) {
-            return;
-        }
-
-        const itemsMovedToOtherRoot: ContentServerChangeItem[] = this.getItemsMovedToOtherRoot(event);
-
-        if (itemsMovedToOtherRoot.length > 0) {
-            this.filterEventsOfDeletedOrMovedItems(itemsMovedToOtherRoot);
-        }
-    }
-
-    private getItemsMovedToOtherRoot(event: ContentServerEvent): ContentServerChangeItem[] {
-        return event.getNodeChange().getChangeItems().filter((item: ContentServerChangeItem) => {
-            return item.getNewPath()?.isInArchiveRoot();
+                debouncedFunc();
+            }
         });
-    }
-
-    private isMoveEvent(event: ContentServerEvent): boolean {
-        return event.getNodeChange().getChangeType() === NodeServerChangeType.MOVE;
-    }
-
-    private filterEventsOfDeletedOrMovedItems(itemsMovedToOtherRoot: ContentServerChangeItem[]) {
-        const updatedItems: ContentServerChangeItem[] = this.typesAndChangeItems.get(NodeServerChangeType.UPDATE) || [];
-        const renamedItems: ContentServerChangeItem[] = this.typesAndChangeItems.get(NodeServerChangeType.RENAME) || [];
-
-        const filteredUpdatedItems: ContentServerChangeItem[] =
-            updatedItems.filter((item: ContentServerChangeItem) => !this.contains(itemsMovedToOtherRoot, item));
-        const filteredRenamedItems: ContentServerChangeItem[] =
-            renamedItems.filter((item: ContentServerChangeItem) => !this.contains(itemsMovedToOtherRoot, item));
-
-        this.typesAndChangeItems.set(NodeServerChangeType.UPDATE, filteredUpdatedItems);
-        this.typesAndChangeItems.set(NodeServerChangeType.RENAME, filteredRenamedItems);
-    }
-
-    private contains(items: ContentServerChangeItem[], item: ContentServerChangeItem): boolean {
-        return items.some((i: ContentServerChangeItem) => i.getId() === item.getId());
     }
 
     onBatchIsReady(listener: (items: ContentServerChangeItem[], type: NodeServerChangeType) => void) {

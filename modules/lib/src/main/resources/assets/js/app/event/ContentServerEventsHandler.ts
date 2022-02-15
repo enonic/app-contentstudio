@@ -17,6 +17,7 @@ import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
 import {Store} from 'lib-admin-ui/store/Store';
+import {MovedContentItem} from '../browse/MovedContentItem';
 
 export const CONTENT_SERVER_EVENTS_HANDLER_KEY: string = 'ContentServerEventsHandler';
 
@@ -35,7 +36,7 @@ export class ContentServerEventsHandler {
 
     private contentDeletedInOtherReposListeners: { (paths: ContentServerChangeItem[]): void }[] = [];
 
-    private contentMovedListeners: { (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]): void }[] = [];
+    private contentMovedListeners: { (movedItems: MovedContentItem[]): void }[] = [];
 
     private contentRenamedListeners: { (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]): void }[] = [];
 
@@ -199,11 +200,11 @@ export class ContentServerEventsHandler {
         this.notifyContentUnpublished(data);
     }
 
-    private handleContentMoved(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) {
+    private handleContentMoved(movedItems: MovedContentItem[]) {
         if (ContentServerEventsHandler.debug) {
-            console.debug('ContentServerEventsHandler: moved', data, oldPaths);
+            console.debug('ContentServerEventsHandler: moved', movedItems);
         }
-        this.notifyContentMoved(data, oldPaths);
+        this.notifyContentMoved(movedItems);
     }
 
     private handleContentSorted(data: ContentSummaryAndCompareStatus[]) {
@@ -288,21 +289,20 @@ export class ContentServerEventsHandler {
         });
     }
 
-    onContentMoved(listener: (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => void) {
+    onContentMoved(listener: (movedItems: MovedContentItem[]) => void) {
         this.contentMovedListeners.push(listener);
     }
 
-    unContentMoved(listener: (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => void) {
+    unContentMoved(listener: (movedItems: MovedContentItem[]) => void) {
         this.contentMovedListeners =
-            this.contentMovedListeners.filter((currentListener: (data: ContentSummaryAndCompareStatus[],
-                                                                 oldPaths: ContentPath[]) => void) => {
+            this.contentMovedListeners.filter((currentListener: (movedItems: MovedContentItem[]) => void) => {
                 return currentListener !== listener;
             });
     }
 
-    private notifyContentMoved(data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) {
-        this.contentMovedListeners.forEach((listener: (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => void) => {
-            listener(data, oldPaths);
+    private notifyContentMoved(movedItems: MovedContentItem[]) {
+        this.contentMovedListeners.forEach((listener: (movedItems: MovedContentItem[]) => void) => {
+            listener(movedItems);
         });
     }
 
@@ -505,9 +505,24 @@ export class ContentServerEventsHandler {
         if (movedItems.length > 0) {
             this.contentFetcher.fetchByPaths(this.extractNewContentPaths(movedItems))
                 .then((summaries: ContentSummaryAndCompareStatus[]) => {
-                    this.handleContentMoved(summaries, this.extractContentPaths(movedItems));
+                    this.handleContentMoved(this.createMovedItems(summaries, movedItems));
                 });
         }
+    }
+
+    private createMovedItems(summaries: ContentSummaryAndCompareStatus[], movedItems: ContentServerChangeItem[]): MovedContentItem[] {
+        const result: MovedContentItem[] = [];
+
+        summaries.forEach((content: ContentSummaryAndCompareStatus) => {
+             const oldPath: ContentPath =
+                 movedItems.find((moved: ContentServerChangeItem) => moved.getNewPath()?.equals(content.getPath()))?.getPath();
+
+             if (oldPath) {
+                 result.push(new MovedContentItem(content, oldPath));
+             }
+        });
+
+        return result;
     }
 
     private handleEventByType(changeItems: ContentServerChangeItem[], type: NodeServerChangeType) {
