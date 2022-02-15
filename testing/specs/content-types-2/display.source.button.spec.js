@@ -13,6 +13,7 @@ const contentBuilder = require('../../libs/content.builder');
 const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
 const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
 const appConstant = require('../../libs/app_const');
+const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 
 
 describe('display.source.button.spec - tests for Display Source button in html area', function () {
@@ -71,6 +72,21 @@ describe('display.source.button.spec - tests for Display Source button in html a
             await htmlAreaForm.clickOnSourceButton();
             await studioUtils.saveScreenshot("cm_expert_source_button");
             await sourceCodeDialog.waitForDialogLoaded();
+        });
+
+    //Verifies issue Edit/Delete icons in the Site configurator should be hidden for non-admin users #3496
+    //https://github.com/enonic/app-contentstudio/issues/3496
+    it("GIVEN user with role 'Content Manager Expert' is signing in WHEN existing site has been opened THEN 'Edit configurator' and 'remove application' icons should be hidden",
+        async () => {
+            let siteFormPanel = new SiteFormPanel();
+            await studioUtils.navigateToContentStudioApp(USER.displayName, appConst.PASSWORD.MEDIUM);
+            //1. Open existing site:
+            await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
+            await studioUtils.saveScreenshot("cm_expert_edit_remove_icons_hidden");
+            //2. 'Edit' icon should be hidden
+            await siteFormPanel.waitForEditApplicationIconNotDisplayed();
+            //3. 'Remove' icon should be hidden
+            await siteFormPanel.waitForRemoveApplicationIconNotDisplayed();
         });
 
     afterEach(async () => {

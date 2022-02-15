@@ -26,7 +26,7 @@ describe("tests for 'Show Outbound' button in shortcut wizard", function () {
             let folder = contentBuilder.buildFolder(FOLDER_NAME);
             await studioUtils.doAddFolder(folder);
         });
-    it(`GIVEN shortcut with a folder in the target is saved WHEN 'Show otbound' button has been clicked THEN the folder should be filtered in the new browser tab`,
+    it(`GIVEN shortcut with a folder in the target is saved WHEN 'Show outbound' button has been clicked THEN the folder should be filtered in the new browser tab`,
         async () => {
             let contentWizard = new ContentWizard();
             let shortcutForm = new ShortcutForm();
