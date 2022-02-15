@@ -35,9 +35,8 @@ describe('Revert published content spec', function () {
             await contentPublishDialog.waitForDialogOpened();
             await contentPublishDialog.clickOnPublishNowButton();
             await contentPublishDialog.waitForDialogClosed();
-
-            let status = await contentWizard.getContentStatus();
-            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "Published status should be in Wizard");
+            //"Published status should be in Wizard"
+            await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHED);
         });
 
     it(`GIVEN published folder is selected WHEN the previous version has been reverted THEN 'Modified' status should be displayed`,
