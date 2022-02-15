@@ -735,29 +735,43 @@ export class ContentTreeGrid
 
     deleteItems(items: DeletedContentItem[]) {
         const allNodes: TreeNode<ContentSummaryAndCompareStatus>[] = this.getRoot().getAllDefaultRootNodes();
+        const nodesToDelete: TreeNode<ContentSummaryAndCompareStatus>[] = [];
 
         items.forEach((item: DeletedContentItem) => {
-            const nodeToDelete: TreeNode<ContentSummaryAndCompareStatus> = allNodes.find(
-                (node: TreeNode<ContentSummaryAndCompareStatus>) => node.getData()?.getPath()?.equals(item.path) ||
-                                                                    node.getData()?.getContentId()?.equals(item.id));
+            const nodeToDelete: TreeNode<ContentSummaryAndCompareStatus> = this.findNodeByItem(item, allNodes);
 
             if (nodeToDelete) {
-                this.deleteNode(nodeToDelete);
+                nodesToDelete.push(nodeToDelete);
             }
 
-            const parentPath: ContentPath = item.path.getParentPath();
+            this.updateParentHasChildren(item, allNodes);
+        });
 
-            if (parentPath && !parentPath.isRoot()) {
-                const parentNode: TreeNode<ContentSummaryAndCompareStatus> = this.getParentNodeByPath(parentPath, allNodes);
+        if (nodesToDelete.length > 0) {
+            this.deleteNodes(nodesToDelete);
+        }
+    }
 
-                if (parentNode && !parentNode.hasChildren()) {
-                    this.contentFetcher.fetchChildrenIds(parentNode.getData().getContentId()).then((ids: ContentId[]) => {
-                            if (ids.length === 0) {
-                                this.updateNodeHasChildren(parentNode, false);
-                            }
-                        }).catch(DefaultErrorHandler.handle).done();
-                }
+    private updateParentHasChildren(item: DeletedContentItem, allNodes: TreeNode<ContentSummaryAndCompareStatus>[]): void {
+        const parentPath: ContentPath = item.path.getParentPath();
+
+        if (parentPath && !parentPath.isRoot()) {
+            const parentNode: TreeNode<ContentSummaryAndCompareStatus> = this.getParentNodeByPath(parentPath, allNodes);
+
+            if (parentNode && !parentNode.hasChildren()) {
+                this.contentFetcher.fetchChildrenIds(parentNode.getData().getContentId()).then((ids: ContentId[]) => {
+                    if (ids.length === 0) {
+                        this.updateNodeHasChildren(parentNode, false);
+                    }
+                }).catch(DefaultErrorHandler.handle).done();
             }
+        }
+    }
+
+    private findNodeByItem(item: DeletedContentItem,
+                           allNodes: TreeNode<ContentSummaryAndCompareStatus>[]): TreeNode<ContentSummaryAndCompareStatus> {
+        return allNodes.find((node: TreeNode<ContentSummaryAndCompareStatus>) => {
+            return node.getData()?.getPath()?.equals(item.path) || node.getData()?.getContentId()?.equals(item.id);
         });
     }
 

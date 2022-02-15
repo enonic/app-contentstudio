@@ -12,6 +12,7 @@ import {ContentPath} from '../../../content/ContentPath';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ApplicationBasedName} from 'lib-admin-ui/application/ApplicationBasedName';
 import {FormItem} from 'lib-admin-ui/form/FormItem';
+import {MovedContentItem} from '../../../browse/MovedContentItem';
 
 export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     extends BaseInputTypeManagingAdd {
@@ -108,14 +109,15 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
     }
 
     private handleContentUpdatedEvent() {
-        const contentUpdatedOrMovedListener = (statuses: ContentSummaryAndCompareStatus[], oldPaths?: ContentPath[]) => {
+        const contentUpdatedListener = (statuses: ContentSummaryAndCompareStatus[], oldPaths?: ContentPath[]) => {
 
             if (this.getSelectedOptions().length === 0) {
                 return;
             }
 
-            statuses.forEach((status, index) => {
-                let selectedOption;
+            statuses.forEach((status: ContentSummaryAndCompareStatus, index: number) => {
+                let selectedOption: SelectedOption<RAW_VALUE_TYPE>;
+
                 if (oldPaths) {
                     selectedOption = this.findSelectedOptionByContentPath(oldPaths[index]);
                 } else {
@@ -127,15 +129,29 @@ export class ContentInputTypeManagingAdd<RAW_VALUE_TYPE>
             });
         };
 
-        let handler = ContentServerEventsHandler.getInstance();
-        handler.onContentMoved(contentUpdatedOrMovedListener);
-        handler.onContentRenamed(contentUpdatedOrMovedListener);
-        handler.onContentUpdated(contentUpdatedOrMovedListener);
+        const contentMovedListener = (movedItems: MovedContentItem[]) => {
+            if (this.getSelectedOptions().length === 0) {
+                return;
+            }
+
+            movedItems.forEach((movedItem: MovedContentItem) => {
+                const selectedOption: SelectedOption<RAW_VALUE_TYPE> = this.findSelectedOptionByContentPath(movedItem.oldPath);
+
+                if (selectedOption) {
+                    this.getContentComboBox().updateOption(selectedOption.getOption(), movedItem.item.getContentSummary());
+                }
+            });
+        };
+
+        const handler: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
+        handler.onContentMoved(contentMovedListener);
+        handler.onContentRenamed(contentUpdatedListener);
+        handler.onContentUpdated(contentUpdatedListener);
 
         this.onRemoved(() => {
-            handler.unContentUpdated(contentUpdatedOrMovedListener);
-            handler.unContentRenamed(contentUpdatedOrMovedListener);
-            handler.unContentMoved(contentUpdatedOrMovedListener);
+            handler.unContentUpdated(contentUpdatedListener);
+            handler.unContentRenamed(contentUpdatedListener);
+            handler.unContentMoved(contentMovedListener);
         });
     }
 
