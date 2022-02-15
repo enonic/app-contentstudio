@@ -26,17 +26,17 @@ describe('Browse panel, properties widget, language spec`', function () {
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName, null, 'English (en)');
             await studioUtils.doAddReadyFolder(TEST_FOLDER);
+            //1.Select existing folder(En)
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-            await studioUtils.openBrowseDetailsPanel();
             await studioUtils.saveScreenshot("details_panel_language_en");
             let propertiesWidget = new PropertiesWidget();
-            //1. Verify that expected language should be displayed in Details Panel
+            //2. Verify that expected language should be displayed in Details Panel
             let actualLanguage = await propertiesWidget.getLanguage();
             assert.equal(actualLanguage, 'en', "expected language should be present in the widget");
-            //2. Application should be 'base':
+            //3. Application should be 'base':
             let application = await propertiesWidget.getApplication();
             assert.equal(application, "base", "Portal application should be displayed");
-            //3. Type is folder:
+            //4. Verify the type:
             let type = await propertiesWidget.getType();
             assert.equal(type, "folder", "folder type should be displayed");
             //4. Modified date should be displayed:

@@ -8,6 +8,7 @@ const LoaderComboBox = require('../components/loader.combobox');
 const SiteConfigDialog = require('./site.configurator.dialog');
 const XPATH = {
     wizardSteps: `//div[contains(@id,'WizardStepsPanel')]`,
+    editIcon: `//a[@class='edit']`,
     descriptionInput: `//textarea[contains(@name,'description')]`,
     applicationsSelectedOptions: "//div[contains(@id,'SiteConfiguratorSelectedOptionView')]",
     selectedAppByDisplayName: function (displayName) {
@@ -66,8 +67,19 @@ class SiteForm extends Page {
         return this.clickOnElement(locator);
     }
 
+
+    waitForEditApplicationIconNotDisplayed(displayName) {
+        let locator = XPATH.selectedAppByDisplayName(displayName) + XPATH.editIcon;
+        return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    waitForRemoveApplicationIconNotDisplayed(displayName) {
+        let locator = XPATH.selectedAppByDisplayName(displayName) + lib.REMOVE_ICON;
+        return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+    }
+
     async openSiteConfiguratorDialog(displayName) {
-        let selector = XPATH.selectedAppByDisplayName(displayName) + `//a[@class='edit']`;
+        let selector = XPATH.selectedAppByDisplayName(displayName) + XPATH.editIcon;
         await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
         await this.clickOnElement(selector);
         let siteConfigDialog = new SiteConfigDialog();
