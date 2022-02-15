@@ -37,7 +37,7 @@ import {i18n} from 'lib-admin-ui/util/Messages';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {ContextView} from '../view/context/ContextView';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
-import {Body} from 'lib-admin-ui/dom/Body';
+import {MovedContentItem} from './MovedContentItem';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -265,13 +265,10 @@ export class ContentBrowsePanel
 
         handler.onContentDuplicated((data: ContentSummaryAndCompareStatus[]) => this.handleContentCreated(data));
 
-        handler.onContentMoved((data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
-            // combination of delete and create
-            const items: DeletedContentItem[] = oldPaths.map(
-                (oldPath: ContentPath, index: number) => new DeletedContentItem(data[index]?.getContentId(), oldPath));
-
-            this.handleContentDeleted(items);
-            this.handleContentCreated(data);
+        handler.onContentMoved((movedItems: MovedContentItem[]) => {
+            this.handleContentDeleted(
+                movedItems.map((item: MovedContentItem) => new DeletedContentItem(item.item.getContentId(), item.oldPath)));
+            this.handleContentCreated(movedItems.map((item: MovedContentItem) => item.item));
         });
 
         handler.onContentSorted((data: ContentSummaryAndCompareStatus[]) => this.handleContentSorted(data));
@@ -486,9 +483,15 @@ export class ContentBrowsePanel
     protected updateActionsAndPreview(): void {
         this.browseActionsAndPreviewUpdateRequired = false;
 
-        this.contentFetcher.updateRenderableContents(this.treeGrid.getSelectedDataList()).then(() => {
+        const selectedItem: ContentSummaryAndCompareStatus = this.treeGrid.getLastSelectedOrHighlightedItem();
+
+        if (selectedItem) {
+            this.contentFetcher.updateRenderableContents([this.treeGrid.getLastSelectedOrHighlightedItem()]).then(() => {
+                super.updateActionsAndPreview();
+            }).catch(DefaultErrorHandler.handle);
+        } else {
             super.updateActionsAndPreview();
-        }).catch(DefaultErrorHandler.handle);
+        }
     }
 
     protected togglePreviewPanelDependingOnScreenSize(item: ResponsiveItem): void {

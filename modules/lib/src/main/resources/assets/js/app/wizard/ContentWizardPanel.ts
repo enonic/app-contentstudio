@@ -137,6 +137,7 @@ import {ContentWizardContextSplitPanel} from './ContentWizardContextSplitPanel';
 import {ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextPanelState} from '../view/context/ContextPanelState';
 import {CONFIG} from 'lib-admin-ui/util/Config';
+import {MovedContentItem} from '../browse/MovedContentItem';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1346,15 +1347,15 @@ export class ContentWizardPanel
             }
         };
 
-        const movedHandler = (data: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
+        const movedHandler = (movedItems: MovedContentItem[]) => {
             this.handleCUD();
 
-            const wasMoved: boolean = oldPaths.some((oldPath: ContentPath) => {
-                return this.persistedItemPathIsDescendantOrEqual(oldPath);
+            const wasMoved: boolean = movedItems.some((movedItem: MovedContentItem) => {
+                return this.persistedItemPathIsDescendantOrEqual(movedItem.oldPath);
             });
 
             if (wasMoved) {
-                updateHandler(data[0]);
+                updateHandler(movedItems[0].item);
             }
         };
 
