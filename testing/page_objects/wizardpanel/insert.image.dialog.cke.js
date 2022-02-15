@@ -140,11 +140,13 @@ class InsertImageDialog extends Page {
         });
     }
 
-    waitForDialogVisible() {
-        return this.waitForElementDisplayed(this.cancelButton, appConst.shortTimeout).catch(err => {
-            this.saveScreenshot('err_open_insert_image_dialog');
+    async waitForDialogVisible() {
+        try {
+            return await this.waitForElementDisplayed(this.cancelButton, appConst.mediumTimeout)
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_insert_image_dialog'));
             throw new Error('Insert Image Dialog should be opened!' + err);
-        });
+        }
     }
 
     waitForDialogClosed() {
