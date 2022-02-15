@@ -1,7 +1,16 @@
 .content-item-preview-panel {
   background-color: @admin-dark-gray;
 
+  &.loading {
+    .wrapper {
+      visibility: hidden;
+      opacity: 0;
+    }
+  }
+
   .wrapper {
+    transition: opacity .3s ease-in-out;
+
     &.emulated {
       overflow: auto;
       flex: 1;
