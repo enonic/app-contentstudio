@@ -306,6 +306,11 @@ module.exports = Object.freeze({
         CREATED_DATE: "Created date",
         PUBLISHED_DATE: "Published date",
     },
+    SORT_ORDER: {
+        ASCENDING: "ascending",
+        DESCENDING: "descending"
+    },
+
     CONTENT_STATUS: {
         NEW: 'New',
         PUBLISHED: 'Published',

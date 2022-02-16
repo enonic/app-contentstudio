@@ -67,7 +67,8 @@ class SortContentDialog extends Page {
     //expand menu-options('Modified date', 'Display name'...)
     async clickOnMenuButton() {
         //await this.waitForElementDisplayed(this.menuButton,appConst.TIMEOUT_4);
-        return await this.clickOnElement(this.menuButton);
+        await this.clickOnElement(this.menuButton);
+        return await this.pause(500);
     }
 
     async selectSortMenuItem(by, order) {
@@ -115,6 +116,24 @@ class SortContentDialog extends Page {
         await this.clickOnElement(this.dropdownHandle);
         await this.pause(700);
         return await this.waitForSpinnerNotVisible();
+    }
+
+    async doSort(by, order) {
+        let menuItem = XPATH.container + `//li[contains(@id,'SortContentTabMenuItem') and child::a[text()='${by}']]`;
+        let locator;
+        if (order === appConst.SORT_ORDER.ASCENDING) {
+            locator = menuItem + "//button[contains(@class,'asc')]";
+        } else {
+            locator = menuItem + "//button[contains(@class,'desc')]";
+        }
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.clickOnElement(locator);
+        return await this.pause(500);
+    }
+
+    getContentName() {
+        let locator = XPATH.container + lib.H6_DISPLAY_NAME;
+        return this.getTextInDisplayedElements(locator);
     }
 }
 

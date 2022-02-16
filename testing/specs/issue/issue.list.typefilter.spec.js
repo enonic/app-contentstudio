@@ -80,7 +80,7 @@ describe(`issue.list.type.filter.spec: tests 'Type Filter' in Issues List modal 
             assert.isTrue(result.includes(csConst.ISSUE_LIST_TYPE_FILTER.TASKS), "Tasks' option should be selected in 'Type Filter'");
         });
 
-    it(`GIVEN Issue List dialog is opened WHEN Type Filter selector has been expanded THEN 'Assigned to Me' option should be disabled AND 'All' should be enabled`,
+    it(`GIVEN SU is signed in, 'Issue List' dialog is opened WHEN Type Filter selector has been expanded THEN 'Assigned to Me' option should be disabled AND 'All' should be enabled`,
         async () => {
             let issueListDialog = new IssueListDialog();
             //1.Open Issue List dialog:
