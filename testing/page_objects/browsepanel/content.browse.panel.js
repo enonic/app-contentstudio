@@ -815,6 +815,11 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
+    waitForAssignedToMeButtonDisplayed() {
+        let locator = this.showIssuesListButton + "//span[text()='Assigned to Me']";
+        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
+
     async isContentInherited(contentName) {
         await this.waitForContentDisplayed(contentName, appConst.mediumTimeout);
         let locator = lib.slickRowByName(XPATH.treeGrid, contentName);
