@@ -41,6 +41,9 @@ describe('create.task.dialog.spec: Create Task Dialog specification', function (
 
             result = await createTaskDialog.isDescriptionTextAreaDisplayed();
             assert.isTrue(result, 'Description text area should be present');
+            await studioUtils.saveScreenshot("create_task_add_item_button");
+
+            // 'Add Items' button should be displayed when no item has been selected in the grid
             await createTaskDialog.isAddItemsButtonDisplayed();
             assert.isTrue(result, "'Add Items' button should be present");
 

@@ -9,7 +9,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
 const studioUtils = require('../../libs/studio.utils.js');
 
-describe('sort.content.by.display.name.spec, sorts a folder(with children) and checks the sort-icon in the grid`', function () {
+describe('sort.content.by.display.name.spec, tests for ascending/descending order', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 
@@ -31,9 +31,10 @@ describe('sort.content.by.display.name.spec, sorts a folder(with children) and c
             assert.isTrue(result[0] === "book", "Ascending Order should be in the dialog's grid");
 
             await sortContentDialog.clickOnMenuButton();
-            //3. 'Display name-descending' menu item has been clicked:
+            //4. 'Display name-descending' menu item has been clicked:
             await sortContentDialog.doSort("Display name", appConst.SORT_ORDER.DESCENDING);
             await studioUtils.saveScreenshot("display_name_descending");
+            //5. Verify that the order is descending:
             result = await sortContentDialog.getContentName();
             assert.isTrue(result[0] === "whale", "Descending Order should be in the dialog's grid");
         });

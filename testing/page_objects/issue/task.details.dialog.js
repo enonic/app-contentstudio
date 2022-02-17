@@ -19,7 +19,6 @@ const XPATH = {
         text => `//div[contains(@id,'IssueCommentsListItem') and descendant::p[@class='inplace-text' and text()='${text}']]`,
     issueStatusMenuItem:
         menuItem => `//ul[contains(@class,'menu')]/li[contains(@id,'TabMenuItem') and child::a[text()='${menuItem}']]`,
-
 };
 
 class TaskDetailsDialog extends BaseDetailsDialog {
@@ -78,7 +77,6 @@ class TaskDetailsDialog extends BaseDetailsDialog {
         await this.clickOnElement(this.reopenTaskButton);
         await this.pause(800);
     }
-
 
     async getIssueTitle() {
         let result = await this.getText(XPATH.issueNameInPlaceInput + '/h2');

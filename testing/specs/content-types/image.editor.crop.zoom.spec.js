@@ -15,27 +15,26 @@ describe("image.content.crop.spec: tests for crop button", function () {
         this.timeout(appConst.SUITE_TIMEOUT);
         webDriverHelper.setupBrowser();
 
-    it(`GIVEN an image is opened and edit mode is switched on  WHEN 'Close edit mode' has been clicked THEN Apply and close buttons are not visible`,
-        async () => {
-                let imageEditor = new ImageEditor();
-                let imageFormPanel = new ImageFormPanel();
-                //1. Open an existing image:
-                await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.TELK);
-                await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-                //2. SWitch on the edit-mode
-                await imageEditor.clickOnCropButton();
-                await imageEditor.clickOnCloseEditModeButton();
-                //3. Verify that Apply, Close, zoom knob elements are not visible in non edit mode:
-                await imageEditor.waitForApplyButtonNotDisplayed();
-                await imageEditor.waitForCloseEditModeButtonNotDisplayed();
-                await imageEditor.waitForZoomKnobNotDisplayed();
-        });
+        it(`GIVEN an image is opened and edit mode is switched on  WHEN 'Close edit mode' has been clicked THEN Apply and close buttons are not visible`,
+            async () => {
+                    let imageEditor = new ImageEditor();
+                    let imageFormPanel = new ImageFormPanel();
+                    //1. Open an existing image:
+                    await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.TELK);
+                    await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
+                    //2. SWitch on the edit-mode
+                    await imageEditor.clickOnCropButton();
+                    await imageEditor.clickOnCloseEditModeButton();
+                    //3. Verify that Apply, Close, zoom knob elements are not visible in non edit mode:
+                    await imageEditor.waitForApplyButtonNotDisplayed();
+                    await imageEditor.waitForCloseEditModeButtonNotDisplayed();
+                    await imageEditor.waitForZoomKnobNotDisplayed();
+            });
 
     it(`GIVEN existing image is opened WHEN Crop button has been clicked THEN Apply, Close, Zoom Knob buttons should be visible in the edit mode`,
         async () => {
                 let imageEditor = new ImageEditor();
                 let imageFormPanel = new ImageFormPanel();
-                let contentWizard = new ContentWizard();
                 //1. Open an existing image:
                 await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.TELK);
                 await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
@@ -49,12 +48,12 @@ describe("image.content.crop.spec: tests for crop button", function () {
                 await imageEditor.waitForApplyButtonDisplayed();
                 await imageEditor.waitForCloseEditModeButtonDisplayed();
                 await imageEditor.waitForZoomKnobDisplayed();
-            //5. Click on Crop button and close the 'edit' mode:
-            await imageEditor.clickOnCropButton();
-            //6. Verify that Apply, Close, Zoom Knob buttons get not visible in not edit mode:
-            await imageEditor.waitForApplyButtonNotDisplayed();
-            await imageEditor.waitForCloseEditModeButtonNotDisplayed();
-            await imageEditor.waitForZoomKnobNotDisplayed();
+                //5. Click on Crop button and close the 'edit' mode:
+                await imageEditor.clickOnCropButton();
+                //6. Verify that Apply, Close, Zoom Knob buttons get not visible in not edit mode:
+                await imageEditor.waitForApplyButtonNotDisplayed();
+                await imageEditor.waitForCloseEditModeButtonNotDisplayed();
+                await imageEditor.waitForZoomKnobNotDisplayed();
         });
 
     it(`GIVEN existing image is opened WHEN the image has been zoomed THEN 'Reset mask' button should appear`,
@@ -74,7 +73,7 @@ describe("image.content.crop.spec: tests for crop button", function () {
                 let zoomed = await imageEditor.getZoomKnobValue();
                 assert.isTrue(zoomed > 0, "The image should be zoomed");
                 //4. Verify that Reset mask button gets visible
-            await imageEditor.waitForResetMaskButtonDisplayed();
+                await imageEditor.waitForResetMaskButtonDisplayed();
         });
 
     it(`GIVEN existing image has been zoomed WHEN 'Apply' button has been pressed THEN 'Reset filters' button should appear`,
@@ -95,9 +94,9 @@ describe("image.content.crop.spec: tests for crop button", function () {
                 let zoomed = await imageEditor.getZoomKnobValue();
                 assert.isTrue(zoomed > 0, "The image should be zoomed");
                 //4. Verify that 'Reset filters' button gets visible
-            await imageEditor.clickOnApplyButton();
-            await imageEditor.waitForResetFiltersDisplayed();
-            await contentWizard.waitAndClickOnSave();
+                await imageEditor.clickOnApplyButton();
+                await imageEditor.waitForResetFiltersDisplayed();
+                await contentWizard.waitAndClickOnSave();
         });
 
     it(`GIVEN existing zoomed image is opened WHEN 'Reset Mask' and 'Apply' buttons have been pressed THEN the image returns to the initial state`,
@@ -118,12 +117,12 @@ describe("image.content.crop.spec: tests for crop button", function () {
                 await studioUtils.saveScreenshot("image_reset_mask_clicked");
                 //4. Verify that the image returns to the initial state
                 let initialState = await imageEditor.getZoomKnobValue();
-            assert.equal(initialState, 0, "The image should not be zoomed, knob value should be 0");
-            //5. Verify that 'Reset filters' button should not be visible
-            await imageEditor.clickOnApplyButton();
-            await imageEditor.waitForResetFiltersNotDisplayed();
-            //6. Save button gets enabled
-            await contentWizard.waitAndClickOnSave();
+                assert.equal(initialState, 0, "The image should not be zoomed, knob value should be 0");
+                //5. Verify that 'Reset filters' button should not be visible
+                await imageEditor.clickOnApplyButton();
+                await imageEditor.waitForResetFiltersNotDisplayed();
+                //6. Save button gets enabled
+                await contentWizard.waitAndClickOnSave();
         });
 
     it(`GIVEN existing image is opened WHEN the image has been cropped THEN 'Reset filters' gets visible`,
@@ -236,7 +235,7 @@ describe("image.content.crop.spec: tests for crop button", function () {
                     //3. Revert the previous version(image should be focused):
                     await wizardVersionsWidget.clickAndExpandVersion(1);
                     await wizardVersionsWidget.clickOnRevertButton();
-                    await studioUtils.saveScreenshot("croped_version_reverted");
+                    await studioUtils.saveScreenshot("cropped_version_reverted");
                     //4. Verify that 'Reset filters' button gets visible:
                     await imageEditor.waitForResetFiltersDisplayed();
                     //Save button should be disabled:

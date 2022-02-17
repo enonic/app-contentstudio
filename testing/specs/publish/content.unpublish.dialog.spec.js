@@ -92,8 +92,8 @@ describe('content.unpublish.dialog.spec tests for unpublish modal dialog', funct
             //5. Press 'ESC' key and verify that ConfirmValueDialog and Unpublish dialog are closed:
             await contentBrowsePanel.pressEscKey();
             await confirmValueDialog.waitForDialogClosed();
-            //TODO uncomment it , verifies issue https://github.com/enonic/app-contentstudio/issues/4168
-            //await contentUnpublishDialog.waitForDialogClosed();
+            //verifies issue https://github.com/enonic/app-contentstudio/issues/4168
+            await contentUnpublishDialog.waitForDialogClosed();
         });
 
     it("GIVEN published site is selected WHEN Unpublish dialog has been opened THEN 'Show dependant items' link should be displayed in the dialog",
