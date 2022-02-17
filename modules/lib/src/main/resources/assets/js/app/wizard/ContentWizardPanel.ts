@@ -137,6 +137,8 @@ import {ContentWizardContextSplitPanel} from './ContentWizardContextSplitPanel';
 import {ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextPanelState} from '../view/context/ContextPanelState';
 import {CONFIG} from 'lib-admin-ui/util/Config';
+import {ContentAppHelper} from './ContentAppHelper';
+import {UrlHelper} from '../util/UrlHelper';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -559,7 +561,6 @@ export class ContentWizardPanel
 
     protected createMainToolbar(): Toolbar {
         return new ContentWizardToolbar({
-            application: this.params.application,
             actions: this.wizardActions,
             workflowStateIconsManager: this.workflowStateIconsManager
         });
@@ -1076,21 +1077,6 @@ export class ContentWizardPanel
     }
 
     private initListeners() {
-
-        let shownAndLoadedHandler = () => {
-            if (!this.getPersistedItem()) {
-                Router.get().setHash(`${UrlAction.NEW}/${this.contentType.getName()}`);
-            }
-        };
-
-        this.onShown(() => {
-            if (this.isDataLoaded()) {
-                shownAndLoadedHandler();
-            } else {
-                this.onDataLoaded(shownAndLoadedHandler);
-            }
-        });
-
         this.onContentNamed(event => {
             // content path has changed so update site as well
             const content = event.getContent();
@@ -1124,7 +1110,7 @@ export class ContentWizardPanel
     }
 
     private isLocalizeInUrl(): boolean {
-        return Router.getPath().getElements().some((pathEl: string) => pathEl === UrlAction.LOCALIZE);
+        return ContentAppHelper.isContentWizardUrlMatch(UrlAction.LOCALIZE);
     }
 
     private onFileUploaded(event: UploadedEvent<Content>) {
@@ -2195,7 +2181,7 @@ export class ContentWizardPanel
             }
 
             if (isInherited && this.isLocalizeInUrl()) {
-                Router.get().setHash(`${UrlAction.EDIT}/${this.getPersistedItem().getId()}`);
+                Router.get().setPath(UrlHelper.createContentEditUrl(this.getPersistedItem().getId()));
             }
 
             this.getWizardHeader().resetBaseValues();
@@ -2756,7 +2742,7 @@ export class ContentWizardPanel
                                 this.isLocalizeInUrl())
                                ? UrlAction.LOCALIZE
                                : UrlAction.EDIT;
-        Router.get().setHash(`${action}/${this.getPersistedItem().getId()}`);
+        Router.get().setPath(UrlHelper.createContentEditUrl(this.getPersistedItem().getId(), action));
         if (!window.name) {
             window.name = `${action}:${this.getPersistedItem().getId()}`;
         }

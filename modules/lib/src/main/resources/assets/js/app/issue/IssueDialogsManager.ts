@@ -19,6 +19,7 @@ export class IssueDialogsManager {
     private createDialog: CreateIssueDialog;
     private publishDialog: ContentPublishDialog;
     private requestPublishDialog: RequestContentPublishDialog;
+    private getIssueRequest: GetIssueRequest;
 
     private issue: Issue;
 
@@ -117,8 +118,13 @@ export class IssueDialogsManager {
             this.listDialog.addClickIgnoredElement(this.createDialog);
         });
         this.listDialog.onIssueSelected(issue => {
-            new GetIssueRequest(issue.getId()).sendAndParse().done(issueWithComments => {
+            if (!!this.getIssueRequest) {
+                return;
+            }
+            this.getIssueRequest = new GetIssueRequest(issue.getId());
+            this.getIssueRequest.sendAndParse().done(issueWithComments => {
                 this.openDetailsDialogWithListDialog(issueWithComments);
+                this.getIssueRequest = null;
             });
         });
         this.listDialog.onCreateButtonClicked(() => {
