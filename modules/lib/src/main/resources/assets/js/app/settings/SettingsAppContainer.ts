@@ -2,8 +2,7 @@ import {AppContainer} from '../AppContainer';
 import {SettingsAppBar} from './SettingsAppBar';
 import {SettingsAppPanel} from './SettingsAppPanel';
 import {Application} from 'lib-admin-ui/app/Application';
-import {ProjectContext} from '../project/ProjectContext';
-import {UrlAction} from '../UrlAction';
+import {Router} from '../Router';
 
 export class SettingsAppContainer
     extends AppContainer {
@@ -12,7 +11,7 @@ export class SettingsAppContainer
         super();
 
         this.onShown(() => {
-            history.pushState(null, null, 'settings');
+            Router.get().setGlobalHash('settings');
         });
     }
 

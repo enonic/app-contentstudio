@@ -16,9 +16,10 @@ import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
+import {UrlHelper} from '../util/UrlHelper';
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export interface ContentWizardToolbarConfig {
-    application: Application;
     actions: ContentWizardActions;
     workflowStateIconsManager: WorkflowStateIconsManager;
 }
@@ -130,13 +131,12 @@ export class ContentWizardToolbar
     }
 
     private handleHomeIconClicked() {
-        const application: Application = this.config.application;
         let tabId: string;
         if (navigator.userAgent.search('Chrome') > -1) {
             // add tab id for browsers that can focus tabs by id
-            tabId = application.getId();
+            tabId = CONFIG.getString('appId');
         }
-        window.open(`#/${ProjectContext.get().getProject().getName()}/browse`, tabId);
+        window.open(UrlHelper.createContentBrowseUrl(ProjectContext.get().getProject().getName()), tabId);
     }
 
     private addActionButtons() {

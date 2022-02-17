@@ -1,6 +1,8 @@
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {ProjectContext} from '../project/ProjectContext';
 import {Project} from '../settings/data/project/Project';
+import {UrlAction} from '../UrlAction';
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export class UrlHelper {
 
@@ -22,4 +24,31 @@ export class UrlHelper {
         return `cms/${requestProject}${contentRootPath ? `/${contentRootPath}` : ''}`;
     }
 
+    static createContentBrowseUrl(project?: string): string {
+        if (!project) {
+            return UrlHelper.getProjectContextUrl(`${UrlAction.BROWSE}`);
+        }
+        return UrlHelper.getPrefixedUrl(`${project}/${UrlAction.BROWSE}`);
+    }
+
+    static createContentEditUrl(contentId: string, action: string = UrlAction.EDIT): string {
+        return UrlHelper.getProjectContextUrl(`${action}/${contentId}`, '');
+    }
+
+    static createIssueDetailsUrl(issueId: string): string {
+        return UrlHelper.getProjectContextUrl(`${UrlAction.ISSUE}/${issueId}`);
+    }
+
+    static getProjectContextUrl(path: string, separator: string = '#'): string {
+        const project = ProjectContext.get().getProject().getName();
+        return UrlHelper.getPrefixedUrl(`${project}/${path}`, separator);
+    }
+
+    static getPrefixedUrl(url: string, separator: string = '#'): string {
+        return `${CONFIG.getString('toolUri')}${separator}/${url}`;
+    }
+
+    static isContentBrowseUrlMatch(): boolean {
+        return window.location.hash.endsWith(UrlAction.BROWSE);
+    }
 }

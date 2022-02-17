@@ -11,7 +11,6 @@ import {ProjectDeletedEvent} from './settings/event/ProjectDeletedEvent';
 import {Project} from './settings/data/project/Project';
 import {ProjectListRequest} from './settings/resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {AppContext} from './AppContext';
 import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentId} from './content/ContentId';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
@@ -33,16 +32,14 @@ export class ContentAppContainer
     extends AppContainer {
 
     protected appBar: ContentAppBar;
+    private resolveDependenciesRequest: ResolveDependenciesRequest;
+    private issueRequest: GetIssueRequest;
 
     constructor() {
         super();
 
         new ContentEventsListener().start();
         this.initListeners();
-
-        this.onShown(() => {
-            history.pushState(null, null, `main#/${ProjectContext.get().getProject().getName()}/${UrlAction.BROWSE}`);
-        });
     }
 
     protected createAppBar(application: Application): ContentAppBar {
@@ -132,9 +129,14 @@ export class ContentAppContainer
             break;
         case UrlAction.ISSUE:
             if (id) {
-                new GetIssueRequest(id).sendAndParse().then(
+                if (!!this.issueRequest) {
+                    return;
+                }
+                this.issueRequest = new GetIssueRequest(id);
+                this.issueRequest.sendAndParse().then(
                     (issue: Issue) => {
                         IssueDialogsManager.get().openDetailsDialogWithListDialog(issue);
+                        this.issueRequest = null;
                     });
             }
             break;
@@ -158,9 +160,15 @@ export class ContentAppContainer
     }
 
     private doHandleDependencies(id: string, inbound: boolean, type?: string) {
+        if (this.resolveDependenciesRequest) {
+            return;
+        }
+
         const contentId: ContentId = new ContentId(id);
 
-        new ResolveDependenciesRequest([contentId]).sendAndParse().then((result: ResolveDependenciesResult) => {
+        this.resolveDependenciesRequest = new ResolveDependenciesRequest([contentId]);
+
+        this.resolveDependenciesRequest.sendAndParse().then((result: ResolveDependenciesResult) => {
             const dependencyEntry: ResolveDependencyResult = result.getDependencies()[0];
 
             const hasDependencies: boolean = inbound
@@ -172,18 +180,15 @@ export class ContentAppContainer
             } else {
                 showFeedback(i18n('notify.dependencies.absent', id));
             }
-        }).catch(reason => DefaultErrorHandler.handle(reason));
+        })
+        .catch(reason => DefaultErrorHandler.handle(reason))
+        .finally(() => this.resolveDependenciesRequest = null);
     }
 
     private toggleSearchPanelWithDependencies(id: string, inbound: boolean, type?: string) {
         new ContentSummaryAndCompareStatusFetcher().fetch(new ContentId(id)).done(
             (content: ContentSummaryAndCompareStatus) => {
                 new ToggleSearchPanelWithDependenciesEvent(content.getContentSummary(), inbound, type).fire();
-
-                const mode: string = inbound ? UrlAction.INBOUND : UrlAction.OUTBOUND;
-                const hash: string = !!type ? `${mode}/${id}/${type}` : `${mode}/${id}`;
-
-                Router.get().setHash(hash);
             });
     }
 

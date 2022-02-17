@@ -16,11 +16,12 @@ import {UrlAction} from './UrlAction';
 import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentSummary} from './content/ContentSummary';
+import {UrlHelper} from './util/UrlHelper';
 
 export class ContentEventsProcessor {
 
     static openWizardTab(params: ContentWizardPanelParams): Window {
-        const wizardUrl: string = `main#/${ContentEventsProcessor.generateURL(params)}`;
+        const wizardUrl: string = UrlHelper.getPrefixedUrl(ContentEventsProcessor.generateURL(params), '');
         return ContentEventsProcessor.openTab(wizardUrl, ContentEventsProcessor.makeWizardId(params));
     }
 
@@ -106,7 +107,7 @@ export class ContentEventsProcessor {
         const id: string = event.getId().toString();
         const type: string = event.getContentType() ? event.getContentType().toString() : null;
         const project: string = ProjectContext.get().getProject().getName();
-        const url = `main#/${project}/${mode}/${id}` + (!!type ? `/${type}` : '');
+        const url = UrlHelper.getPrefixedUrl(`${project}/${mode}/${id}${!!type ? `/${type}` : ''}`);
 
         ContentEventsProcessor.openTab(url);
     }
