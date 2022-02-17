@@ -88,14 +88,14 @@ class CreateTaskDialog extends Page {
         })
     }
 
-    async clickOnIncludeChildrenToggler(displayName) {
+    async clickOnIncludeChildrenToggler(contentName) {
         try {
-            let selector = XPATH.container + XPATH.selectionItemByDisplayName(displayName) + lib.INCLUDE_CHILDREN_TOGGLER;
+            let selector = XPATH.container + XPATH.selectionItemByDisplayName(contentName) + lib.INCLUDE_CHILDREN_TOGGLER;
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);
             return await this.clickOnElement(selector);
         } catch (err) {
-            this.saveScreenshot('err_click_on_include_children');
-            throw new Error('Error when clicking on `include children` icon ' + displayName + ' ' + err);
+            await this.saveScreenshot(appConst.generateRandomName('err_include_children'));
+            throw new Error("Error when clicking on 'include children' icon " + err);
         }
     }
 
@@ -166,6 +166,6 @@ class CreateTaskDialog extends Page {
             throw new Error("Create task Dialog  " + err);
         }
     }
-
 }
+
 module.exports = CreateTaskDialog;
