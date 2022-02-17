@@ -38,6 +38,7 @@ import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobil
 import {ContextView} from '../view/context/ContextView';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
 import {MovedContentItem} from './MovedContentItem';
+import {UrlHelper} from '../util/UrlHelper';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -94,7 +95,9 @@ export class ContentBrowsePanel
         super.initListeners();
 
         this.onShown(() => {
-            Router.get().setHash(UrlAction.BROWSE);
+            if (!Router.get().isInitialised() || !UrlHelper.isContentBrowseUrlMatch()) {
+                Router.get().setHash(UrlAction.BROWSE);
+            }
 
             this.treeGrid.resizeCanvas();
         });

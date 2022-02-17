@@ -67,7 +67,7 @@ const body = Body.get();
 
 function getApplication(): Application {
     const application = new Application(
-        'content-studio',
+        CONFIG.getString('appId'),
         i18n('app.name'),
         i18n('app.abbr')
     );
@@ -95,7 +95,7 @@ function startLostConnectionDetector(): ConnectionDetector {
     const connectionDetector: ConnectionDetector =
         ConnectionDetector.get()
             .setAuthenticated(true)
-            .setSessionExpireRedirectUrl(UriHelper.getToolUri(''))
+            .setSessionExpireRedirectUrl(CONFIG.getString('toolUri'))
             .setNotificationMessage(i18n('notify.connection.loss'));
 
     connectionDetector.onReadonlyStatusChanged((readonly: boolean) => {
@@ -193,9 +193,9 @@ const refreshTab = function (content: Content) {
 
 function preLoadApplication() {
     const application: Application = getApplication();
-    if (ContentAppHelper.isContentWizard(application)) {
+    if (ContentAppHelper.isContentWizardUrl()) {
         clearFavicon();
-        const wizardParams: ContentWizardPanelParams = ContentAppHelper.createWizardParamsFromApp(application);
+        const wizardParams: ContentWizardPanelParams = ContentAppHelper.createWizardParamsFromUrl();
 
         if (!body.isRendered() && !body.isRendering()) {
             dataPreloaded = true;
@@ -266,8 +266,8 @@ async function startApplication() {
         })
         .finally(() => {
             ProjectContext.get().whenInitialized(() => {
-                if (ContentAppHelper.isContentWizard(application)) {
-                    startContentWizard(ContentAppHelper.createWizardParamsFromApp(application), connectionDetector);
+                if (ContentAppHelper.isContentWizardUrl()) {
+                    startContentWizard(ContentAppHelper.createWizardParamsFromUrl(), connectionDetector);
                 } else {
                     startContentBrowser();
                 }

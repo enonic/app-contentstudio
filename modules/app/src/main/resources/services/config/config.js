@@ -1,8 +1,8 @@
 /*global app, resolve*/
 
-var admin = require('/lib/xp/admin');
-var portal = require('/lib/xp/portal');
-var contextLib = require('/lib/xp/context');
+const admin = require('/lib/xp/admin');
+const portal = require('/lib/xp/portal');
+const contextLib = require('/lib/xp/context');
 
 function handleGet() {
     const context = contextLib.get();
@@ -21,6 +21,10 @@ function handleGet() {
             assetsUri: portal.assetUrl({
                 path: ''
             }),
+            toolUri: admin.getToolUrl(
+                app.name,
+                'main'
+            ),
             appId: app.name,
             appVersion: app.version,
             branch,

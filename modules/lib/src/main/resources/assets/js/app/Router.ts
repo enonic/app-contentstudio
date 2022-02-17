@@ -27,13 +27,25 @@ export class Router {
         return Router.INSTANCE;
     }
 
-    setHash(path: string) {
+    private doSetHash(path: string) {
         this.setPrevHash();
 
-        const project: string = ProjectContext.get().getProject().getName();
         hasher.changed.active = false;
-        hasher.setHash(`${project}/${path}`);
+        hasher.setHash(`${path}`);
         hasher.changed.active = true;
+    }
+
+    setHash(path: string) {
+        const project: string = ProjectContext.get().getProject().getName();
+        this.doSetHash(`${project}/${path}`);
+    }
+
+    setGlobalHash(path: string) {
+        this.doSetHash(path);
+    }
+
+    setPath(path: string) {
+        history.pushState(null, null, path);
     }
 
     private setPrevHash() {
@@ -45,7 +57,7 @@ export class Router {
     }
 
     static getPath(): Path {
-        const pathAsString = window.location.hash ? window.location.hash.substr(1) : '/';
+        const pathAsString = window.location.hash?.substring(1) || '/';
         return Path.create().fromString(pathAsString).build();
     }
 
@@ -53,5 +65,9 @@ export class Router {
         if (this.prevHash) {
             this.setHash(this.prevHash);
         }
+    }
+
+    isInitialised(): boolean {
+        return this.prevHash != undefined;
     }
 }
