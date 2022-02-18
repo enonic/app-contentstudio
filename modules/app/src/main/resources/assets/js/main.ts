@@ -37,7 +37,6 @@ import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {ContentAppHelper} from 'lib-contentstudio/app/wizard/ContentAppHelper';
 import {ProjectContext} from 'lib-contentstudio/app/project/ProjectContext';
 import {AggregatedServerEventsListener} from 'lib-contentstudio/app/event/AggregatedServerEventsListener';
@@ -68,7 +67,7 @@ const body = Body.get();
 function getApplication(): Application {
     const application = new Application(
         CONFIG.getString('appId'),
-        i18n('app.name'),
+        i18n('admin.tool.displayName'),
         i18n('app.abbr')
     );
     application.setPath(processApplicationPath());
