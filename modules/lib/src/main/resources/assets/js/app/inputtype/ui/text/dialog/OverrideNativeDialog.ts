@@ -42,4 +42,9 @@ export abstract class OverrideNativeDialog
     protected getElemFromOriginalDialog(pageId: string, elementId: string): CKEDITOR.ui.dialog.uiElement {
         return this.ckeOriginalDialog.getContentElement(pageId, elementId);
     }
+
+    protected isIgnoredElementClicked(element: HTMLElement): boolean {
+        // cke started adding cke_dialog_open on the Body element when opening dialogs backed by native cke dialog
+        return element.tagName !== 'BODY' && super.isIgnoredElementClicked(element);
+    }
 }

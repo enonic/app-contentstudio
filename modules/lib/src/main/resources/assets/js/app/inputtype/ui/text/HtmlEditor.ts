@@ -980,7 +980,7 @@ class HtmlEditorConfigBuilder {
 
         if (this.enabledTools.length > 0) {
             this.enabledTools = this.enabledTools
-                .map((tool: string) => tool.replace('Format', 'Styles').replace(/\|/g, '-'))
+                .map((tool: string) => tool ==='Format' ? 'Styles' : tool.replace(/\|/g, '-'))
                 .filter((tool: string) => !this.isDefaultTool(tool));
         }
     }
@@ -1028,7 +1028,7 @@ class HtmlEditorConfigBuilder {
             ],
             removePlugins: this.getPluginsToRemove(),
             removeButtons: this.disabledTools?.join(),
-            extraPlugins: 'macro,image2,tableresize,pasteFromGoogleDoc,pasteModeSwitcher',
+            extraPlugins: 'macro,image2,pasteModeSwitcher',
             extraAllowedContent: this.getExtraAllowedContent(),
             stylesSet: `custom-${this.editorParams.getEditorContainerId()}`,
             image2_disableResizer: true,
@@ -1037,9 +1037,7 @@ class HtmlEditorConfigBuilder {
                 StyleHelper.STYLE.ALIGNMENT.RIGHT.CLASS,
                 StyleHelper.STYLE.ALIGNMENT.JUSTIFY.CLASS],
             disallowedContent: 'img[width,height]',
-            uploadUrl: UrlHelper.getCmsRestUri(`
-                ${UrlHelper.getCMSPathForContentRoot()}/${ContentResourceRequest.CONTENT_PATH}/createMedia`
-            ),
+            uploadUrl: this.getUploadUrl(),
             sharedSpaces: this.editorParams.isInline() ? {top: this.editorParams.getFixedToolbarContainer()} : null,
             disableNativeSpellChecker: false
         };
@@ -1098,6 +1096,10 @@ class HtmlEditorConfigBuilder {
 
     private getExtraAllowedContent(): string {
         return 'strong em u code address dl dt dd blockquote;*(*);td{*};*[data-*]';
+    }
+
+    private getUploadUrl(): string {
+        return UrlHelper.getCmsRestUri(`${UrlHelper.getCMSPathForContentRoot()}/${ContentResourceRequest.CONTENT_PATH}/createMedia`);
     }
 
     private includeTool(tool: string) {
