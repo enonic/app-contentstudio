@@ -1,10 +1,11 @@
 const admin = require('/lib/xp/admin');
 const mustache = require('/lib/mustache');
 const portal = require('/lib/xp/portal');
+const i18n = require('/lib/xp/i18n');
 
 exports.renderTemplate = function (path, params) {
     const view = resolve('./main.html');
-    const toolUri = admin.getToolUrl(app.name,'main');
+    const toolUri = admin.getToolUrl(app.name, 'main');
     const isBrowseMode = path === toolUri;
     const baseSecurityPolicy = 'default-src \'self\'; script-src \'self\' \'unsafe-eval\'{0}; object-src \'none\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:';
     const securityPolicy = baseSecurityPolicy.replace('{0}', isBrowseMode ? '' : ' \'unsafe-inline\'');
@@ -21,7 +22,11 @@ exports.renderTemplate = function (path, params) {
 exports.getParams = function () {
     return {
         assetsUri: portal.assetUrl({path: ''}),
-        appName: 'Content Studio',
+        appName: i18n.localize({
+            key: 'admin.tool.displayName',
+            bundles: ['i18n/phrases'],
+            locale: admin.getLocales()
+        }),
         launcherPath: admin.getLauncherPath(),
         configServiceUrl: portal.serviceUrl({service: 'config'})
     }
