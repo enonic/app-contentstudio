@@ -67,7 +67,7 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             await contentPublishDialog.clickOnAddScheduleIcon();
             //4. Open date time picker popup:
             await dateRangeInput.doOpenOnlineFromPickerPopup();
-            studioUtils.saveScreenshot("schedule_picker_popup1");
+            await studioUtils.saveScreenshot("schedule_picker_popup1");
             //Click on hours-arrow:
             await dateRangeInput.clickOnHoursArrowOnlineFrom();
             studioUtils.saveScreenshot("schedule_picker_popup2");
@@ -75,23 +75,6 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             await dateRangeInput.waitForOnlineFromPickerDisplayed();
         });
 
-    //Verifies https://github.com/enonic/app-contentstudio/issues/2780
-    //Publishing Scheduled status remains after scheduled content has been marked as deleted
-    it.skip(
-        `GIVEN existing folder has been scheduled WHEN the folder has been marked as deleted THEN 'Marked for deletion' status should be in browse panel`,
-        async () => {
-            let contentBrowsePanel = new ContentBrowsePanel();
-            let dateRangeInput = new DateRangeInput();
-            //1. Select existing 'Ready to publish' folder and open 'Publish Dialog'
-            await studioUtils.findAndSelectItem(FOLDER.displayName);
-            //2. Schedule this content:
-            await studioUtils.scheduleContent(FOLDER.displayName, "2031-01-01 00:00");
-            //3. Click on 'Mark as Deleted' menu item in Delete Content dialog:
-            await contentBrowsePanel.doSelectedContentMarkAsDeleted();
-            //4. Verify that status gets 'Marked for deletion':
-            let actualStatus = await contentBrowsePanel.getContentStatus(FOLDER.displayName);
-            assert.equal(actualStatus, appConst.CONTENT_STATUS.MARKED_FOR_DELETION, "Marked for deletion status should be displayed");
-        });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

@@ -129,8 +129,8 @@ class TextComponent extends Page {
             await this.switchToParentFrame();
             return await insertLinkDialog.waitForDialogLoaded();
         } catch (err) {
-            this.saveScreenshot('err_insert_link_cke');
-            throw new Error('Text Component - Error when clicking on Insert Link button');
+            await this.saveScreenshot(appConst.generateRandomName('err_insert_link_cke'));
+            throw new Error('Text Component - Error when clicking on Insert Link button' + err);
         }
     }
 
@@ -143,11 +143,16 @@ class TextComponent extends Page {
     }
 
     async clickOnInsertImageButton() {
-        let insertImageDialog = new InsertImageDialog();
-        await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
-        await this.clickOnElement(this.insertImageButton);
-        await this.switchToParentFrame();
-        return await insertImageDialog.waitForDialogVisible();
+        try {
+            let insertImageDialog = new InsertImageDialog();
+            await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
+            await this.clickOnElement(this.insertImageButton);
+            await this.switchToParentFrame();
+            return await insertImageDialog.waitForDialogVisible();
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_insert_image_button"));
+            throw new Error("Text Component Toolbar - Error after clicking on Insert Image button:" + err);
+        }
     }
 
     async waitForBoldButtonDisplayed() {
