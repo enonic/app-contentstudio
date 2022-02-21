@@ -139,7 +139,7 @@ describe('Wizard page - verify schedule form', function () {
             await contentPublishDialog.typeInOnlineFrom(DATE_TIME_IN_FUTURE);
             //5. Press the Schedule button
             await contentPublishDialog.clickOnScheduleButton();
-            //6. Verift that status is ''Publishing Scheduled''
+            //6. Verify that status is ''Publishing Scheduled''
             await contentWizard.waitForContentStatus(appConst.CONTENT_STATUS.PUBLISHING_SCHEDULED);
             //7. Open  'Versions Panel':
             await contentWizard.openVersionsHistoryPanel();

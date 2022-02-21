@@ -119,7 +119,7 @@ class ContentPublishDialog extends Page {
             return await this.pause(1000);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_mark_as_ready_menu"));
-            throw new Error("Mark as redy menu: " + err);
+            throw new Error("Mark as ready menu item: " + err);
         }
     }
 
@@ -139,7 +139,7 @@ class ContentPublishDialog extends Page {
             return this.clickOnElement(this.publishNowButton);
         }).catch(err => {
             this.saveScreenshot('err_click_on_publish_button_publish_dialog');
-            throw new Error(`Error when clicking 'Publish Now' button ` + err);
+            throw new Error(`Error when clicking on 'Publish Now' button ` + err);
         })
     }
 
@@ -155,7 +155,7 @@ class ContentPublishDialog extends Page {
             return await this.pause(500);
         } catch (err) {
             this.saveScreenshot('err_publish_dialog_add_schedule_button');
-            throw new Error(`Error when clicking 'Add Schedule' icon-button  ` + err);
+            throw new Error(`Error when clicking on 'Add Schedule' icon-button  ` + err);
         }
     }
 
@@ -166,8 +166,8 @@ class ContentPublishDialog extends Page {
             await this.clickOnElement(this.scheduleButton);
             return await this.pause(300);
         } catch (err) {
-            this.saveScreenshot('err_publish_dialog_schedule_button');
-            throw new Error('Error when clicking Publish  ' + err);
+            await this.saveScreenshot(appConst.generateRandomName('err_dialog_schedule_button'));
+            throw new Error('Error when clicking on Schedule button  ' + err);
         }
     }
 

@@ -19,6 +19,8 @@ describe('context.window.insert.panel: tests for insertables panel and wizard to
     let SITE;
     let CONTROLLER_NAME = 'main region';
 
+    //Verifies https://github.com/enonic/app-contentstudio/issues/3294
+    //Wizard toolbar - button 'Show Component View' should not be visible when a controller is not selected #3294
     it(`GIVEN wizard for new site is opened WHEN page controller has been selected THEN 'Show Component View' button gets visible`,
         async () => {
             let contentWizard = new ContentWizard();

@@ -252,11 +252,16 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     //Click on Unpublish default action and wait for modal dialog is loaded:
     async clickOnUnpublishButton() {
-        await this.waitForUnPublishButtonVisible();
-        await this.clickOnElement(this.unpublishButton);
-        let unpublishDialog = new ContentUnpublishDialog();
-        await unpublishDialog.waitForDialogOpened();
-        return unpublishDialog;
+        try {
+            await this.waitForUnPublishButtonVisible();
+            await this.clickOnElement(this.unpublishButton);
+            let unpublishDialog = new ContentUnpublishDialog();
+            await unpublishDialog.waitForDialogOpened();
+            return unpublishDialog;
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_unpublish_button"));
+            throw new Error("Browse Panel toolbar - Unpublish button: " + err);
+        }
     }
 
     async clickOnPublishTreeButton() {
