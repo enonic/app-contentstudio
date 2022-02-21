@@ -5,7 +5,7 @@ import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentPath} from '../../../content/ContentPath';
 
 export enum HtmlAreaDialogType {
-    ANCHOR, IMAGE, LINK, MACRO, SEARCHREPLACE, CODE, SPECIALCHAR, FULLSCREEN, TABLE
+    ANCHOR, IMAGE, LINK, MACRO, SEARCHREPLACE, CODE, SPECIALCHAR, FULLSCREEN, TABLE, NUMBERED_LIST, BULLETED_LIST
 }
 
 export class CreateHtmlAreaDialogEvent

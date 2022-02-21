@@ -12,6 +12,8 @@ import {FullscreenDialog} from './FullscreenDialog';
 import {TableDialog} from './TableDialog';
 import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {ContentSummary} from '../../../../content/ContentSummary';
+import {NumberedListModalDialog} from './NumberedListModalDialog';
+import {BulletedListModalDialog} from './BulletedListModalDialog';
 
 export class HTMLAreaDialogHandler {
 
@@ -45,6 +47,12 @@ export class HTMLAreaDialogHandler {
             break;
         case HtmlAreaDialogType.TABLE:
             modalDialog = this.openTableDialog(event.getConfig());
+            break;
+        case HtmlAreaDialogType.NUMBERED_LIST:
+            modalDialog = this.openNumberedListDialog(event.getConfig());
+            break;
+        case HtmlAreaDialogType.BULLETED_LIST:
+            modalDialog = this.openBulletedListDialog(event.getConfig());
             break;
         }
 
@@ -86,6 +94,14 @@ export class HTMLAreaDialogHandler {
 
     private static openTableDialog(config: eventInfo): ModalDialog {
         return this.openDialog(new TableDialog(config));
+    }
+
+    private static openNumberedListDialog(config: eventInfo): ModalDialog {
+        return this.openDialog(new NumberedListModalDialog(config));
+    }
+
+    private static openBulletedListDialog(config: eventInfo): ModalDialog {
+        return this.openDialog(new BulletedListModalDialog(config));
     }
 
     private static openDialog(dialog: ModalDialog): ModalDialog {

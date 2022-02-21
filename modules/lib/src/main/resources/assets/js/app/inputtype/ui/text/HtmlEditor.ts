@@ -660,6 +660,12 @@ export class HtmlEditor {
             case 'image2':
                 this.notifyImageDialog(dialogShowEvent);
                 break;
+            case 'numberedListStyle':
+                this.notifyNumberedListDialog(dialogShowEvent);
+                break;
+            case 'bulletedListStyle':
+                this.notifyBulletedListDialog(dialogShowEvent);
+                break;
             case 'table':
             case 'tableProperties':
                 this.notifyTableDialog(dialogShowEvent);
@@ -813,6 +819,18 @@ export class HtmlEditor {
     private notifyTableDialog(config: any) {
         const event = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
             HtmlAreaDialogType.TABLE).build();
+        this.publishCreateDialogEvent(event);
+    }
+
+    private notifyNumberedListDialog(config: any) {
+        const event: CreateHtmlAreaDialogEvent = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
+            HtmlAreaDialogType.NUMBERED_LIST).build();
+        this.publishCreateDialogEvent(event);
+    }
+
+    private notifyBulletedListDialog(config: any) {
+        const event: CreateHtmlAreaDialogEvent = CreateHtmlAreaDialogEvent.create().setConfig(config).setType(
+            HtmlAreaDialogType.BULLETED_LIST).build();
         this.publishCreateDialogEvent(event);
     }
 
