@@ -66,7 +66,7 @@ public final class ContentIconUrlResolver
     private String makeIconPath( final Content content )
     {
         return ServletRequestUrlHelper.createUri(
-            "/" + ResourceConstants.REST_ROOT + "cms/" + getProjectName() + "/" + getLayer() + "/content/icon/" + content.getId() + "?ts=" +
+            ResourceConstants.REST_ROOT + "cms/" + getProjectName() + "/" + getLayer() + "/content/icon/" + content.getId() + "?ts=" +
                 content.getModifiedTime().toEpochMilli() );
     }
 
