@@ -71,7 +71,7 @@ class LauncherPanel extends Page {
     async waitForPanelClosed() {
         await this.getBrowser().waitUntil(async () => {
             let atr = await this.getAttribute(XPATH.container, 'class');
-            return atr.includes('slideout');
+            return !atr.includes('visible');
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Launcher Panel is not hidden: "});
     }
 

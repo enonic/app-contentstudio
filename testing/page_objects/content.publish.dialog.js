@@ -6,6 +6,7 @@ const DateTimeRange = require('../page_objects/components/datetime.range');
 const XPATH = {
     container: `//div[contains(@id,'ContentPublishDialog')]`,
     logMessageLink: `//div[contains(@id,'ContentPublishDialogSubTitle')]/a`,
+    publishScheduleForm: "//div[contains(@id,'PublishScheduleForm')]",
     publishNowButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Publish Now')]]`,
     scheduleButton: `//button[contains(@id,'DialogButton') and child::span[contains(.,'Schedule')]]`,
     cancelButtonTop: `//button[ contains(@id,'DialogButton') and child::span[text()='Cancel']]`,
@@ -249,7 +250,7 @@ class ContentPublishDialog extends Page {
         return await this.getTextInInput(this.changeLogInput);
     }
 
-    isAddScheduleIconDisplayed() {
+    waitForAddScheduleIconDisplayed() {
         return this.waitForElementDisplayed(this.addScheduleIcon, appConst.shortTimeout).catch(err => {
             throw new Error("`Add Schedule` button is not displayed " + err);
         })
@@ -332,6 +333,23 @@ class ContentPublishDialog extends Page {
     async getDisplayNameInDependentItems() {
         let locator = XPATH.container + XPATH.dependantList + XPATH.dependantItemViewer + lib.H6_DISPLAY_NAME;
         return this.getTextInElements(locator);
+    }
+
+    async clickOnCloseScheduleFormButton() {
+        try {
+            let locator = XPATH.container + XPATH.publishScheduleForm + "//a[contains(@class,'icon-close')]";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            await this.clickOnElement(locator);
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot("err_close_schedule_form");
+            throw new Error("Publish Schedule Form, close icon: " + err);
+        }
+    }
+
+    waitForScheduleFormNotDisplayed() {
+        let locator = XPATH.container + XPATH.publishScheduleForm + "//a[contains(@class,'icon-close')]";
+        return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
     }
 }
 
