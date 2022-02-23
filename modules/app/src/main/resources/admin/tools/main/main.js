@@ -9,6 +9,7 @@ exports.renderTemplate = function (path, params) {
     const isBrowseMode = path === toolUri;
     const baseSecurityPolicy = 'default-src \'self\'; script-src \'self\' \'unsafe-eval\'{0}; object-src \'none\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:';
     const securityPolicy = baseSecurityPolicy.replace('{0}', isBrowseMode ? '' : ' \'unsafe-inline\'');
+    params.isBrowseMode = isBrowseMode;
 
     return {
         contentType: 'text/html',
