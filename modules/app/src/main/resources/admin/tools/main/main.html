@@ -43,8 +43,10 @@
 <script type="text/javascript" src="{{assetsUri}}/js/vendors.main~editor.js"></script>
 <script type="text/javascript" src="{{assetsUri}}/js/main.js" data-config-service-url="{{configServiceUrl}}"></script>
 
+{{#isBrowseMode}}
 <!-- Append the launcher -->
 <script type="text/javascript" src="{{launcherPath}}" data-config-theme="light" async></script>
+{{/isBrowseMode}}
 
 </body>
 </html>
