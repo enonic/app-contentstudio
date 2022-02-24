@@ -10,26 +10,41 @@ import {ContentId} from '../app/content/ContentId';
 export abstract class ComponentViewPlaceholder<T extends DescriptorBasedComponent>
     extends ItemViewPlaceholder {
 
-    private readonly comboBox: ComponentDescriptorsComboBox;
+    private comboBox: ComponentDescriptorsComboBox;
+
+    private readonly componentView: ComponentView<T>;
 
     protected constructor(componentView: ComponentView<T>) {
         super();
 
+        this.componentView = componentView;
+
+        this.initElements();
+        this.initListeners();
+    }
+
+    protected initElements(): void {
         this.comboBox = new ComponentDescriptorsComboBox(this.getType());
-        this.comboBox.setContentId(componentView.getLiveEditModel().getContent().getContentId());
-
+        this.comboBox.setContentId(this.componentView.getLiveEditModel().getContent().getContentId());
         this.appendChild(this.comboBox);
+    }
 
-        const component = componentView.getComponent();
+    protected initListeners(): void {
+        const component: T = this.componentView.getComponent();
 
         this.comboBox.onOptionSelected((event: SelectedOptionEvent<Descriptor>) => {
-            componentView.showLoadingSpinner();
+            this.componentView.showLoadingSpinner();
             const descriptor: Descriptor = event.getSelectedOption().getOption().getDisplayValue();
             component.setDescriptor(descriptor);
         });
 
-        const siteModel = componentView.getLiveEditModel().getSiteModel();
-        const listener = () => this.reloadDescriptors(componentView.getLiveEditModel().getContent().getContentId());
+        // not letting events to fire on ItemView
+        this.comboBox.onTouchEnd((event: TouchEvent) => {
+            event.stopPropagation();
+        });
+
+        const siteModel = this.componentView.getLiveEditModel().getSiteModel();
+        const listener = () => this.reloadDescriptors(this.componentView.getLiveEditModel().getContent().getContentId());
 
         siteModel.onApplicationAdded(listener);
         siteModel.onApplicationRemoved(listener);
