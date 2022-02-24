@@ -197,7 +197,7 @@ class ContentItemPreviewPanel extends Page {
     async getNoPreviewMessage() {
         let locator = xpath.container + "//div[@class='no-preview-message']//span";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
+        return await this.getTextInDisplayedElements(locator);
     }
 }
 
