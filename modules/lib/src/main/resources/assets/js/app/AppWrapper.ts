@@ -29,7 +29,7 @@ export class AppWrapper
 
     private toggleSidebarButton: Button;
 
-    private touchListener: (event: MouseEvent) => void;
+    private touchListener: (event: TouchEvent) => void;
 
     private appAddedListeners: { (app: App): void }[] = [];
 
@@ -80,7 +80,7 @@ export class AppWrapper
         this.sidebar.toggleButtonByApp(app);
     }
 
-    private collapseSidebarOnMouseEvent(event: MouseEvent) {
+    private collapseSidebarOnMouseEvent(event: TouchEvent) {
         this.toggleSidebar();
 
         event.stopPropagation();
@@ -88,7 +88,7 @@ export class AppWrapper
     }
 
     private handleTouchOutsideSidebar() {
-        this.touchListener = (event: MouseEvent) => {
+        this.touchListener = (event: TouchEvent) => {
             if (!this.hasClass('sidebar-expanded')) {
                 return;
             }

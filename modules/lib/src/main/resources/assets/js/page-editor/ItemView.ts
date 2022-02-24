@@ -180,6 +180,9 @@ export class ItemView
     private mouseEnterListener: (event: MouseEvent) => void;
     private mouseLeaveListener: (event: MouseEvent) => void;
     private mouseClickedListener: (event: MouseEvent) => void;
+    private touchStartListener: (event: TouchEvent) => void;
+    private touchMoveListener: (event: TouchEvent) => void;
+    private touchEndListener: (event: TouchEvent) => void;
     private contextMenuListener: (event: MouseEvent) => void;
 
     public static LIVE_EDIT_SELECTED = 'live-edit-selected';
@@ -283,10 +286,11 @@ export class ItemView
 
         this.mouseClickedListener = (event: MouseEvent) => this.handleClick(event);
         this.onClicked(this.mouseClickedListener);
-        this.onTouchStart(this.mouseClickedListener);
 
         this.contextMenuListener = (event: MouseEvent) => this.handleClick(event);
         this.onContextMenu(this.contextMenuListener);
+
+        this.handleTouchEvents();
 
         ResponsiveManager.onAvailableSizeChanged(this, (item: ResponsiveItem) => {
             if (this.mouseOver) {
@@ -337,18 +341,59 @@ export class ItemView
             }
         };
         this.onMouseLeaveView(this.mouseLeaveViewListener);
-        /*
-        this.pageItemViewAddedListener = (event) => {
-            if (this.isSelected()) {
-                this.deselect();
+    }
+
+    protected handleTouchEvents(): void {
+        let isMoveEvent: boolean = false;
+        let dateOnTouchStart: Date;
+        let touchPoint: Touch;
+
+        this.touchStartListener = (event: TouchEvent) => {
+            event.stopPropagation();
+
+            isMoveEvent = false;
+            dateOnTouchStart = new Date();
+            touchPoint = event.touches[0];
+        };
+
+        this.touchMoveListener = (event: TouchEvent) => {
+            event.stopPropagation();
+
+            isMoveEvent = true;
+        };
+
+        this.touchEndListener = (event: TouchEvent) => {
+            event.stopPropagation();
+
+            if (isMoveEvent) {
+                return;
+            }
+
+            const isLongTouch: boolean = (new Date().getTime() - dateOnTouchStart.getTime()) / 1000 > 1;
+
+            if (!this.isSelected() || isLongTouch) {
+                this.selectItem();
+                const clickPosition: ClickPosition = isLongTouch ? {x: touchPoint.pageX, y: touchPoint.pageY} : null;
+
+                if (isLongTouch) {
+                    this.showContextMenu(clickPosition);
+                    event.preventDefault();
+                }
+
+                // restored selection: true to nake context panel not open
+                new ItemViewSelectedEvent({itemView: this, position: clickPosition, restoredSelection: true}).fire();
+            } else {
+                if (this.contextMenu?.isVisible()) {
+                    this.hideContextMenu();
+                } else {
+                    this.deselect();
+                }
             }
         };
-        pageView.onItemViewAdded(this.pageItemViewAddedListener);
 
-        this.onRemoved(() => {
-            pageView.unItemViewAdded(this.pageItemViewAddedListener);
-        });
-         */
+        this.onTouchStart(this.touchStartListener);
+        this.onTouchMove(this.touchMoveListener);
+        this.onTouchEnd(this.touchEndListener, false);
     }
 
     protected isDragging(): boolean {
@@ -359,7 +404,9 @@ export class ItemView
         this.unMouseEnter(this.mouseEnterListener);
         this.unMouseLeave(this.mouseLeaveListener);
         this.unClicked(this.mouseClickedListener);
-        this.unTouchStart(this.mouseClickedListener);
+        this.unTouchStart(this.touchStartListener);
+        this.unTouchMove(this.touchMoveListener);
+        this.unTouchEnd(this.touchEndListener);
         this.unContextMenu(this.contextMenuListener);
 
         ResponsiveManager.unAvailableSizeChanged(this);
@@ -587,6 +634,10 @@ export class ItemView
     handleClick(event: MouseEvent) {
         event.stopPropagation();
 
+        if (event instanceof PointerEvent && event.pointerType === 'touch') {
+            return;
+        }
+
         if (PageViewController.get().isNextClickDisabled()) {
             PageViewController.get().setNextClickDisabled(false);
             return;
@@ -676,33 +727,43 @@ export class ItemView
             return;
         }
 
-        const dimensions = this.getEl().getDimensions();
-        let x;
-        let y;
-
         if (!this.contextMenu) {
-            this.contextMenu = new ItemViewContextMenu(this.contextMenuTitle, this.contextMenuActions);
-            this.contextMenu.onOrientationChanged((orientation: ItemViewContextMenuOrientation) => {
-
-                // move menu to the top edge of empty view in order to not overlay it
-                if (orientation === ItemViewContextMenuOrientation.UP && this.isEmpty()) {
-                    this.contextMenu.getEl().setMarginTop('-' + dimensions.height + 'px');
-                } else {
-                    this.contextMenu.getEl().setMarginTop('0px');
-                }
-            });
+            this.initContextMenu();
         }
+
+        let x: number;
+        let y: number;
 
         if (clickPosition) {
             // show menu at position
             x = clickPosition.x;
             y = clickPosition.y;
         } else {
+            const dimensions: ElementDimensions = this.getEl().getDimensions();
+
             // show menu below if empty or on top
             x = dimensions.left + dimensions.width / 2;
             y = dimensions.top + (ItemViewContextMenuPosition.TOP === menuPosition ? 0 : dimensions.height);
         }
+
         this.contextMenu.showAt(x, y, !clickPosition);
+    }
+
+    private initContextMenu(): void {
+        this.contextMenu = new ItemViewContextMenu(this.contextMenuTitle, this.contextMenuActions);
+        this.contextMenu.onOrientationChanged((orientation: ItemViewContextMenuOrientation) => {
+
+            // move menu to the top edge of empty view in order to not overlay it
+            if (orientation === ItemViewContextMenuOrientation.UP && this.isEmpty()) {
+                this.contextMenu.getEl().setMarginTop('-' + this.getEl().getDimensions().height + 'px');
+            } else {
+                this.contextMenu.getEl().setMarginTop('0px');
+            }
+        });
+
+        this.contextMenu.onTouchEnd((event: TouchEvent) => {
+            event.stopPropagation();
+        });
     }
 
     hideContextMenu() {
