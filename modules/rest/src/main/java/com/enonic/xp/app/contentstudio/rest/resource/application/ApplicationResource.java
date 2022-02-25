@@ -73,7 +73,7 @@ public final class ApplicationResource
     public ApplicationJson getByKey( @QueryParam("applicationKey") String applicationKey )
     {
         final ApplicationKey appKey = ApplicationKey.from( applicationKey );
-        final Application application = this.applicationService.getInstalledApplication( appKey );
+        final Application application = this.applicationService.get( appKey );
 
         if ( application == null )
         {
@@ -103,7 +103,7 @@ public final class ApplicationResource
     {
         final ListApplicationJson json = new ListApplicationJson();
 
-        Applications applications = this.applicationService.getInstalledApplications();
+        Applications applications = this.applicationService.list();
 
         applications = this.filterApplications( applications, query );
         applications = this.sortApplications( applications );
@@ -113,7 +113,7 @@ public final class ApplicationResource
             final ApplicationKey applicationKey = application.getKey();
             final SiteDescriptor siteDescriptor = this.siteService.getDescriptor( applicationKey );
 
-            if ( siteDescriptor != null )
+            if ( siteDescriptor != null || application.getBundle() == null )
             {
                 final IdProviderDescriptor idProviderDescriptor = this.idProviderDescriptorService.getDescriptor( applicationKey );
                 final boolean localApplication = this.applicationService.isLocalApplication( applicationKey );
