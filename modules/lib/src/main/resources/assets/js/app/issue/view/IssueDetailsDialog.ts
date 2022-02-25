@@ -59,6 +59,7 @@ import {IssueComment} from '../IssueComment';
 import {ContentId} from '../../content/ContentId';
 import {PrincipalLoader} from '../../security/PrincipalLoader';
 import {TogglableStatusSelectionItem} from '../../dialog/DialogTogglableItemList';
+import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -134,6 +135,8 @@ export class IssueDetailsDialog
     private isUpdatePending: boolean;
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
+
+    private isLoadInProgress: boolean;
 
     protected constructor() {
         super(<DependantItemsWithProgressDialogConfig>{
@@ -310,16 +313,16 @@ export class IssueDetailsDialog
             });
         });
 
-        this.itemSelector.onOptionSelected(option => {
+        this.itemSelector.onOptionSelected((option: SelectedOptionEvent<ContentTreeSelectorItem>) => {
             this.saveOnLoaded = true;
             this.isUpdatePending = true;
             const ids = [option.getSelectedOption().getOption().getDisplayValue().getContentId()];
-            this.contentFetcher.fetchByIds(ids).then(result => {
+            this.contentFetcher.fetchByIds(ids).then((result: ContentSummaryAndCompareStatus[]) => {
                 this.addListItems(result);
-            });
+            }).catch(DefaultErrorHandler.handle);
         });
 
-        this.itemSelector.onOptionDeselected(option => {
+        this.itemSelector.onOptionDeselected((option: SelectedOptionEvent<ContentTreeSelectorItem>) => {
             this.saveOnLoaded = true;
             this.isUpdatePending = true;
             const id = option.getSelectedOption().getOption().getDisplayValue().getContentId();
@@ -523,6 +526,13 @@ export class IssueDetailsDialog
         if (this.isRendered()) {
             this.tabPanel.selectPanelByIndex(this.isPublishRequest() ? 1 : 0);
         }
+
+        this.whenRendered(() => {
+            if (this.isLoadInProgress) {
+                this.showLoadMask();
+            }
+        });
+
         this.toggleClass('with-schedule-form', this.publishScheduleForm.isFormVisible());
         this.isUpdatePending = false;
 
@@ -537,7 +547,7 @@ export class IssueDetailsDialog
             this.initItemListTogglers(this.getItemList());
 
             this.updateItemsCountAndButtonLabels();
-        });
+        }).catch(DefaultErrorHandler.handle);
     }
 
     private initElementListeners() {
@@ -575,6 +585,7 @@ export class IssueDetailsDialog
 
         this.publishProcessor.onLoadingStarted(() => {
             this.lockControls();
+            this.showLoadMask();
         });
 
         this.publishProcessor.onLoadingFinished(() => {
@@ -587,10 +598,13 @@ export class IssueDetailsDialog
             if (this.publishProcessor.containsInvalidDependants()) {
                 this.setDependantListVisible(true);
             }
+
+            this.hideLoadMask();
         });
 
         this.publishProcessor.onLoadingFailed(() => {
             this.isUpdatePending = false;
+            this.hideLoadMask();
         });
     }
 
@@ -667,46 +681,75 @@ export class IssueDetailsDialog
         }
 
         this.getItemList().setCanBeEmpty(!isPublishRequest);
-
         this.publishProcessor.setExcludedIds(issue.getPublishRequest().getExcludeIds());
-
-        const ids = issue.getPublishRequest().getItemsIds();
-        if (ids.length > 0) {
-            this.itemSelector.setValue(ids.map(id => id.toString()).join(';'));
-            this.contentFetcher.fetchByIds(ids).then(items => {
-                this.clearListItems(true);
-                this.setListItems(items);
-            });
-        } else {
-            this.itemSelector.getComboBox().clearSelection(true, false);
-            this.getItemList().clearItems();
-        }
-
+        this.loadAndSetPublishItems();
         this.getHeader().setTitleId(issue.getIndex()).setHeading(issue.getTitle());
-
         this.detailsSubTitle.setIssue(issue, true);
         this.toggleControlsAccordingToStatus(issue.getIssueStatus());
+        this.loadAndSetComments();
 
-        this.commentsList.setParentIssue(issue);
-
-        const newAssignees = issue.getApprovers().join(ComboBox.VALUE_SEPARATOR);
         // force reload value in case some users have been deleted
-        this.assigneesCombobox.setValue(newAssignees, false, true);
-
+        this.assigneesCombobox.setValue(this.getIssueApprovers(), false, true);
         this.commentTextArea.setValue('', true);
         this.setReadOnly(issue && issue.getIssueStatus() === IssueStatus.CLOSED);
+        this.updatePublishScheduleForm();
+        this.updateLabels();
 
+        return this;
+    }
+
+    private loadAndSetPublishItems(): void {
+        const ids: ContentId[] = this.issue.getPublishRequest().getItemsIds();
+
+        if (ids.length === 0) {
+            this.itemSelector.getComboBox().clearSelection(true, false);
+            this.getItemList().clearItems();
+            return;
+        }
+
+        this.itemSelector.setValue(ids.map(id => id.toString()).join(';'));
+        this.showLoadMask();
+
+        this.contentFetcher.fetchByIds(ids).then((items: ContentSummaryAndCompareStatus[]) => {
+            this.clearListItems(true);
+            this.setListItems(items);
+
+            if (items.length === 0) {
+                this.hideLoadMask();
+            }
+        }).catch((reason: any) => {
+            DefaultErrorHandler.handle(reason);
+            this.isLoadInProgress = false;
+        });
+    }
+
+    private loadAndSetComments(): void {
+        const ids: ContentId[] = this.issue.getPublishRequest().getItemsIds();
+
+        if (ids.length === 0) {
+            this.showLoadMask();
+        }
+
+        this.commentsList.setParentIssue(this.issue).catch(DefaultErrorHandler.handle)
+            .finally(() => {
+                if (ids.length === 0) {
+                    this.hideLoadMask();
+                }
+            });
+    }
+
+   private updatePublishScheduleForm(): void {
         let publishScheduleSet: PropertySet;
 
-        if (issue.getPublishFrom() || issue.getPublishTo()) {
+        if (this.issue.getPublishFrom() || this.issue.getPublishTo()) {
             publishScheduleSet = new PropertySet(this.scheduleFormPropertySet.getTree());
 
-            if (issue.getPublishFrom()) {
-                publishScheduleSet.setLocalDateTime('from', 0, LocalDateTime.fromDate(issue.getPublishFrom()));
+            if (this.issue.getPublishFrom()) {
+                publishScheduleSet.setLocalDateTime('from', 0, LocalDateTime.fromDate(this.issue.getPublishFrom()));
             }
 
-            if (issue.getPublishTo()) {
-                publishScheduleSet.setLocalDateTime('to', 0, LocalDateTime.fromDate(issue.getPublishTo()));
+            if (this.issue.getPublishTo()) {
+                publishScheduleSet.setLocalDateTime('to', 0, LocalDateTime.fromDate(this.issue.getPublishTo()));
             }
 
             this.publishScheduleForm.setFormVisible(true, true);
@@ -719,10 +762,10 @@ export class IssueDetailsDialog
         this.publishScheduleForm.whenFormLayoutFinished(() => {
             this.publishScheduleForm.update(this.scheduleFormPropertySet);
         });
+    }
 
-        this.updateLabels();
-
-        return this;
+    private getIssueApprovers(): string {
+        return this.issue.getApprovers().join(ComboBox.VALUE_SEPARATOR);
     }
 
     private updateLabels() {
@@ -1082,5 +1125,18 @@ export class IssueDetailsDialog
 
     private notifyBackButtonClicked() {
         this.backButtonClickedListeners.forEach(listener => listener());
+    }
+
+    protected showLoadMask() {
+        this.isLoadInProgress = true;
+        
+        if (!this.loadMask.isVisible() && this.isOpen() && this.isRendered()) {
+            super.showLoadMask();
+        }
+    }
+
+    protected hideLoadMask() {
+        this.isLoadInProgress = false;
+        super.hideLoadMask();
     }
 }

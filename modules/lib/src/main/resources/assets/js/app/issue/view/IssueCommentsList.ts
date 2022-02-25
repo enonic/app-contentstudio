@@ -1,3 +1,4 @@
+import * as Q from 'q';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
 import {i18n} from 'lib-admin-ui/util/Messages';
@@ -20,6 +21,7 @@ import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {DateHelper} from 'lib-admin-ui/util/DateHelper';
 import {PrincipalViewerCompact} from 'lib-admin-ui/ui/security/PrincipalViewer';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {ListIssueCommentsResponse} from '../resource/ListIssueCommentsResponse';
 
 export class IssueCommentsList
     extends ListBox<IssueComment> {
@@ -45,10 +47,12 @@ export class IssueCommentsList
         return this.confirmDialog;
     }
 
-    setParentIssue(issue: Issue) {
+    setParentIssue(issue: Issue): Q.Promise<void> {
         this.parentIssue = issue;
-        new ListIssueCommentsRequest(issue.getId()).sendAndParse().then(response => {
+
+        return new ListIssueCommentsRequest(issue.getId()).sendAndParse().then((response: ListIssueCommentsResponse) => {
             this.setItems(response.getIssueComments());
+            return Q(null);
         });
     }
 
