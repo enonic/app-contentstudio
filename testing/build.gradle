@@ -2,7 +2,6 @@ import com.enonic.uitest.server.ServerInstance
 
 plugins {
     id 'java'
-    id 'maven-publish'
     id 'com.enonic.defaults'
     id 'com.github.node-gradle.node'
 }
