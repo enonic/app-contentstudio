@@ -47,8 +47,9 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
             //4. Verify that 'Failed to render content preview' is displayed in Content Item Preview panel:
             await studioUtils.saveScreenshot("site_preview_not_available");
             let text = await contentItemPreviewPanel.getNoPreviewMessage();
-            assert.isTrue(text.includes("Failed to render content preview"),
+            assert.isTrue(text.includes("Unable to render"),
                 "Expected text should be displayed in Content Item Preview panel");
+            assert.isTrue(text.includes("No template or page configured"), "Expected text should be displayed");
         });
 
     it(`GIVEN existing site is opened WHEN page controller has been selected THEN required options should be present in Inspection Panel`,
