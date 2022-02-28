@@ -185,16 +185,16 @@ class BaseBrowsePanel extends Page {
         }
     }
 
-    clickOnRowByName(name) {
-        let nameXpath = this.treeGrid + lib.itemByName(name);
-        return this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout).then(() => {
-            return this.clickOnElement(nameXpath);
-        }).catch(err => {
-            this.saveScreenshot('err_find_' + name);
-            throw Error('Row with the name ' + name + ' was not found' + err);
-        }).then(() => {
-            return this.pause(300);
-        })
+    async clickOnRowByName(name) {
+        try {
+            let nameXpath = this.treeGrid + lib.itemByName(name);
+            await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
+            await this.clickOnElement(nameXpath);
+            return await this.pause(300);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_find_content'));
+            throw Error('Row with the content was not found: ' + err);
+        }
     }
 
     async waitForContextMenuDisplayed() {

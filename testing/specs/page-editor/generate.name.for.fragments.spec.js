@@ -19,7 +19,7 @@ const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizar
 const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const FragmentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/fragment.inspection.panel');
 
-describe('Generate name for fragments  specification', function () {
+describe('Generate name for fragments specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
 

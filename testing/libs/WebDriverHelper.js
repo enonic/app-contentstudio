@@ -1,3 +1,5 @@
+const appConst = require('./app_const');
+
 /**
  * Helper class that encapsulates webdriverio
  * and sets up mocha hooks for easier test writing.
@@ -10,12 +12,12 @@ WebDriverHelper.prototype.getBrowser = function () {
     return this.browser;
 };
 
-const makeChromeOptions = (headless, width) => ({
+const makeChromeOptions = (headless, width, height) => ({
     "args": [
         ...(headless ? ["--headless", "--disable-gpu", "--no-sandbox"] : []),
         "--lang=en",
         '--disable-extensions',
-        `--window-size=${width},1100`
+        `--window-size=${width},${height}`
     ]
 });
 
@@ -23,8 +25,10 @@ const makeChromeOptions = (headless, width) => ({
  * Sets up a before and after mocha hook
  * that initialize and terminate the webdriverio session.
  */
-WebDriverHelper.prototype.setupBrowser = function setupBrowser() {
+WebDriverHelper.prototype.setupBrowser = function setupBrowser(w, h) {
     let _this = this;
+    let ww = w;
+    let hh = h;
     before(async function () {
         let PropertiesReader = require('properties-reader');
         let path = require('path');
@@ -34,7 +38,8 @@ WebDriverHelper.prototype.setupBrowser = function setupBrowser() {
         let browser_name = properties.get('browser.name');
         let baseUrl = properties.get('base.url');
         let isHeadless = properties.get('is.headless');
-        let width = properties.get('browser.width');
+        let width = ww === undefined ? properties.get('browser.width') : w;
+        let height = hh === undefined ? properties.get('browser.height') : h;
         console.log('is Headless ##################### ' + isHeadless);
         console.log('browser name ##################### ' + browser_name);
         console.log('browser width ##################### ' + width);
@@ -44,7 +49,7 @@ WebDriverHelper.prototype.setupBrowser = function setupBrowser() {
             path: "/wd/hub",
             capabilities: {
                 browserName: browser_name,
-                'goog:chromeOptions': makeChromeOptions(isHeadless, width)
+                'goog:chromeOptions': makeChromeOptions(isHeadless, width, height)
             }
         };
         _this.browser = await webdriverio.remote(options);
