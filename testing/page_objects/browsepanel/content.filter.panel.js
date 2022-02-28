@@ -10,6 +10,7 @@ const XPATH = {
     searchInput: "//input[contains(@id,'TextSearchField')]",
     dependenciesSection: "//div[contains(@id,'DependenciesSection')]",
     aggregationContainer: "//div[contains(@id,'AggregationContainer')]//div[contains(@id,'ContentTypeAggregationGroupView')]",
+    showResultsButton: "//div[contains(@class,'show-filter-results')]",
     aggregationLabelByName: name => XPATH.aggregationContainer +
                                     `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]//label`,
     folderAggregation: () => XPATH.aggregationContainer +
@@ -25,6 +26,10 @@ class BrowseFilterPanel extends Page {
 
     get clearFilterLink() {
         return XPATH.container + XPATH.clearFilterLink;
+    }
+
+    get showResultsButton() {
+        return XPATH.container + XPATH.showResultsButton;
     }
 
     get closeDependenciesSectionButtonLocator() {
@@ -46,6 +51,15 @@ class BrowseFilterPanel extends Page {
 
     waitForOpened() {
         return this.waitForElementDisplayed(XPATH.container, appConst.mediumTimeout);
+    }
+
+    waitForShowResultsButtonDisplayed() {
+        return this.waitForElementDisplayed(this.showResultsButton, appConst.mediumTimeout);
+    }
+
+    async clickOnShowResultsButton() {
+        await this.waitForShowResultsButtonDisplayed();
+        return await this.clickOnElement(this.showResultsButton);
     }
 
     waitForCloseDependenciesSectionButtonDisplayed() {

@@ -546,6 +546,11 @@ module.exports = {
             throw new Error('error when navigate to Content Studio app ' + err);
         }
     },
+    async navigateToContentStudioAppMobile(userName, password) {
+        await this.navigateToContentStudioApp(userName, password);
+        //close content studio menu :
+        await this.closeContentStudioMenu();
+    },
     async navigateToContentStudioWithProjects(userName, password) {
         try {
             await this.clickOnContentStudioLink(userName, password);
@@ -748,6 +753,14 @@ module.exports = {
     async openContentStudioMenu() {
         let result = await this.isContentStudioMenuOpened();
         if (!result) {
+            await this.waitForElementDisplayed(lib.APP_MODE_SWITCHER_TOGGLER);
+            await this.clickOnElement(lib.APP_MODE_SWITCHER_TOGGLER);
+            return await webDriverHelper.browser.pause(200);
+        }
+    },
+    async closeContentStudioMenu() {
+        let result = await this.isContentStudioMenuOpened();
+        if (result) {
             await this.waitForElementDisplayed(lib.APP_MODE_SWITCHER_TOGGLER);
             await this.clickOnElement(lib.APP_MODE_SWITCHER_TOGGLER);
             return await webDriverHelper.browser.pause(200);

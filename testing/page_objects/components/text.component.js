@@ -147,9 +147,11 @@ class TextComponent extends Page {
             let insertImageDialog = new InsertImageDialog();
             await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
             await this.clickOnElement(this.insertImageButton);
+            await this.pause(500);
             await this.switchToParentFrame();
             return await insertImageDialog.waitForDialogVisible();
         } catch (err) {
+            await this.switchToParentFrame();
             await this.saveScreenshot(appConst.generateRandomName("err_insert_image_button"));
             throw new Error("Text Component Toolbar - Error after clicking on Insert Image button:" + err);
         }
