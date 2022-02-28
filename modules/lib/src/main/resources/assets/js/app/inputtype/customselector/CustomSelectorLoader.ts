@@ -79,6 +79,6 @@ export class CustomSelectorLoader
     }
 
     filterFn(item: CustomSelectorItem): boolean {
-        return item.displayName.toLowerCase().indexOf(this.getSearchString().toLowerCase()) !== -1;
+        return true;
     }
 }
