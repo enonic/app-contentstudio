@@ -5,6 +5,7 @@ import {ServerEventsTranslator} from 'lib-admin-ui/event/ServerEventsTranslator'
 import {IssueServerEvent} from './IssueServerEvent';
 import {ContentServerEvent} from './ContentServerEvent';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
+import {PrincipalServerEvent} from './PrincipalServerEvent';
 
 export class ContentServerEventsTranslator
     extends ServerEventsTranslator {
@@ -23,6 +24,10 @@ export class ContentServerEventsTranslator
 
             if (IssueServerEvent.is(<NodeEventJson>eventJson)) {
                 return IssueServerEvent.fromJson(<NodeEventJson>eventJson);
+            }
+
+            if (PrincipalServerEvent.is(<NodeEventJson>eventJson)) {
+                return PrincipalServerEvent.fromJson(<NodeEventJson>eventJson);
             }
         }
 

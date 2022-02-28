@@ -20,6 +20,8 @@ import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {RoleKeys} from 'lib-admin-ui/security/RoleKeys';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {ContentId} from '../content/ContentId';
+import {PrincipalServerEvent} from '../event/PrincipalServerEvent';
+import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 
 export class UserAccessWidgetItemView
     extends WidgetItemView {
@@ -37,6 +39,10 @@ export class UserAccessWidgetItemView
     constructor() {
         super('user-access-widget-item-view');
         this.accessListView = new UserAccessListView();
+
+        PrincipalServerEvent.on(AppHelper.debounce(() => {
+           this.layoutUserAccess();
+        }, 200));
     }
 
     public setContentAndUpdateView(item: ContentSummaryAndCompareStatus): Q.Promise<any> {
