@@ -35,6 +35,13 @@ const XPATH = {
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     duplicateButton: `/button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
+    hideMobilePreviewButton: "//button[contains(@class,'hide-mobile-preview-button')]",
+    moreFoldButton: "//div[contains(@id,'FoldButton')]",
+    archiveButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Archive...']]`,
+    moveButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Move...']]`,
+    editButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Edit']]`,
+    newButton: `//button[contains(@id, 'ActionButton') and child::span[text()='New...']]`,
+
     contentSummaryListViewerByName: function (name) {
         return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
     },
@@ -60,6 +67,7 @@ const XPATH = {
                `/ancestor::div[contains(@class,'slick-cell')]/span[contains(@class,'collapse') or contains(@class,'expand')]`;
     },
     defaultActionByName: name => `//button[contains(@id, 'ActionButton') and child::span[contains(.,'${name}')]]`,
+    foldButtonByName: name => `//div[contains(@id,'ContentBrowseToolbar')]//span[text()='${name}']`,
 };
 
 class ContentBrowsePanel extends BaseBrowsePanel {
@@ -68,8 +76,28 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.treeGridToolbar;
     }
 
+    get moveMobileButton() {
+        return XPATH.moreFoldButton + XPATH.moveButton;
+    }
+
+    get editMobileButton() {
+        return XPATH.moreFoldButton + XPATH.editButton;
+    }
+
+    get newMobileButton() {
+        return XPATH.moreFoldButton + XPATH.newButton;
+    }
+
+    get hideMobilePreviewButton() {
+        return XPATH.toolbar + XPATH.hideMobilePreviewButton;
+    }
+
     get archiveButton() {
         return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Archive...']]`;
+    }
+
+    get moreButton() {
+        return XPATH.toolbar + XPATH.moreFoldButton;
     }
 
     get moveButton() {
@@ -208,6 +236,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         })
     }
 
+    async waitForHideMobilePreviewButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.hideMobilePreviewButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot("err_hide_mobile_button");
+            throw new Error("Hide Mobile Preview button should be visible! " + err);
+        }
+    }
+
     //Wait for `Publish Menu` Button gets `Publish...`
     async waitForPublishButtonVisible() {
         try {
@@ -316,6 +353,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async clickOnDetailsPanelToggleButton() {
         try {
+            await this.waitForElementDisplayed(this.detailsPanelToggleButton, appConst.mediumTimeout);
             await this.clickOnElement(this.detailsPanelToggleButton);
             return await this.pause(400);
         } catch (err) {
@@ -912,6 +950,61 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async getNumberInSelectionToggler() {
         await this.waitForElementDisplayed(this.numberInSelectionToggler, appConst.mediumTimeout);
         return await this.getText(this.numberInSelectionToggler);
+    }
+
+    waitForMoreButtonDisplayed() {
+        return this.waitForElementDisplayed(this.moreButton, appConst.mediumTimeout);
+    }
+
+    async clickOnMoreFoldButton() {
+        await this.waitForMoreButtonDisplayed();
+        await this.clickOnElement(this.moreButton);
+        return this.pause(200);
+    }
+
+    waitForFoldWithNameButtonDisplayed(name) {
+        return this.waitForElementDisplayed(XPATH.foldButtonByName(name));
+    }
+
+    async clickOnFoldWithNameButton(name) {
+        await this.waitForFoldWithNameButtonDisplayed(name);
+        return await this.clickOnElement(XPATH.foldButtonByName(name));
+    }
+
+    async waitForMobileMoveButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.moveMobileButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_move_mobile');
+            throw Error('Move button should be disabled: ' + err);
+        }
+    }
+
+    async waitForMobileEditButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.editMobileButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_edit_mobile');
+            throw Error('Mobile resolution, Edit button should be enabled' + err);
+        }
+    }
+
+    async waitForMobileNewButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.newMobileButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_edit_mobile');
+            throw Error('Mobile resolution, Move button should be enabled' + err);
+        }
+    }
+
+    async waitForMobileMoveButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.moveMobileButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_move_mobile_disabled');
+            throw Error('Mobile resolution, Move button should be disabled' + err);
+        }
     }
 }
 
