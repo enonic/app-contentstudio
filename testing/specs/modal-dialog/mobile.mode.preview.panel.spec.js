@@ -10,6 +10,7 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const contentBuilder = require("../../libs/content.builder");
 const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/browse.details.panel');
+const MobileContentBrowsePanel = require('../../page_objects/browsepanel/mobile.content.browse.panel');
 
 describe('Tests for preview panel in mobile mode', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -35,42 +36,41 @@ describe('Tests for preview panel in mobile mode', function () {
         async () => {
             let filterPanel = new FilterPanel();
             let browseDetailsPanel = new BrowseDetailsPanel();
-            let contentBrowsePanel = new ContentBrowsePanel();
+            let mobileContentBrowsePanel = new MobileContentBrowsePanel();
             //1.Open Filter Panel, insert the name of folder
             await studioUtils.typeNameInFilterPanel(FOLDER.displayName);
             //2. Click on 'Show results' button:
             await filterPanel.clickOnShowResultsButton();
-            await contentBrowsePanel.pause(1000);
+            await mobileContentBrowsePanel.pause(1000);
             //3. Verify that 'Details Panel' is hidden now:
             let isDetailsPanelDisplayed = await browseDetailsPanel.isPanelVisible();
             assert.isFalse(isDetailsPanelDisplayed, "Details panel should not be visible");
             //4. Click on the folder:
-            await contentBrowsePanel.clickOnRowByName(FOLDER.displayName);
+            await mobileContentBrowsePanel.clickOnRowByName(FOLDER.displayName);
             await studioUtils.saveScreenshot("mobile_mode_folder_clicked");
             //5. Verify that 'Preview Panel' should be loaded and  'Hide Preview Panel' button gets visible in the browse toolbar
-            await contentBrowsePanel.waitForHideMobilePreviewButtonDisplayed();
+            await mobileContentBrowsePanel.waitForHideMobilePreviewButtonDisplayed();
         });
 
     it("GIVEN existing folder has been clicked WHEN 'Show Details Panel' button has been clicked THEN 'Details Panel' gets visible",
         async () => {
             let filterPanel = new FilterPanel();
             let browseDetailsPanel = new BrowseDetailsPanel();
-            let contentBrowsePanel = new ContentBrowsePanel();
+            let mobileContentBrowsePanel = new MobileContentBrowsePanel();
             //1.Open 'Filter Panel', insert the name of folder
             await studioUtils.typeNameInFilterPanel(FOLDER.displayName);
             //2. Click on 'Show results' button:
             await filterPanel.clickOnShowResultsButton();
-            await contentBrowsePanel.pause(1000);
+            await mobileContentBrowsePanel.pause(1000);
             //3. Click on the folder and load Preview Panel:
-            await contentBrowsePanel.clickOnRowByName(FOLDER.displayName);
+            await mobileContentBrowsePanel.clickOnRowByName(FOLDER.displayName);
             //4. Click on 'Show Details Panel' button:
-            await contentBrowsePanel.clickOnDetailsPanelToggleButton();
+            await mobileContentBrowsePanel.clickOnDetailsPanelToggleButton();
             await studioUtils.saveScreenshot("mobile_mode_folder_details_panel");
             //5. Verify that 'Details Panel' is loaded:
             let isDetailsPanelDisplayed = await browseDetailsPanel.isPanelVisible();
             assert.isTrue(isDetailsPanelDisplayed, "Details panel should be loaded");
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioAppMobile());
     afterEach(function () {
