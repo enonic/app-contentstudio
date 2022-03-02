@@ -986,7 +986,7 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         try {
             return await this.waitForElementEnabled(this.publishFoldedButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.saveScreenshot('err_new_button_mobile');
+            await this.saveScreenshot('err_publish_button_mobile');
             throw Error('Mobile resolution, New... button should be enabled' + err);
         }
     }
@@ -1018,6 +1018,16 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         } catch (err) {
             await this.saveScreenshot('err_preview_mobile');
             throw Error('Mobile resolution, Preview... button should be disabled' + err);
+        }
+    }
+
+    async waitForDuplicateFoldedButtonDisabled() {
+        try {
+            await this.waitForElementDisplayed(this.duplicateFoldedButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.duplicateFoldedButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_duplicate_mobile');
+            throw Error('Mobile resolution, Duplicate... button should be disabled' + err);
         }
     }
 

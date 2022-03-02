@@ -22,7 +22,7 @@ describe('Tests for browse panel toolbar in mobile mode', function () {
             await mobileContentBrowsePanel.waitForNewButtonEnabled();
             await mobileContentBrowsePanel.waitForEditButtonDisabled();
             await mobileContentBrowsePanel.waitForArchiveButtonDisabled();
-            await mobileContentBrowsePanel.waitForDuplicateButtonDisabled();
+
             //2. Click on 'More' button and expand the folded buttons:
             await mobileContentBrowsePanel.clickOnMoreFoldButton();
             await studioUtils.saveScreenshot("mobile_folded_buttons");
@@ -32,6 +32,7 @@ describe('Tests for browse panel toolbar in mobile mode', function () {
             await mobileContentBrowsePanel.waitForSortFoldedButtonDisabled();
             //4. Folded 'Preview...' button should be disabled
             await mobileContentBrowsePanel.waitForPreviewFoldedButtonDisabled();
+            await mobileContentBrowsePanel.waitForDuplicateFoldedButtonDisabled();
         });
 
     it("GIVEN existing folder is selected and preview panel is loaded WHEN 'fold' button has been clicked THEN 'New' 'Edit','Archive...','Duplicate...' ,'Move..','Sort...', 'Preview','Publish...' buttons gets visible",
