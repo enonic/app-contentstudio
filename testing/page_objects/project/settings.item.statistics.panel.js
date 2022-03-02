@@ -90,10 +90,15 @@ class SettingsItemStatisticsPanel extends Page {
     }
 
     async getContributors() {
-        let locator = XPATH.container + XPATH.projectRolesStatisticsBlockDiv +
-                      "//div[contains(@id,'StatisticsBlockColumn') and child::h6[text()='Contributors']]" + lib.H6_DISPLAY_NAME;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getTextInElements(locator);
+        try {
+            let locator = XPATH.container + XPATH.projectRolesStatisticsBlockDiv +
+                          "//div[contains(@id,'StatisticsBlockColumn') and child::h6[text()='Contributors']]" + lib.H6_DISPLAY_NAME;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getTextInElements(locator);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("settings_st_panel"));
+            throw new Error("Settings item statistics panel: " + err);
+        }
 
     }
 }

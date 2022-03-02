@@ -1,5 +1,5 @@
 /**
- * Created on 5/31/2017.
+ * Created on 02.03.2022
  */
 const ContentDuplicateDialog = require('../content.duplicate.dialog');
 const CreateTaskDialog = require('../issue/create.task.dialog');
@@ -7,6 +7,8 @@ const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const ConfirmationDialog = require('../confirmation.dialog');
 const CreateRequestPublishDialog = require('../issue/create.request.publish.dialog');
+const ContentDeleteDialog = require('../../page_objects/delete.content.dialog');
+const ConfirmValueDialog = require('../confirm.content.delete.dialog');
 const BrowseDetailsPanel = require('../browsepanel/detailspanel/browse.details.panel');
 const BaseBrowsePanel = require('../base.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
@@ -32,12 +34,16 @@ const XPATH = {
     contentPublishMenuButton: `//div[contains(@id,'ContentBrowsePublishMenuButton')]`,
     selectionControllerCheckBox: `//div[contains(@id,'SelectionController')]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
-    duplicateButton: `/button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
+    duplicateButton: `//button[contains(@id,'ActionButton') and child::span[contains(.,'Duplicate...')]]`,
+    hideMobilePreviewButton: "//button[contains(@class,'hide-mobile-preview-button')]",
     moreFoldButton: "//div[contains(@id,'FoldButton')]",
     archiveButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Archive...']]`,
     moveButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Move...']]`,
     editButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Edit']]`,
     newButton: `//button[contains(@id, 'ActionButton') and child::span[text()='New...']]`,
+    sortButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Sort...']]`,
+    previewButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Preview']]`,
+    publishButton: `//button[contains(@id, 'ActionButton') and child::span[text()='Publish...']]`,
 
     contentSummaryListViewerByName: function (name) {
         return `//div[contains(@id,'ContentSummaryListViewer') and descendant::p[contains(@class,'sub-name') and contains(.,'${name}')]]`
@@ -67,42 +73,62 @@ const XPATH = {
     foldButtonByName: name => `//div[contains(@id,'ContentBrowseToolbar')]//span[text()='${name}']`,
 };
 
-class ContentBrowsePanel extends BaseBrowsePanel {
+class MobileContentBrowsePanel extends BaseBrowsePanel {
 
     get treeGridToolbar() {
         return XPATH.treeGridToolbar;
-    }
-
-    get archiveButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Archive...']]`;
     }
 
     get moreButton() {
         return XPATH.toolbar + XPATH.moreFoldButton;
     }
 
-    get moveButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Move...']]`;
+    get moveFoldedButton() {
+        return XPATH.moreFoldButton + XPATH.moveButton;
+    }
+
+    get sortFoldedButton() {
+        return XPATH.moreFoldButton + XPATH.sortButton;
+    }
+
+    get publishFoldedButton() {
+        return XPATH.moreFoldButton + XPATH.sortButton;
+    }
+
+    get newFoldedButton() {
+        return XPATH.moreFoldButton + XPATH.newButton;
+    }
+
+    get editFoldedButton() {
+        return XPATH.moreFoldButton + XPATH.editButton;
+    }
+
+    get archiveFoldedButton() {
+        return XPATH.moreFoldButton + XPATH.archiveButton;
+    }
+
+    get duplicateFoldedButton() {
+        return XPATH.moreFoldButton + XPATH.duplicateButton;
+    }
+
+    get publishFoldedButton() {
+        return XPATH.moreFoldButton + XPATH.publishButton;
+    }
+
+    get previewFoldedButton() {
+        return XPATH.moreFoldButton + XPATH.previewButton;
+    }
+
+    get hideMobilePreviewButton() {
+        return XPATH.toolbar + XPATH.hideMobilePreviewButton;
+    }
+
+    get archiveButton() {
+        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Archive...']]`;
     }
 
     get duplicateButton() {
-        return XPATH.toolbar + XPATH.duplicateButton;
-    }
-
-    get previewButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Preview')]]`;
-    }
-
-    get sortButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Sort...')]]`;
-    }
-
-    get localizeButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Localize')]]`;
-    }
-
-    get openButton() {
-        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[contains(.,'Open')]]`;
+        return XPATH.toolbar + `/*[contains(@id, 'ActionButton') and child::span[text()='Duplicate...']]`;//XPATH.duplicateButton;
     }
 
     get searchButton() {
@@ -215,6 +241,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return this.getBrowser().status().then(status => {
             return this.getBrowser().keys(['Control', 'Alt', 'p']);
         })
+    }
+
+    async waitForHideMobilePreviewButtonDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.hideMobilePreviewButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot("err_hide_mobile_button");
+            throw new Error("Hide Mobile Preview button should be visible! " + err);
+        }
     }
 
     //Wait for `Publish Menu` Button gets `Publish...`
@@ -446,13 +481,24 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForDuplicateButtonDisabled() {
         try {
-            await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
-            return await this.waitForElementDisabled(this.duplicateButton, appConst.mediumTimeout);
+            let locator = this.duplicateButton;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(locator, appConst.mediumTimeout);
         } catch (err) {
             await this.saveScreenshot('err_duplicate_disabled_button');
             throw Error('Duplicate button should be disabled, timeout: ' + 3000 + 'ms')
         }
     }
+
+    // async waitForDuplicateButtonDisabled() {
+    //     try {
+    //         await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
+    //         return await this.waitForElementDisabled(this.duplicateButton, appConst.mediumTimeout);
+    //     } catch (err) {
+    //         await this.saveScreenshot('err_duplicate_disabled_button');
+    //         throw Error('Duplicate button should be disabled, timeout: ' + 3000 + 'ms')
+    //     }
+    // }
 
     async waitForDuplicateButtonEnabled() {
         try {
@@ -464,67 +510,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    async waitForLocalizeButtonEnabled() {
-        try {
-            await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
-            return await this.waitForElementEnabled(this.localizeButton, appConst.mediumTimeout);
-        } catch (err) {
-            await this.saveScreenshot('err_localize_enabled_button');
-            throw Error('Localize button should be enabled, timeout: ' + 3000 + 'ms')
-        }
-    }
-
-    async waitForLocalizeButtonDisabled() {
-        try {
-            await this.waitForElementDisplayed(this.localizeButton, appConst.mediumTimeout);
-            return await this.waitForElementDisabled(this.localizeButton, appConst.mediumTimeout);
-        } catch (err) {
-            this.saveScreenshot('err_localize_disabled_button');
-            throw Error('Localize button should be disabled, timeout: ' + 3000 + 'ms')
-        }
-    }
-
-    async waitForOpenButtonEnabled() {
-        try {
-            await this.waitForElementDisplayed(this.openButton, appConst.mediumTimeout);
-            return await this.waitForElementEnabled(this.openButton, appConst.mediumTimeout);
-        } catch (err) {
-            await this.saveScreenshot('err_open_button_is_not_enabled');
-            throw Error('Open button should be disabled, timeout: ' + 3000 + 'ms')
-        }
-    }
-
-    async clickOnOpenButton() {
-        try {
-            await this.waitForOpenButtonEnabled();
-            await this.clickOnElement(this.openButton);
-            return await this.pause(500);
-        } catch (err) {
-            await this.saveScreenshot('err_browse_panel_open_button');
-            throw new Error('Browse Panel: Edit button is not enabled! ' + err);
-        }
-    }
-
-    waitForMoveButtonDisabled() {
-        return this.waitForElementDisabled(this.moveButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_move_disabled_button');
-            throw Error('Move button should be disabled, timeout: ' + appConst.mediumTimeout + 'ms')
-        })
-    }
-
-    waitForSortButtonEnabled() {
-        return this.waitForElementEnabled(this.sortButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_sort_enabled_button');
-            throw Error('Sort button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
-        })
-    }
-
-    waitForMoveButtonEnabled() {
-        return this.waitForElementEnabled(this.moveButton, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot('err_move_enabled_button');
-            throw Error('Move button should be enabled, timeout: ' + appConst.mediumTimeout + 'ms')
-        })
-    }
 
     async clickOnRowByDisplayName(displayName) {
         try {
@@ -942,6 +927,101 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.waitForFoldWithNameButtonDisplayed(name);
         return await this.clickOnElement(XPATH.foldButtonByName(name));
     }
+
+    async waitForMoveFoldedButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.moveFoldedButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_move_mobile');
+            throw Error('Move button should be disabled: ' + err);
+        }
+    }
+
+    async waitForEditFoldedButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.editFoldedButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_edit_mobile');
+            throw Error('Mobile resolution, Edit folded button should be enabled' + err);
+        }
+    }
+
+    async waitForArchiveFoldedButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.archiveFoldedButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_archive_folded_mobile');
+            throw Error('Mobile resolution, Archive folded button should be enabled' + err);
+        }
+    }
+
+    async waitForDuplicateFoldedButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.duplicateFoldedButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_duplicate_folded_mobile');
+            throw Error('Mobile resolution, Duplicate folded button should be enabled' + err);
+        }
+    }
+
+    async waitForEditFoldedButtonDisabled() {
+        try {
+            return await this.waitForElementDisabled(this.moveFoldedButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_edit_mobile_disabled');
+            throw Error('Mobile resolution, Edit button should be disabled' + err);
+        }
+    }
+
+    async waitForNewFoldedButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.newFoldedButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_new_button_mobile');
+            throw Error('Mobile resolution, New... button should be enabled' + err);
+        }
+    }
+
+    async waitForPublishFoldedButtonEnabled() {
+        try {
+            return await this.waitForElementEnabled(this.publishFoldedButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_new_button_mobile');
+            throw Error('Mobile resolution, New... button should be enabled' + err);
+        }
+    }
+
+    async waitForMoveFoldedButtonDisabled() {
+        try {
+            await this.waitForElementDisplayed(this.moveFoldedButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.moveFoldedButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_move_mobile_disabled');
+            throw Error('Mobile resolution, Move button should be disabled' + err);
+        }
+    }
+
+    async waitForSortFoldedButtonDisabled() {
+        try {
+            await this.waitForElementDisplayed(this.sortFoldedButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.sortFoldedButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_sort_mobile_disabled');
+            throw Error('Mobile resolution, Sort... button should be disabled' + err);
+        }
+    }
+
+    async waitForPreviewFoldedButtonDisabled() {
+        try {
+            await this.waitForElementDisplayed(this.previewFoldedButton, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(this.previewFoldedButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot('err_preview_mobile');
+            throw Error('Mobile resolution, Preview... button should be disabled' + err);
+        }
+    }
+
+
 }
 
-module.exports = ContentBrowsePanel;
+module.exports = MobileContentBrowsePanel;
