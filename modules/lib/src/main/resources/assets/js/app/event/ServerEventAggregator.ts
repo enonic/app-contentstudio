@@ -58,7 +58,7 @@ export class ServerEventAggregator {
     }
 
     private isNotMoveOrDeleteEvent(typeAndRepo: string): boolean {
-        const eventType: string = typeAndRepo.substring(0, typeAndRepo.indexOf(':'));
+        const eventType: string = typeAndRepo.split(':')[0];
         return eventType !== NodeServerChangeType[NodeServerChangeType.MOVE]
                && eventType !== NodeServerChangeType[NodeServerChangeType.DELETE];
     }
