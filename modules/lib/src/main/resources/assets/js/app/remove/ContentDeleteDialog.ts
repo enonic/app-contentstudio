@@ -159,10 +159,6 @@ export class ContentDeleteDialog
         return new DeleteDialogDependantList();
     }
 
-    protected getDependantList(): DialogDependantList {
-        return <DialogDependantList>super.getDependantList();
-    }
-
     private handleItemClick(contentSummary: ContentSummary) {
         new ShowDependenciesEvent(contentSummary.getContentId(), true).fire();
     }
@@ -389,18 +385,6 @@ export class ContentDeleteDialog
     private doAnyHaveChildren(items: ContentSummaryAndCompareStatus[]): boolean {
         return items.some((item: ContentSummaryAndCompareStatus) => {
             return item.getContentSummary().hasChildren();
-        });
-    }
-
-    private isEveryOffline(items: ContentSummaryAndCompareStatus[]): boolean {
-        return items.every((item: ContentSummaryAndCompareStatus) => {
-            return item.getCompareStatus() === CompareStatus.NEW;
-        });
-    }
-
-    private isEveryPendingDelete(items: ContentSummaryAndCompareStatus[]): boolean {
-        return items.every((item: ContentSummaryAndCompareStatus) => {
-            return item.getCompareStatus() === CompareStatus.PENDING_DELETE;
         });
     }
 

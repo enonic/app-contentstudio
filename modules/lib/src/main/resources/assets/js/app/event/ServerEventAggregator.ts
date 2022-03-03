@@ -29,7 +29,7 @@ export class ServerEventAggregator {
                 this.typesAndDelayedFunctions.get(typeAndRepo)();
             } else {
                 const debouncedFunc: Function = AppHelper.debounceWithInterrupt(() => {
-                    const items: ContentServerChangeItem[] = this.typesAndChangeItems.get(typeAndRepo);
+                    const items: ContentServerChangeItem[] = this.filterItems(typeAndRepo);
 
                     this.typesAndDelayedFunctions.delete(typeAndRepo);
                     this.typesAndChangeItems.delete(typeAndRepo);
@@ -45,6 +45,41 @@ export class ServerEventAggregator {
                 debouncedFunc();
             }
         });
+    }
+
+    private filterItems(typeAndRepo: string): ContentServerChangeItem[] {
+        const items: ContentServerChangeItem[] = this.typesAndChangeItems.get(typeAndRepo);
+
+        if (this.isNotMoveOrDeleteEvent(typeAndRepo)) {
+            return items.filter((item: ContentServerChangeItem) => this.isNotPendingMoveOrDeleteItem(item));
+        }
+
+        return items;
+    }
+
+    private isNotMoveOrDeleteEvent(typeAndRepo: string): boolean {
+        const eventType: string = typeAndRepo.substring(0, typeAndRepo.indexOf(':'));
+        return eventType !== NodeServerChangeType[NodeServerChangeType.MOVE]
+               && eventType !== NodeServerChangeType[NodeServerChangeType.DELETE];
+    }
+
+    private isNotPendingMoveOrDeleteItem(item: ContentServerChangeItem): boolean {
+        return !this.isItemPendingDelete(item) && !this.isItemPendingMove(item);
+    }
+
+    private isItemPendingMove(item: ContentServerChangeItem): boolean {
+        return this.isItemPending(item, NodeServerChangeType.MOVE);
+    }
+
+    private isItemPendingDelete(item: ContentServerChangeItem): boolean {
+        return this.isItemPending(item, NodeServerChangeType.DELETE);
+    }
+
+    private isItemPending(item: ContentServerChangeItem, type: NodeServerChangeType): boolean {
+        const itemsPendingMove: ContentServerChangeItem[] =
+            this.typesAndChangeItems.get(`${NodeServerChangeType[type]}:${item.getRepo()}`);
+
+        return itemsPendingMove?.some((pendingMove: ContentServerChangeItem) => pendingMove.getId() === item.getId());
     }
 
     onBatchIsReady(listener: (items: ContentServerChangeItem[], type: NodeServerChangeType) => void) {

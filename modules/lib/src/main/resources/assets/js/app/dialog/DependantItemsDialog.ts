@@ -109,6 +109,10 @@ export abstract class DependantItemsDialog
     }
 
     protected lazyLoadDependants(): void {
+        if (this.isClosed()) { // debounced call after dialog is closed
+            return;
+        }
+
         const size: number = this.getDependantList().getItemCount();
         this.showLoadMask();
 
@@ -188,7 +192,7 @@ export abstract class DependantItemsDialog
         return this.itemList;
     }
 
-    protected getDependantList(): ListBox<ContentSummaryAndCompareStatus> {
+    protected getDependantList(): DialogDependantList {
         return this.dependantList;
     }
 
