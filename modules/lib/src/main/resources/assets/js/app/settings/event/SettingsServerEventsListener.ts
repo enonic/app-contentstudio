@@ -10,6 +10,7 @@ import {ContentServerEvent} from '../../event/ContentServerEvent';
 import {NodeServerChangeItem} from 'lib-admin-ui/event/NodeServerChangeItem';
 import {ContentPath} from '../../content/ContentPath';
 import {Event} from 'lib-admin-ui/event/Event';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 export class SettingsServerEventsListener
     extends ServerEventsListener {
@@ -19,7 +20,13 @@ export class SettingsServerEventsListener
     private eventsAggregator: SettingsEventAggregator = new SettingsEventAggregator();
 
     protected onServerEvent(event: Event): void {
-        //
+        if (this.isPrincipalEvent(event)) {
+            this.handleProjectPermissionsUpdate(<PrincipalServerEvent>event);
+        }
+    }
+
+    private isPrincipalEvent(event: Event): boolean {
+        return ObjectHelper.iFrameSafeInstanceOf(event, PrincipalServerEvent);
     }
 
     protected onUnknownServerEvent(eventJson: EventJson) {
@@ -34,13 +41,6 @@ export class SettingsServerEventsListener
         if (SettingsServerEvent.is(nodeEventJson)) {
             const event: SettingsServerEvent = SettingsServerEvent.fromJson(nodeEventJson);
             this.handleProjectServerEvent(event);
-
-            return;
-        }
-
-        if (PrincipalServerEvent.is(nodeEventJson)) {
-            const event: PrincipalServerEvent = PrincipalServerEvent.fromJson(nodeEventJson);
-            this.handleProjectPermissionsUpdate(event);
 
             return;
         }
@@ -85,7 +85,6 @@ export class SettingsServerEventsListener
     }
 
     private handleProjectPermissionsUpdate(event: PrincipalServerEvent) {
-
         if (NodeServerChangeType.UPDATE !== event.getNodeChange().getChangeType()) {
             return;
         }
@@ -112,10 +111,6 @@ export class SettingsServerEventsListener
     }
 
     private getUpdatedProjectRoles(nodeEvent: NodeServerEvent): NodeServerChangeItem[] {
-        return nodeEvent.getNodeChange().getChangeItems().filter(SettingsServerEventsListener.isProjectRoleEventItem);
-    }
-
-    private getRemovedProjectRoles(nodeEvent: NodeServerEvent): NodeServerChangeItem[] {
         return nodeEvent.getNodeChange().getChangeItems().filter(SettingsServerEventsListener.isProjectRoleEventItem);
     }
 
