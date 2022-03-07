@@ -157,7 +157,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             assert.isTrue(pageSource.includes(NEW_SF_POPULATION), "updated San Francisco population should be loaded");
         });
 
-    it("GIVEN just one resource(page template) has been unpublished WHEN USA-content has been opened in 'master' THEN '418' page should be loaded",
+    it("GIVEN just one resource(page template) has been unpublished WHEN USA-content has been opened in 'master' THEN '404' page should be loaded",
         async () => {
             await studioUtils.findAndSelectItem(COUNTRY_TEMPLATE_NAME);
             let contentBrowsePanel = new ContentBrowsePanel();
@@ -167,10 +167,10 @@ describe('my.first.site.country.spec - Create a site with country content', func
             await contentBrowsePanel.waitForNotificationMessage();
             //2. Open USA country in master
             await studioUtils.openResourceInMaster(SITE.displayName + "/" + USA_CONTENT_NAME);
-            await studioUtils.saveScreenshot('master_418_err');
+            await studioUtils.saveScreenshot('master_404_err');
             //3. Verify the error page
             let pageSource = await studioUtils.getPageSource();
-            assert.isTrue(pageSource.includes("418"), "expected error page with should be loaded");
+            assert.isTrue(pageSource.includes("404 - Not Found"), "expected error page with should be loaded");
         });
 
     it("GIVEN USA content has been opened WHEN 'Page Component View' has been opened THEN expected components should be displayed in the dialog",
