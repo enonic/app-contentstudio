@@ -3,7 +3,6 @@ import {PrincipalLoader as BasePrincipalLoader} from 'lib-admin-ui/security/Prin
 import {PrincipalLoader} from '../../security/PrincipalLoader';
 import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
 import {Class} from 'lib-admin-ui/Class';
-
 import {InputTypeName} from 'lib-admin-ui/form/InputTypeName';
 
 export class PrincipalSelector
@@ -14,8 +13,8 @@ export class PrincipalSelector
     }
 
     static getName(): InputTypeName {
-        return new InputTypeName('ContentPrincipalSelector', false);
+        return new InputTypeName('PrincipalSelector', false);
     }
 }
 
-InputTypeManager.register(new Class('ContentPrincipalSelector', PrincipalSelector), true);
+InputTypeManager.register(new Class('PrincipalSelector', PrincipalSelector), true);
