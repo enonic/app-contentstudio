@@ -359,24 +359,21 @@ export class ContentItemPreviewPanel
         }
     }
 
-    protected setPagePreviewMode(item: ContentSummaryAndCompareStatus) {
-        const src: string = RenderingUriHelper.getPortalUri(!!item.getPath() ? item.getPath().toString() : '', RenderingMode.INLINE);
-        // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
-        $.ajax({
-            type: 'HEAD',
-            async: true,
-            url: src
-        }).done(() => {
-            this.frame.setSrc(src);
-            this.setPreviewType(PREVIEW_TYPE.PAGE);
-        }).fail((reason: any) => {
-            const contentSummary: ContentSummary = item.getContentSummary();
-            if (this.isMediaForPreview(contentSummary)) {
-                this.setMediaPreviewMode(item);
-            } else if (this.isImageForPreview(contentSummary)) {
-                this.setImagePreviewMode(item);
-            } else {
-                switch (reason.status) {
+    private handlePreviewSuccess(src: string): void {
+        this.frame.setSrc(src);
+        this.setPreviewType(PREVIEW_TYPE.PAGE);
+    }
+
+    private handlePreviewFailure(response: Response, item: ContentSummaryAndCompareStatus): void {
+        const contentSummary: ContentSummary = item.getContentSummary();
+        if (response.redirected) {
+            this.setPreviewType(PREVIEW_TYPE.EMPTY);
+        } else if (this.isMediaForPreview(contentSummary)) {
+            this.setMediaPreviewMode(item);
+        } else if (this.isImageForPreview(contentSummary)) {
+            this.setImagePreviewMode(item);
+        } else {
+            switch (response.status) {
                 case 404:
                     this.setPreviewType(PREVIEW_TYPE.EMPTY);
                     break;
@@ -386,8 +383,24 @@ export class ContentItemPreviewPanel
                 default:
                     this.setPreviewType(PREVIEW_TYPE.FAILED);
                     break;
-                }
             }
+        }
+    }
+
+    protected async setPagePreviewMode(item: ContentSummaryAndCompareStatus) {
+        const src: string = RenderingUriHelper.getPortalUri(!!item.getPath() ? item.getPath().toString() : '', RenderingMode.INLINE);
+
+        // test if it returns no error( like because of used app was deleted ) first and show no preview otherwise
+        await fetch(src, {
+            method: 'HEAD'
+        }).then((response: Response) => {
+            if (response.redirected || !response.ok) {
+                this.handlePreviewFailure(response, item);
+            } else {
+                this.handlePreviewSuccess(src);
+            }
+        }).catch(() => {
+            this.setPreviewType(PREVIEW_TYPE.FAILED);
         });
     }
 
