@@ -7,7 +7,7 @@ exports.renderTemplate = function (path, params) {
     const view = resolve('./main.html');
     const toolUri = admin.getToolUrl(app.name, 'main');
     const isBrowseMode = path === toolUri;
-    const baseSecurityPolicy = 'default-src \'self\'; script-src \'self\' \'unsafe-eval\'{0}; object-src \'none\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:';
+    const baseSecurityPolicy = 'default-src \'self\'; connect-src \'self\' ws:; script-src \'self\' \'unsafe-eval\'{0}; object-src \'none\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data:';
     const securityPolicy = baseSecurityPolicy.replace('{0}', isBrowseMode ? '' : ' \'unsafe-inline\'');
     params.isBrowseMode = isBrowseMode;
 
