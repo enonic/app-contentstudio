@@ -123,6 +123,19 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             let selector = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
             return await this.waitForElementDisplayed(selector, appConst.longTimeout);
         } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_find_'));
+            throw new Error('Settings: project item with the display name was not found ! ' + err);
+        }
+    }
+
+    async waitForLanguageIconDisplayed(displayName) {
+        try {
+            let locatorIcon = XPATH.itemsTreeGrid +
+                              `//div[contains(@id,'NamesAndIconView') and descendant::span[contains(@class,'display-name') and contains(.,'${displayName}')]]` +
+                              "//div[contains(@id,'Flag')]";
+            await this.waitForElementDisplayed(locatorIcon, appConst.longTimeout);
+            return await this.getAttribute(locatorIcon, "data-code");
+        } catch (err) {
             console.log("item is not displayed:" + displayName);
             this.saveScreenshot('err_find_' + displayName);
             throw new Error('Settings: item was not found ! ' + displayName + "  " + err);
@@ -138,6 +151,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         }
     }
 
+    //Click on SETTINGS button:
     clickOnHomeButton() {
         return this.clickOnElement(this.homeButton);
     }
@@ -147,7 +161,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             let nameXpath = XPATH.itemsTreeGrid + lib.itemByDisplayName(displayName);
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             await this.clickOnElement(nameXpath);
-            return await this.pause(300);
+            return await this.pause(400);
         } catch (err) {
             this.saveScreenshot('err_find_' + displayName);
             throw Error('Project Browse Panel - Row with the displayName ' + displayName + ' was not found' + err)

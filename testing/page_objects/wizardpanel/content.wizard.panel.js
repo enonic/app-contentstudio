@@ -933,9 +933,14 @@ class ContentWizardPanel extends Page {
         return this.waitForElementDisplayed(selector, appConst.longTimeout);
     }
 
-    waitForPublishButtonDisplayed() {
-        let selector = XPATH.container + XPATH.publishButton;
-        return this.waitForElementDisplayed(selector, appConst.shortTimeout);
+    async waitForPublishButtonDisplayed() {
+        try {
+            let selector = XPATH.container + XPATH.publishButton;
+            return await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_publish_btn"));
+            throw new Error("Content Wizard - 'Publish...' button should be present" + err);
+        }
     }
 
 //Wait for 'Create Task' button gets default action in the Publish menu:
