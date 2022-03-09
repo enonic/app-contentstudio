@@ -606,6 +606,8 @@ export class ContentWizardPanel
         this.contextSplitPanel.hideSecondPanel();
 
         if (this.livePanel) {
+            this.splitPanel.onPanelResized(() => this.updateStickyToolbar());
+
             this.contextSplitPanel.onModeChanged((mode: ContextPanelMode) => {
                 if (!this.isMinimized()) {
                     const formPanelSizePercents: number = this.contextSplitPanel.isDockedMode() ? 46 : 38;
