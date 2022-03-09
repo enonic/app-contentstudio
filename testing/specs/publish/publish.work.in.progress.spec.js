@@ -75,7 +75,11 @@ describe('publish.work.in.progress.spec - publishes work in progress content', f
             //7. Verify that the status is UNPUBLISHED  in the wizard
             let status = await contentWizard.getContentStatus();
             assert.equal(status, appConst.CONTENT_STATUS.UNPUBLISHED, "The content gets Unpublished");
+            //8. Verify that PUBLISH button gets visible in 'Deafault Action'
             await contentWizard.waitForPublishButtonDisplayed();
+            //9. Verify that Save button is disabled:
+            await contentWizard.waitForSaveButtonDisabled();
+
         });
 
     it(`GIVEN existing unpublished site is selected WHEN 'Publish...' button has been pressed AND Include children has been clicked THEN the site should be published`,

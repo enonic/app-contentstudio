@@ -9,6 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const LayerWizardPanel = require('../../page_objects/project/layer.wizard.panel');
+const SettingsItemStatisticsPanel = require('../../page_objects/project/settings.item.statistics.panel');
 
 describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wizard', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -33,6 +34,18 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
             await layerWizard.waitForNotificationMessage();
             //4. Verify that 'Save' button gets enabled after removing the selected item in the Roles form:
             await layerWizard.waitForSaveButtonEnabled();
+            //Verify the issue#3703: Update of a project/layer is not reflected in the UI #3703
+            //5. Click on 'Home' (SETTINGS) button and go to the grid:
+            await settingsBrowsePanel.clickOnHomeButton();
+            //6. Verify that the layer is displayed with the language icon:
+            let flagCode = await settingsBrowsePanel.waitForLanguageIconDisplayed(LAYER_DISPLAY_NAME);
+            assert.equal(flagCode, "gb", "Expected language icon should be displayed in the grid");
+            //7. Verify the language in the Statistics Panel:
+            let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
+            await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_DISPLAY_NAME);
+            await studioUtils.saveScreenshot("layer_created_with_language");
+            let actualLanguage = await settingsItemStatisticsPanel.getLanguage();
+            assert.equal(actualLanguage, appConstant.LANGUAGES.EN, "Expected language should be displayed in Statistics panel.");
         });
 
     it("GIVEN existing layer with roles is opened WHEN 'Copy roles from parent' has been clicked AND close icon pressed THEN Confirmation Dialog should appear",

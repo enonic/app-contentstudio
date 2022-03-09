@@ -30,7 +30,7 @@ describe('project.save.delete.grid.panel.spec - ui-tests for saving/deleting a p
             //2. Click on 'Home' button and go to the grid:
             await settingsBrowsePanel.clickOnHomeButton();
             //3. Verify the issue #1627:
-            studioUtils.saveScreenshot("home_button_project_saved_4");
+            await studioUtils.saveScreenshot("home_button_project_saved_4");
             await settingsBrowsePanel.waitForItemByDisplayNameDisplayed(PROJECT_DISPLAY_NAME);
             //4. Verify that 'Sync' button gets visible and enabled:
             await settingsBrowsePanel.waitForSyncButtonEnabled();
