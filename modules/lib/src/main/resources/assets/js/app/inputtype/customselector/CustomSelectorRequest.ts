@@ -3,6 +3,7 @@ import {Path} from 'lib-admin-ui/rest/Path';
 import {CustomSelectorItem} from './CustomSelectorItem';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import * as Q from 'q';
 
 export interface CustomSelectorResponse {
     total: number;
@@ -23,6 +24,8 @@ export class CustomSelectorRequest
 
     private results: CustomSelectorItem[];
     private loaded: boolean = false;
+    private postLoading: boolean = false;
+    private activeRequests: number = 0;
 
     setRequestPath(requestPath: string) {
         this.requestPath = requestPath;
@@ -93,7 +96,21 @@ export class CustomSelectorRequest
         return this;
     }
 
+    setPostLoading(value: boolean) {
+        this.postLoading = value;
+    }
+
+    sendAndParse(): Q.Promise<CustomSelectorItem[]> {
+        this.activeRequests++;
+        return super.sendAndParse();
+    }
+
+    isFulfilled(): boolean {
+        return this.activeRequests === 0;
+    }
+
     protected parseResponse(response: JsonResponse<CustomSelectorResponse>): CustomSelectorItem[] {
+        this.activeRequests--;
         const result: CustomSelectorResponse = response.getResult();
         if (this.start === 0) {
             this.results = [];
@@ -101,12 +118,12 @@ export class CustomSelectorRequest
 
         this.validateResponse(result);
 
-        this.start += result.count;
+        if (this.postLoading) {
+            this.start += result.count;
+        }
         this.loaded = this.start >= result.total;
 
-        let items = result.hits.map((hit) => {
-            return new CustomSelectorItem(hit);
-        });
+        const items = result.hits.map((hit) => new CustomSelectorItem(hit));
 
         this.results = this.results.concat(items);
 
