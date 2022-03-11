@@ -22,7 +22,7 @@ export class CustomSelectorLoader
         this.debouncedRequest = AppHelper.debounce((promise: Q.Deferred<CustomSelectorItem[]>) => {
             const superPromise = super.sendRequest();
             superPromise.then((results: CustomSelectorItem[]) => {
-                if (superPromise.isFulfilled()) {
+                if (superPromise.isFulfilled() && this.getRequest().isFulfilled()) {
                     promise.resolve(results);
                 }
                 if (superPromise.isRejected()) {
@@ -30,6 +30,12 @@ export class CustomSelectorLoader
                 }
             });
         }, 200);
+    }
+
+    load(postLoad: boolean = false): Q.Promise<CustomSelectorItem[]> {
+        this.getRequest().setPostLoading(postLoad);
+
+        return super.load(postLoad);
     }
 
     setRequestPath(requestPath: string) {

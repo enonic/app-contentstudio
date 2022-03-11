@@ -26,9 +26,7 @@ export class CustomSelectorComboBox
 
         loader.setSearchString(inputValue);
 
-        return loader.load().then(() => {
-            return loader.search(inputValue);
-        });
+        return loader.load().then(() => loader.search(inputValue));
     }
 
     static create(): CustomSelectorComboBoxBuilder {
