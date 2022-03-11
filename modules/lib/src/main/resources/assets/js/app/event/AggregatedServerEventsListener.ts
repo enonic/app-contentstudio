@@ -4,7 +4,6 @@ import {ServerEventAggregator} from './ServerEventAggregator';
 import {ServerEventsListener} from 'lib-admin-ui/event/ServerEventsListener';
 import {Application} from 'lib-admin-ui/app/Application';
 import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerEventsTranslator} from './ContentServerEventsTranslator';
 import {ContentServerEvent} from './ContentServerEvent';
 import {ContentServerChangeItem} from './ContentServerChangeItem';
@@ -13,11 +12,12 @@ import {IssueServerEvent} from './IssueServerEvent';
 import {NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
 import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {TaskEvent} from 'lib-admin-ui/task/TaskEvent';
 
 export class AggregatedServerEventsListener
     extends ServerEventsListener {
 
-    private aggregator: ServerEventAggregator;
+    private readonly aggregator: ServerEventAggregator;
 
     constructor(applications: Application[]) {
         super(applications);
@@ -46,6 +46,11 @@ export class AggregatedServerEventsListener
         if (this.isIssueEvent(event)) {
             this.handleIssueServerEvent(<IssueServerEvent>event);
             return;
+        }
+
+        // letting task event pass further and fire
+        if (this.isTaskEvent(event)) {
+            this.handleTaskEvent(<TaskEvent>event);
         }
 
         this.fireEvent(event);
@@ -82,6 +87,16 @@ export class AggregatedServerEventsListener
     private handleIssueServerEvent(issueEvent: IssueServerEvent) {
         if (this.isInCurrentProject(issueEvent)) {
             this.fireEvent(issueEvent);
+        }
+    }
+
+    private isTaskEvent(event: Event): boolean {
+        return ObjectHelper.iFrameSafeInstanceOf(event, TaskEvent);
+    }
+
+    private handleTaskEvent(event: TaskEvent): void {
+        if (event.getTaskInfo().getDescription() === 'Archive content') {
+            this.aggregator.delayUpdate();
         }
     }
 }

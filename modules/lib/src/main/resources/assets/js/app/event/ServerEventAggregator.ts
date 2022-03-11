@@ -15,7 +15,7 @@ export class ServerEventAggregator {
         new Map<string, ContentServerChangeItem[]>();
 
     constructor() {
-    //
+        //
     }
 
     appendEvent(event: ContentServerEvent) {
@@ -29,8 +29,9 @@ export class ServerEventAggregator {
                 this.typesAndDelayedFunctions.get(typeAndRepo)();
             } else {
                 const debouncedFunc: Function = AppHelper.debounceWithInterrupt(() => {
-                    const items: ContentServerChangeItem[] = this.filterItems(typeAndRepo);
+                    this.filterMovedAndDeletedItems(typeAndRepo);
 
+                    const items: ContentServerChangeItem[] = this.typesAndChangeItems.get(typeAndRepo);
                     this.typesAndDelayedFunctions.delete(typeAndRepo);
                     this.typesAndChangeItems.delete(typeAndRepo);
 
@@ -47,14 +48,23 @@ export class ServerEventAggregator {
         });
     }
 
-    private filterItems(typeAndRepo: string): ContentServerChangeItem[] {
+    private filterMovedAndDeletedItems(typeAndRepo: string): void {
+        const typeAndRepoToFilter: string = this.isNotMoveOrDeleteEvent(typeAndRepo) ? typeAndRepo : this.getUpdateRepo(typeAndRepo);
+        this.filterItems(typeAndRepoToFilter);
+    }
+
+    private getUpdateRepo(typeAndRepo: string): string {
+        const repo: string = typeAndRepo.split(':')[1];
+        return `${NodeServerChangeType[NodeServerChangeType.UPDATE]}:${repo}`;
+    }
+
+    private filterItems(typeAndRepo: string): void {
         const items: ContentServerChangeItem[] = this.typesAndChangeItems.get(typeAndRepo);
 
-        if (this.isNotMoveOrDeleteEvent(typeAndRepo)) {
-            return items.filter((item: ContentServerChangeItem) => this.isNotPendingMoveOrDeleteItem(item));
+        if (items) {
+            this.typesAndChangeItems.set(typeAndRepo,
+                items.filter((item: ContentServerChangeItem) => this.isNotPendingMoveOrDeleteItem(item)));
         }
-
-        return items;
     }
 
     private isNotMoveOrDeleteEvent(typeAndRepo: string): boolean {
@@ -99,4 +109,13 @@ export class ServerEventAggregator {
         });
     }
 
+    delayUpdate(): void {
+        Array.from(this.typesAndDelayedFunctions.keys()).forEach((typeAndRepo: string) => {
+            const eventType: string = typeAndRepo.split(':')[0];
+
+            if (eventType === NodeServerChangeType[NodeServerChangeType.UPDATE]) {
+                this.typesAndDelayedFunctions.get(typeAndRepo)();
+            }
+        });
+    }
 }
