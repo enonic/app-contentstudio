@@ -124,13 +124,14 @@ export class CustomSelectorRequest
 
         this.validateResponse(result);
 
+        this.loaded = this.start + result.count >= result.total;
+
         if (this.postLoading) {
             this.start += result.count;
         } else if (this.start === 0) {
             // Save start of the second batch to avoid re-fetching the first batch for postLoad. Will be used in getParams().
             this.nextStart = result.count;
         }
-        this.loaded = this.start >= result.total;
 
         const items = result.hits.map((hit) => new CustomSelectorItem(hit));
 
