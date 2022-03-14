@@ -20,6 +20,7 @@ export class CustomSelectorRequest
     private ids: string[] = [];
     private query: string;
     private start: number = 0;
+    private nextStart: number;
     private count: number = CustomSelectorRequest.DEFAULT_SIZE;
 
     private results: CustomSelectorItem[];
@@ -46,6 +47,11 @@ export class CustomSelectorRequest
     }
 
     getParams(): Object {
+        if (this.postLoading && this.start === 0) {
+            // When CustomSelector switches to postLoading mode,
+            // don't re-fetch the first batch but go directly to the second
+            this.start = this.nextStart;
+        }
         return {
             ids: this.ids && this.ids.length > 0 ? this.ids.toString() : null,
             query: this.query || null,
@@ -120,6 +126,9 @@ export class CustomSelectorRequest
 
         if (this.postLoading) {
             this.start += result.count;
+        } else if (this.start === 0) {
+            // Save start of the second batch to avoid re-fetching the first batch for postLoad. Will be used in getParams().
+            this.nextStart = result.count;
         }
         this.loaded = this.start >= result.total;
 
