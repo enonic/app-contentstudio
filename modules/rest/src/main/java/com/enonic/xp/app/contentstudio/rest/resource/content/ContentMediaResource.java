@@ -122,6 +122,9 @@ public final class ContentMediaResource
         {
             response = response.header( "X-Frame-Options", "SAMEORIGIN" );
         }
+
+        response.header( "Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'none'" );
+
         return response.build();
     }
 

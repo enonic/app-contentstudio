@@ -55,6 +55,17 @@ public final class ResolvedImage
         {
             r.encoding( "gzip" );
         }
+
+        if ( "image/svg+xml".equals( mimeType ) )
+        {
+            r.header( "Content-Security-Policy",
+                      "default-src 'none'; base-uri 'none'; form-action 'none'; style-src 'self' 'unsafe-inline'" );
+        }
+        else
+        {
+            r.header( "Content-Security-Policy", "default-src 'none'; base-uri 'none'; form-action 'none'" );
+        }
+
         return r;
     }
 
