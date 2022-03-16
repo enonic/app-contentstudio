@@ -1695,18 +1695,6 @@ public class ContentResourceTest
     }
 
     @Test
-    public void getByIds_null()
-        throws Exception
-    {
-        ContentResource contentResource = getResourceInstance();
-
-        final WebApplicationException ex = assertThrows( WebApplicationException.class, () -> {
-            contentResource.getByIds( new ContentIdsJson( List.of( "content-id1", "content-id2" ) ) );
-        } );
-        assertEquals( "Contents [[content-id1, content-id2]] was not found", ex.getMessage() );
-    }
-
-    @Test
     public void getByIds()
     {
         ContentResource contentResource = getResourceInstance();
