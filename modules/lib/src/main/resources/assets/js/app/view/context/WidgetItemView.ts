@@ -4,6 +4,7 @@ import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCom
 import {RepositoryId} from '../../repository/RepositoryId';
 import {ProjectContext} from '../../project/ProjectContext';
 import {CONFIG} from 'lib-admin-ui/util/Config';
+import {WidgetHelper} from '../../util/WidgetHelper';
 
 export class WidgetItemView
     extends DivEl {
@@ -37,32 +38,8 @@ export class WidgetItemView
         return `${url}?${contentIdParam}${repositoryParam}${branchParam}t=${new Date().getTime()}`;
     }
 
-    private injectScriptNode(node: HTMLElement) {
-        const scriptNode = document.createElement('script');
-        scriptNode.text = node.innerHTML;
-        for(let i = node.attributes.length-1; i >= 0; i--) {
-            scriptNode.setAttribute(node.attributes[i].name, node.attributes[i].value);
-        }
-        document.getElementsByTagName('head')[0].appendChild(scriptNode);
-        this.scriptNodes.push(scriptNode);
-    }
-
-    private injectWidgetHtml(widgetContainer: HTMLElement) {
-        const widgetEl = widgetContainer.querySelector('widget');
-        if (!widgetEl) {
-            return;
-        }
-
-        this.getEl().appendChild(widgetEl);
-    }
-
-    private injectWidgetScripts(widgetContainer: HTMLElement) {
-        const scriptTags = widgetContainer.querySelectorAll('script');
-
-        let i = 0;
-        while (i < scriptTags.length) {
-            this.injectScriptNode(scriptTags[i++]);
-        }
+    private injectWidget(html: string) {
+        this.scriptNodes.push(...WidgetHelper.injectWidgetHtml(html, this).scriptElements);
     }
 
     public fetchWidgetContents(url: string, contentId: string): Q.Promise<void> {
@@ -71,14 +48,8 @@ export class WidgetItemView
         fetch(fullUrl)
             .then(response => response.text())
             .then((html: string) => {
-                const widgetContainer = document.createElement('html');
-                widgetContainer.innerHTML = html;
-
                 this.removeChildren();
-
-                this.injectWidgetScripts(widgetContainer);
-                this.injectWidgetHtml(widgetContainer);
-
+                this.injectWidget(html);
                 deferred.resolve(null);
             })
             .catch(err => {
