@@ -51,10 +51,12 @@ import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconU
 import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
 import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 import {ContentApp} from 'lib-contentstudio/app/ContentApp';
-import {SettingsApp} from 'lib-contentstudio/app/settings/SettingsApp';
 import {Store} from 'lib-admin-ui/store/Store';
 import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
 import {CONFIG} from 'lib-admin-ui/util/Config';
+import {AppContext} from 'lib-contentstudio/app/AppContext';
+import {App} from 'lib-contentstudio/app/App';
+import {Widget} from 'lib-admin-ui/content/Widget';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -410,7 +412,7 @@ function getTheme(): string {
 async function startContentBrowser() {
     await import ('lib-contentstudio/app/ContentAppPanel');
     const AppWrapper = (await import ('lib-contentstudio/app/AppWrapper')).AppWrapper;
-    const baseApps = [new ContentApp(), new SettingsApp()];
+    const baseApps = [new ContentApp()];
     const url: string = window.location.href;
     const commonWrapper = new AppWrapper(baseApps, getTheme());
     const baseAppToBeOpened = baseApps.find((baseApp) => url.endsWith(`/${baseApp.getUrlPath()}`));
@@ -418,17 +420,31 @@ async function startContentBrowser() {
     if (baseAppToBeOpened) {
         commonWrapper.selectApp(baseAppToBeOpened);
     } else {
-        commonWrapper.onAppAdded((app) => {
-            if (!commonWrapper.hasAppSelected() && url.endsWith(`/${app.getUrlPath()}`)) {
-                commonWrapper.selectApp(app);
+        commonWrapper.onItemAdded((item) => {
+            if (AppContext.get().getCurrentAppOrWidgetId()) {
+                return;
+            }
+
+            if (item['getUrlPath']) { // is App
+                if (url.endsWith(`/${(<App>item).getUrlPath()}`)) {
+                    commonWrapper.selectApp(<App>item);
+                }
+
+                return;
+            }
+
+            if (item['widgetDescriptorKey']) { // is widget
+                if (url.endsWith(`/${(<Widget>item).getWidgetDescriptorKey().getName()}`)) {
+                    commonWrapper.selectWidget(<Widget>item);
+                }
             }
         });
 
         setTimeout(() => { // if no external app is loaded then switch to a studio
-            if (!commonWrapper.hasAppSelected()) {
+            if (!AppContext.get().getCurrentAppOrWidgetId()) {
                 commonWrapper.selectApp(baseApps[0]);
             }
-        }, 1000);
+        }, 2000);
     }
 
     body.appendChild(commonWrapper);

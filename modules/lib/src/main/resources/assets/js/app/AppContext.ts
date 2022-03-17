@@ -1,4 +1,4 @@
-import {Application} from 'lib-admin-ui/app/Application';
+import {Widget} from 'lib-admin-ui/content/Widget';
 import {DescriptorKey} from './page/DescriptorKey';
 
 export class AppContext {
@@ -7,7 +7,7 @@ export class AppContext {
 
     private appId: DescriptorKey;
 
-    private application: Application;
+    private widget: Widget;
 
     private constructor() {
         //
@@ -21,20 +21,18 @@ export class AppContext {
         return AppContext.INSTANCE;
     }
 
-    setCurrentApp(value: DescriptorKey) {
+    setCurrentApp(value: DescriptorKey): void {
         this.appId = value;
+        this.widget = null;
     }
 
-    setApplication(application: Application) {
-        this.application = application;
+    setWidget(widget: Widget): void {
+        this.widget = widget;
+        this.appId = null;
     }
 
-    getCurrentApp(): DescriptorKey {
-        return this.appId;
-    }
-
-    getApplication(): Application {
-        return this.application;
+    getCurrentAppOrWidgetId(): string {
+        return this.appId?.toString() || this.widget?.getWidgetDescriptorKey()?.toString();
     }
 
 }

@@ -12,6 +12,7 @@ module.exports = {
     context: path.join(__dirname, '/src/main/resources/assets'),
     entry: {
         'js/main': './js/main.ts',
+        'js/settings': './js/settings.ts',
         'page-editor/js/editor': './js/page-editor.ts',
         'page-editor/lib/vendors': './page-editor/lib/index.js',
         'page-editor/styles/main': './page-editor/styles/main.less'
@@ -19,7 +20,7 @@ module.exports = {
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
         filename: './[name].js',
-        assetModuleFilename: './[file]'
+        assetModuleFilename: './[file]',
     },
     resolve: {
         extensions: ['.ts', '.js', '.less', '.css']
@@ -68,20 +69,7 @@ module.exports = {
                     keep_fnames: true
                 }
             })
-        ],
-        splitChunks: {
-            chunks: 'all',
-            cacheGroups: {
-                default: false,
-                defaultVendors: {
-                    test: /[\\/]node_modules[\\/]/,
-                    reuseExistingChunk: true,
-                    minChunks: 2,
-                    priority: -10,
-                    filename: 'js/vendors.main~editor.js'
-                }
-            }
-        }
+        ]
     },
     plugins: [
         new ProvidePlugin({

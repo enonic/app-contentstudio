@@ -1,0 +1,7 @@
+<widget xmlns="urn:enonic:xp:model:1.0">
+  <display-name>Settings</display-name>
+  <description>Configure Projects, Layers</description>
+  <interfaces>
+    <interface>contentstudio.sidebar</interface>
+  </interfaces>
+</widget>
