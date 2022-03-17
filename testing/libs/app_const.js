@@ -272,6 +272,7 @@ module.exports = Object.freeze({
         ARTICLE: 'article',
         CUSTOM_REL_0_1: "custom-relationship0_1",
         CUSTOM_RELATIONSHIP: 'custom-relationship2_4',
+        OPTION_SET_HELP_TEXT:'optionset_help',
     },
     permissions: {
         FULL_ACCESS: `Full Access`,
