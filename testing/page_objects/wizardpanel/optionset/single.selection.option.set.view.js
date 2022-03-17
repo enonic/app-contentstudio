@@ -82,7 +82,7 @@ class SingleSelectionOptionSet extends Page {
             "//div[contains(@id,'FormOptionSetOccurrenceView')]" + `//li[contains(@id,'MenuItem') and text()='${menuItem}']`);
         //await res[0].waitForEnabled(appConst.shortTimeout, "Option Set - Delete menu item should be enabled!");
         await res[0].click();
-        return await this.pause(300);
+        return await this.pause(1000);
     }
 
     async expandItemSetMenu(index) {

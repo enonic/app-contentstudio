@@ -14,6 +14,7 @@ const SingleSelectionOptionSet = require('../../page_objects/wizardpanel/options
 const MultiSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/multi.selection.set.view');
 const ArticleForm = require('../../page_objects/wizardpanel/article.form.panel');
 const NotificationDialog = require('../../page_objects/notification.dialog');
+const OptionSetHelpFormView = require('../../page_objects/wizardpanel/optionset/option.set.help.text.form');
 
 describe("optionset.confirmation.spec: checks for 'confirmation' dialog when deleting an existing or new item-set", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -232,7 +233,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let contentWizard = new ContentWizard();
             let articleForm = new ArticleForm();
             //1. Open new wizard for article-content:
-                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
             let displayName = contentBuilder.generateRandomName('article');
             //2. Fill in the first required input:
             await articleForm.typeArticleTitle("test");
@@ -251,7 +252,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let contentWizard = new ContentWizard();
             let articleForm = new ArticleForm();
             //1. Open new wizard for article-content:
-                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
             let displayName = contentBuilder.generateRandomName('article');
             //2. Fill in the first required input:
             await articleForm.typeArticleTitle("test");
@@ -272,7 +273,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let contentWizard = new ContentWizard();
             let articleForm = new ArticleForm();
             //1. Open new wizard for article-content:
-                await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
             let displayName = contentBuilder.generateRandomName('article');
             //2. Fill in the first required input:
             await articleForm.typeArticleTitle("test");
@@ -286,6 +287,33 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let result = await contentWizard.isContentInvalid();
             await studioUtils.saveScreenshot('article_wizard_3');
             assert.isFalse(result, "Article content should be valid because required inputs are filled");
+        });
+
+    it(`GIVEN 'option 1' is selected in the single selector WHEN help text icon has been clicked THEN expected help text get visible`,
+        async () => {
+            let singleSelectionOptionSet = new SingleSelectionOptionSet();
+            //1. Open wizard for new option set:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.OPTION_SET_HELP_TEXT);
+            let optionSetHelpFormView = new OptionSetHelpFormView();
+            //2. Select 'option 1' in the single-selector:
+            await optionSetHelpFormView.selectOptionInSingleSelection("option 1");
+            //3. Click on Show help text toggler:
+            await optionSetHelpFormView.clickOnHelpTextToggler("Ingress1");
+            //4. Verify that expected help text gets visible inside the selected option:
+            let textOption1 = await optionSetHelpFormView.getHelpText("Ingress1");
+            await studioUtils.saveScreenshot('option_1_help_text');
+            assert.equal(textOption1, "Help text 3", "Expected help text should be displayed");
+
+            //5. Reset the option in single-selector:
+            await singleSelectionOptionSet.expandOptionSetMenuAndClickOnMenuItem(0, "Reset");
+            //6. Select 'option 2'
+            await optionSetHelpFormView.selectOptionInSingleSelection("option 2");
+            //7. Click on Show help text toggler and show the text:
+            await optionSetHelpFormView.clickOnHelpTextToggler("Ingress2");
+            //8. Verify that help text is updated:
+            let textOption2 = await optionSetHelpFormView.getHelpText("Ingress2");
+            await studioUtils.saveScreenshot('option_2_help_text');
+            assert.equal(textOption2, "Help text 4", "Expected help text should be displayed");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
