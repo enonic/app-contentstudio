@@ -21,9 +21,7 @@ describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal 
 
     it("Preconditions: new project with folder should be added",
         async () => {
-            //1. Navigate to Settings Panel:
-            await studioUtils.closeProjectSelectionDialog();
-            await studioUtils.openSettingsPanel();
+            //1. Navigate to Settings Panel and save new project:
             await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, "description");
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.switchToContentMode();
