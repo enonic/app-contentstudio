@@ -126,7 +126,7 @@ class DeleteContentDialog extends Page {
                       "//div[@title='Click to show the inbound references']";
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         await this.clickOnElement(locator);
-        return await this.pause(2000);
+        return await this.pause(3500);
     }
 
     async getNumberInArchiveButton() {
