@@ -46,6 +46,7 @@ describe('Delete a content that has inbound references.', function () {
             await deleteContentDialog.clickOnShowInboundLink(appConstant.TEST_IMAGES.WHALE);
             await studioUtils.doSwitchToNextTab();
             //4. Verify that expected shortcut should be filtered in the grid:
+            await contentBrowsePanel.waitForGridLoaded(appConstant.longTimeout);
             let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
             await studioUtils.saveScreenshot("inbound_1");
             assert.equal(displayNames[0], SHORTCUT.displayName, "Expected shortcut should be filtered in the grid");
