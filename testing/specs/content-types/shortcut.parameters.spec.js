@@ -20,12 +20,21 @@ describe('Shortcut parameters specification', function () {
     const PARAM_VALUE = "value 1";
     const SHORTCUT_NAME = contentBuilder.generateRandomName('shortcut');
 
-    it(`WHEN shortcut-wizard is opened THEN 'Add Parameter' button should be present`,
+    it(`WHEN wizard for new shortcut is opened THEN 'Add Parameter' button should be present`,
         async () => {
             let shortcutForm = new ShortcutForm();
+            let contentWizard = new ContentWizard();
+            //1. Open the wizard:
             await studioUtils.openContentWizard(appConst.contentTypes.SHORTCUT);
             let result = await shortcutForm.waitForAddParametersButtonVisible();
             assert.isTrue(result, "Add Parameters button should be visible");
+            //2. Verify that the help text in Parameters form is not visible by default:
+            await shortcutForm.waitForHelpTextInParametersFormNotDisplayed();
+            //3. Click on show/hide Help Texts toggler:
+            await contentWizard.clickOnHelpTextsToggler();
+            //4. Verify that expected help text gets visible in the shortcut form:
+            let actualHelpText = await shortcutForm.getHelpTextsInParametersForm();
+            assert.equal(actualHelpText[0], "HTTP Parameters", "Expected help message should be displayed");
         });
 
     it(`GIVEN required data is typed in the wizard AND 'Add Parameters' button has been clicked WHEN 'Save' button has been pressed THEN the shortcut gets not valid because parameter's inputs are empty`,

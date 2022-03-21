@@ -15,6 +15,21 @@ describe('site.with.applications.spec: swaps applications in the site-form', fun
     webDriverHelper.setupBrowser();
 
     let SITE;
+    it(`GIVEN wizard for new site is opened WHEN show help texts button has been pressed THEN help text for app-selector gets visible`,
+        async () => {
+            let siteFormPanel = new SiteFormPanel();
+            let contentWizard = new ContentWizard();
+            //1. Open new site-wizard:
+            await studioUtils.openContentWizard(appConst.contentTypes.SITE);
+            //2. Verify that the help text for Applications selector is not visible by default:
+            await siteFormPanel.waitForHelpTextInApplicationsSelectorNotDisplayed();
+            //3. Click on show/hide Help Texts toggler:
+            await contentWizard.clickOnHelpTextsToggler();
+            //4. Verify that expected help text gets visible in the site form:
+            let actualHelpText = await siteFormPanel.getHelpTextsInApplicationsSelector();
+            assert.equal(actualHelpText[0], "Configure applications used by this site", "Expected help message should be displayed");
+        });
+
 
     it(`GIVEN wizard for new site is opened AND two applications have been selected WHEN the applications have been swapped THEN new order of applications should be displayed`,
         async () => {
