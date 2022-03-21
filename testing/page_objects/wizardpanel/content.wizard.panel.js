@@ -67,6 +67,7 @@ const XPATH = {
     buttonModifyPath: "//button[contains(@class,'icon-pencil')]",
     shaderPage: "//div[@class='xp-page-editor-shader xp-page-editor-page']",
     goToGridButton: "//div[contains(@class,'font-icon-default icon-tree-2')]",
+    helpTextsButton: "//div[contains(@class,'help-text-button')]",
     wizardStepByName:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[child::a[text()='${name}']]`,
     wizardStepByTitle:
@@ -160,12 +161,30 @@ class ContentWizardPanel extends Page {
         return XPATH.wizardStepNavigatorAndToolbar + XPATH.editPermissionsButton;
     }
 
+    get wizardToolbarHelpButton() {
+        return XPATH.wizardStepNavigatorAndToolbar + XPATH.helpTextsButton;
+    }
+
     get modifyPathButton() {
         return XPATH.wizardHeader + XPATH.buttonModifyPath;
     }
 
     get goToGridButton() {
         return XPATH.toolbar + XPATH.goToGridButton;
+    }
+
+    async waitForHelpTextsButtonTogglerDisplayed() {
+        try {
+            return await this.waitForElementDisplayed(this.wizardToolbarHelpButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_help_textx_button"));
+            throw new Error("Help texts toggler button is not displayed in the wizard! " + err);
+        }
+    }
+
+    async clickOnHelpTextsToggler() {
+        await this.waitForHelpTextsButtonTogglerDisplayed();
+        return await this.clickOnElement(this.wizardToolbarHelpButton);
     }
 
     waitForContextWindowVisible() {
@@ -654,7 +673,10 @@ class ContentWizardPanel extends Page {
             return this.getAttribute(selector, 'class').then(result => {
                 return !result.includes('invalid');
             })
-        }, {timeout: appConst.mediumTimeout, timeoutMsg: "Validation Error: Red icon is still displayed in the wizard after 3 seconds"});
+        }, {
+            timeout: appConst.mediumTimeout,
+            timeoutMsg: "Validation Error: Red icon is still displayed in the wizard after 3 seconds"
+        });
     }
 
     typeSettings(settings) {
@@ -842,7 +864,7 @@ class ContentWizardPanel extends Page {
 
     waitForContentStatus(expectedStatus) {
         let selector = XPATH.container +
-                       `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status') and text()='${expectedStatus}']`;
+            `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status') and text()='${expectedStatus}']`;
         let message = "Element still not displayed! timeout is " + appConst.mediumTimeout + "  " + selector;
         return this.getBrowser().waitUntil(() => {
             return this.isElementDisplayed(selector);

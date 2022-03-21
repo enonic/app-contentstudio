@@ -41,6 +41,11 @@ class ShortcutForm extends Page {
         return xpath.targetFormView + lib.INPUT_VALIDATION_VIEW;
     }
 
+    get helpTextInParametersForm() {
+        return lib.CONTENT_WIZARD_STEP_FORM +
+               "//div[contains(@id,'FormItemSetView') and descendant::h5[text()='Parameters']]//div[contains(@class,'help-text')]/p";
+    }
+
     waitForParametersFormVisible() {
         return this.waitForElementDisplayed(xpath.parametersFormOccurrence, appConst.shortTimeout).catch(err => {
             this.saveScreenshot("err_shortcut_parameters_form");
@@ -184,6 +189,15 @@ class ShortcutForm extends Page {
             let elements = await this.getDisplayedElements(this.targetValidationRecording);
             return elements.length > 0;
         }, {timeout: appConst.mediumTimeout, timeoutMsg: "Target Form Validation recording should be displayed"});
+    }
+
+    async getHelpTextsInParametersForm() {
+        await this.waitForElementDisplayed(this.helpTextInParametersForm, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(this.helpTextInParametersForm);
+    }
+
+    waitForHelpTextInParametersFormNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.helpTextInParametersForm, appConst.mediumTimeout);
     }
 }
 

@@ -26,6 +26,11 @@ class SiteForm extends Page {
         return lib.FORM_VIEW + XPATH.descriptionInput;
     }
 
+    get helpTextInApplicationsSelector() {
+        return lib.CONTENT_WIZARD_STEP_FORM +
+               "//div[contains(@id,'InputView') and descendant::div[contains(@class,'application-configurator')]]//div[contains(@class,'help-text')]/p";
+    }
+
     async type(siteData) {
         await this.typeDescription(siteData.description);
         if (siteData.applications) {
@@ -112,6 +117,15 @@ class SiteForm extends Page {
         let destination = await this.findElement(destinationLocator);
         await source.dragAndDrop(destination);
         return await this.pause(1000);
+    }
+
+    async getHelpTextsInApplicationsSelector() {
+        await this.waitForElementDisplayed(this.helpTextInApplicationsSelector, appConst.mediumTimeout);
+        return await this.getTextInDisplayedElements(this.helpTextInApplicationsSelector);
+    }
+
+    waitForHelpTextInApplicationsSelectorNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.helpTextInApplicationsSelector, appConst.mediumTimeout);
     }
 }
 
