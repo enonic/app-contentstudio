@@ -13,11 +13,14 @@ export class IsRenderableRequest
 
     private item: ContentSummary;
 
+    private mode: RenderingMode;
+
     private static cache: Map<string, boolean> = new Map<string, boolean>();
 
-    constructor(summary: ContentSummary) {
+    constructor(summary: ContentSummary, mode?: RenderingMode) {
         super();
         this.item = summary;
+        this.mode = mode;
         this.setMethod(HttpMethod.HEAD);
         this.setIsJsonResponse(false);
     }
@@ -33,6 +36,16 @@ export class IsRenderableRequest
 
     protected parseResponse(response: Response): boolean {
         return true;
+    }
+
+    getParams(): Object {
+        if (!this.mode) {
+            return super.getParams();
+        }
+
+        return {
+            mode: this.mode
+        };
     }
 
     sendAndParse(): Q.Promise<boolean> {
