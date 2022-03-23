@@ -21,6 +21,14 @@ const appendHtml = (widgetElem: Element): void => {
     const c: SettingsAppContainer = new SettingsAppContainer();
     widgetElem.appendChild(c);
     c.show();
+
+    widgetElem.onShown(() => {
+        c.show(); // need to toggle key bindings
+    });
+
+    widgetElem.onHidden(() => {
+        c.hide(); // need to toggle key bindings
+    });
 };
 
 const init = async (configUri: string, elemId: string): Promise<void> => {

@@ -415,7 +415,8 @@ async function startContentBrowser() {
     const baseApps = [new ContentApp()];
     const url: string = window.location.href;
     const commonWrapper = new AppWrapper(baseApps, getTheme());
-    const baseAppToBeOpened = baseApps.find((baseApp) => url.endsWith(`/${baseApp.getUrlPath()}`));
+    const baseAppToBeOpened = url.indexOf('#') < 0 ? baseApps[0] :
+                              baseApps.find((baseApp) => url.endsWith(`/${baseApp.getUrlPath()}`));
 
     if (baseAppToBeOpened) {
         commonWrapper.selectApp(baseAppToBeOpened);
@@ -444,7 +445,7 @@ async function startContentBrowser() {
             if (!AppContext.get().getCurrentAppOrWidgetId()) {
                 commonWrapper.selectApp(baseApps[0]);
             }
-        }, 2000);
+        }, 1000);
     }
 
     body.appendChild(commonWrapper);
