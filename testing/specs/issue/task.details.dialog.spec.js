@@ -63,8 +63,11 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             await studioUtils.saveScreenshot("issue_comment_typed");
             //2. Verify that 'Comment' button gets enabled
             await commentsTab.waitForCommentButtonEnabled();
+            //3. Verify that "Comment & Close Task" button gets visible:
+            await commentsTab.waitForCommentAndCloseTaskButtonDisplayed();
         });
 
+    //Verify the issue: Issue Details dialog - 'No comments yet' placeholder remains visible after adding a comment #4247
     it(`GIVEN Task Details dialog is opened WHEN new comment has been typed AND Comment button has been pressed THEN expected notification should be shown`,
         async () => {
             let issueListDialog = new IssueListDialog();
