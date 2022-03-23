@@ -74,17 +74,21 @@ describe('task.details.dialog.spec: add a comment and check CommentsTabItem', fu
             //1. Open Issue Details dialog:
             await issueListDialog.clickOnIssue(TASK_TITLE);
             await taskDetailsDialog.waitForDialogOpened();
-            //2. Type text in comment and click on 'Comment' button:
+            //2. Verify that Comments Tab is automatically loaded and 'No comments yet' is displayed in this tab:
+            await commentsTab.waitForNoCommentsYetMessageDisplayed();
+            //3. Type text in comment area and click on 'Comment' button:
             await commentsTab.typeComment(MY_COMMENT);
             await commentsTab.clickOnCommentButton();
-            //3. Verify the notification message:
+            //4. Verify the notification message:
             let message = await taskDetailsDialog.waitForNotificationMessage();
             await studioUtils.saveScreenshot("issue_comment_added");
             assert.equal(message, appConstant.YOUR_COMMENT_ADDED,
                 'Expected notification message should be shown when the comment has been added');
             await studioUtils.saveScreenshot("issue_comment_button_disabled");
-            //4. Verify that 'Comment' button gets disabled:
+            //5. Verify that 'Comment' button gets disabled:
             await commentsTab.waitForCommentButtonDisabled();
+            //6.verify that 'No comments yet' message gets not visible in the Comments tab
+            await commentsTab.waitForNoCommentsYetMessageNotDisplayed();
         });
 
     it(`WHEN Task Details dialog is opened THEN just created comment should be present in the comments-list`,

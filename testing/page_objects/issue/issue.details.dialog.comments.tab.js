@@ -8,7 +8,8 @@ const XPATH = {
     commentAndCloseRequestButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment & Close Request']]`,
     commentAndCloseTaskButton: `//button[contains(@id,'DialogButton') and child::span[text()='Comment & Close Task']]`,
     issueCommentTextArea: `//div[contains(@id,'IssueCommentTextArea')]`,
-
+    noCommentsMessage: "//h5[@class='empty-list-item']",
+    commentsList: "//ul[contains(@id,'IssueCommentsList')]",
     issueCommentsListItemByText:
         text => `//div[contains(@id,'IssueCommentsListItem') and descendant::p[@class='inplace-text' and text()='${text}']]`,
 };
@@ -114,5 +115,16 @@ class IssueDetailsDialogCommentsTab extends Page {
             throw  new Error('Issue Details Dialog  ' + err);
         })
     }
+
+    waitForNoCommentsYetMessageDisplayed() {
+        let locator = XPATH.commentsList + XPATH.noCommentsMessage;
+        return this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    waitForNoCommentsYetMessageNotDisplayed() {
+        let locator = XPATH.commentsList + XPATH.noCommentsMessage;
+        return this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
+    }
 }
+
 module.exports = IssueDetailsDialogCommentsTab;

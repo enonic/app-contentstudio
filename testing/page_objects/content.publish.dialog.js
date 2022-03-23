@@ -135,13 +135,15 @@ class ContentPublishDialog extends Page {
         })
     }
 
-    clickOnPublishNowButton() {
-        return this.waitForElementEnabled(this.publishNowButton, appConst.longTimeout).then(() => {
-            return this.clickOnElement(this.publishNowButton);
-        }).catch(err => {
-            this.saveScreenshot('err_click_on_publish_button_publish_dialog');
+    async clickOnPublishNowButton() {
+        try {
+            await this.waitForElementEnabled(this.publishNowButton, appConst.longTimeout);
+            await this.clickOnElement(this.publishNowButton);
+            return await this.pause(1000);
+        } catch (err) {
+            await this.saveScreenshot('err_click_on_publish_button_publish_dialog');
             throw new Error(`Error when clicking on 'Publish Now' button ` + err);
-        })
+        }
     }
 
     isIncludeChildTogglerDisplayed() {
