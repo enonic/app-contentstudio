@@ -140,6 +140,7 @@ import {CONFIG} from 'lib-admin-ui/util/Config';
 import {MovedContentItem} from '../browse/MovedContentItem';
 import {ContentAppHelper} from './ContentAppHelper';
 import {UrlHelper} from '../util/UrlHelper';
+import {RenderingMode} from '../rendering/RenderingMode';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -2584,7 +2585,7 @@ export class ContentWizardPanel
     }
 
     private checkIfRenderable(): Q.Promise<Boolean> {
-        return new IsRenderableRequest(this.getPersistedItem()).sendAndParse().then((renderable: boolean) => {
+        return new IsRenderableRequest(this.getPersistedItem(), RenderingMode.EDIT).sendAndParse().then((renderable: boolean) => {
             this.renderableChanged = this.renderable !== renderable;
             this.renderable = renderable;
 
