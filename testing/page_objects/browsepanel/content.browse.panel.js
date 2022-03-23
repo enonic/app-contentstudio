@@ -534,7 +534,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             return await this.pause(500);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName('err_not_found'));
-            throw Error('Content was not found' + err);
+            throw Error('Content was not found:  ' + err);
         }
     }
 
