@@ -28,9 +28,9 @@ export class AppWrapper
 
     private sidebar: Sidebar;
 
-    private apps: App[];
+    private apps: App[] = [];
 
-    private widgets: Widget[];
+    private widgets: Widget[] = [];
 
     private widgetElements: Map<string, Element> = new Map<string, Element>();
 
@@ -43,10 +43,9 @@ export class AppWrapper
     constructor(apps: App[], className?: string) {
         super(`main-app-wrapper ${(className || '')}`.trim());
 
-        this.apps = apps;
-        this.widgets = [];
         this.initElements();
         this.initListeners();
+        apps.forEach((app: App) => this.addApp(app));
         this.updateAdminTools();
         this.toggleSidebar();
         TooltipHelper.init();
@@ -167,44 +166,38 @@ export class AppWrapper
 
     private updateAdminTools() {
         new GetAdminToolsRequest().sendAndParse().then((adminTools: AdminTool[]) => {
-            this.sidebar.reset();
             this.removeStaleAdminTools(adminTools);
-            this.sidebar.setAdminTools(this.apps);
             this.injectMissingAdminTools(adminTools);
+        }).catch(DefaultErrorHandler.handle);
 
-            new GetWidgetsByInterfaceRequest(['contentstudio.sidebar']).sendAndParse().then((widgets: Widget[]) => {
-                this.widgets = widgets;
-
-                widgets.forEach((widget: Widget) => {
-                    this.sidebar.addWidget(widget);
-                    this.notifyItemAdded(widget);
-                });
-            }).catch(DefaultErrorHandler.handle);
+        new GetWidgetsByInterfaceRequest(['contentstudio.sidebar']).sendAndParse().then((widgets: Widget[]) => {
+            this.removeStaleWidgets(widgets);
+            this.addMissingWidgets(widgets);
         }).catch(DefaultErrorHandler.handle);
     }
 
     private removeStaleAdminTools(adminTools: AdminTool[]) {
-        const apps: App[] = [];
-
-        this.apps.forEach((app: App) => {
+        this.apps = this.apps.filter((app: App) => {
             if (adminTools.some((adminTool: AdminTool) => adminTool.getKey().equals(app.getAppId()))) {
-                apps.push(app);
-            } else {
-                const toolId: string = app.getAppId().toString();
-                const cssElem: HTMLElement = document.getElementById('externalCSS');
-                const jsElem: HTMLElement = document.getElementById(`${toolId}JS`);
-
-                cssElem?.setAttribute('href', '');
-                // cssElem?.parentNode.removeChild(cssElem);
-                jsElem?.parentNode.removeChild(jsElem);
+                return true;
             }
-        });
 
-        this.apps = apps;
+            const toolId: string = app.getAppId().toString();
+            const cssElem: HTMLElement = document.getElementById('externalCSS');
+            const jsElem: HTMLElement = document.getElementById(`${toolId}JS`);
+            cssElem?.setAttribute('href', '');
+            // cssElem?.parentNode.removeChild(cssElem);
+            jsElem?.parentNode.removeChild(jsElem);
+
+            this.sidebar.removeApp(app);
+
+            return false;
+        });
     }
 
     private injectMissingAdminTools(adminTools: AdminTool[]) {
         const studioApp: string = CONFIG.getString('appId');
+
         adminTools
             .filter((adminTool: AdminTool) => !this.hasAdminTool(adminTool))
             .forEach((remoteAdminTool: AdminTool) => {
@@ -233,6 +226,30 @@ export class AppWrapper
         return this.apps.some((app: App) => app.getAppId().equals(adminTool.getKey()));
     }
 
+    private removeStaleWidgets(widgets: Widget[]): void {
+        this.widgets = this.widgets.filter((currentWidget: Widget) => {
+            if (widgets.some((w: Widget) => w.getWidgetDescriptorKey().equals(currentWidget.getWidgetDescriptorKey()))) {
+                return true;
+            }
+
+            this.sidebar.removeWidget(currentWidget);
+
+            return false;
+        });
+    }
+
+    private hasWidget(widget: Widget): boolean {
+        return this.widgets.some((w: Widget) => w.getWidgetDescriptorKey().equals(widget.getWidgetDescriptorKey()));
+    }
+
+    private addMissingWidgets(widgets: Widget[]): void {
+        widgets.filter((widget: Widget) => !this.hasWidget(widget)).forEach((widget: Widget) => {
+            this.widgets.push(widget);
+            this.sidebar.addWidget(widget);
+            this.notifyItemAdded(widget);
+        });
+    }
+
     private listenAppEvents() {
         const debouncedAdminToolUpdate: Function = AppHelper.debounce(() => {
             this.updateAdminTools();
@@ -252,14 +269,9 @@ export class AppWrapper
         return key.toString().indexOf('com.enonic.app.contentstudio') >= 0;
     }
 
-    addApp(app: App, index: number = -1) {
-        if (index > -1) {
-            this.apps.splice(index, 0, app);
-        } else {
-            this.apps.push(app);
-        }
-
-        this.sidebar.addAdminTool(app, index);
+    addApp(app: App) {
+        this.apps.push(app);
+        this.sidebar.addApp(app);
         this.notifyItemAdded(app);
     }
 
@@ -326,15 +338,15 @@ class AppModeSwitcher
         this.cleanButtons();
     }
 
-    addAdminTool(app: App, index: number = -1) {
-        this.createAppButton(app, index);
+    addApp(app: App) {
+        this.createAppButton(app);
     }
 
     addWidget(widget: Widget): void {
         this.createWidgetButton(widget);
     }
 
-    private createWidgetButton(widget: Widget, index: number = -1) {
+    private createWidgetButton(widget: Widget) {
         const contentButton: SidebarButton = new SidebarButton(widget.getWidgetDescriptorKey().toString());
         contentButton.setTitle(widget.getDisplayName());
         const imgEl: ImgEl = new ImgEl(widget.getIconUrl());
@@ -360,24 +372,40 @@ class AppModeSwitcher
         });
     }
 
-    private createAppButton(app: App, index: number = -1): void {
+    private createAppButton(app: App): void {
         const contentButton: SidebarButton = new SidebarButton(app.getAppId().toString());
+
         contentButton.setLabel(app.getDisplayName());
         contentButton.addClass(app.getIconClass());
         contentButton.setTitle(app.getDisplayName());
 
-        this.createButton(contentButton, index);
+        this.createButton(contentButton);
     }
 
-    private createButton(sidebarButton: SidebarButton, index: number = -1): void {
+    private createButton(sidebarButton: SidebarButton): void {
         this.listenButtonClicked(sidebarButton);
-        this.buttons.push(sidebarButton);
 
-        if (index > -1) {
-            this.insertChild(sidebarButton, index);
-        } else {
+        const pos: number = this.getButtonPos(sidebarButton);
+
+        if (pos < 0) {
             this.appendChild(sidebarButton);
+        } else {
+            this.insertChild(sidebarButton, pos);
         }
+
+        this.buttons.push(sidebarButton);
+    }
+
+    private getButtonPos(sidebarButton: SidebarButton): number {
+        if (sidebarButton.getAppOrWidgetId().endsWith('studio:main')) {
+            return 0;
+        }
+
+        if (this.buttons.some((button: SidebarButton) => button.getAppOrWidgetId().endsWith('studio:settings'))) {
+            return this.buttons.length - 1;
+        }
+
+        return -1;
     }
 
     private onButtonClicked(button: SidebarButton) {
@@ -399,6 +427,23 @@ class AppModeSwitcher
             button.unTouchStart(clickListener);
             button.unClicked(clickListener);
         });
+    }
+
+    removeApp(app: App): void {
+        this.removeButtonById(app.getAppId().toString());
+    }
+
+    removeWidget(widget: Widget): void {
+        this.removeButtonById(widget.getWidgetDescriptorKey().toString());
+    }
+
+    private removeButtonById(itemId: string): void {
+        const buttonToRemove: SidebarButton = this.buttons.find((b: SidebarButton) => b.getAppOrWidgetId() === itemId);
+
+        if (buttonToRemove) {
+            this.buttons = this.buttons.filter((b: SidebarButton) => b !== buttonToRemove);
+            buttonToRemove.remove();
+        }
     }
 
     private notifyItemSelected(appOrWidgetId: string) {
@@ -476,8 +521,8 @@ class Sidebar
         this.appModeSwitcher.setAdminTools(apps);
     }
 
-    addAdminTool(app: App, index: number = -1) {
-        this.appModeSwitcher.addAdminTool(app, index);
+    addApp(app: App) {
+        this.appModeSwitcher.addApp(app);
     }
 
     addWidget(widget: Widget): void {
@@ -486,6 +531,14 @@ class Sidebar
 
     toggleActiveButton() {
         this.appModeSwitcher.toggleActiveButton();
+    }
+
+    removeApp(app: App): void {
+        this.appModeSwitcher.removeApp(app);
+    }
+
+    removeWidget(widget: Widget): void {
+        this.appModeSwitcher.removeWidget(widget);
     }
 
     private createAppNameBlock(): Element {

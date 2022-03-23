@@ -1,10 +1,9 @@
 import * as hasher from 'hasher';
 import {ProjectContext} from './project/ProjectContext';
 import {Path} from 'lib-admin-ui/rest/Path';
+import {Store} from 'lib-admin-ui/store/Store';
 
 export class Router {
-
-    private static INSTANCE: Router;
 
     private prevHash: string;
 
@@ -20,11 +19,14 @@ export class Router {
     }
 
     static get(): Router {
-        if (!Router.INSTANCE) {
-            Router.INSTANCE = new Router();
+        let instance: Router = Store.instance().get(Router.name);
+
+        if (instance == null) {
+            instance = new Router();
+            Store.instance().set(Router.name, instance);
         }
 
-        return Router.INSTANCE;
+        return instance;
     }
 
     private doSetHash(path: string) {
