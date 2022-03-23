@@ -1,7 +1,6 @@
 /**
  * Created on 26.11.2020.
  */
-
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -53,7 +52,6 @@ describe('layer.wizard.select.parent.project.spec - ui-tests for selecting paren
 
     it("Postconditions: the layer should be deleted",
         async () => {
-            await studioUtils.openSettingsPanel();
             //1.Select and delete the layer:
             await studioUtils.selectAndDeleteProject(LAYER_DISPLAY_NAME);
         });
