@@ -137,6 +137,7 @@ import {ContentWizardContextSplitPanel} from './ContentWizardContextSplitPanel';
 import {ContextPanelMode} from '../view/context/ContextSplitPanel';
 import {ContextPanelState} from '../view/context/ContextPanelState';
 import {MovedContentItem} from '../browse/MovedContentItem';
+import {RenderingMode} from '../rendering/RenderingMode';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -2597,7 +2598,7 @@ export class ContentWizardPanel
     }
 
     private checkIfRenderable(): Q.Promise<Boolean> {
-        return new IsRenderableRequest(this.getPersistedItem()).sendAndParse().then((renderable: boolean) => {
+        return new IsRenderableRequest(this.getPersistedItem(), RenderingMode.EDIT).sendAndParse().then((renderable: boolean) => {
             this.renderableChanged = this.renderable !== renderable;
             this.renderable = renderable;
 
