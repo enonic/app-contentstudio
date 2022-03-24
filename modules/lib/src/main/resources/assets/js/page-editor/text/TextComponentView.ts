@@ -219,28 +219,25 @@ export class TextComponentView
         }
     }
 
-    private doHandleDbClick(event: MouseEvent) {
+    private doHandleDbClick(event: MouseEvent): void {
         if (this.isEditMode() && this.isActive()) {
             return;
         }
 
         this.focusOnInit = true;
         this.startPageTextEditMode();
-        if (this.isEditorReady()) {
-            this.htmlAreaEditor.focus();
-            this.addClass(TextComponentView.EDITOR_FOCUSED_CLASS);
-        }
+        this.focusEditor();
         Highlighter.get().hide();
     }
 
-    private doHandleClick(event: MouseEvent) {
+    private doHandleClick(event: MouseEvent): void {
         if (this.isEditMode()) {
             if (this.isActive()) {
                 return;
             }
-            if (this.isEditorReady()) {
-                this.htmlAreaEditor.focus();
-            }
+
+            this.focusEditor();
+
             return;
         }
 
@@ -453,15 +450,19 @@ export class TextComponentView
         this.isInitializingEditor = false;
     }
 
-    private forceEditorFocus() {
-        if (this.isEditorReady()) {
-            this.htmlAreaEditor.focus();
-        }
+    private forceEditorFocus(): void {
+        this.focusEditor();
         this.startPageTextEditMode();
     }
 
     private isEditorReady() {
         return this.htmlAreaEditor && this.htmlAreaEditor.isReady();
+    }
+
+    private focusEditor(): void {
+        if (this.isEditorReady()) {
+            this.htmlAreaEditor.focus();
+        }
     }
 
     private anyEditorHasFocus(): boolean {
