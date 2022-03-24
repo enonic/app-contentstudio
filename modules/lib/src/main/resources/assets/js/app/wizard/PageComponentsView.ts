@@ -485,9 +485,8 @@ export class PageComponentsView
         this.tree.scrollToItem(item.getItemId().toString());
     }
 
-    private selectItemById() {
+    private selectItemById(): void {
         this.tree.selectNode(this.selectedItemId, true);
-        this.tree.getGrid().focus();
     }
 
     isDraggable(): boolean {
