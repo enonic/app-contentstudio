@@ -7,7 +7,7 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
-const OptionSetUnlimitedOptions = require('../../page_objects/wizardpanel/optionset/optionset.unlimited.options');
+const MultiSelectionOptionSet = require('../../page_objects/wizardpanel/optionset/multi.selection.option.set');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
@@ -28,7 +28,7 @@ describe("optionset.validation.spec: tests for validation of option set", functi
     //Option-set with unlimited number of allowed selections is considered invalid #8765
     it(`GIVEN option set with default selected option is opened WHEN the default option has been unselected AND saved THEN the content should be valid in wizard`,
         async () => {
-            let optionSetUnlimitedOptions = new OptionSetUnlimitedOptions();
+            let optionSetUnlimitedOptions = new MultiSelectionOptionSet();
             let contentWizard = new ContentWizard();
             //1. Open the new wizard:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'optionset1');
@@ -39,6 +39,7 @@ describe("optionset.validation.spec: tests for validation of option set", functi
             studioUtils.saveScreenshot('item_set_unlimited1');
             await contentWizard.waitUntilInvalidIconDisappears();
         });
+
     //Verifies: https://github.com/enonic/xp/issues/8765
     //Option-set with unlimited number of allowed selections is considered invalid #8765
     it("WHEN existing option set has been filtered THEN the content should be valid in grid",

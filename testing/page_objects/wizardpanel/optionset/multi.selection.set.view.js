@@ -14,7 +14,7 @@ const xpath = {
     optionCheckboxLocator:
         option => `//div[contains(@id,'FormOptionSetOptionView') and descendant::label[text()='${option}']]//input[@type='checkbox']`
 };
-
+//Page Object for Custom option set
 class MultiSelectionOptionSet extends Page {
 
     get nameTextInput() {
@@ -27,9 +27,32 @@ class MultiSelectionOptionSet extends Page {
 
     async clickOnOption(option) {
         let locator = xpath.optionLabelLocator(option);
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        //await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        await this.waitForOptionCheckboxEnabled(option);
         await this.clickOnElement(locator);
         return this.pause(300);
+    }
+
+    async waitForOptionCheckboxEnabled(option) {
+        try {
+            let locator = xpath.optionLabelLocator(option);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.waitForElementEnabled(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_multi_select_option"));
+            throw new Error("Option Set multi selection: "+ err);
+        }
+    }
+
+    async waitForOptionCheckboxDisabled(option) {
+        try {
+            let locator = xpath.optionLabelLocator(option);
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.waitForElementDisabled(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_multi_select_enabled"));
+            throw new Error("Option Set multi selection: "+ err);
+        }
     }
 
     async getMultiSelectionTitle() {
