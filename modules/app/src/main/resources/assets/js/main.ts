@@ -57,6 +57,7 @@ import {CONFIG} from 'lib-admin-ui/util/Config';
 import {AppContext} from 'lib-contentstudio/app/AppContext';
 import {App} from 'lib-contentstudio/app/App';
 import {Widget} from 'lib-admin-ui/content/Widget';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -421,12 +422,12 @@ async function startContentBrowser() {
     if (baseAppToBeOpened) {
         commonWrapper.selectApp(baseAppToBeOpened);
     } else {
-        commonWrapper.onItemAdded((item) => {
+        commonWrapper.onItemAdded((item: App | Widget) => {
             if (AppContext.get().getCurrentAppOrWidgetId()) {
                 return;
             }
 
-            if (item['getUrlPath']) { // is App
+            if (ObjectHelper.iFrameSafeInstanceOf(item, App)) {
                 if (url.endsWith(`/${(<App>item).getUrlPath()}`)) {
                     commonWrapper.selectApp(<App>item);
                 }
@@ -434,7 +435,7 @@ async function startContentBrowser() {
                 return;
             }
 
-            if (item['widgetDescriptorKey']) { // is widget
+            if (ObjectHelper.iFrameSafeInstanceOf(item, Widget)) {
                 if (url.endsWith(`/${(<Widget>item).getWidgetDescriptorKey().getName()}`)) {
                     commonWrapper.selectWidget(<Widget>item);
                 }
@@ -445,7 +446,7 @@ async function startContentBrowser() {
             if (!AppContext.get().getCurrentAppOrWidgetId()) {
                 commonWrapper.selectApp(baseApps[0]);
             }
-        }, 1000);
+        }, 3000);
     }
 
     body.appendChild(commonWrapper);

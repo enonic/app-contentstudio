@@ -20,7 +20,7 @@ module.exports = {
     output: {
         path: path.join(__dirname, '/build/resources/main/assets'),
         filename: './[name].js',
-        assetModuleFilename: './[file]',
+        assetModuleFilename: './[file]'
     },
     resolve: {
         extensions: ['.ts', '.js', '.less', '.css']
@@ -69,7 +69,20 @@ module.exports = {
                     keep_fnames: true
                 }
             })
-        ]
+        ],
+        splitChunks: {
+            chunks: 'all',
+            cacheGroups: {
+                default: false,
+                defaultVendors: {
+                    test: /[\\/]node_modules[\\/]/,
+                    reuseExistingChunk: true,
+                    minChunks: 3,
+                    priority: -10,
+                    filename: 'js/vendors.main~editor.js'
+                }
+            }
+        }
     },
     plugins: [
         new ProvidePlugin({
