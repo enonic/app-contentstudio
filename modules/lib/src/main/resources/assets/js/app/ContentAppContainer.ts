@@ -39,7 +39,6 @@ export class ContentAppContainer
         super();
 
         new ContentEventsListener().start();
-        this.initListeners();
     }
 
     protected createAppBar(application: Application): ContentAppBar {
@@ -50,7 +49,9 @@ export class ContentAppContainer
         return new ContentAppPanel();
     }
 
-    private initListeners() {
+    protected initListeners() {
+        super.initListeners();
+
         this.initSearchPanelListener(<ContentAppPanel>this.appPanel);
 
         ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {

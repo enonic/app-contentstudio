@@ -50,14 +50,11 @@ import {ProjectHelper} from 'lib-contentstudio/app/settings/data/project/Project
 import {ContentIconUrlResolver} from 'lib-contentstudio/app/content/ContentIconUrlResolver';
 import {ContentSummary} from 'lib-contentstudio/app/content/ContentSummary';
 import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
-import {ContentApp} from 'lib-contentstudio/app/ContentApp';
 import {Store} from 'lib-admin-ui/store/Store';
 import {TooltipHelper} from 'lib-contentstudio/app/TooltipHelper';
 import {CONFIG} from 'lib-admin-ui/util/Config';
 import {AppContext} from 'lib-contentstudio/app/AppContext';
-import {App} from 'lib-contentstudio/app/App';
 import {Widget} from 'lib-admin-ui/content/Widget';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 
 // Dynamically import and execute all input types, since they are used
 // on-demand, when parsing XML schemas and has not real usage in app
@@ -413,38 +410,26 @@ function getTheme(): string {
 async function startContentBrowser() {
     await import ('lib-contentstudio/app/ContentAppPanel');
     const AppWrapper = (await import ('lib-contentstudio/app/AppWrapper')).AppWrapper;
-    const baseApps = [new ContentApp()];
     const url: string = window.location.href;
-    const commonWrapper = new AppWrapper(baseApps, getTheme());
-    const baseAppToBeOpened = url.indexOf('#') < 0 ? baseApps[0] :
-                              baseApps.find((baseApp) => url.endsWith(`/${baseApp.getUrlPath()}`));
+    const commonWrapper = new AppWrapper(getTheme());
+    const baseAppToBeOpened = url.indexOf('#') < 0 || url.endsWith('/browse');
 
     if (baseAppToBeOpened) {
-        commonWrapper.selectApp(baseAppToBeOpened);
+        commonWrapper.selectDefaultWidget();
     } else {
-        commonWrapper.onItemAdded((item: App | Widget) => {
+        commonWrapper.onItemAdded((item: Widget) => {
             if (AppContext.get().getCurrentAppOrWidgetId()) {
                 return;
             }
 
-            if (ObjectHelper.iFrameSafeInstanceOf(item, App)) {
-                if (url.endsWith(`/${(<App>item).getUrlPath()}`)) {
-                    commonWrapper.selectApp(<App>item);
-                }
-
-                return;
-            }
-
-            if (ObjectHelper.iFrameSafeInstanceOf(item, Widget)) {
-                if (url.endsWith(`/${(<Widget>item).getWidgetDescriptorKey().getName()}`)) {
-                    commonWrapper.selectWidget(<Widget>item);
-                }
+            if (url.endsWith(`/${item.getWidgetDescriptorKey().getName()}`)) {
+                commonWrapper.selectWidget(item);
             }
         });
 
         setTimeout(() => { // if no external app is loaded then switch to a studio
             if (!AppContext.get().getCurrentAppOrWidgetId()) {
-                commonWrapper.selectApp(baseApps[0]);
+                commonWrapper.selectDefaultWidget();
             }
         }, 3000);
     }
