@@ -1,16 +1,13 @@
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
+import {Element, NewElementBuilder} from 'lib-admin-ui/dom/Element';
 import {Button} from 'lib-admin-ui/ui/button/Button';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Body} from 'lib-admin-ui/dom/Body';
 import {AppContext} from './AppContext';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {App} from './App';
-import {GetAdminToolsRequest} from './resource/GetAdminToolsRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {AdminTool} from './AdminTool';
 import {TooltipHelper} from './TooltipHelper';
 import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
@@ -18,17 +15,16 @@ import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
 import {Store} from 'lib-admin-ui/store/Store';
 import {CONFIG} from 'lib-admin-ui/util/Config';
 import {GetWidgetsByInterfaceRequest} from './resource/GetWidgetsByInterfaceRequest';
-import {Widget} from 'lib-admin-ui/content/Widget';
+import {Widget, WidgetBuilder, WidgetDescriptorKey} from 'lib-admin-ui/content/Widget';
 import {UriHelper} from './rendering/UriHelper';
 import {WidgetHelper} from './util/WidgetHelper';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
+import {ContentAppContainer} from './ContentAppContainer';
 
 export class AppWrapper
     extends DivEl {
 
     private sidebar: Sidebar;
-
-    private apps: App[] = [];
 
     private widgets: Widget[] = [];
 
@@ -38,15 +34,15 @@ export class AppWrapper
 
     private touchListener: (event: TouchEvent) => void;
 
-    private appAddedListeners: { (app: App | Widget): void }[] = [];
+    private widgetAddedListeners: { (Widget): void }[] = [];
 
-    constructor(apps: App[], className?: string) {
+    constructor(className?: string) {
         super(`main-app-wrapper ${(className || '')}`.trim());
 
         this.initElements();
         this.initListeners();
-        apps.forEach((app: App) => this.addApp(app));
-        this.updateAdminTools();
+        this.addStudioWidget();
+        this.updateSidebarWidgets();
         this.toggleSidebar();
         TooltipHelper.init();
     }
@@ -60,15 +56,8 @@ export class AppWrapper
         this.toggleSidebarButton.onClicked(this.toggleSidebar.bind(this));
         this.handleTouchOutsideSidebar();
 
-        this.sidebar.onItemSelected((appOrWidgetId: string) => {
-            const app: App = this.getAppById(appOrWidgetId);
-
-            if (app) {
-                this.selectApp(app);
-                return;
-            }
-
-            const widget: Widget = this.widgets.find((w: Widget) => w.getWidgetDescriptorKey().toString() === appOrWidgetId);
+        this.sidebar.onItemSelected((widgetId: string) => {
+            const widget: Widget = this.widgets.find((w: Widget) => w.getWidgetDescriptorKey().toString() === widgetId);
 
             if (widget) {
                 this.selectWidget(widget);
@@ -78,8 +67,39 @@ export class AppWrapper
         this.listenAppEvents();
     }
 
+    private addStudioWidget(): void {
+        const studioWidget: Widget = this.createStudioWidget();
+        const widgetEl: Element = this.createStudioWidgetEl();
+
+        this.widgetElements.set(studioWidget.getWidgetDescriptorKey().toString(), widgetEl);
+        this.widgets.push(studioWidget);
+        this.sidebar.addWidget(studioWidget, 'icon-version-modified');
+
+        this.appendChild(widgetEl);
+    }
+
+    private createStudioWidget(): Widget {
+        const studioWidgetBuilder: WidgetBuilder = Widget.create();
+
+        studioWidgetBuilder.widgetDescriptorKey = WidgetDescriptorKey.fromString(`${CONFIG.get('appId')}:main`);
+        studioWidgetBuilder.displayName = i18n('app.content');
+
+        return studioWidgetBuilder.build();
+    }
+
+    private createStudioWidgetEl(): Element {
+        const widgetEl: Element = new Element(new NewElementBuilder().setTagName('widget')).setId('widget-studio');
+        const appContainer: ContentAppContainer = new ContentAppContainer();
+        widgetEl.appendChild(appContainer);
+
+        return widgetEl;
+    }
+
+    selectDefaultWidget(): void {
+        this.selectWidget(this.widgets[0]);
+    }
+
     selectWidget(widget: Widget) {
-        this.apps.forEach((app: App) => app.hide());
         Array.from(this.widgetElements.values()).forEach((el: Element) => el.hide());
 
         AppContext.get().setWidget(widget);
@@ -104,22 +124,6 @@ export class AppWrapper
             .catch(err => {
                 throw new Error('Failed to fetch widget: ' + err);
             });
-    }
-
-    private getAppById(appId: string): App {
-        return this.apps.find((app: App) => app.getAppId().toString() === appId);
-    }
-
-    selectApp(app: App): void {
-        if (!this.hasChild(app.getAppContainer())) {
-            this.appendChild(app.getAppContainer());
-        }
-
-        AppContext.get().setCurrentApp(app.getAppId());
-        this.apps.forEach((app: App) => app.hide());
-        Array.from(this.widgetElements.values()).forEach((el: Element) => el.hide());
-        app.show();
-        this.sidebar.toggleActiveButton();
     }
 
     private collapseSidebarOnMouseEvent(event: TouchEvent) {
@@ -166,8 +170,9 @@ export class AppWrapper
         }
     }
 
-    private updateAdminTools() {
+    private updateSidebarWidgets() {
         new GetWidgetsByInterfaceRequest(['contentstudio.sidebar']).sendAndParse().then((widgets: Widget[]) => {
+            widgets.push(this.widgets[0]); // default studio widget
             this.removeStaleWidgets(widgets);
             this.addMissingWidgets(widgets);
         }).catch(DefaultErrorHandler.handle);
@@ -199,7 +204,7 @@ export class AppWrapper
 
     private listenAppEvents() {
         const debouncedAdminToolUpdate: Function = AppHelper.debounce(() => {
-            this.updateAdminTools();
+            this.updateSidebarWidgets();
         }, 500);
 
         ApplicationEvent.on((event: ApplicationEvent) => {
@@ -216,12 +221,6 @@ export class AppWrapper
         return key.toString().indexOf('com.enonic.app.contentstudio') >= 0;
     }
 
-    addApp(app: App) {
-        this.apps.push(app);
-        this.sidebar.addApp(app);
-        this.notifyItemAdded(app);
-    }
-
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.appendChildren(this.toggleSidebarButton, <Element>this.sidebar);
@@ -230,19 +229,19 @@ export class AppWrapper
         });
     }
 
-    onItemAdded(handler: (item: App | Widget) => void) {
-        this.appAddedListeners.push(handler);
+    onItemAdded(handler: (item: Widget) => void) {
+        this.widgetAddedListeners.push(handler);
     }
 
-    unItemAdded(handler: (app: App | Widget) => void) {
-        this.appAddedListeners = this.appAddedListeners.filter((curr: { (app: App | Widget): void }) => {
+    unItemAdded(handler: (item: Widget) => void) {
+        this.widgetAddedListeners = this.widgetAddedListeners.filter((curr: { (widget: Widget): void }) => {
             return handler !== curr;
         });
     }
 
-    private notifyItemAdded(addedApp: App | Widget) {
-        this.appAddedListeners.forEach((handler: { (app: App | Widget): void }) => {
-            handler(addedApp);
+    private notifyItemAdded(item: Widget) {
+        this.widgetAddedListeners.forEach((handler: { (widget: Widget): void }) => {
+            handler(item);
         });
     }
 }
@@ -277,59 +276,21 @@ class AppModeSwitcher
         super('actions-block');
     }
 
-    setAdminTools(apps: App[]) {
-        this.initButtons(apps);
+    addWidget(widget: Widget, buttonClass?: string): void {
+        this.createWidgetButton(widget, buttonClass);
     }
 
-    reset() {
-        this.cleanButtons();
-    }
+    private createWidgetButton(widget: Widget, buttonClass?: string) {
+        const sidebarButton: SidebarButton = new SidebarButton(widget.getWidgetDescriptorKey().toString());
+        sidebarButton.setTitle(widget.getDisplayName());
 
-    addApp(app: App) {
-        this.createAppButton(app);
-    }
+        if (buttonClass) {
+            sidebarButton.addClass(buttonClass);
+        }
 
-    addWidget(widget: Widget): void {
-        this.createWidgetButton(widget);
-    }
-
-    private createWidgetButton(widget: Widget) {
-        const contentButton: SidebarButton = new SidebarButton(widget.getWidgetDescriptorKey().toString());
-        contentButton.setTitle(widget.getDisplayName());
         const imgEl: ImgEl = new ImgEl(widget.getIconUrl());
-        contentButton.appendChild(imgEl);
+        sidebarButton.appendChild(imgEl);
 
-        this.createButton(contentButton);
-    }
-
-    toggleActiveButton() {
-        this.buttons.forEach((b: SidebarButton) => {
-            b.toggleSelected(b.getAppOrWidgetId() === AppContext.get().getCurrentAppOrWidgetId());
-        });
-    }
-
-    private cleanButtons() {
-        this.removeChildren();
-        this.buttons = [];
-    }
-
-    private initButtons(apps: App[]) {
-        apps.forEach((app: App) => {
-            this.createAppButton(app);
-        });
-    }
-
-    private createAppButton(app: App): void {
-        const contentButton: SidebarButton = new SidebarButton(app.getAppId().toString());
-
-        contentButton.setLabel(app.getDisplayName());
-        contentButton.addClass(app.getIconClass());
-        contentButton.setTitle(app.getDisplayName());
-
-        this.createButton(contentButton);
-    }
-
-    private createButton(sidebarButton: SidebarButton): void {
         this.listenButtonClicked(sidebarButton);
 
         const pos: number = this.getButtonPos(sidebarButton);
@@ -343,12 +304,18 @@ class AppModeSwitcher
         this.buttons.push(sidebarButton);
     }
 
+    toggleActiveButton() {
+        this.buttons.forEach((b: SidebarButton) => {
+            b.toggleSelected(b.getWidgetId() === AppContext.get().getCurrentAppOrWidgetId());
+        });
+    }
+
     private getButtonPos(sidebarButton: SidebarButton): number {
-        if (sidebarButton.getAppOrWidgetId().endsWith('studio:main')) {
+        if (sidebarButton.getWidgetId().endsWith('studio:main')) {
             return 0;
         }
 
-        if (this.buttons.some((button: SidebarButton) => button.getAppOrWidgetId().endsWith('studio:settings'))) {
+        if (this.buttons.some((button: SidebarButton) => button.getWidgetId().endsWith('studio:settings'))) {
             return this.buttons.length - 1;
         }
 
@@ -360,8 +327,8 @@ class AppModeSwitcher
             b.toggleClass(SidebarButton.SELECTED_CLASS, b === button);
         });
 
-        if (button.getAppOrWidgetId() !== AppContext.get().getCurrentAppOrWidgetId()) {
-            this.notifyItemSelected(button.getAppOrWidgetId());
+        if (button.getWidgetId() !== AppContext.get().getCurrentAppOrWidgetId()) {
+            this.notifyItemSelected(button.getWidgetId());
         }
     }
 
@@ -376,16 +343,12 @@ class AppModeSwitcher
         });
     }
 
-    removeApp(app: App): void {
-        this.removeButtonById(app.getAppId().toString());
-    }
-
     removeWidget(widget: Widget): void {
         this.removeButtonById(widget.getWidgetDescriptorKey().toString());
     }
 
     private removeButtonById(itemId: string): void {
-        const buttonToRemove: SidebarButton = this.buttons.find((b: SidebarButton) => b.getAppOrWidgetId() === itemId);
+        const buttonToRemove: SidebarButton = this.buttons.find((b: SidebarButton) => b.getWidgetId() === itemId);
 
         if (buttonToRemove) {
             this.buttons = this.buttons.filter((b: SidebarButton) => b !== buttonToRemove);
@@ -393,13 +356,13 @@ class AppModeSwitcher
         }
     }
 
-    private notifyItemSelected(appOrWidgetId: string) {
+    private notifyItemSelected(itemId: string) {
         this.itemSelectedListeners.forEach((listener: (id: string) => void) => {
-            listener(appOrWidgetId);
+            listener(itemId);
         });
     }
 
-    onItemSelected(handler: (appOrWidgetId: string) => void) {
+    onItemSelected(handler: (itemId: string) => void) {
         this.itemSelectedListeners.push(handler);
     }
 
@@ -411,19 +374,19 @@ class AppModeSwitcher
 class SidebarButton
     extends Button {
 
-    private readonly appOrWidgetId: string;
+    private readonly widgetId: string;
 
     static SELECTED_CLASS: string = 'selected';
 
-    constructor(appOrWidgetId: string) {
+    constructor(widgetId: string) {
         super();
 
-        this.appOrWidgetId = appOrWidgetId;
-        this.toggleClass(SidebarButton.SELECTED_CLASS, appOrWidgetId === AppContext.get().getCurrentAppOrWidgetId());
+        this.widgetId = widgetId;
+        this.toggleClass(SidebarButton.SELECTED_CLASS, widgetId === AppContext.get().getCurrentAppOrWidgetId());
     }
 
-    getAppOrWidgetId(): string {
-        return this.appOrWidgetId;
+    getWidgetId(): string {
+        return this.widgetId;
     }
 
     toggleSelected(condition: boolean) {
@@ -460,28 +423,12 @@ class Sidebar
         return this.appModeSwitcher.getButtons();
     }
 
-    reset() {
-        this.appModeSwitcher.reset();
-    }
-
-    setAdminTools(apps: App[]) {
-        this.appModeSwitcher.setAdminTools(apps);
-    }
-
-    addApp(app: App) {
-        this.appModeSwitcher.addApp(app);
-    }
-
-    addWidget(widget: Widget): void {
-        this.appModeSwitcher.addWidget(widget);
+    addWidget(widget: Widget, buttonClass?: string): void {
+        this.appModeSwitcher.addWidget(widget, buttonClass);
     }
 
     toggleActiveButton() {
         this.appModeSwitcher.toggleActiveButton();
-    }
-
-    removeApp(app: App): void {
-        this.appModeSwitcher.removeApp(app);
     }
 
     removeWidget(widget: Widget): void {

@@ -16,11 +16,28 @@ export abstract class AppContainer
         super(`app-container ${className || ''}`);
 
         this.initElements();
+        this.initListeners();
     }
 
-    protected initElements() {
+    protected initElements(): void {
         this.appBar = this.createAppBar(Store.instance().get('application'));
         this.appPanel = this.createAppPanel();
+    }
+
+    protected initListeners(): void {
+        this.onAdded(() => {
+            if (this.isVisible()) {
+                this.show();
+            }
+
+            this.getParentElement().onShown(() => {
+                this.show(); // need to toggle key bindings
+            });
+
+            this.getParentElement().onHidden(() => {
+                this.hide(); // need to toggle key bindings
+            });
+        });
     }
 
     protected abstract createAppBar(application: Application): AppBar;
