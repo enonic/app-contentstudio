@@ -80,6 +80,8 @@ export class AppWrapper
 
     selectWidget(widget: Widget) {
         this.apps.forEach((app: App) => app.hide());
+        Array.from(this.widgetElements.values()).forEach((el: Element) => el.hide());
+
         AppContext.get().setWidget(widget);
         const key: string = widget.getWidgetDescriptorKey().toString();
 
@@ -165,65 +167,10 @@ export class AppWrapper
     }
 
     private updateAdminTools() {
-        new GetAdminToolsRequest().sendAndParse().then((adminTools: AdminTool[]) => {
-            this.removeStaleAdminTools(adminTools);
-            this.injectMissingAdminTools(adminTools);
-        }).catch(DefaultErrorHandler.handle);
-
         new GetWidgetsByInterfaceRequest(['contentstudio.sidebar']).sendAndParse().then((widgets: Widget[]) => {
             this.removeStaleWidgets(widgets);
             this.addMissingWidgets(widgets);
         }).catch(DefaultErrorHandler.handle);
-    }
-
-    private removeStaleAdminTools(adminTools: AdminTool[]) {
-        this.apps = this.apps.filter((app: App) => {
-            if (adminTools.some((adminTool: AdminTool) => adminTool.getKey().equals(app.getAppId()))) {
-                return true;
-            }
-
-            const toolId: string = app.getAppId().toString();
-            const cssElem: HTMLElement = document.getElementById('externalCSS');
-            const jsElem: HTMLElement = document.getElementById(`${toolId}JS`);
-            cssElem?.setAttribute('href', '');
-            // cssElem?.parentNode.removeChild(cssElem);
-            jsElem?.parentNode.removeChild(jsElem);
-
-            this.sidebar.removeApp(app);
-
-            return false;
-        });
-    }
-
-    private injectMissingAdminTools(adminTools: AdminTool[]) {
-        const studioApp: string = CONFIG.getString('appId');
-
-        adminTools
-            .filter((adminTool: AdminTool) => !this.hasAdminTool(adminTool))
-            .forEach((remoteAdminTool: AdminTool) => {
-                const adminToolApp: string = remoteAdminTool.getKey().getApplicationKey().toString();
-                const adminToolId: string = remoteAdminTool.getKey().toString();
-                const assetUrl = CONFIG.getString('assetsUri').replace(new RegExp(studioApp, 'g'), adminToolApp);
-                const mainJsUrl = `${assetUrl}/js/inject.js`;
-                const mainCssUrl = `${assetUrl}/styles/main.css`;
-
-                document.getElementById('externalCSS')?.setAttribute('href', mainCssUrl);
-
-                // document.querySelector('head').innerHTML +=
-                //     `<link id="${adminToolId}CSS" rel="stylesheet" href="${mainCssUrl}" type="text/css"/>`;
-
-                const s = document.createElement('script');
-                s.setAttribute('id', `${adminToolId}JS`);
-                s.setAttribute('type', 'text/javascript');
-                s.setAttribute('src', mainJsUrl);
-                s.setAttribute('data-tool-uri', remoteAdminTool.getUri());
-                s.setAttribute('data-tool-id', adminToolApp);
-                document.head.appendChild(s);
-            });
-    }
-
-    private hasAdminTool(adminTool: AdminTool): boolean {
-        return this.apps.some((app: App) => app.getAppId().equals(adminTool.getKey()));
     }
 
     private removeStaleWidgets(widgets: Widget[]): void {
