@@ -23,7 +23,6 @@ import {ContentTreeGridLoadedEvent} from './browse/ContentTreeGridLoadedEvent';
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
 import {ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
 import {ResolveDependencyResult} from './resource/ResolveDependencyResult';
-import {Router} from './Router';
 import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {Store} from 'lib-admin-ui/store/Store';

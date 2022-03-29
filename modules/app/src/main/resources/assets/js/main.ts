@@ -412,7 +412,7 @@ async function startContentBrowser() {
     const AppWrapper = (await import ('lib-contentstudio/app/AppWrapper')).AppWrapper;
     const url: string = window.location.href;
     const commonWrapper = new AppWrapper(getTheme());
-    const baseAppToBeOpened = url.indexOf('#') < 0 || url.endsWith('/browse');
+    const baseAppToBeOpened = url.indexOf('#') < 0 || url.endsWith(`/${UrlAction.BROWSE}`);
 
     if (baseAppToBeOpened) {
         commonWrapper.selectDefaultWidget();

@@ -95,10 +95,6 @@ export class ContentBrowsePanel
         super.initListeners();
 
         this.onShown(() => {
-            if (!Router.get().isInitialised() || !UrlHelper.isContentBrowseUrlMatch()) {
-                Router.get().setHash(UrlAction.BROWSE);
-            }
-
             this.treeGrid.resizeCanvas();
         });
 
