@@ -1,8 +1,9 @@
 import {Element as UIElement} from 'lib-admin-ui/dom/Element';
+import {WidgetInjectionResult} from './WidgetInjectionResult';
 
 export class WidgetHelper {
 
-    static injectWidgetHtml(html: string, target: UIElement): { scriptElements: HTMLScriptElement[], widgetContainer: UIElement } {
+    static injectWidgetHtml(html: string, target: UIElement): WidgetInjectionResult {
         const widgetContainer: UIElement = UIElement.fromHtml(html);
 
         if (widgetContainer?.getHTMLElement().tagName !== 'WIDGET') {
@@ -10,32 +11,41 @@ export class WidgetHelper {
         }
 
         const scriptElements: HTMLScriptElement[] = WidgetHelper.injectScriptsToHead(widgetContainer);
+        const linkElements: HTMLLinkElement[] = WidgetHelper.injectLinksToHead(widgetContainer);
         target.appendChild(widgetContainer);
 
-        return {scriptElements, widgetContainer};
+        return {scriptElements, linkElements, widgetContainer};
     }
 
     static injectScriptsToHead(widgetContainer: UIElement): HTMLScriptElement[] {
-        const scriptTags: NodeListOf<HTMLScriptElement> = widgetContainer.getHTMLElement().querySelectorAll('script');
-        const result: HTMLScriptElement[] = [];
+        return <HTMLScriptElement[]>this.injectToHead(widgetContainer, 'script');
+    }
 
-        scriptTags.forEach((scriptTag: HTMLScriptElement) => {
-            result.push(this.injectScriptNodeToHead(scriptTag));
+    static injectLinksToHead(widgetContainer: UIElement): HTMLLinkElement[] {
+        return <HTMLLinkElement[]>this.injectToHead(widgetContainer, 'link');
+    }
+
+    private static injectToHead(widgetContainer: UIElement, tagName: string): HTMLElement[] {
+        const scriptTags: NodeListOf<HTMLElement> = widgetContainer.getHTMLElement().querySelectorAll(tagName);
+        const result: HTMLElement[] = [];
+
+        scriptTags.forEach((scriptTag: HTMLElement) => {
+            result.push(this.injectNodeToHead(scriptTag, tagName));
         });
 
         return result;
     }
 
-    static injectScriptNodeToHead(node: HTMLElement): HTMLScriptElement {
-        const scriptNode: HTMLScriptElement = document.createElement('script');
-        scriptNode.text = node.innerHTML;
+    private static injectNodeToHead(node: HTMLElement, tagName: string): HTMLElement {
+        const headNode: HTMLElement = document.createElement(tagName);
+        headNode.innerHTML = node.innerHTML;
 
         for (let i = node.attributes.length - 1; i >= 0; i--) {
-            scriptNode.setAttribute(node.attributes[i].name, node.attributes[i].value);
+            headNode.setAttribute(node.attributes[i].name, node.attributes[i].value);
         }
 
-        document.getElementsByTagName('head')[0].appendChild(scriptNode);
+        document.getElementsByTagName('head')[0].appendChild(headNode);
 
-        return scriptNode;
+        return headNode;
     }
 }
