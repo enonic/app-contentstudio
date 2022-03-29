@@ -2,18 +2,21 @@ import {Element as UIElement} from 'lib-admin-ui/dom/Element';
 
 export class WidgetHelper {
 
-    static injectWidgetHtml(html: string, target: UIElement): { scriptElements: HTMLScriptElement[], resultElement: UIElement } {
-        const widgetContainer: HTMLHtmlElement = document.createElement('html');
-        widgetContainer.innerHTML = html;
+    static injectWidgetHtml(html: string, target: UIElement): { scriptElements: HTMLScriptElement[], widgetContainer: UIElement } {
+        const widgetContainer: UIElement = UIElement.fromHtml(html);
+
+        if (widgetContainer?.getHTMLElement().tagName !== 'WIDGET') {
+            throw 'Widget contents must be wrapped inside <widget></widget> tags';
+        }
 
         const scriptElements: HTMLScriptElement[] = WidgetHelper.injectScriptsToHead(widgetContainer);
-        const resultElement: UIElement = WidgetHelper.injectWidgetElementInto(widgetContainer, target);
+        target.appendChild(widgetContainer);
 
-        return {scriptElements, resultElement};
+        return {scriptElements, widgetContainer};
     }
 
-    static injectScriptsToHead(widgetContainer: HTMLElement): HTMLScriptElement[] {
-        const scriptTags: NodeListOf<HTMLScriptElement> = widgetContainer.querySelectorAll('script');
+    static injectScriptsToHead(widgetContainer: UIElement): HTMLScriptElement[] {
+        const scriptTags: NodeListOf<HTMLScriptElement> = widgetContainer.getHTMLElement().querySelectorAll('script');
         const result: HTMLScriptElement[] = [];
 
         scriptTags.forEach((scriptTag: HTMLScriptElement) => {
@@ -34,18 +37,5 @@ export class WidgetHelper {
         document.getElementsByTagName('head')[0].appendChild(scriptNode);
 
         return scriptNode;
-    }
-
-    static injectWidgetElementInto(widgetContainer: HTMLElement, target: UIElement): UIElement {
-        const widgetEl: HTMLElement = widgetContainer.querySelector('widget');
-
-        if (!widgetEl) {
-            return;
-        }
-
-        const result: UIElement = UIElement.fromHtmlElement(widgetEl);
-        target.appendChild(result);
-
-        return result;
     }
 }
