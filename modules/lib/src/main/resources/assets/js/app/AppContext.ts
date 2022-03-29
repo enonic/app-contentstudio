@@ -5,8 +5,6 @@ export class AppContext {
 
     private static INSTANCE: AppContext;
 
-    private appId: DescriptorKey;
-
     private widget: Widget;
 
     private constructor() {
@@ -21,18 +19,13 @@ export class AppContext {
         return AppContext.INSTANCE;
     }
 
-    setCurrentApp(value: DescriptorKey): void {
-        this.appId = value;
-        this.widget = null;
-    }
 
     setWidget(widget: Widget): void {
         this.widget = widget;
-        this.appId = null;
     }
 
     getCurrentAppOrWidgetId(): string {
-        return this.appId?.toString() || this.widget?.getWidgetDescriptorKey()?.toString();
+        return this.widget?.getWidgetDescriptorKey()?.toString();
     }
 
 }

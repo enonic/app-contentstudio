@@ -20,6 +20,8 @@ import {UriHelper} from './rendering/UriHelper';
 import {WidgetHelper} from './util/WidgetHelper';
 import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {ContentAppContainer} from './ContentAppContainer';
+import {Router} from './Router';
+import {UrlAction} from './UrlAction';
 
 export class AppWrapper
     extends DivEl {
@@ -83,6 +85,7 @@ export class AppWrapper
 
         studioWidgetBuilder.widgetDescriptorKey = WidgetDescriptorKey.fromString(`${CONFIG.get('appId')}:main`);
         studioWidgetBuilder.displayName = i18n('app.content');
+        studioWidgetBuilder.url = UrlAction.BROWSE;
 
         return studioWidgetBuilder.build();
     }
@@ -103,6 +106,7 @@ export class AppWrapper
         Array.from(this.widgetElements.values()).forEach((el: Element) => el.hide());
 
         AppContext.get().setWidget(widget);
+        this.updateUrl(widget);
         const key: string = widget.getWidgetDescriptorKey().toString();
 
         if (this.widgetElements.has(key)) {
@@ -112,6 +116,17 @@ export class AppWrapper
         }
 
         this.sidebar.toggleActiveButton();
+    }
+
+    private updateUrl(widget: Widget): void {
+        if (widget.getUrl() === UrlAction.BROWSE) {
+            Router.get().setHash(UrlAction.BROWSE);
+            return;
+        }
+
+        const appKeyLastPart: string = widget.getWidgetDescriptorKey().getApplicationKey().getName().split('.').pop();
+        const widgetName: string = widget.getWidgetDescriptorKey().getName();
+        Router.get().setHash(`widget/${appKeyLastPart}/${widgetName}`);
     }
 
     private fetchAndAppendWidget(widget: Widget): void {
