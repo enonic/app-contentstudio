@@ -118,8 +118,8 @@ export class AppWrapper
         fetch(UriHelper.getAdminUri(widget.getUrl(), '/'))
             .then(response => response.text())
             .then((html: string) => {
-                const elem: Element = WidgetHelper.injectWidgetHtml(html, this).resultElement;
-                this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), elem);
+                const widgetElem: Element = WidgetHelper.injectWidgetHtml(html, this).widgetContainer;
+                this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), widgetElem);
             })
             .catch(err => {
                 throw new Error('Failed to fetch widget: ' + err);

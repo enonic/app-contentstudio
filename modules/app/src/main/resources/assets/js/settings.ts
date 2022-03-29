@@ -40,8 +40,8 @@ void (async (currentScript: HTMLOrSVGScriptElement) => {
         throw 'Legacy browsers are not supported';
     }
 
-    const configUri: string = currentScript.getAttribute('configServiceUrl');
-    const elemId: string = currentScript.getAttribute('elemId');
+    const configUri: string = currentScript.getAttribute('data-config-service-url');
+    const elemId: string = currentScript.getAttribute('data-widget-id');
 
     if (!configUri || !elemId) {
         throw 'Missing attributes on inject script';
