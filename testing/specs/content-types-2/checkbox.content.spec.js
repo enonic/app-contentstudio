@@ -115,8 +115,8 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
             //6. Verify that the content is invalid in the grid:
             await studioUtils.findAndSelectItem(CHECKBOX_NAME_2);
             await studioUtils.saveScreenshot('checkbox_content_invalid');
-            //TODO uncomment it lib-admin-ui/issues/2391
-            //await contentBrowsePanel.waitForRedIconDisplayed(CHECKBOX_NAME_2);
+            //Verify the red icon in the grid
+            await contentBrowsePanel.waitForRedIconDisplayed(CHECKBOX_NAME_2);
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

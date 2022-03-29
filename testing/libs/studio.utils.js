@@ -782,7 +782,7 @@ module.exports = {
             return settingsBrowsePanel;
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_open_settings"));
-            throw new Error(err);
+            throw new Error("Settings Panel was not opened: " +err);
         }
     },
     async openArchivePanel() {
@@ -795,8 +795,8 @@ module.exports = {
             await archiveBrowsePanel.waitForGridLoaded(appConst.mediumTimeout);
             return archiveBrowsePanel;
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName("err_open_settings"));
-            throw new Error(err);
+            await this.saveScreenshot(appConst.generateRandomName("err_open_archive"));
+            throw new Error("Archive Panel was not opened: " + err);
         }
     },
     async switchToContentMode() {
