@@ -71,13 +71,8 @@ export class AppWrapper
 
     private addStudioWidget(): void {
         const studioWidget: Widget = this.createStudioWidget();
-        const widgetEl: Element = this.createStudioWidgetEl();
-
-        this.widgetElements.set(studioWidget.getWidgetDescriptorKey().toString(), widgetEl);
         this.widgets.push(studioWidget);
         this.sidebar.addWidget(studioWidget, 'icon-version-modified');
-
-        this.appendChild(widgetEl);
     }
 
     private createStudioWidget(): Widget {
@@ -104,9 +99,9 @@ export class AppWrapper
 
     selectWidget(widget: Widget) {
         Array.from(this.widgetElements.values()).forEach((el: Element) => el.hide());
-
         AppContext.get().setWidget(widget);
         this.updateUrl(widget);
+
         const key: string = widget.getWidgetDescriptorKey().toString();
 
         if (this.widgetElements.has(key)) {
@@ -130,6 +125,13 @@ export class AppWrapper
     }
 
     private fetchAndAppendWidget(widget: Widget): void {
+        if (widget === this.widgets[0]) { // default studio app
+            const widgetEl: Element = this.createStudioWidgetEl();
+            this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), widgetEl);
+            this.appendChild(widgetEl);
+            return;
+        }
+
         fetch(UriHelper.getAdminUri(widget.getUrl(), '/'))
             .then(response => response.text())
             .then((html: string) => {
