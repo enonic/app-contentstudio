@@ -737,16 +737,12 @@ export class ContentWizardPanel
 
             this.openCollaborationWebSocket();
 
-            setInterval(() => {
-                ws.send(`keeping websocket open...${this.getPersistedItem().getId()}`);
-            }, 60000);
-
             return rendered;
         });
     }
 
     private openCollaborationWebSocket(): void {
-        const wsUrl: string = UriHelper.joinPath(this.getWebSocketUriPrefix(), CONFIG.services.collaborationUrl);
+        const wsUrl: string = UriHelper.joinPath(this.getWebSocketUriPrefix(), CONFIG.getString('services.collaborationUrl'));
         const ws: WebSocket = new WebSocket(`${wsUrl}?contentId=${this.getPersistedItem().getId()}`);
 
         ws.addEventListener('close', function (event){
@@ -761,6 +757,10 @@ export class ContentWizardPanel
         ws.addEventListener('message', function (event){
             console.log(`Message... ${JSON.stringify(event)}`);
         });
+
+        setInterval(() => {
+            ws.send(`keeping websocket open...${this.getPersistedItem().getId()}`);
+        }, 60000);
     }
 
     private getWebSocketUriPrefix(): string {
