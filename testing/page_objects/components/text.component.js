@@ -84,6 +84,20 @@ class TextComponent extends Page {
         return await this.pause(1000);
     }
 
+    async isTextAreaFocused() {
+        try {
+            await this.switchToLiveEditFrame();
+            await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
+            let el = await this.findElement(lib.RICH_TEXT_EDITOR);
+            let result = await el.isFocused();
+            await this.getBrowser().switchToParentFrame();
+            return result;
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_text_component_focus"));
+            throw new Error("Editor is not focused " + err);
+        }
+    }
+
     async getTextFromEditor() {
         await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
         let editorId = await this.getEditorId();

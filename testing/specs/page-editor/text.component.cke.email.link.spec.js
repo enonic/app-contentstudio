@@ -11,6 +11,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const TextComponentCke = require('../../page_objects/components/text.component');
+const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
+const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('Text Component with CKE - insert email link  specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -88,6 +91,28 @@ describe('Text Component with CKE - insert email link  specification', function 
             await textComponentCke.waitForBoldButtonDisplayed();
             await textComponentCke.waitForItalicButtonDisplayed();
             await textComponentCke.waitForUnderlineButtonDisplayed();
+        });
+
+    //Verifies issue: https://github.com/enonic/app-contentstudio/issues/4301
+    //Text Component - text area gets focus only after double click
+    it("WHEN text component has been inserted in a site THEN text area should be focused in the live edit",
+        async () => {
+            let pageComponentView = new PageComponentView();
+            let textComponent = new TextComponentCke();
+            let siteFormPanel = new SiteFormPanel();
+            let contentWizardPanel = new ContentWizardPanel();
+            //1. Open new site-wizard, select an application and controller:
+            await studioUtils.openContentWizard(appConst.contentTypes.SITE);
+            await siteFormPanel.addApplications([appConst.APP_CONTENT_TYPES]);
+            await contentWizardPanel.selectPageDescriptor(CONTROLLER_NAME);
+            //2. Open Component View and insert a text component:
+            await contentWizardPanel.clickOnShowComponentViewToggler();
+            await pageComponentView.openMenu("main");
+            await pageComponentView.selectMenuItem(["Insert", "Text"]);
+            //3. Verify that the text area is focused:
+            await studioUtils.saveScreenshot("text_component_focused");
+            let isFocused = await textComponent.isTextAreaFocused();
+            assert.isTrue(isFocused, "text area should be focused in the text component");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
