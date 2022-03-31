@@ -30,7 +30,7 @@ exports.webSocketEvent = function (event) {
             sessionId: event.session.id,
             userKey: event.session.user.key
         });
-        log.info(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
+        log.debug(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
         break;
     }
     case 'error': {
@@ -43,7 +43,7 @@ exports.webSocketEvent = function (event) {
             sessionId: event.session.id,
             userKey: event.session.user.key
         });
-        log.info(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
+        log.debug(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
         break
     }
     default:
