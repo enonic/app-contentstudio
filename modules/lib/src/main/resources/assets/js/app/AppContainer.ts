@@ -1,14 +1,9 @@
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {AppBar} from 'lib-admin-ui/app/bar/AppBar';
 import {AppPanel} from 'lib-admin-ui/app/AppPanel';
-import {Application} from 'lib-admin-ui/app/Application';
 import * as Q from 'q';
-import {Store} from 'lib-admin-ui/store/Store';
 
 export abstract class AppContainer
     extends DivEl {
-
-    protected appBar: AppBar;
 
     protected appPanel: AppPanel;
 
@@ -20,7 +15,6 @@ export abstract class AppContainer
     }
 
     protected initElements(): void {
-        this.appBar = this.createAppBar(Store.instance().get('application'));
         this.appPanel = this.createAppPanel();
     }
 
@@ -40,8 +34,6 @@ export abstract class AppContainer
         });
     }
 
-    protected abstract createAppBar(application: Application): AppBar;
-
     protected abstract createAppPanel(): AppPanel;
 
     doRender(): Q.Promise<boolean> {
@@ -53,7 +45,7 @@ export abstract class AppContainer
     }
 
     protected appendElements(): void {
-        this.appendChildren(...[this.appBar, this.appPanel]);
+        this.appendChildren(this.appPanel);
     }
 
     hide() {

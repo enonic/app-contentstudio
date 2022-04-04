@@ -1,12 +1,14 @@
 .appbar-content {
-  padding: 0;
-  padding-left: 5px;
+  padding: 0 44px 0 44px;
   display: flex;
   justify-content: space-between;
   overflow: visible;
+  position: static;
+  align-items: center;
 
   .home-button {
-    display: none;
+    padding-left: 10px;
+    width: auto;
   }
 
   .show-issues-button-wrapper {
@@ -24,9 +26,9 @@
   }
 
   .project-viewer {
-    width: 250px;
     display: flex;
     pointer-events: none;
+    flex-shrink: 0;
 
     .viewer-selectable();
 
@@ -108,6 +110,61 @@
 
       .project-selection-icon {
         display: block;
+      }
+    }
+  }
+
+  .separator {
+    font-size: 15px;
+    padding: 0 0 0 10px;
+  }
+
+  .appbar-tab-menu {
+    order: 0;
+    z-index: 1;
+    height: @app-header-height;
+    box-sizing: border-box;
+    margin-left: 0;
+    padding-right: 0;
+    padding-left: 10px;
+  }
+
+  &.hide-tab-menu {
+    .appbar-tab-menu {
+      display: none;
+    }
+
+    .home-button {
+      flex-grow: 1;
+    }
+  }
+
+  &.project-selector-hidden {
+    .project-viewer, .separator {
+      display: none;
+    }
+  }
+
+  &._0-240,
+  &._240-360,
+  &._360-540 {
+    .separator {
+      display: none;
+    }
+
+    &:not(.project-selector-hidden) {
+      .home-button {
+        display: none;
+      }
+    }
+
+    &.project-selector-hidden {
+      .home-button {
+        width: auto;
+
+        .app-name {
+          display: block;
+        }
       }
     }
   }

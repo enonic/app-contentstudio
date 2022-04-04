@@ -80,56 +80,23 @@
     }
   }
 
-  .app-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    transition: left 0.5s ease;
+  .header-widgets-block {
+    .app-container {
+      position: absolute;
+      top: @app-header-height;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      transition: left 0.5s ease;
 
-    .appbar {
-      left: @app-header-height;
-      transition: left 0.5s ease, width 0.5s ease;
-      width: calc(100% - 2*@app-header-height); // deduct widths of the 2 menu buttons on the sides
-
-      .home-button {
-        .app-icon {
-          display: none;
-        }
-      }
-
-      &.appbar-settings {
-        padding: 0;
+      .appbar {
+        left: @app-header-height;
+        transition: left 0.5s ease, width 0.5s ease;
+        width: calc(100% - 2*@app-header-height); // deduct widths of the 2 menu buttons on the sides
 
         .home-button {
-          @media screen and (min-width: 720px) {
-            margin-left: 14px;
-          }
-
-          &::before {
+          .app-icon {
             display: none;
-            line-height: @app-header-height;
-            font-size: 16px;
-            margin: 0 15px 0 5px;
-            color: @admin-font-gray2;
-
-            &:hover {
-              color: @admin-font-gray3;
-            }
-          }
-        }
-
-        &.tabs-present {
-          @media screen and (max-width: 720px) {
-            .home-button::before {
-              display: block;
-            }
-          }
-
-          + .panel {
-            border-top: none;
-            z-index: 0;
           }
         }
       }
@@ -276,10 +243,17 @@
           justify-content: flex-start;
           align-items: center;
 
+          &:first-child {
+            img {
+              display: none;
+            }
+          }
+
           span {
             display: block;
             font-size: 18px;
             padding-left: 18px;
+            order: 1;
           }
 
           &::before {

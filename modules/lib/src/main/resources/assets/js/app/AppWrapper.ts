@@ -22,6 +22,7 @@ import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
 import {ContentAppContainer} from './ContentAppContainer';
 import {Router} from './Router';
 import {UrlAction} from './UrlAction';
+import {ContentAppBar} from './bar/ContentAppBar';
 
 export class AppWrapper
     extends DivEl {
@@ -33,6 +34,10 @@ export class AppWrapper
     private widgetElements: Map<string, Element> = new Map<string, Element>();
 
     private toggleSidebarButton: Button;
+
+    private appBar: ContentAppBar;
+
+    private widgetsBlock: DivEl;
 
     private touchListener: (event: TouchEvent) => void;
 
@@ -52,6 +57,8 @@ export class AppWrapper
     private initElements() {
         this.sidebar = new Sidebar();
         this.toggleSidebarButton = new ToggleIcon();
+        this.appBar = ContentAppBar.getInstance();
+        this.widgetsBlock = new DivEl('widgets-block');
     }
 
     private initListeners() {
@@ -79,7 +86,7 @@ export class AppWrapper
         const studioWidgetBuilder: WidgetBuilder = Widget.create();
 
         studioWidgetBuilder.widgetDescriptorKey = WidgetDescriptorKey.fromString(`${CONFIG.get('appId')}:main`);
-        studioWidgetBuilder.displayName = i18n('app.content');
+        studioWidgetBuilder.displayName = i18n('app.name');
         studioWidgetBuilder.url = UrlAction.BROWSE;
 
         return studioWidgetBuilder.build();
@@ -88,6 +95,15 @@ export class AppWrapper
     private createStudioWidgetEl(): Element {
         const widgetEl: Element = new Element(new NewElementBuilder().setTagName('widget')).setId('widget-studio');
         const appContainer: ContentAppContainer = new ContentAppContainer();
+
+        appContainer.onShown(() => {
+           this.appBar.showIssuesButton();
+        });
+
+        appContainer.onHidden(() => {
+            this.appBar.hideIssuesButton();
+        });
+
         widgetEl.appendChild(appContainer);
 
         return widgetEl;
@@ -110,6 +126,8 @@ export class AppWrapper
             this.fetchAndAppendWidget(widget);
         }
 
+        this.appBar.getAppIcon().setAppName(widget.getDisplayName());
+
         this.sidebar.toggleActiveButton();
     }
 
@@ -128,14 +146,14 @@ export class AppWrapper
         if (widget === this.widgets[0]) { // default studio app
             const widgetEl: Element = this.createStudioWidgetEl();
             this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), widgetEl);
-            this.appendChild(widgetEl);
+            this.widgetsBlock.appendChild(widgetEl);
             return;
         }
 
         fetch(UriHelper.getAdminUri(widget.getUrl(), '/'))
             .then(response => response.text())
             .then((html: string) => {
-                const widgetElem: Element = WidgetHelper.injectWidgetHtml(html, this).widgetContainer;
+                const widgetElem: Element = WidgetHelper.injectWidgetHtml(html, this.widgetsBlock).widgetContainer;
                 this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), widgetElem);
             })
             .catch(err => {
@@ -180,6 +198,7 @@ export class AppWrapper
         this.toggleSidebarButton.setTitle(
             this.toggleSidebarButton.hasClass('toggled') ? i18n('tooltip.sidebar.close') : i18n('tooltip.sidebar.open'), false
         );
+
         if (!isSidebarVisible) {
             Body.get().onTouchStart(this.touchListener, false);
         } else {
@@ -240,7 +259,9 @@ export class AppWrapper
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
-            this.appendChildren(this.toggleSidebarButton, <Element>this.sidebar);
+            const headerAndWidgetsBlock: DivEl = new DivEl('header-widgets-block');
+            headerAndWidgetsBlock.appendChildren(this.appBar, this.widgetsBlock);
+            this.appendChildren(this.toggleSidebarButton, <Element>this.sidebar, headerAndWidgetsBlock);
 
             return rendered;
         });
@@ -299,6 +320,7 @@ class AppModeSwitcher
 
     private createWidgetButton(widget: Widget, buttonClass?: string) {
         const sidebarButton: SidebarButton = new SidebarButton(widget.getWidgetDescriptorKey().toString());
+        sidebarButton.setLabel(widget.getDisplayName());
         sidebarButton.setTitle(widget.getDisplayName());
 
         if (buttonClass) {
