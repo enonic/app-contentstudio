@@ -1,7 +1,6 @@
 import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
 import {NavigatedAppPanel} from 'lib-admin-ui/app/NavigatedAppPanel';
 import {SettingsBrowsePanel} from './browse/SettingsBrowsePanel';
-import {SettingsAppBar} from './SettingsAppBar';
 import {NewProjectEvent} from './event/NewProjectEvent';
 import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
 import {AppBarTabMenuItem, AppBarTabMenuItemBuilder} from 'lib-admin-ui/app/bar/AppBarTabMenuItem';
@@ -23,6 +22,7 @@ import {ProjectSelectionDialog} from './dialog/ProjectSelectionDialog';
 import {ProjectCreatedEvent} from './event/ProjectCreatedEvent';
 import {SettingsTypes} from './dialog/SettingsTypes';
 import {ProjectGetRequest} from './resource/ProjectGetRequest';
+import {ContentAppBar} from '../bar/ContentAppBar';
 
 export class SettingsAppPanel
     extends NavigatedAppPanel {
@@ -31,8 +31,8 @@ export class SettingsAppPanel
 
     private deletedIds: string[] = [];
 
-    constructor(appBar: SettingsAppBar) {
-        super(appBar);
+    constructor() {
+        super(ContentAppBar.getInstance());
     }
 
     protected createBrowsePanel(): SettingsBrowsePanel {
@@ -103,14 +103,14 @@ export class SettingsAppPanel
     }
 
     private handleNewProject(event: NewProjectEvent) {
-        const parentProject = event.getParentProject();
         const tabId: AppBarTabId = AppBarTabId.forNew(event.getProjectType().getName());
         const tabMenuItem: AppBarTabMenuItem = this.getAppBarTabMenu().getNavigationItemById(tabId);
 
         if (tabMenuItem != null) {
             this.selectPanel(tabMenuItem);
         } else {
-            const isLayer = event.getProjectType().equals(SettingsTypes.get().getLayer());
+            const parentProject: Project = event.getParentProject();
+            const isLayer: boolean = event.getProjectType().equals(SettingsTypes.get().getLayer());
             const unnamedTabMenuText: string = NamePrettyfier.prettifyUnnamed(
                 isLayer ? i18n('settings.items.type.layer') : i18n('settings.items.type.project')
             );

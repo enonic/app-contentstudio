@@ -1,6 +1,5 @@
 import {AppContainer} from './AppContainer';
 import {ContentAppBar} from './bar/ContentAppBar';
-import {Application} from 'lib-admin-ui/app/Application';
 import {ContentAppPanel} from './ContentAppPanel';
 import {ToggleSearchPanelWithDependenciesGlobalEvent} from './browse/ToggleSearchPanelWithDependenciesGlobalEvent';
 import {ToggleSearchPanelWithDependenciesEvent} from './browse/ToggleSearchPanelWithDependenciesEvent';
@@ -38,10 +37,6 @@ export class ContentAppContainer
         super();
 
         new ContentEventsListener().start();
-    }
-
-    protected createAppBar(application: Application): ContentAppBar {
-        return new ContentAppBar(application);
     }
 
     protected createAppPanel(): ContentAppPanel {

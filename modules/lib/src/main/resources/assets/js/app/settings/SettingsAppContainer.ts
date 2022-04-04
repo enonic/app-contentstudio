@@ -1,7 +1,6 @@
 import {AppContainer} from '../AppContainer';
-import {SettingsAppBar} from './SettingsAppBar';
 import {SettingsAppPanel} from './SettingsAppPanel';
-import {Application} from 'lib-admin-ui/app/Application';
+import {ContentAppBar} from '../bar/ContentAppBar';
 
 export class SettingsAppContainer
     extends AppContainer {
@@ -10,12 +9,27 @@ export class SettingsAppContainer
         super();
     }
 
-    protected createAppBar(application: Application): SettingsAppBar {
-        return new SettingsAppBar(application);
+    protected createAppPanel(): SettingsAppPanel {
+        return new SettingsAppPanel();
     }
 
-    protected createAppPanel(): SettingsAppPanel {
-        return new SettingsAppPanel(<SettingsAppBar>this.appBar);
+    hide() {
+        super.hide();
+
+        const appBar: ContentAppBar = ContentAppBar.getInstance();
+        appBar.hideTabs();
+        appBar.disableHomeButton();
+        appBar.showProjectSelector();
+    }
+
+    show() {
+        super.show();
+
+        const appBar: ContentAppBar = ContentAppBar.getInstance();
+
+        appBar.showTabs();
+        appBar.enableHomeButton();
+        appBar.hideProjectSelector();
     }
 
 }
