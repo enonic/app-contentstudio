@@ -16,10 +16,18 @@ exports.join = function (params) {
     return __.toNativeObject(bean.join());
 }
 
-exports.left = function (params) {
+exports.leave = function (params) {
     const bean = __.newBean('com.enonic.xp.app.contentstudio.CollaborationHandler');
     bean.setContentId(required(params, 'contentId'));
     bean.setSessionId(required(params, 'sessionId'));
     bean.setUserKey(required(params, 'userKey'));
-    return __.toNativeObject(bean.left());
+    return __.toNativeObject(bean.leave());
+}
+
+exports.heartbeat = function (params) {
+    const bean = __.newBean('com.enonic.xp.app.contentstudio.CollaborationHandler');
+    bean.setContentId(required(params, 'contentId'));
+    bean.setSessionId(required(params, 'sessionId'));
+    bean.setUserKey(required(params, 'userKey'));
+    return __.toNativeObject(bean.heartbeat());
 }

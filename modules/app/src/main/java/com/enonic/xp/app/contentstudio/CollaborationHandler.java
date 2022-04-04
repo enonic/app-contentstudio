@@ -3,14 +3,14 @@ package com.enonic.xp.app.contentstudio;
 import java.util.function.Supplier;
 
 import com.enonic.xp.app.contentstudio.json.CollaborationParams;
-import com.enonic.xp.app.contentstudio.service.CollaborationService;
+import com.enonic.xp.app.contentstudio.service.CollaborationManager;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
 
 public class CollaborationHandler
     implements ScriptBean
 {
-    protected Supplier<CollaborationService> contentVisitorServiceSupplier;
+    protected Supplier<CollaborationManager> collaborationManagerSupplier;
 
     protected String contentId;
 
@@ -21,7 +21,7 @@ public class CollaborationHandler
     @Override
     public void initialize( final BeanContext beanContext )
     {
-        this.contentVisitorServiceSupplier = beanContext.getService( CollaborationService.class );
+        this.collaborationManagerSupplier = beanContext.getService( CollaborationManager.class );
     }
 
     public void setContentId( final String contentId )
@@ -45,15 +45,24 @@ public class CollaborationHandler
         params.setContentId( contentId );
         params.setSessionId( sessionId );
         params.setUserKey( userKey );
-        return new CollaborationsMapper( contentVisitorServiceSupplier.get().join( params ) );
+        return new CollaborationsMapper( collaborationManagerSupplier.get().join( params ) );
     }
 
-    public CollaborationsMapper left()
+    public CollaborationsMapper leave()
     {
         final CollaborationParams params = new CollaborationParams();
         params.setContentId( contentId );
         params.setSessionId( sessionId );
         params.setUserKey( userKey );
-        return new CollaborationsMapper( contentVisitorServiceSupplier.get().left( params ) );
+        return new CollaborationsMapper( collaborationManagerSupplier.get().leave( params ) );
+    }
+
+    public CollaborationsMapper heartbeat()
+    {
+        final CollaborationParams params = new CollaborationParams();
+        params.setContentId( contentId );
+        params.setSessionId( sessionId );
+        params.setUserKey( userKey );
+        return new CollaborationsMapper( collaborationManagerSupplier.get().heartbeat( params ) );
     }
 }

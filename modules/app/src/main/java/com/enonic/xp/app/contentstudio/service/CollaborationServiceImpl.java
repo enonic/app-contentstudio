@@ -1,5 +1,6 @@
 package com.enonic.xp.app.contentstudio.service;
 
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -12,29 +13,29 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.enonic.xp.app.contentstudio.json.CollaborationParams;
-import com.enonic.xp.content.ContentId;
 import com.enonic.xp.event.Event;
 import com.enonic.xp.event.EventPublisher;
 
 @Component(immediate = true)
+@Local
 public class CollaborationServiceImpl
     implements CollaborationService
 {
     private EventPublisher eventPublisher;
 
-    private final ConcurrentMap<ContentId, Set<String>> contents = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Set<String>> contents = new ConcurrentHashMap<>();
 
     @Override
     public Set<String> join( final CollaborationParams params )
     {
-        final ContentId contentId = ContentId.from( params.getContentId() );
+        long joinAt = Instant.now().toEpochMilli();
 
-        final Set<String> collaborators = contents.computeIfAbsent( contentId, f -> new CopyOnWriteArraySet<>() );
-        collaborators.add( generateCollaboratorId( params ) );
+        final Set<String> collaborators = contents.computeIfAbsent( params.getContentId(), f -> new CopyOnWriteArraySet<>() );
+        collaborators.add( generateCollaboratorId( params, joinAt ) );
 
         eventPublisher.publish( Event.create( "edit.content.new.collaborator" ).
             distributed( true ).
-            value( "contentId", contentId ).
+            value( "contentId", params.getContentId() ).
             value( "newCollaborator", collaboratorAsMap( params.getSessionId(), params.getUserKey() ) ).
             value( "collaborators", collaborators.stream().map( this::extractUserKey ).collect( Collectors.toSet() ) ).
             build() );
@@ -43,24 +44,29 @@ public class CollaborationServiceImpl
     }
 
     @Override
-    public Set<String> left( final CollaborationParams params )
+    public Set<String> leave( final CollaborationParams params )
     {
-        final ContentId contentId = ContentId.from( params.getContentId() );
+        final Set<String> collaborators = contents.computeIfAbsent( params.getContentId(), f -> new CopyOnWriteArraySet<>() );
 
-        final Set<String> collaborators = contents.computeIfAbsent( contentId, f -> new CopyOnWriteArraySet<>() );
-
-        final boolean removed = collaborators.removeIf( collaboratorId -> collaboratorId.equals( generateCollaboratorId( params ) ) );
+        final boolean removed =
+            collaborators.removeIf( collaboratorId -> collaboratorId.startsWith( params.getSessionId() + "=" + params.getUserKey() ) );
 
         if ( removed )
         {
             eventPublisher.publish( Event.create( "edit.content.remove.collaborator" ).
                 distributed( true ).
-                value( "contentId", contentId ).
+                value( "contentId", params.getContentId() ).
                 value( "collaborators", collaborators.stream().map( this::extractUserKey ).collect( Collectors.toSet() ) ).
                 build() );
         }
 
         return collaborators;
+    }
+
+    @Override
+    public Set<String> heartbeat( final CollaborationParams params )
+    {
+        return contents.get( params.getContentId() );
     }
 
     private Map<String, Object> collaboratorAsMap( final String sessionId, final String userKey )
@@ -71,9 +77,9 @@ public class CollaborationServiceImpl
         return result;
     }
 
-    private String generateCollaboratorId( final CollaborationParams params )
+    private String generateCollaboratorId( final CollaborationParams params, final long timestamp )
     {
-        return params.getSessionId() + "=" + params.getUserKey();
+        return params.getSessionId() + "=" + params.getUserKey() + "=" + timestamp;
     }
 
     private String extractUserKey( final String collaboratorId )
