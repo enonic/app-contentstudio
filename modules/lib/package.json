@@ -34,7 +34,7 @@
     "@types/q": "^1.5.4",
     "@typescript-eslint/eslint-plugin": "^5.17.0",
     "@typescript-eslint/parser": "^5.18.0",
-    "@typescript-eslint/utils": "^5.17.0",
+    "@typescript-eslint/utils": "^5.18.0",
     "eslint": "^8.11.0",
     "minimist": "^1.2.6",
     "terser": "^5.12.1",
