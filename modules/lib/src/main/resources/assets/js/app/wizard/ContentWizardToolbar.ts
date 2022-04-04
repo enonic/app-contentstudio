@@ -7,7 +7,6 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {WorkflowStateIconsManager, WorkflowStateStatus} from './WorkflowStateIconsManager';
 import {TogglerButton} from 'lib-admin-ui/ui/button/TogglerButton';
 import {CycleButton} from 'lib-admin-ui/ui/button/CycleButton';
-import {Application} from 'lib-admin-ui/app/Application';
 import {ProjectContext} from '../project/ProjectContext';
 import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
@@ -36,7 +35,7 @@ export class ContentWizardToolbar
 
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
 
-    private collaborationBlock: DivEl;
+    private collaborationBlock?: DivEl;
 
     private projectViewer: ProjectViewer;
 
@@ -166,8 +165,10 @@ export class ContentWizardToolbar
     }
 
     private addCollaborationBlock(): void {
-        this.collaborationBlock = new CollaborationEl();
-        super.addElement(this.collaborationBlock);
+        if (CONFIG.isTrue('enableCollaboration')) {
+            this.collaborationBlock = new CollaborationEl();
+            super.addElement(this.collaborationBlock);
+        }
     }
 
     getCycleViewModeButton(): CycleButton {
