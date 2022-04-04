@@ -10,8 +10,8 @@ const NewSettingsItemDialog = require('../../page_objects/project/new.settings.i
 
 const XPATH = {
     container: "//div[contains(@id,'SettingsBrowsePanel')]",
-    settingsAppContainer: "//div[contains(@id,'SettingsAppContainer')]",
-    appBar: "//div[contains(@id,'SettingsAppBar')]",
+    settingsAppContainer: "//div[contains(@id,'ContentAppBar')]",
+    appBar: "//div[contains(@id,'ContentAppBar')]",
     appBarTabMenu: "//div[contains(@id,'AppBarTabMenu')]",
     homeButton: "//div[contains(@class,'home-button') and descendant::span[text()='Settings']]",
     toolbar: `//div[contains(@id,'SettingsBrowseToolbar')]`,
@@ -56,7 +56,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get homeButton() {
-        return XPATH.settingsAppContainer + XPATH.homeButton;
+        return XPATH.appBar + XPATH.homeButton;
     }
 
     get newButton() {
@@ -152,8 +152,9 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     //Click on SETTINGS button:
-    clickOnHomeButton() {
-        return this.clickOnElement(this.homeButton);
+    async clickOnHomeButton() {
+        await this.waitForElementDisplayed(this.homeButton,appConst.mediumTimeout);
+        return await this.clickOnElement(this.homeButton);
     }
 
     async clickOnRowByDisplayName(displayName) {

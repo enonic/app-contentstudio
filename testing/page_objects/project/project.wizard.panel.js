@@ -4,7 +4,7 @@ const appConst = require('../../libs/app_const');
 const ComboBox = require('../components/loader.combobox');
 
 const XPATH = {
-    settingsContainer: "//div[contains(@id,'SettingsAppContainer')]",
+    settingsContainer: "//div[contains(@id,'ContentAppBar')]",
     container: `//div[contains(@id,'ProjectWizardPanel')]`,
     displayNameInput: `//input[contains(@name,'displayName')]`,
     tabTitle: "//li[contains(@id,'AppBarTabMenuItem')]",

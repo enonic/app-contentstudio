@@ -92,7 +92,7 @@ module.exports = Object.freeze({
     LIVE_EDIT_FRAME: "//iframe[contains(@class,'live-edit-frame')]",
     APP_MODE_SWITCHER_TOGGLER: "//div[contains(@id,'AppWrapper')]//button[contains(@id,'ToggleIcon')]",
     SETTINGS_BUTTON: "//button[contains(@id,'SidebarButton') and @title='Settings']",
-    MODE_CONTENT_BUTTON: "//button[contains(@id,'SidebarButton') and @title='Content']",
+    MODE_CONTENT_BUTTON: "//button[contains(@id,'SidebarButton') and @title='Content Studio']",
     CKE: {
         insertTableButton: `//a[contains(@class,'cke_button') and contains(@title,'Table')]`,
         insertLinkButton: `//a[contains(@class,'cke_button') and contains(@title,'Link')]`,
