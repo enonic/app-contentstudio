@@ -9,6 +9,7 @@ function handleGet() {
     const branch = context.branch;
     const allowContentUpdate = app.config['publishingWizard.allowContentUpdate'] !== 'false';
     const allowPathTransliteration = app.config['contentWizard.allowPathTransliteration'] !== 'false';
+    const enableCollaboration = app.config['contentWizard.enableCollaboration'] === 'true' || false;
     const hideDefaultProject = app.config['settings.hideDefaultProject'] === 'true' || false;
 
     return {
@@ -29,6 +30,7 @@ function handleGet() {
             appVersion: app.version,
             branch,
             hideDefaultProject,
+            enableCollaboration,
             locale: admin.getLocale(),
             services: {
                 adminToolsUrl: portal.serviceUrl({service: 'admintools'}),
