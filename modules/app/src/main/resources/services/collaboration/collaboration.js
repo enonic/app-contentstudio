@@ -30,7 +30,16 @@ exports.webSocketEvent = function (event) {
             sessionId: event.session.id,
             userKey: event.session.user.key
         });
-        log.info(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
+        log.debug(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
+        break;
+    }
+    case 'message': {
+        let collaborators = collaborationLib.heartbeat({
+            contentId: event.data.contentId,
+            sessionId: event.session.id,
+            userKey: event.session.user.key
+        });
+        log.debug(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
         break;
     }
     case 'error': {
@@ -38,12 +47,12 @@ exports.webSocketEvent = function (event) {
         break;
     }
     case 'close': {
-        let collaborators = collaborationLib.left({
+        let collaborators = collaborationLib.leave({
             contentId: event.data.contentId,
             sessionId: event.session.id,
             userKey: event.session.user.key
         });
-        log.info(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
+        log.debug(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
         break
     }
     default:
