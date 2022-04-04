@@ -50,9 +50,10 @@ export class WidgetItemView
             .then((html: string) => {
                 this.removeChildren();
                 this.injectWidget(html);
-                deferred.resolve(null);
+                deferred.resolve();
             })
             .catch(err => {
+                deferred.reject();
                 throw new Error('Failed to fetch page: ' + err);
             });
 
