@@ -81,6 +81,7 @@ export class WidgetItemView
                 deferred.resolve(null);
             })
             .catch(err => {
+                deferred.reject();
                 throw new Error('Failed to fetch page: ' + err);
             });
 
