@@ -30,6 +30,9 @@ dependencies {
     implementation "com.enonic.xp:core-api:${xpVersion}"
     implementation "com.enonic.xp:portal-api:${xpVersion}"
 
+    implementation "com.hazelcast:hazelcast:3.12.12"
+    implementation "com.enonic.xp:core-internal:${xpVersion}"
+
     include "org.apache.commons:commons-text:${commonsTextVersion}"
     include "com.enonic.xp:lib-admin:${xpVersion}"
     include "com.enonic.xp:lib-portal:${xpVersion}"
