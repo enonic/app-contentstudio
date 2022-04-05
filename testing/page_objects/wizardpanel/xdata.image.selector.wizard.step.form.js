@@ -33,5 +33,6 @@ class XDataImageSelector extends Page {
             throw new Error("x-data with Image Selector - image options filter input is not visible! " + err);
         });
     }
-};
+}
+
 module.exports = XDataImageSelector;

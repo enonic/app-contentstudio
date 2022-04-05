@@ -8,6 +8,7 @@ const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const XDataImageSelector = require('../page_objects/wizardpanel/xdata.image.selector.wizard.step.form');
+const XDataContentSelector = require('../page_objects/wizardpanel/xdata.content.selector');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
@@ -18,6 +19,7 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
     let SITE;
     const CONTENT_WITH_XDATA = contentBuilder.generateRandomName('test');
     const CONTENT_WITH_XDATA_2 = contentBuilder.generateRandomName('test');
+    const CONTENT_XDATA_CONTENT_SELECTOR = contentBuilder.generateRandomName('xdata');
     const IMAGE_DISPLAY_NAME = "kotey";
 
     it(`Preconditions: new site should be added`,
@@ -92,6 +94,34 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
             await contentWizard.clickOnXdataToggler();
             //3. Verify that 'Save' button gets visible and enabled
             await contentWizard.waitForSaveButtonVisible();
+        });
+
+    //Verifies Changing selected options of Content Selector inside X-data freezes the page #2975
+    //https://github.com/enonic/app-contentstudio/issues/2975
+    it(`GIVEN content with enabled x-data(content-selector) is saved WHEN selected option of Content Selector inside X-data has been changed THEN new option should be displayed in x-data`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let xDataContentSelector = new XDataContentSelector();
+            //1. Open new wizard with x-data (content selector):
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.COMBOBOX_0_0);
+            await contentWizard.typeDisplayName(CONTENT_XDATA_CONTENT_SELECTOR);
+            //2. Click on '+' and enable the x-data
+            await contentWizard.clickOnXdataToggler();
+            //3. Select an option in the x-data content selector(one not required):
+            await xDataContentSelector.filterOptionsAndSelectContent(SITE.displayName);
+            await contentWizard.waitAndClickOnSave();
+            await studioUtils.saveScreenshot("xdata_option_1");
+            //4. Remove the selected option in x-data:
+            await xDataContentSelector.removeSelectedOption(SITE.displayName);
+            //5. Verify that options filter input gets visible again:
+            await xDataContentSelector.waitForContentOptionsFilterInputDisplayed();
+            //6. Select another option in the x-data:
+            await xDataContentSelector.filterOptionsAndSelectContent("Templates");
+            await studioUtils.saveScreenshot("xdata_changed_option");
+            await contentWizard.waitAndClickOnSave();
+            //7. Verify that the selected option is updated:
+            let result = await xDataContentSelector.getSelectedOptions();
+            assert.isTrue(result[0].includes("Templates"), "Selected option should be updated");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
