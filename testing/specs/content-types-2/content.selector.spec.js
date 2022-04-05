@@ -55,7 +55,6 @@ describe('content.selector.spec: content-selector specification', function () {
 
     it(`GIVEN existing content with custom-relationship selector is opened WHEN the selected option has been removed THEN the article should not be present in selected options`,
         async () => {
-            let contentWizard = new ContentWizard();
             let customRelationshipForm = new CustomRelationshipForm();
             //1. Open new wizard for article-content:
             await studioUtils.selectAndOpenContentInWizard(RELATIONSHIP_NAME);
@@ -71,8 +70,7 @@ describe('content.selector.spec: content-selector specification', function () {
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('article');
-            articleContent =
-                contentBuilder.buildArticleContent(displayName, 'title', 'body', appConst.contentTypes.ARTICLE);
+            articleContent = contentBuilder.buildArticleContent(displayName, 'title', 'body', appConst.contentTypes.ARTICLE);
             await studioUtils.doAddArticleContent(SITE.displayName, articleContent);
             await studioUtils.typeNameInFilterPanel(articleContent.displayName);
             let isDisplayed = await contentBrowsePanel.waitForContentDisplayed(articleContent.displayName);
