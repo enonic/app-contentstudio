@@ -1,10 +1,10 @@
 import {SettingsDataItemFormIcon} from './SettingsDataItemFormIcon';
-import {Flag} from 'lib-admin-ui/locale/Flag';
 import {ProjectViewItem} from '../../../../view/ProjectViewItem';
+import {Flag} from '../../../../../locale/Flag';
 
 export class ProjectDataItemFormIcon extends SettingsDataItemFormIcon {
 
-    private flag: Flag;
+    private readonly flag: Flag;
 
     constructor(item?: ProjectViewItem) {
         super(!!item ? item.getIconUrl() : null);
@@ -13,7 +13,7 @@ export class ProjectDataItemFormIcon extends SettingsDataItemFormIcon {
         this.toggleClass('has-lang', !!item && !!item.getLanguage());
     }
 
-    updateLanguage(language: string) {
+    updateLanguage(language: string): void {
         this.flag.updateCountryCode(language);
         this.toggleClass('has-lang', !!language);
     }

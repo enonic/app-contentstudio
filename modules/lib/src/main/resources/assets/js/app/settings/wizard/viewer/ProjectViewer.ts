@@ -2,10 +2,11 @@ import {Project} from '../../data/project/Project';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ProjectIconUrlResolver} from '../../../project/ProjectIconUrlResolver';
 import {ExtendedViewer} from '../../../view/ExtendedViewer';
-import {Flag} from 'lib-admin-ui/locale/Flag';
 import {ProjectHelper} from '../../data/project/ProjectHelper';
+import {Flag} from '../../../locale/Flag';
 
-export class ProjectViewer extends ExtendedViewer<Project> {
+export class ProjectViewer
+    extends ExtendedViewer<Project> {
 
     constructor(className?: string) {
         super('project-viewer ' + (!!className ? className : ''));
