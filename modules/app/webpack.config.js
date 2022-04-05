@@ -47,13 +47,6 @@ module.exports = {
                     {loader: 'postcss-loader', options: {sourceMap: !isProd}},
                     {loader: 'less-loader', options: {sourceMap: !isProd}},
                 ]
-            },
-            {
-                test: /^((?!icomoon-studio-app).)*\.(svg|png|jpg|gif)$/,
-                type: 'asset/resource',
-                generator: {
-                    filename: 'img/[base]'
-                }
             }
         ]
     },

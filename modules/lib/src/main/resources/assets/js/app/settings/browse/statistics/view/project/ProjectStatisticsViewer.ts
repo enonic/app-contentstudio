@@ -1,9 +1,7 @@
 import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
 import {ProjectViewItem} from '../../../../view/ProjectViewItem';
 import {ProjectIconUrlResolver} from '../../../../../project/ProjectIconUrlResolver';
-import {Flag} from 'lib-admin-ui/locale/Flag';
 import {ProjectsChainBlock} from '../../../../dialog/ProjectsChainBlock';
-import {ProjectListRequest} from '../../../../resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {Project} from '../../../../data/project/Project';
 import * as Q from 'q';
@@ -12,8 +10,10 @@ import {ProjectUpdatedEvent} from '../../../../event/ProjectUpdatedEvent';
 import {ProjectDeletedEvent} from '../../../../event/ProjectDeletedEvent';
 import {ProjectListWithMissingRequest} from '../../../../resource/ProjectListWithMissingRequest';
 import {ProjectHelper} from '../../../../data/project/ProjectHelper';
+import {Flag} from '../../../../../locale/Flag';
 
-export class ProjectStatisticsViewer extends NamesAndIconViewer<ProjectViewItem> {
+export class ProjectStatisticsViewer
+    extends NamesAndIconViewer<ProjectViewItem> {
 
     private readonly projectsChainBlock: ProjectsChainBlock;
 

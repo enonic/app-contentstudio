@@ -41,10 +41,17 @@ module.exports = {
                 ]
             },
             {
-                test: /^((?!icomoon-studio-lib).)*\.(svg|png|jpg|gif)$/,
+                test: /^((?!icomoon-studio-lib|flag-icons).)*\.(svg|png|jpg|gif)$/,
                 type: 'asset/resource',
                 generator: {
-                    filename: 'img/[name][ext]'
+                    filename: 'images/[name][ext]'
+                }
+            },
+            {
+                test: /^.*flag-icons.*(flags).*(1x1|4x3).*\.svg$/,
+                type: 'asset/resource',
+                generator: {
+                    filename: 'images/flags/[name][ext]'
                 }
             }
         ]
