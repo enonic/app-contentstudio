@@ -34,7 +34,11 @@ export class ContentAppBar
         this.selectedProjectViewer = new ProjectViewer();
         this.viewerAndNameSeparator = new DivEl('separator').setHtml('/');
         this.showIssuesDialogButton = new ShowIssuesDialogButton();
+
         this.showIssuesDialogButton.hide();
+        this.selectedProjectViewer.hide();
+        this.viewerAndNameSeparator.hide();
+        this.getAppIcon().hide();
     }
 
     private initListeners() {
@@ -120,6 +124,15 @@ export class ContentAppBar
     enableHomeButton(): void {
         this.getAppIcon().addClass('clickable');
         AppBarActions.SHOW_BROWSE_PANEL.setEnabled(true);
+    }
+
+    setAppName(name: string): void {
+        super.setAppName(name);
+
+        this.showIssuesDialogButton.show();
+        this.selectedProjectViewer.show();
+        this.viewerAndNameSeparator.show();
+        this.getAppIcon().show();
     }
 
     doRender(): Q.Promise<boolean> {

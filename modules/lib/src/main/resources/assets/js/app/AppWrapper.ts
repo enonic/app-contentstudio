@@ -126,7 +126,7 @@ export class AppWrapper
             this.fetchAndAppendWidget(widget);
         }
 
-        this.appBar.getAppIcon().setAppName(widget.getDisplayName());
+        this.appBar.setAppName(widget.getDisplayName());
 
         this.sidebar.toggleActiveButton();
     }
