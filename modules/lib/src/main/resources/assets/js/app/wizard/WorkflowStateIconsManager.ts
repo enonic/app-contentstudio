@@ -1,3 +1,4 @@
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {ContentWizardPanel} from './ContentWizardPanel';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
@@ -34,9 +35,14 @@ export class WorkflowStateIconsManager {
 
         if (isStatusChanged) {
             const thumbnailUploader: ThumbnailUploaderEl = this.wizard.getFormIcon();
+            const toolbarIcon: DivEl = this.wizard.getMainToolbar()?.getStateIcon();
 
             if (thumbnailUploader) {
                 WorkflowStateIconsManager.toggleWorkflowStateClasses(thumbnailUploader, status);
+            }
+
+            if (toolbarIcon) {
+                WorkflowStateIconsManager.toggleWorkflowStateClasses(toolbarIcon, status);
             }
 
             this.status = status;
