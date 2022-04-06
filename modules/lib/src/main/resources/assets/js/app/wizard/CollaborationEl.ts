@@ -22,7 +22,7 @@ export class CollaborationEl
     private counterBlock: DivEl;
 
     constructor() {
-        super('collaboration');
+        super('content-wizard-toolbar-collaboration');
 
         this.initElements();
         this.initListeners();

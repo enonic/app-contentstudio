@@ -7,7 +7,6 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {WorkflowStateIconsManager, WorkflowStateStatus} from './WorkflowStateIconsManager';
 import {TogglerButton} from 'lib-admin-ui/ui/button/TogglerButton';
 import {CycleButton} from 'lib-admin-ui/ui/button/CycleButton';
-import {Application} from 'lib-admin-ui/app/Application';
 import {ProjectContext} from '../project/ProjectContext';
 import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
@@ -36,7 +35,9 @@ export class ContentWizardToolbar
 
     private contentWizardToolbarPublishControls: ContentWizardToolbarPublishControls;
 
-    private collaborationBlock: DivEl;
+    private collaborationBlock?: DivEl;
+
+    private stateIcon?: DivEl;
 
     private projectViewer: ProjectViewer;
 
@@ -60,6 +61,7 @@ export class ContentWizardToolbar
 
     protected initListeners() {
         this.config.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
+            this.updateStateIcon(status);
             this.toggleValid(!status.invalid);
         });
 
@@ -90,6 +92,20 @@ export class ContentWizardToolbar
         this.whenRendered(() => {
             this.projectViewer.getNamesAndIconView().getFirstChild().onClicked(() => this.handleHomeIconClicked());
         });
+    }
+
+    private updateStateIcon(status: WorkflowStateStatus): void {
+        if (!this.stateIcon) {
+            return;
+        }
+
+        if (status.ready) {
+            this.stateIcon.getEl().setTitle(i18n('tooltip.state.ready'));
+        } else if (status.inProgress) {
+            this.stateIcon.getEl().setTitle(i18n('tooltip.state.in_progress'));
+        } else {
+            this.stateIcon.getEl().removeAttribute('title');
+        }
     }
 
     setItem(item: ContentSummaryAndCompareStatus) {
@@ -166,8 +182,13 @@ export class ContentWizardToolbar
     }
 
     private addCollaborationBlock(): void {
-        this.collaborationBlock = new CollaborationEl();
-        super.addElement(this.collaborationBlock);
+        if (CONFIG.isTrue('enableCollaboration')) {
+            this.collaborationBlock = new CollaborationEl();
+            super.addElement(this.collaborationBlock);
+        } else {
+            this.stateIcon = new DivEl('toolbar-state-icon');
+            super.addElement(this.stateIcon);
+        }
     }
 
     getCycleViewModeButton(): CycleButton {
@@ -184,5 +205,9 @@ export class ContentWizardToolbar
 
     getContentWizardToolbarPublishControls() {
         return this.contentWizardToolbarPublishControls;
+    }
+
+    getStateIcon(): DivEl {
+        return this.stateIcon;
     }
 }
