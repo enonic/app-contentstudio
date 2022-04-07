@@ -88,6 +88,9 @@ export class AppWrapper
         studioWidgetBuilder.widgetDescriptorKey = WidgetDescriptorKey.fromString(`${CONFIG.get('appId')}:main`);
         studioWidgetBuilder.displayName = i18n('app.name');
         studioWidgetBuilder.url = UrlAction.BROWSE;
+        studioWidgetBuilder.config = {
+            context: 'project'
+        };
 
         return studioWidgetBuilder.build();
     }
@@ -124,6 +127,14 @@ export class AppWrapper
             this.widgetElements.get(key).show();
         } else {
             this.fetchAndAppendWidget(widget);
+        }
+
+        const isProjectSelectorShown: boolean = widget.getConfig()['context'] === 'project';
+
+        if (isProjectSelectorShown) {
+            this.appBar.showProjectSelector();
+        } else {
+            this.appBar.hideProjectSelector();
         }
 
         this.appBar.setAppName(widget.getDisplayName());
@@ -207,7 +218,7 @@ export class AppWrapper
     }
 
     private updateSidebarWidgets() {
-        new GetWidgetsByInterfaceRequest(['contentstudio.sidebar']).sendAndParse().then((widgets: Widget[]) => {
+        new GetWidgetsByInterfaceRequest(['contentstudio.menuitem']).sendAndParse().then((widgets: Widget[]) => {
             widgets.push(this.widgets[0]); // default studio widget
             this.removeStaleWidgets(widgets);
             this.addMissingWidgets(widgets);
