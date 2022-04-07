@@ -28,6 +28,7 @@ export class ContentAppBar
 
         this.initElements();
         this.initListeners();
+        this.handleProjectUpdate();
     }
 
     private initElements() {
@@ -36,8 +37,7 @@ export class ContentAppBar
         this.showIssuesDialogButton = new ShowIssuesDialogButton();
 
         this.showIssuesDialogButton.hide();
-        this.selectedProjectViewer.hide();
-        this.viewerAndNameSeparator.hide();
+        this.hideProjectSelector();
         this.getAppIcon().hide();
     }
 
@@ -47,10 +47,6 @@ export class ContentAppBar
 
         this.selectedProjectViewer.onClicked(() => {
             ProjectSelectionDialog.get().open();
-        });
-
-        this.selectedProjectViewer.whenRendered(() => {
-            this.handleProjectUpdate();
         });
 
         const handler: () => void = this.handleProjectUpdate.bind(this);
@@ -126,13 +122,10 @@ export class ContentAppBar
         AppBarActions.SHOW_BROWSE_PANEL.setEnabled(true);
     }
 
-    setAppName(name: string): void {
-        super.setAppName(name);
-
-        this.showIssuesDialogButton.show();
-        this.selectedProjectViewer.show();
-        this.viewerAndNameSeparator.show();
+    setAppName(name: string) {
         this.getAppIcon().show();
+
+        super.setAppName(name);
     }
 
     doRender(): Q.Promise<boolean> {

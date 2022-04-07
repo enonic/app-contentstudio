@@ -2,6 +2,6 @@
   <display-name>Settings</display-name>
   <description>Configure Projects, Layers</description>
   <interfaces>
-    <interface>contentstudio.sidebar</interface>
+    <interface>contentstudio.menuitem</interface>
   </interfaces>
 </widget>

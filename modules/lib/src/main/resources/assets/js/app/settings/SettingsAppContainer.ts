@@ -19,7 +19,6 @@ export class SettingsAppContainer
         const appBar: ContentAppBar = ContentAppBar.getInstance();
         appBar.hideTabs();
         appBar.disableHomeButton();
-        appBar.showProjectSelector();
     }
 
     show() {
@@ -29,7 +28,6 @@ export class SettingsAppContainer
 
         appBar.showTabs();
         appBar.enableHomeButton();
-        appBar.hideProjectSelector();
     }
 
 }
