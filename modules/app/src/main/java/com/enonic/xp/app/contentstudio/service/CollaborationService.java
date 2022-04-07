@@ -6,9 +6,7 @@ import com.enonic.xp.app.contentstudio.json.CollaborationParams;
 
 public interface CollaborationService
 {
-    Set<String> join( final CollaborationParams params );
+    Set<String> join( CollaborationParams params );
 
-    Set<String> leave( final CollaborationParams params );
-
-    Set<String> heartbeat( final CollaborationParams params );
+    Set<String> leave( CollaborationParams params );
 }

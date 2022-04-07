@@ -33,7 +33,7 @@ export class ContentServerEventsTranslator
             }
         }
 
-        if (eventType.indexOf(CollaborationServerEvent.TYPE_PREFIX) === 0) {
+        if (eventType === CollaborationServerEvent.EVENT_NAME) {
             return CollaborationServerEvent.fromJson(<CollaborationEventJson>eventJson);
         }
 

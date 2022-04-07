@@ -1,85 +1,117 @@
 package com.enonic.xp.app.contentstudio.service;
 
-import java.time.Instant;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.time.Duration;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.enonic.xp.app.contentstudio.json.CollaborationParams;
 import com.enonic.xp.event.Event;
 import com.enonic.xp.event.EventPublisher;
+import com.enonic.xp.shared.SharedMap;
+import com.enonic.xp.shared.SharedMapService;
 
 @Component(immediate = true)
-@Local
 public class CollaborationServiceImpl
     implements CollaborationService
 {
-    private EventPublisher eventPublisher;
+    public static final int CONTENT_COLLABORATORS_TTL = (int) Duration.ofMinutes( 2 ).toSeconds();
 
-    private final ConcurrentMap<String, Set<String>> contents = new ConcurrentHashMap<>();
+    private final SharedMap<String, Set<String>> contents;
+
+    private final EventPublisher eventPublisher;
+
+    @Activate
+    public CollaborationServiceImpl( @Reference final SharedMapService sharedMapService, @Reference final EventPublisher eventPublisher )
+    {
+        this.eventPublisher = eventPublisher;
+
+        this.contents = sharedMapService.getSharedMap( "contentstudio.collaboration.contents" );
+    }
 
     @Override
     public Set<String> join( final CollaborationParams params )
     {
-        long joinAt = Instant.now().toEpochMilli();
+        final long now = System.currentTimeMillis();
+        final String collaboratorKey = collaboratorKey( params );
+        final String contentId = params.getContentId();
 
-        final Set<String> collaborators = contents.computeIfAbsent( params.getContentId(), f -> new CopyOnWriteArraySet<>() );
-        collaborators.add( generateCollaboratorId( params, joinAt ) );
+        return contents.modify( contentId, collaborators -> {
+            if ( collaborators == null )
+            {
+                collaborators = new LinkedHashSet<>();
+            }
+            else
+            {
+                collaborators = new LinkedHashSet<>( collaborators );
+            }
+            final boolean removedExpired = removeExpired( collaborators, now );
 
-        eventPublisher.publish( Event.create( "edit.content.new.collaborator" ).
-            distributed( true ).
-            value( "contentId", params.getContentId() ).
-            value( "newCollaborator", collaboratorAsMap( params.getSessionId(), params.getUserKey() ) ).
-            value( "collaborators", collaborators.stream().map( this::extractUserKey ).collect( Collectors.toSet() ) ).
-            build() );
+            boolean removedExisting = removeByKey( collaborators, collaboratorKey );
 
-        return collaborators;
+            collaborators.add( collaboratorKey + "=" + now );
+
+            if ( !removedExisting || removedExpired )
+            {
+                publishEvent( contentId, collaborators );
+            }
+            return collaborators;
+        }, CONTENT_COLLABORATORS_TTL );
     }
 
     @Override
     public Set<String> leave( final CollaborationParams params )
     {
-        final Set<String> collaborators = contents.computeIfAbsent( params.getContentId(), f -> new CopyOnWriteArraySet<>() );
+        final long now = System.currentTimeMillis();
+        final String collaboratorKey = collaboratorKey( params );
+        final String contentId = params.getContentId();
 
-        final boolean removed =
-            collaborators.removeIf( collaboratorId -> collaboratorId.startsWith( params.getSessionId() + "=" + params.getUserKey() ) );
+        return contents.modify( contentId, collaborators -> {
+            if ( collaborators == null )
+            {
+                return null;
+            }
+            else
+            {
+                collaborators = new LinkedHashSet<>( collaborators );
+            }
+            final boolean removedExpired = removeExpired( collaborators, now );
 
-        if ( removed )
-        {
-            eventPublisher.publish( Event.create( "edit.content.remove.collaborator" ).
-                distributed( true ).
-                value( "contentId", params.getContentId() ).
-                value( "collaborators", collaborators.stream().map( this::extractUserKey ).collect( Collectors.toSet() ) ).
-                build() );
-        }
+            final boolean removedExisting = removeByKey( collaborators, collaboratorKey );
 
-        return collaborators;
+            if ( removedExisting || removedExpired )
+            {
+                publishEvent( contentId, collaborators );
+            }
+            return collaborators.isEmpty() ? null : collaborators;
+        }, CONTENT_COLLABORATORS_TTL );
     }
 
-    @Override
-    public Set<String> heartbeat( final CollaborationParams params )
+    private boolean removeByKey( final Set<String> collaborators, final String key )
     {
-        return contents.get( params.getContentId() );
+        return collaborators.removeIf( collaborator -> collaborator.startsWith( key ) );
     }
 
-    private Map<String, Object> collaboratorAsMap( final String sessionId, final String userKey )
+    private boolean removeExpired( final Set<String> collaborators, final long now )
     {
-        final Map<String, Object> result = new LinkedHashMap<>();
-        result.put( "sessionId", sessionId );
-        result.put( "userKey", userKey );
-        return result;
+        return collaborators.removeIf( collaborator -> {
+            long lastJoin = extractLastJoin( collaborator );
+            return now - lastJoin > 2 * 60 * 1000;
+        } );
     }
 
-    private String generateCollaboratorId( final CollaborationParams params, final long timestamp )
+    private void publishEvent( final String contentId, final Set<String> collaborators )
     {
-        return params.getSessionId() + "=" + params.getUserKey() + "=" + timestamp;
+        eventPublisher.publish( Event.create( "edit.content.collaborators.update" )
+                                    .distributed( true )
+                                    .value( "contentId", contentId )
+                                    .value( "collaborators",
+                                            collaborators.stream().map( this::extractUserKey ).collect( Collectors.toSet() ) )
+                                    .build() );
     }
 
     private String extractUserKey( final String collaboratorId )
@@ -87,9 +119,14 @@ public class CollaborationServiceImpl
         return collaboratorId.split( "=", -1 )[1];
     }
 
-    @Reference
-    public void setEventPublisher( final EventPublisher eventPublisher )
+    private long extractLastJoin( final String collaboratorId )
     {
-        this.eventPublisher = eventPublisher;
+        String[] idParts = collaboratorId.split( "=", -1 );
+        return Long.parseLong( idParts[2] );
+    }
+
+    private static String collaboratorKey( final CollaborationParams params )
+    {
+        return params.getSessionId() + "=" + params.getUserKey();
     }
 }
