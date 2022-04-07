@@ -4,12 +4,13 @@ import {WidgetInjectionResult} from './WidgetInjectionResult';
 export class WidgetHelper {
 
     static injectWidgetHtml(html: string, target: UIElement): WidgetInjectionResult {
-        const widgetContainer: UIElement = UIElement.fromHtml(html);
+        const widgetRegexResult: RegExpMatchArray = html.match(/<widget(\s.*?)?>.*?<\/widget>/sg);
 
-        if (widgetContainer?.getHTMLElement().tagName !== 'WIDGET') {
+        if (!widgetRegexResult) {
             throw 'Widget contents must be wrapped inside <widget></widget> tags';
         }
 
+        const widgetContainer: UIElement = UIElement.fromHtml(widgetRegexResult[0]);
         const scriptElements: HTMLScriptElement[] = WidgetHelper.injectScriptsToHead(widgetContainer);
         const linkElements: HTMLLinkElement[] = WidgetHelper.injectLinksToHead(widgetContainer);
         target.appendChild(widgetContainer);
