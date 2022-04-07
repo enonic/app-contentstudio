@@ -1,16 +1,24 @@
 package com.enonic.xp.app.contentstudio;
 
+import java.util.Set;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.enonic.xp.app.contentstudio.json.CollaborationParams;
-import com.enonic.xp.app.contentstudio.service.CollaborationManager;
+import com.enonic.xp.app.contentstudio.service.CollaborationService;
 import com.enonic.xp.script.bean.BeanContext;
 import com.enonic.xp.script.bean.ScriptBean;
+
+import static java.util.Objects.requireNonNullElse;
 
 public class CollaborationHandler
     implements ScriptBean
 {
-    protected Supplier<CollaborationManager> collaborationManagerSupplier;
+    private static final Logger LOG = LoggerFactory.getLogger( CollaborationHandler.class );
+
+    protected Supplier<CollaborationService> collaborationServiceSupplier;
 
     protected String contentId;
 
@@ -21,7 +29,7 @@ public class CollaborationHandler
     @Override
     public void initialize( final BeanContext beanContext )
     {
-        this.collaborationManagerSupplier = beanContext.getService( CollaborationManager.class );
+        this.collaborationServiceSupplier = beanContext.getService( CollaborationService.class );
     }
 
     public void setContentId( final String contentId )
@@ -45,7 +53,10 @@ public class CollaborationHandler
         params.setContentId( contentId );
         params.setSessionId( sessionId );
         params.setUserKey( userKey );
-        return new CollaborationsMapper( collaborationManagerSupplier.get().join( params ) );
+        final Set<String> collaborators = collaborationServiceSupplier.get().join( params );
+        LOG.debug( "Collaborators after join {}", collaborators );
+
+        return new CollaborationsMapper( collaborators );
     }
 
     public CollaborationsMapper leave()
@@ -54,7 +65,10 @@ public class CollaborationHandler
         params.setContentId( contentId );
         params.setSessionId( sessionId );
         params.setUserKey( userKey );
-        return new CollaborationsMapper( collaborationManagerSupplier.get().leave( params ) );
+
+        final Set<String> collaborators = requireNonNullElse( collaborationServiceSupplier.get().leave( params ), Set.of() );
+        LOG.debug( "Collaborators after leave {}", collaborators );
+        return new CollaborationsMapper( collaborators );
     }
 
     public CollaborationsMapper heartbeat()
@@ -63,6 +77,10 @@ public class CollaborationHandler
         params.setContentId( contentId );
         params.setSessionId( sessionId );
         params.setUserKey( userKey );
-        return new CollaborationsMapper( collaborationManagerSupplier.get().heartbeat( params ) );
+
+        final Set<String> collaborators = collaborationServiceSupplier.get().join( params );
+        LOG.debug( "Collaborators after heartbeat {}", collaborators );
+
+        return new CollaborationsMapper( collaborators );
     }
 }
