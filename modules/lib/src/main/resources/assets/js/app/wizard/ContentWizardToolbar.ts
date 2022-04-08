@@ -18,10 +18,14 @@ import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobil
 import {UrlHelper} from '../util/UrlHelper';
 import {CONFIG} from 'lib-admin-ui/util/Config';
 import {CollaborationEl} from './CollaborationEl';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {WebSocketConnection} from 'lib-admin-ui/connection/WebSocketConnection';
+import {ContentId} from '../content/ContentId';
 
 export interface ContentWizardToolbarConfig {
     actions: ContentWizardActions;
     workflowStateIconsManager: WorkflowStateIconsManager;
+    contentId: ContentId
 }
 
 export class ContentWizardToolbar
@@ -185,10 +189,22 @@ export class ContentWizardToolbar
         if (CONFIG.isTrue('enableCollaboration')) {
             this.collaborationBlock = new CollaborationEl();
             super.addElement(this.collaborationBlock);
+            this.openCollaborationWSConnection();
         } else {
             this.stateIcon = new DivEl('toolbar-state-icon');
             super.addElement(this.stateIcon);
         }
+    }
+
+    private openCollaborationWSConnection(): void {
+        const wsUrl: string =
+            UriHelper.joinPath(WebSocketConnection.getWebSocketUriPrefix(), CONFIG.getString('services.collaborationUrl'));
+
+        WebSocketConnection.create()
+            .setUrl(`${wsUrl}?contentId=${this.config.contentId.toString()}`)
+            .setKeepAliveTimeSeconds(60)
+            .build()
+            .connect();
     }
 
     getCycleViewModeButton(): CycleButton {
