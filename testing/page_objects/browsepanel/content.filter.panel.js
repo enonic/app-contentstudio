@@ -78,11 +78,15 @@ class BrowseFilterPanel extends Page {
         return this.waitForElementNotDisplayed(this.clearFilterLink, appConst.mediumTimeout)
     }
 
-    waitForDependenciesSectionVisible() {
-        return this.waitForElementDisplayed(XPATH.container + XPATH.dependenciesSection, appConst.mediumTimeout).catch(err => {
-            this.saveScreenshot("err_load_dependencies_section");
-            throw new Error(" Filter Panel: Dependencies section should be visible! " + err);
-        })
+    async waitForDependenciesSectionVisible(ms) {
+        try {
+            let timeout;
+            timeout = ms === undefined ? appConst.mediumTimeout : ms;
+            return await this.waitForElementDisplayed(XPATH.container + XPATH.dependenciesSection, timeout)
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_load_dependencies_section"));
+            throw new Error("Filter Panel: Dependencies section should be visible! " + err);
+        }
     }
 
     async clickOnClearLink() {
