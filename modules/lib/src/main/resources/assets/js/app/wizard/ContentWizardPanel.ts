@@ -141,7 +141,6 @@ import {MovedContentItem} from '../browse/MovedContentItem';
 import {ContentAppHelper} from './ContentAppHelper';
 import {UrlHelper} from '../util/UrlHelper';
 import {RenderingMode} from '../rendering/RenderingMode';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -565,7 +564,8 @@ export class ContentWizardPanel
     protected createMainToolbar(): Toolbar {
         return new ContentWizardToolbar({
             actions: this.wizardActions,
-            workflowStateIconsManager: this.workflowStateIconsManager
+            workflowStateIconsManager: this.workflowStateIconsManager,
+            contentId: this.params.contentId
         });
     }
 
@@ -735,39 +735,8 @@ export class ContentWizardPanel
                 thumbnailUploader.addClass('site');
             }
 
-            this.openCollaborationWebSocket();
-
             return rendered;
         });
-    }
-
-    private openCollaborationWebSocket(): void {
-        const wsUrl: string = UriHelper.joinPath(this.getWebSocketUriPrefix(), CONFIG.getString('services.collaborationUrl'));
-        const ws: WebSocket = new WebSocket(`${wsUrl}?contentId=${this.getPersistedItem().getId()}`);
-
-        ws.addEventListener('close', function (event){
-            console.log(`Close... ${JSON.stringify(event)}`);
-        });
-        ws.addEventListener('open', function (event){
-            console.log(`Open... ${JSON.stringify(event)}`);
-        });
-        ws.addEventListener('error', function (event){
-            console.log(`Error... ${JSON.stringify(event)}`);
-        });
-        ws.addEventListener('message', function (event){
-            console.log(`Message... ${JSON.stringify(event)}`);
-        });
-
-        setInterval(() => {
-            ws.send(`keeping websocket open...${this.getPersistedItem().getId()}`);
-        }, 60000);
-    }
-
-    private getWebSocketUriPrefix(): string {
-        const loc: Location = window.location;
-        const prefix: string = loc.protocol === 'https:' ? 'wss:' : 'ws:';
-
-        return `${prefix}//${loc.host}`;
     }
 
     protected prepareMainPanel(): Panel {
