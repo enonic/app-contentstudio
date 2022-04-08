@@ -5,6 +5,7 @@ import {RepositoryId} from '../../repository/RepositoryId';
 import {ProjectContext} from '../../project/ProjectContext';
 import {CONFIG} from 'lib-admin-ui/util/Config';
 import {WidgetHelper} from '../../util/WidgetHelper';
+import {i18n} from 'lib-admin-ui/util/Messages';
 
 export class WidgetItemView
     extends DivEl {
@@ -43,8 +44,9 @@ export class WidgetItemView
     }
 
     public fetchWidgetContents(url: string, contentId: string): Q.Promise<void> {
-        const deferred = Q.defer<void>();
-        const fullUrl = WidgetItemView.getFullWidgetUrl(url, contentId);
+        const deferred: Q.Deferred<void> = Q.defer<void>();
+        const fullUrl: string = WidgetItemView.getFullWidgetUrl(url, contentId);
+
         fetch(fullUrl)
             .then(response => response.text())
             .then((html: string) => {
@@ -52,12 +54,18 @@ export class WidgetItemView
                 this.injectWidget(html);
                 deferred.resolve();
             })
-            .catch(err => {
+            .catch(() => {
                 deferred.reject();
-                throw new Error('Failed to fetch page: ' + err);
+                this.handleWidgetRenderError();
             });
 
         return deferred.promise;
+    }
+
+    private handleWidgetRenderError(): void {
+        const errorElement: DivEl = new DivEl('widget-error');
+        errorElement.setHtml(i18n('widget.render.error'));
+        this.appendChild(errorElement);
     }
 
     public reset() {
