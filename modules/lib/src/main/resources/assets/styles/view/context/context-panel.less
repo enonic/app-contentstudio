@@ -30,12 +30,13 @@
       .context-container {
         display: none;
       }
+
       .no-selection-message {
         display: block;
       }
     }
 
-    .no-selection-message {
+    .no-selection-message, .widget-error {
       .watermark-text();
       display: none;
       height: 60px;
@@ -47,6 +48,10 @@
       h6 {
         font-size: 13px;
       }
+    }
+
+    .widget-error {
+      display: block;
     }
   }
 
@@ -93,6 +98,7 @@
         .selected-option .option-value {
           margin: 0;
         }
+
         .@{_COMMON_PREFIX}dropdown-handle {
           display: none;
         }
