@@ -83,6 +83,7 @@ export class ContentSummaryAndCompareStatusViewer
             this.toggleClass('ready', !isPendingDelete && contentSummary.isReady());
             this.toggleClass('in-progress', !isPendingDelete && contentSummary.isInProgress());
         } else {
+            this.getNamesAndIconView().setIconToolTip('');
             this.removeClass('ready');
             this.removeClass('in-progress');
         }
