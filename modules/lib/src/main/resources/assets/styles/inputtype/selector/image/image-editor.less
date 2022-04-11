@@ -8,7 +8,7 @@
     position: absolute; // need to have a position other than static for z-index to have effect
     z-index: @z-index-mask + 1; // to be above image input type mask
     max-width: 640px;
-    width: calc(~'100% - ' 20px);
+    width: calc(~'100% - '20px);
 
     .sticky-toolbar {
       z-index: @z-index-mask; // to have it on top of zoomed image
@@ -18,10 +18,10 @@
   &.edit-mode {
     .image-frame {
       .image-canvas {
-        > svg {
+        >svg {
           pointer-events: all;
 
-          > image {
+          >image {
             cursor: move;
           }
         }
@@ -124,7 +124,7 @@
         height: 100%;
       }
 
-      > svg {
+      >svg {
         position: absolute;
         overflow: visible; // to show drag handle
         top: 0;
@@ -176,7 +176,7 @@
     display: block;
     top: 0;
     position: absolute;
-    z-index: @z-index-scroll-stick - 1; // because wizard-toolbar has z-index: @z-index-mask-2 and should be on top
+    z-index: 1; // z-index is adjusted when needed using the additional .standout class
     left: 1px; // account for image editor border
     width: 100%;
     box-sizing: border-box;
