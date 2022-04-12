@@ -32,10 +32,6 @@
       .standby-container {
         display: none;
       }
-
-      .edit-container {
-        display: block;
-      }
     }
 
     &.edit-focus {
@@ -84,6 +80,12 @@
             opacity: 0.5;
           }
         }
+      }
+    }
+
+    .bottom-toolbar {
+      .edit-container {
+        display: block;
       }
     }
   }
@@ -184,10 +186,6 @@
 
     .standby-container {
       display: block;
-    }
-
-    .edit-container {
-      display: none;
     }
 
     .@{_COMMON_PREFIX}button {
@@ -316,6 +314,25 @@
           background-color: #000;
           border-radius: 10px;
         }
+      }
+    }
+  }
+
+  .bottom-toolbar {
+    position: absolute;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    margin: 0px -1px 0px 1px;
+
+    .edit-container {
+      display: none;
+      float: right;
+
+      // apply button
+      .blue {
+        margin-left: 10px;
       }
     }
   }

@@ -93,6 +93,7 @@ export class ImageEditor
 
     private stickyToolbar: DivEl;
     private topContainer: DivEl;
+    private bottomToolbar: DivEl;
 
     private editCropButton: Button;
     private editFocusButton: Button;
@@ -245,7 +246,8 @@ export class ImageEditor
         this.imageMask = new LoadMask(this.frame);
 
         this.stickyToolbar = this.createStickyToolbar();
-        this.appendChildren(this.stickyToolbar, this.frame);
+        this.bottomToolbar = this.createBottomToolbar();
+        this.appendChildren(this.stickyToolbar, this.frame, this.bottomToolbar);
 
         let scrollListener = () => this.updateStickyToolbar();
 
@@ -715,45 +717,6 @@ export class ImageEditor
     private createStickyToolbar(): DivEl {
         let toolbar = new DivEl('sticky-toolbar');
 
-        let editContainer = new DivEl('edit-container');
-
-        this.editResetButton = new Button(i18n('button.reset'));
-        this.editResetButton.setVisible(false).addClass('transparent').onClicked((event: MouseEvent) => {
-            event.stopPropagation();
-
-            if (this.isFocusEditMode()) {
-                this.resetFocusPosition();
-                this.resetFocusRadius();
-            } else if (this.isCropEditMode()) {
-                this.resetZoomPosition();
-                this.resetCropPosition();
-            }
-        });
-
-        let applyButton = new Button(i18n('button.apply'));
-        applyButton.addClass('blue').onClicked((event: MouseEvent) => {
-            event.stopPropagation();
-
-            if (this.isCropEditMode()) {
-                this.disableCropEditMode();
-            } else if (this.isFocusEditMode()) {
-                this.disableFocusEditMode();
-            }
-        });
-
-        let cancelButton = new CloseButton();
-        cancelButton.onClicked((event: MouseEvent) => {
-            event.stopPropagation();
-
-            if (this.isCropEditMode()) {
-                this.disableCropEditMode(false);
-            } else if (this.isFocusEditMode()) {
-                this.disableFocusEditMode(false);
-            }
-        });
-
-        editContainer.appendChildren(this.editResetButton, applyButton, cancelButton);
-
         const standbyContainer: DivEl = new DivEl('standby-container');
         this.resetButton = new Button(i18n('editor.resetfilters'));
         this.resetButton.setEnabled(false).addClass('button-reset transparent').setVisible(false).onClicked((event: MouseEvent) => {
@@ -787,6 +750,11 @@ export class ImageEditor
         this.uploadButton = new Button();
         this.uploadButton.setEnabled(false).addClass('button-upload');
         standbyContainer.appendChildren(this.resetButton, this.uploadButton);
+
+        let rightContainer = new DivEl('right-container');
+        rightContainer.appendChildren(standbyContainer/* , editContainer */);
+
+        let zoomContainer = this.createZoomContainer();
 
         this.editCropButton = new Button().setEnabled(false);
         new Tooltip(this.editCropButton, i18n('editor.cropimage'), 1000);
@@ -822,11 +790,6 @@ export class ImageEditor
             }
         });
 
-        let rightContainer = new DivEl('right-container');
-        rightContainer.appendChildren(standbyContainer, editContainer);
-
-        let zoomContainer = this.createZoomContainer();
-
         this.rotateButton = new Button();
         this.rotateButton
             .setEnabled(false)
@@ -852,6 +815,53 @@ export class ImageEditor
             rightContainer);
 
         toolbar.appendChildren(this.topContainer, zoomContainer);
+
+        return toolbar;
+    }
+
+    private createBottomToolbar(): DivEl {
+        let toolbar = new DivEl('bottom-toolbar');
+
+        let editContainer = new DivEl('edit-container');
+
+        this.editResetButton = new Button(i18n('button.reset'));
+        this.editResetButton.setVisible(false).addClass('transparent').onClicked((event: MouseEvent) => {
+            event.stopPropagation();
+
+            if (this.isFocusEditMode()) {
+                this.resetFocusPosition();
+                this.resetFocusRadius();
+            } else if (this.isCropEditMode()) {
+                this.resetZoomPosition();
+                this.resetCropPosition();
+            }
+        });
+
+        let applyButton = new Button(i18n('button.apply'));
+        applyButton.addClass('blue').onClicked((event: MouseEvent) => {
+            event.stopPropagation();
+
+            if (this.isCropEditMode()) {
+                this.disableCropEditMode();
+            } else if (this.isFocusEditMode()) {
+                this.disableFocusEditMode();
+            }
+        });
+
+        let cancelButton = new Button(i18n('action.cancel'));
+        cancelButton.addClass('gray').onClicked((event: MouseEvent) => {
+            event.stopPropagation();
+
+            if (this.isCropEditMode()) {
+                this.disableCropEditMode(false);
+            } else if (this.isFocusEditMode()) {
+                this.disableFocusEditMode(false);
+            }
+        });
+
+        editContainer.appendChildren(cancelButton, applyButton);
+
+        toolbar.appendChildren(this.editResetButton, editContainer);
 
         return toolbar;
     }
