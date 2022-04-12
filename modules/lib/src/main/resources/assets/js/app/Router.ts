@@ -2,6 +2,7 @@ import * as hasher from 'hasher';
 import {ProjectContext} from './project/ProjectContext';
 import {Path} from 'lib-admin-ui/rest/Path';
 import {Store} from 'lib-admin-ui/store/Store';
+import {CONFIG} from 'lib-admin-ui/util/Config';
 
 export class Router {
 
@@ -59,8 +60,18 @@ export class Router {
     }
 
     static getPath(): Path {
-        const pathAsString = window.location.hash?.substring(1) || '/';
-        return Path.create().fromString(pathAsString).build();
+        return Path.create().fromString(this.getPathString()).build();
+    }
+
+    private static getPathString(): string {
+        if (!CONFIG.has('appId')) {
+            return '/';
+        }
+
+        const appId: string = CONFIG.getString('appId');
+        const pathWithTool: string = window.location.href.split(appId)[1];
+
+        return pathWithTool?.replace(/\/[^\/]+/, '') || '/';
     }
 
     back() {
