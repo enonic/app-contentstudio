@@ -19,6 +19,7 @@ import {GetPreviewRequest} from '../../../../macro/resource/GetPreviewRequest';
 import {GetPreviewStringRequest} from '../../../../macro/resource/GetPreviewStringRequest';
 import {MacroDescriptor} from 'lib-admin-ui/macro/MacroDescriptor';
 import {MacroPreview} from '../../../../macro/MacroPreview';
+import {PageContributions} from '../../../../macro/PageContributions';
 
 export class MacroDockedPanel
     extends DockedPanel {
@@ -106,10 +107,21 @@ export class MacroDockedPanel
     }
 
     private fetchPreview(): Q.Promise<MacroPreview> {
+        if (this.macroDescriptor.getKey().getRefString().toUpperCase() === 'SYSTEM:EMBED') {
+            return Q(this.createEmbedMacroPreview());
+        }
+
         return new GetPreviewRequest(
             new PropertyTree(this.data),
             this.macroDescriptor.getKey(),
             this.content.getPath()).sendAndParse();
+    }
+
+    private createEmbedMacroPreview(): MacroPreview {
+        return MacroPreview.create()
+            .setHtml(`<div class='embed-preview'>${i18n('dialog.macro.form.embed.preview')}</div>`)
+            .setPageContributions(PageContributions.create().build())
+            .build();
     }
 
     private fetchMacroString(): Q.Promise<string> {

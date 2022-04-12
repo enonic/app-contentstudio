@@ -42,15 +42,18 @@
 
         .macro-preview-panel {
           .preview-message {
-            font-size: 14px;
-            text-align: center;
-            margin-top: 10px;
-            color: @admin-font-gray1;
+            .watermark-text(16px, true);
+            position: static;
           }
 
           .preview-content {
             > * {
               box-sizing: border-box;
+            }
+
+            .embed-preview {
+              .watermark-text(16px, true);
+              position: static;
             }
           }
 
