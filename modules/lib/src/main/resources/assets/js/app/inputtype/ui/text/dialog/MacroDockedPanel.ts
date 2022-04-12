@@ -19,6 +19,7 @@ import {GetPreviewRequest} from '../../../../macro/resource/GetPreviewRequest';
 import {GetPreviewStringRequest} from '../../../../macro/resource/GetPreviewStringRequest';
 import {MacroDescriptor} from 'lib-admin-ui/macro/MacroDescriptor';
 import {MacroPreview} from '../../../../macro/MacroPreview';
+import {PageContributions} from '../../../../macro/PageContributions';
 
 export class MacroDockedPanel
     extends DockedPanel {
@@ -109,7 +110,21 @@ export class MacroDockedPanel
         return new GetPreviewRequest(
             new PropertyTree(this.data),
             this.macroDescriptor.getKey(),
-            this.content.getPath()).sendAndParse();
+            this.content.getPath()).sendAndParse().then((result: MacroPreview) => {
+                if (this.isSystemEmbedMacro()) {
+                    return MacroPreview.create()
+                        .setPageContributions(result.getPageContributions())
+                        .setMacroString(result.getMacroString())
+                        .setHtml(`<div class='embed-preview'>${i18n('dialog.macro.form.embed.preview')}</div>`)
+                        .build();
+                }
+
+                return result;
+        });
+    }
+
+    private isSystemEmbedMacro(): boolean {
+        return this.macroDescriptor.getKey().getRefString().toUpperCase() === 'SYSTEM:EMBED';
     }
 
     private fetchMacroString(): Q.Promise<string> {
@@ -147,7 +162,7 @@ export class MacroDockedPanel
         if (macroPreview.getPageContributions().hasAtLeastOneScript()) {
             this.previewPanel.appendChild(this.makePreviewFrame(macroPreview));
         } else {
-            let appendMe = new DivEl('preview-content');
+            const appendMe: DivEl = new DivEl('preview-content');
             appendMe.setHtml(macroPreview.getHtml(), false);
             this.previewPanel.appendChild(appendMe);
             this.notifyPanelRendered();

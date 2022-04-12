@@ -4,16 +4,16 @@ import {PageContributionsJson} from './resource/MacroPreviewJson';
 
 export class PageContributions
     implements Equitable {
-    private bodyBegin: string[];
-    private bodyEnd: string[];
-    private headBegin: string[];
-    private headEnd: string[];
+    private readonly bodyBegin: string[];
+    private readonly bodyEnd: string[];
+    private readonly headBegin: string[];
+    private readonly headEnd: string[];
 
     constructor(builder: PageContributionsBuilder) {
-        this.bodyBegin = builder.bodyBegin;
-        this.bodyEnd = builder.bodyEnd;
-        this.headBegin = builder.headBegin;
-        this.headEnd = builder.headEnd;
+        this.bodyBegin = builder.bodyBegin || [];
+        this.bodyEnd = builder.bodyEnd || [];
+        this.headBegin = builder.headBegin || [];
+        this.headEnd = builder.headEnd || [];
     }
 
     static create(): PageContributionsBuilder {
