@@ -1,15 +1,11 @@
 /**
  * Created on 15.12.2017.
- *
- * ImageSelector content - options in dropdown list should be correctly filtered #628
  */
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConstant = require('../../libs/app_const');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../../libs/studio.utils.js');
-const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
 const ImageSelectorForm = require('../../page_objects/wizardpanel/imageselector.form.panel');
 
@@ -112,7 +108,6 @@ describe('content.image.selector: Image content specification', function () {
             assert.equal(optionsName.length, 2, 'one option should be present in options, because text files should be filtered');
             assert.isTrue(optionsName[1].includes('.svg'), 'pdf and text- files should be filtered in drop down list');
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

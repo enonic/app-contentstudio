@@ -19,7 +19,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
     let SITE;
     const CONTENT_NAME_1 = contentBuilder.generateRandomName('combo');
     const CONTENT_NAME_2 = contentBuilder.generateRandomName('combo');
-    const COMBO_CHILD_FALSE = contentBuilder.generateRandomName('combo');
+    const COMBO_CHILD_FALSE = contentBuilder.generateRandomName('child-false');
     const OPTION_A = "option A";
     const OPTION_B = "option B";
 
