@@ -10,6 +10,8 @@ const contentBuilder = require("../../libs/content.builder");
 const ComboBoxForm = require('../../page_objects/wizardpanel/combobox.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 
 describe('combobox.content.spec: tests for comboBox content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -17,6 +19,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
     let SITE;
     const CONTENT_NAME_1 = contentBuilder.generateRandomName('combo');
     const CONTENT_NAME_2 = contentBuilder.generateRandomName('combo');
+    const COMBO_CHILD_FALSE = contentBuilder.generateRandomName('combo');
     const OPTION_A = "option A";
     const OPTION_B = "option B";
 
@@ -33,7 +36,7 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             let contentWizard = new ContentWizard();
             //1. open new wizard and fill in the name input:
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.COMBOBOX_0_0);
-            await contentWizard.typeDisplayName(CONTENT_NAME_1);
+            await contentWizard.typeDisplayName(COMBO_CHILD_FALSE);
             //2. Select a not required option:
             await comboBoxForm.typeInFilterAndClickOnOption(OPTION_A);
             await studioUtils.saveScreenshot("combobox_not_req");
@@ -42,6 +45,9 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             //4. Verify that the content gets valid even before clicking on the 'Save' button
             let isInValid = await contentWizard.isContentInvalid();
             assert.isFalse(isInValid, 'the content should be valid, because combobox input is not required');
+
+            await contentWizard.waitAndClickOnSave();
+            await contentWizard.waitForNotificationMessage();
         });
 
     it(`GIVEN wizard for new not required ComboBox 1:1 is opened WHEN name input have been filled and required option has been selected THEN the content gets valid`,
@@ -142,6 +148,31 @@ describe('combobox.content.spec: tests for comboBox content', function () {
             //6. Verify the message: 'Min 2 valid occurrence(s) required'
             let actualMessage = await comboBoxForm.getComboBoxValidationMessage();
             assert.equal(actualMessage, "Min 2 valid occurrence(s) required", "Expected validation message should appear");
+        });
+
+    it("GIVEN the content is selected AND allow-child-content-type is 'base:folder' WHEN New Content dialog is opened THEN only one content type should be present",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            let newContentDialog = new NewContentDialog();
+            //1. Select the existing content, 'allow-child-content-type' = 'base:folder'
+            await studioUtils.findAndSelectItem(CONTENT_NAME_2);
+            //2. Open New Content Dialog:
+            await contentBrowsePanel.clickOnNewButton();
+            await newContentDialog.waitForOpened();
+            await studioUtils.saveScreenshot("allow_child_folder");
+            //3. Verify that only folder can be created:
+            let actualItems = await newContentDialog.getItems();
+            assert.isTrue(actualItems.length === 1, "Only one type should be present in the modal dialog");
+        });
+
+    it("WHEN the content is selected AND 'allow-child-content' is 'false' THEN 'New' button should be disabled",
+        async () => {
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Select the existing content, 'allow-child-content' is 'false'
+            await studioUtils.findAndSelectItem(COMBO_CHILD_FALSE);
+            await studioUtils.saveScreenshot("allow_child_false");
+            //2. Verify that New button is disabled:
+            await contentBrowsePanel.waitForNewButtonDisabled();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
