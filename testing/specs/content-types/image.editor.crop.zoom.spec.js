@@ -11,50 +11,51 @@ const ImageEditor = require('../../page_objects/wizardpanel/image.editor');
 const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 
-describe("image.content.crop.spec: tests for crop button", function () {
+describe("image.editor.crop.zoom.spec: tests for crop button", function () {
         this.timeout(appConst.SUITE_TIMEOUT);
         webDriverHelper.setupBrowser();
 
-        it(`GIVEN an image is opened and edit mode is switched on  WHEN 'Close edit mode' has been clicked THEN Apply and close buttons are not visible`,
+        it(`GIVEN an image is opened and edit mode is switched on  WHEN 'Cancel edit mode' has been clicked THEN Apply and Cancel buttons get not visible`,
             async () => {
                     let imageEditor = new ImageEditor();
                     let imageFormPanel = new ImageFormPanel();
                     //1. Open an existing image:
                     await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.TELK);
                     await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-                    //2. SWitch on the edit-mode
+                    //2. Switch on the edit-mode:
                     await imageEditor.clickOnCropButton();
-                    await imageEditor.clickOnCloseEditModeButton();
-                    //3. Verify that Apply, Close, zoom knob elements are not visible in non edit mode:
+                    //3. Click on Cancel button and close Edit Mode
+                    await imageEditor.clickOnCancelButton();
+                    //3. Verify that Apply, Cancel, zoom knob elements are not visible in non edit mode:
                     await imageEditor.waitForApplyButtonNotDisplayed();
-                    await imageEditor.waitForCloseEditModeButtonNotDisplayed();
+                    await imageEditor.waitForCancelButtonNotDisplayed();
                     await imageEditor.waitForZoomKnobNotDisplayed();
             });
 
-    it(`GIVEN existing image is opened WHEN Crop button has been clicked THEN Apply, Close, Zoom Knob buttons should be visible in the edit mode`,
-        async () => {
-                let imageEditor = new ImageEditor();
-                let imageFormPanel = new ImageFormPanel();
-                //1. Open an existing image:
-                await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.TELK);
-                await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
-                //2. Verify that 'Apply' button is not displayed in the editor-toolbar
-                await imageEditor.waitForApplyButtonNotDisplayed();
-                await imageEditor.waitForCloseEditModeButtonNotDisplayed();
-                //3. Click on 'Crop' button and switch to 'edit' mode
-                await imageEditor.clickOnCropButton();
-                await studioUtils.saveScreenshot("image_crop_button_pressed");
-                //4. Verify that Apply, Close, Zoom Knob buttons get visible:
-                await imageEditor.waitForApplyButtonDisplayed();
-                await imageEditor.waitForCloseEditModeButtonDisplayed();
-                await imageEditor.waitForZoomKnobDisplayed();
-                //5. Click on Crop button and close the 'edit' mode:
-                await imageEditor.clickOnCropButton();
-                //6. Verify that Apply, Close, Zoom Knob buttons get not visible in not edit mode:
-                await imageEditor.waitForApplyButtonNotDisplayed();
-                await imageEditor.waitForCloseEditModeButtonNotDisplayed();
-                await imageEditor.waitForZoomKnobNotDisplayed();
-        });
+        it(`GIVEN existing image is opened WHEN Crop button has been clicked THEN Apply, Cancel, Zoom Knob buttons should be visible in the edit mode`,
+            async () => {
+                    let imageEditor = new ImageEditor();
+                    let imageFormPanel = new ImageFormPanel();
+                    //1. Open an existing image:
+                    await studioUtils.selectContentAndOpenWizard(appConst.TEST_IMAGES.TELK);
+                    await imageFormPanel.waitForImageLoaded(appConst.mediumTimeout);
+                    //2. Verify that 'Apply' button is not displayed in the editor-toolbar
+                    await imageEditor.waitForApplyButtonNotDisplayed();
+                    await imageEditor.waitForCancelButtonNotDisplayed();
+                    //3. Click on 'Crop' button and switch to 'edit' mode
+                    await imageEditor.clickOnCropButton();
+                    await studioUtils.saveScreenshot("image_crop_button_pressed");
+                    //4. Verify that Apply, Cancel, Zoom Knob buttons get visible:
+                    await imageEditor.waitForApplyButtonDisplayed();
+                    await imageEditor.waitForCancelButtonDisplayed();
+                    await imageEditor.waitForZoomKnobDisplayed();
+                    //5. Click on Crop button and close the 'edit' mode:
+                    await imageEditor.clickOnCropButton();
+                    //6. Verify that Apply, Cancel, Zoom Knob buttons get not visible in not edit mode:
+                    await imageEditor.waitForApplyButtonNotDisplayed();
+                    await imageEditor.waitForCancelButtonNotDisplayed();
+                    await imageEditor.waitForZoomKnobNotDisplayed();
+            });
 
     it(`GIVEN existing image is opened WHEN the image has been zoomed THEN 'Reset mask' button should appear`,
         async () => {
@@ -97,6 +98,8 @@ describe("image.content.crop.spec: tests for crop button", function () {
                 await imageEditor.clickOnApplyButton();
                 await imageEditor.waitForResetFiltersDisplayed();
                 await contentWizard.waitAndClickOnSave();
+                //5. Verify that 'Reset Mask' button is not displayed now
+                await imageEditor.waitForResetMaskButtonNotDisplayed();
         });
 
     it(`GIVEN existing zoomed image is opened WHEN 'Reset Mask' and 'Apply' buttons have been pressed THEN the image returns to the initial state`,

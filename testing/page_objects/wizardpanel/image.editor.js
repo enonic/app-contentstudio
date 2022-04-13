@@ -18,8 +18,8 @@ const xpath = {
     zoomKnob: "//span[@class='zoom-knob']",
     resetAutofocusButton: "//button[contains(@id,'Button') and child::span[text()='Reset Autofocus']]",
     resetMaskButton: "//button[contains(@id,'Button') and child::span[text()='Reset Mask']]",
-    closeEditModeButton: "//button[contains(@class,'close-button')]",
     buttonApply: "//button/span[text()='Apply']",
+    buttonCancel: "//button/span[text()='Cancel']",
     resetMaskButton: "//button[contains(@id,'Button')]/span[text()='Reset Mask']",
     cropHandle: "//*[name()='svg' and contains(@id,'ImageEditor-dragHandle')]",
     focusCircle: "//*[name()='svg']/*[name()='g' and contains(@class,'focus-group')]",
@@ -44,8 +44,8 @@ class ImageEditor extends Page {
         return xpath.imageEditor + xpath.buttonCrop;
     }
 
-    get buttonClose() {
-        return xpath.imageEditor + xpath.closeEditModeButton;
+    get buttonCancel() {
+        return xpath.imageEditor + xpath.buttonCancel;
     }
 
     get buttonFocus() {
@@ -184,20 +184,21 @@ class ImageEditor extends Page {
         return this.waitForElementNotDisplayed(this.buttonApply, appConst.mediumTimeout);
     }
 
-    waitForCloseButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.buttonClose, appConst.mediumTimeout);
+    waitForCancelButtonDisplayed() {
+        return this.waitForElementDisplayed(this.buttonCancel, appConst.mediumTimeout);
     }
 
-    waitForCloseEditModeButtonDisplayed() {
-        return this.waitForElementDisplayed(this.buttonClose, appConst.mediumTimeout);
+    waitForCancelButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.buttonCancel, appConst.mediumTimeout);
     }
 
-    waitForCloseEditModeButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.buttonClose, appConst.mediumTimeout);
-    }
-
-    waitForResetMaskButtonNotDisplayed() {
-        return this.waitForElementNotDisplayed(this.resetMaskButton, appConst.mediumTimeout);
+    async waitForResetMaskButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.resetMaskButton, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_reset_mask_button"));
+            throw new Error("Reset Mask button should not be visible! " + err);
+        }
     }
 
     waitForResetMaskButtonDisplayed() {
@@ -268,10 +269,16 @@ class ImageEditor extends Page {
         return await this.pause(500);
     }
 
-    async clickOnCloseEditModeButton() {
-        await this.waitForCloseEditModeButtonDisplayed();
-        await this.clickOnElement(this.buttonClose);
-        return await this.pause(500);
+    // Click on Cancel button and close Edit Mode
+    async clickOnCancelButton() {
+        try {
+            await this.waitForCancelButtonDisplayed();
+            await this.clickOnElement(this.buttonCancel);
+            return await this.pause(500);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_img_editor_cancel"));
+            throw new Error("Image Editor mode - Cancel button " + err);
+        }
     }
 }
 
