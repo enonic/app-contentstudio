@@ -715,7 +715,7 @@ export class ImageEditor
     }
 
     private createStickyToolbar(): DivEl {
-        let toolbar = new DivEl('sticky-toolbar');
+        const toolbar: DivEl = new DivEl('sticky-toolbar');
 
         const standbyContainer: DivEl = new DivEl('standby-container');
         this.resetButton = new Button(i18n('editor.resetfilters'));
@@ -751,10 +751,10 @@ export class ImageEditor
         this.uploadButton.setEnabled(false).addClass('button-upload');
         standbyContainer.appendChildren(this.resetButton, this.uploadButton);
 
-        let rightContainer = new DivEl('right-container');
+        const rightContainer: DivEl = new DivEl('right-container');
         rightContainer.appendChildren(standbyContainer/* , editContainer */);
 
-        let zoomContainer = this.createZoomContainer();
+        const zoomContainer: DivEl = this.createZoomContainer();
 
         this.editCropButton = new Button().setEnabled(false);
         new Tooltip(this.editCropButton, i18n('editor.cropimage'), 1000);
@@ -820,9 +820,9 @@ export class ImageEditor
     }
 
     private createBottomToolbar(): DivEl {
-        let toolbar = new DivEl('bottom-toolbar');
+        const toolbar: DivEl = new DivEl('bottom-toolbar');
 
-        let editContainer = new DivEl('edit-container');
+        const editContainer: DivEl = new DivEl('edit-container');
 
         this.editResetButton = new Button(i18n('button.reset'));
         this.editResetButton.setVisible(false).addClass('transparent').onClicked((event: MouseEvent) => {
@@ -837,7 +837,7 @@ export class ImageEditor
             }
         });
 
-        let applyButton = new Button(i18n('button.apply'));
+        const applyButton: Button = new Button(i18n('button.apply'));
         applyButton.addClass('blue').onClicked((event: MouseEvent) => {
             event.stopPropagation();
 
@@ -848,7 +848,7 @@ export class ImageEditor
             }
         });
 
-        let cancelButton = new Button(i18n('action.cancel'));
+        const cancelButton: Button = new Button(i18n('action.cancel'));
         cancelButton.addClass('gray').onClicked((event: MouseEvent) => {
             event.stopPropagation();
 
