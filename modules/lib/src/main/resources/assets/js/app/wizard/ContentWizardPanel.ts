@@ -103,7 +103,6 @@ import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
 import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
 import {assert} from 'lib-admin-ui/util/Assert';
 import {ContentIds} from '../content/ContentIds';
-import {AfterContentSavedEvent} from '../event/AfterContentSavedEvent';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {ProjectContext} from '../project/ProjectContext';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
@@ -141,6 +140,8 @@ import {MovedContentItem} from '../browse/MovedContentItem';
 import {ContentAppHelper} from './ContentAppHelper';
 import {UrlHelper} from '../util/UrlHelper';
 import {RenderingMode} from '../rendering/RenderingMode';
+import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {ContentSaveAction} from './action/ContentSaveAction';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -269,6 +270,8 @@ export class ContentWizardPanel
     private formContext: ContentFormContext;
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
+
+    private isRename: boolean;
 
     constructor(params: ContentWizardPanelParams, cls?: string) {
         super(params);
@@ -421,6 +424,23 @@ export class ContentWizardPanel
         this.handleSiteConfigApply();
         this.handleBrokenImageInTheWizard();
         this.getWizardHeader().onPropertyChanged(this.dataChangedHandler);
+
+        const saveAction: ContentSaveAction = this.getWizardActions().getSaveAction();
+
+        this.getWizardHeader().onNameCheckIsOn(() => {
+            saveAction.setEnabled(false);
+            saveAction.setLocked(true);
+        });
+
+        this.getWizardHeader().onNameCheckIsOff(() => {
+            saveAction.setLocked(false);
+            saveAction.setEnabled(this.hasUnsavedChanges());
+        });
+
+        this.getWizardHeader().onRenamed(() => {
+            this.isRename = true;
+            saveAction.execute();
+        });
     }
 
     toggleMinimize(navigationIndex: number = -1) {
@@ -829,7 +849,7 @@ export class ContentWizardPanel
     }
 
     saveChanges(): Q.Promise<Content> {
-        this.handleCUD();
+        IsRenderableRequest.clearCache();
         this.livePanel?.skipNextReloadConfirmation(true);
         this.setRequireValid(false);
         this.contentUpdateDisabled = true;
@@ -851,7 +871,7 @@ export class ContentWizardPanel
                 }
             }
 
-            if (this.wizardFormUpdatedDuringSave) {
+            if (this.wizardFormUpdatedDuringSave && !this.isRename) {
                 if (persistedItem.getType().isImage()) {
                     this.updateWizard(persistedItem);
                 } else {
@@ -862,16 +882,15 @@ export class ContentWizardPanel
                     }
                 }
                 this.xDataWizardStepForms.resetDisabledForms();
-            } else if (persistedItem.isSite() && !this.isNew()) {
+            } else if (persistedItem.isSite() && !this.isNew() && !this.isRename) {
                 this.updateWizardStepForms(persistedItem, false);
             }
 
             return persistedItem;
         }).finally(() => {
             this.contentUpdateDisabled = false;
+            this.isRename = false;
             this.updateButtonsState();
-
-            new AfterContentSavedEvent().fire();
         });
     }
 
@@ -1233,6 +1252,7 @@ export class ContentWizardPanel
             }
 
             this.handleCUD();
+            this.getWizardHeader()?.refreshNameUniqueness();
 
             event.getDeletedItems().filter((deletedItem) => {
                 return !!deletedItem && this.getPersistedItem().getPath().equals(deletedItem.getContentPath());
@@ -1412,6 +1432,7 @@ export class ContentWizardPanel
 
         const createdHandler = () => {
             this.handleCUD();
+            this.getWizardHeader()?.refreshNameUniqueness();
         };
 
         const otherRepoDelete = (items: ContentServerChangeItem[]): void => {
@@ -2165,7 +2186,7 @@ export class ContentWizardPanel
 
     updatePersistedItem(): Q.Promise<Content> {
         const persistedContent: Content = this.getPersistedItem();
-        const viewedContent: Content = this.assembleViewedContent(persistedContent.newBuilder(), true).build();
+        const viewedContent: Content = this.assembleViewedContent(persistedContent.newBuilder(), true, this.isRename).build();
         const isInherited: boolean = persistedContent.isDataInherited();
 
         const updateContentRoutine: UpdatePersistedContentRoutine = new UpdatePersistedContentRoutine(this, persistedContent, viewedContent)
@@ -2205,17 +2226,21 @@ export class ContentWizardPanel
     }
 
     private showFeedbackContentSaved(content: Content, wasInherited: boolean = false) {
-        const name = content.getName();
-        let message;
+        const name: ContentName = content.getName();
+        let message: string;
+
         if (wasInherited) {
             message = i18n('notify.content.localized');
         } else if (name.isUnnamed()) {
             message = i18n('notify.item.savedUnnamed');
         } else if (this.isMarkedAsReady) {
             message = i18n('notify.item.markedAsReady', name);
+        } else if (this.isRename) {
+            message = i18n('notify.wizard.contentRenamed', name);
         } else {
             message = i18n('notify.item.saved', name);
         }
+
         showFeedback(message);
     }
 
@@ -2385,8 +2410,14 @@ export class ContentWizardPanel
         return !viewedContent.equals(this.getPersistedItem());
     }
 
-    assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false): ContentBuilder {
+    assembleViewedContent(viewedContentBuilder: ContentBuilder, cleanFormRedundantData: boolean = false,
+                          isRename?: boolean): ContentBuilder {
         viewedContentBuilder.setName(this.resolveContentNameForUpdateRequest());
+
+        if (isRename) {
+            return viewedContentBuilder;
+        }
+
         viewedContentBuilder.setDisplayName(this.getWizardHeader().getDisplayName());
 
         if (this.contentWizardStepForm) {
@@ -2789,7 +2820,6 @@ export class ContentWizardPanel
 
     private handleCUD() {
         IsRenderableRequest.clearCache();
-        this.getWizardHeader()?.refreshNameUniqueness();
     }
 
     isContentExistsInParentProject(): boolean {

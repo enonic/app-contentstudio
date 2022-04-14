@@ -9,6 +9,8 @@ export class ContentSaveAction
 
     private static CLASS_NAME_SAVED: string = 'saved';
 
+    private locked: boolean = false;
+
     constructor(wizardPanel: ContentWizardPanel, label: string = i18n('action.save')) {
         super(wizardPanel, label);
 
@@ -17,6 +19,18 @@ export class ContentSaveAction
 
     isSavedStateEnabled(): boolean {
         return ContentSaveAction.CLASS_NAME_SAVED === this.getIconClass();
+    }
+
+    setLocked(value: boolean): void {
+        this.locked = value;
+    }
+
+    setEnabled(value: boolean): ContentSaveAction {
+        if (this.locked) {
+            return this;
+        }
+
+        return <ContentSaveAction>super.setEnabled(value);
     }
 
     protected saveChanges(wizardPanel: ContentWizardPanel): Q.Promise<any> {

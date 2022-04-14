@@ -56,14 +56,19 @@ export class RenameContentDialog extends ModalDialog {
         const debouncedNameUniqueChecker: () => void = AppHelper.debounce(() => {
             if (StringHelper.isBlank(this.getNameInputValue()) || this.getNameInputValue() === this.initialPath.getName()) {
                 this.disableRename();
+                this.statusBlock.removeClass('icon-spinner');
             } else {
                 new ContentExistsByPathRequest(this.getNewPath().toString()).sendAndParse().then((exists: boolean) => {
                     this.setNameAvailable(!exists);
-                }).catch(DefaultErrorHandler.handle);
+                }).catch(DefaultErrorHandler.handle).finally(() => {
+                    this.statusBlock.removeClass('icon-spinner');
+                });
             }
         }, 500);
 
         this.nameInput.onValueChanged(() => {
+            this.disableRename();
+            this.statusBlock.addClass('icon-spinner');
             debouncedNameUniqueChecker();
         });
 

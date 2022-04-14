@@ -7,13 +7,10 @@ import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {RenameContentDialog} from './RenameContentDialog';
 import {Content} from '../content/Content';
-import {UpdateContentRequest} from '../resource/UpdateContentRequest';
-import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
-import {ContentName} from '../content/ContentName';
-import {ContentUnnamed} from '../content/ContentUnnamed';
 import {ContentPath} from '../content/ContentPath';
+import * as Q from 'q';
+import {DivEl} from 'lib-admin-ui/dom/DivEl';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {
@@ -30,13 +27,24 @@ export class ContentWizardHeader
 
     private lockElem: ButtonEl;
 
+    private loadSpinner: DivEl;
+
+    private nameCheckIsOnListeners: { (): void } [] = [];
+
+    private nameCheckIsOffListeners: { (): void } [] = [];
+
+    private renamedListeners: { (): void } [] = [];
+
     constructor() {
         super();
     }
 
     protected initElements() {
         super.initElements();
+
         this.lockElem = new ButtonEl();
+        this.loadSpinner = new DivEl('icon-spinner');
+        this.loadSpinner.hide();
     }
 
     protected initListeners() {
@@ -47,25 +55,20 @@ export class ContentWizardHeader
                 if (this.getName() === '') {
                     this.updateIsNameUnique(true);
                 } else {
+                    this.lock();
                     this.debouncedNameUniqueChecker();
                 }
             }
         });
 
         this.lockElem.onClicked(() => {
-            console.log('clickz');
-
             if (!this.renameDialog) {
                 this.renameDialog = new RenameContentDialog();
 
                 this.renameDialog.onRenamed((newName: string) => {
                     this.setOnline(false);
-                    this.setName(newName);
-
-                    const contentName: ContentName = StringHelper.isBlank(newName) ? ContentUnnamed.newUnnamed() : new ContentName(newName);
-                    UpdateContentRequest.create(this.persistedContent).setContentName(contentName).sendAndParse().then(() => {
-                        showFeedback(i18n('notify.wizard.contentRenamed'));
-                    }).catch(DefaultErrorHandler.handle);
+                    this.setName(newName, true);
+                    this.notifyRenamed();
                 });
             }
 
@@ -81,15 +84,28 @@ export class ContentWizardHeader
                         this.updateIsNameUnique(!exists || !this.isNameChanged());
                     }
 
-                }).catch(DefaultErrorHandler.handle).finally(() => this.asyncNameChecksRunning--);
-            } else if (!this.isNameUnique) {
-                this.updateIsNameUnique(true);
+                    return Q();
+                }).catch(DefaultErrorHandler.handle).finally(() => {
+                    this.asyncNameChecksRunning--;
+                    this.unlock();
+                });
+            } else {
+                if (!this.isNameUnique) {
+                    this.updateIsNameUnique(true);
+                }
+
+                this.unlock();
             }
         }, 900);
     }
 
+    setName(value: string, silent?: boolean) {
+        this.nameEl.setValue(value, silent);
+    }
+
     refreshNameUniqueness() {
         if (this.isNameChanged()) {
+            this.lock();
             this.debouncedNameUniqueChecker();
         }
     }
@@ -136,6 +152,16 @@ export class ContentWizardHeader
         super.toggleNameInput(enable);
     }
 
+    private lock(): void {
+        this.loadSpinner.show();
+        this.notifyNameCheckIsOn();
+    }
+
+    private unlock(): void {
+        this.loadSpinner.hide();
+        this.notifyNameCheckIsOff();
+    }
+
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             const nameErrorBlock: SpanEl = new SpanEl('path-error');
@@ -144,9 +170,60 @@ export class ContentWizardHeader
 
             this.lockElem.addClass('lock-name icon-pencil');
             this.lockElem.setTitle(i18n('path.lock'));
-            this.bottomRow.appendChild(this.lockElem);
+            this.bottomRow.appendChildren(this.lockElem, this.loadSpinner);
 
             return rendered;
+        });
+    }
+
+    onNameCheckIsOn(listener: () => void) {
+        this.nameCheckIsOnListeners.push(listener);
+    }
+
+    unNameCheckIsOn(listener: () => void) {
+        this.nameCheckIsOnListeners = this.nameCheckIsOnListeners.filter((curr:  { (): void }) => {
+            return curr !== listener;
+        });
+        return this;
+    }
+
+    private notifyNameCheckIsOn() {
+        this.nameCheckIsOnListeners.forEach((listener: () => void) => {
+            listener.call(this);
+        });
+    }
+
+    onNameCheckIsOff(listener: () => void) {
+        this.nameCheckIsOffListeners.push(listener);
+    }
+
+    unNameCheckIsOff(listener: () => void) {
+        this.nameCheckIsOffListeners = this.nameCheckIsOffListeners.filter((curr:  { (): void }) => {
+            return curr !== listener;
+        });
+        return this;
+    }
+
+    private notifyNameCheckIsOff() {
+        this.nameCheckIsOffListeners.forEach((listener: () => void) => {
+            listener.call(this);
+        });
+    }
+
+    onRenamed(listener: () => void) {
+        this.renamedListeners.push(listener);
+    }
+
+    unRenamed(listener: () => void) {
+        this.renamedListeners = this.renamedListeners.filter((curr:  { (): void }) => {
+            return curr !== listener;
+        });
+        return this;
+    }
+
+    private notifyRenamed() {
+        this.renamedListeners.forEach((listener: () => void) => {
+            listener.call(this);
         });
     }
 }
