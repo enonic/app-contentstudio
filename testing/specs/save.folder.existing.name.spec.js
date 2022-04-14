@@ -9,7 +9,7 @@ const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 
-describe('save.folder.failed.attempt.spec: Save a folder with a name that is already in use', function () {
+describe('save.folder.existing.name.spec: Save a folder with a name that is already in use', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let TEST_FOLDER;
@@ -26,16 +26,11 @@ describe('save.folder.failed.attempt.spec: Save a folder with a name that is alr
             let wizard = new ContentWizard();
             //1. Open new folder-wizard:
             await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
-            //2. type the a name of existing content:
+            //2. type the name of existing folder:
             await wizard.typeDisplayName(TEST_FOLDER.displayName);
-            //3. click on 'Save' button:
-            await wizard.waitAndClickOnSave();
-            let expectedMessage = appConstant.saveFailedAttempt(TEST_FOLDER.displayName);
-            studioUtils.saveScreenshot("save_folder_failed_attempt");
-            await wizard.waitForExpectedNotificationMessage(expectedMessage);
-            //4. 'Save' button should be disabled:
+            //3. 'Save' button should be disabled:
             await wizard.waitForSaveButtonDisabled();
-            //5. Verify the validation message 'Not available' is displayed in displayName input:
+            //4. Verify the validation message 'Not available' is displayed in displayName input:
             await wizard.waitForValidationPathMessageDisplayed();
         });
 
