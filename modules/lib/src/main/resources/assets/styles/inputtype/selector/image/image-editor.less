@@ -148,27 +148,26 @@
 
         .crop-group {
           display: none;
-
-          .drag-handle {
-            cursor: ns-resize;
-            opacity: 0.5;
-
-            circle {
-              fill: white;
-            }
-
-            .drag-triangle {
-              fill: black;
-            }
-
-            &:hover,
-            &.active {
-              opacity: 0.7;
-              cursor: ns-resize;
-            }
-          }
         }
       }
+
+      .drag-handle {
+        position: absolute;
+        background-color: @admin-medium-gray-border;
+        opacity: 0.7;
+        width: 50px;
+        height: 20px;
+        z-index: 1;
+        border: none;
+
+        &:hover,
+        &.active {
+          cursor: ns-resize;
+          opacity: 1;
+        }
+      }
+
+
     }
   }
 

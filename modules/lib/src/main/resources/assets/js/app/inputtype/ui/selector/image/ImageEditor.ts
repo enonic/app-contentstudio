@@ -215,21 +215,15 @@ export class ImageEditor
                        '    <g class="edit-group focus-group">' +
                        '        <circle cx="0" cy="0" r="0" class="stroke-circle"/>' +
                        '    </g>' +
-                       '    <g class="edit-group crop-group">' +
-                       '        <svg id="' + myId + '-dragHandle" class="drag-handle">' +
-                       '            <defs>' +
-                       '                <polygon id="' + myId + '-dragTriangle" class="drag-triangle" points="8,0,16,8,0,8"/>' +
-                       '            </defs>' +
-                       '            <circle cx="16" cy="16" r="16"/>' +
-                       '            <use xlink:href="#' + myId + '-dragTriangle" x="8" y="6"/>' +
-                       '            <use xlink:href="#' + myId + '-dragTriangle" x="8" y="18" transform="rotate(180, 16, 22)"/>' +
-                       '        </svg>' +
-                       '    </g>' +
                        '</svg>';
 
         this.clip = Element.fromString(clipHtml);
 
-        this.dragHandle = this.clip.findChildById(myId + '-dragHandle', true);
+        this.dragHandle = new Button()
+            .setId(`${myId}-dragHandle`)
+            .setClass('icon-arrow_drop_up drag-handle')
+            .setVisible(false);
+
         this.focusClipPath = this.clip.findChildById(myId + '-focusClipPath', true);
         this.cropClipPath = this.clip.findChildById(myId + '-cropClipPath', true);
 
@@ -240,7 +234,7 @@ export class ImageEditor
 
         let imageMask = new DivEl('image-bg-mask');
 
-        this.canvas.appendChildren(imageMask, this.image, this.clip);
+        this.canvas.appendChildren(imageMask, this.image, this.clip, this.dragHandle);
 
         this.frame.appendChild(this.canvas);
         this.imageMask = new LoadMask(this.frame);
@@ -1540,6 +1534,7 @@ export class ImageEditor
         this.editResetButton.setLabel(i18n('editor.resetmask')).setVisible(!this.cropData.auto);
 
         this.setCropEditMode(true);
+        this.dragHandle.setVisible(true);
 
         if (enterEditMode) {
             this.setEditMode(true, applyChanges);
@@ -1559,6 +1554,7 @@ export class ImageEditor
         this.unbindCropMouseListeners();
 
         this.setCropEditMode(false);
+        this.dragHandle.setVisible(false);
 
         if (exitEditMode) {
             this.setEditMode(false, applyChanges);
@@ -1707,8 +1703,11 @@ export class ImageEditor
     }
 
     private updateCropMaskPosition() {
-        let rect = this.cropClipPath.getHTMLElement().querySelector('rect');
-        let drag = this.dragHandle.getHTMLElement();
+        const rect = this.cropClipPath.getHTMLElement().querySelector('rect');
+        const dragDimensions = [50,20];
+
+
+        console.log(this.dragHandle.getHTMLElement().style);
 
         if (ImageEditor.debug) {
             console.log('ImageEditor.updateCropPosition', this.cropData);
@@ -1719,9 +1718,11 @@ export class ImageEditor
         rect.setAttribute('width', this.cropData.w.toString());
         rect.setAttribute('height', this.cropData.h.toString());
 
-        // 16 is the half-size of drag
-        drag.setAttribute('x', (this.cropData.x + this.cropData.w / 2 - 16).toString());
-        drag.setAttribute('y', (this.cropData.y + this.cropData.h - 16).toString());
+        const newLeft = (this.cropData.x + this.cropData.w / 2 - dragDimensions[0] / 2).toString();
+        const newTop = (this.cropData.y + this.cropData.h - dragDimensions[1]).toString();
+
+        this.dragHandle.getHTMLElement().style.left = `${newLeft}px`;
+        this.dragHandle.getHTMLElement().style.top = `${newTop}px`;
     }
 
     private isInsideCrop(x: number, y: number) {
@@ -1729,7 +1730,6 @@ export class ImageEditor
                x <= (this.zoomData.x + this.cropData.x + this.cropData.w) &&
                y >= this.zoomData.y + this.cropData.y &&
                y <= (this.zoomData.y + this.cropData.y + this.cropData.h);
-
     }
 
     private bindCropMouseListeners() {
