@@ -439,6 +439,7 @@ export class ContentWizardPanel
 
         this.getWizardHeader().onRenamed(() => {
             this.isRename = true;
+            saveAction.setEnabled(true);
             saveAction.execute();
         });
     }
@@ -1410,12 +1411,6 @@ export class ContentWizardPanel
 
             contents.forEach((renamedContent: ContentSummaryAndCompareStatus, index: number) => {
                 if (this.isCurrentContentId(renamedContent.getContentId())) {
-                    const isWizardAlreadyUpdated = renamedContent.getContentSummary().getPath().equals(this.getPersistedItem().getPath());
-
-                    if (isWizardAlreadyUpdated) {
-                        return;
-                    }
-
                     this.handlePersistedContentUpdate(renamedContent);
                 } else if (this.getPersistedItem().getPath().isDescendantOf(oldPaths[index])) {
                     this.contentFetcher.fetchByContent(this.getPersistedItem()).then((summaryAndStatus) => {
@@ -2233,10 +2228,10 @@ export class ContentWizardPanel
             message = i18n('notify.content.localized');
         } else if (name.isUnnamed()) {
             message = i18n('notify.item.savedUnnamed');
-        } else if (this.isMarkedAsReady) {
-            message = i18n('notify.item.markedAsReady', name);
         } else if (this.isRename) {
             message = i18n('notify.wizard.contentRenamed', name);
+        } else if (this.isMarkedAsReady) {
+            message = i18n('notify.item.markedAsReady', name);
         } else {
             message = i18n('notify.item.saved', name);
         }
