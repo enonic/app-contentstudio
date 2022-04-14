@@ -16,6 +16,7 @@ describe("optionset.validation.spec: tests for validation of option set", functi
     webDriverHelper.setupBrowser();
     let SITE;
     const DISPLAY_NAME = contentBuilder.generateRandomName('optionset');
+    const OPTION_SET_UNLIM = contentBuilder.generateRandomName('optionset');
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -36,8 +37,28 @@ describe("optionset.validation.spec: tests for validation of option set", functi
             //2. Click  and unselect the default option :
             await optionSetUnlimitedOptions.clickOnOption("Option 2");
             await contentWizard.waitAndClickOnSave();
-            studioUtils.saveScreenshot('item_set_unlimited1');
+            await studioUtils.saveScreenshot('item_set_unlimited1');
             await contentWizard.waitUntilInvalidIconDisappears();
+        });
+
+    //Option-set with unlimited number of allowed selections is considered invalid #8765
+    it(`GIVEN option set with default selected option is opened WHEN the default option has been unselected AND saved THEN the content should be valid in wizard`,
+        async () => {
+            let contentWizard = new ContentWizard();
+            let contentBrowsePanel = new ContentBrowsePanel();
+            //1. Open the new wizard:
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'opt-set-unlim');
+            await contentWizard.typeDisplayName(OPTION_SET_UNLIM);
+            //2. save only the display name:
+            await contentWizard.waitAndClickOnSave();
+            //3. switch to the browse panel:
+            await studioUtils.doSwitchToContentBrowsePanel();
+            //4. Select the option set content:
+            await studioUtils.findAndSelectItem(OPTION_SET_UNLIM);
+            await studioUtils.saveScreenshot('item_set_unlimited2');
+            //5. Verify that the content is valid:
+            let isInvalid = await contentBrowsePanel.isRedIconDisplayed(OPTION_SET_UNLIM);
+            assert.isFalse(isInvalid, "Option Set content should be valid in Grid");
         });
 
     //Verifies: https://github.com/enonic/xp/issues/8765
@@ -45,11 +66,12 @@ describe("optionset.validation.spec: tests for validation of option set", functi
     it("WHEN existing option set has been filtered THEN the content should be valid in grid",
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            //1. select existing option set:
+            //1. select the existing option set:
             await studioUtils.findAndSelectItem(DISPLAY_NAME);
-            studioUtils.saveScreenshot('item_set_unlimited1');
-            let isNotValid = await contentBrowsePanel.isRedIconDisplayed(DISPLAY_NAME);
-            assert.isFalse(isNotValid, "Option Set content should be valid in Grid");
+            await studioUtils.saveScreenshot('item_set_unlimited3');
+            //2. Verify the content is valid
+            let isInvalid = await contentBrowsePanel.isRedIconDisplayed(DISPLAY_NAME);
+            assert.isFalse(isInvalid, "Option Set content should be valid in Grid");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
