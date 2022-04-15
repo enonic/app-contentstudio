@@ -21,7 +21,7 @@ const xpath = {
     buttonApply: "//button/span[text()='Apply']",
     buttonCancel: "//button/span[text()='Cancel']",
     resetMaskButton: "//button[contains(@id,'Button')]/span[text()='Reset Mask']",
-    cropHandle: "//*[name()='svg' and contains(@id,'ImageEditor-dragHandle')]",
+    cropHandle: "//button[contains(@id,'ImageEditor-dragHandle')]",
     focusCircle: "//*[name()='svg']/*[name()='g' and contains(@class,'focus-group')]",
 
 };
@@ -227,11 +227,13 @@ class ImageEditor extends Page {
 
     async doCropImage(offset) {
         let el = await this.findElement(this.cropHandle);
-        let yValue = await el.getAttribute('y');
-        let xValue = await el.getAttribute('x');
-        let y1 = parseInt(yValue) + offset;
-        let x1 = parseInt(xValue);
-        await el.dragAndDrop({x: x1, y: -200});
+        let yValue = await el.getLocation('y');
+        let xValue = await el.getLocation('x');
+        let leftPx = await el.getCSSProperty('left');
+        let value = leftPx.value;
+        let x = parseInt(value.substring(0, value.indexOf('px')));
+        // drag and drop relative from current position:
+        await el.dragAndDrop({x: x, y: offset});
         return await this.pause(500);
     }
 
