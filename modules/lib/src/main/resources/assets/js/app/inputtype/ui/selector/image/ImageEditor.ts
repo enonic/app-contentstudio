@@ -53,16 +53,16 @@ export class ImageEditor
     private SCROLLABLE_SELECTOR: string = '.form-panel';
     private WIZARD_TOOLBAR_SELECTOR: string = '.wizard-step-navigator-and-toolbar';
 
-    private frame: DivEl;
-    private canvas: DivEl;
-    private image: ImgEl;
-    private clip: Element;
-    private dragHandle: Element;
+    private readonly frame: DivEl;
+    private readonly canvas: DivEl;
+    private readonly image: ImgEl;
+    private readonly clip: Element;
+    private readonly dragHandle: Element;
     private zoomContainer: Element;
     private zoomLine: Element;
     private zoomKnob: Element;
-    private focusClipPath: Element;
-    private cropClipPath: Element;
+    private readonly focusClipPath: Element;
+    private readonly cropClipPath: Element;
 
     private focusData: FocusData = {x: 0, y: 0, r: 0.25, auto: true};
     private revertFocusData: FocusData;
@@ -91,9 +91,9 @@ export class ImageEditor
     private dragMouseDownListener: (event: MouseEvent) => void;
     private knobMouseDownListener: (event: MouseEvent) => void;
 
-    private stickyToolbar: DivEl;
+    private readonly stickyToolbar: DivEl;
     private topContainer: DivEl;
-    private bottomToolbar: DivEl;
+    private readonly bottomToolbar: DivEl;
 
     private editCropButton: Button;
     private editFocusButton: Button;
@@ -125,8 +125,8 @@ export class ImageEditor
 
     private rotateCanvas: HTMLCanvasElement;
     private rotateContext: CanvasRenderingContext2D;
-    private originalImage: ImgEl;
-    private unorientedImage: ImgEl;
+    private readonly originalImage: ImgEl;
+    private readonly unorientedImage: ImgEl;
     private imageMask: LoadMask;
 
     public static debug: boolean = false;
@@ -1702,12 +1702,9 @@ export class ImageEditor
         }
     }
 
-    private updateCropMaskPosition() {
-        const rect = this.cropClipPath.getHTMLElement().querySelector('rect');
-        const dragDimensions = [50,20];
-
-
-        console.log(this.dragHandle.getHTMLElement().style);
+    private updateCropMaskPosition(): void {
+        const rect: SVGRectElement = this.cropClipPath.getHTMLElement().querySelector('rect');
+        const dragDimensions: number[] = [50,20];
 
         if (ImageEditor.debug) {
             console.log('ImageEditor.updateCropPosition', this.cropData);
@@ -1718,8 +1715,8 @@ export class ImageEditor
         rect.setAttribute('width', this.cropData.w.toString());
         rect.setAttribute('height', this.cropData.h.toString());
 
-        const newLeft = (this.cropData.x + this.cropData.w / 2 - dragDimensions[0] / 2).toString();
-        const newTop = (this.cropData.y + this.cropData.h - dragDimensions[1]).toString();
+        const newLeft: string = (this.cropData.x + this.cropData.w / 2 - dragDimensions[0] / 2).toString();
+        const newTop: string = (this.cropData.y + this.cropData.h - dragDimensions[1]).toString();
 
         this.dragHandle.getHTMLElement().style.left = `${newLeft}px`;
         this.dragHandle.getHTMLElement().style.top = `${newTop}px`;
