@@ -10,6 +10,7 @@ const XPATH = {
     configurationTab: "//div[@class='panel macro-config-panel']",
     previewTab: "//div[@class='panel macro-preview-panel']",
     textInPreviewTab: "//div[contains(@class,'preview-content')]",
+    embedPreview: "//div[contains(@class,'embed-preview')]",
     warningInPreviewTab: "//div[contains(@class,'preview-message')]",
     previewTabItem: "//li[contains(@id,'TabBarItem') and child::a[text()='Preview']]",
     configurationTabItem: "//li[contains(@id,'TabBarItem') and @title='Configuration']",
@@ -76,7 +77,6 @@ class InsertMacroModalDialog extends Page {
         return await this.pause(1000);
     }
 
-
     waitForDialogLoaded() {
         return this.waitForElementDisplayed(this.insertButton, appConst.shortTimeout).catch(err => {
             this.saveScreenshot('err_open_insert_macro_dialog');
@@ -102,6 +102,12 @@ class InsertMacroModalDialog extends Page {
     async waitForIframeDisplayed(url) {
         let locator = XPATH.previewTab + `//iframe[@src='${url}']`;
         return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+    }
+
+    async getTextInEmbedPreview() {
+        let locator = XPATH.previewTab + XPATH.embedPreview;
+        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        return this.getText(locator);
     }
 
     async getWarningInPreviewTab() {
