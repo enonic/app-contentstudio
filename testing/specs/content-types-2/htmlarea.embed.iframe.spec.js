@@ -17,6 +17,7 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
     const TEST_TEXT = "test text";
     const ENONIC_IFRAME = "<iframe src='http://www.enonic.com'> enonic</iframe>";
     const ENONIC_URL = "http://www.enonic.com";
+    const PREVIEW_MACRO_NOT_ALLOWED = "Preview of this macro is not allowed";
 
     let SITE;
     const CONTENT_NAME_1 = contentBuilder.generateRandomName('area');
@@ -47,7 +48,9 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
             await insertMacroModalDialog.clickOnPreviewTabItem();
             await studioUtils.saveScreenshot("embed_iframe_is_completed");
             //6. Verify that iframe element appears in the preview tab:
-            await insertMacroModalDialog.waitForIframeDisplayed(ENONIC_URL);
+            let message = await insertMacroModalDialog.getTextInEmbedPreview();
+            assert.equal(message, PREVIEW_MACRO_NOT_ALLOWED,
+                "'Preview of this macro is not allowed' this text should be displayed in the Preview tab");
             //7. Click on Insert button:
             await insertMacroModalDialog.clickOnInsertButton();
             await insertMacroModalDialog.pause(500);
@@ -78,7 +81,7 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
             //5. Click on Insert button:
             await insertMacroModalDialog.clickOnInsertButton();
             await htmlAreaForm.pause(1000);
-            //6. Double click on text in htmlArea
+            //6. Do a double click on the text in htmlArea
             await htmlAreaForm.doubleClickOnMacroTextInHtmlArea(ENONIC_URL);
             await studioUtils.saveScreenshot("embed_iframe_double_click");
             //7. Verify that 'Insert Macro' dialog is loaded:
