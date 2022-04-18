@@ -1704,7 +1704,6 @@ export class ImageEditor
 
     private updateCropMaskPosition(): void {
         const rect: SVGRectElement = this.cropClipPath.getHTMLElement().querySelector('rect');
-        const dragDimensions: number[] = [50,20];
 
         if (ImageEditor.debug) {
             console.log('ImageEditor.updateCropPosition', this.cropData);
@@ -1715,8 +1714,8 @@ export class ImageEditor
         rect.setAttribute('width', this.cropData.w.toString());
         rect.setAttribute('height', this.cropData.h.toString());
 
-        const newLeft: string = (this.cropData.x + this.cropData.w / 2 - dragDimensions[0] / 2).toString();
-        const newTop: string = (this.cropData.y + this.cropData.h - dragDimensions[1]).toString();
+        const newLeft: string = (this.cropData.x + this.cropData.w / 2 - this.dragHandle.getHTMLElement().offsetWidth / 2).toString();
+        const newTop: string = (this.cropData.y + this.cropData.h).toString();
 
         this.dragHandle.getHTMLElement().style.left = `${newLeft}px`;
         this.dragHandle.getHTMLElement().style.top = `${newTop}px`;
@@ -1825,12 +1824,12 @@ export class ImageEditor
                 this.moveZoomKnobByPx(currPos.x - lastPos.x);
 
             } else if (dragMouseDown) {
-
-                let deltaY = this.getOffsetY(event) - lastPos.y;
-                let toolbarEl = this.stickyToolbar.getEl();
-                let topBoundary = toolbarEl.getHeight() + toolbarEl.getOffsetTop() - this.frame.getEl().getOffsetTop();
-                let distBetweenCropAndZoomBottoms = this.zoomData.h - this.cropData.h - this.cropData.y;
-                let newH = this.cropData.h +
+                const deltaY = this.getOffsetY(event) - lastPos.y;
+                const toolbarEl = this.stickyToolbar.getEl();
+                const topBoundary = toolbarEl.getHeight() + toolbarEl.getOffsetTop() - this.frame.getEl().getOffsetTop();
+                const dragHandleDeltaYAdjustment = Math.max(0, lastPos.y - this.cropData.h);
+                const distBetweenCropAndZoomBottoms = this.zoomData.h - this.cropData.h - this.cropData.y;
+                const newH = this.cropData.h + dragHandleDeltaYAdjustment +
                            (deltaY > distBetweenCropAndZoomBottoms ? distBetweenCropAndZoomBottoms : deltaY);
 
                 if (newH > topBoundary && newH !== this.cropData.h) {
