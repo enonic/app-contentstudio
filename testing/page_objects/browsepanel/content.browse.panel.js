@@ -266,6 +266,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(this.unpublishButton);
             let unpublishDialog = new ContentUnpublishDialog();
             await unpublishDialog.waitForDialogOpened();
+            await unpublishDialog.pause(1000);
             return unpublishDialog;
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_unpublish_button"));

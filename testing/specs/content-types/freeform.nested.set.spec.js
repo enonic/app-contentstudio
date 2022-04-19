@@ -64,6 +64,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             //save just the name:
             await contentWizard.waitAndClickOnSave();
             //Select Input in the selector and load new form:
+            await contentWizard.scrollPanel(600);
             await freeFormNestedSet.expandOptionsAndSelectElementType("Input", 0);
             // save the content again
             await contentWizard.waitAndClickOnSave();
