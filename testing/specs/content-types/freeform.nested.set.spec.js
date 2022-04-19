@@ -14,7 +14,8 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
     this.timeout(appConstant.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
     let SITE;
-    let contentDisplayName;
+    let CONTENT_1;
+    let CONTENT_2 = contentBuilder.generateRandomName('freeform');
 
     it("Preconditions: new site should be created",
         async () => {
@@ -23,17 +24,47 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             await studioUtils.doAddSite(SITE);
         });
 
-    it("GIVEN 'wizard for new content with 'nested set' is opened AND name has been saved WHEN element type and input type have been selected THEN 'Save' button gets enabled in the wizard-toolbar",
+    //Verify:  Nested Form Item Sets - incorrect behaviour of validation when 2 levels added #3773
+    //https://github.com/enonic/app-contentstudio/issues/3773
+    it("GIVEN wizard for new content with 'nested set' is opened AND the second level is added WHEN options have been selected in the both required inputs THEN the content gets valid",
         async () => {
             let contentWizard = new ContentWizard();
             let freeFormNestedSet = new FreeFormNestedSet();
-            contentDisplayName = contentBuilder.generateRandomName('freeform');
             await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'freeform');
-            await contentWizard.typeDisplayName(contentDisplayName);
+            //1. Fill in the name input:
+            await contentWizard.typeDisplayName(CONTENT_2);
+            //2. just scroll the wizard page:
+            await contentWizard.scrollPanel(600);
+            //3. Add an occurrence block:
+            await freeFormNestedSet.clickOnAddButton();
+            //4. Select the required option in the selector:  select 'Button' option:
+            await freeFormNestedSet.expandOptionsAndSelectElementType("Button", 0);
+            await studioUtils.saveScreenshot("nested_sets_invalid");
+            //5. Verify that the content is invalid, because the second added occurrence block is not filled.
+            let isInvalid = await contentWizard.isContentInvalid();
+            assert.isTrue(isInvalid, "The content should be invalid");
+            //6. Scroll the wizard page and select an option in the second occurrence block:
+            await contentWizard.scrollPanel(900);
+            await freeFormNestedSet.expandOptionsAndSelectElementType("Button", 0);
+            //7. Verify that "Save" button gets enabled
+            await contentWizard.waitForSaveButtonEnabled();
+            await studioUtils.saveScreenshot("nested_sets_valid");
+            //8. Verify that the content is valid, because options are selected in the both required selector
+            isInvalid = await contentWizard.isContentInvalid();
+            assert.isFalse(isInvalid, "The content should be valid")
+        });
+
+    it("GIVEN wizard for new content with 'nested set' is opened AND name has been saved WHEN element type and input type have been selected THEN 'Save' button gets enabled in the wizard-toolbar",
+        async () => {
+            let contentWizard = new ContentWizard();
+            let freeFormNestedSet = new FreeFormNestedSet();
+            CONTENT_1 = contentBuilder.generateRandomName('freeform');
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, 'freeform');
+            await contentWizard.typeDisplayName(CONTENT_1);
             //save just the name:
             await contentWizard.waitAndClickOnSave();
             //Select Input in the selector and load new form:
-            await freeFormNestedSet.expandOptionsAndSelectElementType("Input");
+            await freeFormNestedSet.expandOptionsAndSelectElementType("Input", 0);
             // save the content again
             await contentWizard.waitAndClickOnSave();
             // Select the option in the dropdown
@@ -50,7 +81,7 @@ describe("freeform.nested.set.spec: updates a content with nested set and checks
             let contentWizard = new ContentWizard();
             let freeFormNestedSet = new FreeFormNestedSet();
             //1. Open existing content with options set:
-            await studioUtils.selectAndOpenContentInWizard(contentDisplayName);
+            await studioUtils.selectAndOpenContentInWizard(CONTENT_1);
             //2.Select text-option:
             //#1556 Single occurrence of item-set should be expanded by default
             await freeFormNestedSet.selectInputType("text");

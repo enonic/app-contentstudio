@@ -533,7 +533,7 @@ class Page {
         let id = await element.getAttribute("id");
         let script = "document.getElementById(arguments[0]).scrollTop=arguments[1]";
         await this.getBrowser().execute(script, id, scrollTop);
-        return await this.pause(300);
+        return await this.pause(400);
     }
 
     async getCSSProperty(locator, property) {

@@ -11,7 +11,6 @@ const xpath = {
     elementTypeDropdown: "//div[contains(@id,'FormOptionSetView') and descendant::h5[text()='element type']]//div[contains(@id,'Dropdown')]",
     inputTypeSetView: "//div[contains(@id,'FormOptionSetOptionView') and descendant::h5[text()='input type']]",
     inputTypeDropdown: "//div[contains(@id,'FormOptionSetOptionView') and descendant::h5[text()='input type']]//div[contains(@id,'Dropdown')]",
-    addInputButton: "//button[contains(@id,'Button') and child::span[text()='Add Input']]",
 };
 
 class FreeFormView extends Page {
@@ -22,7 +21,8 @@ class FreeFormView extends Page {
     }
 
     get elementTypeDropDownHandle() {
-        return xpath.itemSet + xpath.elementTypeSetView + "//div[contains(@id,'Dropdown')]" + lib.DROP_DOWN_HANDLE;
+        return xpath.itemSet + xpath.elementTypeSetView + "//div[contains(@id,'FormOptionSetOccurrenceViewSingleOption')]" +
+               "//div[contains(@id,'Dropdown')]" + lib.DROP_DOWN_HANDLE;
     }
 
     get inputTypeOptionFilterInput() {
@@ -33,12 +33,16 @@ class FreeFormView extends Page {
         return xpath.itemSet + xpath.inputTypeSetView + "//div[contains(@id,'Dropdown')]" + lib.DROP_DOWN_HANDLE;
     }
 
-    get addInputButton() {
-        return xpath.itemSet + xpath.addInputButton;
+    get addButton() {
+        return xpath.itemSet + "//button[child::span[text()='Add'] and @title='Add Input']";
     }
 
     get inputTypeMenuButton() {
         return xpath.itemSet + xpath.inputTypeSetView + lib.OPTION_SET_MENU_BUTTON;
+    }
+
+    waitForAddButtonDisplayed() {
+        return this.waitForElementDisplayed(this.addButton, appConst.mediumTimeout);
     }
 
     //Types the required text in the option filter input and select an option:
@@ -73,14 +77,22 @@ class FreeFormView extends Page {
         return await this.pause(400);
     }
 
-    //Expands options and clicks on the option
-    async expandOptionsAndSelectElementType(option) {
-        await this.scrollPanel(600);
-        await this.waitForElementDisplayed(this.elementTypeDropDownHandle, appConst.mediumTimeout);
-        await this.clickOnElement(this.elementTypeDropDownHandle);
+    async clickOnAddButton() {
+        await this.waitForAddButtonDisplayed();
+        await this.clickOnElement(this.addButton);
+        return await this.pause(300);
+    }
+
+    //Expands the selector and clicks on the option, index is a number of occurrence block
+    async expandOptionsAndSelectElementType(option, index) {
+        await this.waitUntilDisplayed(this.elementTypeDropDownHandle, appConst.mediumTimeout);
+        let elements = await this.getDisplayedElements(this.elementTypeDropDownHandle);
+        await elements[index].click();
         let optionLocator = xpath.elementTypeSetView + lib.itemByDisplayName(option);
-        await this.waitForElementDisplayed(optionLocator, appConst.mediumTimeout);
-        return await this.clickOnElement(optionLocator);
+        await this.waitUntilDisplayed(optionLocator, appConst.mediumTimeout);
+        let optionsElements = await this.getDisplayedElements(optionLocator);
+        await optionsElements[0].click();
+        return await this.pause(300);
     }
 
     //Types a text in the option filter input and select the option:
