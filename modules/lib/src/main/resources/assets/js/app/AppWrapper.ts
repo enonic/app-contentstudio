@@ -252,20 +252,18 @@ export class AppWrapper
     private listenAppEvents() {
         const debouncedAdminToolUpdate: Function = AppHelper.debounce(() => {
             this.updateSidebarWidgets();
-        }, 500);
+        }, 1000);
 
         ApplicationEvent.on((event: ApplicationEvent) => {
-            if (ApplicationEventType.STOPPED === event.getEventType() || ApplicationEventType.UNINSTALLED === event.getEventType()
-                || ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED) {
-                if (this.isAdminToolApp(event.getApplicationKey())) {
-                    debouncedAdminToolUpdate();
-                }
+            if (this.isAppStopStartEvent(event)) {
+                debouncedAdminToolUpdate();
             }
         });
     }
 
-    private isAdminToolApp(key: ApplicationKey): boolean {
-        return key.toString().indexOf('com.enonic.app.contentstudio') >= 0;
+    private isAppStopStartEvent(event: ApplicationEvent): boolean {
+        return ApplicationEventType.STOPPED === event.getEventType() || ApplicationEventType.UNINSTALLED === event.getEventType()
+               || ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED === event.getEventType();
     }
 
     doRender(): Q.Promise<boolean> {
