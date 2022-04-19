@@ -91,7 +91,7 @@ describe('display.source.button.spec - tests for Display Source button in html a
 
     afterEach(async () => {
         let title = await webDriverHelper.browser.getTitle();
-        if (title.includes("Content Studio") || title.includes("Users")) {
+        if (title.includes("Content Studio") || title.includes("Users") || title.includes("/ Home")) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
