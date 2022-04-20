@@ -549,6 +549,6 @@ export class TextComponentView
             return this.htmlAreaEditor.extractText();
         }
 
-        return $(this.getHTMLElement()).text().trim();
+        return this.rootElement.getHTMLElement().textContent.trim();
     }
 }
