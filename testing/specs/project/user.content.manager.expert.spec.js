@@ -44,7 +44,8 @@ describe('user.content.manager.expert.spec - ui-tests for content manager expert
 
     afterEach(async () => {
         let title = await webDriverHelper.browser.getTitle();
-        if (title.includes("Content Studio") || title.includes("Users")) {
+        //Do not close the Login page:
+        if (title.includes("Content Studio") || title.includes("Users") || title.includes("/ Home")) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });

@@ -143,7 +143,8 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
 
     afterEach(async () => {
         let title = await webDriverHelper.browser.getTitle();
-        if (title.includes("Content Studio") || title.includes("Users")) {
+        //Do not close the Login page:
+        if (title.includes("Content Studio") || title.includes("Users") || title.includes("/ Home")) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
