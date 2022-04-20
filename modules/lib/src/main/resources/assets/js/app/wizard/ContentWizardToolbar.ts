@@ -20,12 +20,10 @@ import {CONFIG} from 'lib-admin-ui/util/Config';
 import {CollaborationEl} from './CollaborationEl';
 import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {WebSocketConnection} from 'lib-admin-ui/connection/WebSocketConnection';
-import {ContentId} from '../content/ContentId';
 
 export interface ContentWizardToolbarConfig {
     actions: ContentWizardActions;
-    workflowStateIconsManager: WorkflowStateIconsManager;
-    contentId: ContentId
+    workflowStateIconsManager: WorkflowStateIconsManager
 }
 
 export class ContentWizardToolbar
@@ -60,7 +58,10 @@ export class ContentWizardToolbar
         this.addActionButtons();
         this.addPublishMenuButton();
         this.addTogglerButtons();
-        this.addCollaborationBlock();
+
+        if (!this.isCollaborationEnabled()) {
+            this.addStateIcon();
+        }
     }
 
     protected initListeners() {
@@ -112,9 +113,24 @@ export class ContentWizardToolbar
         }
     }
 
-    setItem(item: ContentSummaryAndCompareStatus) {
+    setItem(item: ContentSummaryAndCompareStatus): void {
         super.setItem(item);
+
+        if (this.isCollaborationToBeAdded()) {
+            this.addCollaboration();
+        }
+
         this.contentWizardToolbarPublishControls.setContent(item);
+    }
+
+    private isCollaborationToBeAdded(): boolean {
+        return !this.collaborationBlock && !!this.getItem() && this.isCollaborationEnabled();
+    }
+
+    private addCollaboration(): void {
+        this.collaborationBlock = new CollaborationEl();
+        super.addElement(this.collaborationBlock);
+        this.openCollaborationWSConnection();
     }
 
     private addHomeButton() {
@@ -185,15 +201,13 @@ export class ContentWizardToolbar
         super.addElement(this.contextPanelToggler);
     }
 
-    private addCollaborationBlock(): void {
-        if (CONFIG.isTrue('enableCollaboration')) {
-            this.collaborationBlock = new CollaborationEl();
-            super.addElement(this.collaborationBlock);
-            this.openCollaborationWSConnection();
-        } else {
-            this.stateIcon = new DivEl('toolbar-state-icon');
-            super.addElement(this.stateIcon);
-        }
+    private addStateIcon(): void {
+        this.stateIcon = new DivEl('toolbar-state-icon');
+        super.addElement(this.stateIcon);
+    }
+
+    private isCollaborationEnabled(): boolean {
+        return CONFIG.isTrue('enableCollaboration');
     }
 
     private openCollaborationWSConnection(): void {
@@ -201,7 +215,7 @@ export class ContentWizardToolbar
             UriHelper.joinPath(WebSocketConnection.getWebSocketUriPrefix(), CONFIG.getString('services.collaborationUrl'));
 
         WebSocketConnection.create()
-            .setUrl(`${wsUrl}?contentId=${this.config.contentId.toString()}`)
+            .setUrl(`${wsUrl}?contentId=${this.getItem().getId()}`)
             .setKeepAliveTimeSeconds(60)
             .build()
             .connect();

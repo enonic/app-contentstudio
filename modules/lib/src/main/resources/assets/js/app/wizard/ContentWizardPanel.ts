@@ -585,8 +585,7 @@ export class ContentWizardPanel
     protected createMainToolbar(): Toolbar {
         return new ContentWizardToolbar({
             actions: this.wizardActions,
-            workflowStateIconsManager: this.workflowStateIconsManager,
-            contentId: this.params.contentId
+            workflowStateIconsManager: this.workflowStateIconsManager
         });
     }
 
