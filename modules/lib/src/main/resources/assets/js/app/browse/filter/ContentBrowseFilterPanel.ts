@@ -192,9 +192,9 @@ export class ContentBrowseFilterPanel
     }
 
     private createContentQuery(): ContentQuery {
-        let contentQuery: ContentQuery = new ContentQuery();
-        let values = this.getSearchInputValues();
-        this.appendQueryExpression(values, contentQuery);
+        const contentQuery: ContentQuery = new ContentQuery();
+        const values: SearchInputValues = this.getSearchInputValues();
+        contentQuery.setQueryExpr(this.createQueryExpression(values));
         this.appendContentTypeFilter(values, contentQuery);
         if (!!this.dependenciesSection && this.dependenciesSection.isOutbound()) {
             this.appendOutboundReferencesFilter(contentQuery);
@@ -370,22 +370,21 @@ export class ContentBrowseFilterPanel
         return contentQuery;
     }
 
-    private appendQueryExpression(searchInputValues: SearchInputValues, contentQuery: ContentQuery) {
-        let selectionMode = this.hasConstraint();
-        let fulltextSearchExpression = this.makeFulltextSearchExpr(searchInputValues);
-        let query: QueryExpr;
+    private createQueryExpression(searchInputValues: SearchInputValues): QueryExpr {
+        const isSelectionMode: boolean = this.hasConstraint();
+        const searchString: string = searchInputValues.getTextSearchFieldValue();
+        const searchExpression: LogicalExpr =
+            new LogicalExpr(this.makeFulltextSearchExpr(searchString), LogicalOperator.OR, this.createIdSearchExpr(searchString));
 
-        if (selectionMode || this.dependenciesSection.isInbound()) {
-            query = new QueryExpr(new LogicalExpr(fulltextSearchExpression,
+        if (isSelectionMode || this.dependenciesSection.isInbound()) {
+            return new QueryExpr(new LogicalExpr(searchExpression,
                 LogicalOperator.AND,
-                selectionMode ?
+                isSelectionMode ?
                 this.makeSelectedItemsSearchExpr() : this.makeInboundDependenciesSearchExpr()
             ), ContentSummaryRequest.ROOT_ORDER);
-        } else {
-            query = new QueryExpr(fulltextSearchExpression, ContentSummaryRequest.ROOT_ORDER);
         }
 
-        contentQuery.setQueryExpr(query);
+        return new QueryExpr(searchExpression, ContentSummaryRequest.ROOT_ORDER);
     }
 
     private makeSelectedItemsSearchExpr(): Expression {
@@ -415,13 +414,17 @@ export class ContentBrowseFilterPanel
         return query;
     }
 
-    private makeFulltextSearchExpr(searchInputValues: SearchInputValues): Expression {
+    private makeFulltextSearchExpr(searchString: string): Expression {
+        return new FulltextSearchExpressionBuilder()
+            .setSearchString(searchString)
+            .addField(new QueryField(QueryField.DISPLAY_NAME, 5))
+            .addField(new QueryField(QueryField.NAME, 3))
+            .addField(new QueryField(QueryField.ALL))
+            .build();
+    }
 
-        let searchString: string = searchInputValues.getTextSearchFieldValue();
-
-        return new FulltextSearchExpressionBuilder().setSearchString(
-            searchString).addField(new QueryField(QueryField.DISPLAY_NAME, 5)).addField(new QueryField(QueryField.NAME, 3)).addField(
-            new QueryField(QueryField.ALL)).build();
+    private createIdSearchExpr(searchString: string): Expression {
+        return CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(searchString));
     }
 
     private appendContentTypeFilter(searchInputValues: SearchInputValues, contentQuery: ContentQuery): void {
