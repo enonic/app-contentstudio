@@ -37,7 +37,8 @@ class PageComponentView extends Page {
 
     async clickOnCloseButton() {
         await this.clickOnElement(this.closeButton);
-        return await this.waitForClosed();
+        await this.waitForClosed();
+        return await this.pause(200);
     }
 
     async clickOnComponent(displayName) {

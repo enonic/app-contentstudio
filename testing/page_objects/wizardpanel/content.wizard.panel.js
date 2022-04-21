@@ -256,7 +256,7 @@ class ContentWizardPanel extends Page {
     async clickOnDetailsPanelToggleButton() {
         try {
             await this.clickOnElement(this.detailsPanelToggleButton);
-            return await this.pause(400);
+            return await this.pause(500);
         } catch (err) {
             throw new Error("Error when trying to open Details Panel in Wizard");
         }

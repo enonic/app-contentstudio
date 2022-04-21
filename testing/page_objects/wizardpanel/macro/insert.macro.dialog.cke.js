@@ -121,6 +121,10 @@ class InsertMacroModalDialog extends Page {
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
         return this.getText(locator);
     }
+
+    isDialogOpened() {
+        return this.isElementDisplayed(XPATH.container);
+    }
 }
 
 module.exports = InsertMacroModalDialog;

@@ -29,6 +29,8 @@ describe('htmlarea.embed.iframe.spec: tests for macro modal dialog', function ()
             await studioUtils.doAddSite(SITE);
         });
 
+    //Verify Embed macro should not allow preview #4115
+    //https://github.com/enonic/app-contentstudio/issues/4115
     it(`GIVEN MacroModalDialog is opened WHEN 'Embed IFrame' option has been selected AND URL inserted THEN expected iframe should be present in htmlArea and in the preview tab`,
         async () => {
             let htmlAreaForm = new HtmlAreaForm();
