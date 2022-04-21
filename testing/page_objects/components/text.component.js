@@ -23,6 +23,10 @@ class TextComponent extends Page {
         return component.toolbox + lib.CKE.insertLinkButton;
     }
 
+    get insertMacroButton() {
+        return component.toolbox + lib.CKE.insertMacroButton;
+    }
+
     get insertAnchorButton() {
         return component.toolbox + lib.CKE.insertAnchorButton;
     }
@@ -143,8 +147,19 @@ class TextComponent extends Page {
             await this.switchToParentFrame();
             return await insertLinkDialog.waitForDialogLoaded();
         } catch (err) {
-            await this.saveScreenshot(appConst.generateRandomName('err_insert_link_cke'));
-            throw new Error('Text Component - Error when clicking on Insert Link button' + err);
+            await this.saveScreenshot(appConst.generateRandomName('err_insert_link'));
+            throw new Error('Text Component - Error when clicking on Insert Link button ' + err);
+        }
+    }
+
+    async clickOnInsertMacroButton() {
+        try {
+            await this.waitForElementDisplayed(lib.RICH_TEXT_EDITOR, appConst.mediumTimeout);
+            await this.clickOnElement(this.insertMacroButton);
+            return await this.switchToParentFrame();
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName('err_insert_macro'));
+            throw new Error('Text Component - Error when clicking on Insert Macro button ' + err);
         }
     }
 
