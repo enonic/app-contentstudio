@@ -46,7 +46,7 @@ Used for setting size limit on attachments, media content and both project and c
 uploadMaxFileSize = 100mb
 ----
 
-=== Turn off content path transliteration
+=== Content path transliteration
 
 image:cs-400.svg[CS 4.0.0,opts=inline]
 
@@ -56,4 +56,16 @@ Turn off automatic transliteration of content path when generating it based on a
 [source,properties]
 ----
 contentWizard.allowPathTransliteration=false
+----
+
+=== Collaboration mode
+
+image:cs-410.svg[CS 4.0.0,opts=inline]
+
+Turn on Collaboration mode in the Content Wizard which will display avatar icons of users who currently have the same content opened.
+
+.com.enonic.app.contentstudio.cfg
+[source,properties]
+----
+contentWizard.enableCollaboration=true
 ----

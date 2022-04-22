@@ -165,6 +165,8 @@ Content Studio will send current branch, repository and id of selected content t
 image::widgets-context-panel.png[,207]
 
 === Content Studio menu widgets
+:imagesdir: images
+image::cs-410.svg[,64]
 
 Widgets with interface `contentstudio.menuitem` will expand the left-hand side menu of Content Studio. They are so-called "fullscreen widgets" which will take up the entire screen
 between the Content Studio header and the left-side menu. Widget icon will be automatically injected inside the sidebar menu when you deploy an application containing your widget.
@@ -186,4 +188,5 @@ between the Content Studio header and the left-side menu. Widget icon will be au
 
 By specifying config as shown in the example above, you let Content Studio know that your widget is project-dependent and requires project selector in the header.
 
+:imagesdir: widgets/images
 image::widgets-menu-item.png[,600]
