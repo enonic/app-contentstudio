@@ -25,21 +25,20 @@ configurations {
 }
 
 dependencies {
-    compileOnly "com.enonic.xp:admin-api:${xpVersion}"
-
     implementation "com.enonic.xp:core-api:${xpVersion}"
+    implementation "com.enonic.xp:admin-api:${xpVersion}"
     implementation "com.enonic.xp:portal-api:${xpVersion}"
 
     implementation "com.hazelcast:hazelcast:3.12.12"
     implementation "com.enonic.xp:core-internal:${xpVersion}"
 
-    include "org.apache.commons:commons-text:${commonsTextVersion}"
+    include "org.apache.commons:commons-text:1.9"
     include "com.enonic.xp:lib-admin:${xpVersion}"
     include "com.enonic.xp:lib-portal:${xpVersion}"
     include "com.enonic.xp:lib-context:${xpVersion}"
     include "com.enonic.xp:lib-content:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
-    include "com.enonic.lib:lib-mustache:${libMustacheVersion}"
+    include "com.enonic.lib:lib-mustache:2.0.0"
     include "com.enonic.xp:lib-io:${xpVersion}"
     include "com.enonic.lib:lib-license:3.0.0"
     include project( ':lib-contentstudio' )
@@ -67,14 +66,14 @@ node {
     download = true
 }
 
-task lint( type: NpmTask, dependsOn: npmInstall ) {
+task lint( type: NpmTask, group: "verification", dependsOn: npmInstall ) {
     args = [ 'run', 'lint:quiet' ]
-    inputs.files fileTree( dir: 'modules', include: 'src/main/**.*' )
-    outputs.dir file('gradle')
-    outputs.upToDateWhen { false }
+    inputs.files fileTree( dir: 'src', include: '**/*.ts' )
 }
 
-task webpack( type: NpmTask, dependsOn: [npmInstall, lint] ) {
+check.dependsOn( lint )
+
+task webpack( type: NpmTask, dependsOn: npmInstall ) {
     environment = [ 'NODE_ENV': nodeEnvironment() ]
     description = 'Build UI resources (ts, css, etc).'
     args = [ 'run', 'build' ]

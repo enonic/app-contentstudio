@@ -1,5 +1,0 @@
-ext {
-    junitJupiterVersion = '5.7.1'
-    mockitoVersion = '3.9.0'
-    assertjVersion = '3.19.0'
-}

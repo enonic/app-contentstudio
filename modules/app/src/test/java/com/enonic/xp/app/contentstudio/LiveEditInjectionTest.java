@@ -5,8 +5,8 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.google.common.base.Charsets;
@@ -18,7 +18,9 @@ import com.enonic.xp.portal.RenderMode;
 import com.enonic.xp.portal.postprocess.HtmlTag;
 import com.enonic.xp.web.servlet.ServletRequestHolder;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class LiveEditInjectionTest
 {
@@ -28,7 +30,7 @@ public class LiveEditInjectionTest
 
     private LiveEditInjection injection;
 
-    @Before
+    @BeforeEach
     public void setup()
     {
         this.portalRequest = new PortalRequest();

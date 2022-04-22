@@ -5,7 +5,7 @@ Enonic XP - Content Studio App
 [![License][license-image]][license-url]
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/058e2e1b329b41e38a00769827b7912b)](https://www.codacy.com/gh/enonic/app-contentstudio/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=enonic/app-contentstudio&amp;utm_campaign=Badge_Grade)
 
-Create sites and manage content in [Enonic XP](https://github.com/enonic/xp). The documentation can be found [here](https://developer.enonic.com/docs/content-studio/stable). 
+Create sites and manage content in [Enonic XP](https://github.com/enonic/xp). The documentation can be found [here](https://developer.enonic.com/docs/content-studio/stable).
 
 ## Usage
 
@@ -39,7 +39,7 @@ If the environment is set, the Gradle will look for the local `lib-admin-ui` and
 The environment parameter will also be passed to `lib-admin-ui`.
 
 Both environments are almost identical, except that building in the development environment will result in creating the DTS files, sourcemaps and other things, critical for the debugging.
-The build itself may also be a bit slower sometimes. 
+The build itself may also be a bit slower sometimes.
 
 #### Content Studio library
 
@@ -64,10 +64,10 @@ In cases, when you set the environment type explicitly, skipping the `lint` or `
 
 #### Clean
 
-To rebuild the project from scratch, you may want to remove all compiles sources and dependencies. In that case, using `clean` command may not be enough. To remove the build and dependencies, use:
+To rebuild the project from scratch, you may want to remove all compiles sources and dependencies.
 
 ```
-./gradlew flush
+./gradlew clean
 ```
 
 #### NPM upgrade
