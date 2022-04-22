@@ -12,9 +12,9 @@
     "build:dev": "tsc --sourceMap --inlineSources",
     "build:lib": "webpack --color",
     "build:minify": "node util/minify.js",
-    "lint": "eslint **/*.ts",
-    "lint:quiet": "eslint **/*.ts --quiet",
-    "fix": "eslint --fix **/*.ts"
+    "lint": "eslint src/**/*.ts",
+    "lint:quiet": "eslint src/**/*.ts --quiet",
+    "fix": "eslint --fix src/**/*.ts"
   },
   "dependencies": {
     "flag-icons": "^6.1.1",
