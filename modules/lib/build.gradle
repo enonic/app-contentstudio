@@ -73,7 +73,6 @@ task copyPackage( type: NodeTask, dependsOn: typescriptPkg ) {
 task typescript {
     dependsOn 'typescriptPkg'
     dependsOn 'typescriptLib'
-    dependsOn 'minifyPkg'
     dependsOn 'copyPackage'
 }
 

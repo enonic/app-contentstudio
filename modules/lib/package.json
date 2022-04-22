@@ -11,7 +11,6 @@
     "build:prod": "tsc",
     "build:dev": "tsc --sourceMap --inlineSources",
     "build:lib": "webpack --color",
-    "build:minify": "node util/minify.js",
     "lint": "eslint src/**/*.ts",
     "lint:quiet": "eslint src/**/*.ts --quiet",
     "fix": "eslint --fix src/**/*.ts"
