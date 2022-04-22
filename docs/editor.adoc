@@ -1,4 +1,4 @@
-= Content editor
+= Content Editor
 :toc: right
 :imagesdir: editor/images
 
@@ -6,4 +6,17 @@ The *Content Editor* opens in a new browser tab from the <<navigator#,Browse Vie
 
 The edit view consists of several parts. On the left is the <<editor/content-form#,Content Form>>. If content is editable, the <<editor/page-editor#,Page Editor>> will automatically open on the right. A <<editor/context-panel#, Context Panel>> can be accessed from inside the Page Editor.  The Context Panel contain a number of widgets to work with the page, and will be placed to the right of the <<editor/page-editor#,Page Editor>> or expand over it, based on screen resolution.
 
-image::editor.png[]
+image::editor.png[Content Wizard, 1920]
+
+== Collaboration
+:imagesdir: images
+image::cs-410.svg[,64]
+
+Toolbar of the Content Editor will display avatar icons of users who currently have the same content opened in the Content Editor.
+
+:imagesdir: editor/images
+image::content-wizard-collaboration.png[Collaboration, 665]
+
+NOTE: Collaboration is an experimental feature released under feature flag and disabled by default. You can turn it on via
+Content Studio's <<config#, config file>>.
+
