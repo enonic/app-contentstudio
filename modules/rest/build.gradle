@@ -1,9 +1,5 @@
 archivesBaseName = 'lib-contentstudio-rest'
 
-allprojects {
-    apply from: "$rootDir/gradle/versions.gradle"
-}
-
 dependencies {
     implementation "com.enonic.xp:core-internal:${xpVersion}"
 
@@ -17,17 +13,4 @@ dependencies {
     testImplementation( testFixtures( "com.enonic.xp:core-app:${xpVersion}" ) )
     testImplementation( testFixtures( "com.enonic.xp:core-schema:${xpVersion}" ) )
     testImplementation( testFixtures( "com.enonic.xp:web-api:${xpVersion}" ) )
-
-    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:${junitJupiterVersion}"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}"
-    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-    testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
-    testImplementation "org.assertj:assertj-core:${assertjVersion}"
-}
-
-test {
-    useJUnitPlatform()
-    systemProperty 'java.awt.headless', 'true'
-    jvmArgs '-noverify', '-XX:TieredStopAtLevel=1'
 }

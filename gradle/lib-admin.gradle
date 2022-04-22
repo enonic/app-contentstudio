@@ -44,9 +44,10 @@ ext {
 afterEvaluate {
     if ( hasTask( 'clean' ) )
     {
-        task flush( type: Delete, dependsOn: clean ) {
+        task flush( type: Delete ) {
             description = 'Clean the project from built sources and dependencies'
             delete '.xp'
         }
+        clean.dependsOn flush
     }
 }
