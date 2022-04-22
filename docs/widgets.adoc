@@ -2,45 +2,37 @@
 :toc: right
 :imagesdir: widgets/images
 
-Widgets are applications that expand the functionality of the Content Studio. As of version 7.0, there are five built-in widgets.
-All widgets are listed in the dropdown selector at the top of the panel. The top 5 widgets are internal, they are followed by the installed external widgets.
+Widgets are applications that expand functionality of Content Studio.
 
-Widgets panel can be assessed via the cog icon in the top right corner:
+They can be found inside the Context Panel which can be assessed via the burger icon in the top right corner of Content Browse or Content Editor pages:
 
 image::widgets-panel-button.png[,209]
 
-… or in the content editor:
-
-image::widgets-panel-button-wizard.png[,210]
-
-The list of widgets can be accessed from the dropdown: the top 5 widgets are internal, they are followed by installed external widgets (if any).
+The list of widgets can be accessed from the dropdown: the top 5 widgets are built-in, they are followed by custom widgets (if any are installed).
 On top of the dropdown is the text field enabling filtering the list by keywords.
 
 image::widgets-search.png[,206]
 
-== Internal widgets
+== Built-in widgets
 
 === Details
 
-This widget shows various properties of the selected content item.
+The Details widget shows various properties of the selected content item. It was designed to provide all the basic information about the content
+and contains the following sections:
 
-image::widgets-details-site.png[,207]
+* **Content:** The top section shows icon of the content with display name and full path;
 
-Details widget was designed to provide all the basic information about the content and contains the following views:
+* **Status:** This section shows current content status, like *New*, *Published* etc.;
 
-* **Content:** The top view shows the icon of the content with the display name and full path;
+* **User access:** This section lists all the permissions set for the selected content. Clicking on the `Edit Permissions` link will open the <<permissions#,permissions dialog>> for updating content permissions;
 
-* **Status:** The view shows the current content status, like *New*, *Published* etc.;
+* **Properties:** This section shows useful metadata (application type, create/modified date etc.);
 
-* **User access:** The view lists all the permissions set for the selected content. Clicking on the `Edit Permissions` link will open the <<permissions#,permissions dialog>> for updating content permissions;
+* **Page template:** This section shows a page template used by this content (if set);
 
-* **Properties:** The view shows useful metadata (application type, create/modified date etc.);
+* **Attachments:** This section shows links to binary attachments which can be downloaded with a single-click. An example of such a content can be seen below.
 
-* **Page template:** The view shows the template used by this content;
-
-* **Attachments:** The view shows the link to the attachment content so that the content like video or image can be downloaded or open in a separate tab. The example of such content can be seen below.
-
-image::widgets-details-audio.png[,212]
+image::widgets-details.png[,212]
 
 
 === Version History
@@ -139,3 +131,59 @@ image::widgets-components-page.png[,207]
 The **Part** component tab, for example, will allow you to replace the currently selected part or configure it (like selecting the `Posts folder` in the example below)
 
 image::widgets-components-part.png[,207]
+
+
+== Custom widgets
+
+Enonic XP allows you to easily build your own widgets and expand functionality of Content Studio. You can also install widgets from the Enonic Market.
+
+Implementation of admin widgets is described https://developer.enonic.com/docs/xp/stable/admin/widgets#implementation[here].
+
+There are two interfaces currently supported by Content Studio: `contentstudio.contextpanel` and `contentstudio.menuitem`.
+
+=== Context panel widgets
+
+Widgets with interface `contentstudio.contextpanel` will be added to the widget dropdown inside the Context Panel and shown inside the panel when selected.
+Content Studio will send current branch, repository and id of selected content to this widget via query parameters of the GET request.
+
+.Sample XML for a widget with `contentstudio.contextpanel` interface:
+[source,xml]
+----
+<widget>
+  <display-name>My widget</display-name>
+  <description>This widget is for the Context Panel</description>
+  <interfaces>
+    <interface>contentstudio.contextpanel</interface>
+  </interfaces>
+  <allow>
+    <principal>role:system.admin</principal>
+    <principal>role:myapp.myrole</principal>
+  </allow>
+</widget>
+----
+
+image::widgets-context-panel.png[,207]
+
+=== Content Studio menu widgets
+
+Widgets with interface `contentstudio.menuitem` will expand the left-hand side menu of Content Studio. They are so-called "fullscreen widgets" which will take up the entire screen
+between the Content Studio header and the left-side menu. Widget icon will be automatically injected inside the sidebar menu when you deploy an application containing your widget.
+
+.Sample XML for a widget with `contentstudio.menuitem` interface:
+[source,xml]
+----
+<widget>
+  <display-name>My widget</display-name>
+  <description>This widget is for the Content Studio menu</description>
+  <interfaces>
+    <interface>contentstudio.menuitem</interface>
+  </interfaces>
+  <config>
+    <property name="context" value="project"/>
+  </config>
+</widget>
+----
+
+By specifying config as shown in the example above, you let Content Studio know that your widget is project-dependent and requires project selector in the header.
+
+image::widgets-menu-item.png[,600]
