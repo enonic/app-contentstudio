@@ -10,55 +10,39 @@ import {ContentQueryResult} from '../../resource/ContentQueryResult';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentQuery} from '../../content/ContentQuery';
-import {ContentSummaryRequest} from '../../resource/ContentSummaryRequest';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {AggregationGroupView} from 'lib-admin-ui/aggregation/AggregationGroupView';
 import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
-import {SearchInputValues} from 'lib-admin-ui/query/SearchInputValues';
-import {
-    TermsAggregationOrderDirection,
-    TermsAggregationOrderType,
-    TermsAggregationQuery
-} from 'lib-admin-ui/query/aggregation/TermsAggregationQuery';
-import {DateRangeAggregationQuery} from 'lib-admin-ui/query/aggregation/DateRangeAggregationQuery';
-import {DateRange} from 'lib-admin-ui/query/aggregation/DateRange';
-import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
-import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
-import {LogicalExpr} from 'lib-admin-ui/query/expr/LogicalExpr';
-import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
-import {LogicalOperator} from 'lib-admin-ui/query/expr/LogicalOperator';
-import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
-import {QueryField} from 'lib-admin-ui/query/QueryField';
 import {BrowseFilterResetEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterResetEvent';
 import {BrowseFilterRefreshEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterRefreshEvent';
 import {BrowseFilterSearchEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterSearchEvent';
-import {BrowseFilterPanel, ConstraintSection} from 'lib-admin-ui/app/browse/filter/BrowseFilterPanel';
+import {BrowseFilterPanel} from 'lib-admin-ui/app/browse/filter/BrowseFilterPanel';
 import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
 import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
-import {Filter} from 'lib-admin-ui/query/filter/Filter';
-import {RangeFilter} from 'lib-admin-ui/query/filter/RangeFilter';
-import {DateRangeBucket} from 'lib-admin-ui/aggregation/DateRangeBucket';
-import {BooleanFilter} from 'lib-admin-ui/query/filter/BooleanFilter';
-import {FulltextSearchExpressionBuilder} from 'lib-admin-ui/query/FulltextSearchExpression';
-import {Expression} from 'lib-admin-ui/query/expr/Expression';
 import {Expand} from 'lib-admin-ui/rest/Expand';
 import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationView';
 import {ContentIds} from '../../content/ContentIds';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ProjectContext} from '../../project/ProjectContext';
-import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentSummaryJson} from '../../content/ContentSummaryJson';
 import {ContentId} from '../../content/ContentId';
+import {Principal} from 'lib-admin-ui/security/Principal';
+import {SearchContentQueryCreator} from './SearchContentQueryCreator';
+import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
+import {GetPrincipalsByKeysRequest} from '../../security/GetPrincipalsByKeysRequest';
+import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {DependenciesSection} from './DependenciesSection';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
 
-    static CONTENT_TYPE_AGGREGATION_NAME: string = 'contentTypes';
-    static LAST_MODIFIED_AGGREGATION_NAME: string = 'lastModified';
+    static CONTENT_TYPE: string = 'contentTypes';
+    static LAST_MODIFIED: string = 'lastModified';
+    static WORKFLOW: string = 'workflow';
+    static MODIFIER: string = 'modifier';
 
-    private contentTypeAggregation: ContentTypeAggregationGroupView;
-    private lastModifiedAggregation: AggregationGroupView;
+    private aggregations: Map<string, AggregationGroupView>;
+    private principals: Map<string, string> = new Map<string, string>();
 
     private dependenciesSection: DependenciesSection;
 
@@ -69,7 +53,7 @@ export class ContentBrowseFilterPanel
     }
 
     private initElementsAndListeners() {
-        this.initAggregationGroupView([this.contentTypeAggregation, this.lastModifiedAggregation]);
+        this.initAggregationGroupView();
         this.handleEvents();
     }
 
@@ -118,15 +102,23 @@ export class ContentBrowseFilterPanel
     }
 
     protected getGroupViews(): AggregationGroupView[] {
-        this.contentTypeAggregation = new ContentTypeAggregationGroupView(
-            ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME,
-            i18n('field.contentTypes'));
+        this.aggregations = new Map<string, AggregationGroupView>();
 
-        this.lastModifiedAggregation = new AggregationGroupView(
-            ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME,
-            i18n('field.lastModified'));
+        this.aggregations.set(ContentBrowseFilterPanel.CONTENT_TYPE, new ContentTypeAggregationGroupView(
+            ContentBrowseFilterPanel.CONTENT_TYPE,
+            i18n('field.contentTypes')));
 
-        return [this.contentTypeAggregation, this.lastModifiedAggregation];
+        this.aggregations.set(ContentBrowseFilterPanel.LAST_MODIFIED, new AggregationGroupView(
+            ContentBrowseFilterPanel.LAST_MODIFIED,
+            i18n('field.lastModified')));
+
+        this.aggregations.set(ContentBrowseFilterPanel.WORKFLOW,
+            new AggregationGroupView(ContentBrowseFilterPanel.WORKFLOW, i18n('field.workflow')));
+
+        this.aggregations.set(ContentBrowseFilterPanel.MODIFIER,
+            new AggregationGroupView(ContentBrowseFilterPanel.MODIFIER, i18n('field.modifier')));
+
+        return Array.from(this.aggregations.values());
     }
 
     protected appendExtraSections() {
@@ -154,7 +146,8 @@ export class ContentBrowseFilterPanel
             return;
         }
 
-        (<BucketAggregationView>this.contentTypeAggregation.getAggregationViews()[0]).selectBucketViewByKey(key);
+        (<BucketAggregationView>this.aggregations.get(
+            ContentBrowseFilterPanel.CONTENT_TYPE).getAggregationViews()[0]).selectBucketViewByKey(key);
     }
 
     doRefresh(): Q.Promise<void> {
@@ -192,32 +185,14 @@ export class ContentBrowseFilterPanel
     }
 
     private createContentQuery(): ContentQuery {
-        const contentQuery: ContentQuery = new ContentQuery();
-        const values: SearchInputValues = this.getSearchInputValues();
-        contentQuery.setQueryExpr(this.createQueryExpression(values));
-        this.appendContentTypeFilter(values, contentQuery);
-        if (!!this.dependenciesSection && this.dependenciesSection.isOutbound()) {
-            this.appendOutboundReferencesFilter(contentQuery);
-        }
-
-        let lastModifiedFilter: Filter = this.appendLastModifiedQuery(values);
-        if (lastModifiedFilter != null) {
-            contentQuery.addQueryFilter(lastModifiedFilter);
-        }
-
-        contentQuery.setSize(ContentQuery.POSTLOAD_SIZE);
-
-        this.appendContentTypesAggregationQuery(contentQuery);
-        this.appendLastModifiedAggregationQuery(contentQuery);
-
-        return contentQuery;
+        return this.buildQuery(false);
     }
 
     private searchDataAndHandleResponse(contentQuery: ContentQuery): Q.Promise<void> {
-        return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(contentQuery)
+        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery)
             .setExpand(Expand.SUMMARY)
             .sendAndParse()
-            .then((contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
+            .then((contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
                 if (this.dependenciesSection.isActive() && contentQueryResult.getAggregations().length === 0) {
                     this.removeDependencyItem();
                 } else {
@@ -227,11 +202,93 @@ export class ContentBrowseFilterPanel
             .catch(DefaultErrorHandler.handle);
     }
 
+    private findAndUpdateWorkflowAggregations(aggregations: Aggregation[], total: number) {
+        const workflowAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentBrowseFilterPanel.WORKFLOW);
+
+        if (workflowAggr) {
+            this.updateWorkflowAggregation(<BucketAggregation>workflowAggr, total);
+        }
+    }
+
+    private updateWorkflowAggregation(workflowAggr: BucketAggregation, total: number): BucketAggregation {
+        // contents might not have a workflow property, thus aggregation won't see those contents, but they are treated as ready
+        const inProgressKey: string = WorkflowState[WorkflowState.IN_PROGRESS].toLowerCase();
+        const inProgressBucket: Bucket = workflowAggr.getBucketByName(inProgressKey);
+        const result: Bucket[] = [];
+
+        const inProgressCount: number = inProgressBucket?.docCount || 0;
+        const readyCount: number = total - inProgressCount;
+
+        if (readyCount > 0) {
+            const readyKey: string = WorkflowState[WorkflowState.READY].toLowerCase();
+            const bucket: Bucket = new Bucket(readyKey, readyCount);
+            bucket.setDisplayName(i18n(`status.workflow.${readyKey}`));
+            result.push(bucket);
+        }
+
+        if (inProgressBucket) {
+            inProgressBucket.setDisplayName(i18n(`status.workflow.${inProgressKey}`));
+            result.push(inProgressBucket);
+        }
+
+        workflowAggr.setBuckets(result);
+
+        return workflowAggr;
+    }
+
+    private findAndUpdatePrincipalsAggregations(aggregations: Aggregation[]): void {
+        const modifiers: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentBrowseFilterPanel.MODIFIER);
+
+        if (modifiers) {
+            this.updatePrincipalsAggregations(<BucketAggregation>modifiers);
+        }
+    }
+
+    private updatePrincipalsAggregations(principalsAggregation: BucketAggregation): void {
+        this.updateKnownPrincipals(principalsAggregation);
+        this.updateUnknownPrincipals(principalsAggregation);
+    }
+
+    private updateKnownPrincipals(principalsAggregation: BucketAggregation): void {
+        principalsAggregation.getBuckets().forEach((bucket: Bucket) => {
+            const displayName: string = this.principals.get(bucket.getKey());
+
+            if (displayName) {
+                bucket.setDisplayName(displayName);
+            }
+        });
+
+        this.updateAggregations([principalsAggregation]);
+    }
+
+    private updateUnknownPrincipals(principalsAggregation: BucketAggregation): void {
+        // finding keys which display names are not loaded
+        const unknownPrincipals: PrincipalKey[] = principalsAggregation.getBuckets()
+            .filter((bucket: Bucket) => !this.principals.has(bucket.getKey()))
+            .map((bucket: Bucket) => PrincipalKey.fromString(bucket.getKey()));
+
+        if (unknownPrincipals.length === 0) {
+            return;
+        }
+
+        new GetPrincipalsByKeysRequest(unknownPrincipals).sendAndParse().then((principals: Principal[]) => {
+            unknownPrincipals.forEach((unknownPrincipal: PrincipalKey) => {
+                // if principal is not found (im might be deleted) then using key
+                const principal: Principal = principals.find((p: Principal) => p.getKey().equals(unknownPrincipal));
+                this.principals.set(unknownPrincipal.toString(), principal?.getDisplayName() || unknownPrincipal.toString());
+            });
+
+            this.updateKnownPrincipals(principalsAggregation);
+
+            return Q.resolve();
+        }).catch(DefaultErrorHandler.handle);
+    }
+
     private refreshDataAndHandleResponse(contentQuery: ContentQuery): Q.Promise<void> {
-        return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(contentQuery)
+        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery)
             .setExpand(Expand.SUMMARY)
             .sendAndParse()
-            .then((contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
+            .then((contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
                 if (contentQueryResult.getMetadata().getTotalHits() > 0) {
                     this.handleDataSearchResult(contentQuery, contentQueryResult);
                 } else {
@@ -241,14 +298,19 @@ export class ContentBrowseFilterPanel
             .catch(DefaultErrorHandler.handle);
     }
 
-    private handleDataSearchResult(contentQuery: ContentQuery,
-                                   contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) {
+    private handleDataSearchResult(contentQuery: ContentQuery, contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) {
         return this.getAggregations(contentQuery, contentQueryResult).then((aggregations: Aggregation[]) => {
-            this.updateAggregations(aggregations, true);
-            this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits());
-            this.toggleAggregationsVisibility(contentQueryResult.getAggregations());
+            this.processAggregations(aggregations, contentQueryResult.getMetadata().getTotalHits(), true);
             new BrowseFilterSearchEvent(new ContentBrowseSearchData(contentQueryResult, contentQuery)).fire();
-        });
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    private processAggregations(aggregations: Aggregation[], totalHits: number, doUpdateAll?: boolean, emptyFilterValue?: boolean): void {
+        this.findAndUpdateWorkflowAggregations(aggregations, totalHits);
+        this.updateAggregations(aggregations, doUpdateAll);
+        this.findAndUpdatePrincipalsAggregations(aggregations);
+        this.toggleAggregationsVisibility(aggregations);
+        this.updateHitsCounter(totalHits, emptyFilterValue);
     }
 
     private handleNoSearchResultOnRefresh(contentQuery: ContentQuery): Q.Promise<void> {
@@ -270,10 +332,14 @@ export class ContentBrowseFilterPanel
     }
 
     private cloneContentQueryNoContentTypes(contentQuery: ContentQuery): ContentQuery {
-        let newContentQuery: ContentQuery = new ContentQuery().setContentTypeNames([]).setFrom(contentQuery.getFrom()).setQueryExpr(
-            contentQuery.getQueryExpr()).setSize(contentQuery.getSize()).setAggregationQueries(
-            contentQuery.getAggregationQueries()).setQueryFilters(contentQuery.getQueryFilters()).setMustBeReferencedById(
-            contentQuery.getMustBeReferencedById());
+        const newContentQuery: ContentQuery = new ContentQuery()
+            .setContentTypeNames([])
+            .setFrom(contentQuery.getFrom())
+            .setQueryExpr(contentQuery.getQueryExpr())
+            .setSize(0)
+            .setAggregationQueries(contentQuery.getAggregationQueries())
+            .setQueryFilters(contentQuery.getQueryFilters())
+            .setMustBeReferencedById(contentQuery.getMustBeReferencedById());
 
         return newContentQuery;
     }
@@ -285,43 +351,42 @@ export class ContentBrowseFilterPanel
     private getAggregations(contentQuery: ContentQuery,
                             contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>): Q.Promise<Aggregation[]> {
 
-        let clonedContentQueryNoContentTypes: ContentQuery = this.cloneContentQueryNoContentTypes(contentQuery);
+        const clonedContentQueryNoContentTypes: ContentQuery = this.cloneContentQueryNoContentTypes(contentQuery);
 
         if (ObjectHelper.objectEquals(contentQuery, clonedContentQueryNoContentTypes)) {
-            return Q(this.combineAggregations(contentQueryResult, contentQueryResult));
+            return Q(contentQueryResult.getAggregations());
         }
 
-        return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(clonedContentQueryNoContentTypes).setExpand(
+        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(clonedContentQueryNoContentTypes).setExpand(
             Expand.SUMMARY).sendAndParse().then(
-            (contentQueryResultNoContentTypesSelected: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
+            (contentQueryResultNoContentTypesSelected: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
                 return this.combineAggregations(contentQueryResult, contentQueryResultNoContentTypesSelected);
             });
     }
 
-    private combineAggregations(contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>,
-                                queryResultNoContentTypesSelected: ContentQueryResult<ContentSummary,ContentSummaryJson>): Aggregation[] {
-        let contentTypesAggr = queryResultNoContentTypesSelected.getAggregations().filter((aggregation) => {
-            return aggregation.getName() === ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME;
-        });
-        let dateModifiedAggr = contentQueryResult.getAggregations().filter((aggregation) => {
-            return aggregation.getName() !== ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME;
-        });
+    private combineAggregations(queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>,
+                                queryResultNoContentTypesSelected: ContentQueryResult<ContentSummary, ContentSummaryJson>): Aggregation[] {
+        const result: Aggregation[] =
+            queryResult.getAggregations().filter((aggr: Aggregation) => aggr.getName() !== ContentBrowseFilterPanel.CONTENT_TYPE);
 
-        let aggregations = [contentTypesAggr[0], dateModifiedAggr[0]];
+        const contentTypesAggr: Aggregation = queryResultNoContentTypesSelected.getAggregations().filter((aggregation: Aggregation) => {
+            return aggregation.getName() === ContentBrowseFilterPanel.CONTENT_TYPE;
+        })[0];
 
-        return aggregations;
+        if (contentTypesAggr) {
+            result.push(contentTypesAggr);
+        }
+
+        return result;
     }
 
-    private initAggregationGroupView(aggregationGroupViews: AggregationGroupView[]) {
+    private initAggregationGroupView() {
+        const aggregationGroupViews: AggregationGroupView[] = Array.from(this.aggregations.values());
+        const contentQuery: ContentQuery = this.buildAggregationsQuery();
 
-        let contentQuery: ContentQuery = this.buildAggregationsQuery();
-
-        new ContentQueryRequest<ContentSummaryJson,ContentSummary>(contentQuery).sendAndParse().then(
-            (contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
-
-                this.updateAggregations(contentQueryResult.getAggregations(), false);
-                this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits(), true);
-                this.toggleAggregationsVisibility(contentQueryResult.getAggregations());
+        new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
+            (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
+                this.processAggregations(queryResult.getAggregations(), queryResult.getMetadata().getTotalHits(), false, true);
 
                 aggregationGroupViews.forEach((aggregationGroupView: AggregationGroupView) => {
                     aggregationGroupView.initialize();
@@ -332,19 +397,15 @@ export class ContentBrowseFilterPanel
     }
 
     protected resetFacets(suppressEvent?: boolean, doResetAll?: boolean): Q.Promise<void> {
+        const contentQuery: ContentQuery = this.buildAggregationsQuery();
 
-        let contentQuery: ContentQuery = this.buildAggregationsQuery();
-
-        return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(contentQuery).sendAndParse().then(
-            (contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
-
-                this.updateAggregations(contentQueryResult.getAggregations(), doResetAll);
-                this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits(), true);
-                this.toggleAggregationsVisibility(contentQueryResult.getAggregations());
+        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
+            (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
+                this.processAggregations(queryResult.getAggregations(), queryResult.getMetadata().getTotalHits(), doResetAll, true);
 
                 if (!suppressEvent) { // then fire usual reset event with content grid reloading
-                    if (!!this.dependenciesSection && this.dependenciesSection.isActive()) {
-                        new BrowseFilterSearchEvent(new ContentBrowseSearchData(contentQueryResult, contentQuery)).fire();
+                    if (this.dependenciesSection?.isActive()) {
+                        new BrowseFilterSearchEvent(new ContentBrowseSearchData(queryResult, contentQuery)).fire();
                     } else {
                         new BrowseFilterResetEvent().fire();
                     }
@@ -356,236 +417,33 @@ export class ContentBrowseFilterPanel
     }
 
     private buildAggregationsQuery(): ContentQuery {
-        let contentQuery: ContentQuery = new ContentQuery();
-        contentQuery.setQueryExpr(new QueryExpr(null));
-        contentQuery.setSize(0);
+        return this.buildQuery(true);
+    }
 
-        this.appendFilterByItems(contentQuery);
-        this.appendContentTypesAggregationQuery(contentQuery);
-        this.appendLastModifiedAggregationQuery(contentQuery);
-        if (!!this.dependenciesSection && this.dependenciesSection.isOutbound()) {
-            this.appendOutboundReferencesFilter(contentQuery);
+    private buildQuery(isAggregation: boolean): ContentQuery {
+        const queryCreator: SearchContentQueryCreator = new SearchContentQueryCreator(this.getSearchInputValues());
+
+        queryCreator.setIsAggregation(isAggregation);
+        queryCreator.setConstraintItemsIds(this.hasConstraint() ? this.getSelectionItems() : null);
+
+        if (this.dependenciesSection?.isInbound()) {
+            queryCreator.setDependency({isInbound: true, dependencyId: this.dependenciesSection.getDependencyId()});
+        } else if (this.dependenciesSection?.isOutbound()) {
+            queryCreator.setDependency({isInbound: false, dependencyId: this.dependenciesSection.getDependencyId()});
         }
 
-        return contentQuery;
-    }
-
-    private createQueryExpression(searchInputValues: SearchInputValues): QueryExpr {
-        const isSelectionMode: boolean = this.hasConstraint();
-        const searchString: string = searchInputValues.getTextSearchFieldValue();
-        const searchExpression: LogicalExpr =
-            new LogicalExpr(this.makeFulltextSearchExpr(searchString), LogicalOperator.OR, this.createIdSearchExpr(searchString));
-
-        if (isSelectionMode || this.dependenciesSection.isInbound()) {
-            return new QueryExpr(new LogicalExpr(searchExpression,
-                LogicalOperator.AND,
-                isSelectionMode ?
-                this.makeSelectedItemsSearchExpr() : this.makeInboundDependenciesSearchExpr()
-            ), ContentSummaryRequest.ROOT_ORDER);
-        }
-
-        return new QueryExpr(searchExpression, ContentSummaryRequest.ROOT_ORDER);
-    }
-
-    private makeSelectedItemsSearchExpr(): Expression {
-        let selectedItemsIds = this.getSelectionItems();
-        let query: QueryExpr;
-
-        selectedItemsIds.forEach((id: string) => {
-            if (!!query) {
-                query = new QueryExpr(new LogicalExpr(query, LogicalOperator.OR,
-                    CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(id))));
-            } else {
-                query = new QueryExpr(CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(id)));
-            }
-        });
-
-        return query;
-    }
-
-    private makeInboundDependenciesSearchExpr(): Expression {
-        let dependencyId = this.dependenciesSection.getDependencyId().toString();
-
-        let query: QueryExpr = new QueryExpr(new LogicalExpr(
-            CompareExpr.eq(new FieldExpr(QueryField.REFERENCES), ValueExpr.string(dependencyId)),
-            LogicalOperator.AND,
-            CompareExpr.neq(new FieldExpr(QueryField.ID), ValueExpr.string(dependencyId))));
-
-        return query;
-    }
-
-    private makeFulltextSearchExpr(searchString: string): Expression {
-        return new FulltextSearchExpressionBuilder()
-            .setSearchString(searchString)
-            .addField(new QueryField(QueryField.DISPLAY_NAME, 5))
-            .addField(new QueryField(QueryField.NAME, 3))
-            .addField(new QueryField(QueryField.ALL))
-            .build();
-    }
-
-    private createIdSearchExpr(searchString: string): Expression {
-        return CompareExpr.eq(new FieldExpr(QueryField.ID), ValueExpr.string(searchString));
-    }
-
-    private appendContentTypeFilter(searchInputValues: SearchInputValues, contentQuery: ContentQuery): void {
-        let selectedBuckets: Bucket[] = searchInputValues.getSelectedValuesForAggregationName(
-            ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME);
-
-        let contentTypeNames: ContentTypeName[] = this.parseContentTypeNames(selectedBuckets);
-
-        contentQuery.setContentTypeNames(contentTypeNames);
-    }
-
-    private appendFilterByItems(contentQuery: ContentQuery): void {
-        if (!!this.dependenciesSection && this.dependenciesSection.isInbound()) {
-            contentQuery.setQueryExpr(new QueryExpr(this.makeInboundDependenciesSearchExpr()));
-
-            return;
-        }
-
-        if (this.hasConstraint()) {
-            contentQuery.setQueryExpr(new QueryExpr(this.makeSelectedItemsSearchExpr()));
-
-            return;
-        }
-    }
-
-    private appendOutboundReferencesFilter(contentQuery: ContentQuery): void {
-        contentQuery.setMustBeReferencedById(this.dependenciesSection.getDependencyId());
-    }
-
-    private appendLastModifiedQuery(searchInputValues: SearchInputValues): Filter {
-
-        let lastModifiedSelectedBuckets: Bucket[] = searchInputValues.getSelectedValuesForAggregationName(
-            ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME);
-
-        if (lastModifiedSelectedBuckets == null || lastModifiedSelectedBuckets.length === 0) {
-            return null;
-        }
-
-        if (lastModifiedSelectedBuckets.length === 1) {
-            let dateRangeBucket: DateRangeBucket = <DateRangeBucket> lastModifiedSelectedBuckets.pop();
-            return new RangeFilter(QueryField.MODIFIED_TIME, ValueExpr.dateTime(dateRangeBucket.getFrom()).getValue(),
-                null);
-        }
-
-        let booleanFilter: BooleanFilter = new BooleanFilter();
-
-        lastModifiedSelectedBuckets.forEach((selectedBucket: DateRangeBucket) => {
-            let rangeFilter: RangeFilter =
-                new RangeFilter(QueryField.MODIFIED_TIME, ValueExpr.dateTime(selectedBucket.getFrom()).getValue(),
-                    null);
-
-            booleanFilter.addShould(<Filter>rangeFilter);
-        });
-
-        return booleanFilter;
-    }
-
-    private parseContentTypeNames(buckets: Bucket[]): ContentTypeName[] {
-        let contentTypeNames: ContentTypeName[] = [];
-
-        if (buckets) {
-            for (let i = 0; i < buckets.length; i++) {
-                let bucket: Bucket = buckets[i];
-                contentTypeNames.push(new ContentTypeName(bucket.getKey()));
-            }
-        }
-
-        return contentTypeNames;
-    }
-
-    private appendContentTypesAggregationQuery(contentQuery: ContentQuery) {
-        contentQuery.addAggregationQuery(this.createTermsAggregation((ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME),
-            QueryField.CONTENT_TYPE, 0));
-    }
-
-    private createTermsAggregation(name: string, fieldName: string, size: number): TermsAggregationQuery {
-        let termsAggregation = new TermsAggregationQuery(name);
-        termsAggregation.setFieldName(fieldName);
-        termsAggregation.setSize(size);
-        termsAggregation.setOrderByType(TermsAggregationOrderType.DOC_COUNT);
-        termsAggregation.setOrderByDirection(TermsAggregationOrderDirection.DESC);
-        return termsAggregation;
-    }
-
-    private appendLastModifiedAggregationQuery(contentQuery: ContentQuery) {
-
-        let dateRangeAgg = new DateRangeAggregationQuery((ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME));
-        dateRangeAgg.setFieldName(QueryField.MODIFIED_TIME);
-        dateRangeAgg.addRange(new DateRange('now-1h', null, i18n('field.lastModified.lessHour')));
-        dateRangeAgg.addRange(new DateRange('now-1d', null, i18n('field.lastModified.lessDay')));
-        dateRangeAgg.addRange(new DateRange('now-1w', null, i18n('field.lastModified.lessWeek')));
-
-        contentQuery.addAggregationQuery(dateRangeAgg);
+        return queryCreator.create();
     }
 
     private toggleAggregationsVisibility(aggregations: Aggregation[]) {
         aggregations.forEach((aggregation: BucketAggregation) => {
-            let aggregationIsEmpty = !aggregation.getBuckets().some((bucket: Bucket) => {
+            const isAggregationEmpty: boolean = !aggregation.getBuckets().some((bucket: Bucket) => {
                 if (bucket.docCount > 0) {
                     return true;
                 }
             });
 
-            let aggregationGroupView = aggregation.getName() === ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME
-                                       ? this.contentTypeAggregation
-                                       : this.lastModifiedAggregation;
-
-            if (aggregationIsEmpty) {
-                aggregationGroupView.hide();
-            } else {
-                aggregationGroupView.show();
-            }
+            this.aggregations.get(aggregation.getName()).setVisible(!isAggregationEmpty);
         });
-    }
-
-}
-
-export class DependenciesSection
-    extends ConstraintSection {
-
-    private viewer: ContentSummaryViewer = new ContentSummaryViewer();
-
-    private inbound: boolean = true;
-    private type: string;
-
-    constructor(closeCallback: () => void) {
-        super('', closeCallback);
-
-        this.addClass('dependency');
-        this.viewer.addClass('dependency-item');
-        this.appendChild(this.viewer);
-    }
-
-    public getDependencyId(): ContentId {
-        return new ContentId(this.getItemsIds()[0]);
-    }
-
-    public getType(): string {
-        return this.type;
-    }
-
-    public isInbound(): boolean {
-        return this.isActive() && this.inbound;
-    }
-
-    public isOutbound(): boolean {
-        return this.isActive() && !this.inbound;
-    }
-
-    public setInbound(inbound: boolean): DependenciesSection {
-        this.inbound = inbound;
-        this.setLabel(inbound ? i18n('panel.filter.dependencies.inbound') : i18n('panel.filter.dependencies.outbound'));
-        return this;
-    }
-
-    public setType(type: string): DependenciesSection {
-        this.type = type;
-        return this;
-    }
-
-    setDependencyItem(item: ContentSummary) {
-        this.viewer.setObject(item);
     }
 }
