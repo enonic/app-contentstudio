@@ -50,15 +50,19 @@ import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentSummaryJson} from '../../content/ContentSummaryJson';
 import {ContentId} from '../../content/ContentId';
+import {ValueFilter} from './ValueFilter';
+import {ExistsFilter} from './ExistsFilter';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
 
     static CONTENT_TYPE_AGGREGATION_NAME: string = 'contentTypes';
     static LAST_MODIFIED_AGGREGATION_NAME: string = 'lastModified';
+    static WORKFLOW: string = 'workflow';
 
     private contentTypeAggregation: ContentTypeAggregationGroupView;
     private lastModifiedAggregation: AggregationGroupView;
+    private workflowAggregation: AggregationGroupView;
 
     private dependenciesSection: DependenciesSection;
 
@@ -69,7 +73,7 @@ export class ContentBrowseFilterPanel
     }
 
     private initElementsAndListeners() {
-        this.initAggregationGroupView([this.contentTypeAggregation, this.lastModifiedAggregation]);
+        this.initAggregationGroupView([this.contentTypeAggregation, this.lastModifiedAggregation, this.workflowAggregation]);
         this.handleEvents();
     }
 
@@ -126,7 +130,9 @@ export class ContentBrowseFilterPanel
             ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME,
             i18n('field.lastModified'));
 
-        return [this.contentTypeAggregation, this.lastModifiedAggregation];
+        this.workflowAggregation = new AggregationGroupView(ContentBrowseFilterPanel.WORKFLOW, i18n('field.workflow'));
+
+        return [this.contentTypeAggregation, this.lastModifiedAggregation, this.workflowAggregation];
     }
 
     protected appendExtraSections() {
@@ -192,15 +198,17 @@ export class ContentBrowseFilterPanel
     }
 
     private createContentQuery(): ContentQuery {
-        let contentQuery: ContentQuery = new ContentQuery();
-        let values = this.getSearchInputValues();
+        const contentQuery: ContentQuery = new ContentQuery();
+        const values: SearchInputValues = this.getSearchInputValues();
         this.appendQueryExpression(values, contentQuery);
         this.appendContentTypeFilter(values, contentQuery);
         if (!!this.dependenciesSection && this.dependenciesSection.isOutbound()) {
             this.appendOutboundReferencesFilter(contentQuery);
         }
 
-        let lastModifiedFilter: Filter = this.appendLastModifiedQuery(values);
+        this.appendWorkflowFilter(values, contentQuery);
+
+        const lastModifiedFilter: Filter = this.createLastModifiedQuery(values);
         if (lastModifiedFilter != null) {
             contentQuery.addQueryFilter(lastModifiedFilter);
         }
@@ -208,9 +216,36 @@ export class ContentBrowseFilterPanel
         contentQuery.setSize(ContentQuery.POSTLOAD_SIZE);
 
         this.appendContentTypesAggregationQuery(contentQuery);
+        this.appendWorkflowAggregationQuery(contentQuery);
         this.appendLastModifiedAggregationQuery(contentQuery);
 
         return contentQuery;
+    }
+
+    private appendWorkflowFilter(searchInputValues: SearchInputValues, contentQuery: ContentQuery): void {
+        const selectedBuckets: Bucket[] = searchInputValues.getSelectedValuesForAggregationName(
+            ContentBrowseFilterPanel.WORKFLOW);
+
+        // content might be rather ready or in progress, thus just one option can be chosen
+        const hasInProgress: boolean = selectedBuckets.some((bucket: Bucket) => bucket.key === 'in_progress');
+
+        if (hasInProgress) {
+            contentQuery.addQueryFilter(new ValueFilter('workflow.state', 'IN_PROGRESS'));
+            return;
+        }
+
+        const hasReady: boolean = selectedBuckets.some((bucket: Bucket) => bucket.key === 'ready');
+
+        if (hasReady) {
+            const notExistsFilter: BooleanFilter = new BooleanFilter();
+            notExistsFilter.addMustNot(new ExistsFilter('workflow'));
+
+            const booleanFilter: BooleanFilter = new BooleanFilter();
+                booleanFilter.addShould(new ValueFilter('workflow.state', 'READY'));
+                booleanFilter.addShould(notExistsFilter);
+
+                contentQuery.addQueryFilter(booleanFilter);
+        }
     }
 
     private searchDataAndHandleResponse(contentQuery: ContentQuery): Q.Promise<void> {
@@ -225,6 +260,14 @@ export class ContentBrowseFilterPanel
                 }
             })
             .catch(DefaultErrorHandler.handle);
+    }
+
+    private findAndUpdateWorkflowAggregations(aggregations: Aggregation[], total: number) {
+        const workflowAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentBrowseFilterPanel.WORKFLOW);
+
+        if (workflowAggr) {
+            this.updateWorkflowAggregation(<BucketAggregation>workflowAggr, total);
+        }
     }
 
     private refreshDataAndHandleResponse(contentQuery: ContentQuery): Q.Promise<void> {
@@ -244,6 +287,7 @@ export class ContentBrowseFilterPanel
     private handleDataSearchResult(contentQuery: ContentQuery,
                                    contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) {
         return this.getAggregations(contentQuery, contentQueryResult).then((aggregations: Aggregation[]) => {
+            this.findAndUpdateWorkflowAggregations(aggregations, contentQueryResult.getMetadata().getTotalHits());
             this.updateAggregations(aggregations, true);
             this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits());
             this.toggleAggregationsVisibility(contentQueryResult.getAggregations());
@@ -298,30 +342,56 @@ export class ContentBrowseFilterPanel
             });
     }
 
-    private combineAggregations(contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>,
+    private combineAggregations(queryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>,
                                 queryResultNoContentTypesSelected: ContentQueryResult<ContentSummary,ContentSummaryJson>): Aggregation[] {
-        let contentTypesAggr = queryResultNoContentTypesSelected.getAggregations().filter((aggregation) => {
+        const contentTypesAggr: Aggregation[] = queryResultNoContentTypesSelected.getAggregations().filter((aggregation: Aggregation) => {
             return aggregation.getName() === ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME;
         });
-        let dateModifiedAggr = contentQueryResult.getAggregations().filter((aggregation) => {
-            return aggregation.getName() !== ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME;
+
+        const dateModifiedAggr: Aggregation[] = queryResult.getAggregations().filter((aggregation: Aggregation) => {
+            return aggregation.getName() === ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME;
         });
 
-        let aggregations = [contentTypesAggr[0], dateModifiedAggr[0]];
+        const workflowAggr: Aggregation[] = queryResult.getAggregations().filter((aggregation: Aggregation) => {
+            return aggregation.getName() === ContentBrowseFilterPanel.WORKFLOW;
+        });
 
-        return aggregations;
+        return [contentTypesAggr[0], dateModifiedAggr[0], workflowAggr[0]];
+    }
+
+    private updateWorkflowAggregation(workflowAggr: BucketAggregation, total: number): BucketAggregation {
+        // contents might not have a workflow property, thus aggregation won't see those contents, but they are treated as ready
+        const inProgressBucket: Bucket = workflowAggr.getBucketByName('in_progress');
+        const result: Bucket[] = [];
+
+        const inProgressCount: number = inProgressBucket?.docCount || 0;
+        const readyCount: number = total - inProgressCount;
+
+        if (readyCount > 0) {
+            const bucket: Bucket = new Bucket('ready', readyCount);
+            bucket.setDisplayName(i18n('field.workflow.ready'));
+            result.push(bucket);
+        }
+
+        if (inProgressBucket) {
+            inProgressBucket.setDisplayName(i18n('field.workflow.in_progress'));
+            result.push(inProgressBucket);
+        }
+
+        workflowAggr.setBuckets(result);
+
+        return workflowAggr;
     }
 
     private initAggregationGroupView(aggregationGroupViews: AggregationGroupView[]) {
-
-        let contentQuery: ContentQuery = this.buildAggregationsQuery();
+        const contentQuery: ContentQuery = this.buildAggregationsQuery();
 
         new ContentQueryRequest<ContentSummaryJson,ContentSummary>(contentQuery).sendAndParse().then(
-            (contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
-
-                this.updateAggregations(contentQueryResult.getAggregations(), false);
-                this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits(), true);
-                this.toggleAggregationsVisibility(contentQueryResult.getAggregations());
+            (queryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
+                this.findAndUpdateWorkflowAggregations(queryResult.getAggregations(), queryResult.getMetadata().getTotalHits());
+                this.updateAggregations(queryResult.getAggregations(), false);
+                this.updateHitsCounter(queryResult.getMetadata().getTotalHits(), true);
+                this.toggleAggregationsVisibility(queryResult.getAggregations());
 
                 aggregationGroupViews.forEach((aggregationGroupView: AggregationGroupView) => {
                     aggregationGroupView.initialize();
@@ -336,15 +406,15 @@ export class ContentBrowseFilterPanel
         let contentQuery: ContentQuery = this.buildAggregationsQuery();
 
         return new ContentQueryRequest<ContentSummaryJson,ContentSummary>(contentQuery).sendAndParse().then(
-            (contentQueryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
-
-                this.updateAggregations(contentQueryResult.getAggregations(), doResetAll);
-                this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits(), true);
-                this.toggleAggregationsVisibility(contentQueryResult.getAggregations());
+            (queryResult: ContentQueryResult<ContentSummary,ContentSummaryJson>) => {
+                this.findAndUpdateWorkflowAggregations(queryResult.getAggregations(), queryResult.getMetadata().getTotalHits());
+                this.updateAggregations(queryResult.getAggregations(), doResetAll);
+                this.updateHitsCounter(queryResult.getMetadata().getTotalHits(), true);
+                this.toggleAggregationsVisibility(queryResult.getAggregations());
 
                 if (!suppressEvent) { // then fire usual reset event with content grid reloading
                     if (!!this.dependenciesSection && this.dependenciesSection.isActive()) {
-                        new BrowseFilterSearchEvent(new ContentBrowseSearchData(contentQueryResult, contentQuery)).fire();
+                        new BrowseFilterSearchEvent(new ContentBrowseSearchData(queryResult, contentQuery)).fire();
                     } else {
                         new BrowseFilterResetEvent().fire();
                     }
@@ -362,6 +432,7 @@ export class ContentBrowseFilterPanel
 
         this.appendFilterByItems(contentQuery);
         this.appendContentTypesAggregationQuery(contentQuery);
+        this.appendWorkflowAggregationQuery(contentQuery);
         this.appendLastModifiedAggregationQuery(contentQuery);
         if (!!this.dependenciesSection && this.dependenciesSection.isOutbound()) {
             this.appendOutboundReferencesFilter(contentQuery);
@@ -451,7 +522,7 @@ export class ContentBrowseFilterPanel
         contentQuery.setMustBeReferencedById(this.dependenciesSection.getDependencyId());
     }
 
-    private appendLastModifiedQuery(searchInputValues: SearchInputValues): Filter {
+    private createLastModifiedQuery(searchInputValues: SearchInputValues): Filter {
 
         let lastModifiedSelectedBuckets: Bucket[] = searchInputValues.getSelectedValuesForAggregationName(
             ContentBrowseFilterPanel.LAST_MODIFIED_AGGREGATION_NAME);
@@ -495,6 +566,10 @@ export class ContentBrowseFilterPanel
     private appendContentTypesAggregationQuery(contentQuery: ContentQuery) {
         contentQuery.addAggregationQuery(this.createTermsAggregation((ContentBrowseFilterPanel.CONTENT_TYPE_AGGREGATION_NAME),
             QueryField.CONTENT_TYPE, 0));
+    }
+
+    private appendWorkflowAggregationQuery(contentQuery: ContentQuery) {
+        contentQuery.addAggregationQuery(this.createTermsAggregation(ContentBrowseFilterPanel.WORKFLOW,'workflow.state', 0));
     }
 
     private createTermsAggregation(name: string, fieldName: string, size: number): TermsAggregationQuery {
