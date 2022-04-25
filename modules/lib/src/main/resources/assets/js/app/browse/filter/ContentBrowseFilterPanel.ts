@@ -356,7 +356,7 @@ export class ContentBrowseFilterPanel
             return aggregation.getName() === ContentBrowseFilterPanel.WORKFLOW;
         });
 
-        return [contentTypesAggr[0], dateModifiedAggr[0], workflowAggr[0]];
+        return [contentTypesAggr[0], dateModifiedAggr[0], workflowAggr[0]].filter((aggr: Aggregation) => !!aggr);
     }
 
     private updateWorkflowAggregation(workflowAggr: BucketAggregation, total: number): BucketAggregation {
