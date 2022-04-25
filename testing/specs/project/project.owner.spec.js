@@ -35,7 +35,6 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
     const PASSWORD = appConstant.PASSWORD.MEDIUM;
     const TASK_TITLE = "task for owner";
 
-
     it(`Preconditions: new system user should be created`,
         async () => {
             //Do Log in with 'SU', navigate to 'Users' and create new user:
@@ -69,6 +68,9 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             //4. Verify that expected user is present in selected options:
             let projectAccessItems = await projectWizard.getSelectedProjectAccessItems();
             assert.equal(projectAccessItems[0], USER.displayName, "expected user should be selected in Project Roles form");
+            //5. Verify that expected role is assigned to the user
+            let role = await projectWizard.getSelectedProjectAccessRole(USER.displayName);
+            assert.equal(role[0], appConstant.PROJECT_ROLES.OWNER, "expected role should be assigned to the user");
         });
 
     //Verifies https://github.com/enonic/xp/issues/8139  Users with Owner or Editor roles can not be assigned to issues

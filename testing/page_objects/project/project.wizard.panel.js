@@ -27,6 +27,7 @@ const XPATH = {
                                        `//span[contains(@id,'RadioButton') and descendant::label[contains(.,'${descr}')]]`,
     wizardStepByTitle:
         name => `//ul[contains(@id,'WizardStepNavigator')]//li[contains(@id,'TabBarItem') and @title='${name}']`,
+    aclEntryByName: name => `//div[contains(@id,ProjectAccessControlEntryView) and descendant::h6[contains(@class,'main-name') and contains(.,'${name}')]]`
 };
 
 class ProjectWizardPanel extends Page {
@@ -247,6 +248,7 @@ class ProjectWizardPanel extends Page {
         let menuItem = XPATH.container + XPATH.projectAccessControlComboBox + XPATH.accessItemByName(userDisplayName) +
                        lib.tabMenuItem(newRole);
         await this.waitForElementDisplayed(menuItem, appConst.shortTimeout);
+        await this.saveScreenshot(appConst.generateRandomName(newRole));
         await this.pause(300);
         await this.clickOnElement(menuItem);
         return await this.pause(500);
@@ -255,6 +257,16 @@ class ProjectWizardPanel extends Page {
     async getSelectedProjectAccessItems() {
         let selector = XPATH.container + XPATH.selectedProjectAccessOptions + lib.H6_DISPLAY_NAME;
         let isDisplayed = await this.isElementDisplayed(XPATH.container + XPATH.selectedProjectAccessOptions);
+        if (isDisplayed) {
+            return await this.getTextInElements(selector);
+        } else {
+            return [];
+        }
+    }
+
+    async getSelectedProjectAccessRole(userName) {
+        let selector = XPATH.container + XPATH.aclEntryByName(userName) + XPATH.projectAccessSelectorTabMenu;
+        let isDisplayed = await this.isElementDisplayed(selector);
         if (isDisplayed) {
             return await this.getTextInElements(selector);
         } else {
