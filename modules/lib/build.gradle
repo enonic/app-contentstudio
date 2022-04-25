@@ -57,14 +57,6 @@ task typescriptPkg( type: NpmTask, dependsOn: npmInstall ) {
     outputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
 }
 
-task minifyPkg( type: NpmTask, dependsOn: typescriptPkg ) {
-    description = 'Minify transpiled code.'
-    args = [ 'run', "build:minify" ]
-    inputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
-    outputs.dir "$buildDir/resources/main/dev/$archivesBaseName"
-    enabled isProd()
-}
-
 task copyPackage( type: NodeTask, dependsOn: typescriptPkg ) {
     script = file( 'util/modify.js' )
     args = [ "--out=$buildDir/resources/main/dev/$archivesBaseName" ]
