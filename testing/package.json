@@ -12,7 +12,7 @@
     "test_input_types_2": "node ./tasks/test-input-types-2.js",
     "test_wizards_grid": "node ./tasks/test-wizards-grid.js",
     "test_modal_dialog": "node tasks/test-modal-dialog.js",
-    "base_tests": "node ./tasks/base-tests.js"
+    "test_collaboration": "node ./tasks/tests-collaboration.js"
   },
   "devDependencies": {
     "assert": "^2.0.0",
