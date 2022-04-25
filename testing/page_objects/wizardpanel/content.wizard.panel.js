@@ -864,7 +864,7 @@ class ContentWizardPanel extends Page {
 
     waitForContentStatus(expectedStatus) {
         let selector = XPATH.container +
-            `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status') and text()='${expectedStatus}']`;
+                       `//div[contains(@class,'content-status-wrapper')]/span[contains(@class,'status') and text()='${expectedStatus}']`;
         let message = "Element still not displayed! timeout is " + appConst.mediumTimeout + "  " + selector;
         return this.getBrowser().waitUntil(() => {
             return this.isElementDisplayed(selector);
@@ -992,6 +992,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    //wait for Workflow icon is not displayed in the toolbar
     async waitForStateIconNotDisplayed() {
         try {
             let selector = XPATH.toolbar + XPATH.toolbarStateIcon;
@@ -1002,6 +1003,7 @@ class ContentWizardPanel extends Page {
         }
     }
 
+    //Gets workflow state in the wizard toolbar
     async getIconWorkflowState() {
         let selector = XPATH.thumbnailUploader;
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
@@ -1169,7 +1171,17 @@ class ContentWizardPanel extends Page {
         await this.waitForElementDisplayed(this.goToGridButton, appConst.mediumTimeout);
         await this.clickOnElement(this.goToGridButton);
         return await this.pause(300);
+    }
 
+    async getCollaborationUserCompactName() {
+        try {
+            let locator = XPATH.toolbar + "//div[contains(@id,'CollaborationEl')]//div[contains(@id,'PrincipalViewerCompact')]/span";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getTextInElements(locator);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_collaboration_icon"));
+            throw new Error("Collaboration element should be displayed in the wizard toolbar: " + err);
+        }
     }
 }
 

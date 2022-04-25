@@ -45,6 +45,15 @@ task copyConfig( type: Copy ) {
     mustRunAfter unpackDistro
 }
 
+task copyCollaborationConfig( type: Copy ) {
+    println "$appDir${File.separator}collaboration-config"
+    from "$appDir${File.separator}collaboration-config"
+    include '**.*.cfg'
+    include '*.properties'
+    into file( configDir )
+    mustRunAfter unpackDistro
+}
+
 task copyApps( type: Copy ) {
     println '*********************************************************'
     println '* task started:copyApps  *'
@@ -154,6 +163,12 @@ task testModalDialog( type: NpmTask, dependsOn: [npmInstall, startServer, copyAp
     args = ['run-script', 'test_modal_dialog']
     finalizedBy stopServer
 }
+
+task testCollaboration( type: NpmTask, dependsOn: [npmInstall, startServer, copyCollaborationConfig] ) {
+    args = ['run-script', 'test_collaboration']
+    finalizedBy stopServer
+}
+
 task testPublishIssuesLocal( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['run-script', 'test_publish_issues']
     finalizedBy stopServer
