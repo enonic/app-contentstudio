@@ -10,7 +10,7 @@ image::editor.png[Content Wizard, 1920]
 
 == Collaboration
 :imagesdir: images
-image::cs-410.svg[,64]
+image:cs-410.svg[CS 4.1.0,opts=inline]
 
 Toolbar of the Content Editor will display avatar icons of users who currently have the same content opened in the Content Editor.
 
@@ -18,5 +18,5 @@ Toolbar of the Content Editor will display avatar icons of users who currently h
 image::content-wizard-collaboration.png[Collaboration, 665]
 
 NOTE: Collaboration is an experimental feature released under feature flag and disabled by default. You can turn it on via
-Content Studio's <<config#, config file>>.
+Content Studio's <<config#collaboration, config file>>.
 

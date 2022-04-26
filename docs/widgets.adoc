@@ -166,7 +166,7 @@ image::widgets-context-panel.png[,207]
 
 === Top menu widgets
 :imagesdir: images
-image::cs-410.svg[,64]
+image:cs-410.svg[CS 4.1.0,opts=inline]
 
 Widgets with interface `contentstudio.menuitem` will expand the left-hand side menu of Content Studio. They are so-called "fullscreen widgets" which will take up the entire screen
 between the Content Studio header and the left-side menu. Widget icon will be automatically injected inside the sidebar menu when you deploy an application containing your widget.

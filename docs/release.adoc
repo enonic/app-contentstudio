@@ -9,7 +9,7 @@ IMPORTANT: Content Studio 4.1 requires XP 7.9.0 or higher.
 
 === Content Security Policy
 
-Content Studio 4.1 enforces <<security#content_security_policy#, Content Security Policy>> (CSP) to prevent cross-site scripting, clickjacking and other code injection attacks resulting
+Content Studio 4.1 enforces <<security#content_security_policy, Content Security Policy>> (CSP) to prevent cross-site scripting, clickjacking and other code injection attacks resulting
 from execution of malicious content in the trusted web page context. CSP can be configured or turned off completely (except for Page Editor) via
 <<config#content_security_policy, config file>>.
 
@@ -37,12 +37,17 @@ NOTE: This feature is experimental and has to be turned on via <<config#collabor
 
 image::cs41-date-selector.png[Set default button, 665]
 
+=== Customisable Numbered and Bulleted lists in HTML Area
+
+It's now possible to change styling of Numbered and Bulleted lists in HTML Area by right-clicking the list and selecting list style from the dropdown.
+
+image::cs41-html-area-list.png[HTML Area List, 665]
+
 === Other improvements
 
-* Keyboard shortcut for content move
-* Keyboard shortcut for content search
-* Sticky footer in HTML Area
-* Lower-latin numbered list in HTML Area
+* <<keyboard-shortcuts#, Keyboard shortcut>> for content move
+* <<keyboard-shortcuts#, Keyboard shortcut>> for content search
+* Sticky footer in HTML Areas inside Content Wizard form
 
 == Content Studio 4
 
