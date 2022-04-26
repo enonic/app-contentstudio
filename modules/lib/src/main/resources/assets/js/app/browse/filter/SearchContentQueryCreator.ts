@@ -1,27 +1,31 @@
-import { Bucket } from 'lib-admin-ui/aggregation/Bucket';
+import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
 import {SearchInputValues} from 'lib-admin-ui/query/SearchInputValues';
-import { ContentTypeName } from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
 import {ContentQuery} from '../../content/ContentQuery';
 import {ValueFilter} from './ValueFilter';
 import {ExistsFilter} from './ExistsFilter';
-import { BooleanFilter } from 'lib-admin-ui/query/filter/BooleanFilter';
-import { DateRangeBucket } from 'lib-admin-ui/aggregation/DateRangeBucket';
-import { RangeFilter } from 'lib-admin-ui/query/filter/RangeFilter';
-import { QueryField } from 'lib-admin-ui/query/QueryField';
-import { ValueExpr } from 'lib-admin-ui/query/expr/ValueExpr';
-import { Filter } from 'lib-admin-ui/query/filter/Filter';
-import {TermsAggregationOrderDirection, TermsAggregationOrderType, TermsAggregationQuery } from 'lib-admin-ui/query/aggregation/TermsAggregationQuery';
-import { DateRangeAggregationQuery } from 'lib-admin-ui/query/aggregation/DateRangeAggregationQuery';
-import { DateRange } from 'lib-admin-ui/query/aggregation/DateRange';
-import { i18n } from 'lib-admin-ui/util/Messages';
+import {BooleanFilter} from 'lib-admin-ui/query/filter/BooleanFilter';
+import {DateRangeBucket} from 'lib-admin-ui/aggregation/DateRangeBucket';
+import {RangeFilter} from 'lib-admin-ui/query/filter/RangeFilter';
+import {QueryField} from 'lib-admin-ui/query/QueryField';
+import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
+import {Filter} from 'lib-admin-ui/query/filter/Filter';
+import {
+    TermsAggregationOrderDirection,
+    TermsAggregationOrderType,
+    TermsAggregationQuery
+} from 'lib-admin-ui/query/aggregation/TermsAggregationQuery';
+import {DateRangeAggregationQuery} from 'lib-admin-ui/query/aggregation/DateRangeAggregationQuery';
+import {DateRange} from 'lib-admin-ui/query/aggregation/DateRange';
+import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentSummaryRequest} from '../../resource/ContentSummaryRequest';
-import { QueryExpr } from 'lib-admin-ui/query/expr/QueryExpr';
-import { LogicalExpr } from 'lib-admin-ui/query/expr/LogicalExpr';
-import { LogicalOperator } from 'lib-admin-ui/query/expr/LogicalOperator';
-import { Expression } from 'lib-admin-ui/query/expr/Expression';
-import { FulltextSearchExpressionBuilder } from 'lib-admin-ui/query/FulltextSearchExpression';
-import { CompareExpr } from 'lib-admin-ui/query/expr/CompareExpr';
-import { FieldExpr } from 'lib-admin-ui/query/expr/FieldExpr';
+import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
+import {LogicalExpr} from 'lib-admin-ui/query/expr/LogicalExpr';
+import {LogicalOperator} from 'lib-admin-ui/query/expr/LogicalOperator';
+import {Expression} from 'lib-admin-ui/query/expr/Expression';
+import {FulltextSearchExpressionBuilder} from 'lib-admin-ui/query/FulltextSearchExpression';
+import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
+import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {ContentId} from '../../content/ContentId';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 
@@ -214,9 +218,10 @@ export class SearchContentQueryCreator {
         }
 
         if (selectedBuckets.length === 1) {
-            const dateRangeBucket: DateRangeBucket = <DateRangeBucket> selectedBuckets.pop();
-            this.contentQuery.addQueryFilter(new RangeFilter(QueryField.MODIFIED_TIME, ValueExpr.dateTime(dateRangeBucket.getFrom()).getValue(),
-                null));
+            const dateRangeBucket: DateRangeBucket = <DateRangeBucket>selectedBuckets.pop();
+            this.contentQuery.addQueryFilter(
+                new RangeFilter(QueryField.MODIFIED_TIME, ValueExpr.dateTime(dateRangeBucket.getFrom()).getValue(),
+                    null));
             return;
         }
 
@@ -248,11 +253,11 @@ export class SearchContentQueryCreator {
     }
 
     private appendWorkflowAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation(SearchContentQueryCreator.WORKFLOW,'workflow.state', 0));
+        this.contentQuery.addAggregationQuery(this.createTermsAggregation(SearchContentQueryCreator.WORKFLOW, 'workflow.state', 0));
     }
 
     private appendModifierAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation(SearchContentQueryCreator.MODIFIER,'modifier', 0));
+        this.contentQuery.addAggregationQuery(this.createTermsAggregation(SearchContentQueryCreator.MODIFIER, 'modifier', 0));
     }
 
     private appendLastModifiedAggregationQuery() {
