@@ -164,7 +164,7 @@ Content Studio will send current branch, repository and id of selected content t
 
 image::widgets-context-panel.png[,207]
 
-=== Content Studio menu widgets
+=== Top menu widgets
 :imagesdir: images
 image::cs-410.svg[,64]
 
