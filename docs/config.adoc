@@ -75,7 +75,7 @@ contentWizard.enableCollaboration=true
 
 image:cs-410.svg[CS 4.1.0,opts=inline]
 
-Turn off <<security#_content_security_policy,Content Security Policy>> by setting `contentSecurityPolicy.enabled` property to `false`.
+Turn off <<security#content_security_policy,Content Security Policy>> by setting `contentSecurityPolicy.enabled` property to `false`.
 
 .com.enonic.app.contentstudio.cfg
 [source,properties]

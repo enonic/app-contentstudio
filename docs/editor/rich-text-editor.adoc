@@ -29,6 +29,8 @@ The next four icons can be used to change alignment of selected element: left-al
 
 The next two icons will turn text into a bullet list or a numbered list. Pressing `Enter` / `Return` will make a new list item and pressing it a second time will end the list. Use `Shift + Enter` / `Shift + Return` to make a new line within the list item. A sub-list can be created with the indent button.
 
+TIP: Right-click the list to change styling of its bullets or numbers.
+
 === Indent
 
 The next buttons will decrease and increase indent for the selected text. These buttons will also increase or decrease the level of a list item.
