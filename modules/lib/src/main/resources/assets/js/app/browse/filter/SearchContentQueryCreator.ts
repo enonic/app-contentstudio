@@ -71,14 +71,14 @@ export class SearchContentQueryCreator {
         this.appendWorkflowFilter();
         this.appendModifierFilter();
         this.appendLastModifiedFilter();
-        this.appendOutboundReferencesFilter()
+        this.appendOutboundReferencesFilter();
 
         this.appendContentTypesAggregationQuery();
         this.appendWorkflowAggregationQuery();
         this.appendModifierAggregationQuery();
         this.appendLastModifiedAggregationQuery();
 
-        return this.contentQuery
+        return this.contentQuery;
     }
 
     private setSize(): SearchContentQueryCreator {
