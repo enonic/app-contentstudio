@@ -45,8 +45,8 @@ image::cs41-html-area-list.png[HTML Area List, 665]
 
 === Other improvements
 
-* <<keyboard-shortcuts#, Keyboard shortcut>> for content move
-* <<keyboard-shortcuts#, Keyboard shortcut>> for content search
+* Keyboard shortcut for content move (`Alt + M`)
+* Keyboard shortcut for content search (`Shift + F`)
 * Sticky footer in HTML Areas inside Content Wizard form
 
 == Content Studio 4
