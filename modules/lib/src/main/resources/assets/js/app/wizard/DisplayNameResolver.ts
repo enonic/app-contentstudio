@@ -47,7 +47,7 @@ export class DisplayNameResolver
         let result = value;
         result = result.replace(/(<([^>]+)>)/ig,'');    // Strip HTML tags
         result = result.replace(/(\r\n|\n|\r)/gm,'');   // Strip linebreaks
-        result = result.replace(/'/g, " \\'");   // Escape single quotes
+        result = result.replace(/'/g, " '");
 
         return result;
     }
@@ -90,20 +90,17 @@ export class DisplayNameResolver
                 .join('_');
     }
 
-    private getFormValues(): string {
+    private getExpressionValueMap(): { [key: string]: string } {
+        const map = {};
         const allowedFields = this.getNamesOfAllowedFields();
 
-        const fieldDefinitions: string = allowedFields.map((fieldName: string) => {
-            return `var ${fieldName} = ''; `;
-        }).join('');
+        this.formView
+            .getData()
+            .getValuesAsString()
+            .filter(formValue => formValue.value.length > 0 && allowedFields.indexOf(this.sanitiseName(formValue.path)) > -1)
+            .forEach(formValue => map[`\$\{${this.sanitiseName(formValue.path)}}`] = this.sanitiseValue(formValue.value));
 
-        const fieldAssignments: string =
-            this.formView.getData().getValuesAsString()
-                .filter(formValue => formValue.value.length > 0 && allowedFields.indexOf(this.sanitiseName(formValue.path)) > -1)
-                .map(formValue => `${this.sanitiseName(formValue.path)} = '${this.sanitiseValue(formValue.value)}'; `)
-                .join('');
-
-        return fieldDefinitions + fieldAssignments;
+        return map;
     }
 
     private parseExpression(): string {
@@ -111,24 +108,22 @@ export class DisplayNameResolver
         this.expression.match(/[^{}]+(?=\})/g).forEach(
             (variable: string) => parsedExpression = parsedExpression.replace(variable, this.sanitiseName(variable))
         );
-
         return parsedExpression;
     }
 
 
     private safeEval(): string {
-        const script = '"use strict";' +
-                       this.getFormValues() +
-                       '`' + this.parseExpression() + '`.trim().replace(/\\s+/g, \' \')';
+        const parsedExpression = this.parseExpression();
+        const expressionValueMap = this.getExpressionValueMap();
+        let result = parsedExpression;
 
-        let result = '';
+        Object.keys(expressionValueMap).forEach((expression) => {
+            result = result.replace(expression, expressionValueMap[expression]);
+        });
 
-        try {
-            result = eval(script);
-        } catch (e) {
-            console.error('Cannot evaluate script [' + script + '].', e);
-        }
-
-        return result;
+        return result
+            .trim()
+            .replace(/\$\{(.*?)\}/g, '')
+            .replace(/\s+/g, ' ');
     }
 }
