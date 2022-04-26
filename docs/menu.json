@@ -67,6 +67,10 @@
       "document": "permissions"
     },
     {
+      "title": "Security",
+      "document": "security"
+    },
+    {
       "title": "Keyboard Shortcuts",
       "document": "keyboard-shortcuts"
     },

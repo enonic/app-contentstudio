@@ -24,7 +24,8 @@ publishingWizard.allowContentUpdate = false
 
 === Matching mode for content type patterns
 
-Defines matching mode for content type patterns. Can be `MATCH` or `LEGACY`. Default: `MATCH`. See https://developer.enonic.com/docs/xp/stable/cms/input-types#allowContentType[description].
+Defines matching mode for content type patterns. Can be `MATCH` or `LEGACY`. Default: `MATCH`.
+See https://developer.enonic.com/docs/xp/stable/cms/input-types#allowContentType[description].
 
 .Set matching mode
 [source,properties]
@@ -60,7 +61,7 @@ contentWizard.allowPathTransliteration=false
 
 === Collaboration mode
 
-image:cs-410.svg[CS 4.0.0,opts=inline]
+image:cs-410.svg[CS 4.1.0,opts=inline]
 
 Turn on Collaboration mode in the Content Wizard which will display avatar icons of users who currently have the same content opened.
 
@@ -68,4 +69,27 @@ Turn on Collaboration mode in the Content Wizard which will display avatar icons
 [source,properties]
 ----
 contentWizard.enableCollaboration=true
+----
+
+=== Content Security Policy
+
+image:cs-410.svg[CS 4.1.0,opts=inline]
+
+Turn off <<security#_content_security_policy,Content Security Policy>> by setting `contentSecurityPolicy.enabled` property to `false`.
+
+.com.enonic.app.contentstudio.cfg
+[source,properties]
+----
+contentSecurityPolicy.enabled=false
+----
+
+You can provide your own header for <<security#_content_security_policy,Content Security Policy>> using `contentSecurityPolicy.header` property.
+For example, if you are using Google Analytics app then CSP header has to be customised, since GA injects its own scripts referring to external domains which have to be allowed in CSP.
+
+Below is the header to be used for CSP if you want the Google Analytics widget not to be blocked in Content Studio;
+
+.com.enonic.app.contentstudio.cfg
+[source,properties]
+----
+contentSecurityPolicy.header=default-src 'self'; connect-src 'self' https://*.gstatic.com https://*.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.googleapis.com https://*.gstatic.com; object-src 'none'; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data:; frame-src 'self' https://*.googleapis.com
 ----
