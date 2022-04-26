@@ -186,7 +186,7 @@ between the Content Studio header and the left-side menu. Widget icon will be au
 </widget>
 ----
 
-By specifying config as shown in the example above, you let Content Studio know that your widget is project-dependent and requires project selector in the header.
-
 :imagesdir: widgets/images
 image::widgets-menu-item.png[,600]
+
+TIP: By specifying optional config as shown in the example above, you let Content Studio know that your widget is project-dependent and requires project selector in the header.
