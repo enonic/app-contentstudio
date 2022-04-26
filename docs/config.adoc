@@ -86,10 +86,10 @@ contentSecurityPolicy.enabled=false
 You can provide your own header for <<security#_content_security_policy,Content Security Policy>> using `contentSecurityPolicy.header` property.
 For example, if you are using Google Analytics app then CSP header has to be customised, since GA injects its own scripts referring to external domains which have to be allowed in CSP.
 
-Below is the header to be used for CSP if you want the Google Analytics widget not to be blocked in Content Studio;
+Below is the header to be used for CSP if you want the Google Analytics widget not to be blocked in Content Studio:
 
 .com.enonic.app.contentstudio.cfg
 [source,properties]
 ----
-contentSecurityPolicy.header=default-src 'self'; connect-src 'self' https://*.gstatic.com https://*.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.googleapis.com https://*.gstatic.com; object-src 'none'; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data:; frame-src 'self' https://*.googleapis.com
+contentSecurityPolicy.header=default-src 'self'; connect-src 'self' ws: wss: https://*.gstatic.com https://*.googleapis.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.googleapis.com https://*.gstatic.com; object-src 'none'; style-src 'self' 'unsafe-inline' https://*.gstatic.com; img-src 'self' data:; frame-src 'self' https://*.googleapis.com
 ----
