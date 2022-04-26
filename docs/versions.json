@@ -12,6 +12,10 @@
       "label": "stable",
       "checkout": "master",
       "latest": true
+    },
+    {
+      "label": "next",
+      "checkout": "befb5a731d94675a95afc43001643bf68b2e9a47"
     }
   ]
 }
