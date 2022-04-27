@@ -28,6 +28,7 @@ import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
 import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {ContentId} from '../../content/ContentId';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
+import {ContentAggregations} from './ContentAggregations';
 
 export class SearchContentQueryCreator {
 
@@ -37,11 +38,6 @@ export class SearchContentQueryCreator {
     private dependency?: { isInbound: boolean, dependencyId: ContentId };
     private constraintItems?: string[];
     private isAggregation: boolean;
-
-    private static CONTENT_TYPE: string = 'contentTypes';
-    private static LAST_MODIFIED: string = 'lastModified';
-    private static WORKFLOW: string = 'workflow';
-    private static MODIFIER: string = 'modifier';
 
     constructor(searchInputValues: SearchInputValues) {
         this.searchInputValues = searchInputValues;
@@ -70,6 +66,7 @@ export class SearchContentQueryCreator {
         this.appendContentTypeFilter();
         this.appendWorkflowFilter();
         this.appendModifierFilter();
+        this.appendOwnerFilter();
         this.appendLastModifiedFilter();
         this.appendOutboundReferencesFilter();
 
@@ -77,6 +74,7 @@ export class SearchContentQueryCreator {
         this.appendWorkflowAggregationQuery();
         this.appendModifierAggregationQuery();
         this.appendLastModifiedAggregationQuery();
+        this.appendOwnerAggregationQuery();
 
         return this.contentQuery;
     }
@@ -150,8 +148,7 @@ export class SearchContentQueryCreator {
     }
 
     private appendContentTypeFilter(): void {
-        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(
-            SearchContentQueryCreator.CONTENT_TYPE);
+        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(ContentAggregations.CONTENT_TYPE);
 
         if (selectedBuckets?.length > 0) {
             this.contentQuery.setContentTypeNames(selectedBuckets.map((bucket: Bucket) => new ContentTypeName(bucket.getKey())));
@@ -159,8 +156,7 @@ export class SearchContentQueryCreator {
     }
 
     private appendWorkflowFilter(): void {
-        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(
-            SearchContentQueryCreator.WORKFLOW);
+        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(ContentAggregations.WORKFLOW);
 
         if (!selectedBuckets || selectedBuckets.length === 0) {
             return;
@@ -193,8 +189,15 @@ export class SearchContentQueryCreator {
     }
 
     private appendModifierFilter(): void {
-        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(
-            SearchContentQueryCreator.MODIFIER);
+        this.appendPrincipalFilter(ContentAggregations.MODIFIER, ContentAggregations.MODIFIER);
+    }
+
+    private appendOwnerFilter(): void {
+        this.appendPrincipalFilter(ContentAggregations.OWNER, ContentAggregations.OWNER);
+    }
+
+    private appendPrincipalFilter(name: string, field: string): void {
+        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(name);
 
         if (!selectedBuckets || selectedBuckets.length === 0) {
             return;
@@ -203,15 +206,14 @@ export class SearchContentQueryCreator {
         const booleanFilter: BooleanFilter = new BooleanFilter();
 
         selectedBuckets.forEach((bucket: Bucket) => {
-            booleanFilter.addShould(new ValueFilter(SearchContentQueryCreator.MODIFIER, bucket.key));
+            booleanFilter.addShould(new ValueFilter(field, bucket.key));
         });
 
         this.contentQuery.addQueryFilter(booleanFilter);
     }
 
     private appendLastModifiedFilter() {
-        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(
-            SearchContentQueryCreator.LAST_MODIFIED);
+        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(ContentAggregations.LAST_MODIFIED);
 
         if (!selectedBuckets || selectedBuckets.length === 0) {
             return;
@@ -239,7 +241,7 @@ export class SearchContentQueryCreator {
     }
 
     private appendContentTypesAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation((SearchContentQueryCreator.CONTENT_TYPE),
+        this.contentQuery.addAggregationQuery(this.createTermsAggregation((ContentAggregations.CONTENT_TYPE),
             QueryField.CONTENT_TYPE, 0));
     }
 
@@ -253,20 +255,24 @@ export class SearchContentQueryCreator {
     }
 
     private appendWorkflowAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation(SearchContentQueryCreator.WORKFLOW, 'workflow.state', 0));
+        this.contentQuery.addAggregationQuery(this.createTermsAggregation(ContentAggregations.WORKFLOW, 'workflow.state', 0));
     }
 
     private appendModifierAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation(SearchContentQueryCreator.MODIFIER, 'modifier', 0));
+        this.contentQuery.addAggregationQuery(this.createTermsAggregation(ContentAggregations.MODIFIER, ContentAggregations.MODIFIER, 0));
     }
 
     private appendLastModifiedAggregationQuery() {
-        const dateRangeAgg: DateRangeAggregationQuery = new DateRangeAggregationQuery((SearchContentQueryCreator.LAST_MODIFIED));
+        const dateRangeAgg: DateRangeAggregationQuery = new DateRangeAggregationQuery((ContentAggregations.LAST_MODIFIED));
         dateRangeAgg.setFieldName(QueryField.MODIFIED_TIME);
         dateRangeAgg.addRange(new DateRange('now-1h', null, i18n('field.lastModified.lessHour')));
         dateRangeAgg.addRange(new DateRange('now-1d', null, i18n('field.lastModified.lessDay')));
         dateRangeAgg.addRange(new DateRange('now-1w', null, i18n('field.lastModified.lessWeek')));
 
         this.contentQuery.addAggregationQuery(dateRangeAgg);
+    }
+
+    private appendOwnerAggregationQuery() {
+        this.contentQuery.addAggregationQuery(this.createTermsAggregation(ContentAggregations.OWNER, ContentAggregations.OWNER, 0));
     }
 }
