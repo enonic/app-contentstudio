@@ -62,15 +62,15 @@ export class VersionHistoryItem {
         return item;
     }
 
-    static fromContentVersion(contentVersion: ContentVersion, isFirst: boolean = false): VersionHistoryItem {
+    static fromContentVersion(contentVersion: ContentVersion, createdDate: Date): VersionHistoryItem {
         const item: VersionHistoryItem = new VersionHistoryItem();
 
         item.id = contentVersion.getId();
         item.revertable = !contentVersion.isActive();
-        item.dateTime = contentVersion.getModified();
+        item.dateTime = createdDate || contentVersion.getModified();
         item.user = contentVersion.getModifierDisplayName() || contentVersion.getModifier();
 
-        if (isFirst) {
+        if (!!createdDate) {
             item.iconCls = 'icon-wand';
             item.status = i18n('status.created');
         } else if (contentVersion.isInReadyState()) {
