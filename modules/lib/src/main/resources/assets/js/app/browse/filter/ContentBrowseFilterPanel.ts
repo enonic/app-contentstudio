@@ -32,14 +32,10 @@ import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {GetPrincipalsByKeysRequest} from '../../security/GetPrincipalsByKeysRequest';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {DependenciesSection} from './DependenciesSection';
+import {ContentAggregations} from './ContentAggregations';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
-
-    static CONTENT_TYPE: string = 'contentTypes';
-    static LAST_MODIFIED: string = 'lastModified';
-    static WORKFLOW: string = 'workflow';
-    static MODIFIER: string = 'modifier';
 
     private aggregations: Map<string, AggregationGroupView>;
     private principals: Map<string, string> = new Map<string, string>();
@@ -104,19 +100,10 @@ export class ContentBrowseFilterPanel
     protected getGroupViews(): AggregationGroupView[] {
         this.aggregations = new Map<string, AggregationGroupView>();
 
-        this.aggregations.set(ContentBrowseFilterPanel.CONTENT_TYPE, new ContentTypeAggregationGroupView(
-            ContentBrowseFilterPanel.CONTENT_TYPE,
-            i18n('field.contentTypes')));
-
-        this.aggregations.set(ContentBrowseFilterPanel.LAST_MODIFIED, new AggregationGroupView(
-            ContentBrowseFilterPanel.LAST_MODIFIED,
-            i18n('field.lastModified')));
-
-        this.aggregations.set(ContentBrowseFilterPanel.WORKFLOW,
-            new AggregationGroupView(ContentBrowseFilterPanel.WORKFLOW, i18n('field.workflow')));
-
-        this.aggregations.set(ContentBrowseFilterPanel.MODIFIER,
-            new AggregationGroupView(ContentBrowseFilterPanel.MODIFIER, i18n('field.modifier')));
+        for (let aggrEnum in ContentAggregations) {
+            const name: string = ContentAggregations[aggrEnum];
+            this.aggregations.set(name, new ContentTypeAggregationGroupView(name, i18n(`field.${name}`)));
+        }
 
         return Array.from(this.aggregations.values());
     }
@@ -147,7 +134,7 @@ export class ContentBrowseFilterPanel
         }
 
         (<BucketAggregationView>this.aggregations.get(
-            ContentBrowseFilterPanel.CONTENT_TYPE).getAggregationViews()[0]).selectBucketViewByKey(key);
+            ContentAggregations.CONTENT_TYPE).getAggregationViews()[0]).selectBucketViewByKey(key);
     }
 
     doRefresh(): Q.Promise<void> {
@@ -203,7 +190,7 @@ export class ContentBrowseFilterPanel
     }
 
     private findAndUpdateWorkflowAggregations(aggregations: Aggregation[], total: number) {
-        const workflowAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentBrowseFilterPanel.WORKFLOW);
+        const workflowAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregations.WORKFLOW);
 
         if (workflowAggr) {
             this.updateWorkflowAggregation(<BucketAggregation>workflowAggr, total);
@@ -237,11 +224,11 @@ export class ContentBrowseFilterPanel
     }
 
     private findAndUpdatePrincipalsAggregations(aggregations: Aggregation[]): void {
-        const modifiers: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentBrowseFilterPanel.MODIFIER);
+        const principalsAggregations: BucketAggregation[] = <BucketAggregation[]>aggregations.filter((aggr: Aggregation) => {
+           return aggr.getName() === ContentAggregations.MODIFIER || aggr.getName() === ContentAggregations.OWNER;
+        });
 
-        if (modifiers) {
-            this.updatePrincipalsAggregations(<BucketAggregation>modifiers);
-        }
+        principalsAggregations.forEach((principalAggr: BucketAggregation) => this.updatePrincipalsAggregations(principalAggr));
     }
 
     private updatePrincipalsAggregations(principalsAggregation: BucketAggregation): void {
@@ -367,10 +354,10 @@ export class ContentBrowseFilterPanel
     private combineAggregations(queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>,
                                 queryResultNoContentTypesSelected: ContentQueryResult<ContentSummary, ContentSummaryJson>): Aggregation[] {
         const result: Aggregation[] =
-            queryResult.getAggregations().filter((aggr: Aggregation) => aggr.getName() !== ContentBrowseFilterPanel.CONTENT_TYPE);
+            queryResult.getAggregations().filter((aggr: Aggregation) => aggr.getName() !== ContentAggregations.CONTENT_TYPE);
 
         const contentTypesAggr: Aggregation = queryResultNoContentTypesSelected.getAggregations().filter((aggregation: Aggregation) => {
-            return aggregation.getName() === ContentBrowseFilterPanel.CONTENT_TYPE;
+            return aggregation.getName() === ContentAggregations.CONTENT_TYPE;
         })[0];
 
         if (contentTypesAggr) {
