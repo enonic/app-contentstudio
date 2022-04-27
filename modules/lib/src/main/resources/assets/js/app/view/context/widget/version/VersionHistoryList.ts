@@ -64,7 +64,7 @@ export class VersionHistoryList
     private versionsToHistoryItems(contentVersions: ContentVersion[]): VersionHistoryItem[] {
         const versionHistoryItems: VersionHistoryItem[] = [];
         let lastDate: string = null;
-        const createdTime: number = Number(this.content.getContentSummary().getCreatedTime());
+        const lastIndex = contentVersions.length - 1;
 
         contentVersions
             .sort((v1: ContentVersion, v2: ContentVersion) => {
@@ -76,28 +76,29 @@ export class VersionHistoryList
 
                 if (version.hasPublishInfo()) {
                     const publishInfo = version.getPublishInfo();
-                    const publishDate: string = DateHelper.formatDate(displayDate);
+                    const publishDateAsString: string = DateHelper.formatDate(displayDate);
                     versionHistoryItems.push(
                         VersionHistoryItem.fromPublishInfo(publishInfo)
-                            .setSkipDate(publishDate === lastDate)
+                            .setSkipDate(publishDateAsString === lastDate)
                             .setRepublished(this.isRepublished(contentVersions, version, index))
                     );
-                    lastDate = publishDate;
+                    lastDate = publishDateAsString;
                 }
 
                 if (!skipDuplicateVersion) {
-                    const isFirstVersion: boolean = createdTime === Number(version.getModified());
-                    const modifiedDate: string = DateHelper.formatDate(version.getModified());
+                    const isFirstVersion: boolean = index === lastIndex;
+                    const modifiedDate: Date = isFirstVersion ? this.content.getContentSummary().getCreatedTime() : version.getModified();
+                    const modifiedDateAsString: string = DateHelper.formatDate(modifiedDate);
 
                     if (!version.isUnpublished()) {
                         versionHistoryItems.push(
-                            VersionHistoryItem.fromContentVersion(version, isFirstVersion)
-                                .setSkipDate(modifiedDate === lastDate)
+                            VersionHistoryItem.fromContentVersion(version, isFirstVersion ? modifiedDate : null)
+                                .setSkipDate(modifiedDateAsString === lastDate)
                                 .setActiveVersionId(this.activeVersionId)
                         );
                     }
 
-                    lastDate = modifiedDate;
+                    lastDate = modifiedDateAsString;
                 }
             });
 
