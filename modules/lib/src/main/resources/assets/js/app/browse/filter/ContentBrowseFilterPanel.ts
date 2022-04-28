@@ -26,19 +26,18 @@ import {ProjectContext} from '../../project/ProjectContext';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentSummaryJson} from '../../content/ContentSummaryJson';
 import {ContentId} from '../../content/ContentId';
-import {Principal} from 'lib-admin-ui/security/Principal';
 import {SearchContentQueryCreator} from './SearchContentQueryCreator';
-import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
-import {GetPrincipalsByKeysRequest} from '../../security/GetPrincipalsByKeysRequest';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {DependenciesSection} from './DependenciesSection';
 import {ContentAggregations} from './ContentAggregations';
+import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {AggregationsProcessor} from './AggregationsProcessor';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
 
     private aggregations: Map<string, AggregationGroupView>;
-    private principals: Map<string, string> = new Map<string, string>();
+    private aggregationsProcessor: AggregationsProcessor;
 
     private dependenciesSection: DependenciesSection;
 
@@ -102,10 +101,18 @@ export class ContentBrowseFilterPanel
 
         for (let aggrEnum in ContentAggregations) {
             const name: string = ContentAggregations[aggrEnum];
-            this.aggregations.set(name, new ContentTypeAggregationGroupView(name, i18n(`field.${name}`)));
+            this.aggregations.set(name, this.createGroupView(name));
         }
 
         return Array.from(this.aggregations.values());
+    }
+
+    private createGroupView(name: string): AggregationGroupView {
+        if (name === ContentAggregations.CONTENT_TYPE) {
+            return new ContentTypeAggregationGroupView(name, i18n(`field.${name}`));
+        }
+
+        return new AggregationGroupView(name, i18n(`field.${name}`));
     }
 
     protected appendExtraSections() {
@@ -189,88 +196,6 @@ export class ContentBrowseFilterPanel
             .catch(DefaultErrorHandler.handle);
     }
 
-    private findAndUpdateWorkflowAggregations(aggregations: Aggregation[], total: number) {
-        const workflowAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregations.WORKFLOW);
-
-        if (workflowAggr) {
-            this.updateWorkflowAggregation(<BucketAggregation>workflowAggr, total);
-        }
-    }
-
-    private updateWorkflowAggregation(workflowAggr: BucketAggregation, total: number): BucketAggregation {
-        // contents might not have a workflow property, thus aggregation won't see those contents, but they are treated as ready
-        const inProgressKey: string = WorkflowState[WorkflowState.IN_PROGRESS].toLowerCase();
-        const inProgressBucket: Bucket = workflowAggr.getBucketByName(inProgressKey);
-        const result: Bucket[] = [];
-
-        const inProgressCount: number = inProgressBucket?.docCount || 0;
-        const readyCount: number = total - inProgressCount;
-
-        if (readyCount > 0) {
-            const readyKey: string = WorkflowState[WorkflowState.READY].toLowerCase();
-            const bucket: Bucket = new Bucket(readyKey, readyCount);
-            bucket.setDisplayName(i18n(`status.workflow.${readyKey}`));
-            result.push(bucket);
-        }
-
-        if (inProgressBucket) {
-            inProgressBucket.setDisplayName(i18n(`status.workflow.${inProgressKey}`));
-            result.push(inProgressBucket);
-        }
-
-        workflowAggr.setBuckets(result);
-
-        return workflowAggr;
-    }
-
-    private findAndUpdatePrincipalsAggregations(aggregations: Aggregation[]): void {
-        const principalsAggregations: BucketAggregation[] = <BucketAggregation[]>aggregations.filter((aggr: Aggregation) => {
-           return aggr.getName() === ContentAggregations.MODIFIER || aggr.getName() === ContentAggregations.OWNER;
-        });
-
-        principalsAggregations.forEach((principalAggr: BucketAggregation) => this.updatePrincipalsAggregations(principalAggr));
-    }
-
-    private updatePrincipalsAggregations(principalsAggregation: BucketAggregation): void {
-        this.updateKnownPrincipals(principalsAggregation);
-        this.updateUnknownPrincipals(principalsAggregation);
-    }
-
-    private updateKnownPrincipals(principalsAggregation: BucketAggregation): void {
-        principalsAggregation.getBuckets().forEach((bucket: Bucket) => {
-            const displayName: string = this.principals.get(bucket.getKey());
-
-            if (displayName) {
-                bucket.setDisplayName(displayName);
-            }
-        });
-
-        this.updateAggregations([principalsAggregation]);
-    }
-
-    private updateUnknownPrincipals(principalsAggregation: BucketAggregation): void {
-        // finding keys which display names are not loaded
-        const unknownPrincipals: PrincipalKey[] = principalsAggregation.getBuckets()
-            .filter((bucket: Bucket) => !this.principals.has(bucket.getKey()))
-            .map((bucket: Bucket) => PrincipalKey.fromString(bucket.getKey()));
-
-        if (unknownPrincipals.length === 0) {
-            return;
-        }
-
-        new GetPrincipalsByKeysRequest(unknownPrincipals).sendAndParse().then((principals: Principal[]) => {
-            unknownPrincipals.forEach((unknownPrincipal: PrincipalKey) => {
-                // if principal is not found (im might be deleted) then using key
-                const principal: Principal = principals.find((p: Principal) => p.getKey().equals(unknownPrincipal));
-                this.principals.set(unknownPrincipal.toString(), principal?.getDisplayName() || unknownPrincipal.toString());
-            });
-
-            this.updateKnownPrincipals(principalsAggregation);
-
-            return Q.resolve();
-        }).catch(DefaultErrorHandler.handle);
-    }
-
     private refreshDataAndHandleResponse(contentQuery: ContentQuery): Q.Promise<void> {
         return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery)
             .setExpand(Expand.SUMMARY)
@@ -293,9 +218,18 @@ export class ContentBrowseFilterPanel
     }
 
     private processAggregations(aggregations: Aggregation[], totalHits: number, doUpdateAll?: boolean, emptyFilterValue?: boolean): void {
-        this.findAndUpdateWorkflowAggregations(aggregations, totalHits);
+        this.aggregationsProcessor.updateWorkflowAggregations(aggregations, totalHits);
         this.updateAggregations(aggregations, doUpdateAll);
-        this.findAndUpdatePrincipalsAggregations(aggregations);
+        this.aggregationsProcessor.updatePrincipalsAggregations(aggregations).then((principalsAggregations: BucketAggregation[]) => {
+            if (principalsAggregations && principalsAggregations.length > 0) {
+                this.updateAggregations(principalsAggregations, true);
+            }
+        }).catch(DefaultErrorHandler.handle);
+        this.aggregationsProcessor.updateLanguageAggregations(aggregations).then((langAggr: BucketAggregation) => {
+            if (langAggr) {
+                this.updateAggregations([langAggr], true);
+            }
+        }).catch(DefaultErrorHandler.handle);
         this.toggleAggregationsVisibility(aggregations);
         this.updateHitsCounter(totalHits, emptyFilterValue);
     }
@@ -371,16 +305,21 @@ export class ContentBrowseFilterPanel
         const aggregationGroupViews: AggregationGroupView[] = Array.from(this.aggregations.values());
         const contentQuery: ContentQuery = this.buildAggregationsQuery();
 
-        new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
-            (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-                this.processAggregations(queryResult.getAggregations(), queryResult.getMetadata().getTotalHits(), false, true);
+        // that is supposed to be cached so response will be fast
+        new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
+            this.aggregationsProcessor = new AggregationsProcessor(loginResult.getUser().getKey().toString());
 
-                aggregationGroupViews.forEach((aggregationGroupView: AggregationGroupView) => {
-                    aggregationGroupView.initialize();
-                });
-            }).catch((reason: any) => {
-            DefaultErrorHandler.handle(reason);
-        }).done();
+            new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
+                (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
+                    this.processAggregations(queryResult.getAggregations(), queryResult.getMetadata().getTotalHits(), false, true);
+
+                    aggregationGroupViews.forEach((aggregationGroupView: AggregationGroupView) => {
+                        aggregationGroupView.initialize();
+                    });
+                }).catch((reason: any) => {
+                DefaultErrorHandler.handle(reason);
+            }).done();
+        });
     }
 
     protected resetFacets(suppressEvent?: boolean, doResetAll?: boolean): Q.Promise<void> {
