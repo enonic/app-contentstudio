@@ -4,5 +4,6 @@ export enum ContentAggregations {
     LAST_MODIFIED = 'lastModified',
     WORKFLOW = 'workflow',
     MODIFIER = 'modifier',
-    OWNER = 'owner'
+    OWNER = 'owner',
+    LANGUAGE = 'lang'
 }
