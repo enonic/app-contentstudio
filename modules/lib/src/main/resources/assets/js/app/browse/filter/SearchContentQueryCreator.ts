@@ -69,12 +69,14 @@ export class SearchContentQueryCreator {
         this.appendOwnerFilter();
         this.appendLastModifiedFilter();
         this.appendOutboundReferencesFilter();
+        this.appendLanguageFilter();
 
         this.appendContentTypesAggregationQuery();
         this.appendWorkflowAggregationQuery();
         this.appendModifierAggregationQuery();
         this.appendLastModifiedAggregationQuery();
         this.appendOwnerAggregationQuery();
+        this.appendLanguageAggregationQuery();
 
         return this.contentQuery;
     }
@@ -189,14 +191,14 @@ export class SearchContentQueryCreator {
     }
 
     private appendModifierFilter(): void {
-        this.appendPrincipalFilter(ContentAggregations.MODIFIER, ContentAggregations.MODIFIER);
+        this.appendPropertyFilter(ContentAggregations.MODIFIER, ContentAggregations.MODIFIER);
     }
 
     private appendOwnerFilter(): void {
-        this.appendPrincipalFilter(ContentAggregations.OWNER, ContentAggregations.OWNER);
+        this.appendPropertyFilter(ContentAggregations.OWNER, ContentAggregations.OWNER);
     }
 
-    private appendPrincipalFilter(name: string, field: string): void {
+    private appendPropertyFilter(name: string, field: string): void {
         const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(name);
 
         if (!selectedBuckets || selectedBuckets.length === 0) {
@@ -210,6 +212,10 @@ export class SearchContentQueryCreator {
         });
 
         this.contentQuery.addQueryFilter(booleanFilter);
+    }
+
+    private appendLanguageFilter(): void {
+        this.appendPropertyFilter(ContentAggregations.LANGUAGE, 'language');
     }
 
     private appendLastModifiedFilter() {
@@ -274,5 +280,9 @@ export class SearchContentQueryCreator {
 
     private appendOwnerAggregationQuery() {
         this.contentQuery.addAggregationQuery(this.createTermsAggregation(ContentAggregations.OWNER, ContentAggregations.OWNER, 0));
+    }
+
+    private appendLanguageAggregationQuery() {
+        this.contentQuery.addAggregationQuery(this.createTermsAggregation(ContentAggregations.LANGUAGE, 'language', 0));
     }
 }
