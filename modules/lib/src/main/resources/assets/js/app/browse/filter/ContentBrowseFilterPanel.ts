@@ -1,6 +1,5 @@
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentBrowseSearchData} from './ContentBrowseSearchData';
 import {ContentTypeAggregationGroupView} from './ContentTypeAggregationGroupView';
@@ -31,13 +30,14 @@ import {DependenciesSection} from './DependenciesSection';
 import {ContentAggregations} from './ContentAggregations';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
-import {AggregationsProcessor} from './AggregationsProcessor';
+import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
+import {ContentAggregationsFetcher} from './ContentAggregationsFetcher';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
 
     private aggregations: Map<string, AggregationGroupView>;
-    private aggregationsProcessor: AggregationsProcessor;
+    private aggregationsDisplayNamesResolver: AggregationsDisplayNamesResolver;
 
     private dependenciesSection: DependenciesSection;
 
@@ -148,14 +148,14 @@ export class ContentBrowseFilterPanel
         if (!this.isFilteredOrConstrained()) {
             return this.handleEmptyFilterInput(true);
         }
-        return this.refreshDataAndHandleResponse(this.createContentQuery());
+        return this.refreshDataAndHandleResponse(this.buildQuery(false));
     }
 
     protected doSearch(): Q.Promise<void> {
         if (!this.isFilteredOrConstrained()) {
             return this.handleEmptyFilterInput();
         }
-        return this.searchDataAndHandleResponse(this.createContentQuery());
+        return this.searchDataAndHandleResponse(this.buildQuery(false));
     }
 
     setSelectedItems(itemsIds: string[]) {
@@ -176,10 +176,6 @@ export class ContentBrowseFilterPanel
         }
         // it's SearchEvent, usual reset with grid reload
         return this.reset();
-    }
-
-    private createContentQuery(): ContentQuery {
-        return this.buildQuery(false);
     }
 
     private searchDataAndHandleResponse(contentQuery: ContentQuery): Q.Promise<void> {
@@ -211,27 +207,19 @@ export class ContentBrowseFilterPanel
     }
 
     private handleDataSearchResult(contentQuery: ContentQuery, contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) {
-        return this.getAggregations(contentQuery, contentQueryResult).then((aggregations: Aggregation[]) => {
-            this.processAggregations(aggregations, contentQueryResult.getMetadata().getTotalHits(), true);
+        return this.getAggregations(contentQueryResult).then((aggregations: Aggregation[]) => {
+            this.processAggregations(aggregations, true);
+            this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits());
             new BrowseFilterSearchEvent(new ContentBrowseSearchData(contentQueryResult, contentQuery)).fire();
         }).catch(DefaultErrorHandler.handle);
     }
 
-    private processAggregations(aggregations: Aggregation[], totalHits: number, doUpdateAll?: boolean, emptyFilterValue?: boolean): void {
-        this.aggregationsProcessor.updateWorkflowAggregations(aggregations, totalHits);
+    private processAggregations(aggregations: Aggregation[], doUpdateAll?: boolean): void {
         this.updateAggregations(aggregations, doUpdateAll);
-        this.aggregationsProcessor.updatePrincipalsAggregations(aggregations).then((principalsAggregations: BucketAggregation[]) => {
-            if (principalsAggregations && principalsAggregations.length > 0) {
-                this.updateAggregations(principalsAggregations, true);
-            }
-        }).catch(DefaultErrorHandler.handle);
-        this.aggregationsProcessor.updateLanguageAggregations(aggregations).then((langAggr: BucketAggregation) => {
-            if (langAggr) {
-                this.updateAggregations([langAggr], true);
-            }
+        this.aggregationsDisplayNamesResolver.updateAggregationsDisplayNames(aggregations).then(() => {
+            this.updateAggregations(aggregations, true);
         }).catch(DefaultErrorHandler.handle);
         this.toggleAggregationsVisibility(aggregations);
-        this.updateHitsCounter(totalHits, emptyFilterValue);
     }
 
     private handleNoSearchResultOnRefresh(contentQuery: ContentQuery): Q.Promise<void> {
@@ -269,50 +257,28 @@ export class ContentBrowseFilterPanel
         return this.cloneContentQueryNoContentTypes(contentQuery).setQueryFilters([]);
     }
 
-    private getAggregations(contentQuery: ContentQuery,
-                            contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>): Q.Promise<Aggregation[]> {
+    private getAggregations(contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>): Q.Promise<Aggregation[]> {
+        const aggregationsFetcher: ContentAggregationsFetcher =
+            new ContentAggregationsFetcher(this.getSearchInputValues(), contentQueryResult);
 
-        const clonedContentQueryNoContentTypes: ContentQuery = this.cloneContentQueryNoContentTypes(contentQuery);
+        aggregationsFetcher.setConstraintItemsIds(this.hasConstraint() ? this.getSelectionItems() : null);
+        aggregationsFetcher.setDependency(this.getDependency());
 
-        if (ObjectHelper.objectEquals(contentQuery, clonedContentQueryNoContentTypes)) {
-            return Q(contentQueryResult.getAggregations());
-        }
-
-        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(clonedContentQueryNoContentTypes).setExpand(
-            Expand.SUMMARY).sendAndParse().then(
-            (contentQueryResultNoContentTypesSelected: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-                return this.combineAggregations(contentQueryResult, contentQueryResultNoContentTypesSelected);
-            });
-    }
-
-    private combineAggregations(queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>,
-                                queryResultNoContentTypesSelected: ContentQueryResult<ContentSummary, ContentSummaryJson>): Aggregation[] {
-        const result: Aggregation[] =
-            queryResult.getAggregations().filter((aggr: Aggregation) => aggr.getName() !== ContentAggregations.CONTENT_TYPE);
-
-        const contentTypesAggr: Aggregation = queryResultNoContentTypesSelected.getAggregations().filter((aggregation: Aggregation) => {
-            return aggregation.getName() === ContentAggregations.CONTENT_TYPE;
-        })[0];
-
-        if (contentTypesAggr) {
-            result.push(contentTypesAggr);
-        }
-
-        return result;
+        return aggregationsFetcher.getAggregations();
     }
 
     private initAggregationGroupView() {
         const aggregationGroupViews: AggregationGroupView[] = Array.from(this.aggregations.values());
-        const contentQuery: ContentQuery = this.buildAggregationsQuery();
+        const contentQuery: ContentQuery = this.buildQuery(true);
 
         // that is supposed to be cached so response will be fast
         new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            this.aggregationsProcessor = new AggregationsProcessor(loginResult.getUser().getKey().toString());
+            this.aggregationsDisplayNamesResolver = new AggregationsDisplayNamesResolver(loginResult.getUser().getKey().toString());
 
             new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
                 (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-                    this.processAggregations(queryResult.getAggregations(), queryResult.getMetadata().getTotalHits(), false, true);
-
+                    this.processAggregations(queryResult.getAggregations());
+                    this.updateHitsCounter(queryResult.getMetadata().getTotalHits(), true);
                     aggregationGroupViews.forEach((aggregationGroupView: AggregationGroupView) => {
                         aggregationGroupView.initialize();
                     });
@@ -323,11 +289,12 @@ export class ContentBrowseFilterPanel
     }
 
     protected resetFacets(suppressEvent?: boolean, doResetAll?: boolean): Q.Promise<void> {
-        const contentQuery: ContentQuery = this.buildAggregationsQuery();
+        const contentQuery: ContentQuery = this.buildQuery(true);
 
         return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
             (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-                this.processAggregations(queryResult.getAggregations(), queryResult.getMetadata().getTotalHits(), doResetAll, true);
+                this.processAggregations(queryResult.getAggregations(), doResetAll);
+                this.updateHitsCounter(queryResult.getMetadata().getTotalHits(), true);
 
                 if (!suppressEvent) { // then fire usual reset event with content grid reloading
                     if (this.dependenciesSection?.isActive()) {
@@ -342,23 +309,26 @@ export class ContentBrowseFilterPanel
         });
     }
 
-    private buildAggregationsQuery(): ContentQuery {
-        return this.buildQuery(true);
-    }
-
     private buildQuery(isAggregation: boolean): ContentQuery {
         const queryCreator: SearchContentQueryCreator = new SearchContentQueryCreator(this.getSearchInputValues());
 
         queryCreator.setIsAggregation(isAggregation);
         queryCreator.setConstraintItemsIds(this.hasConstraint() ? this.getSelectionItems() : null);
-
-        if (this.dependenciesSection?.isInbound()) {
-            queryCreator.setDependency({isInbound: true, dependencyId: this.dependenciesSection.getDependencyId()});
-        } else if (this.dependenciesSection?.isOutbound()) {
-            queryCreator.setDependency({isInbound: false, dependencyId: this.dependenciesSection.getDependencyId()});
-        }
+        queryCreator.setDependency(this.getDependency());
 
         return queryCreator.create();
+    }
+
+    getDependency(): { isInbound: boolean, dependencyId: ContentId } {
+        if (this.dependenciesSection?.isInbound()) {
+            return {isInbound: true, dependencyId: this.dependenciesSection.getDependencyId()};
+        }
+
+        if (this.dependenciesSection?.isOutbound()) {
+            return {isInbound: false, dependencyId: this.dependenciesSection.getDependencyId()};
+        }
+
+        return null;
     }
 
     private toggleAggregationsVisibility(aggregations: Aggregation[]) {

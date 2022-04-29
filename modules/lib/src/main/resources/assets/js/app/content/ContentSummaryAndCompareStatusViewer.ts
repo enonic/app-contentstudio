@@ -7,6 +7,7 @@ import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 import {ContentSummary} from './ContentSummary';
 import {ContentName} from './ContentName';
 import {ContentPath} from './ContentPath';
+import { Workflow } from 'lib-admin-ui/content/Workflow';
 
 export class ContentSummaryAndCompareStatusViewer
     extends ExtendedViewer<ContentSummaryAndCompareStatus> {
@@ -90,8 +91,8 @@ export class ContentSummaryAndCompareStatusViewer
     }
 
     protected resolveWorkflowState(object: ContentSummaryAndCompareStatus): string {
-        const state = object.getContentSummary().getWorkflow().getStateAsString();
-        return state ? i18n(`status.workflow.${state}`) : '';
+        const workflow: Workflow = object.getContentSummary().getWorkflow();
+        return workflow ? i18n(`status.workflow.${workflow.getState()}`) : '';
     }
 
     protected resolveSubNameForUploadItem(object: ContentSummaryAndCompareStatus): string {
