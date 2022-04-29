@@ -28,7 +28,7 @@ import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
 import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {ContentId} from '../../content/ContentId';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
-import {ContentAggregations} from './ContentAggregations';
+import {ContentAggregation} from './ContentAggregation';
 
 export class SearchContentQueryCreator {
 
@@ -59,26 +59,48 @@ export class SearchContentQueryCreator {
         return this;
     }
 
-    create(): ContentQuery {
+    create(contentAggregations?: string[]): ContentQuery {
         this.appendQueryExpression();
         this.setSize();
 
-        this.appendContentTypeFilter();
-        this.appendWorkflowFilter();
-        this.appendModifierFilter();
-        this.appendOwnerFilter();
-        this.appendLastModifiedFilter();
+        this.appendAggregationsAndFilter(contentAggregations);
         this.appendOutboundReferencesFilter();
-        this.appendLanguageFilter();
-
-        this.appendContentTypesAggregationQuery();
-        this.appendWorkflowAggregationQuery();
-        this.appendModifierAggregationQuery();
-        this.appendLastModifiedAggregationQuery();
-        this.appendOwnerAggregationQuery();
-        this.appendLanguageAggregationQuery();
 
         return this.contentQuery;
+    }
+
+    protected appendAggregationsAndFilter(contentAggregations?: string[]): void {
+        const hasAllAggregations: boolean = !contentAggregations;
+
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.CONTENT_TYPE)) {
+            this.appendContentTypeFilter();
+            this.appendContentTypesAggregationQuery();
+        }
+
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.WORKFLOW)) {
+            this.appendWorkflowFilter();
+            this.appendWorkflowAggregationQuery();
+        }
+
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.MODIFIER)) {
+            this.appendModifierFilter();
+            this.appendModifierAggregationQuery();
+        }
+
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.OWNER)) {
+            this.appendOwnerFilter();
+            this.appendOwnerAggregationQuery();
+        }
+
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.LAST_MODIFIED)) {
+            this.appendLastModifiedFilter();
+            this.appendLastModifiedAggregationQuery();
+        }
+
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.LANGUAGE)) {
+            this.appendLanguageFilter();
+            this.appendLanguageAggregationQuery();
+        }
     }
 
     private setSize(): SearchContentQueryCreator {
@@ -87,7 +109,7 @@ export class SearchContentQueryCreator {
     }
 
     private appendQueryExpression(): void {
-        this.contentQuery.setQueryExpr(this.isAggregation ? new QueryExpr(null) : this.createQueryExpression());
+        this.contentQuery.setQueryExpr(this.createQueryExpression());
     }
 
     private createQueryExpression(): QueryExpr {
@@ -150,7 +172,7 @@ export class SearchContentQueryCreator {
     }
 
     private appendContentTypeFilter(): void {
-        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(ContentAggregations.CONTENT_TYPE);
+        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(ContentAggregation.CONTENT_TYPE);
 
         if (selectedBuckets?.length > 0) {
             this.contentQuery.setContentTypeNames(selectedBuckets.map((bucket: Bucket) => new ContentTypeName(bucket.getKey())));
@@ -158,47 +180,40 @@ export class SearchContentQueryCreator {
     }
 
     private appendWorkflowFilter(): void {
-        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(ContentAggregations.WORKFLOW);
+        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(ContentAggregation.WORKFLOW);
 
         if (!selectedBuckets || selectedBuckets.length === 0) {
             return;
         }
 
-        const inProgressKey: string = WorkflowState[WorkflowState.IN_PROGRESS].toLowerCase();
+        const booleanFilter: BooleanFilter = new BooleanFilter();
 
-        // content might be rather ready or in progress, thus just one option can be chosen
-        const hasInProgress: boolean =
-            selectedBuckets.some((bucket: Bucket) => bucket.key === inProgressKey);
+        selectedBuckets.forEach((bucket: Bucket) => {
+            booleanFilter.addShould(new ValueFilter('workflow.state',bucket.getKey().toUpperCase()));
 
-        if (hasInProgress) {
-            this.contentQuery.addQueryFilter(new ValueFilter('workflow.state', inProgressKey.toUpperCase()));
-            return;
-        }
+            if (bucket.key === WorkflowState.READY) {
+                booleanFilter.addShould(this.createWorkflowNotExistsFilter());
+            }
+        });
 
-        const readyKey: string = WorkflowState[WorkflowState.READY].toLowerCase();
-        const hasReady: boolean = selectedBuckets.some((bucket: Bucket) => bucket.key === readyKey);
+        this.contentQuery.addQueryFilter(booleanFilter);
+    }
 
-        if (hasReady) {
-            const notExistsFilter: BooleanFilter = new BooleanFilter();
-            notExistsFilter.addMustNot(new ExistsFilter('workflow'));
-
-            const booleanFilter: BooleanFilter = new BooleanFilter();
-            booleanFilter.addShould(new ValueFilter('workflow.state', readyKey.toUpperCase()));
-            booleanFilter.addShould(notExistsFilter);
-
-            this.contentQuery.addQueryFilter(booleanFilter);
-        }
+    private createWorkflowNotExistsFilter(): BooleanFilter {
+        const notExistsFilter: BooleanFilter = new BooleanFilter();
+        notExistsFilter.addMustNot(new ExistsFilter('workflow'));
+        return notExistsFilter;
     }
 
     private appendModifierFilter(): void {
-        this.appendPropertyFilter(ContentAggregations.MODIFIER, ContentAggregations.MODIFIER);
+        this.appendPropertyFilter(ContentAggregation.MODIFIER, ContentAggregation.MODIFIER);
     }
 
     private appendOwnerFilter(): void {
-        this.appendPropertyFilter(ContentAggregations.OWNER, ContentAggregations.OWNER);
+        this.appendPropertyFilter(ContentAggregation.OWNER, ContentAggregation.OWNER);
     }
 
-    private appendPropertyFilter(name: string, field: string): void {
+    protected appendPropertyFilter(name: string, field: string): void {
         const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(name);
 
         if (!selectedBuckets || selectedBuckets.length === 0) {
@@ -215,21 +230,17 @@ export class SearchContentQueryCreator {
     }
 
     private appendLanguageFilter(): void {
-        this.appendPropertyFilter(ContentAggregations.LANGUAGE, 'language');
+        this.appendPropertyFilter(ContentAggregation.LANGUAGE, 'language');
     }
 
-    private appendLastModifiedFilter() {
-        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(ContentAggregations.LAST_MODIFIED);
+    private appendLastModifiedFilter(): void {
+        this.appendDateFilter(ContentAggregation.LAST_MODIFIED, QueryField.MODIFIED_TIME);
+    }
+
+    protected appendDateFilter(name: string, fieldName): void {
+        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(name);
 
         if (!selectedBuckets || selectedBuckets.length === 0) {
-            return;
-        }
-
-        if (selectedBuckets.length === 1) {
-            const dateRangeBucket: DateRangeBucket = <DateRangeBucket>selectedBuckets.pop();
-            this.contentQuery.addQueryFilter(
-                new RangeFilter(QueryField.MODIFIED_TIME, ValueExpr.dateTime(dateRangeBucket.getFrom()).getValue(),
-                    null));
             return;
         }
 
@@ -237,21 +248,20 @@ export class SearchContentQueryCreator {
 
         selectedBuckets.forEach((selectedBucket: DateRangeBucket) => {
             let rangeFilter: RangeFilter =
-                new RangeFilter(QueryField.MODIFIED_TIME, ValueExpr.dateTime(selectedBucket.getFrom()).getValue(),
+                new RangeFilter(fieldName, ValueExpr.dateTime(selectedBucket.getFrom()).getValue(),
                     null);
 
             booleanFilter.addShould(<Filter>rangeFilter);
         });
 
-        return booleanFilter;
+        this.contentQuery.addQueryFilter(booleanFilter);
     }
 
     private appendContentTypesAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation((ContentAggregations.CONTENT_TYPE),
-            QueryField.CONTENT_TYPE, 0));
+        this.addTermsAggregation(ContentAggregation.CONTENT_TYPE, QueryField.CONTENT_TYPE);
     }
 
-    private createTermsAggregation(name: string, fieldName: string, size: number): TermsAggregationQuery {
+    protected createTermsAggregation(name: string, fieldName: string, size: number): TermsAggregationQuery {
         const termsAggregation: TermsAggregationQuery = new TermsAggregationQuery(name);
         termsAggregation.setFieldName(fieldName);
         termsAggregation.setSize(size);
@@ -261,16 +271,21 @@ export class SearchContentQueryCreator {
     }
 
     private appendWorkflowAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation(ContentAggregations.WORKFLOW, 'workflow.state', 0));
+        this.addTermsAggregation(ContentAggregation.WORKFLOW, 'workflow.state');
     }
 
     private appendModifierAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation(ContentAggregations.MODIFIER, ContentAggregations.MODIFIER, 0));
+        this.addTermsAggregation(ContentAggregation.MODIFIER, ContentAggregation.MODIFIER);
     }
 
     private appendLastModifiedAggregationQuery() {
-        const dateRangeAgg: DateRangeAggregationQuery = new DateRangeAggregationQuery((ContentAggregations.LAST_MODIFIED));
-        dateRangeAgg.setFieldName(QueryField.MODIFIED_TIME);
+        this.appendDateAggregationQuery(ContentAggregation.LAST_MODIFIED, QueryField.MODIFIED_TIME);
+    }
+
+    protected appendDateAggregationQuery(name: string, fieldName: string): void {
+        const dateRangeAgg: DateRangeAggregationQuery = new DateRangeAggregationQuery(name);
+
+        dateRangeAgg.setFieldName(fieldName);
         dateRangeAgg.addRange(new DateRange('now-1h', null, i18n('field.lastModified.lessHour')));
         dateRangeAgg.addRange(new DateRange('now-1d', null, i18n('field.lastModified.lessDay')));
         dateRangeAgg.addRange(new DateRange('now-1w', null, i18n('field.lastModified.lessWeek')));
@@ -279,10 +294,14 @@ export class SearchContentQueryCreator {
     }
 
     private appendOwnerAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation(ContentAggregations.OWNER, ContentAggregations.OWNER, 0));
+        this.addTermsAggregation(ContentAggregation.OWNER, ContentAggregation.OWNER);
     }
 
     private appendLanguageAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation(ContentAggregations.LANGUAGE, 'language', 0));
+        this.addTermsAggregation(ContentAggregation.LANGUAGE, 'language');
+    }
+
+    protected addTermsAggregation(name: string, fieldName: string): void {
+        this.contentQuery.addAggregationQuery(this.createTermsAggregation(name, fieldName, 0));
     }
 }

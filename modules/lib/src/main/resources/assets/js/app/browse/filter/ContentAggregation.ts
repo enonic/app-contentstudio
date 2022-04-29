@@ -1,8 +1,8 @@
 
-export enum ContentAggregations {
+export enum ContentAggregation {
     CONTENT_TYPE = 'contentTypes',
-    LAST_MODIFIED = 'lastModified',
     WORKFLOW = 'workflow',
+    LAST_MODIFIED = 'lastModified',
     MODIFIER = 'modifier',
     OWNER = 'owner',
     LANGUAGE = 'lang'
