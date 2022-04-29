@@ -1,7 +1,6 @@
 import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
 import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
 import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
-import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {ContentAggregations} from './ContentAggregations';
 import {GetPrincipalsByKeysRequest} from '../../security/GetPrincipalsByKeysRequest';
@@ -12,7 +11,7 @@ import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {GetLocalesRequest} from '../../resource/GetLocalesRequest';
 import {Locale} from 'lib-admin-ui/locale/Locale';
 
-export class AggregationsProcessor {
+export class AggregationsDisplayNamesResolver {
 
     private principals: Map<string, string> = new Map<string, string>();
     private locales: Locale[];
@@ -22,47 +21,38 @@ export class AggregationsProcessor {
         this.currentUserId = userId;
     }
 
-    updateWorkflowAggregations(aggregations: Aggregation[], total: number) {
+    updateAggregationsDisplayNames(aggregations: Aggregation[]): Q.Promise<void> {
+        this.updateWorkflowAggregations(aggregations);
+
+        const updatePromises: Q.Promise<void>[] = [];
+        updatePromises.push(this.updateLanguageAggregations(aggregations));
+        updatePromises.push(this.updatePrincipalsAggregations(aggregations));
+
+        return Q.all(updatePromises).thenResolve(null);
+    }
+
+    private updateWorkflowAggregations(aggregations: Aggregation[]) {
         const workflowAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregations.WORKFLOW);
 
         if (workflowAggr) {
-            this.updateWorkflowAggregation(<BucketAggregation>workflowAggr, total);
+            this.updateWorkflowAggregation(<BucketAggregation>workflowAggr);
         }
     }
 
-    private updateWorkflowAggregation(workflowAggr: BucketAggregation, total: number): void {
-        // contents might not have a workflow property, thus aggregation won't see those contents, but they are treated as ready
-        const inProgressKey: string = WorkflowState[WorkflowState.IN_PROGRESS].toLowerCase();
-        const inProgressBucket: Bucket = workflowAggr.getBucketByName(inProgressKey);
-        const result: Bucket[] = [];
-
-        const inProgressCount: number = inProgressBucket?.docCount || 0;
-        const readyCount: number = total - inProgressCount;
-
-        if (readyCount > 0) {
-            const readyKey: string = WorkflowState[WorkflowState.READY].toLowerCase();
-            const bucket: Bucket = new Bucket(readyKey, readyCount);
-            bucket.setDisplayName(i18n(`status.workflow.${readyKey}`));
-            result.push(bucket);
-        }
-
-        if (inProgressBucket) {
-            inProgressBucket.setDisplayName(i18n(`status.workflow.${inProgressKey}`));
-            result.push(inProgressBucket);
-        }
-
-        workflowAggr.setBuckets(result);
+    private updateWorkflowAggregation(workflowAggr: BucketAggregation): void {
+        workflowAggr.getBuckets().forEach((bucket: Bucket) => bucket.setDisplayName(i18n(`status.workflow.${bucket.getKey()}`)));
     }
 
-    updatePrincipalsAggregations(aggregations: Aggregation[]): Q.Promise<BucketAggregation[]> {
+    private updatePrincipalsAggregations(aggregations: Aggregation[]): Q.Promise<void> {
         const principalsAggregations: BucketAggregation[] = <BucketAggregation[]>aggregations.filter((aggr: Aggregation) => {
             return aggr.getName() === ContentAggregations.MODIFIER || aggr.getName() === ContentAggregations.OWNER;
         });
 
-        return Q.all(principalsAggregations.map((principalAggr: BucketAggregation) => this.updatePrincipalsAggregation(principalAggr)));
+        return Q.all(principalsAggregations.map((principalAggr: BucketAggregation) => this.updatePrincipalsAggregation(principalAggr)))
+            .thenResolve(null);
     }
 
-    private updatePrincipalsAggregation(principalsAggregation: BucketAggregation): Q.Promise<BucketAggregation> {
+    private updatePrincipalsAggregation(principalsAggregation: BucketAggregation): Q.Promise<void> {
         this.updateKnownPrincipals(principalsAggregation);
         return this.updateUnknownPrincipals(principalsAggregation);
     }
@@ -90,17 +80,17 @@ export class AggregationsProcessor {
         return b.getDocCount() - a.getDocCount();
     }
 
-    private updateUnknownPrincipals(principalsAggregation: BucketAggregation): Q.Promise<BucketAggregation> {
+    private updateUnknownPrincipals(principalsAggregation: BucketAggregation): Q.Promise<void> {
         // finding keys which display names are not loaded
         const unknownPrincipals: PrincipalKey[] = principalsAggregation.getBuckets()
             .filter((bucket: Bucket) => !this.principals.has(bucket.getKey()))
             .map((bucket: Bucket) => PrincipalKey.fromString(bucket.getKey()));
 
         if (unknownPrincipals.length === 0) {
-            return Q(principalsAggregation);
+            return Q.resolve();
         }
 
-       return new GetPrincipalsByKeysRequest(unknownPrincipals).sendAndParse().then((principals: Principal[]) => {
+        return new GetPrincipalsByKeysRequest(unknownPrincipals).sendAndParse().then((principals: Principal[]) => {
             unknownPrincipals.forEach((unknownPrincipal: PrincipalKey) => {
                 // if principal is not found (im might be deleted) then using key
                 const principal: Principal = principals.find((p: Principal) => p.getKey().equals(unknownPrincipal));
@@ -109,17 +99,17 @@ export class AggregationsProcessor {
 
             this.updateKnownPrincipals(principalsAggregation);
 
-            return Q.resolve(principalsAggregation);
+            return Q.resolve();
         });
     }
 
-    updateLanguageAggregations(aggregations: Aggregation[]): Q.Promise<BucketAggregation> {
+    private updateLanguageAggregations(aggregations: Aggregation[]): Q.Promise<void> {
         const langAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregations.LANGUAGE);
 
-        return !!langAggr? this.updateLanguageAggregation(<BucketAggregation>langAggr) : Q.resolve(null);
+        return !!langAggr ? this.updateLanguageAggregation(<BucketAggregation>langAggr) : Q.resolve(null);
     }
 
-    private updateLanguageAggregation(langAggr: BucketAggregation): Q.Promise<BucketAggregation> {
+    private updateLanguageAggregation(langAggr: BucketAggregation): Q.Promise<void> {
         if (this.locales) {
             langAggr.getBuckets().forEach((bucket: Bucket) => {
                 const displayName: string =
@@ -130,7 +120,7 @@ export class AggregationsProcessor {
                 }
             });
 
-            return Q.resolve(langAggr);
+            return Q.resolve();
         }
 
         return new GetLocalesRequest().sendAndParse().then((locales: Locale[]) => {

@@ -87,7 +87,7 @@ export class SearchContentQueryCreator {
     }
 
     private appendQueryExpression(): void {
-        this.contentQuery.setQueryExpr(this.isAggregation ? new QueryExpr(null) : this.createQueryExpression());
+        this.contentQuery.setQueryExpr(this.createQueryExpression());
     }
 
     private createQueryExpression(): QueryExpr {
@@ -164,30 +164,23 @@ export class SearchContentQueryCreator {
             return;
         }
 
-        const inProgressKey: string = WorkflowState[WorkflowState.IN_PROGRESS].toLowerCase();
+        const booleanFilter: BooleanFilter = new BooleanFilter();
 
-        // content might be rather ready or in progress, thus just one option can be chosen
-        const hasInProgress: boolean =
-            selectedBuckets.some((bucket: Bucket) => bucket.key === inProgressKey);
+        selectedBuckets.forEach((bucket: Bucket) => {
+            booleanFilter.addShould(new ValueFilter('workflow.state',bucket.getKey().toUpperCase()));
 
-        if (hasInProgress) {
-            this.contentQuery.addQueryFilter(new ValueFilter('workflow.state', inProgressKey.toUpperCase()));
-            return;
-        }
+            if (bucket.key === WorkflowState.READY) {
+                booleanFilter.addShould(this.createWorkflowNotExistsFilter());
+            }
+        });
 
-        const readyKey: string = WorkflowState[WorkflowState.READY].toLowerCase();
-        const hasReady: boolean = selectedBuckets.some((bucket: Bucket) => bucket.key === readyKey);
+        this.contentQuery.addQueryFilter(booleanFilter);
+    }
 
-        if (hasReady) {
-            const notExistsFilter: BooleanFilter = new BooleanFilter();
-            notExistsFilter.addMustNot(new ExistsFilter('workflow'));
-
-            const booleanFilter: BooleanFilter = new BooleanFilter();
-            booleanFilter.addShould(new ValueFilter('workflow.state', readyKey.toUpperCase()));
-            booleanFilter.addShould(notExistsFilter);
-
-            this.contentQuery.addQueryFilter(booleanFilter);
-        }
+    private createWorkflowNotExistsFilter(): BooleanFilter {
+        const notExistsFilter: BooleanFilter = new BooleanFilter();
+        notExistsFilter.addMustNot(new ExistsFilter('workflow'));
+        return notExistsFilter;
     }
 
     private appendModifierFilter(): void {

@@ -51,7 +51,7 @@ public class BucketAggregationJson
             return false;
         }
         final BucketAggregationJson that = (BucketAggregationJson) o;
-        return Objects.equals( buckets, that.buckets );
+        return this.getName() == that.getName() && Objects.equals( buckets, that.buckets );
     }
 
     @Override
