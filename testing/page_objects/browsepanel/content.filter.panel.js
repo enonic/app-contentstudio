@@ -9,17 +9,13 @@ const XPATH = {
     clearFilterLink: "//a[contains(@id,'ClearFilterButton')]",
     searchInput: "//input[contains(@id,'TextSearchField')]",
     dependenciesSection: "//div[contains(@id,'DependenciesSection')]",
-    aggregationContainer: "//div[contains(@id,'AggregationContainer')]//div[contains(@id,'ContentTypeAggregationGroupView')]",
     showResultsButton: "//div[contains(@class,'show-filter-results')]",
-    aggregationLabelByName: name => XPATH.aggregationContainer +
-                                    `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]//label`,
-    folderAggregation: () => XPATH.aggregationContainer +
-                             `//div[contains(@class,'checkbox') and child::label[contains(.,'Folder') and not(contains(.,'Template'))]]//label`,
-    aggregationCheckboxByName: name => XPATH.aggregationContainer +
-                                       `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]` + lib.CHECKBOX_INPUT,
+    aggregationContainerByName: name => `//div[contains(@id,'AggregationContainer')]//div[contains(@id,'ContentTypeAggregationGroupView') and child::h2['${name}']]`,
+    aggregationLabelByName: name => `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]//label`,
+    folderAggregation: () => `//div[contains(@class,'checkbox') and child::label[contains(.,'Folder') and not(contains(.,'Template'))]]//label`,
+    aggregationCheckboxByName: name => `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]` + lib.CHECKBOX_INPUT,
     lastModifiedAggregationEntry:
         time => `//div[@class='aggregation-group-view']/h2[text()='Last Modified']/..//div[contains(@class,'checkbox') and child::label]//label[contains(.,'${time}')]`,
-
 };
 
 class BrowseFilterPanel extends Page {
@@ -94,20 +90,57 @@ class BrowseFilterPanel extends Page {
         return await this.clickOnElement(this.clearFilterLink)
     }
 
-    async clickOnCheckboxInAggregationView(contentType) {
-        let selector = XPATH.aggregationLabelByName(contentType);
+    //clicks on a checkbox in Content Types aggregation block
+    async clickOnCheckboxInContentTypesBlock(contentType) {
+        let selector = XPATH.aggregationContainerByName(appConst.FILTER_PANEL_AGGREGATION_BLOCK.CONTENT_TYPES) +
+                       XPATH.aggregationLabelByName(contentType);
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         await this.clickOnElement(selector);
         return await this.pause(1200);
     }
 
-    async getNumberOfItemsInAggregationView(contentType) {
-        let locator = XPATH.aggregationLabelByName(contentType);
-        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
-        let label = await this.getText(locator);
-        let startIndex = label.indexOf('(');
-        let endIndex = label.indexOf(')');
-        return label.substring(startIndex + 1, endIndex);
+    async waitForCheckboxDisplayed(blockName, label) {
+        let selector = XPATH.aggregationContainerByName(blockName) + XPATH.aggregationLabelByName(label);
+        return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+    }
+
+    async waitForAggregationGroupDisplayed(blockName) {
+        let selector = XPATH.aggregationContainerByName(blockName);
+        return await this.waitForElementDisplayed(selector, appConst.mediumTimeout);
+    }
+
+    async waitForCheckboxNotDisplayed(blockName, checkBoxLabel) {
+        let selector = XPATH.aggregationContainerByName(blockName) + XPATH.aggregationLabelByName(checkBoxLabel);
+        return await this.waitForElementNotDisplayed(selector, appConst.mediumTimeout);
+    }
+
+    //clicks on a checkbox in Workflow aggregation block
+    async clickOnCheckboxInWorkflowBlock(checkBoxLabel) {
+        try {
+            let selector = XPATH.aggregationContainerByName(appConst.FILTER_PANEL_AGGREGATION_BLOCK.WORKFLOW) +
+                           XPATH.aggregationLabelByName(checkBoxLabel);
+            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+            await this.clickOnElement(selector);
+            return await this.pause(1200);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_click_on_aggregation"));
+            throw new Error("Error when click on the aggregation checkbox: " + err);
+        }
+    }
+
+    // gets a number of items from a checkbox label in an aggregation block(Workflow,modifier)
+    async getNumberOfItemsInAggregationView(blockName, checkboxLabel) {
+        try {
+            let locator = XPATH.aggregationContainerByName(blockName) + XPATH.aggregationLabelByName(checkboxLabel);
+            await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+            let label = await this.getText(locator);
+            let startIndex = label.indexOf('(');
+            let endIndex = label.indexOf(')');
+            return label.substring(startIndex + 1, endIndex);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_numb_in_aggregation"));
+            throw new Error("Error when get the number in aggregation checkbox: " + err);
+        }
     }
 
     async getNumberOfItemsInFolderAggregation() {
@@ -119,8 +152,9 @@ class BrowseFilterPanel extends Page {
         return label.substring(startIndex + 1, endIndex);
     }
 
+    //Gets items in "Content Types" block:
     async geContentTypes() {
-        let locator = XPATH.aggregationContainer + "//div[contains(@class,'checkbox')]//label";
+        let locator = XPATH.aggregationContainerByName("Content Types") + "//div[contains(@class,'checkbox')]//label";
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
