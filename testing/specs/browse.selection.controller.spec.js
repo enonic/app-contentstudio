@@ -1,6 +1,5 @@
 /**
  * Created on 15.05.2020.
- *
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -79,7 +78,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.openFilterPanel();
             //1. Click on 'Image' checkbox in Filter Panel:
-            await contentFilterPanel.clickOnCheckboxInAggregationView("Image");
+            await contentFilterPanel.clickOnCheckboxInContentTypesBlock("Image");
             //2. Select 2 images:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("book");
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("cape");
@@ -106,7 +105,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.openFilterPanel();
             //1. Click on 'Image' checkbox in Filter Panel:
-            await contentFilterPanel.clickOnCheckboxInAggregationView("Image");
+            await contentFilterPanel.clickOnCheckboxInContentTypesBlock("Image");
             //2. Select 2 images:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("book");
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("cape");
@@ -129,7 +128,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.openFilterPanel();
             //1. Click on 'Image' checkbox in Filter Panel:
-            await contentFilterPanel.clickOnCheckboxInAggregationView("Image");
+            await contentFilterPanel.clickOnCheckboxInContentTypesBlock("Image");
             //2. Select 2 images:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("book");
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("cape");
