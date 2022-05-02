@@ -348,6 +348,14 @@ module.exports = Object.freeze({
         READY_FOR_PUBLISHING: 'Ready for publishing',
         PUBLISHED: 'Published'
     },
+    FILTER_PANEL_AGGREGATION_BLOCK: {
+        CONTENT_TYPES: "Content Types",
+        WORKFLOW: "Workflow",
+        MODIFIER: "Modifier",
+        OWNER: "Owner",
+        LAST_MODIFIED: "Last Modified",
+
+    },
     ISSUE_LIST_TYPE_FILTER: {
         ALL: 'All',
         ASSIGNED_TO_ME: 'Assigned to Me',
