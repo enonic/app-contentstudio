@@ -6,11 +6,12 @@ import {Principal} from 'lib-admin-ui/security/Principal';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
 import {PrincipalViewerCompact} from 'lib-admin-ui/ui/security/PrincipalViewer';
-import {CollaborationEventType, CollaborationServerEvent} from '../event/CollaborationServerEvent';
+import {CollaborationServerEvent} from '../event/CollaborationServerEvent';
 import {Element} from 'lib-admin-ui/dom/Element';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
 import * as Q from 'q';
+import {ContentId} from '../content/ContentId';
 
 export class CollaborationEl
     extends DivEl {
@@ -21,8 +22,14 @@ export class CollaborationEl
 
     private counterBlock: DivEl;
 
-    constructor() {
+    private collaborators: PrincipalKey[] = [];
+
+    private readonly contentId: ContentId;
+
+    constructor(contentId: ContentId) {
         super('content-wizard-toolbar-collaboration');
+
+        this.contentId = contentId;
 
         this.initElements();
         this.initListeners();
@@ -94,18 +101,23 @@ export class CollaborationEl
     }
 
     private handeCollaborationEvent(event: CollaborationServerEvent): void {
-        if (event.getType() === CollaborationEventType.ADD) {
-            this.handleAddCollaborator(event.getCollaborators());
-        } else if (event.getType() === CollaborationEventType.REMOVE) {
-            this.handleRemoveCollaborator(event.getCollaborators());
+        if (event.getContentId().equals(this.contentId)) {
+            this.handleContentCollaborationEvent(event);
         }
+    }
+
+    private handleContentCollaborationEvent(event: CollaborationServerEvent): void {
+        this.collaborators = event.getCollaborators();
+
+        this.addMissingCollaborators();
+        this.removeStaleCollaborators();
 
         this.toggleClass('single', event.getCollaborators().length === 1);
         this.toggleClass('multiple', event.getCollaborators().length > 1);
     }
 
-    private handleAddCollaborator(allCollaborators: PrincipalKey[]): void {
-        const collaboratorsToAdd: PrincipalKey[] = allCollaborators.filter((userKey: PrincipalKey) => !this.containsUserWithKey(userKey));
+    private addMissingCollaborators(): void {
+        const collaboratorsToAdd: PrincipalKey[] = this.collaborators.filter((userKey: PrincipalKey) => !this.containsUserWithKey(userKey));
 
         if (collaboratorsToAdd.length === 0) {
             return;
@@ -171,25 +183,27 @@ export class CollaborationEl
         return 0;
     }
 
-    private handleRemoveCollaborator(allCollaborators: PrincipalKey[]): void {
+    private removeStaleCollaborators(): void {
+        this.getViewersToRemove().forEach((viewer: PrincipalViewerCompact) => this.usersBlock.removeChild(viewer));
+        this.updateVisibleElements();
+    }
+
+    private getViewersToRemove(): PrincipalViewerCompact[] {
         const viewersToRemove: PrincipalViewerCompact[] = [];
 
         this.usersBlock.getChildren().filter((viewer: PrincipalViewerCompact) => {
             const existingUserKey: PrincipalKey = viewer.getObject().getKey();
 
-            if (!this.isCollaborator(existingUserKey, allCollaborators)) {
+            if (!this.isCollaborator(existingUserKey)) {
                 viewersToRemove.push(viewer);
             }
         });
 
-        if (viewersToRemove.length > 0) {
-            viewersToRemove.forEach((viewer: PrincipalViewerCompact) => this.usersBlock.removeChild(viewer));
-            this.updateVisibleElements();
-        }
+        return viewersToRemove;
     }
 
-    private isCollaborator(key: PrincipalKey, collaborators: PrincipalKey[]): boolean {
-        return key.equals(this.currentUser?.getKey()) || collaborators.some((colKey: PrincipalKey) => colKey.equals(key));
+    private isCollaborator(key: PrincipalKey): boolean {
+        return key.equals(this.currentUser?.getKey()) || this.collaborators.some((colKey: PrincipalKey) => colKey.equals(key));
     }
 
 }

@@ -128,7 +128,7 @@ export class ContentWizardToolbar
     }
 
     private addCollaboration(): void {
-        this.collaborationBlock = new CollaborationEl();
+        this.collaborationBlock = new CollaborationEl(this.getItem().getContentId());
         super.addElement(this.collaborationBlock);
         this.openCollaborationWSConnection();
     }
