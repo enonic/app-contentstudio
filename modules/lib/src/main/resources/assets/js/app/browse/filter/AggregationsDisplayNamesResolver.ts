@@ -10,11 +10,14 @@ import {Principal} from 'lib-admin-ui/security/Principal';
 import {StringHelper} from 'lib-admin-ui/util/StringHelper';
 import {GetLocalesRequest} from '../../resource/GetLocalesRequest';
 import {Locale} from 'lib-admin-ui/locale/Locale';
+import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesRequest';
+import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
 
 export class AggregationsDisplayNamesResolver {
 
     private principals: Map<string, string> = new Map<string, string>();
     private locales: Locale[];
+    private contentTypes: Map<string, string>;
     private readonly currentUserId: string;
 
     constructor(userId: string) {
@@ -27,6 +30,8 @@ export class AggregationsDisplayNamesResolver {
         const updatePromises: Q.Promise<void>[] = [];
         updatePromises.push(this.updateLanguageAggregations(aggregations));
         updatePromises.push(this.updatePrincipalsAggregations(aggregations));
+        updatePromises.push(this.updateContentTypeAggregations(aggregations));
+
 
         return Q.all(updatePromises).thenResolve(null);
     }
@@ -127,5 +132,31 @@ export class AggregationsDisplayNamesResolver {
             this.locales = locales;
             return this.updateLanguageAggregation(langAggr);
         });
+    }
+
+    private updateContentTypeAggregations(aggregations: Aggregation[]): Q.Promise<void> {
+        const contentTypeAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregations.CONTENT_TYPE);
+
+        return !!contentTypeAggr ? this.updateContentTypeAggregation(<BucketAggregation>contentTypeAggr) : Q.resolve(null);
+    }
+
+    private updateContentTypeAggregation(aggregation: BucketAggregation): Q.Promise<void> {
+        if (this.contentTypes) {
+            aggregation.getBuckets().forEach((bucket: Bucket) => {
+                bucket.setDisplayName(this.contentTypes.get(bucket.getKey()) || bucket.getKey())
+            });
+
+            return Q.resolve();
+        } else {
+            return new GetAllContentTypesRequest().sendAndParse().then((items: ContentTypeSummary[]) => {
+                this.contentTypes = new Map<string, string>();
+
+                items.forEach((item: ContentTypeSummary) => {
+                    this.contentTypes.set(item.getName().toLowerCase(), item.getDisplayName());
+                });
+
+                return this.updateContentTypeAggregation(aggregation);
+            });
+        }
     }
 }

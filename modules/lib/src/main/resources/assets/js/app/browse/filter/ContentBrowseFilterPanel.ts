@@ -2,7 +2,6 @@ import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
 import {ContentBrowseSearchData} from './ContentBrowseSearchData';
-import {ContentTypeAggregationGroupView} from './ContentTypeAggregationGroupView';
 import {Router} from '../../Router';
 import {ContentQueryRequest} from '../../resource/ContentQueryRequest';
 import {ContentQueryResult} from '../../resource/ContentQueryResult';
@@ -108,10 +107,6 @@ export class ContentBrowseFilterPanel
     }
 
     private createGroupView(name: string): AggregationGroupView {
-        if (name === ContentAggregations.CONTENT_TYPE) {
-            return new ContentTypeAggregationGroupView(name, i18n(`field.${name}`));
-        }
-
         return new AggregationGroupView(name, i18n(`field.${name}`));
     }
 
@@ -186,7 +181,10 @@ export class ContentBrowseFilterPanel
                 if (this.dependenciesSection.isActive() && contentQueryResult.getAggregations().length === 0) {
                     this.removeDependencyItem();
                 } else {
-                    return this.handleDataSearchResult(contentQuery, contentQueryResult);
+                    return this.handleDataSearchResult(contentQueryResult).then(() => {
+                        new BrowseFilterSearchEvent(new ContentBrowseSearchData(contentQueryResult, contentQuery)).fire();
+                        return Q.resolve();
+                    });
                 }
             })
             .catch(DefaultErrorHandler.handle);
@@ -198,20 +196,23 @@ export class ContentBrowseFilterPanel
             .sendAndParse()
             .then((contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
                 if (contentQueryResult.getMetadata().getTotalHits() > 0) {
-                    this.handleDataSearchResult(contentQuery, contentQueryResult);
+                    return this.handleDataSearchResult(contentQueryResult).then(() => {
+                        new BrowseFilterSearchEvent(new ContentBrowseSearchData(contentQueryResult, contentQuery)).fire();
+                        return Q.resolve();
+                    });
                 } else {
-                    this.handleNoSearchResultOnRefresh(contentQuery);
+                    return this.handleNoSearchResultOnRefresh(contentQuery);
                 }
             })
             .catch(DefaultErrorHandler.handle);
     }
 
-    private handleDataSearchResult(contentQuery: ContentQuery, contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) {
+    private handleDataSearchResult(contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>): Q.Promise<void> {
         return this.getAggregations(contentQueryResult).then((aggregations: Aggregation[]) => {
             this.processAggregations(aggregations, true);
             this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits());
-            new BrowseFilterSearchEvent(new ContentBrowseSearchData(contentQueryResult, contentQuery)).fire();
-        }).catch(DefaultErrorHandler.handle);
+            return Q.resolve();
+        });
     }
 
     private processAggregations(aggregations: Aggregation[], doUpdateAll?: boolean): void {
@@ -268,7 +269,6 @@ export class ContentBrowseFilterPanel
     }
 
     private initAggregationGroupView() {
-        const aggregationGroupViews: AggregationGroupView[] = Array.from(this.aggregations.values());
         const contentQuery: ContentQuery = this.buildQuery(true);
 
         // that is supposed to be cached so response will be fast
@@ -277,11 +277,7 @@ export class ContentBrowseFilterPanel
 
             new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
                 (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-                    this.processAggregations(queryResult.getAggregations());
-                    this.updateHitsCounter(queryResult.getMetadata().getTotalHits(), true);
-                    aggregationGroupViews.forEach((aggregationGroupView: AggregationGroupView) => {
-                        aggregationGroupView.initialize();
-                    });
+                    return this.handleDataSearchResult(queryResult);
                 }).catch((reason: any) => {
                 DefaultErrorHandler.handle(reason);
             }).done();
@@ -293,16 +289,18 @@ export class ContentBrowseFilterPanel
 
         return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
             (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-                this.processAggregations(queryResult.getAggregations(), doResetAll);
-                this.updateHitsCounter(queryResult.getMetadata().getTotalHits(), true);
+                this.handleDataSearchResult(queryResult).then(() => {
+                    this.processAggregations(queryResult.getAggregations(), doResetAll);
+                    this.updateHitsCounter(queryResult.getMetadata().getTotalHits(), true);
 
-                if (!suppressEvent) { // then fire usual reset event with content grid reloading
-                    if (this.dependenciesSection?.isActive()) {
-                        new BrowseFilterSearchEvent(new ContentBrowseSearchData(queryResult, contentQuery)).fire();
-                    } else {
-                        new BrowseFilterResetEvent().fire();
+                    if (!suppressEvent) { // then fire usual reset event with content grid reloading
+                        if (this.dependenciesSection?.isActive()) {
+                            new BrowseFilterSearchEvent(new ContentBrowseSearchData(queryResult, contentQuery)).fire();
+                        } else {
+                            new BrowseFilterResetEvent().fire();
+                        }
                     }
-                }
+                });
             }
         ).catch((reason: any) => {
             DefaultErrorHandler.handle(reason);
