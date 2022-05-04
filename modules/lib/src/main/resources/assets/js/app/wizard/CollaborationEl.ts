@@ -11,6 +11,7 @@ import {Element} from 'lib-admin-ui/dom/Element';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {GetPrincipalsByKeysRequest} from '../security/GetPrincipalsByKeysRequest';
 import * as Q from 'q';
+import {ContentId} from '../content/ContentId';
 
 export class CollaborationEl
     extends DivEl {
@@ -23,8 +24,12 @@ export class CollaborationEl
 
     private collaborators: PrincipalKey[] = [];
 
-    constructor() {
+    private readonly contentId: ContentId;
+
+    constructor(contentId: ContentId) {
         super('content-wizard-toolbar-collaboration');
+
+        this.contentId = contentId;
 
         this.initElements();
         this.initListeners();
@@ -96,6 +101,12 @@ export class CollaborationEl
     }
 
     private handeCollaborationEvent(event: CollaborationServerEvent): void {
+        if (event.getContentId().equals(this.contentId)) {
+            this.handleContentCollaborationEvent(event);
+        }
+    }
+
+    private handleContentCollaborationEvent(event: CollaborationServerEvent): void {
         this.collaborators = event.getCollaborators();
 
         this.addMissingCollaborators();
