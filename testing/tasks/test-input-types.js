@@ -48,11 +48,10 @@ async function runTests() {
 
 async function uiTests() {
     try {
-        console.log("Download chrome driver and Selenium server");
+        console.log("### Download chrome driver and Selenium server");
         await selenium.install({
             version: seleniumVersion,
-            //baseURL: 'https://selenium-release.storage.googleapis.com',
-            fullURL: 'https://selenium-release.storage.googleapis.com/4.0-alpha-7/selenium-server-4.0.0-alpha-7.jar',
+            baseURL: 'https://github.com/SeleniumHQ/selenium/releases/download',
             drivers: {
                 chrome: {
                     version: driverVersion,
@@ -62,8 +61,9 @@ async function uiTests() {
             }
         });
 
-        console.log("Start selenium server");
+        console.log("### Start selenium server");
         const seleniumChildProcess = await selenium.start({
+            seleniumArgs: ['standalone'],
             drivers: {
                 chrome: {
                     version: driverVersion,
