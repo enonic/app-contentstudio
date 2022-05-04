@@ -18,7 +18,7 @@ import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 export class ContentAggregationsFetcher {
 
     private readonly searchInputValues: SearchInputValues;
-    private readonly contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>
+    private readonly contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>;
 
     private dependency?: { isInbound: boolean, dependencyId: ContentId };
     private constraintItems?: string[];
@@ -103,7 +103,7 @@ export class ContentAggregationsFetcher {
         const aggregationSelect: AggregationSelection[] = this.searchInputValues.aggregationSelections.filter(
             (aggrSelection: AggregationSelection) => aggrSelection.getName() !== aggregation.getName());
 
-        const emptyAggregationSelection: AggregationSelection = new AggregationSelection(aggregation.getName())
+        const emptyAggregationSelection: AggregationSelection = new AggregationSelection(aggregation.getName());
         emptyAggregationSelection.setValues([]);
         aggregationSelect.push(emptyAggregationSelection);
 
