@@ -290,9 +290,6 @@ export class ContentBrowseFilterPanel
         return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
             (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
                 this.handleDataSearchResult(queryResult).then(() => {
-                    this.processAggregations(queryResult.getAggregations(), doResetAll);
-                    this.updateHitsCounter(queryResult.getMetadata().getTotalHits(), true);
-
                     if (!suppressEvent) { // then fire usual reset event with content grid reloading
                         if (this.dependenciesSection?.isActive()) {
                             new BrowseFilterSearchEvent(new ContentBrowseSearchData(queryResult, contentQuery)).fire();
