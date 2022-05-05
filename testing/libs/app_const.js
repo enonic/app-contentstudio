@@ -301,6 +301,7 @@ module.exports = Object.freeze({
         ANONYMOUS_USER: 'Anonymous User',
         EVERYONE: 'Everyone',
         SUPER_USER: 'Super User',
+        ME: "Me",
     },
     sortMenuItem: {
         DISPLAY_NAME: 'Display name',
@@ -354,6 +355,7 @@ module.exports = Object.freeze({
         MODIFIER: "Modifier",
         OWNER: "Owner",
         LAST_MODIFIED: "Last Modified",
+        LANGUAGE: "Language",
 
     },
     ISSUE_LIST_TYPE_FILTER: {
