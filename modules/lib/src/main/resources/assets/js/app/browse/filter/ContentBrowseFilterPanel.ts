@@ -26,7 +26,7 @@ import {ContentSummaryJson} from '../../content/ContentSummaryJson';
 import {ContentId} from '../../content/ContentId';
 import {SearchContentQueryCreator} from './SearchContentQueryCreator';
 import {DependenciesSection} from './DependenciesSection';
-import {ContentAggregations} from './ContentAggregations';
+import {ContentAggregation} from './ContentAggregation';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
@@ -37,6 +37,7 @@ export class ContentBrowseFilterPanel
 
     private aggregations: Map<string, AggregationGroupView>;
     private aggregationsDisplayNamesResolver: AggregationsDisplayNamesResolver;
+    private userInfo: LoginResult;
 
     private dependenciesSection: DependenciesSection;
 
@@ -98,8 +99,8 @@ export class ContentBrowseFilterPanel
     protected getGroupViews(): AggregationGroupView[] {
         this.aggregations = new Map<string, AggregationGroupView>();
 
-        for (let aggrEnum in ContentAggregations) {
-            const name: string = ContentAggregations[aggrEnum];
+        for (let aggrEnum in ContentAggregation) {
+            const name: string = ContentAggregation[aggrEnum];
             this.aggregations.set(name, this.createGroupView(name));
         }
 
@@ -136,7 +137,7 @@ export class ContentBrowseFilterPanel
         }
 
         (<BucketAggregationView>this.aggregations.get(
-            ContentAggregations.CONTENT_TYPE).getAggregationViews()[0]).selectBucketViewByKey(key);
+            ContentAggregation.CONTENT_TYPE).getAggregationViews()[0]).selectBucketViewByKey(key);
     }
 
     doRefresh(): Q.Promise<void> {
@@ -217,10 +218,14 @@ export class ContentBrowseFilterPanel
 
     private processAggregations(aggregations: Aggregation[], doUpdateAll?: boolean): void {
         this.updateAggregations(aggregations, doUpdateAll);
-        this.aggregationsDisplayNamesResolver.updateAggregationsDisplayNames(aggregations).then(() => {
+        this.aggregationsDisplayNamesResolver.updateAggregationsDisplayNames(aggregations, this.getCurrentUserKeyAsString()).then(() => {
             this.updateAggregations(aggregations, true);
         }).catch(DefaultErrorHandler.handle);
         this.toggleAggregationsVisibility(aggregations);
+    }
+
+    private getCurrentUserKeyAsString(): string {
+        return this.userInfo.getUser().getKey().toString();
     }
 
     private handleNoSearchResultOnRefresh(contentQuery: ContentQuery): Q.Promise<void> {
@@ -273,7 +278,8 @@ export class ContentBrowseFilterPanel
 
         // that is supposed to be cached so response will be fast
         new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
-            this.aggregationsDisplayNamesResolver = new AggregationsDisplayNamesResolver(loginResult.getUser().getKey().toString());
+            this.userInfo = loginResult;
+            this.aggregationsDisplayNamesResolver = new AggregationsDisplayNamesResolver();
 
             new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
                 (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
