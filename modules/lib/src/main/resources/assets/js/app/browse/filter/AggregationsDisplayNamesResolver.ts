@@ -2,7 +2,7 @@ import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
 import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
 import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
 import {i18n} from 'lib-admin-ui/util/Messages';
-import {ContentAggregations} from './ContentAggregations';
+import {ContentAggregation} from './ContentAggregation';
 import {GetPrincipalsByKeysRequest} from '../../security/GetPrincipalsByKeysRequest';
 import * as Q from 'q';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
@@ -18,18 +18,14 @@ export class AggregationsDisplayNamesResolver {
     private principals: Map<string, string> = new Map<string, string>();
     private locales: Locale[];
     private contentTypes: Map<string, string>;
-    private readonly currentUserId: string;
+    private currentUserId?: string;
 
-    constructor(userId: string) {
-        this.currentUserId = userId;
-    }
-
-    updateAggregationsDisplayNames(aggregations: Aggregation[]): Q.Promise<void> {
+    updateAggregationsDisplayNames(aggregations: Aggregation[], userId: string): Q.Promise<void> {
         this.updateWorkflowAggregations(aggregations);
 
         const updatePromises: Q.Promise<void>[] = [];
         updatePromises.push(this.updateLanguageAggregations(aggregations));
-        updatePromises.push(this.updatePrincipalsAggregations(aggregations));
+        updatePromises.push(this.updatePrincipalsAggregations(aggregations, userId));
         updatePromises.push(this.updateContentTypeAggregations(aggregations));
 
 
@@ -37,7 +33,7 @@ export class AggregationsDisplayNamesResolver {
     }
 
     private updateWorkflowAggregations(aggregations: Aggregation[]) {
-        const workflowAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregations.WORKFLOW);
+        const workflowAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.WORKFLOW);
 
         if (workflowAggr) {
             this.updateWorkflowAggregation(<BucketAggregation>workflowAggr);
@@ -48,9 +44,11 @@ export class AggregationsDisplayNamesResolver {
         workflowAggr.getBuckets().forEach((bucket: Bucket) => bucket.setDisplayName(i18n(`status.workflow.${bucket.getKey()}`)));
     }
 
-    private updatePrincipalsAggregations(aggregations: Aggregation[]): Q.Promise<void> {
+    updatePrincipalsAggregations(aggregations: Aggregation[], userId: string): Q.Promise<void> {
+        this.currentUserId = userId;
+
         const principalsAggregations: BucketAggregation[] = <BucketAggregation[]>aggregations.filter((aggr: Aggregation) => {
-            return aggr.getName() === ContentAggregations.MODIFIER || aggr.getName() === ContentAggregations.OWNER;
+            return aggr.getName() === ContentAggregation.MODIFIER || aggr.getName() === ContentAggregation.OWNER;
         });
 
         return Q.all(principalsAggregations.map((principalAggr: BucketAggregation) => this.updatePrincipalsAggregation(principalAggr)))
@@ -108,8 +106,8 @@ export class AggregationsDisplayNamesResolver {
         });
     }
 
-    private updateLanguageAggregations(aggregations: Aggregation[]): Q.Promise<void> {
-        const langAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregations.LANGUAGE);
+    updateLanguageAggregations(aggregations: Aggregation[]): Q.Promise<void> {
+        const langAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.LANGUAGE);
 
         return !!langAggr ? this.updateLanguageAggregation(<BucketAggregation>langAggr) : Q.resolve(null);
     }
@@ -134,8 +132,8 @@ export class AggregationsDisplayNamesResolver {
         });
     }
 
-    private updateContentTypeAggregations(aggregations: Aggregation[]): Q.Promise<void> {
-        const contentTypeAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregations.CONTENT_TYPE);
+    updateContentTypeAggregations(aggregations: Aggregation[]): Q.Promise<void> {
+        const contentTypeAggr: Aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === ContentAggregation.CONTENT_TYPE);
 
         return !!contentTypeAggr ? this.updateContentTypeAggregation(<BucketAggregation>contentTypeAggr) : Q.resolve(null);
     }
@@ -143,20 +141,20 @@ export class AggregationsDisplayNamesResolver {
     private updateContentTypeAggregation(aggregation: BucketAggregation): Q.Promise<void> {
         if (this.contentTypes) {
             aggregation.getBuckets().forEach((bucket: Bucket) => {
-                bucket.setDisplayName(this.contentTypes.get(bucket.getKey()) || bucket.getKey())
+                bucket.setDisplayName(this.contentTypes.get(bucket.getKey()) || bucket.getKey());
             });
 
             return Q.resolve();
-        } else {
-            return new GetAllContentTypesRequest().sendAndParse().then((items: ContentTypeSummary[]) => {
-                this.contentTypes = new Map<string, string>();
-
-                items.forEach((item: ContentTypeSummary) => {
-                    this.contentTypes.set(item.getName().toLowerCase(), item.getDisplayName());
-                });
-
-                return this.updateContentTypeAggregation(aggregation);
-            });
         }
+
+        return new GetAllContentTypesRequest().sendAndParse().then((items: ContentTypeSummary[]) => {
+            this.contentTypes = new Map<string, string>();
+
+            items.forEach((item: ContentTypeSummary) => {
+                this.contentTypes.set(item.getName().toLowerCase(), item.getDisplayName());
+            });
+
+            return this.updateContentTypeAggregation(aggregation);
+        });
     }
 }

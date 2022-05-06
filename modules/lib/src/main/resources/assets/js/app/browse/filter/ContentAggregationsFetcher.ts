@@ -11,7 +11,7 @@ import {Expand} from 'lib-admin-ui/rest/Expand';
 import {ContentQueryResult} from '../../resource/ContentQueryResult';
 import {ContentId} from '../../content/ContentId';
 import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
-import {ContentAggregations} from './ContentAggregations';
+import {ContentAggregation} from './ContentAggregation';
 import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
 import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 
@@ -53,7 +53,7 @@ export class ContentAggregationsFetcher {
                     return Q.resolve(null);
                 }));
             } else {
-                if (aggregation.getName() === ContentAggregations.WORKFLOW) {
+                if (aggregation.getName() === ContentAggregation.WORKFLOW) {
                     this.updateWorkflowAggregation(<BucketAggregation>aggregation, this.contentQueryResult.getMetadata().getTotalHits());
                 }
 
@@ -78,7 +78,7 @@ export class ContentAggregationsFetcher {
                 const fetchedAggregation: Aggregation =
                     queryResult.getAggregations().find((aggr: Aggregation) => aggr.getName() === aggregation.getName());
 
-                if (fetchedAggregation.getName() === ContentAggregations.WORKFLOW) {
+                if (fetchedAggregation.getName() === ContentAggregation.WORKFLOW) {
                     this.updateWorkflowAggregation(<BucketAggregation>fetchedAggregation, queryResult.getMetadata().getTotalHits());
                 }
 
