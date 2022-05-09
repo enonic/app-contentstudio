@@ -47,12 +47,15 @@ export class AggregationsDisplayNamesResolver {
     updatePrincipalsAggregations(aggregations: Aggregation[], userId: string): Q.Promise<void> {
         this.currentUserId = userId;
 
-        const principalsAggregations: BucketAggregation[] = <BucketAggregation[]>aggregations.filter((aggr: Aggregation) => {
-            return aggr.getName() === ContentAggregation.MODIFIER || aggr.getName() === ContentAggregation.OWNER;
-        });
+        const principalsAggregations: BucketAggregation[] =
+            <BucketAggregation[]>aggregations.filter((aggr: Aggregation) => this.isPrincipalAggregation(aggr));
 
         return Q.all(principalsAggregations.map((principalAggr: BucketAggregation) => this.updatePrincipalsAggregation(principalAggr)))
             .thenResolve(null);
+    }
+
+    protected isPrincipalAggregation(aggregation: Aggregation): boolean {
+        return aggregation.getName() === ContentAggregation.MODIFIER || aggregation.getName() === ContentAggregation.OWNER;
     }
 
     private updatePrincipalsAggregation(principalsAggregation: BucketAggregation): Q.Promise<void> {
