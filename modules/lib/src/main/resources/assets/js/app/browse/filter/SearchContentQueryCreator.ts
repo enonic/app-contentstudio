@@ -233,18 +233,14 @@ export class SearchContentQueryCreator {
         this.appendPropertyFilter(ContentAggregation.LANGUAGE, 'language');
     }
 
-    private appendLastModifiedFilter() {
-        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(ContentAggregation.LAST_MODIFIED);
+    private appendLastModifiedFilter(): void {
+        this.appendDateFilter(ContentAggregation.LAST_MODIFIED, QueryField.MODIFIED_TIME);
+    }
+
+    protected appendDateFilter(name: string, fieldName): void {
+        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(name);
 
         if (!selectedBuckets || selectedBuckets.length === 0) {
-            return;
-        }
-
-        if (selectedBuckets.length === 1) {
-            const dateRangeBucket: DateRangeBucket = <DateRangeBucket>selectedBuckets.pop();
-            this.contentQuery.addQueryFilter(
-                new RangeFilter(QueryField.MODIFIED_TIME, ValueExpr.dateTime(dateRangeBucket.getFrom()).getValue(),
-                    null));
             return;
         }
 
@@ -252,13 +248,13 @@ export class SearchContentQueryCreator {
 
         selectedBuckets.forEach((selectedBucket: DateRangeBucket) => {
             let rangeFilter: RangeFilter =
-                new RangeFilter(QueryField.MODIFIED_TIME, ValueExpr.dateTime(selectedBucket.getFrom()).getValue(),
+                new RangeFilter(fieldName, ValueExpr.dateTime(selectedBucket.getFrom()).getValue(),
                     null);
 
             booleanFilter.addShould(<Filter>rangeFilter);
         });
 
-        return booleanFilter;
+        this.contentQuery.addQueryFilter(booleanFilter);
     }
 
     private appendContentTypesAggregationQuery() {
@@ -283,8 +279,13 @@ export class SearchContentQueryCreator {
     }
 
     private appendLastModifiedAggregationQuery() {
-        const dateRangeAgg: DateRangeAggregationQuery = new DateRangeAggregationQuery((ContentAggregation.LAST_MODIFIED));
-        dateRangeAgg.setFieldName(QueryField.MODIFIED_TIME);
+        this.appendDateAggregationQuery(ContentAggregation.LAST_MODIFIED, QueryField.MODIFIED_TIME);
+    }
+
+    protected appendDateAggregationQuery(name: string, fieldName: string): void {
+        const dateRangeAgg: DateRangeAggregationQuery = new DateRangeAggregationQuery(name);
+
+        dateRangeAgg.setFieldName(fieldName);
         dateRangeAgg.addRange(new DateRange('now-1h', null, i18n('field.lastModified.lessHour')));
         dateRangeAgg.addRange(new DateRange('now-1d', null, i18n('field.lastModified.lessDay')));
         dateRangeAgg.addRange(new DateRange('now-1w', null, i18n('field.lastModified.lessWeek')));
