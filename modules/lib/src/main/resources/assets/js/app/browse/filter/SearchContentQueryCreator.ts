@@ -59,7 +59,7 @@ export class SearchContentQueryCreator {
         return this;
     }
 
-    create(contentAggregations?: ContentAggregation[]): ContentQuery {
+    create(contentAggregations?: string[]): ContentQuery {
         this.appendQueryExpression();
         this.setSize();
 
@@ -69,35 +69,35 @@ export class SearchContentQueryCreator {
         return this.contentQuery;
     }
 
-    private appendAggregationsAndFilter(contentAggregations?: ContentAggregation[]): void {
+    protected appendAggregationsAndFilter(contentAggregations?: string[]): void {
         const hasAllAggregations: boolean = !contentAggregations;
 
-        if (hasAllAggregations || contentAggregations.some((a: ContentAggregation) => a === ContentAggregation.CONTENT_TYPE)) {
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.CONTENT_TYPE)) {
             this.appendContentTypeFilter();
             this.appendContentTypesAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: ContentAggregation) => a === ContentAggregation.WORKFLOW)) {
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.WORKFLOW)) {
             this.appendWorkflowFilter();
             this.appendWorkflowAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: ContentAggregation) => a === ContentAggregation.MODIFIER)) {
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.MODIFIER)) {
             this.appendModifierFilter();
             this.appendModifierAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: ContentAggregation) => a === ContentAggregation.OWNER)) {
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.OWNER)) {
             this.appendOwnerFilter();
             this.appendOwnerAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: ContentAggregation) => a === ContentAggregation.LAST_MODIFIED)) {
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.LAST_MODIFIED)) {
             this.appendLastModifiedFilter();
             this.appendLastModifiedAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: ContentAggregation) => a === ContentAggregation.LANGUAGE)) {
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.LANGUAGE)) {
             this.appendLanguageFilter();
             this.appendLanguageAggregationQuery();
         }
@@ -213,7 +213,7 @@ export class SearchContentQueryCreator {
         this.appendPropertyFilter(ContentAggregation.OWNER, ContentAggregation.OWNER);
     }
 
-    private appendPropertyFilter(name: string, field: string): void {
+    protected appendPropertyFilter(name: string, field: string): void {
         const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(name);
 
         if (!selectedBuckets || selectedBuckets.length === 0) {
@@ -262,11 +262,10 @@ export class SearchContentQueryCreator {
     }
 
     private appendContentTypesAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation((ContentAggregation.CONTENT_TYPE),
-            QueryField.CONTENT_TYPE, 0));
+        this.addTermsAggregation(ContentAggregation.CONTENT_TYPE, QueryField.CONTENT_TYPE);
     }
 
-    private createTermsAggregation(name: string, fieldName: string, size: number): TermsAggregationQuery {
+    protected createTermsAggregation(name: string, fieldName: string, size: number): TermsAggregationQuery {
         const termsAggregation: TermsAggregationQuery = new TermsAggregationQuery(name);
         termsAggregation.setFieldName(fieldName);
         termsAggregation.setSize(size);
@@ -276,11 +275,11 @@ export class SearchContentQueryCreator {
     }
 
     private appendWorkflowAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation(ContentAggregation.WORKFLOW, 'workflow.state', 0));
+        this.addTermsAggregation(ContentAggregation.WORKFLOW, 'workflow.state');
     }
 
     private appendModifierAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation(ContentAggregation.MODIFIER, ContentAggregation.MODIFIER, 0));
+        this.addTermsAggregation(ContentAggregation.MODIFIER, ContentAggregation.MODIFIER);
     }
 
     private appendLastModifiedAggregationQuery() {
@@ -294,10 +293,14 @@ export class SearchContentQueryCreator {
     }
 
     private appendOwnerAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation(ContentAggregation.OWNER, ContentAggregation.OWNER, 0));
+        this.addTermsAggregation(ContentAggregation.OWNER, ContentAggregation.OWNER);
     }
 
     private appendLanguageAggregationQuery() {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation(ContentAggregation.LANGUAGE, 'language', 0));
+        this.addTermsAggregation(ContentAggregation.LANGUAGE, 'language');
+    }
+
+    protected addTermsAggregation(name: string, fieldName: string): void {
+        this.contentQuery.addAggregationQuery(this.createTermsAggregation(name, fieldName, 0));
     }
 }
