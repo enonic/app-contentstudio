@@ -18,7 +18,9 @@ const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/us
 
 describe('create.content.in.project.spec - create new content in the selected context and verify a language in wizards', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TEST_FOLDER_NAME = studioUtils.generateRandomName("folder");
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");

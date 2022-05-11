@@ -13,7 +13,9 @@ const ProjectWizard = require('../../page_objects/project/project.wizard.panel')
 
 describe('settings.item.statistics.panel.spec - verify an info in item statistics panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let NEW_DISPLAY_NAME = studioUtils.generateRandomName("project");
@@ -109,9 +111,9 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             //Type the Identifier of the project
             await confirmValueDialog.typeNumberOrName(PROJECT_DISPLAY_NAME);
             await confirmValueDialog.clickOnConfirmButton();
+            await studioUtils.saveScreenshot("project_item_statistics_description_not_displayed");
             //2.Description block gets not visible in the statistics panel:
             await settingsItemStatisticsPanel.waitForDescriptionNotDisplayed();
-            studioUtils.saveScreenshot("project_item_statistics_description_not_displayed");
         });
 
     beforeEach(async () => {

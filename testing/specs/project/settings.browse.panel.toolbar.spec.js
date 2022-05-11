@@ -10,7 +10,9 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 
 describe('settings.browse.panel.toolbar.spec - ui-tests to verify state of buttons in the toolbar', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`WHEN setting browse panel is opened(no selections) THEN expected button should be present in the browse toolbar`,
         async () => {

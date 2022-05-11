@@ -14,7 +14,9 @@ const ProjectSelectionDialog = require('../../page_objects/project/project.selec
 
 describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
@@ -117,9 +119,9 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             //user's context should be loaded by default now!
             //2. load existing site from the current layer:
             let url = "http://localhost:8080/admin/site/preview" + `/${LAYER_DISPLAY_NAME}/draft/${SITE_NAME}`;
-            await webDriverHelper.browser.url(url);
+            await studioUtils.getBrowser().url(url);
             //3. Verify that expected site is loaded:
-            let actualTitle = await webDriverHelper.browser.getTitle();
+            let actualTitle = await studioUtils.getBrowser().getTitle();
             assert.equal(actualTitle, SITE_NAME, "expected site should be loaded");
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
             //Do log out:
@@ -156,7 +158,7 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         });
 
     afterEach(async () => {
-        let title = await webDriverHelper.browser.getTitle();
+        let title = await studioUtils.getBrowser().getTitle();
         //Do not close the Login page:
         if (title.includes("Content Studio") || title.includes("Users") || title.includes("/ Home")) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();

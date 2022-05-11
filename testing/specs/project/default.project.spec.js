@@ -11,7 +11,9 @@ const ProjectWizard = require('../../page_objects/project/project.wizard.panel')
 
 describe('default.project.spec - ui-tests for Default project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let DEFAULT_DESCRIPTION = "Test description";
 

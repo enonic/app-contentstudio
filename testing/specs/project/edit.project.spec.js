@@ -12,7 +12,9 @@ const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('edit.project.spec - ui-tests for editing a project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const PROJECT2_DISPLAY_NAME = studioUtils.generateRandomName("project");

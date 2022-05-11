@@ -15,7 +15,9 @@ const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard
 
 describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolbar', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const FOLDER_NAME = studioUtils.generateRandomName("folder");

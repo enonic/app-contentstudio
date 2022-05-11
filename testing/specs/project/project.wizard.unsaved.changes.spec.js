@@ -12,7 +12,9 @@ const ProjectWizard = require('../../page_objects/project/project.wizard.panel')
 
 describe('project.wizard.unsaved.changes.spec - checks unsaved changes in project wizard', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN new project wizard - display name has been typed WHEN 'close' icon has been clicked THEN Confirmation Dialog should appear`,
         async () => {

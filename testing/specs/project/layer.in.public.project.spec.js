@@ -13,7 +13,9 @@ const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.di
 
 describe('layer.in.public.project.spec - ui-tests for layer in existing project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");

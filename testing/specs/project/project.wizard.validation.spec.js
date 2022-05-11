@@ -11,7 +11,9 @@ const ProjectWizard = require('../../page_objects/project/project.wizard.panel')
 
 describe('project.wizard.validation.spec - validation specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
 

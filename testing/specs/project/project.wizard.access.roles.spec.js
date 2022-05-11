@@ -11,7 +11,9 @@ const ProjectWizard = require('../../page_objects/project/project.wizard.panel')
 
 describe('project.wizard.access.roles.spec - tests for giving access to manage project and content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let TEST_DESCRIPTION = "test description";

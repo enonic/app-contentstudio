@@ -11,7 +11,9 @@ const ProjectSelectionDialog = require('../../page_objects/project/project.selec
 
 describe('user.content.manager.expert.spec - ui-tests for content manager expert role', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const WARNING_MESSAGE = "Your permissions don't allow access to any projects. Please contact your administrator.";
     let USER;
@@ -43,7 +45,7 @@ describe('user.content.manager.expert.spec - ui-tests for content manager expert
         });
 
     afterEach(async () => {
-        let title = await webDriverHelper.browser.getTitle();
+        let title = await studioUtils.getBrowser().getTitle();
         if (title.includes("Content Studio") || title.includes("Users")) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }

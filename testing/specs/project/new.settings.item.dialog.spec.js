@@ -11,7 +11,9 @@ const NewSettingsItemDialog = require('../../page_objects/project/new.settings.i
 
 describe('new.settings.item.dialog.spec - ui-tests for New Settings Item Dialog', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN settings browse panel is opened WHEN 'New...' button has been pressed THEN 'NewSettingsItem' dialog should be opened`,
         async () => {

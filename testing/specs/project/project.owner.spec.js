@@ -25,7 +25,9 @@ const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentI
 
 describe('project.owner.spec - ui-tests for user with Owner role', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const FOLDER_NAME = studioUtils.generateRandomName("folder");
@@ -276,7 +278,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
         });
 
     afterEach(async () => {
-        let title = await webDriverHelper.browser.getTitle();
+        let title = await studioUtils.getBrowser().getTitle();
         if (title.includes("Content Studio") || title.includes("Users") || title.includes("/ Home")) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }

@@ -13,7 +13,9 @@ const SettingsItemStatisticsPanel = require('../../page_objects/project/settings
 
 describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wizard', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
 
     it("GIVEN new layer(in Default) with roles is saved WHEN 'Copy roles from parent' has been clicked THEN 'Save' button gets enabled",

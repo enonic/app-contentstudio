@@ -15,7 +15,9 @@ const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/us
 
 describe('change.access.mode.spec - Update Access Mode in project wizard', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let FOLDER;
     let TEST_FOLDER_NAME = studioUtils.generateRandomName("folder");
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");

@@ -12,7 +12,9 @@ const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.di
 
 describe('settings.browse.panel.context.menu.spec - ui-tests to verify context menu items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME_1 = studioUtils.generateRandomName("project");
 

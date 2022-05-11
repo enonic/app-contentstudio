@@ -12,7 +12,9 @@ const LayerWizard = require('../../page_objects/project/layer.wizard.panel');
 
 describe('layer.wizard.select.parent.project.spec - ui-tests for selecting parent project in layer wizard', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
 
 

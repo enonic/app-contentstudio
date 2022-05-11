@@ -11,7 +11,9 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 
 describe('layer.in.default.spec - ui-tests for creating a layer in Default project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it("GIVEN Default project is selected WHEN wizard for new layer is opened THEN expected parent project should be displayed",
         async () => {

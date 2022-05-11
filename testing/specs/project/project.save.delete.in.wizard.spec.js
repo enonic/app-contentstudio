@@ -12,7 +12,9 @@ const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.di
 
 describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deleting a project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
 

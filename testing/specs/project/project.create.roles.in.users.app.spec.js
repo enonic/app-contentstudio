@@ -12,7 +12,9 @@ const RoleWizard = require("../../page_objects/users/role.wizard");
 
 describe("project.create.roles.in.users.app.spec - ui-tests for checkin project's roles in Users app", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
 

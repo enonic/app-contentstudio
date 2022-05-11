@@ -12,7 +12,9 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 
 describe('multiselect.in.settings.panel.spec - tests for selection of several items in setting browse panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME_1 = studioUtils.generateRandomName("project");
     let PROJECT_DISPLAY_NAME_2 = studioUtils.generateRandomName("project");

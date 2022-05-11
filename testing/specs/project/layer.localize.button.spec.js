@@ -16,7 +16,9 @@ const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard
 
 describe('layer.localize.button.spec - checks Localize button in browse toolbar and Layers widget', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const FOLDER_NAME = studioUtils.generateRandomName('folder');
     const FOLDER_2_NAME = studioUtils.generateRandomName('folder');

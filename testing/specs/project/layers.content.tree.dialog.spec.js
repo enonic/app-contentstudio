@@ -13,7 +13,9 @@ const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.di
 
 describe('layers.content.tree.dialog.spec - tests for Layers Content Tree modal dialog', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const TEST_FOLDER_DISPLAY_NAME = studioUtils.generateRandomName("folder");
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const LAYER1_DISPLAY_NAME = studioUtils.generateRandomName("layer");

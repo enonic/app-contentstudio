@@ -13,7 +13,9 @@ const SortContentDialog = require('../../page_objects/browsepanel/sort.content.d
 
 describe('duplicate.inherited.content.spec - tests for duplicating of inherited content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const SITE_NAME = studioUtils.generateRandomName('site');
     const EXPECTED_ORDER = `Sorted by "Modified date" in descending order`;

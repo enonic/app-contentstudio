@@ -16,7 +16,9 @@ const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard
 
 describe("project.editor.spec - ui-tests for an user with 'Editor' role", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let FOLDER_NAME = studioUtils.generateRandomName("folder");
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
@@ -142,7 +144,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
         });
 
     afterEach(async () => {
-        let title = await webDriverHelper.browser.getTitle();
+        let title = await studioUtils.getBrowser().getTitle();
         if (title.includes("Content Studio") || title.includes("Users") || title.includes("/ Home")) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
