@@ -948,12 +948,13 @@ module.exports = {
     },
     async showLauncherPanel() {
         let launcherPanel = new LauncherPanel();
-        let selector = "//button[contains(@class,'launcher-button') and child::span[contains(@class,'span-x')] ]";
+        let selector = "//button[contains(@class,'launcher-button')  ]";
         try {
-            await this.waitUntilDisplayed(selector, 2000);
+           // await this.waitUntilDisplayed(selector, 2000);
             await this.getBrowser().pause(100);
-            let el = await this.getDisplayedElements(selector);
-            await el[0].click();
+            await this.clickOnElement(selector);
+            //let el = await this.getDisplayedElements(selector);
+            //await el[0].click();
             return await launcherPanel.waitForPanelDisplayed(1000);
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_launcher_button"));
