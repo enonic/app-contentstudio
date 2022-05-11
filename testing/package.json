@@ -13,7 +13,7 @@
     "test_wizards_grid": "node ./tasks/test-wizards-grid.js",
     "test_modal_dialog": "node tasks/test-modal-dialog.js",
     "test_collaboration": "node ./tasks/test-collaboration.js",
-    "test_wizards_grid:firefox":  "npx wdio ./wdio/wdio.wizard.grid.ff.conf.js",
+    "test_wizards_grid:firefox":  "npx wdio ./wdio.wizard.grid.ff.conf.js",
     "test_input_types:firefox": "npx wdio wdio/wdio.input_types.ff.conf.js"
   },
   "devDependencies": {
