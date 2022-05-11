@@ -13,7 +13,10 @@ const NewContentDialog = require('../page_objects/browsepanel/new.content.dialog
 
 describe('Browse toolbar shortcut spec`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN content is selected WHEN 'Ctrl+Delete' have been pressed THEN 'Delete Dialog' should appear`, async () => {
         let contentBrowsePanel = new ContentBrowsePanel();

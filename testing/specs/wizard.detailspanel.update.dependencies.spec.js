@@ -18,10 +18,12 @@ const InsertImageDialog = require('../page_objects/wizardpanel/insert.image.dial
 describe('Content with image-selector, select images and verify that Outbound dependencies are refreshed ',
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
-        webDriverHelper.setupBrowser();
+
+        if (typeof browser === "undefined") {
+            webDriverHelper.setupBrowser();
+        }
         let contentDisplayName = contentBuilder.generateRandomName('content');
         let CONTENT_NAME2 = contentBuilder.generateRandomName('content');
-
         let IMAGE_DISPLAY_NAME1 = "Pop_03";
         let IMAGE_DISPLAY_NAME2 = "Pop_02";
         let SITE;

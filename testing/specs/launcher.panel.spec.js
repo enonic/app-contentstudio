@@ -11,7 +11,10 @@ const LoginPage = require('../page_objects/login.page');
 
 describe('launcher.panel.spec: test for Launcher Panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it("WHEN su is logged in THEN 'Home' link should be active, Super User is current user",
         async () => {

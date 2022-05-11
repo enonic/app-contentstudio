@@ -15,7 +15,11 @@ const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wi
 
 describe('content.xdata.outbound.dependency.spec: checks outbound dependency for a content with x-data(image)', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
+
     let SITE;
     const CONTENT_WITH_XDATA = contentBuilder.generateRandomName('test');
     const CONTENT_WITH_XDATA_2 = contentBuilder.generateRandomName('test');

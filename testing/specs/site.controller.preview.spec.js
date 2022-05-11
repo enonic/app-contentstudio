@@ -1,7 +1,5 @@
 /**
  * Created on 01.02.2018.
- *
- * Verifies xp-apps#359 "Page Inspection panel - Template name is missing for the Automatic template option"
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -18,7 +16,10 @@ const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem
 
 describe('site.controller.preview.spec: checks Preview button and options in selector for Page Templates and Controllers', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let CONTROLLER_NAME = "Page";

@@ -14,7 +14,10 @@ const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 
 describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + tests for deleting multiselect content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let folder1;
     let folder2;

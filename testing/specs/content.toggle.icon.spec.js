@@ -13,7 +13,10 @@ const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialo
 
 describe('content.toggle.icon.spec: tests for expand/collapse icon', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let PARENT_FOLDER;
     let CHILD_FOLDER_1;
     let CHILD_FOLDER_2;

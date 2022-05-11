@@ -14,7 +14,10 @@ const LiveFormPanel = require("../page_objects/wizardpanel/liveform/live.form.pa
 
 describe('default.error.page.spec tests for Default error page', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let CONTROLLER_NAME = 'main region';

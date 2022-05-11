@@ -13,7 +13,10 @@ const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel'
 
 describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an image', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.POP_03;

@@ -14,7 +14,10 @@ const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialo
 
 describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Value dialogs', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let CHILD_FOLDER;
     it(`Preconditions: new site should be added`,

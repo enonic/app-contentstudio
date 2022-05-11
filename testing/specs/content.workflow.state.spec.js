@@ -13,7 +13,10 @@ const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard
 
 describe('content.workflow.state.spec: creates a folder and changes and checks the workflow state of this content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TEST_FOLDER;
 
     it(`WHEN 'New' folder has been selected in the grid THEN 'Work in progress' state should be displayed`,

@@ -16,7 +16,10 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 
 describe('Wizard toolbar - shortcut spec`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let DISPLAY_NAME;
 
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+s' has been pressed THEN folder should be saved`, async () => {

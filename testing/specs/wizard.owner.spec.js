@@ -13,7 +13,10 @@ const SettingsStepForm = require('../page_objects/wizardpanel/settings.wizard.st
 
 describe('wizard.owner.spec - update and revert owner in wizard`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TEST_FOLDER;
 
     it(`Preconditions: test folder should be added`,

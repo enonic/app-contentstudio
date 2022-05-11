@@ -15,7 +15,10 @@ const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem
 
 describe('site.configurator.htmlarea.spec: tests for site configurator with htmlArea input', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let LINK_TEXT = "test";

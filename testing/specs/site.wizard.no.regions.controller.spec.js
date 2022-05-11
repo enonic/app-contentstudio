@@ -13,7 +13,10 @@ const appConst = require('../libs/app_const');
 
 describe('site.wizard.no.regions.controller.spec: checks Save button after selecting a template with `no region` ', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
 
 //verifies https://github.com/enonic/app-contentstudio/issues/210

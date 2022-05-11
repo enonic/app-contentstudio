@@ -15,7 +15,11 @@ const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard
 
 describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(htmlarea), type a text in the textarea`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
+
     let SITE;
     let contentName = contentBuilder.generateRandomName('test');
     let TEST_TEXT = 'test text';

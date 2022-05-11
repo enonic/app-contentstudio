@@ -14,7 +14,10 @@ const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem
 
 describe('browse.panel.grid.context.menu.spec - Tests for grid context menu', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TEST_FOLDER_1;
     let TEST_FOLDER_2;
 

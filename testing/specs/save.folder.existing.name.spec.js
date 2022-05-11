@@ -11,7 +11,10 @@ const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel'
 
 describe('save.folder.existing.name.spec: Save a folder with a name that is already in use', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TEST_FOLDER;
 
     it("Preconditions: new folder should be added",

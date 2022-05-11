@@ -12,7 +12,10 @@ const appConst = require('../libs/app_const');
 
 describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const DISPLAY_NAME = appConst.generateRandomName("folder");
 
     it(`WHEN folder-wizard is opened THEN 'Save' button should be disabled`,

@@ -12,7 +12,10 @@ const InsertImageDialog = require('../page_objects/wizardpanel/insert.image.dial
 
 describe('insert.image.dlg.style.selector.spec: style selector, select Original option', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.POP_03;

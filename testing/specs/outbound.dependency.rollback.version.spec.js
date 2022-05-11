@@ -17,9 +17,11 @@ const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard
 describe('Check Outbound dependencies after rollback a version of content with image-selector',
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
-        webDriverHelper.setupBrowser();
-        let CONTENT_NAME = contentBuilder.generateRandomName('content');
+        if (typeof browser === "undefined") {
+            webDriverHelper.setupBrowser();
+        }
 
+        let CONTENT_NAME = contentBuilder.generateRandomName('content');
         let IMAGE_DISPLAY_NAME1 = "Pop_03";
         let IMAGE_DISPLAY_NAME2 = "Pop_02";
         let SITE;

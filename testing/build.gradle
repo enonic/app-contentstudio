@@ -182,3 +182,13 @@ task baseContentStudioTests( type: NpmTask, dependsOn: [npmInstall, startServer,
 task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['test']
 }
+
+/////////////////////////////Firefox geckodriver:
+task testWizardsGridFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_wizards_grid:firefox']
+    finalizedBy stopServer
+}
+
+task testWizardsGridFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_wizards_grid:firefox']
+}

@@ -18,7 +18,10 @@ const PublishContentDialog = require('../page_objects/content.publish.dialog');
 
 describe('Browse panel, properties widget, language spec`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TEST_FOLDER;
 
     it(`GIVEN existing folder(English (en)) WHEN the folder has been selected THEN expected language should be displayed in Properties Widget`,

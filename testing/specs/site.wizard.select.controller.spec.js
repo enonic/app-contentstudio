@@ -11,7 +11,10 @@ const contentBuilder = require("../libs/content.builder");
 
 describe('site.wizard.select.controller.spec: Saves site-data and selects a controller', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN wizard for new site is opened WHEN name typed and application have been selected (the site is saved automatically ) THEN controller selector should appear in no longer than 5 seconds`,
         async () => {

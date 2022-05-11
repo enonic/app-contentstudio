@@ -12,7 +12,11 @@ const contentBuilder = require("../libs/content.builder");
 
 describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar after closing a wizard page', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
+
     let FOLDER_NAME;
 
     let SITE;

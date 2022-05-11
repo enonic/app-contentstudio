@@ -14,7 +14,10 @@ const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialo
 
 describe('archive.content.dialog.spec:  tests for archiving content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const DIALOG_TITLE = "Confirm archive";
 
     let FOLDER1;

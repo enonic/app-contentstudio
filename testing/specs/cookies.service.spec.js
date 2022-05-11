@@ -9,7 +9,10 @@ const studioUtils = require('../libs/studio.utils.js');
 
 describe("cookies.service.spec:  tests for cookies service", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const COOKIES_SERVICE = "cookies";
     const COOKIE_NAME = "JSESSIONID";
@@ -18,7 +21,7 @@ describe("cookies.service.spec:  tests for cookies service", function () {
     it("GIVEN su is logged in WHEN request has been sent to service THEN expected cookie should be present in the response",
         async () => {
             await studioUtils.loadServiceURL(COOKIES_SERVICE, APP_NAME);
-            let cookie = await webDriverHelper.browser.getCookies(COOKIE_NAME);
+            let cookie = await studioUtils.getBrowser().getCookies(COOKIE_NAME);
             assert.equal(cookie[0].name, COOKIE_NAME);
         });
 

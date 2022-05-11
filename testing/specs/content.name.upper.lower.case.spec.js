@@ -11,7 +11,11 @@ const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel'
 
 describe('content.name.upper.lower.case.spec: tests for creating content with an upper and lower case name', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
+
     let FOLDER_1;
     const NAME_LOWER_CASE = "folder-2021";
     const NAME_UPPER_CASE = "FOLDER-2021";

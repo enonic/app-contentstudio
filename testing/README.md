@@ -20,6 +20,7 @@ Before trying to run tests, you need to verify that the following software are i
   6. gradlew testPublishIssues  --project-cache-dir d:/cache
   7. gradlew testWizardsGrid --project-cache-dir d:/cache
   8. gradlew testInputTypes_2_Local --project-cache-dir d:/cache
+  9. gradlew testWizardsGridFirefox
   
 
 ### Reporting 

@@ -12,7 +12,10 @@ const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.p
 
 describe('update.path.spec: tests for updating a content path', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let PATH_1 = contentBuilder.generateRandomName('folder');
     let PATH_2 = contentBuilder.generateRandomName('folder');
 

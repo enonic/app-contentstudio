@@ -16,7 +16,10 @@ const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialo
 
 describe('site.wizard.confirm.delete.spec: opens a site and delete it', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     it(`GIVEN site-wizard is opened AND new site is saved WHEN 'Delete' button has been pressed AND Delete button on the modal dialog pressed THEN 'Confirm delete' dialog appears`,

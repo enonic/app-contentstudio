@@ -14,7 +14,10 @@ const UserBrowsePanel = require('../page_objects/users/userbrowse.panel');
 
 describe('content.wizard.owner.spec - ui-tests for owner', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const OWNER_REMOVED = 'This user is deleted';
 
     const FOLDER_NAME = studioUtils.generateRandomName("folder");

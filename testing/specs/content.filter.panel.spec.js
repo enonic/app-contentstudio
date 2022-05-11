@@ -13,7 +13,10 @@ const FilterPanel = require("../page_objects/browsepanel/content.filter.panel");
 
 describe('content.filter.panel.spec: tests for filter panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let FOLDER_NAME = contentBuilder.generateRandomName('folder');
 
@@ -24,9 +27,9 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             await contentBrowsePanel.clickOnSearchButton();
             await filterPanel.waitForOpened();
             //1. Click on "Executable" checkbox in Filter Panel
-            await filterPanel.clickOnCheckboxInAggregationView("Executable");
+            await filterPanel.clickOnCheckboxInContentTypesBlock("Executable");
             //2. Get the number in the aggregation checkbox:
-            let numberItems = await filterPanel.getNumberOfItemsInAggregationView("Executable");
+            let numberItems = await filterPanel.getNumberOfItemsInAggregationView("Content Types","Executable");
             //3. Get the number of items in the grid"
             let items = await contentBrowsePanel.getDisplayNamesInGrid();
             //4. Verify that the numbers are equal:
@@ -42,7 +45,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             await contentBrowsePanel.clickOnSearchButton();
             await filterPanel.waitForOpened();
             //1. Click on "Executable" checkbox in 'Filter Panel'
-            await filterPanel.clickOnCheckboxInAggregationView("Executable");
+            await filterPanel.clickOnCheckboxInContentTypesBlock("Executable");
             let items1 = await contentBrowsePanel.getDisplayNamesInGrid();
             //2. Click on 'Clear' link:
             await filterPanel.clickOnClearLink();

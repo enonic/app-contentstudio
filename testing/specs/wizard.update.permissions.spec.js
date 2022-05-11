@@ -14,7 +14,10 @@ const UserAccessWidget = require('../page_objects/browsepanel/detailspanel/user.
 describe('wizard.update.permissions.spec: update permissions and check the state of Save button on toolbar',
     function () {
         this.timeout(appConst.SUITE_TIMEOUT);
-        webDriverHelper.setupBrowser();
+
+        if (typeof browser === "undefined") {
+            webDriverHelper.setupBrowser();
+        }
         let DISPLAY_NAME = contentBuilder.generateRandomName('folder');
         let DISPLAY_NAME_1 = contentBuilder.generateRandomName('folder');
         let newDisplayName = contentBuilder.generateRandomName('folder');

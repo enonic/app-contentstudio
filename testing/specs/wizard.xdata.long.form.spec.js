@@ -12,7 +12,10 @@ const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel'
 
 describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let contentName = contentBuilder.generateRandomName('content');
     let X_DATA_STEP_WIZARD = 'Html Area x-data';

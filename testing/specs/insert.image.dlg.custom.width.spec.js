@@ -15,7 +15,10 @@ const VersionsWidget = require('../page_objects/wizardpanel/details/wizard.versi
 
 describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkbox and check `image range value`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');

@@ -14,7 +14,10 @@ const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wi
 
 describe('wizard.details.panel.spec: Open details panel in wizard and check the widgets', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN wizard for new folder is opened WHEN 'Version history' has been opened THEN one version item should be present in the widget`,
         async () => {

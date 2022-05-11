@@ -1,6 +1,5 @@
 /**
  * Created on 15.05.2020.
- *
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -12,7 +11,10 @@ const ContentFilterPanel = require('../page_objects/browsepanel/content.filter.p
 
 describe('Browse panel selection controller spec. Tests for Selection Controller checkBox and Show/Hide selection toggler', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     //Verifies https://github.com/enonic/lib-admin-ui/issues/1790
     //Selection checkboxes are not working in the Show Selection mode
@@ -79,7 +81,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.openFilterPanel();
             //1. Click on 'Image' checkbox in Filter Panel:
-            await contentFilterPanel.clickOnCheckboxInAggregationView("Image");
+            await contentFilterPanel.clickOnCheckboxInContentTypesBlock("Image");
             //2. Select 2 images:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("book");
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("cape");
@@ -106,7 +108,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.openFilterPanel();
             //1. Click on 'Image' checkbox in Filter Panel:
-            await contentFilterPanel.clickOnCheckboxInAggregationView("Image");
+            await contentFilterPanel.clickOnCheckboxInContentTypesBlock("Image");
             //2. Select 2 images:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("book");
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("cape");
@@ -129,7 +131,7 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.openFilterPanel();
             //1. Click on 'Image' checkbox in Filter Panel:
-            await contentFilterPanel.clickOnCheckboxInAggregationView("Image");
+            await contentFilterPanel.clickOnCheckboxInContentTypesBlock("Image");
             //2. Select 2 images:
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("book");
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName("cape");

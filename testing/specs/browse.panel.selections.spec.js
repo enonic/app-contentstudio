@@ -12,7 +12,10 @@ const studioUtils = require('../libs/studio.utils.js');
 
 describe('Browse panel selections spec', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it("GIVEN folder with children is checked WHEN 'Arrow Right'/Arrow Left key has been pressed THEN the folder gets expanded/collapsed",
         async () => {

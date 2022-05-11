@@ -9,12 +9,15 @@ const Page = require('../page_objects/page');
 
 describe('Call the `Application controller` specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN application with page controller is installed WHEN getting the URL that ending without slash THEN expected header should be loaded`,
         async () => {
             let page = new Page();
-            await webDriverHelper.browser.url("http://127.0.0.1:8080/webapp/com.enonic.app.appControllerTest");
+            await studioUtils.getBrowser().url("http://127.0.0.1:8080/webapp/com.enonic.app.appControllerTest");
             await studioUtils.saveScreenshot("app_controller_test1");
             //Expected header should be loaded:
             await page.waitForElementDisplayed("//h1[text()='My controller test page']", appConstant.mediumTimeout);
@@ -24,7 +27,7 @@ describe('Call the `Application controller` specification', function () {
     it(`GIVEN application with page controller is installed WHEN getting the URL that ending with slash THEN expected header should be loaded`,
         async () => {
             let page = new Page();
-            await webDriverHelper.browser.url("http://127.0.0.1:8080/webapp/com.enonic.app.appControllerTest/");
+            await studioUtils.getBrowser().url("http://127.0.0.1:8080/webapp/com.enonic.app.appControllerTest/");
             await studioUtils.saveScreenshot("app_controller_test2");
             await page.waitForElementDisplayed("//h1[text()='My controller test page']", appConstant.mediumTimeout);
         });

@@ -16,7 +16,10 @@ const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard
 describe("image.wizard.photo.properties.spec: Open an image and update photo properties then rollback the previous version",
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
-        webDriverHelper.setupBrowser();
+
+            if (typeof browser === "undefined") {
+                    webDriverHelper.setupBrowser();
+            }
 
         let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.NORD;
 
