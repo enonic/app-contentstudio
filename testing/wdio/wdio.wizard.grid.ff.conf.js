@@ -13,15 +13,7 @@ exports.config = {
     // directory is where your package.json resides, so `wdio` will be called from there.
     //
     specs: [
-        //path.resolve(__dirname, '../specs/*.spec.js')
-        //path.resolve(__dirname, '../specs/browse.selection.controller.spec.js')
-        //path.resolve(__dirname, '../specs/browse.toolbar.shortcut.spec.js')
-        //path.resolve(__dirname, '../specs/call.app.controller.spec.js')
-        //path.resolve(__dirname, '../specs/content.filter.panel.spec.js')
-        //path.resolve(__dirname, '../specs/content.name.upper.lower.case.spec.js')
-        path.resolve(__dirname, '../specs/content.toggle.icon.spec.js')
-        //path.resolve(__dirname, '../specs/browse.panel.grid.context.menu.spec.js')
-        //path.join(__dirname, '/specs/browse.panel.toolbar.spec.js')
+        path.resolve(__dirname, '../specs/*.spec.js')
     ],
     maxInstances: 1,
     //
@@ -95,7 +87,7 @@ exports.config = {
     reporters: ['spec',
         [HtmlReporter, {
             outputDir:  path.join(__dirname, '/../build/mochawesome-report/'),
-            filename: 'report1.html',
+            filename: 'report.html',
             reportTitle: 'Suite Report Title',
             linkScreenshots: true,
             //to show the report in a browser when done
@@ -194,11 +186,11 @@ exports.config = {
     // onComplete: function(exitCode, config, capabilities) {
     // }
     onPrepare: function (config, capabilities) {
-        console.log ("__dirname #####################  " + __dirname);
-        console.log ("__dirname #####################@@@@@@@  " + path.join(__dirname, '/../build/mochawesome-report/'));
+        console.log ("__dirname ##  " + __dirname);
+        console.log ("__dirname + report dir  " + path.join(__dirname, '/../build/mochawesome-report/'));
         reportAggregator = new ReportAggregator({
             //outputDir:  path.join(__dirname, '../build/mochawesome-report/'),
-            outputDir: '/build/mochawesome-report/',
+            outputDir: path.join(__dirname, '/../build/mochawesome-report/'),
             filename: 'report.html',
             reportTitle: 'Content Studio, Wizard, Grid Report',
             browserName : capabilities.browserName,
