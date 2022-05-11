@@ -11,8 +11,8 @@ exports.config = {
     // NPM script (see https://docs.npmjs.com/cli/run-script) then the current working
     // directory is where your package.json resides, so `wdio` will be called from there.
     specs: [
-        path.join(__dirname, '/specs/*.spec.js')
-       // __dirname +  '../specs/browse.panel.toolbar.spec.js'
+        //path.join(__dirname, '/specs/*.spec.js')
+        __dirname +  '/specs/browse.panel.toolbar.spec.js'
     ],
     maxInstances: 1,
     //
