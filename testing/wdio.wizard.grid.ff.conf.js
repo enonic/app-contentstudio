@@ -11,8 +11,8 @@ exports.config = {
     // NPM script (see https://docs.npmjs.com/cli/run-script) then the current working
     // directory is where your package.json resides, so `wdio` will be called from there.
     specs: [
-        //path.join(__dirname, '/specs/*.spec.js')
-        __dirname +  '/specs/browse.panel.toolbar.spec.js'
+        path.join(__dirname, '/specs/browse.panel.toolbar.spec.js')
+        //__dirname +  '/specs/browse.panel.toolbar.spec.js'
     ],
     maxInstances: 1,
     //
@@ -79,7 +79,8 @@ exports.config = {
     // see also: http://webdriver.io/guide/testrunner/reporters.html
     reporters: ['spec',
         [HtmlReporter, {
-            outputDir: __dirname +'/build/mochawesome-report/',
+            //outputDir: __dirname +'/build/mochawesome-report/',
+            outputDir:  path.join(__dirname, '/build/mochawesome-report/'),
             filename: 'report.html',
             reportTitle: 'Suite Report Title',
             linkScreenshots: true,
@@ -91,7 +92,7 @@ exports.config = {
         }
         ]
    ],
-    outputDir: __dirname+"/build",
+
 
     //
     // Options to be passed to Mocha.
@@ -107,10 +108,9 @@ exports.config = {
     },
 
     onPrepare: function (config, capabilities) {
-
         reportAggregator = new ReportAggregator({
-            //outputDir:  path.join(__dirname, '/build/mochawesome-report'),
-            outputDir: __dirname +'/build/mochawesome-report/',
+            //outputDir:  path.join(__dirname, '/build/mochawesome-report/'),
+            outputDir: '/build/mochawesome-report/',
             filename: 'report.html',
             reportTitle: 'Content Studio, Wizard, Grid Report',
             browserName : capabilities.browserName,
