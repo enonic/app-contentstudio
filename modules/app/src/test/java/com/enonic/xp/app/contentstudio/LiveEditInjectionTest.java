@@ -7,11 +7,14 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
+import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
@@ -21,14 +24,21 @@ import com.enonic.xp.web.servlet.ServletRequestHolder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
-public class LiveEditInjectionTest
+@ExtendWith(MockitoExtension.class)
+class LiveEditInjectionTest
 {
-    private PortalRequest portalRequest;
+    PortalRequest portalRequest;
 
-    private PortalResponse portalResponse;
+    PortalResponse portalResponse;
 
-    private LiveEditInjection injection;
+    LiveEditInjection injection;
+
+    @Mock(lenient = true)
+    AdminRestConfig config;
 
     @BeforeEach
     public void setup()
@@ -37,7 +47,7 @@ public class LiveEditInjectionTest
         this.portalResponse = PortalResponse.create().build();
         mockCurrentContextHttpRequest();
 
-        this.injection = new LiveEditInjection();
+        this.injection = new LiveEditInjection(config);
     }
 
     @Test
@@ -57,8 +67,7 @@ public class LiveEditInjectionTest
         assertNull( result3 );
     }
 
-    @Test
-    public void testInjectHeadBegin()
+    private void injectAndAssert(final String templateName)
         throws Exception
     {
         this.portalRequest.setMode( RenderMode.EDIT );
@@ -68,7 +77,24 @@ public class LiveEditInjectionTest
 
         final String result = list.get( 0 );
         assertNotNull( result );
-        assertEquals( readResource( "liveEditInjectionHeadBegin.html" ).trim() + System.lineSeparator(), result );
+        assertEquals( readResource( templateName ).trim() + System.lineSeparator(), result );
+    }
+
+    @Test
+    public void testInjectHeadBegin()
+        throws Exception
+    {
+        when( config.contentSecurityPolicy_enabled() ).thenReturn( true );
+        injectAndAssert("liveEditInjectionHeadBegin.html");
+    }
+
+    @Test
+    public void testInjectHeadBeginNoCsp()
+        throws Exception
+    {
+        when( config.contentSecurityPolicy_enabled() ).thenReturn( false );
+
+        injectAndAssert("liveEditInjectionHeadBeginNoCsp.html");
     }
 
     @Test
@@ -88,11 +114,11 @@ public class LiveEditInjectionTest
 
     private void mockCurrentContextHttpRequest()
     {
-        final HttpServletRequest req = Mockito.mock( HttpServletRequest.class );
-        Mockito.when( req.getScheme() ).thenReturn( "http" );
-        Mockito.when( req.getServerName() ).thenReturn( "localhost" );
-        Mockito.when( req.getLocalPort() ).thenReturn( 80 );
-        Mockito.when( req.getLocale() ).thenReturn( Locale.forLanguageTag( "no" ) );
+        final HttpServletRequest req = mock( HttpServletRequest.class, withSettings().lenient() );
+        when( req.getScheme() ).thenReturn( "http" );
+        when( req.getServerName() ).thenReturn( "localhost" );
+        when( req.getLocalPort() ).thenReturn( 80 );
+        when( req.getLocale() ).thenReturn( Locale.forLanguageTag( "no" ) );
         ServletRequestHolder.setRequest( req );
     }
 

@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.text.StringSubstitutor;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 import com.google.common.collect.Maps;
 
+import com.enonic.xp.app.contentstudio.rest.AdminRestConfig;
 import com.enonic.xp.portal.PortalRequest;
 import com.enonic.xp.portal.PortalResponse;
 import com.enonic.xp.portal.RenderMode;
@@ -18,7 +20,7 @@ import com.enonic.xp.portal.postprocess.HtmlTag;
 import com.enonic.xp.portal.postprocess.PostProcessInjection;
 import com.enonic.xp.util.Exceptions;
 
-@Component(immediate = true, service = PostProcessInjection.class)
+@Component(immediate = true, service = PostProcessInjection.class, configurationPid = "com.enonic.app.contentstudio")
 public final class LiveEditInjection
     implements PostProcessInjection
 {
@@ -34,10 +36,17 @@ public final class LiveEditInjection
 
     private final String bodyEndTemplate;
 
-    public LiveEditInjection()
+    private final String cspMetaTemplate;
+
+    private AdminRestConfig config;
+
+    @Activate
+    public LiveEditInjection( AdminRestConfig config )
     {
         this.headBeginTemplate = loadTemplate("liveEditHeadBegin.html");
         this.bodyEndTemplate = loadTemplate("liveEditBodyEnd.html");
+        this.cspMetaTemplate = loadTemplate("liveEditCSP.html");
+        this.config = config;
     }
 
     @Override
@@ -63,7 +72,12 @@ public final class LiveEditInjection
 
     private String injectHeadBegin( final PortalRequest portalRequest )
     {
-        return injectUsingTemplate( this.headBeginTemplate, makeModelForHeadBegin( portalRequest ) );
+        String finalTemplate = "";
+        if (this.config.contentSecurityPolicy_enabled()) {
+            finalTemplate += this.cspMetaTemplate;
+        }
+        finalTemplate += injectUsingTemplate( this.headBeginTemplate, makeModelForHeadBegin( portalRequest ) );
+        return finalTemplate;
     }
 
     private String injectBodyEnd( final PortalRequest portalRequest )
