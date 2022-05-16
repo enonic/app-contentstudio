@@ -79,6 +79,7 @@ button dropdown in the *Archive item(s)* dialog.
 
 IMPORTANT: Online content will instantly go offline after archiving or deleting.
 
+:imagesdir: actions/images
 image::dialog-archive.png[Archive item(s) dialog, 600]
 
 
@@ -126,15 +127,15 @@ There are two ways to open this dialog in the Content Studio:
 
 Child items of any content can be sorted in a number of ways through the *Sort items* dialog.
 
-The default sorting is by the *Modified date* in descending order. 
+The default sorting is by the *Modified date* in descending order.
 
 You can sort items in ascending or descending order by Modified date, Created date, Display name or Publish date. Children can also be manually sorted by simply dragging them in the *Sort items* dialog.
 
 image::dialog-sort.png[]
 
-Once items are sorted, the parent content will have an arrow in the browse view tree grid pointed up or down to denote ascending or descending. If the content is manually sorted, an icon with three horizontal bars will appear. 
+Once items are sorted, the parent content will have an arrow in the browse view tree grid pointed up or down to denote ascending or descending. If the content is manually sorted, an icon with three horizontal bars will appear.
 
-Clicking the bars or arrow icon will open the *Sort items* dialog. 
+Clicking the bars or arrow icon will open the *Sort items* dialog.
 
 In the image below, the `/folder-copy` is sorted by Display name in ascending order, `/folder-copy-2` is sorted by Published date in ascending order, and the `/folder-copy-3` has manual sorting.
 
