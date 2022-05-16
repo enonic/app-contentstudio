@@ -1,0 +1,22 @@
+.filterable-bucket-aggregation-view {
+  .listbox-dropdown {
+    .bucket-listbox {
+      .viewer {
+        .@{_COMMON_PREFIX}main-name {
+          font-size: 12px;
+          color: @admin-font-gray2;
+        }
+      }
+    }
+
+    .item-view-wrapper {
+      &.selected {
+        background-color: @admin-white;
+
+        .viewer .@{_COMMON_PREFIX}main-name {
+          color: @admin-black;
+        }
+      }
+    }
+  }
+}

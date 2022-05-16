@@ -13,7 +13,7 @@ import {ContentId} from '../../content/ContentId';
 import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
 import {ContentAggregation} from './ContentAggregation';
 import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
-import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
+import {WorkflowState} from '../../content/WorkflowState';
 
 export class ContentAggregationsFetcher {
 

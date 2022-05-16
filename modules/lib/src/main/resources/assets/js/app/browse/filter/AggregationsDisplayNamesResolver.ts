@@ -55,7 +55,7 @@ export class AggregationsDisplayNamesResolver {
     }
 
     protected isPrincipalAggregation(aggregation: Aggregation): boolean {
-        return aggregation.getName() === ContentAggregation.MODIFIER || aggregation.getName() === ContentAggregation.OWNER;
+        return aggregation.getName() === ContentAggregation.MODIFIED_BY || aggregation.getName() === ContentAggregation.OWNER;
     }
 
     private updatePrincipalsAggregation(principalsAggregation: BucketAggregation): Q.Promise<void> {

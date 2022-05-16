@@ -27,8 +27,8 @@ import {FulltextSearchExpressionBuilder} from 'lib-admin-ui/query/FulltextSearch
 import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
 import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {ContentId} from '../../content/ContentId';
-import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {ContentAggregation} from './ContentAggregation';
+import {WorkflowState} from '../../content/WorkflowState';
 
 export class SearchContentQueryCreator {
 
@@ -82,7 +82,7 @@ export class SearchContentQueryCreator {
             this.appendWorkflowAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.MODIFIER)) {
+        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.MODIFIED_BY)) {
             this.appendModifierFilter();
             this.appendModifierAggregationQuery();
         }
@@ -206,14 +206,14 @@ export class SearchContentQueryCreator {
     }
 
     private appendModifierFilter(): void {
-        this.appendPropertyFilter(ContentAggregation.MODIFIER, ContentAggregation.MODIFIER);
+        this.appendPropertyFilter(ContentAggregation.MODIFIED_BY);
     }
 
     private appendOwnerFilter(): void {
-        this.appendPropertyFilter(ContentAggregation.OWNER, ContentAggregation.OWNER);
+        this.appendPropertyFilter(ContentAggregation.OWNER);
     }
 
-    protected appendPropertyFilter(name: string, field: string): void {
+    protected appendPropertyFilter(name: string, field?: string): void {
         const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(name);
 
         if (!selectedBuckets || selectedBuckets.length === 0) {
@@ -223,7 +223,7 @@ export class SearchContentQueryCreator {
         const booleanFilter: BooleanFilter = new BooleanFilter();
 
         selectedBuckets.forEach((bucket: Bucket) => {
-            booleanFilter.addShould(new ValueFilter(field, bucket.key));
+            booleanFilter.addShould(new ValueFilter(field || name, bucket.key));
         });
 
         this.contentQuery.addQueryFilter(booleanFilter);
@@ -275,7 +275,7 @@ export class SearchContentQueryCreator {
     }
 
     private appendModifierAggregationQuery() {
-        this.addTermsAggregation(ContentAggregation.MODIFIER, ContentAggregation.MODIFIER);
+        this.addTermsAggregation(ContentAggregation.MODIFIED_BY);
     }
 
     private appendLastModifiedAggregationQuery() {
@@ -294,14 +294,14 @@ export class SearchContentQueryCreator {
     }
 
     private appendOwnerAggregationQuery() {
-        this.addTermsAggregation(ContentAggregation.OWNER, ContentAggregation.OWNER);
+        this.addTermsAggregation(ContentAggregation.OWNER);
     }
 
     private appendLanguageAggregationQuery() {
         this.addTermsAggregation(ContentAggregation.LANGUAGE, 'language');
     }
 
-    protected addTermsAggregation(name: string, fieldName: string): void {
-        this.contentQuery.addAggregationQuery(this.createTermsAggregation(name, fieldName, 0));
+    protected addTermsAggregation(name: string, fieldName?: string): void {
+        this.contentQuery.addAggregationQuery(this.createTermsAggregation(name, fieldName || name, 0));
     }
 }

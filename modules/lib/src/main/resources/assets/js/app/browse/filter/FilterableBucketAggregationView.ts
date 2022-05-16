@@ -1,3 +1,4 @@
+import {SelectionChange} from 'lib-admin-ui/util/SelectionChange';
 import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
 import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationView';
 import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
@@ -6,6 +7,7 @@ import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {SelectableListBoxDropdown} from 'lib-admin-ui/ui/selector/list/SelectableListBoxDropdown';
 import {BucketListBox} from 'lib-admin-ui/aggregation/BucketListBox';
 import {BucketViewSelectionChangedEvent} from 'lib-admin-ui/aggregation/BucketViewSelectionChangedEvent';
+import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
 
 export class FilterableBucketAggregationView
     extends BucketAggregationView {
@@ -47,8 +49,8 @@ export class FilterableBucketAggregationView
     }
 
     private initListeners(): void {
-        this.listBoxDropdown.onSelectionChanged((selected: Bucket[], deselected: Bucket[]) => {
-            selected.forEach((item: Bucket) => {
+        this.listBoxDropdown.onSelectionChanged((bucketSelection: SelectionChange<Bucket>) => {
+            bucketSelection.selected.forEach((item: Bucket) => {
                 const bucketView: BucketView = this.bucketViews.find((view: BucketView) => view.getBucket().getKey() === item.getKey());
 
                 if (bucketView) {
@@ -58,7 +60,7 @@ export class FilterableBucketAggregationView
                 }
             });
 
-            deselected.forEach((item: Bucket) => {
+            bucketSelection.deselected.forEach((item: Bucket) => {
                 const bucketView: BucketView = this.bucketViews.find((view: BucketView) => view.getBucket().getKey() === item.getKey());
 
                 if (bucketView) {
@@ -70,7 +72,7 @@ export class FilterableBucketAggregationView
                 }
             });
 
-            this.notifyBucketSelectionChanged(selected, deselected);
+            this.notifyBucketSelectionChanged(bucketSelection);
         });
     }
 
@@ -97,15 +99,15 @@ export class FilterableBucketAggregationView
 
     protected addBucketView(bucketView: BucketView) {
         bucketView.onSelectionChanged((event: BucketViewSelectionChangedEvent) => {
-                if (event.getNewValue()) {
-                    this.listBoxDropdown.select(event.getBucketView().getBucket(), true);
-                } else {
-                    this.listBoxDropdown.deselect(event.getBucketView().getBucket(), true);
+            if (event.getNewValue()) {
+                this.listBoxDropdown.select(event.getBucketView().getBucket(), true);
+            } else {
+                this.listBoxDropdown.deselect(event.getBucketView().getBucket(), true);
 
-                    if (!this.isBucketToBeAlwaysOnTop(bucketView.getBucket())) {
-                        this.removeBucketView(bucketView);
-                    }
+                if (!this.isBucketToBeAlwaysOnTop(bucketView.getBucket())) {
+                    this.removeBucketView(bucketView);
                 }
+            }
         });
 
         super.addBucketView(bucketView);
@@ -129,4 +131,20 @@ export class FilterableBucketAggregationView
     private isBucketToBeAlwaysOnTop(bucket: Bucket): boolean {
         return this.idsToKeepOnTop.some((id: string) => id === bucket.getKey());
     }
+
+    update(aggregation: Aggregation) {
+        super.update(aggregation);
+
+        const isEveryListItemOnTop: boolean = this.bucketListBox.getItems().every((bucket: Bucket) => this.isBucketToBeAlwaysOnTop(bucket));
+        this.listBoxDropdown.setVisible(!isEveryListItemOnTop);
+    }
+
+    doRender(): Q.Promise<boolean> {
+        return super.doRender().then((rendered: boolean) => {
+            this.addClass('filterable-bucket-aggregation-view');
+
+            return rendered;
+        });
+    }
+
 }
