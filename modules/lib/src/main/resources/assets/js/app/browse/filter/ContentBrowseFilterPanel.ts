@@ -215,7 +215,7 @@ export class ContentBrowseFilterPanel
 
     private handleDataSearchResult(contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>): Q.Promise<void> {
         return this.getAggregations(contentQueryResult).then((aggregations: Aggregation[]) => {
-            this.processAggregations(aggregations, true);
+            this.processAggregations(aggregations);
             this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits());
             return Q.resolve();
         });

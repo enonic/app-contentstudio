@@ -86,8 +86,6 @@ import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticated
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {RoleKeys} from 'lib-admin-ui/security/RoleKeys';
 import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {Workflow} from 'lib-admin-ui/content/Workflow';
-import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {WizardPanel} from 'lib-admin-ui/app/wizard/WizardPanel';
 import {Action} from 'lib-admin-ui/ui/Action';
 import {WizardHeader} from 'lib-admin-ui/app/wizard/WizardHeader';
@@ -140,8 +138,9 @@ import {MovedContentItem} from '../browse/MovedContentItem';
 import {ContentAppHelper} from './ContentAppHelper';
 import {UrlHelper} from '../util/UrlHelper';
 import {RenderingMode} from '../rendering/RenderingMode';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {ContentSaveAction} from './action/ContentSaveAction';
+import {WorkflowState} from '../content/WorkflowState';
+import {Workflow} from '../content/Workflow';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {

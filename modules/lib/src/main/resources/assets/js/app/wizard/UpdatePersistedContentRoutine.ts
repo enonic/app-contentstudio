@@ -7,9 +7,9 @@ import {UpdatePageRequest} from '../resource/UpdatePageRequest';
 import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {Flow, RoutineContext} from './Flow';
 import {Content} from '../content/Content';
-import {Workflow} from 'lib-admin-ui/content/Workflow';
-import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {Page} from '../page/Page';
+import { WorkflowState } from '../content/WorkflowState';
+import { Workflow } from '../content/Workflow';
 
 export class UpdatePersistedContentRoutine
     extends Flow {

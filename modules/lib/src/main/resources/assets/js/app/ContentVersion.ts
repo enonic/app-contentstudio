@@ -1,8 +1,8 @@
 import {ContentVersionJson} from './resource/json/ContentVersionJson';
 import {ContentVersionPublishInfo} from './ContentVersionPublishInfo';
-import {Workflow} from 'lib-admin-ui/content/Workflow';
-import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {Cloneable} from 'lib-admin-ui/Cloneable';
+import { Workflow } from './content/Workflow';
+import {WorkflowState} from './content/WorkflowState';
 
 export class ContentVersion implements Cloneable {
 
