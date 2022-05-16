@@ -31,6 +31,7 @@ import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticated
 import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
 import {ContentAggregationsFetcher} from './ContentAggregationsFetcher';
+import {FilterableAggregationGroupView} from './FilterableAggregationGroupView';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
@@ -108,6 +109,10 @@ export class ContentBrowseFilterPanel
     }
 
     private createGroupView(name: string): AggregationGroupView {
+        if (name === ContentAggregation.OWNER || name === ContentAggregation.MODIFIER) {
+            return new FilterableAggregationGroupView(name, i18n(`field.${name}`));
+        }
+
         return new AggregationGroupView(name, i18n(`field.${name}`));
     }
 
@@ -280,6 +285,10 @@ export class ContentBrowseFilterPanel
         new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             this.userInfo = loginResult;
             this.aggregationsDisplayNamesResolver = new AggregationsDisplayNamesResolver();
+            (<FilterableAggregationGroupView>this.aggregations.get(ContentAggregation.OWNER)).setIdsToKeepOnToTop(
+                [this.getCurrentUserKeyAsString()]);
+            (<FilterableAggregationGroupView>this.aggregations.get(ContentAggregation.MODIFIER)).setIdsToKeepOnToTop(
+                [this.getCurrentUserKeyAsString()]);
 
             new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
                 (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
