@@ -1,5 +1,4 @@
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {Workflow} from 'lib-admin-ui/content/Workflow';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {ExtraData} from '../content/ExtraData';
@@ -11,6 +10,7 @@ import {ContentName} from '../content/ContentName';
 import {ContentPath} from '../content/ContentPath';
 import {ContentUnnamed} from '../content/ContentUnnamed';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import {Workflow} from '../content/Workflow';
 
 export class CreateContentRequest
     extends CmsContentResourceRequest<Content> {

@@ -27,8 +27,8 @@ import {FulltextSearchExpressionBuilder} from 'lib-admin-ui/query/FulltextSearch
 import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
 import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
 import {ContentId} from '../../content/ContentId';
-import {WorkflowState} from 'lib-admin-ui/content/WorkflowState';
 import {ContentAggregation} from './ContentAggregation';
+import {WorkflowState} from '../../content/WorkflowState';
 
 export class SearchContentQueryCreator {
 
