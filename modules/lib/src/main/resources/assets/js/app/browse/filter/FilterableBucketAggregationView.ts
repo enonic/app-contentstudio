@@ -101,6 +101,10 @@ export class FilterableBucketAggregationView
                     this.listBoxDropdown.select(event.getBucketView().getBucket(), true);
                 } else {
                     this.listBoxDropdown.deselect(event.getBucketView().getBucket(), true);
+
+                    if (!this.isBucketToBeAlwaysOnTop(bucketView.getBucket())) {
+                        this.removeBucketView(bucketView);
+                    }
                 }
         });
 
