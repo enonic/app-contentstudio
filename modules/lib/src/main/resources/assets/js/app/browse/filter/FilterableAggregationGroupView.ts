@@ -22,7 +22,7 @@ export class FilterableAggregationGroupView
 
         this.aggregationViews.forEach((item: AggregationView) => {
            if (item instanceof FilterableBucketAggregationView) {
-               (<FilterableBucketAggregationView>item).setIdsToKeepOnToTop(ids);
+               item.setIdsToKeepOnToTop(ids);
            }
         });
     }
