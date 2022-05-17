@@ -1,3 +1,4 @@
+import {SelectionChange} from 'lib-admin-ui/util/SelectionChange';
 import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
 import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationView';
 import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
@@ -47,8 +48,8 @@ export class FilterableBucketAggregationView
     }
 
     private initListeners(): void {
-        this.listBoxDropdown.onSelectionChanged((selected: Bucket[], deselected: Bucket[]) => {
-            selected.forEach((item: Bucket) => {
+        this.listBoxDropdown.onSelectionChanged((bucketSelection: SelectionChange<Bucket>) => {
+            bucketSelection.selected.forEach((item: Bucket) => {
                 const bucketView: BucketView = this.bucketViews.find((view: BucketView) => view.getBucket().getKey() === item.getKey());
 
                 if (bucketView) {
@@ -58,7 +59,7 @@ export class FilterableBucketAggregationView
                 }
             });
 
-            deselected.forEach((item: Bucket) => {
+            bucketSelection.deselected.forEach((item: Bucket) => {
                 const bucketView: BucketView = this.bucketViews.find((view: BucketView) => view.getBucket().getKey() === item.getKey());
 
                 if (bucketView) {
@@ -70,7 +71,7 @@ export class FilterableBucketAggregationView
                 }
             });
 
-            this.notifyBucketSelectionChanged(selected, deselected);
+            this.notifyBucketSelectionChanged(bucketSelection);
         });
     }
 
