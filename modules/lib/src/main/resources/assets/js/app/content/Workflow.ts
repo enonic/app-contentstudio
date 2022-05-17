@@ -1,7 +1,7 @@
-import {WorkflowJson} from '../../../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/content/json/WorkflowJson';
+import {WorkflowJson} from 'lib-admin-ui/content/json/WorkflowJson';
+import {Equitable} from 'lib-admin-ui/Equitable';
+import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
 import {WorkflowState} from './WorkflowState';
-import {Equitable} from '../../../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/Equitable';
-import {ObjectHelper} from '../../../../../../../../../../lib-admin-ui/src/main/resources/assets/admin/common/js/ObjectHelper';
 
 export class Workflow
     implements Equitable {
