@@ -42,7 +42,7 @@ describe('filtering.by.workflow.spec: tests for filter panel', function () {
                 "The number of items in the grid must be the same as the number in the label in Filter Panel");
         });
 
-    it.skip(`GIVEN existing 'work in progress' folder is filtered WHEN the folder has been marked as ready THEN The number of items in the grid and number in the 'Ready for publishing' aggregation should be equal`,
+    it(`GIVEN existing 'work in progress' folder is filtered WHEN the folder has been marked as ready THEN The number of items in the grid and number in the 'Ready for publishing' aggregation should be equal`,
         async () => {
             let filterPanel = new FilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
