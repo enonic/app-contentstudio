@@ -109,7 +109,7 @@ export class ContentBrowseFilterPanel
     }
 
     private createGroupView(name: string): AggregationGroupView {
-        if (name === ContentAggregation.OWNER || name === ContentAggregation.MODIFIER) {
+        if (name === ContentAggregation.OWNER || name === ContentAggregation.MODIFIED_BY) {
             return new FilterableAggregationGroupView(name, i18n(`field.${name}`));
         }
 
@@ -287,7 +287,7 @@ export class ContentBrowseFilterPanel
             this.aggregationsDisplayNamesResolver = new AggregationsDisplayNamesResolver();
             (<FilterableAggregationGroupView>this.aggregations.get(ContentAggregation.OWNER)).setIdsToKeepOnToTop(
                 [this.getCurrentUserKeyAsString()]);
-            (<FilterableAggregationGroupView>this.aggregations.get(ContentAggregation.MODIFIER)).setIdsToKeepOnToTop(
+            (<FilterableAggregationGroupView>this.aggregations.get(ContentAggregation.MODIFIED_BY)).setIdsToKeepOnToTop(
                 [this.getCurrentUserKeyAsString()]);
 
             new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
