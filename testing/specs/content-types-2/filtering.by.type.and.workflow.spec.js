@@ -65,7 +65,7 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             assert.isTrue(numberAfter - numberBefore === 1, "Number in work in progress checkbox should be increased");
         });
 
-    it(`GIVEN existing 'Work in progress shortcut' is selected WHEN the shortcut has been marked as ready THEN number in 'Ready for publishing' checkbox should be increased by 1`,
+    it.skip(`GIVEN existing 'Work in progress shortcut' is selected WHEN the shortcut has been marked as ready THEN number in 'Ready for publishing' checkbox should be increased by 1`,
         async () => {
             let filterPanel = new FilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
