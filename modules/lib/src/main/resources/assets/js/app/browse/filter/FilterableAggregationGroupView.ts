@@ -2,7 +2,6 @@ import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
 import {AggregationGroupView} from 'lib-admin-ui/aggregation/AggregationGroupView';
 import {AggregationView} from 'lib-admin-ui/aggregation/AggregationView';
 import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
-import {ContentAggregation} from './ContentAggregation';
 import {FilterableBucketAggregationView} from './FilterableBucketAggregationView';
 
 export class FilterableAggregationGroupView
