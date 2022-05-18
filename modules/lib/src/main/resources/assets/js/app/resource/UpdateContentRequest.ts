@@ -8,7 +8,7 @@ import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentName} from '../content/ContentName';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import { Workflow } from '../content/Workflow';
+import {Workflow} from '../content/Workflow';
 
 export class UpdateContentRequest
     extends CmsContentResourceRequest<Content> {

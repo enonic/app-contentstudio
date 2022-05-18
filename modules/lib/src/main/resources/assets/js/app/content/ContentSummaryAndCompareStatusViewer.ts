@@ -7,7 +7,7 @@ import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 import {ContentSummary} from './ContentSummary';
 import {ContentName} from './ContentName';
 import {ContentPath} from './ContentPath';
-import { Workflow } from './Workflow';
+import {Workflow} from './Workflow';
 
 export class ContentSummaryAndCompareStatusViewer
     extends ExtendedViewer<ContentSummaryAndCompareStatus> {

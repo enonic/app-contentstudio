@@ -8,8 +8,8 @@ import {PageCUDRequest} from '../resource/PageCUDRequest';
 import {Flow, RoutineContext} from './Flow';
 import {Content} from '../content/Content';
 import {Page} from '../page/Page';
-import { WorkflowState } from '../content/WorkflowState';
-import { Workflow } from '../content/Workflow';
+import {WorkflowState} from '../content/WorkflowState';
+import {Workflow} from '../content/Workflow';
 
 export class UpdatePersistedContentRoutine
     extends Flow {
