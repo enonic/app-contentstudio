@@ -6,7 +6,7 @@ import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
 import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
 import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../app/content/ContentId';
-import { Workflow } from '../app/content/Workflow';
+import {Workflow} from '../app/content/Workflow';
 
 export class CreateFragmentRequest
     extends FragmentResourceRequest<Content> {

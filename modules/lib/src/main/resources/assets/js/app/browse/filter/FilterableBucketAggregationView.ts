@@ -147,5 +147,4 @@ export class FilterableBucketAggregationView
         });
     }
 
-    private
 }
