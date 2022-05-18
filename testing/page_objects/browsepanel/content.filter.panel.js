@@ -10,7 +10,6 @@ const XPATH = {
     searchInput: "//input[contains(@id,'TextSearchField')]",
     dependenciesSection: "//div[contains(@id,'DependenciesSection')]",
     showResultsButton: "//div[contains(@class,'show-filter-results')]",
-    contentTypeAggregationGroup: `//div[contains(@id,'AggregationContainer')]//div[contains(@id,'ContentTypeAggregationGroupView') and child::h2['Content Types']]`,
     aggregationGroupByName: name => `//div[contains(@id,'AggregationContainer')]//div[contains(@id,'AggregationGroupView') and child::h2['${name}']]`,
     aggregationLabelByName: name => `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]//label`,
     folderAggregation: () => `//div[contains(@class,'checkbox') and child::label[contains(.,'Folder') and not(contains(.,'Template'))]]//label`,
@@ -93,7 +92,7 @@ class BrowseFilterPanel extends Page {
 
     //clicks on a checkbox in Content Types aggregation block
     async clickOnCheckboxInContentTypesBlock(contentType) {
-        let selector = XPATH.contentTypeAggregationGroup + XPATH.aggregationLabelByName(contentType);
+        let selector = XPATH.aggregationGroupByName('Content Types') + XPATH.aggregationLabelByName(contentType);
         await this.waitForElementDisplayed(selector, appConst.shortTimeout);
         await this.clickOnElement(selector);
         return await this.pause(1200);
@@ -154,7 +153,7 @@ class BrowseFilterPanel extends Page {
 
     //Gets items in "Content Types" block:
     async geContentTypes() {
-        let locator = XPATH.contentTypeAggregationGroup + "//div[contains(@class,'checkbox')]//label";
+        let locator = XPATH.XPATH.aggregationGroupByName('Content Types') + "//div[contains(@class,'checkbox')]//label";
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
