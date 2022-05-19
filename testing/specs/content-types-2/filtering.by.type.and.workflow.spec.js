@@ -75,7 +75,7 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             await filterPanel.clickOnCheckboxInContentTypesBlock("Shortcut");
             await studioUtils.saveScreenshot("shortcut_workflow_aggregation_3");
             //3. Get the number in 'Ready for publishing' checkbox in Filter Panel
-            let numberBeforeMarkAsReady = await filterPanel.getNumberOfItemsInAggregationView(WORKFLOW_AGGREGATION,
+            let ready1 = await filterPanel.getNumberOfItemsInAggregationView(WORKFLOW_AGGREGATION,
                 appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
             //4. Click on the row then press on 'Mark as ready' button:
             await contentBrowsePanel.clickOnRowByName(SHORTCUT_NAME);
@@ -84,11 +84,10 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             await studioUtils.saveScreenshot("shortcut_workflow_aggregation_4");
 
             //5. Get the number in 'ready for publishing' checkbox in the filter panel
-            let numberAfterMarkAsReady = await filterPanel.getNumberOfItemsInAggregationView(WORKFLOW_AGGREGATION,
+            let ready2 = await filterPanel.getNumberOfItemsInAggregationView(WORKFLOW_AGGREGATION,
                 appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING);
             //6. Verify that number in 'ready for publishing' is increased by 1
-            assert.isTrue(numberBeforeMarkAsReady - numberAfterMarkAsReady === 1,
-                "Number in 'Ready for publishing' checkbox should be increased");
+            assert.isTrue(ready2 - ready1 === 1, "Number in 'Ready for publishing' checkbox should be increased");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
