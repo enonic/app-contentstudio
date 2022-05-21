@@ -10,7 +10,7 @@ const XPATH = {
     searchInput: "//input[contains(@id,'TextSearchField')]",
     dependenciesSection: "//div[contains(@id,'DependenciesSection')]",
     showResultsButton: "//div[contains(@class,'show-filter-results')]",
-    aggregationGroupByName: name => `//div[contains(@id,'AggregationContainer')]//div[contains(@id,'AggregationGroupView') and child::h2['${name}']]`,
+    aggregationGroupByName: name => `//div[contains(@id,'AggregationContainer')]//div[contains(@id,'AggregationGroupView') and child::h2[text()='${name}']]`,
     aggregationLabelByName: name => `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]//label`,
     folderAggregation: () => `//div[contains(@class,'checkbox') and child::label[contains(.,'Folder') and not(contains(.,'Template'))]]//label`,
     aggregationCheckboxByName: name => `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]` + lib.CHECKBOX_INPUT,
@@ -127,6 +127,19 @@ class BrowseFilterPanel extends Page {
         }
     }
 
+    async clickOnCheckboxInLanguageBlock(checkBoxLabel) {
+        try {
+            let selector = XPATH.aggregationGroupByName(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LANGUAGE) +
+                           XPATH.aggregationLabelByName(checkBoxLabel);
+            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+            await this.clickOnElement(selector);
+            return await this.pause(1200);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_click_on_aggregation"));
+            throw new Error("Error when click on the aggregation checkbox: " + err);
+        }
+    }
+
     // gets a number of items from a checkbox label in an aggregation block(Workflow,modifier)
     async getNumberOfItemsInAggregationView(blockName, checkboxLabel) {
         try {
@@ -153,7 +166,7 @@ class BrowseFilterPanel extends Page {
 
     //Gets items in "Content Types" block:
     async geContentTypes() {
-        let locator = XPATH.XPATH.aggregationGroupByName('Content Types') + "//div[contains(@class,'checkbox')]//label";
+        let locator = XPATH.aggregationGroupByName('Content Types') + "//div[contains(@class,'checkbox')]//label";
         await this.waitForElementDisplayed(locator, appConst.shortTimeout);
         return await this.getTextInDisplayedElements(locator);
     }
