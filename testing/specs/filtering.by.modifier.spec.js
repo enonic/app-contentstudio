@@ -28,12 +28,12 @@ describe('filter.by.modifier.spec: tests for filter panel', function () {
             //1. Open Filter Panel:
             await studioUtils.openFilterPanel();
             //2. Verify that  Content Type, Workflow, Modifier, Owner, Last Modified, Language aggregation groups are displayed:
-            await filterPanel.waitForAggregationGroupDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.MODIFIER);
+            await filterPanel.waitForAggregationGroupDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LAST_MODIFIED_BY);
             await filterPanel.waitForAggregationGroupDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.WORKFLOW);
             await filterPanel.waitForAggregationGroupDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.CONTENT_TYPES);
             await filterPanel.waitForAggregationGroupDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LAST_MODIFIED);
             await filterPanel.waitForAggregationGroupDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.OWNER);
-            await filterPanel.waitForAggregationGroupDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LANGUAGE);
+            //await filterPanel.waitForAggregationGroupDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LANGUAGE);
         });
 
     it(`WHEN just created folder is filtered THEN The number of items in the 'Modifiers' aggregation checkbox should be 1`,
@@ -42,13 +42,13 @@ describe('filter.by.modifier.spec: tests for filter panel', function () {
             //1. Type the name of folder in Filter Input:
             await studioUtils.findAndSelectItem(FOLDER_NAME_1);
             //2. Verify that "Me" checkbox is displayed in 'Modifiers' block in 'Filter Panel'
-            await filterPanel.waitForCheckboxDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.MODIFIER,
+            await filterPanel.waitForCheckboxDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LAST_MODIFIED_BY,
                 appConst.systemUsersDisplayName.ME);
             //3. Verify that "Anonymous user" checkbox is not displayed in Workflow block in Filter Panel
-            await filterPanel.waitForCheckboxNotDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.MODIFIER,
+            await filterPanel.waitForCheckboxNotDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LAST_MODIFIED_BY,
                 appConst.systemUsersDisplayName.ANONYMOUS_USER);
             //4. Get the number in the 'Me' checkbox:
-            let numberInCheckbox = await filterPanel.getNumberOfItemsInAggregationView("Modifier",
+            let numberInCheckbox = await filterPanel.getNumberOfItemsInAggregationView(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LAST_MODIFIED_BY,
                 appConst.systemUsersDisplayName.ME);
             //5. Verify that the numbers are equal:
             assert.equal(numberInCheckbox, 1, "1 should be displayed in the label checkbox");
@@ -60,10 +60,10 @@ describe('filter.by.modifier.spec: tests for filter panel', function () {
             //1. Type the name of folder in Filter Input:
             await studioUtils.findAndSelectItem(FOLDER_NAME_1);
             //2. Verify that "Me" checkbox is displayed in Modifiers block in Filter Panel
-            await filterPanel.waitForCheckboxDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.MODIFIER,
+            await filterPanel.waitForCheckboxDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LAST_MODIFIED_BY,
                 appConst.systemUsersDisplayName.ME);
             //3. Verify that "Anonymous user" checkbox is not displayed in Workflow block in Filter Panel
-            await filterPanel.waitForCheckboxNotDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.MODIFIER,
+            await filterPanel.waitForCheckboxNotDisplayed(appConst.FILTER_PANEL_AGGREGATION_BLOCK.LAST_MODIFIED_BY,
                 appConst.systemUsersDisplayName.ANONYMOUS_USER);
             //4. Get the number in the 'Me' checkbox:
             let numberInCheckbox = await filterPanel.getNumberOfItemsInAggregationView("Owner",
