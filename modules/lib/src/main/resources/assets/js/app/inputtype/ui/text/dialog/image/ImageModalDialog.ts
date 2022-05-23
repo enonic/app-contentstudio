@@ -46,6 +46,7 @@ import {UriHelper} from 'lib-admin-ui/util/UriHelper';
 import {LinkEl} from 'lib-admin-ui/dom/LinkEl';
 import {ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
+import {Option} from 'lib-admin-ui/ui/selector/Option';
 import eventInfo = CKEDITOR.eventInfo;
 
 export class ImageModalDialog
@@ -170,10 +171,16 @@ export class ImageModalDialog
 
         new GetContentByIdRequest(new ContentId(imageId)).sendAndParse().then((imageContent: Content) => {
             this.imageSelector.setValue(imageContent.getId());
+            this.imageSelector.getComboBox().onValueLoaded((options: Option<MediaTreeSelectorItem>[]) => {
+               if (options.length === 1 && options[0].getId() === imageContent.getId()) {
+                   this.imageSelectorFormItem.show();
+               }
+            });
             this.previewImage(imageContent, presetStyles);
             this.imageSelectorFormItem.addClass('selected-item-preview');
         }).catch((reason: any) => {
             this.presetImageEl = null;
+            this.imageSelectorFormItem.show();
             DefaultErrorHandler.handle(reason);
         }).done();
     }
@@ -196,6 +203,9 @@ export class ImageModalDialog
 
     protected getMainFormItems(): FormItem[] {
         this.imageSelectorFormItem = this.createImageSelector('imageId');
+        if (this.presetImageEl) {
+            this.imageSelectorFormItem.hide();
+        }
 
         this.imageCaptionField = this.createFormItem(new ModalDialogFormItemBuilder('caption', i18n('dialog.image.formitem.caption')));
         this.imageAltTextField = this.createFormItem(new ModalDialogFormItemBuilder('altText', i18n('dialog.image.formitem.alttext')));
@@ -322,7 +332,9 @@ export class ImageModalDialog
             this.createPreviewFrame();
         }
 
-        this.imageLoadMask.show();
+        if (this.imagePreviewContainer.isVisible()) {
+            this.imageLoadMask.show();
+        }
 
         this.figure.setClass(presetStyles || ImageModalDialog.defaultStyles.join(' ').trim());
 
