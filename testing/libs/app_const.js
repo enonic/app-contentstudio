@@ -209,7 +209,8 @@ module.exports = Object.freeze({
     LANGUAGES: {
         EN: 'English (en)',
         NORSK_NORGE: 'norsk (Norge) (no-NO)',
-        NORSK_NO: 'norsk (no)'
+        NORSK_NO: 'norsk (no)',
+        DEUTSCH_DE: "Deutsch (de)"
     },
     RADIO_OPTION: {
         OPTION_A: "option A",
@@ -349,12 +350,12 @@ module.exports = Object.freeze({
         READY_FOR_PUBLISHING: 'Ready for publishing',
         PUBLISHED: 'Published'
     },
-    FILTER_PANEL_AGGREGATION_BLOCK: {
+    FILTER_PANEL_AGGREGATION_BLOCK:{
         CONTENT_TYPES: "Content Types",
         WORKFLOW: "Workflow",
-        MODIFIER: "Modifier",
-        OWNER: "Owner",
-        LAST_MODIFIED: "Last Modified",
+        LAST_MODIFIED:"Last Modified",
+        LAST_MODIFIED_BY: "Last Modified by",
+        OWNER:"Owner",
         LANGUAGE: "Language",
 
     },
