@@ -1,30 +1,21 @@
 import * as Q from 'q';
 import {i18n} from 'lib-admin-ui/util/Messages';
 import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ContentBrowseSearchData} from './ContentBrowseSearchData';
 import {Router} from '../../Router';
-import {ContentQueryRequest} from '../../resource/ContentQueryRequest';
-import {ContentQueryResult} from '../../resource/ContentQueryResult';
 import {ContentServerEventsHandler} from '../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {ContentQuery} from '../../content/ContentQuery';
 import {AggregationGroupView} from 'lib-admin-ui/aggregation/AggregationGroupView';
 import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
-import {BrowseFilterResetEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterResetEvent';
-import {BrowseFilterRefreshEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterRefreshEvent';
-import {BrowseFilterSearchEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterSearchEvent';
 import {BrowseFilterPanel} from 'lib-admin-ui/app/browse/filter/BrowseFilterPanel';
 import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
 import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
-import {Expand} from 'lib-admin-ui/rest/Expand';
 import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationView';
 import {ContentIds} from '../../content/ContentIds';
 import {ContentServerChangeItem} from '../../event/ContentServerChangeItem';
 import {ProjectContext} from '../../project/ProjectContext';
 import {ContentSummary} from '../../content/ContentSummary';
-import {ContentSummaryJson} from '../../content/ContentSummaryJson';
 import {ContentId} from '../../content/ContentId';
-import {SearchContentQueryCreator} from './SearchContentQueryCreator';
 import {DependenciesSection} from './DependenciesSection';
 import {ContentAggregation} from './ContentAggregation';
 import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
@@ -32,20 +23,40 @@ import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
 import {AggregationsDisplayNamesResolver} from './AggregationsDisplayNamesResolver';
 import {ContentAggregationsFetcher} from './ContentAggregationsFetcher';
 import {FilterableAggregationGroupView} from './FilterableAggregationGroupView';
+import {AggregationsQueryResult} from './AggregationsQueryResult';
 
 export class ContentBrowseFilterPanel
     extends BrowseFilterPanel<ContentSummaryAndCompareStatus> {
 
     private aggregations: Map<string, AggregationGroupView>;
-    private aggregationsDisplayNamesResolver: AggregationsDisplayNamesResolver;
+    private displayNamesResolver: AggregationsDisplayNamesResolver;
+    private aggregationsFetcher: ContentAggregationsFetcher;
     private userInfo: LoginResult;
+    private searchEventListeners: { (query?: ContentQuery): void; }[] = [];
 
     private dependenciesSection: DependenciesSection;
 
     constructor() {
         super();
 
+        this.aggregationsFetcher = new ContentAggregationsFetcher();
         this.initElementsAndListeners();
+    }
+
+    onSearchEvent(listener: { (query?: ContentQuery): void; }): void {
+        this.searchEventListeners.push(listener);
+    }
+
+    unSearchEvent(listener: { (query?: ContentQuery): void; }): void {
+        this.searchEventListeners = this.searchEventListeners.filter((curr: { (query?: ContentQuery): void; }) => {
+            return curr !== listener;
+        });
+    }
+
+    private notifySearchEvent(query?: ContentQuery): void {
+        this.searchEventListeners.forEach((listener: { (q?: ContentQuery): void; }) => {
+            listener(query);
+        });
     }
 
     private initElementsAndListeners() {
@@ -147,21 +158,36 @@ export class ContentBrowseFilterPanel
 
     doRefresh(): Q.Promise<void> {
         if (!this.isFilteredOrConstrained()) {
-            return this.handleEmptyFilterInput(true);
+            return this.resetFacets();
         }
-        return this.refreshDataAndHandleResponse(this.buildQuery(false));
+
+        return this.getAndUpdateAggregations().then((aggregationsQueryResult: AggregationsQueryResult) => {
+            if (aggregationsQueryResult.getMetadata().getTotalHits() > 0) {
+                this.notifySearchEvent(this.aggregationsFetcher.createContentQuery(this.getSearchInputValues()));
+                return Q.resolve();
+            }
+
+            if (this.dependenciesSection.isActive()) {
+                this.removeDependencyItem();
+            }
+
+            return this.reset();
+        });
     }
 
     protected doSearch(): Q.Promise<void> {
         if (!this.isFilteredOrConstrained()) {
-            return this.handleEmptyFilterInput();
+            return this.resetFacets();
         }
-        return this.searchDataAndHandleResponse(this.buildQuery(false));
+
+        return this.getAndUpdateAggregations().then(() => {
+            this.notifySearchEvent(this.aggregationsFetcher.createContentQuery(this.getSearchInputValues()));
+            return Q.resolve();
+        });
     }
 
     setSelectedItems(itemsIds: string[]) {
         this.dependenciesSection.reset();
-
         super.setSelectedItems(itemsIds);
     }
 
@@ -169,164 +195,55 @@ export class ContentBrowseFilterPanel
         return super.isFilteredOrConstrained() || this.dependenciesSection.isActive();
     }
 
-    private handleEmptyFilterInput(isRefresh?: boolean): Q.Promise<void> {
-        if (isRefresh) {
-            return this.resetFacets(true, true).then(() => {
-                new BrowseFilterRefreshEvent().fire();
-            }).catch(DefaultErrorHandler.handle);
-        }
-        // it's SearchEvent, usual reset with grid reload
-        return this.reset();
-    }
-
-    private searchDataAndHandleResponse(contentQuery: ContentQuery): Q.Promise<void> {
-        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery)
-            .setExpand(Expand.SUMMARY)
-            .sendAndParse()
-            .then((contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-                if (this.dependenciesSection.isActive() && contentQueryResult.getAggregations().length === 0) {
-                    this.removeDependencyItem();
-                } else {
-                    return this.handleDataSearchResult(contentQueryResult).then(() => {
-                        new BrowseFilterSearchEvent(new ContentBrowseSearchData(contentQueryResult, contentQuery)).fire();
-                        return Q.resolve();
-                    });
-                }
-            })
-            .catch(DefaultErrorHandler.handle);
-    }
-
-    private refreshDataAndHandleResponse(contentQuery: ContentQuery): Q.Promise<void> {
-        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery)
-            .setExpand(Expand.SUMMARY)
-            .sendAndParse()
-            .then((contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-                if (contentQueryResult.getMetadata().getTotalHits() > 0) {
-                    return this.handleDataSearchResult(contentQueryResult).then(() => {
-                        new BrowseFilterSearchEvent(new ContentBrowseSearchData(contentQueryResult, contentQuery)).fire();
-                        return Q.resolve();
-                    });
-                } else {
-                    return this.handleNoSearchResultOnRefresh(contentQuery);
-                }
-            })
-            .catch(DefaultErrorHandler.handle);
-    }
-
-    private handleDataSearchResult(contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>): Q.Promise<void> {
-        return this.getAggregations(contentQueryResult).then((aggregations: Aggregation[]) => {
-            this.processAggregations(aggregations, true);
-            this.updateHitsCounter(contentQueryResult.getMetadata().getTotalHits());
-            return Q.resolve();
+    private getAndUpdateAggregations(): Q.Promise<AggregationsQueryResult> {
+        return this.getAggregations().then((aggregationsQueryResult: AggregationsQueryResult) => {
+            this.updateHitsCounter(aggregationsQueryResult.getMetadata().getTotalHits());
+            return this.processAggregations(aggregationsQueryResult.getAggregations()).then(() => {
+                return aggregationsQueryResult;
+            });
         });
     }
 
-    private processAggregations(aggregations: Aggregation[], doUpdateAll?: boolean): void {
-        this.updateAggregations(aggregations, doUpdateAll);
-        this.aggregationsDisplayNamesResolver.updateAggregationsDisplayNames(aggregations, this.getCurrentUserKeyAsString()).then(() => {
-            this.updateAggregations(aggregations, true);
-        }).catch(DefaultErrorHandler.handle);
+    private processAggregations(aggregations: Aggregation[]): Q.Promise<void> {
         this.toggleAggregationsVisibility(aggregations);
+
+        return this.displayNamesResolver.updateAggregationsDisplayNames(aggregations, this.getCurrentUserKeyAsString()).then(() => {
+            this.updateAggregations(aggregations);
+            return Q.resolve();
+        });
     }
 
     private getCurrentUserKeyAsString(): string {
         return this.userInfo.getUser().getKey().toString();
     }
 
-    private handleNoSearchResultOnRefresh(contentQuery: ContentQuery): Q.Promise<void> {
-        // remove content type facet from search if both content types and date are filtered
-        if (this.contentTypesAndRangeFiltersUsed(contentQuery)) {
-            return this.refreshDataAndHandleResponse(this.cloneContentQueryNoContentTypes(contentQuery));
-        } else if (this.hasSearchStringSet()) { // if still no result and search text is set remove last modified facet
-            this.deselectAll();
-            return this.searchDataAndHandleResponse(this.cloneContentQueryNoAggregations(contentQuery));
-        } else if (this.dependenciesSection.isActive()) {
-            this.removeDependencyItem();
-        }
+    private getAggregations(): Q.Promise<AggregationsQueryResult> {
+        this.aggregationsFetcher.setSearchInputValues(this.getSearchInputValues());
+        this.aggregationsFetcher.setConstraintItemsIds(this.hasConstraint() ? this.getSelectionItems() : null);
+        this.aggregationsFetcher.setDependency(this.getDependency());
 
-        return this.reset();
-    }
-
-    private contentTypesAndRangeFiltersUsed(contentQuery: ContentQuery): boolean {
-        return contentQuery.getContentTypes().length > 0 && contentQuery.getQueryFilters().length > 0;
-    }
-
-    private cloneContentQueryNoContentTypes(contentQuery: ContentQuery): ContentQuery {
-        const newContentQuery: ContentQuery = new ContentQuery()
-            .setContentTypeNames([])
-            .setFrom(contentQuery.getFrom())
-            .setQueryExpr(contentQuery.getQueryExpr())
-            .setSize(0)
-            .setAggregationQueries(contentQuery.getAggregationQueries())
-            .setQueryFilters(contentQuery.getQueryFilters())
-            .setMustBeReferencedById(contentQuery.getMustBeReferencedById());
-
-        return newContentQuery;
-    }
-
-    private cloneContentQueryNoAggregations(contentQuery: ContentQuery): ContentQuery {
-        return this.cloneContentQueryNoContentTypes(contentQuery).setQueryFilters([]);
-    }
-
-    private getAggregations(contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>): Q.Promise<Aggregation[]> {
-        const aggregationsFetcher: ContentAggregationsFetcher =
-            new ContentAggregationsFetcher(this.getSearchInputValues(), contentQueryResult);
-
-        aggregationsFetcher.setConstraintItemsIds(this.hasConstraint() ? this.getSelectionItems() : null);
-        aggregationsFetcher.setDependency(this.getDependency());
-
-        return aggregationsFetcher.getAggregations();
+        return this.aggregationsFetcher.getAggregations();
     }
 
     private initAggregationGroupView() {
-        const contentQuery: ContentQuery = this.buildQuery(true);
-
         // that is supposed to be cached so response will be fast
         new IsAuthenticatedRequest().sendAndParse().then((loginResult: LoginResult) => {
             this.userInfo = loginResult;
-            this.aggregationsDisplayNamesResolver = new AggregationsDisplayNamesResolver();
+            this.displayNamesResolver = new AggregationsDisplayNamesResolver();
             (<FilterableAggregationGroupView>this.aggregations.get(ContentAggregation.OWNER)).setIdsToKeepOnToTop(
                 [this.getCurrentUserKeyAsString()]);
             (<FilterableAggregationGroupView>this.aggregations.get(ContentAggregation.MODIFIED_BY)).setIdsToKeepOnToTop(
                 [this.getCurrentUserKeyAsString()]);
 
-            new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
-                (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-                    return this.handleDataSearchResult(queryResult);
-                }).catch((reason: any) => {
-                DefaultErrorHandler.handle(reason);
-            }).done();
-        });
+            return this.getAndUpdateAggregations();
+        }).catch(DefaultErrorHandler.handle);
     }
 
     protected resetFacets(suppressEvent?: boolean, doResetAll?: boolean): Q.Promise<void> {
-        const contentQuery: ContentQuery = this.buildQuery(true);
-
-        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(contentQuery).sendAndParse().then(
-            (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-                this.handleDataSearchResult(queryResult).then(() => {
-                    if (!suppressEvent) { // then fire usual reset event with content grid reloading
-                        if (this.dependenciesSection?.isActive()) {
-                            new BrowseFilterSearchEvent(new ContentBrowseSearchData(queryResult, contentQuery)).fire();
-                        } else {
-                            new BrowseFilterResetEvent().fire();
-                        }
-                    }
-                });
-            }
-        ).catch((reason: any) => {
-            DefaultErrorHandler.handle(reason);
+        return this.getAndUpdateAggregations().then(() => {
+            this.notifySearchEvent();
+            return Q.resolve();
         });
-    }
-
-    private buildQuery(isAggregation: boolean): ContentQuery {
-        const queryCreator: SearchContentQueryCreator = new SearchContentQueryCreator(this.getSearchInputValues());
-
-        queryCreator.setIsAggregation(isAggregation);
-        queryCreator.setConstraintItemsIds(this.hasConstraint() ? this.getSelectionItems() : null);
-        queryCreator.setDependency(this.getDependency());
-
-        return queryCreator.create();
     }
 
     getDependency(): { isInbound: boolean, dependencyId: ContentId } {

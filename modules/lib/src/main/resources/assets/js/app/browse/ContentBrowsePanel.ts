@@ -38,7 +38,7 @@ import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobil
 import {ContextView} from '../view/context/ContextView';
 import {ResponsiveBrowsePanel} from './ResponsiveBrowsePanel';
 import {MovedContentItem} from './MovedContentItem';
-import {UrlHelper} from '../util/UrlHelper';
+import {ContentQuery} from '../content/ContentQuery';
 
 export class ContentBrowsePanel
     extends ResponsiveBrowsePanel {
@@ -96,6 +96,10 @@ export class ContentBrowsePanel
 
         this.onShown(() => {
             this.treeGrid.resizeCanvas();
+        });
+
+        this.filterPanel.onSearchEvent((query?: ContentQuery) => {
+            this.treeGrid.setFilterQuery(query);
         });
 
         this.handleGlobalEvents();
