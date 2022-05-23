@@ -14,18 +14,24 @@ import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
 import {ContentAggregation} from './ContentAggregation';
 import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
 import {WorkflowState} from '../../content/WorkflowState';
+import {AggregationsQueryResult} from './AggregationsQueryResult';
+import {ContentResourceRequest} from '../../resource/ContentResourceRequest';
 
 export class ContentAggregationsFetcher {
 
-    private readonly searchInputValues: SearchInputValues;
-    private readonly contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>;
-
+    private searchInputValues: SearchInputValues;
     private dependency?: { isInbound: boolean, dependencyId: ContentId };
     private constraintItems?: string[];
+    private rootPath?: string;
+    private readonly aggregationsNames: string[];
 
-    constructor(searchInputValues: SearchInputValues, contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) {
+    constructor(aggregationsNames?: string[]) {
+        this.aggregationsNames = aggregationsNames;
+    }
+
+    setSearchInputValues(searchInputValues: SearchInputValues): ContentAggregationsFetcher {
         this.searchInputValues = searchInputValues;
-        this.contentQueryResult = contentQueryResult;
+        return this;
     }
 
     setDependency(value: { isInbound: boolean, dependencyId: ContentId }): ContentAggregationsFetcher {
@@ -38,30 +44,38 @@ export class ContentAggregationsFetcher {
         return this;
     }
 
+    setRootPath(value: string): ContentAggregationsFetcher {
+        this.rootPath = value;
+        return this;
+    }
+
     // if some of the aggregation's buckets were selected then we have to make a request like none of the aggregation's buckets selected
     // that will give us all the aggregation's buckets with numbers
-    getAggregations(): Q.Promise<Aggregation[]> {
+    getAggregations(): Q.Promise<AggregationsQueryResult> {
         const result: Aggregation[] = [];
         const selectedAggregationPromises: Q.Promise<Aggregation>[] = [];
 
-        this.contentQueryResult.getAggregations().forEach((aggregation: Aggregation) => {
-            const hasBucketsSelected: boolean = this.hasBucketsSelected(aggregation);
+        return this.sendQueryRequest(this.createContentQuery(this.searchInputValues)).then(
+            (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
+                queryResult.getAggregations().forEach((aggregation: Aggregation) => {
+                    const hasBucketsSelected: boolean = this.hasBucketsSelected(aggregation);
 
-            if (hasBucketsSelected) {
-                selectedAggregationPromises.push(this.fetchAggregation(aggregation).then((fetchedAggregation: Aggregation) => {
-                    result.push(fetchedAggregation);
-                    return Q.resolve(null);
-                }));
-            } else {
-                if (aggregation.getName() === ContentAggregation.WORKFLOW) {
-                    this.updateWorkflowAggregation(<BucketAggregation>aggregation, this.contentQueryResult.getMetadata().getTotalHits());
-                }
+                    if (hasBucketsSelected) {
+                        selectedAggregationPromises.push(this.fetchAggregation(aggregation).then((fetchedAggregation: Aggregation) => {
+                            result.push(fetchedAggregation);
+                            return Q.resolve(null);
+                        }));
+                    } else {
+                        if (aggregation.getName() === ContentAggregation.WORKFLOW) {
+                            this.updateWorkflowAggregation(<BucketAggregation>aggregation, queryResult.getMetadata().getTotalHits());
+                        }
 
-                result.push(aggregation);
-            }
-        });
+                        result.push(aggregation);
+                    }
+                });
 
-        return Q.all(selectedAggregationPromises).thenResolve(result);
+                return Q.all(selectedAggregationPromises).thenResolve(new AggregationsQueryResult(result, queryResult.getMetadata()));
+            });
     }
 
     private hasBucketsSelected(aggregation: Aggregation): boolean {
@@ -71,9 +85,7 @@ export class ContentAggregationsFetcher {
     }
 
     private fetchAggregation(aggregation: Aggregation): Q.Promise<Aggregation> {
-        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(this.createAggregationQuery(aggregation))
-            .setExpand(Expand.SUMMARY)
-            .sendAndParse()
+        return this.sendQueryRequest(this.createAggregationQuery(aggregation))
             .then((queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
                 const fetchedAggregation: Aggregation =
                     queryResult.getAggregations().find((aggr: Aggregation) => aggr.getName() === aggregation.getName());
@@ -86,17 +98,29 @@ export class ContentAggregationsFetcher {
             });
     }
 
+    private sendQueryRequest(query: ContentQuery): Q.Promise<ContentQueryResult<ContentSummary, ContentSummaryJson>> {
+        return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(query)
+            .setContentRootPath(this.rootPath || ContentResourceRequest.CONTENT_PATH)
+            .setExpand(Expand.SUMMARY)
+            .sendAndParse();
+    }
+
     private createAggregationQuery(aggregation: Aggregation): ContentQuery {
         const searchValuesNoAggregation: SearchInputValues = new SearchInputValues();
         searchValuesNoAggregation.setTextSearchFieldValue(this.searchInputValues.textSearchFieldValue);
         searchValuesNoAggregation.setAggregationSelections(this.copyAggregationsWithoutAggregation(aggregation));
 
-        const searchContentQueryCreator: SearchContentQueryCreator = new SearchContentQueryCreator(searchValuesNoAggregation);
+        return this.createContentQuery(searchValuesNoAggregation);
+    }
+
+    createContentQuery(searchInputValues: SearchInputValues): ContentQuery {
+        const searchContentQueryCreator: SearchContentQueryCreator = this.getContentQueryCreator(searchInputValues);
+
         searchContentQueryCreator.setIsAggregation(true);
         searchContentQueryCreator.setDependency(this.dependency);
         searchContentQueryCreator.setConstraintItemsIds(this.constraintItems);
 
-        return searchContentQueryCreator.create();
+        return searchContentQueryCreator.create(this.aggregationsNames);
     }
 
     private copyAggregationsWithoutAggregation(aggregation: Aggregation): AggregationSelection[] {
@@ -128,5 +152,9 @@ export class ContentAggregationsFetcher {
         }
 
         aggregation.setBuckets(result);
+    }
+
+    protected getContentQueryCreator(searchInputValues: SearchInputValues): SearchContentQueryCreator {
+        return new SearchContentQueryCreator(searchInputValues);
     }
 }
