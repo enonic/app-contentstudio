@@ -24,9 +24,6 @@ import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
 import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
 import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
 import {TreeGridContextMenu} from 'lib-admin-ui/ui/treegrid/TreeGridContextMenu';
-import {BrowseFilterResetEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterResetEvent';
-import {BrowseFilterRefreshEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterRefreshEvent';
-import {BrowseFilterSearchEvent} from 'lib-admin-ui/app/browse/filter/BrowseFilterSearchEvent';
 import {Expand} from 'lib-admin-ui/rest/Expand';
 import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
 import {GridColumnConfig} from 'lib-admin-ui/ui/grid/GridColumn';
@@ -113,12 +110,6 @@ export class ContentTreeGrid
         this.getGrid().subscribeOnClick(this.handleGridClick.bind(this));
         this.getGrid().subscribeOnDblClick(this.handleGridDoubleClick.bind(this));
 
-        /*
-         * Filter (search) events.
-         */
-        BrowseFilterSearchEvent.on(this.handleBrowseFilterSearchEvent.bind(this));
-        BrowseFilterResetEvent.on(this.resetFilter.bind(this));
-        BrowseFilterRefreshEvent.on(this.notifyLoaded.bind(this));
         ActiveContentVersionSetEvent.on(this.handleActiveContentVersionSetEvent.bind(this));
 
         this.onLoaded(() => {
@@ -161,30 +152,6 @@ export class ContentTreeGrid
         }
 
         return true;
-    }
-
-    private handleBrowseFilterSearchEvent(event: BrowseFilterSearchEvent<any>) {
-        const contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson> = event.getData().getContentQueryResult();
-        const contentSummaries: ContentSummary[] = contentQueryResult.getContents();
-        const compareRequest: CompareContentRequest = CompareContentRequest.fromContentSummaries(contentSummaries);
-        this.filterQuery = event.getData().getContentQuery();
-        compareRequest.sendAndParse().then((compareResults: CompareContentResults) => {
-            const contents: ContentSummaryAndCompareStatus[] = this.contentFetcher.updateCompareStatus(contentSummaries, compareResults);
-            this.contentFetcher.updateReadOnly(contents).then(() => {
-                const metadata: ResultMetadata = contentQueryResult.getMetadata();
-
-                if (this.isEmptyNodeNeeded(metadata)) {
-                    contents.push(new ContentSummaryAndCompareStatus());
-                }
-
-                this.filter(contents);
-                this.getRoot().getCurrentRoot().setMaxChildren(metadata.getTotalHits());
-                this.notifyLoaded();
-            });
-
-        }).catch((reason: any) => {
-            DefaultErrorHandler.handle(reason);
-        }).done();
     }
 
     private handleActiveContentVersionSetEvent(event: ActiveContentVersionSetEvent) {
@@ -243,6 +210,24 @@ export class ContentTreeGrid
             return this.fetchRoot();
         } else {
             return this.doFetchChildren(parentNode);
+        }
+    }
+
+    setFilterQuery(query: ContentQuery): void {
+        this.filterQuery = query ? new ContentQuery() : null;
+
+        if (query) {
+            this.filterQuery
+                .setSize(ContentTreeGrid.MAX_FETCH_SIZE)
+                .setQueryFilters(query.getQueryFilters())
+                .setQueryExpr(query.getQueryExpr())
+                .setContentTypeNames(query.getContentTypes())
+                .setMustBeReferencedById(query.getMustBeReferencedById());
+
+            this.getRoot().setFiltered(true);
+            this.reload().catch(DefaultErrorHandler.handle);
+        } else {
+            this.resetFilter();
         }
     }
 
