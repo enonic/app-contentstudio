@@ -40,6 +40,14 @@ const path = require('path');
 const addContext = require('mochawesome/addContext');
 
 module.exports = {
+
+    getBrowser() {
+        if (typeof browser !== "undefined") {
+            return browser;
+        } else {
+            return webDriverHelper.browser;
+        }
+    },
     setTextInCKE: function (id, text) {
         let script = `CKEDITOR.instances['${id}'].setData('${text}')`;
         return webDriverHelper.browser.execute(script).then(() => {
@@ -782,7 +790,7 @@ module.exports = {
             return settingsBrowsePanel;
         } catch (err) {
             await this.saveScreenshot(appConst.generateRandomName("err_open_settings"));
-            throw new Error("Settings Panel was not opened: " +err);
+            throw new Error("Settings Panel was not opened: " + err);
         }
     },
     async openArchivePanel() {
