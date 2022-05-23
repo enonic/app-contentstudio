@@ -99,7 +99,7 @@ class ImageFormPanel extends Page {
     async waitForImageLoaded(ms) {
         let timeout = ms === undefined ? appConst.longTimeout : ms;
         let locator = xpath.imageEditor + "//div[@class='image-canvas']";
-        return await this.waitForElementDisplayed(locator, appConst, timeout);
+        return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
     }
 
     getArtistsTagsText() {
