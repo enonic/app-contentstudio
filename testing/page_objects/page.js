@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 class Page {
+
     constructor() {
         this.browser = webDriverHelper.browser;
     }
