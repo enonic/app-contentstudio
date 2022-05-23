@@ -16,8 +16,6 @@ export class FilterableBucketAggregationView
 
     private bucketListBox: BucketListBox = new BucketListBox();
 
-    private bucketsContainer: DivEl;
-
     private idsToKeepOnTop: string[] = [];
 
     constructor(bucketAggregation: BucketAggregation) {
@@ -28,13 +26,13 @@ export class FilterableBucketAggregationView
     }
 
     protected initElements(): void {
+        super.initElements();
+
         this.bucketListBox = new BucketListBox();
         this.listBoxDropdown = new SelectableListBoxDropdown<Bucket>(this.bucketListBox, {
             filter: this.filterBuckets,
             multiple: true
         });
-        this.createBucketsContainer();
-        this.appendChild(this.listBoxDropdown);
     }
 
     private filterBuckets(bucket: Bucket, searchString: string): boolean {
@@ -43,12 +41,9 @@ export class FilterableBucketAggregationView
                bucket.getDisplayName()?.toLowerCase().indexOf(lowerCaseSearchString) >= 0;
     }
 
-    private createBucketsContainer(): void {
-        this.bucketsContainer = new DivEl('buckets-container');
-        this.appendChild(this.bucketsContainer);
-    }
+    protected initListeners(): void {
+        super.initListeners();
 
-    private initListeners(): void {
         this.listBoxDropdown.onSelectionChanged((bucketSelection: SelectionChange<Bucket>) => {
             bucketSelection.selected.forEach((item: Bucket) => {
                 const bucketView: BucketView = this.bucketViews.find((view: BucketView) => view.getBucket().getKey() === item.getKey());
@@ -91,10 +86,6 @@ export class FilterableBucketAggregationView
     removeAll(): void {
         super.removeAll();
         this.bucketListBox.clearItems();
-    }
-
-    protected appendBucketView(bucketView: BucketView) {
-        this.bucketsContainer.appendChild(bucketView);
     }
 
     protected addBucketView(bucketView: BucketView) {
@@ -142,6 +133,7 @@ export class FilterableBucketAggregationView
     doRender(): Q.Promise<boolean> {
         return super.doRender().then((rendered: boolean) => {
             this.addClass('filterable-bucket-aggregation-view');
+            this.appendChild(this.listBoxDropdown);
 
             return rendered;
         });
