@@ -1229,12 +1229,13 @@ export class ContentWizardPanel
         this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
         steps.push(this.settingsWizardStep);
 
-        this.editPermissionsToolbarButton = new ContentWizardStep(i18n('field.access'), this.settingsWizardStepForm, this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock');
+        const editPermissionsIcon = this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock';
+        this.editPermissionsToolbarButton = new ContentWizardStep(i18n('field.access'), this.settingsWizardStepForm, editPermissionsIcon);
         this.editPermissionsToolbarButton.getTabBarItem().addClass('edit-permissions-button');
         this.editPermissionsToolbarButton.getTabBarItem().onClicked(this.handleEditPermissionsButtonClicked.bind(this));
         steps.push(this.editPermissionsToolbarButton);
 
-        return this.addAccessibilityToSteps(steps)
+        return this.addAccessibilityToSteps(steps);
     }
 
     private addAccessibilityToSteps(steps: ContentWizardStep[]) {
