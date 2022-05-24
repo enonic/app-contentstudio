@@ -141,6 +141,7 @@ import {RenderingMode} from '../rendering/RenderingMode';
 import {ContentSaveAction} from './action/ContentSaveAction';
 import {WorkflowState} from '../content/WorkflowState';
 import {Workflow} from '../content/Workflow';
+import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -187,7 +188,7 @@ export class ContentWizardPanel
 
     private displayNameResolver: DisplayNameResolver;
 
-    private editPermissionsToolbarButton: Element;
+    private editPermissionsToolbarButton: ContentWizardStep;
 
     private minimizeEditButton?: DivEl;
 
@@ -738,12 +739,6 @@ export class ContentWizardPanel
                 this.wizardActions.refreshState();
             });
 
-            this.editPermissionsToolbarButton = new DivEl('edit-permissions-button');
-            this.editPermissionsToolbarButton.getEl().setTitle(i18n('field.access'));
-            this.editPermissionsToolbarButton.addClass(this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock');
-            this.editPermissionsToolbarButton.onClicked(this.handleEditPermissionsButtonClicked.bind(this));
-            this.getStepNavigatorContainer().appendChild(this.editPermissionsToolbarButton);
-
             if (this.livePanel) {
                 this.livePanel.addClass('rendering');
                 ResponsiveManager.onAvailableSizeChanged(this.formPanel);
@@ -1234,7 +1229,23 @@ export class ContentWizardPanel
         this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
         steps.push(this.settingsWizardStep);
 
-        return steps;
+        this.editPermissionsToolbarButton = new ContentWizardStep(i18n('field.access'), this.settingsWizardStepForm, this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock');
+        this.editPermissionsToolbarButton.getTabBarItem().addClass('edit-permissions-button');
+        this.editPermissionsToolbarButton.getTabBarItem().onClicked(this.handleEditPermissionsButtonClicked.bind(this));
+        steps.push(this.editPermissionsToolbarButton);
+
+        return this.addAccessibilityToSteps(steps)
+    }
+
+    private addAccessibilityToSteps(steps: ContentWizardStep[]) {
+        return steps.map(step => {
+            const stepTabBarItem = step.getTabBarItem();
+            stepTabBarItem.getEl().setTabIndex(0);
+            stepTabBarItem.onKeyDown((event: KeyboardEvent) =>
+                KeyHelper.isEnterKey(event) && stepTabBarItem.getHTMLElement().click()
+            );
+            return step;
+        });
     }
 
     private fetchPersistedContent(): Q.Promise<Content> {
@@ -2012,13 +2023,13 @@ export class ContentWizardPanel
 
         if (hasAdminPermissions) {
             this.toggleSettingsElementsVisibility(true);
-            this.editPermissionsToolbarButton.setVisible(true);
+            this.editPermissionsToolbarButton.getTabBarItem().setVisible(true);
         } else {
             ProjectHelper.isUserProjectOwner(loginResult).then((isOwner: boolean) => {
                 const isContentExpert: boolean = loginResult.isContentExpert();
 
                 this.toggleSettingsElementsVisibility(isContentExpert || isOwner);
-                this.editPermissionsToolbarButton.setVisible(isOwner);
+                this.editPermissionsToolbarButton.getTabBarItem().setVisible(isOwner);
             });
         }
     }
@@ -2757,8 +2768,8 @@ export class ContentWizardPanel
     private updateEditPermissionsButtonIcon(content: Content) {
         const canEveryoneRead: boolean = this.canEveryoneRead(content);
 
-        this.editPermissionsToolbarButton.toggleClass('icon-unlock', canEveryoneRead);
-        this.editPermissionsToolbarButton.toggleClass('icon-lock', !canEveryoneRead);
+        this.editPermissionsToolbarButton.getTabBarItem().toggleClass('icon-unlock', canEveryoneRead);
+        this.editPermissionsToolbarButton.getTabBarItem().toggleClass('icon-lock', !canEveryoneRead);
     }
 
     private canEveryoneRead(content: Content): boolean {
