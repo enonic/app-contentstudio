@@ -45,10 +45,11 @@ describe('filter.by.owner.selector.spec: tests for filtering by', function () {
             await studioUtils.doLogout();
         });
 
+    //TODO uncomment it:
     // beforeEach(() => studioUtils.navigateToContentStudioApp());
-    afterEach(function () {
-        return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
-    });
+    // afterEach(function () {
+    //     return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
+    // });
     before(() => {
         return console.log('specification is starting: ' + this.title);
     });

@@ -26,7 +26,7 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             //1. Click on "Executable" checkbox in Filter Panel
             await filterPanel.clickOnCheckboxInContentTypesBlock("Executable");
             //2. Get the number in the aggregation checkbox:
-            let numberItems = await filterPanel.getNumberOfItemsInAggregationView("Content Types", "Executable");
+            let numberItems = await filterPanel.getNumberOfItemsInAggregationView("Content Types", "Executable", true);
             //3. Get the number of items in the grid"
             let items = await contentBrowsePanel.getDisplayNamesInGrid();
             //4. Verify that the numbers are equal:
