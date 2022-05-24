@@ -31,6 +31,8 @@ describe('Browse panel selection controller spec. Tests for Selection Controller
             assert.isTrue(result, "Selection Controller checkBox should be selected");
             //5. Verify that checkboxes are clickable: Unselect one item in the filtered grid:
             await contentBrowsePanel.clickOnCheckbox(appConstant.TEST_FOLDER_2_NAME);
+            await contentBrowsePanel.pause(1000);
+            await studioUtils.saveScreenshot("filtered_grid_one_item_unselected");
             //6. Verify that only one item remains visible in the filtered grid now:
             displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(displayNames.length, 1, "Only one item should be present in the filtered grid");

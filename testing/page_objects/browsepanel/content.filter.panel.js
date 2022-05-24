@@ -92,10 +92,15 @@ class BrowseFilterPanel extends Page {
 
     //clicks on a checkbox in Content Types aggregation block
     async clickOnCheckboxInContentTypesBlock(contentType) {
-        let selector = XPATH.aggregationGroupByName('Content Types') + XPATH.aggregationLabelByName(contentType);
-        await this.waitForElementDisplayed(selector, appConst.shortTimeout);
-        await this.clickOnElement(selector);
-        return await this.pause(1200);
+        try {
+            let selector = XPATH.aggregationGroupByName('Content Types') + XPATH.aggregationLabelByName(contentType);
+            await this.waitForElementDisplayed(selector, appConst.shortTimeout);
+            await this.clickOnElement(selector);
+            return await this.pause(1200);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_content_types_filtering"));
+            throw new Error("Error after clicking on a checkbox in Content Types aggregation block " + err);
+        }
     }
 
     async waitForCheckboxDisplayed(blockName, label) {
