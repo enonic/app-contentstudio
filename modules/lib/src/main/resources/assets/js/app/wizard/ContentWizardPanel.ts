@@ -104,7 +104,6 @@ import {ContentIds} from '../content/ContentIds';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {ProjectContext} from '../project/ProjectContext';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
-import {Element} from 'lib-admin-ui/dom/Element';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
 import {UrlAction} from '../UrlAction';
@@ -142,6 +141,7 @@ import {ContentSaveAction} from './action/ContentSaveAction';
 import {WorkflowState} from '../content/WorkflowState';
 import {Workflow} from '../content/Workflow';
 import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
+import {ContentTabBarItem} from './ContentTabBarItem';
 
 export class ContentWizardPanel
     extends WizardPanel<Content> {
@@ -1229,24 +1229,27 @@ export class ContentWizardPanel
         this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
         steps.push(this.settingsWizardStep);
 
-        const editPermissionsIcon = this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock';
-        this.editPermissionsToolbarButton = new ContentWizardStep(i18n('field.access'), this.settingsWizardStepForm, editPermissionsIcon);
+        const iconClass: string = this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock';
+        this.editPermissionsToolbarButton = new ContentWizardStep(i18n('field.access'), this.settingsWizardStepForm, iconClass);
         this.editPermissionsToolbarButton.getTabBarItem().addClass('edit-permissions-button');
         this.editPermissionsToolbarButton.getTabBarItem().onClicked(this.handleEditPermissionsButtonClicked.bind(this));
         steps.push(this.editPermissionsToolbarButton);
 
-        return this.addAccessibilityToSteps(steps);
+        this.addAccessibilityToSteps(steps);
+
+        return steps;
     }
 
-    private addAccessibilityToSteps(steps: ContentWizardStep[]) {
-        return steps.map(step => {
-            const stepTabBarItem = step.getTabBarItem();
-            stepTabBarItem.getEl().setTabIndex(0);
-            stepTabBarItem.onKeyDown((event: KeyboardEvent) =>
-                KeyHelper.isEnterKey(event) && stepTabBarItem.getHTMLElement().click()
-            );
-            return step;
-        });
+    private addAccessibilityToSteps(steps: ContentWizardStep[]): void {
+        steps.forEach((step: ContentWizardStep) => this.addAccessibilityToAStep(step));
+    }
+
+    private addAccessibilityToAStep(step: ContentWizardStep): void {
+        const stepTabBarItem: ContentTabBarItem = step.getTabBarItem();
+        stepTabBarItem.getEl().setTabIndex(0);
+        stepTabBarItem.onKeyDown((event: KeyboardEvent) =>
+            KeyHelper.isEnterKey(event) && stepTabBarItem.getHTMLElement().click()
+        );
     }
 
     private fetchPersistedContent(): Q.Promise<Content> {
