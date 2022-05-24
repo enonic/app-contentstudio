@@ -109,7 +109,6 @@ export class ImageModalDialog
             this.imageUploaderEl.setParams({
                 parent: this.content.getContentId().toString()
             });
-            this.imageUploaderEl.show();
         });
 
         this.submitAction.onExecuted(() => {
@@ -172,15 +171,15 @@ export class ImageModalDialog
         new GetContentByIdRequest(new ContentId(imageId)).sendAndParse().then((imageContent: Content) => {
             this.imageSelector.setValue(imageContent.getId());
             this.imageSelector.getComboBox().onValueLoaded((options: Option<MediaTreeSelectorItem>[]) => {
-               if (options.length === 1 && options[0].getId() === imageContent.getId()) {
-                   this.imageSelectorFormItem.show();
-               }
+                if (options.length === 1 && options[0].getId() === imageContent.getId()) {
+                    this.imageSelector.show();
+                }
             });
             this.previewImage(imageContent, presetStyles);
             this.imageSelectorFormItem.addClass('selected-item-preview');
         }).catch((reason: any) => {
             this.presetImageEl = null;
-            this.imageSelectorFormItem.show();
+            this.imageSelector.show();
             DefaultErrorHandler.handle(reason);
         }).done();
     }
@@ -204,7 +203,8 @@ export class ImageModalDialog
     protected getMainFormItems(): FormItem[] {
         this.imageSelectorFormItem = this.createImageSelector('imageId');
         if (this.presetImageEl) {
-            this.imageSelectorFormItem.hide();
+            this.imageSelector.hide();
+            this.imageUploaderEl.hide();
         }
 
         this.imageCaptionField = this.createFormItem(new ModalDialogFormItemBuilder('caption', i18n('dialog.image.formitem.caption')));
@@ -332,10 +332,6 @@ export class ImageModalDialog
             this.createPreviewFrame();
         }
 
-        if (this.imagePreviewContainer.isVisible()) {
-            this.imageLoadMask.show();
-        }
-
         this.figure.setClass(presetStyles || ImageModalDialog.defaultStyles.join(' ').trim());
 
         if (!StyleHelper.getAlignmentStyles().some(style => this.figure.hasClass(style))) {
@@ -370,6 +366,10 @@ export class ImageModalDialog
         this.imageCaptionField.show();
         this.imageAltTextField.show();
         this.imageUploaderEl.hide();
+
+        if (!image.isLoaded()) {
+            this.imageLoadMask.show();
+        }
     }
 
 
