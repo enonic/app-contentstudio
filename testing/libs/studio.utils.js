@@ -941,7 +941,7 @@ module.exports = {
         await browsePanel.clickOnSearchButton();
         await principalFilterPanel.waitForOpened();
         await principalFilterPanel.typeSearchText(name);
-        await browsePanel.pause(300);
+        await browsePanel.pause(500);
         return await browsePanel.waitForSpinnerNotVisible();
     },
     async showLauncherPanel() {

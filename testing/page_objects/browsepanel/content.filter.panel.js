@@ -11,6 +11,7 @@ const XPATH = {
     dependenciesSection: "//div[contains(@id,'DependenciesSection')]",
     showResultsButton: "//div[contains(@class,'show-filter-results')]",
     showMoreButton: "//button[child::span[text()='Show more']]",
+    showLessButton: "//button[child::span[text()='Show less']]",
     aggregationGroupByName: name => `//div[contains(@id,'AggregationContainer')]//div[contains(@id,'AggregationGroupView') and child::h2[text()='${name}']]`,
     aggregationLabelByName: name => `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]//label`,
     folderAggregation: () => `//div[contains(@class,'checkbox') and child::label[contains(.,'Folder') and not(contains(.,'Template'))]]//label`,
@@ -31,6 +32,9 @@ class BrowseFilterPanel extends Page {
 
     get showMoreButton() {
         return XPATH.container + "//div[contains(@id,'AggregationGroupView') and child::h2[text()='Content Types']]" + XPATH.showMoreButton;
+    }
+    get showLessButton() {
+        return XPATH.container + "//div[contains(@id,'AggregationGroupView') and child::h2[text()='Content Types']]" + XPATH.showLessButton;
     }
 
     get closeDependenciesSectionButtonLocator() {
@@ -75,6 +79,19 @@ class BrowseFilterPanel extends Page {
         return this.isElementDisplayed(this.showMoreButton)
     }
 
+    waitForShowLessButtonDisplayed() {
+        return this.waitForElementDisplayed(this.showLessButton, appConst.shortTimeout);
+    }
+
+    waitForShowLessButtonNotDisplayed() {
+        return this.waitForElementNotDisplayed(this.showLessButton, appConst.shortTimeout);
+    }
+
+    async clickOnShowMoreButton() {
+        await this.waitForShowMoreButtonDisplayed();
+        return await this.clickOnElement(this.showLessButton);
+    }
+
     async clickOnShowResultsButton() {
         await this.waitForShowResultsButtonDisplayed();
         return await this.clickOnElement(this.showResultsButton);
@@ -116,8 +133,9 @@ class BrowseFilterPanel extends Page {
     async clickOnCheckboxInContentTypesBlock(contentType) {
         try {
             let selector = XPATH.aggregationGroupByName('Content Types') + XPATH.aggregationLabelByName(contentType);
-            let result = await this.isShowMoreButtonDisplayed();
-            if (result) {
+            await this.pause(1000);
+            let result = await this.getDisplayedElements(this.showMoreButton);
+            if (result.length > 0) {
                 await this.clickOnShowMoreButton();
             }
             await this.waitForElementDisplayed(selector, appConst.shortTimeout);

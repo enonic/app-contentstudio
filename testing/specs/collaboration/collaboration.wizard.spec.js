@@ -7,6 +7,7 @@ const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
+const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 
 describe('test for wizard page when collaboration property is enabled', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -26,6 +27,15 @@ describe('test for wizard page when collaboration property is enabled', function
             assert.equal(compactNames.length, 1, "One compact name should be displayed");
             //3. Verify that Workflow icon is not displayed in the toolbar
             await contentWizard.waitForStateIconNotDisplayed();
+        });
+
+    it(`GIVEN 'Filter Panel' is opened WHEN less than 5 content types are present THEN 'Show more' button should not be displayed`,
+        async () => {
+            let filterPanel = new FilterPanel();
+            //1. Open Filter Panel:
+            await studioUtils.openFilterPanel();
+            //2. Verify that 'Show more' button is not displayed in the filter panel
+            await filterPanel.waitForShowMoreButtonNotDisplayed();
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
