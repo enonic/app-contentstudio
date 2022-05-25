@@ -101,6 +101,7 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
             let shortcutForm = new ShortcutForm();
             //1. Open Filter Panel
             await studioUtils.openFilterPanel();
+            await studioUtils.saveScreenshot("shortcut_workflow_aggregation_0");
             //2. Click on Shortcut checkbox:
             await filterPanel.clickOnCheckboxInContentTypesBlock("Shortcut");
             await studioUtils.saveScreenshot("shortcut_workflow_aggregation_1");
