@@ -89,7 +89,7 @@ class BrowseFilterPanel extends Page {
 
     async clickOnShowMoreButton() {
         await this.waitForShowMoreButtonDisplayed();
-        return await this.clickOnElement(this.showLessButton);
+        return await this.clickOnElement(this.showMoreButton);
     }
 
     async clickOnShowResultsButton() {
