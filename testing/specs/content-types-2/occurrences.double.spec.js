@@ -180,12 +180,26 @@ describe('occurrences.double.spec: tests for content with Double inputs', functi
             let filterPanel = new FilterPanel();
             //1. Open Filter Panel:
             await studioUtils.openFilterPanel();
-            //2. Check the Show more button in the filter panel
+            //2. Check the 'Show more' button in the filter panel
             let types = await filterPanel.geContentTypes();
             if (types.length >= 5) {
                 await filterPanel.waitForShowMoreButtonDisplayed();
             } else {
                 await filterPanel.waitForShowMoreButtonNotDisplayed();
+            }
+        });
+
+    it(`GIVEN 'Filter Panel' is opened WHEN 'Show more' button has been clicked then THEN 'Show less' button gets visible`,
+        async () => {
+            let filterPanel = new FilterPanel();
+            //1. Open Filter Panel:
+            await studioUtils.openFilterPanel();
+            //2. Check the 'Show more' button in the filter panel
+            let types = await filterPanel.geContentTypes();
+            if (types.length >= 5) {
+                await filterPanel.clickOnShowMoreButton();
+                //Verify that show less button gets visible:
+                await filterPanel.waitForShowLessButtonDisplayed();
             }
         });
 
