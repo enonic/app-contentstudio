@@ -80,6 +80,7 @@ describe("project.create.roles.in.users.app.spec - ui-tests for checkin project'
             await studioUtils.navigateToUsersApp();
             //3. Type the project's name in the filter-input:
             await studioUtils.typeNameInUsersFilterPanel(PROJECT_DISPLAY_NAME);
+            await studioUtils.saveScreenshot("deleted_project_role_filtered");
             //4. Verify that no roles in the filtered grid:
             let items = await userBrowsePanel.getGridItemDisplayNames();
             assert.equal(items.length, 0, "All project's roles should be deleted");

@@ -9,6 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const DoubleForm = require('../../page_objects/wizardpanel/double.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel');
 
 describe('occurrences.double.spec: tests for content with Double inputs', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -161,7 +162,6 @@ describe('occurrences.double.spec: tests for content with Double inputs', functi
             assert.equal(result2, "", "The second 'occurrence validation' recording should be cleared");
         });
 
-
     it(`WHEN invalid value have been typed in both inputs('double 2:4') THEN 'Hide Details' and 'Show details' buttons should not be displayed before saving the content`,
         async () => {
             let doubleForm = new DoubleForm();
@@ -173,6 +173,20 @@ describe('occurrences.double.spec: tests for content with Double inputs', functi
             await studioUtils.saveScreenshot('double_invalid_values_2');
             await doubleForm.waitForShowDetailsButtonNotDisplayed();
             await doubleForm.waitForHideDetailsButtonNotDisplayed();
+        });
+
+    it(`GIVEN 'Filter Panel' is opened WHEN more than 5 content types are present THEN 'Show more' button should be displayed`,
+        async () => {
+            let filterPanel = new FilterPanel();
+            //1. Open Filter Panel:
+            await studioUtils.openFilterPanel();
+            //2. Check the Show more button in the filter panel
+            let types = await filterPanel.geContentTypes();
+            if (types.length >= 5) {
+                await filterPanel.waitForShowMoreButtonDisplayed();
+            } else {
+                await filterPanel.waitForShowMoreButtonNotDisplayed();
+            }
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
