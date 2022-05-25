@@ -15,6 +15,8 @@ import {BodyMask} from 'lib-admin-ui/ui/mask/BodyMask';
 import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
 import {CloseButton} from 'lib-admin-ui/ui/button/CloseButton';
 import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
+import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
 
 export interface Point {
     x: number;
@@ -128,6 +130,9 @@ export class ImageEditor
     private unorientedImage: ImgEl;
     private imageMask: LoadMask;
 
+    private responsiveItem: ResponsiveItem;
+    private wasMobileMode: boolean = false;
+
     public static debug: boolean = false;
 
     constructor() {
@@ -210,18 +215,15 @@ export class ImageEditor
                        '        </clipPath>' +
                        '    </defs>' +
                        // FF won't apply css dimensions to image
-                       '    <image xlink:href="' + ImgEl.PLACEHOLDER + '" width="100%" height="100%"/>' +
+                       '    <image href="' + ImgEl.PLACEHOLDER + '" width="100%" height="100%"/>' +
                        '    <g class="edit-group focus-group">' +
                        '        <circle cx="0" cy="0" r="0" class="stroke-circle"/>' +
                        '    </g>' +
                        '    <g class="edit-group crop-group">' +
                        '        <svg id="' + myId + '-dragHandle" class="drag-handle">' +
-                       '            <defs>' +
-                       '                <polygon id="' + myId + '-dragTriangle" class="drag-triangle" points="8,0,16,8,0,8"/>' +
-                       '            </defs>' +
                        '            <circle cx="16" cy="16" r="16"/>' +
-                       '            <use xlink:href="#' + myId + '-dragTriangle" x="8" y="6"/>' +
-                       '            <use xlink:href="#' + myId + '-dragTriangle" x="8" y="18" transform="rotate(180, 16, 22)"/>' +
+                       '            <polygon id="' + myId + '-dragTriangle" class="drag-triangle up" points="8,0,16,8,0,8"/>' +
+                       '            <polygon id="' + myId + '-dragTriangle" class="drag-triangle down" points="8,0,16,8,0,8"/>' +
                        '        </svg>' +
                        '    </g>' +
                        '</svg>';
@@ -290,7 +292,7 @@ export class ImageEditor
     private renderSrc(src: string) {
         this.image.setSrc(src);
         const image: SVGImageElement = this.clip.getHTMLElement().querySelector('image');
-        image.setAttribute('xlink:href', src);
+        image.setAttribute('href', src);
     }
 
     getSrc(): string {
@@ -718,7 +720,7 @@ export class ImageEditor
         let editContainer = new DivEl('edit-container');
 
         this.editResetButton = new Button(i18n('button.reset'));
-        this.editResetButton.setVisible(false).addClass('transparent').onClicked((event: MouseEvent) => {
+        this.editResetButton.addClass('reset-button transparent').setVisible(false).onClicked((event: MouseEvent) => {
             event.stopPropagation();
 
             if (this.isFocusEditMode()) {
@@ -730,8 +732,8 @@ export class ImageEditor
             }
         });
 
-        let applyButton = new Button(i18n('button.apply'));
-        applyButton.addClass('blue').onClicked((event: MouseEvent) => {
+        const applyButton = new Button(i18n('button.apply'));
+        applyButton.addClass('apply-button blue').onClicked((event: MouseEvent) => {
             event.stopPropagation();
 
             if (this.isCropEditMode()) {
@@ -741,7 +743,7 @@ export class ImageEditor
             }
         });
 
-        let cancelButton = new CloseButton();
+        const cancelButton = new CloseButton();
         cancelButton.onClicked((event: MouseEvent) => {
             event.stopPropagation();
 
@@ -751,6 +753,10 @@ export class ImageEditor
                 this.disableFocusEditMode(false);
             }
         });
+
+        this.responsiveItem = new ResponsiveItem(this);
+
+        ResponsiveManager.onAvailableSizeChanged(this, () => this.editContainerButtonsResponsiveHandler(applyButton));
 
         editContainer.appendChildren(this.editResetButton, applyButton, cancelButton);
 
@@ -854,6 +860,39 @@ export class ImageEditor
         toolbar.appendChildren(this.topContainer, zoomContainer);
 
         return toolbar;
+    }
+
+    private editContainerButtonsResponsiveHandler(applyButton: Button) {
+        this.responsiveItem.update();
+        
+        const isMobileMode: boolean = this.responsiveItem.isInRangeOrSmaller(ResponsiveRanges._360_540);
+        
+        if (this.wasMobileMode === isMobileMode) {
+            return;
+        }
+
+        this.wasMobileMode = isMobileMode;
+        
+        let applyButtonLabel: string;
+        let resetButtonLabel: string;
+        const editResetButtonLabel: string = this.getEditResetLabel();
+
+        if (isMobileMode) {
+            applyButtonLabel = i18n('action.ok');
+            resetButtonLabel = i18n('button.reset');
+        } else {
+            applyButtonLabel = i18n('button.apply');
+            resetButtonLabel = i18n('editor.resetfilters');
+        }
+
+        applyButton.setLabel(applyButtonLabel);
+        applyButton.setTitle(applyButtonLabel);
+
+        this.resetButton.setLabel(resetButtonLabel);
+        this.resetButton.setTitle(resetButtonLabel);
+
+        this.editResetButton.setLabel(editResetButtonLabel);
+        this.editResetButton.setTitle(editResetButtonLabel);
     }
 
     private setToolbarButtonsEnabled(value: boolean) {
@@ -1206,9 +1245,10 @@ export class ImageEditor
         if (ImageEditor.debug) {
             console.log('enableFocusEditMode, applyChanges=' + applyChanges + ', enterEditMode=' + enterEditMode);
         }
-        this.editResetButton.setLabel(i18n('editor.resetautofocus')).setVisible(!this.focusData.auto);
 
         this.setFocusEditMode(true);
+
+        this.editResetButton.setLabel(this.getEditResetLabel()).setVisible(!this.focusData.auto);
 
         if (enterEditMode) {
             this.setEditMode(true, applyChanges);
@@ -1527,9 +1567,10 @@ export class ImageEditor
         if (ImageEditor.debug) {
             console.log('enableCropEditMode, applyChanges=' + applyChanges + ', enterEditMode=' + enterEditMode);
         }
-        this.editResetButton.setLabel(i18n('editor.resetmask')).setVisible(!this.cropData.auto);
 
         this.setCropEditMode(true);
+
+        this.editResetButton.setLabel(this.getEditResetLabel()).setVisible(!this.cropData.auto);
 
         if (enterEditMode) {
             this.setEditMode(true, applyChanges);
@@ -2284,5 +2325,23 @@ export class ImageEditor
 
     private notifyImageError(event: UIEvent) {
         this.imageErrorListeners.forEach(listener => listener(event));
+    }
+
+    private getEditResetLabel(): string {
+        let resetLabel: string = i18n('button.reset');
+
+        if (this.isFocusEditMode()) { 
+            resetLabel = i18n('editor.resetautofocus'); 
+        }
+
+        if (this.isCropEditMode()) { 
+            resetLabel = i18n('editor.resetmask'); 
+        }
+
+        if (this.responsiveItem.isInRangeOrSmaller(ResponsiveRanges._360_540)) {
+            resetLabel = i18n('button.reset');
+        }
+        
+        return resetLabel;
     }
 }

@@ -159,6 +159,14 @@
 
             .drag-triangle {
               fill: black;
+
+              &.up {
+                transform: translate(8px, 4px);
+              }
+
+              &.down {
+                transform: translate(24px, 28px) rotate(180deg);
+              }
             }
 
             &:hover,
@@ -317,6 +325,17 @@
           border-radius: 10px;
         }
       }
+    }
+  }
+
+  &._360-540 {
+    .apply-button {
+      padding-left: 6px;
+      padding-right: 6px;
+    }
+    
+    .reset-button {
+      padding: 0px;
     }
   }
 }
