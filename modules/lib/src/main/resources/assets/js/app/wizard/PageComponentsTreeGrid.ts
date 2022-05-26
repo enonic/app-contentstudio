@@ -28,6 +28,7 @@ import {TextItemType} from '../../page-editor/text/TextItemType';
 import {TextComponentView} from '../../page-editor/text/TextComponentView';
 import {AppHelper} from 'lib-admin-ui/util/AppHelper';
 import {PageComponentsTreeGridHelper} from './PageComponentsTreeGridHelper';
+import {ComponentName} from '../page/region/ComponentName';
 
 export class PageComponentsTreeGrid
     extends TreeGrid<ItemViewTreeGridWrapper> {
@@ -167,6 +168,7 @@ export class PageComponentsTreeGrid
         }
 
         return request.then((descriptor: Descriptor) => {
+            component.setName(new ComponentName(descriptor.getDisplayName()));
             component.setDescription(descriptor.getDescription());
             component.setIcon(descriptor.getIcon());
             return itemView;
