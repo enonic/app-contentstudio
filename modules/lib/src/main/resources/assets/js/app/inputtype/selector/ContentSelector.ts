@@ -220,7 +220,8 @@ export class ContentSelector
                 this.getSelectedOptionsView().refreshSortable();
                 this.updateSelectedOptionStyle();
                 this.validate(false);
-            }
+                this.contentComboBox.getComboBox().setIgnoreNextFocus(true);
+            }            
 
         });
 
