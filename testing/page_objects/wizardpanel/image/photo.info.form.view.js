@@ -87,10 +87,6 @@ class ImagePhotoInfoForm extends Page {
         return XPATH.container + XPATH.autoFlashCompensationInput;
     }
 
-    get autoFlashCompensationInput() {
-        return XPATH.container + XPATH.autoFlashCompensationInput;
-    }
-
     get shutterTimeInput() {
         return XPATH.container + XPATH.shutterTimeInput;
     }
@@ -121,10 +117,6 @@ class ImagePhotoInfoForm extends Page {
 
     waitForShutterTimeInputDisplayed() {
         return this.waitForElementDisplayed(this.shutterTimeInput, appConst.mediumTimeout);
-    }
-
-    waitForAutoFlashCompensationInputDisplayed() {
-        return this.waitForElementDisplayed(this.autoFlashCompensationInput, appConst.mediumTimeout);
     }
 
     waitForLensInputDisplayed() {

@@ -225,12 +225,6 @@ class HtmlAreaForm extends OccurrencesFormView {
         return await this.pause(300);
     }
 
-    async showToolbarAndClickOnInsertMacroButton() {
-        await this.clickOnElement(XPATH.ckeTextArea);
-        await this.waitForElementDisplayed(lib.CKE.insertMacroButton, appConst.mediumTimeout);
-        return await this.clickOnElement(lib.CKE.insertMacroButton);
-    }
-
     async showToolbarAndClickOnInsertLinkButton() {
         await this.waitForElementDisplayed(XPATH.ckeTextArea, appConst.mediumTimeout);
         await this.clickOnElement(XPATH.ckeTextArea);

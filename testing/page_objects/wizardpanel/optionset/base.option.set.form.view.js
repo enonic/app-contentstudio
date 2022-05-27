@@ -43,7 +43,7 @@ class BaseOptionSetFormView extends Page {
             }
             return await elements[index].getText();
         } catch (err) {
-            this.saveScreenshot('err_option_set_validation_recording');
+            await this.saveScreenshot('err_option_set_validation_recording');
             throw new Error('getting Validation text: ' + err);
         }
     }

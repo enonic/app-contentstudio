@@ -2,14 +2,12 @@
  * Created on 07.09.2021
  */
 const Page = require('../page');
-const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 const XPATH = {
     radioInputs: "//div[contains(@id,'RadioButton')]//input[@type='radio']",
     radioByName: optionName => {
         return `//span[contains(@class,'radio-button') and child::label[text()='${optionName}']]//input`
     },
-
 };
 
 class RadioButtonForm extends Page {

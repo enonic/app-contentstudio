@@ -228,7 +228,6 @@ module.exports = Object.freeze({
         IMG_SELECTOR_0_1: 'imageselector0_1',
         IMG_SELECTOR_1_1: 'imageselector1_1',
         IMG_SELECTOR_2_4: 'imageselector2_4',
-        ARTICLE: `article`,
         DOUBLE_MIN_MAX: 'double_max',
         DOUBLE_DEFAULT_2_4: 'double2_4_def',
         DOUBLE_0_1: "double0_1",

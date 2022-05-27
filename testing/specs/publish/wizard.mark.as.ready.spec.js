@@ -9,9 +9,6 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
-const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
-const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in wizard`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -46,7 +43,6 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
     it(`GIVEN new folder-wizard, name has been typed WHEN 'Mark as ready' button has been pressed THEN 'workflow-state' should be updated to Ready For Publishing`,
         async () => {
             let contentWizard = new ContentWizard();
-            let createRequestPublishDialog = new CreateRequestPublishDialog();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             //1. Open new folder wizard:
@@ -72,7 +68,6 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
     it(`GIVEN new folder-wizard is opened, a name has been typed WHEN new 'Publish Request' has been created THEN default action gets OPEN REQUEST`,
         async () => {
             let contentWizard = new ContentWizard();
-            let taskDetailsDialog = new TaskDetailsDialog();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             //1. Open new folder wizard:
@@ -81,7 +76,6 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             await contentWizard.clickOnMarkAsReadyButton(displayName);
             //2. Open Request Publishing dialog and create new request:
             await contentWizard.openPublishMenuAndCreateRequestPublish("my changes");
-
             //3. Verify that 'Open Request' -  action gets default in the wizard's toolbar.
             await contentWizard.waitForOpenRequestButtonVisible();
             let toolbarState = await contentWizard.getToolbarWorkflowState();
@@ -93,7 +87,6 @@ describe('wizard.mark.as.ready.spec - publishes and unpublishes single folder in
             //Drop Down handle should be visible after closing the dialog!
             await contentWizard.waitForShowPublishMenuButtonVisible();
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

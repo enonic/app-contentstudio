@@ -9,7 +9,6 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
-const PublishContentDialog = require('../page_objects/content.publish.dialog');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
 
 describe('archive.content.dialog.spec:  tests for archiving content', function () {
@@ -33,7 +32,6 @@ describe('archive.content.dialog.spec:  tests for archiving content', function (
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let deleteContentDialog = new DeleteContentDialog();
-            let confirmValueDialog = new ConfirmValueDialog();
             //1. Select a folder
             await studioUtils.findContentAndClickCheckBox(FOLDER1.displayName);
             //2.Click on 'Archive...' menu item in grid context menu:
@@ -46,7 +44,6 @@ describe('archive.content.dialog.spec:  tests for archiving content', function (
             //3. Verify that the modal dialog is loaded:
             await deleteContentDialog.waitForDialogOpened();
         });
-
 
     it(`GIVEN two folders are checked AND 'Delete Content Dialog' is opened WHEN 'Archive' button in the dialog has been clicked THEN 'Confirm archive' dialog should be opened`,
         async () => {

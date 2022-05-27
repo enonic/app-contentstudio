@@ -41,7 +41,6 @@ describe('close.task.by.user.spec: create a task for user and close it', functio
             let createTaskDialog = new CreateTaskDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             let taskDetailsDialog = new TaskDetailsDialog();
-            let issueDetailsDialogAssigneesTab = new IssueDetailsDialogAssigneesTab();
             let displayName = contentBuilder.generateRandomName('folder');
             TEST_FOLDER = contentBuilder.buildFolder(displayName);
             //1.Add new folder:
@@ -68,7 +67,6 @@ describe('close.task.by.user.spec: create a task for user and close it', functio
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             let issueListDialog = new IssueListDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
-            let taskDetailsDialog = new TaskDetailsDialog();
             await studioUtils.saveScreenshot("assigned_to_me_label");
             //Verify that 'Assigned to Me' label is displayed in the Open Issues button
             await contentBrowsePanel.waitForAssignedToMeButtonDisplayed();

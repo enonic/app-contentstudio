@@ -57,13 +57,6 @@ class BaseLayersWidget extends Page {
     }
 
     async waitForEditButtonEnabled(layerName) {
-        let locator = this.widgetItemView + xpath.layerViewByName(layerName) +
-                      "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button[child::span[text()='Edit']]";
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.waitForElementEnabled(locator, appConst.mediumTimeout);
-    }
-
-    async waitForEditButtonEnabled(layerName) {
         try {
             let locator = this.widgetItemView + xpath.layerViewByName(layerName) +
                           "/following-sibling::div[contains(@id,'LayerContentViewFooter')]/button[child::span[text()='Edit']]";
@@ -93,9 +86,9 @@ class BaseLayersWidget extends Page {
         return await this.clickOnElement(locator);
     }
 
-    async clickOnShowAllButton(layerName) {
+    async clickOnShowAllButton() {
         let layersContentTreeDialog = new LayersContentTreeDialog();
-        this.waitForElementDisplayed(this.showAllButton, appConst.mediumTimeout);
+        await this.waitForElementDisplayed(this.showAllButton, appConst.mediumTimeout);
         await this.clickOnElement(this.showAllButton);
         await layersContentTreeDialog.waitForDialogLoaded();
         return layersContentTreeDialog;
@@ -114,7 +107,7 @@ class BaseLayersWidget extends Page {
         return displayName + postfix;
     }
 
-    async getContentStatus(layerName) {
+    async getContentStatus() {
         let locator = this.widgetItemView + "//div[contains(@id,'LayerContentViewHeader')]//div[contains(@class,'status')]";
         await this.waitForElementDisplayed(locator);
         return await this.getText(locator);

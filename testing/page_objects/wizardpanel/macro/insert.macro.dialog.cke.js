@@ -89,10 +89,6 @@ class InsertMacroModalDialog extends Page {
         return this.pause(1000);
     }
 
-    async typeTextInConfigurationTextArea(text) {
-        return await this.typeTextInInput(this.configTextArea, text);
-    }
-
     async getTextInPreviewTab() {
         let locator = XPATH.previewTab + XPATH.textInPreviewTab;
         await this.waitForElementDisplayed(locator, appConst.mediumTimeout);

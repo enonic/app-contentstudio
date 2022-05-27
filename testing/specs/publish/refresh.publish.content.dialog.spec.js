@@ -30,7 +30,7 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
             //1. New folder has been added:(status of this folder is Ready for publishing)
             await studioUtils.doAddReadyFolder(FOLDER);
             await studioUtils.findAndSelectItem(FOLDER.displayName);
-            //2. expand the Publish Menu and select 'Publish...' menu item, Publish Wizard gets visible:
+            //2. expand 'Publish Menu' and select 'Publish...' menu item, Publish Wizard gets visible:
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
             await contentPublishDialog.waitForPublishNowButtonEnabled();
 
@@ -98,7 +98,6 @@ describe('refresh.publish.dialog.spec - opens publish content modal dialog and c
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentPublishDialog = new ContentPublishDialog();
-            let dateRangeInput = new DateRangeInput();
             //1. Select existing 'ready' folder and open Publish Dialog
             await studioUtils.findAndSelectItem(FOLDER.displayName);
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
