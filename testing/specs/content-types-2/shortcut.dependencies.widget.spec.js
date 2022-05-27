@@ -16,10 +16,8 @@ const ContentFilterPanel = require('../../page_objects/browsepanel/content.filte
 describe("tests for 'Show Outbound' button in shortcut wizard", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
     webDriverHelper.setupBrowser();
-    const TARGET_FOLDER = appConst.TEST_FOLDER_WITH_IMAGES_NAME
     const SHORTCUT_NAME = contentBuilder.generateRandomName('shortcut');
     const FOLDER_NAME = appConst.generateRandomName("folder");
-
 
     it(`Preconditions: create a folder`,
         async () => {

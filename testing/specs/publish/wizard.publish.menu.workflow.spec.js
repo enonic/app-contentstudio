@@ -10,8 +10,6 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ScheduleForm = require('../../page_objects/wizardpanel/schedule.wizard.step.form');
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
-const PublishContentDialog = require('../../page_objects/content.publish.dialog');
-const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 
 describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single folder in wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -115,7 +113,6 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
         async () => {
             let contentWizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-
             //Click on dropdown handle and open Publish Menu:
             await contentWizard.openPublishMenu();
             studioUtils.saveScreenshot("publish_menu_items3");
@@ -145,7 +142,6 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
             let workflow = await contentWizard.getToolbarWorkflowState();
             assert.equal(workflow, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
-
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());

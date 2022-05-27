@@ -2,7 +2,6 @@
  * Created on 13.10.2021
  */
 const OccurrencesFormView = require('../wizardpanel/occurrences.form.view');
-const lib = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
 
 const XPATH = {

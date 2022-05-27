@@ -3,7 +3,6 @@
  *
  */
 const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');

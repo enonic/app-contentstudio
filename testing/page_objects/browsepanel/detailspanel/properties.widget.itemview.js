@@ -13,7 +13,6 @@ const xpath = {
     type: "//dd[contains(.,'Type:')]/following-sibling::dt[1]",
     firstPublished: "//dd[contains(.,'First Published:')]/following-sibling::dt[1]",
     modified: "//dd[contains(.,'Modified:')]/following-sibling::dt[1]",
-    firstPublished: "//dd[contains(.,'First Published:')]/following-sibling::dt[1]"
 };
 
 class PropertiesItemView extends Page {

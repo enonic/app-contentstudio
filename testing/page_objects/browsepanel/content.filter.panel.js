@@ -12,6 +12,11 @@ const XPATH = {
     showResultsButton: "//div[contains(@class,'show-filter-results')]",
     showMoreButton: "//button[child::span[text()='Show more']]",
     showLessButton: "//button[child::span[text()='Show less']]",
+    selectorOptionCheckbox: "//ul[contains(@id,'BucketListBox')]//div[contains(@id,'Checkbox')]",
+    selectorOptionItem: "//ul[contains(@id,'BucketListBox')]//div[contains(@class,'item-view-wrapper')]",
+    selectorOptionItemByLabel: label => `//ul[contains(@id,'BucketListBox')]//div[contains(@class,'item-view-wrapper') and descendant::h6[contains(@class,'main-name') and contains(.,'${label}')]]`,
+    ownerAggregationGroupView: "//div[contains(@id,'FilterableAggregationGroupView') and child::h2[text()='Owner']]",
+    aggregationListBoxDropdown: label => `//div[contains(@id,'FilterableAggregationGroupView') and child::h2[text()='${label}']]//div[contains(@id,'SelectableListBoxDropdown')]`,
     aggregationGroupByName: name => `//div[contains(@id,'AggregationContainer')]//div[contains(@id,'AggregationGroupView') and child::h2[text()='${name}']]`,
     aggregationLabelByName: name => `//div[contains(@class,'checkbox') and child::label[contains(.,'${name}')]]//label`,
     folderAggregation: () => `//div[contains(@class,'checkbox') and child::label[contains(.,'Folder') and not(contains(.,'Template'))]]//label`,
@@ -33,8 +38,17 @@ class BrowseFilterPanel extends Page {
     get showMoreButton() {
         return XPATH.container + "//div[contains(@id,'AggregationGroupView') and child::h2[text()='Content Types']]" + XPATH.showMoreButton;
     }
+
     get showLessButton() {
         return XPATH.container + "//div[contains(@id,'AggregationGroupView') and child::h2[text()='Content Types']]" + XPATH.showLessButton;
+    }
+
+    get ownerDropdownHandle() {
+        return XPATH.aggregationListBoxDropdown("Owner") + lib.DROP_DOWN_HANDLE;
+    }
+
+    get lastModifiedByDropdownHandle() {
+        return XPATH.aggregationListBoxDropdown("Last Modified By") + lib.DROP_DOWN_HANDLE;
     }
 
     get closeDependenciesSectionButtonLocator() {
@@ -43,6 +57,25 @@ class BrowseFilterPanel extends Page {
 
     get searchTextInput() {
         return XPATH.container + XPATH.searchInput;
+    }
+
+    waitForLastModifiedByDropdownHandleDisplayed() {
+        return this.waitForElementDisplayed(this.lastModifiedByDropdownHandle, appConst.mediumTimeout);
+    }
+
+    waitForOwnerDropdownHandleDisplayed() {
+        return this.waitForElementDisplayed(this.ownerDropdownHandle, appConst.mediumTimeout);
+    }
+
+    async clickOnOwnerDropdownHandle() {
+        await this.waitForOwnerDropdownHandleDisplayed();
+        await this.clickOnElement(this.ownerDropdownHandle);
+        await this.pause(500);
+    }
+
+    async clickOnLastModifiedByDropdownHandle() {
+        await this.waitForLastModifiedByDropdownHandleDisplayed();
+        return await this.clickOnElement(this.lastModifiedByDropdownHandle);
     }
 
     async typeSearchText(text) {
@@ -232,6 +265,34 @@ class BrowseFilterPanel extends Page {
         let startIndex = label.indexOf('(');
         let endIndex = label.indexOf(')');
         return label.substring(startIndex + 1, endIndex);
+    }
+
+    async getOwnerNameInSelector() {
+        let owners = [];
+        let optionsLocator = XPATH.ownerAggregationGroupView + XPATH.selectorOptionItem + lib.H6_DISPLAY_NAME;
+        await this.waitForElementDisplayed(optionsLocator, appConst.shortTimeout);
+        let result = await this.getTextInDisplayedElements(optionsLocator);
+        result.map(item => {
+            let value = item.substring(0, item.indexOf('('));
+            owners.push(value.trim());
+        })
+        return owners;
+    }
+
+    async expandOwnerOptionsAndSelectItem(ownerName) {
+        try {
+            await this.clickOnOwnerDropdownHandle();
+            let checkboxLocator = XPATH.ownerAggregationGroupView + XPATH.selectorOptionItemByLabel(ownerName);
+            await this.waitForElementDisplayed(checkboxLocator, appConst.mediumTimeout);
+            await this.clickOnElement(checkboxLocator);
+            let okButton = XPATH.ownerAggregationGroupView + "//button[child::span[text()='OK']]";
+            await this.waitForElementDisplayed(okButton, appConst.mediumTimeout);
+            await this.clickOnElement(okButton);
+            await this.pause(300);
+        }catch(err){
+            await this.saveScreenshot("err_filter_owner");
+            throw new Error("Error when selecting an option in Owner Selector " + err);
+        }
     }
 }
 

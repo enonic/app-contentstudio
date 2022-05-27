@@ -30,7 +30,6 @@ describe('change.access.mode.spec - Update Access Mode in project wizard', funct
 
     it("Precondition: new folder should be added in existing project(Private mode access)",
         async () => {
-            let projectSelectionDialog = new ProjectSelectionDialog();
             //1. Select the project in 'Select Context' dialog
             await studioUtils.openProjectSelectionDialogAndSelectContext(PROJECT_DISPLAY_NAME);
             //2. add new folder:

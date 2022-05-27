@@ -50,7 +50,6 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
     it("WHEN existing 'checkbox' content is reopened THEN checkbox should be selected",
         async () => {
             let checkBoxForm = new CheckBoxForm();
-            let contentWizard = new ContentWizard();
             //1. open existing checkbox content:
             await studioUtils.selectAndOpenContentInWizard(CHECKBOX_NAME);
             //2. Verify that the checkbox is selected

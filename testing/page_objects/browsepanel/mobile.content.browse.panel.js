@@ -91,10 +91,6 @@ class MobileContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.moreFoldButton + XPATH.sortButton;
     }
 
-    get publishFoldedButton() {
-        return XPATH.moreFoldButton + XPATH.sortButton;
-    }
-
     get newFoldedButton() {
         return XPATH.moreFoldButton + XPATH.newButton;
     }

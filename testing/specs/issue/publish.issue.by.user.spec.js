@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
@@ -65,7 +64,6 @@ describe('publish.task.by.user.spec: create a task for user and this user publis
             //1. user is logged in:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             let issueListDialog = new IssueListDialog();
-            let contentBrowsePanel = new ContentBrowsePanel();
             let taskDetailsDialog = new TaskDetailsDialog();
             let taskDetailsDialogItemsTab = new TaskDetailsDialogItemsTab();
             //2. Open Issues List dialog:
