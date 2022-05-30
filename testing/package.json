@@ -23,5 +23,9 @@
     "properties-reader": "^2.2.0",
     "selenium-standalone": "^8.1.4",
     "webdriverio": "^7.19.7"
+  },
+  "engines": {
+    "node": ">= 16.15.0",
+    "npm": ">= 8.5.5"
   }
 }
