@@ -59,7 +59,7 @@ task copyDevResources {
 npmInstall.dependsOn copyDevResources
 
 node {
-    version = '16.0.0'
+    version = '16.15.0'
     download = true
 }
 
