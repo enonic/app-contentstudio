@@ -104,6 +104,7 @@ import {ContentIds} from '../content/ContentIds';
 import {ProjectDeletedEvent} from '../settings/event/ProjectDeletedEvent';
 import {ProjectContext} from '../project/ProjectContext';
 import {ProjectHelper} from '../settings/data/project/ProjectHelper';
+import {Element} from 'lib-admin-ui/dom/Element';
 import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {OpenEditPermissionsDialogEvent} from '../event/OpenEditPermissionsDialogEvent';
 import {UrlAction} from '../UrlAction';
@@ -188,7 +189,7 @@ export class ContentWizardPanel
 
     private displayNameResolver: DisplayNameResolver;
 
-    private editPermissionsToolbarButton: ContentWizardStep;
+    private editPermissionsToolbarButton: Element;
 
     private minimizeEditButton?: DivEl;
 
@@ -739,6 +740,8 @@ export class ContentWizardPanel
                 this.wizardActions.refreshState();
             });
 
+            this.createEditButtonToolbar();
+
             if (this.livePanel) {
                 this.livePanel.addClass('rendering');
                 ResponsiveManager.onAvailableSizeChanged(this.formPanel);
@@ -1229,27 +1232,52 @@ export class ContentWizardPanel
         this.settingsWizardStep = new ContentWizardStep(i18n('field.settings'), this.settingsWizardStepForm, 'icon-wrench');
         steps.push(this.settingsWizardStep);
 
-        const iconClass: string = this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock';
-        this.editPermissionsToolbarButton = new ContentWizardStep(i18n('field.access'), this.settingsWizardStepForm, iconClass);
-        this.editPermissionsToolbarButton.getTabBarItem().addClass('edit-permissions-button');
-        this.editPermissionsToolbarButton.getTabBarItem().onClicked(this.handleEditPermissionsButtonClicked.bind(this));
-        steps.push(this.editPermissionsToolbarButton);
-
         this.addAccessibilityToSteps(steps);
 
         return steps;
     }
 
     private addAccessibilityToSteps(steps: ContentWizardStep[]): void {
-        steps.forEach((step: ContentWizardStep) => this.addAccessibilityToAStep(step));
+        steps.forEach((step: ContentWizardStep, index: number) => this.addAccessibilityToStep(step, index === steps.length - 1));
     }
 
-    private addAccessibilityToAStep(step: ContentWizardStep): void {
+    private addAccessibilityToStep(step: ContentWizardStep, isLastStep: boolean): void {
         const stepTabBarItem: ContentTabBarItem = step.getTabBarItem();
         stepTabBarItem.getEl().setTabIndex(0);
-        stepTabBarItem.onKeyDown((event: KeyboardEvent) =>
-            KeyHelper.isEnterKey(event) && stepTabBarItem.getHTMLElement().click()
-        );
+        stepTabBarItem.onKeyDown((event: KeyboardEvent): void => {
+            if (KeyHelper.isEnterKey(event)) {
+                stepTabBarItem.getHTMLElement().click();
+            }
+
+            if (!KeyHelper.isShiftKeyPressed(event) && KeyHelper.isTabKey(event) && isLastStep) {
+                event.preventDefault();
+                this.editPermissionsToolbarButton.getEl().setTabIndex(0);
+                this.editPermissionsToolbarButton.getEl().focus();
+            }
+        });
+    }
+
+    private createEditButtonToolbar(): void {
+        this.editPermissionsToolbarButton = new DivEl('edit-permissions-button');
+        this.editPermissionsToolbarButton.getEl().setTitle(i18n('field.access'));
+        this.editPermissionsToolbarButton.addClass(this.canEveryoneRead(this.getPersistedItem()) ? 'icon-unlock' : 'icon-lock');
+        this.editPermissionsToolbarButton.onClicked(this.handleEditPermissionsButtonClicked.bind(this));
+        this.editPermissionsToolbarButton.onFocusOut(() => this.editPermissionsToolbarButton.getEl().removeAttribute('tabindex'));
+        this.editPermissionsToolbarButton.onKeyDown((event: KeyboardEvent): void => {
+            if (KeyHelper.isEnterKey(event)) {
+                this.editPermissionsToolbarButton.getHTMLElement().click();
+            }
+
+            if (KeyHelper.isShiftKeyPressed(event) && KeyHelper.isTabKey(event)) {
+                event.preventDefault();
+                const steps = this.getSteps() || [];
+                const lastStep = steps.slice(-1)[0];
+                if (lastStep) {
+                    lastStep.getTabBarItem().getEl().focus();
+                }
+            }
+        });
+        this.getStepNavigatorContainer().appendChild(this.editPermissionsToolbarButton);
     }
 
     private fetchPersistedContent(): Q.Promise<Content> {
@@ -2027,13 +2055,13 @@ export class ContentWizardPanel
 
         if (hasAdminPermissions) {
             this.toggleSettingsElementsVisibility(true);
-            this.editPermissionsToolbarButton.getTabBarItem().setVisible(true);
+            this.editPermissionsToolbarButton.setVisible(true);
         } else {
             ProjectHelper.isUserProjectOwner(loginResult).then((isOwner: boolean) => {
                 const isContentExpert: boolean = loginResult.isContentExpert();
 
                 this.toggleSettingsElementsVisibility(isContentExpert || isOwner);
-                this.editPermissionsToolbarButton.getTabBarItem().setVisible(isOwner);
+                this.editPermissionsToolbarButton.setVisible(isOwner);
             });
         }
     }
@@ -2772,8 +2800,8 @@ export class ContentWizardPanel
     private updateEditPermissionsButtonIcon(content: Content) {
         const canEveryoneRead: boolean = this.canEveryoneRead(content);
 
-        this.editPermissionsToolbarButton.getTabBarItem().toggleClass('icon-unlock', canEveryoneRead);
-        this.editPermissionsToolbarButton.getTabBarItem().toggleClass('icon-lock', !canEveryoneRead);
+        this.editPermissionsToolbarButton.toggleClass('icon-unlock', canEveryoneRead);
+        this.editPermissionsToolbarButton.toggleClass('icon-lock', !canEveryoneRead);
     }
 
     private canEveryoneRead(content: Content): boolean {
