@@ -1,5 +1,9 @@
 Licenses used by Content Studio for Enonic XP (full license texts are provided after the list of libraries)
 
+    Admin UI Library for Enonic XP
+    GNU GPL 3.0
+    https://github.com/enonic/lib-admin-ui/blob/master/LICENSE.txt
+
     Apache Commons
     Apache License 2.0
     http://www.apache.org/licenses/LICENSE-2.0
@@ -8,11 +12,36 @@ Licenses used by Content Studio for Enonic XP (full license texts are provided a
     GNU GPL 3.0
     https://ckeditor.com/legal/ckeditor-oss-license/
 
+    Flag-Icons
+    MIT License
+    https://github.com/lipis/flag-icons/blob/main/LICENSE
+
+    Hasher
+    MIT License
+    http://github.com/millermedeiros/hasher
+
+    JQuery
+    MIT License
+    https://jquery.org/license/
+
+    JsonDiffPatch
+    MIT License
+    https://github.com/benjamine/jsondiffpatch/blob/master/MIT-LICENSE.txt
+
+    Lodash
+    MIT License
+    https://github.com/lodash/lodash/blob/master/LICENSE
+
+    Q.js
+    MIT License
+    https://github.com/kriskowal/q/blob/v1/LICENSE
+
 ---------------------------------------------------------------------------
 
 LICENSE TEXTS
 1. Apache License 2.0
 2. GNU GPL 3.0
+3. MIT License
 
 ---------------------------------------------------------------------------
 
@@ -843,3 +872,26 @@ Program, unless a warranty or assumption of liability accompanies a
 copy of the Program in return for a fee.
 
                      END OF TERMS AND CONDITIONS
+
+---------------------------------------------------------------------------
+The MIT License
+
+Copyright (c) 2018 Benjamin Eidelman, https://twitter.com/beneidel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
