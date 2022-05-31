@@ -12,7 +12,9 @@ const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizar
 
 describe('long.content.config.spec:  verifies `Min/max value config for Long`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
 
     it(`Preconditions: new site should be added`,

@@ -16,7 +16,9 @@ const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.ve
 describe('image.selector0_1.spec tests for not required image selector',
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
-        webDriverHelper.setupBrowser();
+            if (typeof browser === "undefined") {
+                    webDriverHelper.setupBrowser();
+            }
         const CONTENT_NAME = contentBuilder.generateRandomName('content');
 
         const IMAGE_DISPLAY_NAME1 = appConstant.TEST_IMAGES.SEVEROMOR;

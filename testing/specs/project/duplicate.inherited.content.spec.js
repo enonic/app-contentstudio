@@ -62,7 +62,7 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
             //1. Select the layer's context:
             await studioUtils.openProjectSelectionDialogAndSelectContext(LAYER_DISPLAY_NAME);
             //2. Open the site
-            let contentWizard = await studioUtils.selectAndOpenContentInWizard(SITE_NAME + "-copy");
+            let contentWizard = await studioUtils.openContentAndSwitchToTabByDisplayName(SITE_NAME + "-copy", SITE_NAME);
             studioUtils.saveScreenshot("inherited_site_copy_wizard");
             //3. Verify that 'Reset' button is not displayed:
             await contentWizard.waitForResetButtonNotDisplayed();

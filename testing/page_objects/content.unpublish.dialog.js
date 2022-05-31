@@ -72,6 +72,10 @@ class ContentUnpublishDialog extends Page {
         return await this.clickOnElement(this.hideDependentItemsLink);
     }
 
+    waitForHideDependentItemsLinkDisplayed() {
+        return this.waitForElementDisplayed(this.hideDependentItemsLink, appConst.mediumTimeout);
+    }
+
     getItemDisplayName() {
         let locator = XPATH.container + XPATH.dialogItemListUl + lib.H6_DISPLAY_NAME;
         return this.getTextInDisplayedElements(locator);

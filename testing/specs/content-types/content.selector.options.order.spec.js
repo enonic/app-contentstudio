@@ -12,7 +12,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('content.selector.options.order.spec:  tests for checking of order of selected options in content selector', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const CONTENT_NAME = contentBuilder.generateRandomName("selector");
     const OPTION_1 = appConstant.TEST_FOLDER_WITH_IMAGES;//All Content types images

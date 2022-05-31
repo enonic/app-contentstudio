@@ -12,7 +12,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('attachments.wizard.spec: tests for attachments content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const ATTACHMENT_NAME = contentBuilder.generateRandomName('attachments');
     const ATTACHMENT_NAME2 = contentBuilder.generateRandomName('attachments');

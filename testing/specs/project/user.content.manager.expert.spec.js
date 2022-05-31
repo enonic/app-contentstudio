@@ -43,7 +43,7 @@ describe('user.content.manager.expert.spec - ui-tests for content manager expert
         });
 
     afterEach(async () => {
-        let title = await webDriverHelper.browser.getTitle();
+        let title = await studioUtils.getBrowser().getTitle();
         if (title.includes("Content Studio") || title.includes("Users")) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }

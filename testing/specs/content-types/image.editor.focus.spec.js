@@ -13,8 +13,9 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 
 describe("image.editor.focus.spec: tests for focus button", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`WHEN Try to close the wizard with unsaved set focus THEN Alert dialog should appear`,
         async () => {

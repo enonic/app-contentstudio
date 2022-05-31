@@ -66,7 +66,6 @@ task copyApps( type: Copy ) {
     mustRunAfter 'startServer'
 }
 
-
 task deployContentStudio( type: DefaultTask ) {
     outputs.files( contentStudioFile )
     doLast {
@@ -88,7 +87,6 @@ task deployContentStudio( type: DefaultTask ) {
     }
     mustRunAfter unpackDistro
 }
-
 
 task startServer( dependsOn: [unpackDistro, copyConfig, deployContentStudio] ) {
     doLast {
@@ -182,3 +180,26 @@ task baseContentStudioTests( type: NpmTask, dependsOn: [npmInstall, startServer,
 task testContentStudioAppLocally( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['test']
 }
+
+/////////////////////////////Firefox geckodriver:
+task testWizardsGridFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_wizards_grid:firefox']
+    finalizedBy stopServer
+}
+
+task testWizardsGridFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_wizards_grid:firefox']
+}
+
+task testPageEditorFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_page_editor:firefox']
+}
+
+task testInputTypesFirefox_2_Local( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_input_types_2:firefox']
+}
+
+task testInputTypesFirefox_Local( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_input_types:firefox']
+}
+

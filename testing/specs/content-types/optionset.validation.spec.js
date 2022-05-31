@@ -13,7 +13,9 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 
 describe("optionset.validation.spec: tests for validation of option set", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const DISPLAY_NAME = contentBuilder.generateRandomName('optionset');
     const OPTION_SET_UNLIM = contentBuilder.generateRandomName('optionset');

@@ -14,7 +14,9 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 
 describe("Shortcut's target specification", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const TARGET_1 = "whale";
     const TARGET_2 = "server";
     const SHORTCUT_NAME = contentBuilder.generateRandomName('shortcut');

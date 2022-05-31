@@ -12,7 +12,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const EXPECTED_TEXT_TEXT1 = '<p>test 1</p>';
     const EXPECTED_TEXT_TEXT2 = '<p>test 2</p>';
     let SITE;
@@ -211,13 +213,12 @@ describe('htmlarea0_2__1_1.cke.spec: tests for html area with CKE', function () 
             await htmlAreaForm.insertTextInHtmlArea(1, "test 2");
             //4. Save and reopen the content:
             await studioUtils.saveAndCloseWizard();
-            await studioUtils.doClickOnEditAndOpenContent();
+            await studioUtils.doClickOnEditAndOpenContent(CONTENT_NAME_2);
             await htmlAreaForm.pause(1500);
             //5. Verify that expected text is correctly saved:
             let result = await htmlAreaForm.getTextFromHtmlArea();
             assert.isTrue(result.includes(EXPECTED_TEXT_TEXT1), "Expected text should be in the area");
             assert.isTrue(result.includes(EXPECTED_TEXT_TEXT2), "Expected text should be in the area");
-
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

@@ -133,7 +133,7 @@ describe('my.first.site.country.spec - Create a site with country content', func
             let contentWizard = new ContentWizard();
             let cityForm = new CityForm();
             //1. Open city content, population of SF has been updated
-            await studioUtils.selectAndOpenContentInWizard(SF_NAME);
+            await studioUtils.openContentAndSwitchToTabByDisplayName(SF_NAME,"San Francisco");
             await cityForm.typePopulation(NEW_SF_POPULATION);
             await contentWizard.waitAndClickOnSave();
             //2. Verify that population is not updated in master, because the content is not published now(Modified):

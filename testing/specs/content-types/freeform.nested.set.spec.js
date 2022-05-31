@@ -12,7 +12,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe("freeform.nested.set.spec: updates a content with nested set and checks 'Save' button in the wizard-toolbar", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let CONTENT_1;
     let CONTENT_2 = contentBuilder.generateRandomName('freeform');

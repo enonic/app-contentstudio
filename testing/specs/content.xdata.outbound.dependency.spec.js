@@ -12,10 +12,13 @@ const XDataContentSelector = require('../page_objects/wizardpanel/xdata.content.
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardDependenciesWidget = require('../page_objects/wizardpanel/details/wizard.dependencies.widget');
+const appConst = require('../libs/app_const');
 
 describe('content.xdata.outbound.dependency.spec: checks outbound dependency for a content with x-data(image)', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const CONTENT_WITH_XDATA = contentBuilder.generateRandomName('test');
     const CONTENT_WITH_XDATA_2 = contentBuilder.generateRandomName('test');
@@ -126,4 +129,11 @@ describe('content.xdata.outbound.dependency.spec: checks outbound dependency for
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
+
 });

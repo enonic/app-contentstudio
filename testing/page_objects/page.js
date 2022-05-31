@@ -7,7 +7,11 @@ const fs = require('fs');
 class Page {
 
     constructor() {
-        this.browser = webDriverHelper.browser;
+        if (typeof browser !== "undefined") {
+            this.browser = browser;
+        } else {
+            this.browser = webDriverHelper.browser;
+        }
     }
 
     getBrowser() {
@@ -146,7 +150,7 @@ class Page {
         if (!fs.existsSync(screenshotsDir)) {
             fs.mkdirSync(screenshotsDir, {recursive: true});
         }
-        return this.browser.saveScreenshot(screenshotsDir + name + '.png').then(() => {
+        return this.getBrowser().saveScreenshot(screenshotsDir + name + '.png').then(() => {
             console.log('screenshot is saved ' + name);
         }).catch(err => {
             console.log('screenshot was not saved ' + screenshotsDir + ' ' + err);

@@ -2,7 +2,6 @@
  * Created on 27.02.2019.
  */
 const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
@@ -13,11 +12,13 @@ const appConst = require('../libs/app_const');
 
 describe('site.wizard.no.regions.controller.spec: checks Save button after selecting a template with `no region` ', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
 
-//verifies https://github.com/enonic/app-contentstudio/issues/210
-//"Save" button doesn't get disabled after save when assigning a template with no regions to a site
+    //verifies https://github.com/enonic/app-contentstudio/issues/210
+    //"Save" button doesn't get disabled after save when assigning a template with no regions to a site
     it(`GIVEN new site wizard is opened AND name has been typed WHEN controller with 'no regions' has been selected THEN Save button gets disabled`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -35,4 +36,10 @@ describe('site.wizard.no.regions.controller.spec: checks Save button after selec
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

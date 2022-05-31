@@ -1,6 +1,5 @@
 /**
  * Created on 17.05.2018.
- * verifies:https://github.com/enonic/app-contentstudio/issues/127  (shortcut for Publish button does not work)
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -13,10 +12,13 @@ const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const ContentPublishDialog = require('../page_objects/content.publish.dialog');
 const SettingsStepForm = require('../page_objects/wizardpanel/settings.wizard.step.form');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
+const appConst = require('../libs/app_const');
 
 describe('Wizard toolbar - shortcut spec`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let DISPLAY_NAME;
 
     it(`GIVEN folder-wizard is opened WHEN 'Ctrl+s' has been pressed THEN folder should be saved`, async () => {
@@ -93,7 +95,11 @@ describe('Wizard toolbar - shortcut spec`', function () {
             return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         })
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

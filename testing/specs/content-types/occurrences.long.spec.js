@@ -12,7 +12,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('occurrences.long.spec:  tests for content with Long inputs', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const INVALID_LONG = "123.4";
     const MAX_SAFE_LONG = Number.MAX_SAFE_INTEGER;

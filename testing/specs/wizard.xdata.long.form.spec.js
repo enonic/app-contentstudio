@@ -2,7 +2,6 @@
  * Created on 18.03.2019.
  */
 const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
 const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
@@ -12,7 +11,9 @@ const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel'
 
 describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let contentName = contentBuilder.generateRandomName('content');
     let X_DATA_STEP_WIZARD = 'Html Area x-data';
@@ -57,4 +58,10 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(width, height)();
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

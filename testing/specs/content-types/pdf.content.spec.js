@@ -13,7 +13,9 @@ const ContentFilterPanel = require('../../page_objects/browsepanel/content.filte
 
 describe('pdf.content.spec tests for extraction data for pdf content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const TXT_FILE_DISPLAY_NAME = "test-text";
     const TXT_EXTRACTION_TEXT = "Minsk Belarus";
@@ -28,7 +30,7 @@ describe('pdf.content.spec tests for extraction data for pdf content', function 
             let contentFilterPanel = new ContentFilterPanel();
             let contentBrowsePanel = new ContentBrowsePanel();
             //1. Open the pdf-content
-            let contentWizard = await studioUtils.selectAndOpenContentInWizard(PDF_CONTENT_NAME);
+            let contentWizard = await studioUtils.selectAndOpenContentInWizard(PDF_CONTENT_DISPLAY_NAME);
             //2. Save the text in abstraction text area and create a tag:
             await pdfForm.typeTextInAbstractionTextArea(PDF_EXTRACTION_TEXT);
             await pdfForm.addTag(PDF_TAG_TEXT);

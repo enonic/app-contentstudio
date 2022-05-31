@@ -15,7 +15,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 describe('image.selector.required.input.spec tests for validation of content with required image',
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
-        webDriverHelper.setupBrowser();
+            if (typeof browser === "undefined") {
+                    webDriverHelper.setupBrowser();
+            }
         let CONTENT_NAME = contentBuilder.generateRandomName('content');
 
         let IMAGE_DISPLAY_NAME1 = appConstant.TEST_IMAGES.PES;

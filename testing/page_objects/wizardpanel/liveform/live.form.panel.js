@@ -142,8 +142,13 @@ class LiveFormPanel extends Page {
                 throw new Error("Error when clicking on Image Component  in Live Frame!")
             }
             let selector = xpath.textComponentByText(text);
-            await this.doRightClickWithOffset(selector, liveFrameX + 35, liveFrameY + 0);
-            return await this.pause(200);
+            if (this.getBrowser().capabilities.browserName === 'chrome') {
+                await this.doRightClickWithOffset(selector, liveFrameX + 35, liveFrameY );
+            } else {
+                await this.doRightClickWithOffset(selector, liveFrameX + 15, liveFrameY -15 );
+            }
+
+            return await this.pause(1000);
         } catch (err) {
             this.saveScreenshot("err_live_frame_right_click");
             throw new Error("Error when showing context menu for text component! " + err);

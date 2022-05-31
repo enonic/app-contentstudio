@@ -12,10 +12,13 @@ const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel'
 const InsertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
 const DetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
 const VersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
+const appConst = require('../libs/app_const');
 
 describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkbox and check `image range value`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let HTML_AREA_CONTENT_NAME = contentBuilder.generateRandomName('hrtmlarea');
@@ -166,4 +169,10 @@ describe('insert.image.dlg.custom.width.spec: click on the `custom width` checkb
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

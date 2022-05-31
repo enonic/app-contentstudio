@@ -13,7 +13,9 @@ const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel'
 
 describe("image.content.flip.rotate.spec: Open an image and flip and rotate it", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN existing image is opened WHEN 'Rotate' button has been pressed AND 'Reset Filter' has been pressed THEN Save button has expected state`,
         async () => {

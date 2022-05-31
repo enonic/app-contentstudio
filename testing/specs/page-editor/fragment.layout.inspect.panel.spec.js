@@ -175,7 +175,7 @@ describe('fragment.inspect.panel.spec - Select a site with not valid child and t
             let contentWizard = new ContentWizardPanel();
             let liveFormPanel = new LiveFormPanel();
             //1. Open the existing site with a fragment:
-            await studioUtils.selectAndOpenContentInWizard(FRAGMENT_2_COL_GENERATED_NAME);
+            await studioUtils.openContentAndSwitchToTabByDisplayName(FRAGMENT_2_COL_GENERATED_NAME,"25/75" );
             //2. Click on the layout component in Page Components View:
             await contentWizard.clickOnShowComponentViewToggler();
             await pageComponentView.clickOnComponent(LAYOUT_2_COL);
@@ -193,23 +193,23 @@ describe('fragment.inspect.panel.spec - Select a site with not valid child and t
             let pageComponentView = new PageComponentView();
             let fragmentInspectionPanel = new FragmentInspectionPanel();
             let siteFormPanel = new SiteFormPanel();
-                let wizardDetailsPanel = new WizardDetailsPanel();
-                let contentWizardPanel = new ContentWizardPanel();
+            let wizardDetailsPanel = new WizardDetailsPanel();
+            let contentWizardPanel = new ContentWizardPanel();
             //1. Open new site-wizard, select an application and controller:
             await studioUtils.openContentWizard(appConst.contentTypes.SITE);
             await contentWizardPanel.typeDisplayName(SITE_2_NAME);
             await siteFormPanel.addApplications([appConst.SIMPLE_SITE_APP]);
-                await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
-                await wizardDetailsPanel.waitForDetailsPanelLoaded();
+            await contentWizardPanel.selectPageDescriptor(MAIN_REGION_CONTROLLER);
+            await wizardDetailsPanel.waitForDetailsPanelLoaded();
             //2. Open Component View and insert the layout:
             await contentWizardPanel.clickOnShowComponentViewToggler();
-                await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
-                await studioUtils.saveScreenshot("fragment_layout_inspection1");
+            await pageComponentView.openMenu(MAIN_COMPONENT_NAME);
+            await studioUtils.saveScreenshot("fragment_layout_inspection1");
             //3. Save the layout component as fragment
             await pageComponentView.selectMenuItem(["Insert", "Fragment"]);
             //4. Verify that Edit Fragment button is disabled
-                await studioUtils.saveScreenshot("fragment_layout_inspection2");
-                await fragmentInspectionPanel.waitForEditFragmentButtonDisabled();
+            await studioUtils.saveScreenshot("fragment_layout_inspection2");
+            await fragmentInspectionPanel.waitForEditFragmentButtonDisabled();
             //5. Expand the fragment dropdown options and verify that the list of options is empty:'No matching items'
             await fragmentInspectionPanel.clickOnFragmentDropdownHandle();
             await studioUtils.saveScreenshot("fragment_inspect_panel_empty_options");

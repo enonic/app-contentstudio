@@ -9,10 +9,13 @@ const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const HtmlAreaForm = require('../page_objects/wizardpanel/htmlarea.form.panel');
 const InsertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
+const appConst = require('../libs/app_const');
 
 describe('insert.image.dlg.style.selector.spec: style selector, select Original option', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let IMAGE_DISPLAY_NAME = appConstant.TEST_IMAGES.POP_03;
@@ -64,4 +67,10 @@ describe('insert.image.dlg.style.selector.spec: style selector, select Original 
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });
