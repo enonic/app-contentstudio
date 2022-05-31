@@ -14,7 +14,9 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 
 describe('page.template.wizard.spec tests for page template wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     const TEMPLATE_NAME = contentBuilder.generateRandomName('template');

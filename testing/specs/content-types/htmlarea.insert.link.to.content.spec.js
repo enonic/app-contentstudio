@@ -13,7 +13,9 @@ const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.mod
 describe('htmlarea.insert.link.to.content.spec: insert `content-link` into htmlArea',
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
-        webDriverHelper.setupBrowser();
+        if (typeof browser === "undefined") {
+            webDriverHelper.setupBrowser();
+        }
         let SITE;
 
         it(`Preconditions: new site should be created`,

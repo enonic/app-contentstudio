@@ -8,10 +8,13 @@ const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const LauncherPanel = require('../page_objects/launcher.panel');
 const LoginPage = require('../page_objects/login.page');
+const appConst = require('../libs/app_const');
 
 describe('launcher.panel.spec: test for Launcher Panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it("WHEN su is logged in THEN 'Home' link should be active, Super User is current user",
         async () => {
@@ -47,6 +50,9 @@ describe('launcher.panel.spec: test for Launcher Panel', function () {
         });
 
     before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         let loginPage = new LoginPage();
         await loginPage.waitForPageLoaded()
         await loginPage.doLogin('su', 'password');

@@ -13,7 +13,9 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 
 describe("image.content.crop.spec: tests for crop button", function () {
         this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
+    }
 
         it(`GIVEN an image is opened and edit mode is switched on  WHEN 'Close edit mode' has been clicked THEN Apply and close buttons are not visible`,
             async () => {

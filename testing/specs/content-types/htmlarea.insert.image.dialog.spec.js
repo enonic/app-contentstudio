@@ -14,7 +14,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 describe('htmlarea.insert.image.dialog.spec: open insert image dialog.',
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
-        webDriverHelper.setupBrowser();
+        if (typeof browser === "undefined") {
+            webDriverHelper.setupBrowser();
+        }
         let SITE;
 
         it(`Preconditions: new site should be created`,

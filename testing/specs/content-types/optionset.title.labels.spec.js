@@ -18,7 +18,9 @@ const OptionSetForm2View = require('../../page_objects/wizardpanel/optionset/opt
 
 describe("optionset.title.labels.spec: checks option set's title and labels", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let SINGLE_SELECTION_NOTE1 = "single test";
     let SINGLE_SELECTION_NOTE2 = "single test 2";

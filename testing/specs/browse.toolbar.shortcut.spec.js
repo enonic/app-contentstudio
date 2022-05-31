@@ -10,10 +10,13 @@ const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel'
 const studioUtils = require('../libs/studio.utils.js');
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const NewContentDialog = require('../page_objects/browsepanel/new.content.dialog');
+const appConst = require('../libs/app_const');
 
 describe('Browse toolbar shortcut spec`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN content is selected WHEN 'Ctrl+Delete' have been pressed THEN 'Delete Dialog' should appear`, async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
@@ -48,7 +51,10 @@ describe('Browse toolbar shortcut spec`', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

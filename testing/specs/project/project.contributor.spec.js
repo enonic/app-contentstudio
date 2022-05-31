@@ -288,7 +288,7 @@ describe('project.contributor.spec - ui-tests for user with Contributor role', f
         });
 
     afterEach(async () => {
-        let title = await webDriverHelper.browser.getTitle();
+        let title = await studioUtils.getBrowser().getTitle();
         //Do not close the Login page:
         if (title.includes("Content Studio") || title.includes("Users") || title.includes("/ Home")) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();

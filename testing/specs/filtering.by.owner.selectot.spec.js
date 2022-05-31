@@ -13,7 +13,9 @@ const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.p
 
 describe('filter.by.owner.selector.spec: tests for filtering by', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let USER;
     let FOLDER;
     it(`Precondition 1: new system user should be added`,
@@ -83,10 +85,11 @@ describe('filter.by.owner.selector.spec: tests for filtering by', function () {
             assert.isTrue(contentNames.includes(FOLDER.displayName));
             assert.equal(contentNames.length, 2, "Only two items should be present in the grid ")
         });
-
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 
-})
-;
+});

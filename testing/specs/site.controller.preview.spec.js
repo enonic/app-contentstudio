@@ -15,10 +15,13 @@ const ContextWindow = require('../page_objects/wizardpanel/liveform/liveform.con
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const PageComponentView = require("../page_objects/wizardpanel/liveform/page.components.view");
 const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem.preview.panel');
+const appConst = require('../libs/app_const');
 
 describe('site.controller.preview.spec: checks Preview button and options in selector for Page Templates and Controllers', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let CONTROLLER_NAME = "Page";
@@ -123,7 +126,10 @@ describe('site.controller.preview.spec: checks Preview button and options in sel
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

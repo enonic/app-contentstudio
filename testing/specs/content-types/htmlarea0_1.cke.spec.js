@@ -14,7 +14,9 @@ const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.cod
 
 describe('htmlarea0_1.cke.spec: tests for html area with CKE', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const EXPECTED_TEXT_TEXT1 = '<p>test text</p>';
     const TEXT_TO_TYPE = "test text";
     let SITE;

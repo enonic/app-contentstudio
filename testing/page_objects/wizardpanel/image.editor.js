@@ -19,9 +19,9 @@ const xpath = {
     resetAutofocusButton: "//button[contains(@id,'Button') and child::span[text()='Reset Autofocus']]",
     resetMaskButton: "//button[contains(@id,'Button') and child::span[text()='Reset Mask']]",
     closeEditModeButton: "//button[contains(@class,'close-button')]",
-    buttonApply: "//button/span[text()='Apply']",
+    buttonApply: "//button[child::span[text()='Apply']]",
     resetMaskButton: "//button[contains(@id,'Button')]/span[text()='Reset Mask']",
-    cropHandle: "//*[name()='svg' and contains(@id,'ImageEditor-dragHandle')]",
+    cropHandle: "//*[name()='svg' and contains(@id,'ImageEditor-dragHandle')]//*[name()='circle']",
     focusCircle: "//*[name()='svg']/*[name()='g' and contains(@class,'focus-group')]",
 
 };
@@ -226,11 +226,11 @@ class ImageEditor extends Page {
 
     async doCropImage(offset) {
         let el = await this.findElement(this.cropHandle);
-        let yValue = await el.getAttribute('y');
-        let xValue = await el.getAttribute('x');
+        let yValue = await el.getAttribute('cy');
+        let xValue = await el.getAttribute('cx');
         let y1 = parseInt(yValue) + offset;
         let x1 = parseInt(xValue);
-        await el.dragAndDrop({x: x1, y: -200});
+        await el.dragAndDrop({x: x1, y: y1});
         return await this.pause(500);
     }
 
@@ -238,9 +238,14 @@ class ImageEditor extends Page {
         let xOffset = offset1 === undefined ? 0 : offset1;
         let yOffset = offset1 === undefined ? 0 : offset2;
         await this.waitForFocusCircleDisplayed();
-        let el = await this.findElement(this.focusCircle + "/*[name()='circle']");
-        let yValue = await el.getAttribute('cy');
-        let xValue = await el.getAttribute('cx');
+        await this.pause(1000);
+        let el = await this.findElement(this.focusCircle );
+        //let yValue = await el.getAttribute('cy');
+       // let xValue = await el.getAttribute('cx');
+
+        let yValue = await el.getLocation('y');
+        let xValue = await el.getLocation('x');
+
         let y1 = parseInt(yValue) + yOffset;
         let x1 = parseInt(xValue) + xOffset;
         await el.dragAndDrop({x: x1, y: y1});

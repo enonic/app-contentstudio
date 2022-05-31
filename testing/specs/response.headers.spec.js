@@ -1,6 +1,5 @@
 /**
  * Created on 30.12.2019.
- *
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -10,7 +9,9 @@ const studioUtils = require('../libs/studio.utils.js');
 
 describe('response.headers.spec - Send a request and verify headers in response', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN navigated to Content Studio WHEN GET request has been sent THEN expected headers should be present in the response`,
         async () => {

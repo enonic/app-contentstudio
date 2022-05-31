@@ -1,6 +1,5 @@
 /**
  * Created on 23.01.2018.
- *
  */
 const chai = require('chai');
 const webDriverHelper = require('../libs/WebDriverHelper');
@@ -11,7 +10,9 @@ const appConst = require('../libs/app_const');
 
 describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const DISPLAY_NAME = appConst.generateRandomName("folder");
 
     it(`WHEN folder-wizard is opened THEN 'Save' button should be disabled`,
@@ -61,7 +62,10 @@ describe('wizard.save.button.spec:  Save and Saved buttons spec', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

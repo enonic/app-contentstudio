@@ -10,7 +10,9 @@ const ContentItemPreviewPanel = require('../page_objects/browsepanel/contentItem
 
 describe('content.item.preview.spec - Select a content file and check expected info in Item Preview Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`WHEN existing *.txt file is selected WHEN expected text should be loaded in Preview Panel`,
         async () => {
@@ -34,7 +36,10 @@ describe('content.item.preview.spec - Select a content file and check expected i
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

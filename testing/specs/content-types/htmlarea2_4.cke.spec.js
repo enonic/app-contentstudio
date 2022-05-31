@@ -15,7 +15,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('htmlarea2_4.cke.spec:  html area with CKE`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const EXPECTED_TEXT_TEXT1 = '<p>test text</p>';
     const EXPECTED_TEXT_TEXT2 = '<p>test text 2</p>';
     const TEXT_1 = "test text";

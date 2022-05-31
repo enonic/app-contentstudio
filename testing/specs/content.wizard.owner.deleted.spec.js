@@ -14,7 +14,9 @@ const UserBrowsePanel = require('../page_objects/users/userbrowse.panel');
 
 describe('content.wizard.owner.spec - ui-tests for owner', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const OWNER_REMOVED = 'This user is deleted';
 
     const FOLDER_NAME = studioUtils.generateRandomName("folder");
@@ -72,8 +74,10 @@ describe('content.wizard.owner.spec - ui-tests for owner', function () {
 
 
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
-
 });

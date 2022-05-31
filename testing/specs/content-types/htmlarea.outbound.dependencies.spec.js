@@ -15,7 +15,9 @@ const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details
 
 describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a content with Html Area', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let IMAGE_DISPLAY_NAME = "Pop_03";

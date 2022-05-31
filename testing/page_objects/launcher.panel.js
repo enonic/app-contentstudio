@@ -25,11 +25,11 @@ class LauncherPanel extends Page {
     }
 
     get usersLink() {
-        return XPATH.container + `//a[contains(@data-id,'app.users')]`;
+        return XPATH.container + `//a[contains(@data-id,'app.users')]//p[@class='app-name']`;
     }
 
     get contentStudioLink() {
-        return XPATH.container + `//a[contains(@data-id,'app.contentstudio')]`;
+        return XPATH.container + `//a[contains(@data-id,'app.contentstudio')]//p[@class='app-name']`;
     }
 
     get applicationsLink() {
@@ -49,7 +49,7 @@ class LauncherPanel extends Page {
     async clickOnContentStudioLink() {
         await this.waitForElementDisplayed(this.contentStudioLink, appConst.longTimeout);
         await this.waitForElementEnabled(this.contentStudioLink, appConst.longTimeout);
-        await this.pause(700);
+        await this.pause(300);
         await this.clickOnElement(this.contentStudioLink);
         return await this.pause(1000);
     }

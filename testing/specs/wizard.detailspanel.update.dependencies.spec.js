@@ -14,11 +14,14 @@ const ImageSelectorForm = require('../page_objects/wizardpanel/imageselector.for
 const SiteFormPanel = require('../page_objects/wizardpanel/site.form.panel');
 const SiteConfiguratorDialog = require('../page_objects/wizardpanel/site.configurator.dialog');
 const InsertImageDialog = require('../page_objects/wizardpanel/insert.image.dialog.cke');
+const appConst = require('../libs/app_const');
 
 describe('Content with image-selector, select images and verify that Outbound dependencies are refreshed ',
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
-        webDriverHelper.setupBrowser();
+        if (typeof browser === "undefined") {
+            webDriverHelper.setupBrowser();
+        }
         let contentDisplayName = contentBuilder.generateRandomName('content');
         let CONTENT_NAME2 = contentBuilder.generateRandomName('content');
 
@@ -100,7 +103,10 @@ describe('Content with image-selector, select images and verify that Outbound de
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
         afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-        before(() => {
+        before(async () => {
+            if (typeof browser !== "undefined") {
+                await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+            }
             return console.log('specification starting: ' + this.title);
         });
     });

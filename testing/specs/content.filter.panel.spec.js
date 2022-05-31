@@ -13,7 +13,9 @@ const FilterPanel = require("../page_objects/browsepanel/content.filter.panel");
 
 describe('content.filter.panel.spec: tests for filter panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let FOLDER_NAME = contentBuilder.generateRandomName('folder');
 
@@ -32,7 +34,6 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             //4. Verify that the numbers are equal:
             assert.equal(numberItems, items.length,
                 "The number of items in the grid must be the same as the number in the label in Filter Panel");
-
         });
 
     it(`GIVEN an aggregation checkbox has been clicked WHEN 'Clear' button has been clicked THEN the grid returns to the initial state`,
@@ -133,18 +134,19 @@ describe('content.filter.panel.spec: tests for filter panel', function () {
             let folder = contentBuilder.buildFolder(displayName);
             await studioUtils.doAddFolder(folder);
             await contentBrowsePanel.pause(2000);
-
             //5. Verify that number of content is not updated in the filtered grid:
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.equal(result.length, 1, "Number of content should not be updated")
         });
 
-
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

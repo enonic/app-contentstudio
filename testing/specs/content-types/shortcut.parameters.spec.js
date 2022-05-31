@@ -15,7 +15,9 @@ const ConfirmationMask = require('../../page_objects/confirmation.mask');
 
 describe('Shortcut parameters specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const PARAM_NAME = "param 1";
     const PARAM_VALUE = "value 1";
     const SHORTCUT_NAME = contentBuilder.generateRandomName('shortcut');

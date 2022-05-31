@@ -125,6 +125,8 @@ module.exports = Object.freeze({
     TIMEOUT_1: 1000,
     SUITE_TIMEOUT: 180000,
     DELETE_INBOUND_MESSAGE: 'One or more items are referenced from another content',
+    BROWSER_WIDTH:1950,
+    BROWSER_HEIGHT:1050,
 
     IMAGE_STYLE_ORIGINAL: "Original (no image processing)",
     WIDGET_SELECTOR_OPTIONS: {

@@ -276,7 +276,7 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
         });
 
     afterEach(async () => {
-        let title = await webDriverHelper.browser.getTitle();
+        let title = await studioUtils.getBrowser().getTitle();
         if (title.includes("Content Studio") || title.includes("Users") || title.includes("/ Home")) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }

@@ -112,7 +112,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
     it(`GIVEN existing 'Modified' folder is opened WHEN publish menu has been expanded THEN 'Request Publishing...' menu item should be enabled AND 'Create Task...' is enabled`,
         async () => {
             let contentWizard = new ContentWizard();
-            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await studioUtils.selectByDisplayNameAndOpenContent( NEW_DISPLAY_NAME);
             //Click on dropdown handle and open Publish Menu:
             await contentWizard.openPublishMenu();
             studioUtils.saveScreenshot("publish_menu_items3");
@@ -124,7 +124,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
         async () => {
             let contentWizard = new ContentWizard();
             let scheduleForm = new ScheduleForm();
-            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+            await studioUtils.selectByDisplayNameAndOpenContent( NEW_DISPLAY_NAME);
             //'MARK AS READY' button should be present on the toolbar
             //So need to open the publish-menu and select 'Unpublish...' menu item
             await contentWizard.openPublishMenuSelectItem(appConst.PUBLISH_MENU.UNPUBLISH);

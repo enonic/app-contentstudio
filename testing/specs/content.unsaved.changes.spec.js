@@ -14,8 +14,9 @@ const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 
 describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + tests for deleting multiselect content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let folder1;
     let folder2;
     it(`Precondition:two folders has been added`,
@@ -61,7 +62,6 @@ describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + te
             await deleteContentDialog.waitForSpinnerNotVisible();
             //3. Click on 'Delete' menu item:
             await deleteContentDialog.clickOnDeleteMenuItem();
-
             //4. Verify that Alert does not appear in the wizard:
             let result = await contentWizard.isAlertOpen();
             if (result) {
@@ -100,7 +100,10 @@ describe('content.unsaved.changes.spec: tests for unsaved changes in wizard + te
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

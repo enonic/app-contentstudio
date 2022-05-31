@@ -16,7 +16,9 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 
 describe("image.properties.photo.spec: tests for focus button", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const ALTITUDE = 3000;
     const DIRECTION = 'direction';
     const GEO_POINT = '37.785146,-122.39758';

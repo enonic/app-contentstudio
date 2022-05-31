@@ -56,7 +56,7 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             let contentWizard = new ContentWizard();
             let deleteContentDialog = new DeleteContentDialog();
             //1. Open existing folder
-            await studioUtils.selectAndOpenContentInWizard(appConst.TEST_FOLDER_2_NAME);
+            await studioUtils.selectByDisplayNameAndOpenContent(appConst.TEST_FOLDER_2_DISPLAY_NAME);
             //2. Open Delete Dialog in the wizard:
             await contentWizard.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();
@@ -72,7 +72,7 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
             let contentWizard = new ContentWizard();
             let deleteContentDialog = new DeleteContentDialog();
             //1. Open existing folder
-            await studioUtils.selectAndOpenContentInWizard(appConst.TEST_FOLDER_2_NAME);
+            await studioUtils.selectByDisplayNameAndOpenContent(appConst.TEST_FOLDER_2_DISPLAY_NAME);
             //2. Open Delete Dialog in the wizard:
             await contentWizard.clickOnArchiveButton();
             await deleteContentDialog.waitForDialogOpened();

@@ -12,10 +12,13 @@ const XDataTextArea = require('../page_objects/wizardpanel/xdata.textarea.wizard
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
 const WizardDetailsPanel = require('../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard.versions.widget');
+const appConst = require('../libs/app_const');
 
 describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(htmlarea), type a text in the textarea`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let contentName = contentBuilder.generateRandomName('test');
     let TEST_TEXT = 'test text';
@@ -215,4 +218,10 @@ describe('content.xdata.textarea.spec:  enable/disable x-data with textarea(html
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

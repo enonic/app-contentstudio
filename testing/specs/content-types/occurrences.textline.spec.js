@@ -14,7 +14,9 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 
 describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const TEXT = "test text";
     const TEXT_2 = "test text 2";

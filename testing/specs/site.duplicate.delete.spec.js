@@ -11,10 +11,13 @@ const ContentDuplicateDialog = require('../page_objects/content.duplicate.dialog
 const contentBuilder = require("../libs/content.builder");
 const DeleteContentDialog = require('../page_objects/delete.content.dialog');
 const ConfirmValueDialog = require('../page_objects/confirm.content.delete.dialog');
+const appConst = require('../libs/app_const');
 
 describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Value dialogs', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let CHILD_FOLDER;
     it(`Preconditions: new site should be added`,
@@ -158,7 +161,10 @@ describe('site.duplicate.exclude.child.spec:  tests for Duplicate and Confirm Va
     afterEach(function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

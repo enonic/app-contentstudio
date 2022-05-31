@@ -12,7 +12,9 @@ const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizar
 
 describe('geopoint.content.spec: tests for geo point content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const INCORRECT_GEO_LOCATION = "1,181";
     const VALID_GEO_LOCATION = "1,1";

@@ -17,7 +17,9 @@ const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.mod
 
 describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const NORWEGIAN_TEXT = "Hej og hå så kan det gå";
     let EXPECTED_URL = '<p><a href="http://google.com">Hej og hå så kan det gå</a></p>';
