@@ -9,6 +9,10 @@ exports.config = {
     specs: [
         __dirname +  '/specs/content-types-2/*.spec.js'
     ],
+    exclude: [
+        __dirname + '/specs/content-types-2/occurrences.image.selector.spec.js'
+    ],
+
     maxInstances: 1,
 
     capabilities: [{
