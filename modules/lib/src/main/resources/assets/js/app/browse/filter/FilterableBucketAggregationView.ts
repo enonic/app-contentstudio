@@ -3,7 +3,6 @@ import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
 import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationView';
 import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
 import {BucketView} from 'lib-admin-ui/aggregation/BucketView';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
 import {SelectableListBoxDropdown} from 'lib-admin-ui/ui/selector/list/SelectableListBoxDropdown';
 import {BucketListBox} from 'lib-admin-ui/aggregation/BucketListBox';
 import {BucketViewSelectionChangedEvent} from 'lib-admin-ui/aggregation/BucketViewSelectionChangedEvent';
@@ -86,6 +85,10 @@ export class FilterableBucketAggregationView
     removeAll(): void {
         super.removeAll();
         this.bucketListBox.clearItems();
+    }
+
+    protected isToBeShown(): boolean {
+        return super.isToBeShown() || this.bucketListBox.getItemCount() > 0;
     }
 
     protected addBucketView(bucketView: BucketView) {
