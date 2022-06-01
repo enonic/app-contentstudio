@@ -87,8 +87,8 @@ export class FilterableBucketAggregationView
         this.bucketListBox.clearItems();
     }
 
-    protected isToBeShown(): boolean {
-        return super.isToBeShown() || this.bucketListBox.getItemCount() > 0;
+    protected hasNonEmptyBuckets(): boolean {
+        return super.hasNonEmptyBuckets() || this.bucketListBox.getItemCount() > 0;
     }
 
     protected addBucketView(bucketView: BucketView) {
