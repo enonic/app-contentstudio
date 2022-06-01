@@ -16,7 +16,9 @@ const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.ve
 
 describe('datetime.config.spec: tests for datetime content ', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const VALID_DATE_TIME1 = "2015-02-28 19:01";
     const NOT_VALID_DATE_TIME1 = "2015-42-28 19:01";
@@ -207,4 +209,10 @@ describe('datetime.config.spec: tests for datetime content ', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

@@ -13,7 +13,9 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 
 describe('person.display.name-expression.spec: tests for Display name expression', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const CONTENT_NAME = contentBuilder.generateRandomName('person');
     const PERSON_FIRST_NAME = "John";
@@ -64,7 +66,10 @@ describe('person.display.name-expression.spec: tests for Display name expression
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

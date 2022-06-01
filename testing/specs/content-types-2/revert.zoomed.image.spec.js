@@ -2,7 +2,6 @@
  * Created on 17.02.2022
  */
 const chai = require('chai');
-const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
@@ -13,8 +12,9 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 
 describe("revert.zoomed.image.spec: tests for reverting of zoomed image", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN existing image has been zoomed WHEN 'Apply' button has been pressed THEN 'Reset filters' button should appear`,
         async () => {
@@ -57,7 +57,10 @@ describe("revert.zoomed.image.spec: tests for reverting of zoomed image", functi
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

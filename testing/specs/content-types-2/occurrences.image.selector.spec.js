@@ -13,7 +13,9 @@ const ImageSelectorForm = require('../../page_objects/wizardpanel/imageselector.
 
 describe('occurrences.image.selector: tests for occurrences of image selector', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let IMG_SEL_2_4;
@@ -132,7 +134,10 @@ describe('occurrences.image.selector: tests for occurrences of image selector', 
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

@@ -73,7 +73,6 @@ describe('attachments.wizard.spec: tests for attachments content', function () {
             assert.isFalse(isInvalid, "Content should be valid");
         });
 
-
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
 });

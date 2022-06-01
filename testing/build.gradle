@@ -195,6 +195,11 @@ task testPageEditorFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['run-script', 'test_page_editor:firefox']
 }
 
+task testInputTypesFirefox_2( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_input_types_2:firefox']
+    finalizedBy stopServer
+}
+
 task testInputTypesFirefox_2_Local( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['run-script', 'test_input_types_2:firefox']
 }

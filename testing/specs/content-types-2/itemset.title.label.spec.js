@@ -12,7 +12,9 @@ const SetInSetFormView = require('../../page_objects/wizardpanel/itemset/set.in.
 
 describe("itemset.title.labels.spec: checks item set's title and labels", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let ITEM_SET_NOTE1 = "test text";
     let ITEM_SET_NOTE2 = "test text 2";
@@ -86,4 +88,10 @@ describe("itemset.title.labels.spec: checks item set's title and labels", functi
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

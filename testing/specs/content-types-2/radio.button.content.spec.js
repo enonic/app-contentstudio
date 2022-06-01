@@ -12,7 +12,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('radiobutton.content.spec: tests for content with radio buttons', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const CONTENT_NAME_1 = contentBuilder.generateRandomName('radio');
     const CONTENT_NAME_2 = contentBuilder.generateRandomName('radio');
@@ -90,7 +92,10 @@ describe('radiobutton.content.spec: tests for content with radio buttons', funct
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

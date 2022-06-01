@@ -13,7 +13,9 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 
 describe('checkbox.content.spec: tests for content with checkbox', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const CHECKBOX_NAME = contentBuilder.generateRandomName('checkbox');
     const CHECKBOX_NAME_2 = contentBuilder.generateRandomName('checkbox');
@@ -120,7 +122,10 @@ describe('checkbox.content.spec: tests for content with checkbox', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

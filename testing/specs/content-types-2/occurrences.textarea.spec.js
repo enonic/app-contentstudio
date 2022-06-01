@@ -4,15 +4,17 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const TextAreaForm = require('../../page_objects/wizardpanel/textarea.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('occurrences.texarea.content.spec: tests for content with textArea', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const TEXT_AREA_NAME_1 = contentBuilder.generateRandomName('textarea');
     const TEXT_AREA_NAME_2 = contentBuilder.generateRandomName('textarea');
@@ -24,7 +26,7 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
     it(`Preconditions: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -33,7 +35,7 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
             let textAreaForm = new TextAreaForm();
             let contentWizard = new ContentWizard();
             //1. open new wizard and fill in the name input:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.TEXT_AREA_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TEXT_AREA_1_1);
             await contentWizard.typeDisplayName(TEXT_AREA_NAME_1);
             //2. Verify that form validation recording does not appear until content is saved
             await textAreaForm.waitForFormValidationRecordingNotDisplayed();
@@ -42,7 +44,7 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
             //4. Verify the "This field is required" message appears
             let result = await textAreaForm.getFormValidationRecording();
             await studioUtils.saveScreenshot('textarea_req_empty');
-            assert.equal(result, appConstant.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, 'expected validation message should appear');
+            assert.equal(result, appConst.VALIDATION_MESSAGE.THIS_FIELD_IS_REQUIRED, 'expected validation message should appear');
             //5. Verify that the content is invalid:
             let isNotValid = await contentWizard.isContentInvalid();
             assert.isTrue(isNotValid, 'the content should be not valid, because the input is required');
@@ -53,7 +55,7 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
             let textAreaForm = new TextAreaForm();
             let contentWizard = new ContentWizard();
             //1. open new wizard and fill in the name input:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.TEXT_AREA_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TEXT_AREA_1_1);
             await contentWizard.typeDisplayName(TEXT_AREA_NAME_2);
             //2. Type a text in text area:
             await textAreaForm.typeText(TEXT_1);
@@ -74,7 +76,7 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
             let textAreaForm = new TextAreaForm();
             let contentWizard = new ContentWizard();
             //1. open new wizard and fill in the name input:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.TEXT_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TEXT_AREA_0_1);
             await contentWizard.typeDisplayName(TEXT_AREA_NAME_3);
             //2. Verify that default action is 'Mark as Ready' now
             await contentWizard.waitForMarkAsReadyButtonVisible();
@@ -93,7 +95,7 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
             let textAreaForm = new TextAreaForm();
             let contentWizard = new ContentWizard();
             //1. open new wizard and fill in the name input:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.TEXT_AREA_2_4);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.TEXT_AREA_2_4);
             await contentWizard.typeDisplayName(TEXT_AREA_NAME_4);
             //2. Verify that the content is invalid, because 2 text area are required:
             let isNotValid = await contentWizard.isContentInvalid();
@@ -111,7 +113,10 @@ describe('occurrences.texarea.content.spec: tests for content with textArea', fu
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });
