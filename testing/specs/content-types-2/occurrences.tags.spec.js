@@ -13,7 +13,9 @@ const VersionsWidget = require('../../page_objects/wizardpanel/details/wizard.ve
 
 describe('occurrences.tag.spec: tests for content with tag input', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const TAGS_NAME_1 = appConst.generateRandomName("tag");
     const TAGS_NAME_2 = appConst.generateRandomName("tag");
     const TAGS_NAME_3 = appConst.generateRandomName("tag");
@@ -151,4 +153,10 @@ describe('occurrences.tag.spec: tests for content with tag input', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

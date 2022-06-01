@@ -15,7 +15,9 @@ const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard
 
 describe("Tests for updating a number in aggregation checkboxes", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const TARGET_1 = "whale";
     const SHORTCUT_NAME = contentBuilder.generateRandomName('shortcut');
     const WORKFLOW_AGGREGATION = appConst.FILTER_PANEL_AGGREGATION_BLOCK.WORKFLOW;
@@ -152,7 +154,10 @@ describe("Tests for updating a number in aggregation checkboxes", function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

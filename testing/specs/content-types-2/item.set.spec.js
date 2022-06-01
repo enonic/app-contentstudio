@@ -12,7 +12,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('item.set.spec: tests for content with Item Set', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const CONTENT_1 = contentBuilder.generateRandomName('itemset');
     const TEXT_LINE_TEXT_1 = "text 1";
@@ -139,7 +141,10 @@ describe('item.set.spec: tests for content with Item Set', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

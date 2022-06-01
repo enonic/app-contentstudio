@@ -15,7 +15,9 @@ const ContentFilterPanel = require('../../page_objects/browsepanel/content.filte
 
 describe("tests for 'Show Outbound' button in shortcut wizard", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const SHORTCUT_NAME = contentBuilder.generateRandomName('shortcut');
     const FOLDER_NAME = appConst.generateRandomName("folder");
 
@@ -24,6 +26,7 @@ describe("tests for 'Show Outbound' button in shortcut wizard", function () {
             let folder = contentBuilder.buildFolder(FOLDER_NAME);
             await studioUtils.doAddFolder(folder);
         });
+
     it(`GIVEN shortcut with a folder in the target is saved WHEN 'Show outbound' button has been clicked THEN the folder should be filtered in the new browser tab`,
         async () => {
             let contentWizard = new ContentWizard();
@@ -60,7 +63,10 @@ describe("tests for 'Show Outbound' button in shortcut wizard", function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

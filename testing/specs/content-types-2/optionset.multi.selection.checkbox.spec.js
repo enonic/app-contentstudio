@@ -12,7 +12,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe("optionset.multi.selection.checkbox.spec: tests for option set with multi selection checkboxes", function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const DISPLAY_NAME = contentBuilder.generateRandomName('optionset');
 
@@ -67,4 +69,10 @@ describe("optionset.multi.selection.checkbox.spec: tests for option set with mul
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

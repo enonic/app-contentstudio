@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const ConfirmationMask = require('../../page_objects/confirmation.mask');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
@@ -15,17 +14,20 @@ const MultiSelectionOptionSet = require('../../page_objects/wizardpanel/optionse
 const ArticleForm = require('../../page_objects/wizardpanel/article.form.panel');
 const NotificationDialog = require('../../page_objects/notification.dialog');
 const OptionSetHelpFormView = require('../../page_objects/wizardpanel/optionset/option.set.help.text.form');
+const appConst = require('../../libs/app_const');
 
 describe("optionset.confirmation.spec: checks for 'confirmation' dialog when deleting an existing or new item-set", function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
-    const CONTENT_NAME_1 = appConstant.generateRandomName("set");
+    const CONTENT_NAME_1 = appConst.generateRandomName("set");
 
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -35,14 +37,14 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let optionSetForm = new OptionSetForm();
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             //1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.OPTION_SET);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             await contentWizard.pause(1000);
             let result = await contentWizard.isContentInvalid();
             assert.isTrue(result, "The Content should be invalid, because an option is not selected in the required 'single selection'");
             await contentWizard.waitAndClickOnSave();
             let recording = await singleSelectionOptionSet.getValidationRecording();
-            assert.equal(recording, appConstant.VALIDATION_MESSAGE.SINGLE_SELECTION_OPTION_SET, "Expected message gets visible");
+            assert.equal(recording, appConst.VALIDATION_MESSAGE.SINGLE_SELECTION_OPTION_SET, "Expected message gets visible");
         });
 
     it(`GIVEN existing invalid content with Option Set is opened WHEN an option in required selection has been selected AND Save button pressed THEN the content gets valid`,
@@ -74,7 +76,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             await multiSelectionOptionSet.clickOnOption("Option 2");
             //3. Validation recording should appear:
             let recording = await multiSelectionOptionSet.getValidationRecording();
-            assert.equal(recording, appConstant.VALIDATION_MESSAGE.SINGLE_SELECTION_OPTION_SET, "Expected message gets visible");
+            assert.equal(recording, appConst.VALIDATION_MESSAGE.SINGLE_SELECTION_OPTION_SET, "Expected message gets visible");
             //4. The content should be invalid:
             let result = await contentWizard.isContentInvalid();
             assert.isTrue(result, "The content should be invalid, because an option must be selected in the Multi Selection");
@@ -87,7 +89,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             let notificationDialog = new NotificationDialog();
             //1. Open the new wizard:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.OPTION_SET);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET);
             //2. Select 'Option 1' and fill in the option name input :
             await optionSetForm.selectOptionInSingleSelection("Option 1");
             await singleSelectionOptionSet.typeTextInOptionNameInput("test option");
@@ -233,7 +235,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let contentWizard = new ContentWizard();
             let articleForm = new ArticleForm();
             //1. Open new wizard for article-content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
             let displayName = contentBuilder.generateRandomName('article');
             //2. Fill in the first required input:
             await articleForm.typeArticleTitle("test");
@@ -252,7 +254,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let contentWizard = new ContentWizard();
             let articleForm = new ArticleForm();
             //1. Open new wizard for article-content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
             let displayName = contentBuilder.generateRandomName('article');
             //2. Fill in the first required input:
             await articleForm.typeArticleTitle("test");
@@ -273,7 +275,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
             let contentWizard = new ContentWizard();
             let articleForm = new ArticleForm();
             //1. Open new wizard for article-content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.ARTICLE);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.ARTICLE);
             let displayName = contentBuilder.generateRandomName('article');
             //2. Fill in the first required input:
             await articleForm.typeArticleTitle("test");
@@ -293,7 +295,7 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
         async () => {
             let singleSelectionOptionSet = new SingleSelectionOptionSet();
             //1. Open wizard for new option set:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.OPTION_SET_HELP_TEXT);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.OPTION_SET_HELP_TEXT);
             let optionSetHelpFormView = new OptionSetHelpFormView();
             //2. Select 'option 1' in the single-selector:
             await optionSetHelpFormView.selectOptionInSingleSelection("option 1");
@@ -318,4 +320,10 @@ describe("optionset.confirmation.spec: checks for 'confirmation' dialog when del
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

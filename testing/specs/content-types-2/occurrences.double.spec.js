@@ -13,7 +13,9 @@ const FilterPanel = require('../../page_objects/browsepanel/content.filter.panel
 
 describe('occurrences.double.spec: tests for content with Double inputs', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const VALID_DOUBLE = "123.4";
     const MAX_SAFE_DOUBLE = "9007199254740991";
@@ -205,7 +207,10 @@ describe('occurrences.double.spec: tests for content with Double inputs', functi
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

@@ -15,7 +15,9 @@ const CustomRelationshipForm = require('../../page_objects/wizardpanel/custom.re
 
 describe('content.selector.spec: content-selector specification', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let articleContent;
     const ARTICLE_NAME_1 = appConst.generateRandomName('article');
@@ -117,7 +119,10 @@ describe('content.selector.spec: content-selector specification', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

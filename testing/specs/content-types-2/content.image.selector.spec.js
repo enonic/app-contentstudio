@@ -4,14 +4,16 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ImageSelectorForm = require('../../page_objects/wizardpanel/imageselector.form.panel');
+const appConst = require('../../libs/app_const');
 
 describe('content.image.selector: Image content specification', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let FOLDER_WITH_FILES = 'selenium-tests-folder';
@@ -19,7 +21,7 @@ describe('content.image.selector: Image content specification', function () {
     it(`Preconditions: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -27,7 +29,7 @@ describe('content.image.selector: Image content specification', function () {
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             //1. Open wizard with Image Selector:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
             //2. Type a not existing name:
             await imageSelectorForm.doFilterOptions('zzzzzz');
             //3. Wait for the message:
@@ -40,9 +42,9 @@ describe('content.image.selector: Image content specification', function () {
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             //1. Open wizard with Image Selector:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
             //2. Type an existing folder-name
-            await imageSelectorForm.doFilterOptions(appConstant.TEST_IMAGES.SPUMANS);
+            await imageSelectorForm.doFilterOptions(appConst.TEST_IMAGES.SPUMANS);
             //3. Type a not existing name:
             await imageSelectorForm.doFilterOptions('zzzzzz');
             let isDisplayed = await imageSelectorForm.waitForEmptyOptionsMessage();
@@ -54,23 +56,23 @@ describe('content.image.selector: Image content specification', function () {
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             //1. Open wizard with Image Selector:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
             //2. Switch the selector to Tree-mode:
             await imageSelectorForm.clickOnModeTogglerButton();
             let options = await imageSelectorForm.getTreeModeOptionDisplayNames();
             await studioUtils.saveScreenshot('img_sel_tree_mode');
-            assert.strictEqual(options[0], appConstant.TEST_FOLDER_WITH_IMAGES);
+            assert.strictEqual(options[0], appConst.TEST_FOLDER_WITH_IMAGES);
         });
 
     it(`GIVEN wizard for image-selector is opened WHEN options have been expanded in tree mode THEN image status should be displayed in options`,
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             //1. Open wizard with Image Selector:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
             //2. Switch the selector to Tree-mode and expand the test folder:
             await imageSelectorForm.clickOnModeTogglerButton();
             //3. Expand a folder with images:
-            await imageSelectorForm.expandFolderInOptions(appConstant.TEST_FOLDER_NAME);
+            await imageSelectorForm.expandFolderInOptions(appConst.TEST_FOLDER_NAME);
             //4. Verify that content status is displayed in each option
             await studioUtils.saveScreenshot('img_sel_tree_mode_status');
             let statusList = await imageSelectorForm.getTreeModeOptionStatus();
@@ -81,7 +83,7 @@ describe('content.image.selector: Image content specification', function () {
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             //1. Open wizard with Image Selector:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_2_4);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_2_4);
             //2. Click on dropdown handle in the selector:
             await imageSelectorForm.clickOnDropdownHandle();
             await imageSelectorForm.pause(800);
@@ -99,7 +101,7 @@ describe('content.image.selector: Image content specification', function () {
         async () => {
             let imageSelectorForm = new ImageSelectorForm();
             //1. Open wizard with Image Selector:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.IMG_SELECTOR_1_1);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.IMG_SELECTOR_1_1);
             //2. Type the folder-name:
             await imageSelectorForm.doFilterOptions(FOLDER_WITH_FILES);
             //3. Verify that expected options are present in the expanded list:
@@ -111,7 +113,10 @@ describe('content.image.selector: Image content specification', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

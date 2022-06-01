@@ -15,7 +15,9 @@ const NewContentDialog = require('../../page_objects/browsepanel/new.content.dia
 
 describe('combobox.content.spec: tests for comboBox content', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const CONTENT_NAME_1 = contentBuilder.generateRandomName('combo');
     const CONTENT_NAME_2 = contentBuilder.generateRandomName('combo');
@@ -177,7 +179,10 @@ describe('combobox.content.spec: tests for comboBox content', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

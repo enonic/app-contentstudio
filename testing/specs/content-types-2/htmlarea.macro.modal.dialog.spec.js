@@ -4,16 +4,18 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const InsertMacroModalDialog = require('../../page_objects/wizardpanel/macro/insert.macro.dialog.cke');
+const appConst = require('../../libs/app_const');
 
 describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const TEST_TEXT = "test text";
     const MACRO_LONG_TEXT = "myMacro1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
     const MACRO_WIT_ATTRIBUTE = "mymacro12345 attrib1=\"value1\" attrib2=\"value2\"";
@@ -28,7 +30,7 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -38,7 +40,7 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
             let contentWizard = new ContentWizard();
             let insertMacroModalDialog = new InsertMacroModalDialog();
             //1. Open wizard for new htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             //await contentWizard.waitAndClickOnSave();
             //2. Click on 'Insert Macro' button
@@ -66,7 +68,7 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
             let contentWizard = new ContentWizard();
             let insertMacroModalDialog = new InsertMacroModalDialog();
             //1. Open wizard for new htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             //2. Click on 'Insert Macro' button
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
@@ -78,7 +80,7 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
             await studioUtils.saveScreenshot("macro_is_not_completed");
             //5. Verify that expected validation recording gets visible:
             let recording = await insertMacroModalDialog.getValidationRecording();
-            assert.equal(recording, appConstant.THIS_FIELD_IS_REQUIRED, "Expected recording should be displayed");
+            assert.equal(recording, appConst.THIS_FIELD_IS_REQUIRED, "Expected recording should be displayed");
             await insertMacroModalDialog.clickOnPreviewTabItem();
             let text = await insertMacroModalDialog.getWarningInPreviewTab();
             assert.equal(text, CONFIG_IS_NOT_COMPLETED,
@@ -93,7 +95,7 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
             let contentWizard = new ContentWizard();
             let insertMacroModalDialog = new InsertMacroModalDialog();
             //1. Open wizard for new htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_1);
             //2. Click on 'Insert Macro' button
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
@@ -138,7 +140,7 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
             let contentWizard = new ContentWizard();
             let insertMacroModalDialog = new InsertMacroModalDialog();
             //1. Open wizard for new htmlArea content:
-            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConstant.contentTypes.HTML_AREA_0_1);
+            await studioUtils.selectSiteAndOpenNewWizard(SITE.displayName, appConst.contentTypes.HTML_AREA_0_1);
             await contentWizard.typeDisplayName(CONTENT_NAME_2);
             //2. Click on 'Insert Macro' button
             await htmlAreaForm.showToolbarAndClickOnInsertMacroButton();
@@ -159,4 +161,10 @@ describe('htmlarea.macro.modal.dialog.spec: tests for macro modal dialog', funct
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

@@ -12,14 +12,13 @@ const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel
 const contentBuilder = require('../../libs/content.builder');
 const SourceCodeDialog = require('../../page_objects/wizardpanel/html.source.code.dialog');
 const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
-const appConstant = require('../../libs/app_const');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
-
 
 describe('display.source.button.spec - tests for Display Source button in html area', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const FOLDER_NAME = studioUtils.generateRandomName("folder");
     let USER;
     let SITE;
@@ -53,7 +52,7 @@ describe('display.source.button.spec - tests for Display Source button in html a
             await editPermissionsDialog.waitForDialogLoaded();
             await editPermissionsDialog.clickOnInheritPermissionsCheckBox();
             await editPermissionsDialog.filterAndSelectPrincipal(USER.displayName);
-            await editPermissionsDialog.showAceMenuAndSelectItem(USER.displayName, appConstant.permissions.FULL_ACCESS);
+            await editPermissionsDialog.showAceMenuAndSelectItem(USER.displayName, appConst.permissions.FULL_ACCESS);
             await editPermissionsDialog.pause(500);
             await editPermissionsDialog.clickOnApplyButton();
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
@@ -95,8 +94,11 @@ describe('display.source.button.spec - tests for Display Source button in html a
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 
 });
