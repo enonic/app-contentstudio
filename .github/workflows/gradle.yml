@@ -39,14 +39,14 @@ jobs:
                     java-version: 11
                     distribution: 'adopt'
 
-            -   uses: actions/cache@v3.0.2
+            -   uses: actions/cache@v3.0.3
                 with:
                     path: |
                         ~/.gradle/caches
                         ~/.gradle/wrapper
-                    key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+                    key: ${{ runner.os }}-gradle-2-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
                     restore-keys: |
-                        ${{ runner.os }}-gradle-
+                        ${{ runner.os }}-gradle-2-
 
             -   name: Build with Gradle
                 run: ./gradlew build -Pcom.enonic.xp.app.production=true
