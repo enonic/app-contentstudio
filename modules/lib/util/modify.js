@@ -13,7 +13,7 @@ function updateLibPath() {
 
     const packageFile = path.join(outDir, 'package.json');
 
-    packageData.dependencies['lib-admin-ui'] = libPathInDotXp;
+    packageData.dependencies['@enonic/lib-admin-ui'] = libPathInDotXp;
     const packageContent = JSON.stringify(packageData, null, '    ') + '\n';
 
     fs.writeFileSync(packageFile, packageContent);
