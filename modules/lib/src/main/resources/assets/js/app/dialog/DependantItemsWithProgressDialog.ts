@@ -1,7 +1,7 @@
-import {applyMixins} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {applyMixins} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {DependantItemsDialog, DependantItemsDialogConfig} from './DependantItemsDialog';
-import {TaskId} from 'lib-admin-ui/task/TaskId';
-import {TaskState} from 'lib-admin-ui/task/TaskState';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {TaskProgressInterface} from './TaskProgressInterface';
 import {ProgressBarManager} from './ProgressBarManager';
 

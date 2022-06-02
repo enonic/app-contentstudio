@@ -1,6 +1,6 @@
-import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeIconUrlResolver} from './ContentTypeIconUrlResolver';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 
 export class ContentTypeSummaryViewer
     extends NamesAndIconViewer<ContentTypeSummary> {

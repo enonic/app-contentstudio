@@ -1,4 +1,4 @@
-import {Event} from 'lib-admin-ui/event/Event';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 
 export class BaseContentModelEvent

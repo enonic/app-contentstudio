@@ -1,9 +1,9 @@
 import * as Q from 'q';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {PageDescriptorResourceRequest} from '../../../../../resource/PageDescriptorResourceRequest';
 import {ApplicationBasedCache} from '../../../../../application/ApplicationBasedCache';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {Descriptor} from '../../../../../page/Descriptor';
 import {DescriptorsJson} from '../../../../../page/DescriptorsJson';
 

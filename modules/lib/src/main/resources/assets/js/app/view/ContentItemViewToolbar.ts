@@ -1,5 +1,5 @@
-import {Action} from 'lib-admin-ui/ui/Action';
-import {Toolbar} from 'lib-admin-ui/ui/toolbar/Toolbar';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
 
 export interface ContentItemViewToolbarParams {
     editAction: Action;

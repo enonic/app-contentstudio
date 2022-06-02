@@ -1,9 +1,9 @@
 import * as Q from 'q';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentSelectorRequest} from './ContentSelectorRequest';
 import {ContentQueryResultJson} from './json/ContentQueryResultJson';
 import {ContentJson} from '../content/ContentJson';
-import {Expand} from 'lib-admin-ui/rest/Expand';
+import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 

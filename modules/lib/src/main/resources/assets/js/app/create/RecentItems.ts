@@ -1,6 +1,6 @@
 import {NewContentEvent} from './NewContentEvent';
-import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
-import {CookieHelper} from 'lib-admin-ui/util/CookieHelper';
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {CookieHelper} from '@enonic/lib-admin-ui/util/CookieHelper';
 
 NewContentEvent.on((event: NewContentEvent) => {
         RecentItems.get().addItemName(event.getContentType());

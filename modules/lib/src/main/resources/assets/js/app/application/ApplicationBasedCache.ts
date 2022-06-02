@@ -1,13 +1,13 @@
-import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
-import {ApplicationCaches} from 'lib-admin-ui/application/ApplicationCaches';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
-import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
-import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
-import {Cache} from 'lib-admin-ui/cache/Cache';
-import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import {ApplicationCaches} from '@enonic/lib-admin-ui/application/ApplicationCaches';
+import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
+import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
+import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
+import {Cache} from '@enonic/lib-admin-ui/cache/Cache';
+import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {Descriptor} from '../page/Descriptor';
 import {DescriptorKey} from '../page/DescriptorKey';
 

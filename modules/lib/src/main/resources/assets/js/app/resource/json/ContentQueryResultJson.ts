@@ -1,4 +1,4 @@
-import {AggregationTypeWrapperJson} from 'lib-admin-ui/aggregation/AggregationTypeWrapperJson';
+import {AggregationTypeWrapperJson} from '@enonic/lib-admin-ui/aggregation/AggregationTypeWrapperJson';
 import {ContentIdBaseItemJson} from './ContentIdBaseItemJson';
 import {ResultMetadataJson} from './ResultMetadataJson';
 

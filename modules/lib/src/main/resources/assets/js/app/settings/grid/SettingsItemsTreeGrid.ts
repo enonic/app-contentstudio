@@ -1,20 +1,20 @@
 import * as Q from 'q';
-import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
-import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {TreeGridContextMenu} from 'lib-admin-ui/ui/treegrid/TreeGridContextMenu';
+import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
+import {TreeGridBuilder} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridBuilder';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {TreeGridContextMenu} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridContextMenu';
 import {SettingsTreeGridActions} from './SettingsTreeGridActions';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {EditSettingsItemEvent} from '../event/EditSettingsItemEvent';
 import {Project} from '../data/project/Project';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 import {ProjectViewItem} from '../view/ProjectViewItem';
 import {FolderItemBuilder, FolderViewItem} from '../view/FolderViewItem';
 import {ProjectListWithMissingRequest} from '../resource/ProjectListWithMissingRequest';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {SettingsItemsTreeGridHelper} from './SettingsItemsTreeGridHelper';
 
 export class SettingsItemsTreeGrid

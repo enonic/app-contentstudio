@@ -1,10 +1,10 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {Body} from 'lib-admin-ui/dom/Body';
-import {CompositeFormInputEl} from 'lib-admin-ui/dom/CompositeFormInputEl';
-import {H2El} from 'lib-admin-ui/dom/H2El';
-import {TextInput, TextInputSize} from 'lib-admin-ui/ui/text/TextInput';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {CompositeFormInputEl} from '@enonic/lib-admin-ui/dom/CompositeFormInputEl';
+import {H2El} from '@enonic/lib-admin-ui/dom/H2El';
+import {TextInput, TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 
 export class InPlaceTextInput
     extends CompositeFormInputEl {

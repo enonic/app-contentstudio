@@ -1,4 +1,4 @@
-import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 
 export abstract class NamedPanel
     extends Panel {

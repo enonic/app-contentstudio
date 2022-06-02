@@ -1,5 +1,5 @@
-import {Widget} from 'lib-admin-ui/content/Widget';
-import {WidgetDescriptorJson} from 'lib-admin-ui/content/json/WidgetDescriptorJson';
+import {Widget} from '@enonic/lib-admin-ui/content/Widget';
+import {WidgetDescriptorJson} from '@enonic/lib-admin-ui/content/json/WidgetDescriptorJson';
 import {CmsResourceRequest} from './CmsResourceRequest';
 
 export abstract class WidgetDescriptorResourceRequest<PARSED_TYPE>

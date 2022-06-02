@@ -1,5 +1,5 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ProjectsTreeItemJson} from './json/ProjectsTreeItemJson';
 import {ProjectsTreeItem} from '../data/project/ProjectsTreeItem';
 

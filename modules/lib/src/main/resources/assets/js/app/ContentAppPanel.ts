@@ -1,7 +1,7 @@
 import {ContentBrowsePanel} from './browse/ContentBrowsePanel';
-import {AppPanel} from 'lib-admin-ui/app/AppPanel';
-import {Panel} from 'lib-admin-ui/ui/panel/Panel';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {AppPanel} from '@enonic/lib-admin-ui/app/AppPanel';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export class ContentAppPanel
     extends AppPanel {

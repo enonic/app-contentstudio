@@ -1,9 +1,9 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {PageTemplateResourceRequest} from './PageTemplateResourceRequest';
 import {PageTemplate} from '../content/PageTemplate';
 import {ContentJson} from '../content/ContentJson';
 import {PageTemplateKey} from '../page/PageTemplateKey';
-import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 
 export class GetPageTemplateByKeyRequest
     extends PageTemplateResourceRequest<PageTemplate> {

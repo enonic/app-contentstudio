@@ -1,11 +1,11 @@
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {WidgetView} from './WidgetView';
 import {ContextView} from './ContextView';
-import {Dropdown} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
-import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {Dropdown} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
+import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 
 export class WidgetsSelectionRow
     extends DivEl {

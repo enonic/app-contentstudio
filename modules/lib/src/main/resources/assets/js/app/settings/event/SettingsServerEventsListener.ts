@@ -1,16 +1,16 @@
-import {EventJson} from 'lib-admin-ui/event/EventJson';
-import {ServerEventsListener} from 'lib-admin-ui/event/ServerEventsListener';
-import {NodeEventJson, NodeEventNodeJson, NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
+import {EventJson} from '@enonic/lib-admin-ui/event/EventJson';
+import {ServerEventsListener} from '@enonic/lib-admin-ui/event/ServerEventsListener';
+import {NodeEventJson, NodeEventNodeJson, NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {SettingsServerEvent} from './SettingsServerEvent';
-import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
 import {RepositoryId} from '../../repository/RepositoryId';
 import {SettingsEventAggregator} from './SettingsEventAggregator';
 import {PrincipalServerEvent} from '../../event/PrincipalServerEvent';
 import {ContentServerEvent} from '../../event/ContentServerEvent';
-import {NodeServerChangeItem} from 'lib-admin-ui/event/NodeServerChangeItem';
+import {NodeServerChangeItem} from '@enonic/lib-admin-ui/event/NodeServerChangeItem';
 import {ContentPath} from '../../content/ContentPath';
-import {Event} from 'lib-admin-ui/event/Event';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class SettingsServerEventsListener
     extends ServerEventsListener {

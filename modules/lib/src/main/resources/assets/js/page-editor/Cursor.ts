@@ -1,5 +1,5 @@
 import {ItemView} from './ItemView';
-import {Body} from 'lib-admin-ui/dom/Body';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 
 export class Cursor {
 

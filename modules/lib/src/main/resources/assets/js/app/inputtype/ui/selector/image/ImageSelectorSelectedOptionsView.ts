@@ -1,16 +1,16 @@
 import * as $ from 'jquery';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
-import {Body} from 'lib-admin-ui/dom/Body';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {ImageSelectorSelectedOptionView} from './ImageSelectorSelectedOptionView';
 import {SelectionToolbar} from './SelectionToolbar';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {MediaSelectorDisplayValue} from '../media/MediaSelectorDisplayValue';
-import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class ImageSelectorSelectedOptionsView
     extends BaseSelectedOptionsView<MediaTreeSelectorItem> {

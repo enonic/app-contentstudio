@@ -1,6 +1,6 @@
 import {SortContentTabMenuItem, SortContentTabMenuItemBuilder} from './SortContentTabMenuItem';
-import {Button} from 'lib-admin-ui/ui/button/Button';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
 import {ChildOrder} from '../../../resource/order/ChildOrder';
 

@@ -3,12 +3,12 @@ import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
 import 'jquery-simulate/jquery.simulate.js';
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {LiveEditPage} from 'lib-contentstudio/page-editor/LiveEditPage';
 import {ItemViewPlaceholder} from 'lib-contentstudio/page-editor/ItemViewPlaceholder';
-import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
-import {Store} from 'lib-admin-ui/store/Store';
-import {KEY_BINDINGS_KEY} from 'lib-admin-ui/ui/KeyBindings';
+import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
+import {Store} from '@enonic/lib-admin-ui/store/Store';
+import {KEY_BINDINGS_KEY} from '@enonic/lib-admin-ui/ui/KeyBindings';
 
 Store.instance().set('$', $);
 /*

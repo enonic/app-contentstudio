@@ -1,6 +1,6 @@
-import {Event} from 'lib-admin-ui/event/Event';
-import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 
 export class LiveEditPageDialogCreatedEvent
     extends Event {

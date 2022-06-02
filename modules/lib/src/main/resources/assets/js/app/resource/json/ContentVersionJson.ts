@@ -1,5 +1,5 @@
 import {ContentVersionPublishInfoJson} from './ContentVersionPublishInfoJson';
-import {WorkflowJson} from 'lib-admin-ui/content/json/WorkflowJson';
+import {WorkflowJson} from '@enonic/lib-admin-ui/content/json/WorkflowJson';
 
 export interface ContentVersionJson {
 

@@ -1,4 +1,4 @@
-import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
+import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
 import {ResultMetadata} from '../../resource/ResultMetadata';
 
 export class AggregationsQueryResult {

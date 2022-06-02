@@ -1,10 +1,10 @@
-import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
-import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
-import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
-import {LogicalExpr} from 'lib-admin-ui/query/expr/LogicalExpr';
-import {LogicalOperator} from 'lib-admin-ui/query/expr/LogicalOperator';
-import {Expression} from 'lib-admin-ui/query/expr/Expression';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {CompareExpr} from '@enonic/lib-admin-ui/query/expr/CompareExpr';
+import {FieldExpr} from '@enonic/lib-admin-ui/query/expr/FieldExpr';
+import {ValueExpr} from '@enonic/lib-admin-ui/query/expr/ValueExpr';
+import {LogicalExpr} from '@enonic/lib-admin-ui/query/expr/LogicalExpr';
+import {LogicalOperator} from '@enonic/lib-admin-ui/query/expr/LogicalOperator';
+import {Expression} from '@enonic/lib-admin-ui/query/expr/Expression';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentTreeSelectorQueryRequest} from '../../app/resource/ContentTreeSelectorQueryRequest';
 import {ContentTreeSelectorItem} from '../../app/item/ContentTreeSelectorItem';
 

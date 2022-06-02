@@ -1,6 +1,6 @@
 import {PrincipalServerChangeItem} from './PrincipalServerChangeItem';
-import {NodeServerChange, NodeServerChangeBuilder} from 'lib-admin-ui/event/NodeServerChange';
-import {NodeEventJson, NodeEventNodeJson} from 'lib-admin-ui/event/NodeServerEvent';
+import {NodeServerChange, NodeServerChangeBuilder} from '@enonic/lib-admin-ui/event/NodeServerChange';
+import {NodeEventJson, NodeEventNodeJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 
 //TODO: should be replaced by lib class in #1221
 export class PrincipalServerChange

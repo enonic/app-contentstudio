@@ -1,4 +1,4 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export enum PublishStatus {
     ONLINE = 'online', PENDING = 'pending', EXPIRED = 'expired'

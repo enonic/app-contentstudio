@@ -1,12 +1,12 @@
 import * as Q from 'q';
-import {TreeGridActions} from 'lib-admin-ui/ui/treegrid/actions/TreeGridActions';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {TreeGridActions} from '@enonic/lib-admin-ui/ui/treegrid/actions/TreeGridActions';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {SettingsItemsTreeGrid} from './SettingsItemsTreeGrid';
 import {NewSettingsItemAction} from '../browse/action/NewSettingsItemAction';
 import {EditSettingsItemAction} from '../browse/action/EditSettingsItemAction';
 import {DeleteSettingsItemAction} from '../browse/action/DeleteSettingsItemAction';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 import {SyncAction} from '../browse/action/SyncAction';
 

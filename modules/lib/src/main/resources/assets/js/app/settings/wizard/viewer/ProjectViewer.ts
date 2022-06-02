@@ -1,5 +1,5 @@
 import {Project} from '../../data/project/Project';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectIconUrlResolver} from '../../../project/ProjectIconUrlResolver';
 import {ExtendedViewer} from '../../../view/ExtendedViewer';
 import {ProjectHelper} from '../../data/project/ProjectHelper';

@@ -1,8 +1,8 @@
-import {showSuccess, showWarning} from 'lib-admin-ui/notify/MessageBus';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {UndoPendingDeleteContentResultJson} from './json/UndoPendingDeleteContentResultJson';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 

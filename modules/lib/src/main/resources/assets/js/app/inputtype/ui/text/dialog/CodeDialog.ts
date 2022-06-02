@@ -1,9 +1,9 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig} from './ModalDialog';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import eventInfo = CKEDITOR.eventInfo;
 
 export class CodeDialog

@@ -1,18 +1,18 @@
-import {Application} from 'lib-admin-ui/app/Application';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {Application} from '@enonic/lib-admin-ui/app/Application';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ShowIssuesDialogButton} from '../issue/view/ShowIssuesDialogButton';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Project} from '../settings/data/project/Project';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {ProjectContext} from '../project/ProjectContext';
 import {ProjectSelectionDialog} from '../settings/dialog/ProjectSelectionDialog';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectListWithMissingRequest} from '../settings/resource/ProjectListWithMissingRequest';
 import {AccessibilityHelper} from '../util/AccessibilityHelper';
-import {TabbedAppBar} from 'lib-admin-ui/app/bar/TabbedAppBar';
-import {Store} from 'lib-admin-ui/store/Store';
-import {AppBarActions} from 'lib-admin-ui/app/bar/AppBarActions';
+import {TabbedAppBar} from '@enonic/lib-admin-ui/app/bar/TabbedAppBar';
+import {Store} from '@enonic/lib-admin-ui/store/Store';
+import {AppBarActions} from '@enonic/lib-admin-ui/app/bar/AppBarActions';
 
 export class ContentAppBar
     extends TabbedAppBar {

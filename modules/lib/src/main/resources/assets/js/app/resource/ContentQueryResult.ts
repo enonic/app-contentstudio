@@ -1,5 +1,5 @@
 import {ResultMetadata} from './ResultMetadata';
-import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
+import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 

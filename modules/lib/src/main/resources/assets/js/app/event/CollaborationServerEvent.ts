@@ -1,8 +1,8 @@
-import {Event} from 'lib-admin-ui/event/Event';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {CollaborationEventJson} from './CollaborationEventJson';
 import {ContentId} from '../content/ContentId';
-import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 
 export class CollaborationServerEvent
     extends Event {

@@ -1,4 +1,4 @@
-import {FindPrincipalsRequest as BaseFindPrincipalsRequest} from 'lib-admin-ui/security/FindPrincipalsRequest';
+import {FindPrincipalsRequest as BaseFindPrincipalsRequest} from '@enonic/lib-admin-ui/security/FindPrincipalsRequest';
 import {UrlHelper} from '../util/UrlHelper';
 
 export class FindPrincipalsRequest

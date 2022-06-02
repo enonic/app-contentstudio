@@ -1,4 +1,4 @@
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 
 export class Insertable {
 

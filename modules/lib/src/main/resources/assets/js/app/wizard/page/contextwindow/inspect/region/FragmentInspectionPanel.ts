@@ -1,9 +1,9 @@
 import * as Q from 'q';
-import {showWarning} from 'lib-admin-ui/notify/MessageBus';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {FragmentSelectorForm} from './FragmentSelectorForm';
 import {FragmentComponentView} from '../../../../../../page-editor/fragment/FragmentComponentView';
@@ -19,8 +19,8 @@ import {ContentSummaryAndCompareStatus} from '../../../../../content/ContentSumm
 import {FragmentComponent} from '../../../../../page/region/FragmentComponent';
 import {ComponentPropertyChangedEvent} from '../../../../../page/region/ComponentPropertyChangedEvent';
 import {LayoutComponentType} from '../../../../../page/region/LayoutComponentType';
-import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
-import {Button} from 'lib-admin-ui/ui/button/Button';
+import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 import {ContentServerEventsHandler} from '../../../../../event/ContentServerEventsHandler';
 import {ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';

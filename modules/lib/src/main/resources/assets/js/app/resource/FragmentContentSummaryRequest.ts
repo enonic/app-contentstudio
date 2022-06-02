@@ -1,9 +1,9 @@
-import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
-import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
-import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
-import {LogicalExpr} from 'lib-admin-ui/query/expr/LogicalExpr';
-import {LogicalOperator} from 'lib-admin-ui/query/expr/LogicalOperator';
-import {ConstraintExpr} from 'lib-admin-ui/query/expr/ConstraintExpr';
+import {CompareExpr} from '@enonic/lib-admin-ui/query/expr/CompareExpr';
+import {FieldExpr} from '@enonic/lib-admin-ui/query/expr/FieldExpr';
+import {ValueExpr} from '@enonic/lib-admin-ui/query/expr/ValueExpr';
+import {LogicalExpr} from '@enonic/lib-admin-ui/query/expr/LogicalExpr';
+import {LogicalOperator} from '@enonic/lib-admin-ui/query/expr/LogicalOperator';
+import {ConstraintExpr} from '@enonic/lib-admin-ui/query/expr/ConstraintExpr';
 import {ContentSummaryRequest} from './ContentSummaryRequest';
 
 export class FragmentContentSummaryRequest

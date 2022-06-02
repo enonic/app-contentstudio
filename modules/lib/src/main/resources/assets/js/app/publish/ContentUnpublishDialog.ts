@@ -1,18 +1,18 @@
 import * as Q from 'q';
-import {showError} from 'lib-admin-ui/notify/MessageBus';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentUnpublishPromptEvent} from '../browse/ContentUnpublishPromptEvent';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {UnpublishContentRequest} from '../resource/UnpublishContentRequest';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../content/CompareStatus';
-import {TaskId} from 'lib-admin-ui/task/TaskId';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {BEl} from 'lib-admin-ui/dom/BEl';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {BEl} from '@enonic/lib-admin-ui/dom/BEl';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ConfirmValueDialog} from '../remove/ConfirmValueDialog';
 import {ResolveUnpublishRequest} from '../resource/ResolveUnpublishRequest';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentId} from '../content/ContentId';
 
 export class ContentUnpublishDialog

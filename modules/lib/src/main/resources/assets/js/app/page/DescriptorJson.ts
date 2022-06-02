@@ -1,4 +1,4 @@
-import {FormJson} from 'lib-admin-ui/form/json/FormJson';
+import {FormJson} from '@enonic/lib-admin-ui/form/json/FormJson';
 import {RegionsDescriptorJson} from './RegionsDescriptorJson';
 
 export interface DescriptorJson {

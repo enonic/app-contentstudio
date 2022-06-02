@@ -1,9 +1,9 @@
 import {ContentVersion} from '../../../../ContentVersion';
-import {Viewer} from 'lib-admin-ui/ui/Viewer';
-import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
-import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
-import {DateHelper} from 'lib-admin-ui/util/DateHelper';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
+import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {VersionHistoryItem} from './VersionHistoryItem';
 
 export class ContentVersionViewer

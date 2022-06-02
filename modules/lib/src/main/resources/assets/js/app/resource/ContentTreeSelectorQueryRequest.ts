@@ -1,4 +1,4 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentTreeSelectorListJson} from './ContentTreeSelectorListResult';
 import {ContentTreeSelectorItem} from '../item/ContentTreeSelectorItem';
 import {ResultMetadata} from './ResultMetadata';

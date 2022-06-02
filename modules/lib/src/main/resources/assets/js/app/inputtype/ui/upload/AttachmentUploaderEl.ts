@@ -1,12 +1,12 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {AttachmentItem} from './AttachmentItem';
 import {Attachment, AttachmentBuilder} from '../../../attachment/Attachment';
 import {AttachmentJson} from '../../../attachment/AttachmentJson';
-import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
+import {UploaderEl, UploaderElConfig} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
 import * as Q from 'q';
 import {UrlHelper} from '../../../util/UrlHelper';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ContentPath} from '../../../content/ContentPath';
 
 export interface AttachmentUploaderElConfig

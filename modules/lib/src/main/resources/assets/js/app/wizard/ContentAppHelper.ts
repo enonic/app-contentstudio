@@ -1,9 +1,9 @@
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentAppBarTabId} from '../ContentAppBarTabId';
 import {UrlAction} from '../UrlAction';
 import {ContentId} from '../content/ContentId';
-import {CONFIG} from 'lib-admin-ui/util/Config';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class ContentAppHelper {
 

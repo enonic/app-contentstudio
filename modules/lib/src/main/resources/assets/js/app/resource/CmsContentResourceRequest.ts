@@ -2,7 +2,7 @@ import {ContentJson} from '../content/ContentJson';
 import {Content, ContentBuilder} from '../content/Content';
 import {SiteBuilder} from '../content/Site';
 import {PageTemplateBuilder} from '../content/PageTemplate';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {CmsProjectBasedResourceRequest} from '../wizard/CmsProjectBasedResourceRequest';

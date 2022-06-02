@@ -1,5 +1,5 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
 import {ExtendedViewer} from '../view/ExtendedViewer';
 import {ProjectContext} from '../project/ProjectContext';

@@ -1,5 +1,5 @@
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {SettingsTreeItemBuilder, SettingsViewItem} from './SettingsViewItem';
 
 export abstract class SettingsDataViewItem<DATA extends Equitable>

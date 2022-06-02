@@ -1,5 +1,5 @@
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export interface NonstandardCodes {
     [key: string]: string;

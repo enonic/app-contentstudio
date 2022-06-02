@@ -1,12 +1,12 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Body} from 'lib-admin-ui/dom/Body';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
-import {TabMenuItem} from 'lib-admin-ui/ui/tab/TabMenuItem';
-import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
-import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
-import {NavigatorEvent} from 'lib-admin-ui/ui/NavigatorEvent';
-import {DropdownHandle} from 'lib-admin-ui/ui/button/DropdownHandle';
+import {TabMenuItem} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
+import {TabMenu} from '@enonic/lib-admin-ui/ui/tab/TabMenu';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {NavigatorEvent} from '@enonic/lib-admin-ui/ui/NavigatorEvent';
+import {DropdownHandle} from '@enonic/lib-admin-ui/ui/button/DropdownHandle';
 
 export class IssueStatusSelector
     extends TabMenu {

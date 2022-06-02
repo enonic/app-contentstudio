@@ -1,8 +1,8 @@
 import {ChildOrderJson} from '../json/ChildOrderJson';
 import {OrderExprWrapperJson} from '../json/OrderExprWrapperJson';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {QueryField} from 'lib-admin-ui/query/QueryField';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {SetChildOrderJson} from '../json/SetChildOrderJson';
 import {OrderExpr} from './OrderExpr';
 import {FieldOrderExpr, FieldOrderExprBuilder} from './FieldOrderExpr';

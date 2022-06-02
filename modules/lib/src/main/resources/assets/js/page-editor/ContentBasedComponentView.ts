@@ -1,11 +1,11 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ComponentView, ComponentViewBuilder} from './ComponentView';
 import {DragAndDrop} from './DragAndDrop';
 import {EditContentEvent} from '../app/event/EditContentEvent';
 import {ContentSummaryAndCompareStatus} from '../app/content/ContentSummaryAndCompareStatus';
 import {Component} from '../app/page/region/Component';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentSummary, ContentSummaryBuilder} from '../app/content/ContentSummary';
 import {ContentId} from '../app/content/ContentId';
 

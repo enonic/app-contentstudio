@@ -1,8 +1,8 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {AttachmentName} from './AttachmentName';
 import {AttachmentJson} from './AttachmentJson';
-import {BinaryReference} from 'lib-admin-ui/util/BinaryReference';
+import {BinaryReference} from '@enonic/lib-admin-ui/util/BinaryReference';
 import {UrlHelper} from '../util/UrlHelper';
 
 export class Attachment

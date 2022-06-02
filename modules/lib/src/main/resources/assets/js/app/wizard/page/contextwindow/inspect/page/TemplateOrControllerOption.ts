@@ -1,4 +1,4 @@
-import {Equitable} from 'lib-admin-ui/Equitable';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {PageTemplate} from '../../../../../content/PageTemplate';
 import {Descriptor} from '../../../../../page/Descriptor';
 

@@ -1,5 +1,5 @@
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {Element} from 'lib-admin-ui/dom/Element';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ContentWizardPanel} from './ContentWizardPanel';
 import {ThumbnailUploaderEl} from './ThumbnailUploaderEl';
 

@@ -1,17 +1,17 @@
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {AEl} from 'lib-admin-ui/dom/AEl';
-import {PropertySet} from 'lib-admin-ui/data/PropertySet';
-import {FormItem} from 'lib-admin-ui/form/FormItem';
-import {DateTimeRange} from 'lib-admin-ui/form/inputtype/time/DateTimeRange';
-import {FormView} from 'lib-admin-ui/form/FormView';
-import {FormBuilder} from 'lib-admin-ui/form/Form';
-import {FormContext} from 'lib-admin-ui/form/FormContext';
-import {InputBuilder} from 'lib-admin-ui/form/Input';
-import {OccurrencesBuilder} from 'lib-admin-ui/form/Occurrences';
-import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
+import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
+import {DateTimeRange} from '@enonic/lib-admin-ui/form/inputtype/time/DateTimeRange';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {FormBuilder} from '@enonic/lib-admin-ui/form/Form';
+import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
+import {InputBuilder} from '@enonic/lib-admin-ui/form/Input';
+import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
+import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 
 export class PublishScheduleForm
     extends DivEl {

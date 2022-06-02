@@ -1,14 +1,14 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ApplicationAddedEvent} from './ApplicationAddedEvent';
 import {ApplicationRemovedEvent} from './ApplicationRemovedEvent';
 import {Site} from '../content/Site';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
-import {ApplicationConfig} from 'lib-admin-ui/application/ApplicationConfig';
-import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
-import {PropertyAddedEvent} from 'lib-admin-ui/data/PropertyAddedEvent';
-import {PropertyRemovedEvent} from 'lib-admin-ui/data/PropertyRemovedEvent';
-import {Property} from 'lib-admin-ui/data/Property';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
+import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
+import {PropertyAddedEvent} from '@enonic/lib-admin-ui/data/PropertyAddedEvent';
+import {PropertyRemovedEvent} from '@enonic/lib-admin-ui/data/PropertyRemovedEvent';
+import {Property} from '@enonic/lib-admin-ui/data/Property';
 import {ContentId} from '../content/ContentId';
 
 export class SiteModel {

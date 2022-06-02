@@ -1,6 +1,6 @@
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectReadAccessJson} from '../../resource/json/ProjectReadAccessJson';
 
 export enum ProjectReadAccessType {

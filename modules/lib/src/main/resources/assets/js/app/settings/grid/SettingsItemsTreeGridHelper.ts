@@ -1,6 +1,6 @@
-import {GridColumnConfig} from 'lib-admin-ui/ui/grid/GridColumn';
+import {GridColumnConfig} from '@enonic/lib-admin-ui/ui/grid/GridColumn';
 import {SettingsItemRowFormatter} from './SettingsItemRowFormatter';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class SettingsItemsTreeGridHelper {
 

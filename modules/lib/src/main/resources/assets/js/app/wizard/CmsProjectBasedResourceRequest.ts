@@ -1,4 +1,4 @@
-import {Path} from 'lib-admin-ui/rest/Path';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {UrlHelper} from '../util/UrlHelper';
 import {Project} from '../settings/data/project/Project';
 import {CmsResourceRequest} from '../resource/CmsResourceRequest';

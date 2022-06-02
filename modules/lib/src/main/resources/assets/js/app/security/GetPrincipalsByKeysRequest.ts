@@ -1,4 +1,4 @@
-import {GetPrincipalsByKeysRequest as BaseGetPrincipalsByKeysRequest} from 'lib-admin-ui/security/GetPrincipalsByKeysRequest';
+import {GetPrincipalsByKeysRequest as BaseGetPrincipalsByKeysRequest} from '@enonic/lib-admin-ui/security/GetPrincipalsByKeysRequest';
 import {UrlHelper} from '../util/UrlHelper';
 
 export class GetPrincipalsByKeysRequest

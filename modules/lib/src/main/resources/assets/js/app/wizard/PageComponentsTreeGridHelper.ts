@@ -1,16 +1,16 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {PageComponentsItemViewer} from './PageComponentsItemViewer';
 import {ItemView} from '../../page-editor/ItemView';
 import {PageView} from '../../page-editor/PageView';
 import {RegionView} from '../../page-editor/RegionView';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {GridColumn, GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
-import {GridOptions, GridOptionsBuilder} from 'lib-admin-ui/ui/grid/GridOptions';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {GridColumn, GridColumnBuilder} from '@enonic/lib-admin-ui/ui/grid/GridColumn';
+import {GridOptions, GridOptionsBuilder} from '@enonic/lib-admin-ui/ui/grid/GridOptions';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
 
 export class PageComponentsTreeGridHelper {

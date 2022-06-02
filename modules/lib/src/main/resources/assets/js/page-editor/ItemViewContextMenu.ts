@@ -1,8 +1,8 @@
-import {Body} from 'lib-admin-ui/dom/Body';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {ItemViewContextMenuTitle} from './ItemViewContextMenuTitle';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {TreeContextMenu} from 'lib-admin-ui/ui/menu/TreeContextMenu';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {TreeContextMenu} from '@enonic/lib-admin-ui/ui/menu/TreeContextMenu';
 import {ItemView} from './ItemView';
 
 export enum ItemViewContextMenuOrientation {

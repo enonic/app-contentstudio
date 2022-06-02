@@ -1,5 +1,5 @@
-import {showWarning} from 'lib-admin-ui/notify/MessageBus';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentWizardPanelParams} from './wizard/ContentWizardPanelParams';
 import {NewContentEvent} from './create/NewContentEvent';
 import {SortContentEvent} from './browse/sort/SortContentEvent';
@@ -13,8 +13,8 @@ import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompare
 import {ProjectContext} from './project/ProjectContext';
 import {ContentAppBarTabId} from './ContentAppBarTabId';
 import {UrlAction} from './UrlAction';
-import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentSummary} from './content/ContentSummary';
 import {UrlHelper} from './util/UrlHelper';
 

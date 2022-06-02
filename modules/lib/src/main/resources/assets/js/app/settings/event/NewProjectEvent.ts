@@ -1,5 +1,5 @@
-import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {Event} from 'lib-admin-ui/event/Event';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {NewSettingsItemEvent} from './NewSettingsItemEvent';
 import {Project} from '../data/project/Project';
 import {SettingsType} from '../dialog/SettingsType';

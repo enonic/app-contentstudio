@@ -1,10 +1,10 @@
-import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
+import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
 import {ModalDialogFormItemBuilder} from './ModalDialog';
-import {FormInputEl} from 'lib-admin-ui/dom/FormInputEl';
-import {NumberHelper} from 'lib-admin-ui/util/NumberHelper';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {NumberHelper} from '@enonic/lib-admin-ui/util/NumberHelper';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ListStyleModalDialog} from './ListStyleModalDialog';
 
 export class NumberedListModalDialog

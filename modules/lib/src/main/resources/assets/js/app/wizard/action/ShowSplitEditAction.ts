@@ -1,7 +1,7 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ShowSplitEditEvent} from '../ShowSplitEditEvent';
 import {ContentWizardPanel} from '../ContentWizardPanel';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export class ShowSplitEditAction
     extends Action {

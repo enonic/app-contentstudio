@@ -1,6 +1,6 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
-import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 
 export class NewContentDialogListItem {
 

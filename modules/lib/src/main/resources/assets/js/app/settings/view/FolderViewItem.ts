@@ -1,5 +1,5 @@
 import {SettingsTreeItemBuilder, SettingsViewItem} from './SettingsViewItem';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 
 
 export class FolderViewItem

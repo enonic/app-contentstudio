@@ -1,11 +1,11 @@
 import * as Q from 'q';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {GetNearestSiteRequest} from '../../resource/GetNearestSiteRequest';
 import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesRequest';
 import {Site} from '../../content/Site';
-import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
+import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
 import {ContentId} from '../../content/ContentId';
 
 export class PageTemplateContentTypeLoader

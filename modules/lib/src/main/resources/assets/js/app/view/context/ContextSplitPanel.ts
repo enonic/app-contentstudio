@@ -1,17 +1,17 @@
-import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
-import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from 'lib-admin-ui/ui/panel/SplitPanel';
-import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
-import {Panel} from 'lib-admin-ui/ui/panel/Panel';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {SplitPanel, SplitPanelAlignment, SplitPanelBuilder} from '@enonic/lib-admin-ui/ui/panel/SplitPanel';
+import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
 import {DockedContextPanel} from './DockedContextPanel';
 import {ContextView} from './ContextView';
 import {InspectEvent} from '../../event/InspectEvent';
 import {ToggleContextPanelEvent} from './ToggleContextPanelEvent';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ContextPanelState} from './ContextPanelState';
-import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {ResponsiveRange} from 'lib-admin-ui/ui/responsive/ResponsiveRange';
-import {Body} from 'lib-admin-ui/dom/Body';
+import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {ResponsiveRange} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRange';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {ContextPanelStateEvent} from './ContextPanelStateEvent';
 
 export enum ContextPanelMode {

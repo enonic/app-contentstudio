@@ -1,8 +1,8 @@
 import * as $ from 'jquery';
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentPreviewPathChangedEvent} from './ContentPreviewPathChangedEvent';
 import {ContentItemPreviewToolbar} from './ContentItemPreviewToolbar';
 import {RenderingMode} from '../rendering/RenderingMode';
@@ -11,16 +11,16 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {ImageUrlResolver} from '../util/ImageUrlResolver';
 import {MediaAllowsPreviewRequest} from '../resource/MediaAllowsPreviewRequest';
 import {EmulatedEvent} from '../event/EmulatedEvent';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {ItemPreviewPanel} from 'lib-admin-ui/app/view/ItemPreviewPanel';
-import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
+import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {ItemPreviewPanel} from '@enonic/lib-admin-ui/app/view/ItemPreviewPanel';
+import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {UrlHelper} from '../util/UrlHelper';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentResourceRequest} from '../resource/ContentResourceRequest';
-import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
-import {ItemPreviewToolbar} from 'lib-admin-ui/app/view/ItemPreviewToolbar';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
+import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolbar';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 
 enum PREVIEW_TYPE {
     IMAGE,

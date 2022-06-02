@@ -1,5 +1,5 @@
 import {ResponsiveToolbar} from './ResponsiveToolbar';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export class ContentBrowseToolbar
     extends ResponsiveToolbar {

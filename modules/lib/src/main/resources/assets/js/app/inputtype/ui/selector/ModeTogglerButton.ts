@@ -1,6 +1,6 @@
-import {TogglerButton} from 'lib-admin-ui/ui/button/TogglerButton';
-import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
+import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class ModeTogglerButton
     extends TogglerButton {

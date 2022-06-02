@@ -1,4 +1,4 @@
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ComponentName} from './ComponentName';
 
 export class ComponentType {

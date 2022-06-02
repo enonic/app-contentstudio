@@ -1,6 +1,6 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
-import {Response} from 'lib-admin-ui/rest/Response';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
+import {Response} from '@enonic/lib-admin-ui/rest/Response';
 
 export class UpdateProjectLanguageRequest extends ProjectResourceRequest<string> {
 

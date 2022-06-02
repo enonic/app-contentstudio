@@ -2,9 +2,9 @@ import * as Q from 'q';
 import {ContentWizardStepForm} from './ContentWizardStepForm';
 import {XDataName} from '../content/XDataName';
 import {XData} from '../content/XData';
-import {Form} from 'lib-admin-ui/form/Form';
-import {FormView} from 'lib-admin-ui/form/FormView';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {Form} from '@enonic/lib-admin-ui/form/Form';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ContentFormContext} from '../ContentFormContext';
 import {ExtraData} from '../content/ExtraData';
 

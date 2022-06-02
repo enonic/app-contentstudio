@@ -1,13 +1,13 @@
-import {Application, ApplicationBuilder} from 'lib-admin-ui/application/Application';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {FormView} from 'lib-admin-ui/form/FormView';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {Application, ApplicationBuilder} from '@enonic/lib-admin-ui/application/Application';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
 import {ContentFormContext} from '../../ContentFormContext';
-import {ApplicationConfigProvider} from 'lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
-import {ApplicationConfig} from 'lib-admin-ui/application/ApplicationConfig';
+import {ApplicationConfigProvider} from '@enonic/lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 
 export class SiteConfiguratorSelectedOptionsView
     extends BaseSelectedOptionsView<Application> {

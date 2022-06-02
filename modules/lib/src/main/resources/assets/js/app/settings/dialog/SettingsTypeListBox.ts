@@ -1,6 +1,6 @@
-import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {SettingsType} from './SettingsType';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {SettingsTypeViewer} from './SettingsTypeViewer';
 import {AccessibilityHelper} from '../../util/AccessibilityHelper';
 

@@ -1,6 +1,6 @@
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {SettingsViewItem} from '../../view/SettingsViewItem';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export abstract class SettingsItemViewer
     extends NamesAndIconViewer<SettingsViewItem> {

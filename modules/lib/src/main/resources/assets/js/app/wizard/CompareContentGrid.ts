@@ -4,12 +4,12 @@ import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryA
 import {ContentResponse} from '../resource/ContentResponse';
 import {Content} from '../content/Content';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
-import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
-import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Comparator} from 'lib-admin-ui/Comparator';
+import {GridColumnBuilder} from '@enonic/lib-admin-ui/ui/grid/GridColumn';
+import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
+import {TreeGridBuilder} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridBuilder';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Comparator} from '@enonic/lib-admin-ui/Comparator';
 import {ContentSummaryViewer} from '../content/ContentSummaryViewer';
 
 export class CompareContentGrid

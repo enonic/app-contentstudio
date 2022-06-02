@@ -1,6 +1,6 @@
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ProjectJson} from './json/ProjectJson';
 import {Project} from '../data/project/Project';
 

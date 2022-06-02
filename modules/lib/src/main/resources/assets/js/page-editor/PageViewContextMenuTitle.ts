@@ -1,7 +1,7 @@
 import {ItemViewContextMenuTitle} from './ItemViewContextMenuTitle';
 import {PageItemType} from './PageItemType';
 import {Content} from '../app/content/Content';
-import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
+import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 
 export class PageViewContextMenuTitle
     extends ItemViewContextMenuTitle {

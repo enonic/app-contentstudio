@@ -1,10 +1,10 @@
-import {Event} from 'lib-admin-ui/event/Event';
-import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 import {LiveEditModel} from './LiveEditModel';
 import {ProjectContext} from '../app/project/ProjectContext';
 import {Project} from '../app/settings/data/project/Project';
-import {CONFIG} from 'lib-admin-ui/util/Config';
-import {JSONObject} from 'lib-admin-ui/types';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
+import {JSONObject} from '@enonic/lib-admin-ui/types';
 
 export class InitializeLiveEditEvent
     extends Event {

@@ -1,4 +1,4 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {DescriptorsJson} from '../page/DescriptorsJson';
 import {Descriptor} from '../page/Descriptor';
 import {ComponentType} from '../page/region/ComponentType';

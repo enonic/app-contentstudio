@@ -1,11 +1,11 @@
-import {Element} from 'lib-admin-ui/dom/Element';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ItemTypeConfig} from './ItemTypeConfig';
 import {ComponentType} from '../app/page/region/ComponentType';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {assert} from 'lib-admin-ui/util/Assert';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {assert} from '@enonic/lib-admin-ui/util/Assert';
 
 type ShortName = { [shortName: string]: ItemType };
 

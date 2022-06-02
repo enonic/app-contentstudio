@@ -1,6 +1,6 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Body} from 'lib-admin-ui/dom/Body';
-import {ModalDialog, ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {ModalDialog, ModalDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {NewProjectEvent} from '../event/NewProjectEvent';
 import {SettingsTypeListBox} from './SettingsTypeListBox';
 import {SettingsType} from './SettingsType';

@@ -1,11 +1,11 @@
 import * as $ from 'jquery';
-import {Element, ElementBuilder, ElementFromElementBuilder, NewElementBuilder} from 'lib-admin-ui/dom/Element';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
+import {Element, ElementBuilder, ElementFromElementBuilder, NewElementBuilder} from '@enonic/lib-admin-ui/dom/Element';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
 import {ItemViewContextMenuPosition} from './ItemViewContextMenuPosition';
 import {ItemType} from './ItemType';
 import {LiveEditModel} from './LiveEditModel';
@@ -46,12 +46,12 @@ import {PartComponentBuilder} from '../app/page/region/PartComponent';
 import {TextComponentType} from '../app/page/region/TextComponentType';
 import {TextComponentBuilder} from '../app/page/region/TextComponent';
 import {PageView} from './PageView';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {Viewer} from 'lib-admin-ui/ui/Viewer';
-import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
-import {assertNotNull} from 'lib-admin-ui/util/Assert';
-import {IDentifiable} from 'lib-admin-ui/IDentifiable';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
+import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
 import {ContentIconUrlResolver} from '../app/content/ContentIconUrlResolver';
 
 export interface ElementDimensions {

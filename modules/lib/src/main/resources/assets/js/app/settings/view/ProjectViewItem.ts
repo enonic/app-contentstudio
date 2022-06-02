@@ -1,7 +1,7 @@
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectPermissions} from '../data/project/ProjectPermissions';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {Project} from '../data/project/Project';
 import {SettingsDataItemBuilder, SettingsDataViewItem} from './SettingsDataViewItem';
 import {ProjectReadAccess} from '../data/project/ProjectReadAccess';

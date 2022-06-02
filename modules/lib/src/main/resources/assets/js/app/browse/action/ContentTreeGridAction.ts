@@ -1,4 +1,4 @@
-import {Action} from 'lib-admin-ui/ui/Action';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 

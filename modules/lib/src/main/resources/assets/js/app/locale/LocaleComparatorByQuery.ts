@@ -1,4 +1,4 @@
-import {Locale} from 'lib-admin-ui/locale/Locale';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 
 export class LocaleComparatorByQuery {
     private readonly locale1: Locale;

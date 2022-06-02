@@ -1,5 +1,5 @@
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {ApplicationConfig} from 'lib-admin-ui/application/ApplicationConfig';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 
 export class ApplicationAddedEvent {
 

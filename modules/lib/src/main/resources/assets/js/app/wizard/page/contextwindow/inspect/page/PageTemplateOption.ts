@@ -1,5 +1,5 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {PageTemplate} from '../../../../../content/PageTemplate';
 import {PageTemplateDisplayName} from '../../../../../page/PageMode';
 import {TemplateOrControllerOption} from './TemplateOrControllerOption';

@@ -14,7 +14,7 @@ import {LayoutComponent} from '../app/page/region/LayoutComponent';
 import {PartComponent} from '../app/page/region/PartComponent';
 import {TextComponent} from '../app/page/region/TextComponent';
 import {Region} from '../app/page/region/Region';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export interface ItemViewFactory {
     createView(type: ItemType, config: CreateItemViewConfig<ItemView, any>): ItemView;

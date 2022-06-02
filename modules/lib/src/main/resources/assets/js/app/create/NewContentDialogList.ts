@@ -1,9 +1,9 @@
 import {NewContentDialogItemSelectedEvent} from './NewContentDialogItemSelectedEvent';
 import {NewContentDialogListItem} from './NewContentDialogListItem';
-import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
-import {LiEl} from 'lib-admin-ui/dom/LiEl';
-import {NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
-import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
+import {NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 
 export class NewContentDialogList
     extends ListBox<NewContentDialogListItem> {

@@ -2,7 +2,7 @@ import {BasePublishAction} from './BasePublishAction';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {ContentUnpublishPromptEvent} from '../../browse/ContentUnpublishPromptEvent';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class UnpublishAction extends BasePublishAction {
     constructor(wizard: ContentWizardPanel) {

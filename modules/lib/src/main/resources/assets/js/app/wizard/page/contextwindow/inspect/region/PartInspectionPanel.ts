@@ -3,7 +3,7 @@ import {
 } from './DescriptorBasedComponentInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
 import {PartComponent} from '../../../../../page/region/PartComponent';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PartComponentType} from '../../../../../page/region/PartComponentType';
 
 export class PartInspectionPanel

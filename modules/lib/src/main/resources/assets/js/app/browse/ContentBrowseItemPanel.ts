@@ -1,6 +1,6 @@
 import {ContentItemStatisticsPanel} from '../view/ContentItemStatisticsPanel';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {BrowseItemPanel} from 'lib-admin-ui/app/browse/BrowseItemPanel';
+import {BrowseItemPanel} from '@enonic/lib-admin-ui/app/browse/BrowseItemPanel';
 
 export class ContentBrowseItemPanel
     extends BrowseItemPanel {

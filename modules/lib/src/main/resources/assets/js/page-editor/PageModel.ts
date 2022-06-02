@@ -7,9 +7,9 @@ import {Component} from '../app/page/region/Component';
 import {ComponentPropertyChangedEvent} from '../app/page/region/ComponentPropertyChangedEvent';
 import {Page, PageBuilder} from '../app/page/Page';
 import {PageTemplateKey} from '../app/page/PageTemplateKey';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {Descriptor} from '../app/page/Descriptor';
 
 export class SetController {

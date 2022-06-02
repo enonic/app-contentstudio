@@ -1,9 +1,9 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentWizardPanel} from '../ContentWizardPanel';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {PreviewActionHelper} from '../../action/PreviewActionHelper';
-import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
+import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 
 export class PreviewAction
     extends Action {

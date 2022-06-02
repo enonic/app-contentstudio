@@ -1,5 +1,5 @@
-import {Element} from 'lib-admin-ui/dom/Element';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {LayoutItemType} from './LayoutItemType';
 import {ItemViewAddedEvent} from '../ItemViewAddedEvent';

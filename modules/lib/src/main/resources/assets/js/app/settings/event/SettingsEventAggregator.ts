@@ -1,4 +1,4 @@
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ProjectUpdatedEvent} from './ProjectUpdatedEvent';
 import {ProjectCreatedEvent} from './ProjectCreatedEvent';
 import {ProjectDeletedEvent} from './ProjectDeletedEvent';

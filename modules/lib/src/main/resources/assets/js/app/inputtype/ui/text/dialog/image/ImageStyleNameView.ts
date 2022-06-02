@@ -1,6 +1,6 @@
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {H6El} from 'lib-admin-ui/dom/H6El';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 
 export class ImageStyleNameView
     extends DivEl {

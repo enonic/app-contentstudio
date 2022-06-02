@@ -1,10 +1,10 @@
-import {Element} from 'lib-admin-ui/dom/Element';
-import {FormIcon} from 'lib-admin-ui/app/wizard/FormIcon';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {LabelEl} from 'lib-admin-ui/dom/LabelEl';
-import {InputEl} from 'lib-admin-ui/dom/InputEl';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {FormIcon} from '@enonic/lib-admin-ui/app/wizard/FormIcon';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
+import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 
 export class SettingsDataItemFormIcon
     extends FormIcon {

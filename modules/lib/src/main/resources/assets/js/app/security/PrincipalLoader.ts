@@ -1,5 +1,5 @@
-import {PrincipalLoader as BasePrincipalLoader} from 'lib-admin-ui/security/PrincipalLoader';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {PrincipalLoader as BasePrincipalLoader} from '@enonic/lib-admin-ui/security/PrincipalLoader';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 import {FindPrincipalsRequest} from './FindPrincipalsRequest';
 import {GetPrincipalsByKeysRequest} from './GetPrincipalsByKeysRequest';
 

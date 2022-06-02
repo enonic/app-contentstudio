@@ -1,6 +1,6 @@
-import {AEl} from 'lib-admin-ui/dom/AEl';
-import {LiEl} from 'lib-admin-ui/dom/LiEl';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
+import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 
 export class TagBuilder {
 

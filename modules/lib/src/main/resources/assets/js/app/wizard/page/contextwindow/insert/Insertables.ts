@@ -1,4 +1,4 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Insertable} from './Insertable';
 
 export class Insertables {

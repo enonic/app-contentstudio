@@ -1,6 +1,6 @@
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ProjectContext} from '../project/ProjectContext';
 
 export class RepositoryId

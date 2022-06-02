@@ -1,6 +1,6 @@
 import {PublishContentAction} from './PublishContentAction';
 import {ContentTreeGrid} from '../ContentTreeGrid';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 
 export class PublishTreeContentAction extends PublishContentAction {

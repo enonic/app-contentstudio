@@ -1,6 +1,6 @@
 import * as Q from 'q';
-import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
-import {Locale} from 'lib-admin-ui/locale/Locale';
+import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {GetLocalesRequest} from '../resource/GetLocalesRequest';
 
 export class LocaleLoader

@@ -1,5 +1,5 @@
-import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
-import {HelpTextContainer} from 'lib-admin-ui/form/HelpTextContainer';
+import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {HelpTextContainer} from '@enonic/lib-admin-ui/form/HelpTextContainer';
 
 export class ProjectFormItem extends FormItem {
 

@@ -1,5 +1,5 @@
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 export class FontIcon
     extends DivEl {

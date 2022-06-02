@@ -1,4 +1,4 @@
-import {OptionDataHelper} from 'lib-admin-ui/ui/selector/OptionDataHelper';
+import {OptionDataHelper} from '@enonic/lib-admin-ui/ui/selector/OptionDataHelper';
 import {Project} from '../../../../data/project/Project';
 
 export class ProjectOptionDataHelper

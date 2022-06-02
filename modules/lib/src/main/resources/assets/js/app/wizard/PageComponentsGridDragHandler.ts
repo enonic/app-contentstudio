@@ -1,8 +1,8 @@
-import {Element} from 'lib-admin-ui/dom/Element';
-import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
-import {Event} from 'lib-admin-ui/event/Event';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Body} from 'lib-admin-ui/dom/Body';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {ItemView} from '../../page-editor/ItemView';
 import {Highlighter} from '../../page-editor/Highlighter';
 import {ComponentView} from '../../page-editor/ComponentView';
@@ -13,12 +13,12 @@ import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponen
 import {PageView} from '../../page-editor/PageView';
 import {RegionItemType} from '../../page-editor/RegionItemType';
 import {Component} from '../page/region/Component';
-import {DragEventData, GridDragHandler} from 'lib-admin-ui/ui/grid/GridDragHandler';
+import {DragEventData, GridDragHandler} from '@enonic/lib-admin-ui/ui/grid/GridDragHandler';
 
-import {DragHelper} from 'lib-admin-ui/ui/DragHelper';
-import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
-import {BodyMask} from 'lib-admin-ui/ui/mask/BodyMask';
-import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
+import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
+import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
+import {BodyMask} from '@enonic/lib-admin-ui/ui/mask/BodyMask';
+import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
 import {ItemViewTreeGridWrapper} from '../../page-editor/ItemViewTreeGridWrapper';
 
 export class PageComponentsGridDragHandler

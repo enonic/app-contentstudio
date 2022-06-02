@@ -1,6 +1,6 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
-import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
 import {Region} from '../../../../../page/region/Region';

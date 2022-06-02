@@ -1,10 +1,10 @@
 import {MoveContentEvent} from '../../move/MoveContentEvent';
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
-import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
+import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 
 export class MoveContentAction
     extends ContentTreeGridAction {

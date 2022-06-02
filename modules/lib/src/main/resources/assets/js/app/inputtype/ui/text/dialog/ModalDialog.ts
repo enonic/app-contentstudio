@@ -1,20 +1,20 @@
 import * as Q from 'q';
-import {Element as UIElement} from 'lib-admin-ui/dom/Element';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {Form} from 'lib-admin-ui/ui/form/Form';
-import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
-import {FormItem, FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
-import {ModalDialog as OriginalModalDialog, ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
-import {FormInputEl} from 'lib-admin-ui/dom/FormInputEl';
-import {FormItemEl} from 'lib-admin-ui/dom/FormItemEl';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {FormView} from 'lib-admin-ui/form/FormView';
-import {Panel} from 'lib-admin-ui/ui/panel/Panel';
-import {ValidationResult} from 'lib-admin-ui/ui/form/ValidationResult';
-import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
-import {InputEl} from 'lib-admin-ui/dom/InputEl';
-import {RichComboBox} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {Element as UIElement} from '@enonic/lib-admin-ui/dom/Element';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
+import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
+import {FormItem, FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {ModalDialog as OriginalModalDialog, ModalDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {FormItemEl} from '@enonic/lib-admin-ui/dom/FormItemEl';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
+import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
+import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
+import {RichComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 
 export class ModalDialogFormItemBuilder {
 

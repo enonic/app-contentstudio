@@ -1,31 +1,31 @@
-import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
-import {SearchInputValues} from 'lib-admin-ui/query/SearchInputValues';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
+import {SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentQuery} from '../../content/ContentQuery';
 import {ValueFilter} from './ValueFilter';
 import {ExistsFilter} from './ExistsFilter';
-import {BooleanFilter} from 'lib-admin-ui/query/filter/BooleanFilter';
-import {DateRangeBucket} from 'lib-admin-ui/aggregation/DateRangeBucket';
-import {RangeFilter} from 'lib-admin-ui/query/filter/RangeFilter';
-import {QueryField} from 'lib-admin-ui/query/QueryField';
-import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
-import {Filter} from 'lib-admin-ui/query/filter/Filter';
+import {BooleanFilter} from '@enonic/lib-admin-ui/query/filter/BooleanFilter';
+import {DateRangeBucket} from '@enonic/lib-admin-ui/aggregation/DateRangeBucket';
+import {RangeFilter} from '@enonic/lib-admin-ui/query/filter/RangeFilter';
+import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
+import {ValueExpr} from '@enonic/lib-admin-ui/query/expr/ValueExpr';
+import {Filter} from '@enonic/lib-admin-ui/query/filter/Filter';
 import {
     TermsAggregationOrderDirection,
     TermsAggregationOrderType,
     TermsAggregationQuery
-} from 'lib-admin-ui/query/aggregation/TermsAggregationQuery';
-import {DateRangeAggregationQuery} from 'lib-admin-ui/query/aggregation/DateRangeAggregationQuery';
-import {DateRange} from 'lib-admin-ui/query/aggregation/DateRange';
-import {i18n} from 'lib-admin-ui/util/Messages';
+} from '@enonic/lib-admin-ui/query/aggregation/TermsAggregationQuery';
+import {DateRangeAggregationQuery} from '@enonic/lib-admin-ui/query/aggregation/DateRangeAggregationQuery';
+import {DateRange} from '@enonic/lib-admin-ui/query/aggregation/DateRange';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentSummaryRequest} from '../../resource/ContentSummaryRequest';
-import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
-import {LogicalExpr} from 'lib-admin-ui/query/expr/LogicalExpr';
-import {LogicalOperator} from 'lib-admin-ui/query/expr/LogicalOperator';
-import {Expression} from 'lib-admin-ui/query/expr/Expression';
-import {FulltextSearchExpressionBuilder} from 'lib-admin-ui/query/FulltextSearchExpression';
-import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
-import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
+import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
+import {LogicalExpr} from '@enonic/lib-admin-ui/query/expr/LogicalExpr';
+import {LogicalOperator} from '@enonic/lib-admin-ui/query/expr/LogicalOperator';
+import {Expression} from '@enonic/lib-admin-ui/query/expr/Expression';
+import {FulltextSearchExpressionBuilder} from '@enonic/lib-admin-ui/query/FulltextSearchExpression';
+import {CompareExpr} from '@enonic/lib-admin-ui/query/expr/CompareExpr';
+import {FieldExpr} from '@enonic/lib-admin-ui/query/expr/FieldExpr';
 import {ContentId} from '../../content/ContentId';
 import {ContentAggregation} from './ContentAggregation';
 import {WorkflowState} from '../../content/WorkflowState';

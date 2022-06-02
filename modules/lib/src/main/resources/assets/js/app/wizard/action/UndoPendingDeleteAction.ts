@@ -1,7 +1,7 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {UndoPendingDeleteContentRequest} from '../../resource/UndoPendingDeleteContentRequest';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export class UndoPendingDeleteAction
     extends Action {

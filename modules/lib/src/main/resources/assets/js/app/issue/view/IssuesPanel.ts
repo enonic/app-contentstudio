@@ -1,16 +1,16 @@
 import * as Q from 'q';
 import {FilterType} from './FilterType';
 import {FilterState, IssueList} from './IssueList';
-import {Element} from 'lib-admin-ui/dom/Element';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {IssueStatus} from '../IssueStatus';
 import {IssueWithAssignees} from '../IssueWithAssignees';
-import {Panel} from 'lib-admin-ui/ui/panel/Panel';
-import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
-import {LabelEl} from 'lib-admin-ui/dom/LabelEl';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {TypeFilter} from './TypeFilter';
 import {StatusFilter} from './StatusFilter';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export interface IssuesCount {
     all: number;

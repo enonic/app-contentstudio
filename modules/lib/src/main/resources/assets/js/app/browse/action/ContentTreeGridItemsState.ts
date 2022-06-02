@@ -1,5 +1,5 @@
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ManagedActionManager} from 'lib-admin-ui/managedaction/ManagedActionManager';
+import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
 import {Permission} from '../../access/Permission';
 
 export class ContentTreeGridItemsState {

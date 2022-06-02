@@ -1,5 +1,5 @@
 import {ContentVersionPublishInfoJson} from './resource/json/ContentVersionPublishInfoJson';
-import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {ContentPublishInfo} from './ContentPublishInfo';
 
 enum COMMIT_TYPE {

@@ -1,5 +1,5 @@
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
-import {MacroDescriptor} from 'lib-admin-ui/macro/MacroDescriptor';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
+import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 
 export class MacroViewer
     extends NamesAndIconViewer<MacroDescriptor> {

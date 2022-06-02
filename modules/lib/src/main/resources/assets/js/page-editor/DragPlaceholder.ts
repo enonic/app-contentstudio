@@ -1,8 +1,8 @@
 import {RegionView} from './RegionView';
 import {ItemType} from './ItemType';
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 export class DragPlaceholder
     extends ItemViewPlaceholder {

@@ -1,5 +1,5 @@
 import {ContentServerChange} from './ContentServerChange';
-import {NodeEventJson, NodeEventNodeJson, NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
+import {NodeEventJson, NodeEventNodeJson, NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {ContentPath} from '../content/ContentPath';
 
 export class ArchiveServerEvent

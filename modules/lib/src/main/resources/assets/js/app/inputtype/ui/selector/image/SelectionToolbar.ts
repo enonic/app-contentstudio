@@ -1,6 +1,6 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {Button} from 'lib-admin-ui/ui/button/Button';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 
 export class SelectionToolbar
     extends DivEl {

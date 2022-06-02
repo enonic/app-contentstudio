@@ -1,6 +1,6 @@
-import {Path} from 'lib-admin-ui/rest/Path';
-import {IconUrlResolver} from 'lib-admin-ui/icon/IconUrlResolver';
-import {Schema} from 'lib-admin-ui/schema/Schema';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
+import {IconUrlResolver} from '@enonic/lib-admin-ui/icon/IconUrlResolver';
+import {Schema} from '@enonic/lib-admin-ui/schema/Schema';
 import {UrlHelper} from '../../../util/UrlHelper';
 
 export class ContentTypeIconUrlResolver

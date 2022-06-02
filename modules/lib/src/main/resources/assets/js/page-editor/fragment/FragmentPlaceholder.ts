@@ -1,6 +1,6 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {FragmentComponentView} from './FragmentComponentView';
 import {ShowWarningLiveEditEvent} from '../ShowWarningLiveEditEvent';
@@ -12,7 +12,7 @@ import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
 import {Content} from '../../app/content/Content';
 import {FragmentComponent} from '../../app/page/region/FragmentComponent';
 import {LayoutComponentType} from '../../app/page/region/LayoutComponentType';
-import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 export class FragmentPlaceholder
     extends ItemViewPlaceholder {

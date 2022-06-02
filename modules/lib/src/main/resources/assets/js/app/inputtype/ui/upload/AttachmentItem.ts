@@ -1,6 +1,6 @@
 import * as Q from 'q';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {AEl} from 'lib-admin-ui/dom/AEl';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {Attachment} from '../../../attachment/Attachment';
 
 export class AttachmentItem

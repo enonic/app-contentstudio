@@ -1,7 +1,7 @@
 import {SortContentDialog} from '../sort/dialog/SortContentDialog';
 import {SaveSortedContentEvent} from '../SaveSortedContentEvent';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export class SaveSortedContentAction
     extends Action {

@@ -1,6 +1,6 @@
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Store} from 'lib-admin-ui/store/Store';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Store} from '@enonic/lib-admin-ui/store/Store';
 // get jQuery from the global scope
 var $ = Store.instance().get('$');
 

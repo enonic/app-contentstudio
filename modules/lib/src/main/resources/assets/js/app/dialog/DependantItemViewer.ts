@@ -1,4 +1,4 @@
-import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
+import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {ContentIconUrlResolver} from '../content/ContentIconUrlResolver';

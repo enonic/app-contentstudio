@@ -1,6 +1,6 @@
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {NodePath, NodePathBuilder} from 'lib-admin-ui/NodePath';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {NodePath, NodePathBuilder} from '@enonic/lib-admin-ui/NodePath';
 
 export class ContentPath
     extends NodePath {

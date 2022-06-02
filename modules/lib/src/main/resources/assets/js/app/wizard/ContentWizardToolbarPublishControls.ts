@@ -1,8 +1,8 @@
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentWizardPublishMenuButton} from '../browse/ContentWizardPublishMenuButton';
-import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 export class ContentWizardToolbarPublishControls
     extends DivEl {

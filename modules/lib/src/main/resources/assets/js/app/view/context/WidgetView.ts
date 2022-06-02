@@ -1,12 +1,12 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContextView} from './ContextView';
 import {WidgetItemView} from './WidgetItemView';
 import {UriHelper} from '../../rendering/UriHelper';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Widget} from 'lib-admin-ui/content/Widget';
+import {Widget} from '@enonic/lib-admin-ui/content/Widget';
 
 export enum InternalWidgetType {
     INFO,

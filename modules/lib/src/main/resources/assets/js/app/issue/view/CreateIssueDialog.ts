@@ -1,16 +1,16 @@
 import * as Q from 'q';
-import {showError, showSuccess, showWarning} from 'lib-admin-ui/notify/MessageBus';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {AEl} from 'lib-admin-ui/dom/AEl';
+import {showError, showSuccess, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {IssueDialog} from './IssueDialog';
 import {CreateIssueRequest} from '../resource/CreateIssueRequest';
 import {PublishRequest} from '../PublishRequest';
 import {Issue} from '../Issue';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {LabelEl} from 'lib-admin-ui/dom/LabelEl';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {LabelEl} from '@enonic/lib-admin-ui/dom/LabelEl';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {DependantItemsDialogConfig} from '../../dialog/DependantItemsDialog';
 
 export class CreateIssueDialog

@@ -1,10 +1,10 @@
-import {Action} from 'lib-admin-ui/ui/Action';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {SettingsItemsTreeGrid} from '../../grid/SettingsItemsTreeGrid';
 import {NewSettingsItemDialog} from '../../dialog/NewSettingsItemDialog';
 import {Project} from '../../data/project/Project';
 import {SettingsViewItem} from '../../view/SettingsViewItem';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 
 export class NewSettingsItemAction

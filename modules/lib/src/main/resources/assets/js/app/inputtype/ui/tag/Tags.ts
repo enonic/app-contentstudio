@@ -1,14 +1,14 @@
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {TagRemovedEvent} from './TagRemovedEvent';
 import {TagAddedEvent} from './TagAddedEvent';
 import {Tag, TagBuilder} from './Tag';
 import {TagSuggestions} from './TagSuggestions';
 import {TagSuggester} from './TagSuggester';
-import {FormInputEl} from 'lib-admin-ui/dom/FormInputEl';
-import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
-import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 
 export class TagsBuilder {
 

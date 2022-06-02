@@ -1,9 +1,9 @@
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ComponentName} from './ComponentName';
 import {DescriptorBasedComponentJson} from './DescriptorBasedComponentJson';
 import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {DescriptorKey} from '../DescriptorKey';
 import {Descriptor} from '../Descriptor';
 

@@ -1,9 +1,9 @@
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ProjectPermissions} from '../data/project/ProjectPermissions';
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ProjectPermissionsJson} from './json/ProjectPermissionsJson';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
 
 export class UpdateProjectPermissionsRequest
     extends ProjectResourceRequest<ProjectPermissions> {

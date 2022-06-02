@@ -1,8 +1,8 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {PageTemplateAndControllerSelector} from './PageTemplateAndControllerSelector';
-import {FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
-import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
-import {Form} from 'lib-admin-ui/ui/form/Form';
+import {FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
+import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
 
 export class PageTemplateAndControllerForm
     extends Form {

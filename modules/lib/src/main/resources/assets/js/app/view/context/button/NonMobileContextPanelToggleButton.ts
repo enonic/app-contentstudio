@@ -1,5 +1,5 @@
-import {Button} from 'lib-admin-ui/ui/button/Button';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ToggleContextPanelEvent} from '../ToggleContextPanelEvent';
 import {ContextPanelStateEvent} from '../ContextPanelStateEvent';
 import {ContextPanelState} from '../ContextPanelState';

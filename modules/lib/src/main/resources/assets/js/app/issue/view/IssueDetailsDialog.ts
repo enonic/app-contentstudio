@@ -1,12 +1,12 @@
 import * as Q from 'q';
-import {showError, showFeedback} from 'lib-admin-ui/notify/MessageBus';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {AEl} from 'lib-admin-ui/dom/AEl';
+import {showError, showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {Issue} from '../Issue';
 import {ContentPublishPromptEvent} from '../../browse/ContentPublishPromptEvent';
 import {Router} from '../../Router';
@@ -34,32 +34,32 @@ import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {IssueType} from '../IssueType';
 import {PublishScheduleForm} from '../../publish/PublishScheduleForm';
-import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
-import {TaskState} from 'lib-admin-ui/task/TaskState';
-import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {Principal} from 'lib-admin-ui/security/Principal';
-import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
-import {NavigatedDeckPanel} from 'lib-admin-ui/ui/panel/NavigatedDeckPanel';
-import {TabBar} from 'lib-admin-ui/ui/tab/TabBar';
-import {TabBarItem, TabBarItemBuilder} from 'lib-admin-ui/ui/tab/TabBarItem';
-import {Panel} from 'lib-admin-ui/ui/panel/Panel';
-import {PrincipalComboBox} from 'lib-admin-ui/ui/security/PrincipalComboBox';
-import {PrincipalType} from 'lib-admin-ui/security/PrincipalType';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {ComboBox} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
-import {PropertySet} from 'lib-admin-ui/data/PropertySet';
-import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
-import {H6El} from 'lib-admin-ui/dom/H6El';
-import {TaskId} from 'lib-admin-ui/task/TaskId';
-import {ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
-import {LocalDateTime} from 'lib-admin-ui/util/LocalDateTime';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
+import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
+import {NavigatedDeckPanel} from '@enonic/lib-admin-ui/ui/panel/NavigatedDeckPanel';
+import {TabBar} from '@enonic/lib-admin-ui/ui/tab/TabBar';
+import {TabBarItem, TabBarItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {PrincipalComboBox} from '@enonic/lib-admin-ui/ui/security/PrincipalComboBox';
+import {PrincipalType} from '@enonic/lib-admin-ui/security/PrincipalType';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {ComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
+import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {LocalDateTime} from '@enonic/lib-admin-ui/util/LocalDateTime';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {IssueComment} from '../IssueComment';
 import {ContentId} from '../../content/ContentId';
 import {PrincipalLoader} from '../../security/PrincipalLoader';
 import {TogglableStatusSelectionItem} from '../../dialog/DialogTogglableItemList';
-import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 
 export class IssueDetailsDialog
     extends DependantItemsWithProgressDialog {
@@ -1129,7 +1129,7 @@ export class IssueDetailsDialog
 
     protected showLoadMask() {
         this.isLoadInProgress = true;
-        
+
         if (!this.loadMask.isVisible() && this.isOpen() && this.isRendered()) {
             super.showLoadMask();
         }

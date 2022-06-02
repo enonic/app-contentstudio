@@ -1,6 +1,6 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ItemViewPlaceholder} from '../ItemViewPlaceholder';
 import {ImageComponentView} from './ImageComponentView';
 import {ImageContentComboBox} from '../../app/inputtype/ui/selector/image/ImageContentComboBox';
@@ -10,9 +10,9 @@ import {MediaUploaderElOperation} from '../../app/inputtype/ui/upload/MediaUploa
 import {Content} from '../../app/content/Content';
 import {ImageComponent} from '../../app/page/region/ImageComponent';
 import {GetContentByIdRequest} from '../../app/resource/GetContentByIdRequest';
-import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
-import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentSummary} from '../../app/content/ContentSummary';
 
 export class ImagePlaceholder

@@ -1,10 +1,10 @@
-import {MenuButton, MenuButtonDropdownPos} from 'lib-admin-ui/ui/button/MenuButton';
+import {MenuButton, MenuButtonDropdownPos} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {IssuePanelFilterAction} from './IssuePanelFilterAction';
 import {FilterType} from './FilterType';
 import {IssueStatus} from '../IssueStatus';
 import {IssuesCount} from './IssuesPanel';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export class TypeFilter
     extends MenuButton {

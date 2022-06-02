@@ -3,7 +3,7 @@ import {ComponentPath} from '../../page/region/ComponentPath';
 import {Region} from '../../page/region/Region';
 import {Regions} from '../../page/region/Regions';
 import {Component} from '../../page/region/Component';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {LayoutComponent} from '../../page/region/LayoutComponent';
 import {ComponentFactory} from '../../page/region/ComponentFactory';
 import {Descriptor} from '../../page/Descriptor';

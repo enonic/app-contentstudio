@@ -1,4 +1,4 @@
-import {Element} from 'lib-admin-ui/dom/Element';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ComponentView, ComponentViewBuilder} from '../ComponentView';
 import {PartItemType} from './PartItemType';
 import {ContentView, ContentViewBuilder} from '../ContentView';

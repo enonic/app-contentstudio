@@ -1,5 +1,5 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {PEl} from 'lib-admin-ui/dom/PEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {PageEditorData} from '../../../../wizard/page/LiveFormPanel';
 import {WidgetItemView} from '../../WidgetItemView';
 

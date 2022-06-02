@@ -1,6 +1,6 @@
 import {Project} from '../settings/data/project/Project';
-import {IconUrlResolver} from 'lib-admin-ui/icon/IconUrlResolver';
-import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {IconUrlResolver} from '@enonic/lib-admin-ui/icon/IconUrlResolver';
+import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {UrlHelper} from '../util/UrlHelper';
 
 export class ProjectIconUrlResolver

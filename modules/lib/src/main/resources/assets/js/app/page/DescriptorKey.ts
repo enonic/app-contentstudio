@@ -1,6 +1,6 @@
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {DescriptorName} from './DescriptorName';
 
 export class DescriptorKey

@@ -1,4 +1,4 @@
-import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
 import {GetIssuesRequest} from '../resource/GetIssuesRequest';
 import {Issue} from '../Issue';
 import {IssueServerEvent} from '../../event/IssueServerEvent';

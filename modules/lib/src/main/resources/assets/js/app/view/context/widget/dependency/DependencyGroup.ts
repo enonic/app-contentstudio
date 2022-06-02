@@ -1,7 +1,7 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ContentDependencyGroupJson} from '../../../../resource/json/ContentDependencyGroupJson';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 
 export enum DependencyType {
     INBOUND,

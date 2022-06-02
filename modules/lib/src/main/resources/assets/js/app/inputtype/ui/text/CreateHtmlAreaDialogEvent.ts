@@ -1,6 +1,6 @@
-import {Event} from 'lib-admin-ui/event/Event';
-import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentPath} from '../../../content/ContentPath';
 

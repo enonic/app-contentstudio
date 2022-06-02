@@ -1,6 +1,6 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {NamedPanel} from './NamedPanel';
-import {NamesView} from 'lib-admin-ui/app/NamesView';
+import {NamesView} from '@enonic/lib-admin-ui/app/NamesView';
 
 export class NoSelectionInspectionPanel
     extends NamedPanel {

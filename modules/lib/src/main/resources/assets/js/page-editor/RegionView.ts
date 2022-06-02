@@ -1,7 +1,7 @@
-import {Element} from 'lib-admin-ui/dom/Element';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ClickPosition} from './ClickPosition';
 import {ItemView, ItemViewBuilder} from './ItemView';
 import {RegionItemType} from './RegionItemType';
@@ -29,8 +29,8 @@ import {RegionPath} from '../app/page/region/RegionPath';
 import {ComponentPath} from '../app/page/region/ComponentPath';
 import {ComponentAddedEvent} from '../app/page/region/ComponentAddedEvent';
 import {ComponentRemovedEvent} from '../app/page/region/ComponentRemovedEvent';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {assert} from 'lib-admin-ui/util/Assert';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {assert} from '@enonic/lib-admin-ui/util/Assert';
 
 export class RegionViewBuilder {
 

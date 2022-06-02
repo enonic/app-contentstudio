@@ -1,6 +1,6 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {DuplicateContentAction} from './DuplicateContentAction';
 import {ArchiveContentAction} from './ArchiveContentAction';
@@ -27,15 +27,15 @@ import {MarkAsReadyAction} from './MarkAsReadyAction';
 import {RequestPublishAction} from './RequestPublishAction';
 import {OpenRequestAction} from './OpenRequestAction';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {CloseAction} from 'lib-admin-ui/app/wizard/CloseAction';
-import {ManagedActionManager} from 'lib-admin-ui/managedaction/ManagedActionManager';
-import {ManagedActionExecutor} from 'lib-admin-ui/managedaction/ManagedActionExecutor';
-import {ManagedActionState} from 'lib-admin-ui/managedaction/ManagedActionState';
-import {ActionsStateManager} from 'lib-admin-ui/ui/ActionsStateManager';
-import {WizardActions} from 'lib-admin-ui/app/wizard/WizardActions';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
+import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
+import {ManagedActionExecutor} from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
+import {ManagedActionState} from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
+import {ActionsStateManager} from '@enonic/lib-admin-ui/ui/ActionsStateManager';
+import {WizardActions} from '@enonic/lib-admin-ui/app/wizard/WizardActions';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {ResetContentAction} from './ResetContentAction';
 
 type ActionNames =

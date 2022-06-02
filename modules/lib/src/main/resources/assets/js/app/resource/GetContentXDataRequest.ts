@@ -1,4 +1,4 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {XDataListJson} from './json/XDataListJson';
 import {XData} from '../content/XData';
 import {XDataJson} from './json/XDataJson';

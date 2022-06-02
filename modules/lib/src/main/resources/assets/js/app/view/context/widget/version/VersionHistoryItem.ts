@@ -1,7 +1,7 @@
 import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersionPublishInfo} from '../../../../ContentVersionPublishInfo';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class VersionHistoryItem {
 

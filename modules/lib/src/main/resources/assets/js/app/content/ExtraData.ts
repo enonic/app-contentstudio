@@ -1,7 +1,7 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Cloneable} from 'lib-admin-ui/Cloneable';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {XDataName} from './XDataName';
 import {ExtraDataJson} from '../resource/json/ExtraDataJson';
 

@@ -1,9 +1,9 @@
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
-import {DateHelper} from 'lib-admin-ui/util/DateHelper';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
+import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {VersionHistoryItem} from './VersionHistoryItem';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {Element} from 'lib-admin-ui/dom/Element';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class VersionHistoryListItemViewer
     extends NamesAndIconViewer<VersionHistoryItem> {

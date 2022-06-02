@@ -1,5 +1,5 @@
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
-import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
 
 export class ItemViewContextMenuTitle
     extends NamesAndIconView {

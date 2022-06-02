@@ -1,6 +1,6 @@
-import {Path} from 'lib-admin-ui/rest/Path';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {UrlHelper} from '../util/UrlHelper';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
 import {Project} from '../settings/data/project/Project';
 
 export abstract class ProjectBasedResourceRequest<PARSED_TYPE>

@@ -1,15 +1,15 @@
 import * as Q from 'q';
 import {ContentSummaryAndCompareStatusViewer} from './ContentSummaryAndCompareStatusViewer';
 import {ContentSummaryAndCompareStatus} from './ContentSummaryAndCompareStatus';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {Request} from 'lib-admin-ui/rest/Request';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
-import {Path} from 'lib-admin-ui/rest/Path';
-import {Response} from 'lib-admin-ui/rest/Response';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
-import {Element, NewElementBuilder} from 'lib-admin-ui/dom/Element';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {Request} from '@enonic/lib-admin-ui/rest/Request';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
+import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
+import {Response} from '@enonic/lib-admin-ui/rest/Response';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
+import {Element, NewElementBuilder} from '@enonic/lib-admin-ui/dom/Element';
 
 export class ContentSummaryListViewer
     extends ContentSummaryAndCompareStatusViewer {

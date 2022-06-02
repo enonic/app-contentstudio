@@ -1,8 +1,8 @@
-import {Body} from 'lib-admin-ui/dom/Body';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {ElementEvent} from 'lib-admin-ui/dom/ElementEvent';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {ElementEvent} from '@enonic/lib-admin-ui/dom/ElementEvent';
 import {SettingsAppContainer} from 'lib-contentstudio/app/settings/SettingsAppContainer';
-import {CONFIG} from 'lib-admin-ui/util/Config';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 const waitForWidgetElemAttached = (elemId: string): void => {
     const body: Body = Body.get();

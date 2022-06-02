@@ -1,7 +1,7 @@
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {NamesView} from 'lib-admin-ui/app/NamesView';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {NamesView} from '@enonic/lib-admin-ui/app/NamesView';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 
 export class ExtendedViewer<OBJECT> extends NamesAndIconViewer<OBJECT> {
 

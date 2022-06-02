@@ -1,9 +1,9 @@
-import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
-import {AggregationGroupView} from 'lib-admin-ui/aggregation/AggregationGroupView';
-import {AggregationView} from 'lib-admin-ui/aggregation/AggregationView';
-import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
-import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
-import {SelectionChange} from 'lib-admin-ui/util/SelectionChange';
+import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
+import {AggregationGroupView} from '@enonic/lib-admin-ui/aggregation/AggregationGroupView';
+import {AggregationView} from '@enonic/lib-admin-ui/aggregation/AggregationView';
+import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
+import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
 import {FilterableBucketAggregationView} from './FilterableBucketAggregationView';
 
 export class FilterableAggregationGroupView

@@ -1,10 +1,10 @@
 import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {MarkAsReadyRequest} from '../../resource/MarkAsReadyRequest';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
+import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 

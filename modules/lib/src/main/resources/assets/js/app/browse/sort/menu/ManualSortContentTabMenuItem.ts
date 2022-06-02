@@ -1,6 +1,6 @@
 import {SortContentTabMenuItem, SortContentTabMenuItemBuilder} from './SortContentTabMenuItem';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {QueryField} from 'lib-admin-ui/query/QueryField';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
 import * as Q from 'q';
 import {ChildOrder} from '../../../resource/order/ChildOrder';
 

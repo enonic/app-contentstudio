@@ -1,6 +1,6 @@
-import {ItemJson} from 'lib-admin-ui/item/ItemJson';
-import {ThumbnailJson} from 'lib-admin-ui/thumb/ThumbnailJson';
-import {WorkflowJson} from 'lib-admin-ui/content/json/WorkflowJson';
+import {ItemJson} from '@enonic/lib-admin-ui/item/ItemJson';
+import {ThumbnailJson} from '@enonic/lib-admin-ui/thumb/ThumbnailJson';
+import {WorkflowJson} from '@enonic/lib-admin-ui/content/json/WorkflowJson';
 import {ChildOrderJson} from '../resource/json/ChildOrderJson';
 import {ContentPublishTimeRangeJson} from '../resource/json/ContentPublishTimeRangeJson';
 

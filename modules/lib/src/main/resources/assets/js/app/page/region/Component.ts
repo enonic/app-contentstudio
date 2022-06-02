@@ -1,7 +1,7 @@
-import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Cloneable} from 'lib-admin-ui/Cloneable';
-import {Equitable} from 'lib-admin-ui/Equitable';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {ComponentName} from './ComponentName';
 import {Region} from './Region';
 import {ComponentChangedEvent} from './ComponentChangedEvent';
@@ -13,7 +13,7 @@ import {ComponentPath, ComponentPathRegionAndComponent} from './ComponentPath';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {ComponentJson} from './ComponentJson';
 import {RegionPath} from './RegionPath';
-import {assert, assertNotNull} from 'lib-admin-ui/util/Assert';
+import {assert, assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 
 export abstract class Component
     implements Equitable, Cloneable {

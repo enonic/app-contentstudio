@@ -1,8 +1,8 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {PropertyEvent} from 'lib-admin-ui/data/PropertyEvent';
-import {PropertyTreeHelper} from 'lib-admin-ui/util/PropertyTreeHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
+import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
 import {Component, ComponentBuilder} from './Component';
 import {ConfigBasedComponentJson} from './ConfigBasedComponentJson';
 

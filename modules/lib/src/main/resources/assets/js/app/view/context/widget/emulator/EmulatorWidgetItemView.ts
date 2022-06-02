@@ -4,7 +4,7 @@ import {LiveEditPageProxy} from '../../../../wizard/page/LiveEditPageProxy';
 import {EmulatorGrid} from './EmulatorGrid';
 import {EmulatorDevice} from './EmulatorDevice';
 import {EmulatedEvent} from '../../../../event/EmulatedEvent';
-import {DataView} from 'lib-admin-ui/ui/grid/DataView';
+import {DataView} from '@enonic/lib-admin-ui/ui/grid/DataView';
 
 export interface EmulatorWidgetItemViewConfig {
     liveEditPage?: LiveEditPageProxy;

@@ -1,6 +1,6 @@
-import {Event} from 'lib-admin-ui/event/Event';
-import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {Content} from '../content/Content';
 
 export class NewMediaUploadEvent

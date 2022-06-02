@@ -1,11 +1,11 @@
 import * as Q from 'q';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {ImageContentLoader} from './ImageContentLoader';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../../../item/ContentTreeSelectorItem';
-import {OptionDataLoaderData} from 'lib-admin-ui/ui/selector/OptionDataLoader';
+import {OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
 import {ContentAndStatusTreeSelectorItem} from '../../../../item/ContentAndStatusTreeSelectorItem';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';

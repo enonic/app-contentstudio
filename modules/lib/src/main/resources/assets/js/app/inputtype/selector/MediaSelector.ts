@@ -1,14 +1,14 @@
 import * as Q from 'q';
-import {Input} from 'lib-admin-ui/form/Input';
-import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
-import {Class} from 'lib-admin-ui/Class';
-import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {ComboBox} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
-import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
-import {UploadFailedEvent} from 'lib-admin-ui/ui/uploader/UploadFailedEvent';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import {Class} from '@enonic/lib-admin-ui/Class';
+import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {ComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
+import {UploadFailedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadFailedEvent';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ContentSelector} from './ContentSelector';
 import {MediaTreeSelectorItem} from '../ui/selector/media/MediaTreeSelectorItem';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
@@ -16,7 +16,7 @@ import {MediaUploaderEl, MediaUploaderElConfig, MediaUploaderElOperation} from '
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {GetMimeTypesByContentTypeNamesRequest} from '../../resource/GetMimeTypesByContentTypeNamesRequest';
 import {Content} from '../../content/Content';
-import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
+import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
 import {ContentSummary} from '../../content/ContentSummary';
 
 export class MediaSelector

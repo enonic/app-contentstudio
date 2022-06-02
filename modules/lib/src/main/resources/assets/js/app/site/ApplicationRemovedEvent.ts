@@ -1,4 +1,4 @@
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export class ApplicationRemovedEvent {
 

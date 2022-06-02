@@ -1,13 +1,13 @@
 /*global CKEDITOR*/
 
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
-import {Body} from 'lib-admin-ui/dom/Body';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {HtmlEditorParams} from './HtmlEditorParams';
 import {Styles} from './styles/Styles';
 import {StyleHelper} from './styles/StyleHelper';
@@ -16,8 +16,8 @@ import {CreateHtmlAreaDialogEvent, HtmlAreaDialogType} from './CreateHtmlAreaDia
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {ContentsExistByPathRequest} from '../../../resource/ContentsExistByPathRequest';
 import {ContentsExistByPathResult} from '../../../resource/ContentsExistByPathResult';
-import {NotificationMessage} from 'lib-admin-ui/notify/NotificationMessage';
-import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
+import {NotificationMessage} from '@enonic/lib-admin-ui/notify/NotificationMessage';
+import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {ContentPath} from '../../../content/ContentPath';
 import eventInfo = CKEDITOR.eventInfo;

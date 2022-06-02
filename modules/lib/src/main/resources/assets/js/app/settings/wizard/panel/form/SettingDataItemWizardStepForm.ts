@@ -1,11 +1,11 @@
-import {WizardStepForm} from 'lib-admin-ui/app/wizard/WizardStepForm';
-import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
-import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
-import {Form} from 'lib-admin-ui/ui/form/Form';
-import {FormView} from 'lib-admin-ui/form/FormView';
+import {WizardStepForm} from '@enonic/lib-admin-ui/app/wizard/WizardStepForm';
+import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
+import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import * as Q from 'q';
 import {SettingsDataViewItem} from '../../../view/SettingsDataViewItem';
-import {ValidationRecording} from 'lib-admin-ui/form/ValidationRecording';
+import {ValidationRecording} from '@enonic/lib-admin-ui/form/ValidationRecording';
 import {SettingsType} from '../../../dialog/SettingsType';
 
 export abstract class SettingDataItemWizardStepForm<ITEM extends SettingsDataViewItem<any>>

@@ -1,9 +1,9 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {PostLoader} from 'lib-admin-ui/util/loader/PostLoader';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {PostLoader} from '@enonic/lib-admin-ui/util/loader/PostLoader';
 import {CustomSelectorRequest} from './CustomSelectorRequest';
 import {CustomSelectorItem} from './CustomSelectorItem';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export class CustomSelectorLoader
     extends PostLoader<CustomSelectorItem> {

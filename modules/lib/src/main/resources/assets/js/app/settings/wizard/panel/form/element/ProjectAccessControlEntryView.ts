@@ -1,7 +1,7 @@
 import {ProjectAccessControlEntry} from '../../../../access/ProjectAccessControlEntry';
-import {Principal} from 'lib-admin-ui/security/Principal';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {ProjectAccessSelector} from './ProjectAccessSelector';
-import {PrincipalContainerSelectedEntryView} from 'lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
+import {PrincipalContainerSelectedEntryView} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
 import {ProjectAccessValueChangedEvent} from '../../../../event/ProjectAccessValueChangedEvent';
 
 export class ProjectAccessControlEntryView

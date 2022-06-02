@@ -1,5 +1,5 @@
-import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
-import {Comparator} from 'lib-admin-ui/Comparator';
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {Comparator} from '@enonic/lib-admin-ui/Comparator';
 
 export class ContentTypeComparator
     implements Comparator<ContentTypeSummary> {

@@ -1,6 +1,6 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Cloneable} from 'lib-admin-ui/Cloneable';
-import {Equitable} from 'lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {Component} from './Component';
 import {BaseRegionChangedEvent} from './BaseRegionChangedEvent';
 import {ComponentRemovedEvent} from './ComponentRemovedEvent';
@@ -12,8 +12,8 @@ import {ComponentPath} from './ComponentPath';
 import {RegionJson} from './RegionJson';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {LayoutComponentType} from './LayoutComponentType';
-import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
-import {assertState} from 'lib-admin-ui/util/Assert';
+import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
+import {assertState} from '@enonic/lib-admin-ui/util/Assert';
 
 export class Region
     implements Equitable, Cloneable {

@@ -1,18 +1,18 @@
-import {Event} from 'lib-admin-ui/event/Event';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
 import {BatchContentServerEvent} from './BatchContentServerEvent';
 import {ServerEventAggregator} from './ServerEventAggregator';
-import {ServerEventsListener} from 'lib-admin-ui/event/ServerEventsListener';
-import {Application} from 'lib-admin-ui/app/Application';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ServerEventsListener} from '@enonic/lib-admin-ui/event/ServerEventsListener';
+import {Application} from '@enonic/lib-admin-ui/app/Application';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentServerEventsTranslator} from './ContentServerEventsTranslator';
 import {ContentServerEvent} from './ContentServerEvent';
 import {ContentServerChangeItem} from './ContentServerChangeItem';
 import {RepositoryId} from '../repository/RepositoryId';
 import {IssueServerEvent} from './IssueServerEvent';
-import {NodeServerEvent} from 'lib-admin-ui/event/NodeServerEvent';
+import {NodeServerEvent} from '@enonic/lib-admin-ui/event/NodeServerEvent';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
-import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
 import {CollaborationServerEvent} from './CollaborationServerEvent';
 
 export class AggregatedServerEventsListener

@@ -1,4 +1,4 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {PageCUDRequest} from './PageCUDRequest';
 import {PageResourceRequest} from './PageResourceRequest';
 import {Content} from '../content/Content';
@@ -6,8 +6,8 @@ import {ContentJson} from '../content/ContentJson';
 import {PageTemplateKey} from '../page/PageTemplateKey';
 import {Regions} from '../page/region/Regions';
 import {Component} from '../page/region/Component';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {DescriptorKey} from '../page/DescriptorKey';
 import {ContentId} from '../content/ContentId';
 

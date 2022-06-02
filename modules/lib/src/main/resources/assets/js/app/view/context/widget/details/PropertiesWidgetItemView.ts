@@ -1,16 +1,16 @@
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {WidgetItemView} from '../../WidgetItemView';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {DateTimeFormatter} from 'lib-admin-ui/ui/treegrid/DateTimeFormatter';
-import {Application} from 'lib-admin-ui/application/Application';
-import {DlEl} from 'lib-admin-ui/dom/DlEl';
-import {DdDtEl} from 'lib-admin-ui/dom/DdDtEl';
+import {DateTimeFormatter} from '@enonic/lib-admin-ui/ui/treegrid/DateTimeFormatter';
+import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {DlEl} from '@enonic/lib-admin-ui/dom/DlEl';
+import {DdDtEl} from '@enonic/lib-admin-ui/dom/DdDtEl';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {GetApplicationRequest} from '../../../../resource/GetApplicationRequest';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export class PropertiesWidgetItemView
     extends WidgetItemView {

@@ -1,15 +1,15 @@
-import {ComboBox} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
-import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {DefaultOptionDisplayValueViewer} from 'lib-admin-ui/ui/selector/DefaultOptionDisplayValueViewer';
-import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
-import {OptionFilterInputValueChangedEvent} from 'lib-admin-ui/ui/selector/OptionFilterInputValueChangedEvent';
-import {Body} from 'lib-admin-ui/dom/Body';
+import {ComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
+import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {DefaultOptionDisplayValueViewer} from '@enonic/lib-admin-ui/ui/selector/DefaultOptionDisplayValueViewer';
+import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {OptionFilterInputValueChangedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionFilterInputValueChangedEvent';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 
 export class RowSelector
     extends DivEl {

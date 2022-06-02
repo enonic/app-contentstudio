@@ -1,14 +1,14 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {ShowIssuesDialogAction} from '../../browse/action/ShowIssuesDialogAction';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {IssueResponse} from '../resource/IssueResponse';
 import {ListIssuesRequest} from '../resource/ListIssuesRequest';
 import {IssueStatus} from '../IssueStatus';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ProjectContext} from '../../project/ProjectContext';
 
 export class ShowIssuesDialogButton extends ActionButton {

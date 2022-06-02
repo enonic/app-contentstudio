@@ -1,4 +1,4 @@
-import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {Styles} from '../../styles/Styles';
 import {Style, StyleType} from '../../styles/Style';
 

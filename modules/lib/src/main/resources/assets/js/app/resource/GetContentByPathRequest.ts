@@ -1,4 +1,4 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {ContentPath} from '../content/ContentPath';

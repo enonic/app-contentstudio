@@ -1,27 +1,27 @@
 import * as Q from 'q';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {Input} from 'lib-admin-ui/form/Input';
-import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
-import {Class} from 'lib-admin-ui/Class';
-import {Property} from 'lib-admin-ui/data/Property';
-import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
-import {Value} from 'lib-admin-ui/data/Value';
-import {ValueType} from 'lib-admin-ui/data/ValueType';
-import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
-import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
-import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import {Class} from '@enonic/lib-admin-ui/Class';
+import {Property} from '@enonic/lib-admin-ui/data/Property';
+import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
+import {Value} from '@enonic/lib-admin-ui/data/Value';
+import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
+import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
 import {ContentComboBox, ContentSelectedOptionsView, ContentComboBoxBuilder} from '../ui/selector/ContentComboBox';
 import {ContentInputTypeManagingAdd} from '../ui/selector/ContentInputTypeManagingAdd';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {ContentSummaryOptionDataLoader, ContentSummaryOptionDataLoaderBuilder} from '../ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {GetContentSummaryByIds} from '../../resource/GetContentSummaryByIds';
-import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
-import {Reference} from 'lib-admin-ui/util/Reference';
-import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
+import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
+import {Reference} from '@enonic/lib-admin-ui/util/Reference';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentId} from '../../content/ContentId';
 import {ContentPath} from '../../content/ContentPath';
@@ -221,7 +221,7 @@ export class ContentSelector
                 this.updateSelectedOptionStyle();
                 this.validate(false);
                 this.contentComboBox.getComboBox().setIgnoreNextFocus(true);
-            }            
+            }
 
         });
 

@@ -1,6 +1,6 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 
 export class MarkAsReadyAction

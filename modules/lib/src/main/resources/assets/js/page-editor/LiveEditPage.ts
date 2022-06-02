@@ -1,6 +1,6 @@
-import {i18nInit} from 'lib-admin-ui/util/MessagesInitializer';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Body} from 'lib-admin-ui/dom/Body';
+import {i18nInit} from '@enonic/lib-admin-ui/util/MessagesInitializer';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {PageView, PageViewBuilder} from './PageView';
 import {InitializeLiveEditEvent} from './InitializeLiveEditEvent';
 import {SkipLiveEditReloadConfirmationEvent} from './SkipLiveEditReloadConfirmationEvent';
@@ -19,11 +19,11 @@ import {Cursor} from './Cursor';
 import {ComponentViewDragStartedEvent} from './ComponentViewDragStartedEvent';
 import {ComponentViewDragStoppedEvent} from './ComponentViewDraggingStoppedEvent';
 import {DefaultItemViewFactory} from './ItemViewFactory';
-import {Exception} from 'lib-admin-ui/Exception';
-import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
-import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
+import {Exception} from '@enonic/lib-admin-ui/Exception';
+import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
+import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 import {ProjectContext} from '../app/project/ProjectContext';
-import {CONFIG} from 'lib-admin-ui/util/Config';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class LiveEditPage {
 

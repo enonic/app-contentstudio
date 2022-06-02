@@ -1,6 +1,6 @@
 import {ItemViewIconClassResolver} from '../ItemViewIconClassResolver';
 import {FragmentComponent} from '../../app/page/region/FragmentComponent';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 
 export class FragmentComponentViewer
     extends NamesAndIconViewer<FragmentComponent> {

@@ -1,8 +1,8 @@
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {FragmentDropdown} from './FragmentDropdown';
-import {Form} from 'lib-admin-ui/ui/form/Form';
-import {Fieldset} from 'lib-admin-ui/ui/form/Fieldset';
-import {FormItemBuilder} from 'lib-admin-ui/ui/form/FormItem';
+import {Form} from '@enonic/lib-admin-ui/ui/form/Form';
+import {Fieldset} from '@enonic/lib-admin-ui/ui/form/Fieldset';
+import {FormItemBuilder} from '@enonic/lib-admin-ui/ui/form/FormItem';
 
 export class FragmentSelectorForm
     extends Form {

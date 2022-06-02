@@ -1,7 +1,7 @@
 import * as Q from 'q';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ListContentResult} from './ListContentResult';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';

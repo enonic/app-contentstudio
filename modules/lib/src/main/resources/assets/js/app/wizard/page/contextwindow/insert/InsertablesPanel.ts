@@ -1,8 +1,8 @@
 import * as $ from 'jquery';
 import 'jquery-simulate/jquery.simulate.js';
 import 'jquery-ui/ui/widgets/draggable';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {PEl} from 'lib-admin-ui/dom/PEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {ContentWizardPanel} from '../../../ContentWizardPanel';
 import {LiveEditPageProxy} from '../../LiveEditPageProxy';
 import {Insertable} from './Insertable';
@@ -14,9 +14,9 @@ import {PageView} from '../../../../../page-editor/PageView';
 import {LiveEditPageViewReadyEvent} from '../../../../../page-editor/LiveEditPageViewReadyEvent';
 import {Content} from '../../../../content/Content';
 import {PageMode} from '../../../../page/PageMode';
-import {DragHelper} from 'lib-admin-ui/ui/DragHelper';
-import {Panel} from 'lib-admin-ui/ui/panel/Panel';
-import {DataView} from 'lib-admin-ui/ui/grid/DataView';
+import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {DataView} from '@enonic/lib-admin-ui/ui/grid/DataView';
 
 export interface ComponentTypesPanelConfig {
 

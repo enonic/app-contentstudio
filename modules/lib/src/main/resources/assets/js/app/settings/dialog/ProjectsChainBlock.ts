@@ -1,8 +1,8 @@
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {Project} from '../data/project/Project';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {H6El} from 'lib-admin-ui/dom/H6El';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {ProjectHelper} from '../data/project/ProjectHelper';
 
 export class ProjectsChainBlock extends H6El {

@@ -1,4 +1,4 @@
-import {Filter} from 'lib-admin-ui/query/filter/Filter';
+import {Filter} from '@enonic/lib-admin-ui/query/filter/Filter';
 import {ExistsFilterWrapperJson} from './ExistsFilterWrapperJson';
 
 export class ExistsFilter

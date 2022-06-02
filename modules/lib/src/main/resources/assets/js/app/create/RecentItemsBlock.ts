@@ -1,8 +1,8 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {RecentItemsList} from './RecentItemsList';
-import {H2El} from 'lib-admin-ui/dom/H2El';
+import {H2El} from '@enonic/lib-admin-ui/dom/H2El';
 
 export class RecentItemsBlock
     extends DivEl {

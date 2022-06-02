@@ -1,20 +1,20 @@
 import * as Q from 'q';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {FormView} from 'lib-admin-ui/form/FormView';
-import {Application} from 'lib-admin-ui/application/Application';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {ApplicationConfig} from 'lib-admin-ui/application/ApplicationConfig';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {HtmlAreaResizeEvent} from '../text/HtmlAreaResizeEvent';
 import {SiteConfiguratorDialog} from '../ui/siteconfigurator/SiteConfiguratorDialog';
 import {ContentFormContext} from '../../ContentFormContext';
 import {ContentRequiresSaveEvent} from '../../event/ContentRequiresSaveEvent';
-import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
-import {FormValidityChangedEvent} from 'lib-admin-ui/form/FormValidityChangedEvent';
-import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
-import {FormState} from 'lib-admin-ui/app/wizard/WizardPanel';
+import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
+import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
+import {FormState} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {GetApplicationRequest} from '../../resource/GetApplicationRequest';
 
 export class SiteConfiguratorSelectedOptionView

@@ -1,7 +1,7 @@
-import {Locale} from 'lib-admin-ui/locale/Locale';
-import {Viewer} from 'lib-admin-ui/ui/Viewer';
-import {NamesView} from 'lib-admin-ui/app/NamesView';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {NamesView} from '@enonic/lib-admin-ui/app/NamesView';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 
 export class LocaleViewer
     extends Viewer<Locale> {

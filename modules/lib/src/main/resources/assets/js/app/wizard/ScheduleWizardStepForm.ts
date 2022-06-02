@@ -1,18 +1,18 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {FormView} from 'lib-admin-ui/form/FormView';
-import {PropertySet} from 'lib-admin-ui/data/PropertySet';
-import {WizardStepValidityChangedEvent} from 'lib-admin-ui/app/wizard/WizardStepValidityChangedEvent';
-import {DateTimeRange} from 'lib-admin-ui/form/inputtype/time/DateTimeRange';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {WizardStepValidityChangedEvent} from '@enonic/lib-admin-ui/app/wizard/WizardStepValidityChangedEvent';
+import {DateTimeRange} from '@enonic/lib-admin-ui/form/inputtype/time/DateTimeRange';
 import {Content, ContentBuilder} from '../content/Content';
 import {PublishStatus} from '../publish/PublishStatus';
-import {WizardStepForm} from 'lib-admin-ui/app/wizard/WizardStepForm';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {InputBuilder} from 'lib-admin-ui/form/Input';
-import {OccurrencesBuilder} from 'lib-admin-ui/form/Occurrences';
-import {FormBuilder} from 'lib-admin-ui/form/Form';
-import {FormContext} from 'lib-admin-ui/form/FormContext';
-import {FormValidityChangedEvent} from 'lib-admin-ui/form/FormValidityChangedEvent';
-import {LocalDateTime} from 'lib-admin-ui/util/LocalDateTime';
+import {WizardStepForm} from '@enonic/lib-admin-ui/app/wizard/WizardStepForm';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {InputBuilder} from '@enonic/lib-admin-ui/form/Input';
+import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
+import {FormBuilder} from '@enonic/lib-admin-ui/form/Form';
+import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
+import {FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
+import {LocalDateTime} from '@enonic/lib-admin-ui/util/LocalDateTime';
 
 export class ScheduleWizardStepForm
     extends WizardStepForm {

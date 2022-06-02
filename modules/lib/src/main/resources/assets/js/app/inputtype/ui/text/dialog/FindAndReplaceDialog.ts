@@ -1,8 +1,8 @@
-import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {Checkbox, InputAlignment} from 'lib-admin-ui/ui/Checkbox';
+import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {Checkbox, InputAlignment} from '@enonic/lib-admin-ui/ui/Checkbox';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
 import eventInfo = CKEDITOR.eventInfo;

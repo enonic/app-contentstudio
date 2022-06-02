@@ -1,6 +1,6 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {SaveAsTemplateAction} from '../../../../action/SaveAsTemplateAction';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
@@ -9,12 +9,12 @@ import {PageMode} from '../../../../../page/PageMode';
 import {PageTemplateAndControllerSelector} from './PageTemplateAndControllerSelector';
 import {PageTemplateAndControllerForm} from './PageTemplateAndControllerForm';
 import {ContentFormContext} from '../../../../../ContentFormContext';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {FormContextBuilder} from 'lib-admin-ui/form/FormContext';
-import {FormView} from 'lib-admin-ui/form/FormView';
-import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
-import {PropertySet} from 'lib-admin-ui/data/PropertySet';
-import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {FormContextBuilder} from '@enonic/lib-admin-ui/form/FormContext';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
+import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {Descriptor} from '../../../../../page/Descriptor';
 
 export class PageInspectionPanel

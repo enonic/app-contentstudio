@@ -1,5 +1,5 @@
-import {BrowseItemPanel} from 'lib-admin-ui/app/browse/BrowseItemPanel';
-import {ItemStatisticsPanel} from 'lib-admin-ui/app/view/ItemStatisticsPanel';
+import {BrowseItemPanel} from '@enonic/lib-admin-ui/app/browse/BrowseItemPanel';
+import {ItemStatisticsPanel} from '@enonic/lib-admin-ui/app/view/ItemStatisticsPanel';
 import {SettingsItemStatisticsPanel} from './statistics/SettingsItemStatisticsPanel';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 

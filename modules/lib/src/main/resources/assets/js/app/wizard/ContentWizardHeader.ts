@@ -1,16 +1,16 @@
-import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
+import {WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {RenameContentDialog} from './RenameContentDialog';
 import {Content} from '../content/Content';
-import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
+import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
 import {ContentPath} from '../content/ContentPath';
 import * as Q from 'q';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 export class ContentWizardHeader
     extends WizardHeaderWithDisplayNameAndName {

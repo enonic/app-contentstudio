@@ -1,8 +1,8 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {ApplicationBasedName} from 'lib-admin-ui/application/ApplicationBasedName';
-import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {ApplicationBasedName} from '@enonic/lib-admin-ui/application/ApplicationBasedName';
+import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 
 export class XDataName
     extends ApplicationBasedName {

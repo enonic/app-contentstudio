@@ -1,13 +1,13 @@
-import {PropertySet} from 'lib-admin-ui/data/PropertySet';
-import {FormItem} from 'lib-admin-ui/form/FormItem';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ModalDialog, ModalDialogConfig} from 'lib-admin-ui/ui/dialog/ModalDialog';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {FormView} from 'lib-admin-ui/form/FormView';
-import {FormBuilder} from 'lib-admin-ui/form/Form';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {FormContext} from 'lib-admin-ui/form/FormContext';
-import {FormValidityChangedEvent} from 'lib-admin-ui/form/FormValidityChangedEvent';
+import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ModalDialog, ModalDialogConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {FormBuilder} from '@enonic/lib-admin-ui/form/Form';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {FormContext} from '@enonic/lib-admin-ui/form/FormContext';
+import {FormValidityChangedEvent} from '@enonic/lib-admin-ui/form/FormValidityChangedEvent';
 
 export abstract class SchedulableDialog
     extends ModalDialog {

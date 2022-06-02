@@ -1,5 +1,5 @@
 import {SettingsType} from './SettingsType';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ProjectIconUrlResolver} from '../../project/ProjectIconUrlResolver';
 
 export class SettingsTypes {

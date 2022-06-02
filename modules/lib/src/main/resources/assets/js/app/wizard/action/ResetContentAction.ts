@@ -1,10 +1,10 @@
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {RestoreInheritRequest} from '../../resource/RestoreInheritRequest';
 import {ContentWizardPanel} from '../ContentWizardPanel';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ConfirmationDialog} from 'lib-admin-ui/ui/dialog/ConfirmationDialog';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
 import {ContentInheritType} from '../../content/ContentInheritType';
 
 export class ResetContentAction

@@ -1,8 +1,8 @@
 import {UriHelper} from '../rendering/UriHelper';
 import {RenderingMode} from '../rendering/RenderingMode';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentSummary} from '../content/ContentSummary';
 
 interface OpenedWindow {

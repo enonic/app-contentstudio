@@ -1,8 +1,8 @@
 import * as Q from 'q';
-import {CloseAction} from 'lib-admin-ui/app/wizard/CloseAction';
-import {SaveAction} from 'lib-admin-ui/app/wizard/SaveAction';
-import {WizardPanel} from 'lib-admin-ui/app/wizard/WizardPanel';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {CloseAction} from '@enonic/lib-admin-ui/app/wizard/CloseAction';
+import {SaveAction} from '@enonic/lib-admin-ui/app/wizard/SaveAction';
+import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export class SaveAndCloseAction
     extends Action {

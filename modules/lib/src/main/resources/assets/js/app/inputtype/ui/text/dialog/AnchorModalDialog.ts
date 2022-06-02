@@ -1,11 +1,11 @@
-import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
-import {Validators} from 'lib-admin-ui/ui/form/Validators';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {TextInput} from 'lib-admin-ui/ui/text/TextInput';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {Validators} from '@enonic/lib-admin-ui/ui/form/Validators';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {TextInput} from '@enonic/lib-admin-ui/ui/text/TextInput';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
-import {FormInputEl} from 'lib-admin-ui/dom/FormInputEl';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
 import eventInfo = CKEDITOR.eventInfo;
 
 // With this dialog we hide original cke dialog and replicate all actions from our dialog to original one

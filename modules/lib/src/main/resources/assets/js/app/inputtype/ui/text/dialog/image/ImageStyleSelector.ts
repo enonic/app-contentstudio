@@ -1,7 +1,7 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {Dropdown, DropdownConfig} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
-import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {Dropdown, DropdownConfig} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
+import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
 import {ImageStyleOption, ImageStyleOptions} from './ImageStyleOptions';
 import {ImageStyleOptionViewer} from './ImageStyleOptionViewer';
 

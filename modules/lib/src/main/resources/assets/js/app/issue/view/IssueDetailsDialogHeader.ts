@@ -1,7 +1,7 @@
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {ModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {InPlaceTextInput} from './InPlaceTextInput';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 
 class IssueDetailsInPlaceTextInput
     extends InPlaceTextInput {
