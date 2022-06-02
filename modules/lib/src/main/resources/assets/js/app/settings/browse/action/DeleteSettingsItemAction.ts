@@ -1,14 +1,14 @@
-import {Action} from 'lib-admin-ui/ui/Action';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {SettingsItemsTreeGrid} from '../../grid/SettingsItemsTreeGrid';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectDeleteRequest} from '../../resource/ProjectDeleteRequest';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
-import {TextInputSize} from 'lib-admin-ui/ui/text/TextInput';
+import {TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
 
 export class DeleteSettingsItemAction
     extends Action {

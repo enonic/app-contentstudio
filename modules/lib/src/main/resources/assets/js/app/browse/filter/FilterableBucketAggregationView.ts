@@ -1,12 +1,12 @@
-import {SelectionChange} from 'lib-admin-ui/util/SelectionChange';
-import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
-import {BucketAggregationView} from 'lib-admin-ui/aggregation/BucketAggregationView';
-import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
-import {BucketView} from 'lib-admin-ui/aggregation/BucketView';
-import {SelectableListBoxDropdown} from 'lib-admin-ui/ui/selector/list/SelectableListBoxDropdown';
-import {BucketListBox} from 'lib-admin-ui/aggregation/BucketListBox';
-import {BucketViewSelectionChangedEvent} from 'lib-admin-ui/aggregation/BucketViewSelectionChangedEvent';
-import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
+import {SelectionChange} from '@enonic/lib-admin-ui/util/SelectionChange';
+import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {BucketAggregationView} from '@enonic/lib-admin-ui/aggregation/BucketAggregationView';
+import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
+import {BucketView} from '@enonic/lib-admin-ui/aggregation/BucketView';
+import {SelectableListBoxDropdown} from '@enonic/lib-admin-ui/ui/selector/list/SelectableListBoxDropdown';
+import {BucketListBox} from '@enonic/lib-admin-ui/aggregation/BucketListBox';
+import {BucketViewSelectionChangedEvent} from '@enonic/lib-admin-ui/aggregation/BucketViewSelectionChangedEvent';
+import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
 
 export class FilterableBucketAggregationView
     extends BucketAggregationView {

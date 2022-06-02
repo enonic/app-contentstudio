@@ -1,7 +1,7 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {GetPublishStatusesResult} from './GetPublishStatusesResult';
 import {GetPublishStatusesResultJson} from './json/GetPublishStatusesResultJson';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class GetPublishStatusesRequest

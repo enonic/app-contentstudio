@@ -1,5 +1,5 @@
-import {TabItemBuilder} from 'lib-admin-ui/ui/tab/TabItem';
-import {TabBarItem} from 'lib-admin-ui/ui/tab/TabBarItem';
+import {TabItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabItem';
+import {TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
 
 export class ContentTabBarItem
     extends TabBarItem {

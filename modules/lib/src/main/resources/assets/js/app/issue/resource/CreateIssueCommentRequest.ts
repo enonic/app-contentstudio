@@ -1,8 +1,8 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {IssueCommentJson} from '../json/IssueCommentJson';
 import {IssueComment} from '../IssueComment';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
 
 export class CreateIssueCommentRequest

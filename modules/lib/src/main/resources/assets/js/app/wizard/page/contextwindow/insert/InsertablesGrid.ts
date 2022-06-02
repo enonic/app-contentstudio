@@ -1,10 +1,10 @@
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {Grid} from 'lib-admin-ui/ui/grid/Grid';
-import {GridOptions, GridOptionsBuilder} from 'lib-admin-ui/ui/grid/GridOptions';
-import {GridColumn, GridColumnBuilder} from 'lib-admin-ui/ui/grid/GridColumn';
-import {H5El} from 'lib-admin-ui/dom/H5El';
-import {H6El} from 'lib-admin-ui/dom/H6El';
-import {DataView} from 'lib-admin-ui/ui/grid/DataView';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Grid} from '@enonic/lib-admin-ui/ui/grid/Grid';
+import {GridOptions, GridOptionsBuilder} from '@enonic/lib-admin-ui/ui/grid/GridOptions';
+import {GridColumn, GridColumnBuilder} from '@enonic/lib-admin-ui/ui/grid/GridColumn';
+import {H5El} from '@enonic/lib-admin-ui/dom/H5El';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {DataView} from '@enonic/lib-admin-ui/ui/grid/DataView';
 import {FontIcon} from '../../../../icon/FontIcon';
 import {Insertable} from './Insertable';
 

@@ -1,9 +1,9 @@
 import {ContentDuplicatePromptEvent} from '../../browse/ContentDuplicatePromptEvent';
 import {Content} from '../../content/Content';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {WizardPanel} from 'lib-admin-ui/app/wizard/WizardPanel';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {WizardPanel} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export class DuplicateContentAction
     extends Action {

@@ -1,5 +1,5 @@
 import {StyleJson} from './StylesDescriptor';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export enum StyleType {
     IMAGE = 'image'

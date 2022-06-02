@@ -1,9 +1,9 @@
 import {ProjectAccess} from '../../../../access/ProjectAccess';
-import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
-import {TabMenuItem, TabMenuItemBuilder} from 'lib-admin-ui/ui/tab/TabMenuItem';
-import {NavigatorEvent} from 'lib-admin-ui/ui/NavigatorEvent';
+import {TabMenu} from '@enonic/lib-admin-ui/ui/tab/TabMenu';
+import {TabMenuItem, TabMenuItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
+import {NavigatorEvent} from '@enonic/lib-admin-ui/ui/NavigatorEvent';
 import {ProjectAccessValueChangedEvent} from '../../../../event/ProjectAccessValueChangedEvent';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class ProjectAccessSelector
     extends TabMenu {

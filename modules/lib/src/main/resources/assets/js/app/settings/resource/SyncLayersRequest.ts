@@ -1,7 +1,7 @@
 import * as Q from 'q';
 import {ProjectResourceRequest} from './ProjectResourceRequest';
-import {TaskInfo} from 'lib-admin-ui/task/TaskInfo';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {TaskInfo} from '@enonic/lib-admin-ui/task/TaskInfo';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {CmsTaskableResourceRequest} from '../../resource/CmsTaskableResourceRequest';
 
 export class SyncLayersRequest

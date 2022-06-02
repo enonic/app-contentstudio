@@ -1,8 +1,8 @@
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {DateHelper} from 'lib-admin-ui/util/DateHelper';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {ContentVersion} from '../../../../ContentVersion';
 import {ContentVersions} from '../../../../ContentVersions';
 import {GetContentVersionsRequest} from '../../../../resource/GetContentVersionsRequest';

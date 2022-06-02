@@ -1,7 +1,7 @@
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {MacroKey} from 'lib-admin-ui/macro/MacroKey';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {MacroKey} from '@enonic/lib-admin-ui/macro/MacroKey';
 import {MacroResourceRequest} from './MacroResourceRequest';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 
 export class PreviewRequest<PARSED_TYPE>
     extends MacroResourceRequest<PARSED_TYPE> {

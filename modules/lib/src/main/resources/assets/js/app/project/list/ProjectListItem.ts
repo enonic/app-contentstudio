@@ -1,5 +1,5 @@
 import {Project} from '../../settings/data/project/Project';
-import {AEl} from 'lib-admin-ui/dom/AEl';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {ProjectViewer} from '../../settings/wizard/viewer/ProjectViewer';
 import {ProjectHelper} from '../../settings/data/project/ProjectHelper';
 

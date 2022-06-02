@@ -1,7 +1,7 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
 import {LiveEditPageProxy} from '../LiveEditPageProxy';
 import {LiveFormPanel} from '../LiveFormPanel';
 import {InspectionsPanel} from './inspect/InspectionsPanel';
@@ -12,9 +12,9 @@ import {InspectEvent} from '../../../event/InspectEvent';
 import {NamedPanel} from './inspect/NamedPanel';
 import {PageMode} from '../../../page/PageMode';
 import {PageInspectionPanel} from './inspect/page/PageInspectionPanel';
-import {TabBarItem} from 'lib-admin-ui/ui/tab/TabBarItem';
-import {Panel} from 'lib-admin-ui/ui/panel/Panel';
-import {DockedPanel} from 'lib-admin-ui/ui/panel/DockedPanel';
+import {TabBarItem} from '@enonic/lib-admin-ui/ui/tab/TabBarItem';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {DockedPanel} from '@enonic/lib-admin-ui/ui/panel/DockedPanel';
 
 export interface ContextWindowConfig {
 

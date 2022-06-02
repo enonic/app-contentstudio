@@ -1,9 +1,9 @@
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {MacroResourceRequest} from './MacroResourceRequest';
-import {MacrosJson} from 'lib-admin-ui/macro/MacrosJson';
-import {MacroDescriptor} from 'lib-admin-ui/macro/MacroDescriptor';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {MacrosJson} from '@enonic/lib-admin-ui/macro/MacrosJson';
+import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 
 export class GetMacrosRequest
     extends MacroResourceRequest<MacroDescriptor[]> {

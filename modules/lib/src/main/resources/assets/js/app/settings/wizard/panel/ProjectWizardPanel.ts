@@ -1,14 +1,14 @@
 import {SettingsDataItemWizardPanel} from './SettingsDataItemWizardPanel';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import * as Q from 'q';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectCreateRequest} from '../../resource/ProjectCreateRequest';
 import {ProjectUpdateRequest} from '../../resource/ProjectUpdateRequest';
 import {ProjectDeleteRequest} from '../../resource/ProjectDeleteRequest';
-import {WizardHeaderWithDisplayNameAndName} from 'lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
+import {WizardHeaderWithDisplayNameAndName} from '@enonic/lib-admin-ui/app/wizard/WizardHeaderWithDisplayNameAndName';
 import {ProjectItemNameWizardStepForm} from './form/ProjectItemNameWizardStepForm';
-import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {Project, ProjectBuilder} from '../../data/project/Project';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {ProjectWizardActions} from '../action/ProjectWizardActions';
@@ -19,17 +19,17 @@ import {UpdateProjectLanguageRequest} from '../../resource/UpdateProjectLanguage
 import {ProjectReadAccess} from '../../data/project/ProjectReadAccess';
 import {UpdateProjectPermissionsRequest} from '../../resource/UpdateProjectPermissionsRequest';
 import {ProjectRolesWizardStepForm} from './form/ProjectRolesWizardStepForm';
-import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
+import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {ProjectUpdateIconRequest} from '../../resource/ProjectUpdateIconRequest';
 import {EditProjectAccessDialog} from '../../../wizard/EditProjectAccessDialog';
-import {TaskId} from 'lib-admin-ui/task/TaskId';
-import {TaskState} from 'lib-admin-ui/task/TaskState';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {UpdateProjectReadAccessRequest} from '../../resource/UpdateProjectReadAccessRequest';
 import {ProjectDataItemFormIcon} from './form/element/ProjectDataItemFormIcon';
 import {ConfirmValueDialog} from '../../../remove/ConfirmValueDialog';
-import {TextInputSize} from 'lib-admin-ui/ui/text/TextInput';
+import {TextInputSize} from '@enonic/lib-admin-ui/ui/text/TextInput';
 
 export class ProjectWizardPanel
     extends SettingsDataItemWizardPanel<ProjectViewItem> {

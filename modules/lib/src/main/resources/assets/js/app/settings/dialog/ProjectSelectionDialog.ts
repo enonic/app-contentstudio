@@ -1,16 +1,16 @@
-import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Project} from '../data/project/Project';
 import {ProjectList} from '../../project/list/ProjectList';
-import {H6El} from 'lib-admin-ui/dom/H6El';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 import {ProjectListItem} from '../../project/list/ProjectListItem';
 import {ProjectContext} from '../../project/ProjectContext';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import * as Q from 'q';
 import {ProjectListWithMissingRequest} from '../resource/ProjectListWithMissingRequest';
 import {ProjectHelper} from '../data/project/ProjectHelper';
-import {Body} from 'lib-admin-ui/dom/Body';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 export class ProjectSelectionDialog
     extends ModalDialog {

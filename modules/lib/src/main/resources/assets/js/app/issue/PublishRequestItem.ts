@@ -1,5 +1,5 @@
 import {PublishRequestItemJson} from './json/PublishRequestItemJson';
-import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {ContentId} from '../content/ContentId';
 
 export class PublishRequestItem {

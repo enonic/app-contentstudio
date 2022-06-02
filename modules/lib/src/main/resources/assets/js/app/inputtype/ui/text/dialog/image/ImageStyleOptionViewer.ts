@@ -1,4 +1,4 @@
-import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {ImageStyleOption} from './ImageStyleOptions';
 import {ImageStyleNameView} from './ImageStyleNameView';
 

@@ -1,11 +1,11 @@
-import {Element} from 'lib-admin-ui/dom/Element';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ContentBasedComponentView, ContentBasedComponentViewBuilder} from '../ContentBasedComponentView';
 import {ImageItemType} from './ImageItemType';
 import {ImageComponentViewer} from './ImageComponentViewer';
 import {ImagePlaceholder} from './ImagePlaceholder';
 import {ContentDeletedEvent, ContentDeletedItem} from '../../app/event/ContentDeletedEvent';
 import {ImageComponent} from '../../app/page/region/ImageComponent';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentId} from '../../app/content/ContentId';
 
 export class ImageComponentViewBuilder

@@ -1,4 +1,4 @@
-import {FilterTypeWrapperJson} from 'lib-admin-ui/query/filter/FilterTypeWrapperJson';
+import {FilterTypeWrapperJson} from '@enonic/lib-admin-ui/query/filter/FilterTypeWrapperJson';
 
 export interface ExistsFilterWrapperJson
     extends FilterTypeWrapperJson {

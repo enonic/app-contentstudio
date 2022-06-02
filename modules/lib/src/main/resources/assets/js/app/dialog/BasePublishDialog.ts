@@ -1,5 +1,5 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DependantItemsWithProgressDialog, DependantItemsWithProgressDialogConfig} from './DependantItemsWithProgressDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {PublishProcessor} from '../publish/PublishProcessor';
@@ -11,22 +11,22 @@ import {CreateIssueDialog} from '../issue/view/CreateIssueDialog';
 import {HasUnpublishedChildrenRequest} from '../resource/HasUnpublishedChildrenRequest';
 import {PublishIssuesStateBar} from '../publish/PublishIssuesStateBar';
 import {PublishScheduleForm} from '../publish/PublishScheduleForm';
-import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
-import {PropertyEvent} from 'lib-admin-ui/data/PropertyEvent';
-import {Principal} from 'lib-admin-ui/security/Principal';
-import {PropertySet} from 'lib-admin-ui/data/PropertySet';
-import {ButtonEl} from 'lib-admin-ui/dom/ButtonEl';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {DropdownButtonRow} from 'lib-admin-ui/ui/dialog/DropdownButtonRow';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {PropertyEvent} from '@enonic/lib-admin-ui/data/PropertyEvent';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {ButtonEl} from '@enonic/lib-admin-ui/dom/ButtonEl';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
 import {MarkAsReadyRequest} from '../resource/MarkAsReadyRequest';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
 import {ContentId} from '../content/ContentId';
-import {MenuItem} from 'lib-admin-ui/ui/menu/MenuItem';
-import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
+import {MenuItem} from '@enonic/lib-admin-ui/ui/menu/MenuItem';
+import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {AccessibilityHelper} from '../util/AccessibilityHelper';
-import {CONFIG} from 'lib-admin-ui/util/Config';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export abstract class BasePublishDialog
     extends DependantItemsWithProgressDialog {

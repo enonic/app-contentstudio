@@ -1,5 +1,5 @@
 import {ContentTreeGrid} from './ContentTreeGrid';
-import {TreeGridToolbar} from 'lib-admin-ui/ui/treegrid/TreeGridToolbar';
+import {TreeGridToolbar} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridToolbar';
 
 export class ContentTreeGridToolbar
     extends TreeGridToolbar {

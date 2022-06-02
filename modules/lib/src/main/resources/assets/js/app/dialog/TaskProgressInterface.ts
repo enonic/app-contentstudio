@@ -1,6 +1,6 @@
-import {ManagedActionManager} from 'lib-admin-ui/managedaction/ManagedActionManager';
-import {TaskId} from 'lib-admin-ui/task/TaskId';
-import {TaskState} from 'lib-admin-ui/task/TaskState';
+import {ManagedActionManager} from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
 import {ProgressBarManager, ProgressBarManagerConfig} from './ProgressBarManager';
 
 export abstract class TaskProgressInterface {

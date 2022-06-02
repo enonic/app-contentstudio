@@ -1,6 +1,6 @@
 import {ContentUnnamed} from './ContentUnnamed';
 import {ContentPath} from './ContentPath';
-import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
+import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 
 export class ContentPathPrettifier {
 

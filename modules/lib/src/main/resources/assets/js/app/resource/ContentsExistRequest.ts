@@ -1,7 +1,7 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ContentsExistResult} from './ContentsExistResult';
 import {ContentsExistJson} from './json/ContentsExistJson';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 
 export class ContentsExistRequest

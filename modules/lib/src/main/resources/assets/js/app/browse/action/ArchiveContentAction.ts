@@ -2,7 +2,7 @@ import {ContentTreeGrid} from '../ContentTreeGrid';
 import {ContentDeletePromptEvent} from '../ContentDeletePromptEvent';
 import {CompareStatus} from '../../content/CompareStatus';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentTreeGridAction} from './ContentTreeGridAction';
 import {ContentTreeGridItemsState} from './ContentTreeGridItemsState';
 

@@ -2,9 +2,9 @@ import * as $ from 'jquery';
 import 'jquery-ui/ui/widgets/sortable';
 import 'jquery-ui/ui/widgets/draggable';
 import 'jquery-ui/ui/widgets/droppable';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {ComponentView} from './ComponentView';
 import {ItemType} from './ItemType';
 import {RegionView} from './RegionView';
@@ -22,8 +22,8 @@ import {ItemView} from './ItemView';
 import {PageView} from './PageView';
 import {LayoutItemType} from './layout/LayoutItemType';
 import {Component} from '../app/page/region/Component';
-import {DragHelper} from 'lib-admin-ui/ui/DragHelper';
-import {assertState} from 'lib-admin-ui/util/Assert';
+import {DragHelper} from '@enonic/lib-admin-ui/ui/DragHelper';
+import {assertState} from '@enonic/lib-admin-ui/util/Assert';
 
 export class DragAndDrop {
 

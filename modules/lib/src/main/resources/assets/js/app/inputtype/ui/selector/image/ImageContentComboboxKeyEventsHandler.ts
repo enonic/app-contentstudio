@@ -1,6 +1,6 @@
-import {KeyEventsHandler} from 'lib-admin-ui/event/KeyEventsHandler';
-import {DropdownGrid} from 'lib-admin-ui/ui/selector/DropdownGrid';
-import {ComboBoxOptionFilterInput} from 'lib-admin-ui/ui/selector/combobox/ComboBoxOptionFilterInput';
+import {KeyEventsHandler} from '@enonic/lib-admin-ui/event/KeyEventsHandler';
+import {DropdownGrid} from '@enonic/lib-admin-ui/ui/selector/DropdownGrid';
+import {ComboBoxOptionFilterInput} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBoxOptionFilterInput';
 import {ImageContentComboBox} from './ImageContentComboBox';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 

@@ -1,9 +1,9 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Cloneable} from 'lib-admin-ui/Cloneable';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {Property} from 'lib-admin-ui/data/Property';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {ApplicationConfig} from 'lib-admin-ui/application/ApplicationConfig';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {Property} from '@enonic/lib-admin-ui/data/Property';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {ApplicationConfig} from '@enonic/lib-admin-ui/application/ApplicationConfig';
 import {Content, ContentBuilder} from './Content';
 import {ContentJson} from './ContentJson';
 

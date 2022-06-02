@@ -1,4 +1,4 @@
-import {AppBarTabId} from 'lib-admin-ui/app/bar/AppBarTabId';
+import {AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
 import {ProjectContext} from './project/ProjectContext';
 import {UrlAction} from './UrlAction';
 

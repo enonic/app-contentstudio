@@ -1,8 +1,8 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Path} from 'lib-admin-ui/rest/Path';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {CustomSelectorItem} from './CustomSelectorItem';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
 import * as Q from 'q';
 
 export interface CustomSelectorResponse {

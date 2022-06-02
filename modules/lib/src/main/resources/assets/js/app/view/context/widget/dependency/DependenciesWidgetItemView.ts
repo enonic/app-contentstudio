@@ -6,12 +6,12 @@ import {ResolveDependencyResult} from '../../../../resource/ResolveDependencyRes
 import {ResolveDependenciesResult} from '../../../../resource/ResolveDependenciesResult';
 import {ShowDependenciesEvent} from '../../../../browse/ShowDependenciesEvent';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
-import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
+import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 export class DependenciesWidgetItemView
     extends WidgetItemView {

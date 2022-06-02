@@ -1,13 +1,13 @@
 import {UrlHelper} from '../util/UrlHelper';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
 import * as Q from 'q';
-import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {TaskId} from 'lib-admin-ui/task/TaskId';
-import {TaskEvent, TaskEventType} from 'lib-admin-ui/task/TaskEvent';
-import {TaskInfo} from 'lib-admin-ui/task/TaskInfo';
-import {TaskState} from 'lib-admin-ui/task/TaskState';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {TaskEvent, TaskEventType} from '@enonic/lib-admin-ui/task/TaskEvent';
+import {TaskInfo} from '@enonic/lib-admin-ui/task/TaskInfo';
+import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {GetTaskInfoRequest} from './GetTaskInfoRequest';
 
 export class CmsTaskableResourceRequest<PARSED_TYPE>

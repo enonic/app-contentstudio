@@ -1,4 +1,4 @@
-import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {ContentPublishInfoJson} from './resource/json/ContentPublishInfoJson';
 
 export class ContentPublishInfo

@@ -1,8 +1,8 @@
 import * as hasher from 'hasher';
 import {ProjectContext} from './project/ProjectContext';
-import {Path} from 'lib-admin-ui/rest/Path';
-import {Store} from 'lib-admin-ui/store/Store';
-import {CONFIG} from 'lib-admin-ui/util/Config';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
+import {Store} from '@enonic/lib-admin-ui/store/Store';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class Router {
 

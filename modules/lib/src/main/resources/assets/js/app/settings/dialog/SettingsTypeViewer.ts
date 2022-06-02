@@ -1,4 +1,4 @@
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {SettingsType} from './SettingsType';
 
 export class SettingsTypeViewer

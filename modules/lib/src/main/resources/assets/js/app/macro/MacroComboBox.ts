@@ -1,13 +1,13 @@
-import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {MacrosLoader} from './resource/MacrosLoader';
-import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
-import {MacroDescriptor} from 'lib-admin-ui/macro/MacroDescriptor';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {RichSelectedOptionView, RichSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichSelectedOptionView';
+import {MacroDescriptor} from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import {MacroViewer} from './MacroViewer';
-import {Viewer} from 'lib-admin-ui/ui/Viewer';
-import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 
 export class MacroComboBox
     extends RichComboBox<MacroDescriptor> {

@@ -1,6 +1,6 @@
-import {Element} from 'lib-admin-ui/dom/Element';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentInspectionPanel} from './ContentInspectionPanel';
 import {FragmentInspectionPanel} from './region/FragmentInspectionPanel';
 import {TextInspectionPanel} from './region/TextInspectionPanel';
@@ -10,9 +10,9 @@ import {ImageInspectionPanel} from './region/ImageInspectionPanel';
 import {RegionInspectionPanel} from './region/RegionInspectionPanel';
 import {PageInspectionPanel} from './page/PageInspectionPanel';
 import {NoSelectionInspectionPanel} from './NoSelectionInspectionPanel';
-import {Panel} from 'lib-admin-ui/ui/panel/Panel';
-import {DeckPanel} from 'lib-admin-ui/ui/panel/DeckPanel';
-import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {Panel} from '@enonic/lib-admin-ui/ui/panel/Panel';
+import {DeckPanel} from '@enonic/lib-admin-ui/ui/panel/DeckPanel';
+import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {DescriptorBasedComponentInspectionPanel} from './region/DescriptorBasedComponentInspectionPanel';
 import {Descriptor} from '../../../../page/Descriptor';
 

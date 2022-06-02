@@ -1,13 +1,13 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
-import {Viewer} from 'lib-admin-ui/ui/Viewer';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {Principal} from 'lib-admin-ui/security/Principal';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {EffectivePermission} from './EffectivePermission';
 import {EffectivePermissionMember} from './EffectivePermissionMember';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {PrincipalViewerCompact} from 'lib-admin-ui/ui/security/PrincipalViewer';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
 
 export class UserAccessListItemView
     extends Viewer<EffectivePermission> {

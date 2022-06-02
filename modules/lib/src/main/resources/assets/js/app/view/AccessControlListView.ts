@@ -1,6 +1,6 @@
 import {AccessControlEntryView} from './AccessControlEntryView';
 import {AccessControlEntry} from '../access/AccessControlEntry';
-import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 
 export class AccessControlListView
     extends ListBox<AccessControlEntry> {

@@ -1,11 +1,11 @@
 /*global Q*/
 
-import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
 import {HtmlEditorParams} from '../HtmlEditorParams';
 import {HtmlEditor, HtmlEditorCursorPosition} from '../HtmlEditor';
-import {CONFIG} from 'lib-admin-ui/util/Config';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export interface FullscreenDialogConfig
     extends HtmlAreaModalDialogConfig {

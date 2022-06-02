@@ -1,4 +1,4 @@
-import {IDentifiable} from 'lib-admin-ui/IDentifiable';
+import {IDentifiable} from '@enonic/lib-admin-ui/IDentifiable';
 import {ItemView} from './ItemView';
 
 export class ItemViewTreeGridWrapper implements IDentifiable {

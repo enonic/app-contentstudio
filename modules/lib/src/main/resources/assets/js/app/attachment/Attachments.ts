@@ -1,5 +1,5 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {Attachment, AttachmentBuilder} from './Attachment';
 import {AttachmentJson} from './AttachmentJson';
 

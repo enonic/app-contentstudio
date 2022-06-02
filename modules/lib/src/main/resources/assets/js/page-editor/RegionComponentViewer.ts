@@ -1,6 +1,6 @@
 import {ItemViewIconClassResolver} from './ItemViewIconClassResolver';
 import {Region} from '../app/page/region/Region';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 
 export class RegionComponentViewer
     extends NamesAndIconViewer<Region> {

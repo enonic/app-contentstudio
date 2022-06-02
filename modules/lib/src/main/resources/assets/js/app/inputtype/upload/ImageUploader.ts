@@ -1,14 +1,14 @@
 import * as Q from 'q';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {Input} from 'lib-admin-ui/form/Input';
-import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
-import {Class} from 'lib-admin-ui/Class';
-import {Property} from 'lib-admin-ui/data/Property';
-import {PropertySet} from 'lib-admin-ui/data/PropertySet';
-import {Value} from 'lib-admin-ui/data/Value';
-import {ValueType} from 'lib-admin-ui/data/ValueType';
-import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
-import {UploadedEvent} from 'lib-admin-ui/ui/uploader/UploadedEvent';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import {Class} from '@enonic/lib-admin-ui/Class';
+import {Property} from '@enonic/lib-admin-ui/data/Property';
+import {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
+import {Value} from '@enonic/lib-admin-ui/data/Value';
+import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
+import {UploadedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadedEvent';
 import {ImageUploaderEl} from '../ui/selector/image/ImageUploaderEl';
 import {ImageErrorEvent} from '../ui/selector/image/ImageErrorEvent';
 import {MediaUploaderElOperation} from '../ui/upload/MediaUploaderEl';
@@ -16,12 +16,12 @@ import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {GetContentByIdRequest} from '../../resource/GetContentByIdRequest';
 import {Point, Rect} from '../ui/selector/image/ImageEditor';
 import {Content} from '../../content/Content';
-import {BaseInputTypeSingleOccurrence} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeSingleOccurrence';
-import {InputValidationRecording} from 'lib-admin-ui/form/inputtype/InputValidationRecording';
-import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
-import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {InputValidityChangedEvent} from 'lib-admin-ui/form/inputtype/InputValidityChangedEvent';
+import {BaseInputTypeSingleOccurrence} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeSingleOccurrence';
+import {InputValidationRecording} from '@enonic/lib-admin-ui/form/inputtype/InputValidationRecording';
+import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
+import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {InputValidityChangedEvent} from '@enonic/lib-admin-ui/form/inputtype/InputValidityChangedEvent';
 
 export class ImageUploader
     extends BaseInputTypeSingleOccurrence {

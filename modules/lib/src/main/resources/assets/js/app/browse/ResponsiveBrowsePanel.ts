@@ -1,13 +1,13 @@
-import {BrowsePanel} from 'lib-admin-ui/app/browse/BrowsePanel';
-import {Body} from 'lib-admin-ui/dom/Body';
+import {BrowsePanel} from '@enonic/lib-admin-ui/app/browse/BrowsePanel';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {ResponsiveToolbar} from './ResponsiveToolbar';
 import {ContextSplitPanel} from '../view/context/ContextSplitPanel';
 import {ContextView} from '../view/context/ContextView';
 import {DockedContextPanel} from '../view/context/DockedContextPanel';
-import {BrowseItemPanel} from 'lib-admin-ui/app/browse/BrowseItemPanel';
+import {BrowseItemPanel} from '@enonic/lib-admin-ui/app/browse/BrowseItemPanel';
 import * as Q from 'q';
-import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
-import {SplitPanelSize} from 'lib-admin-ui/ui/panel/SplitPanelSize';
+import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
+import {SplitPanelSize} from '@enonic/lib-admin-ui/ui/panel/SplitPanelSize';
 
 export abstract class ResponsiveBrowsePanel extends BrowsePanel {
 

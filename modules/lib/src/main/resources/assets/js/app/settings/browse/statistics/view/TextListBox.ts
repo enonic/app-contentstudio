@@ -1,5 +1,5 @@
-import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 export class TextListBox extends ListBox<string> {
 

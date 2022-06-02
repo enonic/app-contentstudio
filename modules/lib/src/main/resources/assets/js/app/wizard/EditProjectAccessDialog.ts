@@ -1,11 +1,11 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {PEl} from 'lib-admin-ui/dom/PEl';
-import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
-import {TaskId} from 'lib-admin-ui/task/TaskId';
-import {TaskState} from 'lib-admin-ui/task/TaskState';
-import {H6El} from 'lib-admin-ui/dom/H6El';
-import {applyMixins, DefaultModalDialogHeader} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
+import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {applyMixins, DefaultModalDialogHeader} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {TaskProgressInterface} from '../dialog/TaskProgressInterface';
 import {ProgressBarManager} from '../dialog/ProgressBarManager';
 

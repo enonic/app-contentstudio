@@ -1,8 +1,8 @@
-import {Principal} from 'lib-admin-ui/security/Principal';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectAccess} from './ProjectAccess';
-import {PrincipalContainer} from 'lib-admin-ui/ui/security/PrincipalContainer';
+import {PrincipalContainer} from '@enonic/lib-admin-ui/ui/security/PrincipalContainer';
 
 export class ProjectAccessControlEntry
     extends PrincipalContainer

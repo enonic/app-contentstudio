@@ -1,8 +1,8 @@
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import * as Q from 'q';
-import {H6El} from 'lib-admin-ui/dom/H6El';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
 
 export class StatusLine extends H6El {
 

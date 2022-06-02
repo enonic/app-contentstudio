@@ -1,19 +1,19 @@
 import * as Q from 'q';
-import {Input} from 'lib-admin-ui/form/Input';
-import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
-import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
-import {Class} from 'lib-admin-ui/Class';
-import {PropertyPath, PropertyPathElement} from 'lib-admin-ui/data/PropertyPath';
-import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
-import {Value} from 'lib-admin-ui/data/Value';
-import {ValueType} from 'lib-admin-ui/data/ValueType';
-import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
+import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
+import {Class} from '@enonic/lib-admin-ui/Class';
+import {PropertyPath, PropertyPathElement} from '@enonic/lib-admin-ui/data/PropertyPath';
+import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
+import {Value} from '@enonic/lib-admin-ui/data/Value';
+import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
 import {ContentTagSuggester, ContentTagSuggesterBuilder} from './ContentTagSuggester';
 import {Tags, TagsBuilder} from '../ui/tag/Tags';
 import {TagRemovedEvent} from '../ui/tag/TagRemovedEvent';
 import {TagAddedEvent} from '../ui/tag/TagAddedEvent';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
-import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
+import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 
 export class Tag
     extends BaseInputTypeManagingAdd {

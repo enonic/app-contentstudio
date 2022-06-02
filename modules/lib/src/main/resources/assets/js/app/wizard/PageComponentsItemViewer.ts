@@ -1,5 +1,5 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ItemView} from '../../page-editor/ItemView';
 import {TextItemType} from '../../page-editor/text/TextItemType';
 import {TextComponentView} from '../../page-editor/text/TextComponentView';
@@ -13,7 +13,7 @@ import {PartItemType} from '../../page-editor/part/PartItemType';
 import {PartComponentView} from '../../page-editor/part/PartComponentView';
 import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView';
 import {PageView} from '../../page-editor/PageView';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 
 export class PageComponentsItemViewer
     extends NamesAndIconViewer<ItemView> {

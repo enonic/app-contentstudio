@@ -1,5 +1,5 @@
-import {Element} from 'lib-admin-ui/dom/Element';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {CustomSelectorItem} from './CustomSelectorItem';
 
 export class CustomSelectorItemViewer

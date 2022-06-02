@@ -2,9 +2,9 @@ import {FragmentResourceRequest} from './FragmentResourceRequest';
 import {Content} from '../app/content/Content';
 import {ContentJson} from '../app/content/ContentJson';
 import {Component} from '../app/page/region/Component';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../app/content/ContentId';
 import {Workflow} from '../app/content/Workflow';
 

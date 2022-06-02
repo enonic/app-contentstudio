@@ -1,4 +1,4 @@
-import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
 import {Project} from '../../settings/data/project/Project';
 import {ProjectListItem} from './ProjectListItem';
 import {ProjectHelper} from '../../settings/data/project/ProjectHelper';

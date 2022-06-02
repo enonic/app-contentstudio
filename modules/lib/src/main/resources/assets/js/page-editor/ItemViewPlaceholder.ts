@@ -1,7 +1,7 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {PEl} from 'lib-admin-ui/dom/PEl';
-import {AEl} from 'lib-admin-ui/dom/AEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 
 export class ItemViewPlaceholder
     extends DivEl {

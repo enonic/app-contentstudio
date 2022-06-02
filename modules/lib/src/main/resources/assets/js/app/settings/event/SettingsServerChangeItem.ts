@@ -1,5 +1,5 @@
-import {NodeEventNodeJson} from 'lib-admin-ui/event/NodeServerEvent';
-import {NodeServerChangeItem, NodeServerChangeItemBuilder} from 'lib-admin-ui/event/NodeServerChangeItem';
+import {NodeEventNodeJson} from '@enonic/lib-admin-ui/event/NodeServerEvent';
+import {NodeServerChangeItem, NodeServerChangeItemBuilder} from '@enonic/lib-admin-ui/event/NodeServerChangeItem';
 import {RepositoryId} from '../../repository/RepositoryId';
 
 export class SettingsServerChangeItem

@@ -1,16 +1,16 @@
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {Input} from 'lib-admin-ui/form/Input';
-import {DisplayNameGenerator} from 'lib-admin-ui/app/wizard/DisplayNameGenerator';
-import {FormView} from 'lib-admin-ui/form/FormView';
-import {FormItem} from 'lib-admin-ui/form/FormItem';
-import {Form} from 'lib-admin-ui/form/Form';
-import {FieldSet} from 'lib-admin-ui/form/set/fieldset/FieldSet';
-import {FormItemSet} from 'lib-admin-ui/form/set/itemset/FormItemSet';
-import {FormOptionSet} from 'lib-admin-ui/form/set/optionset/FormOptionSet';
-import {FormOptionSetOption} from 'lib-admin-ui/form/set/optionset/FormOptionSetOption';
-import {assertNotNull} from 'lib-admin-ui/util/Assert';
-import {InputTypeName} from 'lib-admin-ui/form/InputTypeName';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {DisplayNameGenerator} from '@enonic/lib-admin-ui/app/wizard/DisplayNameGenerator';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
+import {Form} from '@enonic/lib-admin-ui/form/Form';
+import {FieldSet} from '@enonic/lib-admin-ui/form/set/fieldset/FieldSet';
+import {FormItemSet} from '@enonic/lib-admin-ui/form/set/itemset/FormItemSet';
+import {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
+import {FormOptionSetOption} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSetOption';
+import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
+import {InputTypeName} from '@enonic/lib-admin-ui/form/InputTypeName';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import * as _ from 'lodash';
 
 export class DisplayNameResolver

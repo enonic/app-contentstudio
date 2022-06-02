@@ -1,4 +1,4 @@
-import {IconUrlResolver} from 'lib-admin-ui/icon/IconUrlResolver';
+import {IconUrlResolver} from '@enonic/lib-admin-ui/icon/IconUrlResolver';
 import {StyleHelper} from '../inputtype/ui/text/styles/StyleHelper';
 import {UrlHelper} from './UrlHelper';
 import {ContentId} from '../content/ContentId';

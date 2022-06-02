@@ -1,4 +1,4 @@
-import {TabMenuItem, TabMenuItemBuilder} from 'lib-admin-ui/ui/tab/TabMenuItem';
+import {TabMenuItem, TabMenuItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
 import {FieldOrderExprBuilder} from '../../../resource/order/FieldOrderExpr';
 import {ChildOrder} from '../../../resource/order/ChildOrder';
 

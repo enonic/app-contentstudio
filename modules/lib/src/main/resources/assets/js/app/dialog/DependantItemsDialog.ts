@@ -1,23 +1,23 @@
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
 import {StatusSelectionItem} from './StatusSelectionItem';
 import {DependantItemViewer} from './DependantItemViewer';
 import {GetDescendantsOfContentsRequest} from '../resource/GetDescendantsOfContentsRequest';
 import {ContentSummaryAndCompareStatusFetcher} from '../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
-import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
-import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
-import {H6El} from 'lib-admin-ui/dom/H6El';
-import {PEl} from 'lib-admin-ui/dom/PEl';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
 import {ContentId} from '../content/ContentId';
-import {LazyListBox} from 'lib-admin-ui/ui/selector/list/LazyListBox';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {LazyListBox} from '@enonic/lib-admin-ui/ui/selector/list/LazyListBox';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export interface DependantItemsDialogConfig
     extends ModalDialogWithConfirmationConfig {

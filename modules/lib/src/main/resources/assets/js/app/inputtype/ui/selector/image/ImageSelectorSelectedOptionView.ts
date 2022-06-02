@@ -1,15 +1,15 @@
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {LoadMask} from 'lib-admin-ui/ui/mask/LoadMask';
-import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import {BaseSelectedOptionView, BaseSelectedOptionViewBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionView';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
-import {ImgEl} from 'lib-admin-ui/dom/ImgEl';
-import {Checkbox} from 'lib-admin-ui/ui/Checkbox';
-import {ProgressBar} from 'lib-admin-ui/ui/ProgressBar';
-import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
+import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
+import {Checkbox} from '@enonic/lib-admin-ui/ui/Checkbox';
+import {ProgressBar} from '@enonic/lib-admin-ui/ui/ProgressBar';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 
 export class ImageSelectorSelectedOptionView
     extends BaseSelectedOptionView<MediaTreeSelectorItem> {

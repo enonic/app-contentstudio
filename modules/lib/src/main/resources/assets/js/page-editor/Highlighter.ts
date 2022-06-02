@@ -1,8 +1,8 @@
-import {Element, ElementFromHelperBuilder} from 'lib-admin-ui/dom/Element';
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
+import {Element, ElementFromHelperBuilder} from '@enonic/lib-admin-ui/dom/Element';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
 import {ElementDimensions, ItemView} from './ItemView';
 import {HighlighterStyle} from './ItemTypeConfig';
-import {Body} from 'lib-admin-ui/dom/Body';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 
 export enum HighlighterMode {
     RECTANGLE,

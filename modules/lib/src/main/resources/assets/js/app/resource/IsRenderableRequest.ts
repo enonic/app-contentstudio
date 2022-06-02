@@ -1,9 +1,9 @@
 import * as Q from 'q';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
-import {Response} from 'lib-admin-ui/rest/Response';
-import {RequestError} from 'lib-admin-ui/rest/RequestError';
-import {Path} from 'lib-admin-ui/rest/Path';
+import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
+import {Response} from '@enonic/lib-admin-ui/rest/Response';
+import {RequestError} from '@enonic/lib-admin-ui/rest/RequestError';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {UriHelper as RenderingUriHelper} from '../rendering/UriHelper';
 import {RenderingMode} from '../rendering/RenderingMode';
 import {ContentSummary} from '../content/ContentSummary';

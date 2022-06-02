@@ -1,6 +1,6 @@
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {PageComponentsGridDragHandler} from './PageComponentsGridDragHandler';
 import {ItemView} from '../../page-editor/ItemView';
 import {PageView} from '../../page-editor/PageView';
@@ -13,9 +13,9 @@ import {LayoutComponentView} from '../../page-editor/layout/LayoutComponentView'
 import {Content} from '../content/Content';
 import {ComponentView} from '../../page-editor/ComponentView';
 import {DescriptorBasedComponent} from '../page/region/DescriptorBasedComponent';
-import {TreeGrid} from 'lib-admin-ui/ui/treegrid/TreeGrid';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
-import {TreeGridBuilder} from 'lib-admin-ui/ui/treegrid/TreeGridBuilder';
+import {TreeGrid} from '@enonic/lib-admin-ui/ui/treegrid/TreeGrid';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
+import {TreeGridBuilder} from '@enonic/lib-admin-ui/ui/treegrid/TreeGridBuilder';
 import {FragmentItemType} from '../../page-editor/fragment/FragmentItemType';
 import {FragmentComponentView} from '../../page-editor/fragment/FragmentComponentView';
 import {Component} from '../page/region/Component';
@@ -26,7 +26,7 @@ import {PartComponentType} from '../page/region/PartComponentType';
 import {Descriptor} from '../page/Descriptor';
 import {TextItemType} from '../../page-editor/text/TextItemType';
 import {TextComponentView} from '../../page-editor/text/TextComponentView';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {PageComponentsTreeGridHelper} from './PageComponentsTreeGridHelper';
 import {ComponentName} from '../page/region/ComponentName';
 

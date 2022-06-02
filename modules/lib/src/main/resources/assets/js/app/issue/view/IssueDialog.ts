@@ -1,6 +1,6 @@
 import * as Q from 'q';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {DependantItemsDialog, DependantItemsDialogConfig} from '../../dialog/DependantItemsDialog';
 import {IssueDialogForm} from './IssueDialogForm';
 import {PublishProcessor} from '../../publish/PublishProcessor';
@@ -10,8 +10,8 @@ import {PublishDialogDependantList} from '../../publish/PublishDialogDependantLi
 import {ContentSummaryAndCompareStatusFetcher} from '../../resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentTreeSelectorItem} from '../../item/ContentTreeSelectorItem';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
-import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentId} from '../../content/ContentId';
 

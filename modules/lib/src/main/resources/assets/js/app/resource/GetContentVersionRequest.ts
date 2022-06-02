@@ -1,12 +1,12 @@
 import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {Content} from '../content/Content';
 import {ContentJson} from '../content/ContentJson';
 import {RepositoryId} from '../repository/RepositoryId';
 import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {CONFIG} from 'lib-admin-ui/util/Config';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class GetContentVersionRequest
     extends CmsContentResourceRequest<Content> {

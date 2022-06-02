@@ -1,8 +1,8 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {TaskIdJson} from 'lib-admin-ui/task/TaskIdJson';
-import {TaskId} from 'lib-admin-ui/task/TaskId';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {TaskIdJson} from '@enonic/lib-admin-ui/task/TaskIdJson';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
 import {ContentIds} from '../content/ContentIds';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentPath} from '../content/ContentPath';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 

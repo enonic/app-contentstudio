@@ -1,15 +1,15 @@
 import {Project} from '../../../../data/project/Project';
 import {ProjectViewer} from '../../../viewer/ProjectViewer';
 import * as Q from 'q';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {ProjectsChainBlock} from '../../../../dialog/ProjectsChainBlock';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ProjectOptionDataHelper} from './ProjectOptionDataHelper';
-import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
-import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
-import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {SelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionView';
-import {ComboBoxConfig} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
+import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
+import {ComboBoxConfig} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
 import {ProjectOptionDataLoader} from './ProjectOptionDataLoader';
 
 export class ProjectsComboBox extends RichComboBox<Project> {

@@ -1,5 +1,5 @@
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {H3El} from 'lib-admin-ui/dom/H3El';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {H3El} from '@enonic/lib-admin-ui/dom/H3El';
 import {StatisticsBlockColumn} from './StatisticsBlockColumn';
 import {SettingsViewItem} from '../../../view/SettingsViewItem';
 

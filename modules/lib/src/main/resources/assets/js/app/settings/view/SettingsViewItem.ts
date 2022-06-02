@@ -1,7 +1,7 @@
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
-import {ViewItem} from 'lib-admin-ui/app/view/ViewItem';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
+import {ViewItem} from '@enonic/lib-admin-ui/app/view/ViewItem';
 
 export abstract class SettingsViewItem
     implements ViewItem {

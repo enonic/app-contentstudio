@@ -1,6 +1,6 @@
-import {Event} from 'lib-admin-ui/event/Event';
-import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
 import {ContentServerChangeItem} from './ContentServerChangeItem';
 
 export class BatchContentServerEvent

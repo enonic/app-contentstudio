@@ -1,9 +1,9 @@
-import {CompositeFormInputEl} from 'lib-admin-ui/dom/CompositeFormInputEl';
-import {Button} from 'lib-admin-ui/ui/button/Button';
-import {PEl} from 'lib-admin-ui/dom/PEl';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {TextArea} from 'lib-admin-ui/ui/text/TextArea';
-import {Body} from 'lib-admin-ui/dom/Body';
+import {CompositeFormInputEl} from '@enonic/lib-admin-ui/dom/CompositeFormInputEl';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {PEl} from '@enonic/lib-admin-ui/dom/PEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {TextArea} from '@enonic/lib-admin-ui/ui/text/TextArea';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
 
 export class InPlaceTextArea
     extends CompositeFormInputEl {

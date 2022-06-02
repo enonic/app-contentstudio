@@ -10,7 +10,7 @@ import {FindAndReplaceDialog} from './FindAndReplaceDialog';
 import {SpecialCharDialog} from './SpecialCharDialog';
 import {FullscreenDialog} from './FullscreenDialog';
 import {TableDialog} from './TableDialog';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {NumberedListModalDialog} from './NumberedListModalDialog';
 import {BulletedListModalDialog} from './BulletedListModalDialog';

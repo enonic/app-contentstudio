@@ -1,11 +1,11 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {NamesAndIconView, NamesAndIconViewBuilder} from 'lib-admin-ui/app/NamesAndIconView';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
 import {BaseInspectionPanel} from '../BaseInspectionPanel';
 import {ItemViewIconClassResolver} from '../../../../../../page-editor/ItemViewIconClassResolver';
 import {TextComponentView} from '../../../../../../page-editor/text/TextComponentView';
 import {TextComponentViewer} from '../../../../../../page-editor/text/TextComponentViewer';
 import {TextComponent} from '../../../../../page/region/TextComponent';
-import {NamesAndIconViewSize} from 'lib-admin-ui/app/NamesAndIconViewSize';
+import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
 
 export class TextInspectionPanel
     extends BaseInspectionPanel {

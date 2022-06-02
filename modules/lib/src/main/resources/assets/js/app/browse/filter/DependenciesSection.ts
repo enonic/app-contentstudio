@@ -1,7 +1,7 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentSummary} from '../../content/ContentSummary';
 import {ContentId} from '../../content/ContentId';
-import {ConstraintSection} from 'lib-admin-ui/app/browse/filter/BrowseFilterPanel';
+import {ConstraintSection} from '@enonic/lib-admin-ui/app/browse/filter/BrowseFilterPanel';
 import {ContentSummaryViewer} from '../../content/ContentSummaryViewer';
 
 export class DependenciesSection

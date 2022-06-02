@@ -1,7 +1,7 @@
-import {Property} from 'lib-admin-ui/data/Property';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {RoleKeys} from 'lib-admin-ui/security/RoleKeys';
-import {PropertyTreeHelper} from 'lib-admin-ui/util/PropertyTreeHelper';
+import {Property} from '@enonic/lib-admin-ui/data/Property';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
+import {PropertyTreeHelper} from '@enonic/lib-admin-ui/util/PropertyTreeHelper';
 import {Attachments, AttachmentsBuilder} from '../attachment/Attachments';
 import {ContentJson} from './ContentJson';
 import {ExtraData} from './ExtraData';
@@ -11,13 +11,13 @@ import {XDataName} from './XDataName';
 import {Page, PageBuilder} from '../page/Page';
 import {AccessControlList} from '../access/AccessControlList';
 import {Permission} from '../access/Permission';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {Cloneable} from 'lib-admin-ui/Cloneable';
-import {assertNotNull} from 'lib-admin-ui/util/Assert';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ContentSummary, ContentSummaryBuilder} from './ContentSummary';
-import {ValidationError} from 'lib-admin-ui/ValidationError';
+import {ValidationError} from '@enonic/lib-admin-ui/ValidationError';
 
 export class Content
     extends ContentSummary

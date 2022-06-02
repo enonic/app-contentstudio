@@ -1,4 +1,4 @@
-import {BrowsePanel} from 'lib-admin-ui/app/browse/BrowsePanel';
+import {BrowsePanel} from '@enonic/lib-admin-ui/app/browse/BrowsePanel';
 import {SettingsItemsTreeGrid} from '../grid/SettingsItemsTreeGrid';
 import {SettingsBrowseToolbar} from './SettingsBrowseToolbar';
 import {SettingsTreeGridActions} from '../grid/SettingsTreeGridActions';

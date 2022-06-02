@@ -1,10 +1,10 @@
-import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {AccessControlEntryView} from '../view/AccessControlEntryView';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
-import {PrincipalContainerCombobox, PrincipalContainerComboboxBuilder} from 'lib-admin-ui/ui/security/PrincipalContainerCombobox';
-import {PrincipalContainerSelectedOptionsView} from 'lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
-import {Principal} from 'lib-admin-ui/security/Principal';
+import {PrincipalContainerCombobox, PrincipalContainerComboboxBuilder} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerCombobox';
+import {PrincipalContainerSelectedOptionsView} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedOptionsView';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {PrincipalLoader} from '../security/PrincipalLoader';
 
 export class AccessControlComboBox

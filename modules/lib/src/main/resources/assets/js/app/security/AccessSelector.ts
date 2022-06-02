@@ -1,10 +1,10 @@
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {TabMenuItem, TabMenuItemBuilder} from 'lib-admin-ui/ui/tab/TabMenuItem';
-import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {TabMenuItem, TabMenuItemBuilder} from '@enonic/lib-admin-ui/ui/tab/TabMenuItem';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
 import {Access, ACCESS_OPTIONS} from './Access';
-import {TabMenu} from 'lib-admin-ui/ui/tab/TabMenu';
-import {NavigatorEvent} from 'lib-admin-ui/ui/NavigatorEvent';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {TabMenu} from '@enonic/lib-admin-ui/ui/tab/TabMenu';
+import {NavigatorEvent} from '@enonic/lib-admin-ui/ui/NavigatorEvent';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {AccessChangedEvent} from './AccessChangedEvent';
 
 export class AccessSelector

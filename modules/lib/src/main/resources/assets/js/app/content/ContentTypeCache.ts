@@ -1,9 +1,9 @@
-import {ApplicationEvent, ApplicationEventType} from 'lib-admin-ui/application/ApplicationEvent';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {Cache} from 'lib-admin-ui/cache/Cache';
+import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {Cache} from '@enonic/lib-admin-ui/cache/Cache';
 import {ContentType, ContentTypeBuilder} from '../inputtype/schema/ContentType';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {ClassHelper} from 'lib-admin-ui/ClassHelper';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 
 export class ContentTypeCache
     extends Cache<ContentType, ContentTypeName> {

@@ -1,13 +1,13 @@
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {PagePlaceholderInfoBlock} from './PagePlaceholderInfoBlock';
 import {PageView} from './PageView';
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
 import {PageDescriptorDropdown} from '../app/wizard/page/contextwindow/inspect/page/PageDescriptorDropdown';
 import {GetContentTypeByNameRequest} from '../app/resource/GetContentTypeByNameRequest';
 import {ContentType} from '../app/inputtype/schema/ContentType';
-import {LoadedDataEvent} from 'lib-admin-ui/util/loader/event/LoadedDataEvent';
+import {LoadedDataEvent} from '@enonic/lib-admin-ui/util/loader/event/LoadedDataEvent';
 import {Descriptor} from '../app/page/Descriptor';
 
 export class PagePlaceholder

@@ -1,8 +1,8 @@
 import * as Q from 'q';
-import {PostLoader} from 'lib-admin-ui/util/loader/PostLoader';
+import {PostLoader} from '@enonic/lib-admin-ui/util/loader/PostLoader';
 import {ContentSummaryRequest} from '../../../../../resource/ContentSummaryRequest';
 import {GetContentSummaryByIds} from '../../../../../resource/GetContentSummaryByIds';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentSummary} from '../../../../../content/ContentSummary';
 import {ContentId} from '../../../../../content/ContentId';
 import {ContentPath} from '../../../../../content/ContentPath';

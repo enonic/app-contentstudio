@@ -1,5 +1,5 @@
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {Principal} from 'lib-admin-ui/security/Principal';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {EffectivePermissionMemberJson} from '../resource/json/EffectivePermissionMemberJson';
 
 export class EffectivePermissionMember {

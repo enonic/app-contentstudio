@@ -1,11 +1,11 @@
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {FolderItemViewer} from '../browse/viewer/FolderItemViewer';
 import {SettingsViewItem} from '../view/SettingsViewItem';
 import {ProjectViewItem} from '../view/ProjectViewItem';
 import {FolderViewItem} from '../view/FolderViewItem';
 import {ProjectViewer} from '../wizard/viewer/ProjectViewer';
-import {Viewer} from 'lib-admin-ui/ui/Viewer';
+import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
 import {Project} from '../data/project/Project';
 
 export class SettingsItemRowFormatter {

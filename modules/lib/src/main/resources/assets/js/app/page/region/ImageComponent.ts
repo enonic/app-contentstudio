@@ -1,10 +1,10 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {Form, FormBuilder} from 'lib-admin-ui/form/Form';
-import {OccurrencesBuilder} from 'lib-admin-ui/form/Occurrences';
-import {TextArea} from 'lib-admin-ui/form/inputtype/text/TextArea';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
+import {OccurrencesBuilder} from '@enonic/lib-admin-ui/form/Occurrences';
+import {TextArea} from '@enonic/lib-admin-ui/form/inputtype/text/TextArea';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {ComponentName} from './ComponentName';
 import {ComponentTypeWrapperJson} from './ComponentTypeWrapperJson';
 import {ImageComponentJson} from './ImageComponentJson';
@@ -12,7 +12,7 @@ import {ImageComponentType} from './ImageComponentType';
 import {ConfigBasedComponent, ConfigBasedComponentBuilder} from './ConfigBasedComponent';
 import {Content} from '../../content/Content';
 import {ImageHelper} from '../../util/ImageHelper';
-import {InputBuilder} from 'lib-admin-ui/form/Input';
+import {InputBuilder} from '@enonic/lib-admin-ui/form/Input';
 import {ContentId} from '../../content/ContentId';
 
 export class ImageComponent

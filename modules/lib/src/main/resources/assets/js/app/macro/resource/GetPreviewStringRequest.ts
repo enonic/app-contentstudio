@@ -1,6 +1,6 @@
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {MacroKey} from 'lib-admin-ui/macro/MacroKey';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {MacroKey} from '@enonic/lib-admin-ui/macro/MacroKey';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {PreviewRequest} from './PreviewRequest';
 import {MacroPreviewStringJson} from './MacroPreviewJson';
 

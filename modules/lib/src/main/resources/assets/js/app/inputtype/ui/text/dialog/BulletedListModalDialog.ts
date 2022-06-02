@@ -1,5 +1,5 @@
 import {ListStyleModalDialog} from './ListStyleModalDialog';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class BulletedListModalDialog
     extends ListStyleModalDialog {

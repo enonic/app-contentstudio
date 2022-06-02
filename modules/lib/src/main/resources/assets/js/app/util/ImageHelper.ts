@@ -1,7 +1,7 @@
 import {Content} from '../content/Content';
 import {XDataName} from '../content/XDataName';
 import {Attachments} from '../attachment/Attachments';
-import {Property} from 'lib-admin-ui/data/Property';
+import {Property} from '@enonic/lib-admin-ui/data/Property';
 
 export class ImageHelper {
 

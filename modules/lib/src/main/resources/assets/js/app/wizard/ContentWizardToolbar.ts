@@ -1,25 +1,25 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {WorkflowStateIconsManager, WorkflowStateStatus} from './WorkflowStateIconsManager';
-import {TogglerButton} from 'lib-admin-ui/ui/button/TogglerButton';
-import {CycleButton} from 'lib-admin-ui/ui/button/CycleButton';
+import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
+import {CycleButton} from '@enonic/lib-admin-ui/ui/button/CycleButton';
 import {ProjectContext} from '../project/ProjectContext';
 import {ProjectListRequest} from '../settings/resource/ProjectListRequest';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {Project} from '../settings/data/project/Project';
 import {ProjectUpdatedEvent} from '../settings/event/ProjectUpdatedEvent';
 import {ProjectGetRequest} from '../settings/resource/ProjectGetRequest';
 import {ProjectViewer} from '../settings/wizard/viewer/ProjectViewer';
 import {NonMobileContextPanelToggleButton} from '../view/context/button/NonMobileContextPanelToggleButton';
 import {UrlHelper} from '../util/UrlHelper';
-import {CONFIG} from 'lib-admin-ui/util/Config';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {CollaborationEl} from './CollaborationEl';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
-import {WebSocketConnection} from 'lib-admin-ui/connection/WebSocketConnection';
+import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
+import {WebSocketConnection} from '@enonic/lib-admin-ui/connection/WebSocketConnection';
 
 export interface ContentWizardToolbarConfig {
     actions: ContentWizardActions;

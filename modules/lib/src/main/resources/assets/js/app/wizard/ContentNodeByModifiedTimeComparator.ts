@@ -1,6 +1,6 @@
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {Comparator} from 'lib-admin-ui/Comparator';
+import {Comparator} from '@enonic/lib-admin-ui/Comparator';
 
 export class ContentNodeByModifiedTimeComparator
     implements Comparator<TreeNode<ContentSummaryAndCompareStatus>> {

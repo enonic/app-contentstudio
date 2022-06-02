@@ -9,7 +9,7 @@ import {UrlAction} from './UrlAction';
 import {ProjectDeletedEvent} from './settings/event/ProjectDeletedEvent';
 import {Project} from './settings/data/project/Project';
 import {ProjectListRequest} from './settings/resource/ProjectListRequest';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentSummaryAndCompareStatusFetcher} from './resource/ContentSummaryAndCompareStatusFetcher';
 import {ContentId} from './content/ContentId';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
@@ -17,14 +17,14 @@ import {EditContentEvent} from './event/EditContentEvent';
 import {GetIssueRequest} from './issue/resource/GetIssueRequest';
 import {Issue} from './issue/Issue';
 import {IssueDialogsManager} from './issue/IssueDialogsManager';
-import {Path} from 'lib-admin-ui/rest/Path';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {ContentTreeGridLoadedEvent} from './browse/ContentTreeGridLoadedEvent';
 import {ResolveDependenciesRequest} from './resource/ResolveDependenciesRequest';
 import {ResolveDependenciesResult} from './resource/ResolveDependenciesResult';
 import {ResolveDependencyResult} from './resource/ResolveDependencyResult';
-import {showFeedback} from 'lib-admin-ui/notify/MessageBus';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Store} from 'lib-admin-ui/store/Store';
+import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Store} from '@enonic/lib-admin-ui/store/Store';
 
 export class ContentAppContainer
     extends AppContainer {

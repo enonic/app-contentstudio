@@ -1,4 +1,4 @@
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 import {FolderViewItem} from '../../../../view/FolderViewItem';
 
 export class FolderStatisticsViewer

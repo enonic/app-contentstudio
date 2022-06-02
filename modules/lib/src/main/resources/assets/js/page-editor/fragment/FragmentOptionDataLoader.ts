@@ -3,7 +3,7 @@ import {FragmentOptionDataRequest} from './FragmentOptionDataRequest';
 import {FragmentContentSummaryRequest} from '../../app/resource/FragmentContentSummaryRequest';
 import {ContentSummaryOptionDataLoader} from '../../app/inputtype/ui/selector/ContentSummaryOptionDataLoader';
 import {ContentTreeSelectorItem} from '../../app/item/ContentTreeSelectorItem';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentSummary} from '../../app/content/ContentSummary';
 
 export class FragmentOptionDataLoader

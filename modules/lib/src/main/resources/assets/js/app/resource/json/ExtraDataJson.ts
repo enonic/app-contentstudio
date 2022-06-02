@@ -1,4 +1,4 @@
-import {PropertyArrayJson} from 'lib-admin-ui/data/PropertyArrayJson';
+import {PropertyArrayJson} from '@enonic/lib-admin-ui/data/PropertyArrayJson';
 
 export interface ExtraDataJson {
 

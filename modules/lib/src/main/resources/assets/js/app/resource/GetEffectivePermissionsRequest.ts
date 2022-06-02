@@ -1,4 +1,4 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {EffectivePermissionJson} from './json/EffectivePermissionJson';
 import {EffectivePermission} from '../security/EffectivePermission';
 import {ContentId} from '../content/ContentId';

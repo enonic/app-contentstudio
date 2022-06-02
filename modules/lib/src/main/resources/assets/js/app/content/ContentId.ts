@@ -1,7 +1,7 @@
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {Reference} from 'lib-admin-ui/util/Reference';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {Reference} from '@enonic/lib-admin-ui/util/Reference';
 
 export class ContentId
     implements Equitable {

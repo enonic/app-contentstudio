@@ -1,9 +1,9 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {AggregationQuery} from 'lib-admin-ui/query/aggregation/AggregationQuery';
-import {Filter} from 'lib-admin-ui/query/filter/Filter';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {AggregationQuery} from '@enonic/lib-admin-ui/query/aggregation/AggregationQuery';
+import {Filter} from '@enonic/lib-admin-ui/query/filter/Filter';
 import {ContentId} from './ContentId';
 
 export class ContentQuery

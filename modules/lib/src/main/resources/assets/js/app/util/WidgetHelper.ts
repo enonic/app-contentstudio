@@ -1,4 +1,4 @@
-import {Element as UIElement} from 'lib-admin-ui/dom/Element';
+import {Element as UIElement} from '@enonic/lib-admin-ui/dom/Element';
 import {WidgetInjectionResult} from './WidgetInjectionResult';
 
 export class WidgetHelper {

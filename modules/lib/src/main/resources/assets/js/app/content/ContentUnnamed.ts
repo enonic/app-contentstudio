@@ -1,7 +1,7 @@
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ContentName} from './ContentName';
-import {assert} from 'lib-admin-ui/util/Assert';
+import {assert} from '@enonic/lib-admin-ui/util/Assert';
 
 export class ContentUnnamed
     extends ContentName

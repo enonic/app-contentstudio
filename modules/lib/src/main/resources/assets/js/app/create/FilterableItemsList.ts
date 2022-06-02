@@ -1,6 +1,6 @@
 import {NewContentDialogList} from './NewContentDialogList';
 import {NewContentDialogListItem} from './NewContentDialogListItem';
-import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeComparator} from '../inputtype/schema/ContentTypeComparator';
 import {ContentTypeSummaries} from '../content/ContentTypeSummaries';
 

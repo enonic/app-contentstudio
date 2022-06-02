@@ -1,5 +1,5 @@
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
-import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
 import {ComponentDescriptorsComboBox} from './ComponentDescriptorsComboBox';
 import {Descriptor} from '../app/page/Descriptor';
 import {ComponentView} from './ComponentView';

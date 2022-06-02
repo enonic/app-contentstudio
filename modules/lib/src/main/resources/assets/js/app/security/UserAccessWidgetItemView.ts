@@ -1,7 +1,7 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {AEl} from 'lib-admin-ui/dom/AEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {UserAccessListItemView} from './UserAccessListItemView';
 import {WidgetItemView} from '../view/context/WidgetItemView';
 import {UserAccessListView} from './UserAccessListView';
@@ -15,13 +15,13 @@ import {Access} from './Access';
 import {EffectivePermission} from './EffectivePermission';
 import {Permission} from '../access/Permission';
 import {AccessControlEntry} from '../access/AccessControlEntry';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {RoleKeys} from 'lib-admin-ui/security/RoleKeys';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {RoleKeys} from '@enonic/lib-admin-ui/security/RoleKeys';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {ContentId} from '../content/ContentId';
 import {PrincipalServerEvent} from '../event/PrincipalServerEvent';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 
 export class UserAccessWidgetItemView
     extends WidgetItemView {

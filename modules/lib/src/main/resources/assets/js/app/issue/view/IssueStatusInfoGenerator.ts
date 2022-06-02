@@ -1,8 +1,8 @@
 import {Issue} from '../Issue';
 import {IssueStatus} from '../IssueStatus';
-import {DateHelper} from 'lib-admin-ui/util/DateHelper';
-import {Principal} from 'lib-admin-ui/security/Principal';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class IssueStatusInfoGenerator {
 

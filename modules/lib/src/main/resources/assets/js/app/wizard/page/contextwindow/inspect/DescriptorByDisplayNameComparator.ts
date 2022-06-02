@@ -1,4 +1,4 @@
-import {Comparator} from 'lib-admin-ui/Comparator';
+import {Comparator} from '@enonic/lib-admin-ui/Comparator';
 import {Descriptor} from '../../../../page/Descriptor';
 
 export class DescriptorByDisplayNameComparator

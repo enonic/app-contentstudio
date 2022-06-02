@@ -1,8 +1,8 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {PageTemplateResourceRequest} from '../../resource/PageTemplateResourceRequest';
 import {PageTemplate} from '../../content/PageTemplate';
 import {ContentJson} from '../../content/ContentJson';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentId} from '../../content/ContentId';
 
 export class GetDefaultPageTemplateRequest

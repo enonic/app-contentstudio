@@ -1,20 +1,20 @@
-import {CompareExpr} from 'lib-admin-ui/query/expr/CompareExpr';
-import {ValueExpr} from 'lib-admin-ui/query/expr/ValueExpr';
-import {FieldExpr} from 'lib-admin-ui/query/expr/FieldExpr';
-import {QueryExpr} from 'lib-admin-ui/query/expr/QueryExpr';
+import {CompareExpr} from '@enonic/lib-admin-ui/query/expr/CompareExpr';
+import {ValueExpr} from '@enonic/lib-admin-ui/query/expr/ValueExpr';
+import {FieldExpr} from '@enonic/lib-admin-ui/query/expr/FieldExpr';
+import {QueryExpr} from '@enonic/lib-admin-ui/query/expr/QueryExpr';
 import {
     TermsAggregationOrderDirection,
     TermsAggregationOrderType,
     TermsAggregationQuery
-} from 'lib-admin-ui/query/aggregation/TermsAggregationQuery';
-import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {QueryField} from 'lib-admin-ui/query/QueryField';
+} from '@enonic/lib-admin-ui/query/aggregation/TermsAggregationQuery';
+import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
 import {AggregateContentTypesResult, ContentTypeAggregation} from './AggregateContentTypesResult';
 import {ContentQueryRequest} from './ContentQueryRequest';
 import {ContentQueryResult} from './ContentQueryResult';
 import {ContentQuery} from '../content/ContentQuery';
-import {Path} from 'lib-admin-ui/rest/Path';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
 import {ContentSummary} from '../content/ContentSummary';
 import {ContentSummaryJson} from '../content/ContentSummaryJson';
 import {ContentPath} from '../content/ContentPath';

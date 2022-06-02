@@ -1,6 +1,6 @@
 import * as Q from 'q';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ComponentInspectionPanel, ComponentInspectionPanelConfig} from './ComponentInspectionPanel';
 import {LiveEditModel} from '../../../../../../page-editor/LiveEditModel';
 import {DescriptorBasedComponent} from '../../../../../page/region/DescriptorBasedComponent';
@@ -8,13 +8,13 @@ import {ComponentPropertyChangedEvent} from '../../../../../page/region/Componen
 import {DescriptorBasedDropdownForm} from './DescriptorBasedDropdownForm';
 import {ComponentDescriptorsDropdown} from './ComponentDescriptorsDropdown';
 import {SiteModel} from '../../../../../site/SiteModel';
-import {FormView} from 'lib-admin-ui/form/FormView';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
 import {Descriptor} from '../../../../../page/Descriptor';
 import {DescriptorKey} from '../../../../../page/DescriptorKey';
-import {OptionSelectedEvent} from 'lib-admin-ui/ui/selector/OptionSelectedEvent';
-import {Form} from 'lib-admin-ui/form/Form';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
-import {ApplicationEvent} from 'lib-admin-ui/application/ApplicationEvent';
+import {OptionSelectedEvent} from '@enonic/lib-admin-ui/ui/selector/OptionSelectedEvent';
+import {Form} from '@enonic/lib-admin-ui/form/Form';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
+import {ApplicationEvent} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {ComponentType} from '../../../../../page/region/ComponentType';
 import {GetComponentDescriptorRequest} from '../../../../../resource/GetComponentDescriptorRequest';
 import {DescriptorViewer} from '../DescriptorViewer';

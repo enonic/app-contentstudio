@@ -1,14 +1,14 @@
-import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {InputEl} from 'lib-admin-ui/dom/InputEl';
+import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
 import * as Q from 'q';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {ContentExistsByPathRequest} from '../resource/ContentExistsByPathRequest';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {H6El} from 'lib-admin-ui/dom/H6El';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentPath} from '../content/ContentPath';
 
 export class RenameContentDialog extends ModalDialog {

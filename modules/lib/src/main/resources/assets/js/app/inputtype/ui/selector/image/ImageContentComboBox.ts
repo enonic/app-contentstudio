@@ -1,9 +1,9 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {OptionDataHelper} from 'lib-admin-ui/ui/selector/OptionDataHelper';
-import {ComboBox} from 'lib-admin-ui/ui/selector/combobox/ComboBox';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {OptionDataHelper} from '@enonic/lib-admin-ui/ui/selector/OptionDataHelper';
+import {ComboBox} from '@enonic/lib-admin-ui/ui/selector/combobox/ComboBox';
 import {ContentComboBox, ContentComboBoxBuilder} from '../ContentComboBox';
 import {ImageOptionDataLoader} from './ImageOptionDataLoader';
 import {ImageContentComboboxKeyEventsHandler} from './ImageContentComboboxKeyEventsHandler';
@@ -11,11 +11,11 @@ import {ImageSelectorSelectedOptionsView} from './ImageSelectorSelectedOptionsVi
 import {ImageSelectorViewer} from './ImageSelectorViewer';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
 import {ContentSummaryOptionDataLoaderBuilder} from '../ContentSummaryOptionDataLoader';
-import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
-import {ResponsiveRanges} from 'lib-admin-ui/ui/responsive/ResponsiveRanges';
-import {GridOptions} from 'lib-admin-ui/ui/grid/GridOptions';
-import {Grid} from 'lib-admin-ui/ui/grid/Grid';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {ResponsiveRanges} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveRanges';
+import {GridOptions} from '@enonic/lib-admin-ui/ui/grid/GridOptions';
+import {Grid} from '@enonic/lib-admin-ui/ui/grid/Grid';
 import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';
 

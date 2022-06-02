@@ -1,5 +1,5 @@
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 import {ProjectJson} from '../../resource/json/ProjectJson';
 import {ProjectPermissions} from './ProjectPermissions';
 import {ProjectReadAccess} from './ProjectReadAccess';

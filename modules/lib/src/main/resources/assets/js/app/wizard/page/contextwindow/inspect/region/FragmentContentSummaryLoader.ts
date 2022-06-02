@@ -1,6 +1,6 @@
 import {FragmentContentSummaryRequest} from '../../../../../resource/FragmentContentSummaryRequest';
 import {ContentSummaryLoader} from './ContentSummaryLoader';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 
 export class FragmentContentSummaryLoader
     extends ContentSummaryLoader {

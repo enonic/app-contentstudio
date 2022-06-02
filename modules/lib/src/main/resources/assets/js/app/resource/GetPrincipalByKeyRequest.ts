@@ -1,8 +1,8 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {Principal} from 'lib-admin-ui/security/Principal';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {PrincipalJson} from 'lib-admin-ui/security/PrincipalJson';
-import {SecurityResourceRequest} from 'lib-admin-ui/security/SecurityResourceRequest';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {PrincipalJson} from '@enonic/lib-admin-ui/security/PrincipalJson';
+import {SecurityResourceRequest} from '@enonic/lib-admin-ui/security/SecurityResourceRequest';
 import {UrlHelper} from '../util/UrlHelper';
 
 export class GetPrincipalByKeyRequest

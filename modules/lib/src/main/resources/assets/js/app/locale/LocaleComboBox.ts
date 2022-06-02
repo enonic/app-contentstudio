@@ -1,12 +1,12 @@
-import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {Locale} from 'lib-admin-ui/locale/Locale';
-import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
-import {SelectedOptionView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionView';
-import {BaseSelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {SelectedOptionView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionView';
+import {BaseSelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/BaseSelectedOptionsView';
 import {LocaleViewer} from './LocaleViewer';
-import {Viewer} from 'lib-admin-ui/ui/Viewer';
-import {SelectedOptionsView} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
+import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {SelectedOptionsView} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionsView';
 import {LocaleLoader} from './LocaleLoader';
 
 export class LocaleComboBox

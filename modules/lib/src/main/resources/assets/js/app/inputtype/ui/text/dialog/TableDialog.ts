@@ -1,13 +1,13 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
 import {OverrideNativeDialog} from './OverrideNativeDialog';
 import {HtmlAreaModalDialogConfig, ModalDialogFormItemBuilder} from './ModalDialog';
-import {FormItem} from 'lib-admin-ui/ui/form/FormItem';
-import {NumberHelper} from 'lib-admin-ui/util/NumberHelper';
-import {Dropdown, DropdownConfig} from 'lib-admin-ui/ui/selector/dropdown/Dropdown';
-import {FormInputEl} from 'lib-admin-ui/dom/FormInputEl';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {FormItem} from '@enonic/lib-admin-ui/ui/form/FormItem';
+import {NumberHelper} from '@enonic/lib-admin-ui/util/NumberHelper';
+import {Dropdown, DropdownConfig} from '@enonic/lib-admin-ui/ui/selector/dropdown/Dropdown';
+import {FormInputEl} from '@enonic/lib-admin-ui/dom/FormInputEl';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import eventInfo = CKEDITOR.eventInfo;
 
 enum DialogType {

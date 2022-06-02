@@ -1,6 +1,6 @@
-import {Toolbar} from 'lib-admin-ui/ui/toolbar/Toolbar';
-import {Button} from 'lib-admin-ui/ui/button/Button';
-import {Element} from 'lib-admin-ui/dom/Element';
+import {Toolbar} from '@enonic/lib-admin-ui/ui/toolbar/Toolbar';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class ResponsiveToolbar extends Toolbar {
 

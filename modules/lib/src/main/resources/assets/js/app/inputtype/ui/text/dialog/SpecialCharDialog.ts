@@ -1,9 +1,9 @@
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {DialogButton} from 'lib-admin-ui/ui/dialog/DialogButton';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {DialogButton} from '@enonic/lib-admin-ui/ui/dialog/DialogButton';
 import {HtmlAreaModalDialogConfig, ModalDialog} from './ModalDialog';
 import eventInfo = CKEDITOR.eventInfo;
 

@@ -1,12 +1,12 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
 import {XDataJson} from '../resource/json/XDataJson';
 import {XDataName} from './XDataName';
-import {Schema, SchemaBuilder} from 'lib-admin-ui/schema/Schema';
-import {FormItem} from 'lib-admin-ui/form/FormItem';
-import {Form, FormBuilder} from 'lib-admin-ui/form/Form';
-import {FormItemFactoryImpl} from 'lib-admin-ui/form/FormItemFactoryImpl';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {Schema, SchemaBuilder} from '@enonic/lib-admin-ui/schema/Schema';
+import {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
+import {Form, FormBuilder} from '@enonic/lib-admin-ui/form/Form';
+import {FormItemFactoryImpl} from '@enonic/lib-admin-ui/form/FormItemFactoryImpl';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 
 export class XData
     extends Schema

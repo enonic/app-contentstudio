@@ -1,6 +1,6 @@
 import {ContentPublishMenuAction, ContentPublishMenuButton, ContentPublishMenuButtonConfig} from './ContentPublishMenuButton';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 
 export interface ContentBrowsePublishMenuButtonConfig
     extends ContentPublishMenuButtonConfig {

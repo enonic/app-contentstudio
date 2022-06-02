@@ -1,8 +1,8 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ContentTypeSummary, ContentTypeSummaryBuilder} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ContentTypeSummary, ContentTypeSummaryBuilder} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 import {ContentTypeJson} from '../../resource/json/ContentTypeJson';
-import {Form} from 'lib-admin-ui/form/Form';
+import {Form} from '@enonic/lib-admin-ui/form/Form';
 
 export class ContentType
     extends ContentTypeSummary

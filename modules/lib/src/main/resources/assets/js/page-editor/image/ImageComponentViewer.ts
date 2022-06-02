@@ -1,6 +1,6 @@
 import {ItemViewIconClassResolver} from '../ItemViewIconClassResolver';
 import {ImageComponent} from '../../app/page/region/ImageComponent';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 
 export class ImageComponentViewer
     extends NamesAndIconViewer<ImageComponent> {

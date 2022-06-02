@@ -1,12 +1,12 @@
 import * as $ from 'jquery';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ResponsiveManager} from 'lib-admin-ui/ui/responsive/ResponsiveManager';
-import {ResponsiveItem} from 'lib-admin-ui/ui/responsive/ResponsiveItem';
-import {Body} from 'lib-admin-ui/dom/Body';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {AEl} from 'lib-admin-ui/dom/AEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ResponsiveManager} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
+import {ResponsiveItem} from '@enonic/lib-admin-ui/ui/responsive/ResponsiveItem';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {LiveEditModel} from './LiveEditModel';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {ItemView, ItemViewBuilder} from './ItemView';
@@ -49,9 +49,9 @@ import {Component} from '../app/page/region/Component';
 import {PageMode, PageTemplateDisplayName} from '../app/page/PageMode';
 import {RegionPath} from '../app/page/region/RegionPath';
 import {ComponentPath} from '../app/page/region/ComponentPath';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {PropertyChangedEvent} from 'lib-admin-ui/PropertyChangedEvent';
-import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {PropertyChangedEvent} from '@enonic/lib-admin-ui/PropertyChangedEvent';
+import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 import {ContentSummaryViewer} from '../app/content/ContentSummaryViewer';
 
 export class PageViewBuilder {

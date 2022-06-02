@@ -1,5 +1,5 @@
-import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ContentServerEvent} from './ContentServerEvent';
 import {ContentServerChangeItem} from './ContentServerChangeItem';
 

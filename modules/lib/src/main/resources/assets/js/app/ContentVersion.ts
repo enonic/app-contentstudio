@@ -1,6 +1,6 @@
 import {ContentVersionJson} from './resource/json/ContentVersionJson';
 import {ContentVersionPublishInfo} from './ContentVersionPublishInfo';
-import {Cloneable} from 'lib-admin-ui/Cloneable';
+import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
 import {Workflow} from './content/Workflow';
 import {WorkflowState} from './content/WorkflowState';
 

@@ -1,4 +1,4 @@
-import {Action} from 'lib-admin-ui/ui/Action';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {IssueStatus} from '../IssueStatus';
 import {FilterType} from './FilterType';
 

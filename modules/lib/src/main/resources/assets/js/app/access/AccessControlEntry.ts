@@ -1,11 +1,11 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Cloneable} from 'lib-admin-ui/Cloneable';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
-import {Principal} from 'lib-admin-ui/security/Principal';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {AccessControlEntryJson} from './AccessControlEntryJson';
 import {Permission} from './Permission';
-import {PrincipalContainer} from 'lib-admin-ui/ui/security/PrincipalContainer';
+import {PrincipalContainer} from '@enonic/lib-admin-ui/ui/security/PrincipalContainer';
 
 export class AccessControlEntry
     extends PrincipalContainer

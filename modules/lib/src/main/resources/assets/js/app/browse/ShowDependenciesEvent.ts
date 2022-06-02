@@ -1,6 +1,6 @@
-import {Event} from 'lib-admin-ui/event/Event';
-import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentId} from '../content/ContentId';
 
 export class ShowDependenciesEvent

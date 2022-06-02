@@ -1,13 +1,13 @@
-import {Application} from 'lib-admin-ui/application/Application';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
-import {ApplicationViewer} from 'lib-admin-ui/application/ApplicationViewer';
-import {FormView} from 'lib-admin-ui/form/FormView';
-import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {ApplicationConfigProvider} from 'lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
+import {Application} from '@enonic/lib-admin-ui/application/Application';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
+import {ApplicationViewer} from '@enonic/lib-admin-ui/application/ApplicationViewer';
+import {FormView} from '@enonic/lib-admin-ui/form/FormView';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {ApplicationConfigProvider} from '@enonic/lib-admin-ui/form/inputtype/appconfig/ApplicationConfigProvider';
 import {SiteConfiguratorSelectedOptionsView} from './SiteConfiguratorSelectedOptionsView';
 import {SiteConfiguratorSelectedOptionView} from './SiteConfiguratorSelectedOptionView';
 import {ContentFormContext} from '../../ContentFormContext';
-import {RichComboBox, RichComboBoxBuilder} from 'lib-admin-ui/ui/selector/combobox/RichComboBox';
+import {RichComboBox, RichComboBoxBuilder} from '@enonic/lib-admin-ui/ui/selector/combobox/RichComboBox';
 import {SiteApplicationLoader} from '../../application/SiteApplicationLoader';
 
 export class SiteConfiguratorComboBox

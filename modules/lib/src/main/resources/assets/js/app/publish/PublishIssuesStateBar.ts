@@ -1,11 +1,11 @@
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {H6El} from 'lib-admin-ui/dom/H6El';
-import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
+import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export class PublishIssuesStateBar
     extends DivEl {

@@ -1,6 +1,6 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {assertNotNull} from 'lib-admin-ui/util/Assert';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
 
 export class ComponentName
     implements Equitable {

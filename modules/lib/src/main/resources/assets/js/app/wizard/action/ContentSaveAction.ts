@@ -1,7 +1,7 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {SaveAction} from 'lib-admin-ui/app/wizard/SaveAction';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {SaveAction} from '@enonic/lib-admin-ui/app/wizard/SaveAction';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 
 export class ContentSaveAction

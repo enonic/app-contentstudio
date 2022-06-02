@@ -1,7 +1,7 @@
 import {ContentType} from '../inputtype/schema/ContentType';
 import {ContentTypeJson} from './json/ContentTypeJson';
-import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
-import {ContentTypeSummaryJson} from 'lib-admin-ui/schema/content/ContentTypeSummaryJson';
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {ContentTypeSummaryJson} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummaryJson';
 import {CmsResourceRequest} from './CmsResourceRequest';
 import {ContentResourceRequest} from './ContentResourceRequest';
 

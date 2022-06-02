@@ -1,5 +1,5 @@
-import {UlEl} from 'lib-admin-ui/dom/UlEl';
-import {LiEl} from 'lib-admin-ui/dom/LiEl';
+import {UlEl} from '@enonic/lib-admin-ui/dom/UlEl';
+import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
 
 export class TagSuggestions
     extends UlEl {

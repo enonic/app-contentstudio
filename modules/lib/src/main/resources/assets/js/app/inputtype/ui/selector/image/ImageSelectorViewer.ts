@@ -1,6 +1,6 @@
-import {ElementHelper} from 'lib-admin-ui/dom/ElementHelper';
+import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
 import {MediaTreeSelectorItem} from '../media/MediaTreeSelectorItem';
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
 
 export class ImageSelectorViewer
     extends NamesAndIconViewer<MediaTreeSelectorItem> {

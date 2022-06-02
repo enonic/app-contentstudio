@@ -1,5 +1,5 @@
-import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {RichDropdown} from 'lib-admin-ui/ui/selector/dropdown/RichDropdown';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {RichDropdown} from '@enonic/lib-admin-ui/ui/selector/dropdown/RichDropdown';
 import {Descriptor} from '../../../../page/Descriptor';
 import {DescriptorKey} from '../../../../page/DescriptorKey';
 

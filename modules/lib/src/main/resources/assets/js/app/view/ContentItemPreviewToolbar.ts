@@ -1,6 +1,6 @@
 import * as Q from 'q';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentStatusToolbar} from '../ContentStatusToolbar';
 import {IssueStatus} from '../issue/IssueStatus';
 import {FindIssuesRequest} from '../issue/resource/FindIssuesRequest';
@@ -9,8 +9,8 @@ import {IssueDialogsManager} from '../issue/IssueDialogsManager';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {IssueServerEventsHandler} from '../issue/event/IssueServerEventsHandler';
 import {IssueType} from '../issue/IssueType';
-import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {ContentId} from '../content/ContentId';
 
 export class ContentItemPreviewToolbar

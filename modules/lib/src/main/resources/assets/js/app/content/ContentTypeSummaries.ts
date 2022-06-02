@@ -1,8 +1,8 @@
-import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 
 export class ContentTypeSummaries
     implements Equitable {

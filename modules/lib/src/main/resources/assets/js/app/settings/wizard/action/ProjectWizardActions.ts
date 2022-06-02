@@ -2,8 +2,8 @@ import {SettingsViewItem} from '../../view/SettingsViewItem';
 import {ProjectViewItem} from '../../view/ProjectViewItem';
 import {SettingsDataItemWizardActions} from './SettingsDataItemWizardActions';
 import {ProjectWizardPanel} from '../panel/ProjectWizardPanel';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 
 export class ProjectWizardActions
     extends SettingsDataItemWizardActions<ProjectViewItem> {

@@ -1,6 +1,6 @@
 /* eslint-disable complexity */
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {NodeServerChangeType} from 'lib-admin-ui/event/NodeServerChange';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {NodeServerChangeType} from '@enonic/lib-admin-ui/event/NodeServerChange';
 import {ContentDeletedEvent} from './ContentDeletedEvent';
 import {BatchContentServerEvent} from './BatchContentServerEvent';
 import {ContentUpdatedEvent} from './ContentUpdatedEvent';
@@ -9,14 +9,14 @@ import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompar
 import {CompareStatusChecker} from '../content/CompareStatus';
 import {ContentIds} from '../content/ContentIds';
 import {Branch} from '../versioning/Branch';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentServerChangeItem} from './ContentServerChangeItem';
 import {ProjectContext} from '../project/ProjectContext';
 import {RepositoryId} from '../repository/RepositoryId';
 import {ContentId} from '../content/ContentId';
 import {ContentPath} from '../content/ContentPath';
 import {ArchiveServerEvent} from './ArchiveServerEvent';
-import {Store} from 'lib-admin-ui/store/Store';
+import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {MovedContentItem} from '../browse/MovedContentItem';
 
 export const CONTENT_SERVER_EVENTS_HANDLER_KEY: string = 'ContentServerEventsHandler';

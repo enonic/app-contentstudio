@@ -1,4 +1,4 @@
-import {Element} from 'lib-admin-ui/dom/Element';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {ItemView} from './ItemView';
 import {ItemViewFactory} from './ItemViewFactory';

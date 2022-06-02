@@ -1,18 +1,18 @@
-import {DateHelper} from 'lib-admin-ui/util/DateHelper';
-import {LiEl} from 'lib-admin-ui/dom/LiEl';
-import {ActionButton} from 'lib-admin-ui/ui/button/ActionButton';
+import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
+import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
+import {ActionButton} from '@enonic/lib-admin-ui/ui/button/ActionButton';
 import {VersionHistoryListItemViewer} from './VersionHistoryListItemViewer';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {CompareContentVersionsDialog} from '../../../../dialog/CompareContentVersionsDialog';
 import {RevertVersionRequest} from '../../../../resource/RevertVersionRequest';
 import {ActiveContentVersionSetEvent} from '../../../../event/ActiveContentVersionSetEvent';
 import * as $ from 'jquery';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {Tooltip} from 'lib-admin-ui/ui/Tooltip';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
 import {VersionHistoryItem} from './VersionHistoryItem';
 
 export class VersionHistoryListItem

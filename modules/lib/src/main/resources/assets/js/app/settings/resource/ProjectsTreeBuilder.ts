@@ -2,7 +2,7 @@ import {Project, ProjectBuilder} from '../data/project/Project';
 import {ProjectsTreeRequest} from './ProjectsTreeRequest';
 import {ProjectsTreeItem} from '../data/project/ProjectsTreeItem';
 import {ProjectHelper} from '../data/project/ProjectHelper';
-import {CONFIG} from 'lib-admin-ui/util/Config';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import * as Q from 'q';
 
 export class ProjectsTreeBuilder {

@@ -1,7 +1,7 @@
-import {UploadStartedEvent} from 'lib-admin-ui/ui/uploader/UploadStartedEvent';
+import {UploadStartedEvent} from '@enonic/lib-admin-ui/ui/uploader/UploadStartedEvent';
 import {MediaUploaderEl, MediaUploaderElOperation} from '../inputtype/ui/upload/MediaUploaderEl';
 import {Content} from '../content/Content';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 
 export class NewContentUploader
     extends DivEl {

@@ -1,8 +1,8 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Permission, PermissionState} from '../access/Permission';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
-import {AEl} from 'lib-admin-ui/dom/AEl';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 
 export interface PermissionSelectorOption {
     value: Permission;

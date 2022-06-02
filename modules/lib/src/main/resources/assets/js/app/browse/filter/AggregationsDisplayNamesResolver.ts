@@ -1,17 +1,17 @@
-import {Aggregation} from 'lib-admin-ui/aggregation/Aggregation';
-import {Bucket} from 'lib-admin-ui/aggregation/Bucket';
-import {BucketAggregation} from 'lib-admin-ui/aggregation/BucketAggregation';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
+import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
+import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentAggregation} from './ContentAggregation';
 import {GetPrincipalsByKeysRequest} from '../../security/GetPrincipalsByKeysRequest';
 import * as Q from 'q';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {Principal} from 'lib-admin-ui/security/Principal';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {GetLocalesRequest} from '../../resource/GetLocalesRequest';
-import {Locale} from 'lib-admin-ui/locale/Locale';
+import {Locale} from '@enonic/lib-admin-ui/locale/Locale';
 import {GetAllContentTypesRequest} from '../../resource/GetAllContentTypesRequest';
-import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
 
 export class AggregationsDisplayNamesResolver {
 

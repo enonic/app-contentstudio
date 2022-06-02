@@ -1,9 +1,9 @@
-import {Element} from 'lib-admin-ui/dom/Element';
-import {StyleHelper} from 'lib-admin-ui/StyleHelper';
-import {ClassHelper} from 'lib-admin-ui/ClassHelper';
-import {Body} from 'lib-admin-ui/dom/Body';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {WindowDOM} from 'lib-admin-ui/dom/WindowDOM';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {StyleHelper} from '@enonic/lib-admin-ui/StyleHelper';
+import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {WindowDOM} from '@enonic/lib-admin-ui/dom/WindowDOM';
 
 export class Shader {
 

@@ -2,8 +2,8 @@ import {DialogTogglableItemList, TogglableStatusSelectionItem} from '../dialog/D
 import {ContentSummaryAndCompareStatusViewer} from '../content/ContentSummaryAndCompareStatusViewer';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ContentServerEventsHandler} from '../event/ContentServerEventsHandler';
-import {ArrayHelper} from 'lib-admin-ui/util/ArrayHelper';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ContentServerChangeItem} from '../event/ContentServerChangeItem';
 import {ContentId} from '../content/ContentId';
 

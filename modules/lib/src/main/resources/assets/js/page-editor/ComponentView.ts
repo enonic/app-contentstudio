@@ -1,9 +1,9 @@
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {Viewer} from 'lib-admin-ui/ui/Viewer';
-import {Cloneable} from 'lib-admin-ui/Cloneable';
-import {KeyBindings} from 'lib-admin-ui/ui/KeyBindings';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
+import {Cloneable} from '@enonic/lib-admin-ui/Cloneable';
+import {KeyBindings} from '@enonic/lib-admin-ui/ui/KeyBindings';
 import {ClickPosition} from './ClickPosition';
 import {ItemViewIdProducer} from './ItemViewIdProducer';
 import {ItemViewPlaceholder} from './ItemViewPlaceholder';
@@ -31,8 +31,8 @@ import {ComponentPropertyChangedEvent} from '../app/page/region/ComponentPropert
 import {ComponentResetEvent} from '../app/page/region/ComponentResetEvent';
 import {FragmentComponent} from '../app/page/region/FragmentComponent';
 import {ComponentPath} from '../app/page/region/ComponentPath';
-import {KeyBinding} from 'lib-admin-ui/ui/KeyBinding';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {KeyBinding} from '@enonic/lib-admin-ui/ui/KeyBinding';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export class ComponentViewBuilder<COMPONENT extends Component> {
 

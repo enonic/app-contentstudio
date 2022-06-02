@@ -1,14 +1,14 @@
-import {Element} from 'lib-admin-ui/dom/Element';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {AEl} from 'lib-admin-ui/dom/AEl';
-import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
-import {UploadItem} from 'lib-admin-ui/ui/uploader/UploadItem';
-import {UploaderEl, UploaderElConfig} from 'lib-admin-ui/ui/uploader/UploaderEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
+import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
+import {UploadItem} from '@enonic/lib-admin-ui/ui/uploader/UploadItem';
+import {UploaderEl, UploaderElConfig} from '@enonic/lib-admin-ui/ui/uploader/UploaderEl';
 import {CreateMediaFromUrlRequest} from '../../../resource/CreateMediaFromUrlRequest';
 import {Content, ContentBuilder} from '../../../content/Content';
 import {ContentJson} from '../../../content/ContentJson';
-import {DateHelper} from 'lib-admin-ui/util/DateHelper';
-import {Value} from 'lib-admin-ui/data/Value';
+import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
+import {Value} from '@enonic/lib-admin-ui/data/Value';
 import {UrlHelper} from '../../../util/UrlHelper';
 import {ContentResourceRequest} from '../../../resource/ContentResourceRequest';
 

@@ -1,7 +1,7 @@
 import {ContentItemPreviewPanel} from './ContentItemPreviewPanel';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {ItemStatisticsPanel} from 'lib-admin-ui/app/view/ItemStatisticsPanel';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
+import {ItemStatisticsPanel} from '@enonic/lib-admin-ui/app/view/ItemStatisticsPanel';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
 export class ContentItemStatisticsPanel
     extends ItemStatisticsPanel {

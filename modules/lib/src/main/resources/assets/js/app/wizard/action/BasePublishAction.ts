@@ -1,8 +1,8 @@
-import {showWarning} from 'lib-admin-ui/notify/MessageBus';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
+import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {ContentWizardPanel} from '../ContentWizardPanel';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export interface BasePublishActionConfig {
     wizard: ContentWizardPanel;

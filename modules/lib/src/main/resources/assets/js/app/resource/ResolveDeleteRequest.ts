@@ -1,5 +1,5 @@
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
 import {ContentId} from '../content/ContentId';
 import {CmsContentResourceRequest} from './CmsContentResourceRequest';
 import {ResolveContentForDeleteJson} from './json/ResolveContentForDeleteJson';

@@ -1,5 +1,5 @@
-import {InputEl} from 'lib-admin-ui/dom/InputEl';
-import {CompositeFormInputEl} from 'lib-admin-ui/dom/CompositeFormInputEl';
+import {InputEl} from '@enonic/lib-admin-ui/dom/InputEl';
+import {CompositeFormInputEl} from '@enonic/lib-admin-ui/dom/CompositeFormInputEl';
 
 export class FileInput
     extends CompositeFormInputEl {

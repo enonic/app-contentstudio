@@ -1,9 +1,9 @@
 import * as $ from 'jquery';
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {Event} from 'lib-admin-ui/event/Event';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {Event} from '@enonic/lib-admin-ui/event/Event';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {LiveEditModel} from '../../../page-editor/LiveEditModel';
 import {PageView} from '../../../page-editor/PageView';
 import {ComponentViewDragStartedEvent} from '../../../page-editor/ComponentViewDragStartedEvent';
@@ -44,17 +44,17 @@ import {EditContentEvent} from '../../event/EditContentEvent';
 import {Component} from '../../page/region/Component';
 import {EmulatedEvent} from '../../event/EmulatedEvent';
 import {Regions} from '../../page/region/Regions';
-import {MinimizeWizardPanelEvent} from 'lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
-import {IFrameEl} from 'lib-admin-ui/dom/IFrameEl';
-import {DragMask} from 'lib-admin-ui/ui/mask/DragMask';
-import {BrowserHelper} from 'lib-admin-ui/BrowserHelper';
-import {assertNotNull} from 'lib-admin-ui/util/Assert';
-import {GLOBAL, GlobalLibAdmin, Store} from 'lib-admin-ui/store/Store';
+import {MinimizeWizardPanelEvent} from '@enonic/lib-admin-ui/app/wizard/MinimizeWizardPanelEvent';
+import {IFrameEl} from '@enonic/lib-admin-ui/dom/IFrameEl';
+import {DragMask} from '@enonic/lib-admin-ui/ui/mask/DragMask';
+import {BrowserHelper} from '@enonic/lib-admin-ui/BrowserHelper';
+import {assertNotNull} from '@enonic/lib-admin-ui/util/Assert';
+import {GLOBAL, GlobalLibAdmin, Store} from '@enonic/lib-admin-ui/store/Store';
 import {IEObjectHolder} from './IEObjectHolder';
 import {ItemViewIdProducer} from '../../../page-editor/ItemViewIdProducer';
 import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
 import {Descriptor} from '../../page/Descriptor';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LiveEditPagePlaceholder} from './LiveEditPagePlaceholder';
 
 export class LiveEditPageProxy {

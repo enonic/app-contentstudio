@@ -1,22 +1,22 @@
 import * as Q from 'q';
-import {Input} from 'lib-admin-ui/form/Input';
-import {PropertyArray} from 'lib-admin-ui/data/PropertyArray';
-import {Value} from 'lib-admin-ui/data/Value';
-import {ValueType} from 'lib-admin-ui/data/ValueType';
-import {ValueTypes} from 'lib-admin-ui/data/ValueTypes';
-import {ContentTypeSummary} from 'lib-admin-ui/schema/content/ContentTypeSummary';
-import {SelectedOption} from 'lib-admin-ui/ui/selector/combobox/SelectedOption';
-import {SelectedOptionEvent} from 'lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
-import {BaseLoader} from 'lib-admin-ui/util/loader/BaseLoader';
-import {BaseInputTypeManagingAdd} from 'lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
+import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
+import {Value} from '@enonic/lib-admin-ui/data/Value';
+import {ValueType} from '@enonic/lib-admin-ui/data/ValueType';
+import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
+import {ContentTypeSummary} from '@enonic/lib-admin-ui/schema/content/ContentTypeSummary';
+import {SelectedOption} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOption';
+import {SelectedOptionEvent} from '@enonic/lib-admin-ui/ui/selector/combobox/SelectedOptionEvent';
+import {BaseLoader} from '@enonic/lib-admin-ui/util/loader/BaseLoader';
+import {BaseInputTypeManagingAdd} from '@enonic/lib-admin-ui/form/inputtype/support/BaseInputTypeManagingAdd';
 import {ContentInputTypeViewContext} from '../ContentInputTypeViewContext';
 import {PageTemplateContentTypeLoader} from './PageTemplateContentTypeLoader';
 import {ContentTypeComboBox} from './ContentTypeComboBox';
 import {ContentTypeSummaryLoader} from './ContentTypeSummaryLoader';
 import {ContentTypeComparator} from './ContentTypeComparator';
-import {ValueTypeConverter} from 'lib-admin-ui/data/ValueTypeConverter';
-import {InputTypeManager} from 'lib-admin-ui/form/inputtype/InputTypeManager';
-import {Class} from 'lib-admin-ui/Class';
+import {ValueTypeConverter} from '@enonic/lib-admin-ui/data/ValueTypeConverter';
+import {InputTypeManager} from '@enonic/lib-admin-ui/form/inputtype/InputTypeManager';
+import {Class} from '@enonic/lib-admin-ui/Class';
 
 export class ContentTypeFilter
     extends BaseInputTypeManagingAdd {

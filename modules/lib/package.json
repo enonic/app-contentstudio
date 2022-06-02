@@ -1,6 +1,6 @@
 {
   "name": "lib-contentstudio",
-  "version": "4.0.0",
+  "version": "4.2.0",
   "description": "Enonix XP - Content Studio Library",
   "license": "GPL-3.0",
   "repository": {
@@ -16,12 +16,12 @@
     "fix": "eslint --fix src/**/*.ts"
   },
   "dependencies": {
+    "@enonic/lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
     "flag-icons": "^6.4.4",
     "hasher": "^1.2.0",
     "jquery-simulate": "^1.0.2",
     "jquery-ui": "^1.13.1",
     "jsondiffpatch": "^0.4.1",
-    "lib-admin-ui": "file:./.xp/dev/lib-admin-ui",
     "lodash": "^4.17.21",
     "q": "^1.5.1"
   },

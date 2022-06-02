@@ -3,9 +3,9 @@ import {WidgetItemView} from '../../WidgetItemView';
 import {VersionHistoryList} from './VersionHistoryList';
 import {ContentServerEventsHandler} from '../../../../event/ContentServerEventsHandler';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DateHelper} from 'lib-admin-ui/util/DateHelper';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
 import {ContentSummary} from '../../../../content/ContentSummary';
 
 export class VersionHistoryView extends WidgetItemView {

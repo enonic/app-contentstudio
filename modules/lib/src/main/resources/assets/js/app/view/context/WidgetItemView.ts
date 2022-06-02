@@ -1,11 +1,11 @@
 import * as Q from 'q';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from '../../content/ContentSummaryAndCompareStatus';
 import {RepositoryId} from '../../repository/RepositoryId';
 import {ProjectContext} from '../../project/ProjectContext';
-import {CONFIG} from 'lib-admin-ui/util/Config';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {WidgetHelper} from '../../util/WidgetHelper';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 
 export class WidgetItemView
     extends DivEl {

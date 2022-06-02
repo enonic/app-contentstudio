@@ -3,7 +3,7 @@ import {WidgetItemView} from '../../WidgetItemView';
 import {ContentSummaryAndCompareStatus} from '../../../../content/ContentSummaryAndCompareStatus';
 import {CompareStatus} from '../../../../content/CompareStatus';
 import {PublishStatus} from '../../../../publish/PublishStatus';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 
 export class StatusWidgetItemView extends WidgetItemView {
 

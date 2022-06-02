@@ -1,11 +1,11 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentSummaryAndCompareStatus} from './content/ContentSummaryAndCompareStatus';
 import {GetPrincipalByKeyRequest} from './resource/GetPrincipalByKeyRequest';
-import {ItemPreviewToolbar} from 'lib-admin-ui/app/view/ItemPreviewToolbar';
-import {SpanEl} from 'lib-admin-ui/dom/SpanEl';
-import {PrincipalKey} from 'lib-admin-ui/security/PrincipalKey';
-import {Principal} from 'lib-admin-ui/security/Principal';
+import {ItemPreviewToolbar} from '@enonic/lib-admin-ui/app/view/ItemPreviewToolbar';
+import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
+import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 
 export class ContentStatusToolbar
     extends ItemPreviewToolbar<ContentSummaryAndCompareStatus> {

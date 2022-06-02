@@ -1,7 +1,7 @@
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {assert} from 'lib-admin-ui/util/Assert';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {assert} from '@enonic/lib-admin-ui/util/Assert';
 
 export class ItemViewId
     implements Equitable {

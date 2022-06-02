@@ -1,10 +1,10 @@
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {Application} from 'lib-admin-ui/app/Application';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {Application} from '@enonic/lib-admin-ui/app/Application';
 import {ContentAppBarTabId} from '../ContentAppBarTabId';
 import {Project} from '../settings/data/project/Project';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentId} from '../content/ContentId';
-import {WizardPanelParams} from 'lib-admin-ui/app/wizard/WizardPanel';
+import {WizardPanelParams} from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import {Content} from '../content/Content';
 
 export class ContentWizardPanelParams implements WizardPanelParams<Content> {

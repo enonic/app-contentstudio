@@ -1,9 +1,9 @@
-import {Path} from 'lib-admin-ui/rest/Path';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
+import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {AdminToolJson} from './json/AdminToolJson';
 import {AdminTool} from '../AdminTool';
-import {CONFIG} from 'lib-admin-ui/util/Config';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export class GetAdminToolsRequest
     extends ResourceRequest<AdminTool[]> {

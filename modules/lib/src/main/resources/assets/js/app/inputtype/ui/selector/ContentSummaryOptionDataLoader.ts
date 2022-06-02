@@ -1,7 +1,7 @@
 import * as Q from 'q';
-import {Option} from 'lib-admin-ui/ui/selector/Option';
-import {OptionDataLoader, OptionDataLoaderData} from 'lib-admin-ui/ui/selector/OptionDataLoader';
-import {TreeNode} from 'lib-admin-ui/ui/treegrid/TreeNode';
+import {Option} from '@enonic/lib-admin-ui/ui/selector/Option';
+import {OptionDataLoader, OptionDataLoaderData} from '@enonic/lib-admin-ui/ui/selector/OptionDataLoader';
+import {TreeNode} from '@enonic/lib-admin-ui/ui/treegrid/TreeNode';
 import {ContentTreeSelectorItem} from '../../../item/ContentTreeSelectorItem';
 import {ContentAndStatusTreeSelectorItem} from '../../../item/ContentAndStatusTreeSelectorItem';
 import {ContentTreeSelectorQueryRequest} from '../../../resource/ContentTreeSelectorQueryRequest';

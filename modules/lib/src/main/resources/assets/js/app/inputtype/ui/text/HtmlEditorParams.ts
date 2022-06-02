@@ -1,5 +1,5 @@
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {ApplicationKey} from 'lib-admin-ui/application/ApplicationKey';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
 import {CreateHtmlAreaDialogEvent} from './CreateHtmlAreaDialogEvent';
 import {ContentSummary} from '../../../content/ContentSummary';
 import {ContentPath} from '../../../content/ContentPath';

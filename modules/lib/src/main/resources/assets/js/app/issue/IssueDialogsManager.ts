@@ -1,4 +1,4 @@
-import {ModalDialog} from 'lib-admin-ui/ui/dialog/ModalDialog';
+import {ModalDialog} from '@enonic/lib-admin-ui/ui/dialog/ModalDialog';
 import {IssueDetailsDialog} from './view/IssueDetailsDialog';
 import {IssueListDialog} from './view/IssueListDialog';
 import {Issue} from './Issue';

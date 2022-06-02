@@ -1,8 +1,8 @@
-import {Action} from 'lib-admin-ui/ui/Action';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {SettingsItemsTreeGrid} from '../../grid/SettingsItemsTreeGrid';
 import {SyncLayersRequest} from '../../resource/SyncLayersRequest';
-import {showFeedback, showWarning} from 'lib-admin-ui/notify/MessageBus';
+import {showFeedback, showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
 
 export class SyncAction
     extends Action {

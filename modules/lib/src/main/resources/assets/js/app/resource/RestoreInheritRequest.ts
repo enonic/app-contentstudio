@@ -1,5 +1,5 @@
-import {HttpMethod} from 'lib-admin-ui/rest/HttpMethod';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {ProjectContext} from '../project/ProjectContext';
 import {ContentInheritType} from '../content/ContentInheritType';
 import {ContentId} from '../content/ContentId';

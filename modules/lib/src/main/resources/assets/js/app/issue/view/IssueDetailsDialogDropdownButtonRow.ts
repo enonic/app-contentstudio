@@ -1,6 +1,6 @@
-import {DropdownButtonRow} from 'lib-admin-ui/ui/dialog/DropdownButtonRow';
-import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {DropdownButtonRow} from '@enonic/lib-admin-ui/ui/dialog/DropdownButtonRow';
+import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 
 export class IssueDetailsDialogButtonRow extends DropdownButtonRow {
 

@@ -1,19 +1,19 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
-import {Body} from 'lib-admin-ui/dom/Body';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from 'lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
-import {NotifyManager} from 'lib-admin-ui/notify/NotifyManager';
-import {Principal} from 'lib-admin-ui/security/Principal';
-import {Action} from 'lib-admin-ui/ui/Action';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {ModalDialogWithConfirmation, ModalDialogWithConfirmationConfig} from '@enonic/lib-admin-ui/ui/dialog/ModalDialogWithConfirmation';
+import {NotifyManager} from '@enonic/lib-admin-ui/notify/NotifyManager';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
 import {IssuesCount, IssuesPanel} from './IssuesPanel';
 import {Issue} from '../Issue';
 import {IssueServerEventsHandler} from '../event/IssueServerEventsHandler';
 import {GetIssueStatsRequest} from '../resource/GetIssueStatsRequest';
 import {IssueStatsJson} from '../json/IssueStatsJson';
 import {IssueType} from '../IssueType';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
 import {ProjectContext} from '../../project/ProjectContext';
 
 export class IssueListDialog

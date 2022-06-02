@@ -1,4 +1,4 @@
-import {Element} from 'lib-admin-ui/dom/Element';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
 
 export class AccessibilityHelper {
 

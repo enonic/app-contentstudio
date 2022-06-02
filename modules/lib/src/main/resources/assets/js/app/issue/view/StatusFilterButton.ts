@@ -1,4 +1,4 @@
-import {Button} from 'lib-admin-ui/ui/button/Button';
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
 
 export class StatusFilterButton
     extends Button {

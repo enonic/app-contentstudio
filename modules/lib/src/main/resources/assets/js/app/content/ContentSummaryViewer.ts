@@ -1,5 +1,5 @@
-import {NamesAndIconViewer} from 'lib-admin-ui/ui/NamesAndIconViewer';
-import {NamePrettyfier} from 'lib-admin-ui/NamePrettyfier';
+import {NamesAndIconViewer} from '@enonic/lib-admin-ui/ui/NamesAndIconViewer';
+import {NamePrettyfier} from '@enonic/lib-admin-ui/NamePrettyfier';
 import {ContentIconUrlResolver} from './ContentIconUrlResolver';
 import {ContentSummary} from './ContentSummary';
 import {ContentPath} from './ContentPath';

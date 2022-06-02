@@ -1,11 +1,11 @@
 import * as Q from 'q';
-import {Path} from 'lib-admin-ui/rest/Path';
-import {JsonResponse} from 'lib-admin-ui/rest/JsonResponse';
+import {Path} from '@enonic/lib-admin-ui/rest/Path';
+import {JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
 import {StyleJson} from './StylesDescriptor';
 import {Styles} from './Styles';
-import {ResourceRequest} from 'lib-admin-ui/rest/ResourceRequest';
+import {ResourceRequest} from '@enonic/lib-admin-ui/rest/ResourceRequest';
 import {ProjectContext} from '../../../../project/ProjectContext';
-import {CONFIG} from 'lib-admin-ui/util/Config';
+import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 
 export interface GetStylesResponse {
     css: string[];

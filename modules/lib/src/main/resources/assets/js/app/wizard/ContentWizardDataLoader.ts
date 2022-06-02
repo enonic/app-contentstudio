@@ -1,5 +1,5 @@
 import * as Q from 'q';
-import {i18n} from 'lib-admin-ui/util/Messages';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DefaultModels} from './page/DefaultModels';
 import {DefaultModelsFactory, DefaultModelsFactoryConfig} from './page/DefaultModelsFactory';
 import {ContentWizardPanelParams} from './ContentWizardPanelParams';
@@ -13,8 +13,8 @@ import {Site} from '../content/Site';
 import {CompareStatus} from '../content/CompareStatus';
 import {PublishStatus} from '../publish/PublishStatus';
 import {ContentType} from '../inputtype/schema/ContentType';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {Exception, ExceptionType} from 'lib-admin-ui/Exception';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {Exception, ExceptionType} from '@enonic/lib-admin-ui/Exception';
 import {ContentId} from '../content/ContentId';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {ProjectContext} from '../project/ProjectContext';

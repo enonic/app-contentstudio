@@ -1,7 +1,7 @@
-import {ListBox} from 'lib-admin-ui/ui/selector/list/ListBox';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {Principal} from 'lib-admin-ui/security/Principal';
-import {PrincipalViewer} from 'lib-admin-ui/ui/security/PrincipalViewer';
+import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
+import {PrincipalViewer} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
 
 
 export class PrincipalsListBox extends ListBox<Principal> {

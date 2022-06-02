@@ -1,23 +1,23 @@
 import * as Q from 'q';
-import {Element} from 'lib-admin-ui/dom/Element';
-import {showError} from 'lib-admin-ui/notify/MessageBus';
-import {i18n} from 'lib-admin-ui/util/Messages';
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {Body} from 'lib-admin-ui/dom/Body';
-import {DivEl} from 'lib-admin-ui/dom/DivEl';
-import {AEl} from 'lib-admin-ui/dom/AEl';
+import {Element} from '@enonic/lib-admin-ui/dom/Element';
+import {showError} from '@enonic/lib-admin-ui/notify/MessageBus';
+import {i18n} from '@enonic/lib-admin-ui/util/Messages';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {Body} from '@enonic/lib-admin-ui/dom/Body';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
 import {ContentPublishPromptEvent} from '../browse/ContentPublishPromptEvent';
 import {ContentPublishDialogAction} from './ContentPublishDialogAction';
 import {DependantItemsWithProgressDialogConfig} from '../dialog/DependantItemsWithProgressDialog';
 import {PublishContentRequest} from '../resource/PublishContentRequest';
 import {BasePublishDialog, PublishDialogButtonRow} from '../dialog/BasePublishDialog';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {Action} from 'lib-admin-ui/ui/Action';
-import {KeyHelper} from 'lib-admin-ui/ui/KeyHelper';
-import {TaskState} from 'lib-admin-ui/task/TaskState';
-import {TaskId} from 'lib-admin-ui/task/TaskId';
-import {AutosizeTextInput} from 'lib-admin-ui/ui/text/AutosizeTextInput';
-import {MenuButton} from 'lib-admin-ui/ui/button/MenuButton';
+import {Action} from '@enonic/lib-admin-ui/ui/Action';
+import {KeyHelper} from '@enonic/lib-admin-ui/ui/KeyHelper';
+import {TaskState} from '@enonic/lib-admin-ui/task/TaskState';
+import {TaskId} from '@enonic/lib-admin-ui/task/TaskId';
+import {AutosizeTextInput} from '@enonic/lib-admin-ui/ui/text/AutosizeTextInput';
+import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {ContentId} from '../content/ContentId';
 
 /**

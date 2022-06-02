@@ -1,12 +1,12 @@
-import {StringHelper} from 'lib-admin-ui/util/StringHelper';
-import {AppHelper} from 'lib-admin-ui/util/AppHelper';
+import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
+import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
 import {ImageUrlResolver} from '../../../util/ImageUrlResolver';
 import {Styles} from './styles/Styles';
-import {UriHelper} from 'lib-admin-ui/util/UriHelper';
+import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import * as Q from 'q';
-import {DefaultErrorHandler} from 'lib-admin-ui/DefaultErrorHandler';
-import {IsAuthenticatedRequest} from 'lib-admin-ui/security/auth/IsAuthenticatedRequest';
-import {LoginResult} from 'lib-admin-ui/security/auth/LoginResult';
+import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import {IsAuthenticatedRequest} from '@enonic/lib-admin-ui/security/auth/IsAuthenticatedRequest';
+import {LoginResult} from '@enonic/lib-admin-ui/security/auth/LoginResult';
 import {ProjectHelper} from '../../../settings/data/project/ProjectHelper';
 import {ContentId} from '../../../content/ContentId';
 

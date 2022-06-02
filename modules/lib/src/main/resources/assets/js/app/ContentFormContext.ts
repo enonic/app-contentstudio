@@ -1,10 +1,10 @@
-import {Input} from 'lib-admin-ui/form/Input';
-import {PropertyPath} from 'lib-admin-ui/data/PropertyPath';
+import {Input} from '@enonic/lib-admin-ui/form/Input';
+import {PropertyPath} from '@enonic/lib-admin-ui/data/PropertyPath';
 import {ContentInputTypeViewContext} from './inputtype/ContentInputTypeViewContext';
 import {Content} from './content/Content';
 import {Site} from './content/Site';
-import {FormContext, FormContextBuilder} from 'lib-admin-ui/form/FormContext';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
+import {FormContext, FormContextBuilder} from '@enonic/lib-admin-ui/form/FormContext';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {ContentId} from './content/ContentId';
 import {ContentPath} from './content/ContentPath';
 

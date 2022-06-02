@@ -1,11 +1,11 @@
-import {Principal} from 'lib-admin-ui/security/Principal';
+import {Principal} from '@enonic/lib-admin-ui/security/Principal';
 import {AccessSelector} from '../security/AccessSelector';
 import {PermissionSelector} from '../security/PermissionSelector';
 import {Access} from '../security/Access';
 import {AccessControlEntry} from '../access/AccessControlEntry';
 import {Permission} from '../access/Permission';
-import {ValueChangedEvent} from 'lib-admin-ui/ValueChangedEvent';
-import {PrincipalContainerSelectedEntryView} from 'lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
+import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {PrincipalContainerSelectedEntryView} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
 import {AccessChangedEvent} from '../security/AccessChangedEvent';
 
 export class AccessControlEntryView

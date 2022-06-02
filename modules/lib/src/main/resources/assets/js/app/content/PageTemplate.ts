@@ -1,8 +1,8 @@
-import {ObjectHelper} from 'lib-admin-ui/ObjectHelper';
-import {Equitable} from 'lib-admin-ui/Equitable';
-import {ContentTypeName} from 'lib-admin-ui/schema/content/ContentTypeName';
-import {Property} from 'lib-admin-ui/data/Property';
-import {PropertyTree} from 'lib-admin-ui/data/PropertyTree';
+import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
+import {Equitable} from '@enonic/lib-admin-ui/Equitable';
+import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import {Property} from '@enonic/lib-admin-ui/data/Property';
+import {PropertyTree} from '@enonic/lib-admin-ui/data/PropertyTree';
 import {Content, ContentBuilder} from './Content';
 import {ContentJson} from './ContentJson';
 import {PageMode} from '../page/PageMode';
