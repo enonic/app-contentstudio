@@ -14,6 +14,6 @@ export class LayoutComponentType
     }
 
     getIconCls(): string {
-        return 'part';
+        return 'layout';
     }
 }
