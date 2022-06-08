@@ -29,6 +29,8 @@ import com.enonic.xp.page.DescriptorKey;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.page.PageDescriptorService;
 import com.enonic.xp.page.PageDescriptors;
+import com.enonic.xp.project.ProjectName;
+import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.LayoutDescriptorService;
 import com.enonic.xp.region.LayoutDescriptors;
@@ -71,6 +73,9 @@ class FilterByContentResolverTest
     @Mock
     PageDescriptorService pageDescriptorService;
 
+    @Mock
+    ProjectService projectService;
+
     FilterByContentResolver filterByContentResolver;
 
     Set<ContentType> knownContentTypes;
@@ -84,6 +89,7 @@ class FilterByContentResolverTest
         filterByContentResolver.setLayoutDescriptorService( layoutDescriptorService );
         filterByContentResolver.setPageDescriptorService( pageDescriptorService );
         filterByContentResolver.setPartDescriptorService( partDescriptorService );
+        filterByContentResolver.setProjectService( projectService );
 
         knownContentTypes = new HashSet<>( BuiltinContentTypesAccessor.getAll() );
 
@@ -169,11 +175,41 @@ class FilterByContentResolverTest
     @Test
     void contentTypes_root()
     {
+        when( projectService.getApplications( ProjectName.from("default") ) ).thenReturn( ApplicationKeys.empty() );
         final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( null );
 
         verify( contentService, never() ).getById( any() );
         assertThat( contentTypes.map( ContentType::getName ) ).containsExactly( ContentTypeName.folder(), ContentTypeName.site(),
                                                                                 ContentTypeName.shortcut() );
+    }
+
+    @Test
+    void contentTypes_root_with_apps()
+    {
+        final ContentType content = ContentType.create()
+            .superType( ContentTypeName.structured() )
+            .allowChildContent( true )
+            .displayName( "My type" )
+            .name( "application:test-type" )
+            .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
+            .build();
+
+        final ContentType abstractContent = ContentType.create()
+            .superType( ContentTypeName.structured() )
+            .setAbstract()
+            .allowChildContent( true )
+            .displayName( "My type" )
+            .name( "application:test-type-abstract" )
+            .icon( Icon.from( new byte[]{123}, "image/gif", Instant.now() ) )
+            .build();
+
+        when( projectService.getApplications( ProjectName.from("default") ) ).thenReturn( ApplicationKeys.from("app1") );
+        when( contentTypeService.getByApplication( ApplicationKey.from( "app1" ) ) ).thenReturn( ContentTypes.from( content, abstractContent ) );
+
+        final Stream<ContentType> contentTypes = filterByContentResolver.contentTypes( null );
+
+        assertThat( contentTypes.map( ContentType::getName ) ).containsExactly( ContentTypeName.folder(), ContentTypeName.site(),
+                                                                                ContentTypeName.shortcut(), content.getName() );
     }
 
     @Test

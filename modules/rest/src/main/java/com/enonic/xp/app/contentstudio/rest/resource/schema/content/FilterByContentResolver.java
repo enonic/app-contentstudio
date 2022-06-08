@@ -18,9 +18,12 @@ import com.enonic.xp.app.ApplicationWildcardMatcher;
 import com.enonic.xp.content.Content;
 import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentService;
+import com.enonic.xp.context.ContextAccessor;
 import com.enonic.xp.inputtype.InputTypeProperty;
 import com.enonic.xp.page.PageDescriptor;
 import com.enonic.xp.page.PageDescriptorService;
+import com.enonic.xp.project.ProjectName;
+import com.enonic.xp.project.ProjectService;
 import com.enonic.xp.region.ComponentDescriptor;
 import com.enonic.xp.region.LayoutDescriptor;
 import com.enonic.xp.region.LayoutDescriptorService;
@@ -47,11 +50,18 @@ public class FilterByContentResolver
 
     private ContentService contentService;
 
+    private ProjectService projectService;
+
     private LayoutDescriptorService layoutDescriptorService;
 
     private PartDescriptorService partDescriptorService;
 
     private PageDescriptorService pageDescriptorService;
+
+    private static List<String> readConfigValues( final Set<InputTypeProperty> config )
+    {
+        return config.stream().map( InputTypeProperty::getValue ).collect( Collectors.toList() );
+    }
 
     public Stream<ContentType> contentTypes( final ContentId contentId )
     {
@@ -62,7 +72,10 @@ public class FilterByContentResolver
         }
         else
         {
-            return mapToContentTypes( DEFAULT_CONTENT_TYPE_NAMES );
+            final ProjectName currentProject = ProjectName.from( ContextAccessor.current().getRepositoryId() );
+            final ApplicationKeys projectApplications = projectService.getApplications( currentProject );
+
+            return Stream.concat( mapToContentTypes( DEFAULT_CONTENT_TYPE_NAMES ), typesFromApplications( projectApplications ) );
         }
 
         if ( content.getType().isTemplateFolder() )
@@ -82,11 +95,7 @@ public class FilterByContentResolver
 
             final ApplicationKeys siteApps = getNearestSiteApps( contentId );
 
-            final Stream<ContentType> siteContentTypes = siteApps.stream()
-                .map( contentTypeService::getByApplication )
-                .flatMap( ContentTypes::stream )
-                .filter( Predicate.not( ContentType::isAbstract ) )
-                .filter( type -> type.getSchemaConfig().getValue( "allowNewContent", Boolean.class, Boolean.TRUE ) );
+            final Stream<ContentType> siteContentTypes = typesFromApplications( siteApps );
 
             final List<String> allowChildContentType = contentType.getAllowChildContentType();
 
@@ -154,9 +163,14 @@ public class FilterByContentResolver
         return wildcards.stream().map( wildcardMatcher::createPredicate ).reduce( Predicate::or ).orElse( s -> true );
     }
 
-    private static List<String> readConfigValues( final Set<InputTypeProperty> config )
+    private Stream<ContentType> typesFromApplications( final ApplicationKeys applications )
     {
-        return config.stream().map( InputTypeProperty::getValue ).collect( Collectors.toList() );
+        return applications.stream()
+            .map( contentTypeService::getByApplication )
+            .flatMap( ContentTypes::stream )
+            .filter( Predicate.not( ContentType::isAbstract ) )
+            .filter( type -> type.getSchemaConfig().getValue( "allowNewContent", Boolean.class, Boolean.TRUE ) );
+
     }
 
     @Reference
@@ -187,5 +201,11 @@ public class FilterByContentResolver
     public void setPageDescriptorService( final PageDescriptorService pageDescriptorService )
     {
         this.pageDescriptorService = pageDescriptorService;
+    }
+
+    @Reference
+    public void setProjectService( final ProjectService projectService )
+    {
+        this.projectService = projectService;
     }
 }
