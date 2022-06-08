@@ -10,6 +10,7 @@ interface ItemViewSelectedEventConfig {
     newlyCreated?: boolean;
     rightClicked?: boolean;
     restoredSelection?: boolean;
+    avoidInspectComponentRefresh?: boolean;
 }
 
 export class ItemViewSelectedEvent
@@ -23,12 +24,15 @@ export class ItemViewSelectedEvent
 
     private restoredSelection: boolean;
 
+    private avoidInspectComponentRefresh: boolean;
+
     constructor(config: ItemViewSelectedEventConfig) {
         super(config.rightClicked);
         this.pageItemView = config.itemView;
         this.position = config.position;
         this.newlyCreated = config.newlyCreated === undefined ? false : config.newlyCreated;
         this.restoredSelection = config.restoredSelection === undefined ? false : config.restoredSelection;
+        this.avoidInspectComponentRefresh = config.avoidInspectComponentRefresh === undefined ? false : config.avoidInspectComponentRefresh;
     }
 
     getItemView(): ItemView {
@@ -37,6 +41,10 @@ export class ItemViewSelectedEvent
 
     getPosition(): ClickPosition {
         return this.position;
+    }
+
+    shouldAvoidInspectComponentRefresh(): boolean {
+        return this.avoidInspectComponentRefresh;
     }
 
     isNewlyCreated(): boolean {
