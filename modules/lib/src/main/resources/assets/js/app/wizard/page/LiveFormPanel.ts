@@ -374,8 +374,7 @@ export class LiveFormPanel
             if (this.pageView) {
                 const itemView = this.pageView.getSelectedView();
                 if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
-                    this.saveAndReloadOnlyComponent(<ComponentView<Component>>itemView);
-
+                    this.saveAndReloadOnlyComponent(<ComponentView<Component>>itemView, true);
                     return;
                 }
             }
@@ -635,7 +634,7 @@ export class LiveFormPanel
         }
     }
 
-    saveAndReloadOnlyComponent(componentView: ComponentView<Component>) {
+    saveAndReloadOnlyComponent(componentView: ComponentView<Component>, avoidInspectComponentRefresh?: boolean) {
         assertNotNull(componentView, 'componentView cannot be null');
         this.pageSkipReload = true;
 
@@ -646,7 +645,7 @@ export class LiveFormPanel
         this.contentWizardPanel.saveChangesWithoutValidation(false).then(() => {
             this.pageSkipReload = false;
             componentView.showLoadingSpinner();
-            return this.liveEditPageProxy.loadComponent(componentView, componentUrl);
+            return this.liveEditPageProxy.loadComponent(componentView, componentUrl, avoidInspectComponentRefresh);
         }).catch((error: any) => {
             DefaultErrorHandler.handle(error);
 
@@ -730,6 +729,10 @@ export class LiveFormPanel
             const itemView = event.getItemView();
             const defaultClicked = !event.isRightClicked();
             const newSelection = !event.isRestoredSelection();
+
+            if (event.shouldAvoidInspectComponentRefresh()) {
+                return;
+            }
 
             if (ObjectHelper.iFrameSafeInstanceOf(itemView, ComponentView)) {
                 this.inspectComponent(<ComponentView<Component>>itemView, newSelection, newSelection && defaultClicked);

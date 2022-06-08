@@ -56,6 +56,8 @@ import {ItemViewFactory} from '../../../page-editor/ItemViewFactory';
 import {Descriptor} from '../../page/Descriptor';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {LiveEditPagePlaceholder} from './LiveEditPagePlaceholder';
+import {ClickPosition} from '../../../page-editor/ClickPosition';
+import {ItemViewContextMenuPosition} from '../../../page-editor/ItemViewContextMenuPosition';
 
 export class LiveEditPageProxy {
 
@@ -428,7 +430,9 @@ export class LiveEditPageProxy {
         $(window.document.body).find('.page-placeholder-info-line2').text(i18n('text.addapplications'));
     }
 
-    public loadComponent(componentView: ComponentView<Component>, componentUrl: string): Q.Promise<string> {
+    public loadComponent(componentView: ComponentView<Component>, componentUrl: string,
+        avoidInspectComponentRefresh?: boolean): Q.Promise<string> {
+
         const deferred = Q.defer<string>();
         assertNotNull(componentView, 'componentView cannot be null');
         assertNotNull(componentUrl, 'componentUrl cannot be null');
@@ -437,6 +441,10 @@ export class LiveEditPageProxy {
             url: componentUrl,
             type: 'GET',
             success: (htmlAsString: string) => {
+                let clickPosition: ClickPosition,
+                    menuPosition: ItemViewContextMenuPosition,
+                    newlyCreated: boolean,
+                    rightClicked: boolean;
                 const newElement: Element = Element.fromString(htmlAsString);
                 const itemViewIdProducer: ItemViewIdProducer = componentView.getItemViewIdProducer();
                 const itemViewFactory: ItemViewFactory = componentView.getItemViewFactory();
@@ -457,7 +465,7 @@ export class LiveEditPageProxy {
                 const event: ComponentLoadedEvent = new ComponentLoadedEvent(newComponentView, componentView);
                 event.fire(this.liveEditWindow);
 
-                newComponentView.select();
+                newComponentView.select(clickPosition, menuPosition, newlyCreated, rightClicked, avoidInspectComponentRefresh);
                 newComponentView.hideContextMenu();
 
                 deferred.resolve('');
