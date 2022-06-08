@@ -182,10 +182,10 @@ export class MacroModalDialog
         }
 
         if (macroName === 'SYSTEM:EMBED') {
-            return DOMPurify.sanitize(value, {ADD_TAGS: ['iframe']});
+            return DOMPurify.sanitize(value, {ADD_TAGS: ['iframe'], ALLOWED_URI_REGEXP: this.getAllowedUriRegexp()});
         }
 
-        return DOMPurify.sanitize(value);
+        return DOMPurify.sanitize(value, {ALLOWED_URI_REGEXP: this.getAllowedUriRegexp()});
     }
 
     private makeData(): PropertySet {
@@ -221,6 +221,11 @@ export class MacroModalDialog
         this.selectedMacro.element.$.innerText = this.sanitize(macroString);
 
         this.getEditor().fire('saveSnapshot'); // to trigger change event
+    }
+
+    // it is a DOMPurify default regex for protocols handlers in URL attributes plus ours content://
+    private getAllowedUriRegexp(): RegExp {
+        return /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|content|media):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i;
     }
 
     protected validate(): boolean {
