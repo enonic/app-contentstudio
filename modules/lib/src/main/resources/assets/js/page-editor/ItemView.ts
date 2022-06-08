@@ -815,11 +815,14 @@ export class ItemView
         return this.getEl().hasAttribute('data-live-edit-selected');
     }
 
-    select(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition, newlyCreated?: boolean, rightClicked?: boolean) {
+    select(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition, newlyCreated?: boolean, rightClicked?: boolean,
+        avoidInspectComponentRefresh?: boolean) {
+
         Highlighter.get().hide();
         this.selectItem();
         this.showContextMenu(clickPosition, menuPosition);
-        new ItemViewSelectedEvent({itemView: this, position: clickPosition, newlyCreated, rightClicked}).fire();
+        new ItemViewSelectedEvent({itemView: this, position: clickPosition, newlyCreated, rightClicked, avoidInspectComponentRefresh})
+            .fire();
     }
 
     selectWithoutMenu(restoredSelection?: boolean) {

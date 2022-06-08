@@ -287,11 +287,11 @@ export class ComponentView<COMPONENT extends Component>
     }
 
     select(clickPosition?: ClickPosition, menuPosition?: ItemViewContextMenuPosition, newlyCreated: boolean = false,
-           rightClicked: boolean = false) {
+           rightClicked: boolean = false, avoidInspectComponentRefresh?: boolean) {
 
         Element.fromHtmlElement(<HTMLElement>window.frameElement).giveFocus();
 
-        super.select(clickPosition, menuPosition, newlyCreated, rightClicked);
+        super.select(clickPosition, menuPosition, newlyCreated, rightClicked, avoidInspectComponentRefresh);
         KeyBindings.get().bindKeys(this.keyBinding);
 
     }
