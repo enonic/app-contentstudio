@@ -120,7 +120,7 @@ export class AppWrapper
         Array.from(this.widgetElements.values()).forEach((el: Element) => el.hide());
         AppContext.get().setWidget(widget);
         this.updateUrl(widget);
-
+        this.updateTabName(widget);
         const key: string = widget.getWidgetDescriptorKey().toString();
 
         if (this.widgetElements.has(key)) {
@@ -153,8 +153,19 @@ export class AppWrapper
         Router.get().setHash(`widget/${appKeyLastPart}/${widgetName}`);
     }
 
+    private updateTabName(widget: Widget): void {
+        const prefix: string = i18n('admin.tool.displayName');
+        const postfix: string =
+            (this.isDefaultWidget(widget) || !widget.getDisplayName()) ? i18n('app.admin.tool.title') : widget.getDisplayName();
+        document.title = `${prefix} - ${postfix}`;
+    }
+
+    private isDefaultWidget(widget: Widget): boolean {
+        return widget === this.widgets[0];
+    }
+
     private fetchAndAppendWidget(widget: Widget): void {
-        if (widget === this.widgets[0]) { // default studio app
+        if (this.isDefaultWidget(widget)) { // default studio app
             const widgetEl: Element = this.createStudioWidgetEl();
             this.widgetElements.set(widget.getWidgetDescriptorKey().toString(), widgetEl);
             this.widgetsBlock.appendChild(widgetEl);
