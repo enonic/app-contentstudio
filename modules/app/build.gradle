@@ -34,6 +34,8 @@ dependencies {
     include "com.enonic.xp:lib-portal:${xpVersion}"
     include "com.enonic.xp:lib-context:${xpVersion}"
     include "com.enonic.xp:lib-content:${xpVersion}"
+    include "com.enonic.xp:lib-grid:${xpVersion}"
+    include "com.enonic.xp:lib-event:${xpVersion}"
     include "com.enonic.lib:lib-admin-ui:${libAdminUiVersion}"
     include "com.enonic.lib:lib-mustache:2.0.0"
     include "com.enonic.xp:lib-io:${xpVersion}"
