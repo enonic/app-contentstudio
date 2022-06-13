@@ -163,7 +163,7 @@ function clearFavicon() {
     });
 }
 
-function updateFavicon(content: Content) {
+function updateFavicon(content: ContentSummary) {
     let resolver = iconUrlResolver.setContent(content).setCrop(false);
     let shouldUpdate = shouldUpdateFavicon(content.getType());
     for (let href in faviconCache) {
@@ -185,7 +185,7 @@ function updateFavicon(content: Content) {
     }
 }
 
-const refreshTab = function (content: Content) {
+const refreshTab = function (content: ContentSummary) {
     updateFavicon(content);
     updateTabTitle(content.getDisplayName());
 };
@@ -339,7 +339,7 @@ const refreshTabOnContentUpdate = (content: Content) => {
     ContentUpdatedEvent.on((event: ContentUpdatedEvent) => {
         if (event.getContentId().equals(content.getContentId())) {
             clearFavicon();
-            refreshTab(content);
+            refreshTab(event.getContentSummary());
         }
     });
 };
