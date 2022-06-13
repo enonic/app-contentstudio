@@ -7,7 +7,7 @@ import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
 export class CollaborationServerEvent
     extends Event {
 
-    public static EVENT_NAME: string = 'edit.content.collaborators.update';
+    public static EVENT_NAME: string = 'custom.edit.content.collaborators.update';
 
     private readonly contentId: ContentId;
 
