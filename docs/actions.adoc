@@ -9,7 +9,7 @@ Content can be created, edited, archived, deleted, duplicated, moved, sorted and
 
 The `New` action will launch the *New Content* dialog.
 
-There are three ways to open the *New Content* dialog in the Content Studio:
+There are three ways to open the *New Content* dialog in Content Studio:
 
 * The first method is with the shortcut — `alt + n`;
 * By clicking the `New` button in the toolbar;
@@ -53,7 +53,7 @@ NOTE: When uploading files, the underlying content type is automatically detecte
 `Edit` action will open the *Content Wizard* for editing selected content items in a new tab.
 If multiple items are selected, then the action will open a browser tab for each one.
 
-There are four ways to open content for edit in the Content Studio:
+There are four ways to open content for edit in Content Studio:
 
 * The first method is with the shortcut — `⌘ + e` (`ctrl + e` for Windows);
 * By clicking the `Edit` button in the toolbar;
@@ -68,7 +68,7 @@ image:cs-400.svg[CS 4.0.0,opts=inline]
 
 `Archive` action will open the *Archive item(s)* dialog for selected content to move it to the "Archive".
 
-There are three ways to open the *Archive item(s)* dialog in the Content Studio:
+There are three ways to open the *Archive item(s)* dialog in Content Studio:
 
 * The first method is with the shortcut — `⌘ + del` (`ctrl + del` for Windows);
 * By clicking the `Archive` button in the toolbar;
@@ -87,7 +87,7 @@ image::dialog-archive.png[Archive item(s) dialog, 600]
 
 The `Duplicate` action will launch the *Duplicate content* dialog for the selected content.
 
-There are two ways to open the *Delete item(s)* dialog in the Content Studio:
+There are two ways to open this dialog in Content Studio:
 
 * By clicking the `Duplicate` button in the toolbar;
 * By clicking `Duplicate` in the context menu, which is accessible by right-clicking an item.
@@ -105,7 +105,7 @@ When the `Duplicate` button is clicked from inside the Content Wizard, only the 
 
 The `Move` action will launch the *Move item(s) with children* dialog for the selected content.
 
-There are two ways to open this dialog in the Content Studio:
+There are two ways to open this dialog in Content Studio:
 
 * By clicking the `Move` button in the toolbar;
 * By clicking `Move` in the context menu, which is accessible by right-clicking an item.
@@ -120,7 +120,7 @@ image::dialog-move.png[]
 
 The `Sort` action will launch the *Sort items* dialog for the selected content.
 
-There are two ways to open this dialog in the Content Studio:
+There are two ways to open this dialog in Content Studio:
 
 * By clicking the `Sort` button in the toolbar;
 * By clicking `Sort` in the context menu, which is accessible by right-clicking an item.
@@ -137,7 +137,7 @@ Once items are sorted, the parent content will have an arrow in the browse view 
 
 Clicking the bars or arrow icon will open the *Sort items* dialog.
 
-In the image below, the `/folder-copy` is sorted by Display name in ascending order, `/folder-copy-2` is sorted by Published date in ascending order, and the `/folder-copy-3` has manual sorting.
+In the image below, `/Posts/Featured Image` is sorted by Display name in ascending order, `/Posts/Gotham Sure Is A Big Town` is sorted by Published date in ascending order, and `/Posts` has custom sorting.
 
 image::dialog-sort-grid.png[]
 
@@ -146,7 +146,7 @@ image::dialog-sort-grid.png[]
 
 The `Preview` action will open and render a selected Site or Page in the new tab.
 
-There are two ways to open this dialog in the Content Studio:
+There are two ways to open this dialog in Content Studio:
 
 * By clicking the `Preview` button in the toolbar;
 * By clicking `Preview` in the context menu, which is accessible by right-clicking an item.
@@ -154,11 +154,11 @@ There are two ways to open this dialog in the Content Studio:
 
 == Publish
 
-Publishing is a simple but important concept for working with content in Enonic XP. The basic concept of publishing is that it makes content viewable to others outside of the Content Studio.
+Publishing is a simple but important concept for working with content in Enonic XP. The basic concept of publishing is that it makes content viewable to others outside of Content Studio.
 
 The `Publish` action will launch the *Publishing Wizard* dialog for the selected content.
 
-There are three ways to open the *Publishing Wizard* dialog in the Content Studio:
+There are three ways to open the *Publishing Wizard* dialog in Content Studio:
 
 * Via keyboard shortcut — `⌘ + alt + p` (`ctrl + alt + p` for Windows)
 * By using the `Publish` button in the toolbar
@@ -179,12 +179,12 @@ NOTE: Default action of the toolbar button is always the first available action 
 
 === Draft and master branches
 
-Content created in the Content Studio will originally be created in the *draft* branch with status `New` and workflow state `In progress`.
+Content created in Content Studio will originally be created in the *draft* branch with status `New` and workflow state `In progress`.
 This content in the *draft* branch can be edited and previewed until it is ready to be `Published`.
 Every time a content is saved with changes, a new version is created.
 
 When a content is published, the active version is copied from the *draft* branch to the *master* branch.
-Only content in the *master* branch can be accessed by users outside of the Content Studio, subject to the contents security settings.
+Only content in the *master* branch can be accessed by users outside of Content Studio, subject to the contents security settings.
 
 === Content status
 
@@ -197,7 +197,7 @@ will have to be published again for the changes to go online. In other words, ea
 
 A published content can either be instantly deleted or marked as deleted in the <<#_delete,*Delete*>> dialog.
 Upon instant deletion the content will be instantly removed from both the `draft` and the `master` branches, making it inaccessible online.
-However, items marked as deleted will be shown with status `Marked for deletion` in the Content Studio but will remain visible online.
+However, items marked as deleted will be shown with status `Marked for deletion` in Content Studio but will remain visible online.
 Such items must either be published in order to delete them from both branches, or you can use "*Undo delete*" action to remove the "Marked for deletion" mark.
 
 === Publishing wizard
@@ -264,7 +264,7 @@ Currently published content can be taken offline with the "Unpublish" feature.
 All the content’s descendants will be listed and unpublished along with the selected content.
 The total number of content items that will be taken offline will appear on the red `Unpublish` button at the bottom of the dialog.
 
-There are two ways to open this dialog in the Content Studio:
+There are two ways to open this dialog in Content Studio:
 
 * By clicking the `Unpublish` option button in the toolbar (it will replace the `Publish` button for the published content, otherwise it can be found in the publish menu dropdown, next to the `Publish` button);
 * By selecting `Unpublish` from the context menu, which is accessible by right-clicking an item, where it will replace `Publish` option for the published content.
