@@ -55,7 +55,7 @@ public class ApplicationResourceTest
         throws Exception
     {
         final Application application = createApplication();
-        when( this.applicationService.getInstalledApplication( isA( ApplicationKey.class ) ) ).thenReturn( application );
+        when( this.applicationService.get( isA( ApplicationKey.class ) ) ).thenReturn( application );
         final SiteDescriptor siteDescriptor = createSiteDescriptor();
         when( this.siteService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
         final IdProviderDescriptor idProviderDescriptor = createIdProviderDescriptor();
@@ -77,7 +77,7 @@ public class ApplicationResourceTest
         throws Exception
     {
         final Application application = createApplication();
-        when( this.applicationService.getInstalledApplication( isA( ApplicationKey.class ) ) ).thenReturn( application );
+        when( this.applicationService.get( isA( ApplicationKey.class ) ) ).thenReturn( application );
         final SiteDescriptor siteDescriptor = createSiteDescriptor();
         when( this.siteService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
         final IdProviderDescriptor idProviderDescriptor = createIdProviderDescriptor();
@@ -109,7 +109,7 @@ public class ApplicationResourceTest
     {
         final Application application = createApplication();
         final Applications applications = Applications.from( application );
-        when( this.applicationService.getInstalledApplications() ).thenReturn( applications );
+        when( this.applicationService.list() ).thenReturn( applications );
 
         final SiteDescriptor siteDescriptor = createSiteDescriptor();
         when( this.siteService.getDescriptor( isA( ApplicationKey.class ) ) ).thenReturn( siteDescriptor );
@@ -132,7 +132,7 @@ public class ApplicationResourceTest
     {
         final Application application = createApplication();
         final Applications applications = Applications.from( application );
-        when( this.applicationService.getInstalledApplications() ).thenReturn( applications );
+        when( this.applicationService.list() ).thenReturn( applications );
 
         String response = request().
             path( "application/getSiteApplications" ).
