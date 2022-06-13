@@ -1,5 +1,13 @@
-/* global __, log */
+/* global __ */
 const collaborationLib = require('/lib/collaboration');
+
+function createJoinOrLeaveParams(event) {
+    return {
+        contentId: event.data.contentId,
+        sessionId: event.session.id,
+        userKey: event.session.user.key
+    }
+}
 
 exports.get = function (req) {
     if (!req.webSocket) {
@@ -25,35 +33,18 @@ exports.webSocketEvent = function (event) {
 
     switch (event.type) {
     case 'open': {
-        let collaborators = collaborationLib.join({
-            contentId: event.data.contentId,
-            sessionId: event.session.id,
-            userKey: event.session.user.key
-        });
-        log.debug(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
+        collaborationLib.join(createJoinOrLeaveParams(event));
         break;
     }
     case 'message': {
-        let collaborators = collaborationLib.heartbeat({
-            contentId: event.data.contentId,
-            sessionId: event.session.id,
-            userKey: event.session.user.key
-        });
-        log.debug(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
-        break;
-    }
-    case 'error': {
-        log.debug(`Error: ${JSON.stringify(event)}`);
+        collaborationLib.heartbeat(createJoinOrLeaveParams(event));
         break;
     }
     case 'close': {
-        let collaborators = collaborationLib.leave({
-            contentId: event.data.contentId,
-            sessionId: event.session.id,
-            userKey: event.session.user.key
-        });
-        log.debug(`List of collaborators ${JSON.stringify(collaborators)} for content with id = "${event.data.contentId}"`);
-        break
+        if (event && event.data) {
+            collaborationLib.leave(createJoinOrLeaveParams(event));
+        }
+        break;
     }
     default:
         // do nothing
