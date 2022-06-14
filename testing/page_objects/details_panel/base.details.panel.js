@@ -79,16 +79,25 @@ class BaseDetailsPanel extends Page {
         }
     }
 
+    async clickOnEmulatorOptionsItem() {
+        let emulatorOptionLocator = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.EMULATOR);
+        await this.waitForElementDisplayed(emulatorOptionLocator, appConst.mediumTimeout);
+        let result = await this.getDisplayedElements(emulatorOptionLocator);
+        await result[0].click();
+        return await this.pause(500);
+    }
+
     async openEmulatorWidget() {
         try {
             await this.clickOnWidgetSelectorDropdownHandle();
-            let emulatorOptionLocator = this.widgetSelectorDropdown + lib.itemByDisplayName(appConst.WIDGET_SELECTOR_OPTIONS.EMULATOR);
-            await this.waitForElementDisplayed(emulatorOptionLocator, appConst.mediumTimeout);
-            let result = await this.getDisplayedElements(emulatorOptionLocator);
-            await result[0].click();
-            return await this.pause(500);
+            await this.clickOnEmulatorOptionsItem();
         } catch (err) {
-            throw new Error("Error when opening Emulator widget" + err);
+            await this.saveScreenshot(appConst.generateRandomName("err_widget_selector"));
+            //throw new Error("Error when opening Emulator widget" + err);
+            await this.refresh();
+            await this.pause(5000);
+            await this.clickOnWidgetSelectorDropdownHandle();
+            await this.clickOnEmulatorOptionsItem();
         }
     }
 }
