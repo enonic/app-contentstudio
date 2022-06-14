@@ -863,7 +863,7 @@ module.exports = {
             let isDisplayed = await launcherPanel.waitForPanelDisplayed(appConst.mediumTimeout);
             if (isDisplayed) {
                 console.log("Launcher Panel is opened, click on the `Users` link...");
-                await launcherPanel.pause(300);
+                await this.pause(300);
                 await launcherPanel.clickOnUsersLink();
             } else {
                 console.log("Login Page is opened, type a password and name...");
