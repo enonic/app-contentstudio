@@ -6,28 +6,25 @@ import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {Body} from '@enonic/lib-admin-ui/dom/Body';
 import {AppContext} from './AppContext';
-import {StringHelper} from '@enonic/lib-admin-ui/util/StringHelper';
 import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import {TooltipHelper} from './TooltipHelper';
 import {ApplicationEvent, ApplicationEventType} from '@enonic/lib-admin-ui/application/ApplicationEvent';
 import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {ApplicationKey} from '@enonic/lib-admin-ui/application/ApplicationKey';
-import {Store} from '@enonic/lib-admin-ui/store/Store';
 import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
 import {GetWidgetsByInterfaceRequest} from './resource/GetWidgetsByInterfaceRequest';
 import {Widget, WidgetBuilder, WidgetDescriptorKey} from '@enonic/lib-admin-ui/content/Widget';
 import {UriHelper} from './rendering/UriHelper';
 import {WidgetHelper} from './util/WidgetHelper';
-import {ImgEl} from '@enonic/lib-admin-ui/dom/ImgEl';
 import {ContentAppContainer} from './ContentAppContainer';
 import {Router} from './Router';
 import {UrlAction} from './UrlAction';
 import {ContentAppBar} from './bar/ContentAppBar';
+import {WidgetsSidebar} from './widget/WidgetsSidebar';
 
 export class AppWrapper
     extends DivEl {
 
-    private sidebar: Sidebar;
+    private sidebar: WidgetsSidebar;
 
     private widgets: Widget[] = [];
 
@@ -55,7 +52,7 @@ export class AppWrapper
     }
 
     private initElements() {
-        this.sidebar = new Sidebar();
+        this.sidebar = new WidgetsSidebar();
         this.toggleSidebarButton = new ToggleIcon();
         this.appBar = ContentAppBar.getInstance();
         this.widgetsBlock = new DivEl('widgets-block');
@@ -100,7 +97,7 @@ export class AppWrapper
         const appContainer: ContentAppContainer = new ContentAppContainer();
 
         appContainer.onShown(() => {
-           this.appBar.showIssuesButton();
+            this.appBar.showIssuesButton();
         });
 
         appContainer.onHidden(() => {
@@ -274,7 +271,7 @@ export class AppWrapper
 
     private isAppStopStartEvent(event: ApplicationEvent): boolean {
         return ApplicationEventType.STOPPED === event.getEventType() || ApplicationEventType.UNINSTALLED === event.getEventType()
-               || ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED === event.getEventType();
+            || ApplicationEventType.STARTED === event.getEventType() || ApplicationEventType.INSTALLED === event.getEventType();
     }
 
     doRender(): Q.Promise<boolean> {
@@ -320,199 +317,5 @@ class ToggleIcon
 
             return rendered;
         });
-    }
-}
-
-class AppModeSwitcher
-    extends DivEl {
-
-    private buttons: SidebarButton[] = [];
-
-    private itemSelectedListeners: { (appOrWidgetId: string): void } [] = [];
-
-    constructor() {
-        super('actions-block');
-    }
-
-    addWidget(widget: Widget, buttonClass?: string): void {
-        this.createWidgetButton(widget, buttonClass);
-    }
-
-    private createWidgetButton(widget: Widget, buttonClass?: string) {
-        const sidebarButton: SidebarButton = new SidebarButton(widget.getWidgetDescriptorKey().toString());
-        sidebarButton.setLabel(widget.getDisplayName());
-        sidebarButton.setTitle(widget.getDisplayName());
-
-        if (buttonClass) {
-            sidebarButton.addClass(buttonClass);
-        }
-
-        const imgEl: ImgEl = new ImgEl(widget.getIconUrl());
-        sidebarButton.appendChild(imgEl);
-
-        this.listenButtonClicked(sidebarButton);
-
-        const pos: number = this.getButtonPos(sidebarButton);
-
-        if (pos < 0) {
-            this.appendChild(sidebarButton);
-        } else {
-            this.insertChild(sidebarButton, pos);
-        }
-
-        this.buttons.push(sidebarButton);
-    }
-
-    toggleActiveButton() {
-        this.buttons.forEach((b: SidebarButton) => {
-            b.toggleSelected(b.getWidgetId() === AppContext.get().getCurrentAppOrWidgetId());
-        });
-    }
-
-    private getButtonPos(sidebarButton: SidebarButton): number {
-        if (sidebarButton.getWidgetId().endsWith('studio:main')) {
-            return 0;
-        }
-
-        if (this.buttons.some((button: SidebarButton) => button.getWidgetId().endsWith('studio:settings'))) {
-            return this.buttons.length - 1;
-        }
-
-        return -1;
-    }
-
-    private onButtonClicked(button: SidebarButton) {
-        this.buttons.forEach((b: Button) => {
-            b.toggleClass(SidebarButton.SELECTED_CLASS, b === button);
-        });
-
-        if (button.getWidgetId() !== AppContext.get().getCurrentAppOrWidgetId()) {
-            this.notifyItemSelected(button.getWidgetId());
-        }
-    }
-
-    private listenButtonClicked(button: SidebarButton) {
-        const clickListener: () => void = () => this.onButtonClicked(button);
-        button.onTouchStart(clickListener);
-        button.onClicked(clickListener);
-
-        button.onRemoved(() => {
-            button.unTouchStart(clickListener);
-            button.unClicked(clickListener);
-        });
-    }
-
-    removeWidget(widget: Widget): void {
-        this.removeButtonById(widget.getWidgetDescriptorKey().toString());
-    }
-
-    private removeButtonById(itemId: string): void {
-        const buttonToRemove: SidebarButton = this.buttons.find((b: SidebarButton) => b.getWidgetId() === itemId);
-
-        if (buttonToRemove) {
-            this.buttons = this.buttons.filter((b: SidebarButton) => b !== buttonToRemove);
-            buttonToRemove.remove();
-        }
-    }
-
-    private notifyItemSelected(itemId: string) {
-        this.itemSelectedListeners.forEach((listener: (id: string) => void) => {
-            listener(itemId);
-        });
-    }
-
-    onItemSelected(handler: (itemId: string) => void) {
-        this.itemSelectedListeners.push(handler);
-    }
-
-    getButtons(): Button[] {
-        return this.buttons;
-    }
-}
-
-class SidebarButton
-    extends Button {
-
-    private readonly widgetId: string;
-
-    static SELECTED_CLASS: string = 'selected';
-
-    constructor(widgetId: string) {
-        super();
-
-        this.widgetId = widgetId;
-        this.toggleClass(SidebarButton.SELECTED_CLASS, widgetId === AppContext.get().getCurrentAppOrWidgetId());
-    }
-
-    getWidgetId(): string {
-        return this.widgetId;
-    }
-
-    toggleSelected(condition: boolean) {
-        this.toggleClass(SidebarButton.SELECTED_CLASS, condition);
-    }
-}
-
-class Sidebar
-    extends DivEl {
-
-    private readonly appModeSwitcher: AppModeSwitcher;
-
-    constructor() {
-        super('sidebar');
-
-        this.appModeSwitcher = new AppModeSwitcher();
-    }
-
-    doRender(): Q.Promise<boolean> {
-        return super.doRender().then((rendered: boolean) => {
-            this.appendChild(this.createAppNameBlock());
-            this.appendChildren(this.appModeSwitcher);
-            this.appendChild(this.createAppVersionBlock());
-
-            return rendered;
-        });
-    }
-
-    onItemSelected(handler: (appOrWidgetId: string) => void) {
-        this.appModeSwitcher.onItemSelected(handler);
-    }
-
-    getButtons(): Button[] {
-        return this.appModeSwitcher.getButtons();
-    }
-
-    addWidget(widget: Widget, buttonClass?: string): void {
-        this.appModeSwitcher.addWidget(widget, buttonClass);
-    }
-
-    toggleActiveButton() {
-        this.appModeSwitcher.toggleActiveButton();
-    }
-
-    removeWidget(widget: Widget): void {
-        this.appModeSwitcher.removeWidget(widget);
-    }
-
-    private createAppNameBlock(): Element {
-        const appNameWrapper: DivEl = new DivEl('app-name-wrapper');
-        const appName: SpanEl = new SpanEl('app-name');
-        appName.setHtml(Store.instance().get('application').getName());
-        appNameWrapper.appendChild(appName);
-
-        return appNameWrapper;
-    }
-
-    private createAppVersionBlock(): DivEl {
-        const appVersion: string = CONFIG.getString('appVersion');
-        const cleanVersion: string = StringHelper.cleanVersion(appVersion);
-        const appVersionSpan: DivEl = new DivEl('app-version');
-        appVersionSpan.setHtml(`v${cleanVersion}`);
-
-        if (appVersion !== cleanVersion) {
-            appVersionSpan.setTitle(`v${appVersion}`);
-        }
-
-        return appVersionSpan;
     }
 }
