@@ -8,7 +8,7 @@ import {Element} from '@enonic/lib-admin-ui/dom/Element';
 export class VersionHistoryListItemViewer
     extends NamesAndIconViewer<VersionHistoryItem> {
 
-    private namesAndIconViewWrapperDiv: DivEl;
+    private readonly namesAndIconViewWrapperDiv: DivEl;
 
     constructor() {
         super('version-viewer');
@@ -27,15 +27,20 @@ export class VersionHistoryListItemViewer
     }
 
     resolveSubName(version: VersionHistoryItem): string {
-        let publishedFrom = '';
-        if (version.isPublishAction() && !version.isRepublished() && !version.isInstantlyPublished()) {
-            publishedFrom = i18n('tooltip.from', DateHelper.formatDateTime(version.getActiveFrom(), false)) + ' ';
+        if (this.isPublishedFrom(version)) {
+            return i18n('tooltip.from', DateHelper.formatDateTime(version.getActiveFrom(), false));
         }
-        return publishedFrom + i18n('widget.versionhistory.byUser', version.getUser());
+
+        return i18n('widget.versionhistory.byUser', version.getUser());
+    }
+
+    private isPublishedFrom(version: VersionHistoryItem): boolean {
+        return version.isPublishAction() && !version.isRepublished() && !version.isInstantlyPublished();
     }
 
     setObject(version: VersionHistoryItem) {
         this.toggleClass('publish-action', version.isPublishAction());
+        this.toggleClass('publish-from', this.isPublishedFrom(version));
         this.toggleClass('active', version.isActive());
         return super.setObject(version);
     }

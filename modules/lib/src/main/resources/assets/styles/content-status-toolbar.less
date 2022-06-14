@@ -4,6 +4,14 @@
 
     display: inline-block;
 
+    .status {
+      margin-left: 5px;
+
+      &.online + .author, &.offline + .author {
+        display: none;
+      }
+    }
+
     .author {
       margin-left: 5px;
       margin-right: 14px;

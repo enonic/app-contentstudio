@@ -23,34 +23,48 @@ export class ContentItemPreviewToolbar
     private debouncedFetch: (id: ContentId) => void;
 
     constructor() {
-        super('content-item-preview-toolbar');
+        super({className: 'content-item-preview-toolbar'});
+    }
+
+    protected initElements(): void {
+        super.initElements();
 
         this.mainAction = new Action();
+        this.issueButton = new MenuButton(this.mainAction);
+    }
+
+    protected initListeners(): void {
+        super.initListeners();
+
         this.mainAction.onExecuted(() => {
             if (this.mainIssue) {
                 IssueDialogsManager.get().openDetailsDialog(this.mainIssue);
             }
         });
-        this.issueButton = new MenuButton(this.mainAction);
-        this.issueButton.addClass('transparent');
 
+        this.initIssueUpdateListeners();
+    }
+
+    private initIssueUpdateListeners(): void {
         this.debouncedFetch = AppHelper.debounce(this.fetchIssues, 100);
 
         const reloadList = () => {
-            const item = this.getItem();
+            const item: ContentSummaryAndCompareStatus = this.getItem();
+
             if (item) {
-                const itemId = item.getContentSummary().getContentId();
+                const itemId: ContentId = item.getContentSummary().getContentId();
                 this.debouncedFetch(itemId);
             }
         };
 
-        const handler = IssueServerEventsHandler.getInstance();
+        const handler: IssueServerEventsHandler = IssueServerEventsHandler.getInstance();
         handler.onIssueCreated(reloadList);
         handler.onIssueUpdated(reloadList);
     }
 
     doRender(): Q.Promise<boolean> {
         return super.doRender().then(rendered => {
+            this.issueButton.addClass('transparent');
             this.addElement(this.issueButton);
             return rendered;
         });
@@ -64,46 +78,56 @@ export class ContentItemPreviewToolbar
         super.setItem(item);
     }
 
-    clearItem() {
+    clearItem(): void {
         super.clearItem();
 
         this.issueButton.getActionButton().setEnabled(false);
         this.issueButton.hideDropdown();
     }
 
-    protected foldOrExpand() {
-        // Disable fold in the Content preview toolbar
-        return false;
+    protected foldOrExpand(): void {
+    //
     }
 
-    private fetchIssues(id: ContentId) {
+    private fetchIssues(id: ContentId): Q.Promise<void> {
+        this.cleanIssues();
+
+        return new FindIssuesRequest().addContentId(id).setIssueStatus(IssueStatus.OPEN).sendAndParse().then((issues: Issue[]) => {
+            this.processIssues(issues);
+            return Q.resolve();
+        }).catch(DefaultErrorHandler.handle);
+    }
+
+    private cleanIssues(): void {
         if (this.issueActionsList && this.issueActionsList.length > 0) {
             this.issueButton.removeMenuActions(this.issueActionsList);
             this.issueActionsList.length = 0;
             this.mainAction.setLabel('');
         }
-        return new FindIssuesRequest().addContentId(id).setIssueStatus(IssueStatus.OPEN).sendAndParse().then((issues: Issue[]) => {
-            const hasIssues = issues.length > 0;
-            this.toggleClass('has-issues', hasIssues);
-            this.issueButton.getActionButton().setEnabled(hasIssues);
-            this.issueButton.hideDropdown(!hasIssues);
-            // do remove here again since it might have been changed during request flight
-            if (this.issueActionsList && this.issueActionsList.length > 0) {
-                this.issueButton.removeMenuActions(this.issueActionsList);
-            }
-            this.issueActionsList = issues.map(this.createIssueAction);
+    }
 
-            const latestAction = this.issueActionsList.shift();
-            if (latestAction) {
-                this.mainAction.setLabel(latestAction.getLabel());
-                this.mainAction.setIconClass(latestAction.getIconClass());
-                this.mainIssue = issues[0];
+    private processIssues(issues: Issue[]): void {
+        const hasIssues: boolean = issues.length > 0;
+        this.toggleClass('has-issues', hasIssues);
+        this.issueButton.getActionButton().setEnabled(hasIssues);
+        this.issueButton.hideDropdown(!hasIssues);
+        // do remove here again since it might have been changed during request flight
+        if (this.issueActionsList && this.issueActionsList.length > 0) {
+            this.issueButton.removeMenuActions(this.issueActionsList);
+        }
+        this.issueActionsList = issues.map(this.createIssueAction);
 
-                if (this.issueActionsList.length > 0) {
-                    this.issueButton.addMenuActions(this.issueActionsList);
-                }
+        const latestAction: Action = this.issueActionsList.shift();
+
+        if (latestAction) {
+            this.mainAction.setLabel(latestAction.getLabel());
+            this.mainAction.setIconClass(latestAction.getIconClass());
+            this.mainIssue = issues[0];
+
+            if (this.issueActionsList.length > 0) {
+                this.issueButton.addMenuActions(this.issueActionsList);
             }
-        }).catch(DefaultErrorHandler.handle);
+        }
     }
 
     private createIssueAction(issue: Issue): Action {

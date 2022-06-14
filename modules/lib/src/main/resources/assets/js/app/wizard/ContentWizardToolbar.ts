@@ -2,7 +2,7 @@ import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
 import {ContentWizardActions} from './action/ContentWizardActions';
 import {ContentWizardToolbarPublishControls} from './ContentWizardToolbarPublishControls';
-import {ContentStatusToolbar} from '../ContentStatusToolbar';
+import {ContentStatusToolbar, ContentStatusToolbarConfig} from '../ContentStatusToolbar';
 import {ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
 import {WorkflowStateIconsManager, WorkflowStateStatus} from './WorkflowStateIconsManager';
 import {TogglerButton} from '@enonic/lib-admin-ui/ui/button/TogglerButton';
@@ -21,13 +21,15 @@ import {CollaborationEl} from './CollaborationEl';
 import {UriHelper} from '@enonic/lib-admin-ui/util/UriHelper';
 import {WebSocketConnection} from '@enonic/lib-admin-ui/connection/WebSocketConnection';
 
-export interface ContentWizardToolbarConfig {
+export interface ContentWizardToolbarConfig extends ContentStatusToolbarConfig {
     actions: ContentWizardActions;
     workflowStateIconsManager: WorkflowStateIconsManager
 }
 
 export class ContentWizardToolbar
     extends ContentStatusToolbar {
+
+    protected config: ContentWizardToolbarConfig;
 
     private componentsViewToggler: TogglerButton;
 
@@ -43,17 +45,13 @@ export class ContentWizardToolbar
 
     private projectViewer: ProjectViewer;
 
-    private config: ContentWizardToolbarConfig;
-
     constructor(config: ContentWizardToolbarConfig) {
-        super('content-wizard-toolbar');
-
-        this.config = config;
-        this.initElements();
-        this.initListeners();
+        super(config);
     }
 
-    protected initElements() {
+    protected initElements(): void {
+        super.initElements();
+
         this.addHomeButton();
         this.addActionButtons();
         this.addPublishMenuButton();
@@ -64,7 +62,9 @@ export class ContentWizardToolbar
         }
     }
 
-    protected initListeners() {
+    protected initListeners(): void {
+        super.initListeners();
+
         this.config.workflowStateIconsManager.onStatusChanged((status: WorkflowStateStatus) => {
             this.updateStateIcon(status);
             this.toggleValid(!status.invalid);
@@ -76,7 +76,6 @@ export class ContentWizardToolbar
 
         this.contentWizardToolbarPublishControls.getPublishButton().onInitialized(() => {
             this.status.show();
-            this.author.show();
             this.contentWizardToolbarPublishControls.getPublishButton().show();
             // Call after the ContentPublishMenuButton.handleActionsUpdated debounced calls
             setTimeout(() => this.foldOrExpand());
@@ -133,7 +132,7 @@ export class ContentWizardToolbar
         this.openCollaborationWSConnection();
     }
 
-    private addHomeButton() {
+    private addHomeButton(): void {
         new ProjectListRequest().sendAndParse().then((projects: Project[]) => {
             this.addProjectButton(projects);
         }).catch((reason: any) => {
@@ -145,7 +144,7 @@ export class ContentWizardToolbar
         });
     }
 
-    private addProjectButton(projects: Project[]) {
+    private addProjectButton(projects: Project[]): void {
         const currentProjectName: string = ProjectContext.get().getProject().getName();
         const project: Project = projects.filter((p: Project) => p.getName() === currentProjectName)[0];
 
@@ -158,7 +157,7 @@ export class ContentWizardToolbar
         this.prependChild(this.projectViewer);
     }
 
-    private handleHomeIconClicked() {
+    private handleHomeIconClicked(): void {
         let tabId: string;
         if (navigator.userAgent.search('Chrome') > -1) {
             // add tab id for browsers that can focus tabs by id
@@ -167,7 +166,7 @@ export class ContentWizardToolbar
         window.open(UrlHelper.createContentBrowseUrl(ProjectContext.get().getProject().getName()), tabId);
     }
 
-    private addActionButtons() {
+    private addActionButtons(): void {
         const actions: ContentWizardActions = this.config.actions;
 
         super.addActions([
@@ -181,9 +180,8 @@ export class ContentWizardToolbar
         super.addGreedySpacer();
     }
 
-    private addPublishMenuButton() {
+    private addPublishMenuButton(): void {
         this.status.hide();
-        this.author.hide();
 
         this.contentWizardToolbarPublishControls = new ContentWizardToolbarPublishControls(this.config.actions);
         this.contentWizardToolbarPublishControls.getPublishButton().hide();
@@ -233,7 +231,7 @@ export class ContentWizardToolbar
         return this.contextPanelToggler;
     }
 
-    getContentWizardToolbarPublishControls() {
+    getContentWizardToolbarPublishControls(): ContentWizardToolbarPublishControls {
         return this.contentWizardToolbarPublishControls;
     }
 
