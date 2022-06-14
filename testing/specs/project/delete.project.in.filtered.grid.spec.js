@@ -18,7 +18,6 @@ describe("delete.project.in.filtered.grid.spec - Delete projects in filtered gri
     let PROJECT_DISPLAY_NAME_2 = studioUtils.generateRandomName("project");
     let DESCRIPTION = "Test description";
 
-
     it(`Preconditions: 2 projects should be added`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
