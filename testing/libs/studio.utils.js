@@ -857,22 +857,23 @@ module.exports = {
         await projectWizard.waitForWizardClosed();
         return await settingsBrowsePanel.pause(500);
     },
-    navigateToUsersApp: function (userName, password) {
-        let launcherPanel = new LauncherPanel();
-        return launcherPanel.waitForPanelDisplayed(3000).then(result => {
-            if (result) {
+    async navigateToUsersApp(userName, password) {
+        try {
+            let launcherPanel = new LauncherPanel();
+            let isDisplayed = await launcherPanel.waitForPanelDisplayed(appConst.mediumTimeout);
+            if (isDisplayed) {
                 console.log("Launcher Panel is opened, click on the `Users` link...");
-                return launcherPanel.clickOnUsersLink();
+                await this.pause(300);
+                await launcherPanel.clickOnUsersLink();
             } else {
                 console.log("Login Page is opened, type a password and name...");
-                return this.doLoginAndClickOnUsersLink(userName, password);
+                await this.doLoginAndClickOnUsersLink(userName, password);
             }
-        }).then(() => {
-            return this.doSwitchToUsersApp();
-        }).catch(err => {
-            console.log('tried to navigate to Users app, but: ' + err);
+            await this.doSwitchToUsersApp();
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_navigate_to_users"));
             throw new Error('error when navigate to Users app ' + err);
-        });
+        }
     },
     async doLoginAndClickOnUsersLink(userName, password) {
         let loginPage = new LoginPage();
