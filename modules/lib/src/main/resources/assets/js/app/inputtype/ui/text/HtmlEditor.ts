@@ -207,7 +207,7 @@ export class HtmlEditor {
     private handlePasteFromGoogleDoc() {
         // https://github.com/enonic/app-contentstudio/issues/485
         this.editor.on('paste', (e: eventInfo) => {
-            if (GoogleDocPasteHandler.isPastedFromGoogleDoc(e.data.dataValue)) {
+            if (GoogleDocPasteHandler.isPastedFromGoogleDoc(e.data.dataTransfer.getData('text/html'))) {
                 e.data.dataValue = new GoogleDocPasteHandler(e.data.dataValue).process();
             }
         });
@@ -1160,14 +1160,14 @@ class GoogleDocPasteHandler {
     }
 
     private processDataChrome() {
-        const regex: RegExp = /(<a[^>]*?)(\sstyle="text-decoration:none;")(.*?)(<u.*?>)(.*?)(<\/u>)(.*?<\/a>)/g;
+        const regex: RegExp = /(<a[^>]*?)(\sstyle="text-decoration:none;?")(.*?)(<u.*?>)(.*?)(<\/u>)(.*?<\/a>)/g;
 
         this.result = this.result.replace(regex, '$1$3$5$7');
     }
 
     private processDataFF() {
         const regex: RegExp =
-            /(<a[^>]*?)(\sstyle="text-decoration:none;")(.*?)(<span.*?text-decoration:underline.*?>)(.*?)(<\/span>)(.*?<\/a>)/g;
+            /(<a[^>]*?)(\sstyle="text-decoration:none;?")(.*?)(<span.*?text-decoration:underline.*?>)(.*?)(<\/span>)(.*?<\/a>)/g;
 
         this.result = this.result.replace(regex, this.ffReplaceFunction);
     }
