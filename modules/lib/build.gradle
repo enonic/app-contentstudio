@@ -71,6 +71,8 @@ task typescript {
 jar {
     exclude 'admin/**'
     exclude 'assets/js/**'
+    exclude 'assets/lib/ckeditor/**/*.md'
+    exclude 'assets/lib/ckeditor/build-config.js'
     exclude 'assets/icons/**'
     exclude 'assets/styles/**/*.less'
     exclude 'com/**'
