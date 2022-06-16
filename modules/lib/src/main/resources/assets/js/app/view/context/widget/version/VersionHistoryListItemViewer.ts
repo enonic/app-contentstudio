@@ -22,8 +22,7 @@ export class VersionHistoryListItemViewer
 
     resolveDisplayName(version: VersionHistoryItem): string {
         const dateTimeToString = DateHelper.getFormattedTimeFromDate(version.getDateTime());
-
-        return `${dateTimeToString} ${version.getStatus()}`;
+        return `${dateTimeToString} ${version.getStatusAsString()}`;
     }
 
     resolveSubName(version: VersionHistoryItem): string {
