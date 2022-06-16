@@ -132,9 +132,13 @@ class ContentItemPreviewPanel extends Page {
         return await result[0].getText(this.contentStatus);
     }
 
-    async getContentAuthor() {
-        let result = await this.getDisplayedElements(this.author);
-        return await result[0].getText();
+    async waitForAuthorNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.author, appConst.mediumTimeout);
+        } catch (err) {
+            await this.saveScreenshot(appConst.generateRandomName("err_itempreview_author"));
+            throw new Error("Author should not be displayed in the item preview toolbar " + err);
+        }
     }
 
     async getIssueNameInMenuButton() {

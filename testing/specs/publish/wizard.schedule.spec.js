@@ -46,14 +46,13 @@ describe('Wizard page - verify schedule form', function () {
             //1. Select and publish the content:
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             await contentWizard.openPublishMenuAndPublish();
+            //2. Schedule item appears in WizardStepNavigatorAndToolbar
             let result = await contentWizard.isWizardStepByTitlePresent(SCHEDULE_STEP_TITLE);
             assert.isTrue(result, "'Schedule' button gets visible in the step-navigator");
             result = await contentWizard.waitForScheduleFormVisible();
             assert.isTrue(result, "Schedule form should appear in the wizard page");
             studioUtils.saveScreenshot("check_schedule_form");
-            let author = await contentWizard.getContentAuthor();
-            assert.equal(author, 'by Super User', "Expected author should be displayed in the toolbar");
-
+            //3. Published status should be displayed in the wizard toolbar
             let status = await contentWizard.getContentStatus();
             assert.equal(status, 'Published', "'Published' status should be displayed in the toolbar");
         });
@@ -110,13 +109,10 @@ describe('Wizard page - verify schedule form', function () {
             //3. Verify the toolbar and status:
             let result = await contentWizard.waitForWizardStepByTitleNotVisible(SCHEDULE_STEP_TITLE);
             assert.isTrue(result, "Schedule menu item gets not visible in the step-navigator");
-
-            result = await contentWizard.waitForScheduleFormNotVisible();
-            assert.isTrue(result, "Schedule form gets not visible in the wizard page");
-            studioUtils.saveScreenshot("check_schedule_form_unpublished");
-            let author = await contentWizard.getContentAuthor();
-            assert.equal(author, 'by Super User', "Expected author should be displayed in the toolbar");
-
+            //4. 'Schedule' item gets  not visible in WizardStepNavigatorAndToolbar
+            await contentWizard.waitForScheduleFormNotVisible();
+            await studioUtils.saveScreenshot("check_schedule_form_unpublished");
+            //5. 'Unpublished' status should be displayed in the toolbar:
             let status = await contentWizard.getContentStatus();
             assert.equal(status, 'Unpublished', "'Unpublished' status should be displayed in the toolbar");
         });
