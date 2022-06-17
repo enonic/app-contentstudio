@@ -20,6 +20,8 @@ import {UrlHelper} from './util/UrlHelper';
 
 export class ContentEventsProcessor {
 
+    static openTabs: Map<string, Window> = new Map<string, Window>();
+
     static openWizardTab(params: ContentWizardPanelParams): Window {
         const wizardUrl: string = UrlHelper.getPrefixedUrl(ContentEventsProcessor.generateURL(params), '');
         return ContentEventsProcessor.openTab(wizardUrl, ContentEventsProcessor.makeWizardId(params));
@@ -36,7 +38,19 @@ export class ContentEventsProcessor {
     }
 
     static openTab(url: string, target?: string): Window {
-        return window.open(url, target);
+        if (ContentEventsProcessor.openTabs.has(target)) {
+            const existingWindow: Window = ContentEventsProcessor.openTabs.get(target);
+
+            if (!existingWindow.closed) {
+                existingWindow.focus();
+                return existingWindow;
+            }
+        }
+
+        const newWindow: Window = window.open(url, target);
+        ContentEventsProcessor.openTabs.set(target, newWindow);
+
+        return newWindow;
     }
 
     static popupBlocked(win: Window) {
