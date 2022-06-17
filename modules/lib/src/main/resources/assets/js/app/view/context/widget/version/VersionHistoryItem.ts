@@ -3,6 +3,17 @@ import {ContentVersionPublishInfo} from '../../../../ContentVersionPublishInfo';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
 
+export enum VersionItemStatus {
+    PUBLISHED = 'published',
+    SCHEDULED = 'scheduled',
+    UNPUBLISHED = 'unpublished',
+    ARCHIVED = 'archived',
+    RESTORED = 'restored',
+    CREATED = 'created',
+    MARKED_AS_READY = 'markedAsReady',
+    EDITED = 'edited'
+}
+
 export class VersionHistoryItem {
 
     private id: string;
@@ -15,7 +26,7 @@ export class VersionHistoryItem {
 
     private activeTo: Date;
 
-    private status: string;
+    private status: VersionItemStatus;
 
     private iconCls: string;
 
@@ -38,23 +49,23 @@ export class VersionHistoryItem {
 
         if (publishInfo.isPublished()) {
             if (publishInfo.isScheduled()) {
-                item.status = i18n('status.scheduled');
+                item.status = VersionItemStatus.SCHEDULED;
                 item.iconCls = 'icon-clock';
             } else {
-                item.status = i18n('status.published');
+                item.status = VersionItemStatus.PUBLISHED;
                 item.iconCls = 'icon-version-published';
                 item.activeFrom = publishInfo.getPublishedFrom();
             }
             item.activeTo = publishInfo.getPublishedTo();
         } else if (publishInfo.isUnpublished()) {
             item.iconCls = 'icon-version-unpublished';
-            item.status = i18n('status.unpublished');
+            item.status = VersionItemStatus.UNPUBLISHED;
         } else if (publishInfo.isArchived()) {
             item.iconCls = 'icon-archive';
-            item.status = i18n('status.archived');
+            item.status = VersionItemStatus.ARCHIVED;
         } else if (publishInfo.isRestored()) {
             item.iconCls = 'icon-restore';
-            item.status = i18n('status.restored');
+            item.status = VersionItemStatus.RESTORED;
         }
 
         item.message = publishInfo.getMessage();
@@ -72,13 +83,13 @@ export class VersionHistoryItem {
 
         if (!!createdDate) {
             item.iconCls = 'icon-wand';
-            item.status = i18n('status.created');
+            item.status = VersionItemStatus.CREATED;
         } else if (contentVersion.isInReadyState()) {
             item.iconCls = 'icon-state-ready';
-            item.status = i18n('status.markedAsReady');
+            item.status = VersionItemStatus.MARKED_AS_READY;
         } else {
             item.iconCls = 'icon-version-modified';
-            item.status = i18n('status.edited');
+            item.status = VersionItemStatus.EDITED;
         }
 
         return item;
@@ -115,7 +126,9 @@ export class VersionHistoryItem {
     }
 
     isPublishAction(): boolean {
-        return !this.id;
+        return this.status === VersionItemStatus.PUBLISHED ||
+            this.status === VersionItemStatus.UNPUBLISHED ||
+            this.status === VersionItemStatus.SCHEDULED;
     }
 
     getId(): string {
@@ -142,8 +155,12 @@ export class VersionHistoryItem {
         return this.iconCls;
     }
 
-    getStatus(): string {
+    getStatus(): VersionItemStatus {
         return this.status;
+    }
+
+    getStatusAsString(): string {
+        return i18n(`status.${this.status}`);
     }
 
     getMessage(): string {
@@ -160,5 +177,13 @@ export class VersionHistoryItem {
 
     skipsDate(): boolean {
         return this.skipDate;
+    }
+
+    isRestored(): boolean {
+        return this.status === VersionItemStatus.RESTORED;
+    }
+
+    isArchived(): boolean {
+        return this.status === VersionItemStatus.ARCHIVED;
     }
 }

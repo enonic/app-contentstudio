@@ -20,8 +20,8 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
     webDriverHelper.setupBrowser();
     let firstIssueTitle = appConstant.generateRandomName('issue');
     let secondIssueTitle = appConstant.generateRandomName('issue');
-
     let TEST_FOLDER;
+
     it(`GIVEN folder has been created WHEN the folder is selected THEN 'New' status should be displayed in the preview-toolbar`,
         async () => {
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
@@ -31,10 +31,12 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
             await studioUtils.doAddFolder(TEST_FOLDER);
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             await studioUtils.saveScreenshot("content_item_toolbar");
+            //2.Verify that 'New' status is displayed in Item Preview toolbar:
             let status = await contentItemPreviewPanel.getContentStatus();
             assert.equal(status, "New", "New status should be displayed in the Preview Item toolbar");
-            let by = await contentItemPreviewPanel.getContentAuthor();
-            assert.equal(by, 'by Super User', "The item should be created by Super User");
+            //Author should not be displayed in the toolbar:
+            await contentItemPreviewPanel.waitForAuthorNotDisplayed();
+
         });
 
     //verifies "https://github.com/enonic/app-contentstudio/issues/190"
@@ -53,15 +55,19 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
             await contentItemPreviewPanel.waitForAuthorCleared();
         });
 
-    it(`GIVEN existing folder WHEN the folder is selected and published THEN 'Published' status should be displayed in the preview toolbar`,
+    it(`GIVEN existing 'New' folder WHEN the folder is selected and published THEN 'Published' status should be displayed in the preview toolbar`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentItemPreviewPanel = new ContentItemPreviewPanel();
+            //1. Select the folder
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
+            //2. Click on Mark on ready then publish the folder:
             await contentBrowsePanel.clickOnMarkAsReadyButton();
             await studioUtils.doPublish();
+            //3. Published status should be displayed in the item preview toolbar:
             let status = await contentItemPreviewPanel.getContentStatus();
             assert.equal(status, appConstant.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
+            await contentItemPreviewPanel.waitForAuthorNotDisplayed();
         });
 
     it(`GIVEN existing 'published' folder is selected WHEN the first task has been created THEN menu button with the task-name should appear in the ItemPreviewToolbar`,
@@ -96,7 +102,7 @@ describe('contentItem.preview.toolbar.spec: create a task and check it in the pr
             await issueDetailsDialog.clickOnCancelTopButton();
             //'Tasks-dropdown handle' should appear in the preview toolbar(the second issue is created)
             await contentItemPreviewPanel.waitForIssueDropDownHandleDisplayed();
-    //Issue name should be updated in the preview panel:
+            //Issue name should be updated in the preview panel:
             return contentItemPreviewPanel.waitForIssueNameInMenuButton(secondIssueTitle);
         });
 
