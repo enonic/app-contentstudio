@@ -871,11 +871,6 @@ class ContentWizardPanel extends Page {
         }, appConst.mediumTimeout, message);
     }
 
-    async getContentAuthor() {
-        let result = await this.getDisplayedElements(XPATH.container + XPATH.author);
-        return await result[0].getText();
-    }
-
     async isPublishMenuItemPresent(menuItem) {
         try {
             await this.waitForShowPublishMenuButtonVisible();

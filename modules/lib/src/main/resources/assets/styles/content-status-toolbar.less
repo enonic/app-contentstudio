@@ -4,10 +4,12 @@
 
     display: inline-block;
 
-    .author {
+    .status {
       margin-left: 5px;
-      margin-right: 14px;
-      color: @admin-font-gray1;
+
+      &.online + .author, &.offline + .author {
+        display: none;
+      }
     }
   }
 }
