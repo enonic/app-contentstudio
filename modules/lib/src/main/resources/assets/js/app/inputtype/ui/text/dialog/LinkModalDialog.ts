@@ -36,6 +36,9 @@ import {ContentSummary} from '../../../../content/ContentSummary';
 import {ContentId} from '../../../../content/ContentId';
 import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
+import {FormItemEl} from '@enonic/lib-admin-ui/dom/FormItemEl';
+
 import eventInfo = CKEDITOR.eventInfo;
 
 export interface LinkModalDialogConfig
@@ -47,6 +50,12 @@ enum MediaContentRadioAction {
     OPEN = '1', DOWNLOAD = '2', LINK = '3'
 }
 
+interface UrlProtocol {
+    title: string,
+    prefix: string,
+    validator: (input: FormItemEl) => string
+}
+
 export class LinkModalDialog
     extends OverrideNativeDialog {
 
@@ -55,6 +64,7 @@ export class LinkModalDialog
     private textFormItem: FormItem;
     private toolTipFormItem: FormItem;
     private mediaOptionRadioFormItem: FormItem;
+    private protocolsDropdownButton: MenuButton;
 
     private contentId: ContentId;
     private parentSitePath: string;
@@ -69,6 +79,8 @@ export class LinkModalDialog
     private static emailPrefix: string = 'mailto:';
     private static anchorPrefix: string = '#';
 
+    private readonly urlProtocols: UrlProtocol[];
+
     constructor(config: eventInfo, content: ContentSummary) {
         super(<LinkModalDialogConfig>{
             editor: config.editor,
@@ -82,6 +94,13 @@ export class LinkModalDialog
                 noCallback: () => this.close(),
             }
         });
+
+        this.urlProtocols = [
+            {title: 'Https', prefix: 'https://', validator: LinkModalDialog.validationRequiredUrl},
+            {title: 'Http', prefix: 'http://', validator: LinkModalDialog.validationRequiredUrl},
+            {title: 'Ftp', prefix: 'ftp://', validator: LinkModalDialog.validationRequiredUrl},
+            {title: i18n('dialog.link.urlprotocols.relative'), prefix: '', validator: LinkModalDialog.validationRequiredUrl}
+        ];
     }
 
     protected initElements() {
@@ -225,6 +244,8 @@ export class LinkModalDialog
             if (this.isContentLink()) {
                 return this.link.replace(LinkModalDialog.contentPrefix, StringHelper.EMPTY_STRING);
             }
+
+            return StringHelper.EMPTY_STRING;
         };
 
         return this.createFormPanel([
@@ -238,15 +259,20 @@ export class LinkModalDialog
 
 
     private createUrlPanel(): Panel {
-        const getUrl: Function = () => {
-            return this.isUrl() ? this.link : 'https://';
-        };
+        const urlFormItem = this.createUrlFormItem('url', 'Link');
+        const urlInput = <TextInput>urlFormItem.getInput();
+        this.protocolsDropdownButton = this.createProtocolsDropdownButton(urlInput);
+        urlFormItem.prependChild(this.protocolsDropdownButton);
 
-        return this.createFormPanel([
-            this.createFormItemWithPostponedValue('url', i18n('dialog.link.formitem.url'), getUrl,
-                LinkModalDialog.validationRequiredUrl, 'https://example.com/mypage'),
-            this.createTargetCheckbox('urlTarget', this.isUrl)
+        const urlPanel = this.createFormPanel([
+            urlFormItem,
+            this.createTargetCheckbox('urlTarget', this.isUrl, true)
         ]);
+
+        urlPanel.onRendered(() => urlInput.forceChangedEvent());
+        urlPanel.addClass('url-panel');
+
+        return urlPanel;
     }
 
     private createEmailPanel(): Panel {
@@ -311,11 +337,13 @@ export class LinkModalDialog
         return isTabSelected ? this.getOriginalTargetElem().getValue() === '_blank' : false;
     }
 
-    private createTargetCheckbox(id: string, isTabSelectedFn: Function): FormItem {
+    private createTargetCheckbox(id: string, isTabSelectedFn: Function, showOnCreate: boolean = false): FormItem {
         const checkbox = Checkbox.create().setLabelText(i18n('dialog.link.formitem.openinnewtab')).setInputAlignment(
             InputAlignment.LEFT).build();
 
-        checkbox.hide();
+        if (!showOnCreate) {
+            checkbox.hide();
+        }
 
         checkbox.setChecked(this.getTarget(isTabSelectedFn.call(this)));
 
@@ -359,6 +387,88 @@ export class LinkModalDialog
         this.mediaOptionRadioFormItem.getLabel().addClass('required');
 
         return this.mediaOptionRadioFormItem;
+    }
+
+    private createUrlFormItem(textId: string, textLabel: string): FormItem {
+        const getUrl = () => this.isUrl() ? this.link : '';
+
+        const urlFormItem: FormItem = this.createFormItemWithPostponedValue(textId, textLabel, getUrl);
+        const urlInput: TextInput = <TextInput>urlFormItem.getInput();
+        this.initUrlInputHandlers(urlInput);
+
+        urlFormItem.getLabel().addClass('required');
+
+        return urlFormItem;
+    }
+
+    private initUrlInputHandlers(urlInput: TextInput) {
+        urlInput.onRendered(() => {
+            const urlValue = urlInput.getValue();
+            const usedProtocol = this.getUsedProtocolFromValue(urlValue);
+            const actionTitle = urlValue ? usedProtocol.title : 'Https';
+            const action = this.protocolsDropdownButton.getMenuActions().find(action => action.getLabel() === actionTitle);
+            if (action) { action.execute(); }
+        });
+
+        urlInput.onValueChanged((event: ValueChangedEvent) => {
+            const urlValue = event.getNewValue();
+            const usedProtocol = this.getUsedProtocolFromValue(urlValue);
+
+            this.protocolsDropdownButton.getMenuItems().forEach(menuItem => {
+                menuItem.removeClass('menu-item-selected');
+                if (menuItem.getEl().getInnerHtml() === usedProtocol.title) {
+                    menuItem.addClass('menu-item-selected');
+                }
+            });
+        });
+    }
+
+    private createProtocolsDropdownButton(textInput: TextInput): MenuButton {
+        const protocolsDropdownButton = new MenuButton(new Action('Type'));
+        protocolsDropdownButton.addClass('menu-button-type');
+
+        const actions = this.urlProtocols.map(({title, prefix}) => {
+            const action = new Action(title);
+
+            action.onExecuted(() => {
+                const urlValue: string = textInput.getValue();
+                const usedProtocol: UrlProtocol = this.getUsedProtocolFromValue(urlValue);
+                const newUrlValue: string = !usedProtocol.prefix
+                    ? prefix + urlValue
+                    : urlValue.replace(usedProtocol.prefix, prefix);
+
+                textInput.setValue(newUrlValue);
+                textInput.updateValue();
+                textInput.giveFocus();
+             });
+
+            return action;
+        });
+
+        protocolsDropdownButton.addMenuActions(actions);
+        protocolsDropdownButton.addClass('transparent');
+        protocolsDropdownButton.setToggleMenuOnAction(true);
+
+        return protocolsDropdownButton;
+    }
+
+    private getUsedProtocolFromValue(value: string) {
+        let usedProtocol: UrlProtocol;
+
+        this.urlProtocols.some(protocol => {
+            const valueProtocolSplit = value.split(protocol.prefix);
+
+            if (valueProtocolSplit.length > 1 && valueProtocolSplit[0] === '') {
+                usedProtocol = protocol;
+                return true;
+            }
+        });
+
+        if (!usedProtocol) {
+            usedProtocol = this.urlProtocols.find(protocol => protocol.title === i18n('dialog.link.urlprotocols.relative'));
+        }
+
+        return usedProtocol;
     }
 
     protected getMainFormItems(): FormItem [] {
@@ -614,6 +724,7 @@ export class LinkModalDialog
         const target: string = isOpenInNewTab ? '_blank' : '';
 
         this.getOriginalLinkTypeElem().setValue('url', false);
+        this.getOriginalProtocolElem().setValue('', false);
         this.getOriginalTargetElem().setValue(target, false);
         this.getOriginalUrlElem().setValue(url, false);
     }
