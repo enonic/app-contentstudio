@@ -1,0 +1,54 @@
+.menu-button.menu-button-type {
+  background-color: lightgray;
+  height: 35px;
+  width: 75px;
+
+  .menu-item-selected {
+    background-color: lightgray;
+  }
+
+  .action-button {
+    order: -1;
+    min-width: auto;
+    padding: 0 5px 0 10px;
+
+    span {
+      color: @admin-dark-gray
+    }
+  }
+
+  .xp-admin-common-dropdown-handle {
+    width: 25px;
+
+    &::after {
+      border-top-color: @admin-dark-gray;
+    }
+  }
+}
+
+.url-panel {
+  fieldset {
+    label {
+      width: 100%;
+      order: -1;
+    }
+
+    .input-view {
+      display: flex;
+      flex-grow: 1;
+      flex-wrap: wrap;
+
+      .input-wrapper {
+        width: calc(100% - 75px);
+
+        input {
+          height: 35px;
+        }
+      }
+
+      .validation-viewer {
+        width: 100%;
+      }
+    }
+  }
+}
