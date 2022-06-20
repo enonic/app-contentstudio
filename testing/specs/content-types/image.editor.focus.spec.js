@@ -10,6 +10,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const ImageEditor = require('../../page_objects/wizardpanel/image.editor');
 const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const appConst = require('../../libs/app_const');
 
 describe("image.editor.focus.spec: tests for focus button", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -122,7 +123,10 @@ describe("image.editor.focus.spec: tests for focus button", function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

@@ -12,6 +12,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const InsertImageDialog = require('../../page_objects/wizardpanel/insert.image.dialog.cke');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
+const appConst = require('../../libs/app_const');
 
 describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a content with Html Area', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -91,4 +92,10 @@ describe('htmlarea.outbound.dependencies.spec:  checks Outbound Dependency for a
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

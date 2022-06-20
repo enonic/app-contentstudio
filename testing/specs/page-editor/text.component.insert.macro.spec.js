@@ -11,10 +11,13 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertMacroDialog = require('../../page_objects/wizardpanel/macro/insert.macro.dialog.cke');
+const appConst = require('../../libs/app_const');
 
 describe('Text Component - insert embed iframe and preview the site', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
@@ -79,7 +82,10 @@ describe('Text Component - insert embed iframe and preview the site', function (
             return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         })
     });
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

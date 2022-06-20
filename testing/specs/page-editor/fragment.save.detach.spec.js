@@ -10,10 +10,13 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
+const appConst = require('../../libs/app_const');
 
 describe('Menu Items: Save as fragment and Detach from Fragment specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
@@ -58,7 +61,7 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
             await pageComponentView.openMenu("Text");
             //Click on 'Save as Fragment' menu item:
             await pageComponentView.clickOnMenuItem(appConstant.COMPONENT_VIEW_MENU_ITEMS.SAVE_AS_FRAGMENT);
-            await pageComponentView.pause(3000);
+            await pageComponentView.pause(4000);
             //Open text-component's context menu:
             await pageComponentView.openMenu("Text");
             studioUtils.saveScreenshot('text_saved_as_fragment');
@@ -149,7 +152,10 @@ describe('Menu Items: Save as fragment and Detach from Fragment specification', 
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

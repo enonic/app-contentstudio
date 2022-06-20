@@ -13,11 +13,14 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const ImageInspectPanel = require('../../page_objects/wizardpanel/liveform/inspection/image.inspection.panel');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const SiteConfiguratorDialog = require('../../page_objects/wizardpanel/site.configurator.dialog');
+const appConst = require('../../libs/app_const');
 
 describe("image.inspect.panel.select.item.spec: Inserts a image component and update the site-configurator",
     function () {
         this.timeout(appConstant.SUITE_TIMEOUT);
-        webDriverHelper.setupBrowser();
+        if (typeof browser === "undefined") {
+            webDriverHelper.setupBrowser();
+        }
 
         let IMAGE_DISPLAY_NAME = 'kotey';
         let SITE;
@@ -124,7 +127,10 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
         afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-        before(() => {
+        before(async () => {
+            if (typeof browser !== "undefined") {
+                await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+            }
             return console.log('specification starting: ' + this.title);
         });
     });

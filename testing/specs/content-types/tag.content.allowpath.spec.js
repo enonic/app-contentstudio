@@ -9,6 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const TagForm = require('../../page_objects/wizardpanel/tag.form.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -96,4 +97,10 @@ describe('wizard.tag.allowpath.spec: check allowPath for tags`', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

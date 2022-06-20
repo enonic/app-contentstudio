@@ -11,13 +11,16 @@ const contentBuilder = require("../../libs/content.builder");
 const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.components.view");
 const TextComponentCke = require('../../page_objects/components/text.component');
 const InsertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor.dialog.cke');
+const appConst = require('../../libs/app_const');
 
 describe('Text Component with CKE - insert Anchor specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let CONTROLLER_NAME = 'main region';
-    let EXPECTED_DATA_CKE = '<p><a id="test_anchor" name="test_anchor"></a></p>';
+    let EXPECTED_DATA_CKE = '<a id="test_anchor" name="test_anchor"></a>';
 
     it(`Preconditions: new site should be created`,
         async () => {
@@ -48,7 +51,7 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             await contentWizard.switchToLiveEditFrame();
             //5. Verify the text in CKE:
             let actualText = await textComponentCke.getTextFromEditor();
-            assert.equal(actualText, EXPECTED_DATA_CKE, 'expected text should be in CKE');
+            assert.isTrue(actualText.includes(EXPECTED_DATA_CKE), 'expected text should be in CKE');
         });
 
     //verifies XP-4949 HTML Area - Modal dialogs must handle close on Esc
@@ -107,7 +110,10 @@ describe('Text Component with CKE - insert Anchor specification', function () {
             return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         })
     });
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

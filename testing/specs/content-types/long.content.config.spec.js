@@ -9,6 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const LongForm = require('../../page_objects/wizardpanel/long.form.panel');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('long.content.config.spec:  verifies `Min/max value config for Long`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -130,7 +131,10 @@ describe('long.content.config.spec:  verifies `Min/max value config for Long`', 
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

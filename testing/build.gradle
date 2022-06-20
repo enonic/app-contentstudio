@@ -187,6 +187,11 @@ task testWizardsGridFirefox( type: NpmTask, dependsOn: [npmInstall, startServer,
     finalizedBy stopServer
 }
 
+task testPageEditorFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_page_editor:firefox']
+    finalizedBy stopServer
+}
+
 task testWizardsGridFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['run-script', 'test_wizards_grid:firefox']
 }
@@ -200,11 +205,15 @@ task testInputTypesFirefox_2( type: NpmTask, dependsOn: [npmInstall, startServer
     finalizedBy stopServer
 }
 
+task testInputTypesFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_input_types:firefox']
+    finalizedBy stopServer
+}
+
 task testInputTypesFirefox_2_Local( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['run-script', 'test_input_types_2:firefox']
 }
 
-task testInputTypesFirefox_Local( type: NpmTask, dependsOn: [npmInstall] ) {
+task testInputTypesFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['run-script', 'test_input_types:firefox']
 }
-

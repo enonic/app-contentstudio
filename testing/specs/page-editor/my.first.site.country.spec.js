@@ -13,10 +13,13 @@ const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form
 const CountryForm = require('../../page_objects/wizardpanel/country.form.panel');
 const CityForm = require('../../page_objects/wizardpanel/city.form.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const appConst = require('../../libs/app_const');
 
 describe('my.first.site.country.spec - Create a site with country content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let TEMPLATE;
     let USA_CONTENT_NAME;
@@ -188,7 +191,10 @@ describe('my.first.site.country.spec - Create a site with country content', func
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

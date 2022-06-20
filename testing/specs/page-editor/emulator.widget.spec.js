@@ -11,10 +11,13 @@ const contentBuilder = require("../../libs/content.builder");
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const EmulatorWidget = require('../../page_objects/wizardpanel/details/emulator.widget');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const appConst = require('../../libs/app_const');
 
 describe('emulator.widget.spec: tests for emulator widget', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let CONTROLLER_NAME = 'main region';
 
@@ -113,7 +116,10 @@ describe('emulator.widget.spec: tests for emulator widget', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

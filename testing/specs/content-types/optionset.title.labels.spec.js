@@ -15,6 +15,7 @@ const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel
 const LongForm = require('../../page_objects/wizardpanel/long.form.panel');
 const NotificationDialog = require('../../page_objects/notification.dialog');
 const OptionSetForm2View = require('../../page_objects/wizardpanel/optionset/optionset.form2.view');
+const appConst = require('../../libs/app_const');
 
 describe("optionset.title.labels.spec: checks option set's title and labels", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -249,4 +250,10 @@ describe("optionset.title.labels.spec: checks option set's title and labels", fu
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

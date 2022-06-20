@@ -25,4 +25,7 @@ run tests with geckodriver(Firefox browser):
 
 1. gradlew testWizardsGridFirefoxLocal - run ui-tests on local started XP
 2. gradlew testWizardsGridFirefox - downloads XP then starts the server then deploys applications and runs tests
+3. gradlew testPageEditorFirefox
+4. gradlew testInputTypesFirefox_2
+5. gradlew testInputTypesFirefox
 

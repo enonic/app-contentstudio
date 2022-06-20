@@ -14,10 +14,13 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const MoveContentDialog = require('../../page_objects/browsepanel/move.content.dialog');
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const TextComponent = require('../../page_objects/components/text.component');
+const appConst = require('../../libs/app_const');
 
 describe('Move Fragment specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
@@ -92,7 +95,10 @@ describe('Move Fragment specification', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

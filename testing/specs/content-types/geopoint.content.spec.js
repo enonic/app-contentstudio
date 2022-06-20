@@ -9,6 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const GeoPointForm = require('../../page_objects/wizardpanel/geopoint.form.panel');
 const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('geopoint.content.spec: tests for geo point content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -97,7 +98,10 @@ describe('geopoint.content.spec: tests for geo point content', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

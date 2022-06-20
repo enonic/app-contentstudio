@@ -12,10 +12,13 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const LiveFormPanel = require("../../page_objects/wizardpanel/liveform/live.form.panel");
 const HtmlAreaForm = require('../../page_objects/wizardpanel/htmlarea.form.panel');
 const TextComponentCke = require('../../page_objects/components/text.component');
+const appConst = require('../../libs/app_const');
 
 describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let CONTROLLER_NAME = 'main region';
     let CONTENT_NAME;
@@ -191,7 +194,10 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

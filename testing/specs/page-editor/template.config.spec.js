@@ -13,10 +13,13 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const contentBuilder = require("../../libs/content.builder");
 const DefaultPageInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/default.page.inspection.panel');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
+const appConst = require('../../libs/app_const');
 
 describe('template.config.spec: template config should be displayed in the Inspection Panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     let TEMPLATE;
     let SUPPORT = 'article';
@@ -60,7 +63,10 @@ describe('template.config.spec: template config should be displayed in the Inspe
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 

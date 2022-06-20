@@ -18,10 +18,13 @@ const BrowseDependenciesWidget = require('../../page_objects/browsepanel/details
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardDependenciesWidget = require('../../page_objects/wizardpanel/details/wizard.dependencies.widget');
 const FragmentInspectionPanel = require('../../page_objects/wizardpanel/liveform/inspection/fragment.inspection.panel');
+const appConst = require('../../libs/app_const');
 
 describe('Generate name for fragments specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let CONTROLLER_NAME = 'main region';
@@ -176,7 +179,10 @@ describe('Generate name for fragments specification', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

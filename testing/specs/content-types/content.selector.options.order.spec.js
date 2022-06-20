@@ -9,6 +9,7 @@ const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentSelectorForm = require('../../page_objects/wizardpanel/content.selector.form');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('content.selector.options.order.spec:  tests for checking of order of selected options in content selector', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -74,4 +75,10 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

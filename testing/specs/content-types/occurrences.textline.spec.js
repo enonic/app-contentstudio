@@ -11,6 +11,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const TextLine = require('../../page_objects/wizardpanel/textline.form.panel');
 const WizardDetailsPanel = require('../../page_objects/wizardpanel/details/wizard.details.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const appConst = require('../../libs/app_const');
 
 describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -233,4 +234,10 @@ describe('occurrences.textline.spec: tests for textline(0-1,1-0, 1-1)', function
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

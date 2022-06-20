@@ -10,6 +10,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const ImageEditor = require('../../page_objects/wizardpanel/image.editor');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
 const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
+const appConst = require('../../libs/app_const');
 
 describe("image.content.flip.rotate.spec: Open an image and flip and rotate it", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -127,7 +128,10 @@ describe("image.content.flip.rotate.spec: Open an image and flip and rotate it",
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

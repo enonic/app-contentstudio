@@ -7,10 +7,12 @@ exports.config = {
     // Specify Test Files
     // ==================
     specs: [
-        __dirname +  '/specs/content-types/*.spec.js'
+        __dirname + '/specs/page-editor/*.spec.js'
     ],
     exclude: [
-        __dirname + '/specs/content-types/image.editor.focus.spec.js'
+        __dirname + '/specs/page-editor/revert.site.with.components.spec.js',
+        __dirname + '/specs/page-editor/text.component.cke.url.link.spec.js',
+        __dirname + '/specs/page-editor/fragment.save.detach.spec.js',
     ],
 
     maxInstances: 1,
@@ -26,6 +28,7 @@ exports.config = {
             ]
         }
     }],
+
     logLevel: 'info',
     //
     // Enables colors for log output.
@@ -42,7 +45,8 @@ exports.config = {
     //
     // Default request retries count
     connectionRetryCount: 3,
-
+    // Make sure you have the wdio adapter package for the specific framework installed
+    // before running any tests.
     services: ['geckodriver'],
 
     framework: 'mocha',
@@ -56,7 +60,7 @@ exports.config = {
         ["html-nice", {
             outputDir: './build/mochawesome-report/',
             filename: 'report.html',
-            reportTitle: 'Tests for Input Types',
+            reportTitle: 'Tests for Wizards, Grid',
             linkScreenshots: true,
             //to show the report in a browser when done
             showInBrowser: true,
@@ -67,6 +71,8 @@ exports.config = {
         ]
     ],
 
+    // Options to be passed to Mocha.
+    // See the full list at http://mochajs.org/
     mochaOpts: {
         ui: 'bdd',
         timeout: 60000
@@ -78,11 +84,10 @@ exports.config = {
     },
 
     onPrepare: function (config, capabilities) {
-
         reportAggregator = new ReportAggregator({
             outputDir: './build/mochawesome-report/',
             filename: 'report.html',
-            reportTitle: 'Input Types Test Report',
+            reportTitle: 'Content Studio, Wizard, Grid Tests Report',
             browserName: capabilities.browserName,
             collapseTests: true
         });
@@ -94,4 +99,5 @@ exports.config = {
             await reportAggregator.createReport();
         })();
     },
+
 };

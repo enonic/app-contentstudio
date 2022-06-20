@@ -15,7 +15,7 @@
     "test_collaboration": "node ./tasks/test-collaboration.js",
     "test_wizards_grid:firefox":  "npx wdio ./wdio.wizard.grid.ff.conf.js",
     "test_input_types:firefox": "npx wdio wdio.input_types.ff.conf.js",
-    "test_page_editor:firefox": "npx wdio wdio.page.editor.ff.conf.js",
+    "test_page_editor:firefox": "npx wdio wdio.page_editor.ff.conf.js",
     "test_input_types_2:firefox": "npx wdio wdio.input_types2.ff.conf.js"
   },
   "devDependencies": {

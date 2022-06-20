@@ -14,6 +14,7 @@ const InsertAnchorDialog = require('../../page_objects/wizardpanel/insert.anchor
 const InsertSpecialDialog = require('../../page_objects/wizardpanel/insert.special.character.dialog.cke');
 const InsertMacroDialog = require('../../page_objects/wizardpanel/macro/insert.macro.dialog.cke');
 const InsertLinkDialog = require('../../page_objects/wizardpanel/insert.link.modal.dialog.cke');
+const appConst = require('../../libs/app_const');
 
 describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
@@ -185,4 +186,10 @@ describe('htmlarea.cke.toolbar.spec: tests for toolbar in html-area(CKE editor)'
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });
