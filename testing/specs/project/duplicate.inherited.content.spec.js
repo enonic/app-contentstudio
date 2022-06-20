@@ -10,10 +10,13 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('duplicate.inherited.content.spec - tests for duplicating of inherited content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const SITE_NAME = studioUtils.generateRandomName('site');
     const EXPECTED_ORDER = `Sorted by "Modified date" in descending order`;
@@ -109,7 +112,10 @@ describe('duplicate.inherited.content.spec - tests for duplicating of inherited 
         return await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

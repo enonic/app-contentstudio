@@ -13,10 +13,13 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SettingsForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const appConst = require('../../libs/app_const');
 
 describe('layer.localize.button.spec - checks Localize button in browse toolbar and Layers widget', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const FOLDER_NAME = studioUtils.generateRandomName('folder');
     const FOLDER_2_NAME = studioUtils.generateRandomName('folder');
@@ -252,7 +255,10 @@ describe('layer.localize.button.spec - checks Localize button in browse toolbar 
         return await studioUtils.navigateToContentStudioWithProjects();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

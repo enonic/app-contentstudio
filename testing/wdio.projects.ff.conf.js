@@ -7,12 +7,10 @@ exports.config = {
     // Specify Test Files
     // ==================
     specs: [
-        __dirname + '/specs/page-editor/*.spec.js'
+        __dirname + '/specs/project/*.spec.js'
     ],
     exclude: [
-        __dirname + '/specs/page-editor/revert.site.with.components.spec.js',
-        __dirname + '/specs/page-editor/text.component.cke.url.link.spec.js',
-        __dirname + '/specs/page-editor/fragment.save.detach.spec.js',
+       // __dirname + '/specs/page-editor/revert.site.with.components.spec.js',
     ],
 
     maxInstances: 1,
@@ -60,7 +58,7 @@ exports.config = {
         ["html-nice", {
             outputDir: './build/mochawesome-report/',
             filename: 'report.html',
-            reportTitle: 'Tests for Page Editor',
+            reportTitle: 'Tests for Projects',
             linkScreenshots: true,
             //to show the report in a browser when done
             showInBrowser: true,
@@ -87,7 +85,7 @@ exports.config = {
         reportAggregator = new ReportAggregator({
             outputDir: './build/mochawesome-report/',
             filename: 'report.html',
-            reportTitle: 'Content Studio, Page Editor Tests Report',
+            reportTitle: 'Content Studio, Projects Tests Report',
             browserName: capabilities.browserName,
             collapseTests: true
         });

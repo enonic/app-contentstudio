@@ -217,3 +217,8 @@ task testInputTypesFirefox_2_Local( type: NpmTask, dependsOn: [npmInstall] ) {
 task testInputTypesFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
     args = ['run-script', 'test_input_types:firefox']
 }
+
+task testContentStudioProjectsFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_project:firefox']
+    finalizedBy stopServer
+}

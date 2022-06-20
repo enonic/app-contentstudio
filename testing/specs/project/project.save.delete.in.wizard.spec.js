@@ -9,10 +9,13 @@ const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deleting a project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
 
@@ -103,7 +106,10 @@ describe('project.save.delete.in.wizard.panel.spec - ui-tests for saving/deletin
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

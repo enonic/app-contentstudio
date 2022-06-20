@@ -13,10 +13,13 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const appConst = require('../../libs/app_const');
 
 describe("project.editor.spec - ui-tests for an user with 'Editor' role", function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let FOLDER_NAME = studioUtils.generateRandomName("folder");
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
@@ -147,8 +150,10 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
-
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

@@ -15,10 +15,13 @@ const BrowseDetailsPanel = require('../../page_objects/browsepanel/detailspanel/
 const ContentWidgetView = require('../../page_objects/browsepanel/detailspanel/content.widget.item.view');
 const EditPermissionsDialog = require('../../page_objects/edit.permissions.dialog');
 const UserAccessWidget = require('../../page_objects/browsepanel/detailspanel/user.access.widget.itemview');
+const appConst = require('../../libs/app_const');
 
 describe('create.content.in.project.spec - create new content in the selected context and verify a language in wizards', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TEST_FOLDER_NAME = studioUtils.generateRandomName("folder");
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
@@ -140,7 +143,10 @@ describe('create.content.in.project.spec - create new content in the selected co
         await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

@@ -12,10 +12,13 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const appConst = require('../../libs/app_const');
 
 describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolbar', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const FOLDER_NAME = studioUtils.generateRandomName("folder");
@@ -161,7 +164,10 @@ describe('layer.inheritance.reset.spec - tests for Reset button in wizard toolba
         return await studioUtils.navigateToContentStudioCloseProjectSelectionDialog();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

@@ -13,10 +13,13 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('localize.inherited.site.spec - tests for inherited content', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const SITE_NAME = studioUtils.generateRandomName('site');
     const EXPECTED_ORDER = "Inherited: Modified date";
@@ -133,7 +136,10 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
         return await studioUtils.navigateToContentStudioWithProjects();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

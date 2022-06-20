@@ -16,16 +16,17 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const PublishRequestDetailsDialog = require('../../page_objects/issue/publish.request.details.dialog');
 const CreateRequestPublishDialog = require('../../page_objects/issue/create.request.publish.dialog');
-const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
 const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
 const IssueDetailsDialogAssigneesTab = require('../../page_objects/issue/issue.details.dialog.assignees.tab');
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
-
+const appConst = require('../../libs/app_const');
 
 describe('project.owner.spec - ui-tests for user with Owner role', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const FOLDER_NAME = studioUtils.generateRandomName("folder");
@@ -281,8 +282,10 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
-
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

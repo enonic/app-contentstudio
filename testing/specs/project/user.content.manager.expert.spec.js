@@ -8,10 +8,13 @@ const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('user.content.manager.expert.spec - ui-tests for content manager expert role', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const WARNING_MESSAGE = "Your permissions don't allow access to any projects. Please contact your administrator.";
     let USER;
@@ -48,7 +51,10 @@ describe('user.content.manager.expert.spec - ui-tests for content manager expert
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

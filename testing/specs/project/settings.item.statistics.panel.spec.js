@@ -10,10 +10,13 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const SettingsItemStatisticsPanel = require('../../page_objects/project/settings.item.statistics.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('settings.item.statistics.panel.spec - verify an info in item statistics panel', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let NEW_DISPLAY_NAME = studioUtils.generateRandomName("project");
@@ -119,7 +122,10 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

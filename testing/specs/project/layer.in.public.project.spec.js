@@ -10,10 +10,13 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const LayerWizard = require('../../page_objects/project/layer.wizard.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('layer.in.public.project.spec - ui-tests for layer in existing project', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
@@ -252,7 +255,10 @@ describe('layer.in.public.project.spec - ui-tests for layer in existing project'
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

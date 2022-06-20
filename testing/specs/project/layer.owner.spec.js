@@ -11,10 +11,13 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const contentBuilder = require("../../libs/content.builder");
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
@@ -162,8 +165,10 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
-
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

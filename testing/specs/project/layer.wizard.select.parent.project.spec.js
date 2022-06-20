@@ -9,10 +9,13 @@ const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const NewSettingsItemDialog = require('../../page_objects/project/new.settings.item.dialog');
 const LayerWizard = require('../../page_objects/project/layer.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('layer.wizard.select.parent.project.spec - ui-tests for selecting parent project in layer wizard', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
 
 
@@ -61,7 +64,10 @@ describe('layer.wizard.select.parent.project.spec - ui-tests for selecting paren
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

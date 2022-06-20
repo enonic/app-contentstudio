@@ -12,7 +12,9 @@ const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.di
 
 describe('settings.browse.panel.context.menu.spec - ui-tests to verify context menu items', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME_1 = studioUtils.generateRandomName("project");
 
@@ -92,7 +94,10 @@ describe('settings.browse.panel.context.menu.spec - ui-tests to verify context m
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

@@ -12,10 +12,13 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('project.viewer.spec - ui-tests for user with Viewer role', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let TEST_FOLDER;
@@ -125,8 +128,10 @@ describe('project.viewer.spec - ui-tests for user with Viewer role', function ()
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
-
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

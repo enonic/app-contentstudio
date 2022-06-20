@@ -10,10 +10,13 @@ const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.
 const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const LayerWizardPanel = require('../../page_objects/project/layer.wizard.panel');
 const SettingsItemStatisticsPanel = require('../../page_objects/project/settings.item.statistics.panel');
+const appConst = require('../../libs/app_const');
 
 describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wizard', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
 
     it("GIVEN new layer(in Default) with roles is saved WHEN 'Copy roles from parent' has been clicked THEN 'Save' button gets enabled",
@@ -120,7 +123,10 @@ describe('layer.wizard.unsaved.changes.spec - checks unsaved changes in layer wi
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

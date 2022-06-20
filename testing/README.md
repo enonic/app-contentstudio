@@ -28,4 +28,5 @@ run tests with geckodriver(Firefox browser):
 3. gradlew testPageEditorFirefox
 4. gradlew testInputTypesFirefox_2
 5. gradlew testInputTypesFirefox
+6. gradlew testContentStudioProjectsFirefox
 

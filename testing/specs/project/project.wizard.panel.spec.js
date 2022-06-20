@@ -8,10 +8,13 @@ const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('project.wizard.panel.spec - ui-tests for project wizard', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = "Project1";
 
@@ -90,7 +93,10 @@ describe('project.wizard.panel.spec - ui-tests for project wizard', function () 
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });
