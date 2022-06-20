@@ -142,10 +142,11 @@ export class ContentAggregationsFetcher {
         const inProgressCount: number = inProgressBucket?.docCount || 0;
         const readyCount: number = total - inProgressCount;
 
-        if (readyCount > 0) {
-            const bucket: Bucket = new Bucket(WorkflowState.READY, readyCount);
-            result.push(bucket);
-        }
+        // skipping for now because published items are also ending up in this bucket
+        // if (readyCount > 0) {
+        //     const readyBucket: Bucket = new Bucket(WorkflowState.READY, readyCount);
+        //     result.push(readyBucket);
+        // }
 
         if (inProgressBucket) {
             result.push(inProgressBucket);
