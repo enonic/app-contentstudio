@@ -54,12 +54,12 @@ exports.config = {
         timeout: 70000
     },
     // Set directory to store all logs into
-    outputDir: __dirname+"/build/mochawesome-report/",
+    outputDir: path.join(__dirname ,"/../build/mochawesome-report/"),
 
     reporters: ['spec',
         ["html-nice", {
             outputDir: './build/mochawesome-report/',
-            filename: 'report.html',
+            filename: 'spec-report.html',
             reportTitle: 'Tests for Page Editor',
             linkScreenshots: true,
             //to show the report in a browser when done
@@ -86,7 +86,7 @@ exports.config = {
     onPrepare: function (config, capabilities) {
         reportAggregator = new ReportAggregator({
             outputDir: './build/mochawesome-report/',
-            filename: 'report.html',
+            filename: 'app-report.html',
             reportTitle: 'Content Studio, Page Editor Tests Report',
             browserName: capabilities.browserName,
             collapseTests: true
