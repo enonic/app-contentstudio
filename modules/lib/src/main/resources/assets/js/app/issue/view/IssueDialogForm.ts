@@ -47,10 +47,8 @@ export class IssueDialogForm
 
     public doRender(): Q.Promise<boolean> {
         return super.doRender().then(() => {
-            return this.approversSelector.getLoader().load().then(() => {
-                this.title.giveFocus();
-                return true;
-            });
+            this.title.giveFocus();
+            return true;
         });
     }
 
