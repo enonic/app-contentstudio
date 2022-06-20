@@ -33,7 +33,7 @@
     "copy-webpack-plugin": "^11.0.0",
     "cssnano": "^5.1.12",
     "eslint": "^8.17.0",
-    "mini-css-extract-plugin": "^2.5.3",
+    "mini-css-extract-plugin": "^2.6.1",
     "postcss-loader": "^7.0.0",
     "source-map-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.1",
