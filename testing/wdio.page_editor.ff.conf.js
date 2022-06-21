@@ -97,8 +97,9 @@ exports.config = {
 
     onComplete: function (exitCode, config, capabilities, results) {
         (async () => {
+            console.log("########################### onComplete: Started");
             await reportAggregator.createReport();
-            console.log("onComplete: App report created");
+            console.log("########################### onComplete: App report created");
         })();
     },
 
