@@ -1,6 +1,6 @@
 const path = require('path')
 const {ReportAggregator} = require('wdio-html-nice-reporter');
-let reportAggregator;
+//let reportAggregator;
 exports.config = {
 
     //
