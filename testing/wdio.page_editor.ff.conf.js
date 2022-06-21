@@ -58,7 +58,7 @@ exports.config = {
 
     reporters: ['spec',
         ["html-nice", {
-            outputDir: '/build/mochawesome-report/',
+            outputDir:  path.join(__dirname ,"/build/mochawesome-report/"),
             filename: 'spec-report.html',
             reportTitle: 'Tests for Page Editor',
             linkScreenshots: true,
@@ -85,7 +85,7 @@ exports.config = {
 
     onPrepare: function (config, capabilities) {
         reportAggregator = new ReportAggregator({
-            outputDir: '/build/mochawesome-report/',
+            outputDir:  path.join(__dirname ,"/build/mochawesome-report/"),
             filename: 'app-report.html',
             reportTitle: 'Content Studio, Page Editor Tests Report',
             browserName: capabilities.browserName,
