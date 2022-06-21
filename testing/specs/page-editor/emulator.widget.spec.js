@@ -45,7 +45,7 @@ describe('emulator.widget.spec: tests for emulator widget', function () {
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
             //6. Verify that 'Emulator' and 'Components' options get visible in options after selecting a controller:
             await wizardDetailsPanel.clickOnWidgetSelectorDropdownHandle();
-            await studioUtils.saveScreenshot("widget_menu");
+            await studioUtils.saveScreenshot("widget_menu_1");
             let actualOptions2 = await wizardDetailsPanel.getWidgetSelectorDropdownOptions();
             assert.isTrue(actualOptions2.includes('Emulator'));
             assert.isTrue(actualOptions2.includes('Components'));
@@ -59,6 +59,7 @@ describe('emulator.widget.spec: tests for emulator widget', function () {
             //1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await wizardDetailsPanel.openEmulatorWidget();
+            await studioUtils.saveScreenshot("widget_menu_2");
             //2. Expand the dropdown and verify all available resolutions::
             let actualResolutions = await emulatorWidget.getResolutions();
             assert.equal(actualResolutions.length, 8, "8 resolutions should be present in the widget");
@@ -72,6 +73,7 @@ describe('emulator.widget.spec: tests for emulator widget', function () {
             //1. Open the existing site:
             await studioUtils.selectAndOpenContentInWizard(SITE.displayName);
             await wizardDetailsPanel.openEmulatorWidget();
+            await studioUtils.saveScreenshot("widget_menu_3");
             //2.'Medium Phone' resolution has been clicked
             await emulatorWidget.clickOnResolution(appConstant.EMULATOR_RESOLUTION.MEDIUM_PHONE);
             //3. Verify actual width and height:

@@ -1,5 +1,5 @@
 const path = require('path')
-const {ReportAggregator, HtmlReporter} = require('wdio-html-nice-reporter');
+const {ReportAggregator} = require('wdio-html-nice-reporter');
 let reportAggregator;
 exports.config = {
 
@@ -55,7 +55,7 @@ exports.config = {
         timeout: 70000
     },
     // Set directory to store all logs into
-    //outputDir: path.join(__dirname ,"./build/mochawesome-report/"),
+    outputDir: path.join(__dirname ,"./build/mochawesome-report/"),
 
     reporters: ['spec',
         ["html-nice", {
