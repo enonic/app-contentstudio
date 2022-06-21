@@ -45,6 +45,7 @@ describe('emulator.widget.spec: tests for emulator widget', function () {
             await contentWizard.selectPageDescriptor(CONTROLLER_NAME);
             //6. Verify that 'Emulator' and 'Components' options get visible in options after selecting a controller:
             await wizardDetailsPanel.clickOnWidgetSelectorDropdownHandle();
+            await studioUtils.saveScreenshot("widget_menu");
             let actualOptions2 = await wizardDetailsPanel.getWidgetSelectorDropdownOptions();
             assert.isTrue(actualOptions2.includes('Emulator'));
             assert.isTrue(actualOptions2.includes('Components'));
