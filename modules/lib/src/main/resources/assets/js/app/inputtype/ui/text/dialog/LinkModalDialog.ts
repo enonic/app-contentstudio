@@ -491,8 +491,8 @@ export class LinkModalDialog
         this.initTabNames();
 
         const dockedPanel = new DockedPanel();
-        dockedPanel.addItem(this.tabNames.url, true, this.createUrlPanel());
         dockedPanel.addItem(this.tabNames.content, true, this.createContentPanel());
+        dockedPanel.addItem(this.tabNames.url, true, this.createUrlPanel());
         dockedPanel.addItem(this.tabNames.email, true, this.createEmailPanel());
 
         const anchors: any[] = this.getAnchors();
@@ -501,12 +501,13 @@ export class LinkModalDialog
             dockedPanel.addItem(this.tabNames.anchor, true, this.createAnchorPanel(anchors), this.isAnchor());
         }
 
-        dockedPanel.getDeck().getPanels().forEach((panel, index) => {
-            if ((index === 1 && this.isContentLink()) ||
-                (index === 3 && this.isEmail()) ||
-                (index === 4 && this.isAnchor())) {
+        dockedPanel.getDeck().getPanels().some((panel, index) => {
+            if ((index === 0 && this.isContentLink()) ||
+                (index === 1 && this.isUrl()) ||
+                (index === 2 && this.isEmail()) ||
+                (index === 3 && this.isAnchor())) {
                 dockedPanel.selectPanel(panel);
-                return false;
+                return true;
             }
         });
 
