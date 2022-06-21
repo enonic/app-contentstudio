@@ -19,7 +19,7 @@ export class CustomSelectorItemViewer
 
     resolveIconEl(object: CustomSelectorItem): Element {
         if (object.icon && object.icon.data) {
-            return Element.fromString(object.icon.data);
+            return Element.fromCustomarilySanitizedString(object.icon.data, true, {addTags: ['use']});
         }
         return null;
     }
