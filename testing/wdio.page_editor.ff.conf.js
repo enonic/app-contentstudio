@@ -55,7 +55,7 @@ exports.config = {
         timeout: 70000
     },
     // Set directory to store all logs into
-    outputDir: path.join(__dirname ,"./build/mochawesome-report/"),
+    outputDir: "./build/mochawesome-report/",
 
     reporters: ['spec',
         ["html-nice", {
