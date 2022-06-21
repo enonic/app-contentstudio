@@ -63,6 +63,7 @@ describe("text.component.image.outbound.spec: Inserts a text component with an i
             //5. 'Dependencies Section' should be present, in the filter panel'
             await contentFilterPanel.waitForDependenciesSectionVisible();
             await studioUtils.saveScreenshot('text_component_outbound');
+            await contentBrowsePanel.waitForSpinnerNotVisible();
             let result = await contentBrowsePanel.getDisplayNamesInGrid();
 
             assert.equal(result[0], IMAGE_DISPLAY_NAME, 'expected image should be filtered');
