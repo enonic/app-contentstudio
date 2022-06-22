@@ -38,7 +38,9 @@ import {RadioGroup} from '@enonic/lib-admin-ui/ui/RadioGroup';
 import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
 import {MenuButton} from '@enonic/lib-admin-ui/ui/button/MenuButton';
 import {FormItemEl} from '@enonic/lib-admin-ui/dom/FormItemEl';
-
+import {Button} from '@enonic/lib-admin-ui/ui/button/Button';
+import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
+import {ValidationResult} from '@enonic/lib-admin-ui/ui/form/ValidationResult';
 import eventInfo = CKEDITOR.eventInfo;
 
 export interface LinkModalDialogConfig
@@ -64,12 +66,16 @@ export class LinkModalDialog
     private textFormItem: FormItem;
     private toolTipFormItem: FormItem;
     private mediaOptionRadioFormItem: FormItem;
+    private anchorFormItem: FormItem;
+    private paramsFormItem: FormItem;
     private protocolsDropdownButton: MenuButton;
 
     private contentId: ContentId;
     private parentSitePath: string;
 
     private tabNames: any;
+
+    private paramsFormIds: {keyId: string, valueId: string}[];
 
     protected config: LinkModalDialogConfig;
 
@@ -78,6 +84,7 @@ export class LinkModalDialog
     private static mediaInlinePrefix: string = 'media://inline/';
     private static emailPrefix: string = 'mailto:';
     private static anchorPrefix: string = '#';
+    private static queryParamsPrefix: string = '?';
 
     private readonly urlProtocols: UrlProtocol[];
 
@@ -212,7 +219,7 @@ export class LinkModalDialog
     }
 
     private isUrl(): boolean {
-        return this.link ? !(this.isContentLink() || this.isEmail()) : false;
+        return this.link ? !(this.isContentLink() || this.isEmail() || this.isAnchor()) : false;
     }
 
     private isEmail(): boolean {
@@ -242,19 +249,28 @@ export class LinkModalDialog
             }
 
             if (this.isContentLink()) {
-                return this.link.replace(LinkModalDialog.contentPrefix, StringHelper.EMPTY_STRING);
+                const regex = new RegExp(/^(.*?)(\#|\?|$)/g);
+                const regexResult = regex.exec(this.link);
+                return (regexResult.length > 1 ? regexResult[1] : this.link)
+                    .replace(LinkModalDialog.contentPrefix, StringHelper.EMPTY_STRING);
             }
 
             return StringHelper.EMPTY_STRING;
         };
 
-        return this.createFormPanel([
+        const contentPanel = this.createFormPanel([
             this.createSelectorFormItem('contentId', i18n('dialog.link.formitem.target'),
                 this.createSelector(getContentId, this.createContentSelectorBuilder()),
                 true),
             this.createMediaOptionRadio('contentMediaRadio'),
-            this.createTargetCheckbox('contentTarget', this.isContentLink)
+            this.createTargetCheckbox('contentTarget', this.isContentLink),
+            this.createAnchorOption('contentAnchor', i18n('dialog.link.anchor')),
+            this.createParamsOptions('contentParams', i18n('dialog.link.parameters')),
         ]);
+
+        contentPanel.addClass('content-panel');
+
+        return contentPanel;
     }
 
 
@@ -325,6 +341,17 @@ export class LinkModalDialog
         return this.createFormItem(formItemBuilder);
     }
 
+    private static validationAlwaysValid(): string {
+        return undefined;
+    }
+
+    private validationQueryParams(): string {
+        const isValid = Array.from(this.paramsFormItem.getHTMLElement().getElementsByTagName('input'))
+            .every((input: HTMLInputElement) => input.value !== '');
+
+        return !isValid ? i18n('dialog.link.queryparams.empty') : undefined;
+    }
+
     private static validationRequiredEmail(input: FormInputEl): string {
         return Validators.required(input) || Validators.validEmail(input);
     }
@@ -358,6 +385,87 @@ export class LinkModalDialog
         const formItemBuilder = new ModalDialogFormItemBuilder(id).setInputEl(checkbox);
 
         return this.createFormItem(formItemBuilder);
+    }
+
+    private createAnchorOption(id: string, label: string): FormItem {
+        const addButton: Button = new Button(i18n('action.add'));
+
+        const hideAnchorFormButton = this.createRemoveButton();
+
+        const getAnchor = () => {
+            if (!this.link) {
+                return StringHelper.EMPTY_STRING;
+            }
+
+            const match = this.link.match(new RegExp(/(?<=\#)(.*?)(?=(\&|\?)|$)/g));
+
+            if (!match) {
+                return StringHelper.EMPTY_STRING;
+            }
+
+            return decodeURIComponent(match[0]);
+        };
+
+        this.anchorFormItem = this.createFormItemWithPostponedValue(id, label, getAnchor, LinkModalDialog.validationAlwaysValid);
+        this.anchorFormItem.addClass('anchor-form-item');
+        this.anchorFormItem.prependChild(addButton);
+        this.anchorFormItem.appendChild(hideAnchorFormButton);
+
+        const anchorInput: TextInput = <TextInput>this.anchorFormItem.getInput();
+
+        anchorInput.onShown(() => hideAnchorFormButton.show());
+        anchorInput.onHidden(() => hideAnchorFormButton.hide());
+        anchorInput.hide();
+
+        hideAnchorFormButton.onClicked(() => {
+            this.anchorFormItem.setValidator(LinkModalDialog.validationAlwaysValid);
+            this.anchorFormItem.validate(new ValidationResult(), true);
+            anchorInput.setValue('');
+            anchorInput.hide();
+            addButton.show();
+        });
+
+        addButton.onClicked(() => {
+            this.anchorFormItem.setValidator(Validators.required);
+            addButton.hide();
+            anchorInput.show();
+            anchorInput.giveFocus();
+        });
+
+        if (getAnchor()) {
+            addButton.hide();
+            anchorInput.show();
+        }
+
+        this.anchorFormItem.hide();
+
+        return this.anchorFormItem;
+    }
+
+    private createParamsOptions(id: string, label: string): FormItem {
+        this.paramsFormIds = [];
+
+        const addButton: Button = new Button(i18n('action.add'));
+
+        this.paramsFormItem = this.createFormItem(new ModalDialogFormItemBuilder(id, label)
+            .setValidator(this.validationQueryParams.bind(this)));
+        this.paramsFormItem.removeChild(this.paramsFormItem.getInput().getParentElement());
+        this.paramsFormItem.addClass('params-form-item');
+
+        addButton.onClicked(() => {
+            this.paramsFormItem.removeChild(addButton);
+            this.createKeyValueFormItems();
+            this.paramsFormItem.appendChild(addButton);
+        });
+
+        const keyValueMap = this.getKeyValueMapFromLink();
+        Object.keys(keyValueMap).forEach(key => this.createKeyValueFormItems(key, keyValueMap[key]));
+
+        this.paramsFormItem.appendChild(addButton);
+
+        this.paramsFormItem.hide();
+
+        return this.paramsFormItem;
     }
 
     private createMediaOptionRadio(id: string): FormItem {
@@ -480,6 +588,68 @@ export class LinkModalDialog
         return usedProtocol;
     }
 
+    private getKeyValueMapFromLink(): {[key: string]: string}{
+        const keyValueMap = {};
+        const decode = (s: string) => decodeURIComponent(s.replace(/\+/g, ' '));
+        const queryString = this.link.split('?').pop();
+
+        if (!queryString) {
+            return keyValueMap;
+        }
+
+        const keyValues = queryString.split('&');
+
+        keyValues.forEach((keyValue: string) => {
+            const [key, value] = keyValue.split('=');
+
+            if (key && value) {
+                keyValueMap[decode(key)] = decode(value);
+            }
+        });
+
+        return keyValueMap;
+    }
+
+    private createKeyValueFormItems(initialKey: string = '', initialValue: string = ''): void {
+        const uniqueParamIdentifier = this.paramsFormIds.length
+            ? parseFloat(this.paramsFormIds[this.paramsFormIds.length - 1].keyId.split('-')[1]) + 1
+            : 0;
+
+        const keyFormItemId = `paramsKey-${uniqueParamIdentifier}`;
+        const keyFormItem = this.createFormItemWithPostponedValue(keyFormItemId, '', () => initialKey, null,
+            i18n('dialog.link.parameters.name'));
+
+        const valueFormItemId = `paramsValue-${uniqueParamIdentifier}`;
+        const valueFormItem = this.createFormItemWithPostponedValue(valueFormItemId, '', () => initialValue, null,
+            i18n('dialog.link.parameters.value'));
+
+        const removeButton = this.createRemoveButton();
+
+        const divWrapper = new DivEl('params-wrapper')
+            .appendChild(keyFormItem)
+            .appendChild(valueFormItem)
+            .appendChild(removeButton);
+        this.paramsFormItem.appendChild(divWrapper);
+
+        this.paramsFormIds.push({keyId: keyFormItemId, valueId: valueFormItemId});
+
+        keyFormItem.getInput().giveFocus();
+
+        removeButton.onClicked(() => {
+            this.paramsFormIds = this.paramsFormIds.filter(({keyId, valueId}) => keyId !== keyFormItemId && valueId !== valueFormItemId);
+            this.removeFieldById(keyFormItemId);
+            this.removeFieldById(valueFormItemId);
+            this.paramsFormItem.removeChild(divWrapper);
+            this.paramsFormItem.validate(new ValidationResult(), true);
+        });
+    }
+
+    private createRemoveButton(): Button {
+        const button = new Button();
+        button.addClass('remove-button transparent icon-close');
+        return button;
+    }
+
     protected getMainFormItems(): FormItem [] {
         const getLinkText: Function = () => {
             return <string>this.ckeOriginalDialog.getValueOf('info', 'linkDisplayText');
@@ -574,23 +744,28 @@ export class LinkModalDialog
                 formItem.setValidator(Validators.required);
                 this.mediaOptionRadioFormItem.hide();
                 checkbox.hide();
+                this.anchorFormItem.hide();
+                this.paramsFormItem.hide();
                 return;
             }
 
             if (selectedContent.getType().isDescendantOfMedia()) {
                 this.mediaOptionRadioFormItem.show();
+                this.anchorFormItem.hide();
+                this.paramsFormItem.hide();
                 if (mediaRadio.doGetValue() === MediaContentRadioAction.LINK) {
                     checkbox.show();
                 }
             } else {
                 this.mediaOptionRadioFormItem.hide();
                 checkbox.show();
+                this.anchorFormItem.show();
+                this.paramsFormItem.show();
             }
         };
 
         contentSelector.onLoaded((items: ContentTreeSelectorItem[]) => {
-            const selectedContent = items.length === 1 ? items[0].getContent() : undefined;
-            callbackFn(selectedContent);
+            setTimeout(() => callbackFn(contentSelector.getSelectedContent()), 1);
         });
 
         contentSelector.onValueChanged(() => {
@@ -692,14 +867,28 @@ export class LinkModalDialog
         let target: string = '';
 
         const contentSelector = <ContentComboBox<ContentTreeSelectorItem>>this.getFieldById('contentId');
-
         const contentSelectorValue = contentSelector.getValue();
         const contentSelectorSelectedContent = contentSelector.getSelectedContent();
 
-        const setTargetAndUrl = () => {
+        const getQueryParamsString = () => {
+            const queryParamsString = this.paramsFormIds.reduce((prev, {keyId, valueId}) => {
+                const key = encodeURIComponent((<TextInput>this.getFieldById(keyId)).getValue());
+                const value = encodeURIComponent((<TextInput>this.getFieldById(valueId)).getValue());
+                return prev === LinkModalDialog.queryParamsPrefix ? `${prev}${key}=${value}` : `${prev}&${key}=${value}`;
+            }, LinkModalDialog.queryParamsPrefix);
+
+            return queryParamsString !== LinkModalDialog.queryParamsPrefix ? queryParamsString : '';
+        };
+
+        const getAnchor = () => {
+            const anchorString = encodeURIComponent((<TextInput>this.getFieldById('contentAnchor')).getValue());
+            return anchorString ? `${LinkModalDialog.anchorPrefix}${anchorString}`: '';
+        };
+
+        const setUrl = () => {
             isOpenInNewTab = (<Checkbox>this.getFieldById('contentTarget')).isChecked();
             target = isOpenInNewTab ? '_blank' : '';
-            url = LinkModalDialog.contentPrefix + contentSelectorValue;
+            url = LinkModalDialog.contentPrefix + contentSelectorValue + getAnchor() + getQueryParamsString();
         };
 
         if (contentSelectorSelectedContent.getType().isDescendantOfMedia()) {
@@ -712,13 +901,13 @@ export class LinkModalDialog
                     url = LinkModalDialog.mediaDownloadPrefix + contentSelectorValue;
                     break;
                 case MediaContentRadioAction.LINK:
-                    setTargetAndUrl();
+                    setUrl();
                     break;
                 default:
                     break;
             }
         } else {
-            setTargetAndUrl();
+            setUrl();
         }
 
         this.getOriginalLinkTypeElem().setValue('url', false);
