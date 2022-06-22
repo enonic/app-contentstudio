@@ -12,7 +12,12 @@ export class ContentTypeSummaryLoader
     }
 
     filterFn(contentType: ContentTypeSummary) {
-        return contentType.getContentTypeName().toString().indexOf(this.getSearchString().toLowerCase()) !== -1;
+        const searchString: string = this.getSearchString().toLowerCase().trim();
+        if (searchString.length === 0) {
+            return true;
+        }
+        return contentType.getDisplayName().toLowerCase().indexOf(searchString) !== -1 ||
+                contentType.getContentTypeName().toString().indexOf(searchString) !== -1;
     }
 
 }
