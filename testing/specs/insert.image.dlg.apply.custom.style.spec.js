@@ -85,7 +85,7 @@ describe('insert.image.dlg.apply.custom.style.spec: apply a custom style to an i
             //3. Verify the selected style option:
             let actualStyle = await insertImageDialog.getSelectedStyleName();
             // Cinema style should be selected in the dialog
-            studioUtils.saveScreenshot('image_dialog_custom_style_should_be_cinema');
+            await studioUtils.saveScreenshot('image_dialog_custom_style_should_be_cinema');
             assert.equal(actualStyle, 'Cinema', "Expected style should be present in the selector");
         });
 
