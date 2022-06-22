@@ -83,7 +83,7 @@ describe('filter.by.owner.selector.spec: tests for filtering by', function () {
             //4. Verify that only content created by the user are displayed in Grid
             let contentNames = await contentBrowsePanel.getDisplayNamesInGrid();
             assert.isTrue(contentNames.includes(FOLDER.displayName));
-            assert.equal(contentNames.length, 2, "Only two items should be present in the grid ")
+            assert.equal(contentNames.length, 2, "Only two items should be present in the grid ");
         });
     before(async () => {
         if (typeof browser !== "undefined") {
