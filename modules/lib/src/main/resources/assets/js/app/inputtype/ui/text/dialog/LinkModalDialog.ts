@@ -98,8 +98,8 @@ export class LinkModalDialog
         this.urlProtocols = [
             {title: 'Https', prefix: 'https://', validator: LinkModalDialog.validationRequiredUrl},
             {title: 'Http', prefix: 'http://', validator: LinkModalDialog.validationRequiredUrl},
-            {title: 'Ftp', prefix: 'ftp://', validator: LinkModalDialog.validationRequiredUrl},
-            {title: i18n('dialog.link.urlprotocols.relative'), prefix: '', validator: LinkModalDialog.validationRequiredUrl}
+            {title: 'Ftp', prefix: 'ftp://', validator: LinkModalDialog.validationRequiredFtpUrl},
+            {title: i18n('dialog.link.urlprotocols.relative'), prefix: '', validator: LinkModalDialog.validationRequiredRelativeUrl}
         ];
     }
 
@@ -261,7 +261,7 @@ export class LinkModalDialog
     private createUrlPanel(): Panel {
         const urlFormItem = this.createUrlFormItem('url', 'Link');
         const urlInput = <TextInput>urlFormItem.getInput();
-        this.protocolsDropdownButton = this.createProtocolsDropdownButton(urlInput);
+        this.protocolsDropdownButton = this.createProtocolsDropdownButton(urlFormItem, urlInput);
         urlFormItem.prependChild(this.protocolsDropdownButton);
 
         const urlPanel = this.createFormPanel([
@@ -333,6 +333,14 @@ export class LinkModalDialog
         return Validators.required(input) || Validators.validUrl(input);
     }
 
+    private static validationRequiredFtpUrl(input: FormInputEl): string {
+        return Validators.required(input) || Validators.validFtpUrl(input);
+    }
+
+    private static validationRequiredRelativeUrl(input: FormInputEl): string {
+        return Validators.required(input) || Validators.validRelativeUrl(input);
+    }
+
     private getTarget(isTabSelected: boolean): boolean {
         return isTabSelected ? this.getOriginalTargetElem().getValue() === '_blank' : false;
     }
@@ -392,7 +400,7 @@ export class LinkModalDialog
     private createUrlFormItem(textId: string, textLabel: string): FormItem {
         const getUrl = () => this.isUrl() ? this.link : '';
 
-        const urlFormItem: FormItem = this.createFormItemWithPostponedValue(textId, textLabel, getUrl);
+        const urlFormItem: FormItem = this.createFormItemWithPostponedValue(textId, textLabel, getUrl, Validators.required);
         const urlInput: TextInput = <TextInput>urlFormItem.getInput();
         this.initUrlInputHandlers(urlInput);
 
@@ -423,11 +431,11 @@ export class LinkModalDialog
         });
     }
 
-    private createProtocolsDropdownButton(textInput: TextInput): MenuButton {
+    private createProtocolsDropdownButton(formItem: FormItem, textInput: TextInput): MenuButton {
         const protocolsDropdownButton = new MenuButton(new Action('Type'));
         protocolsDropdownButton.addClass('menu-button-type');
 
-        const actions = this.urlProtocols.map(({title, prefix}) => {
+        const actions = this.urlProtocols.map(({title, prefix, validator}) => {
             const action = new Action(title);
 
             action.onExecuted(() => {
@@ -437,6 +445,7 @@ export class LinkModalDialog
                     ? prefix + urlValue
                     : urlValue.replace(usedProtocol.prefix, prefix);
 
+                formItem.setValidator(validator);
                 textInput.setValue(newUrlValue);
                 textInput.updateValue();
                 textInput.giveFocus();
