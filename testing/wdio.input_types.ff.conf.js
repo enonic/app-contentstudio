@@ -50,11 +50,11 @@ exports.config = {
         timeout: 70000
     },
     // Set directory to store all logs into
-    //outputDir: __dirname+"/build/mochawesome-report/",
+    outputDir: "./build/mochawesome-report/",
 
     reporters: ['spec',
         ["html-nice", {
-            outputDir: './build/mochawesome-report/',
+            outputDir:  "./build/mochawesome-report/",
             filename: 'report.html',
             reportTitle: 'Tests for Input Types',
             linkScreenshots: true,

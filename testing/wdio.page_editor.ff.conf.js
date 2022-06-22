@@ -1,6 +1,5 @@
 const path = require('path')
 const {ReportAggregator} = require('wdio-html-nice-reporter');
-//let reportAggregator;
 exports.config = {
 
     //
@@ -8,7 +7,7 @@ exports.config = {
     // Specify Test Files
     // ==================
     specs: [
-        __dirname + '/specs/page-editor/emulator.widget.spec.js'
+        __dirname + '/specs/page-editor/*.spec.js'
     ],
     exclude: [
         __dirname + '/specs/page-editor/revert.site.with.components.spec.js',
