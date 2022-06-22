@@ -245,6 +245,16 @@ export abstract class ModalDialog
         return this.fields[id];
     }
 
+    protected removeFieldById(id: string): void {
+        const updatedFields = {};
+
+        Object.keys(this.fields)
+            .filter(key => key !== id)
+            .forEach(key => updatedFields[key] = this.fields[key]);
+
+        this.fields = updatedFields;
+    }
+
     close() {
         super.close();
         if (!this.editor['destroyed']) {
