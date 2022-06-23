@@ -21,7 +21,7 @@ public final class ServerInstance
 
     private Object instance;
 
-    private long startupDelay = 100000;
+    private long startupDelay = 80000;
 
     public void setInstallDir( final File value )
     {

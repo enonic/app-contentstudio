@@ -10,8 +10,8 @@ exports.config = {
         __dirname + '/specs/modal-dialog/*.spec.js'
     ],
     exclude: [
-         __dirname + '/specs/modal-dialog/wizard.compare.versions.dialog.spec.js',
-
+        __dirname + '/specs/modal-dialog/wizard.compare.versions.dialog.spec.js',
+        __dirname + '/specs/modal-dialog/attachments.widget.spec.js'
     ],
 
     maxInstances: 1,
@@ -20,7 +20,7 @@ exports.config = {
         browserName: 'firefox',
         'moz:firefoxOptions': {
             "args": [
-                "--headless","--disable-gpu", "--no-sandbox",
+                "--headless", "--disable-gpu", "--no-sandbox",
                 "--lang=en",
                 '--disable-extensions',
                 'window-size=1970,1000'
