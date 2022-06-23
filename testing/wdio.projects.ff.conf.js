@@ -11,6 +11,7 @@ exports.config = {
     ],
     exclude: [
         __dirname + '/specs/project/change.access.mode.spec.js',
+        __dirname + '/specs/project/create.content.in.project.spec.js',
     ],
 
     maxInstances: 1,

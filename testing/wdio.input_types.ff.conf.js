@@ -10,7 +10,8 @@ exports.config = {
         __dirname +  '/specs/content-types/*.spec.js'
     ],
     exclude: [
-        __dirname + '/specs/content-types/image.editor.focus.spec.js'
+        __dirname + '/specs/content-types/image.editor.focus.spec.js',
+        __dirname + '/specs/content-types/attachments.wizard.spec.js'
     ],
 
     maxInstances: 1,
