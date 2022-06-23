@@ -84,7 +84,8 @@ export class LinkModalDialog
     private static mediaInlinePrefix: string = 'media://inline/';
     private static emailPrefix: string = 'mailto:';
     private static anchorPrefix: string = '#';
-    private static queryParamsPrefix: string = '?';
+    private static fragmentPrefix: string = 'fragment=';
+    private static queryParamsPrefix: string = 'query=';
 
     private readonly urlProtocols: UrlProtocol[];
 
@@ -264,7 +265,7 @@ export class LinkModalDialog
                 true),
             this.createMediaOptionRadio('contentMediaRadio'),
             this.createTargetCheckbox('contentTarget', this.isContentLink),
-            this.createAnchorOption('contentAnchor', i18n('dialog.link.anchor')),
+            this.createFragmentOption('contentFragment', i18n('dialog.link.fragment')),
             this.createParamsOptions('contentParams', i18n('dialog.link.parameters')),
         ]);
 
@@ -387,26 +388,22 @@ export class LinkModalDialog
         return this.createFormItem(formItemBuilder);
     }
 
-    private createAnchorOption(id: string, label: string): FormItem {
+    private createFragmentOption(id: string, label: string): FormItem {
         const addButton: Button = new Button(i18n('action.add'));
 
         const hideAnchorFormButton = this.createRemoveButton();
 
-        const getAnchor = () => {
-            if (!this.link) {
+        const getFragment = () => {
+            if (this.link.indexOf(LinkModalDialog.fragmentPrefix) === -1) {
                 return StringHelper.EMPTY_STRING;
             }
 
-            const match = this.link.match(new RegExp(/(?<=\#)(.*?)(?=(\&|\?)|$)/g));
+            const fragment = this.link.slice(this.link.indexOf(LinkModalDialog.fragmentPrefix) + LinkModalDialog.fragmentPrefix.length);
 
-            if (!match) {
-                return StringHelper.EMPTY_STRING;
-            }
-
-            return decodeURIComponent(match[0]);
+            return decodeURIComponent(fragment);
         };
 
-        this.anchorFormItem = this.createFormItemWithPostponedValue(id, label, getAnchor, LinkModalDialog.validationAlwaysValid);
+        this.anchorFormItem = this.createFormItemWithPostponedValue(id, label, getFragment, LinkModalDialog.validationAlwaysValid);
         this.anchorFormItem.addClass('anchor-form-item');
         this.anchorFormItem.prependChild(addButton);
         this.anchorFormItem.appendChild(hideAnchorFormButton);
@@ -432,7 +429,7 @@ export class LinkModalDialog
             anchorInput.giveFocus();
         });
 
-        if (getAnchor()) {
+        if (getFragment()) {
             addButton.hide();
             anchorInput.show();
         }
@@ -590,20 +587,21 @@ export class LinkModalDialog
 
     private getKeyValueMapFromLink(): {[key: string]: string}{
         const keyValueMap = {};
-        const decode = (s: string) => decodeURIComponent(s.replace(/\+/g, ' '));
-        const queryString = this.link.split('?').pop();
 
-        if (!queryString) {
+        if (this.link.indexOf(LinkModalDialog.queryParamsPrefix) === -1) {
             return keyValueMap;
         }
 
+        let queryString = this.link.split(LinkModalDialog.queryParamsPrefix).pop();
+        queryString = queryString.slice(0, queryString.indexOf(LinkModalDialog.fragmentPrefix));
+        queryString = decodeURIComponent(queryString);
         const keyValues = queryString.split('&');
 
         keyValues.forEach((keyValue: string) => {
             const [key, value] = keyValue.split('=');
 
             if (key && value) {
-                keyValueMap[decode(key)] = decode(value);
+                keyValueMap[key] = value;
             }
         });
 
@@ -870,25 +868,37 @@ export class LinkModalDialog
         const contentSelectorValue = contentSelector.getValue();
         const contentSelectorSelectedContent = contentSelector.getSelectedContent();
 
+
         const getQueryParamsString = () => {
             const queryParamsString = this.paramsFormIds.reduce((prev, {keyId, valueId}) => {
-                const key = encodeURIComponent((<TextInput>this.getFieldById(keyId)).getValue());
-                const value = encodeURIComponent((<TextInput>this.getFieldById(valueId)).getValue());
-                return prev === LinkModalDialog.queryParamsPrefix ? `${prev}${key}=${value}` : `${prev}&${key}=${value}`;
-            }, LinkModalDialog.queryParamsPrefix);
+                    const key = (<TextInput>this.getFieldById(keyId)).getValue();
+                    const value = (<TextInput>this.getFieldById(valueId)).getValue();
+                    return prev === '' ? `${key}=${value}` : `${prev}&${key}=${value}`;
+                }, '');
 
-            return queryParamsString !== LinkModalDialog.queryParamsPrefix ? queryParamsString : '';
+            if (!queryParamsString) {
+                return StringHelper.EMPTY_STRING;
+            }
+
+            return '?' + LinkModalDialog.queryParamsPrefix + encodeURIComponent(queryParamsString);
         };
 
-        const getAnchor = () => {
-            const anchorString = encodeURIComponent((<TextInput>this.getFieldById('contentAnchor')).getValue());
-            return anchorString ? `${LinkModalDialog.anchorPrefix}${anchorString}`: '';
+        const getFragment = () => {
+            const anchorString = encodeURIComponent((<TextInput>this.getFieldById('contentFragment')).getValue());
+
+            const fragment = anchorString ? `${LinkModalDialog.fragmentPrefix}${anchorString}`: '';
+
+            return getQueryParamsString() ? '&' + fragment : '?' + fragment;
         };
+
 
         const setUrl = () => {
             isOpenInNewTab = (<Checkbox>this.getFieldById('contentTarget')).isChecked();
             target = isOpenInNewTab ? '_blank' : '';
-            url = LinkModalDialog.contentPrefix + contentSelectorValue + getAnchor() + getQueryParamsString();
+            url = LinkModalDialog.contentPrefix
+                + contentSelectorValue
+                + getQueryParamsString()
+                + getFragment();
         };
 
         if (contentSelectorSelectedContent.getType().isDescendantOfMedia()) {
