@@ -8,10 +8,13 @@ const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentDuplicateDialog = require('../../page_objects/content.duplicate.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN folder(12 children) is selected WHEN 'Duplicate...' button has been clicked THEN 'Content Duplicate Dialog' should be loaded and expected elements should be present`,
         async () => {
@@ -39,7 +42,7 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             assert.equal(names[0], appConstant.TEST_FOLDER_WITH_IMAGES, `expected parent's display name should be present`);
         });
 
-    it(`GIVEN 2 folder with children are selected WHEN 'Duplicate...' button has been clicked THEN expected display names should be present on the dialog`,
+    it(`GIVEN 2 folders with children are selected WHEN 'Duplicate...' button has been clicked THEN expected display names should be present on the dialog`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
@@ -77,12 +80,12 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
             let contentBrowsePanel = new ContentBrowsePanel();
             let contentDuplicateDialog = new ContentDuplicateDialog();
             await studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
+            //1. Open Duplicate dialog:
             await contentBrowsePanel.clickOnDuplicateButtonAndWait();
-            //Click on 'Show dependent items'
+            //2. Click on 'Show dependent items'
             await contentDuplicateDialog.clickOnShowDependentItemLink();
-            // 'Hide dependent items' should appear, otherwise exception will be thrown
+            //3. Verify that 'Hide dependent items' should appear, otherwise exception will be thrown
             await contentDuplicateDialog.waitForHideDependentItemLinkDisplayed();
-
             await studioUtils.saveScreenshot("duplicate_show_dependent_clicked");
             let names = await contentDuplicateDialog.getDependentsName();
             assert.equal(names.length, 12, '12 dependents to duplicate should be displayed');
@@ -92,7 +95,10 @@ describe('content.duplicate.dialog.spec: Content Duplicate Dialog specification'
     afterEach(function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

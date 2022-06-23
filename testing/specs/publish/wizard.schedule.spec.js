@@ -14,7 +14,9 @@ const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wiz
 
 describe('Wizard page - verify schedule form', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SCHEDULE_STEP_TITLE = 'Schedule';
     const DATE_TIME_IN_PAST = "2020-09-10 00:00";
     const DATE_TIME_IN_FUTURE = "2029-09-10 00:00";
@@ -148,7 +150,10 @@ describe('Wizard page - verify schedule form', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

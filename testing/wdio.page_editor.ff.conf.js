@@ -1,5 +1,5 @@
 const path = require('path')
-const {ReportAggregator} = require('wdio-html-nice-reporter');
+const {ReportAggregator, HtmlReporter} = require('wdio-html-nice-reporter');
 exports.config = {
 
     //
@@ -13,10 +13,11 @@ exports.config = {
         __dirname + '/specs/page-editor/revert.site.with.components.spec.js',
         __dirname + '/specs/page-editor/text.component.cke.url.link.spec.js',
         __dirname + '/specs/page-editor/fragment.save.detach.spec.js',
+        __dirname + '/specs/page-editor/text.component.image.outbound.spec.js'
     ],
 
     maxInstances: 1,
-
+//"--headless",
     capabilities: [{
         browserName: 'firefox',
         'moz:firefoxOptions': {
@@ -84,7 +85,7 @@ exports.config = {
     },
 
     onPrepare: function (config, capabilities) {
-        reportAggregator = new ReportAggregator({
+        let reportAggregator = new ReportAggregator({
             outputDir: "./build/mochawesome-report/",
             filename: 'app-report.html',
             reportTitle: 'Content Studio, Page Editor Tests Report',
@@ -92,12 +93,15 @@ exports.config = {
             collapseTests: true
         });
         reportAggregator.clean();
+        //todo
+        global.reportAggregator = reportAggregator;
     },
 
     onComplete: function (exitCode, config, capabilities, results) {
         (async () => {
             console.log("########################### onComplete: Started");
-            await reportAggregator.createReport();
+            //await reportAggregator.createReport();
+            await global.reportAggregator.createReport();
             console.log("########################### onComplete: App report created");
         })();
     },

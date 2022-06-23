@@ -12,7 +12,9 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 
 describe('publish.tree.check.child.spec - Publish Tree action - publish a content with child', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PARENT_FOLDER;
     let CHILD_FOLDER;
@@ -94,7 +96,10 @@ describe('publish.tree.check.child.spec - Publish Tree action - publish a conten
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

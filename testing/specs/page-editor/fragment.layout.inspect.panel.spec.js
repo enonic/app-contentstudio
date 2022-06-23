@@ -63,7 +63,7 @@ describe('fragment.layout.inspect.panel.spec - Select a site with not valid chil
             await contentWizardPanel.waitAndClickOnSave();
             await contentWizardPanel.waitForSpinnerNotVisible();
             // wait for the description is refreshing:
-            await contentWizardPanel.pause(3000);
+            await contentWizardPanel.pause(4000);
             await studioUtils.saveScreenshot("fragment_path_updated");
             //6. Fragment Inspection Panel should be loaded automatically in the site wizard. Verify that path is updated in the dropdown:
             let actualPath = await fragmentInspectionPanel.getSelectedOptionPath();

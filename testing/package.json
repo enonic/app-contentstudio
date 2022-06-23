@@ -13,11 +13,13 @@
     "test_wizards_grid": "node ./tasks/test-wizards-grid.js",
     "test_modal_dialog": "node tasks/test-modal-dialog.js",
     "test_collaboration": "node ./tasks/test-collaboration.js",
-    "test_wizards_grid:firefox":  "npx wdio ./wdio.wizard.grid.ff.conf.js",
+    "test_wizards_grid:firefox": "npx wdio ./wdio.wizard.grid.ff.conf.js",
     "test_input_types:firefox": "npx wdio wdio.input_types.ff.conf.js",
     "test_page_editor:firefox": "npx wdio wdio.page_editor.ff.conf.js",
     "test_input_types_2:firefox": "npx wdio wdio.input_types2.ff.conf.js",
-    "test_project:firefox": "npx wdio wdio.projects.ff.conf.js"
+    "test_project:firefox": "npx wdio wdio.projects.ff.conf.js",
+    "test_publish_issues:firefox": "npx wdio wdio.publish.ff.conf.js",
+    "test_modal_dialog:firefox": "npx wdio wdio.modal.dialog.ff.conf.js"
   },
   "devDependencies": {
     "assert": "^2.0.0",

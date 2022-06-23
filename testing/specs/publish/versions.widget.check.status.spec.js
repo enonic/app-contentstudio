@@ -13,10 +13,13 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const ContentSettingsForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
 const ContentPublishDialog = require('../../page_objects/content.publish.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('versions.widget.check.status.spec - check content status in Versions Panel`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let FOLDER;
 
     it(`GIVEN existing folder is selected WHEN the folder has been published THEN 'Published' status should be in Version Widget`,
@@ -131,7 +134,10 @@ describe('versions.widget.check.status.spec - check content status in Versions P
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

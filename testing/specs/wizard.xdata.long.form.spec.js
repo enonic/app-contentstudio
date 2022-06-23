@@ -3,14 +3,14 @@
  */
 const chai = require('chai');
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const XDataHtmlArea = require('../page_objects/wizardpanel/xdata.htmlarea.wizard.step.form');
 const ContentWizard = require('../page_objects/wizardpanel/content.wizard.panel');
+const appConst = require('../libs/app_const');
 
 describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)", function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -21,7 +21,7 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
     it(`Preconditions: new site should be added`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -60,7 +60,7 @@ describe("wizard.xdata.long.form.spec:  Wizard's navigation toolbar (long forms)
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
     before(async () => {
         if (typeof browser !== "undefined") {
-            await studioUtils.getBrowser().setWindowSize(width, height)();
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
         }
         return console.log('specification starting: ' + this.title);
     });

@@ -222,3 +222,22 @@ task testContentStudioProjectsFirefox( type: NpmTask, dependsOn: [npmInstall, st
     args = ['run-script', 'test_project:firefox']
     finalizedBy stopServer
 }
+task testPublishIssuesFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_publish_issues:firefox']
+    finalizedBy stopServer
+}
+
+task testModalDialogFirefox( type: NpmTask, dependsOn: [npmInstall, startServer, copyApps] ) {
+    args = ['run-script', 'test_modal_dialog:firefox']
+    finalizedBy stopServer
+}
+
+task testPublishIssuesFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_publish_issues:firefox']
+}
+
+task testModalDialogFirefoxLocal( type: NpmTask, dependsOn: [npmInstall] ) {
+    args = ['run-script', 'test_modal_dialog:firefox']
+}
+
+

@@ -10,10 +10,13 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentUnpublishDialog = require('../../page_objects/content.unpublish.dialog');
+const appConst = require('../../libs/app_const');
 
-describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolbar`', function () {
+describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolbar', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let SITE;
     let FOLDER;
@@ -117,7 +120,10 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

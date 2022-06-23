@@ -12,7 +12,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('content.publish.dialog.change.log.spec - open publish modal dialog and type a text in the change log input', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let FOLDER1_NAME;
     let TEST_TEXT = "Hello world";
 
@@ -37,7 +39,10 @@ describe('content.publish.dialog.change.log.spec - open publish modal dialog and
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

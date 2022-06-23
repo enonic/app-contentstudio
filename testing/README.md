@@ -30,5 +30,7 @@ run tests with geckodriver(Firefox browser):
 4. gradlew testInputTypesFirefox_2
 5. gradlew testInputTypesFirefox
 6. gradlew testContentStudioProjectsFirefox
+7. For switching all tests to FF, specify the suite in gradle.yml:
+   suite: [ testContentStudioProjectsFirefox, testPageEditorFirefox, testInputTypesFirefox, testInputTypesFirefox_2, testWizardsGridFirefox, testPublishIssuesFirefox, testModalDialogFirefox ]
 
 

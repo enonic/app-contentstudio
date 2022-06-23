@@ -11,10 +11,11 @@ const contentBuilder = require('../../libs/content.builder');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const PageTemplateForm = require('../../page_objects/wizardpanel/page.template.form.panel');
 
-
 describe('page.template.widget.spec: Tests for page template widget in Details Panel', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let COUNTRY_LIST_CONTROLLER = "Country List";
     let SITE;
     const TEMPLATE_NAME = appConst.generateRandomName("template");
@@ -79,7 +80,10 @@ describe('page.template.widget.spec: Tests for page template widget in Details P
     afterEach(function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

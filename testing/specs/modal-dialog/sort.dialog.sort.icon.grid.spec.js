@@ -9,10 +9,13 @@ const appConstant = require('../../libs/app_const');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
 const studioUtils = require('../../libs/studio.utils.js');
+const appConst = require('../../libs/app_const');
 
 describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks the sort-icon in the grid`', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     //verifies https://github.com/enonic/app-contentstudio/issues/608
     //Sort icon menu is not updated after a sorting-type has been changed in modal dialog
@@ -84,7 +87,10 @@ describe('sort.dialog.sorticon.spec, sorts a folder(with children) and checks th
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

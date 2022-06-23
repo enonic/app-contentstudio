@@ -9,10 +9,13 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const DeleteContentDialog = require('../../page_objects/delete.content.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('Delete a content that has inbound references.', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SHORTCUT;
 
     it(`GIVEN existing shortcut with a target WHEN the target-content has been selected AND 'Delete' button pressed THEN expected warning should be displayed in the dialog`,
@@ -54,7 +57,10 @@ describe('Delete a content that has inbound references.', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

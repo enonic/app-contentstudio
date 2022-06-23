@@ -13,7 +13,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('refresh.request.publish.dialog.spec - opens request publish modal dialog and checks control elements`', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let FOLDER1;
     let FOLDER2;
 
@@ -34,7 +36,6 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
             await studioUtils.findContentAndClickCheckBox(FOLDER2.displayName);
             //2. expand the Publish Menu and select 'Request Publishing...' menu item, Request Publishing Wizard gets visible:
             await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
-
             //3. click on the folder-name in the modal dialog and switch to new wizard-tab:
             await createRequestPublishDialog.clickOnItemToPublishAndSwitchToWizard(FOLDER1.displayName);
             //4. Click on 'Mark as Ready' button and that content gets "Ready for Publishing" in its wizard-page
@@ -54,7 +55,10 @@ describe('refresh.request.publish.dialog.spec - opens request publish modal dial
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

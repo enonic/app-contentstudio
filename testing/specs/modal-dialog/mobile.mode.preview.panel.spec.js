@@ -14,7 +14,10 @@ const MobileContentBrowsePanel = require('../../page_objects/browsepanel/mobile.
 
 describe('Tests for preview panel in mobile mode', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser(414, 736);
+    if (typeof browser === "undefined") {
+        //set the mobile resolution:
+        webDriverHelper.setupBrowser(414, 736);
+    }
     let FOLDER;
 
 
@@ -76,7 +79,10 @@ describe('Tests for preview panel in mobile mode', function () {
     afterEach(function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(414, 736);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

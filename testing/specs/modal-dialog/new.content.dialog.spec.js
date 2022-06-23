@@ -8,10 +8,13 @@ const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const appConst = require('../../libs/app_const');
 
 describe('new.content.dialog.spec:  test for New Content Dialog', function () {
     this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it("GIVEN New Content Dialog is opened WHEN 'Esc' has been pressed THEN the modal dialog should be closed",
         async () => {
@@ -104,7 +107,10 @@ describe('new.content.dialog.spec:  test for New Content Dialog', function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });
