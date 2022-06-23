@@ -13,7 +13,8 @@ exports.config = {
         __dirname + '/specs/page-editor/revert.site.with.components.spec.js',
         __dirname + '/specs/page-editor/text.component.cke.url.link.spec.js',
         __dirname + '/specs/page-editor/fragment.save.detach.spec.js',
-        __dirname + '/specs/page-editor/text.component.image.outbound.spec.js'
+        __dirname + '/specs/page-editor/text.component.image.outbound.spec.js',
+        __dirname + '/specs/page-editor/fragment.layout.inspect.panel.spec',
     ],
 
     maxInstances: 1,
