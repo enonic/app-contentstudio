@@ -10,7 +10,7 @@ export class PageViewController {
     private highlightingDisabled: boolean;
     private contextMenuDisabled: boolean;
     private pageLocked: boolean;
-    private textEditMode: boolean;
+    private textEditMode: boolean = false;
     private editorToolbar: DivEl;
 
     private textEditModeListeners: { (flag: boolean): void }[] = [];
