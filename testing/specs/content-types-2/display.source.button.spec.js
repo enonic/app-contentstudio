@@ -90,7 +90,7 @@ describe('display.source.button.spec - tests for Display Source button in html a
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
-        if (title.includes("Content Studio") || title.includes("Users") || title.includes("/ Home")) {
+        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
