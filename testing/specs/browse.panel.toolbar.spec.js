@@ -5,14 +5,13 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
 const appConst = require('../libs/app_const');
 
 describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar after closing a wizard page', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -25,7 +24,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
             let displayName = contentBuilder.generateRandomName('site-test');
-            SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'test for displaying of metadata', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddReadySite(SITE);
             await studioUtils.findAndSelectItem(SITE.displayName);
             FOLDER_NAME = contentBuilder.generateRandomName('folder');
@@ -89,7 +88,7 @@ describe('Browse panel, toolbar spec. Check state of buttons on the grid-toolbar
     it(`WHEN image is selected (not allowing children) THEN 'Sort' and 'New' buttons should be  disabled`,
         async () => {
             let contentBrowsePanel = new ContentBrowsePanel();
-            await studioUtils.findAndSelectItem(appConstant.TEST_IMAGES.HAND);
+            await studioUtils.findAndSelectItem(appConst.TEST_IMAGES.HAND);
             await contentBrowsePanel.waitForEditButtonEnabled();
             await contentBrowsePanel.waitForSortButtonDisabled();
             //New button should be disabled, because children are not allowed for images.

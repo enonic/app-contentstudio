@@ -4,15 +4,17 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
 const ContentDuplicateDialog = require('../../page_objects/content.duplicate.dialog');
 const contentBuilder = require("../../libs/content.builder");
+const appConst = require('../../libs/app_const');
 
 describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let folder1;
     let folder2;
 
@@ -66,7 +68,7 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             await contentBrowsePanel.waitForContentDisplayed(name);
             let state = await contentBrowsePanel.getWorkflowStateByName(name);
             //duplicated content should have the same state as the target content:
-            assert.equal(state, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS);
+            assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS);
         });
 
     it(`WHEN 'Published' folder has been duplicated THEN copy should be 'Ready for publishing'`,
@@ -84,14 +86,17 @@ describe('content.duplicate.spec: Select and duplicate 2 folders', function () {
             await studioUtils.typeNameInFilterPanel(folder1.displayName + '-copy-2');
             let state = await contentBrowsePanel.getWorkflowStateByName(folder1.displayName + '-copy-2');
             //duplicated folder should be 'Ready for publishing':
-            assert.equal(state, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content should be 'Ready for publishing'");
+            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING, "The content should be 'Ready for publishing'");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(function () {
         return studioUtils.doCloseAllWindowTabsAndSwitchToHome();
     });
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

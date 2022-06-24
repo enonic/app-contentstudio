@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const builder = require('../../libs/content.builder');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
@@ -13,22 +12,25 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 const NewContentDialog = require('../../page_objects/browsepanel/new.content.dialog');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SettingsStepForm = require('../../page_objects/wizardpanel/settings.wizard.step.form');
+const appConst = require('../../libs/app_const');
 
 describe("project.editor.spec - ui-tests for an user with 'Editor' role", function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let FOLDER_NAME = studioUtils.generateRandomName("folder");
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let USER;
-    let PASSWORD = appConstant.PASSWORD.MEDIUM;
+    let PASSWORD = appConst.PASSWORD.MEDIUM;
 
     it(`Preconditions: new system user should be created`,
         async () => {
             //Do Log in with 'SU', navigate to 'Users' and create new user:
             await studioUtils.navigateToUsersApp();
             let userName = builder.generateRandomName("editor");
-            let roles = [appConstant.SYSTEM_ROLES.ADMIN_CONSOLE];
+            let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
             USER = builder.buildUser(userName, PASSWORD, builder.generateEmail(userName), roles);
             await studioUtils.addSystemUser(USER);
             await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
@@ -48,7 +50,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await projectWizard.clickOnAccessModeRadio("Private");
             //3. Select the user in roles, assign Contributor role him:
             await projectWizard.selectProjectAccessRoles(USER.displayName);
-            await projectWizard.updateUserAccessRole(USER.displayName, appConstant.PROJECT_ROLES.EDITOR);
+            await projectWizard.updateUserAccessRole(USER.displayName, appConst.PROJECT_ROLES.EDITOR);
             await projectWizard.waitAndClickOnSave();
             await studioUtils.saveScreenshot("project_editor_0");
             await projectWizard.waitForNotificationMessage();
@@ -112,7 +114,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             //1. Do log in with the user-editor and navigate to Content Browse Panel:
             await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
             //2. Open folder-wizard and save new folder:
-            await studioUtils.openContentWizard(appConstant.contentTypes.FOLDER);
+            await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
             await contentWizard.typeDisplayName(FOLDER_NAME);
             studioUtils.saveScreenshot("project_editor_4");
             await settingsStepForm.filterOptionsAndSelectLanguage('English (en)');
@@ -138,17 +140,19 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
             await contentBrowsePanel.waitForNotificationMessage();
             //4. Verify that status of thr folder is Published:
             let status = await contentBrowsePanel.getContentStatus(FOLDER_NAME);
-            assert.equal(status, appConstant.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
+            assert.equal(status, appConst.CONTENT_STATUS.PUBLISHED, "The folder should be 'Published'");
         });
 
     afterEach(async () => {
         let title = await studioUtils.getBrowser().getTitle();
-        if (title.includes(appConstant.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConstant.TAB_TITLE_PART)) {
+        if (title.includes(appConst.CONTENT_STUDIO_TITLE) || title.includes("Users") || title.includes(appConst.TAB_TITLE_PART)) {
             return await studioUtils.doCloseAllWindowTabsAndSwitchToHome();
         }
     });
-
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

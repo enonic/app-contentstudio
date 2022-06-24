@@ -11,7 +11,9 @@ const studioUtils = require('../../libs/studio.utils.js');
 
 describe('sort.dialog.spec, tests for sort content dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const DIALOG_TITLE = "Sort items";
 
     it(`GIVEN sort dialog is opened WHEN 'Cancel' button has been clicked THEN the modal dialog should be closed`,
@@ -68,10 +70,12 @@ describe('sort.dialog.spec, tests for sort content dialog', function () {
             await contentBrowsePanel.waitForSortButtonDisabled();
         });
 
-
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

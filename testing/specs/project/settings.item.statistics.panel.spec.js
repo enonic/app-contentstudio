@@ -4,16 +4,18 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const SettingsItemStatisticsPanel = require('../../page_objects/project/settings.item.statistics.panel');
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('settings.item.statistics.panel.spec - verify an info in item statistics panel', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let NEW_DISPLAY_NAME = studioUtils.generateRandomName("project");
@@ -40,7 +42,7 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             let settingsBrowsePanel = new SettingsBrowsePanel();
             let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
             //1. Save new project:
-            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, DESCRIPTION, appConstant.LANGUAGES.EN, null, "Private");
+            await studioUtils.saveTestProject(PROJECT_DISPLAY_NAME, DESCRIPTION, appConst.LANGUAGES.EN, null, "Private");
             //2.Click on the row with the project. This row should be highlighted:
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             //3. Wait for expected description block appears in statistics panel:
@@ -50,11 +52,11 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             assert.equal(actualDescription, DESCRIPTION, "Expected description should be displayed");
             //5. Verify access mode:
             let actualAccessMode = await settingsItemStatisticsPanel.getAccessMode();
-            assert.equal(actualAccessMode, appConstant.PROJECT_ACCESS_MODE.PRIVATE,
+            assert.equal(actualAccessMode, appConst.PROJECT_ACCESS_MODE.PRIVATE,
                 "Private mode should be displayed in Statistics panel.");
             //6. Verify the language:
             let actualLanguage = await settingsItemStatisticsPanel.getLanguage();
-            assert.equal(actualLanguage, appConstant.LANGUAGES.EN, "Expected language should be displayed in Statistics panel.");
+            assert.equal(actualLanguage, appConst.LANGUAGES.EN, "Expected language should be displayed in Statistics panel.");
         });
 
     it("GIVEN user-contributor is added in Roles WHEN the project has been selected THEN this user should appear in statistics panel",
@@ -66,14 +68,14 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            await projectWizard.selectProjectAccessRoles(appConstant.systemUsersDisplayName.SUPER_USER);
+            await projectWizard.selectProjectAccessRoles(appConst.systemUsersDisplayName.SUPER_USER);
             await projectWizard.waitAndClickOnSave();
             await projectWizard.waitForNotificationMessage();
             //2. Click on 'close-icon' button and close the wizard:
             await settingsBrowsePanel.clickOnCloseIcon(PROJECT_DISPLAY_NAME);
             //3. Wait for contributor appears in Roles:
             let contributors = await settingsItemStatisticsPanel.getContributors();
-            assert.equal(contributors[0], appConstant.systemUsersDisplayName.SUPER_USER, "New added contributor is displayed in Roles");
+            assert.equal(contributors[0], appConst.systemUsersDisplayName.SUPER_USER, "New added contributor is displayed in Roles");
         });
     //Verifies:  Item Statistics panel is not refreshed after updating an item in wizard. #1493
     //https://github.com/enonic/lib-admin-ui/issues/1493
@@ -119,7 +121,10 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

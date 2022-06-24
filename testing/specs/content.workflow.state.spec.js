@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
@@ -13,7 +12,7 @@ const WizardVersionsWidget = require('../page_objects/wizardpanel/details/wizard
 const appConst = require('../libs/app_const');
 
 describe('content.workflow.state.spec: creates a folder and changes and checks the workflow state of this content', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
@@ -27,7 +26,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             await studioUtils.doAddFolder(TEST_FOLDER);
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             let state = await contentBrowsePanel.getWorkflowState(TEST_FOLDER.displayName);
-            assert.equal(state, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS, "'Work in progress' icon should be displayed in browse panel");
+            assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "'Work in progress' icon should be displayed in browse panel");
         });
 
     it(`WHEN new folder has been opened THEN 'Work in progress' state should be displayed in the wizard`,
@@ -35,7 +34,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             let wizard = new ContentWizard();
             await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
             let state = await wizard.getToolbarWorkflowState();
-            assert.equal(state, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS, "'Work in progress' icon should be displayed in wizard");
+            assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS, "'Work in progress' icon should be displayed in wizard");
         });
 
     it(`GIVEN new folder has been opened WHEN the folder has been marked as ready THEN 'Ready for publishing' state should be displayed in the wizard`,
@@ -47,10 +46,10 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             await wizard.clickOnMarkAsReadyButton();
             let message = await wizard.waitForNotificationMessage();
             studioUtils.saveScreenshot("marked_as_ready_workflow_state");
-            assert.equal(message, appConstant.markedAsReadyMessage(TEST_FOLDER.displayName),
+            assert.equal(message, appConst.markedAsReadyMessage(TEST_FOLDER.displayName),
                 "Message: 'Item is marked as ready' should appear");
             let state = await wizard.getToolbarWorkflowState();
-            assert.equal(state, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING,
+            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
                 "'Ready for publishing' icon should be displayed in the wizard");
         });
 
@@ -59,7 +58,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             let contentBrowsePanel = new ContentBrowsePanel();
             await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
             let state = await contentBrowsePanel.getWorkflowState(TEST_FOLDER.displayName);
-            assert.equal(state, appConstant.WORKFLOW_STATE.READY_FOR_PUBLISHING,
+            assert.equal(state, appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING,
                 "'Ready for publishing' icon should be displayed in browse panel");
         });
 
@@ -76,7 +75,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             studioUtils.saveScreenshot("revert_workflow_state");
             //State in wizard gets 'Work in Progress':
             let state = await wizard.getToolbarWorkflowState(TEST_FOLDER.displayName);
-            assert.equal(state, appConstant.WORKFLOW_STATE.WORK_IN_PROGRESS,
+            assert.equal(state, appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
                 "'Work in progress' -state should appear after reverting the previous version");
         });
     //Verifies: Incorrect notification message after reverting a version that is identical to the current version #1656
@@ -93,7 +92,7 @@ describe('content.workflow.state.spec: creates a folder and changes and checks t
             //3. Expected message should appear:
             studioUtils.saveScreenshot("revert_identical_version");
             let message = await wizard.waitForNotificationMessage();
-            assert.equal(message, appConstant.NO_CHANGES_TO_REVERT_MESSAGE, "'No changes to revert.' this message should appear");
+            assert.equal(message, appConst.NO_CHANGES_TO_REVERT_MESSAGE, "'No changes to revert.' this message should appear");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

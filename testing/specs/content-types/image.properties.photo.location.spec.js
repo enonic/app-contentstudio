@@ -135,7 +135,6 @@ describe("image.properties.photo.spec: tests for focus button", function () {
                 "Expected validation message should be displayed");
         });
 
-
     it("WHEN image content is opened THEN expected inputs should be present in Properties form",
         async () => {
             let imagePhotoForm = new ImagePhotoForm();
@@ -168,7 +167,10 @@ describe("image.properties.photo.spec: tests for focus button", function () {
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

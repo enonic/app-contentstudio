@@ -11,10 +11,9 @@ const ContentBrowsePanel = require('../../page_objects/browsepanel/content.brows
 
 describe('move.content.spec: Tests for destination options in move dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-    let issueTitle = appConst.generateRandomName('task');
-    let TEST_FOLDER;
-
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     it(`GIVEN existing folder is selected AND 'Move' button pressed WHEN own name of the folder has been typed THEN all options should be disabled in the selector`,
         async () => {
@@ -93,12 +92,14 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             await moveContentDialog.clickOnCancelTopButton();
             //5. Verify that the modal dialog is closed
             await moveContentDialog.waitForClosed();
-
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

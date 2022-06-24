@@ -4,18 +4,20 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
 const TaskDetailsDialog = require('../../page_objects/issue/task.details.dialog');
 const TaskDetailsDialogItemsTab = require('../../page_objects/issue/task.details.items.tab');
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const appConst = require('../../libs/app_const');
 
 describe('task.details.dialog.items.spec: open task details dialog and check control elements', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-    let TASK_TITLE = appConstant.generateRandomName('task');
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
+    let TASK_TITLE = appConst.generateRandomName('task');
 
     it(`GIVEN existing folder with images is selected WHEN 'Create Task' menu item has been selected and issue created THEN '1' should be in 'Items' tab link`,
         async () => {
@@ -23,7 +25,7 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             let contentBrowsePanel = new ContentBrowsePanel();
             let taskDetailsDialog = new TaskDetailsDialog();
             //1. Select the folder:
-            await studioUtils.findAndSelectItem(appConstant.TEST_FOLDER_NAME);
+            await studioUtils.findAndSelectItem(appConst.TEST_FOLDER_NAME);
             // Publish button is getting visible, because the content is 'New' and valid
             await contentBrowsePanel.waitForPublishButtonVisible();
             //2. open 'Create Task' dialog:
@@ -70,7 +72,7 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             //2. Click on Items tab bar item
             await taskDetailsDialog.clickOnItemsTabBarItem();
             //3. Click on 'Include Child' icon:
-            await taskDetailsDialogItemsTab.clickOnIncludeChildItems(appConstant.TEST_FOLDER_WITH_IMAGES);
+            await taskDetailsDialogItemsTab.clickOnIncludeChildItems(appConst.TEST_FOLDER_WITH_IMAGES);
             //4. waits for Show Dependent Items link:
             await taskDetailsDialogItemsTab.waitForShowDependentItemsLinkDisplayed();
             let result = await taskDetailsDialog.getNumberInItemsTab();
@@ -125,7 +127,7 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
             //2. Go to 'Items' tab:
             await taskDetailsDialog.clickOnItemsTabBarItem();
             //3. Exclude children(click on the toggler):
-            await taskDetailsDialogItemsTab.clickOnIncludeChildrenToggler(appConstant.TEST_FOLDER_WITH_IMAGES);
+            await taskDetailsDialogItemsTab.clickOnIncludeChildrenToggler(appConst.TEST_FOLDER_WITH_IMAGES);
             let result = await taskDetailsDialog.getNumberInItemsTab();
             assert.equal(result, '1', 'only one item should be present in the link');
         });
@@ -152,7 +154,10 @@ describe('task.details.dialog.items.spec: open task details dialog and check con
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

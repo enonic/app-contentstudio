@@ -4,14 +4,16 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('default.project.spec - ui-tests for Default project', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let DEFAULT_DESCRIPTION = "Test description";
 
@@ -39,7 +41,7 @@ describe('default.project.spec - ui-tests for Default project', function () {
             await settingsBrowsePanel.clickOnRowByDisplayName("Default");
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            await projectWizard.selectLanguage(appConstant.LANGUAGES.EN);
+            await projectWizard.selectLanguage(appConst.LANGUAGES.EN);
             //2. Verify that 'Save' button gets enabled, then click on it
             await projectWizard.waitAndClickOnSave();
             let actualMessage = await projectWizard.waitForNotificationMessage();
@@ -57,10 +59,10 @@ describe('default.project.spec - ui-tests for Default project', function () {
             await projectWizard.waitForLoaded();
             //3. Verify the language
             let actualLanguage = await projectWizard.getSelectedLanguage();
-            assert.equal(actualLanguage, appConstant.LANGUAGES.EN, "Expected language should be disaplayed");
+            assert.equal(actualLanguage, appConst.LANGUAGES.EN, "Expected language should be disaplayed");
             //4. Verify the description:
             let actualDescription = await projectWizard.getDescription();
-            assert.equal(actualLanguage, appConstant.LANGUAGES.EN, "Expected description should be displayed");
+            assert.equal(actualLanguage, appConst.LANGUAGES.EN, "Expected description should be displayed");
             studioUtils.saveScreenshot("default_project_updated_3");
             assert.equal(actualDescription, DEFAULT_DESCRIPTION, "Expected message should appear");
 
@@ -80,7 +82,10 @@ describe('default.project.spec - ui-tests for Default project', function () {
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

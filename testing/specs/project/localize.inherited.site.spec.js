@@ -4,19 +4,20 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectSelectionDialog = require('../../page_objects/project/project.selection.dialog');
 const contentBuilder = require("../../libs/content.builder");
 const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
-const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const SortContentDialog = require('../../page_objects/browsepanel/sort.content.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('localize.inherited.site.spec - tests for inherited content', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     const LAYER_DISPLAY_NAME = studioUtils.generateRandomName("layer");
     const SITE_NAME = studioUtils.generateRandomName('site');
     const EXPECTED_ORDER = "Inherited: Modified date";
@@ -83,7 +84,7 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             await sortContentDialog.waitForDialogVisible();
             await sortContentDialog.clickOnMenuButton();
             //3. Update the sorting order
-            await sortContentDialog.selectSortMenuItem(appConstant.sortMenuItem.MANUALLY_SORTED);
+            await sortContentDialog.selectSortMenuItem(appConst.sortMenuItem.MANUALLY_SORTED);
             //4. Save and close the modal dialog:
             await sortContentDialog.clickOnSaveButton();
             //5. Verify that site is displayed as 'inherited':
@@ -100,12 +101,12 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
             //2. Select the site and click on Localize button then add an application and save it:
             await studioUtils.selectContentAndClickOnLocalize(SITE_NAME);
             //Site should be automatically saved after the selecting an application with controllers:
-            await siteFormPanel.addApplications([appConstant.APP_CONTENT_TYPES]);
+            await siteFormPanel.addApplications([appConst.APP_CONTENT_TYPES]);
             //3. Close the site-wizard:
             await studioUtils.doCloseWindowTabAndSwitchToBrowsePanel();
             await contentBrowsePanel.pause(300);
             studioUtils.saveScreenshot("site_in_grid_after_localizing");
-            await contentBrowsePanel.waitForGridLoaded(appConstant.shortTimeout);
+            await contentBrowsePanel.waitForGridLoaded(appConst.shortTimeout);
             //4. Verify that site gets localized:
             let isInherited = await contentBrowsePanel.isContentInherited(SITE_NAME);
             assert.isFalse(isInherited, "Updated content gets localized");
@@ -133,7 +134,10 @@ describe('localize.inherited.site.spec - tests for inherited content', function 
         return await studioUtils.navigateToContentStudioWithProjects();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

@@ -16,7 +16,9 @@ const ContentPublishDialog = require('../../page_objects/content.publish.dialog'
 
 describe('publish.task.by.user.spec: create a task for user and this user publish it', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let TEST_FOLDER;
     let USER;
     const PASSWORD = appConst.PASSWORD.MEDIUM;
@@ -106,7 +108,10 @@ describe('publish.task.by.user.spec: create a task for user and this user publis
             await studioUtils.doLogout();
         });
 
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

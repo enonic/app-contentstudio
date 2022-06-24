@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
@@ -14,10 +13,13 @@ const CountryFormPanel = require('../../page_objects/wizardpanel/country.form.pa
 const CityCreationPage = require('../../page_objects/wizardpanel/city.creation.page');
 const LauncherPanel = require('../../page_objects/launcher.panel');
 const CityFormPanel = require('../../page_objects/wizardpanel/city.form.panel');
+const appConst = require('../../libs/app_const');
 
 describe('portal.content.creating.spec - tests for portal creating', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let SITE;
     const COUNTRY_NAME = "Norway";
     const CITY_NAME = "lillestrom";
@@ -91,7 +93,10 @@ describe('portal.content.creating.spec - tests for portal creating', function ()
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
         return console.log('specification starting: ' + this.title);
     });
 });

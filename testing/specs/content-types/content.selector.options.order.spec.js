@@ -4,28 +4,28 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const contentBuilder = require("../../libs/content.builder");
 const ContentSelectorForm = require('../../page_objects/wizardpanel/content.selector.form');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('content.selector.options.order.spec:  tests for checking of order of selected options in content selector', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }
     let SITE;
     const CONTENT_NAME = contentBuilder.generateRandomName("selector");
-    const OPTION_1 = appConstant.TEST_FOLDER_WITH_IMAGES;//All Content types images
-    const OPTION_2 = appConstant.TEST_FOLDER_2_DISPLAY_NAME;//folder for selenium tests
-    const OPTION_3 = appConstant.TEST_FOLDER_WITH_IMAGES_2;//Images for simple page
+    const OPTION_1 = appConst.TEST_FOLDER_WITH_IMAGES;//All Content types images
+    const OPTION_2 = appConst.TEST_FOLDER_2_DISPLAY_NAME;//folder for selenium tests
+    const OPTION_3 = appConst.TEST_FOLDER_WITH_IMAGES_2;//Images for simple page
 
 
     it(`Preconditions: new site should be created`,
         async () => {
             let displayName = contentBuilder.generateRandomName('site');
-            SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES]);
+            SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES]);
             await studioUtils.doAddSite(SITE);
         });
 
@@ -74,4 +74,10 @@ describe('content.selector.options.order.spec:  tests for checking of order of s
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
+    });
 });

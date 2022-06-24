@@ -7,19 +7,20 @@ exports.config = {
     // Specify Test Files
     // ==================
     specs: [
-        __dirname + '/specs/*.spec.js'
+        __dirname + '/specs/publish/*.spec.js'
     ],
     exclude: [
-        __dirname + '/specs/content.unsaved.changes.spec.js',
-        __dirname + '/specs/archive.confirm.content.spec.js'
-    ],
-    maxInstances: 1,
+        // __dirname + '/specs/publish/revert.site.with.components.spec.js',
 
+    ],
+
+    maxInstances: 1,
+//"--headless",
     capabilities: [{
         browserName: 'firefox',
         'moz:firefoxOptions': {
             "args": [
-                "--headless", "--disable-gpu", "--no-sandbox",
+                "--headless","--disable-gpu", "--no-sandbox",
                 "--lang=en",
                 '--disable-extensions',
                 'window-size=1970,1000'
@@ -33,31 +34,32 @@ exports.config = {
     coloredLogs: true,
 
     baseUrl: 'http://localhost:8080/admin/tool',
+    //
     // Default timeout for all waitForXXX commands.
-    waitforTimeout: 3000,
+    waitforTimeout: 2000,
     //
     // Default timeout in milliseconds for request
     // if Selenium Grid doesn't send response
-    connectionRetryTimeout: 6000,
+    connectionRetryTimeout: 9000,
     //
     // Default request retries count
     connectionRetryCount: 3,
-
+    // Make sure you have the wdio adapter package for the specific framework installed
+    // before running any tests.
     services: ['geckodriver'],
 
     framework: 'mocha',
     mochaOpts: {
         timeout: 70000
     },
-    //
-    // Test reporter for stdout.
-    // The only one supported by default is 'dot'
-    // see also: http://webdriver.io/guide/testrunner/reporters.html
+    // Set directory to store all logs into
+    outputDir: "./build/mochawesome-report/",
+
     reporters: ['spec',
         ["html-nice", {
-            outputDir: './build/mochawesome-report/',
-            filename: 'report.html',
-            reportTitle: 'Tests for Wizards, Grid',
+            outputDir: "./build/mochawesome-report/",
+            filename: 'spec-report.html',
+            reportTitle: 'Tests for Publishing',
             linkScreenshots: true,
             //to show the report in a browser when done
             showInBrowser: true,
@@ -81,20 +83,24 @@ exports.config = {
     },
 
     onPrepare: function (config, capabilities) {
-        reportAggregator = new ReportAggregator({
-            outputDir: './build/mochawesome-report/',
-            filename: 'report.html',
-            reportTitle: 'Content Studio, Wizard, Grid Tests Report',
+        let reportAggregator = new ReportAggregator({
+            outputDir: "./build/mochawesome-report/",
+            filename: 'app-report.html',
+            reportTitle: 'Content Studio, Publish Tests Report',
             browserName: capabilities.browserName,
             collapseTests: true
         });
         reportAggregator.clean();
+        //todo
+        global.reportAggregator = reportAggregator;
     },
 
     onComplete: function (exitCode, config, capabilities, results) {
         (async () => {
-            await reportAggregator.createReport();
+            console.log("########################### onComplete: Started");
+            //await reportAggregator.createReport();
+            await global.reportAggregator.createReport();
+            console.log("########################### onComplete: App report created");
         })();
     },
-
 };

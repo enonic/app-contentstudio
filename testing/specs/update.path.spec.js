@@ -3,7 +3,6 @@
  */
 const chai = require('chai');
 const webDriverHelper = require('../libs/WebDriverHelper');
-const appConstant = require('../libs/app_const');
 const ContentBrowsePanel = require('../page_objects/browsepanel/content.browse.panel');
 const studioUtils = require('../libs/studio.utils.js');
 const contentBuilder = require("../libs/content.builder");
@@ -11,7 +10,7 @@ const ContentWizardPanel = require('../page_objects/wizardpanel/content.wizard.p
 const appConst = require('../libs/app_const');
 
 describe('update.path.spec: tests for updating a content path', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
+    this.timeout(appConst.SUITE_TIMEOUT);
     if (typeof browser === "undefined") {
         webDriverHelper.setupBrowser();
     }

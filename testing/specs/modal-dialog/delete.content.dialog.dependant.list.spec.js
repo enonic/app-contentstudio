@@ -12,7 +12,9 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 
 describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content Dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
     let DEPENDANT_ITEMS_11 = 11;
 
     it(`GIVEN a parent folder is selected WHEN 'Delete Content Dialog' has been opened THEN dependant list should be displayed by default`,
@@ -87,7 +89,10 @@ describe('delete.content.dialog.dependant.list.spec:  tests for Delete Content D
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

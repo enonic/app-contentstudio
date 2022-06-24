@@ -4,18 +4,20 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const ProjectWizard = require('../../page_objects/project/project.wizard.panel');
+const appConst = require('../../libs/app_const');
 
 describe('project.wizard.access.roles.spec - tests for giving access to manage project and content', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
 
     let PROJECT_DISPLAY_NAME = studioUtils.generateRandomName("project");
     let TEST_DESCRIPTION = "test description";
-    let PRINCIPALS = [appConstant.systemUsersDisplayName.SUPER_USER];
+    let PRINCIPALS = [appConst.systemUsersDisplayName.SUPER_USER];
 
     it(`Preconditions: new project should be added. SU should be assigned as Contributor`,
         async () => {
@@ -35,7 +37,7 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
             await projectWizard.waitForLoaded();
             //2. Verify that expected role is displayed in Roles step: SU should be with Contributor role by default
             let actualRole = await projectWizard.getSelectedRoleInProjectAccessControlEntry("su");
-            assert.equal(actualRole, appConstant.PROJECT_ROLES.CONTRIBUTOR, "Contributor role should be set by default");
+            assert.equal(actualRole, appConst.PROJECT_ROLES.CONTRIBUTOR, "Contributor role should be set by default");
         });
 
     it(`GIVEN existing project(with project access entry) is opened WHEN Project Access Menu has been expanded THEN expected roles should be present in the menu`,
@@ -48,10 +50,10 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
             await projectWizard.waitForLoaded();
             let result = await projectWizard.getAvailableProjectAccessRoles("su");
             //2. Verify that expected roles are displayed in the menu:
-            assert.equal(result[0], appConstant.PROJECT_ROLES.CONTRIBUTOR, "'Contributor' role should be in the options");
-            assert.equal(result[1], appConstant.PROJECT_ROLES.AUTHOR, "'Author' role should be in the options");
-            assert.equal(result[2], appConstant.PROJECT_ROLES.EDITOR, "'Editor' role should be in the options");
-            assert.equal(result[3], appConstant.PROJECT_ROLES.OWNER, "'Owner' role should be in the options");
+            assert.equal(result[0], appConst.PROJECT_ROLES.CONTRIBUTOR, "'Contributor' role should be in the options");
+            assert.equal(result[1], appConst.PROJECT_ROLES.AUTHOR, "'Author' role should be in the options");
+            assert.equal(result[2], appConst.PROJECT_ROLES.EDITOR, "'Editor' role should be in the options");
+            assert.equal(result[3], appConst.PROJECT_ROLES.OWNER, "'Owner' role should be in the options");
             assert.equal(result.length, 4, "4 roles should be in the options");
         });
 
@@ -63,10 +65,10 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
             await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
             await settingsBrowsePanel.clickOnEditButton();
             await projectWizard.waitForLoaded();
-            await projectWizard.expandProjectAccessMenuAndSelectRole("su", appConstant.PROJECT_ROLES.EDITOR);
+            await projectWizard.expandProjectAccessMenuAndSelectRole("su", appConst.PROJECT_ROLES.EDITOR);
             //2. Verify that expected role is displayed in Roles step: SU should be Contributor by default
             let actualRole = await projectWizard.getSelectedRoleInProjectAccessControlEntry("su",);
-            assert.equal(actualRole, appConstant.PROJECT_ROLES.EDITOR, "'Editor' role should be in the selected options");
+            assert.equal(actualRole, appConst.PROJECT_ROLES.EDITOR, "'Editor' role should be in the selected options");
             //3. Verify that Save button gets enabled:
             await projectWizard.waitForSaveButtonEnabled();
             await projectWizard.waitAndClickOnSave();
@@ -83,7 +85,7 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
 
             //2. Verify that expected role is displayed in Roles step: SU should be Editor in that project
             let actualRole = await projectWizard.getSelectedRoleInProjectAccessControlEntry("su",);
-            assert.equal(actualRole, appConstant.PROJECT_ROLES.EDITOR, "'Editor' role should be in the selected options");
+            assert.equal(actualRole, appConst.PROJECT_ROLES.EDITOR, "'Editor' role should be in the selected options");
             //3. Verify that 'Save' button is disabled:
             await projectWizard.waitForSaveButtonDisabled();
         });
@@ -93,7 +95,10 @@ describe('project.wizard.access.roles.spec - tests for giving access to manage p
         return await studioUtils.openSettingsPanel();
     });
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });

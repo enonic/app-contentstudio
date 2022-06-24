@@ -5,7 +5,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
 const contentBuilder = require("../../libs/content.builder");
@@ -13,11 +12,14 @@ const PageComponentView = require("../../page_objects/wizardpanel/liveform/page.
 const ImageInspectPanel = require('../../page_objects/wizardpanel/liveform/inspection/image.inspection.panel');
 const SiteFormPanel = require('../../page_objects/wizardpanel/site.form.panel');
 const SiteConfiguratorDialog = require('../../page_objects/wizardpanel/site.configurator.dialog');
+const appConst = require('../../libs/app_const');
 
 describe("image.inspect.panel.select.item.spec: Inserts a image component and update the site-configurator",
     function () {
-        this.timeout(appConstant.SUITE_TIMEOUT);
-        webDriverHelper.setupBrowser();
+        this.timeout(appConst.SUITE_TIMEOUT);
+        if (typeof browser === "undefined") {
+            webDriverHelper.setupBrowser();
+        }
 
         let IMAGE_DISPLAY_NAME = 'kotey';
         let SITE;
@@ -26,7 +28,7 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
             it.skip("Preconditions: new site should be created",
             async () => {
                 let displayName = contentBuilder.generateRandomName('site');
-                SITE = contentBuilder.buildSite(displayName, 'description', [appConstant.APP_CONTENT_TYPES], CONTROLLER_NAME);
+                SITE = contentBuilder.buildSite(displayName, 'description', [appConst.APP_CONTENT_TYPES], CONTROLLER_NAME);
                 await studioUtils.doAddSite(SITE);
             });
 
@@ -46,16 +48,16 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
                 await pageComponentView.openMenu("main");
                 await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
                 //3. type the folder's display name with spaces in options filter input in Inspect Panel:
-                await imageInspectPanel.typeTextInOptionsFilter(appConstant.TEST_FOLDER_WITH_IMAGES);
+                await imageInspectPanel.typeTextInOptionsFilter(appConst.TEST_FOLDER_WITH_IMAGES);
                 //4. Switch the image selector to Tree Mode:
                 await imageInspectPanel.clickOnModeTogglerButton();
                 //5. Expand the filtered folder
-                await imageInspectPanel.expandFolderInOptions(appConstant.TEST_FOLDER_WITH_IMAGES_NAME);
+                await imageInspectPanel.expandFolderInOptions(appConst.TEST_FOLDER_WITH_IMAGES_NAME);
                 studioUtils.saveScreenshot("image_selector_display_name_spaces");
                 //6. Get name of images in options:
                 let displayNames = await imageInspectPanel.getTreeModeOptionDisplayNames();
                 //7. Verify that expected image is present in options:
-                assert.isTrue(displayNames.includes(appConstant.TEST_IMAGES.KOTEY), "Expected image should be present in options");
+                assert.isTrue(displayNames.includes(appConst.TEST_IMAGES.KOTEY), "Expected image should be present in options");
             });
 
         //Verifies https://github.com/enonic/app-contentstudio/issues/2954
@@ -74,17 +76,17 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
                 await pageComponentView.openMenu("main");
                 await pageComponentView.selectMenuItemAndCloseDialog(["Insert", "Image"]);
                 //3. type the folder name in options filter input in Inspect Panel:
-                await imageInspectPanel.typeTextInOptionsFilter(appConstant.TEST_FOLDER_2_NAME);
+                await imageInspectPanel.typeTextInOptionsFilter(appConst.TEST_FOLDER_2_NAME);
                 //4. Switch the image selector to Tree Mode:
                 await imageInspectPanel.clickOnModeTogglerButton();
                 //5. Expand two folders in selector's options
-                await imageInspectPanel.expandFolderInOptions(appConstant.TEST_FOLDER_2_NAME);
+                await imageInspectPanel.expandFolderInOptions(appConst.TEST_FOLDER_2_NAME);
                 await imageInspectPanel.expandFolderInOptions("nested-imported-folder");
                 studioUtils.saveScreenshot("image_selector_tree_mode");
                 //6. Get name of images in options:
                 let displayNames = await imageInspectPanel.getTreeModeOptionDisplayNames();
                 //7. Verify that expected image is present in options:
-                assert.isTrue(displayNames.includes(appConstant.TEST_IMAGES.SEVEROMOR), "Expected image should be present in options");
+                assert.isTrue(displayNames.includes(appConst.TEST_IMAGES.SEVEROMOR), "Expected image should be present in options");
             });
 
         //verifies: Inspect Panel is not correctly rendered after inserting an image. #1176
@@ -106,10 +108,10 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
                 //3. Select the image in Inspect Panel:
                 await imageInspectPanel.typeNameAndSelectImage(IMAGE_DISPLAY_NAME);
                 let message = await contentWizard.waitForNotificationMessage();
-                let expectedMessage = appConstant.itemSavedNotificationMessage(SITE.displayName);
+                let expectedMessage = appConst.itemSavedNotificationMessage(SITE.displayName);
                 assert.equal(message, expectedMessage, "expected notification message should appear");
                 //4. Open Site Configurator dialog, type a number , then click on Apply button:
-                await siteFormPanel.openSiteConfiguratorDialog(appConstant.APP_CONTENT_TYPES);
+                await siteFormPanel.openSiteConfiguratorDialog(appConst.APP_CONTENT_TYPES);
                 await siteConfiguratorDialog.typeNumPosts('10');
                 await siteConfiguratorDialog.clickOnApplyButton();
                 await contentWizard.pause(3000);
@@ -124,7 +126,10 @@ describe("image.inspect.panel.select.item.spec: Inserts a image component and up
 
         beforeEach(() => studioUtils.navigateToContentStudioApp());
         afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-        before(() => {
+        before(async () => {
+            if (typeof browser !== "undefined") {
+                await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+            }
             return console.log('specification starting: ' + this.title);
         });
     });

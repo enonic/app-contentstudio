@@ -4,7 +4,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 const webDriverHelper = require('../../libs/WebDriverHelper');
-const appConstant = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
 const IssueListDialog = require('../../page_objects/issue/issue.list.dialog');
 const CreateTaskDialog = require('../../page_objects/issue/create.task.dialog');
@@ -15,11 +14,14 @@ const contentBuilder = require("../../libs/content.builder");
 const ContentItemPreviewPanel = require('../../page_objects/browsepanel/contentItem.preview.panel');
 const ContentPublishDialog = require("../../page_objects/content.publish.dialog");
 const ConfirmValueDialog = require('../../page_objects/confirm.content.delete.dialog');
+const appConst = require('../../libs/app_const');
 
 describe('task.publish.two.items.spec: 2 folders have been added and published', function () {
-    this.timeout(appConstant.SUITE_TIMEOUT);
-    webDriverHelper.setupBrowser();
-    let TASK_TITLE = appConstant.generateRandomName('task');
+    this.timeout(appConst.SUITE_TIMEOUT);
+    if (typeof browser === "undefined") {
+        webDriverHelper.setupBrowser();
+    }
+    let TASK_TITLE = appConst.generateRandomName('task');
     let folder1;
     let folder2;
     it(`Precondition: WHEN two 'Work in Progress' folders has been added THEN folders should be present in the grid`,
@@ -83,8 +85,8 @@ describe('task.publish.two.items.spec: 2 folders have been added and published',
             //3. Click on Publish Now button :
             await contentPublishDialog.clickOnPublishNowButton();
             let message = await taskDetailsDialog.waitForNotificationMessage();
-            assert.equal(message, appConstant.TWO_ITEMS_PUBLISHED, '`2 items are published` message should be displayed');
-            let expectedMessage = appConstant.taskClosedMessage(TASK_TITLE);
+            assert.equal(message, appConst.TWO_ITEMS_PUBLISHED, '`2 items are published` message should be displayed');
+            let expectedMessage = appConst.taskClosedMessage(TASK_TITLE);
             await taskDetailsDialog.waitForExpectedNotificationMessage(expectedMessage);
         });
 
@@ -118,12 +120,15 @@ describe('task.publish.two.items.spec: 2 folders have been added and published',
             await confirmValueDialog.waitForDialogClosed();
             let message = await contentBrowsePanel.waitForNotificationMessage();
             //5. Verify the notification message:
-            assert.equal(message, appConstant.TWO_ITEMS_UNPUBLISHED, "2 items are unpublished - is expected message");
+            assert.equal(message, appConst.TWO_ITEMS_UNPUBLISHED, "2 items are unpublished - is expected message");
         });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndSwitchToHome());
-    before(() => {
-        return console.log('specification is starting: ' + this.title);
+    before(async () => {
+        if (typeof browser !== "undefined") {
+            await studioUtils.getBrowser().setWindowSize(appConst.BROWSER_WIDTH, appConst.BROWSER_HEIGHT);
+        }
+        return console.log('specification starting: ' + this.title);
     });
 });
